@@ -2,7 +2,7 @@
 name = "telegram-stories"
 version = "0.1.0"
 edition = "2024"
-description = "Telegram scheduled channel posts (stories)."
+description = "Telegram stories (Bot API 7.0+): posting / editing / deleting channel & business-account stories."
 license = "UNLICENSED"
 publish = false
 
@@ -22,6 +22,8 @@ chrono = { version = "0.4", default-features = false, features = ["clock", "serd
 tracing = "0.1"
 anyhow = "1"
 utoipa = { version = "5", features = ["axum_extras", "chrono"] }
+regex = "1"
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
 sabnode-common = { path = "../common" }
 sabnode-auth = { path = "../auth" }
 sabnode-db = { path = "../db" }

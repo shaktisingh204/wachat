@@ -34,8 +34,20 @@ import type {
   SetRow as StickerSetRow,
 } from '@/lib/rust-client/telegram-stickers';
 import type {
-  PostRow as StoryPostRow,
+  StoryRow,
+  ListQuery as StoryListQuery,
+  ListResp as StoryListResp,
+  DetailResp as StoryDetailResp,
+  CreateBody as StoryCreateBody,
+  UpdateBody as StoryUpdateBody,
   ScheduleBody as StoryScheduleBody,
+  EditBody as StoryEditBody,
+  BusinessConnectionsResp as StoryBusinessConnectionsResp,
+  RegisterBcBody as StoryRegisterBcBody,
+  StarBalanceQuery as StoryStarBalanceQuery,
+  StarBalanceResp as StoryStarBalanceResp,
+  AnalyticsQuery as StoryAnalyticsQuery,
+  AnalyticsResp as StoryAnalyticsResp,
 } from '@/lib/rust-client/telegram-stories';
 import type {
   ReplyRow as FlowReplyRow,
@@ -71,6 +83,22 @@ import type {
   MenuButton,
   AckResult as BotsAckResult,
 } from '@/lib/rust-client/telegram-bots';
+import type {
+  ListQuery as CommandsListQuery,
+  ListResp as CommandsListResp,
+  CreateBody as CommandsCreateBody,
+  UpdateBody as CommandsUpdateBody,
+  DetailResp as CommandsDetailResp,
+  AckResult as CommandsAckResult,
+  PushBody as CommandsPushBody,
+  PushResp as CommandsPushResp,
+  PullResp as CommandsPullResp,
+  RunsResp as CommandsRunsResp,
+  AnalyticsQuery as CommandsAnalyticsQuery,
+  AnalyticsResp as CommandsAnalyticsResp,
+  ImportBody as CommandsImportBody,
+  ImportResp as CommandsImportResp,
+} from '@/lib/rust-client/telegram-commands';
 import { revalidatePath } from 'next/cache';
 import { invalidateTelegramBotCache } from '@/lib/telegram/bot-cache';
 
@@ -175,34 +203,232 @@ export async function deleteTelegramStickerSetAction(setId: string, botId: strin
 
 // -- Stories -----------------------------------------------------------
 
-export async function listTelegramStoriesAction(botId: string): Promise<StoryPostRow[]> {
+export async function listTelegramStoriesAction(
+  q: StoryListQuery,
+): Promise<StoryListResp> {
+  const empty: StoryListResp = {
+    stories: [],
+    total: 0,
+    hasMore: false,
+    page: q.page ?? 1,
+    pageSize: q.pageSize ?? 20,
+  };
   try {
-    const res = await rustClient.telegramStories.list(botId);
-    return res.posts ?? [];
+    return await rustClient.telegramStories.list(q);
+  } catch (e) {
+    if (e instanceof RustApiError) return { ...empty, error: e.message };
+    return { ...empty, error: String(e) };
+  }
+}
+
+export async function getTelegramStoryAction(
+  storyId: string,
+  projectId: string,
+): Promise<StoryDetailResp> {
+  try {
+    return await rustClient.telegramStories.detail(storyId, projectId);
+  } catch (e) {
+    if (e instanceof RustApiError) return { error: e.message };
+    return { error: String(e) };
+  }
+}
+
+export async function createTelegramStoryAction(body: StoryCreateBody) {
+  try {
+    return await rustClient.telegramStories.create(body);
+  } catch (e) {
+    if (e instanceof RustApiError)
+      return { success: false, error: e.message };
+    return { success: false, error: String(e) };
+  }
+}
+
+export async function updateTelegramStoryAction(
+  storyId: string,
+  body: StoryUpdateBody,
+) {
+  try {
+    return await rustClient.telegramStories.update(storyId, body);
+  } catch (e) {
+    if (e instanceof RustApiError)
+      return { success: false, error: e.message };
+    return { success: false, error: String(e) };
+  }
+}
+
+export async function deleteTelegramStoryAction(
+  storyId: string,
+  projectId: string,
+) {
+  try {
+    return await rustClient.telegramStories.delete(storyId, projectId);
+  } catch (e) {
+    if (e instanceof RustApiError)
+      return { success: false, error: e.message };
+    return { success: false, error: String(e) };
+  }
+}
+
+export async function postTelegramStoryAction(
+  storyId: string,
+  projectId: string,
+) {
+  try {
+    return await rustClient.telegramStories.post(storyId, { projectId });
+  } catch (e) {
+    if (e instanceof RustApiError)
+      return { success: false, error: e.message };
+    return { success: false, error: String(e) };
+  }
+}
+
+export async function scheduleTelegramStoryAction(
+  storyId: string,
+  body: StoryScheduleBody,
+) {
+  try {
+    return await rustClient.telegramStories.schedule(storyId, body);
+  } catch (e) {
+    if (e instanceof RustApiError)
+      return { success: false, error: e.message };
+    return { success: false, error: String(e) };
+  }
+}
+
+export async function cancelTelegramStoryAction(
+  storyId: string,
+  projectId: string,
+) {
+  try {
+    return await rustClient.telegramStories.cancel(storyId, { projectId });
+  } catch (e) {
+    if (e instanceof RustApiError)
+      return { success: false, error: e.message };
+    return { success: false, error: String(e) };
+  }
+}
+
+export async function editTelegramStoryOnTelegramAction(
+  storyId: string,
+  body: StoryEditBody,
+) {
+  try {
+    return await rustClient.telegramStories.editOnTelegram(storyId, body);
+  } catch (e) {
+    if (e instanceof RustApiError)
+      return { success: false, error: e.message };
+    return { success: false, error: String(e) };
+  }
+}
+
+export async function deleteTelegramStoryOnTelegramAction(
+  storyId: string,
+  projectId: string,
+) {
+  try {
+    return await rustClient.telegramStories.deleteOnTelegram(storyId, {
+      projectId,
+    });
+  } catch (e) {
+    if (e instanceof RustApiError)
+      return { success: false, error: e.message };
+    return { success: false, error: String(e) };
+  }
+}
+
+export async function listTelegramStoryBusinessConnectionsAction(
+  projectId: string,
+  botId?: string,
+): Promise<StoryBusinessConnectionsResp> {
+  try {
+    return await rustClient.telegramStories.listBusinessConnections(
+      projectId,
+      botId,
+    );
+  } catch (e) {
+    if (e instanceof RustApiError)
+      return { connections: [], error: e.message };
+    return { connections: [], error: String(e) };
+  }
+}
+
+export async function registerTelegramStoryBusinessConnectionAction(
+  body: StoryRegisterBcBody,
+) {
+  try {
+    return await rustClient.telegramStories.registerBusinessConnection(body);
+  } catch (e) {
+    if (e instanceof RustApiError)
+      return { success: false, error: e.message };
+    return { success: false, error: String(e) };
+  }
+}
+
+export async function deleteTelegramStoryBusinessConnectionAction(
+  id: string,
+  projectId: string,
+) {
+  try {
+    return await rustClient.telegramStories.deleteBusinessConnection(
+      id,
+      projectId,
+    );
+  } catch (e) {
+    if (e instanceof RustApiError)
+      return { success: false, error: e.message };
+    return { success: false, error: String(e) };
+  }
+}
+
+export async function getTelegramStoryStarBalanceAction(
+  q: StoryStarBalanceQuery,
+): Promise<StoryStarBalanceResp> {
+  try {
+    return await rustClient.telegramStories.starBalance(q);
+  } catch (e) {
+    const empty: StoryStarBalanceResp = {
+      success: false,
+      amount: 0,
+      nanostarAmount: 0,
+    };
+    if (e instanceof RustApiError) return { ...empty, error: e.message };
+    return { ...empty, error: String(e) };
+  }
+}
+
+export async function getTelegramStoriesAnalyticsAction(
+  q: StoryAnalyticsQuery,
+): Promise<StoryAnalyticsResp> {
+  const empty: StoryAnalyticsResp = {
+    drafts: 0,
+    scheduled: 0,
+    posted: 0,
+    expired: 0,
+    failed: 0,
+    postedToday: 0,
+    active: 0,
+    byDay: [],
+  };
+  try {
+    return await rustClient.telegramStories.analytics(q);
+  } catch (e) {
+    if (e instanceof RustApiError) return { ...empty, error: e.message };
+    return { ...empty, error: String(e) };
+  }
+}
+
+export async function exportTelegramStoriesCsvAction(
+  projectId: string,
+): Promise<string> {
+  try {
+    return await rustClient.telegramStories.exportCsv(projectId);
   } catch {
-    return [];
+    return '';
   }
 }
 
-export async function scheduleTelegramStoryAction(body: StoryScheduleBody) {
-  try {
-    return await rustClient.telegramStories.schedule(body);
-  } catch (e) {
-    if (e instanceof RustApiError)
-      return { success: false, error: e.message };
-    return { success: false, error: String(e) };
-  }
-}
-
-export async function cancelTelegramStoryAction(postId: string, botId: string) {
-  try {
-    return await rustClient.telegramStories.cancel(postId, botId);
-  } catch (e) {
-    if (e instanceof RustApiError)
-      return { success: false, error: e.message };
-    return { success: false, error: String(e) };
-  }
-}
+// Re-export the row type for the page module.
+export type TelegramStoryRow = StoryRow;
 
 // -- Flows (legacy quick-reply shape) -----------------------------------
 //
@@ -743,4 +969,227 @@ export async function exportTelegramBotsCsvAction(projectId: string): Promise<st
   } catch {
     return '';
   }
+}
+
+// =========================================================================
+//  Telegram Commands registry
+// =========================================================================
+
+export async function listTelegramCommandsAction(
+  q: CommandsListQuery,
+): Promise<CommandsListResp> {
+  const empty: CommandsListResp = {
+    commands: [],
+    total: 0,
+    hasMore: false,
+    page: q.page ?? 1,
+    pageSize: q.pageSize ?? 20,
+  };
+  try {
+    return await rustClient.telegramCommands.list(q);
+  } catch (e) {
+    if (e instanceof RustApiError) return { ...empty, error: e.message };
+    return { ...empty, error: String(e) };
+  }
+}
+
+export async function getTelegramCommandAction(
+  id: string,
+  projectId: string,
+): Promise<CommandsDetailResp> {
+  try {
+    return await rustClient.telegramCommands.detail(id, projectId);
+  } catch (e) {
+    if (e instanceof RustApiError) return { error: e.message };
+    return { error: String(e) };
+  }
+}
+
+export async function createTelegramCommandAction(
+  body: CommandsCreateBody,
+): Promise<CommandsAckResult> {
+  try {
+    return await rustClient.telegramCommands.create(body);
+  } catch (e) {
+    if (e instanceof RustApiError) return { success: false, error: e.message };
+    return { success: false, error: String(e) };
+  }
+}
+
+export async function updateTelegramCommandAction(
+  id: string,
+  body: CommandsUpdateBody,
+): Promise<CommandsAckResult> {
+  try {
+    return await rustClient.telegramCommands.update(id, body);
+  } catch (e) {
+    if (e instanceof RustApiError) return { success: false, error: e.message };
+    return { success: false, error: String(e) };
+  }
+}
+
+export async function deleteTelegramCommandAction(
+  id: string,
+  projectId: string,
+): Promise<CommandsAckResult> {
+  try {
+    return await rustClient.telegramCommands.delete(id, projectId);
+  } catch (e) {
+    if (e instanceof RustApiError) return { success: false, error: e.message };
+    return { success: false, error: String(e) };
+  }
+}
+
+export async function duplicateTelegramCommandAction(
+  id: string,
+  projectId: string,
+): Promise<CommandsAckResult> {
+  try {
+    return await rustClient.telegramCommands.duplicate(id, projectId);
+  } catch (e) {
+    if (e instanceof RustApiError) return { success: false, error: e.message };
+    return { success: false, error: String(e) };
+  }
+}
+
+export async function pushTelegramCommandsAction(
+  body: CommandsPushBody,
+): Promise<CommandsPushResp> {
+  try {
+    return await rustClient.telegramCommands.push(body);
+  } catch (e) {
+    const empty: CommandsPushResp = { success: false, pushed: 0 };
+    if (e instanceof RustApiError) return { ...empty, error: e.message };
+    return { ...empty, error: String(e) };
+  }
+}
+
+export async function pullTelegramCommandsAction(
+  body: CommandsPushBody,
+): Promise<CommandsPullResp> {
+  const empty: CommandsPullResp = { success: false, live: [], local: [] };
+  try {
+    return await rustClient.telegramCommands.pull(body);
+  } catch (e) {
+    if (e instanceof RustApiError) return { ...empty, error: e.message };
+    return { ...empty, error: String(e) };
+  }
+}
+
+export async function getTelegramCommandRunsAction(
+  id: string,
+  projectId: string,
+  opts?: { cursor?: string; limit?: number },
+): Promise<CommandsRunsResp> {
+  try {
+    return await rustClient.telegramCommands.runs(id, projectId, opts);
+  } catch (e) {
+    if (e instanceof RustApiError) return { runs: [], error: e.message };
+    return { runs: [], error: String(e) };
+  }
+}
+
+export async function getTelegramCommandsAnalyticsAction(
+  q: CommandsAnalyticsQuery,
+): Promise<CommandsAnalyticsResp> {
+  const empty: CommandsAnalyticsResp = {
+    totalRuns: 0,
+    totalSuccess: 0,
+    totalFailures: 0,
+    successRate: 0,
+    perCommand: [],
+    byDay: [],
+  };
+  try {
+    return await rustClient.telegramCommands.analytics(q);
+  } catch (e) {
+    if (e instanceof RustApiError) return { ...empty, error: e.message };
+    return { ...empty, error: String(e) };
+  }
+}
+
+export async function importTelegramCommandsAction(
+  body: CommandsImportBody,
+): Promise<CommandsImportResp> {
+  const empty: CommandsImportResp = {
+    success: false,
+    inserted: 0,
+    skipped: 0,
+    errors: [],
+  };
+  try {
+    return await rustClient.telegramCommands.import(body);
+  } catch (e) {
+    if (e instanceof RustApiError) return { ...empty, error: e.message };
+    return { ...empty, error: String(e) };
+  }
+}
+
+export async function exportTelegramCommandsCsvAction(
+  projectId: string,
+): Promise<string> {
+  try {
+    return await rustClient.telegramCommands.exportCsv(projectId);
+  } catch {
+    return '';
+  }
+}
+
+export async function bulkDeleteTelegramCommandsAction(input: {
+  projectId: string;
+  ids: string[];
+}): Promise<{ success: boolean; deleted: number; error?: string }> {
+  let deleted = 0;
+  const errors: string[] = [];
+  for (const id of input.ids) {
+    try {
+      const res = await rustClient.telegramCommands.delete(id, input.projectId);
+      if (res.success) deleted += 1;
+      else if (res.error) errors.push(res.error);
+    } catch (e) {
+      if (e instanceof RustApiError) errors.push(e.message);
+      else errors.push(String(e));
+    }
+  }
+  return {
+    success: errors.length === 0,
+    deleted,
+    error: errors.length ? errors.join('; ') : undefined,
+  };
+}
+
+export async function bulkPushTelegramCommandsAction(input: {
+  projectId: string;
+  botIds: string[];
+  scope?: CommandsPushBody['scope'];
+  languageCode?: string;
+}): Promise<{ success: boolean; pushed: number; failed: number; error?: string }> {
+  let pushed = 0;
+  let failed = 0;
+  const errors: string[] = [];
+  for (const botId of input.botIds) {
+    try {
+      const res = await rustClient.telegramCommands.push({
+        projectId: input.projectId,
+        botId,
+        scope: input.scope,
+        languageCode: input.languageCode,
+      });
+      if (res.success) pushed += res.pushed;
+      else {
+        failed += 1;
+        if (res.error) errors.push(res.error);
+      }
+    } catch (e) {
+      failed += 1;
+      if (e instanceof RustApiError) errors.push(e.message);
+      else errors.push(String(e));
+    }
+  }
+  return {
+    success: failed === 0,
+    pushed,
+    failed,
+    error: errors.length ? errors.join('; ') : undefined,
+  };
 }

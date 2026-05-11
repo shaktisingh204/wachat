@@ -59,6 +59,7 @@ use telegram_stories::TelegramStoriesState;
 use telegram_flows::TelegramFlowsState;
 use telegram_mini_apps::TelegramMiniAppsState;
 use telegram_ads::TelegramAdsState;
+use telegram_api_credentials::TelegramApiCredentialsState;
 use sabflow_engine::SabflowEngineState;
 use sabflow_engine_runtime::SabflowRuntimeState;
 use wachat_projects::WachatProjectsState;
@@ -131,6 +132,7 @@ pub struct AppState {
     pub telegram_flows: TelegramFlowsState,
     pub telegram_mini_apps: TelegramMiniAppsState,
     pub telegram_ads: TelegramAdsState,
+    pub telegram_api_credentials: TelegramApiCredentialsState,
     pub sabflow: SabflowEngineState,
     pub sabflow_runtime: SabflowRuntimeState,
     pub ready: Arc<AtomicBool>,
@@ -196,6 +198,7 @@ impl AppState {
         telegram_flows: TelegramFlowsState,
         telegram_mini_apps: TelegramMiniAppsState,
         telegram_ads: TelegramAdsState,
+        telegram_api_credentials: TelegramApiCredentialsState,
         sabflow: SabflowEngineState,
     ) -> Self {
         Self {
@@ -257,6 +260,7 @@ impl AppState {
             telegram_flows,
             telegram_mini_apps,
             telegram_ads,
+            telegram_api_credentials,
             sabflow,
             sabflow_runtime: SabflowRuntimeState::new(),
             ready: Arc::new(AtomicBool::new(false)),
@@ -611,6 +615,12 @@ impl FromRef<AppState> for TelegramMiniAppsState {
 impl FromRef<AppState> for TelegramAdsState {
     fn from_ref(s: &AppState) -> Self {
         s.telegram_ads.clone()
+    }
+}
+
+impl FromRef<AppState> for TelegramApiCredentialsState {
+    fn from_ref(s: &AppState) -> Self {
+        s.telegram_api_credentials.clone()
     }
 }
 

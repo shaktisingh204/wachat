@@ -111,6 +111,7 @@ telegram-stories = { path = "../telegram-stories" }
 telegram-flows = { path = "../telegram-flows" }
 telegram-mini-apps = { path = "../telegram-mini-apps" }
 telegram-ads = { path = "../telegram-ads" }
+telegram-api-credentials = { path = "../telegram-api-credentials" }
 wachat-rate-limit = { path = "../wachat-rate-limit" }
 wachat-config = { path = "../wachat-config" }
 wachat-analytics = { path = "../wachat-analytics" }

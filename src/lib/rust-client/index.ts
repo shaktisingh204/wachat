@@ -63,6 +63,7 @@ import { telegramStoriesApi } from './telegram-stories';
 import { telegramFlowsApi } from './telegram-flows';
 import { telegramMiniAppsApi } from './telegram-mini-apps';
 import { telegramAdsApi } from './telegram-ads';
+import { telegramApiCredentialsApi } from './telegram-api-credentials';
 
 export const rustClient = {
     users: usersApi,
@@ -117,6 +118,7 @@ export const rustClient = {
     telegramFlows: telegramFlowsApi,
     telegramMiniApps: telegramMiniAppsApi,
     telegramAds: telegramAdsApi,
+    telegramApiCredentials: telegramApiCredentialsApi,
 };
 
 export type RustClient = typeof rustClient;

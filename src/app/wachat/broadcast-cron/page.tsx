@@ -1,36 +1,38 @@
 'use client';
 
 /**
- * Broadcast Cron — queue multiple broadcast configs across different
- * phone numbers, then fire them all at once with "Start Cron".
+ * Broadcast Cron — same composer as the regular Broadcast page (one
+ * template + variables + media inputs at the top), then a queue of
+ * phone+audience rows. "Start Cron" fires the same configured broadcast
+ * once per queued row (different phone number / different audience).
  *
- * Each queue entry uses a tags-based audience so no file upload is
- * needed per slot. Entries live in component state (ephemeral per
- * session). "Start Cron" fires all PENDING entries in parallel.
- *
- * Access is gated by the `wachat_broadcast_cron` permission module —
- * admins grant `create` to users who should be allowed to run cron
- * broadcasts via Admin → Users → Manage Permissions.
+ * Each row calls `handleStartBroadcast` with FormData cloned from the
+ * top-level composer form, overriding `phoneNumberId`, `audienceType`,
+ * `tagIds` / `csvFile` per row. That way template-variable + header-media
+ * parsing on the server is identical to the regular broadcast path —
+ * no duplicate component-builder logic on the client.
  */
 
 import * as React from 'react';
-import { useState, useTransition, useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
 import {
   AlertCircle,
   Check,
   ChevronsUpDown,
+  FileText,
   Loader2,
   Play,
   Tag as TagIcon,
   Timer,
   Trash2,
+  Upload,
   X,
 } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
 import { useZoruToast } from '@/components/zoruui';
 import { getTemplates } from '@/app/actions/template.actions';
-import { startCronBroadcast } from '@/app/actions/broadcast.actions';
+import { handleStartBroadcast } from '@/app/actions/broadcast.actions';
 import type { Template, Tag } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
 
@@ -55,6 +57,8 @@ import {
   ZoruPopover,
   ZoruPopoverContent,
   ZoruPopoverTrigger,
+  ZoruRadioGroup,
+  ZoruRadioGroupItem,
   ZoruSelect,
   ZoruSelectContent,
   ZoruSelectItem,
@@ -62,19 +66,23 @@ import {
   ZoruSelectValue,
   cn,
 } from '@/components/zoruui';
+import { SabFileToFileButton } from '@/components/sabfiles';
+
+import { TemplateInputRenderer } from '../_components/template-input-renderer';
 
 /* ── Types ─────────────────────────────────────────────────────────── */
 
 type EntryStatus = 'pending' | 'starting' | 'started' | 'failed';
+type AudienceKind = 'file' | 'tags';
 
 interface CronEntry {
   id: string;
   phoneNumberId: string;
   phoneLabel: string;
-  templateId: string;
-  templateName: string;
+  audienceType: AudienceKind;
   tagIds: string[];
   tagNames: string[];
+  csvFile: File | null;
   status: EntryStatus;
   error?: string;
 }
@@ -99,22 +107,39 @@ function statusLabel(s: EntryStatus) {
   return 'Failed';
 }
 
+// Generic variable hints used when the audience is tags (no CSV headers
+// to derive from). Mirrors what the regular broadcast form shows.
+const TAG_VARIABLE_HINTS = [
+  'name',
+  'phone',
+  'email',
+  'custom_field_1',
+  'custom_field_2',
+  'custom_field_3',
+];
+
 /* ── Page ───────────────────────────────────────────────────────────── */
 
 export default function BroadcastCronPage() {
   const { activeProject, activeProjectId } = useProject();
   const { toast } = useZoruToast();
+  const composerRef = useRef<HTMLFormElement>(null);
 
   const [templates, setTemplates] = useState<WithId<Template>[]>([]);
   const [isLoadingTemplates, startLoadTemplates] = useTransition();
+
+  const [selectedTemplate, setSelectedTemplate] =
+    useState<WithId<Template> | null>(null);
+  const [createContacts, setCreateContacts] = useState(false);
 
   const [queue, setQueue] = useState<CronEntry[]>([]);
   const [isStarting, setIsStarting] = useState(false);
 
   // Add-form state
   const [phoneNumberId, setPhoneNumberId] = useState('');
-  const [templateId, setTemplateId] = useState('');
+  const [audienceType, setAudienceType] = useState<AudienceKind>('tags');
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
+  const [csvFile, setCsvFile] = useState<File | null>(null);
   const [tagPopoverOpen, setTagPopoverOpen] = useState(false);
   const [addError, setAddError] = useState('');
 
@@ -122,48 +147,52 @@ export default function BroadcastCronPage() {
     (t) => t.status?.toUpperCase() === 'APPROVED',
   );
 
-  const fetchTemplates = useCallback(
-    (pid: string) => {
-      startLoadTemplates(async () => {
-        const data = await getTemplates(pid);
-        setTemplates(data || []);
-      });
-    },
-    [],
-  );
+  const fetchTemplates = useCallback((pid: string) => {
+    startLoadTemplates(async () => {
+      const data = await getTemplates(pid);
+      setTemplates(data || []);
+    });
+  }, []);
 
   useEffect(() => {
     if (activeProjectId) fetchTemplates(activeProjectId);
   }, [activeProjectId, fetchTemplates]);
 
-  // Reset form when project changes
+  // Reset everything when the project changes.
   useEffect(() => {
+    setSelectedTemplate(null);
+    setQueue([]);
     setPhoneNumberId('');
-    setTemplateId('');
+    setAudienceType('tags');
     setSelectedTagIds([]);
+    setCsvFile(null);
+    setCreateContacts(false);
     setAddError('');
   }, [activeProjectId]);
 
   /* Add an entry to the queue */
   const handleAdd = () => {
     setAddError('');
+    if (!selectedTemplate) {
+      setAddError('Pick a template above before adding entries.');
+      return;
+    }
     if (!phoneNumberId) {
       setAddError('Choose a phone number.');
       return;
     }
-    if (!templateId) {
-      setAddError('Choose a template.');
+    if (audienceType === 'tags' && selectedTagIds.length === 0) {
+      setAddError('Select at least one audience tag.');
       return;
     }
-    if (selectedTagIds.length === 0) {
-      setAddError('Select at least one audience tag.');
+    if (audienceType === 'file' && !csvFile) {
+      setAddError('Pick a contact file (CSV or XLSX).');
       return;
     }
 
     const phone = (activeProject?.phoneNumbers || []).find(
       (p) => p.id === phoneNumberId,
     );
-    const tmpl = templates.find((t) => t._id.toString() === templateId);
     const tags = (activeProject?.tags || []) as Tag[];
 
     setQueue((prev) => [
@@ -174,53 +203,74 @@ export default function BroadcastCronPage() {
         phoneLabel: phone
           ? `${phone.display_phone_number} · ${phone.verified_name}`
           : phoneNumberId,
-        templateId,
-        templateName: tmpl?.name ?? templateId,
-        tagIds: selectedTagIds,
-        tagNames: selectedTagIds.map(
-          (id) => tags.find((t) => t._id === id)?.name ?? id,
-        ),
+        audienceType,
+        tagIds: audienceType === 'tags' ? selectedTagIds : [],
+        tagNames:
+          audienceType === 'tags'
+            ? selectedTagIds.map(
+                (id) => tags.find((t) => t._id === id)?.name ?? id,
+              )
+            : [],
+        csvFile: audienceType === 'file' ? csvFile : null,
         status: 'pending',
       },
     ]);
 
     setPhoneNumberId('');
-    setTemplateId('');
     setSelectedTagIds([]);
+    setCsvFile(null);
   };
 
-  /* Remove a single entry */
   const handleRemove = (id: string) => {
     setQueue((prev) => prev.filter((e) => e.id !== id));
   };
 
-  /* Fire all PENDING entries in parallel */
+  /* Fire every PENDING entry in parallel via handleStartBroadcast. */
   const handleStartCron = async () => {
-    const pending = queue.filter((e) => e.status === 'pending');
-    if (pending.length === 0) {
-      toast({ title: 'Nothing to start', description: 'Add at least one broadcast to the queue first.' });
+    if (!selectedTemplate) {
+      toast({
+        title: 'Pick a template first',
+        description: 'Choose the template to send before starting the cron.',
+      });
       return;
     }
-    if (!activeProjectId) return;
+    const pending = queue.filter((e) => e.status === 'pending');
+    if (pending.length === 0) {
+      toast({
+        title: 'Nothing to start',
+        description: 'Add at least one entry to the queue first.',
+      });
+      return;
+    }
+    if (!activeProjectId || !composerRef.current) return;
 
     setIsStarting(true);
-
-    // Mark all pending as "starting"
     setQueue((prev) =>
       prev.map((e) =>
         e.status === 'pending' ? { ...e, status: 'starting' as EntryStatus } : e,
       ),
     );
 
+    const baseFormEl = composerRef.current;
     const results = await Promise.allSettled(
-      pending.map((entry) =>
-        startCronBroadcast({
-          projectId: activeProjectId,
-          phoneNumberId: entry.phoneNumberId,
-          templateId: entry.templateId,
-          tagIds: entry.tagIds,
-        }).then((res) => ({ entryId: entry.id, res })),
-      ),
+      pending.map(async (entry) => {
+        // Clone the composer FormData so per-row overrides don't leak.
+        const formData = new FormData(baseFormEl);
+        formData.set('phoneNumberId', entry.phoneNumberId);
+        formData.set('audienceType', entry.audienceType);
+        formData.delete('tagIds');
+        if (entry.audienceType === 'tags') {
+          entry.tagIds.forEach((t) => formData.append('tagIds', t));
+          formData.delete('csvFile');
+        } else if (entry.csvFile) {
+          formData.set('csvFile', entry.csvFile, entry.csvFile.name);
+        }
+        const res = await handleStartBroadcast(
+          { message: undefined, error: undefined },
+          formData,
+        );
+        return { entryId: entry.id, res };
+      }),
     );
 
     let successCount = 0;
@@ -228,9 +278,9 @@ export default function BroadcastCronPage() {
 
     setQueue((prev) => {
       const next = [...prev];
-      results.forEach((result) => {
-        if (result.status === 'fulfilled') {
-          const { entryId, res } = result.value;
+      results.forEach((r) => {
+        if (r.status === 'fulfilled') {
+          const { entryId, res } = r.value;
           const idx = next.findIndex((e) => e.id === entryId);
           if (idx !== -1) {
             if (res.error) {
@@ -264,7 +314,8 @@ export default function BroadcastCronPage() {
     } else {
       toast({
         title: 'All failed',
-        description: 'None of the broadcasts could be queued. Check the errors below.',
+        description:
+          'None of the broadcasts could be queued. Check the errors below.',
         variant: 'destructive',
       });
     }
@@ -277,6 +328,14 @@ export default function BroadcastCronPage() {
 
   const pendingCount = queue.filter((e) => e.status === 'pending').length;
   const tags = (activeProject?.tags || []) as Tag[];
+
+  const templateLocked = queue.length > 0;
+
+  const handleTemplateChange = (templateId: string) => {
+    if (templateLocked) return;
+    const t = templates.find((tt) => tt._id.toString() === templateId);
+    setSelectedTemplate(t || null);
+  };
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
@@ -304,7 +363,8 @@ export default function BroadcastCronPage() {
             Broadcast Cron
           </h1>
           <p className="mt-1.5 text-[13px] text-zoru-ink-muted">
-            Queue multiple broadcasts across different numbers, then fire them all at once.
+            Pick one template, fill its variables once, then queue any number of
+            phone + audience pairs and fire them all together.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -316,7 +376,7 @@ export default function BroadcastCronPage() {
           <ZoruButton
             size="sm"
             onClick={handleStartCron}
-            disabled={isStarting || pendingCount === 0}
+            disabled={isStarting || pendingCount === 0 || !selectedTemplate}
           >
             {isStarting ? (
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -330,7 +390,111 @@ export default function BroadcastCronPage() {
         </div>
       </div>
 
-      {/* Queue */}
+      {/* ── Composer form (template + vars + create-contacts) ────── */}
+      <form ref={composerRef} className="flex flex-col gap-6">
+        {/* Hidden plumbing for handleStartBroadcast */}
+        <input
+          type="hidden"
+          name="projectId"
+          value={activeProjectId ?? ''}
+        />
+        <input type="hidden" name="broadcastType" value="template" />
+        <input
+          type="hidden"
+          name="createContacts"
+          value={createContacts ? 'true' : 'false'}
+        />
+
+        <section className="flex flex-col gap-4">
+          <div className="flex items-end justify-between gap-4">
+            <div>
+              <h2 className="text-[18px] tracking-tight text-zoru-ink leading-none">
+                Template
+              </h2>
+              <p className="mt-1 text-[12px] text-zoru-ink-muted">
+                One template per cron run. Add entries to the queue below to
+                lock it in.
+              </p>
+            </div>
+            {templateLocked && (
+              <span className="text-[11px] text-zoru-ink-muted">
+                Clear the queue to switch template.
+              </span>
+            )}
+          </div>
+          <ZoruSelect
+            name="templateId"
+            value={selectedTemplate?._id.toString() || ''}
+            onValueChange={handleTemplateChange}
+            disabled={isLoadingTemplates || templateLocked}
+          >
+            <ZoruSelectTrigger>
+              <ZoruSelectValue
+                placeholder={
+                  isLoadingTemplates
+                    ? 'Loading templates…'
+                    : 'Choose an approved template…'
+                }
+              />
+            </ZoruSelectTrigger>
+            <ZoruSelectContent>
+              {approvedTemplates.length === 0 ? (
+                <div className="px-2 py-4 text-center text-[12px] text-zoru-ink-muted">
+                  No approved templates. Sync with Meta or create one.
+                </div>
+              ) : (
+                approvedTemplates.map((t) => (
+                  <ZoruSelectItem key={t._id.toString()} value={t._id.toString()}>
+                    {t.name}
+                    <span className="ml-2 text-[11px] capitalize text-zoru-ink-muted">
+                      {t.status
+                        ? t.status.replace(/_/g, ' ').toLowerCase()
+                        : 'n/a'}
+                    </span>
+                  </ZoruSelectItem>
+                ))
+              )}
+            </ZoruSelectContent>
+          </ZoruSelect>
+        </section>
+
+        {/* Template variables — same renderer as the broadcast composer */}
+        {selectedTemplate && (
+          <section className="flex flex-col gap-3">
+            <h2 className="text-[18px] tracking-tight text-zoru-ink leading-none">
+              Template variables
+            </h2>
+            <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-5">
+              <TemplateInputRenderer
+                template={selectedTemplate}
+                variableOptions={TAG_VARIABLE_HINTS}
+              />
+            </div>
+          </section>
+        )}
+
+        {/* Create contacts toggle */}
+        <div className="flex items-center gap-3 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface px-5 py-3">
+          <label className="flex items-center gap-2.5 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={createContacts}
+              onChange={(e) => setCreateContacts(e.target.checked)}
+              className="h-4 w-4 rounded border-zoru-line text-zoru-accent focus:ring-zoru-accent"
+            />
+            <span className="text-[12px] font-medium text-zoru-ink">
+              Create contacts in CRM
+            </span>
+          </label>
+          <span className="text-[10.5px] text-zoru-ink-muted">
+            {createContacts
+              ? 'Recipients not already in your CRM will be added.'
+              : 'Off — only existing contacts are updated.'}
+          </span>
+        </div>
+      </form>
+
+      {/* ── Queue ────────────────────────────────────────────────── */}
       <section>
         <h2 className="text-[18px] tracking-tight text-zoru-ink leading-none mb-4">
           Broadcast Queue
@@ -339,7 +503,7 @@ export default function BroadcastCronPage() {
           <ZoruEmptyState
             icon={<Timer />}
             title="Queue is empty"
-            description="Add broadcasts using the form below, then hit Start Cron to fire them all."
+            description="Add phone + audience pairs below, then hit Start Cron to fire them all."
           />
         ) : (
           <ZoruCard className="p-0 overflow-x-auto">
@@ -347,8 +511,7 @@ export default function BroadcastCronPage() {
               <thead>
                 <tr className="border-b border-zoru-line text-[11px] uppercase tracking-wide text-zoru-ink-muted">
                   <th className="px-5 py-3">Phone Number</th>
-                  <th className="px-5 py-3">Template</th>
-                  <th className="px-5 py-3">Audience Tags</th>
+                  <th className="px-5 py-3">Audience</th>
                   <th className="px-5 py-3">Status</th>
                   <th className="px-5 py-3 text-right">Action</th>
                 </tr>
@@ -362,21 +525,25 @@ export default function BroadcastCronPage() {
                     <td className="px-5 py-3 text-[13px] text-zoru-ink">
                       {entry.phoneLabel}
                     </td>
-                    <td className="px-5 py-3 text-[13px] text-zoru-ink-muted">
-                      {entry.templateName}
-                    </td>
                     <td className="px-5 py-3">
-                      <div className="flex flex-wrap gap-1">
-                        {entry.tagNames.map((name) => (
-                          <span
-                            key={name}
-                            className="inline-flex items-center gap-1 rounded-full bg-zoru-surface-2 px-2 py-0.5 text-[11px] text-zoru-ink"
-                          >
-                            <TagIcon className="h-2.5 w-2.5" />
-                            {name}
-                          </span>
-                        ))}
-                      </div>
+                      {entry.audienceType === 'tags' ? (
+                        <div className="flex flex-wrap gap-1">
+                          {entry.tagNames.map((name) => (
+                            <span
+                              key={name}
+                              className="inline-flex items-center gap-1 rounded-full bg-zoru-surface-2 px-2 py-0.5 text-[11px] text-zoru-ink"
+                            >
+                              <TagIcon className="h-2.5 w-2.5" />
+                              {name}
+                            </span>
+                          ))}
+                        </div>
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5 text-[12px] text-zoru-ink-muted">
+                          <FileText className="h-3 w-3" />
+                          {entry.csvFile?.name ?? 'file'}
+                        </span>
+                      )}
                     </td>
                     <td className="px-5 py-3">
                       <div className="flex flex-col gap-0.5">
@@ -387,7 +554,7 @@ export default function BroadcastCronPage() {
                           {statusLabel(entry.status)}
                         </ZoruBadge>
                         {entry.error && (
-                          <span className="text-[10.5px] text-zoru-danger leading-tight max-w-[200px]">
+                          <span className="text-[10.5px] text-zoru-danger leading-tight max-w-[260px]">
                             {entry.error}
                           </span>
                         )}
@@ -414,13 +581,13 @@ export default function BroadcastCronPage() {
         )}
       </section>
 
-      {/* Add Broadcast Form */}
+      {/* ── Add to Queue ─────────────────────────────────────────── */}
       <section>
         <h2 className="text-[18px] tracking-tight text-zoru-ink leading-none mb-4">
           Add to Queue
         </h2>
         <ZoruCard className="p-6">
-          <div className="grid gap-5 sm:grid-cols-3">
+          <div className="grid gap-5 sm:grid-cols-2">
             {/* Phone number */}
             <div className="flex flex-col gap-1.5">
               <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
@@ -446,141 +613,188 @@ export default function BroadcastCronPage() {
               </ZoruSelect>
             </div>
 
-            {/* Template */}
+            {/* Audience type */}
             <div className="flex flex-col gap-1.5">
               <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
-                Template <span className="text-zoru-danger">*</span>
+                Audience <span className="text-zoru-danger">*</span>
               </ZoruLabel>
-              <ZoruSelect
-                value={templateId}
-                onValueChange={setTemplateId}
-                disabled={isLoadingTemplates}
+              <ZoruRadioGroup
+                value={audienceType}
+                onValueChange={(v) => setAudienceType(v as AudienceKind)}
+                className="flex gap-2"
               >
-                <ZoruSelectTrigger>
-                  <ZoruSelectValue
-                    placeholder={
-                      isLoadingTemplates ? 'Loading…' : 'Choose a template…'
-                    }
-                  />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  {approvedTemplates.length === 0 ? (
-                    <div className="px-2 py-4 text-center text-[12px] text-zoru-ink-muted">
-                      No approved templates.
-                    </div>
-                  ) : (
-                    approvedTemplates.map((t) => (
-                      <ZoruSelectItem key={t._id.toString()} value={t._id.toString()}>
-                        {t.name}
-                      </ZoruSelectItem>
-                    ))
-                  )}
-                </ZoruSelectContent>
-              </ZoruSelect>
-            </div>
-
-            {/* Tags */}
-            <div className="flex flex-col gap-1.5">
-              <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
-                Audience Tags <span className="text-zoru-danger">*</span>
-              </ZoruLabel>
-              <ZoruPopover open={tagPopoverOpen} onOpenChange={setTagPopoverOpen}>
-                <ZoruPopoverTrigger asChild>
-                  <button
-                    type="button"
-                    role="combobox"
-                    aria-expanded={tagPopoverOpen}
-                    className={cn(
-                      'inline-flex h-10 w-full items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-3 text-[13px] transition-colors hover:bg-zoru-surface',
-                      selectedTagIds.length === 0 && 'text-zoru-ink-muted',
-                    )}
-                  >
-                    <span className="inline-flex items-center gap-1.5 truncate">
-                      <TagIcon className="h-3.5 w-3.5" />
-                      {selectedTagIds.length > 0
-                        ? `${selectedTagIds.length} tag${selectedTagIds.length === 1 ? '' : 's'} selected`
-                        : 'Select tags…'}
-                    </span>
-                    <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
-                  </button>
-                </ZoruPopoverTrigger>
-                <ZoruPopoverContent
-                  className="w-[--radix-popover-trigger-width] p-0"
-                  align="start"
-                >
-                  <ZoruCommand>
-                    <ZoruCommandInput placeholder="Search tags…" />
-                    <ZoruCommandList>
-                      <ZoruCommandEmpty>No tags found.</ZoruCommandEmpty>
-                      <ZoruCommandGroup>
-                        {tags.map((tag) => {
-                          const isSelected = selectedTagIds.includes(tag._id);
-                          return (
-                            <ZoruCommandItem
-                              key={tag._id}
-                              value={tag.name}
-                              onSelect={() => {
-                                const next = isSelected
-                                  ? selectedTagIds.filter((id) => id !== tag._id)
-                                  : [...selectedTagIds, tag._id];
-                                setSelectedTagIds(next);
-                              }}
-                            >
-                              <span
-                                className={cn(
-                                  'mr-2 flex h-4 w-4 items-center justify-center rounded-[3px] border',
-                                  isSelected
-                                    ? 'border-zoru-ink bg-zoru-ink text-zoru-on-primary'
-                                    : 'border-zoru-line',
-                                )}
-                              >
-                                {isSelected ? <Check className="h-3 w-3" /> : null}
-                              </span>
-                              <span
-                                className="mr-2 h-2 w-2 shrink-0 rounded-full"
-                                style={{ backgroundColor: tag.color }}
-                              />
-                              <span>{tag.name}</span>
-                            </ZoruCommandItem>
-                          );
-                        })}
-                      </ZoruCommandGroup>
-                    </ZoruCommandList>
-                  </ZoruCommand>
-                </ZoruPopoverContent>
-              </ZoruPopover>
+                <AudienceOption
+                  value="tags"
+                  id="cron-aud-tags"
+                  label="From tags"
+                  description="Existing segments"
+                  active={audienceType === 'tags'}
+                />
+                <AudienceOption
+                  value="file"
+                  id="cron-aud-file"
+                  label="Upload file"
+                  description="CSV or XLSX"
+                  active={audienceType === 'file'}
+                />
+              </ZoruRadioGroup>
             </div>
           </div>
 
-          {/* Selected tag pills */}
-          {selectedTagIds.length > 0 && (
-            <div className="mt-3 flex flex-wrap gap-1.5">
-              {selectedTagIds.map((id) => {
-                const tag = tags.find((t) => t._id === id);
-                return (
-                  <span
-                    key={id}
-                    className="inline-flex items-center gap-1 rounded-full border border-zoru-line bg-zoru-surface px-2.5 py-0.5 text-[12px] text-zoru-ink"
-                  >
-                    <span
-                      className="h-2 w-2 rounded-full"
-                      style={{ backgroundColor: tag?.color }}
-                    />
-                    {tag?.name ?? id}
+          {/* Audience inputs */}
+          <div className="mt-5">
+            {audienceType === 'tags' ? (
+              <div className="flex flex-col gap-1.5">
+                <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
+                  Audience Tags <span className="text-zoru-danger">*</span>
+                </ZoruLabel>
+                <ZoruPopover
+                  open={tagPopoverOpen}
+                  onOpenChange={setTagPopoverOpen}
+                >
+                  <ZoruPopoverTrigger asChild>
                     <button
                       type="button"
-                      onClick={() =>
-                        setSelectedTagIds((prev) => prev.filter((x) => x !== id))
-                      }
-                      className="ml-0.5 text-zoru-ink-muted hover:text-zoru-danger"
+                      role="combobox"
+                      aria-expanded={tagPopoverOpen}
+                      className={cn(
+                        'inline-flex h-10 w-full items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-3 text-[13px] transition-colors hover:bg-zoru-surface',
+                        selectedTagIds.length === 0 && 'text-zoru-ink-muted',
+                      )}
                     >
-                      <X className="h-3 w-3" />
+                      <span className="inline-flex items-center gap-1.5 truncate">
+                        <TagIcon className="h-3.5 w-3.5" />
+                        {selectedTagIds.length > 0
+                          ? `${selectedTagIds.length} tag${selectedTagIds.length === 1 ? '' : 's'} selected`
+                          : 'Select tags…'}
+                      </span>
+                      <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
                     </button>
-                  </span>
-                );
-              })}
-            </div>
-          )}
+                  </ZoruPopoverTrigger>
+                  <ZoruPopoverContent
+                    className="w-[--radix-popover-trigger-width] p-0"
+                    align="start"
+                  >
+                    <ZoruCommand>
+                      <ZoruCommandInput placeholder="Search tags…" />
+                      <ZoruCommandList>
+                        <ZoruCommandEmpty>No tags found.</ZoruCommandEmpty>
+                        <ZoruCommandGroup>
+                          {tags.map((tag) => {
+                            const isSelected = selectedTagIds.includes(tag._id);
+                            return (
+                              <ZoruCommandItem
+                                key={tag._id}
+                                value={tag.name}
+                                onSelect={() => {
+                                  const next = isSelected
+                                    ? selectedTagIds.filter(
+                                        (id) => id !== tag._id,
+                                      )
+                                    : [...selectedTagIds, tag._id];
+                                  setSelectedTagIds(next);
+                                }}
+                              >
+                                <span
+                                  className={cn(
+                                    'mr-2 flex h-4 w-4 items-center justify-center rounded-[3px] border',
+                                    isSelected
+                                      ? 'border-zoru-ink bg-zoru-ink text-zoru-on-primary'
+                                      : 'border-zoru-line',
+                                  )}
+                                >
+                                  {isSelected ? (
+                                    <Check className="h-3 w-3" />
+                                  ) : null}
+                                </span>
+                                <span
+                                  className="mr-2 h-2 w-2 shrink-0 rounded-full"
+                                  style={{ backgroundColor: tag.color }}
+                                />
+                                <span>{tag.name}</span>
+                              </ZoruCommandItem>
+                            );
+                          })}
+                        </ZoruCommandGroup>
+                      </ZoruCommandList>
+                    </ZoruCommand>
+                  </ZoruPopoverContent>
+                </ZoruPopover>
+                {selectedTagIds.length > 0 && (
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {selectedTagIds.map((id) => {
+                      const tag = tags.find((t) => t._id === id);
+                      return (
+                        <span
+                          key={id}
+                          className="inline-flex items-center gap-1 rounded-full border border-zoru-line bg-zoru-surface px-2.5 py-0.5 text-[12px] text-zoru-ink"
+                        >
+                          <span
+                            className="h-2 w-2 rounded-full"
+                            style={{ backgroundColor: tag?.color }}
+                          />
+                          {tag?.name ?? id}
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setSelectedTagIds((prev) =>
+                                prev.filter((x) => x !== id),
+                              )
+                            }
+                            className="ml-0.5 text-zoru-ink-muted hover:text-zoru-danger"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </span>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="flex flex-col gap-1.5">
+                <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
+                  Contact file <span className="text-zoru-danger">*</span>
+                </ZoruLabel>
+                <div
+                  className={cn(
+                    'flex items-center justify-between gap-3 rounded-[var(--zoru-radius)] border border-dashed px-4 py-3',
+                    csvFile
+                      ? 'border-zoru-accent bg-zoru-surface'
+                      : 'border-zoru-line bg-zoru-bg',
+                  )}
+                >
+                  <div className="flex items-center gap-2 min-w-0">
+                    {csvFile ? (
+                      <FileText className="h-4 w-4 text-zoru-accent" />
+                    ) : (
+                      <Upload className="h-4 w-4 text-zoru-ink-muted" />
+                    )}
+                    <span className="truncate text-[13px] text-zoru-ink">
+                      {csvFile?.name ?? 'Pick a CSV or XLSX file from SabFiles'}
+                    </span>
+                  </div>
+                  <SabFileToFileButton
+                    accept="document"
+                    onPickFile={(file) => setCsvFile(file)}
+                    onError={(err) =>
+                      toast({
+                        title: 'Pick failed',
+                        description: err.message,
+                        variant: 'destructive',
+                      })
+                    }
+                  >
+                    {csvFile ? 'Replace' : 'Pick from SabFiles'}
+                  </SabFileToFileButton>
+                </div>
+                <p className="text-[11px] text-zoru-ink-muted">
+                  Required columns: <code>phone</code>, plus a column per
+                  template variable (e.g. <code>variable1</code>).
+                </p>
+              </div>
+            )}
+          </div>
 
           {/* Validation error */}
           {addError && (
@@ -592,10 +806,13 @@ export default function BroadcastCronPage() {
 
           <div className="mt-5 flex items-center justify-between border-t border-zoru-line pt-4">
             <p className="text-[12px] text-zoru-ink-muted">
-              Each entry uses the selected number and fires against all contacts matching the
-              chosen tags.
+              Each entry sends the same template (with the variables and media
+              you set above) from the chosen number to the chosen audience.
             </p>
-            <ZoruButton onClick={handleAdd} disabled={!activeProjectId}>
+            <ZoruButton
+              onClick={handleAdd}
+              disabled={!activeProjectId || !selectedTemplate}
+            >
               Add to Queue
             </ZoruButton>
           </div>
@@ -604,5 +821,43 @@ export default function BroadcastCronPage() {
 
       <div className="h-6" />
     </div>
+  );
+}
+
+/* ── Local UI helpers ──────────────────────────────────────────────── */
+
+function AudienceOption({
+  value,
+  id,
+  label,
+  description,
+  active,
+}: {
+  value: string;
+  id: string;
+  label: string;
+  description: string;
+  active: boolean;
+}) {
+  return (
+    <label
+      htmlFor={id}
+      className={cn(
+        'flex flex-1 cursor-pointer items-start gap-2.5 rounded-[var(--zoru-radius)] border px-3 py-2.5 transition-colors',
+        active
+          ? 'border-zoru-accent bg-zoru-surface'
+          : 'border-zoru-line bg-zoru-bg hover:bg-zoru-surface',
+      )}
+    >
+      <ZoruRadioGroupItem value={value} id={id} className="mt-0.5" />
+      <div className="flex flex-col">
+        <span className="text-[13px] font-medium leading-tight text-zoru-ink">
+          {label}
+        </span>
+        <span className="mt-0.5 text-[11px] leading-tight text-zoru-ink-muted">
+          {description}
+        </span>
+      </div>
+    </label>
   );
 }

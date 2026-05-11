@@ -124,13 +124,17 @@ export function NodeSettings({ nodeType, values, onChange }: Props) {
     setError(null);
 
     // Generate name candidates so blocks created with snake_case types
-    // (e.g. "google_sheets") still resolve to camelCase Rust descriptors
-    // (e.g. "googleSheets"). First successful match wins.
+    // (e.g. "google_sheets") or "forge_*"-prefixed types still resolve to
+    // camelCase Rust descriptors (e.g. "googleSheets", "github").
+    // First successful match wins.
+    const stripped = nodeType.replace(/^forge_/, '');
     const candidates = uniq([
       nodeType,
       snakeToCamel(nodeType),
       camelToSnake(nodeType),
       stripUnderscore(nodeType),
+      stripped,
+      snakeToCamel(stripped),
     ]);
 
     (async () => {
