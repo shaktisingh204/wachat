@@ -41,6 +41,32 @@ function walk(value: unknown, seen: WeakSet<object>): unknown {
   // Date → ISO string.
   if (value instanceof Date) return value.toISOString();
 
+  // DOM Element / Node — happens when an event handler stores `event.target`
+  // or someone passes a SyntheticEvent through `save(event)`. The element
+  // carries `__reactFiber$...` which descends into a deep tree and explodes
+  // BSON's nested-depth limit.
+  if (typeof Node !== 'undefined' && value instanceof Node) return undefined;
+  // SyntheticEvent / native Event — same family, distinct prototype chain.
+  if (typeof Event !== 'undefined' && value instanceof Event) return undefined;
+  // React Fiber nodes (own DOM elements via `__reactFiber$xxx` expandos).
+  // Fibers have a distinctive shape: `tag` + `stateNode` + `return`. We catch
+  // them explicitly so a stray `event.target` that survived above checks (e.g.
+  // detached element from a different realm) still gets stripped.
+  const fiberLike = value as {
+    stateNode?: unknown;
+    return?: unknown;
+    tag?: unknown;
+    elementType?: unknown;
+  };
+  if (
+    'stateNode' in fiberLike &&
+    'return' in fiberLike &&
+    'tag' in fiberLike &&
+    typeof fiberLike.tag === 'number'
+  ) {
+    return undefined;
+  }
+
   // Map → POJO.
   if (value instanceof Map) {
     const out: Record<string, unknown> = {};

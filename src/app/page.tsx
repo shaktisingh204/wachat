@@ -305,11 +305,36 @@ function PaperGrain() {
 
 const NAV_ITEMS: Array<{ label: string; key: string; href: string; dropdown?: boolean }> = [
   { label: 'Products', key: 'products', href: '/products', dropdown: true },
+  { label: 'Features', key: 'features', href: '/features' },
   { label: 'Enterprise', key: 'enterprise', href: '/enterprise' },
   { label: 'Customers', key: 'customers', href: '/customers', dropdown: true },
   { label: 'Partners', key: 'partners', href: '/partners', dropdown: true },
   { label: 'Resources', key: 'resources', href: '/resources', dropdown: true },
 ];
+
+/** Map a mega-menu product display name to its /features/[slug] page. */
+const FEATURE_SLUG_OVERRIDES: Record<string, string> = {
+  'Chat': 'shared-inbox',
+  'WhatsApp API': 'whatsapp-business-api',
+  'Email': 'email-inbox',
+  'Chatbot': 'chatbot-rules',
+  'A/B testing': 'ab-testing',
+  'OAuth 2': 'oauth',
+  'Meta Flow editor': 'meta-flow-editor',
+  'MCP server': 'mcp-server',
+  'REST API': 'rest-api',
+  'Web chat widget': 'web-chat-widget',
+  'Analytics': 'dashboards',
+};
+
+function featureSlugFor(name: string): string {
+  if (FEATURE_SLUG_OVERRIDES[name]) return FEATURE_SLUG_OVERRIDES[name];
+  return name
+    .toLowerCase()
+    .replace(/&/g, 'and')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+}
 
 function Nav({ loading, session }: { loading: boolean; session: any }) {
   const [open, setOpen] = React.useState<string | null>(null);
@@ -658,11 +683,11 @@ function MegaProductCard({ product, onClick }: { product: Product; onClick: () =
         {product.desc}
       </p>
       <Link
-        href="/signup"
+        href={`/features/${featureSlugFor(product.name)}`}
         onClick={onClick}
         className="inline-flex items-center gap-1 text-[11px] font-bold tracking-[0.14em] uppercase text-[#4F46E5] group-hover:text-[#4338CA]"
       >
-        Try now <ChevronRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
+        Learn more <ChevronRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
       </Link>
     </article>
   );

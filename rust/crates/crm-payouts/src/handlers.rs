@@ -520,15 +520,13 @@ pub async fn update_payout(
 }
 
 // =========================================================================
-// DELETE /:payoutId — delete_payout (soft)
+// DELETE /:payoutId — delete_payout
 // =========================================================================
 
-/// `DELETE /v1/crm/payouts/:payoutId` — soft delete. Sets `archived =
-/// true` and stamps `deletedAt`. The row stays in the collection so AP
-/// and TDS reports remain accurate. Fails with 404 if the payout doesn't
-/// exist OR isn't owned by the caller (or is already archived — a
-/// redundant delete is treated as not-found rather than a no-op so the
-/// UI surfaces a clear "already deleted" error path).
+/// `DELETE /v1/crm/payouts/:payoutId` — **hard delete**. Per the CRM
+/// ecosystem plan (`docs/ecosystem/CRM_PLAN.md` §10), CRM entities use
+/// hard deletes — the row is removed from the collection. Fails with
+/// 404 if the payout doesn't exist OR isn't owned by the caller.
 #[instrument(skip_all, fields(user_id = %user.user_id, payout_id = %payout_id))]
 pub async fn delete_payout(
     user: AuthUser,
@@ -538,31 +536,20 @@ pub async fn delete_payout(
     let user_id = user_oid(&user)?;
     let payout_oid = oid_from_str(&payout_id)?;
 
-    let now = bson::DateTime::from_chrono(Utc::now());
-    let mut filter = base_ownership_filter(user_id);
-    filter.insert("_id", payout_oid);
-
-    let update = doc! {
-        "$set": {
-            "archived": true,
-            "deletedAt": now,
-            "updatedAt": now,
-            "updatedBy": user_id,
-        },
-    };
+    let filter = doc! { "_id": payout_oid, "userId": user_id };
 
     let coll = mongo.collection::<Document>(PAYOUTS_COLL);
     let res = coll
-        .update_one(filter, update)
+        .delete_one(filter)
         .await
         .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_payouts.soft_delete"))
+            ApiError::Internal(anyhow::Error::new(e).context("crm_payouts.delete_one"))
         })?;
-    if res.matched_count == 0 {
+    if res.deleted_count == 0 {
         return Err(ApiError::NotFound("payout".to_owned()));
     }
 
-    Ok(Json(serde_json::json!({ "ok": true, "archived": true })))
+    Ok(Json(serde_json::json!({ "ok": true, "deleted": true })))
 }
 
 // =========================================================================

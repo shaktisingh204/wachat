@@ -27,12 +27,13 @@
 //! - `crm_salary_structures` — to fetch each employee's structure and
 //!   resolve its components into earning / deduction lines.
 //!
-//! ## Soft delete
+//! ## Hard delete
 //!
-//! `DELETE` does NOT remove the row — it sets `archived = true` and
-//! stamps `deletedAt`. Payroll history is load-bearing for statutory
-//! audits (PF / ESI / TDS challans), so we never lose a run. The list
-//! endpoint excludes `archived = true` rows by default.
+//! Per the CRM ecosystem plan, CRM entities use hard deletes — `DELETE`
+//! removes the row from the collection. The `archived` flag remains on
+//! the document model and is still honoured by the list filter, but the
+//! DELETE handler now calls `delete_one`. Statutory audits should rely
+//! on payslip/challan snapshots rather than the run row itself.
 //!
 //! ## Lineage
 //!

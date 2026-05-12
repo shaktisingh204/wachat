@@ -620,7 +620,11 @@ pub async fn update_leave_application(
     Ok(Json(row))
 }
 
-/// `DELETE /v1/crm/leaves/applications/:applicationId` — soft delete.
+/// `DELETE /v1/crm/leaves/applications/:applicationId` — **hard delete**.
+/// Per the CRM ecosystem plan (`docs/ecosystem/CRM_PLAN.md` §10), CRM
+/// entities use hard deletes — the row is removed from the collection.
+/// Fails with 404 if the application doesn't exist OR isn't owned by
+/// the caller.
 #[instrument(skip_all, fields(user_id = %user.user_id, application_id = %application_id))]
 pub async fn delete_leave_application(
     user: AuthUser,
@@ -630,30 +634,19 @@ pub async fn delete_leave_application(
     let user_id = user_oid(&user)?;
     let oid = oid_from_str(&application_id)?;
 
-    let now = bson::DateTime::from_chrono(Utc::now());
-    let mut filter = base_ownership_filter(user_id);
-    filter.insert("_id", oid);
-
-    let update = doc! {
-        "$set": {
-            "archived": true,
-            "deletedAt": now,
-            "updatedAt": now,
-            "updatedBy": user_id,
-        },
-    };
+    let filter = doc! { "_id": oid, "userId": user_id };
 
     let coll = mongo.collection::<Document>(LEAVE_APPLICATIONS_COLL);
-    let res = coll.update_one(filter, update).await.map_err(|e| {
+    let res = coll.delete_one(filter).await.map_err(|e| {
         ApiError::Internal(
-            anyhow::Error::new(e).context("crm_leave_applications.soft_delete"),
+            anyhow::Error::new(e).context("crm_leave_applications.delete_one"),
         )
     })?;
-    if res.matched_count == 0 {
+    if res.deleted_count == 0 {
         return Err(ApiError::NotFound("leaveApplication".to_owned()));
     }
 
-    Ok(Json(serde_json::json!({ "ok": true, "archived": true })))
+    Ok(Json(serde_json::json!({ "ok": true, "deleted": true })))
 }
 
 // =========================================================================

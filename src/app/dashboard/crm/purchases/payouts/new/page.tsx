@@ -1,22 +1,27 @@
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
+/**
+ * Create payout — `/dashboard/crm/purchases/payouts/new`.
+ *
+ * Server component shell that renders the shared <PayoutForm>. No
+ * custom-field plumbing here — `'payout'` is NOT in
+ * `WsCustomFieldBelongsTo`.
+ */
 
-import { Suspense } from 'react';
-import { ArrowUpRight } from 'lucide-react';
-import { NewPayoutForm } from './new-payout-form';
+import { Wallet } from 'lucide-react';
+
 import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { PayoutForm } from '../_components/payout-form';
 
-export default async function NewPayoutPage() {
-    return (
-        <div className="flex flex-col gap-6 max-w-2xl">
-            <CrmPageHeader
-                title="Record Payout"
-                subtitle="Record a payment made to a vendor."
-                icon={ArrowUpRight}
-            />
-            <Suspense fallback={<div className="text-[13px] text-muted-foreground">Loading...</div>}>
-                <NewPayoutForm />
-            </Suspense>
-        </div>
-    );
+export const dynamic = 'force-dynamic';
+
+export default function NewPayoutPage() {
+  return (
+    <div className="flex w-full flex-col gap-6">
+      <CrmPageHeader
+        title="New payout"
+        subtitle="Log an outgoing vendor payment."
+        icon={Wallet}
+      />
+      <PayoutForm />
+    </div>
+  );
 }

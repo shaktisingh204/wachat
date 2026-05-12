@@ -529,16 +529,13 @@ pub async fn update_employee(
 }
 
 // =========================================================================
-// DELETE /:employeeId — delete_employee (soft)
+// DELETE /:employeeId — delete_employee
 // =========================================================================
 
-/// `DELETE /v1/crm/employees/:employeeId` — soft delete. Sets
-/// `archived = true` and stamps `deletedAt`. The row stays in the
-/// collection so payroll history, statutory compliance, and tenure
-/// calculations stay accurate. Fails with 404 if the employee doesn't
-/// exist OR isn't owned by the caller (or is already archived — a
-/// redundant delete is treated as not-found rather than a no-op so the
-/// UI surfaces a clear "already deleted" error path).
+/// `DELETE /v1/crm/employees/:employeeId` — **hard delete**. Per the CRM
+/// ecosystem plan (`docs/ecosystem/CRM_PLAN.md` §10), CRM entities use
+/// hard deletes — the row is removed from the collection. Fails with
+/// 404 if the employee doesn't exist OR isn't owned by the caller.
 #[instrument(skip_all, fields(user_id = %user.user_id, employee_id = %employee_id))]
 pub async fn delete_employee(
     user: AuthUser,
@@ -548,31 +545,20 @@ pub async fn delete_employee(
     let user_id = user_oid(&user)?;
     let emp_oid = oid_from_str(&employee_id)?;
 
-    let now = bson::DateTime::from_chrono(Utc::now());
-    let mut filter = base_ownership_filter(user_id);
-    filter.insert("_id", emp_oid);
-
-    let update = doc! {
-        "$set": {
-            "archived": true,
-            "deletedAt": now,
-            "updatedAt": now,
-            "updatedBy": user_id,
-        },
-    };
+    let filter = doc! { "_id": emp_oid, "userId": user_id };
 
     let coll = mongo.collection::<Document>(EMPLOYEES_COLL);
     let res = coll
-        .update_one(filter, update)
+        .delete_one(filter)
         .await
         .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_employees.soft_delete"))
+            ApiError::Internal(anyhow::Error::new(e).context("crm_employees.delete_one"))
         })?;
-    if res.matched_count == 0 {
+    if res.deleted_count == 0 {
         return Err(ApiError::NotFound("employee".to_owned()));
     }
 
-    Ok(Json(serde_json::json!({ "ok": true, "archived": true })))
+    Ok(Json(serde_json::json!({ "ok": true, "deleted": true })))
 }
 
 // =========================================================================
