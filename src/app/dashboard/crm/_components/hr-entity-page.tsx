@@ -9,6 +9,8 @@ import {
   LoaderCircle,
 } from 'lucide-react';
 import { useActionState, useEffect, useState, useTransition } from 'react';
+import { EntityPicker } from '@/components/crm/entity-picker';
+import type { EntityKey, LookupItem } from '@/lib/lookup-registry';
 
 import {
   ZoruAlertDialog,
@@ -57,7 +59,8 @@ export type HrFieldType =
   | 'email'
   | 'url'
   | 'tel'
-  | 'array';
+  | 'array'
+  | 'entity';
 
 export interface HrArraySubField {
   name: string;
@@ -83,6 +86,32 @@ export interface HrField {
   addLabel?: string;
   /** Help/hint text rendered under the field. */
   help?: string;
+
+  /* ─── Entity picker (type: 'entity') ─────────────────────────── */
+  /** Entity key to look up. Required when `type === 'entity'`. */
+  entity?: EntityKey;
+  /**
+   * Optional second form field that should receive the picker's
+   * primary label — used for "dual-write" migrations where the
+   * underlying schema still has a free-text `*Name` field alongside
+   * the new `*Id` reference.
+   */
+  dualWriteName?: string;
+  /** Static filter applied to the lookup query. */
+  filter?: Record<string, unknown>;
+  /**
+   * Build the lookup filter dynamically from sibling-field values.
+   * Receives `{ fieldName: currentEntityValue }` for every other
+   * `type: 'entity'` field in the form. Return `undefined` to omit
+   * the filter.
+   */
+  cascadeFilterFrom?: (
+    siblings: Record<string, string>,
+  ) => Record<string, unknown> | undefined;
+  /** Show a "Create new" item. Auto-on for reference entities. */
+  allowCreate?: boolean;
+  /** Multi-select. */
+  multi?: boolean;
 }
 
 export interface HrColumn<T> {
@@ -196,11 +225,27 @@ export interface HrEntityPageProps<T extends { _id: string }> {
   basePath?: string;
 }
 
-function renderField(field: HrField, value?: unknown) {
+function renderField(
+  field: HrField,
+  value?: unknown,
+  entityValues?: Record<string, string>,
+  onEntityChange?: (name: string, id: string | null) => void,
+) {
   const stringValue = typeof value === 'string' ? value : '';
 
   if (field.type === 'array') {
     return <FieldArray field={field} initialValue={value} />;
+  }
+
+  if (field.type === 'entity' && field.entity) {
+    return (
+      <EntityField
+        field={field}
+        initialId={stringValue || field.defaultValue || ''}
+        siblings={entityValues ?? {}}
+        onChange={(id) => onEntityChange?.(field.name, id)}
+      />
+    );
   }
 
   const common = {
@@ -236,6 +281,66 @@ function renderField(field: HrField, value?: unknown) {
       type={field.type || 'text'}
       min={field.type === 'number' ? 0 : undefined}
     />
+  );
+}
+
+/**
+ * Controlled wrapper around <EntityPicker> for HrEntityPage's
+ * server-action form. Renders the picker plus two hidden inputs so the
+ * form's FormData carries both the entity id and (optionally) the
+ * dual-write `*Name` text — the latter keeps schemas with legacy
+ * free-text columns populated during the ID-migration window.
+ */
+function EntityField({
+  field,
+  initialId,
+  siblings,
+  onChange,
+}: {
+  field: HrField;
+  initialId: string;
+  siblings: Record<string, string>;
+  onChange: (id: string | null) => void;
+}) {
+  const [id, setId] = useState<string | null>(initialId || null);
+  const [label, setLabel] = useState<string>('');
+
+  useEffect(() => {
+    setId(initialId || null);
+    if (!initialId) setLabel('');
+  }, [initialId]);
+
+  const computedFilter = React.useMemo(() => {
+    if (field.cascadeFilterFrom) {
+      const f = field.cascadeFilterFrom(siblings);
+      return { ...(field.filter ?? {}), ...(f ?? {}) };
+    }
+    return field.filter;
+  }, [field, siblings]);
+
+  return (
+    <>
+      <EntityPicker
+        entity={field.entity!}
+        value={id}
+        onChange={(next, hydrated) => {
+          const nextId = (next as string | null) ?? null;
+          setId(nextId);
+          const h = Array.isArray(hydrated) ? hydrated[0] : (hydrated as LookupItem | undefined);
+          setLabel(h?.chip.primary ?? (typeof next === 'string' ? next : ''));
+          onChange(nextId);
+        }}
+        filter={computedFilter}
+        allowCreate={field.allowCreate}
+        multi={field.multi}
+        required={field.required}
+        placeholder={field.placeholder}
+      />
+      <input type="hidden" name={field.name} value={id ?? ''} />
+      {field.dualWriteName ? (
+        <input type="hidden" name={field.dualWriteName} value={label} />
+      ) : null}
+    </>
   );
 }
 
@@ -403,10 +508,37 @@ export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<T | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [entityValues, setEntityValues] = useState<Record<string, string>>({});
   const [saveState, saveFormAction, isSaving] = useActionState(saveAction, {
     message: '',
     error: '',
   } as any);
+
+  // Initialize entity-picker state when opening the dialog or switching
+  // between rows — so cascading filters see the loaded values right away.
+  useEffect(() => {
+    if (!dialogOpen) {
+      setEntityValues({});
+      return;
+    }
+    const init: Record<string, string> = {};
+    for (const f of fields) {
+      if (f.type === 'entity') {
+        const raw = editing?.[f.name];
+        if (raw !== undefined && raw !== null) init[f.name] = String(raw);
+      }
+    }
+    setEntityValues(init);
+  }, [dialogOpen, editing, fields]);
+
+  const onEntityChange = React.useCallback((name: string, id: string | null) => {
+    setEntityValues((prev) => {
+      const next = { ...prev };
+      if (id == null || id === '') delete next[name];
+      else next[name] = id;
+      return next;
+    });
+  }, []);
 
   const refresh = React.useCallback(() => {
     startLoading(async () => {
@@ -589,6 +721,8 @@ export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
                           ? (editing[field.name] as unknown)
                           : formatFieldValue(editing[field.name], field.type)
                         : undefined,
+                      entityValues,
+                      onEntityChange,
                     )}
                   </div>
                 </div>

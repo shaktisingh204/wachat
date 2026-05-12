@@ -51,6 +51,9 @@ export function validateInitData(
     entries.sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0));
     const dataCheckString = entries.map(([k, v]) => `${k}=${v}`).join('\n');
 
+    // Telegram Mini App initData spec: key for the data HMAC is itself an HMAC
+    // of the bot token under the constant "WebAppData". See
+    // https://core.telegram.org/bots/webapps#validating-data-received-via-the-mini-app
     const secretKey = crypto.createHmac('sha256', 'WebAppData').update(botToken).digest();
     const expected = crypto.createHmac('sha256', secretKey).update(dataCheckString).digest('hex');
 

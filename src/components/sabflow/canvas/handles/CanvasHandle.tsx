@@ -1,10 +1,16 @@
 'use client';
 /**
- * CanvasHandle — port of n8n's CanvasHandleRenderer.vue.
+ * CanvasHandle — renders the input/output port handles on a canvas node.
  *
- * Renders the input/output handles (ports) on each canvas node. Handles are
- * positioned on the LEFT for inputs and RIGHT for outputs, matching n8n.
- * Multiple ports are distributed vertically.
+ * Layout contract (matches n8n):
+ *   • Inputs live on the LEFT edge of the node.
+ *   • Outputs live on the RIGHT edge of the node.
+ *   • Multiple ports are distributed vertically between 20% and 80% of node height.
+ *
+ * We position the xyflow <Handle> directly via absolute coordinates so React
+ * Flow's internal position registry sees the same coordinates we render the
+ * dot at — wrapping the handle in a positioned div was causing edges to anchor
+ * to the wrong side because xyflow measured the wrapper bounds, not the dot.
  */
 import { Handle, Position, useConnection } from '@xyflow/react';
 import type { CSSProperties } from 'react';
@@ -12,17 +18,8 @@ import type { NodePort } from '@/lib/sabflow/types';
 import { createCanvasConnectionHandleString } from '../utils';
 import { CanvasConnectionMode } from '../types';
 
-function mkStyleForIndex(total: number, index: number): CSSProperties {
-  // Distribute vertically: evenly spaced from 20% to 80% of the node's height.
-  if (total <= 1) return { top: '50%' };
-  const min = 20;
-  const max = 80;
-  const step = (max - min) / (total - 1);
-  return { top: `${min + index * step}%` };
-}
-
 type Props = {
-  /** The node's id — used to label handles with their parent. */
+  /** Owning node id — only needed for the connection-in-progress check. */
   nodeId: string;
   ports: NodePort[];
   mode: CanvasConnectionMode;
@@ -31,9 +28,20 @@ type Props = {
   showLabels?: boolean;
 };
 
+/** Distribute N ports vertically between 20% and 80% of the node height. */
+function topForIndex(total: number, index: number): string {
+  if (total <= 1) return '50%';
+  const min = 20;
+  const max = 80;
+  const step = (max - min) / (total - 1);
+  return `${min + index * step}%`;
+}
+
 export function CanvasHandle({ nodeId, ports, mode, isReadOnly, showLabels }: Props) {
   const connection = useConnection();
-  const position = mode === CanvasConnectionMode.Input ? Position.Left : Position.Right;
+  const isInput = mode === CanvasConnectionMode.Input;
+  const handlePosition = isInput ? Position.Left : Position.Right;
+  const handleType = isInput ? 'target' : 'source';
 
   return (
     <>
@@ -43,32 +51,32 @@ export function CanvasHandle({ nodeId, ports, mode, isReadOnly, showLabels }: Pr
           type: port.type,
           index: port.index,
         });
-        const style = mkStyleForIndex(ports.length, index);
+        const top = topForIndex(ports.length, index);
         const isBeingConnected =
           connection.inProgress &&
           connection.fromNode?.id === nodeId &&
           connection.fromHandle?.id === handleId;
 
+        const handleStyle: CSSProperties = {
+          top,
+          // Pin the handle to the correct edge. xyflow reads the bounding box
+          // of THIS element to compute the edge anchor, so the dot needs to
+          // sit at the visual edge of the node — no extra wrapper offsets.
+          [isInput ? 'left' : 'right']: 0,
+          transform: 'translateY(-50%)',
+          pointerEvents: isReadOnly ? 'none' : 'auto',
+        };
+
         return (
-          <div
+          <Handle
             key={handleId}
-            className="sabflow-handle-wrap"
-            style={{
-              position: 'absolute',
-              ...style,
-              [mode === CanvasConnectionMode.Input ? 'left' : 'right']: 0,
-              transform: 'translateY(-50%)',
-              pointerEvents: isReadOnly ? 'none' : 'auto',
-            }}
+            id={handleId}
+            type={handleType}
+            position={handlePosition}
+            isConnectable={!isReadOnly}
+            className={isBeingConnected ? 'connecting' : undefined}
+            style={handleStyle}
           >
-            <Handle
-              type={mode === CanvasConnectionMode.Input ? 'target' : 'source'}
-              position={position}
-              id={handleId}
-              isConnectable={!isReadOnly}
-              className={isBeingConnected ? 'connecting' : undefined}
-              style={{ position: 'relative', top: 0, transform: 'none' }}
-            />
             {showLabels && port.label ? (
               <span
                 className="sabflow-handle-label"
@@ -76,7 +84,7 @@ export function CanvasHandle({ nodeId, ports, mode, isReadOnly, showLabels }: Pr
                   position: 'absolute',
                   top: '50%',
                   transform: 'translateY(-50%)',
-                  [mode === CanvasConnectionMode.Input ? 'left' : 'right']: '16px',
+                  [isInput ? 'left' : 'right']: '16px',
                   whiteSpace: 'nowrap',
                   fontSize: '11px',
                   color: 'var(--gray-10)',
@@ -86,7 +94,7 @@ export function CanvasHandle({ nodeId, ports, mode, isReadOnly, showLabels }: Pr
                 {port.label}
               </span>
             ) : null}
-          </div>
+          </Handle>
         );
       })}
     </>

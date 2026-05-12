@@ -9,7 +9,6 @@ import type {
     TelegramMessage,
 } from '@/lib/definitions';
 import { runTelegramAutoReply } from './auto-reply';
-import { TelegramBotApi } from './bot-api';
 import { runTelegramFlowsForUpdate } from './flow-runner';
 
 /**
@@ -90,15 +89,9 @@ export async function processTelegramUpdate(
         update.edited_channel_post ||
         null;
 
-    // Payments: answer pre_checkout synchronously, record successful_payment on the invoice.
+    // pre_checkout_query is answered inline in the webhook route (10s Telegram deadline);
+    // successful_payment is recorded below against the matching invoice.
     if (update.pre_checkout_query) {
-        const q = update.pre_checkout_query;
-        try {
-            await TelegramBotApi.answerPreCheckoutQuery(bot.token, {
-                pre_checkout_query_id: q.id,
-                ok: true,
-            });
-        } catch { /* answerPreCheckoutQuery is best-effort */ }
         return;
     }
 

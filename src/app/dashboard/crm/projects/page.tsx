@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { Briefcase } from 'lucide-react';
 import { ClayBadge, HrEntityPage } from '../_components/hr-entity-page';
+import { EntityPickerChip } from '@/components/crm/entity-picker';
 import {
   getWsProjects,
   saveWsProject,
@@ -63,8 +64,34 @@ export default function ProjectsPage() {
               </Link>
             ),
           },
-          { key: 'clientName', label: 'Client' },
-          { key: 'categoryName', label: 'Category' },
+          {
+            key: 'clientName',
+            label: 'Client',
+            render: (row) =>
+              row.clientId ? (
+                <EntityPickerChip
+                  entity="client"
+                  id={String(row.clientId)}
+                  fallback={row.clientName}
+                />
+              ) : (
+                row.clientName || '—'
+              ),
+          },
+          {
+            key: 'categoryName',
+            label: 'Category',
+            render: (row) =>
+              row.categoryId ? (
+                <EntityPickerChip
+                  entity="category"
+                  id={String(row.categoryId)}
+                  fallback={row.categoryName}
+                />
+              ) : (
+                row.categoryName || '—'
+              ),
+          },
           {
             key: 'status',
             label: 'Status',
@@ -110,7 +137,20 @@ export default function ProjectsPage() {
                 ? `${row.currency || 'INR'} ${row.projectBudget ?? row.budget}`
                 : '—',
           },
-          { key: 'managerName', label: 'Manager' },
+          {
+            key: 'managerName',
+            label: 'Manager',
+            render: (row) =>
+              row.projectAdmin ? (
+                <EntityPickerChip
+                  entity="user"
+                  id={String(row.projectAdmin)}
+                  fallback={row.managerName}
+                />
+              ) : (
+                row.managerName || '—'
+              ),
+          },
         ]}
         fields={[
           {
@@ -119,11 +159,45 @@ export default function ProjectsPage() {
             required: true,
             fullWidth: true,
           },
-          { name: 'clientName', label: 'Client Name' },
-          { name: 'managerName', label: 'Manager Name' },
-          { name: 'categoryName', label: 'Category' },
-          { name: 'subCategoryName', label: 'Sub-Category' },
-          { name: 'departmentName', label: 'Department' },
+          {
+            name: 'clientId',
+            label: 'Client',
+            type: 'entity',
+            entity: 'client',
+            dualWriteName: 'clientName',
+            allowCreate: true,
+          },
+          {
+            name: 'projectAdmin',
+            label: 'Manager',
+            type: 'entity',
+            entity: 'user',
+            dualWriteName: 'managerName',
+          },
+          {
+            name: 'categoryId',
+            label: 'Category',
+            type: 'entity',
+            entity: 'category',
+            dualWriteName: 'categoryName',
+            allowCreate: true,
+          },
+          {
+            name: 'subCategoryId',
+            label: 'Sub-Category',
+            type: 'entity',
+            entity: 'category',
+            dualWriteName: 'subCategoryName',
+            allowCreate: true,
+          },
+          {
+            name: 'departmentId',
+            label: 'Department',
+            type: 'entity',
+            entity: 'department',
+            dualWriteName: 'departmentName',
+            allowCreate: true,
+          },
           {
             name: 'status',
             label: 'Status',
@@ -156,7 +230,13 @@ export default function ProjectsPage() {
             type: 'number',
           },
           { name: 'projectBudget', label: 'Project Budget', type: 'number' },
-          { name: 'currency', label: 'Currency', defaultValue: 'INR' },
+          {
+            name: 'currency',
+            label: 'Currency',
+            type: 'entity',
+            entity: 'currency',
+            defaultValue: 'INR',
+          },
           { name: 'hoursAllocated', label: 'Hours Allocated', type: 'number' },
           { name: 'startDate', label: 'Start Date', type: 'date' },
           { name: 'deadline', label: 'Deadline', type: 'date' },

@@ -4,6 +4,7 @@ import { ObjectId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSabFlowCollection } from '@/lib/sabflow/db';
 import { getSession } from '@/app/actions/user.actions';
+import { serializeForClient } from '@/lib/sabflow/serializeForClient';
 
 export type FlowSession = {
   _id: string;
@@ -74,19 +75,27 @@ export async function getFlowSessions(
       .limit(pageSize)
       .toArray();
 
-    const sessions: FlowSession[] = docs.map((doc: any) => ({
-      _id: doc._id?.toString() ?? doc.sessionId,
-      sessionId: doc.sessionId,
-      flowId: doc.flowId,
-      variables: doc.variables ?? {},
-      currentGroupId: doc.currentGroupId ?? null,
-      currentBlockIndex: doc.currentBlockIndex ?? 0,
-      isCompleted: doc.isCompleted ?? false,
-      createdAt: doc.createdAt ?? new Date().toISOString(),
-      updatedAt: doc.updatedAt ?? new Date().toISOString(),
-      messageCount: doc.messageCount ?? 0,
-      lastMessage: doc.lastMessage ?? '',
-    }));
+    // `variables` is a free-form Record<string, unknown> written by the
+    // execution engine and can contain BSON / Date instances. Pipe each
+    // session through the canonical serializer so nothing leaks across the
+    // RSC boundary and trips "Cannot access toBSON on the server".
+    const sessions: FlowSession[] = docs.map((doc: any) => {
+      const createdAt = doc.createdAt instanceof Date ? doc.createdAt.toISOString() : (doc.createdAt ?? new Date().toISOString());
+      const updatedAt = doc.updatedAt instanceof Date ? doc.updatedAt.toISOString() : (doc.updatedAt ?? new Date().toISOString());
+      return {
+        _id: doc._id?.toString() ?? doc.sessionId,
+        sessionId: doc.sessionId,
+        flowId: doc.flowId,
+        variables: serializeForClient(doc.variables ?? {}) as Record<string, string>,
+        currentGroupId: doc.currentGroupId ?? null,
+        currentBlockIndex: doc.currentBlockIndex ?? 0,
+        isCompleted: doc.isCompleted ?? false,
+        createdAt,
+        updatedAt,
+        messageCount: doc.messageCount ?? 0,
+        lastMessage: doc.lastMessage ?? '',
+      };
+    });
 
     return { sessions, total, flowName };
   } catch (e: any) {

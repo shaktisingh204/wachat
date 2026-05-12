@@ -1659,14 +1659,28 @@ export async function listTelegramBotsAction(params: ListBotsParams): Promise<Li
 }
 
 export async function getTelegramBotAction(botId: string): Promise<GetBotResp> {
+  // Read-only lookup for the drawer: Mongo is the source of truth for the
+  // bot row, so any failure on the Rust side (404, 5xx, auth, network, or a
+  // 2xx that came back without a `bot` payload) should fall back to a direct
+  // Mongo read instead of leaving the drawer stuck on its "details
+  // unavailable" empty state.
   try {
-    return await withRustFallback(
-      () => rustClient.telegramBots.get(botId),
-      () => getTelegramBotFromMongoForDrawer(botId),
-    );
+    const rustRes = await rustClient.telegramBots.get(botId);
+    if (rustRes?.bot) return rustRes;
+    const mongoRes = await getTelegramBotFromMongoForDrawer(botId);
+    if (mongoRes.bot) return mongoRes;
+    return rustRes.error ? rustRes : mongoRes;
   } catch (e) {
-    if (e instanceof RustApiError) return { error: e.message };
-    return { error: String(e) };
+    try {
+      const mongoRes = await getTelegramBotFromMongoForDrawer(botId);
+      if (mongoRes.bot) return mongoRes;
+      if (e instanceof RustApiError) return { error: e.message };
+      return mongoRes;
+    } catch (inner) {
+      console.error('[telegram] getTelegramBotAction failed', { botId, e, inner });
+      if (e instanceof RustApiError) return { error: e.message };
+      return { error: String(e) };
+    }
   }
 }
 
