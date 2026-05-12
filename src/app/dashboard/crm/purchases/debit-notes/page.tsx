@@ -1,114 +1,71 @@
-import { ZoruBadge, ZoruCard, ZoruInput, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/zoruui';
-import { getDebitNotes } from '@/app/actions/crm-debit-notes.actions';
+/**
+ * CRM Debit Notes list — `/dashboard/crm/purchases/debit-notes`.
+ *
+ * Server component shell. Reads search/page/limit from the URL,
+ * fetches via the Rust-backed `listDebitNotes` action, and hands off
+ * to `<DebitNoteListClient>` for interactive bits (search, delete
+ * dialog).
+ *
+ * Pagination is hasMore-driven (the Rust endpoint doesn't return a
+ * total count) — see `<PaginationBar>`.
+ */
 
-import { Plus, Search, FileMinus } from 'lucide-react';
 import Link from 'next/link';
+import { FileMinus, Plus } from 'lucide-react';
 
-import { format } from 'date-fns';
-
+import { ZoruButton } from '@/components/zoruui';
 import { CrmPageHeader } from '../../_components/crm-page-header';
+import { listDebitNotes } from '@/app/actions/crm/debit-notes.actions';
+import { DebitNoteListClient } from './_components/debit-note-list-client';
+
+export const dynamic = 'force-dynamic';
+
+interface SearchParams {
+  page?: string;
+  limit?: string;
+  q?: string;
+}
 
 export default async function DebitNotesPage({
-    searchParams,
+  searchParams,
 }: {
-    searchParams?: Promise<{
-        query?: string;
-        page?: string;
-    }>;
+  searchParams: Promise<SearchParams>;
 }) {
-    const params = await searchParams;
-    const query = params?.query || '';
-    const currentPage = Number(params?.page) || 1;
-    const { notes, total } = await getDebitNotes(currentPage, 20, query);
+  const sp = await searchParams;
+  const page = Math.max(1, Number(sp.page) || 1);
+  const limit = Math.min(Math.max(1, Number(sp.limit) || 20), 100);
+  const q = (sp.q ?? '').trim();
 
-    return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="Debit Notes"
-                subtitle="Manage vendor returns and adjustments."
-                icon={FileMinus}
-                actions={
-                    <Link
-                        href="/dashboard/crm/purchases/debit-notes/new"
-                        className="inline-flex h-9 items-center justify-center gap-2 rounded-full bg-foreground px-4 text-[13px] font-medium text-white hover:bg-foreground/90"
-                    >
-                        <Plus className="h-4 w-4" strokeWidth={1.75} />
-                        New Debit Note
-                    </Link>
-                }
-            />
+  const { debitNotes, hasMore, error } = await listDebitNotes({
+    page,
+    limit,
+    q: q || undefined,
+  });
 
-            <ZoruCard>
-                <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
-                    <div>
-                        <h2 className="text-[16px] font-semibold text-foreground">All Debit Notes</h2>
-                        <p className="mt-0.5 text-[12.5px] text-muted-foreground">Showing {notes.length} of {total} notes</p>
-                    </div>
-                    <div className="relative w-full max-w-sm">
-                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                        <ZoruInput
-                            type="search"
-                            placeholder="Search debit notes..."
-                            className="h-10 rounded-lg border-border bg-card pl-9 text-[13px]"
-                            defaultValue={query}
-                        />
-                    </div>
-                </div>
+  return (
+    <div className="flex w-full flex-col gap-6">
+      <CrmPageHeader
+        title="Debit Notes"
+        subtitle="Adjust vendor bills downward for returns, discounts, or short-shipment."
+        icon={FileMinus}
+        actions={
+          <ZoruButton asChild>
+            <Link href="/dashboard/crm/purchases/debit-notes/new">
+              <Plus className="h-4 w-4" />
+              New debit note
+            </Link>
+          </ZoruButton>
+        }
+      />
 
-                <div className="overflow-x-auto rounded-lg border border-border">
-                    <ZoruTable>
-                        <ZoruTableHeader>
-                            <ZoruTableRow className="border-border hover:bg-transparent">
-                                <ZoruTableHead className="text-muted-foreground">Note #</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">Date</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">Vendor</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">Status</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">Reason</ZoruTableHead>
-                                <ZoruTableHead className="text-right text-muted-foreground">Amount</ZoruTableHead>
-                                <ZoruTableHead className="text-right text-muted-foreground">Actions</ZoruTableHead>
-                            </ZoruTableRow>
-                        </ZoruTableHeader>
-                        <ZoruTableBody>
-                            {notes.length === 0 ? (
-                                <ZoruTableRow className="border-border">
-                                    <ZoruTableCell colSpan={7} className="h-24 text-center text-[13px] text-muted-foreground">
-                                        No debit notes found.
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
-                            ) : (
-                                notes.map((note) => (
-                                    <ZoruTableRow key={note._id.toString()} className="border-border">
-                                        <ZoruTableCell className="font-medium text-foreground">{note.noteNumber}</ZoruTableCell>
-                                        <ZoruTableCell className="text-[13px] text-foreground">{format(new Date(note.noteDate), 'PP')}</ZoruTableCell>
-                                        <ZoruTableCell>
-                                            <span className="text-[12.5px] italic text-muted-foreground">Vendor {note.vendorId.toString().slice(-4)}</span>
-                                        </ZoruTableCell>
-                                        <ZoruTableCell>
-                                            <ZoruBadge variant={(note.status === 'Applied' ? 'green' : 'rose-soft') as any}>
-                                                {note.status}
-                                            </ZoruBadge>
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="max-w-[150px] truncate text-[13px] text-foreground" title={note.reason}>
-                                            {note.reason || '-'}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-right text-[13px] text-foreground">
-                                            {note.currency} {note.total.toFixed(2)}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-right">
-                                            <Link
-                                                href={`/dashboard/crm/purchases/debit-notes/${note._id}`}
-                                                className="text-[12.5px] font-medium text-foreground hover:underline"
-                                            >
-                                                View
-                                            </Link>
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
-                                ))
-                            )}
-                        </ZoruTableBody>
-                    </ZoruTable>
-                </div>
-            </ZoruCard>
-        </div>
-    );
+      <DebitNoteListClient
+        debitNotes={debitNotes}
+        page={page}
+        limit={limit}
+        hasMore={hasMore}
+        initialQuery={q}
+        error={error}
+      />
+    </div>
+  );
 }

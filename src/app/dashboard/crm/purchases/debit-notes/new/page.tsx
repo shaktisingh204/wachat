@@ -1,22 +1,27 @@
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
+/**
+ * Create debit note — `/dashboard/crm/purchases/debit-notes/new`.
+ *
+ * Server component shell. The shared `<DebitNoteForm>` (also used by
+ * Edit) handles all interactive bits. No custom fields — `'debitNote'`
+ * is not in `WsCustomFieldBelongsTo`.
+ */
 
-import { Suspense } from 'react';
 import { FileMinus } from 'lucide-react';
-import { NewDebitNoteForm } from './new-note-form';
+
 import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { DebitNoteForm } from '../_components/debit-note-form';
+
+export const dynamic = 'force-dynamic';
 
 export default async function NewDebitNotePage() {
-    return (
-        <div className="flex flex-col gap-6 max-w-5xl">
-            <CrmPageHeader
-                title="Create New Debit Note"
-                subtitle="Record a vendor return or adjustment."
-                icon={FileMinus}
-            />
-            <Suspense fallback={<div className="text-[13px] text-muted-foreground">Loading...</div>}>
-                <NewDebitNoteForm />
-            </Suspense>
-        </div>
-    );
+  return (
+    <div className="flex w-full flex-col gap-6">
+      <CrmPageHeader
+        title="New debit note"
+        subtitle="Adjust a vendor bill downward for a return, discount, or short-shipment."
+        icon={FileMinus}
+      />
+      <DebitNoteForm />
+    </div>
+  );
 }

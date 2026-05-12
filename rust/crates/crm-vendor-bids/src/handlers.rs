@@ -573,15 +573,13 @@ async fn cascade_rfq_award(mongo: &MongoHandle, user_id: ObjectId, bid_oid: Obje
 }
 
 // =========================================================================
-// DELETE /:bidId — delete_vendor_bid (soft)
+// DELETE /:bidId — delete_vendor_bid
 // =========================================================================
 
-/// `DELETE /v1/crm/vendor-bids/:bidId` — soft delete. Sets
-/// `archived = true` and stamps `deletedAt`. The row stays in the
-/// collection so award audits and procurement reports remain accurate.
-/// Fails with 404 if the bid doesn't exist OR isn't owned by the
-/// caller (or is already archived — a redundant delete is treated as
-/// not-found).
+/// `DELETE /v1/crm/vendor-bids/:bidId` — **hard delete**. Per the CRM
+/// ecosystem plan, CRM entities use hard deletes — the row is removed
+/// from the collection. Mirrors the `crm-leads` crate. Fails with 404
+/// if the bid doesn't exist OR isn't owned by the caller.
 #[instrument(skip_all, fields(user_id = %user.user_id, bid_id = %bid_id))]
 pub async fn delete_vendor_bid(
     user: AuthUser,
@@ -591,31 +589,20 @@ pub async fn delete_vendor_bid(
     let user_id = user_oid(&user)?;
     let bid_oid = oid_from_str(&bid_id)?;
 
-    let now = bson::DateTime::from_chrono(Utc::now());
-    let mut filter = base_ownership_filter(user_id);
-    filter.insert("_id", bid_oid);
-
-    let update = doc! {
-        "$set": {
-            "archived": true,
-            "deletedAt": now,
-            "updatedAt": now,
-            "updatedBy": user_id,
-        },
-    };
+    let filter = doc! { "_id": bid_oid, "userId": user_id };
 
     let coll = mongo.collection::<Document>(VENDOR_BIDS_COLL);
     let res = coll
-        .update_one(filter, update)
+        .delete_one(filter)
         .await
         .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_vendor_bids.soft_delete"))
+            ApiError::Internal(anyhow::Error::new(e).context("crm_vendor_bids.delete_one"))
         })?;
-    if res.matched_count == 0 {
+    if res.deleted_count == 0 {
         return Err(ApiError::NotFound("vendorBid".to_owned()));
     }
 
-    Ok(Json(serde_json::json!({ "ok": true, "archived": true })))
+    Ok(Json(serde_json::json!({ "ok": true, "deleted": true })))
 }
 
 // =========================================================================

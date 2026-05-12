@@ -21,12 +21,12 @@
 //! `Identity`/`Audit` from `crm-core` so the document root carries
 //! `_id`, `userId`, `projectId`, `createdAt`, … directly.
 //!
-//! ## Soft delete
+//! ## Hard delete
 //!
-//! `DELETE` does NOT remove the row — it sets `archived = true` and
-//! stamps `deletedAt`. Bid history is load-bearing for procurement
-//! reports and award audits, so we never lose it. The list endpoint
-//! excludes `archived = true` rows by default.
+//! `DELETE` removes the row from the collection — mirrors the
+//! `crm-leads` crate. Per the CRM ecosystem plan, CRM entities use
+//! hard deletes. The list endpoint still filters out `archived = true`
+//! rows (legacy data may still carry the flag).
 //!
 //! ## Lineage (§13.5)
 //!

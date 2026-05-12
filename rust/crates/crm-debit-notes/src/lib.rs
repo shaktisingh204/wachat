@@ -27,12 +27,13 @@
 //! root carries `_id`, `userId`, `projectId`, `createdAt`, … directly —
 //! no migration needed when this crate ships alongside the legacy TS code.
 //!
-//! ## Soft delete
+//! ## Hard delete
 //!
-//! `DELETE` does NOT remove the row — it sets `archived = true` and
-//! stamps `deletedAt`. Debit notes feed the vendor ledger and §3.x
-//! accounting reports, so we never lose them. The list endpoint excludes
-//! `archived = true` rows by default.
+//! `DELETE` removes the row from the collection (mirrors
+//! `crm-leads`). Per the CRM ecosystem plan (`docs/ecosystem/CRM_PLAN.md`
+//! §10) CRM entities use hard deletes. The list endpoint still filters
+//! out any legacy `archived = true` rows by default so historic
+//! soft-deleted documents stay hidden.
 //!
 //! ## Lineage (G6 pattern — `bill` / `purchaseOrder` parents)
 //!
