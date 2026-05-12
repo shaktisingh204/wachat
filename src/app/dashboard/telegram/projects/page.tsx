@@ -48,7 +48,6 @@ const PAGE_SIZE = 12;
 export default function TelegramProjectPickerPage() {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const nextPath = searchParams.get('next') || '/dashboard/telegram/connections';
 
     const {
         projects: allProjects,
@@ -92,8 +91,11 @@ export default function TelegramProjectPickerPage() {
         });
         setCreateOpen(false);
         setCreateName('');
-        router.push(nextPath);
-    }, [createName, nextPath, reloadProjects, router, setActiveProjectId, toast]);
+        // Brand-new project has no bots yet — drop straight into the
+        // Connections page so the user can paste a token.
+        const explicitNext = searchParams.get('next');
+        router.push(explicitNext || '/dashboard/telegram/connections');
+    }, [createName, reloadProjects, router, searchParams, setActiveProjectId, toast]);
 
     const [counts, setCounts] = React.useState<BotCounts>({});
     const [countsLoading, setCountsLoading] = React.useState(true);
@@ -179,9 +181,23 @@ export default function TelegramProjectPickerPage() {
             } catch {
                 /* ignore */
             }
-            router.push(nextPath);
+            // If the caller asked for a specific next page, honour it.
+            // Otherwise: workspaces with no bots yet land on Connections
+            // so the next step is obvious; workspaces with bots land on
+            // the overview where stats are immediately useful.
+            const explicitNext = searchParams.get('next');
+            if (explicitNext) {
+                router.push(explicitNext);
+                return;
+            }
+            const hasBot = (counts[projectId] ?? 0) > 0;
+            router.push(
+                hasBot
+                    ? '/dashboard/telegram'
+                    : '/dashboard/telegram/connections',
+            );
         },
-        [nextPath, router, setActiveProjectId],
+        [counts, router, searchParams, setActiveProjectId],
     );
 
     if (isLoadingProject) {

@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
   const redirectUri = `${appUrl}/auth/facebook/callback`;
 
   // Permissions for managing pages, posts, messages, and insights.
-  const scopes = 'pages_show_list,pages_manage_posts,pages_read_engagement,read_insights,pages_messaging,business_management,instagram_basic,instagram_manage_comments,instagram_manage_messages,ads_management,ads_read';
+  const scopes = 'pages_show_list,pages_manage_posts,pages_read_engagement,pages_manage_metadata,read_insights,pages_messaging,leads_retrieval,business_management,instagram_basic,instagram_manage_comments,instagram_manage_messages,ads_management,ads_read';
 
   const facebookLoginUrl = new URL('https://www.facebook.com/v24.0/dialog/oauth');
   facebookLoginUrl.searchParams.set('client_id', appId);

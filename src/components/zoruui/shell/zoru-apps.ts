@@ -91,7 +91,10 @@ export const ZORU_APPS: ZoruAppDescriptor[] = [
   {
     id: "telegram",
     name: "Telegram",
-    href: "/dashboard/telegram",
+    // Telegram is project-scoped — the picker is the true landing page.
+    // Once a project is active the overview is one click away in the
+    // sidebar's Workspace group.
+    href: "/dashboard/telegram/projects",
     Icon: Send,
     migration: "done",
     isActive: (p) => !!p?.startsWith("/dashboard/telegram"),

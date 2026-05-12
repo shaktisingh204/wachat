@@ -1048,6 +1048,35 @@ export type ScheduleEventOptions = {
   enabled?: boolean;
 };
 
+/**
+ * A single filter row applied to an incoming trigger payload. The engine reads
+ * the value at `path` (dot-path against the trigger payload) and compares it to
+ * `value` using `operator`. All rows must pass (AND) for the trigger to fire.
+ */
+export type EventFilterOperator =
+  | 'equals'
+  | 'not_equals'
+  | 'contains'
+  | 'not_contains'
+  | 'starts_with'
+  | 'ends_with'
+  | 'gt'
+  | 'gte'
+  | 'lt'
+  | 'lte'
+  | 'in'
+  | 'not_in'
+  | 'exists'
+  | 'not_exists';
+
+export type EventFilter = {
+  /** Dot-path against the trigger payload, e.g. `contact.tags`, `deal.stageId`. */
+  path: string;
+  operator: EventFilterOperator;
+  /** Comparison value. For `in` / `not_in` pass a comma-separated string or array. */
+  value?: string | number | boolean | Array<string | number>;
+};
+
 export type WebhookEventOptions = {
   path: string;
   method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'ANY';
@@ -1061,6 +1090,12 @@ export type WebhookEventOptions = {
   responseData?: string;
   responseHeaders?: { name: string; value: string }[];
   enabled?: boolean;
+  /**
+   * Per-trigger filters — if any row fails to match the inbound payload the
+   * engine drops the event and the flow does not run. Empty/undefined means
+   * fire on every event for this appEvent.
+   */
+  filters?: EventFilter[];
 };
 
 export type ManualEventOptions = {

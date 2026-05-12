@@ -582,9 +582,10 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
     build: (p) => [
       {
         id: "tg-account",
-        label: "Account",
+        label: "Workspace",
         items: [
-          leaf("home", "Home", "/dashboard/telegram", Home, p),
+          leaf("projects", "Workspaces", "/dashboard/telegram/projects", FolderOpen, p),
+          leaf("home", "Overview", "/dashboard/telegram", Home, p),
           leaf("connections", "Connections", "/dashboard/telegram/connections", LinkIcon, p),
           leaf("bots", "Bots", "/dashboard/telegram/bots", ServerCog, p),
           leaf("api", "API credentials", "/dashboard/telegram/api-credentials", Key, p),

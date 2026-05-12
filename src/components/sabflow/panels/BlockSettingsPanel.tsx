@@ -58,6 +58,7 @@ import { FilterSettings } from '@/components/sabflow/panels/blocks/logic/FilterS
 import { SortSettings } from '@/components/sabflow/panels/blocks/logic/SortSettings';
 import { TestNodePanel } from '@/components/sabflow/panels/blocks/shared/TestNodePanel';
 import { NodeStatusBadge } from '@/components/sabflow/inspector/NodeStatusBadge';
+import { BlockDocsSection } from './BlockDocsSection';
 
 /* ── Props ───────────────────────────────────────────────────────────────── */
 
@@ -161,6 +162,9 @@ export function BlockSettingsPanel({ flow, onFlowChange, onVariablesChange }: Pr
                 flow={flow}
                 onBlockChange={handleBlockUpdate}
               />
+              <div className="mt-4">
+                <BlockDocsSection blockType={openedBlock.type} />
+              </div>
             </>
           )}
           {openedEvent && (
