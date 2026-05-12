@@ -11,8 +11,10 @@ use sabnode_common::Result;
 
 use crate::dto::{
     CreateImagePostBody, HashtagSearchQuery, InstagramAccountResp, InstagramCommentsResp,
-    InstagramDiscoverResp, InstagramHashtagIdResp, InstagramImagePostResp,
-    InstagramMediaDetailsResp, InstagramMediaListResp, InstagramStoriesResp,
+    InstagramConversationsResp, InstagramDiscoverResp, InstagramHashtagIdResp,
+    InstagramImagePostResp, InstagramMediaDetailsResp, InstagramMediaInsightsResp,
+    InstagramMediaListResp, InstagramMessagesResp, InstagramReelsResp, InstagramStoriesResp,
+    MediaInsightsQuery, ReelsQuery,
 };
 use crate::instagram;
 use crate::state::WachatInstagramState;
@@ -115,5 +117,78 @@ pub async fn hashtag_recent_media(
 ) -> Result<Json<InstagramMediaListResp>> {
     Ok(Json(
         instagram::hashtag_recent_media(&user, &s.mongo, &s.meta, &project_id, &hashtag_id).await?,
+    ))
+}
+
+/// `GET /v1/instagram/projects/:id/hashtags/:hashtag_id/top-media`
+pub async fn hashtag_top_media(
+    user: AuthUser,
+    State(s): State<WachatInstagramState>,
+    Path((project_id, hashtag_id)): Path<(String, String)>,
+) -> Result<Json<InstagramMediaListResp>> {
+    Ok(Json(
+        instagram::hashtag_top_media(&user, &s.mongo, &s.meta, &project_id, &hashtag_id).await?,
+    ))
+}
+
+/// `GET /v1/instagram/projects/:id/reels?limit=25`
+pub async fn reels(
+    user: AuthUser,
+    State(s): State<WachatInstagramState>,
+    Path(project_id): Path<String>,
+    Query(q): Query<ReelsQuery>,
+) -> Result<Json<InstagramReelsResp>> {
+    let limit = q.limit.unwrap_or(25);
+    Ok(Json(
+        instagram::reels(&user, &s.mongo, &s.meta, &project_id, limit).await?,
+    ))
+}
+
+/// `GET /v1/instagram/projects/:id/media/:media_id/insights?metrics=...`
+pub async fn media_insights(
+    user: AuthUser,
+    State(s): State<WachatInstagramState>,
+    Path((project_id, media_id)): Path<(String, String)>,
+    Query(q): Query<MediaInsightsQuery>,
+) -> Result<Json<InstagramMediaInsightsResp>> {
+    Ok(Json(
+        instagram::media_insights(
+            &user,
+            &s.mongo,
+            &s.meta,
+            &project_id,
+            &media_id,
+            q.metrics.as_deref(),
+        )
+        .await?,
+    ))
+}
+
+/// `GET /v1/instagram/projects/:id/conversations`
+pub async fn conversations(
+    user: AuthUser,
+    State(s): State<WachatInstagramState>,
+    Path(project_id): Path<String>,
+) -> Result<Json<InstagramConversationsResp>> {
+    Ok(Json(
+        instagram::conversations(&user, &s.mongo, &s.meta, &project_id).await?,
+    ))
+}
+
+/// `GET /v1/instagram/projects/:id/conversations/:conversation_id/messages`
+pub async fn conversation_messages(
+    user: AuthUser,
+    State(s): State<WachatInstagramState>,
+    Path((project_id, conversation_id)): Path<(String, String)>,
+) -> Result<Json<InstagramMessagesResp>> {
+    Ok(Json(
+        instagram::conversation_messages(
+            &user,
+            &s.mongo,
+            &s.meta,
+            &project_id,
+            &conversation_id,
+        )
+        .await?,
     ))
 }

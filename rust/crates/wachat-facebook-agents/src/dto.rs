@@ -43,6 +43,10 @@ pub struct CreateAgentBody {
     pub fallback_message: Option<String>,
     #[serde(default)]
     pub is_active: bool,
+    /// Optional model identifier used by the chatbot agent UI (e.g.
+    /// `"gemini-1.5-flash"`). Persisted verbatim onto the agent doc.
+    #[serde(default)]
+    pub model: Option<String>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -100,6 +104,11 @@ pub struct SaveModerationRuleBody {
     /// in place; otherwise a new rule is inserted.
     #[serde(default)]
     pub rule_id: Option<String>,
+    /// Optional display title shown in the moderation rules table. When
+    /// `None`, the field is left untouched on updates and omitted on
+    /// inserts (Mongo treats it as absent — old docs deserialize cleanly).
+    #[serde(default)]
+    pub name: Option<String>,
 }
 
 // ---------------------------------------------------------------------------

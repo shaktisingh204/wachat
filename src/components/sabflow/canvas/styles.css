@@ -407,12 +407,19 @@
   border-color: var(--gray-8);
 }
 
-/* Input/output handle positions nudge for a cleaner look */
+/* Input/output handle positions nudge for a cleaner look. Negative offsets
+   make each dot straddle the node edge so the handle sits half-in/half-out. */
 .sabflow-canvas .react-flow__handle-left {
   left: -6px;
 }
 .sabflow-canvas .react-flow__handle-right {
   right: -6px;
+}
+.sabflow-canvas .react-flow__handle-top {
+  top: -6px;
+}
+.sabflow-canvas .react-flow__handle-bottom {
+  bottom: -6px;
 }
 
 /* ── Edge ─────────────────────────────────────────────────── */

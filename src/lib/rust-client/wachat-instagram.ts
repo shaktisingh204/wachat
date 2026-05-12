@@ -16,6 +16,11 @@
  *   GET    /projects/:id/discover/:username                   → discoverAccount
  *   GET    /projects/:id/hashtag-search?q=...                 → searchHashtagId
  *   GET    /projects/:id/hashtags/:hashtagId/recent-media     → getHashtagRecentMedia
+ *   GET    /projects/:id/hashtags/:hashtagId/top-media        → getHashtagTopMedia
+ *   GET    /projects/:id/reels?limit=25                       → getReels
+ *   GET    /projects/:id/media/:mediaId/insights?metrics=...  → getMediaInsights
+ *   GET    /projects/:id/conversations                        → getConversations
+ *   GET    /projects/:id/conversations/:convId/messages       → getConversationMessages
  *
  * Server-only — uses the shared JWT-issuing fetcher.
  */
@@ -80,6 +85,32 @@ export interface CreateInstagramImagePostBody {
     caption?: string;
 }
 
+export interface InstagramReelsResp {
+    reels?: any[];
+    error?: string;
+}
+
+export interface InstagramMediaInsightsResp {
+    /**
+     * Raw `data` array from Graph's `/insights` response. Each entry has the
+     * shape `{ name, period, values: [{ value, end_time? }], title?, description? }`.
+     * The legacy TS callers want a `Record<string, number>` so they reshape
+     * this in their adapter — see `instagram.actions.ts`.
+     */
+    data?: any[];
+    error?: string;
+}
+
+export interface InstagramConversationsResp {
+    conversations?: any[];
+    error?: string;
+}
+
+export interface InstagramMessagesResp {
+    messages?: any[];
+    error?: string;
+}
+
 // ---------------------------------------------------------------------------
 // Public namespace
 // ---------------------------------------------------------------------------
@@ -123,6 +154,33 @@ export const wachatInstagramApi = {
     getHashtagRecentMedia: (projectId: string, hashtagId: string) =>
         rustFetch<InstagramMediaListResp>(
             `${BASE}/projects/${enc(projectId)}/hashtags/${enc(hashtagId)}/recent-media`,
+        ),
+
+    getHashtagTopMedia: (projectId: string, hashtagId: string) =>
+        rustFetch<InstagramMediaListResp>(
+            `${BASE}/projects/${enc(projectId)}/hashtags/${enc(hashtagId)}/top-media`,
+        ),
+
+    getReels: (projectId: string, limit = 25) =>
+        rustFetch<InstagramReelsResp>(
+            `${BASE}/projects/${enc(projectId)}/reels?limit=${encodeURIComponent(String(limit))}`,
+        ),
+
+    getMediaInsights: (projectId: string, mediaId: string, metrics?: string) => {
+        const qs = metrics && metrics.length > 0 ? `?metrics=${enc(metrics)}` : '';
+        return rustFetch<InstagramMediaInsightsResp>(
+            `${BASE}/projects/${enc(projectId)}/media/${enc(mediaId)}/insights${qs}`,
+        );
+    },
+
+    getConversations: (projectId: string) =>
+        rustFetch<InstagramConversationsResp>(
+            `${BASE}/projects/${enc(projectId)}/conversations`,
+        ),
+
+    getConversationMessages: (projectId: string, conversationId: string) =>
+        rustFetch<InstagramMessagesResp>(
+            `${BASE}/projects/${enc(projectId)}/conversations/${enc(conversationId)}/messages`,
         ),
 };
 

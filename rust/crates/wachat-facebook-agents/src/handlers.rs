@@ -144,7 +144,7 @@ pub async fn create_agent(
     let project = load_project_for(&user, &state.mongo, &project_id).await?;
     let now = bson::DateTime::from_chrono(Utc::now());
     let coll = state.mongo.collection::<Document>(AGENTS_COLL);
-    coll.insert_one(doc! {
+    let mut to_insert = doc! {
         "projectId": project.id,
         "name": &body.name,
         "personality": body.personality.unwrap_or_else(|| "friendly and helpful".to_owned()),
@@ -154,9 +154,13 @@ pub async fn create_agent(
         "knowledgeSources": Vec::<Bson>::new(),
         "createdAt": now,
         "updatedAt": now,
-    })
-    .await
-    .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
+    };
+    if let Some(model) = body.model.filter(|s| !s.is_empty()) {
+        to_insert.insert("model", model);
+    }
+    coll.insert_one(to_insert)
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
 
     Ok(Json(MessageResp {
         message: format!("Agent \"{}\" created successfully!", body.name),
@@ -323,20 +327,23 @@ pub async fn save_moderation_rule(
         .and_then(|s| ObjectId::parse_str(s).ok());
 
     if let Some(rule_oid) = upsert_existing {
-        coll.update_one(
-            doc! { "_id": rule_oid },
-            doc! { "$set": {
-                "keywords": &keyword_list,
-                "action": &body.action,
-                "autoReplyText": &auto_reply_text,
-                "isActive": body.is_active,
-                "updatedAt": now,
-            } },
-        )
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
+        let mut set_doc = doc! {
+            "keywords": &keyword_list,
+            "action": &body.action,
+            "autoReplyText": &auto_reply_text,
+            "isActive": body.is_active,
+            "updatedAt": now,
+        };
+        // Only touch `name` when the caller actually sent it — `None`
+        // means leave the existing title alone.
+        if let Some(name) = body.name.as_ref() {
+            set_doc.insert("name", name);
+        }
+        coll.update_one(doc! { "_id": rule_oid }, doc! { "$set": set_doc })
+            .await
+            .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
     } else {
-        coll.insert_one(doc! {
+        let mut to_insert = doc! {
             "projectId": project.id,
             "keywords": &keyword_list,
             "action": &body.action,
@@ -344,9 +351,13 @@ pub async fn save_moderation_rule(
             "isActive": body.is_active,
             "createdAt": now,
             "updatedAt": now,
-        })
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
+        };
+        if let Some(name) = body.name.as_ref() {
+            to_insert.insert("name", name);
+        }
+        coll.insert_one(to_insert)
+            .await
+            .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
     }
     Ok(Json(MessageResp {
         message: "Moderation rule saved.".to_owned(),

@@ -283,8 +283,8 @@ pub async fn update_department(
     Ok(Json(row))
 }
 
-/// `DELETE /v1/crm/departments/:departmentId` — soft delete. Sets
-/// `archived = true` and stamps `deletedAt`.
+/// `DELETE /v1/crm/departments/:departmentId` — **hard delete** per the
+/// CRM ecosystem plan (`docs/ecosystem/CRM_PLAN.md` §10).
 #[instrument(skip_all, fields(user_id = %user.user_id, department_id = %department_id))]
 pub async fn delete_department(
     user: AuthUser,
@@ -294,28 +294,17 @@ pub async fn delete_department(
     let user_id = user_oid(&user)?;
     let oid = oid_from_str(&department_id)?;
 
-    let now = bson::DateTime::from_chrono(Utc::now());
-    let mut filter = base_ownership_filter(user_id);
-    filter.insert("_id", oid);
-
-    let update = doc! {
-        "$set": {
-            "archived": true,
-            "deletedAt": now,
-            "updatedAt": now,
-            "updatedBy": user_id,
-        },
-    };
+    let filter = doc! { "_id": oid, "userId": user_id };
 
     let coll = mongo.collection::<Document>(DEPARTMENTS_COLL);
-    let res = coll.update_one(filter, update).await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("crm_departments.soft_delete"))
+    let res = coll.delete_one(filter).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("crm_departments.delete_one"))
     })?;
-    if res.matched_count == 0 {
+    if res.deleted_count == 0 {
         return Err(ApiError::NotFound("department".to_owned()));
     }
 
-    Ok(Json(serde_json::json!({ "ok": true, "archived": true })))
+    Ok(Json(serde_json::json!({ "ok": true, "deleted": true })))
 }
 
 // =========================================================================
@@ -527,28 +516,17 @@ pub async fn delete_designation(
     let user_id = user_oid(&user)?;
     let oid = oid_from_str(&designation_id)?;
 
-    let now = bson::DateTime::from_chrono(Utc::now());
-    let mut filter = base_ownership_filter(user_id);
-    filter.insert("_id", oid);
-
-    let update = doc! {
-        "$set": {
-            "archived": true,
-            "deletedAt": now,
-            "updatedAt": now,
-            "updatedBy": user_id,
-        },
-    };
+    let filter = doc! { "_id": oid, "userId": user_id };
 
     let coll = mongo.collection::<Document>(DESIGNATIONS_COLL);
-    let res = coll.update_one(filter, update).await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("crm_designations.soft_delete"))
+    let res = coll.delete_one(filter).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("crm_designations.delete_one"))
     })?;
-    if res.matched_count == 0 {
+    if res.deleted_count == 0 {
         return Err(ApiError::NotFound("designation".to_owned()));
     }
 
-    Ok(Json(serde_json::json!({ "ok": true, "archived": true })))
+    Ok(Json(serde_json::json!({ "ok": true, "deleted": true })))
 }
 
 // =========================================================================

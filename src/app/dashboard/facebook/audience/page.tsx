@@ -1,18 +1,476 @@
 'use client';
 
-import { Users } from 'lucide-react';
-import { WorkingFeaturePage } from '@/components/dashboard/working-feature-page';
+/**
+ * /dashboard/facebook/audience — Audience demographics + saved segments.
+ *
+ * Top panel: Page-fan demographics (gender, age, top countries) rendered
+ * with ZoruProgress bars. Bottom panel: saved audience segments with a
+ * "New segment" dialog. Backed by Rust BFF actions in
+ * `src/app/actions/facebook.actions.ts`.
+ */
 
-export default function Page() {
+import * as React from 'react';
+import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
+import { AlertCircle, Plus, RefreshCw, Users } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
+
+import { useProject } from '@/context/project-context';
+import {
+  getAudienceSegments,
+  getPageFanDemographics,
+  saveAudienceSegment,
+} from '@/app/actions/facebook.actions';
+
+import {
+  ZoruAlert,
+  ZoruAlertDescription,
+  ZoruAlertTitle,
+  ZoruBadge,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruEmptyState,
+  ZoruInput,
+  ZoruLabel,
+  ZoruProgress,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruSkeleton,
+  ZoruTextarea,
+  zoruSonnerToast,
+} from '@/components/zoruui';
+
+interface AudienceSegment {
+  _id?: string;
+  id?: string;
+  name?: string;
+  description?: string;
+  size?: number;
+  contactCount?: number;
+  filterCity?: string;
+  filterCountry?: string;
+  filterGender?: string;
+  filterAgeMin?: number;
+  filterAgeMax?: number;
+  createdAt?: string;
+}
+
+function fmtDate(iso?: string): string {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  return formatDistanceToNow(d, { addSuffix: true });
+}
+
+interface DemoBucket {
+  label: string;
+  value: number;
+}
+
+/**
+ * Normalises whatever shape comes back from `getPageFanDemographics`
+ * into three lists: gender, age, top countries. The Rust response keys
+ * vary across Page API versions — we accept both Graph-style keys
+ * (`fans_gender_age`, `fans_country`) and BFF-flattened keys
+ * (`gender`, `age`, `countries`).
+ */
+function normalizeDemographics(d: any): {
+  gender: DemoBucket[];
+  age: DemoBucket[];
+  countries: DemoBucket[];
+} {
+  if (!d || typeof d !== 'object') {
+    return { gender: [], age: [], countries: [] };
+  }
+
+  const genderRaw =
+    d.gender ?? d.fans_gender ?? d.fans_by_gender ?? d.fans_gender_age ?? {};
+  const ageRaw = d.age ?? d.fans_age ?? d.fans_by_age ?? d.fans_gender_age ?? {};
+  const countryRaw =
+    d.countries ?? d.fans_country ?? d.fans_by_country ?? d.country ?? {};
+
+  const gMap: Record<string, number> = {};
+  const aMap: Record<string, number> = {};
+  if (genderRaw && typeof genderRaw === 'object') {
+    for (const [k, v] of Object.entries(genderRaw)) {
+      const num = typeof v === 'number' ? v : Number(v);
+      if (Number.isNaN(num)) continue;
+      // Keys like "M.25-34" → gender = M, age = 25-34.
+      const m = k.match(/^([MFUmfu])\.(.+)$/);
+      if (m) {
+        const gk = m[1].toUpperCase();
+        gMap[gk] = (gMap[gk] ?? 0) + num;
+        aMap[m[2]] = (aMap[m[2]] ?? 0) + num;
+      } else {
+        gMap[k] = (gMap[k] ?? 0) + num;
+      }
+    }
+  }
+  if (ageRaw && typeof ageRaw === 'object' && Object.keys(aMap).length === 0) {
+    for (const [k, v] of Object.entries(ageRaw)) {
+      const num = typeof v === 'number' ? v : Number(v);
+      if (!Number.isNaN(num)) aMap[k] = num;
+    }
+  }
+  const cMap: Record<string, number> = {};
+  if (countryRaw && typeof countryRaw === 'object') {
+    for (const [k, v] of Object.entries(countryRaw)) {
+      const num = typeof v === 'number' ? v : Number(v);
+      if (!Number.isNaN(num)) cMap[k] = num;
+    }
+  }
+
+  const sortDesc = (a: DemoBucket, b: DemoBucket) => b.value - a.value;
+  const genderPretty: Record<string, string> = { M: 'Male', F: 'Female', U: 'Unknown' };
+  return {
+    gender: Object.entries(gMap)
+      .map(([k, v]) => ({ label: genderPretty[k] ?? k, value: v }))
+      .sort(sortDesc),
+    age: Object.entries(aMap)
+      .map(([k, v]) => ({ label: k, value: v }))
+      .sort((a, b) => a.label.localeCompare(b.label)),
+    countries: Object.entries(cMap)
+      .map(([k, v]) => ({ label: k, value: v }))
+      .sort(sortDesc)
+      .slice(0, 8),
+  };
+}
+
+function DemoBars({ title, buckets }: { title: string; buckets: DemoBucket[] }) {
+  const total = buckets.reduce((acc, b) => acc + b.value, 0);
   return (
-    <WorkingFeaturePage
-      title="Audience Segments"
-      description="Build and maintain reusable audience segments for campaigns, replies, and remarketing journeys."
-      eyebrow="Meta Suite"
-      icon={Users}
-      accent="#7C3AED"
-      storageKey="dashboard-facebook-audience"
-      primaryActionLabel="Create segment"
-    />
+    <ZoruCard className="flex flex-col gap-3 p-4">
+      <p className="text-xs font-medium uppercase tracking-wide text-zoru-ink-subtle">
+        {title}
+      </p>
+      {buckets.length === 0 ? (
+        <p className="text-xs text-zoru-ink-muted">No data.</p>
+      ) : (
+        <ul className="flex flex-col gap-2.5">
+          {buckets.map((b) => {
+            const pct = total > 0 ? Math.round((b.value / total) * 100) : 0;
+            return (
+              <li key={b.label} className="flex flex-col gap-1">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-zoru-ink">{b.label}</span>
+                  <span className="text-zoru-ink-muted">{pct}%</span>
+                </div>
+                <ZoruProgress value={pct} />
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </ZoruCard>
+  );
+}
+
+export default function FacebookAudiencePage(): React.JSX.Element {
+  const { activeProject } = useProject();
+  const projectId = activeProject?._id?.toString() ?? '';
+
+  const [segments, setSegments] = useState<AudienceSegment[]>([]);
+  const [demographics, setDemographics] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, startLoading] = useTransition();
+  const [saving, startSaving] = useTransition();
+
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [formName, setFormName] = useState('');
+  const [formDesc, setFormDesc] = useState('');
+  const [formGender, setFormGender] = useState<string>('any');
+  const [formAgeMin, setFormAgeMin] = useState('');
+  const [formAgeMax, setFormAgeMax] = useState('');
+
+  const refresh = useCallback(() => {
+    if (!projectId) return;
+    startLoading(async () => {
+      const [segRes, demoRes] = await Promise.all([
+        getAudienceSegments(projectId),
+        getPageFanDemographics(projectId),
+      ]);
+      if (segRes.error && demoRes.error) {
+        setError(segRes.error);
+      } else {
+        setError(null);
+      }
+      setSegments((segRes.segments as AudienceSegment[]) ?? []);
+      setDemographics(demoRes.demographics ?? null);
+    });
+  }, [projectId]);
+
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
+
+  const buckets = useMemo(() => normalizeDemographics(demographics), [demographics]);
+
+  const resetForm = () => {
+    setFormName('');
+    setFormDesc('');
+    setFormGender('any');
+    setFormAgeMin('');
+    setFormAgeMax('');
+  };
+
+  const handleSave = () => {
+    if (!projectId) return;
+    if (!formName.trim()) {
+      zoruSonnerToast.error('Segment name is required.');
+      return;
+    }
+    startSaving(async () => {
+      const fd = new FormData();
+      fd.set('projectId', projectId);
+      fd.set('name', formName.trim());
+      if (formDesc.trim()) fd.set('description', formDesc.trim());
+      if (formGender && formGender !== 'any') fd.set('filterGender', formGender);
+      if (formAgeMin) fd.set('filterAgeMin', formAgeMin);
+      if (formAgeMax) fd.set('filterAgeMax', formAgeMax);
+      const res = await saveAudienceSegment(undefined, fd);
+      if (res.error) {
+        zoruSonnerToast.error(res.error);
+        return;
+      }
+      zoruSonnerToast.success(res.message ?? 'Segment saved.');
+      setDialogOpen(false);
+      resetForm();
+      refresh();
+    });
+  };
+
+  if (!projectId) {
+    return (
+      <div className="p-6">
+        <ZoruEmptyState
+          icon={<Users />}
+          title="No project selected"
+          description="Pick a Facebook page / project to view audience demographics and segments."
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-4 px-6 pt-6 pb-10">
+      <ZoruBreadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard/facebook">Meta Suite</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>Audience</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </ZoruBreadcrumb>
+
+      <header className="flex items-end justify-between gap-4">
+        <div>
+          <h1 className="text-2xl text-zoru-ink">Audience</h1>
+          <p className="mt-1 text-sm text-zoru-ink-muted">
+            Demographic breakdown of Page fans and reusable audience segments.
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <ZoruButton variant="ghost" onClick={refresh} disabled={loading}>
+            <RefreshCw className={loading ? 'mr-2 h-4 w-4 animate-spin' : 'mr-2 h-4 w-4'} />
+            Refresh
+          </ZoruButton>
+          <ZoruButton onClick={() => setDialogOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            New segment
+          </ZoruButton>
+        </div>
+      </header>
+
+      {error && (
+        <ZoruAlert variant="destructive">
+          <AlertCircle />
+          <ZoruAlertTitle>Could not load audience data</ZoruAlertTitle>
+          <ZoruAlertDescription>{error}</ZoruAlertDescription>
+        </ZoruAlert>
+      )}
+
+      <section className="grid grid-cols-1 gap-3 md:grid-cols-3">
+        {loading && !demographics ? (
+          <>
+            <ZoruSkeleton className="h-40 w-full" />
+            <ZoruSkeleton className="h-40 w-full" />
+            <ZoruSkeleton className="h-40 w-full" />
+          </>
+        ) : (
+          <>
+            <DemoBars title="Gender" buckets={buckets.gender} />
+            <DemoBars title="Age" buckets={buckets.age} />
+            <DemoBars title="Top countries" buckets={buckets.countries} />
+          </>
+        )}
+      </section>
+
+      <ZoruCard>
+        <ZoruCardHeader>
+          <ZoruCardTitle>Saved segments</ZoruCardTitle>
+        </ZoruCardHeader>
+        <ZoruCardContent>
+          {loading && segments.length === 0 ? (
+            <div className="flex flex-col gap-2">
+              <ZoruSkeleton className="h-12 w-full" />
+              <ZoruSkeleton className="h-12 w-full" />
+            </div>
+          ) : segments.length === 0 ? (
+            <ZoruEmptyState
+              icon={<Users />}
+              title="No segments yet"
+              description="Create a segment to group people by gender, age, or location for campaigns."
+            />
+          ) : (
+            <ul className="flex flex-col gap-2">
+              {segments.map((s) => {
+                const key = s._id ?? s.id ?? s.name ?? Math.random().toString(36);
+                const size = s.size ?? s.contactCount ?? 0;
+                const crit: string[] = [];
+                if (s.filterGender) crit.push(`gender: ${s.filterGender}`);
+                if (s.filterAgeMin || s.filterAgeMax) {
+                  crit.push(
+                    `age: ${s.filterAgeMin ?? '?'}-${s.filterAgeMax ?? '?'}`,
+                  );
+                }
+                if (s.filterCountry) crit.push(`country: ${s.filterCountry}`);
+                if (s.filterCity) crit.push(`city: ${s.filterCity}`);
+                return (
+                  <li
+                    key={key}
+                    className="flex flex-wrap items-center gap-3 rounded-md border border-zoru-line px-3 py-2"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <p className="line-clamp-1 text-sm text-zoru-ink">
+                        {s.name ?? '(untitled)'}
+                      </p>
+                      {s.description ? (
+                        <p className="line-clamp-1 text-xs text-zoru-ink-muted">
+                          {s.description}
+                        </p>
+                      ) : null}
+                      {crit.length > 0 ? (
+                        <p className="mt-0.5 text-[11px] text-zoru-ink-subtle">
+                          {crit.join(' · ')}
+                        </p>
+                      ) : null}
+                    </div>
+                    <ZoruBadge variant="secondary">
+                      {Number(size).toLocaleString()} contacts
+                    </ZoruBadge>
+                    <span className="text-[11px] text-zoru-ink-muted">
+                      {fmtDate(s.createdAt)}
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </ZoruCardContent>
+      </ZoruCard>
+
+      <ZoruDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <ZoruDialogContent>
+          <ZoruDialogHeader>
+            <ZoruDialogTitle>New audience segment</ZoruDialogTitle>
+            <ZoruDialogDescription>
+              Define a reusable segment by gender, age, or freeform notes.
+            </ZoruDialogDescription>
+          </ZoruDialogHeader>
+          <div className="flex flex-col gap-3 py-2">
+            <div className="flex flex-col gap-1.5">
+              <ZoruLabel htmlFor="seg-name">Name</ZoruLabel>
+              <ZoruInput
+                id="seg-name"
+                value={formName}
+                onChange={(e) => setFormName(e.target.value)}
+                placeholder="High-intent women, 25-34"
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <ZoruLabel htmlFor="seg-desc">Description</ZoruLabel>
+              <ZoruTextarea
+                id="seg-desc"
+                value={formDesc}
+                onChange={(e) => setFormDesc(e.target.value)}
+                rows={2}
+                placeholder="Optional notes about who this segment targets."
+              />
+            </div>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+              <div className="flex flex-col gap-1.5">
+                <ZoruLabel htmlFor="seg-gender">Gender</ZoruLabel>
+                <ZoruSelect value={formGender} onValueChange={setFormGender}>
+                  <ZoruSelectTrigger id="seg-gender">
+                    <ZoruSelectValue placeholder="Any" />
+                  </ZoruSelectTrigger>
+                  <ZoruSelectContent>
+                    <ZoruSelectItem value="any">Any</ZoruSelectItem>
+                    <ZoruSelectItem value="male">Male</ZoruSelectItem>
+                    <ZoruSelectItem value="female">Female</ZoruSelectItem>
+                  </ZoruSelectContent>
+                </ZoruSelect>
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <ZoruLabel htmlFor="seg-age-min">Min age</ZoruLabel>
+                <ZoruInput
+                  id="seg-age-min"
+                  type="number"
+                  min={13}
+                  value={formAgeMin}
+                  onChange={(e) => setFormAgeMin(e.target.value)}
+                />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <ZoruLabel htmlFor="seg-age-max">Max age</ZoruLabel>
+                <ZoruInput
+                  id="seg-age-max"
+                  type="number"
+                  min={13}
+                  value={formAgeMax}
+                  onChange={(e) => setFormAgeMax(e.target.value)}
+                />
+              </div>
+            </div>
+          </div>
+          <ZoruDialogFooter>
+            <ZoruButton
+              variant="ghost"
+              onClick={() => setDialogOpen(false)}
+              disabled={saving}
+            >
+              Cancel
+            </ZoruButton>
+            <ZoruButton onClick={handleSave} disabled={saving}>
+              {saving ? 'Saving...' : 'Save segment'}
+            </ZoruButton>
+          </ZoruDialogFooter>
+        </ZoruDialogContent>
+      </ZoruDialog>
+    </div>
   );
 }
