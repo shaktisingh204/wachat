@@ -184,8 +184,19 @@ export async function deleteLeadAction(
 }
 
 /* ─── Programmatic helpers (typed) ────────────────────────────── */
+//
+// 'use server' files only allow async exports — these helpers thinly
+// wrap the Rust client so callers don't have to remember `await
+// crmLeadsApi.x(...)`.
 
-export const createLead = (input: CrmLeadCreateInput) => crmLeadsApi.create(input);
-export const updateLead = (id: string, patch: CrmLeadUpdateInput) =>
-  crmLeadsApi.update(id, patch);
-export const deleteLead = (id: string) => crmLeadsApi.delete(id);
+export async function createLead(input: CrmLeadCreateInput) {
+  return crmLeadsApi.create(input);
+}
+
+export async function updateLead(id: string, patch: CrmLeadUpdateInput) {
+  return crmLeadsApi.update(id, patch);
+}
+
+export async function deleteLead(id: string) {
+  return crmLeadsApi.delete(id);
+}

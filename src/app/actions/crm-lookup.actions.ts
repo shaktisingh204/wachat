@@ -290,6 +290,46 @@ const registry: LookupRegistry = {
     }),
   }),
 
+  invoice: makeMongoLookup({
+    collection: 'crm_invoices',
+    searchableFields: ['invoiceNo', 'customerName', 'reference'],
+    rawFields: ['invoiceNo', 'customerName', 'customerId', 'issueDate', 'dueDate',
+                'totals', 'status', 'currency'],
+    sort: { issueDate: -1, createdAt: -1 },
+    toChip: (doc) => {
+      const totalRaw = doc?.totals?.total;
+      const totalNum = typeof totalRaw === 'number' ? totalRaw : Number(totalRaw ?? NaN);
+      const total = Number.isFinite(totalNum)
+        ? new Intl.NumberFormat('en-IN', { style: 'currency', currency: doc.currency || 'INR', maximumFractionDigits: 0 }).format(totalNum)
+        : undefined;
+      return {
+        primary: doc.invoiceNo || 'Invoice',
+        secondary: doc.customerName || undefined,
+        tertiary: total,
+      };
+    },
+  }),
+
+  quotation: makeMongoLookup({
+    collection: 'crm_quotations',
+    searchableFields: ['quotationNo', 'customerName', 'reference', 'title'],
+    rawFields: ['quotationNo', 'title', 'customerName', 'customerId',
+                'issueDate', 'validUntil', 'totals', 'status', 'currency'],
+    sort: { issueDate: -1, createdAt: -1 },
+    toChip: (doc) => {
+      const totalRaw = doc?.totals?.total;
+      const totalNum = typeof totalRaw === 'number' ? totalRaw : Number(totalRaw ?? NaN);
+      const total = Number.isFinite(totalNum)
+        ? new Intl.NumberFormat('en-IN', { style: 'currency', currency: doc.currency || 'INR', maximumFractionDigits: 0 }).format(totalNum)
+        : undefined;
+      return {
+        primary: doc.quotationNo || doc.title || 'Quotation',
+        secondary: doc.customerName || undefined,
+        tertiary: total,
+      };
+    },
+  }),
+
   deal: makeMongoLookup({
     collection: 'crm_deals',
     searchableFields: ['title'],
