@@ -98,22 +98,24 @@ export function BotDetailDrawer({
     const [section, setSection] = React.useState<Section>('overview');
     const [bot, setBot] = React.useState<BotRow | null>(null);
     const [loading, setLoading] = React.useState(false);
+    const [loadError, setLoadError] = React.useState<string | null>(null);
     const { toast } = useToast();
 
     const reload = React.useCallback(async () => {
         if (!botId) return;
         setLoading(true);
+        setLoadError(null);
         try {
             const res = await getTelegramBotAction(botId);
-            // `res.bot` may be undefined if the Rust BFF is unavailable and
-            // the Mongo fallback can't find the row either. Either way the
-            // skeleton must come down — the panel-level UI can surface an
-            // empty state on its own.
-            setBot(res.bot ?? null);
-        } catch {
-            // Server action failures already log on the server side. Don't
-            // leave the drawer stuck on the skeleton.
+            if (res.bot) {
+                setBot(res.bot);
+            } else {
+                setBot(null);
+                setLoadError(res.error ?? 'Bot not found.');
+            }
+        } catch (e) {
             setBot(null);
+            setLoadError(e instanceof Error ? e.message : String(e));
         } finally {
             setLoading(false);
         }
@@ -123,6 +125,7 @@ export function BotDetailDrawer({
         if (open) {
             setSection('overview');
             setBot(null);
+            setLoadError(null);
             reload();
         }
     }, [open, reload]);
@@ -204,11 +207,32 @@ export function BotDetailDrawer({
                 </ZoruSheetHeader>
 
                 <div className="flex-1 overflow-y-auto p-6">
-                    {loading || !bot ? (
+                    {loading ? (
                         <div className="flex flex-col gap-3">
                             <ZoruSkeleton className="h-8 w-1/2" />
                             <ZoruSkeleton className="h-6 w-3/4" />
                             <ZoruSkeleton className="h-32 w-full" />
+                        </div>
+                    ) : !bot ? (
+                        <div className="flex flex-col items-start gap-3 rounded-lg border border-zoru-danger-line bg-zoru-danger-bg p-4 text-[12.5px] text-zoru-danger-ink">
+                            <div className="flex items-start gap-2">
+                                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
+                                <div className="flex flex-col gap-1">
+                                    <p className="font-medium">Could not load bot</p>
+                                    <p className="text-[12px]">
+                                        {loadError ??
+                                            'The Telegram backend did not return a bot for this id.'}
+                                    </p>
+                                </div>
+                            </div>
+                            <ZoruButton
+                                variant="outline"
+                                size="sm"
+                                onClick={reload}
+                            >
+                                <RefreshCw className="h-3 w-3" aria-hidden />
+                                Retry
+                            </ZoruButton>
                         </div>
                     ) : section === 'overview' ? (
                         <OverviewPanel bot={bot} onRefresh={mutated} toast={toast} />

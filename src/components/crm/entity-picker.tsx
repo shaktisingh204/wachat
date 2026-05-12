@@ -57,11 +57,12 @@ import {
   rustLookupEntity,
   recordPickedRecent,
 } from '@/lib/rust-lookup-client';
-import type {
-  EntityKey,
-  LookupItem,
-  LookupParams,
-  LookupResult,
+import {
+  type EntityKey,
+  type LookupItem,
+  type LookupParams,
+  type LookupResult,
+  isReferenceEntity,
 } from '@/lib/lookup-registry';
 
 /**
@@ -103,8 +104,22 @@ export interface EntityPickerProps {
   placeholder?: string;
   filter?: Record<string, unknown>;
   scope?: 'project' | 'tenant' | 'global';
+  /**
+   * Show a "Create new" item at the bottom of the dropdown.
+   * - For reference entities (country/city/etc) `onCreateClick` is unused
+   *   — the picker commits the typed search value directly via `onChange`.
+   *   This is the default for reference entities (`inlineCreate` auto-on).
+   * - For tenant entities (client/project/etc) callers should provide
+   *   `onCreateClick` to open their own create dialog.
+   */
   allowCreate?: boolean;
   onCreateClick?: () => void;
+  /**
+   * Force inline-create behavior (commit raw search string via onChange).
+   * Defaults to `true` for entities listed in `REFERENCE_ENTITY_KEYS`.
+   * Set explicitly to opt-in/out on a per-instance basis.
+   */
+  inlineCreate?: boolean;
   recentLimit?: number;
   showChipMeta?: boolean;
   popoverWidth?: 'trigger' | 'auto' | number;
@@ -126,18 +141,26 @@ const ENTITY_LABEL: Record<EntityKey, string> = {
   bankAccount: 'bank account',
   branch: 'branch',
   category: 'category',
+  city: 'city',
+  country: 'country',
   currency: 'currency',
   department: 'department',
   designation: 'designation',
+  industry: 'industry',
+  jobTitle: 'job title',
+  language: 'language',
+  leadSource: 'lead source',
+  location: 'location',
   pipeline: 'pipeline',
   project: 'project',
+  salutation: 'salutation',
   stage: 'stage',
+  state: 'state',
   tag: 'tag',
   taxRate: 'tax rate',
+  timezone: 'timezone',
   brand: 'brand',
   unit: 'unit',
-  industry: 'industry',
-  location: 'location',
   vendorType: 'vendor type',
 };
 
@@ -324,6 +347,7 @@ export function EntityPicker({
   scope,
   allowCreate = false,
   onCreateClick,
+  inlineCreate,
   recentLimit = 5,
   showChipMeta = true,
   popoverWidth = 'trigger',
@@ -769,27 +793,49 @@ export function EntityPicker({
                 ) : null}
               </CommandGroup>
 
-              {allowCreate ? (
-                <CommandGroup>
-                  <CommandItem
-                    key="__create__"
-                    value="__create__"
-                    onSelect={() => {
-                      setOpen(false);
-                      onCreateClick?.();
-                    }}
-                    className="text-zoru-ink"
-                  >
-                    <Plus className="mr-2 h-4 w-4" />
-                    Create new {ENTITY_LABEL[entity]}
-                    {search.trim() ? (
-                      <span className="ml-1 truncate text-zoru-ink-muted">
-                        “{search.trim()}”
-                      </span>
-                    ) : null}
-                  </CommandItem>
-                </CommandGroup>
-              ) : null}
+              {(() => {
+                const isReference = isReferenceEntity(entity);
+                const useInline = inlineCreate ?? isReference;
+                const showCreate = allowCreate || useInline;
+                if (!showCreate) return null;
+                const typed = search.trim();
+                const hasExactMatch = results.some(
+                  (r) => r.chip.primary.toLowerCase() === typed.toLowerCase(),
+                );
+                // For inline-create we only show the option when the user
+                // has typed something that's not already an exact match.
+                if (useInline && (!typed || hasExactMatch)) return null;
+                return (
+                  <CommandGroup>
+                    <CommandItem
+                      key="__create__"
+                      value="__create__"
+                      onSelect={() => {
+                        if (useInline && typed) {
+                          const synthetic: LookupItem = {
+                            id: typed,
+                            chip: { primary: typed },
+                            raw: { name: typed, _inlineCreated: true },
+                          };
+                          commitSelection(synthetic);
+                          return;
+                        }
+                        setOpen(false);
+                        onCreateClick?.();
+                      }}
+                      className="text-zoru-ink"
+                    >
+                      <Plus className="mr-2 h-4 w-4" />
+                      {useInline ? `Use` : `Create new ${ENTITY_LABEL[entity]}`}
+                      {typed ? (
+                        <span className="ml-1 truncate text-zoru-ink-muted">
+                          “{typed}”
+                        </span>
+                      ) : null}
+                    </CommandItem>
+                  </CommandGroup>
+                );
+              })()}
             </CommandList>
           </Command>
         </PopoverContent>

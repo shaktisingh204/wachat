@@ -19,23 +19,31 @@ export type EntityKey =
   | 'branch'      // Multi-branch location (collection TBD — see action TODO)
   | 'brand'       // Product brand (free-text dropdown today; `crm_brands` future)
   | 'category'    // Product category (`crm_product_categories`)
+  | 'city'        // Static city list (src/data/reference/cities.ts) + inline-create
   | 'client'      // CRM Account (the company/client record on `crm_accounts`)
+  | 'country'     // Static country list (src/data/reference/countries.ts)
   | 'currency'    // Static currency list (no DB)
   | 'department'  // HR department (`crm_departments`)
   | 'designation' // HR designation (`crm_designations`)
   | 'employee'    // HR Employee (`crm_employees`)
-  | 'industry'    // Industry classification (static enum)
+  | 'industry'    // Industry classification (static enum) + inline-create
   | 'item'        // CRM Product / Item (`crm_products`)
+  | 'jobTitle'    // Job title taxonomy (static + inline-create)
+  | 'language'    // Static ISO 639-1 language list
+  | 'leadSource'  // Lead source taxonomy (static + inline-create)
   | 'location'    // Country/state/city location lookup (TODO collection)
   | 'pipeline'    // Sales pipeline (embedded on `users.crmPipelines`)
   | 'project'     // CRM Project (`crm_projects`)
+  | 'salutation'  // Salutation list (Mr/Mrs/Dr/...) (static + inline-create)
   | 'stage'       // Pipeline stage (embedded on `users.crmPipelines[].stages`)
+  | 'state'       // Static state/region list (src/data/reference/states.ts)
   | 'tag'         // Cross-entity tag (collection TBD — see action TODO)
   | 'taxRate'     // Tax rate (`crm_taxes`)
-  | 'unit'        // Unit of measure (PCS/KG/L/HRS/...)
+  | 'timezone'    // IANA timezone list (runtime via Intl)
+  | 'unit'        // Unit of measure (PCS/KG/L/HRS/...) + inline-create
   | 'user'        // Platform user (`users`)
   | 'vendor'      // CRM Vendor (`crm_vendors`)
-  | 'vendorType'  // Vendor classification (goods/services/both)
+  | 'vendorType'  // Vendor classification (goods/services/both) + inline-create
   | 'warehouse';  // Stock location (`crm_warehouses`)
 
 /**
@@ -53,25 +61,60 @@ export const ENTITY_KEYS = [
   'branch',
   'brand',
   'category',
+  'city',
   'client',
+  'country',
   'currency',
   'department',
   'designation',
   'employee',
   'industry',
   'item',
+  'jobTitle',
+  'language',
+  'leadSource',
   'location',
   'pipeline',
   'project',
+  'salutation',
   'stage',
+  'state',
   'tag',
   'taxRate',
+  'timezone',
   'unit',
   'user',
   'vendor',
   'vendorType',
   'warehouse',
 ] as const satisfies readonly EntityKey[];
+
+/**
+ * Reference-data entity keys — backed by hardcoded lists in
+ * `src/data/reference/*`. The picker treats these as "id = label", so a
+ * user-typed value created inline can round-trip without a server write.
+ *
+ * Keep this in lock-step with the static handlers in
+ * `src/app/actions/crm-lookup.actions.ts`.
+ */
+export const REFERENCE_ENTITY_KEYS: readonly EntityKey[] = [
+  'country',
+  'state',
+  'city',
+  'timezone',
+  'language',
+  'salutation',
+  'leadSource',
+  'jobTitle',
+  'currency',
+  'industry',
+  'unit',
+  'vendorType',
+] as const;
+
+export function isReferenceEntity(entity: EntityKey): boolean {
+  return (REFERENCE_ENTITY_KEYS as readonly EntityKey[]).includes(entity);
+}
 
 /**
  * Visual chip presented in the picker trigger and dropdown rows.

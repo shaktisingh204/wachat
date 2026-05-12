@@ -37,6 +37,10 @@ import {
   LOOKUP_DEFAULT_LIMIT,
   LOOKUP_MAX_LIMIT,
 } from '@/lib/lookup-registry';
+import { COUNTRIES } from '@/data/reference/countries';
+import { STATES } from '@/data/reference/states';
+import { CITIES } from '@/data/reference/cities';
+import { LANGUAGES, SALUTATIONS, LEAD_SOURCES, JOB_TITLES } from '@/data/reference/misc';
 
 interface LookupContext {
   userId: ObjectId;
@@ -972,7 +976,197 @@ const registry: LookupRegistry = {
       );
     },
   },
+
+  /* --------------------------------------------------------------- */
+  /* Reference-data entries (hardcoded — see src/data/reference/*)    */
+  /* --------------------------------------------------------------- */
+
+  country: {
+    searchableFields: ['name', 'code', 'dialCode'],
+    toChip: (doc) => ({
+      primary: doc.name,
+      secondary: doc.dialCode,
+      tertiary: doc.code,
+    }),
+    async fetch(params) {
+      return staticPaginate(
+        COUNTRIES,
+        (c, q) => {
+          const needle = q.toLowerCase();
+          return c.name.toLowerCase().includes(needle)
+            || c.code.toLowerCase().includes(needle)
+            || c.dialCode.includes(needle);
+        },
+        (c) => ({
+          id: c.code,
+          chip: { primary: `${c.emoji} ${c.name}`, secondary: c.dialCode, tertiary: c.code },
+          raw: { code: c.code, name: c.name, dialCode: c.dialCode, emoji: c.emoji, currency: c.currency },
+        }),
+        params,
+        (c, id) => c.code === id,
+      );
+    },
+  },
+
+  state: {
+    // Cascading: pass `params.filter.countryCode` to scope.
+    searchableFields: ['name', 'code'],
+    toChip: (doc) => ({ primary: doc.name, secondary: doc.code, tertiary: doc.countryCode }),
+    async fetch(params) {
+      const countryCode = (params.filter as Record<string, unknown> | undefined)?.countryCode;
+      const scoped = countryCode
+        ? STATES.filter(s => s.countryCode === String(countryCode))
+        : STATES;
+      return staticPaginate(
+        scoped,
+        (s, q) => {
+          const needle = q.toLowerCase();
+          return s.name.toLowerCase().includes(needle)
+            || s.code.toLowerCase().includes(needle);
+        },
+        (s) => ({
+          id: `${s.countryCode}:${s.code}`,
+          chip: { primary: s.name, secondary: s.code, tertiary: s.countryCode },
+          raw: { countryCode: s.countryCode, code: s.code, name: s.name },
+        }),
+        params,
+        (s, id) => `${s.countryCode}:${s.code}` === id,
+      );
+    },
+  },
+
+  city: {
+    // Inline-create entity: id is the literal city name. Pass
+    // `params.filter.countryCode` and/or `stateCode` to scope.
+    searchableFields: ['name'],
+    toChip: (doc) => ({ primary: doc.name, secondary: doc.stateCode, tertiary: doc.countryCode }),
+    async fetch(params) {
+      const f = params.filter as { countryCode?: unknown; stateCode?: unknown } | undefined;
+      const countryCode = f?.countryCode ? String(f.countryCode) : undefined;
+      const stateCode = f?.stateCode ? String(f.stateCode) : undefined;
+      const scoped = CITIES.filter(c => {
+        if (countryCode && c.countryCode !== countryCode) return false;
+        if (stateCode && c.stateCode !== stateCode) return false;
+        return true;
+      });
+
+      // Hydrate-by-ids: ids ARE city names (inline-create entity).
+      if (params.ids && params.ids.length > 0) {
+        const items: LookupItem[] = params.ids.map(id => ({
+          id,
+          chip: { primary: id },
+          raw: { name: id },
+        }));
+        return { items, page: 1, limit: items.length, total: items.length, hasMore: false };
+      }
+
+      return staticPaginate(
+        scoped,
+        (c, q) => c.name.toLowerCase().includes(q.toLowerCase()),
+        (c) => ({
+          id: c.name,
+          chip: { primary: c.name, secondary: c.stateCode, tertiary: c.countryCode },
+          raw: { name: c.name, countryCode: c.countryCode, stateCode: c.stateCode },
+        }),
+        params,
+        (c, id) => c.name === id,
+      );
+    },
+  },
+
+  timezone: {
+    searchableFields: ['name'],
+    toChip: (doc) => ({ primary: doc.name }),
+    async fetch(params) {
+      // Use Intl when available (Node ≥ 18), else a small fallback list.
+      let zones: string[];
+      try {
+        zones = typeof Intl.supportedValuesOf === 'function'
+          ? (Intl.supportedValuesOf('timeZone') as string[])
+          : FALLBACK_TIMEZONES;
+      } catch {
+        zones = FALLBACK_TIMEZONES;
+      }
+      return staticPaginate<string>(
+        zones,
+        (item, q) => item.toLowerCase().includes(q.toLowerCase()),
+        (item) => ({ id: item, chip: { primary: item }, raw: { name: item } }),
+        params,
+        (item, id) => item === id,
+      );
+    },
+  },
+
+  language: {
+    searchableFields: ['name', 'code'],
+    toChip: (doc) => ({ primary: doc.name, secondary: doc.code }),
+    async fetch(params) {
+      return staticPaginate(
+        LANGUAGES,
+        (l, q) => {
+          const needle = q.toLowerCase();
+          return l.name.toLowerCase().includes(needle)
+            || l.code.toLowerCase().includes(needle);
+        },
+        (l) => ({
+          id: l.code,
+          chip: { primary: l.name, secondary: l.code },
+          raw: { code: l.code, name: l.name },
+        }),
+        params,
+        (l, id) => l.code === id,
+      );
+    },
+  },
+
+  salutation: makeInlineCreateStaticEntry(SALUTATIONS),
+  leadSource: makeInlineCreateStaticEntry(LEAD_SOURCES),
+  jobTitle: makeInlineCreateStaticEntry(JOB_TITLES),
 };
+
+/**
+ * Helper for "id = label" reference entities backed by a small static
+ * list where the user can also store ad-hoc values (returned as
+ * synthetic chips on hydrate).
+ */
+function makeInlineCreateStaticEntry(list: string[]): EntityLookupConfig {
+  return {
+    searchableFields: ['name'],
+    toChip: (doc) => ({ primary: doc.name }),
+    async fetch(params) {
+      // Hydrate-by-ids: accept any string id, even ones not in the list.
+      if (params.ids && params.ids.length > 0) {
+        const items: LookupItem[] = params.ids.map(id => ({
+          id,
+          chip: { primary: id },
+          raw: { name: id },
+        }));
+        return { items, page: 1, limit: items.length, total: items.length, hasMore: false };
+      }
+      return staticPaginate<string>(
+        list,
+        (item, q) => item.toLowerCase().includes(q.toLowerCase()),
+        (item) => ({ id: item, chip: { primary: item }, raw: { name: item } }),
+        params,
+        (item, id) => item === id,
+      );
+    },
+  };
+}
+
+const FALLBACK_TIMEZONES = [
+  'UTC',
+  'Asia/Kolkata', 'Asia/Dubai', 'Asia/Singapore', 'Asia/Tokyo', 'Asia/Shanghai',
+  'Asia/Hong_Kong', 'Asia/Bangkok', 'Asia/Jakarta', 'Asia/Karachi', 'Asia/Riyadh',
+  'Europe/London', 'Europe/Paris', 'Europe/Berlin', 'Europe/Madrid', 'Europe/Rome',
+  'Europe/Amsterdam', 'Europe/Zurich', 'Europe/Moscow', 'Europe/Istanbul',
+  'America/New_York', 'America/Chicago', 'America/Denver', 'America/Los_Angeles',
+  'America/Toronto', 'America/Vancouver', 'America/Mexico_City', 'America/Sao_Paulo',
+  'America/Buenos_Aires',
+  'Africa/Cairo', 'Africa/Johannesburg', 'Africa/Lagos',
+  'Australia/Sydney', 'Australia/Melbourne', 'Australia/Perth',
+  'Pacific/Auckland',
+];
 
 /* ------------------------------------------------------------------ */
 /* Public action                                                       */

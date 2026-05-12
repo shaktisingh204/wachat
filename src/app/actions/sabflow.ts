@@ -8,6 +8,7 @@ import type { SabFlowDoc } from '@/lib/sabflow/types';
 import { getErrorMessage } from '@/lib/utils';
 import { upsertFlowWebhooks, deactivateFlowWebhooks } from '@/lib/sabflow/db';
 import type { WebhookEventOptions } from '@/lib/sabflow/types';
+import { serializeDoc, serializeForClient } from '@/lib/sabflow/serializeForClient';
 
 // ── helpers ────────────────────────────────────────────────────────────────
 
@@ -16,44 +17,13 @@ import type { WebhookEventOptions } from '@/lib/sabflow/types';
 // the first trigger rather than having a default 'start' event auto-created.
 
 /**
- * Recursively strip every BSON type (ObjectId, Date, Decimal128, Binary, Long)
- * out of a value, producing a POJO that React Server Components can safely
- * stream to a client boundary.
- *
- * Important: Next.js's RSC serializer inspects *every* reachable property,
- * including arrays and nested documents. If ANY value still carries a
- * `toBSON` method, it throws `Cannot access toBSON on the server`. The old
- * `JSON.parse(JSON.stringify(...))` round-trip is almost enough, but Date
- * objects survive `JSON.stringify` as strings and any custom BSON types with
- * non-standard `toJSON` can slip through. This helper is the safe version.
+ * Sanitize a Mongo doc for RSC streaming. Delegates to the canonical helper
+ * in `@/lib/sabflow/serializeForClient` so every sabflow surface shares the
+ * same BSON-handling rules (ObjectId, Date, Decimal128, Binary, Long, Buffer,
+ * Map, Set are all stripped to JSON-safe primitives).
  */
-function deepSanitize<T>(value: T): T {
-  if (value === null || value === undefined) return value;
-  // Primitives pass through unchanged
-  if (typeof value !== 'object') return value;
-
-  // BSON-like: has a toBSON or _bsontype marker → coerce to string/primitive
-  const asAny = value as { _bsontype?: string; toString?: () => string; toBSON?: unknown };
-  if (asAny._bsontype || typeof asAny.toBSON === 'function') {
-    return asAny.toString?.() as T;
-  }
-  // Dates → ISO string (RSC-safe)
-  if (value instanceof Date) return (value as Date).toISOString() as unknown as T;
-  // Arrays
-  if (Array.isArray(value)) return value.map((v) => deepSanitize(v)) as unknown as T;
-  // Plain objects
-  const out: Record<string, unknown> = {};
-  for (const k of Object.keys(value as Record<string, unknown>)) {
-    out[k] = deepSanitize((value as Record<string, unknown>)[k]);
-  }
-  return out as T;
-}
-
-/** Strip MongoDB _id so the returned object is plain-serialisable JSON. */
-function serialize<T extends { _id?: unknown }>(doc: T): Omit<T, '_id'> & { _id: string } {
-  const { _id, ...rest } = doc as any;
-  const sanitized = deepSanitize(rest);
-  return { _id: _id?.toString() ?? '', ...sanitized };
+function serialize<T extends { _id?: unknown }>(doc: T) {
+  return serializeDoc(doc);
 }
 
 // ── listSabFlows ───────────────────────────────────────────────────────────
@@ -81,7 +51,7 @@ export async function listSabFlows(projectId?: string) {
       .sort({ updatedAt: -1 })
       .toArray();
 
-    return JSON.parse(JSON.stringify(docs.map(serialize)));
+    return docs.map(serialize);
   } catch (e) {
     return { error: getErrorMessage(e) };
   }
@@ -108,7 +78,7 @@ export async function getSabFlow(flowId: string) {
       (doc as any).events = [];
     }
 
-    return JSON.parse(JSON.stringify(serialize(doc)));
+    return serialize(doc);
   } catch {
     return null;
   }

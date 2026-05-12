@@ -16,6 +16,9 @@ export class TelegramApiError extends Error {
     code: number;
     description: string;
     parameters?: Record<string, any>;
+    // Surfaced from `parameters` so callers can back off without re-parsing.
+    retryAfter?: number;
+    migrateToChatId?: number;
 
     constructor(code: number, description: string, parameters?: Record<string, any>) {
         super(`[Telegram ${code}] ${description}`);
@@ -23,6 +26,8 @@ export class TelegramApiError extends Error {
         this.code = code;
         this.description = description;
         this.parameters = parameters;
+        this.retryAfter = parameters?.retry_after;
+        this.migrateToChatId = parameters?.migrate_to_chat_id;
     }
 }
 
@@ -43,14 +48,21 @@ async function call<T>(token: string, method: string, params?: Record<string, an
         cache: 'no-store',
     });
     const json = (await res.json()) as TelegramResponse<T>;
-    if (!json.ok || json.result === undefined) {
+    if (!json.ok) {
         throw new TelegramApiError(
             json.error_code ?? res.status,
             json.description ?? `HTTP ${res.status}`,
             json.parameters,
         );
     }
-    return json.result;
+    return json.result as T;
+}
+
+function inferStickerFormat(ref: string): 'static' | 'animated' | 'video' {
+    const lower = ref.toLowerCase();
+    if (lower.endsWith('.tgs')) return 'animated';
+    if (lower.endsWith('.webm')) return 'video';
+    return 'static';
 }
 
 /* ── Response types (minimal — only what we consume) ───────────── */
@@ -166,7 +178,11 @@ export const TelegramBotApi = {
             max_connections?: number;
             drop_pending_updates?: boolean;
         },
-    ) => call<true>(token, 'setWebhook', params),
+    ) =>
+        call<true>(token, 'setWebhook', {
+            ...params,
+            drop_pending_updates: params.drop_pending_updates ?? true,
+        }),
 
     deleteWebhook: (token: string, drop_pending_updates = false) =>
         call<true>(token, 'deleteWebhook', { drop_pending_updates }),
@@ -181,11 +197,29 @@ export const TelegramBotApi = {
             disable_notification?: boolean;
             reply_markup?: TgReplyMarkup;
             reply_to_message_id?: number;
+            reply_parameters?: {
+                message_id: number;
+                chat_id?: string | number;
+                allow_sending_without_reply?: boolean;
+            };
+            allow_sending_without_reply?: boolean;
             business_connection_id?: string;
             link_preview_options?: { is_disabled?: boolean };
             protect_content?: boolean;
         },
-    ) => call<TgMessage>(token, 'sendMessage', params),
+    ) => {
+        const { reply_to_message_id, allow_sending_without_reply, reply_parameters, ...rest } = params;
+        const body: Record<string, any> = { ...rest };
+        if (reply_parameters) {
+            body.reply_parameters = reply_parameters;
+        } else if (reply_to_message_id !== undefined) {
+            body.reply_parameters = {
+                message_id: reply_to_message_id,
+                allow_sending_without_reply: allow_sending_without_reply ?? true,
+            };
+        }
+        return call<TgMessage>(token, 'sendMessage', body);
+    },
 
     sendPhoto: (
         token: string,
@@ -320,7 +354,10 @@ export const TelegramBotApi = {
                 | 'upload_voice'
                 | 'upload_document'
                 | 'choose_sticker'
-                | 'find_location';
+                | 'find_location'
+                | 'record_video_note'
+                | 'upload_video_note'
+                | 'record_audio';
             business_connection_id?: string;
         },
     ) => call<true>(token, 'sendChatAction', params),
@@ -561,19 +598,30 @@ export const TelegramBotApi = {
             user_id: number;
             name: string;
             title: string;
-            stickers: Array<{ sticker: string; emoji_list: string[]; format?: string }>;
+            stickers: Array<{ sticker: string; emoji_list: string[]; format?: 'static' | 'animated' | 'video' }>;
             sticker_type?: 'regular' | 'mask' | 'custom_emoji';
         },
-    ) => call<true>(token, 'createNewStickerSet', params),
+    ) =>
+        call<true>(token, 'createNewStickerSet', {
+            ...params,
+            stickers: params.stickers.map((s) => ({ ...s, format: s.format ?? inferStickerFormat(s.sticker) })),
+        }),
 
     addStickerToSet: (
         token: string,
         params: {
             user_id: number;
             name: string;
-            sticker: { sticker: string; emoji_list: string[]; format?: string };
+            sticker: { sticker: string; emoji_list: string[]; format?: 'static' | 'animated' | 'video' };
         },
-    ) => call<true>(token, 'addStickerToSet', params),
+    ) =>
+        call<true>(token, 'addStickerToSet', {
+            ...params,
+            sticker: {
+                ...params.sticker,
+                format: params.sticker.format ?? inferStickerFormat(params.sticker.sticker),
+            },
+        }),
 
     deleteStickerFromSet: (token: string, sticker: string) =>
         call<true>(token, 'deleteStickerFromSet', { sticker }),
