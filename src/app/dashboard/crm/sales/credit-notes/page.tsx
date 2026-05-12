@@ -1,132 +1,71 @@
-'use client';
+/**
+ * CRM Credit Notes list — `/dashboard/crm/sales/credit-notes`.
+ *
+ * Server component shell. Reads search/page/limit from the URL,
+ * fetches via the Rust-backed `listCreditNotes` action, and hands off
+ * to `<CreditNoteListClient>` for interactive bits (search, delete
+ * dialog).
+ *
+ * Pagination is hasMore-driven (the Rust endpoint doesn't return a
+ * total count) — see `<PaginationBar>`.
+ */
 
-import { useState, useEffect, useCallback, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
-import { Plus, FileMinus, LoaderCircle } from "lucide-react";
 import Link from 'next/link';
-import { getCreditNotes } from '@/app/actions/crm-credit-notes.actions';
-import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
-import type { WithId, CrmCreditNote } from '@/lib/definitions';
-import { formatFiniteCurrency } from '@/lib/crm/number-safety';
+import { FileMinus, Plus } from 'lucide-react';
 
-import {
-    ZoruButton,
-    ZoruCard,
-    ZoruTable,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-} from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
 import { CrmPageHeader } from '../../_components/crm-page-header';
+import { listCreditNotes } from '@/app/actions/crm/credit-notes.actions';
+import { CreditNoteListClient } from './_components/credit-note-list-client';
 
-export default function CreditNotesPage() {
-    const [notes, setNotes] = useState<WithId<CrmCreditNote>[]>([]);
-    const [accountsMap, setAccountsMap] = useState<Map<string, string>>(new Map());
-    const [isLoading, startTransition] = useTransition();
-    const router = useRouter();
+export const dynamic = 'force-dynamic';
 
-    const fetchData = useCallback(() => {
-        startTransition(async () => {
-            const [notesData, accountsData] = await Promise.all([
-                getCreditNotes(),
-                getCrmAccounts()
-            ]);
-            setNotes(notesData.notes);
-            const newMap = new Map(accountsData.accounts.map(acc => [acc._id.toString(), acc.name]));
-            setAccountsMap(newMap);
-        });
-    }, []);
+interface SearchParams {
+  page?: string;
+  limit?: string;
+  q?: string;
+}
 
-    useEffect(() => {
-        fetchData();
-    }, [fetchData]);
+export default async function CreditNotesPage({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
+  const sp = await searchParams;
+  const page = Math.max(1, Number(sp.page) || 1);
+  const limit = Math.min(Math.max(1, Number(sp.limit) || 20), 100);
+  const q = (sp.q ?? '').trim();
 
-    if (isLoading && notes.length === 0) {
-        return (
-            <div className="flex justify-center items-center h-full">
-                <LoaderCircle className="h-8 w-8 animate-spin text-zoru-ink-muted" />
-            </div>
-        );
-    }
+  const { creditNotes, hasMore, error } = await listCreditNotes({
+    page,
+    limit,
+    q: q || undefined,
+  });
 
-    if (!isLoading && notes.length === 0) {
-        return (
-            <div className="flex w-full flex-col gap-6">
-                <CrmPageHeader
-                    title="Credit Notes"
-                    subtitle="Issue refunds or credits to your customers with professional credit notes."
-                    icon={FileMinus}
-                />
-                <ZoruCard className="p-6 border-dashed">
-                    <div className="flex flex-col items-center gap-3 py-12 text-center">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-zoru-surface-2">
-                            <FileMinus className="h-6 w-6 text-zoru-ink" strokeWidth={1.75} />
-                        </div>
-                        <h3 className="text-[15px] text-zoru-ink">Credit Notes</h3>
-                        <p className="max-w-md text-[12.5px] text-zoru-ink-muted">
-                            Issue refunds or credits to your customers with professional credit notes.
-                        </p>
-                        <Link href="/dashboard/crm/sales/credit-notes/new">
-                            <ZoruButton>
-                                <Plus className="h-4 w-4" strokeWidth={1.75} />
-                                Create First Credit Note
-                            </ZoruButton>
-                        </Link>
-                    </div>
-                </ZoruCard>
-            </div>
-        );
-    }
+  return (
+    <div className="flex w-full flex-col gap-6">
+      <CrmPageHeader
+        title="Credit Notes"
+        subtitle="Issue refunds or credits to customers against prior invoices."
+        icon={FileMinus}
+        actions={
+          <ZoruButton asChild>
+            <Link href="/dashboard/crm/sales/credit-notes/new">
+              <Plus className="h-4 w-4" />
+              New credit note
+            </Link>
+          </ZoruButton>
+        }
+      />
 
-    return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="Credit Notes"
-                subtitle="Manage your credit notes."
-                icon={FileMinus}
-                actions={
-                    <Link href="/dashboard/crm/sales/credit-notes/new">
-                        <ZoruButton>
-                            <Plus className="h-4 w-4" strokeWidth={1.75} />
-                            New Credit Note
-                        </ZoruButton>
-                    </Link>
-                }
-            />
-
-            <ZoruCard className="p-6">
-                <div className="mb-4">
-                    <h2 className="text-[16px] text-zoru-ink">Recent Credit Notes</h2>
-                </div>
-                <div className="overflow-x-auto rounded-lg border border-zoru-line">
-                    <ZoruTable>
-                        <ZoruTableHeader>
-                            <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                                <ZoruTableHead className="text-zoru-ink-muted">Credit Note #</ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">Client</ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">Date</ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">Reason</ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">Original Invoice #</ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted text-right">Amount</ZoruTableHead>
-                            </ZoruTableRow>
-                        </ZoruTableHeader>
-                        <ZoruTableBody>
-                            {notes.map(note => (
-                                <ZoruTableRow key={note._id.toString()} className="border-zoru-line">
-                                    <ZoruTableCell className="text-zoru-ink">{note.creditNoteNumber}</ZoruTableCell>
-                                    <ZoruTableCell className="text-zoru-ink">{accountsMap.get(note.accountId.toString()) || 'Unknown'}</ZoruTableCell>
-                                    <ZoruTableCell className="text-zoru-ink">{new Date(note.creditNoteDate).toLocaleDateString()}</ZoruTableCell>
-                                    <ZoruTableCell className="text-[12px] text-zoru-ink-muted">{note.reason}</ZoruTableCell>
-                                    <ZoruTableCell className="font-mono text-xs text-zoru-ink">{note.originalInvoiceNumber || 'N/A'}</ZoruTableCell>
-                                    <ZoruTableCell className="text-right text-zoru-ink">{formatFiniteCurrency(note.total, note.currency || 'INR')}</ZoruTableCell>
-                                </ZoruTableRow>
-                            ))}
-                        </ZoruTableBody>
-                    </ZoruTable>
-                </div>
-            </ZoruCard>
-        </div>
-    );
+      <CreditNoteListClient
+        creditNotes={creditNotes}
+        page={page}
+        limit={limit}
+        hasMore={hasMore}
+        initialQuery={q}
+        error={error}
+      />
+    </div>
+  );
 }

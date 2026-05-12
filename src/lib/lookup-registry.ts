@@ -29,6 +29,7 @@ export type EntityKey =
   | 'designation' // HR designation (`crm_designations`)
   | 'employee'    // HR Employee (`crm_employees`)
   | 'industry'    // Industry classification (static enum) + inline-create
+  | 'invoice'     // CRM Invoice (`crm_invoices`)
   | 'item'        // CRM Product / Item (`crm_products`)
   | 'jobTitle'    // Job title taxonomy (static + inline-create)
   | 'language'    // Static ISO 639-1 language list
@@ -37,6 +38,7 @@ export type EntityKey =
   | 'location'    // Country/state/city location lookup (TODO collection)
   | 'pipeline'    // Sales pipeline (embedded on `users.crmPipelines`)
   | 'project'     // CRM Project (`crm_projects`)
+  | 'quotation'   // CRM Quotation (`crm_quotations`)
   | 'salutation'  // Salutation list (Mr/Mrs/Dr/...) (static + inline-create)
   | 'stage'       // Pipeline stage (embedded on `users.crmPipelines[].stages`)
   | 'state'       // Static state/region list (src/data/reference/states.ts)
@@ -74,6 +76,7 @@ export const ENTITY_KEYS = [
   'designation',
   'employee',
   'industry',
+  'invoice',
   'item',
   'jobTitle',
   'language',
@@ -82,6 +85,7 @@ export const ENTITY_KEYS = [
   'location',
   'pipeline',
   'project',
+  'quotation',
   'salutation',
   'stage',
   'state',

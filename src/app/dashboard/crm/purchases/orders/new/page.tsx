@@ -1,22 +1,29 @@
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
+/**
+ * Create purchase order — `/dashboard/crm/purchases/orders/new`.
+ *
+ * Server component shell that hands off to the shared
+ * `<PurchaseOrderForm>` (also used by Edit). Purchase Orders have no
+ * custom-field panel (the entity isn't registered as a
+ * `WsCustomFieldBelongsTo` key), so this route does no extra
+ * pre-fetching.
+ */
 
-import { Suspense } from 'react';
 import { ShoppingBag } from 'lucide-react';
-import { NewPurchaseOrderForm } from './new-order-form';
-import { CrmPageHeader } from '../../../_components/crm-page-header';
 
-export default async function NewPurchaseOrderPage() {
-    return (
-        <div className="flex flex-col gap-6 max-w-5xl">
-            <CrmPageHeader
-                title="Create New Purchase Order"
-                subtitle="Add a new purchase order for your vendor."
-                icon={ShoppingBag}
-            />
-            <Suspense fallback={<div className="text-[13px] text-muted-foreground">Loading...</div>}>
-                <NewPurchaseOrderForm />
-            </Suspense>
-        </div>
-    );
+import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { PurchaseOrderForm } from '../_components/purchase-order-form';
+
+export const dynamic = 'force-dynamic';
+
+export default function NewPurchaseOrderPage() {
+  return (
+    <div className="flex w-full flex-col gap-6">
+      <CrmPageHeader
+        title="New purchase order"
+        subtitle="Raise a new procurement order for a vendor."
+        icon={ShoppingBag}
+      />
+      <PurchaseOrderForm />
+    </div>
+  );
 }

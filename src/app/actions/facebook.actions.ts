@@ -2038,7 +2038,11 @@ export async function refundOrder(
 //  Re-export from instagram.actions
 // =================================================================
 
-export const getInstagramAccountForPage = _getInstagramAccountForPage;
+export async function getInstagramAccountForPage(
+    ...args: Parameters<typeof _getInstagramAccountForPage>
+): ReturnType<typeof _getInstagramAccountForPage> {
+    return _getInstagramAccountForPage(...args);
+}
 
 // =================================================================
 //  STUBBED LEGACY EXPORTS (no Rust equivalent yet)
