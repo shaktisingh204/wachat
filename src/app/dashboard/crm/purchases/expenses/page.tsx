@@ -1,101 +1,69 @@
-import { ZoruCard, ZoruInput, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/zoruui';
-import { getExpenses } from '@/app/actions/crm-expenses.actions';
+/**
+ * CRM Bills (expenses) list — `/dashboard/crm/purchases/expenses`.
+ *
+ * Server component shell. Reads search/page/limit from the URL,
+ * fetches via the Rust-backed `listBills` action, and hands off to
+ * `<BillListClient>` for interactive bits (search, delete dialog).
+ *
+ * Pagination is hasMore-driven (the Rust endpoint doesn't return a
+ * total count) — see `<PaginationBar>`.
+ *
+ * NB: the underlying Rust entity is called "bill" — the URL stays at
+ * `/purchases/expenses/` for legacy stability.
+ */
 
-import { Plus, Search, Wallet } from 'lucide-react';
 import Link from 'next/link';
+import { Wallet, Plus } from 'lucide-react';
 
-import { format } from 'date-fns';
-
+import { ZoruButton } from '@/components/zoruui';
 import { CrmPageHeader } from '../../_components/crm-page-header';
+import { listBills } from '@/app/actions/crm/bills.actions';
+import { BillListClient } from './_components/bill-list-client';
+
+export const dynamic = 'force-dynamic';
+
+interface SearchParams {
+  page?: string;
+  limit?: string;
+  q?: string;
+}
 
 export default async function ExpensesPage({
-    searchParams,
+  searchParams,
 }: {
-    searchParams?: Promise<{
-        query?: string;
-        page?: string;
-    }>;
+  searchParams: Promise<SearchParams>;
 }) {
-    const params = await searchParams;
-    const query = params?.query || '';
-    const currentPage = Number(params?.page) || 1;
-    const { expenses, total } = await getExpenses(currentPage, 20, query);
+  const sp = await searchParams;
+  const page = Math.max(1, Number(sp.page) || 1);
+  const limit = Math.min(Math.max(1, Number(sp.limit) || 20), 100);
+  const q = (sp.q ?? '').trim();
 
-    return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="Expenses"
-                subtitle="Track and manage your business expenses."
-                icon={Wallet}
-                actions={
-                    <Link
-                        href="/dashboard/crm/purchases/expenses/new"
-                        className="inline-flex h-9 items-center justify-center gap-2 rounded-full bg-foreground px-4 text-[13px] font-medium text-white hover:bg-foreground/90"
-                    >
-                        <Plus className="h-4 w-4" strokeWidth={1.75} />
-                        Record Expense
-                    </Link>
-                }
-            />
+  const { bills, hasMore, error } = await listBills({ page, limit, q: q || undefined });
 
-            <ZoruCard>
-                <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
-                    <div>
-                        <h2 className="text-[16px] font-semibold text-foreground">All Expenses</h2>
-                        <p className="mt-0.5 text-[12.5px] text-muted-foreground">Showing {expenses.length} of {total} expenses</p>
-                    </div>
-                    <div className="relative w-full max-w-sm">
-                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                        <ZoruInput
-                            type="search"
-                            placeholder="Search expenses..."
-                            className="h-10 rounded-lg border-border bg-card pl-9 text-[13px]"
-                            defaultValue={query}
-                        />
-                    </div>
-                </div>
+  return (
+    <div className="flex w-full flex-col gap-6">
+      <CrmPageHeader
+        title="Bills & Expenses"
+        subtitle="Track vendor invoices, AP ageing, and direct-to-ledger expenses."
+        icon={Wallet}
+        actions={
+          <ZoruButton asChild>
+            <Link href="/dashboard/crm/purchases/expenses/new">
+              <Plus className="h-4 w-4" />
+              New bill
+            </Link>
+          </ZoruButton>
+        }
+      />
 
-                <div className="overflow-x-auto rounded-lg border border-border">
-                    <ZoruTable>
-                        <ZoruTableHeader>
-                            <ZoruTableRow className="border-border hover:bg-transparent">
-                                <ZoruTableHead className="text-muted-foreground">Date</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">Account</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">Vendor/Payee</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">Reference</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">Description</ZoruTableHead>
-                                <ZoruTableHead className="text-right text-muted-foreground">Amount</ZoruTableHead>
-                                <ZoruTableHead className="text-right text-muted-foreground">Actions</ZoruTableHead>
-                            </ZoruTableRow>
-                        </ZoruTableHeader>
-                        <ZoruTableBody>
-                            {expenses.length === 0 ? (
-                                <ZoruTableRow className="border-border">
-                                    <ZoruTableCell colSpan={7} className="h-24 text-center text-[13px] text-muted-foreground">
-                                        No expenses found.
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
-                            ) : (
-                                expenses.map((expense) => (
-                                    <ZoruTableRow key={expense._id.toString()} className="border-border">
-                                        <ZoruTableCell className="text-[13px] text-foreground">{format(new Date(expense.expenseDate), 'PP')}</ZoruTableCell>
-                                        <ZoruTableCell className="font-medium text-foreground">{expense.expenseAccount}</ZoruTableCell>
-                                        <ZoruTableCell>
-                                            {expense.vendorId ? <span className="text-[12.5px] italic text-muted-foreground">Vendor {expense.vendorId.toString().slice(-4)}</span> : <span className="text-[13px] text-foreground">-</span>}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-[13px] text-foreground">{expense.referenceNumber || '-'}</ZoruTableCell>
-                                        <ZoruTableCell className="max-w-[200px] truncate text-[13px] text-foreground">{expense.description}</ZoruTableCell>
-                                        <ZoruTableCell className="text-right text-[13px] text-foreground">
-                                            {expense.currency} {expense.amount.toFixed(2)}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-right" />
-                                    </ZoruTableRow>
-                                ))
-                            )}
-                        </ZoruTableBody>
-                    </ZoruTable>
-                </div>
-            </ZoruCard>
-        </div>
-    );
+      <BillListClient
+        bills={bills}
+        page={page}
+        limit={limit}
+        hasMore={hasMore}
+        initialQuery={q}
+        error={error}
+      />
+    </div>
+  );
 }

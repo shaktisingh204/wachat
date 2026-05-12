@@ -1,0 +1,259 @@
+'use server';
+
+/**
+ * CRM Vendor Bid server actions.
+ *
+ * Thin shims over the Rust BFF (`crmVendorBidsApi`). No direct Mongo
+ * access. FormData callers (the list/edit pages) hit
+ * `saveVendorBidAction` / `deleteVendorBidAction`; programmatic
+ * callers can use the typed helpers (`listVendorBids`, `getVendorBid`).
+ *
+ * Note: `'vendorBid'` is intentionally NOT registered as a
+ * `WsCustomFieldBelongsTo` key — Vendor Bids skip the custom-field
+ * panel entirely, mirroring the procurement audit-trail design used by
+ * Purchase Orders.
+ */
+
+import { revalidatePath } from 'next/cache';
+import { RustApiError } from '@/lib/rust-client';
+import {
+  crmVendorBidsApi,
+  type CrmVendorBidCreateInput,
+  type CrmVendorBidDoc,
+  type CrmVendorBidLineItem,
+  type CrmVendorBidListParams,
+  type CrmVendorBidTotals,
+  type CrmVendorBidUpdateInput,
+} from '@/lib/rust-client/crm-vendor-bids';
+
+const LIST_PATH = '/dashboard/crm/purchases/vendor-bids';
+
+function rustErr(e: unknown): string {
+  if (e instanceof RustApiError) return e.message;
+  if (e instanceof Error) return e.message;
+  return 'Unexpected error.';
+}
+
+/* ─── Read ────────────────────────────────────────────────────── */
+
+export interface VendorBidListResult {
+  bids: CrmVendorBidDoc[];
+  page: number;
+  limit: number;
+  // The Rust endpoint returns a bare array — there's no `total` field.
+  // The UI uses `hasMore` to know whether to render the Next button.
+  hasMore: boolean;
+  error?: string;
+}
+
+export async function listVendorBids(
+  params: CrmVendorBidListParams = {},
+): Promise<VendorBidListResult> {
+  const page = Math.max(1, params.page ?? 1);
+  const limit = Math.min(Math.max(1, params.limit ?? 20), 100);
+  try {
+    const bids = await crmVendorBidsApi.list({ ...params, page, limit });
+    return { bids, page, limit, hasMore: bids.length === limit };
+  } catch (e) {
+    return { bids: [], page, limit, hasMore: false, error: rustErr(e) };
+  }
+}
+
+export async function getVendorBid(
+  id: string,
+): Promise<{ bid: CrmVendorBidDoc | null; error?: string }> {
+  if (!id) return { bid: null, error: 'Missing vendor bid id.' };
+  try {
+    const bid = await crmVendorBidsApi.getById(id);
+    return { bid };
+  } catch (e) {
+    if (e instanceof RustApiError && e.status === 404) {
+      return { bid: null, error: 'Vendor bid not found.' };
+    }
+    return { bid: null, error: rustErr(e) };
+  }
+}
+
+/* ─── Write ───────────────────────────────────────────────────── */
+
+function pickString(formData: FormData, key: string): string | undefined {
+  const v = formData.get(key);
+  if (typeof v !== 'string') return undefined;
+  const t = v.trim();
+  return t.length === 0 ? undefined : t;
+}
+
+function pickNumber(formData: FormData, key: string): number | undefined {
+  const v = formData.get(key);
+  if (typeof v !== 'string' || v.trim() === '') return undefined;
+  const n = Number(v);
+  return Number.isFinite(n) ? n : undefined;
+}
+
+/**
+ * Parse the form's `items` hidden input — a JSON-encoded
+ * `CrmVendorBidLineItem[]`. Returns `[]` when the blob is empty or
+ * malformed; the action layer validates the resulting list before
+ * sending to Rust.
+ */
+function parseLineItems(formData: FormData): CrmVendorBidLineItem[] {
+  const raw = formData.get('items');
+  if (typeof raw !== 'string' || raw.length === 0) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+      .filter(
+        (it): it is Record<string, unknown> =>
+          typeof it === 'object' && it !== null,
+      )
+      .map((it) => normalizeLineItem(it));
+  } catch {
+    return [];
+  }
+}
+
+function toNumber(v: unknown): number | undefined {
+  if (typeof v === 'number') return Number.isFinite(v) ? v : undefined;
+  if (typeof v === 'string' && v.trim() !== '') {
+    const n = Number(v);
+    return Number.isFinite(n) ? n : undefined;
+  }
+  return undefined;
+}
+
+function toStringOpt(v: unknown): string | undefined {
+  if (typeof v !== 'string') return undefined;
+  const t = v.trim();
+  return t.length === 0 ? undefined : t;
+}
+
+function normalizeLineItem(raw: Record<string, unknown>): CrmVendorBidLineItem {
+  return {
+    itemId: toStringOpt(raw.itemId),
+    qty: toNumber(raw.qty) ?? 0,
+    rate: toNumber(raw.rate) ?? 0,
+    leadTimeDays: toNumber(raw.leadTimeDays),
+    notes: toStringOpt(raw.notes),
+  };
+}
+
+/**
+ * Compute document totals from the line items. The handler can
+ * recompute later; we send a stable snapshot so the saved doc reflects
+ * what the user saw at submit time. Per-line `total` is `qty * rate`
+ * (vendor bids don't carry per-line tax/discount in the wire shape —
+ * pricing nuance lives in the `terms` blob).
+ */
+function computeTotals(items: CrmVendorBidLineItem[]): CrmVendorBidTotals {
+  const subTotal = items.reduce(
+    (sum, it) => sum + (Number(it.qty) || 0) * (Number(it.rate) || 0),
+    0,
+  );
+  return { subTotal, total: subTotal };
+}
+
+/**
+ * Server-action entry point for the create / edit form.
+ *
+ * If `formData` carries an `_id`, this performs a PATCH; otherwise a
+ * POST. Vendor Bids have no custom-field bag.
+ */
+export async function saveVendorBidAction(
+  _prev: unknown,
+  formData: FormData,
+): Promise<{ message?: string; error?: string; id?: string }> {
+  const id = pickString(formData, '_id');
+  const rfqId = pickString(formData, 'rfqId');
+  const vendorId = pickString(formData, 'vendorId');
+  const currency = pickString(formData, 'currency') ?? 'INR';
+  const items = parseLineItems(formData);
+
+  if (!id) {
+    // Required-on-create gate.
+    if (!rfqId) return { error: 'RFQ id is required.' };
+    if (!vendorId) return { error: 'Vendor is required.' };
+    if (items.length === 0) {
+      return { error: 'At least one line item is required.' };
+    }
+  }
+
+  const totals = computeTotals(items);
+
+  try {
+    let result: CrmVendorBidDoc;
+    if (id) {
+      const patch: CrmVendorBidUpdateInput = {};
+      if (currency) patch.currency = currency;
+      if (items.length > 0) {
+        patch.items = items;
+        patch.totals = totals;
+      }
+      const terms = pickString(formData, 'terms');
+      if (terms) patch.terms = terms;
+      const vendorName = pickString(formData, 'vendorName');
+      if (vendorName) patch.vendorName = vendorName;
+      const status = pickString(formData, 'status');
+      if (status) patch.status = status;
+      result = await crmVendorBidsApi.update(id, patch);
+    } else {
+      const draft: CrmVendorBidCreateInput = {
+        rfqId: rfqId as string,
+        vendorId: vendorId as string,
+        currency,
+        items,
+        totals,
+        terms: pickString(formData, 'terms'),
+        vendorName: pickString(formData, 'vendorName'),
+      };
+      result = await crmVendorBidsApi.create(draft);
+    }
+
+    revalidatePath(LIST_PATH);
+    revalidatePath(`${LIST_PATH}/${String(result._id)}`);
+    return {
+      message: id ? 'Vendor bid updated.' : 'Vendor bid created.',
+      id: String(result._id),
+    };
+  } catch (e) {
+    return { error: rustErr(e) };
+  }
+}
+
+/**
+ * Hard-delete a vendor bid. The Rust handler removes the row from the
+ * collection — no soft-delete flag.
+ */
+export async function deleteVendorBidAction(
+  id: string,
+): Promise<{ success: boolean; error?: string }> {
+  if (!id) return { success: false, error: 'Missing vendor bid id.' };
+  try {
+    await crmVendorBidsApi.delete(id);
+    revalidatePath(LIST_PATH);
+    return { success: true };
+  } catch (e) {
+    if (e instanceof RustApiError && e.status === 404) {
+      return { success: false, error: 'Vendor bid not found.' };
+    }
+    return { success: false, error: rustErr(e) };
+  }
+}
+
+/* ─── Programmatic helpers (typed) ────────────────────────────── */
+//
+// 'use server' files only allow async exports — these helpers thinly
+// wrap the Rust client so callers don't have to remember `await
+// crmVendorBidsApi.x(...)`.
+
+export async function createVendorBid(input: CrmVendorBidCreateInput) {
+  return crmVendorBidsApi.create(input);
+}
+
+export async function updateVendorBid(id: string, patch: CrmVendorBidUpdateInput) {
+  return crmVendorBidsApi.update(id, patch);
+}
+
+export async function deleteVendorBid(id: string) {
+  return crmVendorBidsApi.delete(id);
+}

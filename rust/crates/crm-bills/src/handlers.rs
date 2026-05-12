@@ -605,15 +605,13 @@ pub async fn update_bill(
 }
 
 // =========================================================================
-// DELETE /:billId — delete_bill (soft)
+// DELETE /:billId — delete_bill
 // =========================================================================
 
-/// `DELETE /v1/crm/bills/:billId` — soft delete. Sets `archived = true`
-/// and stamps `deletedAt`. The row stays in the collection so AP
-/// ageing, TDS reconciliation, and downstream payout matching remain
-/// accurate. Fails with 404 if the bill doesn't exist OR isn't owned by
-/// the caller (or is already archived — a redundant delete is treated
-/// as not-found).
+/// `DELETE /v1/crm/bills/:billId` — **hard delete**. Per the CRM
+/// ecosystem plan (`docs/ecosystem/CRM_PLAN.md` §10), CRM entities use
+/// hard deletes — the row is removed from the collection. Fails with
+/// 404 if the bill doesn't exist OR isn't owned by the caller.
 #[instrument(skip_all, fields(user_id = %user.user_id, bill_id = %bill_id))]
 pub async fn delete_bill(
     user: AuthUser,
@@ -623,29 +621,18 @@ pub async fn delete_bill(
     let user_id = user_oid(&user)?;
     let bill_oid = oid_from_str(&bill_id)?;
 
-    let now = bson::DateTime::from_chrono(Utc::now());
-    let mut filter = base_ownership_filter(user_id);
-    filter.insert("_id", bill_oid);
-
-    let update = doc! {
-        "$set": {
-            "archived": true,
-            "deletedAt": now,
-            "updatedAt": now,
-            "updatedBy": user_id,
-        },
-    };
+    let filter = doc! { "_id": bill_oid, "userId": user_id };
 
     let coll = mongo.collection::<Document>(BILLS_COLL);
     let res = coll
-        .update_one(filter, update)
+        .delete_one(filter)
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_bills.soft_delete")))?;
-    if res.matched_count == 0 {
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_bills.delete_one")))?;
+    if res.deleted_count == 0 {
         return Err(ApiError::NotFound("bill".to_owned()));
     }
 
-    Ok(Json(serde_json::json!({ "ok": true, "archived": true })))
+    Ok(Json(serde_json::json!({ "ok": true, "deleted": true })))
 }
 
 // =========================================================================
