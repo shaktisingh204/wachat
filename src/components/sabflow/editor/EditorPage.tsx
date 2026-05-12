@@ -14,6 +14,7 @@ import { VersionHistoryPanel } from '@/components/sabflow/panels/VersionHistoryP
 import { FlowEditorHeader } from './FlowEditorHeader';
 import { ValidationPanel } from '@/components/sabflow/panels/ValidationPanel';
 import { saveSabFlow, activateSabFlow, deactivateSabFlow } from '@/app/actions/sabflow';
+import { toJsonSafe } from '@/lib/sabflow/toJsonSafe';
 import type { SabFlowDoc } from '@/lib/sabflow/types';
 import { countValidationResults } from '@/lib/sabflow/validation';
 import type { ValidationError } from '@/lib/sabflow/validation';
@@ -158,7 +159,7 @@ function EditorContent({ flow: initialFlow }: Props) {
     (overrides?: Partial<SabFlowDoc>) => {
       setSaveError(null);
       startSaving(async () => {
-        const payload = {
+        const rawPayload = {
           name: flow.name,
           events: flow.events,
           groups: flow.groups,
@@ -169,6 +170,14 @@ function EditorContent({ flow: initialFlow }: Props) {
           status: flow.status,
           ...overrides,
         };
+        // Strip every non-JSON value (functions, React elements, Symbols, class
+        // instances without toJSON, etc.) before the payload crosses the server
+        // action boundary. Without this, an unserializable value gets wrapped
+        // in a "temporary client reference" Proxy on the server — and when
+        // Mongo's BSON encoder probes `.toBSON()` on it, the Proxy throws
+        // "Cannot access toBSON on the server. You cannot dot into a
+        // temporary client reference from a server component."
+        const payload = toJsonSafe(rawPayload) as typeof rawPayload;
         const result = await saveSabFlow(flow._id, payload);
         if (result && 'error' in result) {
           setSaveError(result.error as string);

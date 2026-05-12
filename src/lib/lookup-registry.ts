@@ -21,8 +21,10 @@ export type EntityKey =
   | 'category'    // Product category (`crm_product_categories`)
   | 'city'        // Static city list (src/data/reference/cities.ts) + inline-create
   | 'client'      // CRM Account (the company/client record on `crm_accounts`)
+  | 'contact'     // CRM Contact (`crm_contacts`)
   | 'country'     // Static country list (src/data/reference/countries.ts)
   | 'currency'    // Static currency list (no DB)
+  | 'deal'        // CRM Deal (`crm_deals`)
   | 'department'  // HR department (`crm_departments`)
   | 'designation' // HR designation (`crm_designations`)
   | 'employee'    // HR Employee (`crm_employees`)
@@ -30,6 +32,7 @@ export type EntityKey =
   | 'item'        // CRM Product / Item (`crm_products`)
   | 'jobTitle'    // Job title taxonomy (static + inline-create)
   | 'language'    // Static ISO 639-1 language list
+  | 'lead'        // CRM Lead (`crm_leads`)
   | 'leadSource'  // Lead source taxonomy (static + inline-create)
   | 'location'    // Country/state/city location lookup (TODO collection)
   | 'pipeline'    // Sales pipeline (embedded on `users.crmPipelines`)
@@ -63,8 +66,10 @@ export const ENTITY_KEYS = [
   'category',
   'city',
   'client',
+  'contact',
   'country',
   'currency',
+  'deal',
   'department',
   'designation',
   'employee',
@@ -72,6 +77,7 @@ export const ENTITY_KEYS = [
   'item',
   'jobTitle',
   'language',
+  'lead',
   'leadSource',
   'location',
   'pipeline',

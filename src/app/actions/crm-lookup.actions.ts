@@ -290,6 +290,47 @@ const registry: LookupRegistry = {
     }),
   }),
 
+  deal: makeMongoLookup({
+    collection: 'crm_deals',
+    searchableFields: ['title'],
+    rawFields: ['title', 'amount', 'currency', 'status', 'pipelineId', 'stageId', 'ownerId',
+                'expectedClose', 'probabilityPct'],
+    sort: { createdAt: -1 },
+    toChip: (doc) => ({
+      primary: doc.title || 'Deal',
+      secondary: typeof doc.amount === 'number'
+        ? new Intl.NumberFormat('en-IN', { style: 'currency', currency: doc.currency || 'INR', maximumFractionDigits: 0 }).format(doc.amount)
+        : undefined,
+      tertiary: doc.status || undefined,
+    }),
+  }),
+
+  lead: makeMongoLookup({
+    collection: 'crm_leads',
+    searchableFields: ['firstName', 'lastName', 'email', 'company', 'title', 'phone'],
+    rawFields: ['firstName', 'lastName', 'email', 'phone', 'company', 'title',
+                'estimatedValue', 'currency', 'industry'],
+    sort: { createdAt: -1 },
+    toChip: (doc) => ({
+      primary: [doc.firstName, doc.lastName].filter(Boolean).join(' ') || doc.email || 'Lead',
+      secondary: doc.email || doc.phone || undefined,
+      tertiary: doc.company || doc.title || undefined,
+    }),
+  }),
+
+  contact: makeMongoLookup({
+    collection: 'crm_contacts',
+    searchableFields: ['name', 'email', 'phone', 'company'],
+    rawFields: ['name', 'email', 'phone', 'company', 'jobTitle', 'avatarUrl'],
+    sort: { name: 1 },
+    toChip: (doc) => ({
+      primary: doc.name || doc.email || 'Contact',
+      secondary: doc.email || doc.phone || undefined,
+      tertiary: doc.company || doc.jobTitle || undefined,
+      avatarUrl: doc.avatarUrl || undefined,
+    }),
+  }),
+
   vendor: makeMongoLookup({
     collection: 'crm_vendors',
     searchableFields: ['name', 'displayName', 'gstin', 'pan', 'email', 'phone', 'city'],

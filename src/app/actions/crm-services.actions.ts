@@ -184,7 +184,7 @@ export async function getTicketById(id: string) {
 }
 export async function saveTicket(_prev: any, formData: FormData) {
   const result = await save('crm_tickets', '/dashboard/crm/tickets', formData, {
-    idFields: ['clientId'],
+    idFields: ['clientId', 'assigneeId', 'categoryId'],
     dateFields: ['firstResponseAt', 'resolvedAt'],
   });
 

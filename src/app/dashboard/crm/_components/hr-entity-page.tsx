@@ -9,8 +9,8 @@ import {
   LoaderCircle,
 } from 'lucide-react';
 import { useActionState, useEffect, useState, useTransition } from 'react';
-import { EntityPicker } from '@/components/crm/entity-picker';
-import type { EntityKey, LookupItem } from '@/lib/lookup-registry';
+import { EntityFormField } from '@/components/crm/entity-form-field';
+import type { EntityKey } from '@/lib/lookup-registry';
 
 import {
   ZoruAlertDialog,
@@ -285,11 +285,10 @@ function renderField(
 }
 
 /**
- * Controlled wrapper around <EntityPicker> for HrEntityPage's
- * server-action form. Renders the picker plus two hidden inputs so the
- * form's FormData carries both the entity id and (optionally) the
- * dual-write `*Name` text — the latter keeps schemas with legacy
- * free-text columns populated during the ID-migration window.
+ * Wraps <EntityFormField> with HrField wiring (cascading filter
+ * resolution + form-state callback). The picker plus its hidden inputs
+ * live in `EntityFormField` — this just resolves the filter from
+ * sibling values and forwards.
  */
 function EntityField({
   field,
@@ -302,14 +301,6 @@ function EntityField({
   siblings: Record<string, string>;
   onChange: (id: string | null) => void;
 }) {
-  const [id, setId] = useState<string | null>(initialId || null);
-  const [label, setLabel] = useState<string>('');
-
-  useEffect(() => {
-    setId(initialId || null);
-    if (!initialId) setLabel('');
-  }, [initialId]);
-
   const computedFilter = React.useMemo(() => {
     if (field.cascadeFilterFrom) {
       const f = field.cascadeFilterFrom(siblings);
@@ -319,28 +310,17 @@ function EntityField({
   }, [field, siblings]);
 
   return (
-    <>
-      <EntityPicker
-        entity={field.entity!}
-        value={id}
-        onChange={(next, hydrated) => {
-          const nextId = (next as string | null) ?? null;
-          setId(nextId);
-          const h = Array.isArray(hydrated) ? hydrated[0] : (hydrated as LookupItem | undefined);
-          setLabel(h?.chip.primary ?? (typeof next === 'string' ? next : ''));
-          onChange(nextId);
-        }}
-        filter={computedFilter}
-        allowCreate={field.allowCreate}
-        multi={field.multi}
-        required={field.required}
-        placeholder={field.placeholder}
-      />
-      <input type="hidden" name={field.name} value={id ?? ''} />
-      {field.dualWriteName ? (
-        <input type="hidden" name={field.dualWriteName} value={label} />
-      ) : null}
-    </>
+    <EntityFormField
+      entity={field.entity!}
+      name={field.name}
+      dualWriteName={field.dualWriteName}
+      initialId={initialId || null}
+      filter={computedFilter}
+      allowCreate={field.allowCreate}
+      required={field.required}
+      placeholder={field.placeholder}
+      onChange={onChange}
+    />
   );
 }
 

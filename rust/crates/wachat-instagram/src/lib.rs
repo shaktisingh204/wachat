@@ -21,6 +21,11 @@
 //! GET    /projects/:id/discover/:username                   → discover
 //! GET    /projects/:id/hashtag-search?q=...                 → hashtag_search
 //! GET    /projects/:id/hashtags/:hashtag_id/recent-media    → hashtag_recent_media
+//! GET    /projects/:id/hashtags/:hashtag_id/top-media       → hashtag_top_media
+//! GET    /projects/:id/reels?limit=25                       → reels
+//! GET    /projects/:id/media/:media_id/insights?metrics=... → media_insights
+//! GET    /projects/:id/conversations                        → conversations
+//! GET    /projects/:id/conversations/:conv_id/messages      → conversation_messages
 //! ```
 //!
 //! ## Tenancy
@@ -88,5 +93,22 @@ where
         .route(
             "/projects/{project_id}/hashtags/{hashtag_id}/recent-media",
             get(handlers::hashtag_recent_media),
+        )
+        .route(
+            "/projects/{project_id}/hashtags/{hashtag_id}/top-media",
+            get(handlers::hashtag_top_media),
+        )
+        .route("/projects/{project_id}/reels", get(handlers::reels))
+        .route(
+            "/projects/{project_id}/media/{media_id}/insights",
+            get(handlers::media_insights),
+        )
+        .route(
+            "/projects/{project_id}/conversations",
+            get(handlers::conversations),
+        )
+        .route(
+            "/projects/{project_id}/conversations/{conversation_id}/messages",
+            get(handlers::conversation_messages),
         )
 }

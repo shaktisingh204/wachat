@@ -108,3 +108,61 @@ pub struct HashtagSearchQuery {
     /// The hashtag (without `#`) to look up.
     pub q: String,
 }
+
+/// `getInstagramReels(projectId, limit)` — `{ reels?, error? }`.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct InstagramReelsResp {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub reels: Option<Vec<Value>>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub error: Option<String>,
+}
+
+/// `getInstagramReelInsights` / `getInstagramStoryInsights` — `{ data?, error? }`.
+/// We pass through Graph's `insights.data` array verbatim and let the TS shim
+/// reshape it into a `Record<string, number>` for the legacy call sites.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct InstagramMediaInsightsResp {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub data: Option<Vec<Value>>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub error: Option<String>,
+}
+
+/// `getInstagramConversations(projectId)` — `{ conversations?, error? }`.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct InstagramConversationsResp {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub conversations: Option<Vec<Value>>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub error: Option<String>,
+}
+
+/// `getInstagramConversationMessages(projectId, threadId)` — `{ messages?, error? }`.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct InstagramMessagesResp {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub messages: Option<Vec<Value>>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub error: Option<String>,
+}
+
+/// Query string for `GET /v1/instagram/projects/:id/reels?limit=...`.
+#[derive(Debug, Clone, Deserialize)]
+pub struct ReelsQuery {
+    #[serde(default)]
+    pub limit: Option<u32>,
+}
+
+/// Query string for `GET /v1/instagram/projects/:id/media/:media_id/insights?metrics=...`.
+#[derive(Debug, Clone, Deserialize)]
+pub struct MediaInsightsQuery {
+    /// Comma-separated metric names. When `None` / empty, the service picks a
+    /// reasonable default (the reels metric set).
+    #[serde(default)]
+    pub metrics: Option<String>,
+}

@@ -26,9 +26,10 @@ use tracing::{instrument, warn};
 use wachat_meta_client::MetaClient;
 
 use crate::dto::{
-    CreateImagePostBody, InstagramAccountResp, InstagramCommentsResp, InstagramDiscoverResp,
-    InstagramHashtagIdResp, InstagramImagePostResp, InstagramMediaDetailsResp,
-    InstagramMediaListResp, InstagramStoriesResp,
+    CreateImagePostBody, InstagramAccountResp, InstagramCommentsResp, InstagramConversationsResp,
+    InstagramDiscoverResp, InstagramHashtagIdResp, InstagramImagePostResp,
+    InstagramMediaDetailsResp, InstagramMediaInsightsResp, InstagramMediaListResp,
+    InstagramMessagesResp, InstagramReelsResp, InstagramStoriesResp,
 };
 
 const PROJECTS_COLL: &str = "projects";
@@ -638,6 +639,291 @@ pub async fn hashtag_recent_media(
         }
         Err(e) => Ok(InstagramMediaListResp {
             media: None,
+            error: Some(e.to_string()),
+        }),
+    }
+}
+
+/// `getHashtagTopMedia(projectId, hashtagId)` — top-performing media for a
+/// hashtag. Mirrors [`hashtag_recent_media`] but hits the `top_media` edge
+/// with the richer field set used by the call sites in the TS action.
+pub async fn hashtag_top_media(
+    user: &AuthUser,
+    mongo: &MongoHandle,
+    meta: &MetaClient,
+    project_id: &str,
+    hashtag_id: &str,
+) -> Result<InstagramMediaListResp> {
+    let (ig_id, project) = match ig_account_id(user, mongo, meta, project_id).await {
+        Ok(v) => v,
+        Err(_) => {
+            return Ok(InstagramMediaListResp {
+                media: None,
+                error: Some("Could not find your own Instagram account.".to_owned()),
+            });
+        }
+    };
+    let token = match need_token(&project) {
+        Ok(t) => t,
+        Err(e) => {
+            return Ok(InstagramMediaListResp {
+                media: None,
+                error: Some(e),
+            });
+        }
+    };
+
+    let path = format!(
+        "{hashtag_id}/top_media?user_id={}&fields=id,caption,media_url,media_type,permalink,thumbnail_url,timestamp,like_count,comments_count",
+        enc(&ig_id)
+    );
+    match meta.get_json::<Value>(&path, token).await {
+        Ok(resp) => {
+            let media = resp
+                .get("data")
+                .and_then(|v| v.as_array())
+                .cloned()
+                .unwrap_or_default();
+            Ok(InstagramMediaListResp {
+                media: Some(media),
+                error: None,
+            })
+        }
+        Err(e) => Ok(InstagramMediaListResp {
+            media: None,
+            error: Some(e.to_string()),
+        }),
+    }
+}
+
+/// `getInstagramReels(projectId, limit)` — fetch the connected IG account's
+/// `/media` edge with the reels-relevant fields, then filter in-handler to
+/// items where `media_product_type == "REELS"`.
+pub async fn reels(
+    user: &AuthUser,
+    mongo: &MongoHandle,
+    meta: &MetaClient,
+    project_id: &str,
+    limit: u32,
+) -> Result<InstagramReelsResp> {
+    let (ig_id, project) = match ig_account_id(user, mongo, meta, project_id).await {
+        Ok(v) => v,
+        Err(e) => {
+            return Ok(InstagramReelsResp {
+                reels: None,
+                error: Some(e),
+            });
+        }
+    };
+    let token = match need_token(&project) {
+        Ok(t) => t,
+        Err(e) => {
+            return Ok(InstagramReelsResp {
+                reels: None,
+                error: Some(e),
+            });
+        }
+    };
+
+    let path = format!(
+        "{ig_id}/media?fields=id,caption,media_url,media_type,media_product_type,permalink,thumbnail_url,timestamp,like_count,comments_count&limit={limit}"
+    );
+    match meta.get_json::<Value>(&path, token).await {
+        Ok(resp) => {
+            let all = resp
+                .get("data")
+                .and_then(|v| v.as_array())
+                .cloned()
+                .unwrap_or_default();
+            let reels: Vec<Value> = all
+                .into_iter()
+                .filter(|m| {
+                    m.get("media_product_type")
+                        .and_then(|v| v.as_str())
+                        .map(|s| s == "REELS")
+                        .unwrap_or(false)
+                })
+                .collect();
+            Ok(InstagramReelsResp {
+                reels: Some(reels),
+                error: None,
+            })
+        }
+        Err(e) => Ok(InstagramReelsResp {
+            reels: None,
+            error: Some(e.to_string()),
+        }),
+    }
+}
+
+/// Default metric set used when callers don't pass an explicit `metrics=`
+/// query string. Matches the reels insight panel.
+const DEFAULT_INSIGHTS_METRICS: &str = "plays,reach,likes,comments,shares,saves";
+
+/// `getMediaInsights(projectId, mediaId, metrics)` — Graph
+/// `/{mediaId}/insights?metric=...`. Works for both reels and stories; the
+/// caller supplies the appropriate metric CSV (`impressions,reach,replies,
+/// exits,taps_forward,taps_back` for stories).
+pub async fn media_insights(
+    user: &AuthUser,
+    mongo: &MongoHandle,
+    meta: &MetaClient,
+    project_id: &str,
+    media_id: &str,
+    metrics_csv: Option<&str>,
+) -> Result<InstagramMediaInsightsResp> {
+    let project = match load_project_for(user, mongo, project_id).await {
+        Ok(p) => p,
+        Err(_) => {
+            return Ok(InstagramMediaInsightsResp {
+                data: None,
+                error: Some("Project access denied or misconfigured.".to_owned()),
+            });
+        }
+    };
+    let token = match need_token(&project) {
+        Ok(t) => t,
+        Err(e) => {
+            return Ok(InstagramMediaInsightsResp {
+                data: None,
+                error: Some(e),
+            });
+        }
+    };
+
+    let metrics = metrics_csv
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+        .unwrap_or(DEFAULT_INSIGHTS_METRICS);
+
+    let path = format!("{media_id}/insights?metric={}", enc(metrics));
+    match meta.get_json::<Value>(&path, token).await {
+        Ok(resp) => {
+            let data = resp
+                .get("data")
+                .and_then(|v| v.as_array())
+                .cloned()
+                .unwrap_or_default();
+            Ok(InstagramMediaInsightsResp {
+                data: Some(data),
+                error: None,
+            })
+        }
+        Err(e) => Ok(InstagramMediaInsightsResp {
+            data: None,
+            error: Some(e.to_string()),
+        }),
+    }
+}
+
+/// `getInstagramConversations(projectId)` — Messenger / IG DM threads on the
+/// connected Facebook Page (the API key the legacy TS uses is the same as
+/// the `/{pageId}/conversations?platform=instagram` endpoint).
+pub async fn conversations(
+    user: &AuthUser,
+    mongo: &MongoHandle,
+    meta: &MetaClient,
+    project_id: &str,
+) -> Result<InstagramConversationsResp> {
+    let project = match load_project_for(user, mongo, project_id).await {
+        Ok(p) => p,
+        Err(_) => {
+            return Ok(InstagramConversationsResp {
+                conversations: None,
+                error: Some(
+                    "Project not found or is not configured for Facebook.".to_owned(),
+                ),
+            });
+        }
+    };
+    let Some(page_id) = project
+        .facebook_page_id
+        .as_deref()
+        .filter(|s| !s.is_empty())
+        .map(str::to_owned)
+    else {
+        return Ok(InstagramConversationsResp {
+            conversations: None,
+            error: Some("Project is not connected to a Facebook Page.".to_owned()),
+        });
+    };
+    let token = match need_token(&project) {
+        Ok(t) => t,
+        Err(e) => {
+            return Ok(InstagramConversationsResp {
+                conversations: None,
+                error: Some(e),
+            });
+        }
+    };
+
+    let path = format!(
+        "{page_id}/conversations?platform=instagram&fields=id,updated_time,participants,snippet,unread_count"
+    );
+    match meta.get_json::<Value>(&path, token).await {
+        Ok(resp) => {
+            let conversations = resp
+                .get("data")
+                .and_then(|v| v.as_array())
+                .cloned()
+                .unwrap_or_default();
+            Ok(InstagramConversationsResp {
+                conversations: Some(conversations),
+                error: None,
+            })
+        }
+        Err(e) => Ok(InstagramConversationsResp {
+            conversations: None,
+            error: Some(e.to_string()),
+        }),
+    }
+}
+
+/// `getInstagramConversationMessages(projectId, conversationId)` — messages
+/// in a single thread, returned in Graph's native order.
+pub async fn conversation_messages(
+    user: &AuthUser,
+    mongo: &MongoHandle,
+    meta: &MetaClient,
+    project_id: &str,
+    conversation_id: &str,
+) -> Result<InstagramMessagesResp> {
+    let project = match load_project_for(user, mongo, project_id).await {
+        Ok(p) => p,
+        Err(_) => {
+            return Ok(InstagramMessagesResp {
+                messages: None,
+                error: Some("Project access denied or misconfigured.".to_owned()),
+            });
+        }
+    };
+    let token = match need_token(&project) {
+        Ok(t) => t,
+        Err(e) => {
+            return Ok(InstagramMessagesResp {
+                messages: None,
+                error: Some(e),
+            });
+        }
+    };
+
+    let path = format!(
+        "{conversation_id}/messages?fields=id,created_time,from,message,attachments"
+    );
+    match meta.get_json::<Value>(&path, token).await {
+        Ok(resp) => {
+            let messages = resp
+                .get("data")
+                .and_then(|v| v.as_array())
+                .cloned()
+                .unwrap_or_default();
+            Ok(InstagramMessagesResp {
+                messages: Some(messages),
+                error: None,
+            })
+        }
+        Err(e) => Ok(InstagramMessagesResp {
+            messages: None,
             error: Some(e.to_string()),
         }),
     }

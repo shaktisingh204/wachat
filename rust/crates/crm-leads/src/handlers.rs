@@ -369,12 +369,10 @@ pub async fn update_lead(
 // DELETE /:leadId — delete_lead (soft)
 // =========================================================================
 
-/// `DELETE /v1/crm/leads/:leadId` — soft delete. Sets `archived = true`
-/// and stamps `deletedAt`. The row stays in the collection so
-/// attribution reports remain accurate. Fails with 404 if the lead
-/// doesn't exist OR isn't owned by the caller (or is already archived
-/// — a redundant delete is treated as not-found rather than a no-op so
-/// the UI surfaces a clear "already deleted" error path).
+/// `DELETE /v1/crm/leads/:leadId` — **hard delete**. Per the CRM
+/// ecosystem plan (`docs/ecosystem/CRM_PLAN.md` §10), CRM entities use
+/// hard deletes — the row is removed from the collection. Fails with
+/// 404 if the lead doesn't exist OR isn't owned by the caller.
 #[instrument(skip_all, fields(user_id = %user.user_id, lead_id = %lead_id))]
 pub async fn delete_lead(
     user: AuthUser,
@@ -384,29 +382,18 @@ pub async fn delete_lead(
     let user_id = user_oid(&user)?;
     let lead_oid = oid_from_str(&lead_id)?;
 
-    let now = bson::DateTime::from_chrono(Utc::now());
-    let mut filter = base_ownership_filter(user_id);
-    filter.insert("_id", lead_oid);
-
-    let update = doc! {
-        "$set": {
-            "archived": true,
-            "deletedAt": now,
-            "updatedAt": now,
-            "updatedBy": user_id,
-        },
-    };
+    let filter = doc! { "_id": lead_oid, "userId": user_id };
 
     let coll = mongo.collection::<Document>(LEADS_COLL);
     let res = coll
-        .update_one(filter, update)
+        .delete_one(filter)
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_leads.soft_delete")))?;
-    if res.matched_count == 0 {
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_leads.delete_one")))?;
+    if res.deleted_count == 0 {
         return Err(ApiError::NotFound("lead".to_owned()));
     }
 
-    Ok(Json(serde_json::json!({ "ok": true, "archived": true })))
+    Ok(Json(serde_json::json!({ "ok": true, "deleted": true })))
 }
 
 // =========================================================================

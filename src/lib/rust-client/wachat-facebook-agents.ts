@@ -71,6 +71,8 @@ export interface CreateFacebookAgentBody {
     welcomeMessage?: string;
     fallbackMessage?: string;
     isActive?: boolean;
+    /** Optional model identifier collected by the chatbot agent UI. */
+    model?: string;
 }
 
 export interface UploadKnowledgeDocBody {
@@ -91,6 +93,8 @@ export interface SaveModerationRuleBody {
     isActive?: boolean;
     /** When set + valid ObjectId, updates an existing rule in place. */
     ruleId?: string;
+    /** Display title for the rule (used as the row label in the UI). */
+    name?: string;
 }
 
 export interface CommentAutoReplyBody {

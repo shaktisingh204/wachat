@@ -132,6 +132,7 @@ export interface EntityPickerProps {
 
 const ENTITY_LABEL: Record<EntityKey, string> = {
   client: 'client',
+  contact: 'contact',
   vendor: 'vendor',
   item: 'item',
   employee: 'employee',
@@ -144,11 +145,13 @@ const ENTITY_LABEL: Record<EntityKey, string> = {
   city: 'city',
   country: 'country',
   currency: 'currency',
+  deal: 'deal',
   department: 'department',
   designation: 'designation',
   industry: 'industry',
   jobTitle: 'job title',
   language: 'language',
+  lead: 'lead',
   leadSource: 'lead source',
   location: 'location',
   pipeline: 'pipeline',

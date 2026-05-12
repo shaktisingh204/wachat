@@ -34,8 +34,8 @@ type Props = NodeProps<CanvasNode> & {
 /** Mirror of CanvasHandle's vertical distribution so a "+" lines up with its handle. */
 function plusTopForIndex(total: number, index: number): string {
   if (total <= 1) return '50%';
-  const min = 20;
-  const max = 80;
+  const min = 25;
+  const max = 75;
   const step = (max - min) / (total - 1);
   return `${min + index * step}%`;
 }
@@ -244,16 +244,19 @@ export const CanvasNodeDefault = memo(function CanvasNodeDefault({
         </div>
       ) : null}
 
-      {/* Right-side "+" affordances — one per output port so multi-output
+      {/* Right-side "+" affordances — one per MAIN output port so multi-output
          blocks (Condition True/False, Switch per-case, Choice per-item, Loop,
          AB-test, integrations Success/Error) each get their own
-         "Add next step" button. Triggers without any downstream edge get a
-         larger, pulsing variant as a setup hint. */}
+         "Add next step" button. AI/Tool outputs live on the top edge and use
+         a different affordance — they're skipped here. Triggers without any
+         downstream edge get a larger, pulsing variant as a setup hint. */}
       {!isReadOnly &&
-        d.outputs.map((port, index) => {
+        d.outputs
+          .filter((p) => p.type === 'main')
+          .map((port, index, arr) => {
           const handleId = `outputs/${port.type}/${port.index}`;
-          const top = plusTopForIndex(d.outputs.length, index);
-          const showLabel = d.outputs.length > 1 && !!port.label;
+          const top = plusTopForIndex(arr.length, index);
+          const showLabel = arr.length > 1 && !!port.label;
           return (
             <button
               key={handleId}

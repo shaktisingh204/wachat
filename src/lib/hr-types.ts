@@ -366,7 +366,9 @@ export type HrTicket = Owned & {
   requesterEmail?: string;
   priority: 'low' | 'medium' | 'high' | 'urgent';
   status: 'open' | 'in-progress' | 'waiting' | 'resolved' | 'closed';
+  assigneeId?: ObjectId;
   assigneeName?: string;
+  categoryId?: ObjectId;
   category?: string;
   firstResponseAt?: Date;
   resolvedAt?: Date;

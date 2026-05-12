@@ -28,6 +28,8 @@ import {
   CustomFieldInput,
   type CustomFieldValue,
 } from '@/components/crm/custom-field-input';
+import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EntityPickerChip } from '@/components/crm/entity-picker';
 import {
   ZoruAlertDialog,
   ZoruAlertDialogAction,
@@ -395,7 +397,15 @@ export default function TicketsPage() {
                             {ticket.subject}
                           </ZoruTableCell>
                           <ZoruTableCell className="text-[13px] text-zoru-ink">
-                            {ticket.clientName || '—'}
+                            {ticket.clientId ? (
+                              <EntityPickerChip
+                                entity="client"
+                                id={String(ticket.clientId)}
+                                fallback={ticket.clientName}
+                              />
+                            ) : (
+                              ticket.clientName || '—'
+                            )}
                           </ZoruTableCell>
                           <ZoruTableCell>
                             <ZoruBadge
@@ -416,7 +426,15 @@ export default function TicketsPage() {
                             </ZoruBadge>
                           </ZoruTableCell>
                           <ZoruTableCell className="text-[13px] text-zoru-ink">
-                            {ticket.assigneeName || '—'}
+                            {ticket.assigneeId ? (
+                              <EntityPickerChip
+                                entity="user"
+                                id={String(ticket.assigneeId)}
+                                fallback={ticket.assigneeName}
+                              />
+                            ) : (
+                              ticket.assigneeName || '—'
+                            )}
                           </ZoruTableCell>
                           <ZoruTableCell className="text-right">
                             <div className="flex justify-end gap-1">
@@ -479,12 +497,17 @@ export default function TicketsPage() {
                 />
               </div>
               <div>
-                <ZoruLabel className="text-zoru-ink">Client Name</ZoruLabel>
-                <ZoruInput
-                  name="clientName"
-                  defaultValue={editing?.clientName || ''}
-                  className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
-                />
+                <ZoruLabel className="text-zoru-ink">Client</ZoruLabel>
+                <div className="mt-1.5">
+                  <EntityFormField
+                    entity="client"
+                    name="clientId"
+                    dualWriteName="clientName"
+                    initialId={editing?.clientId ? String(editing.clientId) : null}
+                    initialLabel={editing?.clientName}
+                    allowCreate
+                  />
+                </div>
               </div>
               <div>
                 <ZoruLabel className="text-zoru-ink">Requester Email</ZoruLabel>
@@ -536,19 +559,28 @@ export default function TicketsPage() {
               </div>
               <div>
                 <ZoruLabel className="text-zoru-ink">Assignee</ZoruLabel>
-                <ZoruInput
-                  name="assigneeName"
-                  defaultValue={editing?.assigneeName || ''}
-                  className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
-                />
+                <div className="mt-1.5">
+                  <EntityFormField
+                    entity="user"
+                    name="assigneeId"
+                    dualWriteName="assigneeName"
+                    initialId={editing?.assigneeId ? String(editing.assigneeId) : null}
+                    initialLabel={editing?.assigneeName}
+                  />
+                </div>
               </div>
               <div>
                 <ZoruLabel className="text-zoru-ink">Category</ZoruLabel>
-                <ZoruInput
-                  name="category"
-                  defaultValue={editing?.category || ''}
-                  className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
-                />
+                <div className="mt-1.5">
+                  <EntityFormField
+                    entity="category"
+                    name="categoryId"
+                    dualWriteName="category"
+                    initialId={editing?.categoryId ? String(editing.categoryId) : null}
+                    initialLabel={editing?.category}
+                    allowCreate
+                  />
+                </div>
               </div>
               <div className="md:col-span-2">
                 <ZoruLabel className="text-zoru-ink">Description</ZoruLabel>

@@ -30,6 +30,7 @@ import { getCustomFieldsFor } from '@/app/actions/worksuite/meta.actions';
 import type { WithId, CrmContact, CrmAccount } from '@/lib/definitions';
 import type { WsCustomField } from '@/lib/worksuite/meta-types';
 import { EntityPicker } from '@/components/crm/entity-picker';
+import { EntityFormField } from '@/components/crm/entity-form-field';
 import {
   CustomFieldInput,
   type CustomFieldValue,
@@ -170,7 +171,10 @@ export function CreateDealDialog({
               <div className="space-y-2"><ZoruLabel htmlFor="name" className="text-zoru-ink">Deal Name</ZoruLabel><ZoruInput id="name" name="name" required placeholder="e.g. Website Redesign for Acme Corp" /></div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2"><ZoruLabel htmlFor="value" className="text-zoru-ink">Value</ZoruLabel><ZoruInput id="value" name="value" type="number" step="0.01" required placeholder="10000" /></div>
-                <div className="space-y-2"><ZoruLabel htmlFor="currency" className="text-zoru-ink">Currency</ZoruLabel><ZoruSelect name="currency" defaultValue="USD" required><ZoruSelectTrigger id="currency"><ZoruSelectValue /></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="USD">USD</ZoruSelectItem><ZoruSelectItem value="INR">INR</ZoruSelectItem><ZoruSelectItem value="EUR">EUR</ZoruSelectItem></ZoruSelectContent></ZoruSelect></div>
+                <div className="space-y-2">
+                  <ZoruLabel htmlFor="currency" className="text-zoru-ink">Currency</ZoruLabel>
+                  <EntityFormField entity="currency" name="currency" initialId="USD" required />
+                </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -199,7 +203,16 @@ export function CreateDealDialog({
                     }}
                   />
                 </div>
-                <div className="space-y-2"><ZoruLabel htmlFor="contactId" className="text-zoru-ink">Primary Contact</ZoruLabel><ZoruSelect name="contactId" required defaultValue={defaultContactId}><ZoruSelectTrigger id="contactId"><ZoruSelectValue placeholder="Select a contact..." /></ZoruSelectTrigger><ZoruSelectContent>{contacts.map(c => <ZoruSelectItem key={c._id.toString()} value={c._id.toString()}>{c.name}</ZoruSelectItem>)}</ZoruSelectContent></ZoruSelect></div>
+                <div className="space-y-2">
+                  <ZoruLabel htmlFor="contactId" className="text-zoru-ink">Primary Contact</ZoruLabel>
+                  <EntityFormField
+                    entity="contact"
+                    name="contactId"
+                    initialId={defaultContactId || null}
+                    required
+                    placeholder="Select a contact…"
+                  />
+                </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -222,18 +235,7 @@ export function CreateDealDialog({
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <ZoruLabel htmlFor="leadSource" className="text-zoru-ink">Lead Source</ZoruLabel>
-                  <ZoruSelect name="leadSource" defaultValue="other">
-                    <ZoruSelectTrigger id="leadSource" className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"><ZoruSelectValue /></ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                      <ZoruSelectItem value="website">Website</ZoruSelectItem>
-                      <ZoruSelectItem value="referral">Referral</ZoruSelectItem>
-                      <ZoruSelectItem value="partner">Partner</ZoruSelectItem>
-                      <ZoruSelectItem value="outbound">Outbound</ZoruSelectItem>
-                      <ZoruSelectItem value="inbound">Inbound</ZoruSelectItem>
-                      <ZoruSelectItem value="event">Event</ZoruSelectItem>
-                      <ZoruSelectItem value="other">Other</ZoruSelectItem>
-                    </ZoruSelectContent>
-                  </ZoruSelect>
+                  <EntityFormField entity="leadSource" name="leadSource" initialId="Other" />
                 </div>
                 <div className="space-y-2">
                   <ZoruLabel htmlFor="campaign" className="text-zoru-ink">Campaign</ZoruLabel>

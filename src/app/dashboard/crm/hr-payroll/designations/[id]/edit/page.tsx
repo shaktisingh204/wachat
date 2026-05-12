@@ -1,0 +1,25 @@
+import { notFound } from 'next/navigation';
+import { BadgeCheck } from 'lucide-react';
+
+import { CrmPageHeader } from '../../../../_components/crm-page-header';
+import { DesignationForm } from '../../_components/designation-form';
+import { getDesignation } from '@/app/actions/crm/departments.actions';
+
+export const dynamic = 'force-dynamic';
+
+export default async function EditDesignationPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const { item } = await getDesignation(id);
+  if (!item) notFound();
+
+  return (
+    <div className="flex w-full flex-col gap-6">
+      <CrmPageHeader title={`Edit ${item.name}`} subtitle="Update designation." icon={BadgeCheck} />
+      <DesignationForm initial={item} />
+    </div>
+  );
+}

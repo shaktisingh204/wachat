@@ -22,6 +22,7 @@ import type { CrmAccount, WithId } from '@/lib/definitions';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Separator } from '../ui/separator';
 import { ClayButton } from '@/components/clay';
+import { EntityFormField } from '@/components/crm/entity-form-field';
 
 const initialState = { message: undefined, error: undefined };
 
@@ -87,23 +88,15 @@ export function CrmAddContactDialog({ onAdded, accounts }: CrmAddContactDialogPr
                 <div className="space-y-2"><Label htmlFor="phone" className="text-foreground">Phone</Label><Input id="phone" name="phone" type="tel" inputMode="tel" pattern="[0-9+()\\-\\s]*" onChange={(e) => { e.currentTarget.value = e.currentTarget.value.replace(/[^0-9+()\-\s]/g, ''); }} /></div>
                 <div className="space-y-2"><Label htmlFor="company" className="text-foreground">Company</Label><Input id="company" name="company" /></div>
               </div>
-              <div className="space-y-2"><Label htmlFor="jobTitle" className="text-foreground">Job Title</Label><Input id="jobTitle" name="jobTitle" /></div>
+              <div className="space-y-2">
+                <Label htmlFor="jobTitle" className="text-foreground">Job Title</Label>
+                <EntityFormField entity="jobTitle" name="jobTitle" />
+              </div>
               <Separator className="border-border" />
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="accountId" className="text-foreground">Account (Company)</Label>
-                  <Select name="accountId">
-                    <SelectTrigger id="accountId">
-                      <SelectValue placeholder="Select an account..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {accounts.map(account => (
-                        <SelectItem key={account._id.toString()} value={account._id.toString()}>
-                          {account.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <EntityFormField entity="client" name="accountId" placeholder="Select an account…" allowCreate />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="status" className="text-foreground">Status</Label>
@@ -146,26 +139,13 @@ export function CrmAddContactDialog({ onAdded, accounts }: CrmAddContactDialogPr
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="source" className="text-foreground">Source</Label>
-                  <Select name="source" defaultValue="other">
-                    <SelectTrigger id="source" className="h-10 rounded-lg border-border bg-card text-[13px]">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="website">Website</SelectItem>
-                      <SelectItem value="referral">Referral</SelectItem>
-                      <SelectItem value="social">Social</SelectItem>
-                      <SelectItem value="event">Event</SelectItem>
-                      <SelectItem value="cold-outbound">Cold Outbound</SelectItem>
-                      <SelectItem value="ad">Ad</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <EntityFormField entity="leadSource" name="source" initialId="Other" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="owner" className="text-foreground">Owner</Label>
-                  <Input id="owner" name="owner" placeholder="Assigned to..." className="h-10 rounded-lg border-border bg-card text-[13px]" />
+                  <EntityFormField entity="user" name="owner" placeholder="Assigned to…" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="tags" className="text-foreground">Tags</Label>
@@ -189,7 +169,7 @@ export function CrmAddContactDialog({ onAdded, accounts }: CrmAddContactDialogPr
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="timezone" className="text-foreground">Timezone</Label>
-                  <Input id="timezone" name="timezone" placeholder="Asia/Kolkata" className="h-10 rounded-lg border-border bg-card text-[13px]" />
+                  <EntityFormField entity="timezone" name="timezone" placeholder="Asia/Kolkata" />
                 </div>
               </div>
             </div>

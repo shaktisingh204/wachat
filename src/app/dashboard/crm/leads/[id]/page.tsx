@@ -1,0 +1,190 @@
+/**
+ * Lead detail — `/dashboard/crm/leads/[id]`.
+ *
+ * Server component: hydrates the lead via the Rust client, resolves
+ * relational fields through `<EntityPickerChip>`, and renders the
+ * custom-field bag alongside the standard fields. Edit and Delete
+ * actions live on this page; the delete dialog is on the list page.
+ */
+
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
+import { Users, Pencil, ArrowLeft } from 'lucide-react';
+
+import {
+  ZoruButton,
+  ZoruCard,
+  ZoruBadge,
+} from '@/components/zoruui';
+import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityPickerChip } from '@/components/crm/entity-picker';
+import { CustomFieldDisplay } from '@/components/crm/custom-field-input';
+import { getLead } from '@/app/actions/crm/leads.actions';
+import { getCustomFieldsFor } from '@/app/actions/worksuite/meta.actions';
+import type { WsCustomField } from '@/lib/worksuite/meta-types';
+
+export const dynamic = 'force-dynamic';
+
+function fmtMoney(value?: number, currency?: string): string {
+  if (typeof value !== 'number') return '—';
+  try {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: currency || 'INR',
+      maximumFractionDigits: 0,
+    }).format(value);
+  } catch {
+    return `${currency || 'INR'} ${value}`;
+  }
+}
+
+function fmtDate(v?: string): string {
+  if (!v) return '—';
+  const d = new Date(v);
+  return isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
+}
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+        {label}
+      </div>
+      <div className="mt-1 text-[13px] text-zoru-ink">{children}</div>
+    </div>
+  );
+}
+
+export default async function LeadDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const [{ lead, error }, customFields] = await Promise.all([
+    getLead(id),
+    getCustomFieldsFor('lead') as Promise<WsCustomField[]>,
+  ]);
+
+  if (!lead) {
+    if (error) {
+      return (
+        <div className="flex w-full flex-col gap-4 p-6">
+          <p className="text-[14px] text-zoru-ink">Couldn&apos;t load this lead — {error}</p>
+          <ZoruButton variant="outline" asChild>
+            <Link href="/dashboard/crm/leads">
+              <ArrowLeft className="h-4 w-4" /> Back to Leads
+            </Link>
+          </ZoruButton>
+        </div>
+      );
+    }
+    notFound();
+  }
+
+  const fullName = [lead.firstName, lead.lastName].filter(Boolean).join(' ') || lead.email || 'Lead';
+  const cfValues = (lead.customFields ?? {}) as Record<string, unknown>;
+
+  return (
+    <div className="flex w-full flex-col gap-6">
+      <CrmPageHeader
+        title={fullName}
+        subtitle={lead.company ? `${lead.title ?? ''}${lead.title ? ' · ' : ''}${lead.company}` : 'Lead'}
+        icon={Users}
+        actions={
+          <>
+            <ZoruButton variant="outline" asChild>
+              <Link href="/dashboard/crm/leads">
+                <ArrowLeft className="h-4 w-4" /> Back
+              </Link>
+            </ZoruButton>
+            <ZoruButton asChild>
+              <Link href={`/dashboard/crm/leads/${id}/edit`}>
+                <Pencil className="h-4 w-4" /> Edit
+              </Link>
+            </ZoruButton>
+          </>
+        }
+      />
+
+      <div className="grid gap-6 lg:grid-cols-3">
+        <ZoruCard className="p-6 lg:col-span-2">
+          <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+            Identity & Contact
+          </h3>
+          <div className="grid gap-4 md:grid-cols-2">
+            <Field label="Full name">{fullName}</Field>
+            <Field label="Email">{lead.email || '—'}</Field>
+            <Field label="Phone">{lead.phone || '—'}</Field>
+            <Field label="Company">{lead.company || '—'}</Field>
+            <Field label="Job title">{lead.title || '—'}</Field>
+            <Field label="Industry">{lead.industry || '—'}</Field>
+          </div>
+
+          <h3 className="mb-4 mt-8 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+            Workflow
+          </h3>
+          <div className="grid gap-4 md:grid-cols-2">
+            <Field label="Source">{lead.attribution?.source || '—'}</Field>
+            <Field label="Sub-source">{lead.subSource || '—'}</Field>
+            <Field label="Status">
+              {lead.status?.name ? <ZoruBadge variant="outline">{lead.status.name}</ZoruBadge> : '—'}
+            </Field>
+            <Field label="Lead score">{lead.leadScore ?? '—'}</Field>
+            <Field label="Owner">
+              {lead.ownerId ? (
+                <EntityPickerChip entity="user" id={lead.ownerId} />
+              ) : (
+                '—'
+              )}
+            </Field>
+            <Field label="Assigned to">
+              {lead.assignment?.assignedTo ? (
+                <EntityPickerChip entity="user" id={lead.assignment.assignedTo} />
+              ) : (
+                '—'
+              )}
+            </Field>
+          </div>
+        </ZoruCard>
+
+        <ZoruCard className="p-6">
+          <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+            Value & Forecast
+          </h3>
+          <div className="flex flex-col gap-4">
+            <Field label="Estimated value">{fmtMoney(lead.estimatedValue, lead.currency)}</Field>
+            <Field label="Currency">{lead.currency || '—'}</Field>
+            <Field label="Probability">
+              {typeof lead.probabilityPct === 'number' ? `${lead.probabilityPct}%` : '—'}
+            </Field>
+            <Field label="Expected close">{fmtDate(lead.expectedClose)}</Field>
+          </div>
+        </ZoruCard>
+      </div>
+
+      {customFields.length > 0 ? (
+        <ZoruCard className="p-6">
+          <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+            Custom fields
+          </h3>
+          <div className="grid gap-4 md:grid-cols-2">
+            {customFields.map((f) => (
+              <Field key={String(f._id ?? f.name)} label={f.label || f.name}>
+                <CustomFieldDisplay
+                  field={f}
+                  value={cfValues[f.name] as Parameters<typeof CustomFieldDisplay>[0]['value']}
+                />
+              </Field>
+            ))}
+          </div>
+        </ZoruCard>
+      ) : null}
+
+      <div className="text-[11px] text-zoru-ink-muted">
+        Created {fmtDate(lead.createdAt || lead.audit?.createdAt)} · Updated{' '}
+        {fmtDate(lead.updatedAt || lead.audit?.updatedAt)}
+      </div>
+    </div>
+  );
+}
