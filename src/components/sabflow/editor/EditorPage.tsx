@@ -158,6 +158,15 @@ function EditorContent({ flow: initialFlow }: Props) {
   const save = useCallback(
     (overrides?: Partial<SabFlowDoc>) => {
       setSaveError(null);
+      // Defensively unwrap callers like `onClick={save}` that pass a
+      // SyntheticEvent — spreading an Event into the payload leaks
+      // `event.target` (a DOM element) and explodes BSON nested-depth.
+      const safeOverrides: Partial<SabFlowDoc> | undefined =
+        overrides && typeof overrides === 'object'
+          && !(typeof Event !== 'undefined' && overrides instanceof Event)
+          && !(typeof Node !== 'undefined' && overrides instanceof Node)
+          ? overrides
+          : undefined;
       startSaving(async () => {
         const rawPayload = {
           name: flow.name,
@@ -168,7 +177,7 @@ function EditorContent({ flow: initialFlow }: Props) {
           theme: flow.theme,
           settings: flow.settings,
           status: flow.status,
-          ...overrides,
+          ...safeOverrides,
         };
         // Strip every non-JSON value (functions, React elements, Symbols, class
         // instances without toJSON, etc.) before the payload crosses the server

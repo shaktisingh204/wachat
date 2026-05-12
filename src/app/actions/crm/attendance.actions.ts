@@ -1,0 +1,305 @@
+'use server';
+
+/**
+ * CRM Attendance server actions.
+ *
+ * Thin shims over the Rust BFF (`crmAttendanceApi`). No direct Mongo
+ * access. FormData callers (the create/edit pages) hit
+ * `saveAttendanceAction` / `deleteAttendanceAction`; programmatic
+ * callers can use the typed helpers (`listAttendance`, `getAttendance`,
+ * etc.).
+ *
+ * Note: `'attendance'` is **not** a `WsCustomFieldBelongsTo` value, so
+ * the custom-field plumbing used by `leads.actions.ts` is intentionally
+ * absent from this module.
+ */
+
+import { revalidatePath } from 'next/cache';
+import { RustApiError } from '@/lib/rust-client';
+import {
+  crmAttendanceApi,
+  type CrmAttendanceCreateInput,
+  type CrmAttendanceDoc,
+  type CrmAttendanceListParams,
+  type CrmAttendancePunchInput,
+  type CrmAttendanceSource,
+  type CrmAttendanceStatus,
+  type CrmAttendanceUpdateInput,
+} from '@/lib/rust-client/crm-attendance';
+
+const LIST_PATH = '/dashboard/crm/hr-payroll/attendance';
+
+const ALLOWED_STATUS: ReadonlySet<CrmAttendanceStatus> = new Set([
+  'present',
+  'absent',
+  'half_day',
+  'leave',
+  'holiday',
+  'wfh',
+]);
+
+const ALLOWED_SOURCES: ReadonlySet<CrmAttendanceSource> = new Set([
+  'manual',
+  'biometric',
+  'web',
+  'mobile',
+]);
+
+function rustErr(e: unknown): string {
+  if (e instanceof RustApiError) return e.message;
+  if (e instanceof Error) return e.message;
+  return 'Unexpected error.';
+}
+
+/* ─── Read ────────────────────────────────────────────────────── */
+
+export interface AttendanceListResult {
+  records: CrmAttendanceDoc[];
+  page: number;
+  limit: number;
+  // The Rust endpoint returns a bare array — there's no `total` field.
+  // The UI uses `hasMore` to know whether to render the Next button.
+  hasMore: boolean;
+  error?: string;
+}
+
+export async function listAttendance(
+  params: CrmAttendanceListParams = {},
+): Promise<AttendanceListResult> {
+  const page = Math.max(1, params.page ?? 1);
+  const limit = Math.min(Math.max(1, params.limit ?? 20), 100);
+  try {
+    const records = await crmAttendanceApi.list({ ...params, page, limit });
+    return { records, page, limit, hasMore: records.length === limit };
+  } catch (e) {
+    return { records: [], page, limit, hasMore: false, error: rustErr(e) };
+  }
+}
+
+export async function getAttendance(
+  id: string,
+): Promise<{ record: CrmAttendanceDoc | null; error?: string }> {
+  if (!id) return { record: null, error: 'Missing attendance id.' };
+  try {
+    const record = await crmAttendanceApi.getById(id);
+    return { record };
+  } catch (e) {
+    if (e instanceof RustApiError && e.status === 404) {
+      return { record: null, error: 'Attendance record not found.' };
+    }
+    return { record: null, error: rustErr(e) };
+  }
+}
+
+/* ─── Write ───────────────────────────────────────────────────── */
+
+function pickString(formData: FormData, key: string): string | undefined {
+  const v = formData.get(key);
+  if (typeof v !== 'string') return undefined;
+  const t = v.trim();
+  return t.length === 0 ? undefined : t;
+}
+
+function pickNumber(formData: FormData, key: string): number | undefined {
+  const v = formData.get(key);
+  if (typeof v !== 'string' || v.trim() === '') return undefined;
+  const n = Number(v);
+  return Number.isFinite(n) ? n : undefined;
+}
+
+/**
+ * Convert a `<input type="date">` value (`YYYY-MM-DD`) to an ISO-8601
+ * UTC datetime. Returns `undefined` for empty or unparsable strings.
+ */
+function pickDateIso(formData: FormData, key: string): string | undefined {
+  const raw = pickString(formData, key);
+  if (!raw) return undefined;
+  // Treat as a calendar day in the tenant timezone — appending the
+  // midnight UTC suffix matches the Rust handler's start-of-day
+  // normalization.
+  const iso = raw.includes('T') ? raw : `${raw}T00:00:00Z`;
+  const d = new Date(iso);
+  return isNaN(d.getTime()) ? undefined : d.toISOString();
+}
+
+/**
+ * Combine a `YYYY-MM-DD` date and an `HH:MM` time into an ISO-8601 UTC
+ * datetime. Returns `undefined` when either side is missing or invalid.
+ */
+function combineDateTime(
+  dateStr: string | undefined,
+  timeStr: string | undefined,
+): string | undefined {
+  if (!dateStr || !timeStr) return undefined;
+  const datePart = dateStr.includes('T') ? dateStr.slice(0, 10) : dateStr;
+  const iso = `${datePart}T${timeStr.length === 5 ? `${timeStr}:00` : timeStr}Z`;
+  const d = new Date(iso);
+  return isNaN(d.getTime()) ? undefined : d.toISOString();
+}
+
+function pickStatus(formData: FormData): CrmAttendanceStatus | undefined {
+  const v = pickString(formData, 'status');
+  if (!v) return undefined;
+  return ALLOWED_STATUS.has(v as CrmAttendanceStatus)
+    ? (v as CrmAttendanceStatus)
+    : undefined;
+}
+
+function pickSource(formData: FormData): CrmAttendanceSource | undefined {
+  const v = pickString(formData, 'source');
+  if (!v) return undefined;
+  return ALLOWED_SOURCES.has(v as CrmAttendanceSource)
+    ? (v as CrmAttendanceSource)
+    : undefined;
+}
+
+/**
+ * Server-action entry point for the create / edit form.
+ *
+ * If `formData` carries an `_id`, this performs a PATCH; otherwise a
+ * POST. `checkInTime` / `checkOutTime` are HTML `<input type="time">`
+ * values combined with `date` to build the wire-format `punchIn` /
+ * `punchOut` instants.
+ */
+export async function saveAttendanceAction(
+  _prev: unknown,
+  formData: FormData,
+): Promise<{ message?: string; error?: string; id?: string }> {
+  const id = pickString(formData, '_id');
+  const employeeId = pickString(formData, 'employeeId');
+  const dateIso = pickDateIso(formData, 'date');
+  const status = pickStatus(formData);
+
+  if (!employeeId) return { error: 'Employee is required.' };
+  if (!dateIso) return { error: 'Date is required.' };
+  if (!status) return { error: 'Status is required.' };
+
+  // The check-in / check-out controls are pure `<input type="time">`
+  // values — combine them with the same calendar day for the punch
+  // timestamps.
+  const dateRaw = pickString(formData, 'date');
+  const checkInTime = pickString(formData, 'checkInTime');
+  const checkOutTime = pickString(formData, 'checkOutTime');
+  const punchInAt = combineDateTime(dateRaw, checkInTime);
+  const punchOutAt = combineDateTime(dateRaw, checkOutTime);
+
+  // Compute `totalHours` from the punch window when both sides are
+  // present and the caller didn't supply an override. Anything over a
+  // single day is clamped — payroll edge cases (overnight shifts) go
+  // through the manual override path.
+  let totalHours = pickNumber(formData, 'totalHours');
+  if (totalHours === undefined && punchInAt && punchOutAt) {
+    const diffMs = new Date(punchOutAt).getTime() - new Date(punchInAt).getTime();
+    if (Number.isFinite(diffMs) && diffMs > 0) {
+      totalHours = Math.min(24, Math.round((diffMs / 3_600_000) * 100) / 100);
+    }
+  }
+
+  const draft: CrmAttendanceCreateInput = {
+    date: dateIso,
+    employeeId,
+    status,
+    shiftId: pickString(formData, 'shiftId'),
+    punchIn: punchInAt ? { at: punchInAt } : undefined,
+    punchOut: punchOutAt ? { at: punchOutAt } : undefined,
+    totalHours,
+    overtimeHours: pickNumber(formData, 'overtimeHours'),
+    lateByMinutes: pickNumber(formData, 'lateByMinutes'),
+    earlyOutByMinutes: pickNumber(formData, 'earlyOutByMinutes'),
+    source: pickSource(formData),
+    approverId: pickString(formData, 'approverId'),
+    notes: pickString(formData, 'notes'),
+  };
+
+  try {
+    let result: CrmAttendanceDoc;
+    if (id) {
+      const patch: CrmAttendanceUpdateInput = { ...draft };
+      result = await crmAttendanceApi.update(id, patch);
+    } else {
+      result = await crmAttendanceApi.create(draft);
+    }
+
+    revalidatePath(LIST_PATH);
+    revalidatePath(`${LIST_PATH}/${String(result._id)}`);
+    return {
+      message: id ? 'Attendance updated.' : 'Attendance recorded.',
+      id: String(result._id),
+    };
+  } catch (e) {
+    return { error: rustErr(e) };
+  }
+}
+
+/**
+ * Hard-delete an attendance record. The Rust handler removes the row
+ * from the collection — no soft-delete flag.
+ */
+export async function deleteAttendanceAction(
+  id: string,
+): Promise<{ success: boolean; error?: string }> {
+  if (!id) return { success: false, error: 'Missing attendance id.' };
+  try {
+    await crmAttendanceApi.delete(id);
+    revalidatePath(LIST_PATH);
+    return { success: true };
+  } catch (e) {
+    if (e instanceof RustApiError && e.status === 404) {
+      return { success: false, error: 'Attendance record not found.' };
+    }
+    return { success: false, error: rustErr(e) };
+  }
+}
+
+/* ─── Programmatic helpers (typed) ────────────────────────────── */
+//
+// 'use server' files only allow async exports — these helpers thinly
+// wrap the Rust client so callers don't have to remember `await
+// crmAttendanceApi.x(...)`.
+
+export async function createAttendance(input: CrmAttendanceCreateInput) {
+  return crmAttendanceApi.create(input);
+}
+
+export async function updateAttendance(
+  id: string,
+  patch: CrmAttendanceUpdateInput,
+) {
+  return crmAttendanceApi.update(id, patch);
+}
+
+export async function deleteAttendance(id: string) {
+  return crmAttendanceApi.delete(id);
+}
+
+/**
+ * Mobile-flow shorthand: stamp today's punch-in for `employeeId`.
+ * Mirror of `crmAttendanceApi.punchIn` — exposed as a server action so
+ * client components can call it without minting a Rust JWT themselves.
+ */
+export async function punchInAction(
+  input: CrmAttendancePunchInput,
+): Promise<{ record?: CrmAttendanceDoc; error?: string }> {
+  if (!input.employeeId) return { error: 'Employee is required.' };
+  try {
+    const record = await crmAttendanceApi.punchIn(input);
+    revalidatePath(LIST_PATH);
+    return { record };
+  } catch (e) {
+    return { error: rustErr(e) };
+  }
+}
+
+/** Mirror of {@link punchInAction} for clock-out. */
+export async function punchOutAction(
+  input: CrmAttendancePunchInput,
+): Promise<{ record?: CrmAttendanceDoc; error?: string }> {
+  if (!input.employeeId) return { error: 'Employee is required.' };
+  try {
+    const record = await crmAttendanceApi.punchOut(input);
+    revalidatePath(LIST_PATH);
+    return { record };
+  } catch (e) {
+    return { error: rustErr(e) };
+  }
+}

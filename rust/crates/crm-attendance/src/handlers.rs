@@ -369,12 +369,13 @@ pub async fn update_attendance(
 }
 
 // =========================================================================
-// DELETE /:attendanceId — delete_attendance (soft)
+// DELETE /:attendanceId — delete_attendance (hard)
 // =========================================================================
 
-/// `DELETE /v1/crm/attendance/:attendanceId` — soft delete. Sets
-/// `archived = true` and stamps `deletedAt`. The row stays in the
-/// collection so payroll runs remain reproducible.
+/// `DELETE /v1/crm/attendance/:attendanceId` — **hard delete**. Per the
+/// CRM ecosystem plan (`docs/ecosystem/CRM_PLAN.md` §10), CRM entities
+/// use hard deletes — the row is removed from the collection. Fails
+/// with 404 if the record doesn't exist OR isn't owned by the caller.
 #[instrument(skip_all, fields(user_id = %user.user_id, attendance_id = %attendance_id))]
 pub async fn delete_attendance(
     user: AuthUser,
@@ -384,31 +385,20 @@ pub async fn delete_attendance(
     let user_id = user_oid(&user)?;
     let att_oid = oid_from_str(&attendance_id)?;
 
-    let now = bson::DateTime::from_chrono(Utc::now());
-    let mut filter = base_ownership_filter(user_id);
-    filter.insert("_id", att_oid);
-
-    let update = doc! {
-        "$set": {
-            "archived": true,
-            "deletedAt": now,
-            "updatedAt": now,
-            "updatedBy": user_id,
-        },
-    };
+    let filter = doc! { "_id": att_oid, "userId": user_id };
 
     let coll = mongo.collection::<Document>(ATTENDANCE_COLL);
     let res = coll
-        .update_one(filter, update)
+        .delete_one(filter)
         .await
         .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_attendance.soft_delete"))
+            ApiError::Internal(anyhow::Error::new(e).context("crm_attendance.delete_one"))
         })?;
-    if res.matched_count == 0 {
+    if res.deleted_count == 0 {
         return Err(ApiError::NotFound("attendance".to_owned()));
     }
 
-    Ok(Json(serde_json::json!({ "ok": true, "archived": true })))
+    Ok(Json(serde_json::json!({ "ok": true, "deleted": true })))
 }
 
 // =========================================================================

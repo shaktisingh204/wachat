@@ -237,7 +237,7 @@ export function FlowEditorHeader({
         {/* Save button */}
         <button
           type="button"
-          onClick={onSave}
+          onClick={() => onSave()}
           disabled={isSaving}
           title="Save (Cmd+S)"
           aria-label="Save"

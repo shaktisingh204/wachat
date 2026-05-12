@@ -400,14 +400,13 @@ pub async fn update_subscription(
 }
 
 // =========================================================================
-// DELETE /:id — delete_subscription (soft)
+// DELETE /:id — delete_subscription (hard)
 // =========================================================================
 
-/// `DELETE /v1/crm/subscriptions/:id` — soft delete. Sets
-/// `archived = true` and stamps `deletedAt`. The row stays in the
-/// collection so revenue-recognition and dunning audits remain
-/// accurate. Fails with 404 if the document doesn't exist OR isn't
-/// owned by the caller (or is already archived).
+/// `DELETE /v1/crm/subscriptions/:id` — **hard delete**. Per the CRM
+/// ecosystem plan (`docs/ecosystem/CRM_PLAN.md` §10), CRM entities use
+/// hard deletes — the row is removed from the collection. Fails with
+/// 404 if the document doesn't exist OR isn't owned by the caller.
 #[instrument(skip_all, fields(user_id = %user.user_id, sub_id = %sub_id))]
 pub async fn delete_subscription(
     user: AuthUser,
@@ -417,31 +416,20 @@ pub async fn delete_subscription(
     let user_id = user_oid(&user)?;
     let oid = oid_from_str(&sub_id)?;
 
-    let now = bson::DateTime::from_chrono(Utc::now());
-    let mut filter = base_ownership_filter(user_id);
-    filter.insert("_id", oid);
-
-    let update = doc! {
-        "$set": {
-            "archived": true,
-            "deletedAt": now,
-            "updatedAt": now,
-            "updatedBy": user_id,
-        },
-    };
+    let filter = doc! { "_id": oid, "userId": user_id };
 
     let coll = mongo.collection::<Document>(SUBS_COLL);
     let res = coll
-        .update_one(filter, update)
+        .delete_one(filter)
         .await
         .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_subscriptions.soft_delete"))
+            ApiError::Internal(anyhow::Error::new(e).context("crm_subscriptions.delete_one"))
         })?;
-    if res.matched_count == 0 {
+    if res.deleted_count == 0 {
         return Err(ApiError::NotFound("subscription".to_owned()));
     }
 
-    Ok(Json(serde_json::json!({ "ok": true, "archived": true })))
+    Ok(Json(serde_json::json!({ "ok": true, "deleted": true })))
 }
 
 // =========================================================================
