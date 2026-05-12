@@ -20,6 +20,8 @@ import Redis from 'ioredis';
 import { SABFLOW_QUEUE, SABFLOW_EXEC_CHANNEL, SABFLOW_WEBHOOK_RESPONSE } from '@/lib/sabflow/worker/queues';
 import { getWebhookByWebhookId } from '@/lib/sabflow/db';
 import { ObjectId } from 'mongodb';
+import { evaluateFilter } from '@/lib/sabflow/docs/triggerFilters';
+import type { EventFilter, SabFlowEvent, WebhookEventOptions } from '@/lib/sabflow/types';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -38,6 +40,27 @@ let _queue: Queue | null = null;
 function getQueue(): Queue {
   if (!_queue) _queue = new Queue(SABFLOW_QUEUE, { connection: redisConn });
   return _queue;
+}
+
+// ── Trigger event lookup ────────────────────────────────────────────────────
+
+/**
+ * Find the SabFlowEvent that owns this webhook subscription. We match by
+ * `appEvent` first (the slug stored on the webhook registration), then fall
+ * back to the first webhook-type event so older flows without an `appEvent`
+ * keep working.
+ */
+function pickTriggerEvent(
+  flow: { events?: SabFlowEvent[] },
+  appEvent: string | undefined,
+): SabFlowEvent | undefined {
+  const events = flow.events ?? [];
+  if (events.length === 0) return undefined;
+  if (appEvent) {
+    const match = events.find((event) => event.appEvent === appEvent);
+    if (match) return match;
+  }
+  return events.find((event) => event.type === 'webhook');
 }
 
 // ── Auth verification ───────────────────────────────────────────────────────
@@ -162,6 +185,23 @@ async function handleWebhook(req: NextRequest, webhookId: string): Promise<NextR
   );
   if (!flow) {
     return NextResponse.json({ error: 'Flow not found or inactive' }, { status: 404 });
+  }
+
+  // Apply trigger filters (from the flow's matching SabFlowEvent.options.filters).
+  // Filters are evaluated against the normalized payload — when present, every
+  // row must match (AND) or the request is acknowledged but the flow does NOT
+  // run. This keeps webhook latency low and avoids charging compute for events
+  // the user explicitly opted out of.
+  const triggerEvent = pickTriggerEvent(flow as { events?: SabFlowEvent[] }, webhook.appEvent);
+  const filters = ((triggerEvent?.options as WebhookEventOptions | undefined)?.filters ?? []) as EventFilter[];
+  if (filters.length > 0) {
+    const ok = filters.every((filter) => evaluateFilter(filter, payload));
+    if (!ok) {
+      return NextResponse.json(
+        { status: 'filtered', reason: 'No trigger filter matched' },
+        { status: 200 },
+      );
+    }
   }
 
   const executionId = new ObjectId().toHexString();

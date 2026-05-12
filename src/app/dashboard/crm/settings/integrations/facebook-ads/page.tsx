@@ -1,21 +1,18 @@
 'use client';
 
-import {
-  useCallback,
-  useEffect,
-  useState,
-  useTransition,
-} from 'react';
+import { useCallback, useEffect, useState, useTransition } from 'react';
 import {
   Megaphone,
   LoaderCircle,
   CheckCircle2,
   AlertCircle,
-  Plus,
   Trash2,
   RefreshCw,
   ChevronDown,
   ChevronRight,
+  Sparkles,
+  Facebook,
+  PowerOff,
 } from 'lucide-react';
 
 import {
@@ -24,7 +21,6 @@ import {
   ZoruInput,
   ZoruLabel,
   ZoruSkeleton,
-  ZoruSwitch,
   useZoruToast,
 } from '@/components/zoruui';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
@@ -32,85 +28,51 @@ import {
   getLeadGenConfig,
   saveLeadGenConfigAction as saveLeadGenConfig,
   deleteLeadGenFormAction as deleteLeadGenForm,
-  getLeadGenConfigForms,
   getLeadGenActivity,
+  autoSetupFacebookLeadGen,
+  disconnectFacebookLeadGen,
+  type FbPageSummary,
 } from './actions';
 import type {
   LeadGenConfig,
-  LeadGenForm,
   ActivityEntry,
   FormConfig,
-  FieldMapping,
   CampaignRule,
 } from '@/lib/rust-client/wachat-facebook-leadgen-config';
 
-type Tab = 'connection' | 'forms' | 'activity';
+type Tab = 'overview' | 'activity' | 'advanced';
 
-const CRM_FIELD_OPTIONS = [
-  { value: 'firstName',   label: 'First Name' },
-  { value: 'lastName',    label: 'Last Name' },
-  { value: 'email',       label: 'Email' },
-  { value: 'phone',       label: 'Phone' },
-  { value: 'company',     label: 'Company' },
-  { value: 'title',       label: 'Job Title' },
-  { value: 'description', label: 'Description' },
-  { value: 'notes',       label: 'Notes' },
-  { value: 'ignore',      label: 'Ignore' },
-];
-
-const STANDARD_FB_FIELDS = [
-  'full_name',
-  'email',
-  'phone_number',
-  'company_name',
-  'job_title',
-];
+const META_OAUTH_HREF = '/api/auth/meta-suite/login?state=facebook';
 
 export default function FacebookAdsIntegrationPage() {
   const { toast } = useZoruToast();
-  const [tab, setTab] = useState<Tab>('connection');
+  const [tab, setTab] = useState<Tab>('overview');
   const [config, setConfig] = useState<LeadGenConfig | null>(null);
-  const [forms, setForms] = useState<LeadGenForm[]>([]);
   const [activity, setActivity] = useState<ActivityEntry[]>([]);
+  const [pageOptions, setPageOptions] = useState<FbPageSummary[] | null>(null);
+  const [needsMetaConnect, setNeedsMetaConnect] = useState(false);
+  const [setupError, setSetupError] = useState<string | null>(null);
   const [expandedForms, setExpandedForms] = useState<Set<string>>(new Set());
+
   const [loading, startLoading] = useTransition();
-  const [saving, startSaving] = useTransition();
-  const [loadingForms, startLoadingForms] = useTransition();
+  const [setting, startSetup] = useTransition();
   const [loadingActivity, startLoadingActivity] = useTransition();
+  const [saving, startSaving] = useTransition();
 
-  // Local editable state for the connection tab
-  const [pageId, setPageId] = useState('');
-  const [pageAccessToken, setPageAccessToken] = useState('');
-  const [isActive, setIsActive] = useState(false);
-
-  // Local editable form configs
-  const [formConfigs, setFormConfigs] = useState<FormConfig[]>([]);
+  const [defaultPipelineId, setDefaultPipelineId] = useState('');
+  const [defaultStage, setDefaultStage] = useState('');
+  const [defaultAssignedTo, setDefaultAssignedTo] = useState('');
 
   const refresh = useCallback(() => {
     startLoading(async () => {
       const res = await getLeadGenConfig();
-      if (res.config) {
-        setConfig(res.config);
-        setPageId(res.config.pageId ?? '');
-        setPageAccessToken(res.config.pageAccessToken ?? '');
-        setIsActive(res.config.isActive ?? false);
-        setFormConfigs(res.config.forms ?? []);
-      }
+      setConfig(res.config ?? null);
     });
   }, []);
 
-  useEffect(() => { refresh(); }, [refresh]);
-
-  const loadForms = useCallback(() => {
-    startLoadingForms(async () => {
-      const res = await getLeadGenConfigForms();
-      if (res.error) {
-        toast({ title: 'Error', description: res.error, variant: 'destructive' });
-      } else {
-        setForms(res.forms ?? []);
-      }
-    });
-  }, [toast]);
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
 
   const loadActivity = useCallback(() => {
     startLoadingActivity(async () => {
@@ -120,91 +82,93 @@ export default function FacebookAdsIntegrationPage() {
   }, []);
 
   useEffect(() => {
-    if (tab === 'forms') loadForms();
     if (tab === 'activity') loadActivity();
-  }, [tab, loadForms, loadActivity]);
+  }, [tab, loadActivity]);
 
-  // ── Connection tab save ──────────────────────────────────────────────────
-
-  const saveConnection = () => {
-    startSaving(async () => {
-      const res = await saveLeadGenConfig({
-        tenantId: config?.tenantId ?? '',
+  const runAutoSetup = (pageId?: string) => {
+    setSetupError(null);
+    setNeedsMetaConnect(false);
+    setPageOptions(null);
+    startSetup(async () => {
+      const res = await autoSetupFacebookLeadGen({
         pageId,
-        pageAccessToken,
-        isActive,
-        forms: formConfigs,
+        defaultRouting: {
+          pipelineId: defaultPipelineId,
+          stage: defaultStage,
+          assignedTo: defaultAssignedTo,
+        },
       });
-      if (res.error) {
-        toast({ title: 'Error', description: res.error, variant: 'destructive' });
-      } else {
+      if ('ok' in res && res.ok) {
         setConfig(res.config);
-        toast({ title: 'Saved', description: 'Connection settings saved.' });
+        toast({
+          title: 'Connected',
+          description: `${res.pickedPage.name} — ${res.importedFormCount} lead form${
+            res.importedFormCount === 1 ? '' : 's'
+          } now syncing in real-time.`,
+        });
+        return;
       }
+      if ('needsMetaConnect' in res && res.needsMetaConnect) {
+        setNeedsMetaConnect(true);
+        if (res.error) setSetupError(res.error);
+        return;
+      }
+      if ('needsPagePick' in res && res.needsPagePick) {
+        setPageOptions(res.pages);
+        return;
+      }
+      const errMsg = 'error' in res ? res.error : undefined;
+      setSetupError(errMsg || 'Setup failed.');
+      toast({ title: 'Setup failed', description: errMsg, variant: 'destructive' });
     });
   };
 
-  // ── Forms tab helpers ────────────────────────────────────────────────────
+  const disconnect = () => {
+    startSetup(async () => {
+      const res = await disconnectFacebookLeadGen();
+      if (res.error) {
+        toast({ title: 'Error', description: res.error, variant: 'destructive' });
+        return;
+      }
+      toast({ title: 'Disconnected', description: 'Lead sync paused.' });
+      refresh();
+    });
+  };
+
+  const isConnected = !!config?.pageId && config.isActive;
+  const isPaused = !!config?.pageId && !config.isActive;
 
   const toggleForm = (formId: string) => {
-    setExpandedForms(prev => {
+    setExpandedForms((prev) => {
       const next = new Set(prev);
-      if (next.has(formId)) next.delete(formId); else next.add(formId);
+      if (next.has(formId)) next.delete(formId);
+      else next.add(formId);
       return next;
     });
   };
-
-  const getOrCreateFormConfig = (form: LeadGenForm): FormConfig => {
-    const existing = formConfigs.find(f => f.formId === form.id);
-    if (existing) return existing;
-    return {
-      formId: form.id,
-      formName: form.name,
-      fieldMapping: STANDARD_FB_FIELDS.map(fb => ({
-        fbField: fb,
-        crmField: defaultCrmField(fb),
-      })),
-      defaultRouting: { pipelineId: '', stage: '', assignedTo: '' },
-      campaignRules: [],
-    };
-  };
-
-  function defaultCrmField(fb: string): string {
-    const map: Record<string, string> = {
-      full_name: 'firstName',
-      email: 'email',
-      phone_number: 'phone',
-      company_name: 'company',
-      job_title: 'title',
-    };
-    return map[fb] ?? 'ignore';
-  }
 
   const updateFormConfig = (updated: FormConfig) => {
-    setFormConfigs(prev => {
-      const idx = prev.findIndex(f => f.formId === updated.formId);
-      if (idx === -1) return [...prev, updated];
-      const next = [...prev];
-      next[idx] = updated;
-      return next;
-    });
+    if (!config) return;
+    const nextForms = config.forms.map((f) => (f.formId === updated.formId ? updated : f));
+    setConfig({ ...config, forms: nextForms });
   };
 
-  const saveFormConfigs = () => {
+  const saveAdvanced = () => {
+    if (!config) return;
     startSaving(async () => {
       const res = await saveLeadGenConfig({
-        tenantId: config?.tenantId ?? '',
-        pageId: config?.pageId ?? pageId,
-        pageAccessToken: config?.pageAccessToken ?? pageAccessToken,
-        isActive: config?.isActive ?? isActive,
-        forms: formConfigs,
+        tenantId: config.tenantId,
+        pageId: config.pageId,
+        pageAccessToken: config.pageAccessToken,
+        isActive: config.isActive,
+        forms: config.forms,
       });
       if (res.error) {
         toast({ title: 'Error', description: res.error, variant: 'destructive' });
-      } else {
-        setConfig(res.config);
-        toast({ title: 'Saved', description: 'Form configurations saved.' });
+        return;
       }
+      setConfig(res.config);
+      toast({ title: 'Saved', description: 'Advanced settings updated.' });
     });
   };
 
@@ -213,16 +177,14 @@ export default function FacebookAdsIntegrationPage() {
       const res = await deleteLeadGenForm(formId);
       if (res.error) {
         toast({ title: 'Error', description: res.error, variant: 'destructive' });
-      } else {
-        setFormConfigs(prev => prev.filter(f => f.formId !== formId));
-        toast({ title: 'Removed', description: 'Form configuration removed.' });
+        return;
       }
+      toast({ title: 'Removed', description: 'Form removed. Re-run setup to import it again.' });
+      setConfig(res.config);
     });
   };
 
   // ── Render ───────────────────────────────────────────────────────────────
-
-  const tokenExpired = config && !config.isActive && config.pageId;
 
   return (
     <div className="flex w-full flex-col gap-6">
@@ -232,340 +194,550 @@ export default function FacebookAdsIntegrationPage() {
         icon={Megaphone}
       />
 
-      {tokenExpired ? (
-        <div className="flex items-center gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-2.5 text-[13px] text-amber-600">
-          <AlertCircle className="h-4 w-4 shrink-0" />
-          Page access token expired — reconnect to resume lead sync.
-        </div>
-      ) : null}
+      {/* Status banner */}
+      <StatusBanner config={config} loading={loading} onDisconnect={disconnect} />
 
-      {/* Tabs */}
-      <div className="flex gap-1 border-b border-zoru-line">
-        {(['connection', 'forms', 'activity'] as Tab[]).map(t => (
-          <button
-            key={t}
-            onClick={() => setTab(t)}
-            className={`px-4 py-2 text-[13px] font-medium capitalize transition-colors ${
-              tab === t
-                ? 'border-b-2 border-zoru-primary text-zoru-primary'
-                : 'text-zoru-ink-muted hover:text-zoru-ink'
-            }`}
-          >
-            {t}
-          </button>
-        ))}
-      </div>
-
-      {/* ── Connection Tab ── */}
-      {tab === 'connection' && (
-        <ZoruCard className="p-6">
-          {loading ? (
-            <div className="space-y-4">
-              <ZoruSkeleton className="h-10 w-full" />
-              <ZoruSkeleton className="h-10 w-full" />
-              <ZoruSkeleton className="h-10 w-full" />
-            </div>
-          ) : (
-            <div className="space-y-5">
-              <div>
-                <ZoruLabel htmlFor="page_id">Facebook Page ID</ZoruLabel>
-                <div className="mt-1.5">
-                  <ZoruInput
-                    id="page_id"
-                    value={pageId}
-                    onChange={e => setPageId(e.target.value)}
-                    placeholder="e.g. 123456789012345"
-                  />
-                </div>
-                <p className="mt-1 text-[11px] text-zoru-ink-muted">
-                  Found in Meta Business Suite → Settings → Page Info.
-                </p>
-              </div>
-
-              <div>
-                <ZoruLabel htmlFor="page_token">Page Access Token</ZoruLabel>
-                <div className="mt-1.5">
-                  <ZoruInput
-                    id="page_token"
-                    type="password"
-                    value={pageAccessToken}
-                    onChange={e => setPageAccessToken(e.target.value)}
-                    placeholder="EAAxxxxxxx..."
-                  />
-                </div>
-                <p className="mt-1 text-[11px] text-zoru-ink-muted">
-                  Generate a long-lived token in Meta Developer Console →
-                  Tools → Access Token Debugger. Requires <code>leads_retrieval</code> permission.
-                </p>
-              </div>
-
-              <div className="flex items-center justify-between rounded-lg border border-zoru-line bg-zoru-bg px-4 py-3">
-                <div>
-                  <div className="text-[13px] text-zoru-ink">Active</div>
-                  <div className="text-[12px] text-zoru-ink-muted">
-                    Enable real-time lead sync.
-                  </div>
-                </div>
-                <ZoruSwitch
-                  checked={isActive}
-                  onCheckedChange={setIsActive}
-                  aria-label="Integration active"
-                />
-              </div>
-
-              <div className="rounded-lg border border-zoru-line bg-zoru-bg px-4 py-3 text-[12px] text-zoru-ink-muted space-y-1">
-                <p className="font-medium text-zoru-ink text-[13px]">One-time Meta App Setup</p>
-                <p>In your Meta App Dashboard, go to <strong>Webhooks → Page</strong> and add <code>leadgen</code> to the subscribed fields for your Page webhook.</p>
-              </div>
-
-              <div className="flex justify-end pt-1">
-                <ZoruButton onClick={saveConnection} disabled={saving}>
-                  {saving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
-                  Save Connection
-                </ZoruButton>
-              </div>
-            </div>
-          )}
-        </ZoruCard>
-      )}
-
-      {/* ── Forms Tab ── */}
-      {tab === 'forms' && (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <p className="text-[13px] text-zoru-ink-muted">
-              Configure field mapping and routing rules per Lead Ad form.
-            </p>
-            <div className="flex gap-2">
-              <ZoruButton variant="outline" onClick={loadForms} disabled={loadingForms}>
-                {loadingForms
-                  ? <LoaderCircle className="h-4 w-4 animate-spin" />
-                  : <RefreshCw className="h-4 w-4" />}
-                Refresh
-              </ZoruButton>
-              <ZoruButton onClick={saveFormConfigs} disabled={saving}>
-                {saving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
-                Save All
-              </ZoruButton>
-            </div>
+      {!config?.pageId ? (
+        <SetupCard
+          setting={setting}
+          needsMetaConnect={needsMetaConnect}
+          pageOptions={pageOptions}
+          setupError={setupError}
+          defaults={{ pipelineId: defaultPipelineId, stage: defaultStage, assignedTo: defaultAssignedTo }}
+          onChangeDefaults={(d) => {
+            setDefaultPipelineId(d.pipelineId);
+            setDefaultStage(d.stage);
+            setDefaultAssignedTo(d.assignedTo);
+          }}
+          onRun={runAutoSetup}
+        />
+      ) : (
+        <>
+          <div className="flex gap-1 border-b border-zoru-line">
+            {(['overview', 'activity', 'advanced'] as Tab[]).map((t) => (
+              <button
+                key={t}
+                onClick={() => setTab(t)}
+                className={`px-4 py-2 text-[13px] font-medium capitalize transition-colors ${
+                  tab === t
+                    ? 'border-b-2 border-zoru-primary text-zoru-primary'
+                    : 'text-zoru-ink-muted hover:text-zoru-ink'
+                }`}
+              >
+                {t}
+              </button>
+            ))}
           </div>
 
-          {loadingForms ? (
-            <div className="space-y-3">
-              {[1, 2].map(i => <ZoruSkeleton key={i} className="h-14 w-full" />)}
-            </div>
-          ) : forms.length === 0 ? (
-            <ZoruCard className="p-6 text-center text-[13px] text-zoru-ink-muted">
-              No forms found. Make sure the Page ID and Access Token are saved in the Connection tab.
-            </ZoruCard>
-          ) : (
-            forms.map(form => {
-              const fc = getOrCreateFormConfig(form);
-              const isExpanded = expandedForms.has(form.id);
-              return (
-                <FormConfigPanel
-                  key={form.id}
-                  form={form}
-                  config={fc}
-                  isExpanded={isExpanded}
-                  onToggle={() => toggleForm(form.id)}
-                  onChange={updateFormConfig}
-                  onRemove={() => removeForm(form.id)}
-                />
-              );
-            })
+          {tab === 'overview' && (
+            <OverviewPanel config={config} setting={setting} onResync={() => runAutoSetup(config.pageId)} />
           )}
-        </div>
-      )}
 
-      {/* ── Activity Tab ── */}
-      {tab === 'activity' && (
-        <ZoruCard className="overflow-hidden p-0">
-          <div className="flex items-center justify-between border-b border-zoru-line px-4 py-3">
-            <span className="text-[13px] font-medium text-zoru-ink">Recent activity (last 100)</span>
-            <ZoruButton variant="outline" onClick={loadActivity} disabled={loadingActivity}>
-              {loadingActivity
-                ? <LoaderCircle className="h-4 w-4 animate-spin" />
-                : <RefreshCw className="h-4 w-4" />}
-              Refresh
-            </ZoruButton>
-          </div>
-
-          {loadingActivity ? (
-            <div className="space-y-2 p-4">
-              {[1, 2, 3].map(i => <ZoruSkeleton key={i} className="h-10 w-full" />)}
-            </div>
-          ) : activity.length === 0 ? (
-            <div className="p-6 text-center text-[13px] text-zoru-ink-muted">
-              No activity yet. Leads will appear here once your integration is live.
-            </div>
-          ) : (
-            <div className="divide-y divide-zoru-line">
-              {activity.map((entry, i) => (
-                <ActivityRow key={entry._id ?? i} entry={entry} />
-              ))}
-            </div>
+          {tab === 'activity' && (
+            <ActivityPanel
+              activity={activity}
+              loading={loadingActivity}
+              onReload={loadActivity}
+            />
           )}
-        </ZoruCard>
+
+          {tab === 'advanced' && (
+            <AdvancedPanel
+              config={config}
+              expandedForms={expandedForms}
+              onToggle={toggleForm}
+              onChange={updateFormConfig}
+              onRemove={removeForm}
+              onSave={saveAdvanced}
+              saving={saving}
+            />
+          )}
+        </>
       )}
     </div>
   );
 }
 
-// ── FormConfigPanel ──────────────────────────────────────────────────────────
+// ── Status banner ───────────────────────────────────────────────────────────
+
+function StatusBanner({
+  config,
+  loading,
+  onDisconnect,
+}: {
+  config: LeadGenConfig | null;
+  loading: boolean;
+  onDisconnect: () => void;
+}) {
+  if (loading && !config) {
+    return <ZoruSkeleton className="h-12 w-full" />;
+  }
+  if (!config?.pageId) return null;
+  if (config.isActive) {
+    return (
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-4 py-3 text-[13px] text-emerald-700 dark:text-emerald-300">
+        <div className="flex items-center gap-2">
+          <CheckCircle2 className="h-4 w-4 shrink-0" />
+          <span>
+            Connected — Page <code className="font-mono text-[12px]">{config.pageId}</code> ·{' '}
+            {config.forms.length} form{config.forms.length === 1 ? '' : 's'} syncing in real-time.
+          </span>
+        </div>
+        <ZoruButton size="sm" variant="outline" onClick={onDisconnect}>
+          <PowerOff className="h-3.5 w-3.5" /> Pause sync
+        </ZoruButton>
+      </div>
+    );
+  }
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-[13px] text-amber-700 dark:text-amber-300">
+      <div className="flex items-center gap-2">
+        <AlertCircle className="h-4 w-4 shrink-0" />
+        <span>
+          Sync paused for Page <code className="font-mono text-[12px]">{config.pageId}</code>.
+          Re-run setup to resume.
+        </span>
+      </div>
+    </div>
+  );
+}
+
+// ── Setup card ──────────────────────────────────────────────────────────────
+
+function SetupCard({
+  setting,
+  needsMetaConnect,
+  pageOptions,
+  setupError,
+  defaults,
+  onChangeDefaults,
+  onRun,
+}: {
+  setting: boolean;
+  needsMetaConnect: boolean;
+  pageOptions: FbPageSummary[] | null;
+  setupError: string | null;
+  defaults: { pipelineId: string; stage: string; assignedTo: string };
+  onChangeDefaults: (d: { pipelineId: string; stage: string; assignedTo: string }) => void;
+  onRun: (pageId?: string) => void;
+}) {
+  return (
+    <ZoruCard className="p-6">
+      <div className="flex flex-col items-center gap-2 text-center">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#1877F2]/10 text-[#1877F2]">
+          <Facebook className="h-6 w-6" />
+        </div>
+        <h3 className="text-[16px] font-semibold text-zoru-ink">Set up lead sync in one click</h3>
+        <p className="max-w-md text-[13px] text-zoru-ink-muted">
+          We&apos;ll detect your connected Facebook Pages, pull every Lead Ad form, and start
+          creating CRM leads in real-time. No manual tokens or webhooks.
+        </p>
+      </div>
+
+      {needsMetaConnect ? (
+        <div className="mt-6 flex flex-col items-center gap-3">
+          <p className="text-[13px] text-zoru-ink-muted">
+            Connect your Meta account first — we&apos;ll request the permissions needed to read
+            lead forms.
+          </p>
+          <ZoruButton asChild className="bg-[#1877F2] text-white hover:bg-[#1877F2]/90">
+            <a href={META_OAUTH_HREF}>
+              <Facebook className="h-4 w-4" /> Connect Facebook
+            </a>
+          </ZoruButton>
+        </div>
+      ) : pageOptions ? (
+        <div className="mt-6 space-y-3">
+          <p className="text-center text-[13px] text-zoru-ink-muted">
+            You manage multiple Facebook Pages — pick the one for lead sync.
+          </p>
+          <div className="grid gap-2 sm:grid-cols-2">
+            {pageOptions.map((p) => (
+              <button
+                key={p.id}
+                onClick={() => onRun(p.id)}
+                disabled={setting}
+                className="flex items-center justify-between rounded-lg border border-zoru-line bg-zoru-surface px-4 py-3 text-left text-[13px] text-zoru-ink transition-colors hover:bg-zoru-surface-2 disabled:opacity-60"
+              >
+                <div className="min-w-0 flex-1">
+                  <div className="truncate font-medium">{p.name}</div>
+                  <div className="truncate font-mono text-[11px] text-zoru-ink-muted">{p.id}</div>
+                </div>
+                <ChevronRight className="ml-2 h-4 w-4 text-zoru-ink-muted" />
+              </button>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div className="mt-6 space-y-5">
+          <details className="rounded-lg border border-zoru-line bg-zoru-bg px-4 py-3">
+            <summary className="cursor-pointer text-[12px] font-medium text-zoru-ink">
+              Optional: default routing for new leads
+            </summary>
+            <div className="mt-3 grid gap-3 sm:grid-cols-3">
+              {(['pipelineId', 'stage', 'assignedTo'] as const).map((key) => (
+                <div key={key}>
+                  <ZoruLabel className="text-[11px]">
+                    {key === 'pipelineId' ? 'Pipeline ID' : key === 'stage' ? 'Stage' : 'Assignee ID'}
+                  </ZoruLabel>
+                  <ZoruInput
+                    value={defaults[key]}
+                    onChange={(e) => onChangeDefaults({ ...defaults, [key]: e.target.value })}
+                    className="mt-1 text-[12px]"
+                    placeholder={key === 'stage' ? 'e.g. New' : 'ObjectId (optional)'}
+                  />
+                </div>
+              ))}
+            </div>
+            <p className="mt-2 text-[11px] text-zoru-ink-muted">
+              Leave blank to assign to your default pipeline. You can edit per-form later under
+              Advanced.
+            </p>
+          </details>
+
+          <div className="flex justify-center">
+            <ZoruButton onClick={() => onRun()} disabled={setting} size="lg">
+              {setting ? (
+                <LoaderCircle className="h-4 w-4 animate-spin" />
+              ) : (
+                <Sparkles className="h-4 w-4" />
+              )}
+              Run auto-setup
+            </ZoruButton>
+          </div>
+        </div>
+      )}
+
+      {setupError ? (
+        <p className="mt-4 text-center text-[12px] text-destructive">{setupError}</p>
+      ) : null}
+    </ZoruCard>
+  );
+}
+
+// ── Overview panel ──────────────────────────────────────────────────────────
+
+function OverviewPanel({
+  config,
+  setting,
+  onResync,
+}: {
+  config: LeadGenConfig;
+  setting: boolean;
+  onResync: () => void;
+}) {
+  return (
+    <ZoruCard className="p-6">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <div className="text-[13px] font-medium text-zoru-ink">
+            Page <code className="font-mono">{config.pageId}</code>
+          </div>
+          <div className="mt-0.5 text-[12px] text-zoru-ink-muted">
+            {config.forms.length} form{config.forms.length === 1 ? '' : 's'} imported with default
+            field mapping.
+          </div>
+        </div>
+        <ZoruButton variant="outline" onClick={onResync} disabled={setting} size="sm">
+          {setting ? (
+            <LoaderCircle className="h-4 w-4 animate-spin" />
+          ) : (
+            <RefreshCw className="h-4 w-4" />
+          )}
+          Re-sync forms from Facebook
+        </ZoruButton>
+      </div>
+
+      <div className="mt-5 divide-y divide-zoru-line rounded-lg border border-zoru-line">
+        {config.forms.length === 0 ? (
+          <div className="p-4 text-center text-[12px] text-zoru-ink-muted">
+            No forms yet — create one in Meta Ads Manager, then click &ldquo;Re-sync forms&rdquo;.
+          </div>
+        ) : (
+          config.forms.map((f) => (
+            <div key={f.formId} className="flex items-center justify-between px-4 py-2.5">
+              <div className="min-w-0">
+                <div className="truncate text-[13px] font-medium text-zoru-ink">{f.formName}</div>
+                <div className="truncate font-mono text-[11px] text-zoru-ink-muted">{f.formId}</div>
+              </div>
+              <div className="flex items-center gap-2 pl-3">
+                <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase text-emerald-600">
+                  Live
+                </span>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </ZoruCard>
+  );
+}
+
+// ── Activity panel ──────────────────────────────────────────────────────────
+
+function ActivityPanel({
+  activity,
+  loading,
+  onReload,
+}: {
+  activity: ActivityEntry[];
+  loading: boolean;
+  onReload: () => void;
+}) {
+  return (
+    <ZoruCard className="overflow-hidden p-0">
+      <div className="flex items-center justify-between border-b border-zoru-line px-4 py-3">
+        <span className="text-[13px] font-medium text-zoru-ink">Recent activity (last 100)</span>
+        <ZoruButton variant="outline" onClick={onReload} disabled={loading} size="sm">
+          {loading ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+          Refresh
+        </ZoruButton>
+      </div>
+
+      {loading ? (
+        <div className="space-y-2 p-4">
+          {[1, 2, 3].map((i) => (
+            <ZoruSkeleton key={i} className="h-10 w-full" />
+          ))}
+        </div>
+      ) : activity.length === 0 ? (
+        <div className="p-6 text-center text-[13px] text-zoru-ink-muted">
+          No activity yet. Leads will appear here once your integration is live.
+        </div>
+      ) : (
+        <div className="divide-y divide-zoru-line">
+          {activity.map((entry, i) => (
+            <ActivityRow key={entry._id ?? i} entry={entry} />
+          ))}
+        </div>
+      )}
+    </ZoruCard>
+  );
+}
+
+function ActivityRow({ entry }: { entry: ActivityEntry }) {
+  const [expanded, setExpanded] = useState(false);
+  const statusColor =
+    {
+      created: 'text-green-600 bg-green-50',
+      skipped: 'text-amber-600 bg-amber-50',
+      error: 'text-red-600 bg-red-50',
+    }[entry.status] ?? 'text-zoru-ink-muted bg-zoru-bg';
+  const date = new Date(entry.timestamp).toLocaleString();
+  return (
+    <div className="px-4 py-2.5">
+      <div className="flex items-center justify-between">
+        <div className="flex min-w-0 items-center gap-3">
+          <span
+            className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ${statusColor}`}
+          >
+            {entry.status}
+          </span>
+          <span className="truncate text-[13px] text-zoru-ink">{entry.leadName}</span>
+          <span className="hidden truncate text-[11px] text-zoru-ink-muted sm:block">
+            {entry.formName}
+          </span>
+        </div>
+        <div className="flex shrink-0 items-center gap-3 pl-3">
+          {entry.crmLeadId && (
+            <span className="font-mono text-[11px] text-zoru-ink-muted">
+              {entry.crmLeadId.slice(-6)}
+            </span>
+          )}
+          <span className="text-[11px] text-zoru-ink-muted">{date}</span>
+          {entry.errorMessage && (
+            <button
+              onClick={() => setExpanded((v) => !v)}
+              className="text-zoru-ink-muted hover:text-zoru-ink"
+            >
+              {expanded ? (
+                <ChevronDown className="h-3.5 w-3.5" />
+              ) : (
+                <ChevronRight className="h-3.5 w-3.5" />
+              )}
+            </button>
+          )}
+        </div>
+      </div>
+      {expanded && entry.errorMessage && (
+        <div className="mt-1.5 rounded bg-red-50 px-3 py-2 font-mono text-[11px] text-red-700">
+          {entry.errorMessage}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Advanced panel ──────────────────────────────────────────────────────────
+
+const CRM_FIELD_OPTIONS = [
+  { value: 'firstName', label: 'First Name' },
+  { value: 'lastName', label: 'Last Name' },
+  { value: 'email', label: 'Email' },
+  { value: 'phone', label: 'Phone' },
+  { value: 'company', label: 'Company' },
+  { value: 'title', label: 'Job Title' },
+  { value: 'description', label: 'Description' },
+  { value: 'notes', label: 'Notes' },
+  { value: 'ignore', label: 'Ignore' },
+];
+
+function AdvancedPanel({
+  config,
+  expandedForms,
+  onToggle,
+  onChange,
+  onRemove,
+  onSave,
+  saving,
+}: {
+  config: LeadGenConfig;
+  expandedForms: Set<string>;
+  onToggle: (formId: string) => void;
+  onChange: (fc: FormConfig) => void;
+  onRemove: (formId: string) => void;
+  onSave: () => void;
+  saving: boolean;
+}) {
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <p className="text-[13px] text-zoru-ink-muted">
+          Override default field mapping and per-campaign routing. Most users never need this.
+        </p>
+        <ZoruButton onClick={onSave} disabled={saving} size="sm">
+          {saving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
+          Save changes
+        </ZoruButton>
+      </div>
+
+      {config.forms.length === 0 ? (
+        <ZoruCard className="p-6 text-center text-[13px] text-zoru-ink-muted">
+          No forms imported yet.
+        </ZoruCard>
+      ) : (
+        config.forms.map((fc) => (
+          <FormConfigPanel
+            key={fc.formId}
+            fc={fc}
+            isExpanded={expandedForms.has(fc.formId)}
+            onToggle={() => onToggle(fc.formId)}
+            onChange={onChange}
+            onRemove={() => onRemove(fc.formId)}
+          />
+        ))
+      )}
+    </div>
+  );
+}
 
 function FormConfigPanel({
-  form,
-  config,
+  fc,
   isExpanded,
   onToggle,
   onChange,
   onRemove,
 }: {
-  form: LeadGenForm;
-  config: FormConfig;
+  fc: FormConfig;
   isExpanded: boolean;
   onToggle: () => void;
   onChange: (fc: FormConfig) => void;
   onRemove: () => void;
 }) {
   const updateMapping = (idx: number, crmField: string) => {
-    const next = config.fieldMapping.map((m, i) =>
-      i === idx ? { ...m, crmField } : m
-    );
-    onChange({ ...config, fieldMapping: next });
+    const next = fc.fieldMapping.map((m, i) => (i === idx ? { ...m, crmField } : m));
+    onChange({ ...fc, fieldMapping: next });
   };
-
-  const addMappingRow = () => {
-    onChange({
-      ...config,
-      fieldMapping: [...config.fieldMapping, { fbField: '', crmField: 'ignore' }],
-    });
-  };
-
-  const removeMappingRow = (idx: number) => {
-    onChange({ ...config, fieldMapping: config.fieldMapping.filter((_, i) => i !== idx) });
-  };
-
   const updateRouting = (key: keyof FormConfig['defaultRouting'], value: string) => {
-    onChange({ ...config, defaultRouting: { ...config.defaultRouting, [key]: value } });
+    onChange({ ...fc, defaultRouting: { ...fc.defaultRouting, [key]: value } });
   };
-
   const addCampaignRule = () => {
     onChange({
-      ...config,
-      campaignRules: [...config.campaignRules, {
-        campaignId: '',
-        adsetId: '',
-        pipelineId: '',
-        stage: '',
-        assignedTo: '',
-      }],
+      ...fc,
+      campaignRules: [
+        ...fc.campaignRules,
+        { campaignId: '', adsetId: '', pipelineId: '', stage: '', assignedTo: '' },
+      ],
     });
   };
-
   const updateCampaignRule = (idx: number, updated: CampaignRule) => {
-    const next = config.campaignRules.map((r, i) => i === idx ? updated : r);
-    onChange({ ...config, campaignRules: next });
+    onChange({
+      ...fc,
+      campaignRules: fc.campaignRules.map((r, i) => (i === idx ? updated : r)),
+    });
   };
-
   const removeCampaignRule = (idx: number) => {
-    onChange({ ...config, campaignRules: config.campaignRules.filter((_, i) => i !== idx) });
+    onChange({ ...fc, campaignRules: fc.campaignRules.filter((_, i) => i !== idx) });
   };
 
   return (
     <ZoruCard className="overflow-hidden p-0">
       <button
         onClick={onToggle}
-        className="flex w-full items-center justify-between px-4 py-3 text-left hover:bg-zoru-bg transition-colors"
+        className="flex w-full items-center justify-between px-4 py-3 text-left transition-colors hover:bg-zoru-bg"
       >
         <div className="flex items-center gap-3">
-          {isExpanded
-            ? <ChevronDown className="h-4 w-4 text-zoru-ink-muted" />
-            : <ChevronRight className="h-4 w-4 text-zoru-ink-muted" />
-          }
-          <div>
-            <div className="text-[13px] font-medium text-zoru-ink">{form.name}</div>
-            <div className="text-[11px] text-zoru-ink-muted">ID: {form.id}</div>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          {form.leads_count !== undefined && (
-            <span className="text-[11px] text-zoru-ink-muted">{form.leads_count} leads</span>
+          {isExpanded ? (
+            <ChevronDown className="h-4 w-4 text-zoru-ink-muted" />
+          ) : (
+            <ChevronRight className="h-4 w-4 text-zoru-ink-muted" />
           )}
-          <span className={`text-[11px] font-medium ${form.status === 'ACTIVE' ? 'text-green-600' : 'text-zoru-ink-muted'}`}>
-            {form.status}
-          </span>
+          <div>
+            <div className="text-[13px] font-medium text-zoru-ink">{fc.formName}</div>
+            <div className="font-mono text-[11px] text-zoru-ink-muted">{fc.formId}</div>
+          </div>
         </div>
       </button>
 
       {isExpanded && (
-        <div className="border-t border-zoru-line p-4 space-y-6">
-          {/* Field Mapping */}
+        <div className="space-y-6 border-t border-zoru-line p-4">
           <div>
-            <div className="flex items-center justify-between mb-2">
-              <h4 className="text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
-                Field Mapping
-              </h4>
-              <button
-                onClick={addMappingRow}
-                className="flex items-center gap-1 text-[11px] text-zoru-primary hover:underline"
-              >
-                <Plus className="h-3 w-3" /> Add row
-              </button>
-            </div>
+            <h4 className="mb-2 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+              Field Mapping
+            </h4>
             <div className="space-y-2">
-              {config.fieldMapping.map((mapping, idx) => (
+              {fc.fieldMapping.map((mapping, idx) => (
                 <div key={idx} className="flex items-center gap-2">
                   <ZoruInput
                     value={mapping.fbField}
-                    onChange={e => {
-                      const next = config.fieldMapping.map((m, i) =>
-                        i === idx ? { ...m, fbField: e.target.value } : m
+                    onChange={(e) => {
+                      const next = fc.fieldMapping.map((m, i) =>
+                        i === idx ? { ...m, fbField: e.target.value } : m,
                       );
-                      onChange({ ...config, fieldMapping: next });
+                      onChange({ ...fc, fieldMapping: next });
                     }}
-                    placeholder="Facebook field (e.g. full_name)"
+                    placeholder="Facebook field"
                     className="flex-1 text-[12px]"
                   />
                   <select
                     value={mapping.crmField}
-                    onChange={e => updateMapping(idx, e.target.value)}
+                    onChange={(e) => updateMapping(idx, e.target.value)}
                     className="rounded-md border border-zoru-line bg-zoru-surface px-2 py-1.5 text-[12px] text-zoru-ink focus:outline-none focus:ring-1 focus:ring-zoru-primary"
                   >
-                    {CRM_FIELD_OPTIONS.map(o => (
-                      <option key={o.value} value={o.value}>{o.label}</option>
+                    {CRM_FIELD_OPTIONS.map((o) => (
+                      <option key={o.value} value={o.value}>
+                        {o.label}
+                      </option>
                     ))}
                   </select>
-                  <button
-                    onClick={() => removeMappingRow(idx)}
-                    className="text-zoru-ink-muted hover:text-destructive"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
                 </div>
               ))}
             </div>
-            <p className="mt-1.5 text-[11px] text-zoru-ink-muted">
-              Unmapped fields are stored as Q&A in Description.
-            </p>
           </div>
 
-          {/* Default Routing */}
           <div>
             <h4 className="mb-2 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
               Default Routing
             </h4>
             <div className="grid grid-cols-3 gap-2">
-              {(['pipelineId', 'stage', 'assignedTo'] as const).map(key => (
+              {(['pipelineId', 'stage', 'assignedTo'] as const).map((key) => (
                 <div key={key}>
                   <ZoruLabel className="text-[11px]">
                     {key === 'pipelineId' ? 'Pipeline ID' : key === 'stage' ? 'Stage' : 'Assignee ID'}
                   </ZoruLabel>
                   <ZoruInput
-                    value={config.defaultRouting[key]}
-                    onChange={e => updateRouting(key, e.target.value)}
-                    placeholder={key === 'pipelineId' ? 'ObjectId' : key === 'stage' ? 'e.g. New' : 'User ObjectId'}
+                    value={fc.defaultRouting[key]}
+                    onChange={(e) => updateRouting(key, e.target.value)}
                     className="mt-1 text-[12px]"
                   />
                 </div>
@@ -573,30 +745,26 @@ function FormConfigPanel({
             </div>
           </div>
 
-          {/* Campaign Rules */}
           <div>
-            <div className="flex items-center justify-between mb-2">
+            <div className="mb-2 flex items-center justify-between">
               <h4 className="text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                 Campaign Rules
-                <span className="ml-1 font-normal normal-case tracking-normal text-zoru-ink-muted">
-                  (top-down, first match wins)
-                </span>
               </h4>
               <button
                 onClick={addCampaignRule}
-                className="flex items-center gap-1 text-[11px] text-zoru-primary hover:underline"
+                className="text-[11px] text-zoru-primary hover:underline"
               >
-                <Plus className="h-3 w-3" /> Add rule
+                + Add rule
               </button>
             </div>
-            {config.campaignRules.length === 0 ? (
+            {fc.campaignRules.length === 0 ? (
               <p className="text-[11px] text-zoru-ink-muted">
-                No rules — all leads use Default Routing above.
+                No rules — all leads use Default Routing.
               </p>
             ) : (
               <div className="space-y-3">
-                {config.campaignRules.map((rule, idx) => (
-                  <div key={idx} className="rounded-md border border-zoru-line p-3 space-y-2">
+                {fc.campaignRules.map((rule, idx) => (
+                  <div key={idx} className="space-y-2 rounded-md border border-zoru-line p-3">
                     <div className="flex items-center justify-between">
                       <span className="text-[11px] text-zoru-ink-muted">Rule {idx + 1}</span>
                       <button
@@ -607,48 +775,40 @@ function FormConfigPanel({
                       </button>
                     </div>
                     <div className="grid grid-cols-2 gap-2">
-                      <div>
-                        <ZoruLabel className="text-[11px]">Campaign ID (optional)</ZoruLabel>
-                        <ZoruInput
-                          value={rule.campaignId ?? ''}
-                          onChange={e => updateCampaignRule(idx, { ...rule, campaignId: e.target.value || undefined })}
-                          placeholder="Wildcard if empty"
-                          className="mt-1 text-[12px]"
-                        />
-                      </div>
-                      <div>
-                        <ZoruLabel className="text-[11px]">Ad Set ID (optional)</ZoruLabel>
-                        <ZoruInput
-                          value={rule.adsetId ?? ''}
-                          onChange={e => updateCampaignRule(idx, { ...rule, adsetId: e.target.value || undefined })}
-                          placeholder="Wildcard if empty"
-                          className="mt-1 text-[12px]"
-                        />
-                      </div>
-                      <div>
-                        <ZoruLabel className="text-[11px]">Pipeline ID</ZoruLabel>
-                        <ZoruInput
-                          value={rule.pipelineId}
-                          onChange={e => updateCampaignRule(idx, { ...rule, pipelineId: e.target.value })}
-                          className="mt-1 text-[12px]"
-                        />
-                      </div>
-                      <div>
-                        <ZoruLabel className="text-[11px]">Stage</ZoruLabel>
-                        <ZoruInput
-                          value={rule.stage}
-                          onChange={e => updateCampaignRule(idx, { ...rule, stage: e.target.value })}
-                          className="mt-1 text-[12px]"
-                        />
-                      </div>
-                      <div>
-                        <ZoruLabel className="text-[11px]">Assignee ID</ZoruLabel>
-                        <ZoruInput
-                          value={rule.assignedTo}
-                          onChange={e => updateCampaignRule(idx, { ...rule, assignedTo: e.target.value })}
-                          className="mt-1 text-[12px]"
-                        />
-                      </div>
+                      <ZoruInput
+                        value={rule.campaignId ?? ''}
+                        onChange={(e) =>
+                          updateCampaignRule(idx, { ...rule, campaignId: e.target.value || undefined })
+                        }
+                        placeholder="Campaign ID (optional)"
+                        className="text-[12px]"
+                      />
+                      <ZoruInput
+                        value={rule.adsetId ?? ''}
+                        onChange={(e) =>
+                          updateCampaignRule(idx, { ...rule, adsetId: e.target.value || undefined })
+                        }
+                        placeholder="Ad Set ID (optional)"
+                        className="text-[12px]"
+                      />
+                      <ZoruInput
+                        value={rule.pipelineId}
+                        onChange={(e) => updateCampaignRule(idx, { ...rule, pipelineId: e.target.value })}
+                        placeholder="Pipeline ID"
+                        className="text-[12px]"
+                      />
+                      <ZoruInput
+                        value={rule.stage}
+                        onChange={(e) => updateCampaignRule(idx, { ...rule, stage: e.target.value })}
+                        placeholder="Stage"
+                        className="text-[12px]"
+                      />
+                      <ZoruInput
+                        value={rule.assignedTo}
+                        onChange={(e) => updateCampaignRule(idx, { ...rule, assignedTo: e.target.value })}
+                        placeholder="Assignee ID"
+                        className="text-[12px] col-span-2"
+                      />
                     </div>
                   </div>
                 ))}
@@ -661,66 +821,13 @@ function FormConfigPanel({
               variant="outline"
               onClick={onRemove}
               className="text-destructive hover:bg-destructive/10"
+              size="sm"
             >
-              <Trash2 className="h-4 w-4" />
-              Remove Form
+              <Trash2 className="h-4 w-4" /> Remove this form from sync
             </ZoruButton>
           </div>
         </div>
       )}
     </ZoruCard>
-  );
-}
-
-// ── ActivityRow ──────────────────────────────────────────────────────────────
-
-function ActivityRow({ entry }: { entry: ActivityEntry }) {
-  const [expanded, setExpanded] = useState(false);
-
-  const statusColor = {
-    created: 'text-green-600 bg-green-50',
-    skipped: 'text-amber-600 bg-amber-50',
-    error:   'text-red-600 bg-red-50',
-  }[entry.status] ?? 'text-zoru-ink-muted bg-zoru-bg';
-
-  const date = new Date(entry.timestamp).toLocaleString();
-
-  return (
-    <div className="px-4 py-2.5">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3 min-w-0">
-          <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ${statusColor}`}>
-            {entry.status}
-          </span>
-          <span className="truncate text-[13px] text-zoru-ink">{entry.leadName}</span>
-          <span className="hidden truncate text-[11px] text-zoru-ink-muted sm:block">
-            {entry.formName}
-          </span>
-        </div>
-        <div className="flex items-center gap-3 shrink-0 pl-3">
-          {entry.crmLeadId && (
-            <span className="text-[11px] text-zoru-ink-muted font-mono">
-              {entry.crmLeadId.slice(-6)}
-            </span>
-          )}
-          <span className="text-[11px] text-zoru-ink-muted">{date}</span>
-          {entry.errorMessage && (
-            <button
-              onClick={() => setExpanded(v => !v)}
-              className="text-zoru-ink-muted hover:text-zoru-ink"
-            >
-              {expanded
-                ? <ChevronDown className="h-3.5 w-3.5" />
-                : <ChevronRight className="h-3.5 w-3.5" />}
-            </button>
-          )}
-        </div>
-      </div>
-      {expanded && entry.errorMessage && (
-        <div className="mt-1.5 rounded bg-red-50 px-3 py-2 text-[11px] text-red-700 font-mono">
-          {entry.errorMessage}
-        </div>
-      )}
-    </div>
   );
 }

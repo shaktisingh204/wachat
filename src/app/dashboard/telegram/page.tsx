@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
     Send,
     Bot,
@@ -12,6 +13,7 @@ import {
     CreditCard,
     Webhook,
     ArrowUpRight,
+    Loader2,
     Plug,
 } from 'lucide-react';
 import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
@@ -82,8 +84,30 @@ const EMPTY_OVERVIEW: OverviewState = {
 };
 
 export default function TelegramOverviewPage() {
-    const { activeProject } = useProject();
+    const { activeProject, isLoadingProject } = useProject();
+    const router = useRouter();
     const projectId = activeProject?._id?.toString() ?? '';
+
+    // Telegram's true landing page is /dashboard/telegram/projects — every
+    // visit here without an active project bounces there to pick or create
+    // one. Wait for `isLoadingProject` so we don't bounce while the
+    // localStorage-backed activeProjectId is still being hydrated.
+    React.useEffect(() => {
+        if (!isLoadingProject && !activeProject) {
+            router.replace('/dashboard/telegram/projects');
+        }
+    }, [activeProject, isLoadingProject, router]);
+
+    // Render a brief shimmer while the redirect kicks in, instead of the
+    // empty overview flashing.
+    if (!activeProject) {
+        return (
+            <div className="flex h-[60vh] flex-col items-center justify-center gap-3 text-zoru-ink-muted">
+                <Loader2 className="h-5 w-5 animate-spin" />
+                <p className="text-[12.5px]">Loading your Telegram workspaces…</p>
+            </div>
+        );
+    }
 
     const [stats, setStats] = React.useState<OverviewState>(EMPTY_OVERVIEW);
     const [loading, setLoading] = React.useState(true);

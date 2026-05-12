@@ -72,9 +72,12 @@ function RailButton({ item }: { item: ZoruAppRailItem }) {
   const inner = (
     <span
       className={cn(
-        "relative inline-flex h-10 w-10 items-center justify-center rounded-[var(--zoru-radius)] text-zoru-ink-muted transition-colors",
-        "hover:bg-zoru-surface-2 hover:text-zoru-ink",
-        item.active && "bg-zoru-surface-2 text-zoru-ink",
+        // Default (inactive): transparent bg, dark icon, light hover wash.
+        "relative inline-flex h-10 w-10 items-center justify-center rounded-[var(--zoru-radius)] text-zoru-ink transition-colors",
+        "hover:bg-zoru-surface-2",
+        // Active: solid black tile with a white icon.
+        item.active &&
+          "bg-zoru-ink text-zoru-bg hover:bg-zoru-ink hover:text-zoru-bg",
         "[&_svg]:size-[18px]",
       )}
     >
@@ -83,9 +86,6 @@ function RailButton({ item }: { item: ZoruAppRailItem }) {
         <span className="absolute -right-0.5 -top-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-zoru-primary px-1 text-[9px] font-semibold text-zoru-primary-foreground">
           {item.badge}
         </span>
-      )}
-      {item.active && (
-        <span className="absolute -left-3 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-full bg-zoru-ink" />
       )}
     </span>
   );
