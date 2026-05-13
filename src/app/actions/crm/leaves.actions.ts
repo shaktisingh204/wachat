@@ -23,7 +23,6 @@ import {
   type CrmLeaveCreateInput,
   type CrmLeaveDoc,
   type CrmLeaveListParams,
-  type CrmLeaveStatus,
   type CrmLeaveTypeOption,
   type CrmLeaveUpdateInput,
 } from '@/lib/rust-client/crm-leaves';
@@ -228,5 +227,3 @@ export async function listLeaveTypeOptions(): Promise<{
     return { options: [], error: rustErr(e) };
   }
 }
-
-export type { CrmLeaveStatus, CrmLeaveTypeOption };

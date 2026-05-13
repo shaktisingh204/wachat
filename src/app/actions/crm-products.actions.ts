@@ -1,20 +1,113 @@
-
 'use server';
 
+/**
+ * CRM Item/Product server actions.
+ *
+ * **Dual implementation:**
+ *  - When `USE_RUST_CRM === 'true'`, every action delegates to the Rust BFF
+ *    (`/v1/crm/items`) via `src/lib/rust-client/crm-items.ts`.
+ *  - Otherwise (default), the legacy direct-Mongo path runs.
+ *
+ * Export shapes are identical across both paths so the existing pages at
+ * `/dashboard/crm/inventory/items/**` keep working without changes.
+ */
+
 import { revalidatePath } from 'next/cache';
-import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
-import { connectToDatabase } from '@/lib/mongodb';
+import { ObjectId, type WithId } from 'mongodb';
+
 import { getSession } from '@/app/actions/user.actions';
+import { writeAuditEntry } from '@/lib/audit-log';
 import type { CrmProduct } from '@/lib/definitions';
+import { connectToDatabase } from '@/lib/mongodb';
+import { itemApi, type CrmItemDoc } from '@/lib/rust-client/crm-items';
+import { RustApiError } from '@/lib/rust-client/fetcher';
 import { getErrorMessage } from '@/lib/utils';
+
+function useRustCrm(): boolean {
+    return process.env.USE_RUST_CRM === 'true';
+}
+
+/* ─── Rust-shape → legacy TS-shape adapter ────────────────────────────── */
+
+function rustDocToLegacy(doc: CrmItemDoc): WithId<CrmProduct> {
+    return {
+        ...(doc as unknown as WithId<CrmProduct>),
+        _id: doc._id ? (doc._id as unknown as ObjectId) : (undefined as unknown as ObjectId),
+        userId: doc.userId as unknown as ObjectId,
+        categoryId: doc.categoryId ? (doc.categoryId as unknown as ObjectId) : undefined,
+        brandId: doc.brandId ? (doc.brandId as unknown as ObjectId) : undefined,
+        unitId: doc.unitId ? (doc.unitId as unknown as ObjectId) : undefined,
+        inventory: (doc.inventory ?? []).map((row) => ({
+            warehouseId: row.warehouseId as unknown as ObjectId,
+            stock: row.stock,
+            reorderPoint: row.reorderPoint,
+        })),
+        createdAt: doc.createdAt ? new Date(doc.createdAt) : new Date(),
+        updatedAt: doc.updatedAt ? new Date(doc.updatedAt) : new Date(),
+    };
+}
+
+/* ─── getCrmProductById ──────────────────────────────────────────────── */
+
+export async function getCrmProductById(
+    productId: string,
+): Promise<WithId<CrmProduct> | null> {
+    if (!productId) return null;
+
+    const session = await getSession();
+    if (!session?.user) return null;
+
+    if (useRustCrm()) {
+        try {
+            const doc = await itemApi.getById(productId);
+            return doc ? rustDocToLegacy(doc) : null;
+        } catch (e) {
+            console.error('[getCrmProductById] rust path failed; falling back:', e);
+            // fall through
+        }
+    }
+
+    if (!ObjectId.isValid(productId)) return null;
+
+    try {
+        const { db } = await connectToDatabase();
+        const product = await db.collection<CrmProduct>('crm_products').findOne({
+            _id: new ObjectId(productId),
+            userId: new ObjectId(session.user._id),
+        });
+
+        return product ? JSON.parse(JSON.stringify(product)) : null;
+    } catch {
+        return null;
+    }
+}
+
+/* ─── getCrmProducts ─────────────────────────────────────────────────── */
 
 export async function getCrmProducts(
     page: number = 1,
     limit: number = 20,
-    query?: string
-): Promise<{ products: WithId<CrmProduct>[], total: number }> {
+    query?: string,
+): Promise<{ products: WithId<CrmProduct>[]; total: number }> {
     const session = await getSession();
     if (!session?.user) return { products: [], total: 0 };
+
+    if (useRustCrm()) {
+        try {
+            const result = await itemApi.list({
+                q: query,
+                page: Math.max(0, page - 1),
+                limit,
+            });
+            return {
+                products: result.items.map(rustDocToLegacy),
+                total: result.total ?? result.items.length,
+            };
+        } catch (e) {
+            console.error('[getCrmProducts] rust path failed; falling back:', e);
+            // fall through
+        }
+    }
 
     try {
         const { db } = await connectToDatabase();
@@ -24,65 +117,183 @@ export async function getCrmProducts(
         if (query) {
             filter.$or = [
                 { name: { $regex: query, $options: 'i' } },
-                { sku: { $regex: query, $options: 'i' } }
+                { sku: { $regex: query, $options: 'i' } },
             ];
         }
 
         const skip = (page - 1) * limit;
 
         const [products, total] = await Promise.all([
-            db.collection<CrmProduct>('crm_products')
+            db
+                .collection<CrmProduct>('crm_products')
                 .find(filter)
                 .sort({ createdAt: -1 })
                 .skip(skip)
                 .limit(limit)
                 .toArray(),
-            db.collection<CrmProduct>('crm_products').countDocuments(filter)
+            db.collection<CrmProduct>('crm_products').countDocuments(filter),
         ]);
 
         return {
             products: JSON.parse(JSON.stringify(products)),
-            total
+            total,
         };
     } catch (e: any) {
-        console.error("Failed to fetch CRM products:", e);
+        console.error('Failed to fetch CRM products:', e);
         return { products: [], total: 0 };
     }
 }
 
-export async function saveCrmProduct(prevState: any, formData: FormData): Promise<{ message?: string; error?: string; newProduct?: any }> {
+/* ─── saveCrmProduct ─────────────────────────────────────────────────── */
+
+export async function saveCrmProduct(
+    prevState: any,
+    formData: FormData,
+): Promise<{ message?: string; error?: string; newProduct?: any }> {
     const session = await getSession();
     if (!session?.user) return { error: 'Access denied' };
+
+    const productId = formData.get('productId') as string; // hidden field on edit
+    const isEditing = !!productId && productId !== '';
+
+    // Extract basic fields
+    const name = formData.get('name') as string;
+    if (!name) {
+        return { error: 'Product name is required.' };
+    }
+    const sku = (formData.get('sku') as string) || '';
+    const description = (formData.get('description') as string) || undefined;
+    const currency = (formData.get('currency') as string) || 'INR';
+
+    const costPrice = parseFloat(formData.get('costPrice') as string) || 0;
+    const sellingPrice = parseFloat(formData.get('sellingPrice') as string) || 0;
+    const taxRate = parseFloat(formData.get('taxRate') as string) || 0;
+
+    const isTrackInventory = formData.get('isTrackInventory') === 'on';
+    const reorderPoint = parseInt(formData.get('reorderPoint') as string, 10) || 0;
+
+    const length = parseFloat(formData.get('length') as string) || 0;
+    const breadth = parseFloat(formData.get('breadth') as string) || 0;
+    const height = parseFloat(formData.get('height') as string) || 0;
+    const volume = parseFloat(formData.get('volume') as string) || 0;
+    const grossWeight = parseFloat(formData.get('grossWeight') as string) || 0;
+    const netWeight = parseFloat(formData.get('netWeight') as string) || 0;
+
+    const hsnSac = (formData.get('hsnSac') as string) || undefined;
+    const itemTypeRaw = formData.get('itemType') as string | null;
+    const itemType = itemTypeRaw === 'service' ? 'service' : 'goods';
+    const batchTracking = formData.get('batchTracking') === 'on';
+
+    const categoryIdRaw = formData.get('categoryId') as string | null;
+    const brandIdRaw = formData.get('brandId') as string | null;
+    const unitIdRaw = formData.get('unitId') as string | null;
+    const categoryId =
+        categoryIdRaw && categoryIdRaw !== 'none' ? categoryIdRaw : undefined;
+    const brandId = brandIdRaw && brandIdRaw !== 'none' ? brandIdRaw : undefined;
+    const unitId = unitIdRaw && unitIdRaw !== 'none' ? unitIdRaw : undefined;
+
+    // Image handling (data-URI or URL)
+    const imageUrl = formData.get('imageUrl') as string | null;
+    const imageFile = formData.get('imageFile') as File | null;
+    let images: string[] | undefined;
+    if (imageFile && imageFile.size > 0) {
+        const buffer = Buffer.from(await imageFile.arrayBuffer());
+        images = [`data:${imageFile.type};base64,${buffer.toString('base64')}`];
+    } else if (imageUrl) {
+        images = [imageUrl];
+    }
+
+    if (useRustCrm()) {
+        try {
+            if (isEditing) {
+                const updated = await itemApi.update(productId, {
+                    name,
+                    sku: sku || undefined,
+                    description,
+                    currency,
+                    costPrice,
+                    sellingPrice,
+                    taxRate,
+                    isTrackInventory,
+                    hsnSac,
+                    itemType,
+                    dimensions: { length, breadth, height, volume },
+                    weight: { gross: grossWeight, net: netWeight },
+                    batchTracking,
+                    categoryId,
+                    brandId,
+                    unitId,
+                    ...(images ? { images } : {}),
+                });
+                revalidatePath('/dashboard/crm/inventory/items');
+                return {
+                    message: 'Product saved successfully.',
+                    newProduct: { ...rustDocToLegacy(updated), _id: productId },
+                };
+            }
+
+            // Create — gather warehouses to seed inventory like legacy did.
+            const { db } = await connectToDatabase();
+            const userObjectId = new ObjectId(session.user._id);
+            const warehouses = isTrackInventory
+                ? await db
+                      .collection('crm_warehouses')
+                      .find({ userId: userObjectId })
+                      .toArray()
+                : [];
+            const stockInHand = parseInt(formData.get('stockInHand') as string, 10) || 0;
+            const inventory = isTrackInventory
+                ? warehouses.map((w: any) => ({
+                      warehouseId: String(w._id),
+                      stock: w.isDefault ? stockInHand : 0,
+                      reorderPoint,
+                  }))
+                : [];
+            const totalStock = isTrackInventory ? stockInHand : 0;
+
+            const { id, entity } = await itemApi.create({
+                name,
+                sku: sku || name,
+                description,
+                currency,
+                costPrice,
+                sellingPrice,
+                taxRate,
+                isTrackInventory,
+                hsnSac,
+                itemType,
+                dimensions: { length, breadth, height, volume },
+                weight: { gross: grossWeight, net: netWeight },
+                batchTracking,
+                categoryId,
+                brandId,
+                unitId,
+                inventory,
+                totalStock,
+                ...(images ? { images } : {}),
+            });
+            revalidatePath('/dashboard/crm/inventory/items');
+            return {
+                message: 'Product saved successfully.',
+                newProduct: entity
+                    ? { ...rustDocToLegacy(entity), _id: id }
+                    : { _id: id, name, sku },
+            };
+        } catch (e) {
+            const msg = e instanceof RustApiError ? e.message : getErrorMessage(e);
+            console.error('[saveCrmProduct] rust path failed; falling back:', e);
+            // Surface SKU-uniqueness validation errors cleanly.
+            if (e instanceof RustApiError && e.status === 400) {
+                return { error: msg || 'Validation failed.' };
+            }
+            void msg;
+            // fall through to legacy on transport errors so users aren't blocked
+        }
+    }
 
     try {
         const { db } = await connectToDatabase();
         const userObjectId = new ObjectId(session.user._id);
-
-        const productId = formData.get('productId') as string; // Look for 'productId' hidden field
-        const isEditing = !!productId && productId !== '';
-
-        // Extract basic fields
-        const name = formData.get('name') as string;
-        const sku = formData.get('sku') as string;
-        const description = formData.get('description') as string;
-        const currency = formData.get('currency') as string || 'INR';
-
-        // Pricing
-        const costPrice = parseFloat(formData.get('costPrice') as string) || 0;
-        const sellingPrice = parseFloat(formData.get('sellingPrice') as string) || 0;
-        const taxRate = parseFloat(formData.get('taxRate') as string) || 0;
-
-        // Inventory
-        const isTrackInventory = formData.get('isTrackInventory') === 'on';
-        const reorderPoint = parseInt(formData.get('reorderPoint') as string, 10) || 0;
-
-        // Physical
-        const length = parseFloat(formData.get('length') as string) || 0;
-        const breadth = parseFloat(formData.get('breadth') as string) || 0;
-        const height = parseFloat(formData.get('height') as string) || 0;
-        const volume = parseFloat(formData.get('volume') as string) || 0;
-        const grossWeight = parseFloat(formData.get('grossWeight') as string) || 0;
-        const netWeight = parseFloat(formData.get('netWeight') as string) || 0;
 
         const productData: Partial<CrmProduct> = {
             userId: userObjectId,
@@ -95,118 +306,160 @@ export async function saveCrmProduct(prevState: any, formData: FormData): Promis
             taxRate,
             isTrackInventory,
             updatedAt: new Date(),
-            hsnSac: formData.get('hsnSac') as string,
-            itemType: formData.get('itemType') as 'goods' | 'service',
+            hsnSac,
+            itemType,
             dimensions: { length, breadth, height, volume },
             weight: { gross: grossWeight, net: netWeight },
-            batchTracking: formData.get('batchTracking') === 'on',
+            batchTracking,
         };
 
-        // Relations
-        const categoryId = formData.get('categoryId') as string;
-        if (categoryId && categoryId !== 'none') productData.categoryId = new ObjectId(categoryId);
+        if (categoryId) productData.categoryId = new ObjectId(categoryId);
+        if (brandId) productData.brandId = new ObjectId(brandId);
+        if (unitId) productData.unitId = new ObjectId(unitId);
 
-        const brandId = formData.get('brandId') as string;
-        if (brandId && brandId !== 'none') productData.brandId = new ObjectId(brandId);
-
-        const unitId = formData.get('unitId') as string;
-        if (unitId && unitId !== 'none') productData.unitId = new ObjectId(unitId);
-
-        // Images (Single image legacy support + array)
-        /* 
-        // Logic for image upload would go here. For now, assuming image handling is done via separate upload or simplified.
-        // If imageUrl was passed:
-        const imageUrl = formData.get('imageUrl') as string;
-        if(imageUrl) productData.images = [imageUrl];
-        */
-        // Handling base64 image if present (similar to existing code)
-        const imageUrl = formData.get('imageUrl') as string | null;
-        const imageFile = formData.get('imageFile') as File | null;
-        if (imageFile && imageFile.size > 0) {
-            const buffer = Buffer.from(await imageFile.arrayBuffer());
-            const dataUri = `data:${imageFile.type};base64,${buffer.toString('base64')}`;
-            productData.images = [dataUri];
-        } else if (imageUrl) {
-            productData.images = [imageUrl];
-        } else {
-            // If editing and no new file, keep existing? Need logic. 
-            // Ideally we shouldn't overwrite images unless explicit.
-            // But for now let's just not set it if null.
-        }
-
+        if (images) productData.images = images;
 
         if (!productData.name) {
             return { error: 'Product name is required.' };
         }
 
         if (isEditing) {
-            await db.collection('crm_products').updateOne(
-                { _id: new ObjectId(productId), userId: userObjectId },
-                { $set: productData }
-            );
-        } else {
-            // Check SKU uniqueness
-            if (productData.sku) {
-                const existing = await db.collection('crm_products').findOne({ userId: userObjectId, sku: productData.sku });
-                if (existing) {
-                    return { error: 'SKU already exists.' };
-                }
-            }
+            await db
+                .collection('crm_products')
+                .updateOne(
+                    { _id: new ObjectId(productId), userId: userObjectId },
+                    { $set: productData },
+                );
 
-            productData.createdAt = new Date();
-            // Initialize default inventory if tracking
-            if (productData.isTrackInventory) {
-                const warehouses = await db.collection('crm_warehouses').find({ userId: userObjectId }).toArray();
-                const stockInHand = parseInt(formData.get('stockInHand') as string, 10) || 0;
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'update',
+                entityKind: 'item',
+                entityId: productId,
+            });
 
-                if (warehouses.length > 0) {
-                    const defaultWarehouse = warehouses.find(w => w.isDefault) || warehouses[0];
-                    productData.inventory = warehouses.map(w => ({
-                        warehouseId: w._id,
-                        stock: w._id.equals(defaultWarehouse._id) ? stockInHand : 0,
-                        reorderPoint // Apply reorder point to all or just default? applied to all structure for now
-                    }));
-                } else {
-                    // No warehouse? Just store totalStock or create a default warehouse implicitly?
-                    // Better to just have empty inventory array if no warehouse.
-                    productData.inventory = [];
-                }
-                productData.totalStock = stockInHand;
-            } else {
-                productData.inventory = [];
-                productData.totalStock = 0;
-            }
-
-            const result = await db.collection('crm_products').insertOne(productData as CrmProduct);
-            return { message: 'Product saved successfully.', newProduct: { ...productData, _id: result.insertedId } };
+            revalidatePath('/dashboard/crm/inventory/items');
+            return { message: 'Product saved successfully.' };
         }
 
+        // Check SKU uniqueness
+        if (productData.sku) {
+            const existing = await db
+                .collection('crm_products')
+                .findOne({ userId: userObjectId, sku: productData.sku });
+            if (existing) {
+                return { error: 'SKU already exists.' };
+            }
+        }
+
+        productData.createdAt = new Date();
+        // Initialize default inventory if tracking
+        if (productData.isTrackInventory) {
+            const warehouses = await db
+                .collection('crm_warehouses')
+                .find({ userId: userObjectId })
+                .toArray();
+            const stockInHand = parseInt(formData.get('stockInHand') as string, 10) || 0;
+
+            if (warehouses.length > 0) {
+                const defaultWarehouse = warehouses.find((w) => w.isDefault) || warehouses[0];
+                productData.inventory = warehouses.map((w) => ({
+                    warehouseId: w._id,
+                    stock: w._id.equals(defaultWarehouse._id) ? stockInHand : 0,
+                    reorderPoint,
+                }));
+            } else {
+                productData.inventory = [];
+            }
+            productData.totalStock = stockInHand;
+        } else {
+            productData.inventory = [];
+            productData.totalStock = 0;
+        }
+
+        const result = await db
+            .collection('crm_products')
+            .insertOne(productData as CrmProduct);
+
+        await writeAuditEntry({
+            tenantUserId: String(session.user._id),
+            actorId: String(session.user._id),
+            action: 'create',
+            entityKind: 'item',
+            entityId: String(result.insertedId),
+        });
+
         revalidatePath('/dashboard/crm/inventory/items');
-        return { message: 'Product saved successfully.' }; // Fallback for edit, though typically we might want updated product too. For now QuickAdd is only for new.
+        return {
+            message: 'Product saved successfully.',
+            newProduct: { ...productData, _id: result.insertedId },
+        };
     } catch (e) {
         return { error: getErrorMessage(e) };
     }
 }
 
-export async function deleteCrmProduct(productId: string): Promise<{ success: boolean; error?: string }> {
-    if (!ObjectId.isValid(productId)) return { success: false, error: 'Invalid ID.' };
+/* ─── deleteCrmProduct ───────────────────────────────────────────────── */
 
+export async function deleteCrmProduct(
+    productId: string,
+): Promise<{ success: boolean; error?: string }> {
     const session = await getSession();
     if (!session?.user) return { success: false, error: 'Access denied.' };
+    if (!productId) return { success: false, error: 'Invalid ID.' };
+
+    if (useRustCrm()) {
+        try {
+            const { deleted } = await itemApi.delete(productId);
+            if (!deleted) {
+                return { success: false, error: 'Product not found.' };
+            }
+            // Cleanup stock adjustments — the Rust handler doesn't own this
+            // sister collection, so we run the housekeeping query here.
+            if (ObjectId.isValid(productId)) {
+                try {
+                    const { db } = await connectToDatabase();
+                    await db
+                        .collection('crm_stock_adjustments')
+                        .deleteMany({ productId: new ObjectId(productId) });
+                } catch (e) {
+                    console.error('[deleteCrmProduct] stock-adjustments cleanup failed:', e);
+                }
+            }
+            revalidatePath('/dashboard/crm/inventory/items');
+            return { success: true };
+        } catch (e) {
+            console.error('[deleteCrmProduct] rust path failed; falling back:', e);
+            // fall through
+        }
+    }
+
+    if (!ObjectId.isValid(productId)) return { success: false, error: 'Invalid ID.' };
 
     try {
         const { db } = await connectToDatabase();
         const result = await db.collection('crm_products').deleteOne({
             _id: new ObjectId(productId),
-            userId: new ObjectId(session.user._id)
+            userId: new ObjectId(session.user._id),
         });
 
         if (result.deletedCount === 0) {
             return { success: false, error: 'Product not found.' };
         }
 
-        // Cleanup stock adjustments 
-        await db.collection('crm_stock_adjustments').deleteMany({ productId: new ObjectId(productId) });
+        // Cleanup stock adjustments
+        await db
+            .collection('crm_stock_adjustments')
+            .deleteMany({ productId: new ObjectId(productId) });
+
+        await writeAuditEntry({
+            tenantUserId: String(session.user._id),
+            actorId: String(session.user._id),
+            action: 'delete',
+            entityKind: 'item',
+            entityId: productId,
+        });
 
         revalidatePath('/dashboard/crm/inventory/items');
         return { success: true };

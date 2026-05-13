@@ -1,14 +1,37 @@
-
 'use server';
 
+/**
+ * CRM Invoice server actions.
+ *
+ * **Dual implementation:**
+ *  - When `USE_RUST_CRM === 'true'`, every read/write delegates to the
+ *    Rust BFF (`/v1/crm/invoices`) via
+ *    `src/lib/rust-client/crm-invoices.ts`.
+ *  - Otherwise (default), the legacy direct-Mongo path runs.
+ *
+ * Export shapes are identical across both paths so the pages at
+ * `/dashboard/crm/sales/invoices/**` keep working without changes.
+ */
+
 import { revalidatePath } from 'next/cache';
-import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
+import { ObjectId, type WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
+import { writeAuditEntry } from '@/lib/audit-log';
 import type { CrmInvoice, LineageKind, LineageRef } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import { appendLineage, buildLineageFromParent } from '@/lib/lineage';
 import { applyCustomFieldsToEntity } from '@/app/actions/worksuite/meta.actions';
+import {
+    crmInvoicesApi,
+    type CrmInvoiceLineItem,
+    type CrmInvoiceTotals,
+} from '@/lib/rust-client/crm-invoices';
+import { RustApiError } from '@/lib/rust-client/fetcher';
+
+function useRustCrm(): boolean {
+    return process.env.USE_RUST_CRM === 'true';
+}
 
 export async function getInvoices(
     page: number = 1,
@@ -17,6 +40,25 @@ export async function getInvoices(
 ): Promise<{ invoices: WithId<CrmInvoice>[], total: number }> {
     const session = await getSession();
     if (!session?.user) return { invoices: [], total: 0 };
+
+    if (useRustCrm()) {
+        try {
+            const items = await crmInvoicesApi.list({
+                page,
+                limit,
+                month: filters?.month,
+                year: filters?.year,
+            });
+            const arr = Array.isArray(items) ? items : [];
+            return {
+                invoices: JSON.parse(JSON.stringify(arr)) as WithId<CrmInvoice>[],
+                total: arr.length,
+            };
+        } catch (e) {
+            console.error('[getInvoices] rust path failed; falling back:', e);
+            // fall through
+        }
+    }
 
     try {
         const { db } = await connectToDatabase();
@@ -55,6 +97,77 @@ export async function getInvoices(
 export async function saveInvoice(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
     const session = await getSession();
     if (!session?.user) return { error: 'Access denied' };
+
+    if (useRustCrm()) {
+        try {
+            const lineItemsLegacy = JSON.parse((formData.get('lineItems') as string) || '[]') as Array<any>;
+            const items: CrmInvoiceLineItem[] = lineItemsLegacy.map((li: any) => ({
+                itemId: li.itemId,
+                description: li.description ?? li.name,
+                qty: Number(li.quantity ?? li.qty ?? 0),
+                rate: Number(li.rate ?? 0),
+                total: Number(li.total ?? Number(li.quantity ?? 0) * Number(li.rate ?? 0)),
+            }));
+            const subTotal = items.reduce((sum, li) => sum + (li.total || 0), 0);
+            const totals: CrmInvoiceTotals = { subTotal, total: subTotal };
+
+            const invoiceNo = (formData.get('invoiceNumber') as string | null) ||
+                `INV-${Date.now().toString().slice(-5)}`;
+            const dateRaw = (formData.get('invoiceDate') as string | null) || '';
+            const date = dateRaw ? new Date(dateRaw).toISOString() : new Date().toISOString();
+            const dueDateRaw = (formData.get('dueDate') as string | null) || '';
+            const dueDate = dueDateRaw ? new Date(dueDateRaw).toISOString() : date;
+            const clientId = (formData.get('accountId') as string | null) || '';
+            const currency = (formData.get('currency') as string | null) || 'INR';
+            const notes = (formData.get('notes') as string | null) || undefined;
+            const fromKindRaw = (formData.get('fromKind') as string | null) || undefined;
+            const fromId = (formData.get('fromId') as string | null) || undefined;
+
+            const created = await crmInvoicesApi.create({
+                invoiceNo,
+                date,
+                dueDate,
+                clientId,
+                currency,
+                items,
+                totals,
+                customerNotes: notes,
+                fromKind: fromKindRaw as any,
+                fromId,
+            });
+
+            const id = (created as any)._id?.toString() || '';
+            try {
+                await writeAuditEntry({
+                    tenantUserId: String(session.user._id),
+                    actorId: String(session.user._id),
+                    action: 'create',
+                    entityKind: 'invoice',
+                    entityId: id,
+                });
+            } catch {
+                /* non-fatal */
+            }
+
+            const customFieldsRaw = formData.get('customFields') as string | null;
+            if (customFieldsRaw && id) {
+                try {
+                    const parsed = JSON.parse(customFieldsRaw);
+                    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+                        await applyCustomFieldsToEntity('invoice', id, parsed as Record<string, unknown>);
+                    }
+                } catch {
+                    /* non-fatal */
+                }
+            }
+
+            revalidatePath('/dashboard/crm/sales/invoices');
+            return { message: 'Invoice saved successfully.' };
+        } catch (e) {
+            console.error('[saveInvoice] rust path failed; falling back:', e);
+            // fall through
+        }
+    }
 
     try {
         const lineItems = JSON.parse(formData.get('lineItems') as string || '[]');
@@ -147,6 +260,18 @@ export async function saveInvoice(prevState: any, formData: FormData): Promise<{
             updatedAt: new Date()
         } as any);
 
+        try {
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'create',
+                entityKind: 'invoice',
+                entityId: insertResult.insertedId.toString(),
+            });
+        } catch {
+            /* non-fatal */
+        }
+
         // Custom fields (Worksuite §13). The dialog wires a JSON-encoded
         // map under `customFields`; persist via the shared upsert helper.
         const customFieldsRaw = formData.get('customFields') as string | null;
@@ -215,10 +340,49 @@ export async function updateInvoice(
         currency?: string;
     },
 ): Promise<{ success: boolean; error?: string }> {
-    if (!ObjectId.isValid(invoiceId)) return { success: false, error: 'Invalid invoice id' };
+    if (!invoiceId) return { success: false, error: 'Invalid invoice id' };
 
     const session = await getSession();
     if (!session?.user) return { success: false, error: 'Access denied' };
+
+    if (useRustCrm()) {
+        try {
+            await crmInvoicesApi.update(invoiceId, {
+                invoiceNo: updates.invoiceNumber,
+                date: updates.invoiceDate
+                    ? new Date(updates.invoiceDate).toISOString()
+                    : undefined,
+                dueDate:
+                    updates.dueDate === null
+                        ? undefined
+                        : updates.dueDate
+                            ? new Date(updates.dueDate).toISOString()
+                            : undefined,
+                status: updates.status,
+                customerNotes: updates.notes,
+                currency: updates.currency,
+            });
+            try {
+                await writeAuditEntry({
+                    tenantUserId: String(session.user._id),
+                    actorId: String(session.user._id),
+                    action: 'update',
+                    entityKind: 'invoice',
+                    entityId: invoiceId,
+                });
+            } catch {
+                /* non-fatal */
+            }
+            revalidatePath('/dashboard/crm/sales/invoices');
+            revalidatePath(`/dashboard/crm/sales/invoices/${invoiceId}`);
+            return { success: true };
+        } catch (e) {
+            console.error('[updateInvoice] rust path failed; falling back:', e);
+            // fall through
+        }
+    }
+
+    if (!ObjectId.isValid(invoiceId)) return { success: false, error: 'Invalid invoice id' };
 
     try {
         const set: Record<string, any> = { updatedAt: new Date() };
@@ -244,7 +408,20 @@ export async function updateInvoice(
             return { success: false, error: 'Invoice not found' };
         }
 
+        try {
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'update',
+                entityKind: 'invoice',
+                entityId: invoiceId,
+            });
+        } catch {
+            /* non-fatal */
+        }
+
         revalidatePath('/dashboard/crm/sales/invoices');
+        revalidatePath(`/dashboard/crm/sales/invoices/${invoiceId}`);
         return { success: true };
     } catch (e: any) {
         return { success: false, error: getErrorMessage(e) };
@@ -254,6 +431,18 @@ export async function updateInvoice(
 export async function getInvoiceById(invoiceId: string): Promise<WithId<CrmInvoice> | null> {
     const session = await getSession();
     if (!session?.user) return null;
+
+    if (useRustCrm()) {
+        try {
+            const doc = await crmInvoicesApi.getById(invoiceId);
+            return doc ? (JSON.parse(JSON.stringify(doc)) as WithId<CrmInvoice>) : null;
+        } catch (e) {
+            if (e instanceof RustApiError && e.code === 'NOT_FOUND') return null;
+            console.error('[getInvoiceById] rust path failed; falling back:', e);
+            // fall through
+        }
+    }
+
     if (!ObjectId.isValid(invoiceId)) return null;
 
     try {
@@ -273,6 +462,23 @@ export async function getInvoiceById(invoiceId: string): Promise<WithId<CrmInvoi
 export async function getUnpaidInvoicesByAccount(accountId: string): Promise<WithId<CrmInvoice>[]> {
     const session = await getSession();
     if (!session?.user) return [];
+
+    if (useRustCrm()) {
+        try {
+            const items = await crmInvoicesApi.list({
+                clientId: accountId,
+            });
+            const arr = Array.isArray(items) ? items : [];
+            const unpaid = arr.filter((d: any) => {
+                const s = (d.status as string | undefined)?.toLowerCase();
+                return s !== 'paid' && s !== 'cancelled';
+            });
+            return JSON.parse(JSON.stringify(unpaid)) as WithId<CrmInvoice>[];
+        } catch (e) {
+            console.error('[getUnpaidInvoicesByAccount] rust path failed; falling back:', e);
+            // fall through
+        }
+    }
 
     if (!ObjectId.isValid(accountId)) return [];
 

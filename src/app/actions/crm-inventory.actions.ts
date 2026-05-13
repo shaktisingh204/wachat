@@ -9,6 +9,77 @@ import { getSession } from '@/app/actions/user.actions';
 import type { CrmStockAdjustment } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 
+export async function getCrmStockAdjustmentById(
+    adjustmentId: string,
+): Promise<WithId<CrmStockAdjustment> | null> {
+    if (!adjustmentId || !ObjectId.isValid(adjustmentId)) return null;
+
+    const session = await getSession();
+    if (!session?.user) return null;
+
+    try {
+        const { db } = await connectToDatabase();
+        const docs = await db.collection('crm_stock_adjustments')
+            .aggregate([
+                {
+                    $match: {
+                        _id: new ObjectId(adjustmentId),
+                        userId: new ObjectId(session.user._id),
+                    },
+                },
+                { $lookup: { from: 'crm_products', localField: 'productId', foreignField: '_id', as: 'productInfo' } },
+                { $lookup: { from: 'crm_warehouses', localField: 'warehouseId', foreignField: '_id', as: 'warehouseInfo' } },
+                { $unwind: { path: '$productInfo', preserveNullAndEmptyArrays: true } },
+                { $unwind: { path: '$warehouseInfo', preserveNullAndEmptyArrays: true } },
+                { $addFields: { productName: '$productInfo.name', warehouseName: '$warehouseInfo.name' } },
+                { $project: { productInfo: 0, warehouseInfo: 0 } },
+            ]).toArray();
+        if (docs.length === 0) return null;
+        return JSON.parse(JSON.stringify(docs[0]));
+    } catch (e) {
+        console.error('Failed to fetch CRM stock adjustment:', e);
+        return null;
+    }
+}
+
+export async function updateCrmStockAdjustment(
+    prevState: any,
+    formData: FormData,
+): Promise<{ message?: string; error?: string; adjustmentId?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { error: 'Access denied.' };
+
+    const adjustmentId = formData.get('adjustmentId') as string;
+    if (!adjustmentId || !ObjectId.isValid(adjustmentId)) {
+        return { error: 'Invalid adjustment ID.' };
+    }
+
+    try {
+        const reason = formData.get('reason') as CrmStockAdjustment['reason'];
+        const notes = (formData.get('notes') as string | null) || undefined;
+        if (!reason) return { error: 'Reason is required.' };
+
+        const { db } = await connectToDatabase();
+        const result = await db.collection('crm_stock_adjustments').updateOne(
+            {
+                _id: new ObjectId(adjustmentId),
+                userId: new ObjectId(session.user._id),
+            },
+            { $set: { reason, notes, updatedAt: new Date() } },
+        );
+
+        if (result.matchedCount === 0) {
+            return { error: 'Adjustment not found or access denied.' };
+        }
+
+        revalidatePath('/dashboard/crm/inventory/adjustments');
+        revalidatePath(`/dashboard/crm/inventory/adjustments/${adjustmentId}`);
+        return { message: 'Adjustment updated.', adjustmentId };
+    } catch (e) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
 export async function getCrmStockAdjustments(): Promise<WithId<CrmStockAdjustment>[]> {
     const session = await getSession();
     if (!session?.user) return [];

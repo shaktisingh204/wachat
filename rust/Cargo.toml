@@ -144,6 +144,10 @@ members = [
     "crates/rbac",
     "crates/crm-common",
     "crates/crm-accounts",
+    "crates/crm-contacts",
+    "crates/crm-items",
+    "crates/crm-vendors",
+    "crates/crm-pipelines",
 ]
 
 [workspace.package]

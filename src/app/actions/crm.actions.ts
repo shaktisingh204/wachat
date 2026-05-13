@@ -11,6 +11,27 @@ import { getErrorMessage } from '@/lib/utils';
 import { z } from 'zod';
 import { applyCustomFieldsToEntity } from '@/app/actions/worksuite/meta.actions';
 import { writeAuditEntry } from '@/lib/audit-log';
+import { contactApi, type CrmContactDoc } from '@/lib/rust-client/crm-contacts';
+import { RustApiError } from '@/lib/rust-client/fetcher';
+
+function useRustCrm(): boolean {
+    return process.env.USE_RUST_CRM === 'true';
+}
+
+/* ─── Rust-shape → legacy TS-shape adapter (CRM Contact) ─────────────── */
+
+function rustContactDocToLegacy(doc: CrmContactDoc): WithId<CrmContact> {
+    return {
+        ...(doc as unknown as WithId<CrmContact>),
+        _id: doc._id ? (doc._id as unknown as ObjectId) : (undefined as unknown as ObjectId),
+        userId: doc.userId as unknown as ObjectId,
+        accountId: doc.accountId ? (doc.accountId as unknown as ObjectId) : undefined,
+        createdAt: doc.createdAt ? new Date(doc.createdAt) : new Date(),
+        updatedAt: doc.updatedAt ? new Date(doc.updatedAt) : undefined,
+        lastActivity: doc.lastActivity ? new Date(doc.lastActivity) : undefined,
+        dateOfBirth: doc.dateOfBirth ? new Date(doc.dateOfBirth) : undefined,
+    } as WithId<CrmContact>;
+}
 
 export async function getCrmContacts(
     page: number = 1,
@@ -22,6 +43,28 @@ export async function getCrmContacts(
 ): Promise<{ contacts: WithId<CrmContact>[], total: number }> {
     const session = await getSession();
     if (!session?.user) return { contacts: [], total: 0 };
+
+    if (useRustCrm()) {
+        try {
+            const filter: Record<string, unknown> = {};
+            if (accountId && ObjectId.isValid(accountId)) {
+                filter.accountId = accountId;
+            }
+            const result = await contactApi.list({
+                q: query,
+                page: Math.max(0, page - 1),
+                limit,
+                filter: Object.keys(filter).length > 0 ? filter : undefined,
+            });
+            return {
+                contacts: result.items.map(rustContactDocToLegacy),
+                total: result.total ?? result.items.length,
+            };
+        } catch (e) {
+            console.error('[getCrmContacts] rust path failed; falling back:', e);
+            // fall through
+        }
+    }
 
     try {
         const { db } = await connectToDatabase();
@@ -67,10 +110,26 @@ export async function getCrmContacts(
 }
 
 export async function deleteCrmContact(contactId: string): Promise<{ success: boolean; error?: string }> {
-    if (!ObjectId.isValid(contactId)) return { success: false, error: 'Invalid contact id' };
+    if (!contactId) return { success: false, error: 'Invalid contact id' };
 
     const session = await getSession();
     if (!session?.user) return { success: false, error: 'Access denied' };
+
+    if (useRustCrm()) {
+        try {
+            // DELETE /v1/crm/contacts/:id is soft-delete (status → archived).
+            await contactApi.delete(contactId);
+            revalidatePath('/dashboard/crm/contacts');
+            return { success: true };
+        } catch (e) {
+            const msg = e instanceof RustApiError ? e.message : getErrorMessage(e);
+            console.error('[deleteCrmContact] rust path failed; falling back:', e);
+            void msg;
+            // fall through
+        }
+    }
+
+    if (!ObjectId.isValid(contactId)) return { success: false, error: 'Invalid contact id' };
 
     try {
         const { db } = await connectToDatabase();
@@ -91,10 +150,22 @@ export async function deleteCrmContact(contactId: string): Promise<{ success: bo
 }
 
 export async function getCrmContactById(contactId: string): Promise<WithId<CrmContact> | null> {
-    if (!ObjectId.isValid(contactId)) return null;
+    if (!contactId) return null;
 
     const session = await getSession();
     if (!session?.user) return null;
+
+    if (useRustCrm()) {
+        try {
+            const doc = await contactApi.getById(contactId);
+            return doc ? rustContactDocToLegacy(doc) : null;
+        } catch (e) {
+            console.error('[getCrmContactById] rust path failed; falling back:', e);
+            // fall through
+        }
+    }
+
+    if (!ObjectId.isValid(contactId)) return null;
 
     try {
         const { db } = await connectToDatabase();
@@ -113,43 +184,81 @@ export async function addCrmContact(prevState: any, formData: FormData): Promise
     const session = await getSession();
     if (!session?.user) return { error: "Access denied" };
 
+    const name = (formData.get('name') as string | null) || '';
+    const email = (formData.get('email') as string | null) || '';
+    if (!name || !email) {
+        return { error: 'Name and Email are required.' };
+    }
+
+    const phone = (formData.get('phone') as string | null) || undefined;
+    const company = (formData.get('company') as string | null) || undefined;
+    const jobTitle = (formData.get('jobTitle') as string | null) || undefined;
+    const statusRaw = (formData.get('status') as string | null) || undefined;
+    const leadScoreRaw = formData.get('leadScore');
+    const leadScore = leadScoreRaw != null && leadScoreRaw !== '' ? Number(leadScoreRaw) : undefined;
+    const linkedinUrl = (formData.get('linkedinUrl') as string | null) || undefined;
+    const twitterHandle = (formData.get('twitterHandle') as string | null) || undefined;
+    const lifecycleStage = (formData.get('lifecycleStage') as string | null) || undefined;
+    const source = (formData.get('source') as string | null) || undefined;
+    const owner = (formData.get('owner') as string | null) || undefined;
+    const tagsRaw = (formData.get('tags') as string | null) || '';
+    const tags = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : undefined;
+    const dateOfBirth = (formData.get('dateOfBirth') as string | null) || undefined;
+    const timezone = (formData.get('timezone') as string | null) || undefined;
+    const accountId = (formData.get('accountId') as string | null) || undefined;
+
+    if (useRustCrm()) {
+        try {
+            await contactApi.create({
+                name,
+                email,
+                phone,
+                company,
+                jobTitle,
+                status: statusRaw,
+                leadScore,
+                linkedinUrl,
+                twitterHandle,
+                lifecycleStage,
+                source,
+                owner,
+                tags,
+                dateOfBirth: dateOfBirth ? new Date(dateOfBirth).toISOString() : undefined,
+                timezone,
+                accountId: accountId && ObjectId.isValid(accountId) ? accountId : undefined,
+            });
+            revalidatePath('/dashboard/crm/contacts');
+            return { message: 'Contact added successfully.' };
+        } catch (e) {
+            console.error('[addCrmContact] rust path failed; falling back:', e);
+            // fall through
+        }
+    }
+
     try {
         const newContact: Partial<CrmContact> = {
             userId: new ObjectId(session.user._id),
-            name: formData.get('name') as string,
-            email: formData.get('email') as string,
-            phone: formData.get('phone') as string,
-            company: formData.get('company') as string,
-            jobTitle: formData.get('jobTitle') as string,
-            status: formData.get('status') as CrmContact['status'],
-            leadScore: Number(formData.get('leadScore') || 0),
+            name,
+            email,
+            phone,
+            company,
+            jobTitle,
+            status: (statusRaw as CrmContact['status']) ?? undefined,
+            leadScore: leadScore ?? 0,
             createdAt: new Date(),
         };
 
-        const linkedinUrl = formData.get('linkedinUrl') as string;
         if (linkedinUrl) newContact.linkedinUrl = linkedinUrl;
-        const twitterHandle = formData.get('twitterHandle') as string;
         if (twitterHandle) newContact.twitterHandle = twitterHandle;
-        const lifecycleStage = formData.get('lifecycleStage') as string;
         if (lifecycleStage) newContact.lifecycleStage = lifecycleStage as CrmContact['lifecycleStage'];
-        const source = formData.get('source') as string;
         if (source) newContact.source = source as CrmContact['source'];
-        const owner = formData.get('owner') as string;
         if (owner) newContact.owner = owner;
-        const tagsRaw = formData.get('tags') as string;
-        if (tagsRaw) newContact.tags = tagsRaw.split(',').map(t => t.trim()).filter(Boolean);
-        const dateOfBirth = formData.get('dateOfBirth') as string;
+        if (tags && tags.length) newContact.tags = tags;
         if (dateOfBirth) newContact.dateOfBirth = new Date(dateOfBirth);
-        const timezone = formData.get('timezone') as string;
         if (timezone) newContact.timezone = timezone;
 
-        const accountId = formData.get('accountId') as string;
         if (accountId && ObjectId.isValid(accountId)) {
             newContact.accountId = new ObjectId(accountId);
-        }
-
-        if (!newContact.name || !newContact.email) {
-            return { error: 'Name and Email are required.' };
         }
 
         const { db } = await connectToDatabase();
@@ -157,6 +266,126 @@ export async function addCrmContact(prevState: any, formData: FormData): Promise
 
         revalidatePath('/dashboard/crm/contacts');
         return { message: 'Contact added successfully.' };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function updateCrmContact(
+    prevState: any,
+    formData: FormData,
+): Promise<{ message?: string; error?: string; contactId?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { error: 'Access denied' };
+
+    const contactId = (formData.get('contactId') as string | null) || '';
+    if (!contactId || !ObjectId.isValid(contactId)) {
+        return { error: 'Invalid contact id.' };
+    }
+    const name = (formData.get('name') as string | null) || '';
+    const email = (formData.get('email') as string | null) || '';
+    if (!name || !email) {
+        return { error: 'Name and Email are required.' };
+    }
+
+    const phone = (formData.get('phone') as string | null) || undefined;
+    const company = (formData.get('company') as string | null) || undefined;
+    const jobTitle = (formData.get('jobTitle') as string | null) || undefined;
+    const statusRaw = (formData.get('status') as string | null) || undefined;
+    const leadScoreRaw = formData.get('leadScore');
+    const leadScore = leadScoreRaw != null && leadScoreRaw !== ''
+        ? Number(leadScoreRaw)
+        : undefined;
+    const linkedinUrl = (formData.get('linkedinUrl') as string | null) || undefined;
+    const twitterHandle = (formData.get('twitterHandle') as string | null) || undefined;
+    const lifecycleStage = (formData.get('lifecycleStage') as string | null) || undefined;
+    const source = (formData.get('source') as string | null) || undefined;
+    const owner = (formData.get('owner') as string | null) || undefined;
+    const tagsRaw = (formData.get('tags') as string | null) || '';
+    const tags = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : undefined;
+    const dateOfBirth = (formData.get('dateOfBirth') as string | null) || undefined;
+    const timezone = (formData.get('timezone') as string | null) || undefined;
+    const accountId = (formData.get('accountId') as string | null) || undefined;
+
+    if (useRustCrm()) {
+        try {
+            await contactApi.update(contactId, {
+                name,
+                email,
+                phone,
+                company,
+                jobTitle,
+                status: statusRaw,
+                leadScore,
+                linkedinUrl,
+                twitterHandle,
+                lifecycleStage,
+                source,
+                owner,
+                tags,
+                dateOfBirth: dateOfBirth ? new Date(dateOfBirth).toISOString() : undefined,
+                timezone,
+                accountId:
+                    accountId && ObjectId.isValid(accountId) ? accountId : undefined,
+            });
+            revalidatePath('/dashboard/crm/contacts');
+            revalidatePath('/dashboard/crm/sales/contacts');
+            revalidatePath(`/dashboard/crm/sales/contacts/${contactId}`);
+            return { message: 'Contact updated successfully.', contactId };
+        } catch (e) {
+            console.error('[updateCrmContact] rust path failed; falling back:', e);
+            // fall through
+        }
+    }
+
+    try {
+        const $set: Partial<CrmContact> & Record<string, any> = {
+            name,
+            email,
+            updatedAt: new Date(),
+        };
+        if (phone !== undefined) $set.phone = phone;
+        if (company !== undefined) $set.company = company;
+        if (jobTitle !== undefined) $set.jobTitle = jobTitle;
+        if (statusRaw) $set.status = statusRaw as CrmContact['status'];
+        if (leadScore !== undefined) $set.leadScore = leadScore;
+        if (linkedinUrl !== undefined) $set.linkedinUrl = linkedinUrl;
+        if (twitterHandle !== undefined) $set.twitterHandle = twitterHandle;
+        if (lifecycleStage) $set.lifecycleStage = lifecycleStage as CrmContact['lifecycleStage'];
+        if (source) $set.source = source as CrmContact['source'];
+        if (owner !== undefined) $set.owner = owner;
+        if (tags !== undefined) $set.tags = tags;
+        if (dateOfBirth) $set.dateOfBirth = new Date(dateOfBirth);
+        if (timezone !== undefined) $set.timezone = timezone;
+        if (accountId && ObjectId.isValid(accountId)) {
+            $set.accountId = new ObjectId(accountId);
+        }
+
+        const { db } = await connectToDatabase();
+        const result = await db.collection('crm_contacts').updateOne(
+            {
+                _id: new ObjectId(contactId),
+                userId: new ObjectId(session.user._id),
+            },
+            { $set },
+        );
+
+        if (result.matchedCount === 0) {
+            return { error: 'Contact not found.' };
+        }
+
+        await writeAuditEntry({
+            tenantUserId: String(session.user._id),
+            actorId: String(session.user._id),
+            action: 'update',
+            entityKind: 'contact',
+            entityId: contactId,
+        });
+
+        revalidatePath('/dashboard/crm/contacts');
+        revalidatePath('/dashboard/crm/sales/contacts');
+        revalidatePath(`/dashboard/crm/sales/contacts/${contactId}`);
+        return { message: 'Contact updated successfully.', contactId };
     } catch (e: any) {
         return { error: getErrorMessage(e) };
     }

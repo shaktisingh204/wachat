@@ -1,14 +1,40 @@
-
-
 'use server';
 
+/**
+ * CRM Payment Receipt server actions.
+ *
+ * **Dual implementation:**
+ *  - When `USE_RUST_CRM === 'true'`, read/save/update delegate to
+ *    `/v1/crm/payment-receipts` on the Rust BFF via
+ *    `src/lib/rust-client/crm-payment-receipts.ts`.
+ *  - Otherwise (default), the legacy direct-Mongo path runs.
+ *
+ * Export shapes are identical across both paths so the pages at
+ * `/dashboard/crm/sales/receipts/**` keep working without changes.
+ *
+ * Per the Rust DTO contract, financial fields (`amount`, `applyTo`,
+ * `mode`, `clientId`, `currency`) are NOT patchable — use void+recreate
+ * for amount changes.
+ */
+
 import { revalidatePath } from 'next/cache';
-import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
+import { ObjectId, type WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
+import { writeAuditEntry } from '@/lib/audit-log';
 import type { CrmPaymentReceipt, CrmInvoice, LineageKind, LineageRef } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import { appendLineage, buildLineageFromParent } from '@/lib/lineage';
+import {
+    crmPaymentReceiptsApi,
+    type CrmInvoiceApplication,
+    type CrmPaymentMode,
+} from '@/lib/rust-client/crm-payment-receipts';
+import { RustApiError } from '@/lib/rust-client/fetcher';
+
+function useRustCrm(): boolean {
+    return process.env.USE_RUST_CRM === 'true';
+}
 
 export async function getPaymentReceipts(
     page: number = 1,
@@ -17,6 +43,20 @@ export async function getPaymentReceipts(
 ): Promise<{ receipts: WithId<CrmPaymentReceipt>[], total: number }> {
     const session = await getSession();
     if (!session?.user) return { receipts: [], total: 0 };
+
+    if (useRustCrm()) {
+        try {
+            const items = await crmPaymentReceiptsApi.list({ page, limit, q: query });
+            const arr = Array.isArray(items) ? items : [];
+            return {
+                receipts: JSON.parse(JSON.stringify(arr)) as WithId<CrmPaymentReceipt>[],
+                total: arr.length,
+            };
+        } catch (e) {
+            console.error('[getPaymentReceipts] rust path failed; falling back:', e);
+            // fall through
+        }
+    }
 
     try {
         const { db } = await connectToDatabase();
@@ -47,9 +87,21 @@ export async function getPaymentReceipts(
 }
 
 export async function getPaymentReceiptById(id: string): Promise<WithId<CrmPaymentReceipt> | null> {
-    if (!ObjectId.isValid(id)) return null;
     const session = await getSession();
     if (!session?.user) return null;
+
+    if (useRustCrm()) {
+        try {
+            const doc = await crmPaymentReceiptsApi.getById(id);
+            return doc ? (JSON.parse(JSON.stringify(doc)) as WithId<CrmPaymentReceipt>) : null;
+        } catch (e) {
+            if (e instanceof RustApiError && e.code === 'NOT_FOUND') return null;
+            console.error('[getPaymentReceiptById] rust path failed; falling back:', e);
+            // fall through
+        }
+    }
+
+    if (!ObjectId.isValid(id)) return null;
 
     try {
         const { db } = await connectToDatabase();
@@ -77,7 +129,40 @@ export async function updatePaymentReceipt(prevState: any, formData: FormData): 
     if (!session?.user) return { error: 'Access denied' };
 
     const receiptIdRaw = formData.get('receiptId') as string | null;
-    if (!receiptIdRaw || !ObjectId.isValid(receiptIdRaw)) {
+    if (!receiptIdRaw) {
+        return { error: 'Receipt id is required.' };
+    }
+
+    if (useRustCrm()) {
+        try {
+            const bankAccountIdRaw = formData.get('bankAccountId') as string | null;
+            const receiptDateRaw = formData.get('receiptDate') as string | null;
+            await crmPaymentReceiptsApi.update(receiptIdRaw, {
+                notes: (formData.get('notes') as string) ?? '',
+                bankAccountId: bankAccountIdRaw || undefined,
+                date: receiptDateRaw ? new Date(receiptDateRaw).toISOString() : undefined,
+            });
+            try {
+                await writeAuditEntry({
+                    tenantUserId: String(session.user._id),
+                    actorId: String(session.user._id),
+                    action: 'update',
+                    entityKind: 'paymentReceipt',
+                    entityId: receiptIdRaw,
+                });
+            } catch {
+                /* non-fatal */
+            }
+            revalidatePath('/dashboard/crm/sales/receipts');
+            revalidatePath(`/dashboard/crm/sales/receipts/${receiptIdRaw}/edit`);
+            return { message: 'Payment receipt updated successfully.' };
+        } catch (e) {
+            console.error('[updatePaymentReceipt] rust path failed; falling back:', e);
+            // fall through
+        }
+    }
+
+    if (!ObjectId.isValid(receiptIdRaw)) {
         return { error: 'Receipt id is required.' };
     }
 
@@ -109,6 +194,18 @@ export async function updatePaymentReceipt(prevState: any, formData: FormData): 
             return { error: 'Payment receipt not found or permission denied.' };
         }
 
+        try {
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'update',
+                entityKind: 'paymentReceipt',
+                entityId: receiptIdRaw,
+            });
+        } catch {
+            /* non-fatal */
+        }
+
         revalidatePath('/dashboard/crm/sales/receipts');
         revalidatePath(`/dashboard/crm/sales/receipts/${receiptIdRaw}/edit`);
         return { message: 'Payment receipt updated successfully.' };
@@ -120,6 +217,79 @@ export async function updatePaymentReceipt(prevState: any, formData: FormData): 
 export async function savePaymentReceipt(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
     const session = await getSession();
     if (!session?.user) return { error: 'Access denied' };
+
+    if (useRustCrm()) {
+        try {
+            const paymentRecords = JSON.parse(formData.get('paymentRecords') as string || '[]') as Array<any>;
+            const settledInvoicesRaw = JSON.parse(formData.get('settledInvoices') as string || '[]') as Array<any>;
+            const totalAmountReceived = paymentRecords.reduce(
+                (sum: number, record: any) => sum + Number(record.amount || 0),
+                0,
+            );
+
+            const applyTo: CrmInvoiceApplication[] = settledInvoicesRaw
+                .filter((s: any) => s.invoiceId)
+                .map((s: any) => ({
+                    invoiceId: String(s.invoiceId),
+                    amount: Number(s.amountSettled || 0),
+                }));
+
+            const firstRecord = paymentRecords[0] || {};
+            const modeMap: Record<string, CrmPaymentMode> = {
+                Cash: 'cash',
+                Cheque: 'cheque',
+                UPI: 'upi',
+                NEFT: 'neft',
+                RTGS: 'rtgs',
+                IMPS: 'imps',
+                Card: 'card',
+                Wallet: 'wallet',
+            };
+            const mode: CrmPaymentMode =
+                modeMap[firstRecord.method as string] || (firstRecord.method as CrmPaymentMode) || 'cash';
+
+            const dateRaw = (formData.get('receiptDate') as string | null) || '';
+            const date = dateRaw ? new Date(dateRaw).toISOString() : new Date().toISOString();
+
+            const fromKindRaw = (formData.get('fromKind') as string | null) || undefined;
+            const fromId = (formData.get('fromId') as string | null) || undefined;
+
+            const created = await crmPaymentReceiptsApi.create({
+                receiptNo:
+                    (formData.get('receiptNumber') as string | null) ||
+                    `PR-${Date.now().toString().slice(-5)}`,
+                date,
+                clientId: (formData.get('accountId') as string | null) || '',
+                mode,
+                bankAccountId: (formData.get('bankAccountId') as string | null) || '',
+                amount: totalAmountReceived,
+                currency: (formData.get('currency') as string | null) || 'INR',
+                applyTo,
+                notes: (formData.get('notes') as string | null) || undefined,
+                fromKind: fromKindRaw as any,
+                fromId,
+            });
+
+            try {
+                await writeAuditEntry({
+                    tenantUserId: String(session.user._id),
+                    actorId: String(session.user._id),
+                    action: 'create',
+                    entityKind: 'paymentReceipt',
+                    entityId: (created as any)._id?.toString() || '',
+                });
+            } catch {
+                /* non-fatal */
+            }
+
+            revalidatePath('/dashboard/crm/sales/receipts');
+            revalidatePath('/dashboard/crm/sales/invoices');
+            return { message: 'Payment receipt saved successfully.' };
+        } catch (e) {
+            console.error('[savePaymentReceipt] rust path failed; falling back:', e);
+            // fall through
+        }
+    }
 
     try {
         const paymentRecords = JSON.parse(formData.get('paymentRecords') as string || '[]');
@@ -246,6 +416,18 @@ export async function savePaymentReceipt(prevState: any, formData: FormData): Pr
             });
         } finally {
             await dbSession.endSession();
+        }
+
+        try {
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'create',
+                entityKind: 'paymentReceipt',
+                entityId: newReceiptId.toString(),
+            });
+        } catch {
+            /* non-fatal */
         }
 
         // Best-effort back-link onto the primary parent doc.

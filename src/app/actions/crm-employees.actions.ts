@@ -1,6 +1,24 @@
 
 'use server';
 
+/**
+ * CRM Employees / Departments / Designations server actions.
+ *
+ * **Dual implementation (departments + designations only):**
+ *  - When `USE_RUST_CRM === 'true'`, the department + designation actions
+ *    delegate to the Rust BFF (`/v1/crm/departments`, `/v1/crm/designations`)
+ *    via `src/lib/rust-client/crm-departments.ts`.
+ *  - Otherwise (default), the legacy direct-Mongo path runs.
+ *  - On any `RustApiError`, we log and fall back to the legacy path so
+ *    users are never blocked by a transient BFF issue.
+ *
+ * Employee-related actions (`getCrmEmployees`, `saveCrmEmployee`, …) remain
+ * direct-Mongo; they are NOT yet wired through the Rust BFF.
+ *
+ * Export shapes are identical across both paths so the existing pages at
+ * `/dashboard/hrm/payroll/{departments,designations}` keep working.
+ */
+
 import { revalidatePath } from 'next/cache';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
@@ -9,11 +27,64 @@ import { getErrorMessage } from '@/lib/utils';
 import type { CrmDepartment, CrmDesignation, CrmEmployee } from '@/lib/definitions';
 import { applyCustomFieldsToEntity } from '@/app/actions/worksuite/meta.actions';
 import { writeAuditEntry } from '@/lib/audit-log';
+import {
+    crmDepartmentsApi,
+    crmDesignationsApi,
+    type CrmDepartmentDoc,
+    type CrmDesignationDoc,
+} from '@/lib/rust-client/crm-departments';
+import { RustApiError } from '@/lib/rust-client/fetcher';
+
+function useRustCrm(): boolean {
+    return process.env.USE_RUST_CRM === 'true';
+}
+
+/* ─── Rust-shape → legacy snake_case adapters ─────────────────────────── */
+//
+// The legacy direct-Mongo path stored `parent_department_id`, `manager_id`,
+// `department_id` (snake_case). Consumer pages still read those snake_case
+// keys via `(dept as any).parent_department_id`. The Rust shape uses
+// camelCase (`parentDepartmentId`, `headId`, `departmentId`). To keep the
+// pages working we expose BOTH spellings on every returned row.
+
+function rustDeptToLegacy(doc: CrmDepartmentDoc): WithId<CrmDepartment> {
+    const out: Record<string, unknown> = {
+        ...doc,
+        _id: doc._id as unknown as ObjectId,
+        userId: doc.userId as unknown as ObjectId,
+        // snake_case aliases for the existing consumer page.
+        parent_department_id: doc.parentDepartmentId,
+        manager_id: doc.headId,
+    };
+    return out as unknown as WithId<CrmDepartment>;
+}
+
+function rustDesigToLegacy(doc: CrmDesignationDoc): WithId<CrmDesignation> {
+    const out: Record<string, unknown> = {
+        ...doc,
+        _id: doc._id as unknown as ObjectId,
+        userId: doc.userId as unknown as ObjectId,
+        // snake_case aliases for the existing consumer page.
+        department_id: doc.departmentId,
+    };
+    return out as unknown as WithId<CrmDesignation>;
+}
 
 // --- Departments ---
 export async function getCrmDepartments(): Promise<WithId<CrmDepartment>[]> {
     const session = await getSession();
     if (!session?.user) return [];
+
+    if (useRustCrm()) {
+        try {
+            // The Rust list endpoint returns a flat array (`Vec<Department>`).
+            const items = await crmDepartmentsApi.list({ limit: 100 });
+            return items.map(rustDeptToLegacy);
+        } catch (e) {
+            console.error('[getCrmDepartments] rust path failed; falling back:', e);
+            // fall through
+        }
+    }
 
     try {
         const { db } = await connectToDatabase();
@@ -38,13 +109,68 @@ export async function saveCrmDepartment(_prev: any, formData: FormData): Promise
 
     const parentRaw = formData.get('parent_department_id') as string | null;
     const managerRaw = formData.get('manager_id') as string | null;
+    const description = (formData.get('description') as string | null) || undefined;
+
+    if (useRustCrm()) {
+        try {
+            const payload = {
+                name,
+                description,
+                parentDepartmentId:
+                    parentRaw && ObjectId.isValid(parentRaw) ? parentRaw : undefined,
+                // Legacy `manager_id` maps to the Rust `headId` field.
+                headId:
+                    managerRaw && ObjectId.isValid(managerRaw) ? managerRaw : undefined,
+            };
+
+            if (_id && ObjectId.isValid(_id)) {
+                const updated = await crmDepartmentsApi.update(_id, payload);
+                await writeAuditEntry({
+                    tenantUserId: String(session.user._id),
+                    actorId: String(session.user._id),
+                    action: 'update',
+                    entityKind: 'department',
+                    entityId: _id,
+                });
+                revalidatePath('/dashboard/hrm/payroll/departments');
+                return {
+                    message: 'Department updated successfully.',
+                    newDepartment: rustDeptToLegacy(updated),
+                };
+            }
+
+            const created = await crmDepartmentsApi.create(payload);
+            const createdId = created._id ?? '';
+            if (createdId) {
+                await writeAuditEntry({
+                    tenantUserId: String(session.user._id),
+                    actorId: String(session.user._id),
+                    action: 'create',
+                    entityKind: 'department',
+                    entityId: String(createdId),
+                });
+            }
+            revalidatePath('/dashboard/hrm/payroll/departments');
+            return {
+                message: 'Department added successfully.',
+                newDepartment: rustDeptToLegacy(created),
+            };
+        } catch (e) {
+            if (e instanceof RustApiError) {
+                console.error('[saveCrmDepartment] rust path failed; falling back:', e);
+                // fall through to legacy path
+            } else {
+                return { error: getErrorMessage(e) };
+            }
+        }
+    }
 
     try {
         const { db } = await connectToDatabase();
         const data: Record<string, any> = {
             userId: new ObjectId(session.user._id),
             name,
-            description: (formData.get('description') as string | null) || undefined,
+            description,
             parent_department_id: parentRaw && ObjectId.isValid(parentRaw) ? new ObjectId(parentRaw) : undefined,
             manager_id: managerRaw && ObjectId.isValid(managerRaw) ? new ObjectId(managerRaw) : undefined,
             updatedAt: new Date(),
@@ -55,12 +181,26 @@ export async function saveCrmDepartment(_prev: any, formData: FormData): Promise
                 { _id: new ObjectId(_id), userId: new ObjectId(session.user._id) },
                 { $set: data },
             );
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'update',
+                entityKind: 'department',
+                entityId: _id,
+            });
             revalidatePath('/dashboard/hrm/payroll/departments');
             return { message: 'Department updated successfully.' };
         }
 
         data.createdAt = new Date();
         const result = await db.collection('crm_departments').insertOne(data);
+        await writeAuditEntry({
+            tenantUserId: String(session.user._id),
+            actorId: String(session.user._id),
+            action: 'create',
+            entityKind: 'department',
+            entityId: String(result.insertedId),
+        });
         revalidatePath('/dashboard/hrm/payroll/departments');
         return { message: 'Department added successfully.', newDepartment: { ...data, _id: result.insertedId } };
     } catch (e: any) {
@@ -72,9 +212,38 @@ export async function deleteCrmDepartment(id: string): Promise<{ success: boolea
     const session = await getSession();
     if (!session?.user) return { success: false, error: 'Access denied' };
 
+    if (useRustCrm()) {
+        try {
+            await crmDepartmentsApi.delete(id);
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'delete',
+                entityKind: 'department',
+                entityId: id,
+            });
+            revalidatePath('/dashboard/hrm/payroll/departments');
+            return { success: true };
+        } catch (e) {
+            if (e instanceof RustApiError) {
+                console.error('[deleteCrmDepartment] rust path failed; falling back:', e);
+                // fall through
+            } else {
+                return { success: false, error: getErrorMessage(e) };
+            }
+        }
+    }
+
     try {
         const { db } = await connectToDatabase();
         await db.collection('crm_departments').deleteOne({ _id: new ObjectId(id), userId: new ObjectId(session.user._id) });
+        await writeAuditEntry({
+            tenantUserId: String(session.user._id),
+            actorId: String(session.user._id),
+            action: 'delete',
+            entityKind: 'department',
+            entityId: id,
+        });
         revalidatePath('/dashboard/hrm/payroll/departments');
         return { success: true };
     } catch (e: any) {
@@ -86,6 +255,16 @@ export async function deleteCrmDepartment(id: string): Promise<{ success: boolea
 export async function getCrmDesignations(): Promise<WithId<CrmDesignation>[]> {
     const session = await getSession();
     if (!session?.user) return [];
+
+    if (useRustCrm()) {
+        try {
+            const items = await crmDesignationsApi.list({ limit: 100 });
+            return items.map(rustDesigToLegacy);
+        } catch (e) {
+            console.error('[getCrmDesignations] rust path failed; falling back:', e);
+            // fall through
+        }
+    }
 
     try {
         const { db } = await connectToDatabase();
@@ -109,16 +288,78 @@ export async function saveCrmDesignation(_prev: any, formData: FormData): Promis
     if (!name) return { error: 'Designation name is required.' };
 
     const departmentIdRaw = formData.get('department_id') as string | null;
-    const level = (formData.get('level') as string | null) || undefined;
+    const levelRaw = (formData.get('level') as string | null) || undefined;
+    const description = (formData.get('description') as string | null) || undefined;
+
+    if (useRustCrm()) {
+        try {
+            // Rust expects `level` as a u8; coerce here, drop unparseable values.
+            let levelNum: number | undefined;
+            if (levelRaw != null && levelRaw !== '') {
+                const n = Number(levelRaw);
+                levelNum = Number.isFinite(n) ? Math.max(0, Math.floor(n)) : undefined;
+            }
+
+            const payload = {
+                name,
+                description,
+                departmentId:
+                    departmentIdRaw && ObjectId.isValid(departmentIdRaw)
+                        ? departmentIdRaw
+                        : undefined,
+                level: levelNum,
+            };
+
+            if (_id && ObjectId.isValid(_id)) {
+                const updated = await crmDesignationsApi.update(_id, payload);
+                await writeAuditEntry({
+                    tenantUserId: String(session.user._id),
+                    actorId: String(session.user._id),
+                    action: 'update',
+                    entityKind: 'designation',
+                    entityId: _id,
+                });
+                revalidatePath('/dashboard/hrm/payroll/designations');
+                return {
+                    message: 'Designation updated successfully.',
+                    newDesignation: rustDesigToLegacy(updated),
+                };
+            }
+
+            const created = await crmDesignationsApi.create(payload);
+            const createdId = created._id ?? '';
+            if (createdId) {
+                await writeAuditEntry({
+                    tenantUserId: String(session.user._id),
+                    actorId: String(session.user._id),
+                    action: 'create',
+                    entityKind: 'designation',
+                    entityId: String(createdId),
+                });
+            }
+            revalidatePath('/dashboard/hrm/payroll/designations');
+            return {
+                message: 'Designation added successfully.',
+                newDesignation: rustDesigToLegacy(created),
+            };
+        } catch (e) {
+            if (e instanceof RustApiError) {
+                console.error('[saveCrmDesignation] rust path failed; falling back:', e);
+                // fall through
+            } else {
+                return { error: getErrorMessage(e) };
+            }
+        }
+    }
 
     try {
         const { db } = await connectToDatabase();
         const data: Record<string, any> = {
             userId: new ObjectId(session.user._id),
             name,
-            description: (formData.get('description') as string | null) || undefined,
+            description,
             department_id: departmentIdRaw && ObjectId.isValid(departmentIdRaw) ? new ObjectId(departmentIdRaw) : undefined,
-            level,
+            level: levelRaw,
             updatedAt: new Date(),
         };
 
@@ -127,12 +368,26 @@ export async function saveCrmDesignation(_prev: any, formData: FormData): Promis
                 { _id: new ObjectId(_id), userId: new ObjectId(session.user._id) },
                 { $set: data },
             );
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'update',
+                entityKind: 'designation',
+                entityId: _id,
+            });
             revalidatePath('/dashboard/hrm/payroll/designations');
             return { message: 'Designation updated successfully.' };
         }
 
         data.createdAt = new Date();
         const result = await db.collection('crm_designations').insertOne(data);
+        await writeAuditEntry({
+            tenantUserId: String(session.user._id),
+            actorId: String(session.user._id),
+            action: 'create',
+            entityKind: 'designation',
+            entityId: String(result.insertedId),
+        });
         revalidatePath('/dashboard/hrm/payroll/designations');
         return { message: 'Designation added successfully.', newDesignation: { ...data, _id: result.insertedId } };
     } catch (e: any) {
@@ -144,9 +399,38 @@ export async function deleteCrmDesignation(id: string): Promise<{ success: boole
     const session = await getSession();
     if (!session?.user) return { success: false, error: 'Access denied' };
 
+    if (useRustCrm()) {
+        try {
+            await crmDesignationsApi.delete(id);
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'delete',
+                entityKind: 'designation',
+                entityId: id,
+            });
+            revalidatePath('/dashboard/hrm/payroll/designations');
+            return { success: true };
+        } catch (e) {
+            if (e instanceof RustApiError) {
+                console.error('[deleteCrmDesignation] rust path failed; falling back:', e);
+                // fall through
+            } else {
+                return { success: false, error: getErrorMessage(e) };
+            }
+        }
+    }
+
     try {
         const { db } = await connectToDatabase();
         await db.collection('crm_designations').deleteOne({ _id: new ObjectId(id), userId: new ObjectId(session.user._id) });
+        await writeAuditEntry({
+            tenantUserId: String(session.user._id),
+            actorId: String(session.user._id),
+            action: 'delete',
+            entityKind: 'designation',
+            entityId: id,
+        });
         revalidatePath('/dashboard/hrm/payroll/designations');
         return { success: true };
     } catch (e: any) {

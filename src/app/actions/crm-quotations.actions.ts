@@ -1,14 +1,36 @@
-
 'use server';
 
+/**
+ * CRM Quotation server actions.
+ *
+ * **Dual implementation:**
+ *  - When `USE_RUST_CRM === 'true'`, the read/save paths delegate to
+ *    `/v1/crm/quotations` on the Rust BFF via
+ *    `src/lib/rust-client/crm-quotations.ts`.
+ *  - Otherwise (default), the legacy direct-Mongo path runs.
+ *
+ * Export shapes are identical across both paths so the pages at
+ * `/dashboard/crm/sales/quotations/**` keep working without changes.
+ */
+
 import { revalidatePath } from 'next/cache';
-import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
+import { type Db, ObjectId, type WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
+import { writeAuditEntry } from '@/lib/audit-log';
 import type { CrmQuotation, LineageKind, LineageRef } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import { appendLineage, buildLineageFromParent } from '@/lib/lineage';
 import { applyCustomFieldsToEntity } from '@/app/actions/worksuite/meta.actions';
+import {
+    crmQuotationsApi,
+    type CrmQuotationLineItem,
+} from '@/lib/rust-client/crm-quotations';
+import { RustApiError } from '@/lib/rust-client/fetcher';
+
+function useRustCrm(): boolean {
+    return process.env.USE_RUST_CRM === 'true';
+}
 
 async function getNextQuotationNumber(db: Db, userId: ObjectId): Promise<string> {
     const lastQuotation = await db.collection<CrmQuotation>('crm_quotations')
@@ -47,6 +69,20 @@ export async function getQuotations(
     const session = await getSession();
     if (!session?.user) return { quotations: [], total: 0 };
 
+    if (useRustCrm()) {
+        try {
+            const items = await crmQuotationsApi.list({ page, limit, q: query });
+            const arr = Array.isArray(items) ? items : [];
+            return {
+                quotations: JSON.parse(JSON.stringify(arr)) as WithId<CrmQuotation>[],
+                total: arr.length,
+            };
+        } catch (e) {
+            console.error('[getQuotations] rust path failed; falling back:', e);
+            // fall through
+        }
+    }
+
     try {
         const { db } = await connectToDatabase();
         const userObjectId = new ObjectId(session.user._id);
@@ -78,6 +114,18 @@ export async function getQuotations(
 export async function getQuotationById(quotationId: string): Promise<WithId<CrmQuotation> | null> {
     const session = await getSession();
     if (!session?.user) return null;
+
+    if (useRustCrm()) {
+        try {
+            const doc = await crmQuotationsApi.getById(quotationId);
+            return doc ? (JSON.parse(JSON.stringify(doc)) as WithId<CrmQuotation>) : null;
+        } catch (e) {
+            if (e instanceof RustApiError && e.code === 'NOT_FOUND') return null;
+            console.error('[getQuotationById] rust path failed; falling back:', e);
+            // fall through
+        }
+    }
+
     if (!ObjectId.isValid(quotationId)) return null;
 
     try {
@@ -97,6 +145,74 @@ export async function getQuotationById(quotationId: string): Promise<WithId<CrmQ
 export async function saveQuotation(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
     const session = await getSession();
     if (!session?.user) return { error: 'Access denied' };
+
+    if (useRustCrm()) {
+        try {
+            const lineItemsLegacy = JSON.parse((formData.get('lineItems') as string) || '[]') as Array<any>;
+            const items: CrmQuotationLineItem[] = lineItemsLegacy.map((li: any) => ({
+                itemId: li.itemId,
+                description: li.description ?? li.name,
+                qty: Number(li.quantity ?? li.qty ?? 0),
+                rate: Number(li.rate ?? 0),
+                total: Number(li.total ?? Number(li.quantity ?? 0) * Number(li.rate ?? 0)),
+            }));
+
+            const quotationNo = (formData.get('quotationNumber') as string | null) ||
+                `QUO-${Date.now().toString().slice(-5)}`;
+            const dateRaw = (formData.get('quotationDate') as string | null) || '';
+            const date = dateRaw ? new Date(dateRaw).toISOString() : new Date().toISOString();
+            const validTillRaw = (formData.get('validTillDate') as string | null) || '';
+            const validUntil = validTillRaw ? new Date(validTillRaw).toISOString() : date;
+            const clientId = (formData.get('accountId') as string | null) || '';
+            const currency = (formData.get('currency') as string | null) || 'INR';
+            const notes = (formData.get('notes') as string | null) || undefined;
+            const fromKindRaw = (formData.get('fromKind') as string | null) || undefined;
+            const fromId = (formData.get('fromId') as string | null) || undefined;
+
+            const created = await crmQuotationsApi.create({
+                quotationNo,
+                date,
+                validUntil,
+                clientId,
+                currency,
+                items,
+                notes,
+                fromKind: fromKindRaw as any,
+                fromId,
+            });
+            const id = (created as any)._id?.toString() || '';
+
+            try {
+                await writeAuditEntry({
+                    tenantUserId: String(session.user._id),
+                    actorId: String(session.user._id),
+                    action: 'create',
+                    entityKind: 'quotation',
+                    entityId: id,
+                });
+            } catch {
+                /* non-fatal */
+            }
+
+            const customFieldsRaw = formData.get('customFields') as string | null;
+            if (customFieldsRaw && id) {
+                try {
+                    const parsed = JSON.parse(customFieldsRaw);
+                    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+                        await applyCustomFieldsToEntity('quotation', id, parsed as Record<string, unknown>);
+                    }
+                } catch {
+                    /* non-fatal */
+                }
+            }
+
+            revalidatePath('/dashboard/crm/sales/quotations');
+            return { message: 'Quotation saved successfully.' };
+        } catch (e) {
+            console.error('[saveQuotation] rust path failed; falling back:', e);
+            // fall through
+        }
+    }
 
     try {
         const { db } = await connectToDatabase();
@@ -196,6 +312,18 @@ export async function saveQuotation(prevState: any, formData: FormData): Promise
             createdAt: new Date(),
             updatedAt: new Date()
         } as any);
+
+        try {
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'create',
+                entityKind: 'quotation',
+                entityId: insertResult.insertedId.toString(),
+            });
+        } catch {
+            /* non-fatal */
+        }
 
         // Custom fields (Worksuite §13). The dialog wires a JSON-encoded
         // map under `customFields`; persist via the shared upsert helper.
