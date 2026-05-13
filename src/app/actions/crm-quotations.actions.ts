@@ -27,6 +27,7 @@ import {
     type CrmQuotationLineItem,
 } from '@/lib/rust-client/crm-quotations';
 import { RustApiError } from '@/lib/rust-client/fetcher';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
 
 function useRustCrm(): boolean {
     return process.env.USE_RUST_CRM === 'true';
@@ -79,6 +80,7 @@ export async function getQuotations(
             };
         } catch (e) {
             console.error('[getQuotations] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'quotation', op: 'list', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through
         }
     }
@@ -122,6 +124,7 @@ export async function getQuotationById(quotationId: string): Promise<WithId<CrmQ
         } catch (e) {
             if (e instanceof RustApiError && e.code === 'NOT_FOUND') return null;
             console.error('[getQuotationById] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'quotation', op: 'get', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through
         }
     }
@@ -210,6 +213,7 @@ export async function saveQuotation(prevState: any, formData: FormData): Promise
             return { message: 'Quotation saved successfully.' };
         } catch (e) {
             console.error('[saveQuotation] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'quotation', op: 'create', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through
         }
     }

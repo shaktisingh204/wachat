@@ -22,6 +22,7 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { itemApi, type CrmItemDoc } from '@/lib/rust-client/crm-items';
 import { RustApiError } from '@/lib/rust-client/fetcher';
 import { getErrorMessage } from '@/lib/utils';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
 
 function useRustCrm(): boolean {
     return process.env.USE_RUST_CRM === 'true';
@@ -63,6 +64,7 @@ export async function getCrmProductById(
             return doc ? rustDocToLegacy(doc) : null;
         } catch (e) {
             console.error('[getCrmProductById] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'item', op: 'get', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through
         }
     }
@@ -105,6 +107,7 @@ export async function getCrmProducts(
             };
         } catch (e) {
             console.error('[getCrmProducts] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'item', op: 'list', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through
         }
     }
@@ -282,6 +285,7 @@ export async function saveCrmProduct(
         } catch (e) {
             const msg = e instanceof RustApiError ? e.message : getErrorMessage(e);
             console.error('[saveCrmProduct] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'item', op: isEditing ? 'update' : 'create', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // Surface SKU-uniqueness validation errors cleanly.
             if (e instanceof RustApiError && e.status === 400) {
                 return { error: msg || 'Validation failed.' };
@@ -431,6 +435,7 @@ export async function deleteCrmProduct(
             return { success: true };
         } catch (e) {
             console.error('[deleteCrmProduct] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'item', op: 'delete', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through
         }
     }

@@ -35,6 +35,7 @@ import {
 } from '@/lib/rust-client/crm-departments';
 import { RustApiError } from '@/lib/rust-client/fetcher';
 import { requirePermission } from '@/lib/rbac-server';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
 
 function useRustCrm(): boolean {
     return process.env.USE_RUST_CRM === 'true';
@@ -83,6 +84,7 @@ export async function getCrmDepartments(): Promise<WithId<CrmDepartment>[]> {
             return items.map(rustDeptToLegacy);
         } catch (e) {
             console.error('[getCrmDepartments] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'department', op: 'list', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through
         }
     }
@@ -159,6 +161,7 @@ export async function saveCrmDepartment(_prev: any, formData: FormData): Promise
         } catch (e) {
             if (e instanceof RustApiError) {
                 console.error('[saveCrmDepartment] rust path failed; falling back:', e);
+                recordRustFallback({ entity: 'department', op: _id && ObjectId.isValid(_id) ? 'update' : 'create', errorCode: e.code, status: e.status });
                 // fall through to legacy path
             } else {
                 return { error: getErrorMessage(e) };
@@ -228,6 +231,7 @@ export async function deleteCrmDepartment(id: string): Promise<{ success: boolea
         } catch (e) {
             if (e instanceof RustApiError) {
                 console.error('[deleteCrmDepartment] rust path failed; falling back:', e);
+                recordRustFallback({ entity: 'department', op: 'delete', errorCode: e.code, status: e.status });
                 // fall through
             } else {
                 return { success: false, error: getErrorMessage(e) };
@@ -263,6 +267,7 @@ export async function getCrmDesignations(): Promise<WithId<CrmDesignation>[]> {
             return items.map(rustDesigToLegacy);
         } catch (e) {
             console.error('[getCrmDesignations] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'designation', op: 'list', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through
         }
     }
@@ -346,6 +351,7 @@ export async function saveCrmDesignation(_prev: any, formData: FormData): Promis
         } catch (e) {
             if (e instanceof RustApiError) {
                 console.error('[saveCrmDesignation] rust path failed; falling back:', e);
+                recordRustFallback({ entity: 'designation', op: _id && ObjectId.isValid(_id) ? 'update' : 'create', errorCode: e.code, status: e.status });
                 // fall through
             } else {
                 return { error: getErrorMessage(e) };
@@ -415,6 +421,7 @@ export async function deleteCrmDesignation(id: string): Promise<{ success: boole
         } catch (e) {
             if (e instanceof RustApiError) {
                 console.error('[deleteCrmDesignation] rust path failed; falling back:', e);
+                recordRustFallback({ entity: 'designation', op: 'delete', errorCode: e.code, status: e.status });
                 // fall through
             } else {
                 return { success: false, error: getErrorMessage(e) };

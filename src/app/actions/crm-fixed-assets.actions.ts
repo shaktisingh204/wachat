@@ -23,6 +23,7 @@ import {
     type CrmFixedAssetDoc,
 } from '@/lib/rust-client/crm-fixed-assets';
 import { RustApiError } from '@/lib/rust-client/fetcher';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
 import { revalidatePath } from 'next/cache';
 
 function useRustCrm(): boolean {
@@ -55,6 +56,7 @@ export async function getFixedAssetById(
         } catch (e) {
             if (e instanceof RustApiError && e.status === 404) return null;
             console.error('[getFixedAssetById] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'fixed_asset', op: 'get', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through
         }
     }
@@ -172,6 +174,7 @@ export async function saveFixedAsset(
       return { message: 'Fixed asset saved successfully.', id };
     } catch (e) {
       console.error('[saveFixedAsset] rust path failed; falling back:', e);
+      recordRustFallback({ entity: 'fixed_asset', op: 'create', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
       // fall through to legacy on failure so users aren't blocked
     }
   }

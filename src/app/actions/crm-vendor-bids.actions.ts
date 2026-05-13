@@ -1,5 +1,19 @@
 'use server';
 
+/**
+ * CRM Vendor Bid server actions.
+ *
+ * **Dual implementation:**
+ *  - When `USE_RUST_CRM === 'true'`, mutations delegate to
+ *    `/v1/crm/vendor-bids` on the Rust BFF via
+ *    `src/lib/rust-client/crm-vendor-bids.ts`.
+ *  - Otherwise (default), the legacy direct-Mongo path runs against
+ *    `crm_vendor_bids`.
+ *
+ * Export shapes are identical across both paths so the existing
+ * `/dashboard/crm/purchase/vendor-bids/**` pages keep working.
+ */
+
 import { revalidatePath } from 'next/cache';
 import { ObjectId, type WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
@@ -7,6 +21,39 @@ import { getSession } from '@/app/actions/user.actions';
 import type { CrmVendorBid, CrmRfq, LineageRef } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import { appendLineage, buildLineageFromParent } from '@/lib/lineage';
+import { writeAuditEntry } from '@/lib/audit-log';
+import { requirePermission } from '@/lib/rbac-server';
+import {
+    crmVendorBidsApi,
+    type CrmVendorBidDoc,
+    type CrmVendorBidLineItem,
+} from '@/lib/rust-client/crm-vendor-bids';
+import { RustApiError } from '@/lib/rust-client/fetcher';
+
+function useRustCrm(): boolean {
+    return process.env.USE_RUST_CRM === 'true';
+}
+
+/** Map the Rust DTO to the loose WithId<CrmVendorBid> legacy callers expect. */
+function rustDocToLegacy(doc: CrmVendorBidDoc): WithId<CrmVendorBid> {
+    const serialized = JSON.parse(JSON.stringify(doc)) as Record<string, unknown>;
+    // legacy field aliases used by older list views
+    if (
+        serialized.totals &&
+        typeof (serialized.totals as any).total === 'number' &&
+        serialized.total == null
+    ) {
+        serialized.total = (serialized.totals as any).total;
+    }
+    if (
+        serialized.totals &&
+        typeof (serialized.totals as any).subTotal === 'number' &&
+        serialized.subTotal == null
+    ) {
+        serialized.subTotal = (serialized.totals as any).subTotal;
+    }
+    return serialized as WithId<CrmVendorBid>;
+}
 
 /**
  * List vendor bids for the current user, optionally filtered by RFQ.
@@ -15,6 +62,20 @@ import { appendLineage, buildLineageFromParent } from '@/lib/lineage';
 export async function getVendorBids(rfqId?: string): Promise<WithId<CrmVendorBid>[]> {
     const session = await getSession();
     if (!session?.user) return [];
+
+    if (useRustCrm()) {
+        try {
+            const bids = await crmVendorBidsApi.list({
+                page: 0,
+                limit: 200,
+                ...(rfqId ? { rfqId } : {}),
+            });
+            return bids.map(rustDocToLegacy);
+        } catch (e) {
+            console.error('[getVendorBids] rust path failed; falling back:', e);
+            // fall through
+        }
+    }
 
     try {
         const { db } = await connectToDatabase();
@@ -41,6 +102,19 @@ export async function getVendorBids(rfqId?: string): Promise<WithId<CrmVendorBid
 export async function getVendorBidById(bidId: string): Promise<WithId<CrmVendorBid> | null> {
     const session = await getSession();
     if (!session?.user) return null;
+    if (!bidId) return null;
+
+    if (useRustCrm()) {
+        try {
+            const doc = await crmVendorBidsApi.getById(bidId);
+            return doc ? rustDocToLegacy(doc) : null;
+        } catch (e) {
+            if (e instanceof RustApiError && e.status === 404) return null;
+            console.error('[getVendorBidById] rust path failed; falling back:', e);
+            // fall through
+        }
+    }
+
     if (!ObjectId.isValid(bidId)) return null;
 
     try {
@@ -72,23 +146,122 @@ export async function saveVendorBid(
     const session = await getSession();
     if (!session?.user) return { error: 'Access denied' };
 
+    const guard = await requirePermission('crm_vendor_bid', 'create');
+    if (!guard.ok) return { error: guard.error };
+
+    const rfqIdRaw = formData.get('rfqId') as string | null;
+    const vendorIdRaw = formData.get('vendorId') as string | null;
+    const currency = (formData.get('currency') as string | null) || '';
+
+    if (!rfqIdRaw) {
+        return { error: 'A valid RFQ id is required.' };
+    }
+    if (!vendorIdRaw) {
+        return { error: 'A valid vendor id is required.' };
+    }
+    if (!currency) {
+        return { error: 'Currency is required.' };
+    }
+
+    if (useRustCrm()) {
+        try {
+            // Parse line items.
+            const itemsRaw = formData.get('items') as string | null;
+            let parsedItems: Array<{
+                itemId: string;
+                qty: number;
+                rate: number;
+                leadTimeDays?: number;
+                notes?: string;
+            }> = [];
+            try {
+                const parsed = JSON.parse(itemsRaw || '[]');
+                if (Array.isArray(parsed)) parsedItems = parsed;
+            } catch {
+                return { error: 'Items payload is not valid JSON.' };
+            }
+            if (parsedItems.length === 0) {
+                return { error: 'At least one bid line item is required.' };
+            }
+
+            const items: CrmVendorBidLineItem[] = parsedItems.map((l) => ({
+                itemId: String(l.itemId),
+                qty: Number(l.qty) || 0,
+                rate: Number(l.rate) || 0,
+                ...(l.leadTimeDays !== undefined ? { leadTimeDays: Number(l.leadTimeDays) || 0 } : {}),
+                ...(l.notes ? { notes: l.notes } : {}),
+            }));
+
+            const subTotal = items.reduce((s, l) => s + l.qty * l.rate, 0);
+            const total = subTotal;
+
+            const attachmentsRaw = formData.get('attachments') as string | null;
+            let attachments: { fileId: string }[] | undefined;
+            if (attachmentsRaw) {
+                try {
+                    const parsed = JSON.parse(attachmentsRaw);
+                    if (Array.isArray(parsed)) {
+                        attachments = parsed
+                            .filter((u: any): u is string => typeof u === 'string' && !!u)
+                            .map((id) => ({ fileId: id }));
+                    }
+                } catch {
+                    // ignore
+                }
+            }
+
+            const terms = (formData.get('terms') as string | null) || undefined;
+            const vendorName = (formData.get('vendorName') as string | null) || undefined;
+            const projectId = (formData.get('projectId') as string | null) || undefined;
+
+            const created = await crmVendorBidsApi.create({
+                rfqId: rfqIdRaw,
+                vendorId: vendorIdRaw,
+                items,
+                totals: { subTotal, total },
+                currency,
+                ...(terms ? { terms } : {}),
+                ...(vendorName ? { vendorName } : {}),
+                ...(attachments && attachments.length ? { attachments } : {}),
+                ...(projectId ? { projectId } : {}),
+            });
+
+            const id = String(created._id ?? '');
+            try {
+                await writeAuditEntry({
+                    tenantUserId: String(session.user._id),
+                    actorId: String(session.user._id),
+                    action: 'create',
+                    entityKind: 'vendor_bid',
+                    entityId: id,
+                });
+            } catch {
+                /* non-fatal */
+            }
+
+            revalidatePath('/dashboard/crm/purchase/vendor-bids');
+            revalidatePath('/dashboard/crm/purchase/rfqs');
+            return { message: 'Vendor bid saved successfully.' };
+        } catch (e) {
+            if (e instanceof RustApiError) {
+                console.error('[saveVendorBid] rust path failed; falling back:', e);
+            } else {
+                console.error('[saveVendorBid] rust path failed; falling back:', e);
+            }
+            // fall through to legacy
+        }
+    }
+
+    if (!ObjectId.isValid(rfqIdRaw)) {
+        return { error: 'A valid RFQ id is required.' };
+    }
+    if (!ObjectId.isValid(vendorIdRaw)) {
+        return { error: 'A valid vendor id is required.' };
+    }
+
     try {
         const { db } = await connectToDatabase();
         const userObjectId = new ObjectId(session.user._id);
-
-        const rfqIdRaw = formData.get('rfqId') as string | null;
-        const vendorIdRaw = formData.get('vendorId') as string | null;
-        const currency = formData.get('currency') as string | null;
-
-        if (!rfqIdRaw || !ObjectId.isValid(rfqIdRaw)) {
-            return { error: 'A valid RFQ id is required.' };
-        }
-        if (!vendorIdRaw || !ObjectId.isValid(vendorIdRaw)) {
-            return { error: 'A valid vendor id is required.' };
-        }
-        if (!currency) {
-            return { error: 'Currency is required.' };
-        }
 
         // Parse line items.
         const itemsRaw = formData.get('items') as string | null;
@@ -195,6 +368,18 @@ export async function saveVendorBid(
             // non-fatal
         }
 
+        try {
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'create',
+                entityKind: 'vendor_bid',
+                entityId: insertResult.insertedId.toString(),
+            });
+        } catch {
+            /* non-fatal */
+        }
+
         revalidatePath('/dashboard/crm/purchase/vendor-bids');
         revalidatePath('/dashboard/crm/purchase/rfqs');
         return { message: 'Vendor bid saved successfully.' };
@@ -214,6 +399,35 @@ export async function updateVendorBidStatus(
 ): Promise<{ message?: string; error?: string }> {
     const session = await getSession();
     if (!session?.user) return { error: 'Access denied' };
+
+    const guard = await requirePermission('crm_vendor_bid', 'edit');
+    if (!guard.ok) return { error: guard.error };
+
+    if (!bidId) return { error: 'Invalid bid id.' };
+
+    if (useRustCrm()) {
+        try {
+            await crmVendorBidsApi.update(bidId, { status });
+            try {
+                await writeAuditEntry({
+                    tenantUserId: String(session.user._id),
+                    actorId: String(session.user._id),
+                    action: 'status_change',
+                    entityKind: 'vendor_bid',
+                    entityId: bidId,
+                });
+            } catch {
+                /* non-fatal */
+            }
+            revalidatePath('/dashboard/crm/purchase/vendor-bids');
+            revalidatePath('/dashboard/crm/purchase/rfqs');
+            return { message: 'Vendor bid status updated.' };
+        } catch (e) {
+            console.error('[updateVendorBidStatus] rust path failed; falling back:', e);
+            // fall through
+        }
+    }
+
     if (!ObjectId.isValid(bidId)) return { error: 'Invalid bid id.' };
 
     try {
@@ -248,6 +462,18 @@ export async function updateVendorBidStatus(
             }
         }
 
+        try {
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'status_change',
+                entityKind: 'vendor_bid',
+                entityId: bidId,
+            });
+        } catch {
+            /* non-fatal */
+        }
+
         revalidatePath('/dashboard/crm/purchase/vendor-bids');
         revalidatePath('/dashboard/crm/purchase/rfqs');
         return { message: 'Vendor bid status updated.' };
@@ -262,6 +488,34 @@ export async function deleteVendorBid(
 ): Promise<{ message?: string; error?: string }> {
     const session = await getSession();
     if (!session?.user) return { error: 'Access denied' };
+
+    const guard = await requirePermission('crm_vendor_bid', 'delete');
+    if (!guard.ok) return { error: guard.error };
+
+    if (!bidId) return { error: 'Invalid bid id.' };
+
+    if (useRustCrm()) {
+        try {
+            await crmVendorBidsApi.delete(bidId);
+            try {
+                await writeAuditEntry({
+                    tenantUserId: String(session.user._id),
+                    actorId: String(session.user._id),
+                    action: 'delete',
+                    entityKind: 'vendor_bid',
+                    entityId: bidId,
+                });
+            } catch {
+                /* non-fatal */
+            }
+            revalidatePath('/dashboard/crm/purchase/vendor-bids');
+            return { message: 'Vendor bid archived.' };
+        } catch (e) {
+            console.error('[deleteVendorBid] rust path failed; falling back:', e);
+            // fall through
+        }
+    }
+
     if (!ObjectId.isValid(bidId)) return { error: 'Invalid bid id.' };
 
     try {
@@ -274,6 +528,18 @@ export async function deleteVendorBid(
         );
         if (result.matchedCount === 0) {
             return { error: 'Vendor bid not found.' };
+        }
+
+        try {
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'delete',
+                entityKind: 'vendor_bid',
+                entityId: bidId,
+            });
+        } catch {
+            /* non-fatal */
         }
 
         revalidatePath('/dashboard/crm/purchase/vendor-bids');

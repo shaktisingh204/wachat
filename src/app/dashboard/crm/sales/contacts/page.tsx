@@ -1,13 +1,10 @@
 /**
- * Legacy new-contact redirect.
+ * Legacy contacts list redirect.
  *
  * The CRM rebuild (CRM_REBUILD_PLAN §1D) consolidated the duplicate
  * `/dashboard/crm/sales/contacts` + `/dashboard/crm/sales-crm/contacts`
  * trees onto the latter. This file is a permanent 308 so deep links
  * from old dashboards / notifications continue to resolve.
- *
- * Preserves any query string (e.g. `?accountId=…`, `?fromKind=&fromId=`)
- * so smart-defaults keep working.
  */
 
 import { permanentRedirect } from 'next/navigation';
@@ -16,7 +13,7 @@ interface PageProps {
     searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
-export default async function LegacyNewContactRedirect({
+export default async function LegacyContactsListRedirect({
     searchParams,
 }: PageProps) {
     const sp = await searchParams;
@@ -27,6 +24,6 @@ export default async function LegacyNewContactRedirect({
     }
     const qs = usp.toString();
     permanentRedirect(
-        `/dashboard/crm/sales-crm/contacts/new${qs ? `?${qs}` : ''}`,
+        `/dashboard/crm/sales-crm/contacts${qs ? `?${qs}` : ''}`,
     );
 }

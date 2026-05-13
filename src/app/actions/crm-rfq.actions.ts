@@ -1,5 +1,18 @@
-
 'use server';
+
+/**
+ * CRM RFQ server actions.
+ *
+ * **Dual implementation:**
+ *  - When `USE_RUST_CRM === 'true'`, mutations delegate to
+ *    `/v1/crm/rfqs` on the Rust BFF via
+ *    `src/lib/rust-client/crm-rfqs.ts`.
+ *  - Otherwise (default), the legacy direct-Mongo path runs.
+ *
+ * Export shapes are identical across both paths so the existing pages at
+ * `/dashboard/crm/rfqs/**` (and the purchase RFQ flows) keep working
+ * without changes.
+ */
 
 import { revalidatePath } from 'next/cache';
 import { ObjectId, type WithId } from 'mongodb';
@@ -8,6 +21,19 @@ import { getSession } from '@/app/actions/user.actions';
 import type { CrmRfq, LineageKind, LineageRef } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import { appendLineage, buildLineageFromParent } from '@/lib/lineage';
+import { writeAuditEntry } from '@/lib/audit-log';
+import { requirePermission } from '@/lib/rbac-server';
+import { crmRfqsApi, type CrmRfqDoc, type CrmRfqLineItem } from '@/lib/rust-client/crm-rfqs';
+import { RustApiError } from '@/lib/rust-client/fetcher';
+
+function useRustCrm(): boolean {
+    return process.env.USE_RUST_CRM === 'true';
+}
+
+/** Map the Rust DTO to the loose WithId<CrmRfq> shape legacy callers expect. */
+function rustDocToLegacy(doc: CrmRfqDoc): WithId<CrmRfq> {
+    return JSON.parse(JSON.stringify(doc)) as WithId<CrmRfq>;
+}
 
 /**
  * List all RFQs for the current tenant (newest first). Mirrors the
@@ -17,6 +43,16 @@ import { appendLineage, buildLineageFromParent } from '@/lib/lineage';
 export async function getRfqs(): Promise<WithId<CrmRfq>[]> {
     const session = await getSession();
     if (!session?.user) return [];
+
+    if (useRustCrm()) {
+        try {
+            const rfqs = await crmRfqsApi.list({ page: 0, limit: 200 });
+            return rfqs.map(rustDocToLegacy);
+        } catch (e) {
+            console.error('[getRfqs] rust path failed; falling back:', e);
+            // fall through
+        }
+    }
 
     try {
         const { db } = await connectToDatabase();
@@ -42,6 +78,19 @@ export async function getRfqs(): Promise<WithId<CrmRfq>[]> {
 export async function getRfqById(rfqId: string): Promise<WithId<CrmRfq> | null> {
     const session = await getSession();
     if (!session?.user) return null;
+    if (!rfqId) return null;
+
+    if (useRustCrm()) {
+        try {
+            const doc = await crmRfqsApi.getById(rfqId);
+            return doc ? rustDocToLegacy(doc) : null;
+        } catch (e) {
+            if (e instanceof RustApiError && e.status === 404) return null;
+            console.error('[getRfqById] rust path failed; falling back:', e);
+            // fall through
+        }
+    }
+
     if (!ObjectId.isValid(rfqId)) return null;
 
     try {
@@ -76,12 +125,117 @@ export async function saveRfq(
     const session = await getSession();
     if (!session?.user) return { error: 'Access denied' };
 
-    try {
-        const title = (formData.get('title') as string | null)?.trim() || '';
-        if (!title) {
-            return { error: 'Title is required.' };
-        }
+    const guard = await requirePermission('crm_rfq', 'create');
+    if (!guard.ok) return { error: guard.error };
 
+    const title = (formData.get('title') as string | null)?.trim() || '';
+    if (!title) {
+        return { error: 'Title is required.' };
+    }
+
+    if (useRustCrm()) {
+        try {
+            // Items — JSON array. Rust requires a valid `itemId` per row.
+            const itemsRaw = formData.get('items') as string | null;
+            let items: CrmRfqLineItem[] = [];
+            if (itemsRaw) {
+                try {
+                    const parsed = JSON.parse(itemsRaw);
+                    if (Array.isArray(parsed)) {
+                        items = parsed
+                            .filter((it: any) => it && typeof it.itemId === 'string' && it.itemId)
+                            .map((it: any) => ({
+                                itemId: String(it.itemId),
+                                qty: Number(it.qty) || 0,
+                                ...(typeof it.description === 'string' && it.description
+                                    ? { description: it.description }
+                                    : {}),
+                                ...(typeof it.unit === 'string' && it.unit ? { unit: it.unit } : {}),
+                                ...(typeof it.specs === 'string' && it.specs ? { specs: it.specs } : {}),
+                            }));
+                    }
+                } catch {
+                    // ignore malformed JSON
+                }
+            }
+
+            // Vendors invited
+            const vendorsRaw = formData.get('vendorsInvited') as string | null;
+            let vendorsInvited: string[] | undefined;
+            if (vendorsRaw) {
+                try {
+                    const parsed = JSON.parse(vendorsRaw);
+                    if (Array.isArray(parsed)) {
+                        vendorsInvited = parsed.filter(
+                            (v: any): v is string => typeof v === 'string' && !!v,
+                        );
+                    }
+                } catch {
+                    /* ignore */
+                }
+            }
+
+            // Attachments
+            const attachmentsRaw = formData.get('attachments') as string | null;
+            let attachments: { fileId: string }[] | undefined;
+            if (attachmentsRaw) {
+                try {
+                    const parsed = JSON.parse(attachmentsRaw);
+                    if (Array.isArray(parsed)) {
+                        attachments = parsed
+                            .filter((u: any): u is string => typeof u === 'string' && !!u)
+                            .map((id) => ({ fileId: id }));
+                    }
+                } catch {
+                    /* ignore */
+                }
+            }
+
+            const requiredByRaw = formData.get('requiredBy') as string | null;
+            const deadlineRaw = formData.get('deadline') as string | null;
+            const terms = (formData.get('terms') as string | null) || undefined;
+            const projectIdRaw = formData.get('projectId') as string | null;
+            const fromKind = (formData.get('fromKind') as string | null) || undefined;
+            const fromId = (formData.get('fromId') as string | null) || undefined;
+
+            const created = await crmRfqsApi.create({
+                title,
+                items,
+                ...(requiredByRaw ? { requiredBy: new Date(requiredByRaw).toISOString() } : {}),
+                ...(vendorsInvited && vendorsInvited.length ? { vendorsInvited } : {}),
+                ...(terms ? { terms } : {}),
+                ...(deadlineRaw ? { deadline: new Date(deadlineRaw).toISOString() } : {}),
+                ...(attachments && attachments.length ? { attachments } : {}),
+                ...(projectIdRaw ? { projectId: projectIdRaw } : {}),
+                ...(fromKind && fromId ? { fromKind, fromId } : {}),
+            });
+
+            const id = String(created._id ?? '');
+            try {
+                await writeAuditEntry({
+                    tenantUserId: String(session.user._id),
+                    actorId: String(session.user._id),
+                    action: 'create',
+                    entityKind: 'rfq',
+                    entityId: id,
+                });
+            } catch {
+                /* non-fatal */
+            }
+
+            revalidatePath('/dashboard/crm/rfqs');
+            return { message: 'RFQ saved successfully.' };
+        } catch (e) {
+            if (e instanceof RustApiError) {
+                console.error('[saveRfq] rust path failed; falling back:', e);
+            } else {
+                console.error('[saveRfq] rust path failed; falling back:', e);
+            }
+            // fall through to legacy
+        }
+    }
+
+    try {
         // Items — JSON array of { itemId?, description?, qty, unit?, specs? }.
         let items: CrmRfq['items'] = [];
         const itemsRaw = formData.get('items') as string | null;
@@ -243,6 +397,18 @@ export async function saveRfq(
             }
         }
 
+        try {
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'create',
+                entityKind: 'rfq',
+                entityId: insertResult.insertedId.toString(),
+            });
+        } catch {
+            /* non-fatal */
+        }
+
         revalidatePath('/dashboard/crm/rfqs');
         return { message: 'RFQ saved successfully.' };
     } catch (e) {
@@ -260,7 +426,11 @@ export async function updateRfqStatus(
 ): Promise<{ message?: string; error?: string }> {
     const session = await getSession();
     if (!session?.user) return { error: 'Access denied' };
-    if (!ObjectId.isValid(rfqId)) return { error: 'Invalid RFQ id.' };
+
+    const guard = await requirePermission('crm_rfq', 'edit');
+    if (!guard.ok) return { error: guard.error };
+
+    if (!rfqId) return { error: 'Invalid RFQ id.' };
 
     const allowed: ReadonlyArray<typeof status> = [
         'draft',
@@ -273,6 +443,30 @@ export async function updateRfqStatus(
         return { error: 'Invalid status.' };
     }
 
+    if (useRustCrm()) {
+        try {
+            await crmRfqsApi.update(rfqId, { status });
+            try {
+                await writeAuditEntry({
+                    tenantUserId: String(session.user._id),
+                    actorId: String(session.user._id),
+                    action: 'status_change',
+                    entityKind: 'rfq',
+                    entityId: rfqId,
+                });
+            } catch {
+                /* non-fatal */
+            }
+            revalidatePath('/dashboard/crm/rfqs');
+            return { message: 'RFQ status updated.' };
+        } catch (e) {
+            console.error('[updateRfqStatus] rust path failed; falling back:', e);
+            // fall through
+        }
+    }
+
+    if (!ObjectId.isValid(rfqId)) return { error: 'Invalid RFQ id.' };
+
     try {
         const { db } = await connectToDatabase();
         const userObjectId = new ObjectId(session.user._id);
@@ -284,6 +478,18 @@ export async function updateRfqStatus(
 
         if (result.matchedCount === 0) {
             return { error: 'RFQ not found.' };
+        }
+
+        try {
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'status_change',
+                entityKind: 'rfq',
+                entityId: rfqId,
+            });
+        } catch {
+            /* non-fatal */
         }
 
         revalidatePath('/dashboard/crm/rfqs');
@@ -303,6 +509,34 @@ export async function deleteRfq(
 ): Promise<{ message?: string; error?: string }> {
     const session = await getSession();
     if (!session?.user) return { error: 'Access denied' };
+
+    const guard = await requirePermission('crm_rfq', 'delete');
+    if (!guard.ok) return { error: guard.error };
+
+    if (!rfqId) return { error: 'Invalid RFQ id.' };
+
+    if (useRustCrm()) {
+        try {
+            await crmRfqsApi.delete(rfqId);
+            try {
+                await writeAuditEntry({
+                    tenantUserId: String(session.user._id),
+                    actorId: String(session.user._id),
+                    action: 'delete',
+                    entityKind: 'rfq',
+                    entityId: rfqId,
+                });
+            } catch {
+                /* non-fatal */
+            }
+            revalidatePath('/dashboard/crm/rfqs');
+            return { message: 'RFQ deleted.' };
+        } catch (e) {
+            console.error('[deleteRfq] rust path failed; falling back:', e);
+            // fall through
+        }
+    }
+
     if (!ObjectId.isValid(rfqId)) return { error: 'Invalid RFQ id.' };
 
     try {
@@ -316,6 +550,18 @@ export async function deleteRfq(
 
         if (result.matchedCount === 0) {
             return { error: 'RFQ not found.' };
+        }
+
+        try {
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'delete',
+                entityKind: 'rfq',
+                entityId: rfqId,
+            });
+        } catch {
+            /* non-fatal */
         }
 
         revalidatePath('/dashboard/crm/rfqs');

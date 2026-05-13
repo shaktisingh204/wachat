@@ -22,6 +22,13 @@ import { appendLineage, buildLineageFromParent } from '@/lib/lineage';
 import { applyCustomFieldsToEntity } from '@/app/actions/worksuite/meta.actions';
 import { writeAuditEntry } from '@/lib/audit-log';
 import { isDateBefore } from '@/lib/form-validation';
+import { requirePermission } from '@/lib/rbac-server';
+import { crmTicketsApi } from '@/lib/rust-client/crm-tickets';
+import { RustApiError } from '@/lib/rust-client/fetcher';
+
+function useRustCrm(): boolean {
+  return process.env.USE_RUST_CRM === 'true';
+}
 
 type FormState = { message?: string; error?: string; id?: string };
 
@@ -183,6 +190,100 @@ export async function getTicketById(id: string) {
   return hrGetById<HrTicket>('crm_tickets', id);
 }
 export async function saveTicket(_prev: any, formData: FormData) {
+  const user = await requireSession();
+  if (!user) return { error: 'Access denied' };
+
+  const editingId = (formData.get('_id') as string | null) || '';
+  const guard = await requirePermission('crm_ticket', editingId ? 'edit' : 'create');
+  if (!guard.ok) return { error: guard.error };
+
+  if (useRustCrm()) {
+    try {
+      const subject = (formData.get('title') as string | null) || (formData.get('subject') as string | null) || '';
+      const requesterId = (formData.get('clientId') as string | null) || (formData.get('requesterId') as string | null) || '';
+      const channel = (formData.get('channel') as string | null) || 'web';
+      const severity = (formData.get('severity') as string | null) || 'low';
+
+      if (!subject) {
+        return { error: 'Ticket subject is required.' };
+      }
+      if (!requesterId) {
+        return { error: 'Requester is required.' };
+      }
+
+      const assigneeId = (formData.get('assigneeId') as string | null) || undefined;
+      const category = (formData.get('category') as string | null) || (formData.get('categoryId') as string | null) || undefined;
+      const priority = (formData.get('priority') as string | null) || undefined;
+      const dueByRaw = (formData.get('dueBy') as string | null) || (formData.get('dueAt') as string | null) || undefined;
+      const status = (formData.get('status') as string | null) || undefined;
+
+      let id: string;
+      if (editingId) {
+        const patch: Record<string, unknown> = {};
+        if (subject) patch.subject = subject;
+        if (channel) patch.channel = channel;
+        if (severity) patch.severity = severity;
+        if (assigneeId) patch.assigneeId = assigneeId;
+        if (category) patch.category = category;
+        if (priority) patch.priority = priority;
+        if (dueByRaw) patch.dueBy = new Date(dueByRaw).toISOString();
+        if (status) patch.status = status;
+        const updated = await crmTicketsApi.update(editingId, patch);
+        id = String(updated._id ?? editingId);
+      } else {
+        const created = await crmTicketsApi.create({
+          subject,
+          requesterId,
+          channel,
+          severity,
+          ...(assigneeId ? { assigneeId } : {}),
+          ...(category ? { category } : {}),
+          ...(priority ? { priority } : {}),
+          ...(dueByRaw ? { dueBy: new Date(dueByRaw).toISOString() } : {}),
+          ...(status ? { status } : {}),
+        });
+        id = String(created._id ?? '');
+      }
+
+      // Persist custom-field values for `entity=ticket` (best-effort).
+      if (id) {
+        const raw = formData.get('customFields');
+        if (typeof raw === 'string' && raw.length > 0 && raw !== '{}') {
+          try {
+            const parsed = JSON.parse(raw);
+            if (parsed && typeof parsed === 'object') {
+              await applyCustomFieldsToEntity('ticket', id, parsed);
+            }
+          } catch (e) {
+            console.error('[saveTicket] customFields parse failed:', e);
+          }
+        }
+
+        try {
+          await writeAuditEntry({
+            tenantUserId: user._id,
+            actorId: user._id,
+            action: editingId ? 'update' : 'create',
+            entityKind: 'ticket',
+            entityId: id,
+          });
+        } catch {
+          /* non-fatal */
+        }
+      }
+
+      revalidatePath('/dashboard/crm/tickets');
+      return { message: 'Saved successfully.', id };
+    } catch (e) {
+      if (e instanceof RustApiError) {
+        console.error('[saveTicket] rust path failed; falling back:', e);
+      } else {
+        console.error('[saveTicket] rust path failed; falling back:', e);
+      }
+      // fall through
+    }
+  }
+
   const result = await save('crm_tickets', '/dashboard/crm/tickets', formData, {
     idFields: ['clientId', 'assigneeId', 'categoryId'],
     dateFields: ['firstResponseAt', 'resolvedAt'],
@@ -205,14 +306,16 @@ export async function saveTicket(_prev: any, formData: FormData) {
     }
 
     // §12.21 audit trail.
-    const user = await requireSession();
-    if (user) {
+    try {
       await writeAuditEntry({
         tenantUserId: user._id,
-        action: formData.get('_id') ? 'update' : 'create',
+        actorId: user._id,
+        action: editingId ? 'update' : 'create',
         entityKind: 'ticket',
         entityId: result.id,
       });
+    } catch {
+      /* non-fatal */
     }
   }
 
@@ -224,6 +327,32 @@ export async function updateTicketStatus(
 ): Promise<{ success: boolean; error?: string }> {
   const user = await requireSession();
   if (!user) return { success: false, error: 'Access denied' };
+
+  const guard = await requirePermission('crm_ticket', 'edit');
+  if (!guard.ok) return { success: false, error: guard.error };
+
+  if (useRustCrm()) {
+    try {
+      await crmTicketsApi.update(id, { status });
+      try {
+        await writeAuditEntry({
+          tenantUserId: user._id,
+          actorId: user._id,
+          action: 'status_change',
+          entityKind: 'ticket',
+          entityId: id,
+        });
+      } catch {
+        /* non-fatal */
+      }
+      revalidatePath('/dashboard/crm/tickets');
+      return { success: true };
+    } catch (e) {
+      console.error('[updateTicketStatus] rust path failed; falling back:', e);
+      // fall through
+    }
+  }
+
   if (!ObjectId.isValid(id)) return { success: false, error: 'Invalid id' };
   const { db } = await connectToDatabase();
   const update: Record<string, any> = { status, updatedAt: new Date() };
@@ -232,11 +361,65 @@ export async function updateTicketStatus(
     { _id: new ObjectId(id), userId: new ObjectId(user._id) },
     { $set: update },
   );
+
+  try {
+    await writeAuditEntry({
+      tenantUserId: user._id,
+      actorId: user._id,
+      action: 'status_change',
+      entityKind: 'ticket',
+      entityId: id,
+    });
+  } catch {
+    /* non-fatal */
+  }
+
   revalidatePath('/dashboard/crm/tickets');
   return { success: true };
 }
 export async function deleteTicket(id: string) {
+  const user = await requireSession();
+  if (!user) return { success: false, error: 'Access denied' };
+
+  const guard = await requirePermission('crm_ticket', 'delete');
+  if (!guard.ok) return { success: false, error: guard.error };
+
+  if (useRustCrm()) {
+    try {
+      await crmTicketsApi.delete(id);
+      try {
+        await writeAuditEntry({
+          tenantUserId: user._id,
+          actorId: user._id,
+          action: 'delete',
+          entityKind: 'ticket',
+          entityId: id,
+        });
+      } catch {
+        /* non-fatal */
+      }
+      revalidatePath('/dashboard/crm/tickets');
+      return { success: true };
+    } catch (e) {
+      console.error('[deleteTicket] rust path failed; falling back:', e);
+      // fall through
+    }
+  }
+
   const r = await hrDelete('crm_tickets', id);
+  if (r.success) {
+    try {
+      await writeAuditEntry({
+        tenantUserId: user._id,
+        actorId: user._id,
+        action: 'delete',
+        entityKind: 'ticket',
+        entityId: id,
+      });
+    } catch {
+      /* non-fatal */
+    }
+  }
   revalidatePath('/dashboard/crm/tickets');
   return r;
 }
