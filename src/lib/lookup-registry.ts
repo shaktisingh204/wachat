@@ -15,6 +15,7 @@
  */
 export type EntityKey =
   | 'account'     // Chart-of-accounts node (`crm_chart_of_accounts`)
+  | 'asset'       // HR/IT asset (`crm_assets`)
   | 'bankAccount' // Payment / bank account (`crm_payment_accounts`)
   | 'branch'      // Multi-branch location (collection TBD — see action TODO)
   | 'brand'       // Product brand (free-text dropdown today; `crm_brands` future)
@@ -43,7 +44,9 @@ export type EntityKey =
   | 'stage'       // Pipeline stage (embedded on `users.crmPipelines[].stages`)
   | 'state'       // Static state/region list (src/data/reference/states.ts)
   | 'tag'         // Cross-entity tag (collection TBD — see action TODO)
+  | 'task'        // CRM Task (`crm_tasks`)
   | 'taxRate'     // Tax rate (`crm_taxes`)
+  | 'ticketGroup' // Support ticket group (`crm_ticket_groups`)
   | 'timezone'    // IANA timezone list (runtime via Intl)
   | 'unit'        // Unit of measure (PCS/KG/L/HRS/...) + inline-create
   | 'user'        // Platform user (`users`)
@@ -62,6 +65,7 @@ export type EntityKey =
  */
 export const ENTITY_KEYS = [
   'account',
+  'asset',
   'bankAccount',
   'branch',
   'brand',
@@ -90,7 +94,9 @@ export const ENTITY_KEYS = [
   'stage',
   'state',
   'tag',
+  'task',
   'taxRate',
+  'ticketGroup',
   'timezone',
   'unit',
   'user',

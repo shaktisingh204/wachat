@@ -19,6 +19,7 @@ import {
   useZoruToast,
 } from '@/components/zoruui';
 import { updateKbArticle } from '@/app/actions/crm-knowledge-base.actions';
+import { EntityFormField } from '@/components/crm/entity-form-field';
 
 const initialState: { message?: string; error?: string } = {};
 
@@ -92,10 +93,10 @@ export default function KbArticleEditForm({
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
               <ZoruLabel htmlFor="category">Category</ZoruLabel>
-              <ZoruInput
-                id="category"
+              <EntityFormField
+                entity="category"
                 name="category"
-                defaultValue={article.category ?? ''}
+                initialLabel={article.category ?? ''}
                 placeholder="e.g. Billing, Onboarding"
               />
             </div>

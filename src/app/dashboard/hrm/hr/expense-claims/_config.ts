@@ -1,10 +1,10 @@
 import type { HrField } from '../_components/hr-entity-page';
 
 export const fields: HrField[] = [
-  { name: 'employeeId', label: 'Employee ID', required: true },
+  { name: 'employeeId', label: 'Employee', required: true, type: 'entity', entity: 'employee' },
   { name: 'title', label: 'Title', required: true, fullWidth: true },
   { name: 'amount', label: 'Amount', type: 'number', required: true },
-  { name: 'currency', label: 'Currency', defaultValue: 'INR' },
+  { name: 'currency', label: 'Currency', type: 'entity', entity: 'currency', defaultValue: 'INR' },
   {
     name: 'category',
     label: 'Category',
@@ -40,7 +40,7 @@ export const fields: HrField[] = [
   },
   { name: 'receiptUrl', label: 'Receipt URL', type: 'url' },
   { name: 'gstAmount', label: 'GST Amount', type: 'number' },
-  { name: 'projectId', label: 'Project ID' },
+  { name: 'projectId', label: 'Project', type: 'entity', entity: 'project' },
   {
     name: 'billableToClient',
     label: 'Billable to Client',

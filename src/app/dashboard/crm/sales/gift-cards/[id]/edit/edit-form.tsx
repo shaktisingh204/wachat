@@ -24,6 +24,7 @@ import {
     ZoruTextarea,
     useZoruToast,
 } from '@/components/zoruui';
+import { EntityFormField } from '@/components/crm/entity-form-field';
 import { updateGiftCard } from '@/app/actions/crm-gift-cards.actions';
 
 const initialState: { message?: string; error?: string; id?: string } = {};
@@ -77,14 +78,13 @@ export function EditGiftCardForm({
 
                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="issuedTo" className="text-zoru-ink">
-                            Issued To
-                        </ZoruLabel>
-                        <ZoruInput
-                            id="issuedTo"
-                            name="issuedTo"
-                            defaultValue={(initial.issuedTo as string) || ''}
-                            maxLength={100}
+                        <ZoruLabel className="text-zoru-ink">Issued To</ZoruLabel>
+                        <EntityFormField
+                            entity="client"
+                            name="clientId"
+                            dualWriteName="issuedTo"
+                            initialId={(initial.clientId as string) || null}
+                            initialLabel={(initial.issuedTo as string) || ''}
                         />
                     </div>
                     <div className="space-y-1.5">

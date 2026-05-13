@@ -1,8 +1,8 @@
 import type { HrField } from '../_components/hr-entity-page';
 
 export const fields: HrField[] = [
-  { name: 'reviewer_id', label: 'Reviewer', required: true, placeholder: 'Employee ID or name' },
-  { name: 'reviewee_id', label: 'Reviewee (Subject)', required: true, placeholder: 'Employee ID or name' },
+  { name: 'reviewer_id', label: 'Reviewer', required: true, type: 'entity', entity: 'employee' },
+  { name: 'reviewee_id', label: 'Reviewee (Subject)', required: true, type: 'entity', entity: 'employee' },
   {
     name: 'type',
     label: 'Review Type',

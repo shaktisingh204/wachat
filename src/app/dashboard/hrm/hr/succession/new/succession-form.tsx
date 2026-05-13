@@ -13,6 +13,7 @@ import {
     ZoruLabel,
     ZoruTextarea,
 } from '@/components/zoruui';
+import { EntityFormField } from '@/components/crm/entity-form-field';
 
 function SubmitButton() {
     const { pending } = useFormStatus();
@@ -40,8 +41,22 @@ export function SuccessionForm({ plan }: { plan?: Record<string, any> }) {
                 <form action={action} className="grid gap-4 md:grid-cols-2">
                     {plan?._id ? <input type="hidden" name="planId" value={String(plan._id)} /> : null}
                     <Field name="role" label="Role / position" defaultValue={plan?.role} required />
-                    <Field name="incumbentEmployeeId" label="Incumbent employee ID" defaultValue={plan?.incumbentEmployeeId} />
-                    <Field name="department" label="Department" defaultValue={plan?.department} />
+                    <div>
+                        <ZoruLabel htmlFor="incumbentEmployeeId">Incumbent employee</ZoruLabel>
+                        <EntityFormField
+                            entity="employee"
+                            name="incumbentEmployeeId"
+                            initialId={plan?.incumbentEmployeeId ? String(plan.incumbentEmployeeId) : undefined}
+                        />
+                    </div>
+                    <div>
+                        <ZoruLabel htmlFor="department">Department</ZoruLabel>
+                        <EntityFormField
+                            entity="department"
+                            name="department"
+                            initialId={plan?.department ? String(plan.department) : undefined}
+                        />
+                    </div>
                     <Field name="reviewDate" label="Review date" type="date" defaultValue={plan?.reviewDate} />
                     <div className="md:col-span-2">
                         <ZoruLabel htmlFor="candidates">

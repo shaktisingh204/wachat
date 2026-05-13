@@ -13,6 +13,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { ClayButton } from '@/components/clay';
+import { EntityPicker } from '@/components/crm/entity-picker';
+import type { LookupItem } from '@/lib/lookup-registry';
 import type { WsProposalLineInput } from '@/lib/worksuite/proposals-types';
 
 export interface ComposerLine extends WsProposalLineInput {
@@ -122,13 +124,32 @@ export function ProposalComposer({
                   (n(l.quantity) * n(l.unit_price) * n(l.tax)) / 100;
                 return (
                   <tr key={l.id} className="border-b border-border">
-                    <td className="p-2 align-top">
-                      <Input
-                        value={l.name}
-                        onChange={(e) => updateRow(l.id, 'name', e.target.value)}
-                        placeholder="Item name"
-                        className="mb-1 h-9 rounded-lg border-border bg-card text-[13px]"
-                      />
+                    <td className="p-2 align-top min-w-[220px]">
+                      <div className="mb-1.5">
+                        <EntityPicker
+                          entity="item"
+                          value={null}
+                          placeholder="Pick item or type name"
+                          onChange={(_id, hydrated) => {
+                            const h = (Array.isArray(hydrated) ? hydrated[0] : hydrated) as LookupItem | undefined;
+                            const raw = (h?.raw ?? {}) as Record<string, unknown>;
+                            const name = typeof raw.name === 'string' ? raw.name : (h?.chip.primary ?? '');
+                            const desc = typeof raw.description === 'string' ? (raw.description as string) : undefined;
+                            const price = typeof raw.sellingPrice === 'number' ? (raw.sellingPrice as number) : undefined;
+                            updateRow(l.id, 'name', name);
+                            if (desc != null) updateRow(l.id, 'description', desc);
+                            if (price != null) updateRow(l.id, 'unit_price', price);
+                          }}
+                        />
+                      </div>
+                      {l.name ? (
+                        <Input
+                          value={l.name}
+                          onChange={(e) => updateRow(l.id, 'name', e.target.value)}
+                          placeholder="Item name"
+                          className="mb-1 h-9 rounded-lg border-border bg-card text-[13px]"
+                        />
+                      ) : null}
                       <Textarea
                         value={l.description || ''}
                         onChange={(e) =>

@@ -38,8 +38,8 @@ export const fields: HrField[] = [
   },
   { name: 'purchaseDate', label: 'Purchase Date', type: 'date' },
   { name: 'purchaseCost', label: 'Purchase Cost', type: 'number' },
-  { name: 'vendor', label: 'Vendor' },
-  { name: 'currency', label: 'Currency', defaultValue: 'INR' },
+  { name: 'vendor', label: 'Vendor', type: 'entity', entity: 'vendor' },
+  { name: 'currency', label: 'Currency', type: 'entity', entity: 'currency', defaultValue: 'INR' },
   {
     name: 'warrantyExpiresAt',
     label: 'Warranty Expires At',
@@ -48,7 +48,7 @@ export const fields: HrField[] = [
   { name: 'depreciationRate', label: 'Depreciation Rate (%)', type: 'number' },
   { name: 'currentValue', label: 'Current Value', type: 'number' },
   { name: 'location', label: 'Location' },
-  { name: 'assignedDepartment', label: 'Assigned Department' },
+  { name: 'assignedDepartment', label: 'Assigned Department', type: 'entity', entity: 'department' },
   { name: 'insurancePolicyNumber', label: 'Insurance Policy Number' },
   {
     name: 'insuranceExpiresAt',

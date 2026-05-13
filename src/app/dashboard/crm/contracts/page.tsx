@@ -24,6 +24,7 @@ import {
 import type { HrContract } from '@/lib/hr-types';
 
 import { CrmPageHeader } from '../_components/crm-page-header';
+import { EntityFormField } from '@/components/crm/entity-form-field';
 
 type Contract = HrContract & { _id: string };
 
@@ -251,12 +252,17 @@ export default function ContractsPage() {
                 />
               </div>
               <div>
-                <ZoruLabel className="text-foreground">Client Name</ZoruLabel>
-                <ZoruInput
-                  name="clientName"
-                  defaultValue={editing?.clientName || ''}
-                  className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
-                />
+                <ZoruLabel className="text-foreground">Client</ZoruLabel>
+                <div className="mt-1.5">
+                  <EntityFormField
+                    entity="client"
+                    name="clientId"
+                    dualWriteName="clientName"
+                    initialId={(editing as any)?.clientId ?? null}
+                    initialLabel={editing?.clientName || ''}
+                    placeholder="Select client…"
+                  />
+                </div>
               </div>
               <div>
                 <ZoruLabel className="text-foreground">
@@ -289,11 +295,14 @@ export default function ContractsPage() {
               </div>
               <div>
                 <ZoruLabel className="text-foreground">Currency</ZoruLabel>
-                <ZoruInput
-                  name="currency"
-                  defaultValue={editing?.currency || 'INR'}
-                  className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
-                />
+                <div className="mt-1.5">
+                  <EntityFormField
+                    entity="currency"
+                    name="currency"
+                    initialId={editing?.currency || 'INR'}
+                    placeholder="Select currency…"
+                  />
+                </div>
               </div>
               <div>
                 <ZoruLabel className="text-foreground">Start Date</ZoruLabel>

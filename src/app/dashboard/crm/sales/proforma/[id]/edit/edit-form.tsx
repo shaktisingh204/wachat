@@ -25,6 +25,7 @@ import {
     ZoruTextarea,
     useZoruToast,
 } from '@/components/zoruui';
+import { EntityFormField } from '@/components/crm/entity-form-field';
 import { updateProformaInvoice } from '@/app/actions/crm-proforma-invoices.actions';
 
 const initialState: { message?: string; error?: string; id?: string } = {};
@@ -137,14 +138,11 @@ export function EditProformaForm({
                     </div>
 
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="currency" className="text-zoru-ink">
-                            Currency
-                        </ZoruLabel>
-                        <ZoruInput
-                            id="currency"
+                        <ZoruLabel className="text-zoru-ink">Currency</ZoruLabel>
+                        <EntityFormField
+                            entity="currency"
                             name="currency"
-                            defaultValue={(initial.currency as string) || 'INR'}
-                            maxLength={8}
+                            initialId={(initial.currency as string) || 'INR'}
                         />
                     </div>
 

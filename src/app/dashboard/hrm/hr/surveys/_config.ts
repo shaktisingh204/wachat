@@ -30,7 +30,7 @@ export const fields: HrField[] = [
     ],
     defaultValue: 'all',
   },
-  { name: 'departmentId', label: 'Department ID' },
+  { name: 'departmentId', label: 'Department', type: 'entity', entity: 'department' },
   {
     name: 'anonymous',
     label: 'Anonymous',

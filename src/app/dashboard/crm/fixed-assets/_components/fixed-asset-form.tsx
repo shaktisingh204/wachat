@@ -144,14 +144,15 @@ export function FixedAssetForm({ initial }: FixedAssetFormProps) {
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="category">Category</ZoruLabel>
-            <ZoruInput
-              id="category"
-              name="category"
-              defaultValue={initial?.category ?? ''}
-              className="mt-1.5"
-              placeholder="IT Equipment"
-            />
+            <ZoruLabel>Category</ZoruLabel>
+            <div className="mt-1.5">
+              <EntityFormField
+                entity="category"
+                name="category"
+                initialId={initial?.category ?? null}
+                placeholder="Select category…"
+              />
+            </div>
           </div>
         </div>
       </ZoruCard>
@@ -230,14 +231,15 @@ export function FixedAssetForm({ initial }: FixedAssetFormProps) {
             </div>
           </div>
           <div>
-            <ZoruLabel htmlFor="location">Location</ZoruLabel>
-            <ZoruInput
-              id="location"
-              name="location"
-              defaultValue={initial?.location ?? ''}
-              className="mt-1.5"
-              placeholder="HQ — Floor 2"
-            />
+            <ZoruLabel>Location (branch)</ZoruLabel>
+            <div className="mt-1.5">
+              <EntityFormField
+                entity="branch"
+                name="location"
+                initialId={initial?.location ?? null}
+                placeholder="Select branch…"
+              />
+            </div>
           </div>
           <div>
             <ZoruLabel>Warehouse</ZoruLabel>

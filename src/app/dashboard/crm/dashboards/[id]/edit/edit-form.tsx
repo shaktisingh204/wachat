@@ -13,6 +13,7 @@ import {
     ZoruLabel,
     ZoruTextarea,
 } from '@/components/zoruui';
+import { EntityFormField } from '@/components/crm/entity-form-field';
 
 function SubmitButton() {
     const { pending } = useFormStatus();
@@ -39,6 +40,15 @@ export function DashboardEditForm({ dashboard }: { dashboard: Record<string, any
                     <Field name="layout" label="Layout" defaultValue={dashboard.layout} />
                     <Field name="visibility" label="Visibility" defaultValue={dashboard.visibility} />
                     <Field name="autoRefreshSeconds" label="Auto-refresh (sec)" type="number" defaultValue={dashboard.autoRefreshSeconds} />
+                    <div>
+                        <ZoruLabel>Owner</ZoruLabel>
+                        <EntityFormField
+                            entity="user"
+                            name="ownerId"
+                            initialId={dashboard.ownerId ?? null}
+                            placeholder="Select owner…"
+                        />
+                    </div>
                     <div className="md:col-span-2">
                         <ZoruLabel htmlFor="description">Description</ZoruLabel>
                         <ZoruTextarea id="description" name="description" defaultValue={dashboard.description ?? ''} rows={3} />

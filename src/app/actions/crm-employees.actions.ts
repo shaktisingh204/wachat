@@ -34,6 +34,7 @@ import {
     type CrmDesignationDoc,
 } from '@/lib/rust-client/crm-departments';
 import { RustApiError } from '@/lib/rust-client/fetcher';
+import { requirePermission } from '@/lib/rbac-server';
 
 function useRustCrm(): boolean {
     return process.env.USE_RUST_CRM === 'true';
@@ -468,6 +469,9 @@ export async function saveCrmEmployee(_prev: any, formData: FormData): Promise<{
 
     const employeeId = formData.get('employeeId') as string | null;
     const isEditing = !!employeeId;
+
+    const guard = await requirePermission('crm_employee', isEditing ? 'edit' : 'create');
+    if (!guard.ok) return { error: guard.error };
 
     const data: Partial<CrmEmployee> = {
         userId: new ObjectId(session.user._id),

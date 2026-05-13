@@ -42,6 +42,7 @@ import {
   useZoruToast,
 } from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EntityPicker } from '@/components/crm/entity-picker';
 import { saveCreditNoteAction } from '@/app/actions/crm/credit-notes.actions';
 import type {
   CreditNoteLineItem,
@@ -411,11 +412,14 @@ export function CreditNoteForm({ initial }: CreditNoteFormProps) {
                     />
                   </ZoruTableCell>
                   <ZoruTableCell>
-                    <ZoruInput
-                      value={row.unit}
-                      onChange={(e) => updateRow(row.rowKey, { unit: e.target.value })}
-                      className="h-8 text-[12.5px]"
+                    <EntityPicker
+                      entity="unit"
+                      value={row.unit || null}
                       placeholder="nos"
+                      onChange={(next) => {
+                        const id = Array.isArray(next) ? (next[0] ?? '') : (next ?? '');
+                        updateRow(row.rowKey, { unit: id });
+                      }}
                     />
                   </ZoruTableCell>
                   <ZoruTableCell>

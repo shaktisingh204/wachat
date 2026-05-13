@@ -162,11 +162,14 @@ const ENTITY_LABEL: Record<EntityKey, string> = {
   stage: 'stage',
   state: 'state',
   tag: 'tag',
+  task: 'task',
   taxRate: 'tax rate',
+  ticketGroup: 'ticket group',
   timezone: 'timezone',
   brand: 'brand',
   unit: 'unit',
   vendorType: 'vendor type',
+  asset: 'asset',
 };
 
 /**
@@ -350,7 +353,10 @@ export function EntityPicker({
   placeholder,
   filter,
   scope,
-  allowCreate = false,
+  // CRM ecosystem rule: every entity-reference field offers inline "Create new"
+  // by default. Pass `allowCreate={false}` only when the entity is truly
+  // immutable from this surface (rare — typically system catalogues).
+  allowCreate = true,
   onCreateClick,
   inlineCreate,
   recentLimit = 5,
@@ -668,6 +674,11 @@ export function EntityPicker({
             aria-required={required || undefined}
             aria-haspopup="listbox"
             aria-expanded={open}
+            // Defensive: belt-and-braces guard so a wrapping <form>'s
+            // submit handler never fires when the user is just opening
+            // the picker. Radix's PopoverTrigger handles its own click,
+            // we only stop bubbling so ancestor handlers don't react.
+            onClick={(e) => e.stopPropagation()}
             className={cn(
               'flex h-9 w-full items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-3 text-left text-sm text-zoru-ink',
               'transition-colors hover:border-zoru-ink/40',
@@ -807,9 +818,24 @@ export function EntityPicker({
                 const hasExactMatch = results.some(
                   (r) => r.chip.primary.toLowerCase() === typed.toLowerCase(),
                 );
-                // For inline-create we only show the option when the user
-                // has typed something that's not already an exact match.
-                if (useInline && (!typed || hasExactMatch)) return null;
+                // Gating the Create row is the bit that broke clicks in
+                // the previous revision: when `allowCreate` flipped to
+                // default-true, non-reference pickers (client, branch,
+                // employee, …) rendered a Create row with no typed text
+                // and no `onCreateClick`. cmdk auto-highlights the first
+                // item; Enter (or a stray click) fires a no-op handler
+                // and closes the popover — looks like "click does
+                // nothing". Tightened rules:
+                //   - inline-create (reference entities): show ONLY when
+                //     the user has typed something new (no exact match).
+                //   - non-reference: show ONLY when the user has typed
+                //     something AND a real `onCreateClick` is wired.
+                if (useInline) {
+                  if (!typed || hasExactMatch) return null;
+                } else {
+                  if (!typed) return null;
+                  if (!onCreateClick) return null;
+                }
                 return (
                   <CommandGroup>
                     <CommandItem

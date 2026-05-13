@@ -1,9 +1,9 @@
 import type { HrField } from '../_components/hr-entity-page';
 
 export const fields: HrField[] = [
-  { name: 'employeeId', label: 'Employee ID', required: true },
+  { name: 'employeeId', label: 'Employee', required: true, type: 'entity', entity: 'employee' },
   { name: 'destination', label: 'Destination', required: true },
-  { name: 'destinationCountry', label: 'Destination Country' },
+  { name: 'destinationCountry', label: 'Destination Country', type: 'entity', entity: 'country' },
   { name: 'purpose', label: 'Purpose', fullWidth: true },
   { name: 'fromDate', label: 'From Date', type: 'date', required: true },
   { name: 'toDate', label: 'To Date', type: 'date', required: true },
@@ -43,7 +43,7 @@ export const fields: HrField[] = [
   { name: 'travelPartnerName', label: 'Travel Partner Name' },
   { name: 'estimatedCost', label: 'Estimated Cost', type: 'number' },
   { name: 'advanceAmount', label: 'Advance Amount', type: 'number' },
-  { name: 'currency', label: 'Currency', defaultValue: 'INR' },
+  { name: 'currency', label: 'Currency', type: 'entity', entity: 'currency', defaultValue: 'INR' },
   { name: 'bookingReference', label: 'Booking Reference' },
   { name: 'approverName', label: 'Approver Name' },
   { name: 'approverEmail', label: 'Approver Email', type: 'email' },

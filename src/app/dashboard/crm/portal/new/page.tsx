@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useEffect } from 'react';
+import { useActionState, useEffect, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { ArrowLeft, Save, LoaderCircle, Globe } from 'lucide-react';
 import Link from 'next/link';
@@ -20,6 +20,14 @@ import {
 } from '@/components/zoruui';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 import { savePortalUser } from '@/app/actions/crm-portal.actions';
+import { EntityFormField } from '@/components/crm/entity-form-field';
+import type { EntityKey } from '@/lib/lookup-registry';
+
+function linkedEntityForPortalType(portalType: string): EntityKey {
+  if (portalType === 'vendor') return 'vendor';
+  if (portalType === 'employee') return 'employee';
+  return 'client';
+}
 
 export const dynamic = 'force-dynamic';
 
@@ -43,6 +51,7 @@ export default function NewPortalUserPage() {
   const router = useRouter();
   const { toast } = useZoruToast();
   const [state, formAction] = useActionState(savePortalUser, initialState);
+  const [portalType, setPortalType] = useState<string>('customer');
 
   useEffect(() => {
     if (state.message) {
@@ -107,7 +116,7 @@ export default function NewPortalUserPage() {
           {/* Portal Type */}
           <div className="flex flex-col gap-1.5">
             <ZoruLabel htmlFor="portalType">Portal Type</ZoruLabel>
-            <ZoruSelect name="portalType" defaultValue="customer">
+            <ZoruSelect name="portalType" value={portalType} onValueChange={setPortalType}>
               <ZoruSelectTrigger id="portalType" className="w-full max-w-xs">
                 <ZoruSelectValue placeholder="Select type" />
               </ZoruSelectTrigger>
@@ -117,6 +126,16 @@ export default function NewPortalUserPage() {
                 <ZoruSelectItem value="employee">Employee</ZoruSelectItem>
               </ZoruSelectContent>
             </ZoruSelect>
+          </div>
+
+          {/* Linked Entity */}
+          <div className="flex flex-col gap-1.5">
+            <ZoruLabel>Linked {portalType === 'vendor' ? 'Vendor' : portalType === 'employee' ? 'Employee' : 'Customer'}</ZoruLabel>
+            <EntityFormField
+              entity={linkedEntityForPortalType(portalType)}
+              name="linkedEntityId"
+              placeholder={`Select ${portalType === 'vendor' ? 'vendor' : portalType === 'employee' ? 'employee' : 'customer'}…`}
+            />
           </div>
 
           {/* Notes */}

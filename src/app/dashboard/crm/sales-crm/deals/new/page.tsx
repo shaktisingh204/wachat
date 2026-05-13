@@ -20,6 +20,7 @@ import {
 } from '@/components/zoruui';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
 import { createCrmDeal } from '@/app/actions/crm-deals.actions';
+import { EntityFormField } from '@/components/crm/entity-form-field';
 
 export const dynamic = 'force-dynamic';
 
@@ -112,17 +113,7 @@ export default function NewDealPage() {
             </div>
             <div className="space-y-1.5">
               <ZoruLabel htmlFor="currency">Currency</ZoruLabel>
-              <ZoruSelect name="currency" defaultValue="INR">
-                <ZoruSelectTrigger id="currency">
-                  <ZoruSelectValue placeholder="Select currency" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="INR">INR</ZoruSelectItem>
-                  <ZoruSelectItem value="USD">USD</ZoruSelectItem>
-                  <ZoruSelectItem value="EUR">EUR</ZoruSelectItem>
-                  <ZoruSelectItem value="GBP">GBP</ZoruSelectItem>
-                </ZoruSelectContent>
-              </ZoruSelect>
+              <EntityFormField entity="currency" name="currency" initialId="INR" />
             </div>
           </div>
 
@@ -149,19 +140,7 @@ export default function NewDealPage() {
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
               <ZoruLabel htmlFor="leadSource">Lead Source</ZoruLabel>
-              <ZoruSelect name="leadSource">
-                <ZoruSelectTrigger id="leadSource">
-                  <ZoruSelectValue placeholder="Select source" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="Website">Website</ZoruSelectItem>
-                  <ZoruSelectItem value="Referral">Referral</ZoruSelectItem>
-                  <ZoruSelectItem value="Cold Outreach">Cold Outreach</ZoruSelectItem>
-                  <ZoruSelectItem value="Social Media">Social Media</ZoruSelectItem>
-                  <ZoruSelectItem value="Event">Event</ZoruSelectItem>
-                  <ZoruSelectItem value="Other">Other</ZoruSelectItem>
-                </ZoruSelectContent>
-              </ZoruSelect>
+              <EntityFormField entity="leadSource" name="leadSource" placeholder="Select source" />
             </div>
             <div className="space-y-1.5">
               <ZoruLabel htmlFor="priority">Priority</ZoruLabel>

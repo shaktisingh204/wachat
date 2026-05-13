@@ -9,7 +9,7 @@ import { addCrmLead } from '@/app/actions/crm-leads.actions';
 import { getCrmPipelines } from '@/app/actions/crm-pipelines.actions';
 import { getSession } from '@/app/actions/user.actions';
 import type { WithId, CrmPipeline, User } from '@/lib/definitions';
-import { EntityPicker } from '@/components/crm/entity-picker';
+import { EntityFormField } from '@/components/crm/entity-form-field';
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -18,10 +18,6 @@ const initialState: { message?: string; error?: string; leadId?: string } = { me
 
 const leadStatuses = [
     "New", "Contacted", "Qualified", "Unqualified", "Converted",
-];
-
-const leadSources = [
-    "Website", "Referral", "Cold Call", "Social Media", "Email Campaign", "Advertisement", "Partner", "Other",
 ];
 
 function SubmitButton() {
@@ -94,8 +90,6 @@ export default function AddLeadPage() {
         }
     }, [state, toast, router]);
 
-    const selectedPipeline = pipelines.find(p => p.id === selectedPipelineId);
-
     if (isLoading || !user) {
         return <NewLeadPageSkeleton />;
     }
@@ -109,7 +103,6 @@ export default function AddLeadPage() {
             </div>
             <form action={formAction} ref={formRef}>
                 <input type="hidden" name="nextFollowUp" value={nextFollowUp?.toISOString() || ''} />
-                <input type="hidden" name="assignedTo" value={assignedToId} />
                 <ZoruCard className="mt-4">
                     <div className="mb-6">
                         <h2 className="text-[20px] font-semibold text-foreground flex items-center gap-2">
@@ -130,10 +123,7 @@ export default function AddLeadPage() {
                             </div>
                             <div className="space-y-2">
                                 <ZoruLabel htmlFor="currency" className="text-foreground">Currency</ZoruLabel>
-                                <ZoruSelect name="currency" defaultValue="INR">
-                                    <ZoruSelectTrigger id="currency"><ZoruSelectValue /></ZoruSelectTrigger>
-                                    <ZoruSelectContent><ZoruSelectItem value="INR">INR</ZoruSelectItem><ZoruSelectItem value="USD">USD</ZoruSelectItem></ZoruSelectContent>
-                                </ZoruSelect>
+                                <EntityFormField entity="currency" name="currency" initialId="INR" />
                             </div>
                         </div>
                         <ZoruSeparator />
@@ -154,19 +144,14 @@ export default function AddLeadPage() {
                         </div>
                         <div className="grid md:grid-cols-2 gap-4">
                             <div className="space-y-2"><ZoruLabel htmlFor="website" className="text-foreground">Website</ZoruLabel><ZoruInput id="website" name="website" className="h-10 rounded-lg border-border bg-card text-[13px]" /></div>
-                            <div className="space-y-2"><ZoruLabel htmlFor="contactCountry" className="text-foreground">Contact Country</ZoruLabel><ZoruSelect name="contactCountry" defaultValue="India"><ZoruSelectTrigger id="contactCountry"><ZoruSelectValue /></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="India">India</ZoruSelectItem><ZoruSelectItem value="USA">United States</ZoruSelectItem></ZoruSelectContent></ZoruSelect></div>
+                            <div className="space-y-2"><ZoruLabel htmlFor="contactCountry" className="text-foreground">Contact Country</ZoruLabel><EntityFormField entity="country" name="contactCountry" initialId="India" /></div>
                         </div>
                         <ZoruSeparator />
                         <h3 className="text-[15px] font-semibold text-foreground pb-2">Lead Status & Assignment</h3>
                         <div className="grid md:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <ZoruLabel htmlFor="source" className="text-foreground">Lead Source</ZoruLabel>
-                                <ZoruSelect name="source">
-                                    <ZoruSelectTrigger id="source"><ZoruSelectValue placeholder="Select lead source..." /></ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        {leadSources.map(source => (<ZoruSelectItem key={source} value={source}>{source}</ZoruSelectItem>))}
-                                    </ZoruSelectContent>
-                                </ZoruSelect>
+                                <EntityFormField entity="leadSource" name="source" placeholder="Select lead source..." />
                             </div>
                             <div className="space-y-2">
                                 <ZoruLabel htmlFor="status" className="text-foreground">Lead Status</ZoruLabel>
@@ -181,38 +166,33 @@ export default function AddLeadPage() {
                         <div className="grid md:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <ZoruLabel htmlFor="pipelineId" className="text-foreground">Sales Pipeline</ZoruLabel>
-                                <input type="hidden" name="pipelineId" value={selectedPipelineId} />
-                                <EntityPicker
+                                <EntityFormField
                                     entity="pipeline"
-                                    value={selectedPipelineId || null}
+                                    name="pipelineId"
+                                    initialId={selectedPipelineId || null}
                                     placeholder="Select pipeline..."
-                                    onChange={(next) => {
-                                        const id = Array.isArray(next) ? next[0] ?? '' : (next ?? '');
-                                        setSelectedPipelineId(id);
-                                    }}
+                                    onChange={(next) => setSelectedPipelineId(next ?? '')}
                                 />
                             </div>
                             <div className="space-y-2">
                                 <ZoruLabel htmlFor="stage" className="text-foreground">Pipeline Stage</ZoruLabel>
-                                <ZoruSelect name="stage">
-                                    <ZoruSelectTrigger id="stage"><ZoruSelectValue placeholder="Select stage..." /></ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        {(selectedPipeline?.stages || []).map(stage => <ZoruSelectItem key={stage.id} value={stage.name}>{stage.name}</ZoruSelectItem>)}
-                                    </ZoruSelectContent>
-                                </ZoruSelect>
+                                <EntityFormField
+                                    entity="stage"
+                                    name="stage"
+                                    placeholder="Select stage..."
+                                    filter={selectedPipelineId ? { pipelineId: selectedPipelineId } : undefined}
+                                />
                             </div>
                         </div>
                         <div className="grid md:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <ZoruLabel htmlFor="assignedTo" className="text-foreground">Assigned To</ZoruLabel>
-                                <EntityPicker
+                                <EntityFormField
                                     entity="user"
-                                    value={assignedToId || null}
+                                    name="assignedTo"
+                                    initialId={assignedToId || null}
                                     placeholder="Unassigned"
-                                    onChange={(next) => {
-                                        const id = Array.isArray(next) ? next[0] ?? '' : (next ?? '');
-                                        setAssignedToId(id);
-                                    }}
+                                    onChange={(next) => setAssignedToId(next ?? '')}
                                 />
                             </div>
                             <div className="space-y-2">

@@ -1,8 +1,8 @@
 import type { HrField } from '../_components/hr-entity-page';
 
 export const fields: HrField[] = [
-  { name: 'manager_id', label: 'Manager', required: true, placeholder: 'Manager ID or name' },
-  { name: 'employee_id', label: 'Employee', required: true, placeholder: 'Employee ID or name' },
+  { name: 'manager_id', label: 'Manager', required: true, type: 'entity', entity: 'employee' },
+  { name: 'employee_id', label: 'Employee', required: true, type: 'entity', entity: 'employee' },
   { name: 'scheduled_date', label: 'Scheduled Date', type: 'date', required: true },
   { name: 'duration_minutes', label: 'Duration (minutes)', type: 'number', defaultValue: '30' },
   {

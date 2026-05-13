@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useEffect, useRef } from 'react';
+import { useActionState, useEffect, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import Link from 'next/link';
 import { ArrowLeft, HandCoins, LoaderCircle, Save } from 'lucide-react';
@@ -15,6 +15,14 @@ import {
     useZoruToast,
 } from '@/components/zoruui';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityFormField } from '@/components/crm/entity-form-field';
+import type { EntityKey } from '@/lib/lookup-registry';
+
+function borrowerEntityForType(type: string): EntityKey {
+    if (type === 'employee_advance') return 'employee';
+    if (type === 'vendor_advance') return 'vendor';
+    return 'client';
+}
 
 interface Props {
     loan: any;
@@ -52,6 +60,7 @@ export function EditLoanForm({ loan, loanId }: Props) {
     const [state, formAction] = useActionState(updateLoan as any, initialState);
     const { toast } = useZoruToast();
     const formRef = useRef<HTMLFormElement>(null);
+    const [loanType, setLoanType] = useState<string>(loan?.type ?? 'customer_loan');
 
     useEffect(() => {
         if (state?.message) {
@@ -90,23 +99,23 @@ export function EditLoanForm({ loan, loanId }: Props) {
                             <ZoruInput
                                 id="type"
                                 name="type"
-                                defaultValue={loan.type ?? 'customer_loan'}
+                                value={loanType}
+                                onChange={(e) => setLoanType(e.target.value)}
                                 className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                             />
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel
-                                htmlFor="borrowerName"
-                                className="text-[12.5px] text-zoru-ink-muted"
-                            >
+                            <ZoruLabel className="text-[12.5px] text-zoru-ink-muted">
                                 Borrower
                             </ZoruLabel>
-                            <ZoruInput
-                                id="borrowerName"
-                                name="borrowerName"
+                            <EntityFormField
+                                entity={borrowerEntityForType(loanType)}
+                                name="borrowerId"
+                                dualWriteName="borrowerName"
+                                initialId={loan.borrowerId ?? null}
+                                initialLabel={loan.borrowerName ?? ''}
                                 required
-                                defaultValue={loan.borrowerName ?? ''}
-                                className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                                placeholder="Select borrower…"
                             />
                         </div>
                         <div className="grid grid-cols-2 gap-4">

@@ -13,6 +13,7 @@ import {
   useZoruToast,
 } from '@/components/zoruui';
 import { SabFileUrlInput } from '@/components/sabfiles';
+import { EntityFormField } from '@/components/crm/entity-form-field';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 import {
   getCompanyProfile,
@@ -164,18 +165,78 @@ export default function CompanyProfilePage() {
                     className="mt-1.5"
                   />
                 </div>
-                <Field name="city" label="City" defaultValue={profile?.city} />
-                <Field name="state" label="State" defaultValue={profile?.state} />
-                <Field
-                  name="country_id"
-                  label="Country Code / ID"
-                  defaultValue={profile?.country_id}
-                />
+                <div>
+                  <ZoruLabel className="text-[13px] text-zoru-ink">
+                    Country
+                  </ZoruLabel>
+                  <div className="mt-1.5">
+                    <EntityFormField
+                      entity="country"
+                      name="country_id"
+                      initialId={profile?.country_id ?? null}
+                      placeholder="Select country"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <ZoruLabel className="text-[13px] text-zoru-ink">
+                    State
+                  </ZoruLabel>
+                  <div className="mt-1.5">
+                    <EntityFormField
+                      entity="state"
+                      name="state"
+                      initialId={profile?.state ?? null}
+                      filter={
+                        profile?.country_id
+                          ? { country: profile.country_id }
+                          : undefined
+                      }
+                      placeholder="Select state"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <ZoruLabel className="text-[13px] text-zoru-ink">
+                    City
+                  </ZoruLabel>
+                  <div className="mt-1.5">
+                    <EntityFormField
+                      entity="city"
+                      name="city"
+                      initialId={profile?.city ?? null}
+                      filter={
+                        profile?.state
+                          ? { state: profile.state }
+                          : profile?.country_id
+                            ? { country: profile.country_id }
+                            : undefined
+                      }
+                      placeholder="Select city"
+                    />
+                  </div>
+                </div>
                 <Field
                   name="postal_code"
                   label="Postal Code"
                   defaultValue={profile?.postal_code}
                 />
+                <div>
+                  <ZoruLabel className="text-[13px] text-zoru-ink">
+                    Industry
+                  </ZoruLabel>
+                  <div className="mt-1.5">
+                    <EntityFormField
+                      entity="industry"
+                      name="industry"
+                      initialId={
+                        (profile as unknown as { industry?: string })
+                          ?.industry ?? null
+                      }
+                      placeholder="Select industry"
+                    />
+                  </div>
+                </div>
                 <Field
                   name="gst_number"
                   label="GST Number"
@@ -192,30 +253,51 @@ export default function CompanyProfilePage() {
             <ZoruCard className="p-6">
               <h2 className="mb-4 text-[16px] text-zoru-ink">Locale & Fiscal</h2>
               <div className="grid gap-4 md:grid-cols-2">
-                <Field
-                  name="currency_code"
-                  label="Currency Code"
-                  defaultValue={profile?.currency_code}
-                  placeholder="USD"
-                />
+                <div>
+                  <ZoruLabel className="text-[13px] text-zoru-ink">
+                    Currency
+                  </ZoruLabel>
+                  <div className="mt-1.5">
+                    <EntityFormField
+                      entity="currency"
+                      name="currency_code"
+                      initialId={profile?.currency_code ?? null}
+                      placeholder="Select currency"
+                    />
+                  </div>
+                </div>
                 <Field
                   name="fiscal_year_start_month"
                   label="Fiscal Year Start Month (1–12)"
                   type="number"
                   defaultValue={profile?.fiscal_year_start_month ?? 1}
                 />
-                <Field
-                  name="timezone"
-                  label="Timezone"
-                  defaultValue={profile?.timezone}
-                  placeholder="Asia/Kolkata"
-                />
-                <Field
-                  name="language"
-                  label="Language"
-                  defaultValue={profile?.language}
-                  placeholder="en"
-                />
+                <div>
+                  <ZoruLabel className="text-[13px] text-zoru-ink">
+                    Timezone
+                  </ZoruLabel>
+                  <div className="mt-1.5">
+                    <EntityFormField
+                      entity="timezone"
+                      name="timezone"
+                      initialId={profile?.timezone ?? null}
+                      placeholder="Asia/Kolkata"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <ZoruLabel className="text-[13px] text-zoru-ink">
+                    Language
+                  </ZoruLabel>
+                  <div className="mt-1.5">
+                    <EntityFormField
+                      entity="language"
+                      name="language"
+                      initialId={profile?.language ?? null}
+                      placeholder="Select language"
+                    />
+                  </div>
+                </div>
                 <Field
                   name="date_format"
                   label="Date Format"

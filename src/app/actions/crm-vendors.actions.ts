@@ -27,6 +27,7 @@ import type { BankAccountDetails, CrmVendor, CrmVendorType } from '@/lib/definit
 import { vendorApi, type CrmVendorDoc } from '@/lib/rust-client/crm-vendors';
 import { RustApiError } from '@/lib/rust-client/fetcher';
 import { getErrorMessage } from '@/lib/utils';
+import { requirePermission } from '@/lib/rbac-server';
 
 function useRustCrm(): boolean {
     return process.env.USE_RUST_CRM === 'true';
@@ -160,6 +161,9 @@ export async function saveCrmVendor(
 
     const vendorId = formData.get('vendorId') as string | null;
     const isEditing = !!vendorId;
+
+    const guard = await requirePermission('crm_vendor', isEditing ? 'edit' : 'create');
+    if (!guard.ok) return { error: guard.error };
 
     const name = (formData.get('name') as string | null) || '';
     if (!name.trim()) {
@@ -305,6 +309,10 @@ export async function deleteCrmVendor(
 ): Promise<{ success: boolean; error?: string }> {
     const session = await getSession();
     if (!session?.user) return { success: false, error: 'Access denied.' };
+
+    const guard = await requirePermission('crm_vendor', 'delete');
+    if (!guard.ok) return { success: false, error: guard.error };
+
     if (!vendorId) return { success: false, error: 'Invalid Vendor ID.' };
 
     if (useRustCrm()) {

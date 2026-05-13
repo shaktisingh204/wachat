@@ -14,6 +14,7 @@ import {
     useZoruToast,
 } from '@/components/zoruui';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityFormField } from '@/components/crm/entity-form-field';
 import { saveGiftCard } from '@/app/actions/crm-gift-cards.actions';
 
 export const dynamic = 'force-dynamic';
@@ -86,14 +87,11 @@ export default function NewGiftCardPage() {
                     {/* Issued To + Email */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="issuedTo" className="text-zoru-ink">
-                                Issued To
-                            </ZoruLabel>
-                            <ZoruInput
-                                id="issuedTo"
-                                name="issuedTo"
-                                placeholder="Customer name"
-                                maxLength={100}
+                            <ZoruLabel className="text-zoru-ink">Issued To</ZoruLabel>
+                            <EntityFormField
+                                entity="client"
+                                name="clientId"
+                                dualWriteName="issuedTo"
                             />
                         </div>
                         <div className="space-y-1.5">

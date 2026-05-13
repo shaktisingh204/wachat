@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { saveCrmStockAdjustment } from "@/app/actions/crm-inventory.actions";
-import { EntityPicker } from "@/components/crm/entity-picker";
+import { EntityFormField } from "@/components/crm/entity-form-field";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, ArrowLeft } from "lucide-react";
 import Link from "next/link";
@@ -19,16 +19,10 @@ export function AdjustmentForm() {
     const { toast } = useToast();
     const [isSubmitting, setIsSubmitting] = React.useState(false);
 
-    const [productId, setProductId] = React.useState<string>('');
-    const [warehouseId, setWarehouseId] = React.useState<string>('');
-
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setIsSubmitting(true);
         const formData = new FormData(e.currentTarget);
-
-        if (productId) formData.set('productId', productId);
-        if (warehouseId) formData.set('warehouseId', warehouseId);
 
         try {
             const result = await saveCrmStockAdjustment(null, formData);
@@ -79,21 +73,19 @@ export function AdjustmentForm() {
                 <CardContent className="grid gap-4">
                     <div className="grid gap-2">
                         <Label>Product *</Label>
-                        <input type="hidden" name="productId" value={productId} />
-                        <EntityPicker
+                        <EntityFormField
                             entity="item"
-                            value={productId || null}
-                            onChange={(next) => setProductId(Array.isArray(next) ? (next[0] ?? '') : (next ?? ''))}
+                            name="productId"
+                            required
                         />
                     </div>
 
                     <div className="grid gap-2">
                         <Label>Warehouse *</Label>
-                        <input type="hidden" name="warehouseId" value={warehouseId} />
-                        <EntityPicker
+                        <EntityFormField
                             entity="warehouse"
-                            value={warehouseId || null}
-                            onChange={(next) => setWarehouseId(Array.isArray(next) ? (next[0] ?? '') : (next ?? ''))}
+                            name="warehouseId"
+                            required
                         />
                     </div>
 

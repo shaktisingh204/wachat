@@ -14,6 +14,7 @@ import {
 import { CrmPageHeader } from '../../_components/crm-page-header';
 import { savePettyCashFloat } from '@/app/actions/crm-petty-cash.actions';
 import { useRouter } from 'next/navigation';
+import { EntityFormField } from '@/components/crm/entity-form-field';
 
 export const dynamic = 'force-dynamic';
 
@@ -66,26 +67,26 @@ export default function NewPettyCashFloatPage() {
 
       <ZoruCard className="p-6">
         <form action={formAction} className="grid gap-5 md:grid-cols-2">
-          {/* Branch Name */}
+          {/* Branch */}
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="branchName">Branch Name *</ZoruLabel>
-            <ZoruInput
-              id="branchName"
-              name="branchName"
-              placeholder="e.g. Mumbai HQ"
+            <ZoruLabel>Branch *</ZoruLabel>
+            <EntityFormField
+              entity="branch"
+              name="branchId"
+              dualWriteName="branchName"
               required
-              className="h-10"
+              placeholder="Select branch…"
             />
           </div>
 
-          {/* Custodian Name */}
+          {/* Custodian */}
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="custodianName">Custodian Name</ZoruLabel>
-            <ZoruInput
-              id="custodianName"
-              name="custodianName"
-              placeholder="e.g. Ravi Sharma"
-              className="h-10"
+            <ZoruLabel>Custodian</ZoruLabel>
+            <EntityFormField
+              entity="employee"
+              name="custodianId"
+              dualWriteName="custodianName"
+              placeholder="Select custodian…"
             />
           </div>
 

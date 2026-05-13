@@ -27,7 +27,7 @@ export default function TicketAgentGroupsPage() {
         { key: 'group_id', label: 'Group' },
       ]}
       fields={[
-        { name: 'agent_user_id', label: 'Agent User ID', required: true },
+        { name: 'agent_user_id', label: 'Agent', type: 'entity', entity: 'user', required: true },
         { name: 'group_id', label: 'Group ID', required: true },
       ]}
     />

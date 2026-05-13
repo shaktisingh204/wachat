@@ -1,7 +1,7 @@
 import type { HrField } from '../_components/hr-entity-page';
 
 export const fields: HrField[] = [
-  { name: 'employeeId', label: 'Employee', required: true, placeholder: 'Employee ID or name' },
+  { name: 'employeeId', label: 'Employee', required: true, type: 'entity', entity: 'employee' },
   { name: 'name', label: 'Certification Name', required: true, fullWidth: true, placeholder: 'e.g. AWS Solutions Architect' },
   { name: 'issuer', label: 'Issuing Organisation', placeholder: 'e.g. Amazon Web Services' },
   { name: 'issuingOrganization', label: 'Issuing Org (full name)' },

@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { saveCrmProduct } from "@/app/actions/crm-products.actions";
-import { EntityPicker } from "@/components/crm/entity-picker";
+import { EntityFormField } from "@/components/crm/entity-form-field";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, ArrowLeft, Upload, X } from "lucide-react";
 import Link from "next/link";
@@ -25,10 +25,7 @@ export function ProductForm({ initialData }: ProductFormProps) {
     const { toast } = useToast();
     const [isSubmitting, setIsSubmitting] = React.useState(false);
 
-    // State management for smart selects and other controlled inputs
-    const [categoryId, setCategoryId] = React.useState(initialData?.categoryId || '');
-    const [brandId, setBrandId] = React.useState(initialData?.brandId || '');
-    const [unitId, setUnitId] = React.useState(initialData?.unitId || '');
+    // State management for controlled inputs (entity references handled by EntityFormField hidden inputs).
     const [isTrackInventory, setIsTrackInventory] = React.useState(initialData?.isTrackInventory || false);
     const [imageUrl, setImageUrl] = React.useState<string>(initialData?.images?.[0] || '');
     const [imageName, setImageName] = React.useState<string>('');
@@ -38,10 +35,6 @@ export function ProductForm({ initialData }: ProductFormProps) {
         setIsSubmitting(true);
         const formData = new FormData(e.currentTarget);
 
-        // Append controlled values
-        if (categoryId) formData.set('categoryId', categoryId);
-        if (brandId) formData.set('brandId', brandId);
-        if (unitId) formData.set('unitId', unitId);
         if (imageUrl) formData.set('imageUrl', imageUrl);
         // Drop the (now unused) imageFile entry — server prefers imageUrl.
         formData.delete('imageFile');
@@ -211,20 +204,18 @@ export function ProductForm({ initialData }: ProductFormProps) {
                         <CardContent className="grid gap-4">
                             <div className="grid gap-2">
                                 <Label>Category</Label>
-                                <input type="hidden" name="categoryId" value={categoryId} />
-                                <EntityPicker
+                                <EntityFormField
                                     entity="category"
-                                    value={categoryId || null}
-                                    onChange={(next) => setCategoryId(Array.isArray(next) ? (next[0] ?? '') : (next ?? ''))}
+                                    name="categoryId"
+                                    initialId={initialData?.categoryId || null}
                                 />
                             </div>
                             <div className="grid gap-2">
                                 <Label>Brand</Label>
-                                <input type="hidden" name="brandId" value={brandId} />
-                                <EntityPicker
+                                <EntityFormField
                                     entity="brand"
-                                    value={brandId || null}
-                                    onChange={(next) => setBrandId(Array.isArray(next) ? (next[0] ?? '') : (next ?? ''))}
+                                    name="brandId"
+                                    initialId={initialData?.brandId || null}
                                 />
                             </div>
                         </CardContent>
@@ -237,11 +228,10 @@ export function ProductForm({ initialData }: ProductFormProps) {
                         <CardContent className="grid gap-4">
                             <div className="grid gap-2">
                                 <Label>Unit of Measure</Label>
-                                <input type="hidden" name="unitId" value={unitId} />
-                                <EntityPicker
+                                <EntityFormField
                                     entity="unit"
-                                    value={unitId || null}
-                                    onChange={(next) => setUnitId(Array.isArray(next) ? (next[0] ?? '') : (next ?? ''))}
+                                    name="unitId"
+                                    initialId={initialData?.unitId || null}
                                 />
                             </div>
 

@@ -8,6 +8,7 @@ import { getErrorMessage } from '@/lib/utils';
 import type { CrmSalaryStructure, CrmPayslip, CrmEmployee } from '@/lib/definitions';
 import { revalidatePath } from 'next/cache';
 import { startOfMonth, endOfMonth, getDaysInMonth } from 'date-fns';
+import { requirePermission } from '@/lib/rbac-server';
 
 export async function getSalaryStructures(): Promise<WithId<CrmSalaryStructure>[]> {
     const session = await getSession();
@@ -26,6 +27,9 @@ export async function saveSalaryStructure(prevState: any, formData: FormData): P
     if (!session?.user) return { success: false, error: 'Authentication required.' };
 
     const id = formData.get('id') as string | null;
+    const guard = await requirePermission('crm_payroll', id && ObjectId.isValid(id) ? 'edit' : 'create');
+    if (!guard.ok) return { success: false, error: guard.error };
+
     const components = JSON.parse(formData.get('components') as string);
     const structureData = {
         name: formData.get('name') as string,
@@ -60,6 +64,9 @@ export async function saveSalaryStructure(prevState: any, formData: FormData): P
 export async function deleteSalaryStructure(id: string): Promise<{ success: boolean; error?: string }> {
     const session = await getSession();
     if (!session?.user) return { success: false, error: "Access denied" };
+
+    const guard = await requirePermission('crm_payroll', 'delete');
+    if (!guard.ok) return { success: false, error: guard.error };
 
     if (!id || !ObjectId.isValid(id)) {
         return { success: false, error: 'Invalid ID' };
@@ -151,6 +158,9 @@ export async function generatePayrollData(month: number, year: number): Promise<
 export async function processPayroll(payrollData: any[], month: number, year: number): Promise<{ success: boolean; error?: string }> {
     const session = await getSession();
     if (!session?.user) return { success: false, error: 'Authentication required' };
+
+    const guard = await requirePermission('crm_payroll', 'create');
+    if (!guard.ok) return { success: false, error: guard.error };
 
     try {
         const { db } = await connectToDatabase();

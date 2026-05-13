@@ -7,6 +7,7 @@ import { getSession } from '@/app/actions/user.actions';
 import type { CrmPurchaseOrder, LineageKind, LineageRef } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import { appendLineage, buildLineageFromParent } from '@/lib/lineage';
+import { requirePermission } from '@/lib/rbac-server';
 
 async function getNextPurchaseOrderNumber(db: Db, userId: ObjectId): Promise<string> {
     const lastOrder = await db.collection<CrmPurchaseOrder>('crm_purchase_orders')
@@ -99,12 +100,15 @@ export async function savePurchaseOrder(prevState: any, formData: FormData): Pro
     const session = await getSession();
     if (!session?.user) return { error: 'Access denied' };
 
+    const orderIdRaw = formData.get('orderId') as string | null;
+    const isEdit = !!orderIdRaw && ObjectId.isValid(orderIdRaw);
+
+    const guard = await requirePermission('crm_purchase_order', isEdit ? 'edit' : 'create');
+    if (!guard.ok) return { error: guard.error };
+
     try {
         const { db } = await connectToDatabase();
         const userObjectId = new ObjectId(session.user._id);
-
-        const orderIdRaw = formData.get('orderId') as string | null;
-        const isEdit = !!orderIdRaw && ObjectId.isValid(orderIdRaw);
 
         let orderNumber = formData.get('orderNumber') as string;
         if (!orderNumber && !isEdit) {
@@ -258,6 +262,9 @@ export async function deletePurchaseOrder(orderId: string): Promise<{ success: b
 
     const session = await getSession();
     if (!session?.user) return { success: false, error: 'Access denied.' };
+
+    const guard = await requirePermission('crm_purchase_order', 'delete');
+    if (!guard.ok) return { success: false, error: guard.error };
 
     try {
         const { db } = await connectToDatabase();

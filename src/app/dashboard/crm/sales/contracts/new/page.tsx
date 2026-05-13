@@ -19,6 +19,7 @@ import {
   useZoruToast,
 } from '@/components/zoruui';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityFormField } from '@/components/crm/entity-form-field';
 import { saveContract } from '@/app/actions/crm-contracts.actions';
 
 export const dynamic = 'force-dynamic';
@@ -107,14 +108,14 @@ export default function NewContractPage() {
             </div>
           </div>
 
-          {/* Row 2: Counter-party Name + Counter-party Email */}
+          {/* Row 2: Counter-party (client picker, dual-writes partyName) + Email */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="partyName">Counter-party Name</ZoruLabel>
-              <ZoruInput
-                id="partyName"
-                name="partyName"
-                placeholder="Organisation or individual name"
+              <ZoruLabel>Counter-party</ZoruLabel>
+              <EntityFormField
+                entity="client"
+                name="clientId"
+                dualWriteName="partyName"
                 required
               />
             </div>

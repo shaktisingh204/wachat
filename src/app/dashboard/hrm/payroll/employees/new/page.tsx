@@ -1,27 +1,15 @@
-'use client';
-
-import { EmployeeForm } from '@/components/wabasimplify/crm-employee-form';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
-import { getCrmDepartments, getCrmDesignations } from '@/app/actions/crm-employees.actions';
-import { useEffect, useState } from 'react';
 
+import { EmployeeForm } from '@/components/wabasimplify/crm-employee-form';
 import { ZoruButton } from '@/components/zoruui';
 
+/**
+ * `/new` is a server component — the rebuilt `EmployeeForm` uses
+ * `<EntityFormField>` pickers that fetch on focus, so we no longer
+ * need a client-side prefetch of departments + designations.
+ */
 export default function NewEmployeePage() {
-    const [departments, setDepartments] = useState([]);
-    const [designations, setDesignations] = useState([]);
-
-    useEffect(() => {
-        Promise.all([
-            getCrmDepartments(),
-            getCrmDesignations(),
-        ]).then(([depts, desigs]) => {
-            setDepartments(depts as any);
-            setDesignations(desigs as any);
-        });
-    }, []);
-
     return (
         <div className="flex w-full max-w-4xl flex-col gap-6">
             <div>
@@ -31,10 +19,14 @@ export default function NewEmployeePage() {
                         Back to Employee Directory
                     </ZoruButton>
                 </Link>
-                <h1 className="mt-2 text-[26px] leading-tight text-zoru-ink">Add New Employee</h1>
-                <p className="mt-1 text-[13px] text-zoru-ink-muted">Enter the details for the new employee.</p>
+                <h1 className="mt-2 text-[26px] leading-tight text-zoru-ink">
+                    Add New Employee
+                </h1>
+                <p className="mt-1 text-[13px] text-zoru-ink-muted">
+                    Enter the details for the new employee.
+                </p>
             </div>
-            <EmployeeForm departments={departments} designations={designations} />
+            <EmployeeForm />
         </div>
     );
 }

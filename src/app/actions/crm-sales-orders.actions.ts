@@ -28,6 +28,7 @@ import {
     type CrmSalesOrderTotals,
 } from '@/lib/rust-client/crm-sales-orders';
 import { RustApiError } from '@/lib/rust-client/fetcher';
+import { requirePermission } from '@/lib/rbac-server';
 
 function useRustCrm(): boolean {
     return process.env.USE_RUST_CRM === 'true';
@@ -149,6 +150,9 @@ export async function getSalesOrders(
 export async function saveSalesOrder(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
     const session = await getSession();
     if (!session?.user) return { error: 'Access denied' };
+
+    const guard = await requirePermission('crm_sales_order', 'create');
+    if (!guard.ok) return { error: guard.error };
 
     if (useRustCrm()) {
         try {
@@ -345,6 +349,9 @@ export async function updateSalesOrderStatus(
     const session = await getSession();
     if (!session?.user) return { success: false, error: 'Access denied.' };
 
+    const guard = await requirePermission('crm_sales_order', 'edit');
+    if (!guard.ok) return { success: false, error: guard.error };
+
     const allowed = ['Draft', 'Confirmed', 'Shipped', 'Delivered', 'Cancelled'];
     if (!allowed.includes(status)) return { success: false, error: 'Invalid status.' };
 
@@ -411,6 +418,9 @@ export async function deleteSalesOrder(orderId: string): Promise<{ success: bool
     if (!orderId) return { success: false, error: 'Invalid sales order id.' };
     const session = await getSession();
     if (!session?.user) return { success: false, error: 'Access denied.' };
+
+    const guard = await requirePermission('crm_sales_order', 'delete');
+    if (!guard.ok) return { success: false, error: guard.error };
 
     if (useRustCrm()) {
         try {

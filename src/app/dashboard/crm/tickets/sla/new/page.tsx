@@ -20,6 +20,7 @@ import {
 } from '@/components/zoruui';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
 import { saveSla } from '@/app/actions/crm-sla.actions';
+import { EntityFormField } from '@/components/crm/entity-form-field';
 
 export const dynamic = 'force-dynamic';
 
@@ -156,11 +157,11 @@ export default function NewSlaPage() {
               />
             </div>
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="escalateTo">Escalate to (user or role)</ZoruLabel>
-              <ZoruInput
-                id="escalateTo"
+              <ZoruLabel htmlFor="escalateTo">Escalate to (user)</ZoruLabel>
+              <EntityFormField
+                entity="user"
                 name="escalateTo"
-                placeholder="e.g. support-manager"
+                placeholder="Select user"
               />
             </div>
           </div>

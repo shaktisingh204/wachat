@@ -5,6 +5,7 @@ import { useFormStatus } from 'react-dom';
 import { LoaderCircle, Save } from 'lucide-react';
 
 import { saveCrmVendor } from '@/app/actions/crm-vendors.actions';
+import { EntityFormField } from '@/components/crm/entity-form-field';
 import {
     ZoruButton,
     ZoruCard,
@@ -49,11 +50,23 @@ export function VendorEditForm({ vendor }: Props) {
                     <Field name="gstin" label="GSTIN" defaultValue={vendor.gstin} />
                     <Field name="pan" label="PAN" defaultValue={vendor.pan} />
                     <Field name="address" label="Address" defaultValue={vendor.address} />
-                    <Field name="city" label="City" defaultValue={vendor.city} />
-                    <Field name="state" label="State" defaultValue={vendor.state} />
-                    <Field name="country" label="Country" defaultValue={vendor.country} />
+                    <div>
+                        <ZoruLabel htmlFor="city">City</ZoruLabel>
+                        <EntityFormField entity="city" name="city" initialId={vendor.city ?? null} initialLabel={vendor.city ?? ''} />
+                    </div>
+                    <div>
+                        <ZoruLabel htmlFor="state">State</ZoruLabel>
+                        <EntityFormField entity="state" name="state" initialId={vendor.state ?? null} initialLabel={vendor.state ?? ''} />
+                    </div>
+                    <div>
+                        <ZoruLabel htmlFor="country">Country</ZoruLabel>
+                        <EntityFormField entity="country" name="country" initialId={vendor.country ?? null} initialLabel={vendor.country ?? ''} />
+                    </div>
                     <Field name="website" label="Website" defaultValue={vendor.website} />
-                    <Field name="industry" label="Industry" defaultValue={vendor.industry} />
+                    <div>
+                        <ZoruLabel htmlFor="industry">Industry</ZoruLabel>
+                        <EntityFormField entity="industry" name="industry" initialId={vendor.industry ?? null} initialLabel={vendor.industry ?? ''} />
+                    </div>
                     <Field name="paymentTerms" label="Payment terms" defaultValue={vendor.paymentTerms} />
                     <div className="md:col-span-2">
                         <ZoruLabel htmlFor="notes">Notes</ZoruLabel>

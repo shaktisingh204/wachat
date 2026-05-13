@@ -30,7 +30,8 @@ export const fields: HrField[] = [
   {
     name: 'employee_id',
     label: 'Employee (for Individual)',
-    placeholder: 'Employee ID or name',
+    type: 'entity',
+    entity: 'employee',
   },
   {
     name: 'due_date',

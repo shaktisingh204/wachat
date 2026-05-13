@@ -13,6 +13,7 @@ import {
     ZoruLabel,
     ZoruTextarea,
 } from '@/components/zoruui';
+import { EntityFormField } from '@/components/crm/entity-form-field';
 
 function SubmitButton() {
     const { pending } = useFormStatus();
@@ -36,8 +37,28 @@ export function PettyCashEditForm({ float }: { float: Record<string, any> }) {
                 <form action={action} className="grid gap-4 md:grid-cols-2">
                     <input type="hidden" name="floatId" value={String(float._id ?? '')} />
                     <Field name="name" label="Name" defaultValue={float.name} required />
-                    <Field name="branchName" label="Branch" defaultValue={float.branchName} />
-                    <Field name="custodianName" label="Custodian" defaultValue={float.custodianName} />
+                    <div>
+                        <ZoruLabel>Branch</ZoruLabel>
+                        <EntityFormField
+                            entity="branch"
+                            name="branchId"
+                            dualWriteName="branchName"
+                            initialId={float.branchId ?? null}
+                            initialLabel={float.branchName ?? ''}
+                            placeholder="Select branch…"
+                        />
+                    </div>
+                    <div>
+                        <ZoruLabel>Custodian</ZoruLabel>
+                        <EntityFormField
+                            entity="employee"
+                            name="custodianId"
+                            dualWriteName="custodianName"
+                            initialId={float.custodianId ?? null}
+                            initialLabel={float.custodianName ?? ''}
+                            placeholder="Select custodian…"
+                        />
+                    </div>
                     <Field name="openingBalance" label="Opening balance" type="number" defaultValue={float.openingBalance} />
                     <Field name="currentBalance" label="Current balance" type="number" defaultValue={float.currentBalance} />
                     <Field name="currency" label="Currency" defaultValue={float.currency} />

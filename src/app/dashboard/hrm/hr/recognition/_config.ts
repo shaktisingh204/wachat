@@ -1,7 +1,7 @@
 import type { HrField } from '../_components/hr-entity-page';
 
 export const fields: HrField[] = [
-  { name: 'employeeId', label: 'Employee (Recipient)', required: true },
+  { name: 'employeeId', label: 'Employee (Recipient)', required: true, type: 'entity', entity: 'employee' },
   { name: 'fromName', label: 'Recognized By', required: true },
   { name: 'fromEmail', label: 'Recognizer Email', type: 'email' },
   {
@@ -51,7 +51,7 @@ export const fields: HrField[] = [
   },
   { name: 'points', label: 'Points', type: 'number' },
   { name: 'monetaryReward', label: 'Monetary Reward', type: 'number' },
-  { name: 'currency', label: 'Currency', defaultValue: 'INR' },
+  { name: 'currency', label: 'Currency', type: 'entity', entity: 'currency', defaultValue: 'INR' },
   {
     name: 'visibility',
     label: 'Visibility',

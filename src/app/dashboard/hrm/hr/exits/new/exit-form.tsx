@@ -13,6 +13,7 @@ import {
     ZoruLabel,
     ZoruTextarea,
 } from '@/components/zoruui';
+import { EntityFormField } from '@/components/crm/entity-form-field';
 
 function SubmitButton() {
     const { pending } = useFormStatus();
@@ -35,8 +36,19 @@ export function ExitForm({ exit }: { exit?: Record<string, any> }) {
             <ZoruCardContent className="p-6">
                 <form action={action} className="grid gap-4 md:grid-cols-2">
                     {exit?._id ? <input type="hidden" name="exitId" value={String(exit._id)} /> : null}
-                    <Field name="employeeId" label="Employee ID" defaultValue={exit?.employeeId} required />
-                    <Field name="employeeName" label="Employee name" defaultValue={exit?.employeeName} />
+                    <div>
+                        <ZoruLabel htmlFor="employeeId">
+                            Employee <span className="text-zoru-danger-ink">*</span>
+                        </ZoruLabel>
+                        <EntityFormField
+                            entity="employee"
+                            name="employeeId"
+                            dualWriteName="employeeName"
+                            initialId={exit?.employeeId ? String(exit.employeeId) : undefined}
+                            initialLabel={exit?.employeeName}
+                            required
+                        />
+                    </div>
                     <Field name="type" label="Type (resignation / termination / end-of-contract)" defaultValue={exit?.type} />
                     <Field name="noticeStartDate" label="Notice start" type="date" defaultValue={exit?.noticeStartDate} />
                     <Field name="lastWorkingDay" label="Last working day" type="date" defaultValue={exit?.lastWorkingDay} />

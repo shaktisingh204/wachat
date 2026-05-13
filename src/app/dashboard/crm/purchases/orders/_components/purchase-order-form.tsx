@@ -36,6 +36,7 @@ import {
   useZoruToast,
 } from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EntityPicker } from '@/components/crm/entity-picker';
 import { savePurchaseOrderAction } from '@/app/actions/crm/purchase-orders.actions';
 import type {
   CrmPurchaseOrderDoc,
@@ -434,14 +435,15 @@ export function PurchaseOrderForm({ initial }: PurchaseOrderFormProps) {
                       className="h-8 w-20 text-[12.5px]"
                     />
                   </td>
-                  <td className="py-2 pr-2">
-                    <ZoruInput
-                      value={line.unit}
-                      onChange={(e) =>
-                        updateLine(line.key, { unit: e.target.value })
-                      }
+                  <td className="py-2 pr-2 min-w-[110px]">
+                    <EntityPicker
+                      entity="unit"
+                      value={line.unit || null}
                       placeholder="nos"
-                      className="h-8 w-20 text-[12.5px]"
+                      onChange={(next) => {
+                        const id = Array.isArray(next) ? (next[0] ?? '') : (next ?? '');
+                        updateLine(line.key, { unit: id });
+                      }}
                     />
                   </td>
                   <td className="py-2 pr-2">

@@ -17,11 +17,11 @@ export const fields: HrField[] = [
     ],
     defaultValue: 'mid',
   },
-  { name: 'department', label: 'Department' },
+  { name: 'department', label: 'Department', type: 'entity', entity: 'department' },
   { name: 'min_salary', label: 'Min Salary', type: 'number', required: true },
   { name: 'midSalary', label: 'Mid Salary', type: 'number' },
   { name: 'max_salary', label: 'Max Salary', type: 'number', required: true },
-  { name: 'currency', label: 'Currency', defaultValue: 'INR' },
+  { name: 'currency', label: 'Currency', type: 'entity', entity: 'currency', defaultValue: 'INR' },
   {
     name: 'currency_type',
     label: 'Currency Type',

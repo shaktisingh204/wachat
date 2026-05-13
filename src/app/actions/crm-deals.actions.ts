@@ -11,6 +11,7 @@ import { getErrorMessage } from '@/lib/utils';
 import { getDealStagesForIndustry } from '@/lib/crm-industry-stages';
 import { appendLineage, buildLineageFromParent } from '@/lib/lineage';
 import { applyCustomFieldsToEntity } from '@/app/actions/worksuite/meta.actions';
+import { requirePermission } from '@/lib/rbac-server';
 
 export async function getCrmDeals(
     page: number = 1,
@@ -80,6 +81,9 @@ export async function getCrmDealById(dealId: string): Promise<WithId<CrmDeal> | 
 export async function createCrmDeal(prevState: any, formData: FormData): Promise<{ message?: string, error?: string }> {
     const session = await getSession();
     if (!session?.user) return { error: "Access denied" };
+
+    const guard = await requirePermission('crm_deal', 'create');
+    if (!guard.ok) return { error: guard.error };
 
     try {
         const newDeal: Partial<Omit<CrmDeal, '_id'>> = {
@@ -216,6 +220,12 @@ export async function addCrmLeadAndDeal(
     const session = apiUser ? { user: apiUser } : await getSession();
     if (!session?.user) return { error: "Access denied" };
 
+    // Skip RBAC for API-key callers — those have their own scope checks upstream.
+    if (!apiUser) {
+        const guard = await requirePermission('crm_deal', 'create');
+        if (!guard.ok) return { error: guard.error };
+    }
+
     const { db } = await connectToDatabase();
 
     // --- Contact Handling ---
@@ -312,6 +322,9 @@ export async function updateCrmDealStage(dealId: string, newStage: string): Prom
     if (!session?.user) {
         return { success: false, error: 'Authentication required.' };
     }
+
+    const guard = await requirePermission('crm_deal', 'edit');
+    if (!guard.ok) return { success: false, error: guard.error };
 
     try {
         const { db } = await connectToDatabase();

@@ -40,6 +40,13 @@ export interface EntityFormFieldProps {
   placeholder?: string;
   /** Fires whenever the user picks/clears a value. */
   onChange?: (id: string | null, hydrated?: LookupItem) => void;
+  /**
+   * Optional handler for the inline "Create new …" affordance on
+   * non-reference entities. Threaded straight through to
+   * `<EntityPicker>`. When absent, the Create row is suppressed so
+   * users don't see a dead "Create" option.
+   */
+  onCreateClick?: () => void;
 }
 
 export function EntityFormField({
@@ -55,6 +62,7 @@ export function EntityFormField({
   disabled,
   placeholder,
   onChange,
+  onCreateClick,
 }: EntityFormFieldProps) {
   const [id, setId] = React.useState<string | null>(initialId ?? null);
   const [label, setLabel] = React.useState<string>(initialLabel ?? '');
@@ -82,6 +90,7 @@ export function EntityFormField({
         filter={filter}
         allowCreate={allowCreate}
         inlineCreate={inlineCreate}
+        onCreateClick={onCreateClick}
         required={required}
         disabled={disabled}
         placeholder={placeholder}

@@ -17,11 +17,13 @@ import {
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { saveBom } from '@/app/actions/crm-bom.actions';
 import { useRouter } from 'next/navigation';
+import { EntityFormField } from '@/components/crm/entity-form-field';
 
 export const dynamic = 'force-dynamic';
 
 type ComponentRow = {
   id: string;
+  itemId: string;
   itemName: string;
   qty: number;
   unit: string;
@@ -46,7 +48,7 @@ export default function NewBomPage() {
   const { toast } = useZoruToast();
 
   const [components, setComponents] = useState<ComponentRow[]>([
-    { id: uuidv4(), itemName: '', qty: 1, unit: '', scrapPct: 0 },
+    { id: uuidv4(), itemId: '', itemName: '', qty: 1, unit: '', scrapPct: 0 },
   ]);
 
   useEffect(() => {
@@ -62,7 +64,7 @@ export default function NewBomPage() {
   const addComponent = () => {
     setComponents(prev => [
       ...prev,
-      { id: uuidv4(), itemName: '', qty: 1, unit: '', scrapPct: 0 },
+      { id: uuidv4(), itemId: '', itemName: '', qty: 1, unit: '', scrapPct: 0 },
     ]);
   };
 
@@ -78,7 +80,8 @@ export default function NewBomPage() {
     setComponents(prev => prev.map(c => (c.id === id ? { ...c, [field]: value } : c)));
   };
 
-  const componentsForSubmit = components.map(({ itemName, qty, unit, scrapPct }) => ({
+  const componentsForSubmit = components.map(({ itemId, itemName, qty, unit, scrapPct }) => ({
+    itemId,
     itemName,
     qty,
     unit,
@@ -125,15 +128,13 @@ export default function NewBomPage() {
 
             <div className="space-y-1">
               <ZoruLabel htmlFor="finishedGoodName" className="text-xs text-zoru-ink">
-                Finished Good Name *
+                Finished Good *
               </ZoruLabel>
-              <ZoruInput
-                id="finishedGoodName"
-                name="finishedGoodName"
+              <EntityFormField
+                entity="item"
+                name="finishedGoodId"
+                dualWriteName="finishedGoodName"
                 required
-                placeholder="e.g. Widget Assembly"
-                className="h-9"
-                maxLength={200}
               />
             </div>
 
@@ -156,12 +157,10 @@ export default function NewBomPage() {
               <ZoruLabel htmlFor="unit" className="text-xs text-zoru-ink">
                 Unit
               </ZoruLabel>
-              <ZoruInput
-                id="unit"
+              <EntityFormField
+                entity="unit"
                 name="unit"
                 placeholder="e.g. PCS"
-                className="h-9"
-                maxLength={32}
               />
             </div>
 
@@ -244,12 +243,17 @@ export default function NewBomPage() {
                 {components.map((row, idx) => (
                   <tr key={row.id} className="border-b border-zoru-line last:border-0">
                     <td className="px-2 py-2">
-                      <ZoruInput
+                      <EntityFormField
+                        entity="item"
+                        name={`__bom-item-${row.id}`}
+                        initialId={row.itemId || null}
+                        initialLabel={row.itemName}
                         placeholder={`Component ${idx + 1}`}
-                        value={row.itemName}
-                        onChange={e => updateComponent(row.id, 'itemName', e.target.value)}
-                        className="h-8"
-                        maxLength={200}
+                        onChange={(id, hydrated) => {
+                          setComponents(prev => prev.map(c => c.id === row.id
+                            ? { ...c, itemId: id ?? '', itemName: hydrated?.chip.primary ?? c.itemName }
+                            : c));
+                        }}
                       />
                     </td>
                     <td className="px-2 py-2">
@@ -263,12 +267,14 @@ export default function NewBomPage() {
                       />
                     </td>
                     <td className="px-2 py-2">
-                      <ZoruInput
+                      <EntityFormField
+                        entity="unit"
+                        name={`__bom-unit-${row.id}`}
+                        initialLabel={row.unit}
                         placeholder="PCS"
-                        value={row.unit}
-                        onChange={e => updateComponent(row.id, 'unit', e.target.value)}
-                        className="h-8 w-24"
-                        maxLength={32}
+                        onChange={(_id, hydrated) => {
+                          updateComponent(row.id, 'unit', hydrated?.chip.primary ?? '');
+                        }}
                       />
                     </td>
                     <td className="px-2 py-2">

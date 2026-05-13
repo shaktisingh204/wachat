@@ -75,8 +75,8 @@ export default function AssetAssignmentsPage() {
         },
       ]}
       fields={[
-        { name: 'assetId', label: 'Asset ID', required: true },
-        { name: 'employeeId', label: 'Employee ID', required: true },
+        { name: 'assetId', label: 'Asset', required: true },
+        { name: 'employeeId', label: 'Employee', required: true, type: 'entity', entity: 'employee' },
         { name: 'assignedAt', label: 'Assigned Date', type: 'date', required: true },
         { name: 'expectedReturnAt', label: 'Expected Return Date', type: 'date' },
         { name: 'returnedAt', label: 'Actual Return Date', type: 'date' },

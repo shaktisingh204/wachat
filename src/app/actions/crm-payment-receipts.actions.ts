@@ -31,6 +31,7 @@ import {
     type CrmPaymentMode,
 } from '@/lib/rust-client/crm-payment-receipts';
 import { RustApiError } from '@/lib/rust-client/fetcher';
+import { requirePermission } from '@/lib/rbac-server';
 
 function useRustCrm(): boolean {
     return process.env.USE_RUST_CRM === 'true';
@@ -128,6 +129,9 @@ export async function updatePaymentReceipt(prevState: any, formData: FormData): 
     const session = await getSession();
     if (!session?.user) return { error: 'Access denied' };
 
+    const guard = await requirePermission('crm_receipt', 'edit');
+    if (!guard.ok) return { error: guard.error };
+
     const receiptIdRaw = formData.get('receiptId') as string | null;
     if (!receiptIdRaw) {
         return { error: 'Receipt id is required.' };
@@ -217,6 +221,9 @@ export async function updatePaymentReceipt(prevState: any, formData: FormData): 
 export async function savePaymentReceipt(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
     const session = await getSession();
     if (!session?.user) return { error: 'Access denied' };
+
+    const guard = await requirePermission('crm_receipt', 'create');
+    if (!guard.ok) return { error: guard.error };
 
     if (useRustCrm()) {
         try {

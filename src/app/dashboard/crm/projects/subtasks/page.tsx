@@ -61,7 +61,13 @@ export default function SubTasksPage() {
           type: 'textarea',
           fullWidth: true,
         },
-        { name: 'assignedToName', label: 'Assignee Name' },
+        {
+          name: 'assignedToId',
+          label: 'Assignee',
+          type: 'entity',
+          entity: 'employee',
+          dualWriteName: 'assignedToName',
+        },
         { name: 'startDate', label: 'Start Date', type: 'date' },
         { name: 'dueDate', label: 'Due Date', type: 'date' },
         {

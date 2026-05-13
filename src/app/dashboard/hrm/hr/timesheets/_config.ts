@@ -1,7 +1,7 @@
 import type { HrField } from '../_components/hr-entity-page';
 
 export const fields: HrField[] = [
-  { name: 'employeeId', label: 'Employee ID', required: true },
+  { name: 'employeeId', label: 'Employee', required: true, type: 'entity', entity: 'employee' },
   { name: 'weekStart', label: 'Week Start', type: 'date', required: true },
   { name: 'weekEnd', label: 'Week End', type: 'date' },
   { name: 'totalHours', label: 'Total Hours', type: 'number', required: true },
@@ -24,7 +24,7 @@ export const fields: HrField[] = [
     defaultValue: 'draft',
   },
   { name: 'submittedAt', label: 'Submitted At', type: 'date' },
-  { name: 'approvedBy', label: 'Approved By' },
+  { name: 'approvedBy', label: 'Approved By', type: 'entity', entity: 'employee' },
   { name: 'approvedAt', label: 'Approved At', type: 'date' },
   {
     name: 'rejectionReason',
