@@ -1,18 +1,21 @@
-import { Trophy } from 'lucide-react';
+/**
+ * Legacy new-deal redirect — see /dashboard/crm/deals/page.tsx for context.
+ * Preserves any `?fromKind=…&fromId=…` query so lineage prefill keeps working.
+ */
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
-import { getCustomFieldsFor } from '@/app/actions/worksuite/meta.actions';
-import { DealForm } from '../_components/deal-form';
-import type { WsCustomField } from '@/lib/worksuite/meta-types';
+import { permanentRedirect } from 'next/navigation';
 
-export const dynamic = 'force-dynamic';
+interface PageProps {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
 
-export default async function NewDealPage() {
-  const customFields = (await getCustomFieldsFor('deal')) as WsCustomField[];
-  return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader title="New deal" subtitle="Capture a new sales opportunity." icon={Trophy} />
-      <DealForm customFields={customFields} />
-    </div>
-  );
+export default async function LegacyNewDealRedirect({ searchParams }: PageProps) {
+  const sp = await searchParams;
+  const usp = new URLSearchParams();
+  for (const [k, v] of Object.entries(sp)) {
+    if (typeof v === 'string') usp.set(k, v);
+    else if (Array.isArray(v) && v[0]) usp.set(k, v[0]);
+  }
+  const qs = usp.toString();
+  permanentRedirect(`/dashboard/crm/sales-crm/deals/new${qs ? `?${qs}` : ''}`);
 }

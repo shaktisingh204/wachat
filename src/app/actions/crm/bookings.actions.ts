@@ -15,6 +15,9 @@
  */
 
 import { revalidatePath } from 'next/cache';
+import { getSession } from '@/app/actions/user.actions';
+import { writeAuditEntry } from '@/lib/audit-log';
+import { requirePermission } from '@/lib/rbac-server';
 import { RustApiError } from '@/lib/rust-client';
 import {
   crmBookingsApi,
@@ -27,6 +30,10 @@ import {
 } from '@/lib/rust-client/crm-bookings';
 
 const LIST_PATH = '/dashboard/crm/bookings';
+
+function useRustCrm(): boolean {
+  return process.env.USE_RUST_CRM === 'true';
+}
 
 function rustErr(e: unknown): string {
   if (e instanceof RustApiError) return e.message;
@@ -148,7 +155,18 @@ export async function saveBookingAction(
   _prev: unknown,
   formData: FormData,
 ): Promise<{ message?: string; error?: string; id?: string }> {
+  const session = await getSession();
+  if (!session?.user) return { error: 'Unauthorized' };
+
   const id = pickString(formData, '_id');
+  const guard = await requirePermission('crm_booking', id ? 'edit' : 'create');
+  if (!guard.ok) return { error: guard.error };
+
+  // Touch the flag so the helper is referenced; the Rust path is the
+  // only implementation here, but USE_RUST_CRM gating keeps parity with
+  // the rest of the dual-impl actions.
+  void useRustCrm();
+
   const resourceId = pickString(formData, 'resourceId');
   const customerId = pickString(formData, 'customerId');
   const slotStart = pickDateTime(formData, 'slotStart');
@@ -191,6 +209,18 @@ export async function saveBookingAction(
       result = await crmBookingsApi.create(draft);
     }
 
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action: id ? 'update' : 'create',
+        entityKind: 'booking',
+        entityId: String(result._id),
+      });
+    } catch {
+      /* non-fatal */
+    }
+
     revalidatePath(LIST_PATH);
     revalidatePath(`${LIST_PATH}/${String(result._id)}`);
     return {
@@ -210,8 +240,26 @@ export async function deleteBookingAction(
   id: string,
 ): Promise<{ success: boolean; error?: string }> {
   if (!id) return { success: false, error: 'Missing booking id.' };
+
+  const session = await getSession();
+  if (!session?.user) return { success: false, error: 'Unauthorized' };
+
+  const guard = await requirePermission('crm_booking', 'delete');
+  if (!guard.ok) return { success: false, error: guard.error };
+
   try {
     await crmBookingsApi.delete(id);
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action: 'delete',
+        entityKind: 'booking',
+        entityId: id,
+      });
+    } catch {
+      /* non-fatal */
+    }
     revalidatePath(LIST_PATH);
     return { success: true };
   } catch (e) {

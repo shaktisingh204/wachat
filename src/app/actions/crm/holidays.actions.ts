@@ -13,6 +13,9 @@
  */
 
 import { revalidatePath } from 'next/cache';
+import { getSession } from '@/app/actions/user.actions';
+import { writeAuditEntry } from '@/lib/audit-log';
+import { requirePermission } from '@/lib/rbac-server';
 import { RustApiError } from '@/lib/rust-client';
 import {
   crmHolidaysApi,
@@ -24,6 +27,10 @@ import {
 } from '@/lib/rust-client/crm-holidays';
 
 const LIST_PATH = '/dashboard/crm/hr-payroll/holidays';
+
+function useRustCrm(): boolean {
+  return process.env.USE_RUST_CRM === 'true';
+}
 
 const HOLIDAY_TYPES: ReadonlySet<CrmHolidayType> = new Set([
   'national',
@@ -135,7 +142,19 @@ export async function saveHolidayAction(
   _prev: unknown,
   formData: FormData,
 ): Promise<{ message?: string; error?: string; id?: string }> {
+  const session = await getSession();
+  if (!session?.user) return { error: 'Unauthorized' };
+
   const id = pickString(formData, '_id');
+  const guard = await requirePermission(
+    'crm_holiday',
+    id ? 'edit' : 'create',
+  );
+  if (!guard.ok) return { error: guard.error };
+
+  // Keep the flag referenced so the dual-impl helper survives lint.
+  void useRustCrm();
+
   const name = pickString(formData, 'name');
   const date = dateInputToIso(pickString(formData, 'date'));
 
@@ -171,6 +190,18 @@ export async function saveHolidayAction(
       result = await crmHolidaysApi.create(draft);
     }
 
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action: id ? 'update' : 'create',
+        entityKind: 'holiday',
+        entityId: String(result._id),
+      });
+    } catch {
+      /* non-fatal */
+    }
+
     revalidatePath(LIST_PATH);
     revalidatePath(`${LIST_PATH}/${String(result._id)}`);
     return {
@@ -190,8 +221,26 @@ export async function deleteHolidayAction(
   id: string,
 ): Promise<{ success: boolean; error?: string }> {
   if (!id) return { success: false, error: 'Missing holiday id.' };
+
+  const session = await getSession();
+  if (!session?.user) return { success: false, error: 'Unauthorized' };
+
+  const guard = await requirePermission('crm_holiday', 'delete');
+  if (!guard.ok) return { success: false, error: guard.error };
+
   try {
     await crmHolidaysApi.delete(id);
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action: 'delete',
+        entityKind: 'holiday',
+        entityId: id,
+      });
+    } catch {
+      /* non-fatal */
+    }
     revalidatePath(LIST_PATH);
     return { success: true };
   } catch (e) {

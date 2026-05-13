@@ -1,35 +1,14 @@
-import { notFound } from 'next/navigation';
-import { Trophy } from 'lucide-react';
+/**
+ * Legacy deal-edit redirect — see /dashboard/crm/deals/page.tsx for context.
+ */
 
-import { CrmPageHeader } from '../../../_components/crm-page-header';
-import { DealForm } from '../../_components/deal-form';
-import { getDeal } from '@/app/actions/crm/deals.actions';
-import { getCustomFieldsFor } from '@/app/actions/worksuite/meta.actions';
-import type { WsCustomField } from '@/lib/worksuite/meta-types';
+import { permanentRedirect } from 'next/navigation';
 
-export const dynamic = 'force-dynamic';
-
-export default async function EditDealPage({
-  params,
-}: {
+interface PageProps {
   params: Promise<{ id: string }>;
-}) {
+}
+
+export default async function LegacyDealEditRedirect({ params }: PageProps) {
   const { id } = await params;
-  const [{ deal }, customFields] = await Promise.all([
-    getDeal(id),
-    getCustomFieldsFor('deal') as Promise<WsCustomField[]>,
-  ]);
-
-  if (!deal) notFound();
-
-  return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title={`Edit ${deal.title}`}
-        subtitle="Update deal details."
-        icon={Trophy}
-      />
-      <DealForm initial={deal} customFields={customFields} />
-    </div>
-  );
+  permanentRedirect(`/dashboard/crm/sales-crm/deals/${id}/edit`);
 }

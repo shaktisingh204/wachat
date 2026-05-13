@@ -1,9 +1,40 @@
 'use server';
 
+/**
+ * CRM Fixed Asset server actions.
+ *
+ * **Dual implementation:**
+ *  - When `USE_RUST_CRM === 'true'`, mutations delegate to `/v1/crm/fixed-assets`
+ *    on the Rust BFF via `src/lib/rust-client/crm-fixed-assets.ts`.
+ *  - Otherwise (default), the legacy direct-Mongo path runs.
+ *
+ * Export shapes are identical across both paths so the existing pages at
+ * `/dashboard/crm/fixed-assets/**` keep working without changes.
+ */
+
 import { ObjectId, type WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
+import { writeAuditEntry } from '@/lib/audit-log';
+import { requirePermission } from '@/lib/rbac-server';
+import {
+    crmFixedAssetsApi,
+    type CrmFixedAssetCreateInput,
+    type CrmFixedAssetDoc,
+} from '@/lib/rust-client/crm-fixed-assets';
+import { RustApiError } from '@/lib/rust-client/fetcher';
 import { revalidatePath } from 'next/cache';
+
+function useRustCrm(): boolean {
+    return process.env.USE_RUST_CRM === 'true';
+}
+
+/** Map a Rust DTO into a loose Record shape the legacy callers expect. */
+function rustDocToLegacy(
+    doc: CrmFixedAssetDoc,
+): WithId<Record<string, unknown>> {
+    return JSON.parse(JSON.stringify(doc)) as WithId<Record<string, unknown>>;
+}
 
 /**
  * Fetch a single fixed-asset document scoped to the current user.
@@ -15,6 +46,19 @@ export async function getFixedAssetById(
 ): Promise<WithId<Record<string, unknown>> | null> {
     const session = await getSession();
     if (!session?.user) return null;
+    if (!assetId) return null;
+
+    if (useRustCrm()) {
+        try {
+            const doc = await crmFixedAssetsApi.getById(assetId);
+            return doc ? rustDocToLegacy(doc) : null;
+        } catch (e) {
+            if (e instanceof RustApiError && e.status === 404) return null;
+            console.error('[getFixedAssetById] rust path failed; falling back:', e);
+            // fall through
+        }
+    }
+
     if (!ObjectId.isValid(assetId)) return null;
 
     try {
@@ -39,6 +83,9 @@ export async function saveFixedAsset(
   if (!session?.user?._id) {
     return { error: 'Access denied.' };
   }
+
+  const guard = await requirePermission('crm_asset', 'create');
+  if (!guard.ok) return { error: guard.error };
 
   const rawAssetCode = (formData.get('assetCode') as string | null)?.trim() ?? '';
   const assetCode = rawAssetCode || `AST-${Date.now().toString().slice(-6)}`;
@@ -78,6 +125,57 @@ export async function saveFixedAsset(
   const rawResidualValue = (formData.get('residualValue') as string | null) ?? '';
   const residualValue = rawResidualValue ? parseFloat(rawResidualValue) : 0;
 
+  // Currency defaults to INR to match the Rust DTO requirement.
+  const currency =
+    (formData.get('currency') as string | null)?.trim() || 'INR';
+
+  if (useRustCrm()) {
+    try {
+      const purchaseDateIso = purchaseDate
+        ? purchaseDate.toISOString()
+        : new Date().toISOString();
+
+      const draft: CrmFixedAssetCreateInput = {
+        code: assetCode,
+        name,
+        category: category || undefined,
+        purchaseDate: purchaseDateIso,
+        supplierId: supplierName || undefined,
+        cost,
+        currency,
+        usefulLifeMonths:
+          usefulLifeMonths && usefulLifeMonths > 0 ? usefulLifeMonths : 12,
+        depreciationMethod,
+        residualValue,
+        location: location || undefined,
+        custodianEmployeeId: custodianName || undefined,
+        warrantyUntil: warrantyExpiry ? warrantyExpiry.toISOString() : undefined,
+        insuranceUntil: insuranceExpiry
+          ? insuranceExpiry.toISOString()
+          : undefined,
+      };
+      const result = await crmFixedAssetsApi.create(draft);
+      const id = String(result._id ?? '');
+      try {
+        await writeAuditEntry({
+          tenantUserId: String(session.user._id),
+          actorId: String(session.user._id),
+          action: 'create',
+          entityKind: 'fixed_asset',
+          entityId: id,
+        });
+      } catch {
+        /* non-fatal */
+      }
+      revalidatePath('/dashboard/crm/fixed-assets');
+      void notes;
+      return { message: 'Fixed asset saved successfully.', id };
+    } catch (e) {
+      console.error('[saveFixedAsset] rust path failed; falling back:', e);
+      // fall through to legacy on failure so users aren't blocked
+    }
+  }
+
   try {
     const { db } = await connectToDatabase();
     const result = await db.collection('crm_fixed_assets').insertOne({
@@ -88,6 +186,7 @@ export async function saveFixedAsset(
       purchaseDate,
       supplierName,
       cost,
+      currency,
       usefulLifeMonths,
       depreciationMethod,
       residualValue,
@@ -101,6 +200,18 @@ export async function saveFixedAsset(
       createdAt: new Date(),
       updatedAt: new Date(),
     });
+
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action: 'create',
+        entityKind: 'fixed_asset',
+        entityId: result.insertedId.toString(),
+      });
+    } catch {
+      /* non-fatal */
+    }
 
     revalidatePath('/dashboard/crm/fixed-assets');
     return { message: 'Fixed asset saved successfully.', id: result.insertedId.toString() };

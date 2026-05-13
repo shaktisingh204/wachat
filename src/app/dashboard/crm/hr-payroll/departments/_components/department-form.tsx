@@ -48,7 +48,7 @@ export function DepartmentForm({ initial }: Props) {
   useEffect(() => {
     if (state?.message) {
       toast({ title: 'Saved', description: state.message });
-      router.push('/dashboard/crm/hr-payroll/departments');
+      router.push('/dashboard/hrm/payroll/departments');
     }
     if (state?.error) toast({ title: 'Error', description: state.error, variant: 'destructive' });
   }, [state, toast, router]);
@@ -135,7 +135,7 @@ export function DepartmentForm({ initial }: Props) {
 
       <div className="flex justify-end gap-2">
         <ZoruButton variant="outline" asChild>
-          <Link href="/dashboard/crm/hr-payroll/departments">Cancel</Link>
+          <Link href="/dashboard/hrm/payroll/departments">Cancel</Link>
         </ZoruButton>
         <SubmitButton editing={editing} />
       </div>

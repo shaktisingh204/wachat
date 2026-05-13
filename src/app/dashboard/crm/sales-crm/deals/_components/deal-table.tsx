@@ -1,0 +1,180 @@
+'use client';
+
+/**
+ * <DealTable> — the table-view body of the canonical deals list.
+ *
+ * Extracted from <DealListClient> to keep the parent under the 600-line
+ * cap. Purely presentational; the parent owns filters / selection.
+ */
+
+import * as React from 'react';
+import Link from 'next/link';
+
+import {
+  ZoruButton,
+  ZoruDropdownMenu,
+  ZoruDropdownMenuContent,
+  ZoruDropdownMenuItem,
+  ZoruDropdownMenuSeparator,
+  ZoruDropdownMenuTrigger,
+} from '@/components/zoruui';
+import { EntityPickerChip } from '@/components/crm/entity-picker';
+import { StatusPill, statusToTone } from '@/components/crm/status-pill';
+
+import type { DealListRow } from './types';
+
+interface DealTableProps {
+  deals: DealListRow[];
+  selected: Set<string>;
+  onToggleRow: (id: string) => void;
+  onToggleAll: () => void;
+  allSelectedOnPage: boolean;
+  filtersActive: boolean;
+  defaultCurrency: string;
+}
+
+function fmtMoney(value?: number | null, currency = 'INR'): string {
+  if (typeof value !== 'number' || Number.isNaN(value)) return '—';
+  try {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency,
+      maximumFractionDigits: 0,
+    }).format(value);
+  } catch {
+    return `${currency} ${value}`;
+  }
+}
+
+function fmtDate(v?: string | null): string {
+  if (!v) return '—';
+  const d = new Date(v);
+  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
+}
+
+export function DealTable({
+  deals,
+  selected,
+  onToggleRow,
+  onToggleAll,
+  allSelectedOnPage,
+  filtersActive,
+  defaultCurrency,
+}: DealTableProps) {
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full text-[12.5px]">
+        <thead className="bg-zoru-surface-2 text-zoru-ink-muted">
+          <tr>
+            <th className="p-2 text-left">
+              <input
+                type="checkbox"
+                checked={allSelectedOnPage}
+                onChange={onToggleAll}
+                aria-label="Select all visible deals"
+              />
+            </th>
+            <th className="p-2 text-left">Title</th>
+            <th className="p-2 text-left">Client</th>
+            <th className="p-2 text-right">Amount</th>
+            <th className="p-2 text-left">Stage</th>
+            <th className="p-2 text-left">Pipeline</th>
+            <th className="p-2 text-left">Owner</th>
+            <th className="p-2 text-right">Probability</th>
+            <th className="p-2 text-left">Expected close</th>
+            <th className="p-2 text-left">Created</th>
+            <th className="p-2"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {deals.length === 0 ? (
+            <tr>
+              <td colSpan={11} className="h-24 text-center text-[13px] text-zoru-ink-muted">
+                {filtersActive
+                  ? 'No deals match the current filters.'
+                  : 'No deals yet — click "New deal" to add the first one.'}
+              </td>
+            </tr>
+          ) : (
+            deals.map((d) => (
+              <tr key={d._id} className="border-t border-zoru-line hover:bg-zoru-surface-2/60">
+                <td className="p-2 align-middle">
+                  <input
+                    type="checkbox"
+                    checked={selected.has(d._id)}
+                    onChange={() => onToggleRow(d._id)}
+                    aria-label={`Select ${d.name}`}
+                  />
+                </td>
+                <td className="p-2 align-middle">
+                  <Link
+                    href={`/dashboard/crm/sales-crm/deals/${d._id}`}
+                    className="font-medium text-zoru-ink hover:underline"
+                  >
+                    {d.name || 'Untitled deal'}
+                  </Link>
+                </td>
+                <td className="p-2 align-middle">
+                  {d.accountId ? (
+                    <EntityPickerChip entity="client" id={d.accountId} />
+                  ) : d.contactId ? (
+                    <EntityPickerChip entity="contact" id={d.contactId} />
+                  ) : (
+                    <span className="text-zoru-ink-muted">{d.clientLabel ?? '—'}</span>
+                  )}
+                </td>
+                <td className="p-2 text-right align-middle font-mono tabular-nums text-zoru-ink">
+                  {fmtMoney(d.amount, d.currency ?? defaultCurrency)}
+                </td>
+                <td className="p-2 align-middle">
+                  {d.stage ? <StatusPill label={d.stage} tone={statusToTone(d.stage)} /> : '—'}
+                </td>
+                <td className="p-2 align-middle">
+                  {d.pipelineId ? <EntityPickerChip entity="pipeline" id={d.pipelineId} /> : '—'}
+                </td>
+                <td className="p-2 align-middle">
+                  {d.ownerId ? <EntityPickerChip entity="user" id={d.ownerId} /> : '—'}
+                </td>
+                <td className="p-2 text-right align-middle text-zoru-ink">
+                  {typeof d.probability === 'number' ? `${d.probability}%` : '—'}
+                </td>
+                <td className="p-2 align-middle text-zoru-ink-muted">{fmtDate(d.expectedClose)}</td>
+                <td className="p-2 align-middle text-zoru-ink-muted">{fmtDate(d.createdAt)}</td>
+                <td className="p-2 text-right align-middle">
+                  <ZoruDropdownMenu>
+                    <ZoruDropdownMenuTrigger asChild>
+                      <ZoruButton size="sm" variant="ghost" aria-label="Row actions">
+                        …
+                      </ZoruButton>
+                    </ZoruDropdownMenuTrigger>
+                    <ZoruDropdownMenuContent>
+                      <ZoruDropdownMenuItem asChild>
+                        <Link href={`/dashboard/crm/sales-crm/deals/${d._id}`}>View</Link>
+                      </ZoruDropdownMenuItem>
+                      <ZoruDropdownMenuItem asChild>
+                        <Link href={`/dashboard/crm/sales-crm/deals/${d._id}/edit`}>Edit</Link>
+                      </ZoruDropdownMenuItem>
+                      <ZoruDropdownMenuItem asChild>
+                        <Link
+                          href={`/dashboard/crm/sales/quotations/new?fromKind=deal&fromId=${d._id}`}
+                        >
+                          Convert to quotation
+                        </Link>
+                      </ZoruDropdownMenuItem>
+                      <ZoruDropdownMenuSeparator />
+                      <ZoruDropdownMenuItem asChild>
+                        <Link href={`/dashboard/crm/sales-crm/deals/${d._id}/activity`}>
+                          Activity
+                        </Link>
+                      </ZoruDropdownMenuItem>
+                    </ZoruDropdownMenuContent>
+                  </ZoruDropdownMenu>
+                </td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
+}

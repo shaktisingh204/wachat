@@ -64,7 +64,7 @@ export const PURCHASE_CHAIN: LineageKind[] = [
 /** Maps a kind to the deep-link route for its detail page. */
 export const kindToHref: Record<LineageKind, (id: string) => string> = {
     lead: (id) => `/dashboard/crm/sales-crm/leads/${id}`,
-    deal: (id) => `/dashboard/crm/deals/${id}`,
+    deal: (id) => `/dashboard/crm/sales-crm/deals/${id}`,
     quotation: (id) => `/dashboard/crm/sales/quotations/${id}`,
     proforma: (id) => `/dashboard/crm/sales/proforma/${id}`,
     salesOrder: (id) => `/dashboard/crm/sales/orders/${id}`,
