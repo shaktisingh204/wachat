@@ -1,7 +1,7 @@
 import type { HrField } from '../_components/hr-entity-page';
 
 export const fields: HrField[] = [
-  { name: 'employee_id', label: 'Employee ID', required: true },
+  { name: 'employee_id', label: 'Employee', required: true, type: 'entity', entity: 'employee' },
   { name: 'task_name', label: 'Task Name', required: true, fullWidth: true },
   {
     name: 'description',
@@ -9,7 +9,7 @@ export const fields: HrField[] = [
     type: 'textarea',
     fullWidth: true,
   },
-  { name: 'assigned_to', label: 'Assigned To (Employee / HR ID)' },
+  { name: 'assigned_to', label: 'Assigned To', type: 'entity', entity: 'employee' },
   { name: 'due_date', label: 'Due Date', type: 'date' },
   {
     name: 'status',
@@ -39,7 +39,7 @@ export const fields: HrField[] = [
   { name: 'notes', label: 'Notes', type: 'textarea', fullWidth: true },
   // Template fields (used when creating reusable checklists)
   { name: 'name', label: 'Template Name', fullWidth: true },
-  { name: 'department', label: 'Department' },
+  { name: 'department', label: 'Department', type: 'entity', entity: 'department' },
   { name: 'estimatedDays', label: 'Estimated Days (Template)', type: 'number' },
   {
     name: 'tasks',

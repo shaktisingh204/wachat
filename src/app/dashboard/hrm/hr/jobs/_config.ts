@@ -2,9 +2,9 @@ import type { HrField } from '../_components/hr-entity-page';
 
 export const fields: HrField[] = [
   { name: 'title', label: 'Job Title', required: true, fullWidth: true },
-  { name: 'departmentId', label: 'Department' },
-  { name: 'designationId', label: 'Designation' },
-  { name: 'location', label: 'Location' },
+  { name: 'departmentId', label: 'Department', type: 'entity', entity: 'department' },
+  { name: 'designationId', label: 'Designation', type: 'entity', entity: 'designation' },
+  { name: 'location', label: 'Location', type: 'entity', entity: 'city' },
   {
     name: 'employmentType',
     label: 'Employment Type',
@@ -48,10 +48,10 @@ export const fields: HrField[] = [
   { name: 'endDate', label: 'End Date', type: 'date' },
   { name: 'deadline', label: 'Deadline', type: 'date' },
   { name: 'shiftId', label: 'Shift' },
-  { name: 'recruiterId', label: 'Recruiter' },
+  { name: 'recruiterId', label: 'Recruiter', type: 'entity', entity: 'employee' },
   { name: 'salaryMin', label: 'Salary From', type: 'number' },
   { name: 'salaryMax', label: 'Salary To', type: 'number' },
-  { name: 'salaryCurrency', label: 'Currency', defaultValue: 'INR' },
+  { name: 'salaryCurrency', label: 'Currency', type: 'entity', entity: 'currency', defaultValue: 'INR' },
   { name: 'experienceFrom', label: 'Experience From (yrs)', type: 'number' },
   { name: 'experienceTo', label: 'Experience To (yrs)', type: 'number' },
   { name: 'education', label: 'Education' },

@@ -20,6 +20,7 @@ import {
 } from '@/components/zoruui';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 import { saveServiceContract } from '@/app/actions/crm-service-contracts.actions';
+import { EntityFormField } from '@/components/crm/entity-form-field';
 
 export const dynamic = 'force-dynamic';
 
@@ -86,12 +87,13 @@ export default function NewServiceContractPage() {
               />
             </div>
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="customerName">Customer Name</ZoruLabel>
-              <ZoruInput
-                id="customerName"
-                name="customerName"
-                placeholder="Customer or organisation"
+              <ZoruLabel>Customer</ZoruLabel>
+              <EntityFormField
+                entity="client"
+                name="customerId"
+                dualWriteName="customerName"
                 required
+                placeholder="Select customer…"
               />
             </div>
           </div>
@@ -158,11 +160,12 @@ export default function NewServiceContractPage() {
               />
             </div>
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="technician">Technician</ZoruLabel>
-              <ZoruInput
-                id="technician"
-                name="technician"
-                placeholder="Assigned technician name"
+              <ZoruLabel>Technician</ZoruLabel>
+              <EntityFormField
+                entity="employee"
+                name="technicianId"
+                dualWriteName="technician"
+                placeholder="Select technician…"
               />
             </div>
           </div>

@@ -15,6 +15,7 @@ import {
 } from '@/components/zoruui';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
 import { saveProductionOrder } from '@/app/actions/crm-production-orders.actions';
+import { EntityFormField } from '@/components/crm/entity-form-field';
 
 export const dynamic = 'force-dynamic';
 
@@ -95,15 +96,13 @@ export default function NewProductionOrderPage() {
 
             <div className="space-y-1">
               <ZoruLabel htmlFor="finishedGoodName" className="text-xs text-zoru-ink">
-                Finished Good Name *
+                Finished Good *
               </ZoruLabel>
-              <ZoruInput
-                id="finishedGoodName"
-                name="finishedGoodName"
+              <EntityFormField
+                entity="item"
+                name="finishedGoodId"
+                dualWriteName="finishedGoodName"
                 required
-                placeholder="e.g. Widget Assembly"
-                className="h-9"
-                maxLength={200}
               />
             </div>
 
@@ -127,12 +126,10 @@ export default function NewProductionOrderPage() {
               <ZoruLabel htmlFor="unit" className="text-xs text-zoru-ink">
                 Unit
               </ZoruLabel>
-              <ZoruInput
-                id="unit"
+              <EntityFormField
+                entity="unit"
                 name="unit"
                 placeholder="e.g. PCS / KG"
-                className="h-9"
-                maxLength={32}
               />
             </div>
 
@@ -177,12 +174,11 @@ export default function NewProductionOrderPage() {
               <ZoruLabel htmlFor="machineOperator" className="text-xs text-zoru-ink">
                 Operator
               </ZoruLabel>
-              <ZoruInput
-                id="machineOperator"
-                name="machineOperator"
-                placeholder="Operator name"
-                className="h-9"
-                maxLength={100}
+              <EntityFormField
+                entity="employee"
+                name="machineOperatorId"
+                dualWriteName="machineOperator"
+                placeholder="Operator"
               />
             </div>
 

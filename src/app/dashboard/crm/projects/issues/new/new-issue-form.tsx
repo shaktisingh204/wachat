@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { saveWsIssue } from '@/app/actions/worksuite/projects.actions';
+import { EntityFormField } from '@/components/crm/entity-form-field';
 
 /** Controlled form to create a new issue using the existing saveWsIssue action. */
 export function NewIssueForm() {
@@ -67,13 +68,12 @@ export function NewIssueForm() {
         <div className="grid gap-4 md:grid-cols-2">
           <div>
             <Label htmlFor="projectId" className="text-foreground">
-              Project ID
+              Project
             </Label>
-            <Input
-              id="projectId"
+            <EntityFormField
+              entity="project"
               name="projectId"
-              placeholder="optional"
-              className="h-10 rounded-lg border-border bg-card text-[13px]"
+              placeholder="Select project (optional)"
             />
           </div>
           <div>
@@ -118,25 +118,27 @@ export function NewIssueForm() {
             </Select>
           </div>
           <div>
-            <Label htmlFor="assigneeName" className="text-foreground">
+            <Label htmlFor="assigneeId" className="text-foreground">
               Assignee
             </Label>
-            <Input
-              id="assigneeName"
-              name="assigneeName"
-              className="h-10 rounded-lg border-border bg-card text-[13px]"
+            <EntityFormField
+              entity="employee"
+              name="assigneeId"
+              dualWriteName="assigneeName"
+              placeholder="Select assignee"
             />
           </div>
         </div>
 
         <div>
-          <Label htmlFor="reporterName" className="text-foreground">
+          <Label htmlFor="reporterId" className="text-foreground">
             Reporter
           </Label>
-          <Input
-            id="reporterName"
-            name="reporterName"
-            className="h-10 rounded-lg border-border bg-card text-[13px]"
+          <EntityFormField
+            entity="user"
+            name="reporterId"
+            dualWriteName="reporterName"
+            placeholder="Select reporter"
           />
         </div>
 

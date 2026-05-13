@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
+import { useCallback, useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -24,13 +24,12 @@ import {
   useZoruToast,
 } from '@/components/zoruui';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityPicker } from '@/components/crm/entity-picker';
 import {
   saveProposal,
   createProposalFromTemplate,
   getProposalTemplates,
 } from '@/app/actions/worksuite/proposals.actions';
-import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
-import type { WithId, CrmAccount } from '@/lib/definitions';
 import type { WsProposalTemplate } from '@/lib/worksuite/proposals-types';
 import {
   ProposalComposer,
@@ -60,7 +59,6 @@ export default function NewProposalPage() {
     { id: newId(), name: '', description: '', quantity: 1, unit_price: 0, tax: 0 },
   ]);
 
-  const [accounts, setAccounts] = useState<WithId<CrmAccount>[]>([]);
   const [templates, setTemplates] = useState<(WsProposalTemplate & { _id: string })[]>(
     [],
   );
@@ -70,26 +68,13 @@ export default function NewProposalPage() {
   const [isApplyingTemplate, startApplyTemplate] = useTransition();
 
   const fetchAuxData = useCallback(async () => {
-    const [accRes, tpls] = await Promise.all([
-      getCrmAccounts(1, 100),
-      getProposalTemplates(),
-    ]);
-    setAccounts(accRes.accounts);
+    const tpls = await getProposalTemplates();
     setTemplates(tpls);
   }, []);
 
   useEffect(() => {
     fetchAuxData();
   }, [fetchAuxData]);
-
-  const accountOptions = useMemo(
-    () =>
-      accounts.map((a) => ({
-        id: String(a._id),
-        name: a.name || 'Unnamed',
-      })),
-    [accounts],
-  );
 
   const applyTemplate = () => {
     if (!selectedTemplate) return;
@@ -192,33 +177,31 @@ export default function NewProposalPage() {
           </div>
           <div>
             <ZoruLabel className="text-zoru-ink">Currency</ZoruLabel>
-            <ZoruInput
-              value={currency}
-              onChange={(e) => setCurrency(e.target.value.toUpperCase())}
-              className="mt-1.5"
-            />
+            <div className="mt-1.5">
+              <EntityPicker
+                entity="currency"
+                value={currency || null}
+                onChange={(next) => {
+                  const id = Array.isArray(next) ? (next[0] ?? '') : (next ?? '');
+                  setCurrency(id || 'INR');
+                }}
+              />
+            </div>
           </div>
 
           <div>
             <ZoruLabel className="text-zoru-ink">Client</ZoruLabel>
-            <ZoruSelect value={clientId} onValueChange={setClientId}>
-              <ZoruSelectTrigger className="mt-1.5">
-                <ZoruSelectValue placeholder="Select client" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                {accountOptions.length === 0 ? (
-                  <ZoruSelectItem value="__none" disabled>
-                    No clients yet
-                  </ZoruSelectItem>
-                ) : (
-                  accountOptions.map((a) => (
-                    <ZoruSelectItem key={a.id} value={a.id}>
-                      {a.name}
-                    </ZoruSelectItem>
-                  ))
-                )}
-              </ZoruSelectContent>
-            </ZoruSelect>
+            <div className="mt-1.5">
+              <EntityPicker
+                entity="client"
+                value={clientId || null}
+                placeholder="Select client"
+                onChange={(next) => {
+                  const id = Array.isArray(next) ? (next[0] ?? '') : (next ?? '');
+                  setClientId(id);
+                }}
+              />
+            </div>
           </div>
           <div>
             <ZoruLabel className="text-zoru-ink">Issue Date</ZoruLabel>

@@ -9,6 +9,7 @@ import { getSession } from '@/app/actions/user.actions';
 import type { CrmLead, User } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import { z } from 'zod';
+import { requirePermission } from '@/lib/rbac-server';
 
 const leadSchema = z.object({
     title: z.string().min(1, 'Lead Title is required.'),
@@ -75,6 +76,12 @@ export async function addCrmLead(prevState: any, formData: FormData, apiUser?: W
     const session = apiUser ? { user: apiUser } : await getSession();
     if (!session?.user) return { error: "Access denied" };
 
+    // Skip RBAC for API-key callers (apiUser path) — those have their own scope checks upstream.
+    if (!apiUser) {
+        const guard = await requirePermission('crm_lead', 'create');
+        if (!guard.ok) return { error: guard.error };
+    }
+
     const rawData = {
         title: formData.get('title'),
         contactName: formData.get('contactName'),
@@ -125,6 +132,10 @@ export async function addCrmLead(prevState: any, formData: FormData, apiUser?: W
 export async function deleteCrmLead(leadId: string): Promise<{ success: boolean; error?: string }> {
     const session = await getSession();
     if (!session?.user) return { success: false, error: 'Access denied.' };
+
+    const guard = await requirePermission('crm_lead', 'delete');
+    if (!guard.ok) return { success: false, error: guard.error };
+
     if (!ObjectId.isValid(leadId)) return { success: false, error: 'Invalid lead id.' };
 
     try {

@@ -47,6 +47,8 @@ import {
   zoruBadgeVariants,
 } from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityFormField } from '@/components/crm/entity-form-field';
+import type { EntityKey } from '@/lib/lookup-registry';
 
 export type HrFieldType =
   | 'text'
@@ -57,7 +59,8 @@ export type HrFieldType =
   | 'email'
   | 'url'
   | 'tel'
-  | 'array';
+  | 'array'
+  | 'entity';
 
 export interface HrArraySubField {
   name: string;
@@ -83,6 +86,12 @@ export interface HrField {
   addLabel?: string;
   /** Help/hint text rendered under the field. */
   help?: string;
+  /** For `type: 'entity'` — the lookup entity key. */
+  entity?: EntityKey;
+  /** For `type: 'entity'` — optional sibling name to mirror the picker label. */
+  dualWriteName?: string;
+  /** For `type: 'entity'` — static filter passed to the lookup query. */
+  entityFilter?: Record<string, unknown>;
 }
 
 export interface HrColumn<T> {
@@ -209,6 +218,26 @@ function renderField(field: HrField, value?: unknown) {
 
   if (field.type === 'array') {
     return <FieldArray field={field} initialValue={value} />;
+  }
+
+  if (field.type === 'entity' && field.entity) {
+    const initialId =
+      typeof value === 'string' && value
+        ? value
+        : value !== undefined && value !== null
+          ? String(value)
+          : field.defaultValue || undefined;
+    return (
+      <EntityFormField
+        entity={field.entity}
+        name={field.name}
+        dualWriteName={field.dualWriteName}
+        initialId={initialId}
+        filter={field.entityFilter}
+        required={field.required}
+        placeholder={field.placeholder}
+      />
+    );
   }
 
   const common = {
@@ -602,7 +631,7 @@ export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
                     {renderField(
                       field,
                       editing
-                        ? field.type === 'array'
+                        ? field.type === 'array' || field.type === 'entity'
                           ? (editing[field.name] as unknown)
                           : formatFieldValue(editing[field.name], field.type)
                         : undefined,

@@ -2,7 +2,7 @@
 
 export const dynamic = 'force-dynamic';
 
-import { useActionState, useEffect } from 'react';
+import { useActionState, useEffect, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import {
   ZoruButton,
@@ -22,6 +22,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { saveBudget } from '@/app/actions/crm-budgets.actions';
+import { EntityFormField } from '@/components/crm/entity-form-field';
+import type { EntityKey } from '@/lib/lookup-registry';
 
 const initialState = { message: '', error: '' };
 
@@ -35,10 +37,13 @@ function SaveButton() {
   );
 }
 
+type HeadType = 'account' | 'department' | 'project';
+
 export default function NewBudgetPage() {
   const [state, formAction] = useActionState(saveBudget, initialState);
   const router = useRouter();
   const { toast } = useZoruToast();
+  const [headType, setHeadType] = useState<HeadType>('account');
 
   useEffect(() => {
     if (state.message) {
@@ -68,24 +73,47 @@ export default function NewBudgetPage() {
 
       <ZoruCard className="p-6">
         <form action={formAction} className="space-y-6">
-          {/* Budget Head + Period */}
+          {/* Budget Head Type + Head Picker */}
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="budgetHead" className="text-zoru-ink">
-                Budget Head <span className="text-zoru-danger-ink">*</span>
+              <ZoruLabel htmlFor="budgetHeadType" className="text-zoru-ink">
+                Head Type
               </ZoruLabel>
-              <ZoruInput
-                id="budgetHead"
-                name="budgetHead"
-                placeholder="e.g. Marketing, Salaries, Cloud Infra"
-                required
-                maxLength={120}
-              />
-              <p className="text-[11.5px] text-zoru-ink-muted">
-                Account name, department, or project tag.
-              </p>
+              <ZoruSelect
+                name="budgetHeadType"
+                value={headType}
+                onValueChange={(v) => setHeadType(v as HeadType)}
+              >
+                <ZoruSelectTrigger id="budgetHeadType">
+                  <ZoruSelectValue />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
+                  <ZoruSelectItem value="account">Account</ZoruSelectItem>
+                  <ZoruSelectItem value="department">Department</ZoruSelectItem>
+                  <ZoruSelectItem value="project">Project</ZoruSelectItem>
+                </ZoruSelectContent>
+              </ZoruSelect>
             </div>
 
+            <div className="space-y-1.5">
+              <ZoruLabel className="text-zoru-ink">
+                Budget Head <span className="text-zoru-danger-ink">*</span>
+              </ZoruLabel>
+              <EntityFormField
+                entity={headType as EntityKey}
+                name="budgetHeadId"
+                dualWriteName="budgetHead"
+                required
+                placeholder="Select head…"
+              />
+              <p className="text-[11.5px] text-zoru-ink-muted">
+                Account, department, or project for this budget.
+              </p>
+            </div>
+          </div>
+
+          {/* Period */}
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div className="space-y-1.5">
               <ZoruLabel htmlFor="period" className="text-zoru-ink">
                 Period
@@ -97,6 +125,7 @@ export default function NewBudgetPage() {
                 maxLength={50}
               />
             </div>
+            <div />
           </div>
 
           {/* Scenario + Plan Amount */}
@@ -152,14 +181,14 @@ export default function NewBudgetPage() {
             </div>
 
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="ownerName" className="text-zoru-ink">
+              <ZoruLabel className="text-zoru-ink">
                 Owner
               </ZoruLabel>
-              <ZoruInput
-                id="ownerName"
-                name="ownerName"
-                placeholder="e.g. Ratan Singh"
-                maxLength={100}
+              <EntityFormField
+                entity="user"
+                name="ownerId"
+                dualWriteName="ownerName"
+                placeholder="Select owner…"
               />
             </div>
           </div>

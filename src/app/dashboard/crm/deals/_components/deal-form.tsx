@@ -66,6 +66,7 @@ export function DealForm({ initial, customFields }: DealFormProps) {
     (initial?.party?.kind as 'client' | 'lead') ?? 'client',
   );
   const [partyId, setPartyId] = useState<string | null>(initial?.party?.id ?? null);
+  const [pipelineId, setPipelineId] = useState<string | null>(initial?.pipelineId ?? null);
 
   const [customFieldValues, setCustomFieldValues] = useState<
     Record<string, CustomFieldValue>
@@ -162,6 +163,7 @@ export function DealForm({ initial, customFields }: DealFormProps) {
                 entity="pipeline"
                 name="pipelineId"
                 initialId={initial?.pipelineId ?? null}
+                onChange={(next) => setPipelineId(next)}
                 required
               />
             </div>
@@ -175,6 +177,7 @@ export function DealForm({ initial, customFields }: DealFormProps) {
                 entity="stage"
                 name="stageId"
                 initialId={initial?.stageId ?? null}
+                filter={pipelineId ? { pipelineId } : undefined}
                 required
               />
             </div>

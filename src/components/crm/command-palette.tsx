@@ -110,6 +110,10 @@ const entityHref: Record<EntityKey, (id: string) => string> = {
   industry: () => `/dashboard/crm/settings`,
   location: () => `/dashboard/crm/settings`,
   vendorType: () => `/dashboard/crm/settings`,
+  // No detail route for tasks yet — fall back to the tasks list.
+  task: () => `/dashboard/crm/sales-crm/tasks`,
+  asset: (id) => `/dashboard/hrm/hr/assets/${id}`,
+  ticketGroup: () => `/dashboard/crm/tickets/groups`,
 };
 
 const entityLabel: Record<EntityKey, string> = {
@@ -149,6 +153,9 @@ const entityLabel: Record<EntityKey, string> = {
   industry: 'Industries',
   location: 'Locations',
   vendorType: 'Vendor Types',
+  task: 'Tasks',
+  asset: 'Assets',
+  ticketGroup: 'Ticket Groups',
 };
 
 const ENTITY_ORDER: EntityKey[] = [
@@ -578,6 +585,9 @@ function emptyResults(): Record<EntityKey, LookupItem[]> {
     industry: [],
     location: [],
     vendorType: [],
+    task: [],
+    asset: [],
+    ticketGroup: [],
   };
 }
 

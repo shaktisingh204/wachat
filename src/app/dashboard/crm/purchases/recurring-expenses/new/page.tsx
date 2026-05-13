@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Repeat, ArrowLeft, Save, LoaderCircle } from 'lucide-react';
 
 import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityFormField } from '@/components/crm/entity-form-field';
 
 import { saveRecurringExpense } from '@/app/actions/worksuite/billing.actions';
 
@@ -74,7 +75,7 @@ export default function NewRecurringExpensePage() {
           </div>
           <div className="space-y-1.5">
             <ZoruLabel className="text-foreground">Currency</ZoruLabel>
-            <ZoruInput name="currency" defaultValue="INR" maxLength={5} />
+            <EntityFormField entity="currency" name="currency" initialId="INR" />
           </div>
 
           <div className="space-y-1.5">
@@ -83,11 +84,19 @@ export default function NewRecurringExpensePage() {
           </div>
           <div className="space-y-1.5">
             <ZoruLabel className="text-foreground">Vendor</ZoruLabel>
-            <ZoruInput name="vendor" />
+            <EntityFormField
+              entity="vendor"
+              name="vendor_id"
+              dualWriteName="vendor"
+            />
           </div>
           <div className="space-y-1.5">
             <ZoruLabel className="text-foreground">Category</ZoruLabel>
-            <ZoruInput name="category_name" placeholder="e.g. Utilities" />
+            <EntityFormField
+              entity="category"
+              name="category_id"
+              dualWriteName="category_name"
+            />
           </div>
 
           <div className="space-y-1.5">

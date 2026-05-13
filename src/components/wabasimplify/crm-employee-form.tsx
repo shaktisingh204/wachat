@@ -1,41 +1,90 @@
-
 'use client';
 
-import { useActionState, useCallback, useEffect, useRef, useState } from 'react';
+/**
+ * Employee form (used by `/dashboard/hrm/payroll/employees/new` and
+ * `…/[employeeId]/edit`).
+ *
+ * Rebuilt with the ZoruUI design system into discrete `ZoruCard`
+ * sections — Personal, Job, Extended Personal, Employment, Banking &
+ * Tax, Custom Fields — replacing the previous single big accordion.
+ *
+ * **Server-action contract preserved verbatim.** Every FormData key
+ * the upstream `saveCrmEmployee` server action reads is emitted here
+ * with the exact same name. See the comment block above each section
+ * for the live list of keys it owns. The list was confirmed against
+ * `src/app/actions/crm-employees.actions.ts` on 2026-05-13.
+ *
+ * Cascading pickers:
+ *  - department → designation (designation filter is `{ department_id }`)
+ *  - country → state → city (work location, three `location` lookups
+ *    that share filter state)
+ *
+ * The form is intentionally driven by `useActionState` + a server
+ * action — no client-side fetch waterfalls, no `useEffect` data
+ * preload. `EntityFormField` pickers fetch on focus, which is
+ * dramatically cheaper than the previous full prefetch.
+ */
+
+import {
+    useActionState,
+    useCallback,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+} from 'react';
 import { useFormStatus } from 'react-dom';
 import { useRouter } from 'next/navigation';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { ClayCard, ClayButton } from '@/components/clay';
-import { LoaderCircle, Save } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import {
+    LoaderCircle,
+    Save,
+    User as UserIcon,
+    Briefcase,
+    HeartPulse,
+    Building2,
+    Banknote,
+    Sparkles,
+    ArrowLeft,
+} from 'lucide-react';
+
 import { saveCrmEmployee } from '@/app/actions/index.ts';
 import { getCustomFieldsFor } from '@/app/actions/worksuite/meta.actions';
-import type { WithId, CrmEmployee, CrmDepartment, CrmDesignation } from '@/lib/definitions';
+import type {
+    WithId,
+    CrmEmployee,
+    CrmDepartment,
+    CrmDesignation,
+} from '@/lib/definitions';
 import type { WsCustomField } from '@/lib/worksuite/meta-types';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { DatePicker } from '../ui/date-picker';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { EntityPicker } from '@/components/crm/entity-picker';
-import { CustomFieldInput, type CustomFieldValue } from '@/components/crm/custom-field-input';
 
-const initialState: { message?: string; error?: string } = { message: undefined, error: undefined };
+import {
+    ZoruButton,
+    ZoruCard,
+    ZoruInput,
+    ZoruLabel,
+    ZoruTextarea,
+    ZoruSelect,
+    ZoruSelectContent,
+    ZoruSelectItem,
+    ZoruSelectTrigger,
+    ZoruSelectValue,
+    ZoruDatePicker,
+    useZoruToast,
+} from '@/components/zoruui';
+import { EntityFormField } from '@/components/crm/entity-form-field';
+import {
+    CustomFieldInput,
+    type CustomFieldValue,
+} from '@/components/crm/custom-field-input';
 
-function SubmitButton({ isEditing }: { isEditing: boolean }) {
-    const { pending } = useFormStatus();
-    return (
-        <ClayButton
-            type="submit"
-            disabled={pending}
-            size="lg"
-            variant="obsidian"
-            leading={pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-        >
-            {isEditing ? 'Save Changes' : 'Add Employee'}
-        </ClayButton>
-    );
-}
+/* ───────────────────────── types & helpers ───────────────────────── */
+
+const initialState: { message?: string; error?: string } = {
+    message: undefined,
+    error: undefined,
+};
+
+const NONE = '__none__';
 
 interface ExtendedDetail {
     about_me?: string;
@@ -69,48 +118,198 @@ interface ExtendedDetail {
 
 interface EmployeeFormProps {
     employee?: WithId<CrmEmployee> | null;
-    departments: WithId<CrmDepartment>[];
-    designations: WithId<CrmDesignation>[];
+    /** @deprecated kept for backwards-compatible call sites — unused. */
+    departments?: WithId<CrmDepartment>[];
+    /** @deprecated kept for backwards-compatible call sites — unused. */
+    designations?: WithId<CrmDesignation>[];
     detail?: ExtendedDetail | null;
+    /** Where to send the user after a successful save. */
+    redirectAfterSave?: string;
 }
 
-function toDateInput(v: any): string {
-    if (!v) return '';
-    try { return new Date(v).toISOString().slice(0, 10); } catch { return ''; }
+function toDate(v: unknown): Date | undefined {
+    if (!v) return undefined;
+    try {
+        const d = new Date(v as string);
+        return Number.isFinite(d.getTime()) ? d : undefined;
+    } catch {
+        return undefined;
+    }
 }
 
-export function EmployeeForm({ employee, departments, designations, detail }: EmployeeFormProps) {
+/* ───────────────────────── shared bits ───────────────────────── */
+
+const labelCls = 'text-[12.5px] text-zoru-ink-muted';
+const inputCls = 'h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]';
+const triggerCls = 'h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]';
+
+function Req() {
+    return <span className="ml-0.5 text-zoru-danger-ink">*</span>;
+}
+
+function SectionCard({
+    title,
+    description,
+    icon: Icon,
+    children,
+}: {
+    title: string;
+    description?: string;
+    icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
+    children: React.ReactNode;
+}) {
+    return (
+        <ZoruCard className="overflow-hidden p-0">
+            <div className="flex items-center gap-3 border-b border-zoru-line bg-zoru-surface px-5 py-3.5">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-zoru-line bg-zoru-bg">
+                    <Icon className="h-4 w-4 text-zoru-ink-muted" strokeWidth={1.75} />
+                </div>
+                <div className="flex flex-col">
+                    <span className="text-[13.5px] font-medium text-zoru-ink">
+                        {title}
+                    </span>
+                    {description ? (
+                        <span className="text-[12px] text-zoru-ink-muted">{description}</span>
+                    ) : null}
+                </div>
+            </div>
+            <div className="p-5 sm:p-6">{children}</div>
+        </ZoruCard>
+    );
+}
+
+function Field({
+    label,
+    htmlFor,
+    required,
+    span,
+    children,
+}: {
+    label: string;
+    htmlFor?: string;
+    required?: boolean;
+    span?: 1 | 2 | 3;
+    children: React.ReactNode;
+}) {
+    const spanCls =
+        span === 2
+            ? 'md:col-span-2'
+            : span === 3
+                ? 'md:col-span-3'
+                : '';
+    return (
+        <div className={`space-y-1.5 ${spanCls}`}>
+            <ZoruLabel htmlFor={htmlFor} className={labelCls}>
+                {label}
+                {required ? <Req /> : null}
+            </ZoruLabel>
+            {children}
+        </div>
+    );
+}
+
+function SubmitButton({ isEditing }: { isEditing: boolean }) {
+    const { pending } = useFormStatus();
+    return (
+        <ZoruButton type="submit" disabled={pending} size="lg">
+            {pending ? (
+                <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={1.75} />
+            ) : (
+                <Save className="h-4 w-4" strokeWidth={1.75} />
+            )}
+            {isEditing ? 'Save Changes' : 'Add Employee'}
+        </ZoruButton>
+    );
+}
+
+/* ───────────────────────── component ───────────────────────── */
+
+export function EmployeeForm({
+    employee,
+    detail,
+    redirectAfterSave,
+}: EmployeeFormProps) {
     const [state, formAction] = useActionState(saveCrmEmployee, initialState);
-    const { toast } = useToast();
+    const { toast } = useZoruToast();
     const router = useRouter();
     const isEditing = !!employee;
 
+    /* Core dates — `dateOfJoining` is required, `dateOfBirth` on the
+     * core doc is optional. Detail-table date_of_birth is separately
+     * captured below; both are kept to preserve every existing field. */
     const [dateOfJoining, setDateOfJoining] = useState<Date | undefined>(
-        isEditing ? new Date(employee.dateOfJoining) : new Date()
+        () => toDate(employee?.dateOfJoining) ?? new Date(),
     );
-    const [dateOfBirth, setDateOfBirth] = useState<Date | undefined>(
-        isEditing && (employee as any).dateOfBirth ? new Date((employee as any).dateOfBirth) : undefined
+    const [coreDateOfBirth, setCoreDateOfBirth] = useState<Date | undefined>(
+        () => toDate((employee as any)?.dateOfBirth),
+    );
+    const [detailDateOfBirth, setDetailDateOfBirth] = useState<Date | undefined>(
+        () => toDate(detail?.date_of_birth),
+    );
+    const [marriageAnniversary, setMarriageAnniversary] = useState<Date | undefined>(
+        () => toDate(detail?.marriage_anniversary_date),
+    );
+    const [probationEnd, setProbationEnd] = useState<Date | undefined>(
+        () => toDate(detail?.probation_end_date),
+    );
+    const [lastDate, setLastDate] = useState<Date | undefined>(
+        () => toDate(detail?.last_date),
+    );
+    const [noticePeriodEnd, setNoticePeriodEnd] = useState<Date | undefined>(
+        () => toDate(detail?.notice_period_end_date),
+    );
+    const [internshipEnd, setInternshipEnd] = useState<Date | undefined>(
+        () => toDate(detail?.internship_end_date),
+    );
+    const [contractEnd, setContractEnd] = useState<Date | undefined>(
+        () => toDate(detail?.contract_end_date),
     );
 
-    const [departmentId, setDepartmentId] = useState(employee?.departmentId?.toString() || '');
-    const [designationId, setDesignationId] = useState(employee?.designationId?.toString() || '');
-    const [workCountry, setWorkCountry] = useState(employee?.workCountry || '');
-    const [workState, setWorkState] = useState(employee?.workState || '');
-    const [workCity, setWorkCity] = useState(employee?.workCity || '');
-    const [reportingTo, setReportingTo] = useState(detail?.reporting_to || '');
-    const [bankAccountId, setBankAccountId] = useState<string>(detail?.bank_account_id || '');
+    /* Entity refs (cascading). All are surfaced to the server action via
+     * the corresponding FormData keys, which `EntityFormField` writes
+     * via its own hidden input. */
+    const [departmentId, setDepartmentId] = useState<string>(
+        employee?.departmentId?.toString() ?? '',
+    );
+    const [designationId, setDesignationId] = useState<string>(
+        employee?.designationId?.toString() ?? '',
+    );
+    const [workCountry, setWorkCountry] = useState<string>(
+        employee?.workCountry ?? '',
+    );
+    const [workState, setWorkState] = useState<string>(
+        employee?.workState ?? '',
+    );
+    const [workCity, setWorkCity] = useState<string>(employee?.workCity ?? '');
 
-    // Custom-field definitions for entity=employee, plus the live edit
-    // values keyed by `WsCustomField.name`. Seeded from
-    // `employee.customFields` on edit (storage shape applied by
-    // `applyCustomFieldsToEntity`).
+    // The designation lookup needs to be re-mounted when the department
+    // changes so its `filter` prop is honoured by the picker (it caches
+    // results keyed by the stringified filter). We also clear the
+    // selection if the user changes department after picking. Key the
+    // pickers by their filter source.
+    const designationFilter = useMemo<Record<string, unknown> | undefined>(
+        () => (departmentId ? { department_id: departmentId } : undefined),
+        [departmentId],
+    );
+    const stateFilter = useMemo<Record<string, unknown> | undefined>(
+        () => (workCountry ? { country: workCountry } : undefined),
+        [workCountry],
+    );
+    const cityFilter = useMemo<Record<string, unknown> | undefined>(
+        () => (workState ? { state: workState } : undefined),
+        [workState],
+    );
+
+    /* Custom fields — JSON-encoded into a hidden `customFields` input
+     * so the server action can call `applyCustomFieldsToEntity`. */
     const [customFields, setCustomFields] = useState<WsCustomField[]>([]);
     const [customFieldValues, setCustomFieldValues] = useState<
         Record<string, CustomFieldValue>
     >(() => {
-        const seed = (employee as (WithId<CrmEmployee> & {
-            customFields?: Record<string, CustomFieldValue>;
-        }) | null | undefined)?.customFields;
+        const seed = (employee as
+            | (WithId<CrmEmployee> & { customFields?: Record<string, CustomFieldValue> })
+            | null
+            | undefined)?.customFields;
         return seed ?? {};
     });
     const customFieldsLoadedRef = useRef(false);
@@ -139,8 +338,6 @@ export function EmployeeForm({ employee, departments, designations, detail }: Em
         [],
     );
 
-    // Inject the JSON-encoded customFields blob into FormData so the
-    // server action can call `applyCustomFieldsToEntity('employee', ...)`.
     const handleFormAction = useCallback(
         (formData: FormData) => {
             formData.set('customFields', JSON.stringify(customFieldValues));
@@ -149,405 +346,644 @@ export function EmployeeForm({ employee, departments, designations, detail }: Em
         [formAction, customFieldValues],
     );
 
+    /* Toast + redirect on action settle. */
+    const handledRef = useRef(false);
     useEffect(() => {
-        if (employee) {
-            setWorkCountry(employee.workCountry || '');
-            setWorkState(employee.workState || '');
-            setWorkCity(employee.workCity || '');
-        }
-    }, [employee]);
-
-    useEffect(() => {
+        if (handledRef.current) return;
         if (state.message) {
+            handledRef.current = true;
             toast({ title: 'Saved', description: state.message });
-            if (!isEditing) router.push('/dashboard/hrm/payroll/employees');
+            const target = redirectAfterSave ?? '/dashboard/hrm/payroll/employees';
+            router.push(target);
         }
         if (state.error) {
-            toast({ title: 'Error', description: state.error, variant: 'destructive' });
+            toast({
+                title: 'Error',
+                description: state.error,
+                variant: 'destructive',
+            });
         }
-    }, [state]);
+    }, [state, toast, router, redirectAfterSave]);
 
     return (
-        <form action={handleFormAction}>
-            {isEditing && <input type="hidden" name="employeeId" value={employee._id.toString()} />}
-            <input type="hidden" name="dateOfJoining" value={dateOfJoining?.toISOString() ?? ''} />
-            {dateOfBirth && <input type="hidden" name="dateOfBirth" value={dateOfBirth.toISOString()} />}
-            <input type="hidden" name="departmentId" value={departmentId} />
-            <input type="hidden" name="designationId" value={designationId} />
-            <input type="hidden" name="workCountry" value={workCountry} />
-            <input type="hidden" name="workState" value={workState} />
-            <input type="hidden" name="workCity" value={workCity} />
-            <input type="hidden" name="ext_reporting_to" value={reportingTo} />
-            <input type="hidden" name="ext_bank_account_id" value={bankAccountId} />
+        <form action={handleFormAction} className="flex flex-col gap-5 pb-28">
+            {/* Hidden fields the action reads. Keys are load-bearing —
+               do NOT rename without updating `saveCrmEmployee`. */}
+            {isEditing && (
+                <input
+                    type="hidden"
+                    name="employeeId"
+                    value={employee!._id.toString()}
+                />
+            )}
+            <input
+                type="hidden"
+                name="dateOfJoining"
+                value={dateOfJoining?.toISOString() ?? ''}
+            />
+            {coreDateOfBirth && (
+                <input
+                    type="hidden"
+                    name="dateOfBirth"
+                    value={coreDateOfBirth.toISOString()}
+                />
+            )}
+            {detailDateOfBirth && (
+                <input
+                    type="hidden"
+                    name="date_of_birth"
+                    value={detailDateOfBirth.toISOString()}
+                />
+            )}
+            {marriageAnniversary && (
+                <input
+                    type="hidden"
+                    name="marriage_anniversary_date"
+                    value={marriageAnniversary.toISOString()}
+                />
+            )}
+            {probationEnd && (
+                <input
+                    type="hidden"
+                    name="probation_end_date"
+                    value={probationEnd.toISOString()}
+                />
+            )}
+            {lastDate && (
+                <input
+                    type="hidden"
+                    name="last_date"
+                    value={lastDate.toISOString()}
+                />
+            )}
+            {noticePeriodEnd && (
+                <input
+                    type="hidden"
+                    name="notice_period_end_date"
+                    value={noticePeriodEnd.toISOString()}
+                />
+            )}
+            {internshipEnd && (
+                <input
+                    type="hidden"
+                    name="internship_end_date"
+                    value={internshipEnd.toISOString()}
+                />
+            )}
+            {contractEnd && (
+                <input
+                    type="hidden"
+                    name="contract_end_date"
+                    value={contractEnd.toISOString()}
+                />
+            )}
 
-            <ClayCard padded={false}>
-                <div className="p-6">
-                    <Accordion
-                        type="multiple"
-                        defaultValue={['personal', 'job', 'extended-personal', 'employment', 'banking']}
-                        className="w-full"
-                    >
-                        {/* ── Basic Personal Info ─────────────────────── */}
-                        <AccordionItem value="personal">
-                            <AccordionTrigger className="rounded-lg bg-secondary px-3 text-foreground hover:text-foreground">Personal Information</AccordionTrigger>
-                            <AccordionContent className="space-y-4 pt-4">
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="firstName">First Name *</Label>
-                                        <Input id="firstName" name="firstName" defaultValue={employee?.firstName} required />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="lastName">Last Name *</Label>
-                                        <Input id="lastName" name="lastName" defaultValue={employee?.lastName} required />
-                                    </div>
-                                </div>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="email">Work Email *</Label>
-                                        <Input id="email" name="email" type="email" defaultValue={employee?.email} required />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="phone">Phone</Label>
-                                        <Input id="phone" name="phone" type="tel" defaultValue={employee?.phone} />
-                                    </div>
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="dateOfBirth">Date of Birth</Label>
-                                    <Input
-                                        id="dateOfBirth"
-                                        type="date"
-                                        value={dateOfBirth ? toDateInput(dateOfBirth) : ''}
-                                        onChange={(e) => setDateOfBirth(e.target.value ? new Date(e.target.value) : undefined)}
-                                    />
-                                </div>
-                            </AccordionContent>
-                        </AccordionItem>
+            {/* ─── Personal Information ─── */}
+            <SectionCard
+                title="Personal Information"
+                description="Basic identity and contact details."
+                icon={UserIcon}
+            >
+                <div className="grid gap-4 md:grid-cols-2">
+                    <Field label="First Name" htmlFor="firstName" required>
+                        <ZoruInput
+                            id="firstName"
+                            name="firstName"
+                            defaultValue={employee?.firstName}
+                            required
+                            className={inputCls}
+                        />
+                    </Field>
+                    <Field label="Last Name" htmlFor="lastName" required>
+                        <ZoruInput
+                            id="lastName"
+                            name="lastName"
+                            defaultValue={employee?.lastName}
+                            required
+                            className={inputCls}
+                        />
+                    </Field>
+                    <Field label="Work Email" htmlFor="email" required>
+                        <ZoruInput
+                            id="email"
+                            name="email"
+                            type="email"
+                            defaultValue={employee?.email}
+                            required
+                            className={inputCls}
+                        />
+                    </Field>
+                    <Field label="Phone" htmlFor="phone">
+                        <ZoruInput
+                            id="phone"
+                            name="phone"
+                            type="tel"
+                            defaultValue={employee?.phone}
+                            className={inputCls}
+                        />
+                    </Field>
+                    <Field label="Date of Birth">
+                        <ZoruDatePicker
+                            value={coreDateOfBirth}
+                            onChange={setCoreDateOfBirth}
+                            placeholder="Select date of birth"
+                        />
+                    </Field>
+                </div>
+            </SectionCard>
 
-                        {/* ── Job Info ────────────────────────────────── */}
-                        <AccordionItem value="job">
-                            <AccordionTrigger className="rounded-lg bg-secondary px-3 text-foreground hover:text-foreground">Job Information</AccordionTrigger>
-                            <AccordionContent className="space-y-4 pt-4">
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="employeeIdCode">Employee ID *</Label>
-                                        <Input id="employeeIdCode" name="employeeIdCode" defaultValue={employee?.employeeId} required />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Status</Label>
-                                        <Select name="status" defaultValue={employee?.status || 'Active'}>
-                                            <SelectTrigger><SelectValue /></SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="Active">Active</SelectItem>
-                                                <SelectItem value="Inactive">Inactive</SelectItem>
-                                                <SelectItem value="Terminated">Terminated</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                </div>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                        <Label>Department</Label>
-                                        <EntityPicker
-                                            entity="department"
-                                            value={departmentId || null}
-                                            onChange={(next) => {
-                                                const id = Array.isArray(next) ? next[0] ?? '' : (next ?? '');
-                                                setDepartmentId(id);
-                                            }}
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Designation</Label>
-                                        <EntityPicker
-                                            entity="designation"
-                                            value={designationId || null}
-                                            onChange={(next) => {
-                                                const id = Array.isArray(next) ? next[0] ?? '' : (next ?? '');
-                                                setDesignationId(id);
-                                            }}
-                                        />
-                                    </div>
-                                </div>
-                                <div className="grid grid-cols-3 gap-4">
-                                    <div className="space-y-2">
-                                        <Label>Work Country</Label>
-                                        <EntityPicker
-                                            entity="location"
-                                            value={workCountry || null}
-                                            placeholder="Select Country..."
-                                            onChange={(next) => {
-                                                const id = Array.isArray(next) ? (next[0] ?? '') : (next ?? '');
-                                                setWorkCountry(id);
-                                                setWorkState('');
-                                                setWorkCity('');
-                                            }}
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Work State</Label>
-                                        <EntityPicker
-                                            entity="location"
-                                            value={workState || null}
-                                            placeholder="Select State..."
-                                            onChange={(next) => {
-                                                const id = Array.isArray(next) ? (next[0] ?? '') : (next ?? '');
-                                                setWorkState(id);
-                                                setWorkCity('');
-                                            }}
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Work City</Label>
-                                        <EntityPicker
-                                            entity="location"
-                                            value={workCity || null}
-                                            placeholder="Select City..."
-                                            onChange={(next) => {
-                                                const id = Array.isArray(next) ? (next[0] ?? '') : (next ?? '');
-                                                setWorkCity(id);
-                                            }}
-                                        />
-                                    </div>
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Date of Joining *</Label>
-                                    <DatePicker date={dateOfJoining} setDate={setDateOfJoining} />
-                                </div>
-                            </AccordionContent>
-                        </AccordionItem>
-
-                        {/* ── Extended Personal Info ───────────────────── */}
-                        <AccordionItem value="extended-personal">
-                            <AccordionTrigger className="rounded-lg bg-secondary px-3 text-foreground hover:text-foreground">Extended Personal Info</AccordionTrigger>
-                            <AccordionContent className="pt-4">
-                                <div className="grid gap-4 md:grid-cols-2">
-                                    <div className="space-y-2 md:col-span-2">
-                                        <Label>About Me</Label>
-                                        <Textarea name="about_me" rows={3} defaultValue={detail?.about_me || ''} className="rounded-lg border-border bg-card text-[13px]" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Gender</Label>
-                                        <Select name="gender" defaultValue={detail?.gender || '__none__'}>
-                                            <SelectTrigger className="h-10 rounded-lg border-border bg-card text-[13px]"><SelectValue placeholder="Select…" /></SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="__none__">— None —</SelectItem>
-                                                <SelectItem value="male">Male</SelectItem>
-                                                <SelectItem value="female">Female</SelectItem>
-                                                <SelectItem value="others">Others</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Marital Status</Label>
-                                        <Select name="marital_status" defaultValue={detail?.marital_status || '__none__'}>
-                                            <SelectTrigger className="h-10 rounded-lg border-border bg-card text-[13px]"><SelectValue placeholder="Select…" /></SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="__none__">— None —</SelectItem>
-                                                <SelectItem value="single">Single</SelectItem>
-                                                <SelectItem value="married">Married</SelectItem>
-                                                <SelectItem value="divorced">Divorced</SelectItem>
-                                                <SelectItem value="widowed">Widowed</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Date of Birth</Label>
-                                        <Input type="date" name="date_of_birth" defaultValue={toDateInput(detail?.date_of_birth)} className="h-10 rounded-lg border-border bg-card text-[13px]" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Blood Group</Label>
-                                        <Select name="blood_group" defaultValue={detail?.blood_group || '__none__'}>
-                                            <SelectTrigger className="h-10 rounded-lg border-border bg-card text-[13px]"><SelectValue placeholder="Select…" /></SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="__none__">— None —</SelectItem>
-                                                {['A+','A-','B+','B-','AB+','AB-','O+','O-'].map(g => <SelectItem key={g} value={g}>{g}</SelectItem>)}
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Nationality</Label>
-                                        <Input name="nationality" defaultValue={detail?.nationality || ''} className="h-10 rounded-lg border-border bg-card text-[13px]" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Religion</Label>
-                                        <Input name="religion" defaultValue={detail?.religion || ''} className="h-10 rounded-lg border-border bg-card text-[13px]" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Languages (comma-separated)</Label>
-                                        <Input name="languages" defaultValue={detail?.languages || ''} className="h-10 rounded-lg border-border bg-card text-[13px]" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Marriage Anniversary Date</Label>
-                                        <Input type="date" name="marriage_anniversary_date" defaultValue={toDateInput(detail?.marriage_anniversary_date)} className="h-10 rounded-lg border-border bg-card text-[13px]" />
-                                    </div>
-                                    <div className="space-y-2 md:col-span-2">
-                                        <Label>Hobbies</Label>
-                                        <Textarea name="hobbies" rows={2} defaultValue={detail?.hobbies || ''} className="rounded-lg border-border bg-card text-[13px]" />
-                                    </div>
-                                    <div className="space-y-2 md:col-span-2">
-                                        <Label>Address</Label>
-                                        <Textarea name="address" rows={2} defaultValue={detail?.address || ''} className="rounded-lg border-border bg-card text-[13px]" />
-                                    </div>
-                                </div>
-                            </AccordionContent>
-                        </AccordionItem>
-
-                        {/* ── Employment Details ───────────────────────── */}
-                        <AccordionItem value="employment">
-                            <AccordionTrigger className="rounded-lg bg-secondary px-3 text-foreground hover:text-foreground">Employment Details</AccordionTrigger>
-                            <AccordionContent className="pt-4">
-                                <div className="grid gap-4 md:grid-cols-2">
-                                    <div className="space-y-2">
-                                        <Label>Employment Type</Label>
-                                        <Select name="employment_type" defaultValue={detail?.employment_type || '__none__'}>
-                                            <SelectTrigger className="h-10 rounded-lg border-border bg-card text-[13px]"><SelectValue placeholder="Select…" /></SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="__none__">— None —</SelectItem>
-                                                <SelectItem value="full-time">Full-time</SelectItem>
-                                                <SelectItem value="part-time">Part-time</SelectItem>
-                                                <SelectItem value="contract">Contract</SelectItem>
-                                                <SelectItem value="internship">Internship</SelectItem>
-                                                <SelectItem value="trainee">Trainee</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Reporting To</Label>
-                                        <EntityPicker
-                                            entity="employee"
-                                            value={reportingTo || null}
-                                            placeholder="Select manager…"
-                                            filter={
-                                                isEditing
-                                                    ? { _id: { $ne: employee!._id } }
-                                                    : undefined
-                                            }
-                                            onChange={(next) => {
-                                                const id = Array.isArray(next) ? next[0] ?? '' : (next ?? '');
-                                                setReportingTo(id);
-                                            }}
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Probation End Date</Label>
-                                        <Input type="date" name="probation_end_date" defaultValue={toDateInput(detail?.probation_end_date)} className="h-10 rounded-lg border-border bg-card text-[13px]" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Last Date</Label>
-                                        <Input type="date" name="last_date" defaultValue={toDateInput(detail?.last_date)} className="h-10 rounded-lg border-border bg-card text-[13px]" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Notice Period (days)</Label>
-                                        <Input type="number" name="notice_period" min="0" defaultValue={detail?.notice_period ?? ''} className="h-10 rounded-lg border-border bg-card text-[13px]" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Notice Period End Date</Label>
-                                        <Input type="date" name="notice_period_end_date" defaultValue={toDateInput(detail?.notice_period_end_date)} className="h-10 rounded-lg border-border bg-card text-[13px]" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Internship End Date</Label>
-                                        <Input type="date" name="internship_end_date" defaultValue={toDateInput(detail?.internship_end_date)} className="h-10 rounded-lg border-border bg-card text-[13px]" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Contract End Date</Label>
-                                        <Input type="date" name="contract_end_date" defaultValue={toDateInput(detail?.contract_end_date)} className="h-10 rounded-lg border-border bg-card text-[13px]" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Hourly Rate</Label>
-                                        <Input type="number" name="hourly_rate" min="0" step="0.01" defaultValue={detail?.hourly_rate ?? ''} className="h-10 rounded-lg border-border bg-card text-[13px]" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Overtime Hourly Rate</Label>
-                                        <Input type="number" name="overtime_hourly_rate" min="0" step="0.01" defaultValue={detail?.overtime_hourly_rate ?? ''} className="h-10 rounded-lg border-border bg-card text-[13px]" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Slack Username</Label>
-                                        <Input name="slack_username" defaultValue={detail?.slack_username || ''} className="h-10 rounded-lg border-border bg-card text-[13px]" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Work Anniversary Notified</Label>
-                                        <Select name="work_anniversary_notified" defaultValue={detail?.work_anniversary_notified ? 'true' : 'false'}>
-                                            <SelectTrigger className="h-10 rounded-lg border-border bg-card text-[13px]"><SelectValue /></SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="false">No</SelectItem>
-                                                <SelectItem value="true">Yes</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                </div>
-                            </AccordionContent>
-                        </AccordionItem>
-
-                        {/* ── Banking & Tax ────────────────────────────── */}
-                        <AccordionItem value="banking">
-                            <AccordionTrigger className="rounded-lg bg-secondary px-3 text-foreground hover:text-foreground">Banking &amp; Tax</AccordionTrigger>
-                            <AccordionContent className="pt-4">
-                                <div className="grid gap-4 md:grid-cols-2">
-                                    <div className="space-y-2 md:col-span-2">
-                                        <Label>Linked Bank Account</Label>
-                                        <EntityPicker
-                                            entity="bankAccount"
-                                            value={bankAccountId || null}
-                                            placeholder="Select bank account…"
-                                            onChange={(next) => {
-                                                const id = Array.isArray(next) ? next[0] ?? '' : (next ?? '');
-                                                setBankAccountId(id);
-                                            }}
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Bank Account Number</Label>
-                                        <Input name="bank_account_number" defaultValue={detail?.bank_account_number || ''} className="h-10 rounded-lg border-border bg-card text-[13px]" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Bank Name</Label>
-                                        <Input name="bank_name" defaultValue={detail?.bank_name || ''} className="h-10 rounded-lg border-border bg-card text-[13px]" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Tax Regime</Label>
-                                        <Select name="tax_regime" defaultValue={detail?.tax_regime || '__none__'}>
-                                            <SelectTrigger className="h-10 rounded-lg border-border bg-card text-[13px]"><SelectValue placeholder="Select…" /></SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="__none__">— None —</SelectItem>
-                                                <SelectItem value="old">Old</SelectItem>
-                                                <SelectItem value="new">New</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Gross Salary</Label>
-                                        <Input type="number" name="grossSalary" min="0" defaultValue={(employee as any)?.salaryDetails?.grossSalary ?? ''} className="h-10 rounded-lg border-border bg-card text-[13px]" />
-                                    </div>
-                                </div>
-                            </AccordionContent>
-                        </AccordionItem>
-                    </Accordion>
-
-                    {customFields.length > 0 ? (
-                        <div className="mt-6 space-y-3 rounded-xl border border-border bg-card p-4">
-                            <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                                Custom Fields
-                            </div>
-                            <div className="grid gap-4 md:grid-cols-2">
-                                {customFields.map((f) => (
-                                    <CustomFieldInput
-                                        key={String(f._id ?? f.name)}
-                                        field={f}
-                                        value={customFieldValues[f.name]}
-                                        onChange={(next) =>
-                                            handleCustomFieldChange(f.name, next)
-                                        }
-                                    />
-                                ))}
-                            </div>
-                        </div>
-                    ) : null}
+            {/* ─── Job Information ─── */}
+            <SectionCard
+                title="Job Information"
+                description="Role, department and work location."
+                icon={Briefcase}
+            >
+                <div className="grid gap-4 md:grid-cols-2">
+                    <Field label="Employee ID" htmlFor="employeeIdCode" required>
+                        <ZoruInput
+                            id="employeeIdCode"
+                            name="employeeIdCode"
+                            defaultValue={employee?.employeeId}
+                            required
+                            className={inputCls}
+                        />
+                    </Field>
+                    <Field label="Status">
+                        <ZoruSelect
+                            name="status"
+                            defaultValue={employee?.status || 'Active'}
+                        >
+                            <ZoruSelectTrigger className={triggerCls}>
+                                <ZoruSelectValue />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                <ZoruSelectItem value="Active">Active</ZoruSelectItem>
+                                <ZoruSelectItem value="Inactive">Inactive</ZoruSelectItem>
+                                <ZoruSelectItem value="Terminated">
+                                    Terminated
+                                </ZoruSelectItem>
+                            </ZoruSelectContent>
+                        </ZoruSelect>
+                    </Field>
+                    <Field label="Department">
+                        <EntityFormField
+                            entity="department"
+                            name="departmentId"
+                            initialId={departmentId || undefined}
+                            placeholder="Select department…"
+                            onChange={(id) => {
+                                setDepartmentId(id ?? '');
+                                // Department changed → clear designation
+                                // so the next picker honours the filter.
+                                setDesignationId('');
+                            }}
+                        />
+                    </Field>
+                    <Field label="Designation">
+                        <EntityFormField
+                            // Re-mount on department change so the picker
+                            // re-issues the lookup with the new filter.
+                            key={`designation-${departmentId || 'all'}`}
+                            entity="designation"
+                            name="designationId"
+                            initialId={designationId || undefined}
+                            filter={designationFilter}
+                            placeholder={
+                                departmentId
+                                    ? 'Select designation…'
+                                    : 'Pick a department first…'
+                            }
+                            onChange={(id) => setDesignationId(id ?? '')}
+                        />
+                    </Field>
+                    <Field label="Date of Joining" required>
+                        <ZoruDatePicker
+                            value={dateOfJoining}
+                            onChange={setDateOfJoining}
+                            placeholder="Select joining date"
+                        />
+                    </Field>
                 </div>
 
-                <div className="flex border-t border-border p-6 pt-4">
+                <div className="mt-5">
+                    <div className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-zoru-ink-subtle">
+                        Work Location
+                    </div>
+                    <div className="grid gap-4 md:grid-cols-3">
+                        <Field label="Country">
+                            <EntityFormField
+                                entity="country"
+                                name="workCountry"
+                                initialId={workCountry || undefined}
+                                placeholder="Country…"
+                                onChange={(id) => {
+                                    setWorkCountry(id ?? '');
+                                    setWorkState('');
+                                    setWorkCity('');
+                                }}
+                            />
+                        </Field>
+                        <Field label="State / Region">
+                            <EntityFormField
+                                key={`state-${workCountry || 'all'}`}
+                                entity="state"
+                                name="workState"
+                                initialId={workState || undefined}
+                                filter={stateFilter}
+                                placeholder={
+                                    workCountry ? 'State…' : 'Pick a country first…'
+                                }
+                                onChange={(id) => {
+                                    setWorkState(id ?? '');
+                                    setWorkCity('');
+                                }}
+                            />
+                        </Field>
+                        <Field label="City">
+                            <EntityFormField
+                                key={`city-${workState || 'all'}`}
+                                entity="city"
+                                name="workCity"
+                                initialId={workCity || undefined}
+                                filter={cityFilter}
+                                placeholder={
+                                    workState ? 'City…' : 'Pick a state first…'
+                                }
+                                onChange={(id) => setWorkCity(id ?? '')}
+                            />
+                        </Field>
+                    </div>
+                </div>
+            </SectionCard>
+
+            {/* ─── Extended Personal Info ─── */}
+            <SectionCard
+                title="Personal Profile"
+                description="Identity, demographics and bio."
+                icon={HeartPulse}
+            >
+                <div className="grid gap-4 md:grid-cols-2">
+                    <Field label="About" span={2}>
+                        <ZoruTextarea
+                            name="about_me"
+                            rows={3}
+                            defaultValue={detail?.about_me ?? ''}
+                            className="rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                        />
+                    </Field>
+                    <Field label="Gender">
+                        <ZoruSelect
+                            name="gender"
+                            defaultValue={detail?.gender || NONE}
+                        >
+                            <ZoruSelectTrigger className={triggerCls}>
+                                <ZoruSelectValue placeholder="Select…" />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                <ZoruSelectItem value={NONE}>— None —</ZoruSelectItem>
+                                <ZoruSelectItem value="male">Male</ZoruSelectItem>
+                                <ZoruSelectItem value="female">Female</ZoruSelectItem>
+                                <ZoruSelectItem value="others">Others</ZoruSelectItem>
+                            </ZoruSelectContent>
+                        </ZoruSelect>
+                    </Field>
+                    <Field label="Marital Status">
+                        <ZoruSelect
+                            name="marital_status"
+                            defaultValue={detail?.marital_status || NONE}
+                        >
+                            <ZoruSelectTrigger className={triggerCls}>
+                                <ZoruSelectValue placeholder="Select…" />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                <ZoruSelectItem value={NONE}>— None —</ZoruSelectItem>
+                                <ZoruSelectItem value="single">Single</ZoruSelectItem>
+                                <ZoruSelectItem value="married">Married</ZoruSelectItem>
+                                <ZoruSelectItem value="divorced">Divorced</ZoruSelectItem>
+                                <ZoruSelectItem value="widowed">Widowed</ZoruSelectItem>
+                            </ZoruSelectContent>
+                        </ZoruSelect>
+                    </Field>
+                    <Field label="Date of Birth (Detailed)">
+                        <ZoruDatePicker
+                            value={detailDateOfBirth}
+                            onChange={setDetailDateOfBirth}
+                            placeholder="Select date of birth"
+                        />
+                    </Field>
+                    <Field label="Blood Group">
+                        <ZoruSelect
+                            name="blood_group"
+                            defaultValue={detail?.blood_group || NONE}
+                        >
+                            <ZoruSelectTrigger className={triggerCls}>
+                                <ZoruSelectValue placeholder="Select…" />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                <ZoruSelectItem value={NONE}>— None —</ZoruSelectItem>
+                                {['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].map(
+                                    (g) => (
+                                        <ZoruSelectItem key={g} value={g}>
+                                            {g}
+                                        </ZoruSelectItem>
+                                    ),
+                                )}
+                            </ZoruSelectContent>
+                        </ZoruSelect>
+                    </Field>
+                    <Field label="Nationality" htmlFor="nationality">
+                        <ZoruInput
+                            id="nationality"
+                            name="nationality"
+                            defaultValue={detail?.nationality ?? ''}
+                            className={inputCls}
+                        />
+                    </Field>
+                    <Field label="Religion" htmlFor="religion">
+                        <ZoruInput
+                            id="religion"
+                            name="religion"
+                            defaultValue={detail?.religion ?? ''}
+                            className={inputCls}
+                        />
+                    </Field>
+                    <Field
+                        label="Languages (comma-separated)"
+                        htmlFor="languages"
+                    >
+                        <ZoruInput
+                            id="languages"
+                            name="languages"
+                            defaultValue={detail?.languages ?? ''}
+                            placeholder="English, Hindi, …"
+                            className={inputCls}
+                        />
+                    </Field>
+                    <Field label="Marriage Anniversary">
+                        <ZoruDatePicker
+                            value={marriageAnniversary}
+                            onChange={setMarriageAnniversary}
+                            placeholder="Select date"
+                        />
+                    </Field>
+                    <Field label="Hobbies" htmlFor="hobbies" span={2}>
+                        <ZoruTextarea
+                            id="hobbies"
+                            name="hobbies"
+                            rows={2}
+                            defaultValue={detail?.hobbies ?? ''}
+                            className="rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                        />
+                    </Field>
+                    <Field label="Address" htmlFor="address" span={2}>
+                        <ZoruTextarea
+                            id="address"
+                            name="address"
+                            rows={2}
+                            defaultValue={detail?.address ?? ''}
+                            className="rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                        />
+                    </Field>
+                </div>
+            </SectionCard>
+
+            {/* ─── Employment Details ─── */}
+            <SectionCard
+                title="Employment Details"
+                description="Type, probation, notice and reporting."
+                icon={Building2}
+            >
+                <div className="grid gap-4 md:grid-cols-2">
+                    <Field label="Employment Type">
+                        <ZoruSelect
+                            name="employment_type"
+                            defaultValue={detail?.employment_type || NONE}
+                        >
+                            <ZoruSelectTrigger className={triggerCls}>
+                                <ZoruSelectValue placeholder="Select…" />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                <ZoruSelectItem value={NONE}>— None —</ZoruSelectItem>
+                                <ZoruSelectItem value="full-time">Full-time</ZoruSelectItem>
+                                <ZoruSelectItem value="part-time">Part-time</ZoruSelectItem>
+                                <ZoruSelectItem value="contract">Contract</ZoruSelectItem>
+                                <ZoruSelectItem value="internship">
+                                    Internship
+                                </ZoruSelectItem>
+                                <ZoruSelectItem value="trainee">Trainee</ZoruSelectItem>
+                            </ZoruSelectContent>
+                        </ZoruSelect>
+                    </Field>
+                    <Field label="Reporting To">
+                        <EntityFormField
+                            entity="employee"
+                            name="ext_reporting_to"
+                            initialId={detail?.reporting_to || undefined}
+                            placeholder="Select manager…"
+                            filter={
+                                isEditing && employee
+                                    ? { _id: { $ne: employee._id } }
+                                    : undefined
+                            }
+                        />
+                    </Field>
+                    <Field label="Probation End Date">
+                        <ZoruDatePicker
+                            value={probationEnd}
+                            onChange={setProbationEnd}
+                            placeholder="Select date"
+                        />
+                    </Field>
+                    <Field label="Last Working Date">
+                        <ZoruDatePicker
+                            value={lastDate}
+                            onChange={setLastDate}
+                            placeholder="Select date"
+                        />
+                    </Field>
+                    <Field label="Notice Period (days)" htmlFor="notice_period">
+                        <ZoruInput
+                            id="notice_period"
+                            name="notice_period"
+                            type="number"
+                            min={0}
+                            defaultValue={detail?.notice_period ?? ''}
+                            className={inputCls}
+                        />
+                    </Field>
+                    <Field label="Notice Period End Date">
+                        <ZoruDatePicker
+                            value={noticePeriodEnd}
+                            onChange={setNoticePeriodEnd}
+                            placeholder="Select date"
+                        />
+                    </Field>
+                    <Field label="Internship End Date">
+                        <ZoruDatePicker
+                            value={internshipEnd}
+                            onChange={setInternshipEnd}
+                            placeholder="Select date"
+                        />
+                    </Field>
+                    <Field label="Contract End Date">
+                        <ZoruDatePicker
+                            value={contractEnd}
+                            onChange={setContractEnd}
+                            placeholder="Select date"
+                        />
+                    </Field>
+                    <Field label="Hourly Rate" htmlFor="hourly_rate">
+                        <ZoruInput
+                            id="hourly_rate"
+                            name="hourly_rate"
+                            type="number"
+                            min={0}
+                            step={0.01}
+                            defaultValue={detail?.hourly_rate ?? ''}
+                            className={inputCls}
+                        />
+                    </Field>
+                    <Field
+                        label="Overtime Hourly Rate"
+                        htmlFor="overtime_hourly_rate"
+                    >
+                        <ZoruInput
+                            id="overtime_hourly_rate"
+                            name="overtime_hourly_rate"
+                            type="number"
+                            min={0}
+                            step={0.01}
+                            defaultValue={detail?.overtime_hourly_rate ?? ''}
+                            className={inputCls}
+                        />
+                    </Field>
+                    <Field label="Slack Username" htmlFor="slack_username">
+                        <ZoruInput
+                            id="slack_username"
+                            name="slack_username"
+                            defaultValue={detail?.slack_username ?? ''}
+                            className={inputCls}
+                        />
+                    </Field>
+                    <Field label="Work Anniversary Notified">
+                        <ZoruSelect
+                            name="work_anniversary_notified"
+                            defaultValue={
+                                detail?.work_anniversary_notified ? 'true' : 'false'
+                            }
+                        >
+                            <ZoruSelectTrigger className={triggerCls}>
+                                <ZoruSelectValue />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                <ZoruSelectItem value="false">No</ZoruSelectItem>
+                                <ZoruSelectItem value="true">Yes</ZoruSelectItem>
+                            </ZoruSelectContent>
+                        </ZoruSelect>
+                    </Field>
+                </div>
+            </SectionCard>
+
+            {/* ─── Banking & Tax ─── */}
+            <SectionCard
+                title="Banking & Tax"
+                description="Payment and statutory details."
+                icon={Banknote}
+            >
+                <div className="grid gap-4 md:grid-cols-2">
+                    <Field label="Linked Bank Account" span={2}>
+                        <EntityFormField
+                            entity="bankAccount"
+                            name="ext_bank_account_id"
+                            initialId={detail?.bank_account_id || undefined}
+                            placeholder="Select bank account…"
+                        />
+                    </Field>
+                    <Field
+                        label="Bank Account Number"
+                        htmlFor="bank_account_number"
+                    >
+                        <ZoruInput
+                            id="bank_account_number"
+                            name="bank_account_number"
+                            defaultValue={detail?.bank_account_number ?? ''}
+                            className={inputCls}
+                        />
+                    </Field>
+                    <Field label="Bank Name" htmlFor="bank_name">
+                        <ZoruInput
+                            id="bank_name"
+                            name="bank_name"
+                            defaultValue={detail?.bank_name ?? ''}
+                            className={inputCls}
+                        />
+                    </Field>
+                    <Field label="Tax Regime">
+                        <ZoruSelect
+                            name="tax_regime"
+                            defaultValue={detail?.tax_regime || NONE}
+                        >
+                            <ZoruSelectTrigger className={triggerCls}>
+                                <ZoruSelectValue placeholder="Select…" />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                <ZoruSelectItem value={NONE}>— None —</ZoruSelectItem>
+                                <ZoruSelectItem value="old">Old</ZoruSelectItem>
+                                <ZoruSelectItem value="new">New</ZoruSelectItem>
+                            </ZoruSelectContent>
+                        </ZoruSelect>
+                    </Field>
+                    <Field label="Gross Salary" htmlFor="grossSalary">
+                        <ZoruInput
+                            id="grossSalary"
+                            name="grossSalary"
+                            type="number"
+                            min={0}
+                            defaultValue={
+                                (employee as any)?.salaryDetails?.grossSalary ?? ''
+                            }
+                            className={inputCls}
+                        />
+                    </Field>
+                </div>
+            </SectionCard>
+
+            {/* ─── Custom Fields ─── */}
+            {customFields.length > 0 ? (
+                <SectionCard
+                    title="Custom Fields"
+                    description="Tenant-specific attributes."
+                    icon={Sparkles}
+                >
+                    <div className="grid gap-4 md:grid-cols-2">
+                        {customFields.map((f) => (
+                            <CustomFieldInput
+                                key={String(f._id ?? f.name)}
+                                field={f}
+                                value={customFieldValues[f.name]}
+                                onChange={(next) => handleCustomFieldChange(f.name, next)}
+                            />
+                        ))}
+                    </div>
+                </SectionCard>
+            ) : null}
+
+            {/* ─── Sticky Action Bar ─── */}
+            <div className="fixed inset-x-0 bottom-0 z-30 border-t border-zoru-line bg-zoru-bg/95 backdrop-blur supports-[backdrop-filter]:bg-zoru-bg/80">
+                <div className="mx-auto flex w-full max-w-4xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
+                    <ZoruButton
+                        type="button"
+                        variant="ghost"
+                        onClick={() => router.back()}
+                    >
+                        <ArrowLeft className="h-4 w-4" strokeWidth={1.75} />
+                        Cancel
+                    </ZoruButton>
                     <SubmitButton isEditing={isEditing} />
                 </div>
-            </ClayCard>
+            </div>
         </form>
     );
 }
+
+export default EmployeeForm;

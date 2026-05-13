@@ -20,6 +20,7 @@ import {
 } from '@/components/zoruui';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
 import { saveKbArticle } from '@/app/actions/crm-knowledge-base.actions';
+import { EntityFormField } from '@/components/crm/entity-form-field';
 
 export const dynamic = 'force-dynamic';
 
@@ -108,10 +109,9 @@ export default function NewKbArticlePage() {
             {/* Category */}
             <div className="flex flex-col gap-1.5">
               <ZoruLabel htmlFor="category">Category</ZoruLabel>
-              <ZoruInput
-                id="category"
+              <EntityFormField
+                entity="category"
                 name="category"
-                type="text"
                 placeholder="e.g. Billing, Onboarding"
               />
             </div>

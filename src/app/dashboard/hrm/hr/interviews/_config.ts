@@ -1,10 +1,10 @@
 import type { HrField } from '../_components/hr-entity-page';
 
 export const fields: HrField[] = [
-  { name: 'candidateId', label: 'Candidate ID', required: true },
+  { name: 'candidateId', label: 'Candidate', required: true },
   { name: 'roundNumber', label: 'Round Number', type: 'number', required: true },
   { name: 'roundName', label: 'Round Name' },
-  { name: 'interviewerName', label: 'Interviewer Name' },
+  { name: 'interviewerName', label: 'Interviewer' },
   { name: 'interviewerEmail', label: 'Interviewer Email', type: 'email' },
   { name: 'interviewerPhone', label: 'Interviewer Phone', type: 'tel' },
   {

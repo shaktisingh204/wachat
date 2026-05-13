@@ -19,6 +19,7 @@ import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
 import { saveInvoice } from '@/app/actions/crm-invoices.actions';
 import { useRouter, usePathname } from 'next/navigation';
 import { EntityPicker } from '@/components/crm/entity-picker';
+import { EntityFormField } from '@/components/crm/entity-form-field';
 import type { LookupItem } from '@/lib/lookup-registry';
 
 const yourBusinessDetails = {
@@ -124,6 +125,7 @@ export default function NewProformaInvoicePage() {
     const [lineItems, setLineItems] = useState<InvoiceLineItem[]>([{ id: '1', name: '', description: '', quantity: 1, rate: 0 }]);
     const [terms, setTerms] = useState<string[]>([]);
     const [notes, setNotes] = useState('');
+    const [currency, setCurrency] = useState<string>('INR');
 
     useEffect(() => {
         getCrmAccounts().then(data => setClients(data.accounts));
@@ -149,7 +151,6 @@ export default function NewProformaInvoicePage() {
             <input type="hidden" name="lineItems" value={JSON.stringify(lineItems)} />
             <input type="hidden" name="termsAndConditions" value={JSON.stringify(terms)} />
             <input type="hidden" name="notes" value={notes} />
-            <input type="hidden" name="currency" value="INR" />
 
             <div>
                 <div className="max-w-6xl mx-auto flex flex-col gap-6">
@@ -199,14 +200,23 @@ export default function NewProformaInvoicePage() {
                                 </div>
                             </section>
 
-                            <section className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
+                            <section className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                                 <div className="space-y-1"><ZoruLabel className="text-xs text-zoru-ink">Proforma No.</ZoruLabel><ZoruInput name="invoiceNumber" defaultValue="PI-00001" className="h-8" /></div>
                                 <div className="space-y-1"><ZoruLabel className="text-xs text-zoru-ink">Date</ZoruLabel><DatePicker date={invoiceDate} setDate={setInvoiceDate} className="h-8" /></div>
                                 <div className="space-y-1"><ZoruLabel className="text-xs text-zoru-ink">Due Date</ZoruLabel><DatePicker date={dueDate} setDate={setDueDate} className="h-8" /></div>
+                                <div className="space-y-1">
+                                    <ZoruLabel className="text-xs text-zoru-ink">Currency</ZoruLabel>
+                                    <EntityFormField
+                                        entity="currency"
+                                        name="currency"
+                                        initialId={currency}
+                                        onChange={(id) => setCurrency(id || 'INR')}
+                                    />
+                                </div>
                             </section>
 
                             <section>
-                                <LineItemsTable items={lineItems} setItems={setLineItems} currency="INR" />
+                                <LineItemsTable items={lineItems} setItems={setLineItems} currency={currency} />
                             </section>
 
                         </div>

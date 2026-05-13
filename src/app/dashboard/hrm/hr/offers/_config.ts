@@ -1,13 +1,13 @@
 import type { HrField } from '../_components/hr-entity-page';
 
 export const fields: HrField[] = [
-  { name: 'candidateId', label: 'Candidate ID', required: true },
-  { name: 'designation', label: 'Designation', required: true },
-  { name: 'department', label: 'Department' },
+  { name: 'candidateId', label: 'Candidate', required: true },
+  { name: 'designation', label: 'Designation', required: true, type: 'entity', entity: 'designation' },
+  { name: 'department', label: 'Department', type: 'entity', entity: 'department' },
   // salary is the primary CTC field per spec
   { name: 'salary', label: 'Salary (CTC)', type: 'number', required: true },
   { name: 'ctc', label: 'Total CTC', type: 'number' },
-  { name: 'currency', label: 'Currency', defaultValue: 'INR' },
+  { name: 'currency', label: 'Currency', type: 'entity', entity: 'currency', defaultValue: 'INR' },
   { name: 'joining_date', label: 'Joining Date', type: 'date', required: true },
   { name: 'valid_till', label: 'Valid Till', type: 'date' },
   {
@@ -23,7 +23,7 @@ export const fields: HrField[] = [
     ],
     defaultValue: 'pending',
   },
-  { name: 'reportsTo', label: 'Reports To' },
+  { name: 'reportsTo', label: 'Reports To', type: 'entity', entity: 'employee' },
   { name: 'fixedComponent', label: 'Fixed Component', type: 'number' },
   { name: 'variableComponent', label: 'Variable Component', type: 'number' },
   { name: 'joiningBonus', label: 'Joining Bonus', type: 'number' },

@@ -66,6 +66,9 @@ const ENTITY_LABELS: Record<EntityKey, string> = {
   brand: 'Brand',
   unit: 'Unit of Measure',
   vendorType: 'Vendor Type',
+  task: 'Task',
+  asset: 'Asset',
+  ticketGroup: 'Ticket Group',
 };
 
 type GroupRow = WsCustomFieldGroup & { _id: string };

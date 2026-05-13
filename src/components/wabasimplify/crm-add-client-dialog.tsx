@@ -50,7 +50,7 @@ interface CrmAddClientDialogProps {
   defaultName?: string;
 }
 
-import { EntityPicker } from '@/components/crm/entity-picker';
+import { EntityFormField } from '@/components/crm/entity-form-field';
 
 // ... imports
 
@@ -60,29 +60,12 @@ export function CrmAddClientDialog({ onClientAdded, defaultOpen = false, default
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
 
-  // Location State
-  const [country, setCountry] = useState<string>('IN'); // Default India ISO
-  const [countryName, setCountryName] = useState<string>('India');
-  const [selectedCity, setSelectedCity] = useState('');
-  const [clientIndustry, setClientIndustry] = useState<string>('');
-  const [selectedState, setSelectedState] = useState<string>('');
-  const [selectedStateName, setSelectedStateName] = useState<string>('');
-  const [cityName, setCityName] = useState<string>('');
-
-  const [addressCountry, setAddressCountry] = useState<string>('');
-  const [addressCountryName, setAddressCountryName] = useState<string>('');
-  const [addressState, setAddressState] = useState<string>('');
-  const [addressStateName, setAddressStateName] = useState<string>('');
-  const [addressCityName, setAddressCityName] = useState<string>('');
-
-  // EntityPicker id state (one per picker)
-  const [clientIndustryId, setClientIndustryId] = useState<string>('');
-  const [countryId, setCountryId] = useState<string>('');
-  const [stateId, setStateId] = useState<string>('');
-  const [cityId, setCityId] = useState<string>('');
-  const [addressCountryId, setAddressCountryId] = useState<string>('');
-  const [addressStateId, setAddressStateId] = useState<string>('');
-  const [addressCityId, setAddressCityId] = useState<string>('');
+  // Picker id state — primary address uses country -> state -> city cascade.
+  const [countryId, setCountryId] = useState<string | null>(null);
+  const [stateId, setStateId] = useState<string | null>(null);
+  // Optional secondary address (same cascade).
+  const [addressCountryId, setAddressCountryId] = useState<string | null>(null);
+  const [addressStateId, setAddressStateId] = useState<string | null>(null);
 
   // SabFiles-backed uploads
   const [logoUrl, setLogoUrl] = useState<string>('');
@@ -221,42 +204,38 @@ export function CrmAddClientDialog({ onClientAdded, defaultOpen = false, default
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="clientIndustry">Client Industry</Label>
-                      {/* Hidden input to store value for form submission */}
-                      <input type="hidden" name="clientIndustry" value={clientIndustryId} />
-                      <EntityPicker
-                        entity="industry"
-                        value={clientIndustryId || null}
-                        onChange={(next) => setClientIndustryId(Array.isArray(next) ? (next[0] ?? '') : (next ?? ''))}
-                      />
+                      <EntityFormField entity="industry" name="clientIndustry" />
                     </div>
                   </div>
                   <div className="grid grid-cols-3 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="country">Country *</Label>
-                      <EntityPicker
-                        entity="location"
-                        value={countryId || null}
-                        onChange={(next) => setCountryId(Array.isArray(next) ? (next[0] ?? '') : (next ?? ''))}
+                      <EntityFormField
+                        entity="country"
+                        name="country"
+                        required
+                        onChange={(next) => {
+                          setCountryId(next);
+                          setStateId(null);
+                        }}
                       />
-                      <input type="hidden" name="country" value={countryId} />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="state">State</Label>
-                      <EntityPicker
-                        entity="location"
-                        value={stateId || null}
-                        onChange={(next) => setStateId(Array.isArray(next) ? (next[0] ?? '') : (next ?? ''))}
+                      <EntityFormField
+                        entity="state"
+                        name="state"
+                        filter={countryId ? { countryId } : undefined}
+                        onChange={(next) => setStateId(next)}
                       />
-                      <input type="hidden" name="state" value={stateId} />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="city">City/Town</Label>
-                      <EntityPicker
-                        entity="location"
-                        value={cityId || null}
-                        onChange={(next) => setCityId(Array.isArray(next) ? (next[0] ?? '') : (next ?? ''))}
+                      <EntityFormField
+                        entity="city"
+                        name="city"
+                        filter={stateId ? { stateId } : countryId ? { countryId } : undefined}
                       />
-                      <input type="hidden" name="city" value={cityId} />
                     </div>
                   </div>
                 </AccordionContent>
@@ -269,30 +248,31 @@ export function CrmAddClientDialog({ onClientAdded, defaultOpen = false, default
                   <div className="grid grid-cols-3 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="addressCountry">Country</Label>
-                      <EntityPicker
-                        entity="location"
-                        value={addressCountryId || null}
-                        onChange={(next) => setAddressCountryId(Array.isArray(next) ? (next[0] ?? '') : (next ?? ''))}
+                      <EntityFormField
+                        entity="country"
+                        name="addressCountry"
+                        onChange={(next) => {
+                          setAddressCountryId(next);
+                          setAddressStateId(null);
+                        }}
                       />
-                      <input type="hidden" name="addressCountry" value={addressCountryId} />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="addressState">State</Label>
-                      <EntityPicker
-                        entity="location"
-                        value={addressStateId || null}
-                        onChange={(next) => setAddressStateId(Array.isArray(next) ? (next[0] ?? '') : (next ?? ''))}
+                      <EntityFormField
+                        entity="state"
+                        name="addressState"
+                        filter={addressCountryId ? { countryId: addressCountryId } : undefined}
+                        onChange={(next) => setAddressStateId(next)}
                       />
-                      <input type="hidden" name="addressState" value={addressStateId} />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="addressCity">City</Label>
-                      <EntityPicker
-                        entity="location"
-                        value={addressCityId || null}
-                        onChange={(next) => setAddressCityId(Array.isArray(next) ? (next[0] ?? '') : (next ?? ''))}
+                      <EntityFormField
+                        entity="city"
+                        name="addressCity"
+                        filter={addressStateId ? { stateId: addressStateId } : addressCountryId ? { countryId: addressCountryId } : undefined}
                       />
-                      <input type="hidden" name="addressCity" value={addressCityId} />
                     </div>
                     <div className="space-y-2"><Label htmlFor="addressZip">ZIP Code</Label><Input id="addressZip" name="addressZip" maxLength={20} /></div>
                   </div>
@@ -385,7 +365,7 @@ export function CrmAddClientDialog({ onClientAdded, defaultOpen = false, default
                   <div className="grid grid-cols-3 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="accountCurrency" className="text-foreground">Currency</Label>
-                      <Input id="accountCurrency" name="accountCurrency" defaultValue="INR" placeholder="INR" className="h-10 rounded-lg border-border bg-card text-[13px]" />
+                      <EntityFormField entity="currency" name="accountCurrency" initialId="INR" />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="paymentTerms" className="text-foreground">Payment Terms</Label>

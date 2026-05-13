@@ -49,7 +49,13 @@ export default function ProjectMilestonesPage() {
         },
       ]}
       fields={[
-        { name: 'projectId', label: 'Project ID', required: true },
+        {
+          name: 'projectId',
+          label: 'Project',
+          type: 'entity',
+          entity: 'project',
+          required: true,
+        },
         {
           name: 'milestoneTitle',
           label: 'Title',

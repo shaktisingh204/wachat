@@ -27,6 +27,7 @@ import {
 } from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { saveDashboard } from '@/app/actions/crm-dashboards.actions';
+import { EntityFormField } from '@/components/crm/entity-form-field';
 
 const initialState = { message: '', error: '' };
 
@@ -137,6 +138,16 @@ export default function NewDashboardPage() {
                 </ZoruSelectContent>
               </ZoruSelect>
             </div>
+          </div>
+
+          {/* Owner */}
+          <div className="space-y-1.5">
+            <ZoruLabel className="text-zoru-ink">Owner</ZoruLabel>
+            <EntityFormField
+              entity="user"
+              name="ownerId"
+              placeholder="Select owner…"
+            />
           </div>
 
           {/* Auto-refresh */}

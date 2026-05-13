@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useEffect, useRef } from 'react';
+import { useActionState, useEffect, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import Link from 'next/link';
 import { ArrowLeft, LoaderCircle, PiggyBank, Save } from 'lucide-react';
@@ -15,6 +15,10 @@ import {
     useZoruToast,
 } from '@/components/zoruui';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityFormField } from '@/components/crm/entity-form-field';
+import type { EntityKey } from '@/lib/lookup-registry';
+
+type HeadType = 'account' | 'department' | 'project';
 
 interface Props {
     budget: any;
@@ -41,6 +45,9 @@ export function EditBudgetForm({ budget, budgetId }: Props) {
     const [state, formAction] = useActionState(updateBudget as any, initialState);
     const { toast } = useZoruToast();
     const formRef = useRef<HTMLFormElement>(null);
+    const [headType, setHeadType] = useState<HeadType>(
+        (budget?.budgetHeadType as HeadType) ?? 'account',
+    );
 
     useEffect(() => {
         if (state?.message) {
@@ -72,20 +79,36 @@ export function EditBudgetForm({ budget, budgetId }: Props) {
                 <input type="hidden" name="id" value={budgetId} />
                 <ZoruCard className="p-6">
                     <div className="grid gap-4">
-                        <div className="space-y-2">
-                            <ZoruLabel
-                                htmlFor="budgetHead"
-                                className="text-[12.5px] text-zoru-ink-muted"
-                            >
-                                Budget Head
-                            </ZoruLabel>
-                            <ZoruInput
-                                id="budgetHead"
-                                name="budgetHead"
-                                required
-                                defaultValue={budget.budgetHead ?? ''}
-                                className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
-                            />
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <ZoruLabel
+                                    htmlFor="budgetHeadType"
+                                    className="text-[12.5px] text-zoru-ink-muted"
+                                >
+                                    Head Type
+                                </ZoruLabel>
+                                <ZoruInput
+                                    id="budgetHeadType"
+                                    name="budgetHeadType"
+                                    value={headType}
+                                    onChange={(e) => setHeadType(e.target.value as HeadType)}
+                                    className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <ZoruLabel className="text-[12.5px] text-zoru-ink-muted">
+                                    Budget Head
+                                </ZoruLabel>
+                                <EntityFormField
+                                    entity={headType as EntityKey}
+                                    name="budgetHeadId"
+                                    dualWriteName="budgetHead"
+                                    initialId={budget.budgetHeadId ?? null}
+                                    initialLabel={budget.budgetHead ?? ''}
+                                    required
+                                    placeholder="Select head…"
+                                />
+                            </div>
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
@@ -151,17 +174,16 @@ export function EditBudgetForm({ budget, budgetId }: Props) {
                             </div>
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel
-                                htmlFor="ownerName"
-                                className="text-[12.5px] text-zoru-ink-muted"
-                            >
+                            <ZoruLabel className="text-[12.5px] text-zoru-ink-muted">
                                 Owner
                             </ZoruLabel>
-                            <ZoruInput
-                                id="ownerName"
-                                name="ownerName"
-                                defaultValue={budget.ownerName ?? ''}
-                                className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                            <EntityFormField
+                                entity="user"
+                                name="ownerId"
+                                dualWriteName="ownerName"
+                                initialId={budget.ownerId ?? null}
+                                initialLabel={budget.ownerName ?? ''}
+                                placeholder="Select owner…"
                             />
                         </div>
                         <div className="space-y-2">

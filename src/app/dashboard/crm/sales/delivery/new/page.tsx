@@ -15,6 +15,7 @@ import {
 import { DatePicker } from '@/components/ui/date-picker';
 import { PlusCircle, Trash2, ArrowLeft, Save, LoaderCircle } from 'lucide-react';
 import { EntityPicker } from '@/components/crm/entity-picker';
+import type { LookupItem } from '@/lib/lookup-registry';
 import Link from 'next/link';
 import type { WithId, CrmAccount, DeliveryChallanLineItem } from '@/lib/definitions';
 import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
@@ -70,10 +71,36 @@ const LineItemsTable = ({ items, setItems }: { items: DeliveryChallanLineItem[],
                     <tbody>
                         {items.map((item, index) => (
                             <tr key={item.id} className="border-b border-zoru-line">
-                                <td className="p-2"><ZoruInput placeholder="Item Name" value={item.name} onChange={e => handleItemChange(item.id, 'name', e.target.value)} required maxLength={100} /></td>
+                                <td className="p-2 min-w-[200px]">
+                                    <EntityPicker
+                                        entity="item"
+                                        value={null}
+                                        placeholder="Pick item or type name"
+                                        onChange={(_id, hydrated) => {
+                                            const h = (Array.isArray(hydrated) ? hydrated[0] : hydrated) as LookupItem | undefined;
+                                            const raw = (h?.raw ?? {}) as Record<string, unknown>;
+                                            const name = typeof raw.name === 'string' ? raw.name : (h?.chip.primary ?? '');
+                                            const hsn = typeof raw.hsnSac === 'string' ? raw.hsnSac : (typeof raw.hsnCode === 'string' ? raw.hsnCode : undefined);
+                                            const unit = typeof raw.unit === 'string' ? raw.unit : undefined;
+                                            handleItemChange(item.id, 'name', name);
+                                            if (hsn !== undefined) handleItemChange(item.id, 'hsnCode', hsn);
+                                            if (unit !== undefined) handleItemChange(item.id, 'unit', unit);
+                                        }}
+                                    />
+                                </td>
                                 <td className="p-2"><ZoruInput placeholder="e.g. 998314" value={item.hsnCode} onChange={e => handleItemChange(item.id, 'hsnCode', e.target.value)} maxLength={20} /></td>
                                 <td className="p-2"><ZoruInput type="number" className="w-24 text-right" value={item.quantity} onChange={e => handleItemChange(item.id, 'quantity', Number(e.target.value))} required /></td>
-                                <td className="p-2"><ZoruInput placeholder="e.g. PCS, Kgs" value={item.unit} onChange={e => handleItemChange(item.id, 'unit', e.target.value)} maxLength={20} /></td>
+                                <td className="p-2 min-w-[140px]">
+                                    <EntityPicker
+                                        entity="unit"
+                                        value={item.unit ?? null}
+                                        placeholder="e.g. PCS"
+                                        onChange={(next) => {
+                                            const id = Array.isArray(next) ? (next[0] ?? '') : (next ?? '');
+                                            handleItemChange(item.id, 'unit', id);
+                                        }}
+                                    />
+                                </td>
                                 <td className="p-2"><ZoruButton type="button" variant="ghost" size="icon" onClick={() => handleRemoveItem(item.id)}><Trash2 className="h-4 w-4 text-zoru-danger-ink" /></ZoruButton></td>
                             </tr>
                         ))}

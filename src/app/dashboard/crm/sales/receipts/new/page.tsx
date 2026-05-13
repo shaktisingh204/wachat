@@ -30,6 +30,7 @@ import { savePaymentReceipt } from '@/app/actions/crm-payment-receipts.actions';
 import { useRouter, usePathname } from 'next/navigation';
 import { NotebookText } from 'lucide-react';
 import { EntityPicker } from '@/components/crm/entity-picker';
+import { EntityFormField } from '@/components/crm/entity-form-field';
 
 const initialState = { message: '', error: '' };
 
@@ -214,8 +215,14 @@ export default function RecordPaymentPage() {
                                             />
                                         </div>
                                         <div className="space-y-1.5">
-                                            <ZoruLabel htmlFor="currency" className="text-zoru-ink">Currency *</ZoruLabel>
-                                            <ZoruSelect name="currency" defaultValue={currency} onValueChange={setCurrency} required><ZoruSelectTrigger id="currency"><ZoruSelectValue /></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="INR">Indian Rupee (INR, ₹)</ZoruSelectItem><ZoruSelectItem value="USD">US Dollar (USD, $)</ZoruSelectItem></ZoruSelectContent></ZoruSelect>
+                                            <ZoruLabel className="text-zoru-ink">Currency *</ZoruLabel>
+                                            <EntityFormField
+                                                entity="currency"
+                                                name="__currency_picker"
+                                                initialId={currency}
+                                                onChange={(id) => setCurrency(id || 'INR')}
+                                                required
+                                            />
                                         </div>
                                     </div>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

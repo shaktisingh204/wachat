@@ -24,6 +24,7 @@ import {
     ZoruTextarea,
     useZoruToast,
 } from '@/components/zoruui';
+import { EntityFormField } from '@/components/crm/entity-form-field';
 import { updateContract } from '@/app/actions/crm-contracts.actions';
 
 const initialState: { message?: string; error?: string; id?: string } = {};
@@ -108,12 +109,14 @@ export function EditContractForm({
 
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="partyName">Counter-party Name</ZoruLabel>
-                        <ZoruInput
-                            id="partyName"
-                            name="partyName"
+                        <ZoruLabel>Counter-party</ZoruLabel>
+                        <EntityFormField
+                            entity="client"
+                            name="clientId"
+                            dualWriteName="partyName"
+                            initialId={(initial.clientId as string) || null}
+                            initialLabel={(initial.partyName as string) || ''}
                             required
-                            defaultValue={(initial.partyName as string) || ''}
                         />
                     </div>
                     <div className="space-y-1.5">

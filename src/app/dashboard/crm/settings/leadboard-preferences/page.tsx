@@ -26,6 +26,7 @@ import {
   useZoruToast,
 } from '@/components/zoruui';
 import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityFormField } from '@/components/crm/entity-form-field';
 import {
   getMyLeadboardSettings,
   saveLeadboardSettings,
@@ -152,14 +153,15 @@ export default function LeadboardPreferencesPage() {
           </div>
           <div className="grid gap-3">
             <div className="grid gap-1.5">
-              <ZoruLabel htmlFor="pipeline-id">Pipeline ID</ZoruLabel>
-              <ZoruInput
-                id="pipeline-id"
-                value={form.pipeline_id}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, pipeline_id: e.target.value }))
+              <ZoruLabel>Pipeline</ZoruLabel>
+              <EntityFormField
+                entity="pipeline"
+                name="pipeline_id"
+                initialId={form.pipeline_id || null}
+                placeholder="Select pipeline"
+                onChange={(id) =>
+                  setForm((f) => ({ ...f, pipeline_id: id ?? '' }))
                 }
-                placeholder="MongoDB ObjectId of the pipeline"
               />
             </div>
             <div className="grid gap-1.5">

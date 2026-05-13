@@ -54,7 +54,12 @@ export default function TaskLabelsPage() {
           fullWidth: true,
         },
         { name: 'color', label: 'Color (hex)', placeholder: '#059669' },
-        { name: 'projectId', label: 'Project ID (optional)' },
+        {
+          name: 'projectId',
+          label: 'Project (optional)',
+          type: 'entity',
+          entity: 'project',
+        },
         {
           name: 'description',
           label: 'Description',

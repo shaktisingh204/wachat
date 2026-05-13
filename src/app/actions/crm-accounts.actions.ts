@@ -23,6 +23,7 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { accountApi, type CrmAccountDoc } from '@/lib/rust-client/crm-accounts';
 import { RustApiError } from '@/lib/rust-client/fetcher';
 import { getErrorMessage } from '@/lib/utils';
+import { requirePermission } from '@/lib/rbac-server';
 
 function useRustCrm(): boolean {
     return process.env.USE_RUST_CRM === 'true';
@@ -165,6 +166,9 @@ export async function addCrmAccount(
     const session = await getSession();
     if (!session?.user) return { error: 'Access denied' };
 
+    const guard = await requirePermission('crm_account', 'create');
+    if (!guard.ok) return { error: guard.error };
+
     const name =
         (formData.get('businessName') as string | null) ||
         (formData.get('name') as string | null) ||
@@ -245,6 +249,9 @@ export async function updateCrmAccount(
     const session = await getSession();
     if (!session?.user) return { error: 'Access denied' };
 
+    const guard = await requirePermission('crm_account', 'edit');
+    if (!guard.ok) return { error: guard.error };
+
     const accountId = formData.get('accountId') as string;
     if (!accountId) {
         return { error: 'Invalid Account ID.' };
@@ -320,6 +327,10 @@ export async function archiveCrmAccount(
 ): Promise<{ success: boolean; error?: string }> {
     const session = await getSession();
     if (!session?.user) return { success: false, error: 'Access denied' };
+
+    const guard = await requirePermission('crm_account', 'delete');
+    if (!guard.ok) return { success: false, error: guard.error };
+
     if (!accountId) return { success: false, error: 'Invalid Account ID.' };
 
     if (useRustCrm()) {
@@ -371,6 +382,10 @@ export async function unarchiveCrmAccount(
 ): Promise<{ success: boolean; error?: string }> {
     const session = await getSession();
     if (!session?.user) return { success: false, error: 'Access denied' };
+
+    const guard = await requirePermission('crm_account', 'edit');
+    if (!guard.ok) return { success: false, error: guard.error };
+
     if (!accountId) return { success: false, error: 'Invalid Account ID.' };
 
     if (useRustCrm()) {

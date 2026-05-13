@@ -23,7 +23,7 @@ export const fields: HrField[] = [
     ],
     defaultValue: 'online',
   },
-  { name: 'trainer', label: 'Trainer' },
+  { name: 'trainer', label: 'Trainer', type: 'entity', entity: 'employee' },
   { name: 'trainerEmail', label: 'Trainer Email', type: 'email' },
   { name: 'startDate', label: 'Start Date', type: 'date' },
   { name: 'endDate', label: 'End Date', type: 'date' },
@@ -33,7 +33,7 @@ export const fields: HrField[] = [
   { name: 'meetingLink', label: 'Meeting Link', type: 'url' },
   { name: 'registrationDeadline', label: 'Registration Deadline', type: 'date' },
   { name: 'costPerParticipant', label: 'Cost / Participant', type: 'number' },
-  { name: 'currency', label: 'Currency', defaultValue: 'INR' },
+  { name: 'currency', label: 'Currency', type: 'entity', entity: 'currency', defaultValue: 'INR' },
   {
     name: 'status',
     label: 'Status',

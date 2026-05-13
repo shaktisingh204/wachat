@@ -20,6 +20,7 @@ import {
 } from '@/components/zoruui';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
 import { addCrmContact } from '@/app/actions/crm.actions';
+import { EntityFormField } from '@/components/crm/entity-form-field';
 
 export const dynamic = 'force-dynamic';
 
@@ -100,11 +101,11 @@ export default function NewContactPage() {
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
               <ZoruLabel htmlFor="jobTitle">Job Title</ZoruLabel>
-              <ZoruInput id="jobTitle" name="jobTitle" placeholder="e.g. VP Sales" />
+              <EntityFormField entity="jobTitle" name="jobTitle" placeholder="e.g. VP Sales" />
             </div>
             <div className="space-y-1.5">
               <ZoruLabel htmlFor="owner">Owner</ZoruLabel>
-              <ZoruInput id="owner" name="owner" placeholder="Sales rep name" />
+              <EntityFormField entity="user" name="owner" placeholder="Sales rep" />
             </div>
           </div>
 
@@ -158,19 +159,7 @@ export default function NewContactPage() {
             </div>
             <div className="space-y-1.5">
               <ZoruLabel htmlFor="source">Source</ZoruLabel>
-              <ZoruSelect name="source">
-                <ZoruSelectTrigger id="source">
-                  <ZoruSelectValue placeholder="Select source" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="website">Website</ZoruSelectItem>
-                  <ZoruSelectItem value="referral">Referral</ZoruSelectItem>
-                  <ZoruSelectItem value="social-media">Social Media</ZoruSelectItem>
-                  <ZoruSelectItem value="cold-outreach">Cold Outreach</ZoruSelectItem>
-                  <ZoruSelectItem value="event">Event</ZoruSelectItem>
-                  <ZoruSelectItem value="other">Other</ZoruSelectItem>
-                </ZoruSelectContent>
-              </ZoruSelect>
+              <EntityFormField entity="leadSource" name="source" placeholder="Select source" />
             </div>
           </div>
 

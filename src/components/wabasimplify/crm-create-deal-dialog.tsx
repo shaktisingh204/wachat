@@ -29,7 +29,6 @@ import { createCrmDeal } from '@/app/actions/crm-deals.actions';
 import { getCustomFieldsFor } from '@/app/actions/worksuite/meta.actions';
 import type { WithId, CrmContact, CrmAccount } from '@/lib/definitions';
 import type { WsCustomField } from '@/lib/worksuite/meta-types';
-import { EntityPicker } from '@/components/crm/entity-picker';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import {
   CustomFieldInput,
@@ -161,7 +160,6 @@ export function CreateDealDialog({
       <ZoruDialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col overflow-hidden p-0">
         <form action={handleFormAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
           <input type="hidden" name="closeDate" value={closeDate?.toISOString()} />
-          <input type="hidden" name="accountId" value={selectedAccountId} />
           <ZoruDialogHeader className="px-6 pt-6 pb-2">
             <ZoruDialogTitle className="text-zoru-ink">Create New Deal</ZoruDialogTitle>
             <ZoruDialogDescription className="text-zoru-ink-muted">Track a new sales opportunity.</ZoruDialogDescription>
@@ -193,14 +191,12 @@ export function CreateDealDialog({
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <ZoruLabel htmlFor="accountId" className="text-zoru-ink">Account</ZoruLabel>
-                  <EntityPicker
+                  <EntityFormField
                     entity="client"
-                    value={selectedAccountId || null}
+                    name="accountId"
+                    initialId={selectedAccountId || null}
                     placeholder="Select an account…"
-                    onChange={(next) => {
-                      const id = Array.isArray(next) ? next[0] ?? '' : (next ?? '');
-                      setSelectedAccountId(id);
-                    }}
+                    onChange={(next) => setSelectedAccountId(next ?? '')}
                   />
                 </div>
                 <div className="space-y-2">

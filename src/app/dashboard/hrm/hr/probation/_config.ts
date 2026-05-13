@@ -1,7 +1,7 @@
 import type { HrField } from '../_components/hr-entity-page';
 
 export const fields: HrField[] = [
-  { name: 'employeeId', label: 'Employee ID', required: true },
+  { name: 'employeeId', label: 'Employee', required: true, type: 'entity', entity: 'employee' },
   { name: 'startDate', label: 'Start Date', type: 'date', required: true },
   { name: 'endDate', label: 'End Date', type: 'date', required: true },
   {
@@ -17,10 +17,10 @@ export const fields: HrField[] = [
     ],
     defaultValue: 'ongoing',
   },
-  { name: 'reviewer_id', label: 'Reviewer ID' },
+  { name: 'reviewer_id', label: 'Reviewer', type: 'entity', entity: 'employee' },
   { name: 'reviewerName', label: 'Reviewer Name' },
   { name: 'reviewerEmail', label: 'Reviewer Email', type: 'email' },
-  { name: 'mentor', label: 'Mentor' },
+  { name: 'mentor', label: 'Mentor', type: 'entity', entity: 'employee' },
   { name: 'midReviewDate', label: 'Mid Review Date', type: 'date' },
   { name: 'extension_date', label: 'Extension Date', type: 'date' },
   {

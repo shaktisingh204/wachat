@@ -28,6 +28,7 @@ import {
     type CrmInvoiceTotals,
 } from '@/lib/rust-client/crm-invoices';
 import { RustApiError } from '@/lib/rust-client/fetcher';
+import { requirePermission } from '@/lib/rbac-server';
 
 function useRustCrm(): boolean {
     return process.env.USE_RUST_CRM === 'true';
@@ -97,6 +98,9 @@ export async function getInvoices(
 export async function saveInvoice(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
     const session = await getSession();
     if (!session?.user) return { error: 'Access denied' };
+
+    const guard = await requirePermission('crm_invoice', 'create');
+    if (!guard.ok) return { error: guard.error };
 
     if (useRustCrm()) {
         try {
@@ -344,6 +348,9 @@ export async function updateInvoice(
 
     const session = await getSession();
     if (!session?.user) return { success: false, error: 'Access denied' };
+
+    const guard = await requirePermission('crm_invoice', 'edit');
+    if (!guard.ok) return { success: false, error: guard.error };
 
     if (useRustCrm()) {
         try {

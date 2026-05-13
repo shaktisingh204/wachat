@@ -98,9 +98,32 @@ export default function CompanyAddressesPage() {
           required: true,
           fullWidth: true,
         },
-        { name: 'city', label: 'City' },
-        { name: 'state', label: 'State' },
-        { name: 'country_id', label: 'Country Code / ID' },
+        {
+          name: 'country_id',
+          label: 'Country',
+          type: 'entity',
+          entity: 'country',
+        },
+        {
+          name: 'state',
+          label: 'State',
+          type: 'entity',
+          entity: 'state',
+          cascadeFilterFrom: (siblings) =>
+            siblings.country_id ? { country: siblings.country_id } : undefined,
+        },
+        {
+          name: 'city',
+          label: 'City',
+          type: 'entity',
+          entity: 'city',
+          cascadeFilterFrom: (siblings) =>
+            siblings.state
+              ? { state: siblings.state }
+              : siblings.country_id
+                ? { country: siblings.country_id }
+                : undefined,
+        },
         { name: 'postal_code', label: 'Postal Code' },
         {
           name: 'is_default',

@@ -72,7 +72,12 @@ export default function ProjectCategoriesPage() {
             required: true,
             fullWidth: true,
           },
-          { name: 'parentCategoryId', label: 'Parent Category ID' },
+          {
+            name: 'parentCategoryId',
+            label: 'Parent Category',
+            type: 'entity',
+            entity: 'category',
+          },
           {
             name: 'description',
             label: 'Description',

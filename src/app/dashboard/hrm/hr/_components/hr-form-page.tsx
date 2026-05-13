@@ -22,6 +22,7 @@ import {
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import type { HrField } from './hr-entity-page';
 import { getRemainingFields } from '@/lib/hr-form-sections';
+import { EntityFormField } from '@/components/crm/entity-form-field';
 
 /**
  * HrFormPage — full-page form for creating or editing an HR entity.
@@ -196,6 +197,26 @@ function FieldCell({
 function renderField(field: HrField, raw?: unknown) {
   if (field.type === 'array') {
     return <FieldArray field={field} initialValue={raw} />;
+  }
+
+  if (field.type === 'entity' && field.entity) {
+    const initialId =
+      typeof raw === 'string' && raw
+        ? raw
+        : raw !== undefined && raw !== null
+          ? String(raw)
+          : field.defaultValue || undefined;
+    return (
+      <EntityFormField
+        entity={field.entity}
+        name={field.name}
+        dualWriteName={field.dualWriteName}
+        initialId={initialId}
+        filter={field.entityFilter}
+        required={field.required}
+        placeholder={field.placeholder}
+      />
+    );
   }
 
   const stringValue = formatForInput(raw, field.type);

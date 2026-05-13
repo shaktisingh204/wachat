@@ -19,7 +19,7 @@ export const fields: HrField[] = [
     ],
     defaultValue: 'other',
   },
-  { name: 'employeeId', label: 'Employee ID' },
+  { name: 'employeeId', label: 'Employee', type: 'entity', entity: 'employee' },
   { name: 'url', label: 'File URL', type: 'url' },
   { name: 'fileSize', label: 'File Size (bytes)', type: 'number' },
   { name: 'issuedDate', label: 'Issued Date', type: 'date' },

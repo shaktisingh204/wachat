@@ -1203,6 +1203,42 @@ const registry: LookupRegistry = {
   salutation: makeInlineCreateStaticEntry(SALUTATIONS),
   leadSource: makeInlineCreateStaticEntry(LEAD_SOURCES),
   jobTitle: makeInlineCreateStaticEntry(JOB_TITLES),
+
+  task: makeMongoLookup({
+    collection: 'crm_tasks',
+    searchableFields: ['title', 'description'],
+    rawFields: ['title', 'description', 'status', 'priority', 'dueDate',
+                'assigneeId', 'projectId', 'relatedTo'],
+    sort: { dueDate: 1, createdAt: -1 },
+    toChip: (doc) => ({
+      primary: doc.title || 'Task',
+      secondary: doc.status || undefined,
+      tertiary: doc.priority || undefined,
+    }),
+  }),
+
+  asset: makeMongoLookup({
+    collection: 'crm_assets',
+    searchableFields: ['name', 'code', 'serial', 'tag'],
+    rawFields: ['name', 'code', 'serial', 'tag', 'category', 'assignedTo',
+                'purchaseDate', 'value', 'condition', 'status'],
+    sort: { name: 1 },
+    toChip: (doc) => ({
+      primary: doc.name || 'Asset',
+      secondary: doc.code || undefined,
+      tertiary: doc.serial || undefined,
+    }),
+  }),
+
+  ticketGroup: makeMongoLookup({
+    collection: 'crm_ticket_groups',
+    searchableFields: ['name'],
+    rawFields: ['name', 'description', 'memberIds'],
+    sort: { name: 1 },
+    toChip: (doc) => ({
+      primary: doc.name || 'Ticket Group',
+    }),
+  }),
 };
 
 /**

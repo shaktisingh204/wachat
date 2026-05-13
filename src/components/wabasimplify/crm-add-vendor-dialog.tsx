@@ -25,7 +25,7 @@ import {
 } from '@/components/zoruui';
 import { Plus } from "lucide-react";
 import { saveCrmVendor } from '@/app/actions/crm-vendors.actions';
-import { EntityPicker } from '@/components/crm/entity-picker';
+import { EntityFormField } from '@/components/crm/entity-form-field';
 
 const initialState = {
     message: '',
@@ -44,12 +44,9 @@ export function CrmAddVendorDialog({ onVendorAdded, defaultOpen = false, default
     const { toast } = useZoruToast();
     const formRef = useRef<HTMLFormElement>(null);
 
-    // Location State
-    const [countryId, setCountryId] = useState<string>('');
-    const [stateId, setStateId] = useState<string>('');
-    const [cityId, setCityId] = useState<string>('');
-    const [vendorTypeId, setVendorTypeId] = useState<string>('');
-    const [industryId, setIndustryId] = useState<string>('');
+    // Cascade state — country -> state -> city.
+    const [countryId, setCountryId] = useState<string | null>(null);
+    const [stateId, setStateId] = useState<string | null>(null);
 
     useEffect(() => {
         if (defaultOpen) setOpen(true);
@@ -108,40 +105,36 @@ export function CrmAddVendorDialog({ onVendorAdded, defaultOpen = false, default
                                     <div className="space-y-2"><ZoruLabel htmlFor="phone">Phone</ZoruLabel><ZoruInput id="phone" name="phone" maxLength={20} /></div>
                                     <div className="space-y-2 col-span-2">
                                         <ZoruLabel>Industry</ZoruLabel>
-                                        <input type="hidden" name="industryId" value={industryId} />
-                                        <EntityPicker
-                                            entity="industry"
-                                            value={industryId || null}
-                                            onChange={(next) => setIndustryId(Array.isArray(next) ? (next[0] ?? '') : (next ?? ''))}
-                                        />
+                                        <EntityFormField entity="industry" name="industryId" />
                                     </div>
                                 </div>
                                 <div className="grid grid-cols-3 gap-4">
                                     <div className="space-y-2">
                                         <ZoruLabel htmlFor="country" className="text-zoru-ink">Country</ZoruLabel>
-                                        <input type="hidden" name="country" value={countryId} />
-                                        <EntityPicker
-                                            entity="location"
-                                            value={countryId || null}
-                                            onChange={(next) => setCountryId(Array.isArray(next) ? (next[0] ?? '') : (next ?? ''))}
+                                        <EntityFormField
+                                            entity="country"
+                                            name="country"
+                                            onChange={(next) => {
+                                                setCountryId(next);
+                                                setStateId(null);
+                                            }}
                                         />
                                     </div>
                                     <div className="space-y-2">
                                         <ZoruLabel htmlFor="state" className="text-zoru-ink">State</ZoruLabel>
-                                        <input type="hidden" name="state" value={stateId} />
-                                        <EntityPicker
-                                            entity="location"
-                                            value={stateId || null}
-                                            onChange={(next) => setStateId(Array.isArray(next) ? (next[0] ?? '') : (next ?? ''))}
+                                        <EntityFormField
+                                            entity="state"
+                                            name="state"
+                                            filter={countryId ? { countryId } : undefined}
+                                            onChange={(next) => setStateId(next)}
                                         />
                                     </div>
                                     <div className="space-y-2">
                                         <ZoruLabel htmlFor="city" className="text-zoru-ink">City/Town</ZoruLabel>
-                                        <input type="hidden" name="city" value={cityId} />
-                                        <EntityPicker
-                                            entity="location"
-                                            value={cityId || null}
-                                            onChange={(next) => setCityId(Array.isArray(next) ? (next[0] ?? '') : (next ?? ''))}
+                                        <EntityFormField
+                                            entity="city"
+                                            name="city"
+                                            filter={stateId ? { stateId } : countryId ? { countryId } : undefined}
                                         />
                                     </div>
                                 </div>
@@ -162,12 +155,7 @@ export function CrmAddVendorDialog({ onVendorAdded, defaultOpen = false, default
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
                                         <ZoruLabel htmlFor="vendorType">Vendor Type</ZoruLabel>
-                                        <input type="hidden" name="vendorType" value={vendorTypeId} />
-                                        <EntityPicker
-                                            entity="vendorType"
-                                            value={vendorTypeId || null}
-                                            onChange={(next) => setVendorTypeId(Array.isArray(next) ? (next[0] ?? '') : (next ?? ''))}
-                                        />
+                                        <EntityFormField entity="vendorType" name="vendorType" />
                                     </div>
                                     <div className="space-y-2"><ZoruLabel>Tax Treatment</ZoruLabel><ZoruSelect name="taxTreatment"><ZoruSelectTrigger><ZoruSelectValue placeholder="Select..." /></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="registered">Registered</ZoruSelectItem><ZoruSelectItem value="unregistered">Unregistered</ZoruSelectItem></ZoruSelectContent></ZoruSelect></div>
                                 </div>

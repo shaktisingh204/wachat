@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState } from 'react';
+import { useActionState, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { ArrowLeft, Save, LoaderCircle, HandCoins } from 'lucide-react';
 import Link from 'next/link';
@@ -21,6 +21,8 @@ import { CrmPageHeader } from '../../_components/crm-page-header';
 import { saveLoan } from '@/app/actions/crm-loans.actions';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import { EntityFormField } from '@/components/crm/entity-form-field';
+import type { EntityKey } from '@/lib/lookup-registry';
 
 export const dynamic = 'force-dynamic';
 
@@ -46,10 +48,17 @@ const LOAN_TYPES = [
 
 const initialState = { message: '', error: '' };
 
+function borrowerEntityForType(type: string): EntityKey {
+  if (type === 'employee_advance') return 'employee';
+  if (type === 'vendor_advance') return 'vendor';
+  return 'client';
+}
+
 export default function NewLoanPage() {
   const router = useRouter();
   const { toast } = useZoruToast();
   const [state, formAction] = useActionState(saveLoan, initialState);
+  const [loanType, setLoanType] = useState<string>('customer_loan');
 
   useEffect(() => {
     if (state.message) {
@@ -81,7 +90,7 @@ export default function NewLoanPage() {
           {/* Loan Type */}
           <div className="flex flex-col gap-1.5">
             <ZoruLabel htmlFor="type">Loan Type</ZoruLabel>
-            <ZoruSelect name="type" defaultValue="customer_loan">
+            <ZoruSelect name="type" value={loanType} onValueChange={setLoanType}>
               <ZoruSelectTrigger id="type" className="w-full max-w-xs">
                 <ZoruSelectValue placeholder="Select type" />
               </ZoruSelectTrigger>
@@ -95,18 +104,17 @@ export default function NewLoanPage() {
             </ZoruSelect>
           </div>
 
-          {/* Borrower Name */}
+          {/* Borrower */}
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="borrowerName">
-              Borrower Name <span className="text-red-500">*</span>
+            <ZoruLabel>
+              Borrower <span className="text-red-500">*</span>
             </ZoruLabel>
-            <ZoruInput
-              id="borrowerName"
-              name="borrowerName"
-              type="text"
-              placeholder="e.g. Rahul Sharma"
+            <EntityFormField
+              entity={borrowerEntityForType(loanType)}
+              name="borrowerId"
+              dualWriteName="borrowerName"
               required
-              className="max-w-xs"
+              placeholder="Select borrower…"
             />
           </div>
 

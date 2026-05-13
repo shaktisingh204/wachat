@@ -13,6 +13,7 @@ import {
     ZoruLabel,
     ZoruTextarea,
 } from '@/components/zoruui';
+import { EntityFormField } from '@/components/crm/entity-form-field';
 
 function SubmitButton() {
     const { pending } = useFormStatus();
@@ -36,12 +37,32 @@ export function ServiceContractEditForm({ contract }: { contract: Record<string,
                 <form action={action} className="grid gap-4 md:grid-cols-2">
                     <input type="hidden" name="contractId" value={String(contract._id ?? '')} />
                     <Field name="contractNo" label="Contract no." defaultValue={contract.contractNo} />
-                    <Field name="customerName" label="Customer" defaultValue={contract.customerName} />
+                    <div>
+                        <ZoruLabel>Customer</ZoruLabel>
+                        <EntityFormField
+                            entity="client"
+                            name="customerId"
+                            dualWriteName="customerName"
+                            initialId={contract.customerId ?? null}
+                            initialLabel={contract.customerName ?? ''}
+                            placeholder="Select customer…"
+                        />
+                    </div>
                     <Field name="coverage" label="Coverage" defaultValue={contract.coverage} />
                     <Field name="frequency" label="Frequency" defaultValue={contract.frequency} />
                     <Field name="startDate" label="Start date" type="date" defaultValue={contract.startDate} />
                     <Field name="endDate" label="End date" type="date" defaultValue={contract.endDate} />
-                    <Field name="technician" label="Technician" defaultValue={contract.technician} />
+                    <div>
+                        <ZoruLabel>Technician</ZoruLabel>
+                        <EntityFormField
+                            entity="employee"
+                            name="technicianId"
+                            dualWriteName="technician"
+                            initialId={contract.technicianId ?? null}
+                            initialLabel={contract.technician ?? ''}
+                            placeholder="Select technician…"
+                        />
+                    </div>
                     <Field name="billing" label="Billing" defaultValue={contract.billing} />
                     <Field name="status" label="Status" defaultValue={contract.status} />
                     <div className="md:col-span-2">

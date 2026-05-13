@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState } from 'react';
+import { useActionState, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { LoaderCircle, Save } from 'lucide-react';
 
@@ -12,6 +12,14 @@ import {
     ZoruInput,
     ZoruLabel,
 } from '@/components/zoruui';
+import { EntityFormField } from '@/components/crm/entity-form-field';
+import type { EntityKey } from '@/lib/lookup-registry';
+
+function linkedEntityForPortalType(portalType: string): EntityKey {
+    if (portalType === 'vendor') return 'vendor';
+    if (portalType === 'employee') return 'employee';
+    return 'client';
+}
 
 function SubmitButton() {
     const { pending } = useFormStatus();
@@ -28,6 +36,7 @@ export function PortalEditForm({ user }: { user: Record<string, any> }) {
         message: '',
         error: '',
     } as any);
+    const [portalType, setPortalType] = useState<string>(user.portalType ?? 'customer');
 
     return (
         <ZoruCard>
@@ -37,7 +46,24 @@ export function PortalEditForm({ user }: { user: Record<string, any> }) {
                     <Field name="name" label="Name" defaultValue={user.name} required />
                     <Field name="email" label="Email" defaultValue={user.email} type="email" />
                     <Field name="phone" label="Phone" defaultValue={user.phone} />
-                    <Field name="portalType" label="Portal type" defaultValue={user.portalType} />
+                    <div>
+                        <ZoruLabel htmlFor="portalType">Portal type</ZoruLabel>
+                        <ZoruInput
+                            id="portalType"
+                            name="portalType"
+                            value={portalType}
+                            onChange={(e) => setPortalType(e.target.value)}
+                        />
+                    </div>
+                    <div>
+                        <ZoruLabel>Linked {portalType === 'vendor' ? 'Vendor' : portalType === 'employee' ? 'Employee' : 'Customer'}</ZoruLabel>
+                        <EntityFormField
+                            entity={linkedEntityForPortalType(portalType)}
+                            name="linkedEntityId"
+                            initialId={user.linkedEntityId ?? null}
+                            placeholder={`Select ${portalType === 'vendor' ? 'vendor' : portalType === 'employee' ? 'employee' : 'customer'}…`}
+                        />
+                    </div>
                     <Field name="capabilities" label="Capabilities (comma-sep)" defaultValue={Array.isArray(user.capabilities) ? user.capabilities.join(', ') : user.capabilities ?? ''} />
                     <Field name="status" label="Status" defaultValue={user.status} />
                     <div className="md:col-span-2 flex items-center justify-between gap-3">

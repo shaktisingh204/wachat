@@ -86,6 +86,7 @@ import {
   useZoruToast,
 } from '@/components/zoruui';
 import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityFormField } from '@/components/crm/entity-form-field';
 
 type Task = WsTask & { _id: string };
 type Project = WsProject & { _id: string };
@@ -922,11 +923,15 @@ export default function ProjectDetailPage(props: {
               </div>
               <div>
                 <ZoruLabel className="text-zoru-ink">Assignee</ZoruLabel>
-                <ZoruInput
-                  name="assigneeName"
-                  defaultValue={editingTask?.assigneeName || ''}
-                  className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
-                />
+                <div className="mt-1.5">
+                  <EntityFormField
+                    entity="employee"
+                    name="assigneeId"
+                    dualWriteName="assigneeName"
+                    initialLabel={editingTask?.assigneeName || ''}
+                    placeholder="Select assignee"
+                  />
+                </div>
               </div>
               <div>
                 <ZoruLabel className="text-zoru-ink">Status</ZoruLabel>
@@ -1078,11 +1083,18 @@ export default function ProjectDetailPage(props: {
         <FormInput label="Email" name="memberEmail" type="email" />
         <FormInput label="Role" name="role" />
         <FormInput label="Hourly Rate" name="hourlyRate" type="number" />
-        <FormInput
-          label="Member User ID (optional)"
-          name="memberUserId"
-          placeholder="ObjectId"
-        />
+        <div>
+          <ZoruLabel className="text-zoru-ink">
+            Linked User (optional)
+          </ZoruLabel>
+          <div className="mt-1.5">
+            <EntityFormField
+              entity="user"
+              name="memberUserId"
+              placeholder="Select user"
+            />
+          </div>
+        </div>
       </SimpleFormDialog>
 
       {/* ── Add-Milestone dialog ── */}

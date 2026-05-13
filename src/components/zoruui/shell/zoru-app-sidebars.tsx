@@ -666,18 +666,25 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
     ],
   },
 
-  /* ─────────────────────────────  CRM  ────────────────────────────── */
+  /* ─────────────────────────────  CRM  ──────────────────────────────
+   *
+   * Comprehensive IA covering every list page under
+   * `/dashboard/crm`. Detail (`[id]`) and edit pages are reached
+   * from their parent list — they don't appear here. New-record
+   * routes (slash-new) are only surfaced where the new flow is the
+   * primary entry (rare); otherwise they live behind the list page.
+   */
   {
     prefix: "/dashboard/crm",
     heading: "CRM",
-    caption: "Sales, projects & operations",
+    caption: "Sales, finance, projects & ops",
     build: (p) => [
+      /* ─── Overview ─── */
       {
         id: "crm-overview",
         label: "Overview",
         items: [
-          leaf("home", "Home", "/dashboard/crm", Home, p),
-          leaf("workspace", "Workspace", "/dashboard/crm/workspace", Briefcase, p),
+          leaf("home", "Home", "/dashboard/crm", Home, p, { exact: true }),
           leaf("activity", "Activity", "/dashboard/crm/activity", Activity, p),
           leaf("mentions", "Mentions", "/dashboard/crm/mentions", AtSign, p),
           leaf("notifications", "Notifications", "/dashboard/crm/notifications", Bell, p),
@@ -685,189 +692,620 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
           leaf("search", "Search", "/dashboard/crm/search", Search, p),
         ],
       },
+
+      /* ─── Sales-CRM (pipeline-driven lead/deal management) ─── */
+      {
+        id: "crm-sales-crm",
+        label: "Sales CRM",
+        items: [
+          leaf("sales-crm-home", "Pipeline", "/dashboard/crm/sales-crm", TrendingUp, p, { exact: true }),
+          leaf("all-leads", "Leads", "/dashboard/crm/sales-crm/all-leads", Target, p),
+          leaf("leads-summary", "Leads summary", "/dashboard/crm/sales-crm/leads-summary", PieChart, p),
+          leaf("sales-leads", "Lead board", "/dashboard/crm/sales-crm/leads", Target, p),
+          leaf("sales-contacts", "Contacts", "/dashboard/crm/sales-crm/contacts", Users, p),
+          leaf("sales-deals", "Deals", "/dashboard/crm/sales-crm/deals", Trophy, p),
+          leaf("sales-tasks", "Tasks", "/dashboard/crm/sales-crm/tasks", Check, p),
+          leaf("sales-pipelines", "Pipelines", "/dashboard/crm/sales-crm/pipelines", GitBranch, p),
+          leaf("all-pipelines", "All pipelines", "/dashboard/crm/sales-crm/all-pipelines", Layers, p),
+          leaf("pipeline-stages", "Pipeline stages", "/dashboard/crm/sales-crm/pipeline-stages", Columns3, p),
+          leaf("statuses", "Statuses", "/dashboard/crm/sales-crm/statuses", Flag, p),
+          leaf("sources", "Sources", "/dashboard/crm/sales-crm/sources", Compass, p),
+          leaf("categories", "Categories", "/dashboard/crm/sales-crm/categories", FolderOpen, p),
+          leaf("sales-products", "Products", "/dashboard/crm/sales-crm/products", Package, p),
+          leaf("sales-automations", "Automations", "/dashboard/crm/sales-crm/automations", Workflow, p),
+          leaf("sales-forms", "Forms", "/dashboard/crm/sales-crm/forms", FileText, p),
+          leaf("sales-custom-forms", "Custom forms", "/dashboard/crm/sales-crm/custom-forms", FileSpreadsheet, p),
+          leaf("sales-notes", "Notes", "/dashboard/crm/sales-crm/notes", FileText, p),
+          leaf("sales-consent", "Consent", "/dashboard/crm/sales-crm/consent", ShieldCheck, p),
+          leaf("sales-agents", "Agents", "/dashboard/crm/sales-crm/agents", UserCheck, p),
+          leaf("client-perf", "Client performance", "/dashboard/crm/sales-crm/client-performance-report", BarChart3, p),
+          leaf("lead-source", "Lead source report", "/dashboard/crm/sales-crm/lead-source-report", PieChart, p),
+          leaf("team-sales", "Team sales report", "/dashboard/crm/sales-crm/team-sales-report", BarChart3, p),
+          leaf("sales-settings", "Settings", "/dashboard/crm/sales-crm/settings", Settings, p),
+        ],
+      },
+
+      /* ─── Sales (billing & order flow) ─── */
       {
         id: "crm-sales",
         label: "Sales",
         items: [
-          leaf("sales-crm", "Pipeline", "/dashboard/crm/sales-crm", TrendingUp, p),
-          leaf("sales", "Sales", "/dashboard/crm/sales", CircleDollarSign, p, { exact: true }),
-          leaf("invoices", "Invoices", "/dashboard/crm/sales/invoices", Receipt, p),
-          leaf("deals", "Deals", "/dashboard/crm/deals", Trophy, p),
-          leaf("contracts", "Contracts", "/dashboard/crm/contracts", FileText, p),
+          leaf("sales-home", "Sales", "/dashboard/crm/sales", CircleDollarSign, p, { exact: true }),
+          leaf("accounts", "Clients / Prospects", "/dashboard/crm/accounts", Building2, p),
           leaf("contacts", "Contacts", "/dashboard/crm/contacts", Users, p),
-          leaf("accounts", "Accounts", "/dashboard/crm/accounts", Building2, p),
-          leaf("auto-leads", "Auto leads", "/dashboard/crm/auto-leads-setup", Wand2, p),
+          leaf("sales-contacts2", "Sales contacts", "/dashboard/crm/sales/contacts", Contact, p),
+          leaf("clients", "Client master", "/dashboard/crm/sales/clients", Building, p, { exact: true }),
+          leaf("clients-cats", "Client categories", "/dashboard/crm/sales/clients/categories", FolderOpen, p),
+          leaf("clients-contacts", "Client contacts", "/dashboard/crm/sales/clients/contacts", Users, p),
+          leaf("clients-docs", "Client documents", "/dashboard/crm/sales/clients/documents", Files, p),
+          leaf("clients-notes", "Client notes", "/dashboard/crm/sales/clients/notes", FileText, p),
+          leaf("quotations", "Quotations", "/dashboard/crm/sales/quotations", FileText, p),
+          leaf("proforma", "Proforma", "/dashboard/crm/sales/proforma", FileSpreadsheet, p),
+          leaf("orders", "Sales orders", "/dashboard/crm/sales/orders", ShoppingCart, p),
+          leaf("orders-cart", "Order cart", "/dashboard/crm/sales/orders/cart", ShoppingBag, p),
+          leaf("delivery", "Delivery challans", "/dashboard/crm/sales/delivery", Truck, p),
+          leaf("invoices", "Invoices", "/dashboard/crm/sales/invoices", Receipt, p),
+          leaf("recurring-invoices", "Recurring invoices", "/dashboard/crm/sales/recurring-invoices", Repeat, p),
+          leaf("receipts", "Payment receipts", "/dashboard/crm/sales/receipts", Wallet, p),
+          leaf("payments", "Payments", "/dashboard/crm/sales/payments", CreditCard, p),
+          leaf("credit-notes", "Credit notes", "/dashboard/crm/sales/credit-notes", FileText, p),
+          leaf("subscriptions", "Subscriptions", "/dashboard/crm/sales/subscriptions", Repeat, p),
+          leaf("sales-contracts", "Contracts", "/dashboard/crm/sales/contracts", FileText, p),
+          leaf("proposals", "Proposals", "/dashboard/crm/sales/proposals", FileText, p),
+          leaf("proposals-templates", "Proposal templates", "/dashboard/crm/sales/proposals/templates", FileSpreadsheet, p),
+          leaf("estimates-templates", "Estimate templates", "/dashboard/crm/sales/estimates-templates", FileSpreadsheet, p),
+          leaf("estimate-requests", "Estimate requests", "/dashboard/crm/sales/estimate-requests", FileSearch, p),
+          leaf("coupons", "Coupons", "/dashboard/crm/sales/coupons", Tag, p),
+          leaf("loyalty", "Loyalty", "/dashboard/crm/sales/loyalty", Star, p),
+          leaf("gift-cards", "Gift cards", "/dashboard/crm/sales/gift-cards", Tag, p),
+          leaf("promotions", "Promotions", "/dashboard/crm/sales/promotions", Megaphone, p),
+          leaf("sales-pipelines2", "Pipelines", "/dashboard/crm/sales/pipelines", GitBranch, p),
+          leaf("sales-forms2", "Forms", "/dashboard/crm/sales/forms", FileText, p),
+          leaf("products", "Products", "/dashboard/crm/products", ShoppingBag, p),
+          leaf("contracts", "Contracts (master)", "/dashboard/crm/contracts", FileText, p, { exact: true }),
+          leaf("contracts-renewals", "Contract renewals", "/dashboard/crm/contracts/renewals", RotateCw, p),
+          leaf("contracts-templates", "Contract templates", "/dashboard/crm/contracts/templates", FileSpreadsheet, p),
+          leaf("contracts-types", "Contract types", "/dashboard/crm/contracts/types", Tags, p),
+          leaf("deals", "Deals", "/dashboard/crm/deals", Trophy, p),
+          leaf("leads", "Leads (master)", "/dashboard/crm/leads", Target, p),
+          leaf("conversions", "Conversions", "/dashboard/crm/conversions", TrendingUp, p),
         ],
       },
+
+      /* ─── Purchases ─── */
       {
-        id: "crm-delivery",
-        label: "Delivery",
+        id: "crm-purchases",
+        label: "Purchases",
+        items: [
+          leaf("purchases-home", "Purchases", "/dashboard/crm/purchases", ShoppingCart, p, { exact: true }),
+          leaf("vendors", "Vendors", "/dashboard/crm/purchases/vendors", Building, p),
+          leaf("expenses", "Purchases & expenses", "/dashboard/crm/purchases/expenses", Receipt, p),
+          leaf("purchase-orders", "Purchase orders", "/dashboard/crm/purchases/orders", ShoppingBag, p),
+          leaf("payouts", "Payouts", "/dashboard/crm/purchases/payouts", Wallet, p),
+          leaf("debit-notes", "Debit notes", "/dashboard/crm/purchases/debit-notes", FileText, p),
+          leaf("rfqs", "RFQs", "/dashboard/crm/purchases/rfqs", FileSearch, p),
+          leaf("vendor-bids", "Vendor bids", "/dashboard/crm/purchases/vendor-bids", ClipboardList, p),
+          leaf("recurring-expenses", "Recurring expenses", "/dashboard/crm/purchases/recurring-expenses", Repeat, p),
+          leaf("purchase-leads", "Purchase leads", "/dashboard/crm/purchases/leads", Target, p),
+          leaf("hire", "Hire & services", "/dashboard/crm/purchases/hire", Briefcase, p),
+        ],
+      },
+
+      /* ─── Inventory ─── */
+      {
+        id: "crm-inventory",
+        label: "Inventory",
+        items: [
+          leaf("inventory-home", "Inventory", "/dashboard/crm/inventory", Package, p, { exact: true }),
+          leaf("items", "All items", "/dashboard/crm/inventory/items", Package, p),
+          leaf("warehouses", "Warehouses", "/dashboard/crm/inventory/warehouses", Building, p),
+          leaf("adjustments", "Stock adjustments", "/dashboard/crm/inventory/adjustments", RotateCw, p),
+          leaf("grn", "GRN", "/dashboard/crm/inventory/grn", PackageCheck, p),
+          leaf("bom", "BOM", "/dashboard/crm/inventory/bom", Layers, p),
+          leaf("production-orders", "Production orders", "/dashboard/crm/inventory/production-orders", Briefcase, p),
+          leaf("inv-vendors", "Vendors", "/dashboard/crm/inventory/vendors", Building, p),
+          leaf("inv-pos", "Purchase orders", "/dashboard/crm/inventory/purchase-orders", ShoppingBag, p),
+          leaf("inv-pnl", "P&L report", "/dashboard/crm/inventory/pnl", BarChart3, p),
+          leaf("stock-value", "Stock value", "/dashboard/crm/inventory/stock-value", Coins, p),
+          leaf("batch-expiry", "Batch expiry", "/dashboard/crm/inventory/batch-expiry", Clock, p),
+          leaf("party-txns", "Party transactions", "/dashboard/crm/inventory/party-transactions", FileText, p),
+          leaf("all-txns", "All transactions", "/dashboard/crm/inventory/all-transactions", History, p),
+        ],
+      },
+
+      /* ─── Accounting ─── */
+      {
+        id: "crm-accounting",
+        label: "Accounting",
+        items: [
+          leaf("accounting-home", "Accounting", "/dashboard/crm/accounting", Wallet, p, { exact: true }),
+          leaf("acc-groups", "Account groups", "/dashboard/crm/accounting/groups", Layers, p),
+          leaf("acc-charts", "Chart of accounts", "/dashboard/crm/accounting/charts", BarChart3, p),
+          leaf("acc-vouchers", "Voucher books", "/dashboard/crm/accounting/vouchers", BookOpen, p),
+          leaf("acc-balance-sheet", "Balance sheet", "/dashboard/crm/accounting/balance-sheet", FileSpreadsheet, p),
+          leaf("acc-trial-balance", "Trial balance", "/dashboard/crm/accounting/trial-balance", FileSpreadsheet, p),
+          leaf("acc-pnl", "Profit & Loss", "/dashboard/crm/accounting/pnl", BarChart3, p),
+          leaf("acc-income", "Income statement", "/dashboard/crm/accounting/income-statement", DollarSign, p),
+          leaf("acc-day-book", "Day book", "/dashboard/crm/accounting/day-book", BookOpen, p),
+          leaf("acc-cash-flow", "Cash flow", "/dashboard/crm/accounting/cash-flow", TrendingUp, p),
+        ],
+      },
+
+      /* ─── Banking & Payments ─── */
+      {
+        id: "crm-banking",
+        label: "Banking & Payments",
+        items: [
+          leaf("banking-home", "Banking", "/dashboard/crm/banking", CreditCard, p, { exact: true }),
+          leaf("banking-all", "All accounts", "/dashboard/crm/banking/all", Wallet, p),
+          leaf("bank-accounts", "Bank accounts", "/dashboard/crm/banking/bank-accounts", Building, p),
+          leaf("emp-accounts", "Employee accounts", "/dashboard/crm/banking/employee-accounts", Users, p),
+          leaf("bank-txns", "Bank transactions", "/dashboard/crm/banking/bank-transactions", ArrowDown, p),
+          leaf("reconciliation", "Reconciliation", "/dashboard/crm/banking/reconciliation", CheckCircle2, p),
+        ],
+      },
+
+      /* ─── Tickets & Knowledge Base ─── */
+      {
+        id: "crm-tickets",
+        label: "Tickets & KB",
+        items: [
+          leaf("tickets", "Tickets", "/dashboard/crm/tickets", Ticket, p, { exact: true }),
+          leaf("tickets-groups", "Groups", "/dashboard/crm/tickets/groups", Users, p),
+          leaf("tickets-agent-groups", "Agent groups", "/dashboard/crm/tickets/agent-groups", UserCog, p),
+          leaf("tickets-channels", "Channels", "/dashboard/crm/tickets/channels", Inbox, p),
+          leaf("tickets-types", "Types", "/dashboard/crm/tickets/types", Tags, p),
+          leaf("tickets-tags", "Tags", "/dashboard/crm/tickets/tags", Tag, p),
+          leaf("tickets-sla", "SLA", "/dashboard/crm/tickets/sla", AlertTriangle, p),
+          leaf("tickets-custom-forms", "Custom forms", "/dashboard/crm/tickets/custom-forms", FileSpreadsheet, p),
+          leaf("tickets-reply-templates", "Reply templates", "/dashboard/crm/tickets/reply-templates", MessageSquare, p),
+          leaf("tickets-kb", "Knowledge base", "/dashboard/crm/tickets/knowledge-base", BookOpen, p),
+        ],
+      },
+
+      /* ─── Workspace & Collaboration ─── */
+      {
+        id: "crm-workspace",
+        label: "Workspace",
+        items: [
+          leaf("workspace-home", "Workspace", "/dashboard/crm/workspace", Briefcase, p, { exact: true }),
+          leaf("discussions", "Discussions", "/dashboard/crm/workspace/discussions", MessagesSquare, p),
+          leaf("discussions-cats", "Discussion categories", "/dashboard/crm/workspace/discussions/categories", FolderOpen, p),
+          leaf("events", "Events", "/dashboard/crm/workspace/events", Calendar, p),
+          leaf("events-calendar", "Events calendar", "/dashboard/crm/workspace/events/calendar", Calendar, p),
+          leaf("notices", "Notices", "/dashboard/crm/workspace/notices", Megaphone, p),
+          leaf("sticky-notes", "Sticky notes", "/dashboard/crm/workspace/sticky-notes", FileText, p),
+          leaf("workspace-kb", "Knowledge base", "/dashboard/crm/workspace/knowledge-base", BookOpen, p),
+          leaf("workspace-kb-cats", "KB categories", "/dashboard/crm/workspace/knowledge-base/categories", FolderOpen, p),
+          leaf("awards", "Awards", "/dashboard/crm/workspace/awards", Trophy, p),
+          leaf("appreciations", "Appreciations", "/dashboard/crm/workspace/awards/appreciations", Heart, p),
+        ],
+      },
+
+      /* ─── Projects & Tasks ─── */
+      {
+        id: "crm-projects",
+        label: "Projects & Tasks",
         items: [
           {
             ...leaf("projects", "Projects", "/dashboard/crm/projects", ListChecks, p, { exact: true }),
             children: [
               leaf("projects-kanban", "Kanban", "/dashboard/crm/projects/kanban", LayoutGrid, p),
               leaf("projects-gantt", "Gantt", "/dashboard/crm/projects/gantt", GanttChart, p),
+              leaf("projects-activity", "Activity", "/dashboard/crm/projects/activity", Activity, p),
               leaf("projects-milestones", "Milestones", "/dashboard/crm/projects/milestones", Flag, p),
+              leaf("projects-issues", "Issues", "/dashboard/crm/projects/issues", Bug, p),
+              leaf("projects-subtasks", "Sub-tasks", "/dashboard/crm/projects/subtasks", ListChecks, p),
               leaf("projects-categories", "Categories", "/dashboard/crm/projects/categories", FolderOpen, p),
               leaf("projects-labels", "Labels", "/dashboard/crm/projects/labels", Tag, p),
-              leaf("projects-issues", "Issues", "/dashboard/crm/projects/issues", Bug, p),
-              leaf("projects-activity", "Activity", "/dashboard/crm/projects/activity", Activity, p),
-              leaf("projects-columns", "Columns", "/dashboard/crm/projects/taskboard-columns", Columns3, p),
               leaf("projects-task-cats", "Task categories", "/dashboard/crm/projects/task-categories", FolderOpen, p),
               leaf("projects-task-labels", "Task labels", "/dashboard/crm/projects/task-labels", Tag, p),
               leaf("projects-task-tags", "Task tags", "/dashboard/crm/projects/task-tags", Tags, p),
-              leaf("projects-subtasks", "Sub-tasks", "/dashboard/crm/projects/subtasks", ListChecks, p),
+              leaf("projects-columns", "Taskboard columns", "/dashboard/crm/projects/taskboard-columns", Columns3, p),
             ],
           },
           leaf("tasks", "Tasks", "/dashboard/crm/tasks", Check, p),
-          leaf("tickets", "Tickets", "/dashboard/crm/tickets", Ticket, p),
-          leaf("time", "Time tracking", "/dashboard/crm/time-tracking", Timer, p),
         ],
       },
+
+      /* ─── Time Tracking ─── */
       {
-        id: "crm-finance",
-        label: "Finance",
+        id: "crm-time",
+        label: "Time tracking",
         items: [
-          leaf("accounting", "Accounting", "/dashboard/crm/accounting", Wallet, p),
-          leaf("banking", "Banking", "/dashboard/crm/banking", CreditCard, p),
-          leaf("purchases", "Purchases", "/dashboard/crm/purchases", ShoppingCart, p),
-          leaf("inventory", "Inventory", "/dashboard/crm/inventory", Package, p),
-          leaf("products", "Products", "/dashboard/crm/products", ShoppingBag, p),
+          leaf("time-home", "Time tracking", "/dashboard/crm/time-tracking", Timer, p, { exact: true }),
+          leaf("time-logs", "Time logs", "/dashboard/crm/time-tracking/time-logs", Clock, p),
+          leaf("weekly-ts", "Weekly timesheets", "/dashboard/crm/time-tracking/weekly-timesheets", Calendar, p),
+          leaf("time-reports", "Reports", "/dashboard/crm/time-tracking/reports", BarChart3, p),
+          leaf("time-settings", "Settings", "/dashboard/crm/time-tracking/settings", Settings, p),
         ],
       },
+
+      /* ─── Reports ─── */
       {
-        id: "crm-comms",
-        label: "Communications",
+        id: "crm-reports",
+        label: "Reports",
         items: [
+          leaf("reports-home", "Reports", "/dashboard/crm/reports", BarChart3, p, { exact: true }),
+          leaf("gstr-1", "GSTR-1", "/dashboard/crm/reports/gstr-1", FileSpreadsheet, p),
+          leaf("gstr-2b", "GSTR-2B", "/dashboard/crm/reports/gstr-2b", FileSpreadsheet, p),
+          leaf("top-clients", "Top clients", "/dashboard/crm/reports/top-clients", Trophy, p),
+          leaf("top-products", "Top products", "/dashboard/crm/reports/top-products", Star, p),
+          leaf("sales-deals", "Sales deals", "/dashboard/crm/reports/sales-deals", TrendingUp, p),
+          leaf("invoice-aging", "Invoice aging", "/dashboard/crm/reports/invoice-aging", Clock, p),
+          leaf("payment-report", "Payment report", "/dashboard/crm/reports/payment-report", CreditCard, p),
+          leaf("leads-conversion", "Leads conversion", "/dashboard/crm/reports/leads-conversion", Filter, p),
+          leaf("late-report", "Late report", "/dashboard/crm/reports/late-report", AlertTriangle, p),
+          leaf("overdue-tasks", "Overdue tasks", "/dashboard/crm/reports/overdue-tasks", AlertTriangle, p),
+          leaf("task-report", "Task report", "/dashboard/crm/reports/task-report", ListChecks, p),
+          leaf("ticket-report", "Ticket report", "/dashboard/crm/reports/ticket-report", Ticket, p),
+          leaf("project-status", "Project status", "/dashboard/crm/reports/project-status-report", Flag, p),
+          leaf("agent-performance", "Agent performance", "/dashboard/crm/reports/agent-performance", Gauge, p),
+          leaf("attendance-rep", "Attendance", "/dashboard/crm/reports/attendance-report", UserCheck, p),
+          leaf("leave-rep", "Leave", "/dashboard/crm/reports/leave-report", Calendar, p),
+          leaf("leave-balance-rep", "Leave balance", "/dashboard/crm/reports/leave-balance-report", PieChart, p),
+          leaf("birthday", "Birthday / anniversary", "/dashboard/crm/reports/birthday-anniversary", Heart, p),
+          leaf("income-rep", "Income", "/dashboard/crm/reports/income", DollarSign, p),
+          leaf("expense-rep", "Expense", "/dashboard/crm/reports/expense", Receipt, p),
+          leaf("profit-loss", "Profit & Loss", "/dashboard/crm/reports/profit-loss", BarChart3, p),
+          leaf("tax", "Tax", "/dashboard/crm/reports/tax", Percent, p),
+        ],
+      },
+
+      /* ─── Cross-cutting / Misc ─── */
+      {
+        id: "crm-cross",
+        label: "Cross-cutting",
+        items: [
+          leaf("loans", "Loans", "/dashboard/crm/loans", Coins, p),
+          leaf("budgets", "Budgets", "/dashboard/crm/budgets", PieChart, p),
+          leaf("petty-cash", "Petty cash", "/dashboard/crm/petty-cash", Wallet, p),
+          leaf("bookings", "Bookings", "/dashboard/crm/bookings", Calendar, p),
+          leaf("fixed-assets", "Fixed assets", "/dashboard/crm/fixed-assets", HardDrive, p),
+          leaf("service-contracts", "Service contracts", "/dashboard/crm/service-contracts", FileText, p),
+          leaf("portal", "Portal", "/dashboard/crm/portal", Globe, p),
+          leaf("dashboards", "Dashboards", "/dashboard/crm/dashboards", LayoutGrid, p),
+          leaf("files", "Files", "/dashboard/crm/files", Files, p),
+          leaf("files-folders", "File folders", "/dashboard/crm/files/folders", FolderOpen, p),
+          leaf("audit-log", "Audit log", "/dashboard/crm/audit-log", FileSearch, p),
+          leaf("activity-x", "Activity", "/dashboard/crm/activity", Activity, p),
+          leaf("notifications-x", "Notifications", "/dashboard/crm/notifications", Bell, p),
+          leaf("search-x", "Search", "/dashboard/crm/search", Search, p),
           leaf("messages", "Messages", "/dashboard/crm/messages", MessageSquare, p),
           leaf("email", "Email", "/dashboard/crm/email", Mail, p),
+          leaf("analytics", "Analytics", "/dashboard/crm/analytics", PieChart, p),
           leaf("automations", "Automations", "/dashboard/crm/automations", Workflow, p),
+          leaf("automations-docs", "Automations docs", "/dashboard/crm/automations/docs", BookOpen, p),
+          leaf("auto-leads", "Auto-leads setup", "/dashboard/crm/auto-leads-setup", Wand2, p),
+          leaf("setup", "Setup", "/dashboard/crm/setup", Sparkles, p),
         ],
       },
+
+      /* ─── Team ─── */
       {
         id: "crm-team",
-        label: "Team & data",
+        label: "Team",
         items: [
-          leaf("team", "Team", "/dashboard/crm/team", Users, p),
-          leaf("files", "Files", "/dashboard/crm/files", Files, p),
-          leaf("reports", "Reports", "/dashboard/crm/reports", BarChart3, p),
-          leaf("analytics", "Analytics", "/dashboard/crm/analytics", PieChart, p),
-          leaf("integrations", "Integrations", "/dashboard/crm/integrations", Puzzle, p),
-          leaf("setup", "Setup", "/dashboard/crm/setup", Sparkles, p),
-          leaf("settings", "Settings", "/dashboard/crm/settings", Settings, p),
+          leaf("team-home", "Team", "/dashboard/crm/team", Users, p, { exact: true }),
+          leaf("manage-users", "Manage users", "/dashboard/crm/team/manage-users", UserCog, p),
+          leaf("manage-roles", "Manage roles", "/dashboard/crm/team/manage-roles", Shield, p),
+          leaf("team-chat", "Team chat", "/dashboard/crm/team/team-chat", MessagesSquare, p),
+        ],
+      },
+
+      /* ─── Integrations ─── */
+      {
+        id: "crm-integrations",
+        label: "Integrations",
+        items: [
+          leaf("integrations", "All integrations", "/dashboard/crm/integrations", Puzzle, p, { exact: true }),
+          leaf("int-settings", "Integrations settings", "/dashboard/crm/settings/integrations", Plug, p, { exact: true }),
+          leaf("int-email-notif", "Email notifications", "/dashboard/crm/settings/integrations/email-notifications", Mail, p),
+          leaf("int-fb-ads", "Facebook ads", "/dashboard/crm/settings/integrations/facebook-ads", Megaphone, p),
+          leaf("int-gcal", "Google Calendar", "/dashboard/crm/settings/integrations/google-calendar", Calendar, p),
+          leaf("int-msg-settings", "Message settings", "/dashboard/crm/settings/integrations/message-settings", MessageSquare, p),
+          leaf("int-push", "Push notifications", "/dashboard/crm/settings/integrations/push-notifications", Bell, p),
+          leaf("int-pusher", "Pusher", "/dashboard/crm/settings/integrations/pusher", Webhook, p),
+          leaf("int-qbooks", "QuickBooks", "/dashboard/crm/settings/integrations/quickbooks", Wallet, p),
+          leaf("int-slack", "Slack", "/dashboard/crm/settings/integrations/slack", MessagesSquare, p),
+          leaf("int-smtp", "SMTP", "/dashboard/crm/settings/integrations/smtp", Mail, p),
+          leaf("int-social", "Social auth", "/dashboard/crm/settings/integrations/social-auth", Key, p),
+          leaf("int-storage", "Storage", "/dashboard/crm/settings/integrations/storage", HardDrive, p),
+          leaf("int-ticket-email", "Ticket email", "/dashboard/crm/settings/integrations/ticket-email", Mail, p),
+        ],
+      },
+
+      /* ─── Settings ─── */
+      {
+        id: "crm-settings",
+        label: "Settings",
+        items: [
+          leaf("settings-home", "Settings", "/dashboard/crm/settings", Settings, p, { exact: true }),
+          leaf("company-profile", "Company profile", "/dashboard/crm/settings/company-profile", Building, p),
+          leaf("company-addresses", "Company addresses", "/dashboard/crm/settings/company-addresses", MapPin, p),
+          leaf("custom-fields", "Custom fields", "/dashboard/crm/settings/custom-fields", Layers, p, { exact: true }),
+          leaf("custom-fields-groups", "Custom field groups", "/dashboard/crm/settings/custom-fields/groups", Layers, p),
+          leaf("custom-modules", "Custom modules", "/dashboard/crm/settings/custom-modules", Puzzle, p),
+          leaf("custom-links", "Custom links", "/dashboard/crm/settings/custom-links", LinkIcon, p),
+          leaf("currencies", "Currencies", "/dashboard/crm/settings/currencies", Coins, p),
+          leaf("currency-formats", "Currency formats", "/dashboard/crm/settings/currency-formats", CircleDollarSign, p),
+          leaf("languages", "Languages", "/dashboard/crm/settings/languages", Globe, p),
+          leaf("taxes", "Taxes", "/dashboard/crm/settings/taxes", Percent, p),
+          leaf("unit-types", "Unit types", "/dashboard/crm/settings/unit-types", Tags, p),
+          leaf("expense-categories", "Expense categories", "/dashboard/crm/settings/expense-categories", FolderOpen, p),
+          leaf("expense-cat-roles", "Expense category roles", "/dashboard/crm/settings/expense-category-roles", Shield, p),
+          leaf("permissions", "Permissions", "/dashboard/crm/settings/permissions", Shield, p),
+          leaf("permission-types", "Permission types", "/dashboard/crm/settings/permission-types", ShieldCheck, p),
+          leaf("roles", "Roles", "/dashboard/crm/settings/roles", UserCog, p),
+          leaf("invoice-settings", "Invoice settings", "/dashboard/crm/settings/invoice-settings", Receipt, p),
+          leaf("attendance-settings", "Attendance settings", "/dashboard/crm/settings/attendance-settings", UserCheck, p),
+          leaf("project-settings", "Project settings", "/dashboard/crm/settings/project-settings", ListChecks, p),
+          leaf("task-settings", "Task settings", "/dashboard/crm/settings/task-settings", Check, p),
+          leaf("promotions-settings", "Promotions", "/dashboard/crm/settings/promotions", Megaphone, p),
+          leaf("public-payment", "Public payment", "/dashboard/crm/settings/public-payment", CreditCard, p),
+          leaf("payment-gateways", "Payment gateways", "/dashboard/crm/settings/payment-gateways", CreditCard, p),
+          leaf("offline-payment", "Offline payment methods", "/dashboard/crm/settings/offline-payment-methods", Wallet, p),
+          leaf("gdpr", "GDPR", "/dashboard/crm/settings/gdpr", ShieldCheck, p, { exact: true }),
+          leaf("gdpr-consent", "Consent logs", "/dashboard/crm/settings/gdpr/consent-logs", FileText, p),
+          leaf("gdpr-removal", "Removal requests", "/dashboard/crm/settings/gdpr/removal-requests", Trash2, p),
+          leaf("gdpr-purposes", "Purposes", "/dashboard/crm/settings/gdpr/purposes", FileSearch, p),
+          leaf("flags", "Flags", "/dashboard/crm/settings/flags", Flag, p),
+          leaf("global", "Global", "/dashboard/crm/settings/global", Globe, p),
+          leaf("dashboard-widgets", "Dashboard widgets", "/dashboard/crm/settings/dashboard-widgets", LayoutGrid, p),
+          leaf("saved-searches", "Saved searches", "/dashboard/crm/settings/saved-searches", Bookmark, p),
+          leaf("leadboard-prefs", "Leadboard preferences", "/dashboard/crm/settings/leadboard-preferences", Kanban, p),
+          leaf("taskboard-prefs", "Taskboard preferences", "/dashboard/crm/settings/taskboard-preferences", Columns3, p),
+          leaf("project-statuses", "Project statuses", "/dashboard/crm/settings/project-statuses", Flag, p),
+          leaf("module-menu", "Module menu", "/dashboard/crm/settings/menu", Layers, p),
+          leaf("modules", "Modules", "/dashboard/crm/settings/modules", Puzzle, p),
+          leaf("invitations", "Invitations", "/dashboard/crm/settings/invitations", UserPlus, p),
         ],
       },
     ],
   },
 
-  /* ─────────────────────────────  HRM  ────────────────────────────── */
+  /* ─────────────────────────────  HRM  ──────────────────────────────
+   *
+   * Two top-level pillars:
+   *   HR (People Ops)  → /dashboard/hrm/hr/**
+   *   Payroll          → /dashboard/hrm/payroll/**
+   *
+   * Plus overview entries. List pages only — detail/edit/new flows
+   * are launched from their list page.
+   */
   {
     prefix: "/dashboard/hrm",
     heading: "HR Manager",
-    caption: "People, payroll & culture",
+    caption: "People ops & payroll",
     build: (p) => [
+      /* ─── Overview ─── */
       {
         id: "hrm-overview",
         label: "Overview",
         items: [
-          leaf("home", "Home", "/dashboard/hrm", Home, p),
-          leaf("hr", "HR overview", "/dashboard/hrm/hr", Users, p),
+          leaf("home", "Home", "/dashboard/hrm", Home, p, { exact: true }),
+          leaf("hr-home", "HR overview", "/dashboard/hrm/hr", Users, p, { exact: true }),
+          leaf("payroll-home", "Payroll overview", "/dashboard/hrm/payroll", Wallet, p, { exact: true }),
         ],
       },
+
+      /* ─── HR · Directory & Org ─── */
       {
         id: "hrm-people",
-        label: "People",
+        label: "HR · People",
         items: [
           leaf("directory", "Directory", "/dashboard/hrm/hr/directory", UserCheck, p),
           leaf("org-chart", "Org chart", "/dashboard/hrm/hr/org-chart", Network, p),
-          leaf("onboarding", "Onboarding", "/dashboard/hrm/hr/onboarding", UserPlus, p),
-          leaf("offers", "Offers", "/dashboard/hrm/hr/offers", FileText, p),
-          leaf("candidates", "Candidates", "/dashboard/hrm/hr/candidates", Search, p),
-          leaf("jobs", "Jobs", "/dashboard/hrm/hr/jobs", Briefcase, p),
-          leaf("interviews", "Interviews", "/dashboard/hrm/hr/interviews", Users, p),
           leaf("careers", "Careers page", "/dashboard/hrm/hr/careers-page", Globe, p),
         ],
       },
+
+      /* ─── HR · Recruitment ─── */
       {
-        id: "hrm-perf",
-        label: "Performance",
+        id: "hrm-recruit",
+        label: "HR · Recruitment",
         items: [
-          leaf("okrs", "OKRs", "/dashboard/hrm/hr/okrs", Target, p),
-          leaf("training", "Training", "/dashboard/hrm/hr/training", BookOpen, p),
-          leaf("learning", "Learning paths", "/dashboard/hrm/hr/learning-paths", MapIcon, p),
-          leaf("feedback", "360° feedback", "/dashboard/hrm/hr/feedback-360", MessagesSquare, p),
-          leaf("recognition", "Recognition", "/dashboard/hrm/hr/recognition", Star, p),
-          leaf("one-on-ones", "One-on-ones", "/dashboard/hrm/hr/one-on-ones", MessageCircle, p),
-          leaf("succession", "Succession", "/dashboard/hrm/hr/succession", TrendingUp, p),
+          leaf("jobs", "Jobs", "/dashboard/hrm/hr/jobs", Briefcase, p),
+          leaf("candidates", "Candidates", "/dashboard/hrm/hr/candidates", Search, p),
+          leaf("interviews", "Interviews", "/dashboard/hrm/hr/interviews", Users, p),
+          leaf("offers", "Offers", "/dashboard/hrm/hr/offers", FileText, p),
         ],
       },
+
+      /* ─── HR · Onboarding ─── */
       {
-        id: "hrm-time",
-        label: "Time & expenses",
+        id: "hrm-onboarding",
+        label: "HR · Onboarding",
         items: [
-          leaf("timesheets", "Timesheets", "/dashboard/hrm/hr/timesheets", Timer, p),
-          leaf("travel", "Travel", "/dashboard/hrm/hr/travel", Globe, p),
-          leaf("expenses", "Expense claims", "/dashboard/hrm/hr/expense-claims", Receipt, p),
-          leaf("compensation", "Compensation", "/dashboard/hrm/hr/compensation-bands", Coins, p),
-        ],
-      },
-      {
-        id: "hrm-docs",
-        label: "Documents",
-        items: [
-          leaf("policies", "Policies", "/dashboard/hrm/hr/policies", FileText, p),
-          leaf("documents", "Documents", "/dashboard/hrm/hr/documents", Files, p),
-          leaf("templates", "Doc templates", "/dashboard/hrm/hr/document-templates", FileSpreadsheet, p),
-          leaf("certifications", "Certifications", "/dashboard/hrm/hr/certifications", BadgeCheck, p),
+          leaf("onboarding", "Onboarding", "/dashboard/hrm/hr/onboarding", UserPlus, p),
+          leaf("probation", "Probation", "/dashboard/hrm/hr/probation", Flag, p),
           leaf("welcome-kit", "Welcome kit", "/dashboard/hrm/hr/welcome-kit", Heart, p),
         ],
       },
+
+      /* ─── HR · Performance ─── */
       {
-        id: "hrm-assets",
-        label: "Assets & exits",
+        id: "hrm-perf",
+        label: "HR · Performance",
         items: [
-          leaf("assets", "Assets", "/dashboard/hrm/hr/assets", Package, p),
-          leaf("assignments", "Assignments", "/dashboard/hrm/hr/asset-assignments", ClipboardList, p),
-          leaf("probation", "Probation", "/dashboard/hrm/hr/probation", Flag, p),
-          leaf("exits", "Exits", "/dashboard/hrm/hr/exits", LogOut, p),
-        ],
-      },
-      {
-        id: "hrm-engage",
-        label: "Engagement",
-        items: [
-          leaf("announcements", "Announcements", "/dashboard/hrm/hr/announcements", Megaphone, p),
+          leaf("okrs", "Goals / OKRs", "/dashboard/hrm/hr/okrs", Target, p),
+          leaf("feedback", "360° feedback", "/dashboard/hrm/hr/feedback-360", MessagesSquare, p),
+          leaf("one-on-ones", "One-on-ones", "/dashboard/hrm/hr/one-on-ones", MessageCircle, p),
+          leaf("recognition", "Recognition", "/dashboard/hrm/hr/recognition", Star, p),
           leaf("surveys", "Surveys", "/dashboard/hrm/hr/surveys", ClipboardList, p),
         ],
       },
+
+      /* ─── HR · Learning ─── */
       {
-        id: "hrm-payroll",
-        label: "Payroll",
+        id: "hrm-learning",
+        label: "HR · Learning",
         items: [
-          leaf("payroll", "Payroll", "/dashboard/hrm/payroll", Wallet, p),
-          leaf("employees", "Employees", "/dashboard/hrm/payroll/employees", Users, p),
-          leaf("payslips", "Payslips", "/dashboard/hrm/payroll/payslips", Receipt, p),
-          leaf("salary", "Salary structure", "/dashboard/hrm/payroll/salary-structure", DollarSign, p),
+          leaf("training", "Training", "/dashboard/hrm/hr/training", BookOpen, p),
+          leaf("certifications", "Certifications", "/dashboard/hrm/hr/certifications", BadgeCheck, p),
+          leaf("learning-paths", "Learning paths", "/dashboard/hrm/hr/learning-paths", MapIcon, p),
+        ],
+      },
+
+      /* ─── HR · Docs & Assets ─── */
+      {
+        id: "hrm-docs",
+        label: "HR · Docs & Assets",
+        items: [
+          leaf("documents", "Documents", "/dashboard/hrm/hr/documents", Files, p),
+          leaf("doc-templates", "Doc templates", "/dashboard/hrm/hr/document-templates", FileSpreadsheet, p),
+          leaf("policies", "Policies", "/dashboard/hrm/hr/policies", FileText, p),
+          leaf("assets", "Assets", "/dashboard/hrm/hr/assets", Package, p),
+          leaf("asset-assign", "Asset assignments", "/dashboard/hrm/hr/asset-assignments", ClipboardList, p),
+        ],
+      },
+
+      /* ─── HR · Time & Expenses ─── */
+      {
+        id: "hrm-time",
+        label: "HR · Time & Expenses",
+        items: [
+          leaf("timesheets", "Timesheets", "/dashboard/hrm/hr/timesheets", Timer, p),
+          leaf("travel", "Travel", "/dashboard/hrm/hr/travel", Globe, p),
+          leaf("expense-claims", "Expense claims", "/dashboard/hrm/hr/expense-claims", Receipt, p),
+        ],
+      },
+
+      /* ─── HR · Exit & Compensation ─── */
+      {
+        id: "hrm-exit",
+        label: "HR · Exit & Comp",
+        items: [
+          leaf("exits", "Exits", "/dashboard/hrm/hr/exits", LogOut, p),
+          leaf("succession", "Succession", "/dashboard/hrm/hr/succession", TrendingUp, p),
+          leaf("comp-bands", "Compensation bands", "/dashboard/hrm/hr/compensation-bands", Coins, p),
+          leaf("announcements", "Announcements", "/dashboard/hrm/hr/announcements", Megaphone, p),
+        ],
+      },
+
+      /* ─── HR · Recognition & Awards ─── */
+      {
+        id: "hrm-recognition",
+        label: "HR · Recognition",
+        items: [
+          leaf("awards", "Awards", "/dashboard/hrm/hr/awards", Trophy, p),
+          leaf("disciplinary", "Disciplinary cases", "/dashboard/hrm/hr/disciplinary", AlertTriangle, p),
+        ],
+      },
+
+      /* ─── Payroll · Employees ─── */
+      {
+        id: "payroll-employees",
+        label: "Payroll · Employees",
+        items: [
+          leaf("pr-emp", "Directory", "/dashboard/hrm/payroll/employees", Users, p, { exact: true }),
+          leaf("pr-emp-new", "Add employee", "/dashboard/hrm/payroll/employees/new", UserPlus, p),
+          leaf("pr-emp-docs", "Documents", "/dashboard/hrm/payroll/employees/documents", Files, p),
+          leaf("pr-emp-ec", "Emergency contacts", "/dashboard/hrm/payroll/employees/emergency-contacts", Phone, p),
+          leaf("pr-emp-skills", "Employee skills", "/dashboard/hrm/payroll/employees/employee-skills", Sparkles, p),
+          leaf("pr-emp-skills2", "Skills", "/dashboard/hrm/payroll/employees/skills", Sparkles, p),
+          leaf("pr-emp-visa", "Visa details", "/dashboard/hrm/payroll/employees/visa-details", BadgeCheck, p),
+          leaf("pr-emp-leave-q", "Leave quotas", "/dashboard/hrm/payroll/employees/leave-quotas", Calendar, p),
+          leaf("pr-emp-teams", "Teams", "/dashboard/hrm/payroll/employees/teams", Users, p),
+          leaf("pr-emp-profile", "Profile", "/dashboard/hrm/payroll/employees/profile", User, p),
+        ],
+      },
+
+      /* ─── Payroll · Departments & Designations ─── */
+      {
+        id: "payroll-org",
+        label: "Payroll · Org",
+        items: [
+          leaf("departments", "Departments", "/dashboard/hrm/payroll/departments", Building, p, { exact: true }),
+          leaf("dept-hier", "Departments hierarchy", "/dashboard/hrm/payroll/departments/hierarchy", Network, p),
+          leaf("designations", "Designations", "/dashboard/hrm/payroll/designations", Briefcase, p, { exact: true }),
+          leaf("desig-hier", "Designations hierarchy", "/dashboard/hrm/payroll/designations/hierarchy", Network, p),
+        ],
+      },
+
+      /* ─── Payroll · Attendance & Leave ─── */
+      {
+        id: "payroll-attendance",
+        label: "Payroll · Attendance",
+        items: [
           leaf("attendance", "Attendance", "/dashboard/hrm/payroll/attendance", UserCheck, p),
-          leaf("leave", "Leave", "/dashboard/hrm/payroll/leave", Calendar, p),
           leaf("holidays", "Holidays", "/dashboard/hrm/payroll/holidays", Calendar, p),
-          leaf("shifts", "Shifts", "/dashboard/hrm/payroll/shifts", Clock, p),
-          leaf("shift-rot", "Shift rotations", "/dashboard/hrm/payroll/shift-rotations", RotateCw, p),
-          leaf("shift-change", "Shift changes", "/dashboard/hrm/payroll/shift-change-requests", Repeat, p),
-          leaf("time-logs", "Time logs", "/dashboard/hrm/payroll/time-logs", Timer, p),
-          leaf("weekly", "Weekly timesheets", "/dashboard/hrm/payroll/weekly-timesheets", Calendar, p),
-          leaf("departments", "Departments", "/dashboard/hrm/payroll/departments", Building, p),
-          leaf("designations", "Designations", "/dashboard/hrm/payroll/designations", Briefcase, p),
-          leaf("appraisals", "Appraisals", "/dashboard/hrm/payroll/appraisal-reviews", Star, p),
-          leaf("goals", "Goal setting", "/dashboard/hrm/payroll/goal-setting", Target, p),
-          leaf("kpi", "KPI tracking", "/dashboard/hrm/payroll/kpi-tracking", Gauge, p),
-          leaf("form-16", "Form 16", "/dashboard/hrm/payroll/form-16", FileText, p),
+          leaf("leave", "Leave", "/dashboard/hrm/payroll/leave", Calendar, p, { exact: true }),
+          leaf("leave-types", "Leave types", "/dashboard/hrm/payroll/leave/types", Tags, p),
+          leaf("leave-balance", "Leave balance", "/dashboard/hrm/payroll/leave/balance", PieChart, p),
+          leaf("leave-calendar", "Leave calendar", "/dashboard/hrm/payroll/leave/calendar", Calendar, p),
+          leaf("leave-settings", "Leave settings", "/dashboard/hrm/payroll/leave/settings", Settings, p),
+        ],
+      },
+
+      /* ─── Payroll · Shifts ─── */
+      {
+        id: "payroll-shifts",
+        label: "Payroll · Shifts",
+        items: [
+          leaf("shifts", "Shifts", "/dashboard/hrm/payroll/shifts", Clock, p, { exact: true }),
+          leaf("shifts-schedule", "Shifts schedule", "/dashboard/hrm/payroll/shifts/schedule", Calendar, p),
+          leaf("shift-rot", "Shift rotations", "/dashboard/hrm/payroll/shift-rotations", RotateCw, p, { exact: true }),
+          leaf("shift-rot-auto", "Rotation automate", "/dashboard/hrm/payroll/shift-rotations/automate", Workflow, p),
+          leaf("shift-change", "Shift change requests", "/dashboard/hrm/payroll/shift-change-requests", Repeat, p),
+        ],
+      },
+
+      /* ─── Payroll · Salary & Compliance ─── */
+      {
+        id: "payroll-salary",
+        label: "Payroll · Salary",
+        items: [
+          leaf("salary-struct", "Salary structure", "/dashboard/hrm/payroll/salary-structure", DollarSign, p),
+          leaf("payroll-run", "Payroll run", "/dashboard/hrm/payroll/payroll", Wallet, p),
+          leaf("payslips", "Payslips", "/dashboard/hrm/payroll/payslips", Receipt, p),
           leaf("pf-esi", "PF & ESI", "/dashboard/hrm/payroll/pf-esi", ShieldCheck, p),
           leaf("ptax", "Professional tax", "/dashboard/hrm/payroll/professional-tax", Percent, p),
           leaf("tds", "TDS", "/dashboard/hrm/payroll/tds", Percent, p),
-          leaf("reports", "Reports", "/dashboard/hrm/payroll/reports", BarChart3, p),
-          leaf("payroll-settings", "Payroll settings", "/dashboard/hrm/payroll/settings", Settings, p),
+          leaf("form-16", "Form 16", "/dashboard/hrm/payroll/form-16", FileText, p),
+        ],
+      },
+
+      /* ─── Payroll · Performance ─── */
+      {
+        id: "payroll-perf",
+        label: "Payroll · Performance",
+        items: [
+          leaf("goal-setting", "Goal setting", "/dashboard/hrm/payroll/goal-setting", Target, p),
+          leaf("kpi", "KPI tracking", "/dashboard/hrm/payroll/kpi-tracking", Gauge, p),
+          leaf("appraisals", "Appraisal reviews", "/dashboard/hrm/payroll/appraisal-reviews", Star, p),
+        ],
+      },
+
+      /* ─── Payroll · Time tracking ─── */
+      {
+        id: "payroll-time",
+        label: "Payroll · Time",
+        items: [
+          leaf("time-logs", "Time logs", "/dashboard/hrm/payroll/time-logs", Timer, p),
+          leaf("weekly-ts", "Weekly timesheets", "/dashboard/hrm/payroll/weekly-timesheets", Calendar, p),
+        ],
+      },
+
+      /* ─── Payroll · Reports ─── */
+      {
+        id: "payroll-reports",
+        label: "Payroll · Reports",
+        items: [
+          leaf("reports", "Reports", "/dashboard/hrm/payroll/reports", BarChart3, p, { exact: true }),
+          leaf("rep-attendance", "Attendance", "/dashboard/hrm/payroll/reports/attendance", UserCheck, p),
+          leaf("rep-leave", "Leave", "/dashboard/hrm/payroll/reports/leave", Calendar, p),
+          leaf("rep-payroll", "Payroll summary", "/dashboard/hrm/payroll/reports/payroll-summary", PieChart, p),
+          leaf("rep-salary", "Salary register", "/dashboard/hrm/payroll/reports/salary-register", FileSpreadsheet, p),
+        ],
+      },
+
+      /* ─── Payroll · Settings ─── */
+      {
+        id: "payroll-settings",
+        label: "Payroll · Settings",
+        items: [
+          leaf("pr-settings", "Settings", "/dashboard/hrm/payroll/settings", Settings, p),
         ],
       },
     ],

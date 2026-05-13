@@ -26,6 +26,9 @@ import {
   useZoruToast,
 } from '@/components/zoruui';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EntityPicker } from '@/components/crm/entity-picker';
+import type { LookupItem } from '@/lib/lookup-registry';
 import { saveRecurringInvoice } from '@/app/actions/worksuite/billing.actions';
 
 type LineRow = {
@@ -62,7 +65,6 @@ export default function NewRecurringInvoicePage() {
     initial,
   );
 
-  const [clientName, setClientName] = useState('');
   const [currency, setCurrency] = useState('INR');
   const [frequency, setFrequency] = useState<'days' | 'weeks' | 'months' | 'years'>(
     'months',
@@ -115,8 +117,6 @@ export default function NewRecurringInvoicePage() {
 
   return (
     <form action={formAction} className="flex w-full flex-col gap-6">
-      <input type="hidden" name="client_name" value={clientName} />
-      <input type="hidden" name="currency" value={currency} />
       <input type="hidden" name="frequency" value={frequency} />
       <input type="hidden" name="frequency_count" value={String(frequencyCount)} />
       <input type="hidden" name="recurring_start_date" value={startDate} />
@@ -156,14 +156,19 @@ export default function NewRecurringInvoicePage() {
         <div className="grid gap-4 md:grid-cols-3">
           <div className="space-y-1.5 md:col-span-2">
             <ZoruLabel className="text-zoru-ink">Client</ZoruLabel>
-            <ZoruInput value={clientName} onChange={(e) => setClientName(e.target.value)} />
+            <EntityFormField
+              entity="client"
+              name="client_id"
+              dualWriteName="client_name"
+            />
           </div>
           <div className="space-y-1.5">
             <ZoruLabel className="text-zoru-ink">Currency</ZoruLabel>
-            <ZoruInput
-              value={currency}
-              onChange={(e) => setCurrency(e.target.value.toUpperCase())}
-              maxLength={5}
+            <EntityFormField
+              entity="currency"
+              name="currency"
+              initialId={currency}
+              onChange={(id) => setCurrency(id || 'INR')}
             />
           </div>
 
@@ -247,11 +252,27 @@ export default function NewRecurringInvoicePage() {
             <tbody>
               {items.map((row) => (
                 <tr key={row.id} className="border-b border-zoru-line">
-                  <td className="p-2">
-                    <ZoruInput
-                      value={row.name}
-                      onChange={(e) => updateRow(row.id, { name: e.target.value })}
+                  <td className="p-2 min-w-[200px]">
+                    <EntityPicker
+                      entity="item"
+                      value={null}
+                      placeholder="Pick item or type name"
+                      onChange={(_id, hydrated) => {
+                        const h = (Array.isArray(hydrated) ? hydrated[0] : hydrated) as LookupItem | undefined;
+                        const raw = (h?.raw ?? {}) as Record<string, unknown>;
+                        const name = typeof raw.name === 'string' ? raw.name : (h?.chip.primary ?? '');
+                        const desc = typeof raw.description === 'string' ? raw.description : undefined;
+                        const price = typeof raw.sellingPrice === 'number' ? raw.sellingPrice : undefined;
+                        updateRow(row.id, {
+                          name,
+                          ...(desc != null ? { description: desc } : {}),
+                          ...(price != null ? { unit_price: price } : {}),
+                        });
+                      }}
                     />
+                    {row.name ? (
+                      <p className="mt-1 text-[11px] text-zoru-ink-muted">{row.name}</p>
+                    ) : null}
                   </td>
                   <td className="p-2">
                     <ZoruInput

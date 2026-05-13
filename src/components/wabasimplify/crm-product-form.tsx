@@ -32,6 +32,7 @@ import { saveCrmProduct } from '@/app/actions/crm-products.actions';
 import { getSession } from '@/app/actions/index.ts';
 import { v4 as uuidv4 } from 'uuid';
 import { SabFilePickerButton } from '@/components/sabfiles';
+import { EntityFormField } from '@/components/crm/entity-form-field';
 
 const initialState = { message: null, error: undefined };
 
@@ -102,14 +103,14 @@ export function CrmProductForm({ product }: CrmProductFormProps) {
                             <ZoruAccordionContent className="pt-4 space-y-4">
                                 <div className="space-y-2"><ZoruLabel htmlFor="name">Item Name *</ZoruLabel><ZoruInput id="name" name="name" defaultValue={product?.name} required /></div>
                                 <div className="space-y-2"><ZoruLabel htmlFor="sku">SKU</ZoruLabel><ZoruInput id="sku" name="sku" defaultValue={product?.sku} /></div>
-                                <div className="space-y-2"><ZoruLabel htmlFor="unit">Unit</ZoruLabel><ZoruInput id="unit" name="unit" defaultValue={product?.unit} placeholder="e.g. PCS, Kgs, Box" /></div>
+                                <div className="space-y-2"><ZoruLabel htmlFor="unit">Unit</ZoruLabel><EntityFormField entity="unit" name="unit" initialId={(product as any)?.unitId || null} initialLabel={product?.unit || ''} dualWriteName="unitName" /></div>
                                 <div className="space-y-2"><ZoruLabel htmlFor="hsnSac">HSN/SAC Code</ZoruLabel><ZoruInput id="hsnSac" name="hsnSac" defaultValue={product?.hsnSac} /></div>
                             </ZoruAccordionContent>
                         </ZoruAccordionItem>
                         <ZoruAccordionItem value="classification"><ZoruAccordionTrigger>Classification</ZoruAccordionTrigger>
                             <ZoruAccordionContent className="pt-4 space-y-4">
                                 <div className="space-y-2"><ZoruLabel>Item Type</ZoruLabel><ZoruRadioGroup name="itemType" defaultValue={product?.itemType || 'goods'} className="flex gap-4 pt-2"><div className="flex items-center space-x-2"><ZoruRadioGroupItem value="goods" id="type-goods" /><ZoruLabel htmlFor="type-goods" className="font-normal">Goods</ZoruLabel></div><div className="flex items-center space-x-2"><ZoruRadioGroupItem value="service" id="type-service" /><ZoruLabel htmlFor="type-service" className="font-normal">Service</ZoruLabel></div></ZoruRadioGroup></div>
-                                <div className="grid grid-cols-2 gap-4"><div className="space-y-2"><ZoruLabel htmlFor="category">Category</ZoruLabel><ZoruInput id="category" name="category" defaultValue={product?.category} placeholder="e.g., Clothing" /></div><div className="space-y-2"><ZoruLabel htmlFor="subcategory">Subcategory</ZoruLabel><ZoruInput id="subcategory" name="subcategory" defaultValue={product?.subcategory} placeholder="e.g., T-Shirts"/></div></div>
+                                <div className="grid grid-cols-2 gap-4"><div className="space-y-2"><ZoruLabel htmlFor="category">Category</ZoruLabel><EntityFormField entity="category" name="category" initialId={(product as any)?.categoryId || null} initialLabel={product?.category || ''} dualWriteName="categoryName" /></div><div className="space-y-2"><ZoruLabel htmlFor="subcategory">Subcategory</ZoruLabel><ZoruInput id="subcategory" name="subcategory" defaultValue={product?.subcategory} placeholder="e.g., T-Shirts"/></div></div>
                                 <div className="space-y-2"><ZoruLabel htmlFor="tags">Tags (comma-separated)</ZoruLabel><ZoruInput id="tags" name="tags" defaultValue={product?.tags?.join(', ')} /></div>
                             </ZoruAccordionContent>
                         </ZoruAccordionItem>

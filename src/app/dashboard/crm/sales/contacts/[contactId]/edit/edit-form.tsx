@@ -24,6 +24,7 @@ import {
     useZoruToast,
 } from '@/components/zoruui';
 import { updateCrmContact } from '@/app/actions/crm.actions';
+import { EntityFormField } from '@/components/crm/entity-form-field';
 
 const initialState: { message?: string; error?: string; contactId?: string } = {};
 
@@ -113,18 +114,19 @@ export function EditContactForm({
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
                         <ZoruLabel htmlFor="jobTitle">Job Title</ZoruLabel>
-                        <ZoruInput
-                            id="jobTitle"
+                        <EntityFormField
+                            entity="jobTitle"
                             name="jobTitle"
-                            defaultValue={initial.jobTitle ?? ''}
+                            initialId={initial.jobTitle ?? null}
                         />
                     </div>
                     <div className="space-y-1.5">
                         <ZoruLabel htmlFor="owner">Owner</ZoruLabel>
-                        <ZoruInput
-                            id="owner"
+                        <EntityFormField
+                            entity="user"
                             name="owner"
-                            defaultValue={initial.owner ?? ''}
+                            initialId={initial.owner ?? null}
+                            placeholder="Sales rep"
                         />
                     </div>
                 </div>
@@ -189,22 +191,12 @@ export function EditContactForm({
                     </div>
                     <div className="space-y-1.5">
                         <ZoruLabel htmlFor="source">Source</ZoruLabel>
-                        <ZoruSelect
+                        <EntityFormField
+                            entity="leadSource"
                             name="source"
-                            defaultValue={initial.source ?? undefined}
-                        >
-                            <ZoruSelectTrigger id="source">
-                                <ZoruSelectValue placeholder="Select source" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="website">Website</ZoruSelectItem>
-                                <ZoruSelectItem value="referral">Referral</ZoruSelectItem>
-                                <ZoruSelectItem value="social-media">Social Media</ZoruSelectItem>
-                                <ZoruSelectItem value="cold-outreach">Cold Outreach</ZoruSelectItem>
-                                <ZoruSelectItem value="event">Event</ZoruSelectItem>
-                                <ZoruSelectItem value="other">Other</ZoruSelectItem>
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                            initialId={initial.source ?? null}
+                            placeholder="Select source"
+                        />
                     </div>
                 </div>
 

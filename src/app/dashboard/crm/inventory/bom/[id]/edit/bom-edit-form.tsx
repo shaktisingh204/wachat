@@ -17,9 +17,11 @@ import {
   useZoruToast,
 } from '@/components/zoruui';
 import { saveBom } from '@/app/actions/crm-bom.actions';
+import { EntityFormField } from '@/components/crm/entity-form-field';
 
 type ComponentRow = {
   id: string;
+  itemId: string;
   itemName: string;
   qty: number;
   unit: string;
@@ -32,13 +34,14 @@ export interface BomEditFormProps {
   initial: {
     _id: string;
     bomNo?: string;
+    finishedGoodId?: string;
     finishedGoodName?: string;
     outputQty?: number;
     unit?: string;
     effectiveDate?: string;
     version?: string;
     notes?: string;
-    components?: { itemName: string; qty: number; unit: string; scrapPct: number }[];
+    components?: { itemId?: string; itemName: string; qty: number; unit: string; scrapPct: number }[];
   };
 }
 
@@ -67,10 +70,11 @@ export function BomEditForm({ initial }: BomEditFormProps) {
   const seedComponents = useMemo<ComponentRow[]>(() => {
     const seed = Array.isArray(initial.components) ? initial.components : [];
     if (seed.length === 0) {
-      return [{ id: uuidv4(), itemName: '', qty: 1, unit: '', scrapPct: 0 }];
+      return [{ id: uuidv4(), itemId: '', itemName: '', qty: 1, unit: '', scrapPct: 0 }];
     }
     return seed.map((c) => ({
       id: uuidv4(),
+      itemId: c.itemId ?? '',
       itemName: c.itemName ?? '',
       qty: typeof c.qty === 'number' ? c.qty : 1,
       unit: c.unit ?? '',
@@ -93,7 +97,7 @@ export function BomEditForm({ initial }: BomEditFormProps) {
   const addComponent = () => {
     setComponents((prev) => [
       ...prev,
-      { id: uuidv4(), itemName: '', qty: 1, unit: '', scrapPct: 0 },
+      { id: uuidv4(), itemId: '', itemName: '', qty: 1, unit: '', scrapPct: 0 },
     ]);
   };
 
@@ -111,7 +115,8 @@ export function BomEditForm({ initial }: BomEditFormProps) {
     );
   };
 
-  const componentsForSubmit = components.map(({ itemName, qty, unit, scrapPct }) => ({
+  const componentsForSubmit = components.map(({ itemId, itemName, qty, unit, scrapPct }) => ({
+    itemId,
     itemName,
     qty,
     unit,
@@ -152,16 +157,15 @@ export function BomEditForm({ initial }: BomEditFormProps) {
 
             <div className="space-y-1">
               <ZoruLabel htmlFor="finishedGoodName" className="text-xs text-zoru-ink">
-                Finished Good Name *
+                Finished Good *
               </ZoruLabel>
-              <ZoruInput
-                id="finishedGoodName"
-                name="finishedGoodName"
+              <EntityFormField
+                entity="item"
+                name="finishedGoodId"
+                dualWriteName="finishedGoodName"
+                initialId={initial.finishedGoodId || null}
+                initialLabel={initial.finishedGoodName || ''}
                 required
-                defaultValue={initial.finishedGoodName || ''}
-                placeholder="e.g. Widget Assembly"
-                className="h-9"
-                maxLength={200}
               />
             </div>
 
@@ -184,13 +188,11 @@ export function BomEditForm({ initial }: BomEditFormProps) {
               <ZoruLabel htmlFor="unit" className="text-xs text-zoru-ink">
                 Unit
               </ZoruLabel>
-              <ZoruInput
-                id="unit"
+              <EntityFormField
+                entity="unit"
                 name="unit"
-                defaultValue={initial.unit || ''}
+                initialLabel={initial.unit || ''}
                 placeholder="e.g. PCS"
-                className="h-9"
-                maxLength={32}
               />
             </div>
 
@@ -273,12 +275,17 @@ export function BomEditForm({ initial }: BomEditFormProps) {
                 {components.map((row, idx) => (
                   <tr key={row.id} className="border-b border-zoru-line last:border-0">
                     <td className="px-2 py-2">
-                      <ZoruInput
+                      <EntityFormField
+                        entity="item"
+                        name={`__bom-item-${row.id}`}
+                        initialId={row.itemId || null}
+                        initialLabel={row.itemName}
                         placeholder={`Component ${idx + 1}`}
-                        value={row.itemName}
-                        onChange={(e) => updateComponent(row.id, 'itemName', e.target.value)}
-                        className="h-8"
-                        maxLength={200}
+                        onChange={(id, hydrated) => {
+                          setComponents((prev) => prev.map((c) => c.id === row.id
+                            ? { ...c, itemId: id ?? '', itemName: hydrated?.chip.primary ?? c.itemName }
+                            : c));
+                        }}
                       />
                     </td>
                     <td className="px-2 py-2">
@@ -294,12 +301,14 @@ export function BomEditForm({ initial }: BomEditFormProps) {
                       />
                     </td>
                     <td className="px-2 py-2">
-                      <ZoruInput
+                      <EntityFormField
+                        entity="unit"
+                        name={`__bom-unit-${row.id}`}
+                        initialLabel={row.unit}
                         placeholder="PCS"
-                        value={row.unit}
-                        onChange={(e) => updateComponent(row.id, 'unit', e.target.value)}
-                        className="h-8 w-24"
-                        maxLength={32}
+                        onChange={(_id, hydrated) => {
+                          updateComponent(row.id, 'unit', hydrated?.chip.primary ?? '');
+                        }}
                       />
                     </td>
                     <td className="px-2 py-2">
