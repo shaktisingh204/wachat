@@ -24,6 +24,7 @@ import { accountApi, type CrmAccountDoc } from '@/lib/rust-client/crm-accounts';
 import { RustApiError } from '@/lib/rust-client/fetcher';
 import { getErrorMessage } from '@/lib/utils';
 import { requirePermission } from '@/lib/rbac-server';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
 
 function useRustCrm(): boolean {
     return process.env.USE_RUST_CRM === 'true';
@@ -75,6 +76,7 @@ export async function getCrmAccounts(
             };
         } catch (e) {
             console.error('[getCrmAccounts] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'account', op: 'list', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through
         }
     }
@@ -138,6 +140,7 @@ export async function getCrmAccountById(
             return doc ? rustDocToLegacy(doc) : null;
         } catch (e) {
             console.error('[getCrmAccountById] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'account', op: 'get', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through
         }
     }
@@ -198,6 +201,7 @@ export async function addCrmAccount(
         } catch (e) {
             const msg = e instanceof RustApiError ? e.message : getErrorMessage(e);
             console.error('[addCrmAccount] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'account', op: 'create', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through to legacy on failure so users aren't blocked
             void msg;
         }
@@ -273,6 +277,7 @@ export async function updateCrmAccount(
             return { message: 'Account updated successfully.', accountId };
         } catch (e) {
             console.error('[updateCrmAccount] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'account', op: 'update', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through
         }
     }
@@ -341,6 +346,7 @@ export async function archiveCrmAccount(
             return { success: true };
         } catch (e) {
             console.error('[archiveCrmAccount] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'account', op: 'delete', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through
         }
     }
@@ -395,6 +401,7 @@ export async function unarchiveCrmAccount(
             return { success: true };
         } catch (e) {
             console.error('[unarchiveCrmAccount] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'account', op: 'update', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through
         }
     }

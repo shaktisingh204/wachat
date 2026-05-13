@@ -13,6 +13,7 @@ import { applyCustomFieldsToEntity } from '@/app/actions/worksuite/meta.actions'
 import { writeAuditEntry } from '@/lib/audit-log';
 import { contactApi, type CrmContactDoc } from '@/lib/rust-client/crm-contacts';
 import { RustApiError } from '@/lib/rust-client/fetcher';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
 
 function useRustCrm(): boolean {
     return process.env.USE_RUST_CRM === 'true';
@@ -62,6 +63,7 @@ export async function getCrmContacts(
             };
         } catch (e) {
             console.error('[getCrmContacts] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'contact', op: 'list', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through
         }
     }
@@ -124,6 +126,7 @@ export async function deleteCrmContact(contactId: string): Promise<{ success: bo
         } catch (e) {
             const msg = e instanceof RustApiError ? e.message : getErrorMessage(e);
             console.error('[deleteCrmContact] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'contact', op: 'delete', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             void msg;
             // fall through
         }
@@ -161,6 +164,7 @@ export async function getCrmContactById(contactId: string): Promise<WithId<CrmCo
             return doc ? rustContactDocToLegacy(doc) : null;
         } catch (e) {
             console.error('[getCrmContactById] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'contact', op: 'get', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through
         }
     }
@@ -231,6 +235,7 @@ export async function addCrmContact(prevState: any, formData: FormData): Promise
             return { message: 'Contact added successfully.' };
         } catch (e) {
             console.error('[addCrmContact] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'contact', op: 'create', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through
         }
     }
@@ -334,6 +339,7 @@ export async function updateCrmContact(
             return { message: 'Contact updated successfully.', contactId };
         } catch (e) {
             console.error('[updateCrmContact] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'contact', op: 'update', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through
         }
     }

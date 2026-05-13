@@ -29,6 +29,7 @@ import {
 } from '@/lib/rust-client/crm-invoices';
 import { RustApiError } from '@/lib/rust-client/fetcher';
 import { requirePermission } from '@/lib/rbac-server';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
 
 function useRustCrm(): boolean {
     return process.env.USE_RUST_CRM === 'true';
@@ -57,6 +58,7 @@ export async function getInvoices(
             };
         } catch (e) {
             console.error('[getInvoices] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'invoice', op: 'list', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through
         }
     }
@@ -169,6 +171,7 @@ export async function saveInvoice(prevState: any, formData: FormData): Promise<{
             return { message: 'Invoice saved successfully.' };
         } catch (e) {
             console.error('[saveInvoice] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'invoice', op: 'create', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through
         }
     }
@@ -385,6 +388,7 @@ export async function updateInvoice(
             return { success: true };
         } catch (e) {
             console.error('[updateInvoice] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'invoice', op: 'update', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through
         }
     }
@@ -446,6 +450,7 @@ export async function getInvoiceById(invoiceId: string): Promise<WithId<CrmInvoi
         } catch (e) {
             if (e instanceof RustApiError && e.code === 'NOT_FOUND') return null;
             console.error('[getInvoiceById] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'invoice', op: 'get', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through
         }
     }
@@ -483,6 +488,7 @@ export async function getUnpaidInvoicesByAccount(accountId: string): Promise<Wit
             return JSON.parse(JSON.stringify(unpaid)) as WithId<CrmInvoice>[];
         } catch (e) {
             console.error('[getUnpaidInvoicesByAccount] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'invoice', op: 'list', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through
         }
     }

@@ -29,6 +29,7 @@ import {
     type RefundMode,
 } from '@/lib/rust-client/crm-credit-notes';
 import { RustApiError } from '@/lib/rust-client/fetcher';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
 
 function useRustCrm(): boolean {
     return process.env.USE_RUST_CRM === 'true';
@@ -71,6 +72,7 @@ export async function getCreditNoteById(creditNoteId: string): Promise<WithId<Cr
         } catch (e) {
             if (e instanceof RustApiError && e.code === 'NOT_FOUND') return null;
             console.error('[getCreditNoteById] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'credit_note', op: 'get', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through
         }
     }
@@ -109,6 +111,7 @@ export async function getCreditNotes(
             };
         } catch (e) {
             console.error('[getCreditNotes] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'credit_note', op: 'list', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through
         }
     }
@@ -200,6 +203,7 @@ export async function saveCreditNote(prevState: any, formData: FormData): Promis
             return { message: 'Credit Note saved successfully.' };
         } catch (e) {
             console.error('[saveCreditNote] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'credit_note', op: 'create', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through
         }
     }

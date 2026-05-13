@@ -28,6 +28,7 @@ import { vendorApi, type CrmVendorDoc } from '@/lib/rust-client/crm-vendors';
 import { RustApiError } from '@/lib/rust-client/fetcher';
 import { getErrorMessage } from '@/lib/utils';
 import { requirePermission } from '@/lib/rbac-server';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
 
 function useRustCrm(): boolean {
     return process.env.USE_RUST_CRM === 'true';
@@ -71,6 +72,7 @@ export async function getCrmVendors(): Promise<WithId<CrmVendor>[]> {
             return result.items.map(rustDocToLegacy);
         } catch (e) {
             console.error('[getCrmVendors] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'vendor', op: 'list', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through
         }
     }
@@ -103,6 +105,7 @@ export async function getCrmVendorById(vendorId: string): Promise<WithId<CrmVend
             return doc ? rustDocToLegacy(doc) : null;
         } catch (e) {
             console.error('[getCrmVendorById] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'vendor', op: 'get', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through
         }
     }
@@ -223,6 +226,7 @@ export async function saveCrmVendor(
         } catch (e) {
             const msg = e instanceof RustApiError ? e.message : getErrorMessage(e);
             console.error('[saveCrmVendor] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'vendor', op: isEditing ? 'update' : 'create', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through to legacy on failure so users aren't blocked
             void msg;
         }
@@ -323,6 +327,7 @@ export async function deleteCrmVendor(
             return { success: true };
         } catch (e) {
             console.error('[deleteCrmVendor] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'vendor', op: 'delete', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through
         }
     }

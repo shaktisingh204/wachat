@@ -31,7 +31,9 @@ import {
     pipelineApi,
     type CrmPipelineDoc,
 } from '@/lib/rust-client/crm-pipelines';
+import { RustApiError } from '@/lib/rust-client/fetcher';
 import { getErrorMessage } from '@/lib/utils';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
 
 function useRustCrm(): boolean {
     return process.env.USE_RUST_CRM === 'true';
@@ -69,6 +71,7 @@ export async function getCrmPipelines(): Promise<CrmPipeline[]> {
             return items.map(rustDocToLegacy);
         } catch (e) {
             console.error('[getCrmPipelines] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'pipeline', op: 'list', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through
         }
     }
@@ -217,6 +220,7 @@ export async function saveCrmPipelines(
             return { success: true };
         } catch (e) {
             console.error('[saveCrmPipelines] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'pipeline', op: 'update', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through
         }
     }
@@ -267,6 +271,7 @@ export async function createCrmPipeline(
             };
         } catch (e) {
             console.error('[createCrmPipeline] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'pipeline', op: 'create', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through
         }
     }

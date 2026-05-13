@@ -1,6 +1,5 @@
 /**
- * Legacy edit-contact redirect. See sibling `new/page.tsx` for context.
- * Preserves the original query string.
+ * Legacy contact-detail redirect. See sibling routes for context.
  */
 
 import { permanentRedirect } from 'next/navigation';
@@ -10,7 +9,7 @@ interface PageProps {
     searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
-export default async function LegacyEditContactRedirect({
+export default async function LegacyContactDetailRedirect({
     params,
     searchParams,
 }: PageProps) {
@@ -23,6 +22,6 @@ export default async function LegacyEditContactRedirect({
     }
     const qs = usp.toString();
     permanentRedirect(
-        `/dashboard/crm/sales-crm/contacts/${contactId}/edit${qs ? `?${qs}` : ''}`,
+        `/dashboard/crm/sales-crm/contacts/${contactId}${qs ? `?${qs}` : ''}`,
     );
 }

@@ -26,6 +26,7 @@ import {
 } from '@/lib/rust-client/crm-subscriptions';
 import { RustApiError } from '@/lib/rust-client/fetcher';
 import { getErrorMessage } from '@/lib/utils';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
 
 function useRustCrm(): boolean {
     return process.env.USE_RUST_CRM === 'true';
@@ -59,6 +60,7 @@ export async function getSubscriptionById(
         } catch (e) {
             if (e instanceof RustApiError && e.code === 'NOT_FOUND') return null;
             console.error('[getSubscriptionById] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'subscription', op: 'get', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through
         }
     }
@@ -148,6 +150,7 @@ export async function saveSubscription(
             return { message: 'Subscription created.', id };
         } catch (e) {
             console.error('[saveSubscription] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'subscription', op: 'create', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through
             void notes;
         }

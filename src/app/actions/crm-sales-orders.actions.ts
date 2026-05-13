@@ -29,6 +29,7 @@ import {
 } from '@/lib/rust-client/crm-sales-orders';
 import { RustApiError } from '@/lib/rust-client/fetcher';
 import { requirePermission } from '@/lib/rbac-server';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
 
 function useRustCrm(): boolean {
     return process.env.USE_RUST_CRM === 'true';
@@ -72,6 +73,7 @@ export async function getSalesOrderById(orderId: string): Promise<WithId<CrmSale
         } catch (e) {
             if (e instanceof RustApiError && e.code === 'NOT_FOUND') return null;
             console.error('[getSalesOrderById] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'sales_order', op: 'get', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through
         }
     }
@@ -115,6 +117,7 @@ export async function getSalesOrders(
             };
         } catch (e) {
             console.error('[getSalesOrders] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'sales_order', op: 'list', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through
         }
     }
@@ -206,6 +209,7 @@ export async function saveSalesOrder(prevState: any, formData: FormData): Promis
             return { message: 'Sales order saved successfully.' };
         } catch (e) {
             console.error('[saveSalesOrder] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'sales_order', op: 'create', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through
         }
     }
@@ -383,6 +387,7 @@ export async function updateSalesOrderStatus(
             return { success: true };
         } catch (e) {
             console.error('[updateSalesOrderStatus] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'sales_order', op: 'update', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through
         }
     }
@@ -440,6 +445,7 @@ export async function deleteSalesOrder(orderId: string): Promise<{ success: bool
             return { success: true };
         } catch (e) {
             console.error('[deleteSalesOrder] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'sales_order', op: 'delete', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through
         }
     }

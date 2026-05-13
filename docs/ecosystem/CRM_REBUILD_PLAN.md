@@ -41,6 +41,16 @@ A module is ecosystem-ready when every entity in it passes (1)–(9).
 
 > Every completed batch lands here date-stamped. Future sessions read this section first to learn what's already done and avoid duplicate work. Cross-reference items by their phase code (e.g. P0.4, P1.1A.3).
 
+### 2026-05-13 — P3-fu + P4.1 prep
+
+**P3-fu — Permission module registry closure (RBAC unblock for non-owner roles):**
+- ✅ Added 32 missing per-entity CRM module keys to `src/lib/permission-modules.ts` so non-owner role templates can grant/deny them. Without this, `requirePermission('crm_<entity>', op)` silently returned `false` for any non-owner because the module wasn't registered. Keys added (singular form, matching the strings used by `requirePermission` call-sites): `crm_account`, `crm_asset`, `crm_bill`, `crm_booking`, `crm_contact`, `crm_credit_note`, `crm_deal`, `crm_debit_note`, `crm_department`, `crm_designation`, `crm_employee`, `crm_fixed_asset`, `crm_grn`, `crm_holiday`, `crm_invoice`, `crm_item`, `crm_lead`, `crm_leave`, `crm_payout`, `crm_pipeline`, `crm_purchase_order`, `crm_quotation`, `crm_receipt`, `crm_rfq`, `crm_sales_order`, `crm_subscription`, `crm_task`, `crm_ticket`, `crm_vendor`, `crm_vendor_bid`. Two of the spec's 32 (`crm_attendance`, `crm_payroll`) were already registered and skipped. Each new key also placed into the appropriate `moduleCategories` group (`CRM Sales` / `CRM Purchases` / `CRM Inventory` / `Sales CRM` / `CRM HR` / new `CRM Cross-cutting` and `CRM Support` groups).
+
+**P4.1 prep — Rust fallback observability scaffold:**
+- ✅ Shipped `src/lib/observability/rust-fallback-counter.ts` — `recordRustFallback({ entity, op, errorCode, status })` emits a structured JSON line (`event: 'rust_fallback'`) to stderr on every Rust → Mongo fall-through. Vercel ingests stderr, so we get search-based alerting today; future iteration swaps to OpenTelemetry counter export.
+- ✅ Swept the 13 dual-impl action files that have Rust fall-through catch blocks and added `recordRustFallback(...)` directly after each `console.error('[…] rust path failed; falling back', e)` log line. 52 instrumented call-sites total: accounts (6), vendors (4), products/items (4), pipelines (3), contacts (5), employees-departments+designations (6), invoices (5), quotations (3), payment-receipts (4), sales-orders (5), credit-notes (3), subscriptions (2), fixed-assets (2). `crm-leads.actions.ts` and `crm-deals.actions.ts` from the spec list had no Rust dual-impl code yet — nothing to instrument; they'll be wired during the P3 lead/deal completion pass.
+- ✅ Cutover smoke-test gate is now: (1) set `USE_RUST_CRM=true` in staging `.env`; (2) watch logs for `event: 'rust_fallback'` JSON; (3) alert if fallback rate > 0.5% of total mutations over a rolling 10 minutes.
+
 ### 2026-05-13 — Plan revision: data-rich + feature-rich contract locked
 
 - ✅ Added §1D — data-rich + feature-rich contract per page type. Locks the minimum content (1D.1 list / 1D.2 detail / 1D.3 form / 1D.4 specialized views) AND minimum features (filters, bulk, export, conversion, notes, attachments, tags, activity, 8+ action buttons per detail page, etc.). Future "rebuild this module" tasks now have an unambiguous bar — no more thin shells.
@@ -632,14 +642,20 @@ This is the experience the rebuild has to deliver. If a flow below feels clunky 
 - ✅ P0.4 — duplicate hr/ + hr-payroll/ trees redirected
 - ✅ FIX1 — picker click regression fixed
 - ✅ P1.1A — all 12 shared shells locked
+- ✅ P3-fu — 32 per-entity CRM module keys registered in `permission-modules.ts` (non-owner roles can now grant/deny them)
+- ✅ P4.1 prep — `recordRustFallback()` shipped + wired into 52 fall-through sites across 13 dual-impl files. Cutover smoke-test gate is ready (see §0.5 entry for 2026-05-13 — P3-fu + P4.1 prep).
 
 **Next up, in priority order:**
 
 1. **P0.4-fu** — Build the 12 missing canonical `/dashboard/hrm/payroll/**` pages (attendance new+[id]+edit, departments new+[id]+edit, designations new+[id]+edit, employees/[id] detail, leave/[id]/edit, payroll/new). Unblocks the last 12 `/dashboard/crm/hr-payroll/**` redirects.
 2. **P0.1 + P0.2** — `cargo test --workspace` + `npm run typecheck` clean baseline. Now that node_modules is installed, both should run.
 3. **P1.1B Wave 1 — Sales-CRM core page rebuild** using the new shells: leads, deals, contacts, tasks, accounts (~25 pages). Per-entity template: list page → `<CrmPageHeader>` + `<EntityListShell>`; new/edit → `<EntityFormShell>`; detail → `<EntityDetailShell>` + `<LineageRail>` + `<EntityAuditTimeline>`. Dispatch ~5 agents per module sub-batch.
-4. **P3 continued (dual-impl sweep)** for the 13 Rust crates that ship but don't yet route TS actions: subscriptions, fixed-assets, bookings, attendance, leaves, payroll-runs, tickets, bills, RFQs, vendor-bids, GRNs, holidays, employees-deep. Can run in parallel with P1.1B.
-5. **P4.1 + 4.2 — cutover prep** — flip `USE_RUST_CRM=true` on staging, smoke-test, add fallback-rate metric.
+4. **P3 continued (dual-impl sweep)** for the 13 Rust crates that ship but don't yet route TS actions: subscriptions, fixed-assets, bookings, attendance, leaves, payroll-runs, tickets, bills, RFQs, vendor-bids, GRNs, holidays, employees-deep. Can run in parallel with P1.1B. **Reminder:** every new fall-through catch added during this sweep MUST call `recordRustFallback({ entity, op, errorCode, status })` after the human-readable `console.error` — the cutover alert depends on it.
+5. **P4.1 + 4.2 — cutover** — observability scaffold is ready (`recordRustFallback`). Cutover smoke-test gate:
+   1. Set `USE_RUST_CRM=true` in staging `.env`.
+   2. Watch logs for `event: 'rust_fallback'` JSON lines.
+   3. Alert if rate exceeds **0.5%** of total mutations over a rolling **10 min** window.
+   Still TODO before flip: wire the actual alert in Vercel Observability (log-search rule keyed on `event:rust_fallback`), and run a 30-min canary in staging.
 6. After P1.1B W1 lands: start **P2 W1** (foundational Rust entities — brand, tag, label, branch) and **P1.1B W2** (Sales-tx page rebuild) in parallel.
 
 **Quick wins worth picking up any time:**

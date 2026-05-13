@@ -38,9 +38,9 @@ export default function TasksPage() {
 
   const fetchData = () => {
     startLoading(async () => {
-      const [sessionData, tasksData] = await Promise.all([getSession(), getCrmTasks()]);
+      const [sessionData, tasksData] = await Promise.all([getSession(), getCrmTasks(1, 100)]);
       setUser(sessionData?.user || null);
-      setTasks(tasksData);
+      setTasks(tasksData.tasks);
     });
   };
 

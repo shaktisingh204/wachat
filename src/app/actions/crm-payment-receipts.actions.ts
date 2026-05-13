@@ -32,6 +32,7 @@ import {
 } from '@/lib/rust-client/crm-payment-receipts';
 import { RustApiError } from '@/lib/rust-client/fetcher';
 import { requirePermission } from '@/lib/rbac-server';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
 
 function useRustCrm(): boolean {
     return process.env.USE_RUST_CRM === 'true';
@@ -55,6 +56,7 @@ export async function getPaymentReceipts(
             };
         } catch (e) {
             console.error('[getPaymentReceipts] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'receipt', op: 'list', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through
         }
     }
@@ -98,6 +100,7 @@ export async function getPaymentReceiptById(id: string): Promise<WithId<CrmPayme
         } catch (e) {
             if (e instanceof RustApiError && e.code === 'NOT_FOUND') return null;
             console.error('[getPaymentReceiptById] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'receipt', op: 'get', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through
         }
     }
@@ -162,6 +165,7 @@ export async function updatePaymentReceipt(prevState: any, formData: FormData): 
             return { message: 'Payment receipt updated successfully.' };
         } catch (e) {
             console.error('[updatePaymentReceipt] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'receipt', op: 'update', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through
         }
     }
@@ -294,6 +298,7 @@ export async function savePaymentReceipt(prevState: any, formData: FormData): Pr
             return { message: 'Payment receipt saved successfully.' };
         } catch (e) {
             console.error('[savePaymentReceipt] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'receipt', op: 'create', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through
         }
     }
