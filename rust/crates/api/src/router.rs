@@ -62,6 +62,7 @@ pub fn build(state: AppState) -> Router {
     let wachat_projects = wachat_projects::router::<AppState>();
     let wachat_contacts = wachat_contacts::router::<AppState>();
     let crm_lookup = crm_lookup::router::<AppState>();
+    let crm_accounts = crm_accounts::router::<AppState>();
     let crm_leads = crm_leads::router::<AppState>();
     let crm_deals = crm_deals::router::<AppState>();
     let crm_quotations = crm_quotations::router::<AppState>();
@@ -149,6 +150,7 @@ pub fn build(state: AppState) -> Router {
         .nest("/v1/projects", wachat_projects)
         .nest("/v1/contacts", wachat_contacts)
         .nest("/v1/crm/lookup", crm_lookup)
+        .nest("/v1/crm/accounts", crm_accounts)
         .nest("/v1/crm/leads", crm_leads)
         .nest("/v1/crm/deals", crm_deals)
         .nest("/v1/crm/quotations", crm_quotations)

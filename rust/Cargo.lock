@@ -1000,8 +1000,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c673075a2e0e5f4a1dde27ce9dee1ea4558c7ffe648f576438a20ca1d2acc4b0"
 dependencies = [
  "iana-time-zone",
+ "js-sys",
  "num-traits",
  "serde",
+ "wasm-bindgen",
  "windows-link",
 ]
 
@@ -1252,6 +1254,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "crm-accounts"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "crm-common",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "sabnode-rbac",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "crm-attendance"
 version = "0.1.0"
 dependencies = [
@@ -1320,6 +1343,28 @@ dependencies = [
  "sabnode-auth",
  "sabnode-common",
  "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "crm-common"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "crm-core",
+ "futures",
+ "mongodb",
+ "regex",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "sabnode-rbac",
  "serde",
  "serde_json",
  "tokio",
@@ -5327,6 +5372,7 @@ dependencies = [
  "anyhow",
  "axum",
  "chrono",
+ "crm-accounts",
  "crm-attendance",
  "crm-bills",
  "crm-bookings",
@@ -5513,6 +5559,21 @@ dependencies = [
  "tracing",
  "tracing-opentelemetry",
  "tracing-subscriber",
+]
+
+[[package]]
+name = "sabnode-rbac"
+version = "0.1.0"
+dependencies = [
+ "bson",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
 ]
 
 [[package]]
