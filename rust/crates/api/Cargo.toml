@@ -59,6 +59,9 @@ wachat-projects = { path = "../wachat-projects" }
 wachat-contacts = { path = "../wachat-contacts" }
 crm-lookup = { path = "../crm-lookup" }
 crm-accounts = { path = "../crm-accounts" }
+crm-pipelines = { path = "../crm-pipelines" }
+crm-contacts = { path = "../crm-contacts" }
+crm-items = { path = "../crm-items" }
 crm-leads = { path = "../crm-leads" }
 crm-deals = { path = "../crm-deals" }
 crm-quotations = { path = "../crm-quotations" }
@@ -73,6 +76,7 @@ crm-tickets = { path = "../crm-tickets" }
 crm-subscriptions = { path = "../crm-subscriptions" }
 crm-bills = { path = "../crm-bills" }
 crm-rfqs = { path = "../crm-rfqs" }
+crm-vendors = { path = "../crm-vendors" }
 crm-vendor-bids = { path = "../crm-vendor-bids" }
 crm-grns = { path = "../crm-grns" }
 crm-employees = { path = "../crm-employees" }

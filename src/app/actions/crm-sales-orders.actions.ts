@@ -1,12 +1,37 @@
 'use server';
 
+/**
+ * CRM Sales Order server actions.
+ *
+ * **Dual implementation:**
+ *  - When `USE_RUST_CRM === 'true'`, the read/save/update/delete paths
+ *    delegate to `/v1/crm/sales-orders` on the Rust BFF via
+ *    `src/lib/rust-client/crm-sales-orders.ts`.
+ *  - Otherwise (default), the legacy direct-Mongo path runs.
+ *
+ * Export shapes are identical across both paths so the pages at
+ * `/dashboard/crm/sales/orders/**` keep working without changes.
+ */
+
 import { revalidatePath } from 'next/cache';
-import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
+import { type Db, ObjectId, type WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
+import { writeAuditEntry } from '@/lib/audit-log';
 import type { CrmSalesOrder, LineageKind, LineageRef } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import { appendLineage, buildLineageFromParent } from '@/lib/lineage';
+import {
+    crmSalesOrdersApi,
+    type CrmSalesOrderLineItem,
+    type CrmSalesOrderStatus,
+    type CrmSalesOrderTotals,
+} from '@/lib/rust-client/crm-sales-orders';
+import { RustApiError } from '@/lib/rust-client/fetcher';
+
+function useRustCrm(): boolean {
+    return process.env.USE_RUST_CRM === 'true';
+}
 
 async function getNextSalesOrderNumber(db: Db, userId: ObjectId): Promise<string> {
     const lastOrder = await db.collection<CrmSalesOrder>('crm_sales_orders')
@@ -39,6 +64,17 @@ export async function getSalesOrderById(orderId: string): Promise<WithId<CrmSale
     const session = await getSession();
     if (!session?.user) return null;
 
+    if (useRustCrm()) {
+        try {
+            const doc = await crmSalesOrdersApi.getById(orderId);
+            return doc ? (JSON.parse(JSON.stringify(doc)) as WithId<CrmSalesOrder>) : null;
+        } catch (e) {
+            if (e instanceof RustApiError && e.code === 'NOT_FOUND') return null;
+            console.error('[getSalesOrderById] rust path failed; falling back:', e);
+            // fall through
+        }
+    }
+
     if (!ObjectId.isValid(orderId)) return null;
 
     try {
@@ -67,6 +103,20 @@ export async function getSalesOrders(
 ): Promise<{ orders: WithId<CrmSalesOrder>[], total: number }> {
     const session = await getSession();
     if (!session?.user) return { orders: [], total: 0 };
+
+    if (useRustCrm()) {
+        try {
+            const items = await crmSalesOrdersApi.list({ page, limit, q: query });
+            const arr = Array.isArray(items) ? items : [];
+            return {
+                orders: JSON.parse(JSON.stringify(arr)) as WithId<CrmSalesOrder>[],
+                total: arr.length,
+            };
+        } catch (e) {
+            console.error('[getSalesOrders] rust path failed; falling back:', e);
+            // fall through
+        }
+    }
 
     try {
         const { db } = await connectToDatabase();
@@ -99,6 +149,62 @@ export async function getSalesOrders(
 export async function saveSalesOrder(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
     const session = await getSession();
     if (!session?.user) return { error: 'Access denied' };
+
+    if (useRustCrm()) {
+        try {
+            const lineItemsLegacy = JSON.parse((formData.get('lineItems') as string) || '[]') as Array<any>;
+            const items: CrmSalesOrderLineItem[] = lineItemsLegacy.map((li: any) => ({
+                itemId: li.itemId,
+                description: li.description ?? li.name,
+                qty: Number(li.quantity ?? li.qty ?? 0),
+                rate: Number(li.rate ?? 0),
+                total: Number(li.total ?? Number(li.quantity ?? 0) * Number(li.rate ?? 0)),
+            }));
+            const subTotal = items.reduce((sum, li) => sum + (li.total || 0), 0);
+            const totals: CrmSalesOrderTotals = { subTotal, total: subTotal };
+
+            const soNo = (formData.get('orderNumber') as string | null) ||
+                `SO-${Date.now().toString().slice(-5)}`;
+            const dateRaw = (formData.get('orderDate') as string | null) || '';
+            const date = dateRaw ? new Date(dateRaw).toISOString() : new Date().toISOString();
+            const clientId = (formData.get('accountId') as string | null) || '';
+            const currency = (formData.get('currency') as string | null) || 'INR';
+            const fromKindRaw = (formData.get('fromKind') as string | null) || undefined;
+            const fromId = (formData.get('fromId') as string | null) || undefined;
+
+            const created = await crmSalesOrdersApi.create({
+                soNo,
+                date,
+                clientId,
+                currency,
+                items,
+                totals,
+                paymentTerms: (formData.get('paymentTerms') as string | null) || undefined,
+                internalNotes: (formData.get('notes') as string | null) || undefined,
+                fromKind: fromKindRaw,
+                fromId,
+            });
+            const id = (created as any)._id?.toString() || '';
+
+            try {
+                await writeAuditEntry({
+                    tenantUserId: String(session.user._id),
+                    actorId: String(session.user._id),
+                    action: 'create',
+                    entityKind: 'salesOrder',
+                    entityId: id,
+                });
+            } catch {
+                /* non-fatal */
+            }
+
+            revalidatePath('/dashboard/crm/sales/orders');
+            return { message: 'Sales order saved successfully.' };
+        } catch (e) {
+            console.error('[saveSalesOrder] rust path failed; falling back:', e);
+            // fall through
+        }
+    }
 
     try {
         const { db } = await connectToDatabase();
@@ -185,6 +291,18 @@ export async function saveSalesOrder(prevState: any, formData: FormData): Promis
             updatedAt: new Date()
         } as any);
 
+        try {
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'create',
+                entityKind: 'salesOrder',
+                entityId: insertResult.insertedId.toString(),
+            });
+        } catch {
+            /* non-fatal */
+        }
+
         // Best-effort back-link onto the parent doc.
         if (lineage && fromKind && fromId) {
             try {
@@ -223,12 +341,46 @@ export async function updateSalesOrderStatus(
     orderId: string,
     status: string,
 ): Promise<{ success: boolean; error?: string }> {
-    if (!ObjectId.isValid(orderId)) return { success: false, error: 'Invalid sales order id.' };
+    if (!orderId) return { success: false, error: 'Invalid sales order id.' };
     const session = await getSession();
     if (!session?.user) return { success: false, error: 'Access denied.' };
 
     const allowed = ['Draft', 'Confirmed', 'Shipped', 'Delivered', 'Cancelled'];
     if (!allowed.includes(status)) return { success: false, error: 'Invalid status.' };
+
+    if (useRustCrm()) {
+        try {
+            // Map legacy capitalized status to Rust lowercase enum.
+            const STATUS_MAP: Record<string, CrmSalesOrderStatus> = {
+                Draft: 'open',
+                Confirmed: 'open',
+                Shipped: 'partial',
+                Delivered: 'fulfilled',
+                Cancelled: 'cancelled',
+            };
+            await crmSalesOrdersApi.update(orderId, {
+                status: STATUS_MAP[status] ?? 'open',
+            });
+            try {
+                await writeAuditEntry({
+                    tenantUserId: String(session.user._id),
+                    actorId: String(session.user._id),
+                    action: 'status_change',
+                    entityKind: 'salesOrder',
+                    entityId: orderId,
+                });
+            } catch {
+                /* non-fatal */
+            }
+            revalidatePath('/dashboard/crm/sales/orders');
+            return { success: true };
+        } catch (e) {
+            console.error('[updateSalesOrderStatus] rust path failed; falling back:', e);
+            // fall through
+        }
+    }
+
+    if (!ObjectId.isValid(orderId)) return { success: false, error: 'Invalid sales order id.' };
 
     try {
         const { db } = await connectToDatabase();
@@ -237,6 +389,17 @@ export async function updateSalesOrderStatus(
             { $set: { status, updatedAt: new Date() } },
         );
         if (result.matchedCount === 0) return { success: false, error: 'Sales order not found.' };
+        try {
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'status_change',
+                entityKind: 'salesOrder',
+                entityId: orderId,
+            });
+        } catch {
+            /* non-fatal */
+        }
         revalidatePath('/dashboard/crm/sales/orders');
         return { success: true };
     } catch (e) {
@@ -245,9 +408,33 @@ export async function updateSalesOrderStatus(
 }
 
 export async function deleteSalesOrder(orderId: string): Promise<{ success: boolean; error?: string }> {
-    if (!ObjectId.isValid(orderId)) return { success: false, error: 'Invalid sales order id.' };
+    if (!orderId) return { success: false, error: 'Invalid sales order id.' };
     const session = await getSession();
     if (!session?.user) return { success: false, error: 'Access denied.' };
+
+    if (useRustCrm()) {
+        try {
+            await crmSalesOrdersApi.delete(orderId);
+            try {
+                await writeAuditEntry({
+                    tenantUserId: String(session.user._id),
+                    actorId: String(session.user._id),
+                    action: 'delete',
+                    entityKind: 'salesOrder',
+                    entityId: orderId,
+                });
+            } catch {
+                /* non-fatal */
+            }
+            revalidatePath('/dashboard/crm/sales/orders');
+            return { success: true };
+        } catch (e) {
+            console.error('[deleteSalesOrder] rust path failed; falling back:', e);
+            // fall through
+        }
+    }
+
+    if (!ObjectId.isValid(orderId)) return { success: false, error: 'Invalid sales order id.' };
 
     try {
         const { db } = await connectToDatabase();
@@ -256,6 +443,17 @@ export async function deleteSalesOrder(orderId: string): Promise<{ success: bool
             userId: new ObjectId(session.user._id),
         });
         if (result.deletedCount === 0) return { success: false, error: 'Sales order not found.' };
+        try {
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'delete',
+                entityKind: 'salesOrder',
+                entityId: orderId,
+            });
+        } catch {
+            /* non-fatal */
+        }
         revalidatePath('/dashboard/crm/sales/orders');
         return { success: true };
     } catch (e) {

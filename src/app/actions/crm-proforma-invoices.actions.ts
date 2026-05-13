@@ -81,6 +81,74 @@ export async function getProformaInvoices(
     }
 }
 
+export async function getProformaInvoiceById(
+    proformaId: string,
+): Promise<WithId<CrmProformaInvoice> | null> {
+    if (!proformaId || !ObjectId.isValid(proformaId)) return null;
+
+    const session = await getSession();
+    if (!session?.user) return null;
+
+    try {
+        const { db } = await connectToDatabase();
+        const doc = await db.collection<CrmProformaInvoice>('crm_proforma_invoices').findOne({
+            _id: new ObjectId(proformaId),
+            userId: new ObjectId(session.user._id),
+        });
+        return doc ? JSON.parse(JSON.stringify(doc)) : null;
+    } catch (e) {
+        console.error('getProformaInvoiceById error:', e);
+        return null;
+    }
+}
+
+export async function updateProformaInvoice(
+    _prev: any,
+    formData: FormData,
+): Promise<{ message?: string; error?: string; id?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { error: 'Access denied' };
+
+    const proformaId = (formData.get('proformaId') as string | null) || '';
+    if (!proformaId || !ObjectId.isValid(proformaId)) {
+        return { error: 'Invalid proforma id.' };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const userObjectId = new ObjectId(session.user._id);
+
+        const $set: Record<string, any> = { updatedAt: new Date() };
+        const proformaNumber = formData.get('proformaNumber') as string | null;
+        if (proformaNumber) $set.proformaNumber = proformaNumber;
+        const proformaDateRaw = formData.get('proformaDate') as string | null;
+        if (proformaDateRaw) $set.proformaDate = new Date(proformaDateRaw);
+        const validTillDateRaw = formData.get('validTillDate') as string | null;
+        if (validTillDateRaw) $set.validTillDate = new Date(validTillDateRaw);
+        const currency = formData.get('currency') as string | null;
+        if (currency) $set.currency = currency;
+        const notes = formData.get('notes') as string | null;
+        if (notes !== null) $set.notes = notes;
+        const status = formData.get('status') as string | null;
+        if (status) $set.status = status;
+
+        const result = await db.collection('crm_proforma_invoices').updateOne(
+            { _id: new ObjectId(proformaId), userId: userObjectId },
+            { $set },
+        );
+
+        if (result.matchedCount === 0) {
+            return { error: 'Proforma invoice not found.' };
+        }
+
+        revalidatePath('/dashboard/crm/sales/proforma');
+        revalidatePath(`/dashboard/crm/sales/proforma/${proformaId}`);
+        return { message: 'Proforma invoice updated successfully.', id: proformaId };
+    } catch (e) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
 export async function saveProformaInvoice(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
     const session = await getSession();
     if (!session?.user) return { error: 'Access denied' };

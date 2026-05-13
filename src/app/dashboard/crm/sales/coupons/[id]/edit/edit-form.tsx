@@ -1,0 +1,234 @@
+'use client';
+
+/**
+ * Client form island for the Edit Coupon page. Mirrors the `/new` form
+ * fields and posts to `updateCoupon`.
+ */
+
+import { useActionState, useEffect, useState } from 'react';
+import { useFormStatus } from 'react-dom';
+import { ArrowLeft, LoaderCircle, Save } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+
+import {
+    ZoruButton,
+    ZoruCard,
+    ZoruInput,
+    ZoruLabel,
+    ZoruSelect,
+    ZoruSelectContent,
+    ZoruSelectItem,
+    ZoruSelectTrigger,
+    ZoruSelectValue,
+    ZoruTextarea,
+    useZoruToast,
+} from '@/components/zoruui';
+import { updateCoupon } from '@/app/actions/crm-coupons.actions';
+
+type CouponType = 'percent' | 'flat' | 'bogo' | 'free_shipping';
+
+const COUPON_TYPES: { value: CouponType; label: string }[] = [
+    { value: 'percent', label: 'Percentage Discount' },
+    { value: 'flat', label: 'Flat Amount Off' },
+    { value: 'bogo', label: 'Buy One Get One (BOGO)' },
+    { value: 'free_shipping', label: 'Free Shipping' },
+];
+
+const initialState: { message?: string; error?: string; id?: string } = {};
+
+function SubmitButton() {
+    const { pending } = useFormStatus();
+    return (
+        <ZoruButton type="submit" size="sm" disabled={pending}>
+            {pending ? (
+                <LoaderCircle className="h-4 w-4 animate-spin" />
+            ) : (
+                <Save className="h-4 w-4" />
+            )}
+            {pending ? 'Saving…' : 'Save changes'}
+        </ZoruButton>
+    );
+}
+
+function toDateInputValue(v: unknown): string {
+    if (!v) return '';
+    const d = new Date(v as string | number | Date);
+    if (isNaN(d.getTime())) return '';
+    return d.toISOString().slice(0, 10);
+}
+
+export function EditCouponForm({
+    couponId,
+    initial,
+}: {
+    couponId: string;
+    initial: Record<string, any>;
+}) {
+    const router = useRouter();
+    const { toast } = useZoruToast();
+    const [state, formAction] = useActionState(updateCoupon, initialState);
+
+    const initType = ((initial.type as string) || 'percent') as CouponType;
+    const [couponType, setCouponType] = useState<CouponType>(initType);
+    const [code, setCode] = useState<string>(((initial.code as string) || '').toUpperCase());
+
+    useEffect(() => {
+        if (state.message) {
+            toast({ title: 'Coupon updated', description: state.message });
+            router.push(`/dashboard/crm/sales/coupons/${couponId}`);
+        }
+        if (state.error) {
+            toast({ title: 'Error', description: state.error, variant: 'destructive' });
+        }
+    }, [state, toast, router, couponId]);
+
+    const showValueField = couponType === 'percent' || couponType === 'flat';
+    const valueLabel = couponType === 'percent' ? 'Discount %' : 'Flat Amount (₹)';
+
+    return (
+        <ZoruCard className="p-6">
+            <form action={formAction} className="flex flex-col gap-6">
+                <input type="hidden" name="couponId" value={couponId} />
+                <input type="hidden" name="type" value={couponType} />
+
+                <div className="flex flex-col gap-1.5">
+                    <ZoruLabel htmlFor="code">
+                        Coupon Code <span className="text-red-500">*</span>
+                    </ZoruLabel>
+                    <ZoruInput
+                        id="code"
+                        name="code"
+                        type="text"
+                        required
+                        className="max-w-xs uppercase"
+                        value={code}
+                        onChange={(e) => setCode(e.target.value.toUpperCase())}
+                        maxLength={50}
+                    />
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                    <ZoruLabel htmlFor="type-select">Type</ZoruLabel>
+                    <ZoruSelect
+                        value={couponType}
+                        onValueChange={(v) => setCouponType(v as CouponType)}
+                    >
+                        <ZoruSelectTrigger id="type-select" className="w-full max-w-xs">
+                            <ZoruSelectValue placeholder="Select type" />
+                        </ZoruSelectTrigger>
+                        <ZoruSelectContent>
+                            {COUPON_TYPES.map((t) => (
+                                <ZoruSelectItem key={t.value} value={t.value}>
+                                    {t.label}
+                                </ZoruSelectItem>
+                            ))}
+                        </ZoruSelectContent>
+                    </ZoruSelect>
+                </div>
+
+                {showValueField ? (
+                    <div className="flex flex-col gap-1.5">
+                        <ZoruLabel htmlFor="value">{valueLabel}</ZoruLabel>
+                        <ZoruInput
+                            id="value"
+                            name="value"
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            defaultValue={initial.value ?? ''}
+                            className="max-w-xs"
+                        />
+                    </div>
+                ) : null}
+
+                <div className="flex flex-col gap-1.5">
+                    <ZoruLabel htmlFor="minCart">Min Cart Value (₹)</ZoruLabel>
+                    <ZoruInput
+                        id="minCart"
+                        name="minCart"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        defaultValue={initial.minCart ?? ''}
+                        className="max-w-xs"
+                    />
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                    <ZoruLabel htmlFor="maxUses">Max Total Uses</ZoruLabel>
+                    <ZoruInput
+                        id="maxUses"
+                        name="maxUses"
+                        type="number"
+                        min="1"
+                        step="1"
+                        defaultValue={initial.maxUses ?? ''}
+                        className="max-w-xs"
+                    />
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                    <ZoruLabel htmlFor="perCustomerLimit">Per Customer Limit</ZoruLabel>
+                    <ZoruInput
+                        id="perCustomerLimit"
+                        name="perCustomerLimit"
+                        type="number"
+                        min="1"
+                        step="1"
+                        defaultValue={initial.perCustomerLimit ?? ''}
+                        className="max-w-xs"
+                    />
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div className="flex flex-col gap-1.5">
+                        <ZoruLabel htmlFor="validFrom">Valid From</ZoruLabel>
+                        <ZoruInput
+                            id="validFrom"
+                            name="validFrom"
+                            type="date"
+                            defaultValue={toDateInputValue(initial.validFrom)}
+                            className="max-w-xs"
+                        />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                        <ZoruLabel htmlFor="validTo">Valid To</ZoruLabel>
+                        <ZoruInput
+                            id="validTo"
+                            name="validTo"
+                            type="date"
+                            defaultValue={toDateInputValue(initial.validTo)}
+                            className="max-w-xs"
+                        />
+                    </div>
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                    <ZoruLabel htmlFor="notes">Notes</ZoruLabel>
+                    <ZoruTextarea
+                        id="notes"
+                        name="notes"
+                        rows={3}
+                        defaultValue={(initial.notes as string) || ''}
+                        className="max-w-lg"
+                    />
+                </div>
+
+                {state.error ? (
+                    <p className="text-[13px] text-red-500">{state.error}</p>
+                ) : null}
+
+                <div className="flex items-center gap-3">
+                    <SubmitButton />
+                    <ZoruButton variant="ghost" size="sm" asChild>
+                        <Link href={`/dashboard/crm/sales/coupons/${couponId}`}>
+                            <ArrowLeft className="h-4 w-4" />
+                            Cancel
+                        </Link>
+                    </ZoruButton>
+                </div>
+            </form>
+        </ZoruCard>
+    );
+}

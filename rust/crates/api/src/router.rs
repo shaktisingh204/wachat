@@ -63,6 +63,9 @@ pub fn build(state: AppState) -> Router {
     let wachat_contacts = wachat_contacts::router::<AppState>();
     let crm_lookup = crm_lookup::router::<AppState>();
     let crm_accounts = crm_accounts::router::<AppState>();
+    let crm_pipelines = crm_pipelines::router::<AppState>();
+    let crm_contacts = crm_contacts::router::<AppState>();
+    let crm_items = crm_items::router::<AppState>();
     let crm_leads = crm_leads::router::<AppState>();
     let crm_deals = crm_deals::router::<AppState>();
     let crm_quotations = crm_quotations::router::<AppState>();
@@ -77,6 +80,7 @@ pub fn build(state: AppState) -> Router {
     let crm_subscriptions = crm_subscriptions::router::<AppState>();
     let crm_bills = crm_bills::router::<AppState>();
     let crm_rfqs = crm_rfqs::router::<AppState>();
+    let crm_vendors = crm_vendors::router::<AppState>();
     let crm_vendor_bids = crm_vendor_bids::router::<AppState>();
     let crm_grns = crm_grns::router::<AppState>();
     let crm_employees = crm_employees::router::<AppState>();
@@ -151,6 +155,9 @@ pub fn build(state: AppState) -> Router {
         .nest("/v1/contacts", wachat_contacts)
         .nest("/v1/crm/lookup", crm_lookup)
         .nest("/v1/crm/accounts", crm_accounts)
+        .nest("/v1/crm/pipelines", crm_pipelines)
+        .nest("/v1/crm/contacts", crm_contacts)
+        .nest("/v1/crm/items", crm_items)
         .nest("/v1/crm/leads", crm_leads)
         .nest("/v1/crm/deals", crm_deals)
         .nest("/v1/crm/quotations", crm_quotations)
@@ -165,6 +172,7 @@ pub fn build(state: AppState) -> Router {
         .nest("/v1/crm/subscriptions", crm_subscriptions)
         .nest("/v1/crm/bills", crm_bills)
         .nest("/v1/crm/rfqs", crm_rfqs)
+        .nest("/v1/crm/vendors", crm_vendors)
         .nest("/v1/crm/vendor-bids", crm_vendor_bids)
         .nest("/v1/crm/grns", crm_grns)
         .nest("/v1/crm/fixed-assets", crm_fixed_assets)
@@ -174,7 +182,12 @@ pub fn build(state: AppState) -> Router {
         .nest("/v1/hrm/leaves", crm_leaves)
         .nest("/v1/hrm/payroll-runs", crm_payroll_runs)
         .nest("/v1/hrm/holidays", crm_holidays)
-        .nest("/v1/hrm/departments", crm_departments)
+        // The crm-departments crate contributes BOTH `/departments/*` and
+        // `/designations/*` subtrees (see crate docstring) — mount it at
+        // `/v1/crm` so the resulting paths are `/v1/crm/departments` and
+        // `/v1/crm/designations`. This matches the TS rust-client at
+        // `src/lib/rust-client/crm-departments.ts`.
+        .nest("/v1/crm", crm_departments)
         .nest("/v1/flows", wachat_flows)
         .nest("/v1/api-keys", wachat_api_keys_admin)
         .nest("/v1/facebook/pages", fb_pages)

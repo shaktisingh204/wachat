@@ -8,6 +8,29 @@ import { getSession } from '@/app/actions/user.actions';
 import type { CrmWarehouse } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 
+export async function getCrmWarehouseById(
+    warehouseId: string,
+): Promise<WithId<CrmWarehouse> | null> {
+    if (!warehouseId || !ObjectId.isValid(warehouseId)) return null;
+
+    const session = await getSession();
+    if (!session?.user) return null;
+
+    try {
+        const { db } = await connectToDatabase();
+        const warehouse = await db
+            .collection<CrmWarehouse>('crm_warehouses')
+            .findOne({
+                _id: new ObjectId(warehouseId),
+                userId: new ObjectId(session.user._id),
+            });
+        return warehouse ? JSON.parse(JSON.stringify(warehouse)) : null;
+    } catch (e) {
+        console.error('Failed to fetch CRM warehouse:', e);
+        return null;
+    }
+}
+
 export async function getCrmWarehouses(): Promise<WithId<CrmWarehouse>[]> {
     const session = await getSession();
     if (!session?.user) return [];

@@ -1,0 +1,215 @@
+'use client';
+
+import { useActionState, useEffect, useRef } from 'react';
+import { useFormStatus } from 'react-dom';
+import Link from 'next/link';
+import { ArrowLeft, HandCoins, LoaderCircle, Save } from 'lucide-react';
+
+import { updateLoan } from '@/app/actions/crm-loans.actions';
+import {
+    ZoruButton,
+    ZoruCard,
+    ZoruInput,
+    ZoruLabel,
+    ZoruTextarea,
+    useZoruToast,
+} from '@/components/zoruui';
+import { CrmPageHeader } from '../../../_components/crm-page-header';
+
+interface Props {
+    loan: any;
+    loanId: string;
+}
+
+const initialState = { message: null, error: null, id: undefined } as any;
+
+function SubmitButton() {
+    const { pending } = useFormStatus();
+    return (
+        <ZoruButton type="submit" disabled={pending}>
+            {pending ? (
+                <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={1.75} />
+            ) : (
+                <Save className="h-4 w-4" strokeWidth={1.75} />
+            )}
+            Save Changes
+        </ZoruButton>
+    );
+}
+
+function toInputDate(value: unknown): string {
+    if (!value) return '';
+    try {
+        const d = new Date(value as string);
+        if (Number.isNaN(d.getTime())) return '';
+        return d.toISOString().slice(0, 10);
+    } catch {
+        return '';
+    }
+}
+
+export function EditLoanForm({ loan, loanId }: Props) {
+    const [state, formAction] = useActionState(updateLoan as any, initialState);
+    const { toast } = useZoruToast();
+    const formRef = useRef<HTMLFormElement>(null);
+
+    useEffect(() => {
+        if (state?.message) {
+            toast({ title: 'Success!', description: state.message });
+            window.location.href = `/dashboard/crm/loans/${state.id ?? loanId}`;
+        }
+        if (state?.error) {
+            toast({ title: 'Error', description: state.error, variant: 'destructive' });
+        }
+    }, [state, toast, loanId]);
+
+    return (
+        <div className="flex w-full max-w-2xl flex-col gap-6">
+            <Link
+                href={`/dashboard/crm/loans/${loanId}`}
+                className="inline-flex items-center gap-1.5 text-[12.5px] text-zoru-ink-muted hover:text-zoru-ink"
+            >
+                <ArrowLeft className="h-3.5 w-3.5" strokeWidth={1.75} />
+                Back to Loan
+            </Link>
+
+            <CrmPageHeader
+                title="Edit Loan"
+                subtitle={`Update the details for ${loan.borrowerName ?? 'this loan'}.`}
+                icon={HandCoins}
+            />
+
+            <form action={formAction} ref={formRef}>
+                <input type="hidden" name="id" value={loanId} />
+                <ZoruCard className="p-6">
+                    <div className="grid gap-4">
+                        <div className="space-y-2">
+                            <ZoruLabel htmlFor="type" className="text-[12.5px] text-zoru-ink-muted">
+                                Type
+                            </ZoruLabel>
+                            <ZoruInput
+                                id="type"
+                                name="type"
+                                defaultValue={loan.type ?? 'customer_loan'}
+                                className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <ZoruLabel
+                                htmlFor="borrowerName"
+                                className="text-[12.5px] text-zoru-ink-muted"
+                            >
+                                Borrower
+                            </ZoruLabel>
+                            <ZoruInput
+                                id="borrowerName"
+                                name="borrowerName"
+                                required
+                                defaultValue={loan.borrowerName ?? ''}
+                                className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                            />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <ZoruLabel
+                                    htmlFor="principal"
+                                    className="text-[12.5px] text-zoru-ink-muted"
+                                >
+                                    Principal
+                                </ZoruLabel>
+                                <ZoruInput
+                                    id="principal"
+                                    name="principal"
+                                    type="number"
+                                    step="0.01"
+                                    required
+                                    defaultValue={loan.principal ?? 0}
+                                    className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <ZoruLabel
+                                    htmlFor="interestRate"
+                                    className="text-[12.5px] text-zoru-ink-muted"
+                                >
+                                    Interest %
+                                </ZoruLabel>
+                                <ZoruInput
+                                    id="interestRate"
+                                    name="interestRate"
+                                    type="number"
+                                    step="0.01"
+                                    defaultValue={loan.interestRate ?? 0}
+                                    className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                                />
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <ZoruLabel
+                                    htmlFor="tenureMonths"
+                                    className="text-[12.5px] text-zoru-ink-muted"
+                                >
+                                    Tenure (months)
+                                </ZoruLabel>
+                                <ZoruInput
+                                    id="tenureMonths"
+                                    name="tenureMonths"
+                                    type="number"
+                                    defaultValue={loan.tenureMonths ?? 1}
+                                    className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <ZoruLabel
+                                    htmlFor="startDate"
+                                    className="text-[12.5px] text-zoru-ink-muted"
+                                >
+                                    Start date
+                                </ZoruLabel>
+                                <ZoruInput
+                                    id="startDate"
+                                    name="startDate"
+                                    type="date"
+                                    defaultValue={toInputDate(loan.startDate)}
+                                    className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                                />
+                            </div>
+                        </div>
+                        <div className="space-y-2">
+                            <ZoruLabel
+                                htmlFor="status"
+                                className="text-[12.5px] text-zoru-ink-muted"
+                            >
+                                Status
+                            </ZoruLabel>
+                            <ZoruInput
+                                id="status"
+                                name="status"
+                                defaultValue={loan.status ?? 'active'}
+                                className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <ZoruLabel
+                                htmlFor="notes"
+                                className="text-[12.5px] text-zoru-ink-muted"
+                            >
+                                Notes
+                            </ZoruLabel>
+                            <ZoruTextarea
+                                id="notes"
+                                name="notes"
+                                defaultValue={loan.notes ?? ''}
+                                className="min-h-24 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                            />
+                        </div>
+                    </div>
+                    <div className="mt-6 flex justify-end border-t border-zoru-line pt-4">
+                        <SubmitButton />
+                    </div>
+                </ZoruCard>
+            </form>
+        </div>
+    );
+}

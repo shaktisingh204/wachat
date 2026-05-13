@@ -1,12 +1,38 @@
 'use server';
 
+/**
+ * CRM Credit Note server actions.
+ *
+ * **Dual implementation:**
+ *  - When `USE_RUST_CRM === 'true'`, the read/save paths delegate to
+ *    `/v1/crm/credit-notes` on the Rust BFF via
+ *    `src/lib/rust-client/crm-credit-notes.ts`.
+ *  - Otherwise (default), the legacy direct-Mongo path runs.
+ *
+ * Export shapes are identical across both paths so the pages at
+ * `/dashboard/crm/sales/credit-notes/**` keep working without changes.
+ */
+
 import { revalidatePath } from 'next/cache';
-import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
+import { type Db, ObjectId, type WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
+import { writeAuditEntry } from '@/lib/audit-log';
 import type { CrmCreditNote, LineageKind, LineageRef } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import { appendLineage, buildLineageFromParent } from '@/lib/lineage';
+import {
+    crmCreditNotesApi,
+    type CreditNoteReason,
+    type CreditNoteLineItem,
+    type CreditNoteTotals,
+    type RefundMode,
+} from '@/lib/rust-client/crm-credit-notes';
+import { RustApiError } from '@/lib/rust-client/fetcher';
+
+function useRustCrm(): boolean {
+    return process.env.USE_RUST_CRM === 'true';
+}
 
 async function getNextCreditNoteNumber(db: Db, userId: ObjectId): Promise<string> {
     const lastNote = await db.collection<CrmCreditNote>('crm_credit_notes')
@@ -37,6 +63,18 @@ async function getNextCreditNoteNumber(db: Db, userId: ObjectId): Promise<string
 export async function getCreditNoteById(creditNoteId: string): Promise<WithId<CrmCreditNote> | null> {
     const session = await getSession();
     if (!session?.user) return null;
+
+    if (useRustCrm()) {
+        try {
+            const doc = await crmCreditNotesApi.getById(creditNoteId);
+            return doc ? (JSON.parse(JSON.stringify(doc)) as WithId<CrmCreditNote>) : null;
+        } catch (e) {
+            if (e instanceof RustApiError && e.code === 'NOT_FOUND') return null;
+            console.error('[getCreditNoteById] rust path failed; falling back:', e);
+            // fall through
+        }
+    }
+
     if (!ObjectId.isValid(creditNoteId)) return null;
 
     try {
@@ -60,6 +98,20 @@ export async function getCreditNotes(
 ): Promise<{ notes: WithId<CrmCreditNote>[], total: number }> {
     const session = await getSession();
     if (!session?.user) return { notes: [], total: 0 };
+
+    if (useRustCrm()) {
+        try {
+            const items = await crmCreditNotesApi.list({ page, limit, q: query });
+            const arr = Array.isArray(items) ? items : [];
+            return {
+                notes: JSON.parse(JSON.stringify(arr)) as WithId<CrmCreditNote>[],
+                total: arr.length,
+            };
+        } catch (e) {
+            console.error('[getCreditNotes] rust path failed; falling back:', e);
+            // fall through
+        }
+    }
 
     try {
         const { db } = await connectToDatabase();
@@ -92,6 +144,65 @@ export async function getCreditNotes(
 export async function saveCreditNote(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
     const session = await getSession();
     if (!session?.user) return { error: 'Access denied' };
+
+    if (useRustCrm()) {
+        try {
+            const lineItemsLegacy = JSON.parse((formData.get('lineItems') as string) || '[]') as Array<any>;
+            const items: CreditNoteLineItem[] = lineItemsLegacy.map((li: any) => ({
+                itemId: li.itemId,
+                description: li.description ?? li.name,
+                qty: Number(li.quantity ?? li.qty ?? 0),
+                rate: Number(li.rate ?? 0),
+                total: Number(li.total ?? Number(li.quantity ?? 0) * Number(li.rate ?? 0)),
+            }));
+            const subTotal = items.reduce((sum, li) => sum + (li.total || 0), 0);
+            const totals: CreditNoteTotals = { subTotal, total: subTotal };
+
+            const cnNo = (formData.get('creditNoteNumber') as string | null) ||
+                `CN-${Date.now().toString().slice(-5)}`;
+            const dateRaw = (formData.get('creditNoteDate') as string | null) || '';
+            const date = dateRaw ? new Date(dateRaw).toISOString() : new Date().toISOString();
+            const clientId = (formData.get('accountId') as string | null) || '';
+            const reason = ((formData.get('reason') as string | null) || 'other') as CreditNoteReason;
+            const currency = (formData.get('currency') as string | null) || 'INR';
+            const refundMode = ((formData.get('refundMode') as string | null) || 'credit') as RefundMode;
+            const fromKindRaw = (formData.get('fromKind') as string | null) || undefined;
+            const fromId = (formData.get('fromId') as string | null) || undefined;
+
+            const created = await crmCreditNotesApi.create({
+                cnNo,
+                date,
+                clientId,
+                reason,
+                currency,
+                items,
+                totals,
+                refundMode,
+                linkedInvoiceId:
+                    fromKindRaw === 'invoice' && fromId ? fromId : undefined,
+                fromKind: fromKindRaw,
+                fromId,
+            });
+
+            try {
+                await writeAuditEntry({
+                    tenantUserId: String(session.user._id),
+                    actorId: String(session.user._id),
+                    action: 'create',
+                    entityKind: 'creditNote',
+                    entityId: (created as any)._id?.toString() || '',
+                });
+            } catch {
+                /* non-fatal */
+            }
+
+            revalidatePath('/dashboard/crm/sales/credit-notes');
+            return { message: 'Credit Note saved successfully.' };
+        } catch (e) {
+            console.error('[saveCreditNote] rust path failed; falling back:', e);
+            // fall through
+        }
+    }
 
     try {
         const { db } = await connectToDatabase();
@@ -170,6 +281,18 @@ export async function saveCreditNote(prevState: any, formData: FormData): Promis
             createdAt: new Date(),
             updatedAt: new Date()
         } as any);
+
+        try {
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'create',
+                entityKind: 'creditNote',
+                entityId: insertResult.insertedId.toString(),
+            });
+        } catch {
+            /* non-fatal */
+        }
 
         // Best-effort back-link onto the parent invoice.
         if (lineage && fromKind === 'invoice' && fromId && ObjectId.isValid(fromId)) {

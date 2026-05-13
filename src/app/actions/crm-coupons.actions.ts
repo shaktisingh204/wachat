@@ -111,3 +111,90 @@ export async function getCoupons(): Promise<{ coupons: any[]; error?: string }> 
     return { coupons: [], error: e?.message || 'Failed to fetch coupons.' };
   }
 }
+
+export async function getCouponById(
+  couponId: string,
+): Promise<Record<string, any> | null> {
+  if (!couponId || !ObjectId.isValid(couponId)) return null;
+
+  const session = await getSession();
+  if (!session?.user?._id) return null;
+
+  try {
+    const { db } = await connectToDatabase();
+    const doc = await db.collection('crm_coupons').findOne({
+      _id: new ObjectId(couponId),
+      userId: new ObjectId(session.user._id as string),
+    });
+    return doc ? JSON.parse(JSON.stringify(doc)) : null;
+  } catch (e) {
+    console.error('getCouponById error:', e);
+    return null;
+  }
+}
+
+export async function updateCoupon(
+  _prev: any,
+  formData: FormData,
+): Promise<{ message?: string; error?: string; id?: string }> {
+  const session = await getSession();
+  if (!session?.user?._id) {
+    return { error: 'Unauthorized.' };
+  }
+
+  const couponId = (formData.get('couponId') as string | null) || '';
+  if (!couponId || !ObjectId.isValid(couponId)) {
+    return { error: 'Invalid coupon id.' };
+  }
+
+  try {
+    const code = ((formData.get('code') as string) || '').trim().toUpperCase();
+    if (!code) return { error: 'Coupon code is required.' };
+
+    const type = (formData.get('type') as string) || 'percent';
+    const rawValue = formData.get('value') as string;
+    const value = rawValue ? parseFloat(rawValue) : 0;
+    const rawMinCart = formData.get('minCart') as string;
+    const rawMaxUses = formData.get('maxUses') as string;
+    const rawPerCustomerLimit = formData.get('perCustomerLimit') as string;
+    const rawValidFrom = formData.get('validFrom') as string;
+    const rawValidTo = formData.get('validTo') as string;
+    const stackable = formData.get('stackable') === 'true';
+    const notes = (formData.get('notes') as string) || '';
+
+    const $set: Record<string, any> = {
+      code,
+      type,
+      value,
+      stackable,
+      notes,
+      updatedAt: new Date(),
+    };
+    if (rawMinCart) $set.minCart = parseFloat(rawMinCart);
+    if (rawMaxUses) $set.maxUses = parseInt(rawMaxUses, 10);
+    if (rawPerCustomerLimit)
+      $set.perCustomerLimit = parseInt(rawPerCustomerLimit, 10);
+    if (rawValidFrom) $set.validFrom = new Date(rawValidFrom);
+    if (rawValidTo) $set.validTo = new Date(rawValidTo);
+
+    const { db } = await connectToDatabase();
+    const result = await db.collection('crm_coupons').updateOne(
+      {
+        _id: new ObjectId(couponId),
+        userId: new ObjectId(session.user._id as string),
+      },
+      { $set },
+    );
+
+    if (result.matchedCount === 0) {
+      return { error: 'Coupon not found.' };
+    }
+
+    revalidatePath('/dashboard/crm/sales/coupons');
+    revalidatePath(`/dashboard/crm/sales/coupons/${couponId}`);
+    return { message: 'Coupon updated successfully.', id: couponId };
+  } catch (e: any) {
+    console.error('updateCoupon error:', e);
+    return { error: e?.message || 'Failed to update coupon.' };
+  }
+}

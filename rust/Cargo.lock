@@ -1372,6 +1372,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "crm-contacts"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "crm-common",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "sabnode-rbac",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "crm-conversions"
 version = "0.1.0"
 dependencies = [
@@ -1623,6 +1644,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "crm-items"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "crm-common",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "sabnode-rbac",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "crm-leads"
 version = "0.1.0"
 dependencies = [
@@ -1753,6 +1795,27 @@ dependencies = [
  "sabnode-auth",
  "sabnode-common",
  "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "crm-pipelines"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "crm-common",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "sabnode-rbac",
  "serde",
  "serde_json",
  "tokio",
@@ -1950,6 +2013,27 @@ dependencies = [
  "sabnode-auth",
  "sabnode-common",
  "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "crm-vendors"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "crm-common",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "sabnode-rbac",
  "serde",
  "serde_json",
  "tokio",
@@ -5376,6 +5460,7 @@ dependencies = [
  "crm-attendance",
  "crm-bills",
  "crm-bookings",
+ "crm-contacts",
  "crm-credit-notes",
  "crm-deals",
  "crm-debit-notes",
@@ -5385,12 +5470,14 @@ dependencies = [
  "crm-grns",
  "crm-holidays",
  "crm-invoices",
+ "crm-items",
  "crm-leads",
  "crm-leaves",
  "crm-lookup",
  "crm-payment-receipts",
  "crm-payouts",
  "crm-payroll-runs",
+ "crm-pipelines",
  "crm-purchase-orders",
  "crm-quotations",
  "crm-rfqs",
@@ -5398,6 +5485,7 @@ dependencies = [
  "crm-subscriptions",
  "crm-tickets",
  "crm-vendor-bids",
+ "crm-vendors",
  "dotenvy",
  "facebook-flow",
  "meta-flows",
