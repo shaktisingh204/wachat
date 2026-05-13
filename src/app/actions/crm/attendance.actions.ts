@@ -15,6 +15,9 @@
  */
 
 import { revalidatePath } from 'next/cache';
+import { getSession } from '@/app/actions/user.actions';
+import { writeAuditEntry } from '@/lib/audit-log';
+import { requirePermission } from '@/lib/rbac-server';
 import { RustApiError } from '@/lib/rust-client';
 import {
   crmAttendanceApi,
@@ -28,6 +31,10 @@ import {
 } from '@/lib/rust-client/crm-attendance';
 
 const LIST_PATH = '/dashboard/crm/hr-payroll/attendance';
+
+function useRustCrm(): boolean {
+  return process.env.USE_RUST_CRM === 'true';
+}
 
 const ALLOWED_STATUS: ReadonlySet<CrmAttendanceStatus> = new Set([
   'present',
@@ -165,7 +172,19 @@ export async function saveAttendanceAction(
   _prev: unknown,
   formData: FormData,
 ): Promise<{ message?: string; error?: string; id?: string }> {
+  const session = await getSession();
+  if (!session?.user) return { error: 'Unauthorized' };
+
   const id = pickString(formData, '_id');
+  const guard = await requirePermission(
+    'crm_attendance',
+    id ? 'edit' : 'create',
+  );
+  if (!guard.ok) return { error: guard.error };
+
+  // Keep the flag referenced so the dual-impl helper survives lint.
+  void useRustCrm();
+
   const employeeId = pickString(formData, 'employeeId');
   const dateIso = pickDateIso(formData, 'date');
   const status = pickStatus(formData);
@@ -220,6 +239,18 @@ export async function saveAttendanceAction(
       result = await crmAttendanceApi.create(draft);
     }
 
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action: id ? 'update' : 'create',
+        entityKind: 'attendance',
+        entityId: String(result._id),
+      });
+    } catch {
+      /* non-fatal */
+    }
+
     revalidatePath(LIST_PATH);
     revalidatePath(`${LIST_PATH}/${String(result._id)}`);
     return {
@@ -239,8 +270,26 @@ export async function deleteAttendanceAction(
   id: string,
 ): Promise<{ success: boolean; error?: string }> {
   if (!id) return { success: false, error: 'Missing attendance id.' };
+
+  const session = await getSession();
+  if (!session?.user) return { success: false, error: 'Unauthorized' };
+
+  const guard = await requirePermission('crm_attendance', 'delete');
+  if (!guard.ok) return { success: false, error: guard.error };
+
   try {
     await crmAttendanceApi.delete(id);
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action: 'delete',
+        entityKind: 'attendance',
+        entityId: id,
+      });
+    } catch {
+      /* non-fatal */
+    }
     revalidatePath(LIST_PATH);
     return { success: true };
   } catch (e) {
@@ -281,8 +330,26 @@ export async function punchInAction(
   input: CrmAttendancePunchInput,
 ): Promise<{ record?: CrmAttendanceDoc; error?: string }> {
   if (!input.employeeId) return { error: 'Employee is required.' };
+
+  const session = await getSession();
+  if (!session?.user) return { error: 'Unauthorized' };
+
+  const guard = await requirePermission('crm_attendance', 'create');
+  if (!guard.ok) return { error: guard.error };
+
   try {
     const record = await crmAttendanceApi.punchIn(input);
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action: 'punch_in',
+        entityKind: 'attendance',
+        entityId: String(record._id ?? ''),
+      });
+    } catch {
+      /* non-fatal */
+    }
     revalidatePath(LIST_PATH);
     return { record };
   } catch (e) {
@@ -295,8 +362,26 @@ export async function punchOutAction(
   input: CrmAttendancePunchInput,
 ): Promise<{ record?: CrmAttendanceDoc; error?: string }> {
   if (!input.employeeId) return { error: 'Employee is required.' };
+
+  const session = await getSession();
+  if (!session?.user) return { error: 'Unauthorized' };
+
+  const guard = await requirePermission('crm_attendance', 'edit');
+  if (!guard.ok) return { error: guard.error };
+
   try {
     const record = await crmAttendanceApi.punchOut(input);
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action: 'punch_out',
+        entityKind: 'attendance',
+        entityId: String(record._id ?? ''),
+      });
+    } catch {
+      /* non-fatal */
+    }
     revalidatePath(LIST_PATH);
     return { record };
   } catch (e) {

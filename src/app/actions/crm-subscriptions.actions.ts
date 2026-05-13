@@ -19,6 +19,7 @@ import { ObjectId, type WithId } from 'mongodb';
 import { getSession } from '@/app/actions/user.actions';
 import { writeAuditEntry } from '@/lib/audit-log';
 import { connectToDatabase } from '@/lib/mongodb';
+import { requirePermission } from '@/lib/rbac-server';
 import {
     crmSubscriptionsApi,
     type CrmSubBillingFrequency,
@@ -84,6 +85,9 @@ export async function saveSubscription(
 ): Promise<{ message?: string; error?: string; id?: string }> {
     const session = await getSession();
     if (!session?.user) return { error: 'Not authenticated.' };
+
+    const guard = await requirePermission('crm_subscription', 'create');
+    if (!guard.ok) return { error: guard.error };
 
     const planName = (formData.get('planName') as string | null)?.trim() ?? '';
     if (!planName) return { error: 'Plan name is required.' };

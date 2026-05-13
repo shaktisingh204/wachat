@@ -99,8 +99,8 @@ export function LeaveForm({ initial, leaveTypes }: LeaveFormProps) {
       toast({ title: 'Saved', description: state.message });
       router.push(
         state.id
-          ? `/dashboard/crm/hr-payroll/leave/${state.id}`
-          : '/dashboard/crm/hr-payroll/leave',
+          ? `/dashboard/hrm/payroll/leave/${state.id}`
+          : '/dashboard/hrm/payroll/leave',
       );
     }
     if (state?.error) {
@@ -282,8 +282,8 @@ export function LeaveForm({ initial, leaveTypes }: LeaveFormProps) {
           <Link
             href={
               editing
-                ? `/dashboard/crm/hr-payroll/leave/${String(initial!._id)}`
-                : '/dashboard/crm/hr-payroll/leave'
+                ? `/dashboard/hrm/payroll/leave/${String(initial!._id)}`
+                : '/dashboard/hrm/payroll/leave'
             }
           >
             Cancel

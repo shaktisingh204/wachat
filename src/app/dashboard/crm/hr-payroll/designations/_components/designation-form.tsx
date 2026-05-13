@@ -48,7 +48,7 @@ export function DesignationForm({ initial }: Props) {
   useEffect(() => {
     if (state?.message) {
       toast({ title: 'Saved', description: state.message });
-      router.push('/dashboard/crm/hr-payroll/designations');
+      router.push('/dashboard/hrm/payroll/designations');
     }
     if (state?.error) toast({ title: 'Error', description: state.error, variant: 'destructive' });
   }, [state, toast, router]);
@@ -163,7 +163,7 @@ export function DesignationForm({ initial }: Props) {
 
       <div className="flex justify-end gap-2">
         <ZoruButton variant="outline" asChild>
-          <Link href="/dashboard/crm/hr-payroll/designations">Cancel</Link>
+          <Link href="/dashboard/hrm/payroll/designations">Cancel</Link>
         </ZoruButton>
         <SubmitButton editing={editing} />
       </div>

@@ -16,6 +16,9 @@
  */
 
 import { revalidatePath } from 'next/cache';
+import { getSession } from '@/app/actions/user.actions';
+import { writeAuditEntry } from '@/lib/audit-log';
+import { requirePermission } from '@/lib/rbac-server';
 import { RustApiError } from '@/lib/rust-client';
 import {
   crmLeavesApi,
@@ -28,6 +31,10 @@ import {
 } from '@/lib/rust-client/crm-leaves';
 
 const LIST_PATH = '/dashboard/crm/hr-payroll/leave';
+
+function useRustCrm(): boolean {
+  return process.env.USE_RUST_CRM === 'true';
+}
 
 function rustErr(e: unknown): string {
   if (e instanceof RustApiError) return e.message;
@@ -120,7 +127,16 @@ export async function saveLeaveAction(
   _prev: unknown,
   formData: FormData,
 ): Promise<{ message?: string; error?: string; id?: string }> {
+  const session = await getSession();
+  if (!session?.user) return { error: 'Unauthorized' };
+
   const id = pickString(formData, '_id');
+  const guard = await requirePermission('crm_leave', id ? 'edit' : 'create');
+  if (!guard.ok) return { error: guard.error };
+
+  // Keep the flag referenced so the dual-impl helper survives lint.
+  void useRustCrm();
+
   const leaveTypeId = pickString(formData, 'leaveTypeId');
   const from = toIsoOrUndef(pickString(formData, 'from'));
   const to = toIsoOrUndef(pickString(formData, 'to'));
@@ -162,6 +178,18 @@ export async function saveLeaveAction(
       result = await crmLeavesApi.create(draft);
     }
 
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action: id ? 'update' : 'create',
+        entityKind: 'leave',
+        entityId: String(result._id),
+      });
+    } catch {
+      /* non-fatal */
+    }
+
     revalidatePath(LIST_PATH);
     revalidatePath(`${LIST_PATH}/${String(result._id)}`);
     return {
@@ -181,8 +209,26 @@ export async function deleteLeaveAction(
   id: string,
 ): Promise<{ success: boolean; error?: string }> {
   if (!id) return { success: false, error: 'Missing leave id.' };
+
+  const session = await getSession();
+  if (!session?.user) return { success: false, error: 'Unauthorized' };
+
+  const guard = await requirePermission('crm_leave', 'delete');
+  if (!guard.ok) return { success: false, error: guard.error };
+
   try {
     await crmLeavesApi.delete(id);
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action: 'delete',
+        entityKind: 'leave',
+        entityId: id,
+      });
+    } catch {
+      /* non-fatal */
+    }
     revalidatePath(LIST_PATH);
     return { success: true };
   } catch (e) {

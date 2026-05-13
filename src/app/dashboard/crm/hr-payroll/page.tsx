@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
 
 export default function Page(): never {
-  redirect("/dashboard/hrm/payroll/");
+  redirect('/dashboard/hrm/payroll');
 }

@@ -1,25 +1,10 @@
-import { notFound } from 'next/navigation';
-import { BadgeCheck } from 'lucide-react';
+import { redirect } from 'next/navigation';
 
-import { CrmPageHeader } from '../../../../_components/crm-page-header';
-import { DesignationForm } from '../../_components/designation-form';
-import { getDesignation } from '@/app/actions/crm/departments.actions';
-
-export const dynamic = 'force-dynamic';
-
-export default async function EditDesignationPage({
+export default async function Page({
   params,
 }: {
   params: Promise<{ id: string }>;
-}) {
+}): Promise<never> {
   const { id } = await params;
-  const { item } = await getDesignation(id);
-  if (!item) notFound();
-
-  return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader title={`Edit ${item.name}`} subtitle="Update designation." icon={BadgeCheck} />
-      <DesignationForm initial={item} />
-    </div>
-  );
+  redirect(`/dashboard/hrm/payroll/designations/${id}/edit`);
 }
