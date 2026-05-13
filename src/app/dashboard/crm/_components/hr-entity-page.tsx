@@ -511,14 +511,32 @@ export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
     setEntityValues(init);
   }, [dialogOpen, editing, fields]);
 
-  const onEntityChange = React.useCallback((name: string, id: string | null) => {
-    setEntityValues((prev) => {
-      const next = { ...prev };
-      if (id == null || id === '') delete next[name];
-      else next[name] = id;
-      return next;
-    });
-  }, []);
+  const onEntityChange = React.useCallback(
+    (name: string, id: string | null) => {
+      setEntityValues((prev) => {
+        const next = { ...prev };
+        if (id == null || id === '') delete next[name];
+        else next[name] = id;
+
+        // Cascade: any dependent entity field whose `cascadeFilterFrom`
+        // produced a different filter under `next` than under `prev` is
+        // cleared, so the picker stops showing a now-out-of-scope value
+        // (e.g. clearing `country` clears `state` and `city`).
+        for (const f of fields) {
+          if (f.type !== 'entity' || !f.cascadeFilterFrom) continue;
+          if (f.name === name) continue;
+          if (!Object.prototype.hasOwnProperty.call(next, f.name)) continue;
+          const before = JSON.stringify(f.cascadeFilterFrom(prev) ?? {});
+          const after = JSON.stringify(f.cascadeFilterFrom(next) ?? {});
+          if (before !== after) {
+            delete next[f.name];
+          }
+        }
+        return next;
+      });
+    },
+    [fields],
+  );
 
   const refresh = React.useCallback(() => {
     startLoading(async () => {

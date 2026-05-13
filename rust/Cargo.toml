@@ -141,6 +141,9 @@ members = [
     "crates/sabflow-webhooks",
     "crates/sabflow-nodes",
     "crates/sabflow-engine-runtime",
+    "crates/rbac",
+    "crates/crm-common",
+    "crates/crm-accounts",
 ]
 
 [workspace.package]

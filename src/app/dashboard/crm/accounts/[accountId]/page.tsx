@@ -103,13 +103,19 @@ export default function CrmAccountDetailPage() {
         initialSubject={`Regarding your account: ${account.name}`}
       />
       <div className="flex w-full flex-col gap-6">
-        <div>
+        <div className="flex items-center justify-between">
           <Link
             href="/dashboard/crm/accounts"
             className="inline-flex items-center gap-1.5 text-[12.5px] text-zoru-ink-muted hover:text-zoru-ink"
           >
             <ArrowLeft className="h-3.5 w-3.5" strokeWidth={1.75} />
             Back to All Accounts
+          </Link>
+          <Link
+            href={`/dashboard/crm/accounts/${accountId}/activity`}
+            className="inline-flex items-center gap-1.5 text-[12.5px] text-zoru-ink-muted hover:text-zoru-ink"
+          >
+            View activity
           </Link>
         </div>
 

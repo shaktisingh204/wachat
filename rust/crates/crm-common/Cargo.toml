@@ -1,0 +1,28 @@
+[package]
+name = "crm-common"
+version = "0.1.0"
+edition = "2024"
+license = "UNLICENSED"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+anyhow = "1"
+axum = "0.8"
+bson = { version = "2", features = ["chrono-0_4"] }
+chrono = { version = "0.4", features = ["serde"] }
+futures = "0.3"
+mongodb = "3"
+regex = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["full"] }
+tracing = "0.1"
+
+sabnode-auth = { path = "../auth" }
+sabnode-common = { path = "../common" }
+sabnode-db = { path = "../db" }
+sabnode-rbac = { path = "../rbac" }
+crm-core = { path = "../crm-core" }
