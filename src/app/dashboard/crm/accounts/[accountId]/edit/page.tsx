@@ -1,159 +1,49 @@
-'use client';
+/**
+ * `/dashboard/crm/accounts/[accountId]/edit` (§1D.3).
+ *
+ * Server shell — hydrates the existing account via the dual-impl
+ * `getCrmAccountById` action, then renders the shared `<AccountForm>`
+ * with `mode="edit"`. The form posts to `updateCrmAccount`.
+ */
 
-import { useActionState, useEffect, useRef, useState, useTransition } from 'react';
-import { useFormStatus } from 'react-dom';
-import { useParams } from 'next/navigation';
-import { LoaderCircle, Save, ArrowLeft, Building } from 'lucide-react';
-import { getCrmAccountById, updateCrmAccount } from '@/app/actions/crm-accounts.actions';
-import type { WithId, CrmAccount } from '@/lib/definitions';
 import Link from 'next/link';
+import { notFound } from 'next/navigation';
+import { ArrowLeft, Building2 } from 'lucide-react';
 
-import {
-  ZoruButton,
-  ZoruCard,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSkeleton,
-  useZoruToast,
-} from '@/components/zoruui';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { AccountForm } from '../../_components/accounts-form';
+import { getCrmAccountById } from '@/app/actions/crm-accounts.actions';
 
-const initialState = { message: null, error: null, accountId: undefined };
+export const dynamic = 'force-dynamic';
 
-function SubmitButton() {
-  const { pending } = useFormStatus();
-  return (
-    <ZoruButton type="submit" disabled={pending}>
-      {pending ? (
-        <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={1.75} />
-      ) : (
-        <Save className="h-4 w-4" strokeWidth={1.75} />
-      )}
-      Save Changes
-    </ZoruButton>
-  );
+interface PageProps {
+    params: Promise<{ accountId: string }>;
 }
 
-export default function EditCrmAccountPage() {
-  const params = useParams();
-  const accountId = params.accountId as string;
+export default async function EditAccountPage({ params }: PageProps) {
+    const { accountId } = await params;
+    const account = await getCrmAccountById(accountId);
+    if (!account) notFound();
 
-  const [account, setAccount] = useState<WithId<CrmAccount> | null>(null);
-  const [isLoading, startLoading] = useTransition();
-
-  const [state, formAction] = useActionState(updateCrmAccount as any, initialState as any);
-  const { toast } = useZoruToast();
-  const formRef = useRef<HTMLFormElement>(null);
-
-  useEffect(() => {
-    if (accountId) {
-      startLoading(async () => {
-        const fetchedAccount = await getCrmAccountById(accountId);
-        setAccount(fetchedAccount);
-      });
-    }
-  }, [accountId]);
-
-  useEffect(() => {
-    if (state.message) {
-      toast({ title: 'Success!', description: state.message });
-      // Force a full page reload to ensure data is fresh, bypassing client-side router cache.
-      if (state.accountId) {
-        window.location.href = `/dashboard/crm/accounts/${state.accountId}`;
-      } else {
-        window.location.href = '/dashboard/crm/accounts';
-      }
-    }
-    if (state.error) {
-      toast({ title: 'Error', description: state.error, variant: 'destructive' });
-    }
-  }, [state, toast]);
-
-  if (isLoading || !account) {
     return (
-      <div className="w-full max-w-2xl">
-        <ZoruSkeleton className="h-96 w-full rounded-xl" />
-      </div>
+        <div className="flex w-full flex-col gap-6">
+            <div>
+                <Link
+                    href={`/dashboard/crm/accounts/${accountId}`}
+                    className="inline-flex items-center gap-1.5 text-[12.5px] text-zoru-ink-muted hover:text-zoru-ink"
+                >
+                    <ArrowLeft className="h-3.5 w-3.5" />
+                    Back to account
+                </Link>
+            </div>
+
+            <CrmPageHeader
+                title="Edit account"
+                subtitle={`Update ${account.name}.`}
+                icon={Building2}
+            />
+
+            <AccountForm mode="edit" initial={account} />
+        </div>
     );
-  }
-
-  return (
-    <div className="flex w-full max-w-2xl flex-col gap-6">
-      <div>
-        <Link
-          href={`/dashboard/crm/accounts/${accountId}`}
-          className="inline-flex items-center gap-1.5 text-[12.5px] text-zoru-ink-muted hover:text-zoru-ink"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" strokeWidth={1.75} />
-          Back to Account
-        </Link>
-      </div>
-
-      <CrmPageHeader
-        title="Edit Account"
-        subtitle={`Update the details for ${account.name}.`}
-        icon={Building}
-      />
-
-      <form action={formAction} ref={formRef}>
-        <input type="hidden" name="accountId" value={account._id.toString()} />
-        <ZoruCard className="p-6">
-          <div className="grid gap-4">
-            <div className="space-y-2">
-              <ZoruLabel htmlFor="name" className="text-[12.5px] text-zoru-ink-muted">
-                Company Name
-              </ZoruLabel>
-              <ZoruInput
-                id="name"
-                name="name"
-                required
-                defaultValue={account.name}
-                className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
-              />
-            </div>
-            <div className="space-y-2">
-              <ZoruLabel htmlFor="industry" className="text-[12.5px] text-zoru-ink-muted">
-                Industry
-              </ZoruLabel>
-              <ZoruInput
-                id="industry"
-                name="industry"
-                defaultValue={account.industry}
-                className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <ZoruLabel htmlFor="website" className="text-[12.5px] text-zoru-ink-muted">
-                  Website
-                </ZoruLabel>
-                <ZoruInput
-                  id="website"
-                  name="website"
-                  type="url"
-                  placeholder="https://example.com"
-                  defaultValue={account.website}
-                  className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
-                />
-              </div>
-              <div className="space-y-2">
-                <ZoruLabel htmlFor="phone" className="text-[12.5px] text-zoru-ink-muted">
-                  Phone
-                </ZoruLabel>
-                <ZoruInput
-                  id="phone"
-                  name="phone"
-                  defaultValue={account.phone}
-                  className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
-                />
-              </div>
-            </div>
-          </div>
-          <div className="mt-6 flex justify-end border-t border-zoru-line pt-4">
-            <SubmitButton />
-          </div>
-        </ZoruCard>
-      </form>
-    </div>
-  );
 }

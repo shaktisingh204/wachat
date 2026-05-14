@@ -19,7 +19,7 @@ import {
     LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Repeat, Inbox, Package, Compass, Search, Star, Video, Bot, ShieldCheck, Key, BookCopy, Rss, ChevronsUpDown, TrendingUp, PanelLeft, Sparkles, ChevronRight, Calendar, Database, User as UserIcon, Wrench, Newspaper, Clapperboard, Pencil, BarChart2, Globe, Landmark, Users as UsersIcon, LifeBuoy, HelpCircle, LayoutGrid
 } from 'lucide-react';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
-import { MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, InstagramIcon, SabChatIcon, TelegramIcon, CrmIcon } from '@/components/wabasimplify/custom-sidebar-components';
+import { MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, InstagramIcon, SabChatIcon, TelegramIcon, CrmIcon, SabWaIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { Workflow, MessageSquareText, UsersRound, Target, LayoutTemplate } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getSession, getProjects } from '@/app/actions/index';
@@ -630,6 +630,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
 
     const appIcons = [
         { id: 'whatsapp', icon: WhatsAppIcon, label: 'Wachat', href: '/wachat' },
+        { id: 'sabwa', icon: SabWaIcon, label: 'SabWa', href: '/sabwa' },
         { id: 'sabchat', icon: SabChatIcon, label: 'sabChat', href: '/dashboard/sabchat' },
         { id: 'facebook', href: '/dashboard/facebook/all-projects', icon: MetaIcon, label: 'Meta Suite' },
         { id: 'ad-manager', href: '/dashboard/ad-manager/ad-accounts', icon: Target, label: 'Ad Manager' },

@@ -25,7 +25,7 @@ export default async function AccountActivityPage({ params }: PageProps) {
         <div className="space-y-6">
             <CrmPageHeader
                 title={`${account.name} — Activity`}
-                description="Audit trail of changes made to this account."
+                subtitle="Audit trail of changes made to this account."
             />
             <EntityDetailShell
                 title={account.name}

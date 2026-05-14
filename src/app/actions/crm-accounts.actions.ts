@@ -180,16 +180,48 @@ export async function addCrmAccount(
         return { error: 'Company Name is required.' };
     }
 
+    const str = (k: string) => (formData.get(k) as string | null) || undefined;
+    const num = (k: string) => {
+        const v = formData.get(k);
+        if (v == null || v === '') return undefined;
+        const n = Number(v);
+        return Number.isFinite(n) ? n : undefined;
+    };
+    const cat = (() => {
+        const v = str('category');
+        return v && ['new', 'strategic', 'key', 'regular'].includes(v)
+            ? (v as CrmAccount['category'])
+            : undefined;
+    })();
+    const pt = (() => {
+        const v = str('paymentTerms');
+        return v &&
+            ['Net 15', 'Net 30', 'Net 45', 'Net 60', 'Immediate'].includes(v)
+            ? (v as CrmAccount['paymentTerms'])
+            : undefined;
+    })();
+
     if (useRustCrm()) {
         try {
             const { id, entity } = await accountApi.create({
                 name,
-                industry: (formData.get('industry') as string | null) || undefined,
-                website: (formData.get('website') as string | null) || undefined,
-                phone: (formData.get('phone') as string | null) || undefined,
-                country: (formData.get('country') as string | null) || undefined,
-                state: (formData.get('state') as string | null) || undefined,
-                city: (formData.get('city') as string | null) || undefined,
+                industry: str('industry'),
+                website: str('website'),
+                phone: str('phone'),
+                address: str('address'),
+                country: str('country'),
+                state: str('state'),
+                city: str('city'),
+                gstin: str('gstin'),
+                pan: str('pan'),
+                billingAddress: str('billingAddress'),
+                shippingAddress: str('shippingAddress'),
+                annualRevenue: num('annualRevenue'),
+                employeeCount: num('employeeCount'),
+                currency: str('currency'),
+                paymentTerms: pt,
+                category: cat,
+                logoUrl: str('logoUrl'),
             });
             revalidateAccountSurfaces();
             return {
@@ -211,11 +243,23 @@ export async function addCrmAccount(
         const newAccount: Partial<CrmAccount> = {
             userId: new ObjectId(session.user._id),
             name,
-            industry: (formData.get('industry') as string | null) || undefined,
-            website: (formData.get('website') as string | null) || undefined,
-            phone: (formData.get('phone') as string | null) || undefined,
-            country: (formData.get('country') as string | null) || undefined,
-            state: (formData.get('state') as string | null) || undefined,
+            industry: str('industry'),
+            website: str('website'),
+            phone: str('phone'),
+            address: str('address'),
+            country: str('country'),
+            state: str('state'),
+            city: str('city'),
+            gstin: str('gstin'),
+            pan: str('pan'),
+            billingAddress: str('billingAddress'),
+            shippingAddress: str('shippingAddress'),
+            annualRevenue: num('annualRevenue'),
+            employeeCount: num('employeeCount'),
+            currency: str('currency'),
+            paymentTerms: pt,
+            category: cat,
+            logoUrl: str('logoUrl'),
             notes: [],
             createdAt: new Date(),
             status: 'active',
@@ -265,13 +309,48 @@ export async function updateCrmAccount(
         return { error: 'Company Name is required.' };
     }
 
+    const str = (k: string) => (formData.get(k) as string | null) || undefined;
+    const num = (k: string) => {
+        const v = formData.get(k);
+        if (v == null || v === '') return undefined;
+        const n = Number(v);
+        return Number.isFinite(n) ? n : undefined;
+    };
+    const cat = (() => {
+        const v = str('category');
+        return v && ['new', 'strategic', 'key', 'regular'].includes(v)
+            ? (v as CrmAccount['category'])
+            : undefined;
+    })();
+    const pt = (() => {
+        const v = str('paymentTerms');
+        return v &&
+            ['Net 15', 'Net 30', 'Net 45', 'Net 60', 'Immediate'].includes(v)
+            ? (v as CrmAccount['paymentTerms'])
+            : undefined;
+    })();
+
     if (useRustCrm()) {
         try {
             await accountApi.update(accountId, {
                 name,
-                industry: (formData.get('industry') as string | null) || undefined,
-                website: (formData.get('website') as string | null) || undefined,
-                phone: (formData.get('phone') as string | null) || undefined,
+                industry: str('industry'),
+                website: str('website'),
+                phone: str('phone'),
+                address: str('address'),
+                country: str('country'),
+                state: str('state'),
+                city: str('city'),
+                gstin: str('gstin'),
+                pan: str('pan'),
+                billingAddress: str('billingAddress'),
+                shippingAddress: str('shippingAddress'),
+                annualRevenue: num('annualRevenue'),
+                employeeCount: num('employeeCount'),
+                currency: str('currency'),
+                paymentTerms: pt,
+                category: cat,
+                logoUrl: str('logoUrl'),
             });
             revalidateAccountSurfaces(accountId);
             return { message: 'Account updated successfully.', accountId };
@@ -287,13 +366,32 @@ export async function updateCrmAccount(
     }
 
     try {
-        const accountUpdates: Partial<CrmAccount> = {
+        const accountUpdatesRaw: Record<string, unknown> = {
             name,
-            industry: (formData.get('industry') as string | null) || undefined,
-            website: (formData.get('website') as string | null) || undefined,
-            phone: (formData.get('phone') as string | null) || undefined,
+            industry: str('industry'),
+            website: str('website'),
+            phone: str('phone'),
+            address: str('address'),
+            country: str('country'),
+            state: str('state'),
+            city: str('city'),
+            gstin: str('gstin'),
+            pan: str('pan'),
+            billingAddress: str('billingAddress'),
+            shippingAddress: str('shippingAddress'),
+            annualRevenue: num('annualRevenue'),
+            employeeCount: num('employeeCount'),
+            currency: str('currency'),
+            paymentTerms: pt,
+            category: cat,
+            logoUrl: str('logoUrl'),
             updatedAt: new Date(),
         };
+        // Drop undefined keys so $set doesn't blank out existing values
+        // when a field wasn't submitted. (`name` is always set above.)
+        const accountUpdates = Object.fromEntries(
+            Object.entries(accountUpdatesRaw).filter(([, v]) => v !== undefined),
+        ) as Partial<CrmAccount>;
 
         const { db } = await connectToDatabase();
         const result = await db
@@ -433,5 +531,90 @@ export async function unarchiveCrmAccount(
         return { success: true };
     } catch (e: any) {
         return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+/* ─── getAccountRelatedCounts ──────────────────────────────────────────
+ * Lightweight aggregate of related-entity counts for the account detail
+ * right rail (§1D.2). Returns 0s on any failure so the UI never blocks.
+ */
+
+export async function getAccountRelatedCounts(accountId: string): Promise<{
+    contacts: number;
+    deals: number;
+    invoices: number;
+    quotations: number;
+    tickets: number;
+    tasks: number;
+}> {
+    const zero = {
+        contacts: 0,
+        deals: 0,
+        invoices: 0,
+        quotations: 0,
+        tickets: 0,
+        tasks: 0,
+    };
+
+    const session = await getSession();
+    if (!session?.user || !ObjectId.isValid(accountId)) return zero;
+
+    try {
+        const { db } = await connectToDatabase();
+        const userObjectId = new ObjectId(session.user._id);
+        const accountObjectId = new ObjectId(accountId);
+
+        const baseFilter = (
+            field: 'accountId' | 'clientId',
+        ): Filter<Document> => ({
+            userId: userObjectId,
+            [field]: accountObjectId,
+        });
+
+        const [contacts, deals, invoices, quotations, tickets, tasks] =
+            await Promise.all([
+                db
+                    .collection('crm_contacts')
+                    .countDocuments(baseFilter('accountId')),
+                db
+                    .collection('crm_deals')
+                    .countDocuments(baseFilter('accountId')),
+                db
+                    .collection('crm_invoices')
+                    .countDocuments({
+                        userId: userObjectId,
+                        $or: [
+                            { accountId: accountObjectId },
+                            { clientId: accountObjectId },
+                        ],
+                    }),
+                db
+                    .collection('crm_quotations')
+                    .countDocuments({
+                        userId: userObjectId,
+                        $or: [
+                            { accountId: accountObjectId },
+                            { clientId: accountObjectId },
+                        ],
+                    }),
+                db
+                    .collection('crm_tickets')
+                    .countDocuments(baseFilter('accountId')),
+                db
+                    .collection('crm_tasks')
+                    .countDocuments({
+                        userId: userObjectId,
+                        $or: [
+                            { 'linkedEntity.kind': 'account', 'linkedEntity.id': accountObjectId },
+                            { 'linkedEntity.kind': 'account', 'linkedEntity.id': accountId },
+                            { accountId: accountObjectId },
+                        ],
+                    } as Filter<Document>),
+            ]);
+
+        return { contacts, deals, invoices, quotations, tickets, tasks };
+    } catch (e) {
+        console.error('[getAccountRelatedCounts] failed:', e);
+        return zero;
     }
 }

@@ -1,265 +1,524 @@
-'use client';
+/**
+ * Account detail page — `/dashboard/crm/accounts/[accountId]` (§1D.2).
+ *
+ * Server Component. Hydrates the account, its first 5 contacts, and a
+ * Promise.all of related-entity counts (deals, invoices, quotations,
+ * tickets, tasks) so the right rail renders without client round-trips.
+ * Interactive bits (action buttons, archive confirm, compose email)
+ * live in `<AccountDetailInteractions>` — a small client island.
+ *
+ * Layout:
+ *   • Header: status pill · eyebrow · title · back · 9-button action group
+ *   • Main column: Profile · Contacts (first 5 + link) · Notes · Attachments
+ *   • Right rail: Quick stats · Related entities (counts) · Identifiers
+ *   • Footer: <EntityAuditTimeline />
+ */
 
-import { useEffect, useState, useTransition, useCallback } from 'react';
-import { useParams, useSearchParams, useRouter } from 'next/navigation';
-import { getCrmAccountById } from '@/app/actions/crm-accounts.actions';
-import { getCrmContacts } from '@/app/actions/crm.actions';
-import type { CrmAccount, CrmContact, WithId } from '@/lib/definitions';
-import {
-  ArrowLeft,
-  Building,
-  Link as LinkIcon,
-  Mail,
-  Phone,
-  Users,
-  ChevronLeft,
-  ChevronRight,
-} from 'lucide-react';
-import { CrmNotes } from '@/components/wabasimplify/crm-notes';
+import * as React from 'react';
 import Link from 'next/link';
-import { ComposeEmailDialog } from '@/components/wabasimplify/crm-compose-email-dialog';
+import { notFound } from 'next/navigation';
+import { formatDistanceToNow } from 'date-fns';
+import {
+    Banknote,
+    Building,
+    CheckSquare,
+    FileText,
+    Globe,
+    Handshake,
+    LifeBuoy,
+    Mail,
+    MapPin,
+    Phone as PhoneIcon,
+    Receipt,
+    Users,
+} from 'lucide-react';
 
 import {
-  ZoruButton,
-  ZoruCard,
-  ZoruSkeleton,
-  ZoruTable,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
+    ZoruButton,
+    ZoruCard,
+    ZoruCardContent,
+    ZoruCardHeader,
+    ZoruCardTitle,
+    ZoruBadge,
 } from '@/components/zoruui';
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
+import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
+import { StatusPill } from '@/components/crm/status-pill';
+import { CrmNotes } from '@/components/wabasimplify/crm-notes';
 
-const CONTACTS_PER_PAGE = 5;
+import {
+    getAccountRelatedCounts,
+    getCrmAccountById,
+} from '@/app/actions/crm-accounts.actions';
+import { getCrmContacts } from '@/app/actions/crm.actions';
 
-function AccountDetailPageSkeleton() {
-  return (
-    <div className="flex w-full flex-col gap-6">
-      <ZoruSkeleton className="h-8 w-48" />
-      <div className="grid gap-6 md:grid-cols-3">
-        <div className="space-y-4 md:col-span-1">
-          <ZoruSkeleton className="h-48 w-full rounded-xl" />
-        </div>
-        <div className="space-y-4 md:col-span-2">
-          <ZoruSkeleton className="h-96 w-full rounded-xl" />
-        </div>
-      </div>
-    </div>
-  );
+import { AccountDetailInteractions } from '../_components/accounts-detail-interactions';
+
+export const dynamic = 'force-dynamic';
+
+interface PageProps {
+    params: Promise<{ accountId: string }>;
 }
 
-export default function CrmAccountDetailPage() {
-  const params = useParams();
-  const searchParams = useSearchParams();
-  const router = useRouter();
-
-  const accountId = params.accountId as string;
-  const currentPage = Number(searchParams.get('page')) || 1;
-
-  const [account, setAccount] = useState<WithId<CrmAccount> | null>(null);
-  const [contacts, setContacts] = useState<WithId<CrmContact>[]>([]);
-  const [totalContacts, setTotalContacts] = useState(0);
-  const [isLoading, startTransition] = useTransition();
-  const [isComposeOpen, setIsComposeOpen] = useState(false);
-
-  const totalPages = Math.ceil(totalContacts / CONTACTS_PER_PAGE);
-
-  const fetchData = useCallback(() => {
-    if (accountId) {
-      startTransition(async () => {
-        const [fetchedAccount, fetchedContactsData] = await Promise.all([
-          getCrmAccountById(accountId),
-          getCrmContacts(currentPage, CONTACTS_PER_PAGE, undefined, accountId),
-        ]);
-        setAccount(fetchedAccount);
-        setContacts(fetchedContactsData.contacts);
-        setTotalContacts(fetchedContactsData.total);
-      });
+function categoryTone(
+    category: string | undefined,
+): 'green' | 'amber' | 'blue' | 'neutral' {
+    switch (category) {
+        case 'strategic':
+            return 'green';
+        case 'key':
+            return 'amber';
+        case 'new':
+            return 'blue';
+        default:
+            return 'neutral';
     }
-  }, [accountId, currentPage]);
+}
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+function dash(v: string | number | null | undefined): React.ReactNode {
+    if (v === null || v === undefined || v === '') {
+        return <span className="text-zoru-ink-muted">—</span>;
+    }
+    return v;
+}
 
-  const handlePageChange = (newPage: number) => {
-    const next = new URLSearchParams(searchParams.toString());
-    next.set('page', String(newPage));
-    router.push(`?${next.toString()}`);
-  };
+export default async function AccountDetailPage({ params }: PageProps) {
+    const { accountId } = await params;
+    const account = await getCrmAccountById(accountId);
+    if (!account) notFound();
 
-  if (isLoading || !account) {
-    return <AccountDetailPageSkeleton />;
-  }
+    const [contactsRes, counts] = await Promise.all([
+        getCrmContacts(1, 5, undefined, accountId),
+        getAccountRelatedCounts(accountId),
+    ]);
 
-  return (
-    <>
-      <ComposeEmailDialog
-        isOpen={isComposeOpen}
-        onOpenChange={setIsComposeOpen}
-        initialTo={contacts.map((c) => c.email).join(', ')}
-        initialSubject={`Regarding your account: ${account.name}`}
-      />
-      <div className="flex w-full flex-col gap-6">
-        <div className="flex items-center justify-between">
-          <Link
-            href="/dashboard/crm/accounts"
-            className="inline-flex items-center gap-1.5 text-[12.5px] text-zoru-ink-muted hover:text-zoru-ink"
-          >
-            <ArrowLeft className="h-3.5 w-3.5" strokeWidth={1.75} />
-            Back to All Accounts
-          </Link>
-          <Link
-            href={`/dashboard/crm/accounts/${accountId}/activity`}
-            className="inline-flex items-center gap-1.5 text-[12.5px] text-zoru-ink-muted hover:text-zoru-ink"
-          >
-            View activity
-          </Link>
-        </div>
+    const archived = account.status === 'archived';
+    const statusTone: 'green' | 'neutral' = archived ? 'neutral' : 'green';
+    const statusLabel = archived ? 'Archived' : 'Active';
 
-        <CrmPageHeader
-          title={account.name}
-          subtitle={account.industry || 'Account details and contacts'}
-          icon={Building}
-        />
+    const contactEmails = (contactsRes.contacts ?? [])
+        .map((c) => c.email)
+        .filter((e): e is string => !!e);
 
-        <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-3">
-          <div className="space-y-6 lg:col-span-1">
-            <ZoruCard className="p-6">
-              <div className="flex flex-col items-center text-center">
-                <div className="mb-3 flex h-16 w-16 items-center justify-center rounded-xl bg-accent">
-                  <Building className="h-8 w-8 text-accent-foreground" strokeWidth={1.75} />
-                </div>
-                <h2 className="text-[16px] font-semibold text-zoru-ink">{account.name}</h2>
-                <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
-                  {account.industry || 'N/A'}
-                </p>
-              </div>
+    const relatedRailItems: {
+        label: string;
+        count: number;
+        icon: React.ReactNode;
+        href: string;
+    }[] = [
+        {
+            label: 'Contacts',
+            count: counts.contacts,
+            icon: <Users className="h-4 w-4" />,
+            href: `/dashboard/crm/sales-crm/contacts?accountId=${accountId}`,
+        },
+        {
+            label: 'Deals',
+            count: counts.deals,
+            icon: <Handshake className="h-4 w-4" />,
+            href: `/dashboard/crm/sales-crm/deals?accountId=${accountId}`,
+        },
+        {
+            label: 'Invoices',
+            count: counts.invoices,
+            icon: <Receipt className="h-4 w-4" />,
+            href: `/dashboard/crm/sales/invoices?accountId=${accountId}`,
+        },
+        {
+            label: 'Quotations',
+            count: counts.quotations,
+            icon: <FileText className="h-4 w-4" />,
+            href: `/dashboard/crm/sales/quotations?accountId=${accountId}`,
+        },
+        {
+            label: 'Tickets',
+            count: counts.tickets,
+            icon: <LifeBuoy className="h-4 w-4" />,
+            href: `/dashboard/crm/tickets?accountId=${accountId}`,
+        },
+        {
+            label: 'Tasks',
+            count: counts.tasks,
+            icon: <CheckSquare className="h-4 w-4" />,
+            href: `/dashboard/crm/sales-crm/tasks?accountId=${accountId}`,
+        },
+    ];
 
-              <div className="mt-5 space-y-3 text-[13px]">
-                <ZoruButton
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => setIsComposeOpen(true)}
-                >
-                  <Mail className="h-3.5 w-3.5" strokeWidth={1.75} />
-                  Email All Contacts
-                </ZoruButton>
+    return (
+        <EntityDetailShell
+            title={account.name}
+            eyebrow="ACCOUNT"
+            status={{ label: statusLabel, tone: statusTone }}
+            back={{ href: '/dashboard/crm/accounts', label: 'All accounts' }}
+            actions={
+                <AccountDetailInteractions
+                    accountId={String(account._id)}
+                    name={account.name}
+                    industry={account.industry}
+                    website={account.website}
+                    phone={account.phone}
+                    country={account.country}
+                    state={account.state}
+                    city={account.city}
+                    currency={account.currency}
+                    category={account.category}
+                    archived={archived}
+                    contactEmails={contactEmails}
+                />
+            }
+            rightRail={
+                <>
+                    {/* ─── Quick stats ─── */}
+                    <ZoruCard>
+                        <ZoruCardHeader>
+                            <ZoruCardTitle>At a glance</ZoruCardTitle>
+                        </ZoruCardHeader>
+                        <ZoruCardContent className="space-y-3 text-[13px]">
+                            <div className="flex justify-between">
+                                <span className="text-zoru-ink-muted">
+                                    Category
+                                </span>
+                                <span>
+                                    {account.category ? (
+                                        <StatusPill
+                                            label={account.category}
+                                            tone={categoryTone(account.category)}
+                                        />
+                                    ) : (
+                                        dash(undefined)
+                                    )}
+                                </span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span className="text-zoru-ink-muted">
+                                    Currency
+                                </span>
+                                <span>{dash(account.currency)}</span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span className="text-zoru-ink-muted">
+                                    Payment terms
+                                </span>
+                                <span>{dash(account.paymentTerms)}</span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span className="text-zoru-ink-muted">
+                                    Annual revenue
+                                </span>
+                                <span>
+                                    {account.annualRevenue
+                                        ? account.annualRevenue.toLocaleString()
+                                        : dash(undefined)}
+                                </span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span className="text-zoru-ink-muted">
+                                    Employees
+                                </span>
+                                <span>{dash(account.employeeCount)}</span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span className="text-zoru-ink-muted">
+                                    Created
+                                </span>
+                                <span
+                                    title={
+                                        account.createdAt
+                                            ? new Date(
+                                                  account.createdAt,
+                                              ).toLocaleString()
+                                            : ''
+                                    }
+                                >
+                                    {account.createdAt
+                                        ? formatDistanceToNow(
+                                              new Date(account.createdAt),
+                                              { addSuffix: true },
+                                          )
+                                        : dash(undefined)}
+                                </span>
+                            </div>
+                        </ZoruCardContent>
+                    </ZoruCard>
 
-                <div className="flex items-center gap-3 pt-1 text-zoru-ink">
-                  <LinkIcon className="h-4 w-4 text-zoru-ink-muted" strokeWidth={1.75} />
-                  {account.website ? (
-                    <a
-                      href={account.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-primary hover:underline"
-                    >
-                      {account.website}
-                    </a>
-                  ) : (
-                    <span className="text-zoru-ink-muted">No website</span>
-                  )}
-                </div>
-                <div className="flex items-center gap-3 text-zoru-ink">
-                  <Phone className="h-4 w-4 text-zoru-ink-muted" strokeWidth={1.75} />
-                  {account.phone ? (
-                    <a href={`tel:${account.phone}`} className="hover:underline">
-                      {account.phone}
-                    </a>
-                  ) : (
-                    <span className="text-zoru-ink-muted">N/A</span>
-                  )}
-                </div>
-              </div>
+                    {/* ─── Related entities ─── */}
+                    <ZoruCard>
+                        <ZoruCardHeader>
+                            <ZoruCardTitle>Related</ZoruCardTitle>
+                        </ZoruCardHeader>
+                        <ZoruCardContent className="space-y-1">
+                            {relatedRailItems.map((item) => (
+                                <Link
+                                    key={item.label}
+                                    href={item.href}
+                                    className="flex items-center justify-between rounded-md px-2 py-1.5 text-[13px] text-zoru-ink hover:bg-zoru-surface-2"
+                                >
+                                    <span className="inline-flex items-center gap-2 text-zoru-ink-muted">
+                                        {item.icon}
+                                        {item.label}
+                                    </span>
+                                    <ZoruBadge variant="secondary">
+                                        {item.count}
+                                    </ZoruBadge>
+                                </Link>
+                            ))}
+                        </ZoruCardContent>
+                    </ZoruCard>
+
+                    {/* ─── Identifiers ─── */}
+                    {(account.gstin || account.pan) ? (
+                        <ZoruCard>
+                            <ZoruCardHeader>
+                                <ZoruCardTitle>Identifiers</ZoruCardTitle>
+                            </ZoruCardHeader>
+                            <ZoruCardContent className="space-y-3 text-[13px]">
+                                <div className="flex justify-between">
+                                    <span className="text-zoru-ink-muted">
+                                        GSTIN
+                                    </span>
+                                    <span className="font-mono">
+                                        {dash(account.gstin)}
+                                    </span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-zoru-ink-muted">
+                                        PAN
+                                    </span>
+                                    <span className="font-mono">
+                                        {dash(account.pan)}
+                                    </span>
+                                </div>
+                            </ZoruCardContent>
+                        </ZoruCard>
+                    ) : null}
+                </>
+            }
+            audit={
+                <EntityAuditTimeline
+                    entityKind="account"
+                    entityId={accountId}
+                />
+            }
+        >
+            {/* ─── Profile ─── */}
+            <ZoruCard>
+                <ZoruCardHeader>
+                    <ZoruCardTitle>Profile</ZoruCardTitle>
+                </ZoruCardHeader>
+                <ZoruCardContent>
+                    <div className="grid gap-4 md:grid-cols-2">
+                        <div className="flex items-center gap-3 text-[13px]">
+                            <Building className="h-4 w-4 text-zoru-ink-muted" />
+                            <div className="flex flex-col">
+                                <span className="text-zoru-ink-muted text-[11.5px] uppercase tracking-wide">
+                                    Industry
+                                </span>
+                                <span>{dash(account.industry)}</span>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-3 text-[13px]">
+                            <Globe className="h-4 w-4 text-zoru-ink-muted" />
+                            <div className="flex flex-col">
+                                <span className="text-zoru-ink-muted text-[11.5px] uppercase tracking-wide">
+                                    Website
+                                </span>
+                                {account.website ? (
+                                    <a
+                                        href={account.website}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-primary hover:underline"
+                                    >
+                                        {account.website}
+                                    </a>
+                                ) : (
+                                    <span>{dash(undefined)}</span>
+                                )}
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-3 text-[13px]">
+                            <PhoneIcon className="h-4 w-4 text-zoru-ink-muted" />
+                            <div className="flex flex-col">
+                                <span className="text-zoru-ink-muted text-[11.5px] uppercase tracking-wide">
+                                    Phone
+                                </span>
+                                {account.phone ? (
+                                    <a
+                                        href={`tel:${account.phone}`}
+                                        className="hover:underline"
+                                    >
+                                        {account.phone}
+                                    </a>
+                                ) : (
+                                    <span>{dash(undefined)}</span>
+                                )}
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-3 text-[13px]">
+                            <MapPin className="h-4 w-4 text-zoru-ink-muted" />
+                            <div className="flex flex-col">
+                                <span className="text-zoru-ink-muted text-[11.5px] uppercase tracking-wide">
+                                    Location
+                                </span>
+                                <span>
+                                    {dash(
+                                        [
+                                            account.city,
+                                            account.state,
+                                            account.country,
+                                        ]
+                                            .filter(Boolean)
+                                            .join(', '),
+                                    )}
+                                </span>
+                            </div>
+                        </div>
+                        {account.address ? (
+                            <div className="flex items-start gap-3 text-[13px] md:col-span-2">
+                                <MapPin className="mt-0.5 h-4 w-4 text-zoru-ink-muted" />
+                                <div className="flex flex-col">
+                                    <span className="text-zoru-ink-muted text-[11.5px] uppercase tracking-wide">
+                                        Registered address
+                                    </span>
+                                    <span className="whitespace-pre-line">
+                                        {account.address}
+                                    </span>
+                                </div>
+                            </div>
+                        ) : null}
+                        {account.billingAddress ? (
+                            <div className="flex items-start gap-3 text-[13px] md:col-span-2">
+                                <Banknote className="mt-0.5 h-4 w-4 text-zoru-ink-muted" />
+                                <div className="flex flex-col">
+                                    <span className="text-zoru-ink-muted text-[11.5px] uppercase tracking-wide">
+                                        Billing address
+                                    </span>
+                                    <span className="whitespace-pre-line">
+                                        {account.billingAddress}
+                                    </span>
+                                </div>
+                            </div>
+                        ) : null}
+                        {account.shippingAddress ? (
+                            <div className="flex items-start gap-3 text-[13px] md:col-span-2">
+                                <MapPin className="mt-0.5 h-4 w-4 text-zoru-ink-muted" />
+                                <div className="flex flex-col">
+                                    <span className="text-zoru-ink-muted text-[11.5px] uppercase tracking-wide">
+                                        Shipping address
+                                    </span>
+                                    <span className="whitespace-pre-line">
+                                        {account.shippingAddress}
+                                    </span>
+                                </div>
+                            </div>
+                        ) : null}
+                    </div>
+                </ZoruCardContent>
             </ZoruCard>
 
-            <CrmNotes
-              recordId={account._id.toString()}
-              recordType="account"
-              notes={account.notes || []}
-            />
-          </div>
-
-          <div className="space-y-6 lg:col-span-2">
-            <ZoruCard className="p-6">
-              <div className="mb-4 flex items-center gap-2">
-                <Users className="h-4 w-4 text-zoru-ink-muted" strokeWidth={1.75} />
-                <h2 className="text-[16px] font-semibold text-zoru-ink">Associated Contacts</h2>
-              </div>
-              <div className="overflow-x-auto rounded-lg border border-zoru-line">
-                <ZoruTable>
-                  <ZoruTableHeader>
-                    <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                      <ZoruTableHead className="text-zoru-ink-muted">Name</ZoruTableHead>
-                      <ZoruTableHead className="text-zoru-ink-muted">Email</ZoruTableHead>
-                      <ZoruTableHead className="text-zoru-ink-muted">Job Title</ZoruTableHead>
-                    </ZoruTableRow>
-                  </ZoruTableHeader>
-                  <ZoruTableBody>
-                    {contacts.length > 0 ? (
-                      contacts.map((contact) => (
-                        <ZoruTableRow
-                          key={contact._id.toString()}
-                          onClick={() =>
-                            (window.location.href = `/dashboard/crm/contacts/${contact._id.toString()}`)
-                          }
-                          className="cursor-pointer border-zoru-line"
-                        >
-                          <ZoruTableCell className="text-[13px] font-medium text-zoru-ink">
-                            {contact.name}
-                          </ZoruTableCell>
-                          <ZoruTableCell className="text-[13px] text-zoru-ink">
-                            {contact.email}
-                          </ZoruTableCell>
-                          <ZoruTableCell className="text-[13px] text-zoru-ink">
-                            {contact.jobTitle || 'N/A'}
-                          </ZoruTableCell>
-                        </ZoruTableRow>
-                      ))
+            {/* ─── Contacts ─── */}
+            <ZoruCard>
+                <ZoruCardHeader>
+                    <div className="flex items-center justify-between">
+                        <ZoruCardTitle>
+                            Contacts ({counts.contacts})
+                        </ZoruCardTitle>
+                        <ZoruButton asChild variant="outline" size="sm">
+                            <Link
+                                href={`/dashboard/crm/sales-crm/contacts/new?accountId=${accountId}`}
+                            >
+                                + Add contact
+                            </Link>
+                        </ZoruButton>
+                    </div>
+                </ZoruCardHeader>
+                <ZoruCardContent>
+                    {contactsRes.contacts.length > 0 ? (
+                        <ul className="divide-y divide-zoru-line">
+                            {contactsRes.contacts.map((c) => (
+                                <li
+                                    key={String(c._id)}
+                                    className="flex items-center justify-between py-2"
+                                >
+                                    <div className="min-w-0">
+                                        <Link
+                                            href={`/dashboard/crm/sales-crm/contacts/${String(c._id)}`}
+                                            className="text-[13px] font-medium text-zoru-ink hover:underline"
+                                        >
+                                            {c.name}
+                                        </Link>
+                                        <div className="truncate text-[12px] text-zoru-ink-muted">
+                                            {c.email}
+                                            {c.jobTitle ? ` · ${c.jobTitle}` : ''}
+                                        </div>
+                                    </div>
+                                    {c.email ? (
+                                        <a
+                                            href={`mailto:${c.email}`}
+                                            className="text-zoru-ink-muted hover:text-zoru-ink"
+                                            aria-label={`Email ${c.name}`}
+                                        >
+                                            <Mail className="h-4 w-4" />
+                                        </a>
+                                    ) : null}
+                                </li>
+                            ))}
+                        </ul>
                     ) : (
-                      <ZoruTableRow className="border-zoru-line">
-                        <ZoruTableCell
-                          colSpan={3}
-                          className="h-24 text-center text-[13px] text-zoru-ink-muted"
-                        >
-                          No contacts associated with this account.
-                        </ZoruTableCell>
-                      </ZoruTableRow>
+                        <p className="text-[13px] text-zoru-ink-muted">
+                            No contacts yet. Add the people who buy from,
+                            influence, or champion this account.
+                        </p>
                     )}
-                  </ZoruTableBody>
-                </ZoruTable>
-              </div>
-
-              {totalPages > 1 && (
-                <div className="flex items-center justify-end gap-2 pt-4">
-                  <span className="text-[12.5px] text-zoru-ink-muted">
-                    Page {currentPage} of {totalPages}
-                  </span>
-                  <ZoruButton
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    disabled={currentPage <= 1}
-                  >
-                    <ChevronLeft className="h-4 w-4" strokeWidth={1.75} />
-                  </ZoruButton>
-                  <ZoruButton
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    disabled={currentPage >= totalPages}
-                  >
-                    <ChevronRight className="h-4 w-4" strokeWidth={1.75} />
-                  </ZoruButton>
-                </div>
-              )}
+                    {counts.contacts > contactsRes.contacts.length ? (
+                        <div className="mt-3">
+                            <Link
+                                href={`/dashboard/crm/sales-crm/contacts?accountId=${accountId}`}
+                                className="text-[12.5px] text-primary hover:underline"
+                            >
+                                View all {counts.contacts} contacts →
+                            </Link>
+                        </div>
+                    ) : null}
+                </ZoruCardContent>
             </ZoruCard>
-          </div>
-        </div>
-      </div>
-    </>
-  );
+
+            {/* ─── Notes ─── */}
+            <CrmNotes
+                recordId={String(account._id)}
+                recordType="account"
+                notes={account.notes ?? []}
+            />
+
+            {/* ─── Attachments ─── */}
+            {Array.isArray(account.attachments) &&
+            account.attachments.length > 0 ? (
+                <ZoruCard>
+                    <ZoruCardHeader>
+                        <ZoruCardTitle>
+                            Attachments ({account.attachments.length})
+                        </ZoruCardTitle>
+                    </ZoruCardHeader>
+                    <ZoruCardContent>
+                        <ul className="space-y-2">
+                            {account.attachments.map((url, idx) => (
+                                <li key={url + idx} className="text-[13px]">
+                                    <a
+                                        href={url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-primary hover:underline"
+                                    >
+                                        {url.split('/').pop() ?? url}
+                                    </a>
+                                </li>
+                            ))}
+                        </ul>
+                        {/* TODO 1D.2: inline add via <SabFilePickerButton> when
+                            an `addAccountAttachment` action lands. */}
+                    </ZoruCardContent>
+                </ZoruCard>
+            ) : null}
+        </EntityDetailShell>
+    );
 }
