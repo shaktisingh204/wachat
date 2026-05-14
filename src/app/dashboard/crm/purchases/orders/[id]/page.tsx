@@ -1,76 +1,132 @@
 /**
  * Purchase order detail — `/dashboard/crm/purchases/orders/[id]`.
  *
- * Server component: hydrates the PO via the Rust client, resolves the
- * vendor / warehouse / branch chips through `<EntityPickerChip>`, and
- * renders the line-item table and totals. Edit and Back actions live
- * on this page; the delete dialog is on the list page.
- *
- * Purchase Orders skip the custom-field panel — `'purchaseOrder'` is
- * not a registered `WsCustomFieldBelongsTo` key.
+ * Server component per CRM_REBUILD_PLAN §1D.2. Composes:
+ *   - Header: status pill (click → status change) + 10+ action buttons.
+ *   - Body cards via `<PurchaseOrderDetailBody>`: Overview, Approval
+ *     workflow, Vendor, Line items, Money summary. Plus inline cards
+ *     for notes, attachments, tags.
+ *   - Right rail: LineageRail · Vendor chip + outstanding balance ·
+ *     quick-edit chips · related entities.
+ *   - Audit footer via `<EntityAuditTimeline>`.
+ *   - `?print=1` renders the standalone print layout.
  */
 
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ShoppingBag, Pencil, ArrowLeft } from 'lucide-react';
+import { ObjectId } from 'mongodb';
+import { ArrowLeft, ClipboardList } from 'lucide-react';
 
 import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
-import { getPurchaseOrder } from '@/app/actions/crm/purchase-orders.actions';
+import { LineageRail } from '@/components/crm/lineage-rail';
+import {
+  getCrmPurchaseOrderRelatedCounts,
+  getPurchaseOrder,
+} from '@/app/actions/crm/purchase-orders.actions';
+import { getSession } from '@/app/actions/user.actions';
+import { connectToDatabase } from '@/lib/mongodb';
+import type { LineageKind } from '@/lib/definitions';
+
+import { PurchaseOrderDetailActions } from '../_components/purchase-order-detail-actions';
+import { PurchaseOrderDetailBody } from '../_components/purchase-order-detail-body';
+import { PurchaseOrderPrintView } from '../_components/purchase-order-print-view';
+import { PurchaseOrderQuickEdits } from '../_components/purchase-order-quick-edits';
+import { PurchaseOrderRelatedRail } from '../_components/purchase-order-related-rail';
 
 export const dynamic = 'force-dynamic';
 
-function fmtMoney(value?: number, currency?: string): string {
-  if (typeof value !== 'number') return '—';
+interface PageProps {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ print?: string }>;
+}
+
+function fmtMoney(value: number | undefined, currency: string): string {
+  if (typeof value !== 'number' || Number.isNaN(value)) return '—';
   try {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
-      currency: currency || 'INR',
+      currency,
       maximumFractionDigits: 2,
     }).format(value);
   } catch {
-    return `${currency || 'INR'} ${value.toFixed(2)}`;
+    return `${currency} ${value}`;
   }
 }
 
-function fmtDate(v?: string): string {
+function fmtDate(v?: string | null): string {
   if (!v) return '—';
   const d = new Date(v);
-  return isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
+  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
 }
 
-function statusLabel(status?: string): string {
-  if (!status) return '—';
-  return status
-    .split('_')
-    .map((p) => (p ? p[0].toUpperCase() + p.slice(1) : p))
-    .join(' ');
-}
-
-function Field({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div>
-      <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
-        {label}
-      </div>
-      <div className="mt-1 text-[13px] text-zoru-ink">{children}</div>
-    </div>
-  );
+async function hydrateVendor(
+  vendorId: string | undefined,
+  userId: ObjectId,
+): Promise<{
+  name: string | null;
+  email: string | null;
+  phone: string | null;
+  outstanding: number | null;
+}> {
+  if (!vendorId || !ObjectId.isValid(vendorId)) {
+    return { name: null, email: null, phone: null, outstanding: null };
+  }
+  try {
+    const { db } = await connectToDatabase();
+    const doc = await db
+      .collection('crm_vendors')
+      .findOne(
+        { _id: new ObjectId(vendorId), userId },
+        {
+          projection: {
+            name: 1,
+            vendorName: 1,
+            email: 1,
+            phone: 1,
+            outstanding: 1,
+            balance: 1,
+          },
+        },
+      );
+    const rec = doc as
+      | {
+          name?: string;
+          vendorName?: string;
+          email?: string;
+          phone?: string;
+          outstanding?: number;
+          balance?: number;
+        }
+      | null;
+    return {
+      name: rec?.name ?? rec?.vendorName ?? null,
+      email: rec?.email ?? null,
+      phone: rec?.phone ?? null,
+      outstanding:
+        typeof rec?.outstanding === 'number'
+          ? rec.outstanding
+          : typeof rec?.balance === 'number'
+            ? rec.balance
+            : null,
+    };
+  } catch {
+    return { name: null, email: null, phone: null, outstanding: null };
+  }
 }
 
 export default async function PurchaseOrderDetailPage({
   params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+  searchParams,
+}: PageProps) {
   const { id } = await params;
+  const sp = await searchParams;
+  const printMode = sp?.print === '1';
+
+  const session = await getSession();
+
   const { order, error } = await getPurchaseOrder(id);
 
   if (!order) {
@@ -91,242 +147,220 @@ export default async function PurchaseOrderDetailPage({
     notFound();
   }
 
+  const poId = String(order._id);
   const currency = order.currency || 'INR';
-  const items = order.items ?? [];
+  const status =
+    typeof order.status === 'string' ? order.status : 'draft';
+  const totals = order.totals ?? { subTotal: 0, total: 0 };
+
+  const userObjectId = session?.user?._id
+    ? new ObjectId(String(session.user._id))
+    : null;
+  const [vendor, related] = await Promise.all([
+    userObjectId
+      ? hydrateVendor(order.vendorId, userObjectId)
+      : Promise.resolve({
+          name: null,
+          email: null,
+          phone: null,
+          outstanding: null,
+        }),
+    getCrmPurchaseOrderRelatedCounts(poId),
+  ]);
+
+  if (printMode) {
+    return (
+      <PurchaseOrderPrintView
+        order={order}
+        vendorLabel={vendor.name ?? order.vendorId}
+      />
+    );
+  }
+
+  const buyerId = order.assignment?.assignedTo
+    ? String(order.assignment.assignedTo)
+    : null;
+  const approverId = order.approval?.approvedBy
+    ? String(order.approval.approvedBy)
+    : order.approval?.requestedBy
+      ? String(order.approval.requestedBy)
+      : null;
 
   return (
     <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title={order.poNo || 'Purchase order'}
-        subtitle={`PO dated ${fmtDate(order.date)}`}
-        icon={ShoppingBag}
-        actions={
-          <>
-            <ZoruButton variant="outline" asChild>
-              <Link href="/dashboard/crm/purchases/orders">
-                <ArrowLeft className="h-4 w-4" /> Back
-              </Link>
-            </ZoruButton>
-            <ZoruButton asChild>
-              <Link href={`/dashboard/crm/purchases/orders/${id}/edit`}>
-                <Pencil className="h-4 w-4" /> Edit
-              </Link>
-            </ZoruButton>
-          </>
-        }
-      />
-
-      <div className="grid gap-6 lg:grid-cols-3">
-        <ZoruCard className="p-6 lg:col-span-2">
-          <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
-            Header
-          </h3>
-          <div className="grid gap-4 md:grid-cols-2">
-            <Field label="PO number">{order.poNo || '—'}</Field>
-            <Field label="Vendor">
-              {order.vendorId ? (
-                <EntityPickerChip entity="vendor" id={order.vendorId} />
-              ) : (
-                '—'
-              )}
-            </Field>
-            <Field label="PO date">{fmtDate(order.date)}</Field>
-            <Field label="Expected delivery">
-              {fmtDate(order.expectedDelivery)}
-            </Field>
-            <Field label="Ship-to warehouse">
-              {order.shipToWarehouseId ? (
-                <EntityPickerChip
-                  entity="warehouse"
-                  id={order.shipToWarehouseId}
-                />
-              ) : (
-                '—'
-              )}
-            </Field>
-            <Field label="Billing branch">
-              {order.billingBranchId ? (
-                <EntityPickerChip
-                  entity="branch"
-                  id={order.billingBranchId}
-                />
-              ) : (
-                '—'
-              )}
-            </Field>
-            <Field label="Payment terms">{order.paymentTerms || '—'}</Field>
-            <Field label="Currency">{currency}</Field>
-          </div>
-        </ZoruCard>
-
-        <ZoruCard className="p-6">
-          <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
-            Status
-          </h3>
-          <div className="flex flex-col gap-4">
-            <Field label="Workflow">
-              {order.status ? (
-                <ZoruBadge variant="outline">
-                  {statusLabel(typeof order.status === 'string' ? order.status : undefined)}
-                </ZoruBadge>
-              ) : (
-                '—'
-              )}
-            </Field>
-            <Field label="Approved by">
-              {order.approval?.approvedBy ? (
-                <EntityPickerChip
-                  entity="user"
-                  id={order.approval.approvedBy}
-                />
-              ) : (
-                '—'
-              )}
-            </Field>
-            <Field label="Approved at">
-              {fmtDate(order.approval?.approvedAt)}
-            </Field>
-          </div>
-        </ZoruCard>
+      <div className="flex flex-col gap-3">
+        <Link
+          href="/dashboard/crm/purchases/orders"
+          className="inline-flex items-center gap-1.5 text-[12.5px] text-zoru-ink-muted hover:text-zoru-ink"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" /> Back to Purchase Orders
+        </Link>
+        <CrmPageHeader
+          title={order.poNo || 'Purchase order'}
+          subtitle={`Issued ${fmtDate(order.date)} · Expected ${fmtDate(order.expectedDelivery)} · ${fmtMoney(totals.total, currency)}`}
+          breadcrumbs={[
+            { label: 'CRM', href: '/dashboard/crm' },
+            { label: 'Purchases', href: '/dashboard/crm/purchases' },
+            {
+              label: 'Purchase Orders',
+              href: '/dashboard/crm/purchases/orders',
+            },
+            { label: order.poNo || 'Purchase order' },
+          ]}
+        />
+        <PurchaseOrderDetailActions
+          poId={poId}
+          poNo={order.poNo ?? ''}
+          status={status}
+          contactEmail={vendor.email}
+          contactPhone={vendor.phone}
+        />
       </div>
 
-      <ZoruCard className="overflow-hidden p-0">
-        <div className="border-b border-zoru-line p-3">
-          <h3 className="text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
-            Line items
-          </h3>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-[12.5px]">
-            <thead>
-              <tr className="border-b border-zoru-line bg-zoru-surface-2 text-left text-zoru-ink-muted">
-                <th className="px-3 py-2 font-medium">Description</th>
-                <th className="px-3 py-2 font-medium">HSN/SAC</th>
-                <th className="px-3 py-2 text-right font-medium">Qty</th>
-                <th className="px-3 py-2 font-medium">Unit</th>
-                <th className="px-3 py-2 text-right font-medium">Rate</th>
-                <th className="px-3 py-2 text-right font-medium">Disc %</th>
-                <th className="px-3 py-2 text-right font-medium">Tax %</th>
-                <th className="px-3 py-2 text-right font-medium">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={8}
-                    className="h-20 px-3 text-center text-zoru-ink-muted"
-                  >
-                    No line items.
-                  </td>
-                </tr>
-              ) : (
-                items.map((it, idx) => (
-                  <tr
-                    key={idx}
-                    className="border-b border-zoru-line/60 text-zoru-ink"
-                  >
-                    <td className="px-3 py-2">{it.description || '—'}</td>
-                    <td className="px-3 py-2 text-zoru-ink-muted">
-                      {it.hsnSac || '—'}
-                    </td>
-                    <td className="px-3 py-2 text-right tabular-nums">
-                      {it.qty ?? '—'}
-                    </td>
-                    <td className="px-3 py-2 text-zoru-ink-muted">
-                      {it.unit || '—'}
-                    </td>
-                    <td className="px-3 py-2 text-right tabular-nums">
-                      {fmtMoney(it.rate, currency)}
-                    </td>
-                    <td className="px-3 py-2 text-right tabular-nums text-zoru-ink-muted">
-                      {typeof it.discountPct === 'number'
-                        ? `${it.discountPct}%`
-                        : '—'}
-                    </td>
-                    <td className="px-3 py-2 text-right tabular-nums text-zoru-ink-muted">
-                      {typeof it.taxRatePct === 'number'
-                        ? `${it.taxRatePct}%`
-                        : '—'}
-                    </td>
-                    <td className="px-3 py-2 text-right font-medium tabular-nums">
-                      {fmtMoney(it.total, currency)}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-        <div className="grid gap-4 border-t border-zoru-line p-4 md:grid-cols-2">
-          <div />
-          <div className="flex flex-col gap-1 text-[13px]">
-            <div className="flex justify-between text-zoru-ink-muted">
-              <span>Sub-total</span>
-              <span className="tabular-nums">
-                {fmtMoney(order.totals?.subTotal, currency)}
-              </span>
-            </div>
-            {typeof order.totals?.discountOverall === 'number' ? (
-              <div className="flex justify-between text-zoru-ink-muted">
-                <span>Discount</span>
-                <span className="tabular-nums">
-                  {fmtMoney(-order.totals.discountOverall, currency)}
-                </span>
-              </div>
-            ) : null}
-            {typeof order.totals?.shippingCharge === 'number' ? (
-              <div className="flex justify-between text-zoru-ink-muted">
-                <span>Shipping</span>
-                <span className="tabular-nums">
-                  {fmtMoney(order.totals.shippingCharge, currency)}
-                </span>
-              </div>
-            ) : null}
-            {typeof order.totals?.adjustment === 'number' ? (
-              <div className="flex justify-between text-zoru-ink-muted">
-                <span>Adjustment</span>
-                <span className="tabular-nums">
-                  {fmtMoney(order.totals.adjustment, currency)}
-                </span>
-              </div>
-            ) : null}
-            {typeof order.totals?.roundOff === 'number' ? (
-              <div className="flex justify-between text-zoru-ink-muted">
-                <span>Round off</span>
-                <span className="tabular-nums">
-                  {fmtMoney(order.totals.roundOff, currency)}
-                </span>
-              </div>
-            ) : null}
-            <div className="mt-2 flex justify-between border-t border-zoru-line pt-2 text-[14px] font-semibold text-zoru-ink">
-              <span>Grand total</span>
-              <span className="tabular-nums">
-                {fmtMoney(order.totals?.total, currency)}
-              </span>
-            </div>
-          </div>
-        </div>
-      </ZoruCard>
+      <div className="flex flex-col gap-6 md:flex-row md:items-start">
+        <main className="min-w-0 flex-1 space-y-6">
+          <PurchaseOrderDetailBody
+            order={order}
+            vendor={{
+              name: vendor.name,
+              email: vendor.email,
+              phone: vendor.phone,
+            }}
+          />
 
-      {order.termsAndConditions || order.notes ? (
-        <ZoruCard className="p-6">
-          <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
-            Terms &amp; notes
-          </h3>
-          <div className="grid gap-4 md:grid-cols-2">
-            <Field label="Terms &amp; conditions">
-              {order.termsAndConditions || '—'}
-            </Field>
-            <Field label="Notes">{order.notes || '—'}</Field>
-          </div>
-        </ZoruCard>
-      ) : null}
+          {/* Notes */}
+          {order.notes || order.termsAndConditions ? (
+            <ZoruCard className="p-6">
+              <h2 className="mb-3 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+                Notes
+              </h2>
+              <div className="grid gap-4 md:grid-cols-2 text-[13px]">
+                {order.notes ? (
+                  <div>
+                    <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+                      Internal notes
+                    </div>
+                    <p className="mt-1 whitespace-pre-wrap">{order.notes}</p>
+                  </div>
+                ) : null}
+                {order.termsAndConditions ? (
+                  <div>
+                    <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+                      Terms &amp; conditions
+                    </div>
+                    <p className="mt-1 whitespace-pre-wrap">
+                      {order.termsAndConditions}
+                    </p>
+                  </div>
+                ) : null}
+              </div>
+            </ZoruCard>
+          ) : null}
 
-      <div className="text-[11px] text-zoru-ink-muted">
-        Created {fmtDate(order.createdAt || order.audit?.createdAt)} · Updated{' '}
-        {fmtDate(order.updatedAt || order.audit?.updatedAt)}
+          {/* Tags */}
+          {Array.isArray((order as { tags?: string[] }).tags) &&
+          (order as { tags?: string[] }).tags!.length > 0 ? (
+            <ZoruCard className="p-6">
+              <h2 className="mb-3 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+                Tags
+              </h2>
+              <div className="flex flex-wrap gap-2">
+                {(order as { tags?: string[] }).tags!.map((t) => (
+                  <ZoruBadge key={t} variant="outline">
+                    {t}
+                  </ZoruBadge>
+                ))}
+              </div>
+            </ZoruCard>
+          ) : null}
+        </main>
+
+        <aside className="w-full md:w-80 md:shrink-0">
+          <div className="space-y-4 md:sticky md:top-4">
+            <LineageRail
+              current={{
+                kind: 'purchaseOrder',
+                id: poId,
+                no: order.poNo,
+                status: typeof order.status === 'string' ? order.status : undefined,
+              }}
+              lineage={
+                (order.lineage ?? []) as Array<{
+                  kind: LineageKind;
+                  id: string;
+                  no?: string;
+                  status?: string;
+                }>
+              }
+            />
+
+            <ZoruCard className="p-4">
+              <h3 className="mb-3 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+                Vendor
+              </h3>
+              <div className="space-y-2 text-[12.5px]">
+                {order.vendorId ? (
+                  <EntityPickerChip entity="vendor" id={order.vendorId} />
+                ) : (
+                  <span className="text-zoru-ink-muted">No vendor linked</span>
+                )}
+                {vendor.outstanding != null ? (
+                  <div className="flex items-center justify-between gap-2 border-t border-zoru-line pt-2">
+                    <span className="text-zoru-ink-muted">Outstanding</span>
+                    <span
+                      className={`font-mono tabular-nums ${
+                        vendor.outstanding > 0
+                          ? 'text-zoru-danger-ink'
+                          : 'text-zoru-ink'
+                      }`}
+                    >
+                      {fmtMoney(vendor.outstanding, currency)}
+                    </span>
+                  </div>
+                ) : null}
+              </div>
+            </ZoruCard>
+
+            <ZoruCard className="p-4">
+              <h3 className="mb-3 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+                At a glance
+              </h3>
+              <PurchaseOrderQuickEdits
+                poId={poId}
+                status={status}
+                vendorId={order.vendorId}
+                buyerId={buyerId}
+                approverId={approverId}
+              />
+              <div className="mt-3 space-y-1.5 text-[12.5px]">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-zoru-ink-muted">Created</span>
+                  <span>
+                    {fmtDate(order.createdAt ?? order.audit?.createdAt)}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-zoru-ink-muted">Updated</span>
+                  <span>
+                    {fmtDate(order.updatedAt ?? order.audit?.updatedAt)}
+                  </span>
+                </div>
+              </div>
+            </ZoruCard>
+
+            <PurchaseOrderRelatedRail poId={poId} initial={related} />
+
+            <ZoruButton size="sm" variant="ghost" asChild className="w-full">
+              <Link href={`/dashboard/crm/purchases/orders/${poId}/activity`}>
+                <ClipboardList className="h-3.5 w-3.5" />
+                View full activity log
+              </Link>
+            </ZoruButton>
+          </div>
+        </aside>
       </div>
+
+      <EntityAuditTimeline entityKind="purchaseOrder" entityId={poId} />
     </div>
   );
 }

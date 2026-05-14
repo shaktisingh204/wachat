@@ -4,31 +4,18 @@
  * <DealListClient> — canonical Deals list view per CRM_REBUILD_PLAN §1D.
  *
  * Ships:
- *   - KPI strip (open count, open value, won/lost this month, avg cycle)
+ *   - KPI strip (open count, open value, won/lost this month, win rate, avg cycle)
  *   - View switcher (table | kanban | calendar)
  *   - Filters (pipeline → stage cascade, owner, status, date range, amount range, tags)
+ *   - Saved filter presets ("All", "My open", "Closing this week", "At-risk", "Won")
+ *   - Density toggle (Comfortable / Compact / Dense)
  *   - Search across title + client name
  *   - Bulk-action bar (archive / delete / export CSV / change-stage / assign-to)
- *
- * The list page hydrates this with a flat `deals` array + a `kpi` summary;
- * filtering, sorting, and search all happen client-side for snappy
- * interaction. The server-side action layer still respects userId scoping.
  */
 
 import * as React from 'react';
-import Link from 'next/link';
-import {
-  CalendarRange,
-  Columns3,
-  Download,
-  Plus,
-  Search,
-  Table as TableIcon,
-  Trophy,
-} from 'lucide-react';
 
 import {
-  ZoruButton,
   ZoruCard,
   ZoruInput,
   ZoruLabel,
@@ -37,7 +24,6 @@ import {
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  ZoruStatCard,
   useZoruToast,
 } from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
@@ -48,11 +34,17 @@ import { DealKanban } from './deal-kanban';
 import { DealCalendar } from './deal-calendar';
 import { DealTable } from './deal-table';
 import { DealBulkBar } from './deal-bulk-bar';
+import {
+  DealKpiStrip,
+  DealListToolbar,
+  type Density,
+  type PresetKey,
+  type ViewMode,
+} from './deal-list-toolbar';
+import { useDealBulk } from './use-deal-bulk';
 import type { DealKpiSummary, DealListRow } from './types';
 
 /* ─── Types ──────────────────────────────────────────────────────────── */
-
-type ViewMode = 'table' | 'kanban' | 'calendar';
 
 interface DealListClientProps {
   deals: DealListRow[];
@@ -63,6 +55,7 @@ interface DealListClientProps {
   kpi: DealKpiSummary;
   stages: string[];
   defaultCurrency: string;
+  currentUserId?: string | null;
   error?: string;
 }
 
@@ -73,20 +66,9 @@ const STATUS_OPTIONS = [
   { value: 'lost', label: 'Lost' },
 ];
 
-/* ─── Helpers ────────────────────────────────────────────────────────── */
+const DENSITY_KEY = 'crm.deals.density';
 
-function fmtMoney(value?: number | null, currency = 'INR'): string {
-  if (typeof value !== 'number' || Number.isNaN(value)) return '—';
-  try {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency,
-      maximumFractionDigits: 0,
-    }).format(value);
-  } catch {
-    return `${currency} ${value}`;
-  }
-}
+/* ─── Helpers ────────────────────────────────────────────────────────── */
 
 function deriveStatus(stage?: string): string {
   if (!stage) return 'open';
@@ -119,6 +101,17 @@ function toCsv(rows: DealListRow[]): string {
   return [head.join(','), ...body].join('\n');
 }
 
+function countWonLost(rows: DealListRow[]): { won: number; lost: number } {
+  let won = 0;
+  let lost = 0;
+  for (const r of rows) {
+    const s = deriveStatus(r.stage);
+    if (s === 'won') won++;
+    else if (s === 'lost') lost++;
+  }
+  return { won, lost };
+}
+
 /* ─── Component ──────────────────────────────────────────────────────── */
 
 export function DealListClient({
@@ -130,6 +123,7 @@ export function DealListClient({
   kpi,
   stages,
   defaultCurrency,
+  currentUserId,
   error,
 }: DealListClientProps) {
   const { toast } = useZoruToast();
@@ -146,25 +140,54 @@ export function DealListClient({
   const [toDate, setToDate] = React.useState('');
   const [amountMin, setAmountMin] = React.useState('');
   const [amountMax, setAmountMax] = React.useState('');
+  const [probMax, setProbMax] = React.useState('');
+  const [preset, setPreset] = React.useState<PresetKey>('all');
+  const [density, setDensity] = React.useState<Density>('comfortable');
 
   /* Selection */
   const [selected, setSelected] = React.useState<Set<string>>(new Set());
-  const toggleRow = (id: string) =>
-    setSelected((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
+  const toggleRow = React.useCallback(
+    (id: string) =>
+      setSelected((prev) => {
+        const next = new Set(prev);
+        if (next.has(id)) next.delete(id);
+        else next.add(id);
+        return next;
+      }),
+    [],
+  );
 
   /* Confirm dialog state */
   const [deletePending, setDeletePending] = React.useState(false);
+  const [archivePending, setArchivePending] = React.useState(false);
+
+  /* Hydrate density from localStorage on mount. */
+  React.useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem(DENSITY_KEY);
+      if (raw === 'comfortable' || raw === 'compact' || raw === 'dense') {
+        setDensity(raw);
+      }
+    } catch {
+      // ignore — localStorage unavailable
+    }
+  }, []);
+
+  const handleDensityChange = React.useCallback((next: Density) => {
+    setDensity(next);
+    try {
+      window.localStorage.setItem(DENSITY_KEY, next);
+    } catch {
+      // ignore
+    }
+  }, []);
 
   /* Filtered + sorted view */
   const filtered = React.useMemo(() => {
     const q = query.trim().toLowerCase();
     const min = amountMin ? Number(amountMin) : Number.NEGATIVE_INFINITY;
     const max = amountMax ? Number(amountMax) : Number.POSITIVE_INFINITY;
+    const probMaxN = probMax ? Number(probMax) : Number.POSITIVE_INFINITY;
     const from = fromDate ? new Date(fromDate).getTime() : null;
     const to = toDate ? new Date(toDate).getTime() : null;
 
@@ -179,6 +202,7 @@ export function DealListClient({
       if (statusFilter !== 'all' && deriveStatus(d.stage) !== statusFilter) return false;
       const amount = typeof d.amount === 'number' ? d.amount : 0;
       if (amount < min || amount > max) return false;
+      if (typeof d.probability === 'number' && d.probability > probMaxN) return false;
       if (from && d.expectedClose) {
         const t = new Date(d.expectedClose).getTime();
         if (!Number.isNaN(t) && t < from) return false;
@@ -203,24 +227,31 @@ export function DealListClient({
     toDate,
     amountMin,
     amountMax,
+    probMax,
     tagFilter,
   ]);
 
   /* Bulk actions */
-  const allSelectedOnPage = filtered.length > 0 && filtered.every((d) => selected.has(d._id));
-  const toggleAll = () =>
-    setSelected((prev) => {
-      if (allSelectedOnPage) {
+  const allSelectedOnPage =
+    filtered.length > 0 && filtered.every((d) => selected.has(d._id));
+  const toggleAll = React.useCallback(
+    () =>
+      setSelected((prev) => {
+        if (filtered.length === 0) return prev;
+        const allSel = filtered.every((d) => prev.has(d._id));
+        if (allSel) {
+          const next = new Set(prev);
+          for (const d of filtered) next.delete(d._id);
+          return next;
+        }
         const next = new Set(prev);
-        for (const d of filtered) next.delete(d._id);
+        for (const d of filtered) next.add(d._id);
         return next;
-      }
-      const next = new Set(prev);
-      for (const d of filtered) next.add(d._id);
-      return next;
-    });
+      }),
+    [filtered],
+  );
 
-  const exportCsv = () => {
+  const exportCsv = React.useCallback(() => {
     const rows = filtered.filter((d) => selected.size === 0 || selected.has(d._id));
     if (rows.length === 0) {
       toast({ title: 'Nothing to export', description: 'Filter or select rows first.' });
@@ -237,9 +268,9 @@ export function DealListClient({
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
     toast({ title: 'Exported', description: `${rows.length} deals saved to CSV.` });
-  };
+  }, [filtered, selected, toast]);
 
-  const clearFilters = () => {
+  const clearFilters = React.useCallback(() => {
     setQuery('');
     setPipelineFilter(null);
     setStageFilter(null);
@@ -250,7 +281,60 @@ export function DealListClient({
     setToDate('');
     setAmountMin('');
     setAmountMax('');
-  };
+    setProbMax('');
+    setPreset('all');
+  }, []);
+
+  /* Saved filter presets */
+  const applyPreset = React.useCallback(
+    (key: PresetKey) => {
+      setPreset(key);
+      const today = new Date();
+      const fmt = (d: Date) => d.toISOString().slice(0, 10);
+      if (key === 'all') {
+        clearFilters();
+        return;
+      }
+      if (key === 'my-open') {
+        setStatusFilter('open');
+        setOwnerFilter(currentUserId ?? null);
+        setFromDate('');
+        setToDate('');
+        setProbMax('');
+        return;
+      }
+      if (key === 'closing-week') {
+        const next7 = new Date(today.getTime() + 7 * 86_400_000);
+        setStatusFilter('open');
+        setFromDate(fmt(today));
+        setToDate(fmt(next7));
+        setProbMax('');
+        return;
+      }
+      if (key === 'at-risk') {
+        const next14 = new Date(today.getTime() + 14 * 86_400_000);
+        setStatusFilter('open');
+        setProbMax('30');
+        setFromDate('');
+        setToDate(fmt(next14));
+        return;
+      }
+      if (key === 'won') {
+        setStatusFilter('won');
+        setOwnerFilter(null);
+        setFromDate('');
+        setToDate('');
+        setProbMax('');
+      }
+    },
+    [clearFilters, currentUserId],
+  );
+
+  /* Bulk action handlers */
+  const bulk = useDealBulk({
+    selected,
+    onCleared: () => setSelected(new Set()),
+  });
 
   const filtersActive =
     Boolean(query) ||
@@ -262,42 +346,28 @@ export function DealListClient({
     Boolean(fromDate) ||
     Boolean(toDate) ||
     Boolean(amountMin) ||
-    Boolean(amountMax);
+    Boolean(amountMax) ||
+    Boolean(probMax);
+
+  /* KPI: win rate. */
+  const winRate = React.useMemo(() => {
+    const { won, lost } = countWonLost(serverDeals);
+    const total = won + lost;
+    if (total === 0) return null;
+    return Math.round((won / total) * 1000) / 10;
+  }, [serverDeals]);
 
   /* ─── Render ─────────────────────────────────────────────────────── */
 
   return (
     <div className="flex w-full flex-col gap-5">
       {/* KPI strip */}
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-        <ZoruStatCard
-          label="Open deals"
-          value={kpi.openCount.toLocaleString()}
-          period="currently active"
-          icon={<Trophy />}
-        />
-        <ZoruStatCard
-          label="Open pipeline"
-          value={fmtMoney(kpi.openValue, defaultCurrency)}
-          period="sum of open"
-        />
-        <ZoruStatCard
-          label="Won this month"
-          value={fmtMoney(kpi.wonThisMonth, defaultCurrency)}
-          period="closed-won"
-        />
-        <ZoruStatCard
-          label="Lost this month"
-          value={fmtMoney(kpi.lostThisMonth, defaultCurrency)}
-          period="closed-lost"
-          invertDelta
-        />
-        <ZoruStatCard
-          label="Avg cycle"
-          value={kpi.avgCycleDays > 0 ? `${kpi.avgCycleDays.toFixed(1)} d` : '—'}
-          period="created → close"
-        />
-      </div>
+      <DealKpiStrip
+        kpi={kpi}
+        defaultCurrency={defaultCurrency}
+        winRate={winRate}
+        onWinRateClick={() => setStatusFilter('won')}
+      />
 
       {error ? (
         <div className="rounded border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-[12.5px] text-amber-700 dark:text-amber-400">
@@ -307,64 +377,17 @@ export function DealListClient({
 
       <ZoruCard className="overflow-hidden p-0">
         {/* Toolbar */}
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zoru-line p-3">
-          <div className="relative w-full max-w-sm">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
-            <ZoruInput
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search title or client…"
-              className="h-9 pl-9 text-[13px]"
-              aria-label="Search deals"
-            />
-          </div>
-
-          <div className="flex items-center gap-1.5">
-            {/* View switcher */}
-            <div className="flex items-center rounded border border-zoru-line bg-zoru-surface p-0.5">
-              <ZoruButton
-                type="button"
-                variant={view === 'table' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setView('table')}
-                aria-pressed={view === 'table'}
-                aria-label="Table view"
-              >
-                <TableIcon className="h-3.5 w-3.5" />
-              </ZoruButton>
-              <ZoruButton
-                type="button"
-                variant={view === 'kanban' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setView('kanban')}
-                aria-pressed={view === 'kanban'}
-                aria-label="Kanban view"
-              >
-                <Columns3 className="h-3.5 w-3.5" />
-              </ZoruButton>
-              <ZoruButton
-                type="button"
-                variant={view === 'calendar' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setView('calendar')}
-                aria-pressed={view === 'calendar'}
-                aria-label="Calendar view"
-              >
-                <CalendarRange className="h-3.5 w-3.5" />
-              </ZoruButton>
-            </div>
-
-            <ZoruButton variant="outline" size="sm" onClick={exportCsv}>
-              <Download className="h-3.5 w-3.5" /> Export
-            </ZoruButton>
-
-            <ZoruButton size="sm" asChild>
-              <Link href="/dashboard/crm/sales-crm/deals/new">
-                <Plus className="h-3.5 w-3.5" /> New deal
-              </Link>
-            </ZoruButton>
-          </div>
-        </div>
+        <DealListToolbar
+          query={query}
+          onQueryChange={setQuery}
+          view={view}
+          onViewChange={setView}
+          density={density}
+          onDensityChange={handleDensityChange}
+          preset={preset}
+          onPresetChange={applyPreset}
+          onExportCsv={exportCsv}
+        />
 
         {/* Filters */}
         <details className="border-b border-zoru-line bg-zoru-surface-2/40" open>
@@ -392,7 +415,6 @@ export function DealListClient({
                 initialId={pipelineFilter}
                 onChange={(next) => {
                   setPipelineFilter(next);
-                  // Reset stage when pipeline changes.
                   setStageFilter(null);
                 }}
               />
@@ -458,6 +480,15 @@ export function DealListClient({
               />
             </div>
             <div className="space-y-1">
+              <ZoruLabel>Probability max %</ZoruLabel>
+              <ZoruInput
+                type="number"
+                value={probMax}
+                onChange={(e) => setProbMax(e.target.value)}
+                placeholder="100"
+              />
+            </div>
+            <div className="space-y-1">
               <ZoruLabel>Tag</ZoruLabel>
               <ZoruInput
                 value={tagFilter}
@@ -474,7 +505,10 @@ export function DealListClient({
           stages={stages}
           onExportCsv={exportCsv}
           onClear={() => setSelected(new Set())}
+          onArchive={() => setArchivePending(true)}
           onDelete={() => setDeletePending(true)}
+          onChangeStage={bulk.changeStage}
+          onAssign={bulk.assign}
         />
 
         {/* Body */}
@@ -495,6 +529,7 @@ export function DealListClient({
             allSelectedOnPage={allSelectedOnPage}
             filtersActive={filtersActive}
             defaultCurrency={defaultCurrency}
+            density={density}
           />
         )}
 
@@ -510,23 +545,29 @@ export function DealListClient({
         ) : null}
       </ZoruCard>
 
+      {/* Bulk-archive confirm */}
+      <ConfirmDialog
+        open={archivePending}
+        onOpenChange={setArchivePending}
+        title={`Archive ${selected.size} deal${selected.size === 1 ? '' : 's'}?`}
+        description="Archived deals are hidden from default views but can be restored later."
+        confirmLabel="Archive"
+        confirmTone="primary"
+        onConfirm={async () => bulk.archive()}
+      />
+
       {/* Bulk-delete confirm */}
       <ConfirmDialog
         open={deletePending}
         onOpenChange={setDeletePending}
         title={`Delete ${selected.size} deal${selected.size === 1 ? '' : 's'}?`}
-        description="This is a destructive action. The Rust delete endpoint is queued; for now this removes nothing."
-        confirmLabel="I understand"
+        description="This permanently removes the selected deals. This action cannot be undone."
+        confirmLabel="Delete"
         requireTyped="DELETE"
-        onConfirm={async () => {
-          toast({
-            title: 'Bulk delete deferred',
-            description:
-              'Hard-delete moves through the Rust action layer — flagging your selection for the dual-impl sweep.',
-          });
-          setSelected(new Set());
-        }}
+        onConfirm={async () => bulk.remove()}
       />
+
+      {bulk.pending ? <span className="sr-only">Working…</span> : null}
     </div>
   );
 }

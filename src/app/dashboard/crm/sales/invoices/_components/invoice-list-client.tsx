@@ -1,299 +1,490 @@
 'use client';
 
 /**
- * Client side of the Invoices list — owns the search box, the table, and
- * the hard-delete confirmation dialog. Search input is debounced and
- * writes back to the URL so the server component re-fetches.
+ * <InvoiceListClient> — canonical Invoices list view per CRM_REBUILD_PLAN §1D.
+ *
+ * Ships:
+ *   - KPI strip (outstanding, overdue, paid this month, drafts, avg days)
+ *   - View switcher (table | calendar)
+ *   - Filters (status, customer, sales agent, invoice date range, due
+ *     date range, currency, amount range, branch)
+ *   - Saved filter presets ("All", "My overdue", "Due this week", "Paid
+ *     last 30 days", "Drafts")
+ *   - Density toggle (Comfortable / Compact / Dense)
+ *   - Search across invoice no, customer name, customer email
+ *   - Bulk-action bar (archive / delete / export CSV / mark paid /
+ *     send / change status)
  */
 
 import * as React from 'react';
-import Link from 'next/link';
-import { useRouter, useSearchParams, usePathname } from 'next/navigation';
-import {
-  AlertCircle,
-  Pencil,
-  Search,
-  Trash2,
-  LoaderCircle,
-} from 'lucide-react';
 
 import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruBadge,
-  ZoruButton,
   ZoruCard,
-  ZoruInput,
-  ZoruTable,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
   useZoruToast,
 } from '@/components/zoruui';
 import { PaginationBar } from '@/components/crm/pagination-bar';
-import { EntityPickerChip } from '@/components/crm/entity-picker';
-import { deleteInvoiceAction } from '@/app/actions/crm/invoices.actions';
+import { ConfirmDialog } from '@/components/crm/confirm-dialog';
+
+import { InvoicesKpiStrip } from './invoices-kpi-strip';
+import { InvoicesToolbar } from './invoices-toolbar';
+import { InvoicesBulkBar } from './invoices-bulk-bar';
+import { InvoicesTable } from './invoices-table';
+import { InvoicesCalendar } from './invoices-calendar';
+import { InvoicesFilters } from './invoices-filters';
+import { useInvoicesBulk } from './use-invoices-bulk';
 import type {
-  CrmInvoiceDoc,
-  CrmInvoiceStatus,
-} from '@/lib/rust-client/crm-invoices';
+  InvoiceDensity,
+  InvoiceKpiSnapshot,
+  InvoiceListRow,
+  InvoicePresetKey,
+  InvoiceViewMode,
+} from './types';
 
 interface InvoiceListClientProps {
-  invoices: CrmInvoiceDoc[];
+  invoices: InvoiceListRow[];
   page: number;
   limit: number;
   hasMore: boolean;
   initialQuery: string;
+  kpi: InvoiceKpiSnapshot;
+  defaultCurrency: string;
+  currentUserId?: string | null;
   error?: string;
 }
 
-function fmtMoney(value?: number, currency?: string): string {
-  if (typeof value !== 'number') return '—';
-  try {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: currency || 'INR',
-      maximumFractionDigits: 2,
-    }).format(value);
-  } catch {
-    return `${currency || 'INR'} ${value}`;
-  }
+const DENSITY_KEY = 'crm.invoices.density';
+
+function toCsv(rows: InvoiceListRow[]): string {
+  const head = [
+    'invoiceNo',
+    'customer',
+    'invoiceDate',
+    'dueDate',
+    'currency',
+    'total',
+    'paid',
+    'balance',
+    'status',
+    'createdAt',
+  ];
+  const body = rows.map((r) =>
+    [
+      r.invoiceNo,
+      r.clientLabel ?? r.clientId ?? '',
+      r.date ?? '',
+      r.dueDate ?? '',
+      r.currency ?? '',
+      r.total ?? '',
+      r.paid ?? '',
+      r.balance ?? '',
+      r.status ?? '',
+      r.createdAt ?? '',
+    ]
+      .map((cell) => {
+        const v = String(cell ?? '');
+        return /[",\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v;
+      })
+      .join(','),
+  );
+  return [head.join(','), ...body].join('\n');
 }
 
-function fmtDate(v?: string): string {
-  if (!v) return '—';
-  const d = new Date(v);
-  return isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
-}
-
-const STATUS_VARIANT: Record<
-  CrmInvoiceStatus,
-  'ghost' | 'success' | 'warning' | 'danger'
-> = {
-  draft: 'ghost',
-  sent: 'warning',
-  paid: 'success',
-  partially_paid: 'warning',
-  overdue: 'danger',
-  cancelled: 'ghost',
-};
-
-function statusLabel(s?: string): string {
-  if (!s) return '—';
-  return s
-    .replace(/_/g, ' ')
-    .replace(/\b\w/g, (c) => c.toUpperCase());
+function isOverdue(row: InvoiceListRow): boolean {
+  if (!row.dueDate) return false;
+  const s = (row.status ?? '').toLowerCase();
+  if (s === 'paid' || s === 'cancelled') return false;
+  const t = new Date(row.dueDate).getTime();
+  return !Number.isNaN(t) && t < Date.now() && (row.balance ?? 0) > 0;
 }
 
 export function InvoiceListClient({
-  invoices,
+  invoices: serverInvoices,
   page,
   limit,
   hasMore,
   initialQuery,
+  kpi,
+  defaultCurrency,
+  currentUserId,
   error,
 }: InvoiceListClientProps) {
   const { toast } = useZoruToast();
-  const router = useRouter();
-  const pathname = usePathname();
-  const sp = useSearchParams();
 
-  const [query, setQuery] = React.useState(initialQuery);
-  const [pendingDelete, setPendingDelete] = React.useState<CrmInvoiceDoc | null>(
-    null,
-  );
-  const [deleting, startDelete] = React.useTransition();
+  /* View + density */
+  const [view, setView] = React.useState<InvoiceViewMode>('table');
+  const [density, setDensity] = React.useState<InvoiceDensity>('comfortable');
 
-  // Debounce search → URL.
+  /* Hydrate density from localStorage. */
   React.useEffect(() => {
-    if (query === initialQuery) return;
-    const t = setTimeout(() => {
-      const params = new URLSearchParams(sp?.toString() ?? '');
-      if (query.trim()) params.set('q', query.trim());
-      else params.delete('q');
-      params.set('page', '1');
-      const qs = params.toString();
-      router.push(qs ? `${pathname}?${qs}` : pathname);
-    }, 300);
-    return () => clearTimeout(t);
-  }, [query, initialQuery, sp, pathname, router]);
-
-  const confirmDelete = () => {
-    if (!pendingDelete?._id) return;
-    const id = String(pendingDelete._id);
-    const label = pendingDelete.invoiceNo || id;
-    startDelete(async () => {
-      const res = await deleteInvoiceAction(id);
-      if (res.success) {
-        toast({ title: 'Deleted', description: `${label} removed.` });
-        setPendingDelete(null);
-        router.refresh();
-      } else {
-        toast({
-          title: 'Delete failed',
-          description: res.error,
-          variant: 'destructive',
-        });
+    try {
+      const raw = window.localStorage.getItem(DENSITY_KEY);
+      if (raw === 'comfortable' || raw === 'compact' || raw === 'dense') {
+        setDensity(raw);
       }
+    } catch {
+      /* ignore */
+    }
+  }, []);
+  const handleDensityChange = React.useCallback((next: InvoiceDensity) => {
+    setDensity(next);
+    try {
+      window.localStorage.setItem(DENSITY_KEY, next);
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  /* Filters */
+  const [query, setQuery] = React.useState(initialQuery);
+  const [statusFilter, setStatusFilter] = React.useState<string>('all');
+  const [customerFilter, setCustomerFilter] = React.useState<string | null>(null);
+  const [agentFilter, setAgentFilter] = React.useState<string | null>(null);
+  const [branchFilter, setBranchFilter] = React.useState<string | null>(null);
+  const [currencyFilter, setCurrencyFilter] = React.useState<string | null>(null);
+  const [fromDate, setFromDate] = React.useState('');
+  const [toDate, setToDate] = React.useState('');
+  const [dueFrom, setDueFrom] = React.useState('');
+  const [dueTo, setDueTo] = React.useState('');
+  const [amountMin, setAmountMin] = React.useState('');
+  const [amountMax, setAmountMax] = React.useState('');
+  const [preset, setPreset] = React.useState<InvoicePresetKey>('all');
+
+  /* Selection */
+  const [selected, setSelected] = React.useState<Set<string>>(new Set());
+  const toggleRow = React.useCallback(
+    (id: string) =>
+      setSelected((prev) => {
+        const next = new Set(prev);
+        if (next.has(id)) next.delete(id);
+        else next.add(id);
+        return next;
+      }),
+    [],
+  );
+
+  /* Confirm dialogs */
+  const [deletePending, setDeletePending] = React.useState(false);
+  const [archivePending, setArchivePending] = React.useState(false);
+  const [markPaidPending, setMarkPaidPending] = React.useState(false);
+  const [sendPending, setSendPending] = React.useState(false);
+
+  /* Filtered view */
+  const filtered = React.useMemo(() => {
+    const q = query.trim().toLowerCase();
+    const min = amountMin ? Number(amountMin) : Number.NEGATIVE_INFINITY;
+    const max = amountMax ? Number(amountMax) : Number.POSITIVE_INFINITY;
+    const fromTs = fromDate ? new Date(fromDate).getTime() : null;
+    const toTs = toDate ? new Date(toDate).getTime() : null;
+    const dueFromTs = dueFrom ? new Date(dueFrom).getTime() : null;
+    const dueToTs = dueTo ? new Date(dueTo).getTime() : null;
+
+    return serverInvoices.filter((inv) => {
+      if (q) {
+        const hay = `${inv.invoiceNo ?? ''} ${inv.clientLabel ?? ''}`.toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      const s = (inv.status ?? '').toLowerCase();
+      if (statusFilter === 'overdue') {
+        if (!isOverdue(inv)) return false;
+      } else if (statusFilter !== 'all' && s !== statusFilter) {
+        return false;
+      }
+      if (customerFilter && inv.clientId !== customerFilter) return false;
+      if (agentFilter && inv.salesAgentId !== agentFilter) return false;
+      if (branchFilter && inv.branchId !== branchFilter) return false;
+      if (currencyFilter && inv.currency !== currencyFilter) return false;
+      const total = typeof inv.total === 'number' ? inv.total : 0;
+      if (total < min || total > max) return false;
+      if (fromTs && inv.date) {
+        const t = new Date(inv.date).getTime();
+        if (!Number.isNaN(t) && t < fromTs) return false;
+      }
+      if (toTs && inv.date) {
+        const t = new Date(inv.date).getTime();
+        if (!Number.isNaN(t) && t > toTs) return false;
+      }
+      if (dueFromTs && inv.dueDate) {
+        const t = new Date(inv.dueDate).getTime();
+        if (!Number.isNaN(t) && t < dueFromTs) return false;
+      }
+      if (dueToTs && inv.dueDate) {
+        const t = new Date(inv.dueDate).getTime();
+        if (!Number.isNaN(t) && t > dueToTs) return false;
+      }
+      return true;
     });
-  };
+  }, [
+    serverInvoices,
+    query,
+    statusFilter,
+    customerFilter,
+    agentFilter,
+    branchFilter,
+    currencyFilter,
+    fromDate,
+    toDate,
+    dueFrom,
+    dueTo,
+    amountMin,
+    amountMax,
+  ]);
+
+  /* Bulk-action toggling */
+  const allSelectedOnPage =
+    filtered.length > 0 && filtered.every((d) => selected.has(d._id));
+  const toggleAll = React.useCallback(() => {
+    setSelected((prev) => {
+      if (filtered.length === 0) return prev;
+      const allSel = filtered.every((d) => prev.has(d._id));
+      if (allSel) {
+        const next = new Set(prev);
+        for (const d of filtered) next.delete(d._id);
+        return next;
+      }
+      const next = new Set(prev);
+      for (const d of filtered) next.add(d._id);
+      return next;
+    });
+  }, [filtered]);
+
+  const exportCsv = React.useCallback(() => {
+    const rows = filtered.filter(
+      (d) => selected.size === 0 || selected.has(d._id),
+    );
+    if (rows.length === 0) {
+      toast({
+        title: 'Nothing to export',
+        description: 'Filter or select rows first.',
+      });
+      return;
+    }
+    const csv = toCsv(rows);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `invoices-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast({
+      title: 'Exported',
+      description: `${rows.length} invoices saved to CSV.`,
+    });
+  }, [filtered, selected, toast]);
+
+  const clearFilters = React.useCallback(() => {
+    setQuery('');
+    setStatusFilter('all');
+    setCustomerFilter(null);
+    setAgentFilter(null);
+    setBranchFilter(null);
+    setCurrencyFilter(null);
+    setFromDate('');
+    setToDate('');
+    setDueFrom('');
+    setDueTo('');
+    setAmountMin('');
+    setAmountMax('');
+    setPreset('all');
+  }, []);
+
+  /* Presets */
+  const applyPreset = React.useCallback(
+    (key: InvoicePresetKey) => {
+      setPreset(key);
+      const today = new Date();
+      const fmt = (d: Date) => d.toISOString().slice(0, 10);
+      if (key === 'all') {
+        clearFilters();
+        return;
+      }
+      if (key === 'my-overdue') {
+        setStatusFilter('overdue');
+        setAgentFilter(currentUserId ?? null);
+        setFromDate('');
+        setToDate('');
+        setDueFrom('');
+        setDueTo('');
+        return;
+      }
+      if (key === 'due-this-week') {
+        const next7 = new Date(today.getTime() + 7 * 86_400_000);
+        setStatusFilter('all');
+        setDueFrom(fmt(today));
+        setDueTo(fmt(next7));
+        return;
+      }
+      if (key === 'paid-30d') {
+        const prev30 = new Date(today.getTime() - 30 * 86_400_000);
+        setStatusFilter('paid');
+        setFromDate(fmt(prev30));
+        setToDate(fmt(today));
+        return;
+      }
+      if (key === 'draft') {
+        setStatusFilter('draft');
+        setFromDate('');
+        setToDate('');
+        setDueFrom('');
+        setDueTo('');
+      }
+    },
+    [clearFilters, currentUserId],
+  );
+
+  /* Bulk handlers */
+  const bulk = useInvoicesBulk({
+    selected,
+    onCleared: () => setSelected(new Set()),
+  });
+
+  const filtersActive =
+    Boolean(query) ||
+    statusFilter !== 'all' ||
+    Boolean(customerFilter) ||
+    Boolean(agentFilter) ||
+    Boolean(branchFilter) ||
+    Boolean(currencyFilter) ||
+    Boolean(fromDate) ||
+    Boolean(toDate) ||
+    Boolean(dueFrom) ||
+    Boolean(dueTo) ||
+    Boolean(amountMin) ||
+    Boolean(amountMax);
 
   return (
-    <ZoruCard className="overflow-hidden p-0">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zoru-line p-3">
-        <div className="relative max-w-sm flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
-          <ZoruInput
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search by invoice no, notes, payment terms…"
-            className="h-9 pl-9 text-[13px]"
-          />
-        </div>
-      </div>
+    <div className="flex w-full flex-col gap-5">
+      {/* KPI strip */}
+      <InvoicesKpiStrip
+        kpi={kpi}
+        currency={defaultCurrency}
+        active={preset}
+        onSelect={applyPreset}
+      />
 
       {error ? (
-        <div className="flex items-center gap-2 border-b border-amber-500/40 bg-amber-500/10 px-4 py-2.5 text-[13px] text-amber-600">
-          <AlertCircle className="h-4 w-4 shrink-0" />
+        <div className="rounded border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-[12.5px] text-amber-700 dark:text-amber-400">
           {error}
         </div>
       ) : null}
 
-      <ZoruTable>
-        <ZoruTableHeader>
-          <ZoruTableRow>
-            <ZoruTableHead>Invoice #</ZoruTableHead>
-            <ZoruTableHead>Date</ZoruTableHead>
-            <ZoruTableHead>Due</ZoruTableHead>
-            <ZoruTableHead>Customer</ZoruTableHead>
-            <ZoruTableHead className="text-right">Total</ZoruTableHead>
-            <ZoruTableHead className="text-right">Balance</ZoruTableHead>
-            <ZoruTableHead>Status</ZoruTableHead>
-            <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-          </ZoruTableRow>
-        </ZoruTableHeader>
-        <ZoruTableBody>
-          {invoices.length === 0 ? (
-            <ZoruTableRow>
-              <ZoruTableCell
-                colSpan={8}
-                className="h-24 text-center text-[13px] text-zoru-ink-muted"
-              >
-                {initialQuery
-                  ? 'No invoices match this search.'
-                  : 'No invoices yet — click "New invoice" to add one.'}
-              </ZoruTableCell>
-            </ZoruTableRow>
-          ) : (
-            invoices.map((invoice) => {
-              const id = String(invoice._id);
-              const status = invoice.status as CrmInvoiceStatus | undefined;
-              return (
-                <ZoruTableRow key={id}>
-                  <ZoruTableCell>
-                    <Link
-                      href={`/dashboard/crm/sales/invoices/${id}`}
-                      className="font-medium text-zoru-ink hover:underline"
-                    >
-                      {invoice.invoiceNo || '—'}
-                    </Link>
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
-                    {fmtDate(invoice.date)}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
-                    {fmtDate(invoice.dueDate)}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
-                    {invoice.clientId ? (
-                      <EntityPickerChip
-                        entity="client"
-                        id={invoice.clientId}
-                      />
-                    ) : (
-                      '—'
-                    )}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-right text-[12.5px] tabular-nums text-zoru-ink">
-                    {fmtMoney(invoice.totals?.total, invoice.currency)}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-right text-[12.5px] tabular-nums text-zoru-ink">
-                    {fmtMoney(invoice.balance, invoice.currency)}
-                  </ZoruTableCell>
-                  <ZoruTableCell>
-                    {status ? (
-                      <ZoruBadge variant={STATUS_VARIANT[status] ?? 'ghost'}>
-                        {statusLabel(status)}
-                      </ZoruBadge>
-                    ) : (
-                      <span className="text-[12.5px] text-zoru-ink-muted">—</span>
-                    )}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-right">
-                    <div className="flex justify-end gap-1">
-                      <ZoruButton size="sm" variant="ghost" asChild>
-                        <Link href={`/dashboard/crm/sales/invoices/${id}/edit`}>
-                          <Pencil className="h-3.5 w-3.5" />
-                        </Link>
-                      </ZoruButton>
-                      <ZoruButton
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => setPendingDelete(invoice)}
-                        className="text-zoru-danger-ink"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </ZoruButton>
-                    </div>
-                  </ZoruTableCell>
-                </ZoruTableRow>
-              );
-            })
-          )}
-        </ZoruTableBody>
-      </ZoruTable>
+      <ZoruCard className="overflow-hidden p-0">
+        <InvoicesToolbar
+          query={query}
+          onQueryChange={setQuery}
+          view={view}
+          onViewChange={setView}
+          density={density}
+          onDensityChange={handleDensityChange}
+          preset={preset}
+          onPresetChange={applyPreset}
+          onExportCsv={exportCsv}
+        />
 
-      <PaginationBar page={page} limit={limit} hasMore={hasMore} />
+        <InvoicesFilters
+          filtersActive={filtersActive}
+          onClearAll={clearFilters}
+          statusFilter={statusFilter}
+          onStatusFilter={setStatusFilter}
+          customerFilter={customerFilter}
+          onCustomerFilter={setCustomerFilter}
+          agentFilter={agentFilter}
+          onAgentFilter={setAgentFilter}
+          branchFilter={branchFilter}
+          onBranchFilter={setBranchFilter}
+          currencyFilter={currencyFilter}
+          onCurrencyFilter={setCurrencyFilter}
+          fromDate={fromDate}
+          onFromDate={setFromDate}
+          toDate={toDate}
+          onToDate={setToDate}
+          dueFrom={dueFrom}
+          onDueFrom={setDueFrom}
+          dueTo={dueTo}
+          onDueTo={setDueTo}
+          amountMin={amountMin}
+          onAmountMin={setAmountMin}
+          amountMax={amountMax}
+          onAmountMax={setAmountMax}
+        />
 
-      <ZoruAlertDialog
-        open={pendingDelete !== null}
-        onOpenChange={(o) => !o && setPendingDelete(null)}
-      >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>Delete invoice?</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
-              This permanently removes{' '}
-              <strong>{pendingDelete?.invoiceNo ?? ''}</strong> from the
-              database. The action cannot be undone.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel disabled={deleting}>
-              Cancel
-            </ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction
-              onClick={(e) => {
-                e.preventDefault();
-                confirmDelete();
-              }}
-              disabled={deleting}
-              className="bg-zoru-danger text-white hover:bg-zoru-danger/90"
-            >
-              {deleting ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : null}
-              Delete permanently
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
-    </ZoruCard>
+        <InvoicesBulkBar
+          count={selected.size}
+          onClear={() => setSelected(new Set())}
+          onExportCsv={exportCsv}
+          onArchive={() => setArchivePending(true)}
+          onDelete={() => setDeletePending(true)}
+          onMarkPaid={() => setMarkPaidPending(true)}
+          onSend={() => setSendPending(true)}
+          onChangeStatus={bulk.changeStatus}
+        />
+
+        {view === 'calendar' ? (
+          <div className="p-3">
+            <InvoicesCalendar invoices={filtered} />
+          </div>
+        ) : (
+          <InvoicesTable
+            invoices={filtered}
+            selected={selected}
+            onToggleRow={toggleRow}
+            onToggleAll={toggleAll}
+            allSelectedOnPage={allSelectedOnPage}
+            filtersActive={filtersActive}
+            density={density}
+          />
+        )}
+
+        {view === 'table' ? (
+          <div className="border-t border-zoru-line p-3">
+            <PaginationBar page={page} limit={limit} hasMore={hasMore} />
+          </div>
+        ) : null}
+      </ZoruCard>
+
+      <ConfirmDialog
+        open={archivePending}
+        onOpenChange={setArchivePending}
+        title={`Archive ${selected.size} invoice${selected.size === 1 ? '' : 's'}?`}
+        description="Archived invoices are marked cancelled and hidden from default views."
+        confirmLabel="Archive"
+        confirmTone="primary"
+        onConfirm={async () => bulk.archive()}
+      />
+
+      <ConfirmDialog
+        open={deletePending}
+        onOpenChange={setDeletePending}
+        title={`Delete ${selected.size} invoice${selected.size === 1 ? '' : 's'}?`}
+        description="This permanently removes the selected invoices. This action cannot be undone."
+        confirmLabel="Delete"
+        requireTyped="DELETE"
+        onConfirm={async () => bulk.remove()}
+      />
+
+      <ConfirmDialog
+        open={markPaidPending}
+        onOpenChange={setMarkPaidPending}
+        title={`Mark ${selected.size} invoice${selected.size === 1 ? '' : 's'} paid?`}
+        description="Updates the status to paid. Use Record payment if you need to capture amounts and methods."
+        confirmLabel="Mark paid"
+        confirmTone="primary"
+        onConfirm={async () => bulk.markPaid()}
+      />
+
+      <ConfirmDialog
+        open={sendPending}
+        onOpenChange={setSendPending}
+        title={`Send ${selected.size} invoice${selected.size === 1 ? '' : 's'}?`}
+        description="Marks these invoices as sent. Email delivery is handled by your messaging settings."
+        confirmLabel="Send"
+        confirmTone="primary"
+        onConfirm={async () => bulk.send()}
+      />
+
+      {bulk.pending ? <span className="sr-only">Working…</span> : null}
+    </div>
   );
 }

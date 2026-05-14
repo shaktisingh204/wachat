@@ -3,6 +3,7 @@
 import { cn as _zoruCn } from '@/components/zoruui';
 void _zoruCn;
 
+import * as React from 'react';
 import { Layers } from 'lucide-react';
 import { ClayBadge, HrEntityPage } from '../_components/hr-entity-page';
 import {
@@ -15,6 +16,7 @@ import type { HrAssetAssignment } from '@/lib/hr-types';
 const STATUS_TONES: Record<string, 'neutral' | 'green' | 'amber' | 'red'> = {
   assigned: 'amber',
   returned: 'green',
+  damaged: 'red',
 };
 
 function formatDate(value: unknown): React.ReactNode {
@@ -22,6 +24,22 @@ function formatDate(value: unknown): React.ReactNode {
   const d = new Date(value as any);
   if (isNaN(d.getTime())) return <span className="text-muted-foreground">—</span>;
   return d.toISOString().slice(0, 10);
+}
+
+function isInThisMonth(value: unknown): boolean {
+  if (!value) return false;
+  const d = new Date(value as any);
+  if (isNaN(d.getTime())) return false;
+  const now = new Date();
+  return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+}
+
+function isOverdue(row: any): boolean {
+  if (row.status === 'returned') return false;
+  const exp = row.expectedReturnAt;
+  if (!exp) return false;
+  const d = new Date(exp);
+  return !isNaN(d.getTime()) && d < new Date();
 }
 
 export default function AssetAssignmentsPage() {
@@ -34,6 +52,36 @@ export default function AssetAssignmentsPage() {
       getAllAction={getAssetAssignments as any}
       saveAction={saveAssetAssignment}
       deleteAction={deleteAssetAssignment}
+      kpis={[
+        {
+          label: 'Active',
+          compute: (rows) =>
+            rows.filter((r) => String((r as any).status || 'assigned') === 'assigned')
+              .length,
+          tone: 'blue',
+        },
+        {
+          label: 'Returned this month',
+          compute: (rows) =>
+            rows.filter(
+              (r) =>
+                String((r as any).status) === 'returned' &&
+                isInThisMonth((r as any).returnedAt),
+            ).length,
+          tone: 'green',
+        },
+        {
+          label: 'Overdue return',
+          compute: (rows) => rows.filter((r) => isOverdue(r)).length,
+          tone: 'amber',
+        },
+        {
+          label: 'Damaged',
+          compute: (rows) =>
+            rows.filter((r) => String((r as any).status) === 'damaged').length,
+          tone: 'red',
+        },
+      ]}
       columns={[
         {
           key: 'assetId',
@@ -65,6 +113,11 @@ export default function AssetAssignmentsPage() {
           render: (row) => formatDate(row.returnedAt),
         },
         {
+          key: 'returnCondition',
+          label: 'Return condition',
+          render: (row) => (row as any).returnCondition || '—',
+        },
+        {
           key: 'status',
           label: 'Status',
           render: (row) => (
@@ -81,12 +134,25 @@ export default function AssetAssignmentsPage() {
         { name: 'expectedReturnAt', label: 'Expected Return Date', type: 'date' },
         { name: 'returnedAt', label: 'Actual Return Date', type: 'date' },
         {
+          name: 'returnCondition',
+          label: 'Return Condition',
+          type: 'select',
+          options: [
+            { value: '', label: '—' },
+            { value: 'good', label: 'Good' },
+            { value: 'fair', label: 'Fair' },
+            { value: 'damaged', label: 'Damaged' },
+            { value: 'missing', label: 'Missing' },
+          ],
+        },
+        {
           name: 'status',
           label: 'Status',
           type: 'select',
           options: [
             { value: 'assigned', label: 'Assigned' },
             { value: 'returned', label: 'Returned' },
+            { value: 'damaged', label: 'Damaged' },
           ],
           defaultValue: 'assigned',
         },

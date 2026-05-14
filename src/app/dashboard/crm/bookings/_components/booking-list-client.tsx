@@ -2,10 +2,11 @@
 
 /**
  * Client side of the Bookings list — owns the search box, the table,
- * and the hard-delete confirmation dialog. Search input is debounced
- * and writes back to the URL so the server component re-fetches. The
- * Rust list endpoint doesn't currently support free-text search, so
- * the query is only used for client-side filtering of the in-memory
+ * the bulk action bar, the KPI strip, the calendar view switcher, and
+ * the hard-delete confirmation dialog.
+ *
+ * The Rust list endpoint doesn't currently support free-text search,
+ * so the query is only used for client-side filtering of the in-memory
  * page; it still round-trips to the URL so the navigation state is
  * preserved on refresh.
  */
@@ -15,25 +16,25 @@ import Link from 'next/link';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import {
   AlertCircle,
+  CalendarDays,
+  ListChecks,
   Pencil,
   Search,
+  Table2,
   Trash2,
-  LoaderCircle,
+  X,
 } from 'lucide-react';
 
 import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruBadge,
   ZoruButton,
   ZoruCard,
+  ZoruCheckbox,
   ZoruInput,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
   ZoruTable,
   ZoruTableBody,
   ZoruTableCell,
@@ -44,11 +45,24 @@ import {
 } from '@/components/zoruui';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { PaginationBar } from '@/components/crm/pagination-bar';
+import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import { deleteBookingAction } from '@/app/actions/crm/bookings.actions';
 import type {
   CrmBookingDoc,
+  CrmBookingPaymentStatus,
   CrmBookingStatus,
 } from '@/lib/rust-client/crm-bookings';
+
+import {
+  BookingsKpiStrip,
+  computeBookingKpis,
+  type BookingsKpiKey,
+} from './bookings-kpi-strip';
+import { BookingsCalendar } from './bookings-calendar';
+import {
+  BookingBulkDeleteDialog,
+  BookingSingleDeleteDialog,
+} from './booking-list-dialogs';
 
 interface BookingListClientProps {
   bookings: CrmBookingDoc[];
@@ -59,32 +73,55 @@ interface BookingListClientProps {
   error?: string;
 }
 
+const STATUS_VALUES: CrmBookingStatus[] = [
+  'pending',
+  'confirmed',
+  'cancelled',
+  'completed',
+  'no_show',
+];
+
+const PAYMENT_VALUES: CrmBookingPaymentStatus[] = [
+  'unpaid',
+  'partial',
+  'paid',
+  'refunded',
+];
+
 function fmtDateTime(v?: string): string {
   if (!v) return '—';
   const d = new Date(v);
   return isNaN(d.getTime()) ? '—' : d.toLocaleString();
 }
 
-function statusBadgeVariant(
-  status?: CrmBookingStatus,
-): 'success' | 'warning' | 'danger' | 'ghost' | 'outline' {
-  switch (status) {
-    case 'confirmed':
-    case 'completed':
-      return 'success';
-    case 'cancelled':
-    case 'no_show':
-      return 'danger';
-    case 'pending':
-      return 'warning';
-    default:
-      return 'outline';
-  }
-}
-
 function bookingLabel(b: CrmBookingDoc): string {
   return b.service || `Booking ${String(b._id).slice(-6)}`;
 }
+
+function inThisWeek(slotStart?: string): boolean {
+  if (!slotStart) return false;
+  const t = new Date(slotStart).getTime();
+  if (!Number.isFinite(t)) return false;
+  const now = new Date();
+  const day = now.getDay();
+  const diff = (day + 6) % 7;
+  const start = new Date(now);
+  start.setDate(now.getDate() - diff);
+  start.setHours(0, 0, 0, 0);
+  const end = start.getTime() + 7 * 24 * 60 * 60 * 1000;
+  return t >= start.getTime() && t < end;
+}
+
+function inToday(slotStart?: string): boolean {
+  if (!slotStart) return false;
+  const t = new Date(slotStart).getTime();
+  if (!Number.isFinite(t)) return false;
+  const s = new Date();
+  s.setHours(0, 0, 0, 0);
+  return t >= s.getTime() && t < s.getTime() + 24 * 60 * 60 * 1000;
+}
+
+type ViewMode = 'table' | 'calendar';
 
 export function BookingListClient({
   bookings,
@@ -100,10 +137,23 @@ export function BookingListClient({
   const sp = useSearchParams();
 
   const [query, setQuery] = React.useState(initialQuery);
+  const [statusFilter, setStatusFilter] = React.useState<'all' | CrmBookingStatus>(
+    'all',
+  );
+  const [paymentFilter, setPaymentFilter] = React.useState<
+    'all' | CrmBookingPaymentStatus
+  >('all');
+  const [kpiKey, setKpiKey] = React.useState<BookingsKpiKey>('all');
+  const [view, setView] = React.useState<ViewMode>('table');
+
   const [pendingDelete, setPendingDelete] = React.useState<CrmBookingDoc | null>(
     null,
   );
   const [deleting, startDelete] = React.useTransition();
+
+  const [selected, setSelected] = React.useState<Set<string>>(new Set());
+  const [bulkDeleting, startBulkDelete] = React.useTransition();
+  const [bulkConfirmOpen, setBulkConfirmOpen] = React.useState(false);
 
   // Debounce search → URL.
   React.useEffect(() => {
@@ -119,22 +169,65 @@ export function BookingListClient({
     return () => clearTimeout(t);
   }, [query, initialQuery, sp, pathname, router]);
 
-  // Client-side filter on the current page (Rust list lacks `q` today).
+  const kpiCounts = React.useMemo(
+    () => computeBookingKpis(bookings),
+    [bookings],
+  );
+
   const filtered = React.useMemo(() => {
     const needle = query.trim().toLowerCase();
-    if (!needle) return bookings;
     return bookings.filter((b) => {
-      const hay = [
-        b.service ?? '',
-        b.notes ?? '',
-        b.cancellationPolicy ?? '',
-        b.status ?? '',
-      ]
-        .join(' ')
-        .toLowerCase();
-      return hay.includes(needle);
+      if (needle) {
+        const hay = [
+          b.service ?? '',
+          b.notes ?? '',
+          b.cancellationPolicy ?? '',
+          b.status ?? '',
+        ]
+          .join(' ')
+          .toLowerCase();
+        if (!hay.includes(needle)) return false;
+      }
+      if (statusFilter !== 'all' && b.status !== statusFilter) return false;
+      if (paymentFilter !== 'all' && b.paymentStatus !== paymentFilter)
+        return false;
+      switch (kpiKey) {
+        case 'today':
+          if (!inToday(b.slotStart)) return false;
+          break;
+        case 'week':
+          if (!inThisWeek(b.slotStart)) return false;
+          break;
+        case 'pendingPayment':
+          if (
+            b.paymentStatus !== 'unpaid' &&
+            b.paymentStatus !== 'partial'
+          )
+            return false;
+          break;
+        case 'cancelled':
+          if (b.status !== 'cancelled') return false;
+          break;
+        case 'noShow':
+          if (b.status !== 'no_show' && b.noShow !== true) return false;
+          break;
+      }
+      return true;
     });
-  }, [bookings, query]);
+  }, [bookings, query, statusFilter, paymentFilter, kpiKey]);
+
+  const hasActiveFilters =
+    !!query.trim() ||
+    statusFilter !== 'all' ||
+    paymentFilter !== 'all' ||
+    kpiKey !== 'all';
+
+  const clearFilters = () => {
+    setQuery('');
+    setStatusFilter('all');
+    setPaymentFilter('all');
+    setKpiKey('all');
+  };
 
   const confirmDelete = () => {
     if (!pendingDelete?._id) return;
@@ -156,9 +249,92 @@ export function BookingListClient({
     });
   };
 
+  const toggleOne = (id: string) =>
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+
+  const toggleAll = (all: boolean) =>
+    setSelected(all ? new Set(filtered.map((b) => String(b._id))) : new Set());
+
+  const exportCsv = () => {
+    const rows =
+      selected.size > 0
+        ? filtered.filter((b) => selected.has(String(b._id)))
+        : filtered;
+    const header = [
+      'Id',
+      'Customer',
+      'Service',
+      'Slot start',
+      'Slot end',
+      'Status',
+      'Payment',
+      'Notes',
+    ];
+    const esc = (v: unknown) =>
+      `"${String(v ?? '').replace(/"/g, '""')}"`;
+    const csv = [
+      header.join(','),
+      ...rows.map((b) =>
+        [
+          esc(b._id),
+          esc(b.customerId),
+          esc(b.service),
+          esc(b.slotStart),
+          esc(b.slotEnd),
+          esc(b.status ?? ''),
+          esc(b.paymentStatus ?? ''),
+          esc(b.notes ?? ''),
+        ].join(','),
+      ),
+    ].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `bookings-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const runBulkDelete = () => {
+    if (selected.size === 0) return;
+    setBulkConfirmOpen(false);
+    const ids = Array.from(selected);
+    startBulkDelete(async () => {
+      let ok = 0;
+      let failed = 0;
+      for (const id of ids) {
+        const res = await deleteBookingAction(id);
+        if (res.success) ok += 1;
+        else failed += 1;
+      }
+      toast({
+        title:
+          failed === 0
+            ? `${ok} booking${ok === 1 ? '' : 's'} deleted`
+            : `${ok} deleted · ${failed} failed`,
+        variant: failed > 0 ? 'destructive' : undefined,
+      });
+      setSelected(new Set());
+      router.refresh();
+    });
+  };
+
+  const headChecked =
+    filtered.length > 0 &&
+    filtered.every((b) => selected.has(String(b._id)));
+
   return (
-    <ZoruCard className="overflow-hidden p-0">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zoru-line p-3">
+    <div className="flex flex-col gap-4">
+      <BookingsKpiStrip counts={kpiCounts} active={kpiKey} onPick={setKpiKey} />
+
+      {/* Toolbar */}
+      <div className="flex flex-wrap items-center gap-2">
         <div className="relative max-w-sm flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
           <ZoruInput
@@ -168,126 +344,241 @@ export function BookingListClient({
             className="h-9 pl-9 text-[13px]"
           />
         </div>
+        <FilterSelect
+          value={statusFilter}
+          onChange={(v) =>
+            setStatusFilter(v === 'all' ? 'all' : (v as CrmBookingStatus))
+          }
+          placeholder="Status"
+          options={[
+            { value: 'all', label: 'All statuses' },
+            ...STATUS_VALUES.map((s) => ({ value: s, label: s })),
+          ]}
+        />
+        <FilterSelect
+          value={paymentFilter}
+          onChange={(v) =>
+            setPaymentFilter(
+              v === 'all' ? 'all' : (v as CrmBookingPaymentStatus),
+            )
+          }
+          placeholder="Payment"
+          options={[
+            { value: 'all', label: 'All payments' },
+            ...PAYMENT_VALUES.map((s) => ({ value: s, label: s })),
+          ]}
+        />
+        {hasActiveFilters ? (
+          <ZoruButton variant="ghost" size="sm" onClick={clearFilters}>
+            <X className="h-3.5 w-3.5" /> Clear
+          </ZoruButton>
+        ) : null}
+        <div className="ml-auto inline-flex rounded-[var(--zoru-radius)] border border-zoru-line p-0.5">
+          <ZoruButton
+            size="sm"
+            variant={view === 'table' ? 'default' : 'ghost'}
+            onClick={() => setView('table')}
+            aria-pressed={view === 'table'}
+          >
+            <Table2 className="h-3.5 w-3.5" /> Table
+          </ZoruButton>
+          <ZoruButton
+            size="sm"
+            variant={view === 'calendar' ? 'default' : 'ghost'}
+            onClick={() => setView('calendar')}
+            aria-pressed={view === 'calendar'}
+          >
+            <CalendarDays className="h-3.5 w-3.5" /> Calendar
+          </ZoruButton>
+        </div>
       </div>
 
-      {error ? (
-        <div className="flex items-center gap-2 border-b border-amber-500/40 bg-amber-500/10 px-4 py-2.5 text-[13px] text-amber-600">
-          <AlertCircle className="h-4 w-4 shrink-0" />
-          {error}
+      {/* Bulk bar */}
+      {selected.size > 0 ? (
+        <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface px-3 py-2 shadow-[var(--zoru-shadow-sm)]">
+          <div className="flex items-center gap-2 text-[12.5px] text-zoru-ink">
+            <ListChecks className="h-4 w-4 text-zoru-primary" />
+            {selected.size} selected
+          </div>
+          <div className="flex items-center gap-1">
+            <ZoruButton size="sm" variant="outline" onClick={exportCsv}>
+              Export CSV
+            </ZoruButton>
+            <ZoruButton
+              size="sm"
+              variant="destructive"
+              onClick={() => setBulkConfirmOpen(true)}
+              disabled={bulkDeleting}
+            >
+              <Trash2 className="h-3.5 w-3.5" /> Delete
+            </ZoruButton>
+            <ZoruButton
+              size="sm"
+              variant="ghost"
+              onClick={() => setSelected(new Set())}
+              aria-label="Clear selection"
+            >
+              <X className="h-3.5 w-3.5" />
+            </ZoruButton>
+          </div>
         </div>
       ) : null}
 
-      <ZoruTable>
-        <ZoruTableHeader>
-          <ZoruTableRow>
-            <ZoruTableHead>Customer</ZoruTableHead>
-            <ZoruTableHead>Service</ZoruTableHead>
-            <ZoruTableHead>Slot start</ZoruTableHead>
-            <ZoruTableHead>Slot end</ZoruTableHead>
-            <ZoruTableHead>Status</ZoruTableHead>
-            <ZoruTableHead>Payment</ZoruTableHead>
-            <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-          </ZoruTableRow>
-        </ZoruTableHeader>
-        <ZoruTableBody>
-          {filtered.length === 0 ? (
-            <ZoruTableRow>
-              <ZoruTableCell
-                colSpan={7}
-                className="h-24 text-center text-[13px] text-zoru-ink-muted"
-              >
-                {initialQuery || query
-                  ? 'No bookings match this search.'
-                  : 'No bookings yet — click "New booking" to add one.'}
-              </ZoruTableCell>
-            </ZoruTableRow>
-          ) : (
-            filtered.map((b) => {
-              const id = String(b._id);
-              return (
-                <ZoruTableRow key={id}>
-                  <ZoruTableCell>
-                    <EntityPickerChip entity="client" id={b.customerId} />
-                  </ZoruTableCell>
-                  <ZoruTableCell>
-                    <Link
-                      href={`/dashboard/crm/bookings/${id}`}
-                      className="font-medium text-zoru-ink hover:underline"
-                    >
-                      {bookingLabel(b)}
-                    </Link>
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
-                    {fmtDateTime(b.slotStart)}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
-                    {fmtDateTime(b.slotEnd)}
-                  </ZoruTableCell>
-                  <ZoruTableCell>
-                    <ZoruBadge variant={statusBadgeVariant(b.status)}>
-                      {b.status ?? 'pending'}
-                    </ZoruBadge>
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
-                    {b.paymentStatus ?? 'unpaid'}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-right">
-                    <div className="flex justify-end gap-1">
-                      <ZoruButton size="sm" variant="ghost" asChild>
-                        <Link href={`/dashboard/crm/bookings/${id}/edit`}>
-                          <Pencil className="h-3.5 w-3.5" />
-                        </Link>
-                      </ZoruButton>
-                      <ZoruButton
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => setPendingDelete(b)}
-                        className="text-zoru-danger-ink"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </ZoruButton>
-                    </div>
+      <ZoruCard className="overflow-hidden p-0">
+        {error ? (
+          <div className="flex items-center gap-2 border-b border-amber-500/40 bg-amber-500/10 px-4 py-2.5 text-[13px] text-amber-600">
+            <AlertCircle className="h-4 w-4 shrink-0" />
+            {error}
+          </div>
+        ) : null}
+
+        {view === 'calendar' ? (
+          <div className="p-3">
+            <BookingsCalendar bookings={filtered} />
+          </div>
+        ) : (
+          <ZoruTable>
+            <ZoruTableHeader>
+              <ZoruTableRow>
+                <ZoruTableHead className="w-8">
+                  <ZoruCheckbox
+                    checked={headChecked}
+                    onCheckedChange={(c) => toggleAll(Boolean(c))}
+                    aria-label="Select all"
+                  />
+                </ZoruTableHead>
+                <ZoruTableHead>Customer</ZoruTableHead>
+                <ZoruTableHead>Service</ZoruTableHead>
+                <ZoruTableHead>Slot start</ZoruTableHead>
+                <ZoruTableHead>Slot end</ZoruTableHead>
+                <ZoruTableHead>Payment</ZoruTableHead>
+                <ZoruTableHead>Status</ZoruTableHead>
+                <ZoruTableHead className="text-right">Actions</ZoruTableHead>
+              </ZoruTableRow>
+            </ZoruTableHeader>
+            <ZoruTableBody>
+              {filtered.length === 0 ? (
+                <ZoruTableRow>
+                  <ZoruTableCell
+                    colSpan={8}
+                    className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                  >
+                    {hasActiveFilters
+                      ? 'No bookings match these filters.'
+                      : 'No bookings yet — click "New booking" to add one.'}
                   </ZoruTableCell>
                 </ZoruTableRow>
-              );
-            })
-          )}
-        </ZoruTableBody>
-      </ZoruTable>
+              ) : (
+                filtered.map((b) => {
+                  const id = String(b._id);
+                  const checked = selected.has(id);
+                  return (
+                    <ZoruTableRow key={id}>
+                      <ZoruTableCell>
+                        <ZoruCheckbox
+                          checked={checked}
+                          onCheckedChange={() => toggleOne(id)}
+                          aria-label={`Select booking ${bookingLabel(b)}`}
+                        />
+                      </ZoruTableCell>
+                      <ZoruTableCell>
+                        <EntityPickerChip entity="client" id={b.customerId} />
+                      </ZoruTableCell>
+                      <ZoruTableCell>
+                        <Link
+                          href={`/dashboard/crm/bookings/${id}`}
+                          className="font-medium text-zoru-ink hover:underline"
+                        >
+                          {bookingLabel(b)}
+                        </Link>
+                      </ZoruTableCell>
+                      <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                        {fmtDateTime(b.slotStart)}
+                      </ZoruTableCell>
+                      <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                        {fmtDateTime(b.slotEnd)}
+                      </ZoruTableCell>
+                      <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                        {b.paymentStatus ?? 'unpaid'}
+                      </ZoruTableCell>
+                      <ZoruTableCell>
+                        <StatusPill
+                          label={b.status ?? 'pending'}
+                          tone={statusToTone(b.status)}
+                        />
+                      </ZoruTableCell>
+                      <ZoruTableCell className="text-right">
+                        <div className="flex justify-end gap-1">
+                          <ZoruButton size="sm" variant="ghost" asChild>
+                            <Link href={`/dashboard/crm/bookings/${id}/edit`}>
+                              <Pencil className="h-3.5 w-3.5" />
+                            </Link>
+                          </ZoruButton>
+                          <ZoruButton
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => setPendingDelete(b)}
+                            className="text-zoru-danger-ink"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </ZoruButton>
+                        </div>
+                      </ZoruTableCell>
+                    </ZoruTableRow>
+                  );
+                })
+              )}
+            </ZoruTableBody>
+          </ZoruTable>
+        )}
 
-      <PaginationBar page={page} limit={limit} hasMore={hasMore} />
+        {view === 'table' ? (
+          <PaginationBar page={page} limit={limit} hasMore={hasMore} />
+        ) : null}
+      </ZoruCard>
 
-      <ZoruAlertDialog
+      <BookingSingleDeleteDialog
         open={pendingDelete !== null}
         onOpenChange={(o) => !o && setPendingDelete(null)}
-      >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>Delete booking?</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
-              This permanently removes{' '}
-              <strong>{pendingDelete ? bookingLabel(pendingDelete) : ''}</strong>{' '}
-              from the database. The action cannot be undone.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel disabled={deleting}>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction
-              onClick={(e) => {
-                e.preventDefault();
-                confirmDelete();
-              }}
-              disabled={deleting}
-              className="bg-zoru-danger text-white hover:bg-zoru-danger/90"
-            >
-              {deleting ? (
-                <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
-              ) : null}
-              Delete permanently
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
-    </ZoruCard>
+        label={pendingDelete ? bookingLabel(pendingDelete) : ''}
+        busy={deleting}
+        onConfirm={confirmDelete}
+      />
+
+      <BookingBulkDeleteDialog
+        open={bulkConfirmOpen}
+        onOpenChange={setBulkConfirmOpen}
+        count={selected.size}
+        busy={bulkDeleting}
+        onConfirm={runBulkDelete}
+      />
+    </div>
+  );
+}
+
+function FilterSelect({
+  value,
+  onChange,
+  placeholder,
+  options,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  placeholder: string;
+  options: Array<{ value: string; label: string }>;
+}) {
+  return (
+    <ZoruSelect value={value} onValueChange={onChange}>
+      <ZoruSelectTrigger className="h-9 w-[140px] text-[13px]">
+        <ZoruSelectValue placeholder={placeholder} />
+      </ZoruSelectTrigger>
+      <ZoruSelectContent>
+        {options.map((opt) => (
+          <ZoruSelectItem key={opt.value} value={opt.value}>
+            {opt.label}
+          </ZoruSelectItem>
+        ))}
+      </ZoruSelectContent>
+    </ZoruSelect>
   );
 }

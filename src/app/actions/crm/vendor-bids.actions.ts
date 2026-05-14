@@ -22,9 +22,13 @@ import {
   type CrmVendorBidDoc,
   type CrmVendorBidLineItem,
   type CrmVendorBidListParams,
+  type CrmVendorBidStatus,
   type CrmVendorBidTotals,
   type CrmVendorBidUpdateInput,
 } from '@/lib/rust-client/crm-vendor-bids';
+import { writeAuditEntry } from '@/lib/audit-log';
+import { getSession } from '@/app/actions/user.actions';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
 
 const LIST_PATH = '/dashboard/crm/purchases/vendor-bids';
 
@@ -256,4 +260,121 @@ export async function updateVendorBid(id: string, patch: CrmVendorBidUpdateInput
 
 export async function deleteVendorBid(id: string) {
   return crmVendorBidsApi.delete(id);
+}
+
+/* ─── Bulk + status helpers ───────────────────────────────────── */
+
+async function recordAudit(
+  action: 'update' | 'delete' | 'archive' | 'create' | 'status_change',
+  entityId: string,
+): Promise<void> {
+  try {
+    const session = await getSession();
+    if (!session?.user?._id) return;
+    await writeAuditEntry({
+      tenantUserId: String(session.user._id),
+      actorId: String(session.user._id),
+      action,
+      entityKind: 'vendorBid',
+      entityId,
+    });
+  } catch (e) {
+    console.error('[vendor-bids audit] non-fatal:', e);
+  }
+}
+
+function trackFallback(op: 'update' | 'delete', e: unknown): void {
+  recordRustFallback({
+    entity: 'vendorBid',
+    op,
+    errorCode: e instanceof RustApiError ? e.code : undefined,
+    status: e instanceof RustApiError ? e.status : undefined,
+  });
+}
+
+export async function updateVendorBidStatus(
+  id: string,
+  status: CrmVendorBidStatus | string,
+): Promise<{ success: boolean; error?: string }> {
+  if (!id) return { success: false, error: 'Missing vendor bid id.' };
+  try {
+    await crmVendorBidsApi.update(id, { status });
+    await recordAudit('status_change', id);
+    revalidatePath(LIST_PATH);
+    revalidatePath(`${LIST_PATH}/${id}`);
+    return { success: true };
+  } catch (e) {
+    trackFallback('update', e);
+    return { success: false, error: rustErr(e) };
+  }
+}
+
+export async function archiveVendorBidAction(
+  id: string,
+): Promise<{ success: boolean; error?: string }> {
+  if (!id) return { success: false, error: 'Missing vendor bid id.' };
+  try {
+    // Vendor Bid Rust DTO uses `withdrawn` as the soft-archive terminal.
+    await crmVendorBidsApi.update(id, { status: 'withdrawn' });
+    await recordAudit('archive', id);
+    revalidatePath(LIST_PATH);
+    return { success: true };
+  } catch (e) {
+    trackFallback('update', e);
+    return { success: false, error: rustErr(e) };
+  }
+}
+
+interface BulkResult {
+  success: boolean;
+  processed: number;
+  error?: string;
+}
+
+async function runBulk(
+  ids: string[],
+  fn: (id: string) => Promise<void>,
+): Promise<BulkResult> {
+  if (!Array.isArray(ids) || ids.length === 0) {
+    return { success: false, processed: 0, error: 'No vendor bid ids supplied.' };
+  }
+  let processed = 0;
+  let lastErr: string | undefined;
+  for (const id of ids) {
+    try {
+      await fn(id);
+      processed += 1;
+    } catch (e) {
+      lastErr = rustErr(e);
+    }
+  }
+  revalidatePath(LIST_PATH);
+  if (processed === 0) {
+    return { success: false, processed, error: lastErr ?? 'Bulk operation failed.' };
+  }
+  return { success: true, processed, error: lastErr };
+}
+
+export async function bulkDeleteVendorBids(ids: string[]): Promise<BulkResult> {
+  return runBulk(ids, async (id) => {
+    await crmVendorBidsApi.delete(id);
+    await recordAudit('delete', id);
+  });
+}
+
+export async function bulkArchiveVendorBids(ids: string[]): Promise<BulkResult> {
+  return runBulk(ids, async (id) => {
+    await crmVendorBidsApi.update(id, { status: 'withdrawn' });
+    await recordAudit('archive', id);
+  });
+}
+
+export async function bulkChangeVendorBidStatus(
+  ids: string[],
+  status: CrmVendorBidStatus | string,
+): Promise<BulkResult> {
+  return runBulk(ids, async (id) => {
+    await crmVendorBidsApi.update(id, { status });
+    await recordAudit('status_change', id);
+  });
 }

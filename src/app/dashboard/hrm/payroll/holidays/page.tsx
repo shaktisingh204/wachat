@@ -1,379 +1,518 @@
 'use client';
 
-import { useState, useEffect, useCallback, useTransition, useActionState, useRef } from 'react';
-import { useFormStatus } from 'react-dom';
-import { LoaderCircle, Trash2, CalendarHeart, Pencil, Plus, X, PartyPopper } from 'lucide-react';
-import { format } from 'date-fns';
-import { getCrmHolidays, saveCrmHoliday, deleteCrmHoliday } from '@/app/actions/crm-hr.actions';
-import type { WithId, CrmHoliday } from '@/lib/definitions';
+/**
+ * Holidays — list page (rebuilt per §1D.1, thin upgrade).
+ *
+ * Composition:
+ *   <EntityListShell>
+ *     • KPI strip (4 cards) — Total this year · By-type breakdown ·
+ *       This quarter · Recurring count.
+ *     • Filter row (type, year, recurring, location, date range).
+ *     • Bulk action bar (delete · export CSV).
+ *     • <HolidaysTable> — 8 columns (select · Date · Name · Type ·
+ *       Recurring · Locations · Notes · Actions).
+ *
+ * Data source: legacy `crm-hr.actions` (Mongo-backed `crm_holidays`
+ * collection). Per the rebuild plan §1D, this is the thin upgrade —
+ * new/detail/edit pages already exist under `/holidays/new/`,
+ * `/holidays/[id]/`, `/holidays/[id]/edit/` and use the canonical
+ * `crm/holidays.actions` Rust BFF.
+ */
+
+import * as React from 'react';
+import Link from 'next/link';
+import { CalendarHeart, PartyPopper, Plus, Trash2 } from 'lucide-react';
+
+import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { ConfirmDialog } from '@/components/crm/confirm-dialog';
+import { ZoruButton, useZoruToast } from '@/components/zoruui';
+
 import {
-    ZoruInput,
-    ZoruLabel,
-    ZoruDatePicker,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    ZoruDialog,
-    ZoruDialogContent,
-    ZoruDialogDescription,
-    ZoruDialogFooter,
-    ZoruDialogHeader,
-    ZoruDialogTitle,
-    ZoruCard,
-    ZoruButton,
-    ZoruBadge,
-    useZoruToast,
-} from '@/components/zoruui';
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+  deleteCrmHoliday,
+  getCrmHolidays,
+  saveCrmHoliday,
+} from '@/app/actions/crm-hr.actions';
 
-const saveInitialState: any = { message: null, error: null };
-
-type HolidayType = 'national' | 'regional' | 'optional';
-
-const TYPE_LABELS: Record<HolidayType, string> = {
-    national: 'National',
-    regional: 'Regional',
-    optional: 'Optional',
-};
-
-const TYPE_VARIANTS: Record<HolidayType, 'info' | 'warning' | 'secondary'> = {
-    national: 'info',
-    regional: 'warning',
-    optional: 'secondary',
-};
+import {
+  HolidaysKpiStrip,
+  type HolidaysKpiKey,
+  type HolidaysKpiSnapshot,
+} from './_components/holidays-kpi-strip';
+import {
+  HolidaysFiltersRow,
+  type HolidayTypeFilter,
+  type RecurringFilter,
+} from './_components/holidays-filters';
+import {
+  HolidaysTable,
+  locationsText,
+  type HolidayRow,
+} from './_components/holidays-table';
 
 const NATIONAL_HOLIDAYS_IN = [
-    { name: "Republic Day",           date: "2026-01-26", type: "national" as HolidayType, recurring: true },
-    { name: "Independence Day",       date: "2026-08-15", type: "national" as HolidayType, recurring: true },
-    { name: "Gandhi Jayanti",         date: "2026-10-02", type: "national" as HolidayType, recurring: true },
-    { name: "Christmas Day",          date: "2026-12-25", type: "national" as HolidayType, recurring: true },
-    { name: "New Year's Day",         date: "2026-01-01", type: "national" as HolidayType, recurring: true },
-    { name: "Holi",                   date: "2026-03-04", type: "national" as HolidayType, recurring: false },
-    { name: "Eid ul-Fitr",            date: "2026-03-21", type: "national" as HolidayType, recurring: false },
-    { name: "Diwali",                 date: "2026-10-19", type: "national" as HolidayType, recurring: false },
-    { name: "Dussehra",               date: "2026-10-08", type: "national" as HolidayType, recurring: false },
-    { name: "Navratri",               date: "2026-09-28", type: "national" as HolidayType, recurring: false },
-    { name: "Good Friday",            date: "2026-04-03", type: "national" as HolidayType, recurring: false },
-    { name: "Ambedkar Jayanti",       date: "2026-04-14", type: "national" as HolidayType, recurring: true },
-    { name: "Maha Shivratri",         date: "2026-02-19", type: "national" as HolidayType, recurring: false },
-    { name: "Guru Nanak Jayanti",     date: "2026-11-14", type: "national" as HolidayType, recurring: false },
+  { name: 'Republic Day', date: '2026-01-26', type: 'national', recurring: true },
+  { name: 'Independence Day', date: '2026-08-15', type: 'national', recurring: true },
+  { name: 'Gandhi Jayanti', date: '2026-10-02', type: 'national', recurring: true },
+  { name: 'Christmas Day', date: '2026-12-25', type: 'national', recurring: true },
+  { name: "New Year's Day", date: '2026-01-01', type: 'national', recurring: true },
+  { name: 'Holi', date: '2026-03-04', type: 'national', recurring: false },
+  { name: 'Eid ul-Fitr', date: '2026-03-21', type: 'national', recurring: false },
+  { name: 'Diwali', date: '2026-10-19', type: 'national', recurring: false },
+  { name: 'Dussehra', date: '2026-10-08', type: 'national', recurring: false },
+  { name: 'Good Friday', date: '2026-04-03', type: 'national', recurring: false },
+  { name: 'Ambedkar Jayanti', date: '2026-04-14', type: 'national', recurring: true },
+  { name: 'Maha Shivratri', date: '2026-02-19', type: 'national', recurring: false },
+  { name: 'Guru Nanak Jayanti', date: '2026-11-14', type: 'national', recurring: false },
 ];
 
-function SaveButton({ label }: { label: string }) {
-    const { pending } = useFormStatus();
-    return (
-        <ZoruButton type="submit" disabled={pending}>
-            {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
-            {label}
-        </ZoruButton>
-    );
+function csvCell(v: unknown): string {
+  const s = String(v ?? '');
+  return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 }
 
-export default function HolidaysPage() {
-    const [holidays, setHolidays] = useState<WithId<CrmHoliday>[]>([]);
-    const [isLoading, startLoading] = useTransition();
-    const [saveState, formAction] = useActionState(saveCrmHoliday, saveInitialState);
-    const { toast } = useZoruToast();
-    const formRef = useRef<HTMLFormElement>(null);
+function toCsv(rows: HolidayRow[]): string {
+  const head = ['date', 'name', 'type', 'recurring', 'locations', 'notes'];
+  const body = rows.map((r) =>
+    [
+      csvCell(
+        r.date instanceof Date ? r.date.toISOString().slice(0, 10) : r.date,
+      ),
+      csvCell(r.name),
+      csvCell(r.type ?? 'national'),
+      csvCell(r.recurring ? 'yes' : 'no'),
+      csvCell(locationsText(r)),
+      csvCell(r.notes ?? ''),
+    ].join(','),
+  );
+  return [head.join(','), ...body].join('\n');
+}
 
-    const [dialogOpen, setDialogOpen] = useState(false);
-    const [editing, setEditing] = useState<WithId<CrmHoliday> | null>(null);
+function quarterOf(d: Date): number {
+  return Math.floor(d.getMonth() / 3);
+}
 
-    const [date, setDate] = useState<Date | undefined>(undefined);
-    const [type, setType] = useState<string>('national');
-    const [recurring, setRecurring] = useState<string>('false');
+export default function HolidaysPage(): React.JSX.Element {
+  const { toast } = useZoruToast();
 
-    const fetchData = useCallback(() => {
-        startLoading(async () => {
-            const data = await getCrmHolidays();
-            setHolidays(data);
-        });
-    }, []);
+  /* Data */
+  const [holidays, setHolidays] = React.useState<HolidayRow[]>([]);
+  const [isPending, startTransition] = React.useTransition();
+  const [bulkBusy, startBulk] = React.useTransition();
 
-    useEffect(() => { fetchData(); }, [fetchData]);
+  /* Filters */
+  const [search, setSearch] = React.useState('');
+  const [typeFilter, setTypeFilter] = React.useState<HolidayTypeFilter>('all');
+  const [yearFilter, setYearFilter] = React.useState<string>('all');
+  const [recurringFilter, setRecurringFilter] =
+    React.useState<RecurringFilter>('all');
+  const [locationFilter, setLocationFilter] = React.useState('');
+  const [fromDate, setFromDate] = React.useState('');
+  const [toDate, setToDate] = React.useState('');
 
-    useEffect(() => {
-        if (saveState.message) {
-            toast({ title: 'Success', description: saveState.message });
-            fetchData();
-            formRef.current?.reset();
-            setDialogOpen(false);
-            setEditing(null);
-            setDate(undefined);
-            setType('national');
-            setRecurring('false');
+  /* Selection */
+  const [selected, setSelected] = React.useState<Set<string>>(new Set());
+
+  /* Confirm */
+  const [deletePending, setDeletePending] = React.useState(false);
+  const [singleDeleteId, setSingleDeleteId] = React.useState<string | null>(
+    null,
+  );
+
+  const fetchAll = React.useCallback(() => {
+    startTransition(async () => {
+      const rows = await getCrmHolidays();
+      setHolidays(rows as HolidayRow[]);
+    });
+  }, []);
+
+  React.useEffect(() => {
+    fetchAll();
+  }, [fetchAll]);
+
+  /* Year options */
+  const yearOptions = React.useMemo(() => {
+    const years = new Set<number>();
+    for (const h of holidays) {
+      const d = new Date(h.date as unknown as string | Date);
+      if (!Number.isNaN(d.getTime())) years.add(d.getFullYear());
+    }
+    return Array.from(years).sort((a, b) => b - a);
+  }, [holidays]);
+
+  /* KPI snapshot */
+  const kpi: HolidaysKpiSnapshot = React.useMemo(() => {
+    const today = new Date();
+    const currentYear = today.getFullYear();
+    const currentQuarter = quarterOf(today);
+    let totalThisYear = 0;
+    let national = 0;
+    let regional = 0;
+    let religious = 0;
+    let optional = 0;
+    let restricted = 0;
+    let thisQuarter = 0;
+    let recurringCount = 0;
+    for (const h of holidays) {
+      const d = new Date(h.date as unknown as string | Date);
+      if (!Number.isNaN(d.getTime()) && d.getFullYear() === currentYear) {
+        totalThisYear++;
+        if (
+          quarterOf(d) === currentQuarter &&
+          d.getFullYear() === currentYear
+        ) {
+          thisQuarter++;
         }
-        if (saveState.error) {
-            toast({ title: 'Error', description: saveState.error, variant: 'destructive' });
+      }
+      const t = (h.type ?? 'national').toLowerCase();
+      if (t === 'national') national++;
+      else if (t === 'regional') regional++;
+      else if (t === 'religious') religious++;
+      else if (t === 'optional') optional++;
+      else if (t === 'restricted') restricted++;
+      if (h.recurring) recurringCount++;
+    }
+    return {
+      totalThisYear,
+      byTypeNational: national,
+      byTypeRegional: regional,
+      byTypeReligious: religious,
+      byTypeOptional: optional,
+      byTypeRestricted: restricted,
+      thisQuarter,
+      recurringCount,
+    };
+  }, [holidays]);
+
+  /* Filtering */
+  const filtered = React.useMemo(() => {
+    const q = search.trim().toLowerCase();
+    const yr = yearFilter === 'all' ? null : Number(yearFilter);
+    const fromTs = fromDate ? new Date(fromDate).getTime() : null;
+    const toTs = toDate ? new Date(toDate).getTime() : null;
+    return holidays.filter((h) => {
+      if (q) {
+        const hay = `${h.name} ${locationsText(h)} ${h.notes ?? ''}`.toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      if (typeFilter !== 'all') {
+        const t = (h.type ?? 'national').toLowerCase();
+        if (t !== typeFilter) return false;
+      }
+      const d = new Date(h.date as unknown as string | Date);
+      if (yr !== null) {
+        if (Number.isNaN(d.getTime()) || d.getFullYear() !== yr) return false;
+      }
+      if (recurringFilter === 'yes' && !h.recurring) return false;
+      if (recurringFilter === 'no' && h.recurring) return false;
+      if (locationFilter) {
+        const locs = locationsText(h).toLowerCase();
+        if (!locs.includes(locationFilter.toLowerCase())) return false;
+      }
+      if (fromTs && !Number.isNaN(d.getTime()) && d.getTime() < fromTs)
+        return false;
+      if (toTs && !Number.isNaN(d.getTime()) && d.getTime() > toTs)
+        return false;
+      return true;
+    });
+  }, [
+    holidays,
+    search,
+    typeFilter,
+    yearFilter,
+    recurringFilter,
+    locationFilter,
+    fromDate,
+    toDate,
+  ]);
+
+  /* KPI clicks */
+  const onKpiSelect = React.useCallback((key: HolidaysKpiKey) => {
+    const now = new Date();
+    if (key === 'all-year') {
+      setYearFilter(String(now.getFullYear()));
+      setTypeFilter('all');
+      setRecurringFilter('all');
+      setFromDate('');
+      setToDate('');
+    } else if (key === 'breakdown') {
+      setYearFilter(String(now.getFullYear()));
+      setTypeFilter('national');
+    } else if (key === 'this-quarter') {
+      const q = quarterOf(now);
+      const first = new Date(now.getFullYear(), q * 3, 1);
+      const last = new Date(now.getFullYear(), q * 3 + 3, 0);
+      setFromDate(first.toISOString().slice(0, 10));
+      setToDate(last.toISOString().slice(0, 10));
+      setYearFilter('all');
+    } else if (key === 'recurring') {
+      setRecurringFilter('yes');
+      setYearFilter('all');
+    }
+  }, []);
+
+  /* Clear */
+  const clearFilters = React.useCallback(() => {
+    setSearch('');
+    setTypeFilter('all');
+    setYearFilter('all');
+    setRecurringFilter('all');
+    setLocationFilter('');
+    setFromDate('');
+    setToDate('');
+  }, []);
+
+  const hasActiveFilters =
+    !!search ||
+    typeFilter !== 'all' ||
+    yearFilter !== 'all' ||
+    recurringFilter !== 'all' ||
+    !!locationFilter ||
+    !!fromDate ||
+    !!toDate;
+
+  /* Selection */
+  const toggleOne = React.useCallback((id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
+  const toggleAll = React.useCallback(
+    (all: boolean) => {
+      setSelected(
+        all ? new Set(filtered.map((h) => h._id.toString())) : new Set(),
+      );
+    },
+    [filtered],
+  );
+
+  /* Bulk delete */
+  const runBulkDelete = React.useCallback(async () => {
+    const ids = Array.from(selected);
+    let processed = 0;
+    for (const id of ids) {
+      const res = await deleteCrmHoliday(id);
+      if (res.success) processed++;
+    }
+    toast({
+      title: 'Delete completed',
+      description: `${processed} of ${ids.length} holidays removed.`,
+    });
+    setSelected(new Set());
+    fetchAll();
+  }, [selected, toast, fetchAll]);
+
+  const runSingleDelete = React.useCallback(
+    async (id: string) => {
+      const res = await deleteCrmHoliday(id);
+      if (res.success) {
+        toast({ title: 'Deleted' });
+        fetchAll();
+      } else {
+        toast({
+          title: 'Delete failed',
+          description: res.error,
+          variant: 'destructive',
+        });
+      }
+    },
+    [toast, fetchAll],
+  );
+
+  /* Add public holidays */
+  const addPublicHolidays = () => {
+    startBulk(async () => {
+      let added = 0;
+      for (const h of NATIONAL_HOLIDAYS_IN) {
+        const fd = new FormData();
+        fd.set('name', h.name);
+        fd.set('date', new Date(h.date).toISOString());
+        fd.set('type', h.type);
+        fd.set('recurring', String(h.recurring));
+        const res = await saveCrmHoliday(null, fd);
+        if (res.message) added++;
+      }
+      toast({
+        title: 'Public holidays added',
+        description: `${added} holidays inserted.`,
+      });
+      fetchAll();
+    });
+  };
+
+  /* Export */
+  const exportCsv = React.useCallback(() => {
+    const out =
+      selected.size > 0
+        ? filtered.filter((h) => selected.has(h._id.toString()))
+        : filtered;
+    if (out.length === 0) {
+      toast({
+        title: 'Nothing to export',
+        description: 'No rows match the current filters / selection.',
+      });
+      return;
+    }
+    const blob = new Blob([toCsv(out)], {
+      type: 'text/csv;charset=utf-8;',
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `holidays-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast({
+      title: 'Exported',
+      description: `${out.length} holidays saved to CSV.`,
+    });
+  }, [filtered, selected, toast]);
+
+  return (
+    <>
+      <EntityListShell
+        title="Holidays"
+        subtitle="Maintain your organization's official holiday calendar."
+        search={{
+          value: search,
+          onChange: setSearch,
+          placeholder: 'Search by name, location, notes…',
+        }}
+        primaryAction={
+          <div className="flex items-center gap-2">
+            <ZoruButton
+              variant="outline"
+              size="sm"
+              onClick={addPublicHolidays}
+              disabled={bulkBusy}
+            >
+              <PartyPopper className="h-3.5 w-3.5" />
+              {bulkBusy ? 'Adding…' : 'Add public holidays'}
+            </ZoruButton>
+            <ZoruButton size="sm" asChild>
+              <Link href="/dashboard/hrm/payroll/holidays/new">
+                <Plus className="h-3.5 w-3.5" /> New holiday
+              </Link>
+            </ZoruButton>
+          </div>
         }
-    }, [saveState, toast, fetchData]);
+        filters={
+          <HolidaysFiltersRow
+            typeFilter={typeFilter}
+            onTypeChange={setTypeFilter}
+            yearFilter={yearFilter}
+            onYearChange={setYearFilter}
+            yearOptions={yearOptions}
+            recurringFilter={recurringFilter}
+            onRecurringChange={setRecurringFilter}
+            locationFilter={locationFilter}
+            onLocationChange={setLocationFilter}
+            fromDate={fromDate}
+            onFromDate={setFromDate}
+            toDate={toDate}
+            onToDate={setToDate}
+            hasActiveFilters={hasActiveFilters}
+            onClear={clearFilters}
+          />
+        }
+        bulkBar={
+          selected.size > 0 ? (
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-[13px] text-zoru-ink">
+                <span className="font-medium tabular-nums">
+                  {selected.size}
+                </span>
+                {selected.size === 1 ? ' holiday' : ' holidays'} selected
+              </span>
+              <span className="mx-1 h-4 w-px bg-zoru-line" aria-hidden />
+              <ZoruButton
+                size="sm"
+                variant="outline"
+                onClick={() => setDeletePending(true)}
+              >
+                <Trash2 className="h-3.5 w-3.5 text-rose-500" /> Delete
+              </ZoruButton>
+              <ZoruButton size="sm" variant="outline" onClick={exportCsv}>
+                Export CSV
+              </ZoruButton>
+              <ZoruButton
+                size="sm"
+                variant="ghost"
+                onClick={() => setSelected(new Set())}
+                className="ml-auto"
+              >
+                Clear selection
+              </ZoruButton>
+            </div>
+          ) : null
+        }
+        loading={isPending && holidays.length === 0}
+        empty={
+          !isPending && holidays.length === 0 ? (
+            <div className="flex flex-col items-center gap-3 p-4">
+              <CalendarHeart className="h-8 w-8 text-zoru-ink-muted" />
+              <h3 className="text-base font-medium text-zoru-ink">
+                No holidays added yet
+              </h3>
+              <p className="max-w-sm text-sm text-zoru-ink-muted">
+                Seed the calendar with public holidays or add your first
+                holiday manually.
+              </p>
+              <div className="flex gap-2">
+                <ZoruButton variant="outline" onClick={addPublicHolidays}>
+                  <PartyPopper className="h-4 w-4" /> Add public holidays
+                </ZoruButton>
+                <ZoruButton asChild>
+                  <Link href="/dashboard/hrm/payroll/holidays/new">
+                    <Plus className="h-4 w-4" /> Add holiday
+                  </Link>
+                </ZoruButton>
+              </div>
+            </div>
+          ) : null
+        }
+      >
+        <div className="flex flex-col gap-4">
+          <HolidaysKpiStrip kpi={kpi} active={null} onSelect={onKpiSelect} />
 
-    const [deleteTransition, startDeleteTransition] = useTransition();
-
-    const handleDelete = (holiday: WithId<CrmHoliday>) => {
-        startDeleteTransition(async () => {
-            const result = await deleteCrmHoliday(holiday._id.toString());
-            if (result.success) {
-                toast({ title: 'Deleted', description: `"${holiday.name}" removed.` });
-                fetchData();
-            } else {
-                toast({ title: 'Error', description: result.error, variant: 'destructive' });
-            }
-        });
-    };
-
-    const openAdd = () => {
-        setEditing(null);
-        setDate(undefined);
-        setType('national');
-        setRecurring('false');
-        setDialogOpen(true);
-    };
-
-    const openEdit = (holiday: WithId<CrmHoliday>) => {
-        setEditing(holiday);
-        setDate(new Date(holiday.date));
-        setType((holiday as any).type ?? 'national');
-        setRecurring((holiday as any).recurring ? 'true' : 'false');
-        setDialogOpen(true);
-    };
-
-    const [bulkTransition, startBulkTransition] = useTransition();
-    const handleAddPublicHolidays = () => {
-        startBulkTransition(async () => {
-            let added = 0;
-            for (const h of NATIONAL_HOLIDAYS_IN) {
-                const fd = new FormData();
-                fd.set('name', h.name);
-                fd.set('date', new Date(h.date).toISOString());
-                fd.set('type', h.type);
-                fd.set('recurring', String(h.recurring));
-                const result = await saveCrmHoliday(null, fd);
-                if (result.message) added++;
-            }
-            toast({ title: 'Public Holidays Added', description: `${added} holidays inserted.` });
-            fetchData();
-        });
-    };
-
-    const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-
-    return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="Holidays"
-                subtitle="Maintain your organization's official holiday calendar with types and recurrence."
-                icon={CalendarHeart}
-                actions={
-                    <>
-                        <ZoruButton
-                            variant="outline"
-                            onClick={handleAddPublicHolidays}
-                            disabled={bulkTransition}
-                        >
-                            <PartyPopper className="h-4 w-4" />
-                            {bulkTransition ? 'Adding…' : 'Add Public Holidays'}
-                        </ZoruButton>
-                        <ZoruButton onClick={openAdd}>
-                            <Plus className="h-4 w-4" />
-                            Add Holiday
-                        </ZoruButton>
-                    </>
-                }
-            />
-
-            <ZoruCard className="p-6">
-                <div className="mb-4 flex items-center justify-between">
-                    <h2 className="text-[16px] text-zoru-ink">Holiday Calendar</h2>
-                    <ZoruBadge variant="secondary">{holidays.length} holidays</ZoruBadge>
-                </div>
-                <div className="overflow-x-auto rounded-lg border border-zoru-line">
-                    <table className="w-full text-left text-[13px]">
-                        <thead>
-                            <tr className="border-b border-zoru-line bg-zoru-surface-2">
-                                <th className="px-4 py-3 text-[12px] uppercase text-zoru-ink-muted">Holiday</th>
-                                <th className="px-4 py-3 text-[12px] uppercase text-zoru-ink-muted">Date</th>
-                                <th className="px-4 py-3 text-[12px] uppercase text-zoru-ink-muted">Day</th>
-                                <th className="px-4 py-3 text-[12px] uppercase text-zoru-ink-muted">Type</th>
-                                <th className="px-4 py-3 text-[12px] uppercase text-zoru-ink-muted">Location</th>
-                                <th className="px-4 py-3 text-center text-[12px] uppercase text-zoru-ink-muted">Recurring</th>
-                                <th className="px-4 py-3 text-right text-[12px] uppercase text-zoru-ink-muted">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {isLoading ? (
-                                <tr>
-                                    <td colSpan={7} className="h-24 text-center">
-                                        <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
-                                    </td>
-                                </tr>
-                            ) : holidays.length > 0 ? (
-                                holidays.map((holiday) => {
-                                    const d = new Date(holiday.date);
-                                    const holidayType: HolidayType = ((holiday as any).type as HolidayType) ?? 'national';
-                                    return (
-                                        <tr key={holiday._id.toString()} className="border-b border-zoru-line last:border-0 hover:bg-zoru-surface-2/50 transition-colors">
-                                            <td className="px-4 py-3 text-zoru-ink">{holiday.name}</td>
-                                            <td className="px-4 py-3 text-zoru-ink">{format(d, 'dd MMM yyyy')}</td>
-                                            <td className="px-4 py-3 text-zoru-ink-muted">{DAY_NAMES[d.getDay()]}</td>
-                                            <td className="px-4 py-3">
-                                                <ZoruBadge variant={TYPE_VARIANTS[holidayType]}>
-                                                    {TYPE_LABELS[holidayType]}
-                                                </ZoruBadge>
-                                            </td>
-                                            <td className="px-4 py-3 text-zoru-ink-muted">
-                                                {(holiday as any).location || '—'}
-                                            </td>
-                                            <td className="px-4 py-3 text-center">
-                                                {(holiday as any).recurring ? (
-                                                    <ZoruBadge variant="success">Yes</ZoruBadge>
-                                                ) : (
-                                                    <ZoruBadge variant="secondary">No</ZoruBadge>
-                                                )}
-                                            </td>
-                                            <td className="px-4 py-3">
-                                                <div className="flex items-center justify-end gap-1">
-                                                    <ZoruButton
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        onClick={() => openEdit(holiday)}
-                                                        aria-label="Edit"
-                                                    >
-                                                        <Pencil className="h-3.5 w-3.5" />
-                                                    </ZoruButton>
-                                                    <ZoruButton
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        onClick={() => handleDelete(holiday)}
-                                                        disabled={deleteTransition}
-                                                        aria-label="Delete"
-                                                    >
-                                                        <Trash2 className="h-3.5 w-3.5 text-red-500" />
-                                                    </ZoruButton>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    );
-                                })
-                            ) : (
-                                <tr>
-                                    <td colSpan={7} className="h-24 text-center text-[13px] text-zoru-ink-muted">
-                                        No holidays added yet. Click &quot;Add Holiday&quot; or &quot;Add Public Holidays&quot;.
-                                    </td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
-            </ZoruCard>
-
-            <ZoruDialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) setEditing(null); }}>
-                <ZoruDialogContent>
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle className="text-zoru-ink">
-                            {editing ? 'Edit Holiday' : 'Add Holiday'}
-                        </ZoruDialogTitle>
-                        <ZoruDialogDescription className="text-zoru-ink-muted">
-                            Fill in the holiday details. Name and date are required.
-                        </ZoruDialogDescription>
-                    </ZoruDialogHeader>
-                    <form action={formAction} ref={formRef} className="space-y-4">
-                        {editing?._id ? (
-                            <input type="hidden" name="_id" value={editing._id.toString()} />
-                        ) : null}
-                        <input type="hidden" name="date" value={date?.toISOString() ?? ''} />
-                        <input type="hidden" name="type" value={type} />
-                        <input type="hidden" name="recurring" value={recurring} />
-
-                        <div>
-                            <ZoruLabel htmlFor="holiday-name" className="text-[13px] text-zoru-ink">
-                                Holiday Name <span className="text-red-500">*</span>
-                            </ZoruLabel>
-                            <ZoruInput
-                                id="holiday-name"
-                                name="name"
-                                required
-                                defaultValue={editing?.name ?? ''}
-                                placeholder="e.g. Diwali"
-                                className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
-                            />
-                        </div>
-
-                        <div>
-                            <ZoruLabel className="text-[13px] text-zoru-ink">
-                                Date <span className="text-red-500">*</span>
-                            </ZoruLabel>
-                            <div className="mt-1.5">
-                                <ZoruDatePicker value={date} onChange={setDate} />
-                            </div>
-                        </div>
-
-                        <div>
-                            <ZoruLabel htmlFor="holiday-type" className="text-[13px] text-zoru-ink">
-                                Type
-                            </ZoruLabel>
-                            <ZoruSelect value={type} onValueChange={setType}>
-                                <ZoruSelectTrigger
-                                    id="holiday-type"
-                                    className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
-                                >
-                                    <ZoruSelectValue />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    <ZoruSelectItem value="national">National</ZoruSelectItem>
-                                    <ZoruSelectItem value="regional">Regional</ZoruSelectItem>
-                                    <ZoruSelectItem value="optional">Optional</ZoruSelectItem>
-                                </ZoruSelectContent>
-                            </ZoruSelect>
-                        </div>
-
-                        <div>
-                            <ZoruLabel htmlFor="holiday-location" className="text-[13px] text-zoru-ink">
-                                Location / State
-                            </ZoruLabel>
-                            <ZoruInput
-                                id="holiday-location"
-                                name="location"
-                                defaultValue={(editing as any)?.location ?? ''}
-                                placeholder="e.g. Maharashtra (leave blank for all)"
-                                className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
-                            />
-                        </div>
-
-                        <div>
-                            <ZoruLabel htmlFor="holiday-recurring" className="text-[13px] text-zoru-ink">
-                                Recurring Yearly
-                            </ZoruLabel>
-                            <ZoruSelect value={recurring} onValueChange={setRecurring}>
-                                <ZoruSelectTrigger
-                                    id="holiday-recurring"
-                                    className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
-                                >
-                                    <ZoruSelectValue />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    <ZoruSelectItem value="true">Yes — repeats every year</ZoruSelectItem>
-                                    <ZoruSelectItem value="false">No — one-time</ZoruSelectItem>
-                                </ZoruSelectContent>
-                            </ZoruSelect>
-                        </div>
-
-                        <ZoruDialogFooter>
-                            <ZoruButton
-                                type="button"
-                                variant="outline"
-                                onClick={() => setDialogOpen(false)}
-                            >
-                                <X className="h-3.5 w-3.5" />
-                                Cancel
-                            </ZoruButton>
-                            <SaveButton label={editing ? 'Save Changes' : 'Add Holiday'} />
-                        </ZoruDialogFooter>
-                    </form>
-                </ZoruDialogContent>
-            </ZoruDialog>
+          <HolidaysTable
+            rows={filtered}
+            selected={selected}
+            onToggleOne={toggleOne}
+            onToggleAll={toggleAll}
+            onDelete={setSingleDeleteId}
+            hasActiveFilters={hasActiveFilters}
+          />
         </div>
-    );
+      </EntityListShell>
+
+      <ConfirmDialog
+        open={deletePending}
+        onOpenChange={setDeletePending}
+        title={`Delete ${selected.size} holiday${selected.size === 1 ? '' : 's'}?`}
+        description="This permanently removes the selected holidays. The action cannot be undone."
+        confirmLabel="Delete"
+        requireTyped="DELETE"
+        onConfirm={async () => {
+          await runBulkDelete();
+          setDeletePending(false);
+        }}
+      />
+
+      <ConfirmDialog
+        open={!!singleDeleteId}
+        onOpenChange={(o) => !o && setSingleDeleteId(null)}
+        title="Delete this holiday?"
+        description="This permanently removes the holiday. The action cannot be undone."
+        requireTyped="DELETE"
+        confirmLabel="Delete"
+        onConfirm={async () => {
+          if (singleDeleteId) await runSingleDelete(singleDeleteId);
+          setSingleDeleteId(null);
+        }}
+      />
+    </>
+  );
 }

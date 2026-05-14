@@ -3,6 +3,9 @@
  *
  * Server component: fetches the tenant's invoice custom-field definitions
  * once, then hands off to the shared `<InvoiceForm>` (also used by Edit).
+ *
+ * Supports `?fromKind=quote|so|deal&fromId=` for cross-doc pre-fill —
+ * the form reads those from the URL directly.
  */
 
 import { Receipt } from 'lucide-react';
@@ -23,6 +26,12 @@ export default async function NewInvoicePage() {
         title="New invoice"
         subtitle="Bill a customer with itemized line items."
         icon={Receipt}
+        breadcrumbs={[
+          { label: 'CRM', href: '/dashboard/crm' },
+          { label: 'Sales', href: '/dashboard/crm/sales' },
+          { label: 'Invoices', href: '/dashboard/crm/sales/invoices' },
+          { label: 'New' },
+        ]}
       />
       <InvoiceForm customFields={customFields} />
     </div>

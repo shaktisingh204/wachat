@@ -69,6 +69,38 @@ export default async function DisciplinaryPage() {
     }
   }
 
+  // §1D.1 KPI strip
+  const open = cases.filter(
+    (c) => String(c.status || '').toLowerCase() === 'open',
+  ).length;
+  const closed = cases.filter((c) => {
+    const s = String(c.status || '').toLowerCase();
+    return s === 'resolved' || s === 'dismissed' || s === 'closed';
+  }).length;
+  const critical = cases.filter(
+    (c) =>
+      String(c.severity || '').toLowerCase() === 'critical' ||
+      String(c.severity || '').toLowerCase() === 'high',
+  ).length;
+  const underReview = cases.filter(
+    (c) => String(c.status || '').toLowerCase() === 'under_review',
+  ).length;
+
+  // Avg resolution days
+  const resolvedWithDates = cases.filter((c) => {
+    const s = String(c.status || '').toLowerCase();
+    return (s === 'resolved' || s === 'dismissed') && c.createdAt && (c as any).resolvedAt;
+  });
+  const avgResolutionDays = (() => {
+    if (resolvedWithDates.length === 0) return '—';
+    const total = resolvedWithDates.reduce((acc, c) => {
+      const start = new Date(c.createdAt as any).getTime();
+      const end = new Date((c as any).resolvedAt as any).getTime();
+      return acc + Math.max(0, (end - start) / (1000 * 60 * 60 * 24));
+    }, 0);
+    return Math.round(total / resolvedWithDates.length);
+  })();
+
   return (
     <div className="flex w-full flex-col gap-6">
       <CrmPageHeader
@@ -83,6 +115,49 @@ export default async function DisciplinaryPage() {
           </ZoruButton>
         }
       />
+
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+        <ZoruCard className="p-3">
+          <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+            Open
+          </div>
+          <div className="mt-1 text-[20px] font-semibold leading-tight text-zoru-warning-ink">
+            {open}
+          </div>
+        </ZoruCard>
+        <ZoruCard className="p-3">
+          <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+            Under review
+          </div>
+          <div className="mt-1 text-[20px] font-semibold leading-tight text-zoru-ink">
+            {underReview}
+          </div>
+        </ZoruCard>
+        <ZoruCard className="p-3">
+          <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+            Closed
+          </div>
+          <div className="mt-1 text-[20px] font-semibold leading-tight text-zoru-success-ink">
+            {closed}
+          </div>
+        </ZoruCard>
+        <ZoruCard className="p-3">
+          <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+            Critical / high
+          </div>
+          <div className="mt-1 text-[20px] font-semibold leading-tight text-zoru-danger-ink">
+            {critical}
+          </div>
+        </ZoruCard>
+        <ZoruCard className="p-3">
+          <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+            Avg resolution
+          </div>
+          <div className="mt-1 text-[20px] font-semibold leading-tight text-zoru-ink">
+            {avgResolutionDays === '—' ? '—' : `${avgResolutionDays}d`}
+          </div>
+        </ZoruCard>
+      </div>
 
       <ZoruCard className="p-6">
         <div className="mb-4">
@@ -136,7 +211,12 @@ export default async function DisciplinaryPage() {
                   return (
                     <ZoruTableRow key={idStr} className="border-zoru-line">
                       <ZoruTableCell className="font-mono text-[12px] text-zoru-ink">
-                        {caseNo}
+                        <Link
+                          href={`/dashboard/hrm/hr/disciplinary/${idStr}`}
+                          className="hover:underline"
+                        >
+                          {caseNo}
+                        </Link>
                       </ZoruTableCell>
                       <ZoruTableCell className="text-zoru-ink">{employee}</ZoruTableCell>
                       <ZoruTableCell>

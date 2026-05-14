@@ -1,18 +1,69 @@
-
 'use server';
 
+/**
+ * Warehouse server actions — §1D rebuild.
+ *
+ * List filters + KPIs + bulk operations, set-default / archive /
+ * restore flows, and an inventory summary lookup for the detail page.
+ *
+ * The save action keeps backwards-compat with the legacy form (which
+ * posts `location` → `address` and only `name`/`isDefault`). All new
+ * fields are optional and additive.
+ */
+
 import { revalidatePath } from 'next/cache';
-import { type Db, ObjectId, type WithId } from 'mongodb';
+import { ObjectId, type WithId } from 'mongodb';
+
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
-import type { CrmWarehouse } from '@/lib/definitions';
+import type {
+    CrmWarehouse,
+    CrmWarehouseType,
+    CrmWarehouseStatus,
+} from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
+import { writeAuditEntry } from '@/lib/audit-log';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+
+/* ─── Types ────────────────────────────────────────────────────────── */
+
+export interface CrmWarehouseFilters {
+    type?: CrmWarehouseType | '';
+    status?: CrmWarehouseStatus | '';
+    managerId?: string;
+    country?: string;
+    state?: string;
+    city?: string;
+    isDefault?: 'yes' | 'no' | '';
+    includeArchived?: boolean;
+}
+
+export interface CrmWarehouseKpis {
+    total: number;
+    active: number;
+    climateControlled: number;
+    byType: Array<{ type: string; count: number }>;
+}
+
+export interface CrmWarehouseInventorySummary {
+    itemsCount: number;
+    totalStock: number;
+    totalValue: number;
+}
+
+const EMPTY_KPIS: CrmWarehouseKpis = {
+    total: 0,
+    active: 0,
+    climateControlled: 0,
+    byType: [],
+};
+
+/* ─── Reads ────────────────────────────────────────────────────────── */
 
 export async function getCrmWarehouseById(
     warehouseId: string,
 ): Promise<WithId<CrmWarehouse> | null> {
     if (!warehouseId || !ObjectId.isValid(warehouseId)) return null;
-
     const session = await getSession();
     if (!session?.user) return null;
 
@@ -27,6 +78,7 @@ export async function getCrmWarehouseById(
         return warehouse ? JSON.parse(JSON.stringify(warehouse)) : null;
     } catch (e) {
         console.error('Failed to fetch CRM warehouse:', e);
+        recordRustFallback({ entity: 'warehouse', op: 'get' });
         return null;
     }
 }
@@ -37,18 +89,191 @@ export async function getCrmWarehouses(): Promise<WithId<CrmWarehouse>[]> {
 
     try {
         const { db } = await connectToDatabase();
-        const warehouses = await db.collection<CrmWarehouse>('crm_warehouses')
-            .find({ userId: new ObjectId(session.user._id) })
+        const warehouses = await db
+            .collection<CrmWarehouse>('crm_warehouses')
+            .find({
+                userId: new ObjectId(session.user._id),
+                archived: { $ne: true },
+            })
             .sort({ isDefault: -1, name: 1 })
             .toArray();
         return JSON.parse(JSON.stringify(warehouses));
     } catch (e) {
-        console.error("Failed to fetch CRM warehouses:", e);
+        console.error('Failed to fetch CRM warehouses:', e);
+        recordRustFallback({ entity: 'warehouse', op: 'list' });
         return [];
     }
 }
 
-export async function saveCrmWarehouse(prevState: any, formData: FormData): Promise<{ message?: string; error?: string; warehouse?: CrmWarehouse }> {
+export async function getCrmWarehousesPaginated(
+    page = 1,
+    limit = 20,
+    search = '',
+    filters: CrmWarehouseFilters = {},
+): Promise<{ warehouses: WithId<CrmWarehouse>[]; total: number }> {
+    const session = await getSession();
+    if (!session?.user) return { warehouses: [], total: 0 };
+
+    try {
+        const { db } = await connectToDatabase();
+        const query: Record<string, unknown> = {
+            userId: new ObjectId(session.user._id),
+        };
+
+        if (!filters.includeArchived) query.archived = { $ne: true };
+        if (filters.type) query.type = filters.type;
+        if (filters.status) query.status = filters.status;
+        if (filters.managerId && ObjectId.isValid(filters.managerId)) {
+            query.managerId = new ObjectId(filters.managerId);
+        }
+        if (filters.country) query.country = filters.country;
+        if (filters.state) query.state = filters.state;
+        if (filters.city) query.city = filters.city;
+        if (filters.isDefault === 'yes') query.isDefault = true;
+        else if (filters.isDefault === 'no') query.isDefault = { $ne: true };
+
+        if (search.trim()) {
+            const rx = new RegExp(
+                search.trim().replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&'),
+                'i',
+            );
+            (query as any).$or = [{ name: rx }, { code: rx }, { city: rx }];
+        }
+
+        const cursor = db.collection<CrmWarehouse>('crm_warehouses').find(query);
+        const total = await cursor.clone().count();
+        const warehouses = await cursor
+            .sort({ isDefault: -1, name: 1 })
+            .skip((page - 1) * limit)
+            .limit(limit)
+            .toArray();
+
+        return {
+            warehouses: JSON.parse(JSON.stringify(warehouses)),
+            total,
+        };
+    } catch (e) {
+        console.error('Failed to fetch paginated CRM warehouses:', e);
+        recordRustFallback({ entity: 'warehouse', op: 'list' });
+        return { warehouses: [], total: 0 };
+    }
+}
+
+export async function getCrmWarehouseKpis(): Promise<CrmWarehouseKpis> {
+    const session = await getSession();
+    if (!session?.user) return EMPTY_KPIS;
+
+    try {
+        const { db } = await connectToDatabase();
+        const base = {
+            userId: new ObjectId(session.user._id),
+            archived: { $ne: true },
+        };
+
+        const [total, active, climateControlled, byType] = await Promise.all([
+            db.collection('crm_warehouses').countDocuments(base),
+            db.collection('crm_warehouses').countDocuments({
+                ...base,
+                $or: [{ status: 'active' }, { status: { $exists: false } }],
+            }),
+            db.collection('crm_warehouses').countDocuments({
+                ...base,
+                climateControlled: true,
+            }),
+            db
+                .collection('crm_warehouses')
+                .aggregate([
+                    { $match: base },
+                    {
+                        $group: {
+                            _id: { $ifNull: ['$type', 'main'] },
+                            count: { $sum: 1 },
+                        },
+                    },
+                    { $sort: { count: -1 } },
+                ])
+                .toArray(),
+        ]);
+
+        return {
+            total,
+            active,
+            climateControlled,
+            byType: byType.map((b) => ({ type: String(b._id), count: b.count })),
+        };
+    } catch (e) {
+        console.error('Failed to compute warehouse KPIs:', e);
+        recordRustFallback({ entity: 'warehouse', op: 'other' });
+        return EMPTY_KPIS;
+    }
+}
+
+export async function getCrmWarehouseInventorySummary(
+    warehouseId: string,
+): Promise<CrmWarehouseInventorySummary> {
+    const empty: CrmWarehouseInventorySummary = {
+        itemsCount: 0,
+        totalStock: 0,
+        totalValue: 0,
+    };
+    if (!warehouseId || !ObjectId.isValid(warehouseId)) return empty;
+    const session = await getSession();
+    if (!session?.user) return empty;
+
+    try {
+        const { db } = await connectToDatabase();
+        const result = await db
+            .collection('crm_products')
+            .aggregate([
+                {
+                    $match: {
+                        userId: new ObjectId(session.user._id),
+                        'inventory.warehouseId': new ObjectId(warehouseId),
+                    },
+                },
+                { $unwind: '$inventory' },
+                {
+                    $match: {
+                        'inventory.warehouseId': new ObjectId(warehouseId),
+                    },
+                },
+                {
+                    $group: {
+                        _id: null,
+                        itemsCount: { $sum: 1 },
+                        totalStock: { $sum: { $ifNull: ['$inventory.stock', 0] } },
+                        totalValue: {
+                            $sum: {
+                                $multiply: [
+                                    { $ifNull: ['$inventory.stock', 0] },
+                                    { $ifNull: ['$costPrice', 0] },
+                                ],
+                            },
+                        },
+                    },
+                },
+            ])
+            .toArray();
+
+        if (result.length === 0) return empty;
+        return {
+            itemsCount: result[0].itemsCount || 0,
+            totalStock: result[0].totalStock || 0,
+            totalValue: result[0].totalValue || 0,
+        };
+    } catch (e) {
+        console.error('Failed to compute warehouse inventory summary:', e);
+        recordRustFallback({ entity: 'warehouse', op: 'other' });
+        return empty;
+    }
+}
+
+/* ─── Writes ───────────────────────────────────────────────────────── */
+
+export async function saveCrmWarehouse(
+    _prevState: unknown,
+    formData: FormData,
+): Promise<{ message?: string; error?: string; warehouse?: CrmWarehouse }> {
     const session = await getSession();
     if (!session?.user) return { error: 'Access denied.' };
 
@@ -56,83 +281,305 @@ export async function saveCrmWarehouse(prevState: any, formData: FormData): Prom
     const isEditing = !!warehouseId;
 
     try {
+        const userId = new ObjectId(session.user._id);
+        const name = (formData.get('name') as string)?.trim();
+        if (!name) return { error: 'Warehouse name is required.' };
+
+        const managerIdRaw = formData.get('managerId') as string | null;
+        const managerObjectId =
+            managerIdRaw && ObjectId.isValid(managerIdRaw)
+                ? new ObjectId(managerIdRaw)
+                : undefined;
+
+        const numberOrUndef = (k: string): number | undefined => {
+            const raw = formData.get(k);
+            if (raw == null || String(raw).trim() === '') return undefined;
+            const n = Number(raw);
+            return Number.isFinite(n) ? n : undefined;
+        };
+        const strOrUndef = (k: string, alt?: string): string | undefined => {
+            const v =
+                (formData.get(k) as string | null) ??
+                (alt ? (formData.get(alt) as string | null) : null);
+            return v || undefined;
+        };
+
         const warehouseData: Partial<CrmWarehouse> = {
-            userId: new ObjectId(session.user._id),
-            name: formData.get('name') as string,
-            address: formData.get('location') as string, // Mapping location input to address
+            userId,
+            name,
+            code: (formData.get('code') as string | null)?.trim() || undefined,
+            type: (strOrUndef('type') as CrmWarehouseType) || undefined,
+            status: (strOrUndef('status') as CrmWarehouseStatus) || undefined,
+            // Accept either legacy `location` or new `address`.
+            address: strOrUndef('address', 'location'),
+            city: strOrUndef('city'),
+            state: strOrUndef('state'),
+            country: strOrUndef('country'),
+            pincode: strOrUndef('pincode'),
+            phone: strOrUndef('phone'),
+            managerId: managerObjectId,
+            managerName: strOrUndef('managerName'),
+            gstin: strOrUndef('gstin'),
+            capacityUnits: numberOrUndef('capacityUnits'),
+            capacitySqft: numberOrUndef('capacitySqft'),
+            climateControlled: formData.get('climateControlled') === 'on',
             isDefault: formData.get('isDefault') === 'on',
             updatedAt: new Date(),
         };
 
-        if (!warehouseData.name) {
-            return { error: 'Warehouse name is required.' };
-        }
-
         const { db } = await connectToDatabase();
-
-        // If setting this as default, unset other defaults
         if (warehouseData.isDefault) {
-            // Type-casting filter to any to avoid strict typing issues with generic collection if needed
-            await db.collection('crm_warehouses').updateMany(
-                { userId: new ObjectId(session.user._id) },
-                { $set: { isDefault: false } }
-            );
+            await db
+                .collection('crm_warehouses')
+                .updateMany({ userId }, { $set: { isDefault: false } });
         }
 
         let resultWarehouse: CrmWarehouse;
 
         if (isEditing && ObjectId.isValid(warehouseId)) {
-            await db.collection('crm_warehouses').updateOne({ _id: new ObjectId(warehouseId), userId: new ObjectId(session.user._id) }, { $set: warehouseData });
-            resultWarehouse = { ...warehouseData, _id: new ObjectId(warehouseId) } as CrmWarehouse;
+            await db.collection('crm_warehouses').updateOne(
+                { _id: new ObjectId(warehouseId), userId },
+                { $set: warehouseData },
+            );
+            resultWarehouse = {
+                ...warehouseData,
+                _id: new ObjectId(warehouseId),
+            } as CrmWarehouse;
+
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'update',
+                entityKind: 'warehouse',
+                entityId: warehouseId,
+                reason: `Updated warehouse "${name}"`,
+            });
         } else {
             warehouseData.createdAt = new Date();
-            const res = await db.collection('crm_warehouses').insertOne(warehouseData as CrmWarehouse);
-            resultWarehouse = { ...warehouseData, _id: res.insertedId } as CrmWarehouse;
+            warehouseData.status = warehouseData.status ?? 'active';
+            const res = await db
+                .collection('crm_warehouses')
+                .insertOne(warehouseData as CrmWarehouse);
+            resultWarehouse = {
+                ...warehouseData,
+                _id: res.insertedId,
+            } as CrmWarehouse;
+
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'create',
+                entityKind: 'warehouse',
+                entityId: String(res.insertedId),
+                reason: `Created warehouse "${name}"`,
+            });
         }
 
         revalidatePath('/dashboard/crm/inventory/warehouses');
-        return { message: `Warehouse "${warehouseData.name}" saved successfully!`, warehouse: JSON.parse(JSON.stringify(resultWarehouse)) };
+        return {
+            message: `Warehouse "${name}" saved successfully!`,
+            warehouse: JSON.parse(JSON.stringify(resultWarehouse)),
+        };
     } catch (e) {
+        recordRustFallback({
+            entity: 'warehouse',
+            op: isEditing ? 'update' : 'create',
+        });
         return { error: getErrorMessage(e) };
     }
 }
 
-export async function deleteCrmWarehouse(warehouseId: string): Promise<{ success: boolean; error?: string }> {
-    if (!ObjectId.isValid(warehouseId)) return { success: false, error: 'Invalid Warehouse ID.' };
-
+async function setArchiveState(
+    warehouseId: string,
+    archived: boolean,
+): Promise<{ success: boolean; error?: string }> {
+    if (!ObjectId.isValid(warehouseId))
+        return { success: false, error: 'Invalid warehouse id.' };
     const session = await getSession();
     if (!session?.user) return { success: false, error: 'Access denied.' };
 
-    const { db } = await connectToDatabase();
-    const warehouse = await db.collection('crm_warehouses').findOne({ _id: new ObjectId(warehouseId), userId: new ObjectId(session.user._id) });
-    if (!warehouse) return { success: false, error: 'Warehouse not found or you do not have permission.' };
+    try {
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(session.user._id);
 
-    if (warehouse.isDefault) {
-        return { success: false, error: 'Cannot delete the default warehouse.' };
+        if (archived) {
+            const w = await db.collection('crm_warehouses').findOne({
+                _id: new ObjectId(warehouseId),
+                userId,
+            });
+            if (!w) return { success: false, error: 'Warehouse not found.' };
+            if (w.isDefault)
+                return {
+                    success: false,
+                    error: 'Cannot archive the default warehouse. Set another default first.',
+                };
+        }
+
+        await db.collection('crm_warehouses').updateOne(
+            { _id: new ObjectId(warehouseId), userId },
+            {
+                $set: {
+                    archived,
+                    status: archived ? 'archived' : 'active',
+                    updatedAt: new Date(),
+                },
+            },
+        );
+
+        await writeAuditEntry({
+            tenantUserId: String(session.user._id),
+            actorId: String(session.user._id),
+            action: archived ? 'archive' : 'restore',
+            entityKind: 'warehouse',
+            entityId: warehouseId,
+        });
+
+        revalidatePath('/dashboard/crm/inventory/warehouses');
+        return { success: true };
+    } catch (e) {
+        recordRustFallback({ entity: 'warehouse', op: 'update' });
+        return { success: false, error: getErrorMessage(e) };
     }
+}
 
-    // Check if there's stock in this warehouse
-    const stockCheck = await db.collection('crm_products').findOne({
-        userId: new ObjectId(session.user._id),
-        'inventory.warehouseId': warehouse._id,
-        'inventory.stock': { $gt: 0 }
-    });
+export async function archiveCrmWarehouse(warehouseId: string) {
+    return setArchiveState(warehouseId, true);
+}
 
-    if (stockCheck) {
-        return { success: false, error: 'Cannot delete warehouse with stock. Please adjust inventory first.' };
-    }
+export async function unarchiveCrmWarehouse(warehouseId: string) {
+    return setArchiveState(warehouseId, false);
+}
+
+export async function setDefaultCrmWarehouse(
+    warehouseId: string,
+): Promise<{ success: boolean; error?: string }> {
+    if (!ObjectId.isValid(warehouseId))
+        return { success: false, error: 'Invalid warehouse id.' };
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied.' };
 
     try {
-        await db.collection('crm_warehouses').deleteOne({ _id: new ObjectId(warehouseId) });
-        // Also remove inventory tracking for this warehouse from all products
-        await db.collection('crm_products').updateMany(
-            { userId: new ObjectId(session.user._id) },
-            { $pull: { inventory: { warehouseId: new ObjectId(warehouseId) } } } as any // Cast to any to bypass complex mongo type check
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(session.user._id);
+
+        await db.collection('crm_warehouses').updateMany(
+            { userId },
+            { $set: { isDefault: false } },
         );
-        revalidatePath(`/dashboard/crm/inventory/warehouses`);
+        const r = await db.collection('crm_warehouses').updateOne(
+            { _id: new ObjectId(warehouseId), userId },
+            { $set: { isDefault: true, updatedAt: new Date() } },
+        );
+        if (r.matchedCount === 0)
+            return { success: false, error: 'Warehouse not found.' };
+
+        await writeAuditEntry({
+            tenantUserId: String(session.user._id),
+            actorId: String(session.user._id),
+            action: 'status_change',
+            entityKind: 'warehouse',
+            entityId: warehouseId,
+            reason: 'Marked as default warehouse',
+        });
+
+        revalidatePath('/dashboard/crm/inventory/warehouses');
+        return { success: true };
+    } catch (e) {
+        recordRustFallback({ entity: 'warehouse', op: 'update' });
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function deleteCrmWarehouse(
+    warehouseId: string,
+): Promise<{ success: boolean; error?: string }> {
+    if (!ObjectId.isValid(warehouseId))
+        return { success: false, error: 'Invalid Warehouse ID.' };
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(session.user._id);
+        const warehouse = await db.collection('crm_warehouses').findOne({
+            _id: new ObjectId(warehouseId),
+            userId,
+        });
+        if (!warehouse)
+            return {
+                success: false,
+                error: 'Warehouse not found or you do not have permission.',
+            };
+        if (warehouse.isDefault)
+            return {
+                success: false,
+                error: 'Cannot delete the default warehouse.',
+            };
+
+        const stockCheck = await db.collection('crm_products').findOne({
+            userId,
+            'inventory.warehouseId': warehouse._id,
+            'inventory.stock': { $gt: 0 },
+        });
+        if (stockCheck) {
+            return {
+                success: false,
+                error: 'Cannot delete warehouse with stock. Please adjust inventory first.',
+            };
+        }
+
+        await db
+            .collection('crm_warehouses')
+            .deleteOne({ _id: new ObjectId(warehouseId) });
+        await db.collection('crm_products').updateMany(
+            { userId },
+            {
+                $pull: {
+                    inventory: { warehouseId: new ObjectId(warehouseId) },
+                },
+            } as any,
+        );
+
+        await writeAuditEntry({
+            tenantUserId: String(session.user._id),
+            actorId: String(session.user._id),
+            action: 'delete',
+            entityKind: 'warehouse',
+            entityId: warehouseId,
+        });
+
+        revalidatePath('/dashboard/crm/inventory/warehouses');
         revalidatePath('/dashboard/crm/products');
         return { success: true };
     } catch (e) {
+        recordRustFallback({ entity: 'warehouse', op: 'delete' });
         return { success: false, error: getErrorMessage(e) };
     }
+}
+
+export async function bulkWarehouseAction(
+    ids: string[],
+    op: 'archive' | 'restore' | 'delete',
+): Promise<{ success: boolean; processed: number; error?: string }> {
+    if (!Array.isArray(ids) || ids.length === 0)
+        return {
+            success: false,
+            processed: 0,
+            error: 'No warehouses selected.',
+        };
+    const session = await getSession();
+    if (!session?.user)
+        return { success: false, processed: 0, error: 'Access denied.' };
+
+    let processed = 0;
+    for (const id of ids) {
+        if (!ObjectId.isValid(id)) continue;
+        let res: { success: boolean; error?: string };
+        if (op === 'archive') res = await archiveCrmWarehouse(id);
+        else if (op === 'restore') res = await unarchiveCrmWarehouse(id);
+        else res = await deleteCrmWarehouse(id);
+        if (res.success) processed += 1;
+    }
+
+    return { success: processed > 0, processed };
 }

@@ -8,6 +8,7 @@ import {
   ZoruBadge,
   ZoruCard,
   ZoruSkeleton,
+  ZoruStatCard,
   ZoruTable,
   ZoruTableBody,
   ZoruTableCell,
@@ -73,6 +74,12 @@ export default function ConsentLogsPage() {
     return p ? p.title : id;
   };
 
+  // KPI strip: Total · Active (granted) · Withdrawn (revoked)
+  const allRows = [...leads, ...users];
+  const totalEntries = allRows.length;
+  const grantedEntries = allRows.filter((r) => r.granted).length;
+  const revokedEntries = totalEntries - grantedEntries;
+
   return (
     <div className="flex w-full flex-col gap-6">
       <CrmPageHeader
@@ -80,6 +87,12 @@ export default function ConsentLogsPage() {
         subtitle="Audit trail of purpose consents granted or revoked by leads and users."
         icon={ScrollText}
       />
+
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+        <ZoruStatCard label="Total entries" value={totalEntries.toLocaleString()} />
+        <ZoruStatCard label="Active (granted)" value={grantedEntries.toLocaleString()} />
+        <ZoruStatCard label="Withdrawn (revoked)" value={revokedEntries.toLocaleString()} />
+      </div>
 
       <ZoruCard className="p-6">
         <div className="mb-4 inline-flex gap-1 rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface p-1">

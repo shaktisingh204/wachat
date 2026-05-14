@@ -28,9 +28,58 @@ export default function AnnouncementsPage() {
       icon={Megaphone}
       singular="Announcement"
       basePath="/dashboard/hrm/hr/announcements"
+      rowLinksToDetail
       getAllAction={getAnnouncements as any}
       saveAction={saveAnnouncement}
       deleteAction={deleteAnnouncement}
+      kpis={[
+        {
+          label: 'Total',
+          compute: (rows) => rows.length,
+        },
+        {
+          label: 'Active',
+          compute: (rows) => {
+            const now = new Date();
+            return rows.filter((r) => {
+              const pub = (r as any).publishAt ? new Date((r as any).publishAt) : null;
+              const exp = (r as any).expiresAt ? new Date((r as any).expiresAt) : null;
+              const publishOk = !pub || isNaN(pub.getTime()) || pub <= now;
+              const notExpired = !exp || isNaN(exp.getTime()) || exp >= now;
+              return publishOk && notExpired;
+            }).length;
+          },
+          tone: 'green',
+        },
+        {
+          label: 'Scheduled',
+          compute: (rows) => {
+            const now = new Date();
+            return rows.filter((r) => {
+              const pub = (r as any).publishAt ? new Date((r as any).publishAt) : null;
+              return pub && !isNaN(pub.getTime()) && pub > now;
+            }).length;
+          },
+          tone: 'blue',
+        },
+        {
+          label: 'Pinned',
+          compute: (rows) =>
+            rows.filter(
+              (r) =>
+                (r as any).pinned === true ||
+                (r as any).pinned === 'yes' ||
+                (r as any).pinned === 'true',
+            ).length,
+          tone: 'amber',
+        },
+        {
+          label: 'Urgent',
+          compute: (rows) =>
+            rows.filter((r) => String((r as any).priority) === 'urgent').length,
+          tone: 'red',
+        },
+      ]}
       columns={[
         { key: 'title', label: 'Title' },
         {

@@ -1,50 +1,29 @@
 'use client';
 
 /**
- * Leads — list page (rebuilt per §1D.1).
+ * Leads — list page (rebuilt per §1D.1, follow-up additions wire in
+ * funnel chart, saved views, duplicates link, and bulk pickers).
  *
  * Composition:
  *   <EntityListShell>
- *     • KPI strip (clickable filter cards)
- *     • Filter row (status · source · pipeline · owner · date range · score range)
- *     • View switcher (Table / Kanban)
+ *     • KPI strip (4 stat cards + funnel chart on the right)
+ *     • Views menu (saved presets) + Filter row
+ *     • View switcher (Table / Kanban) + Find duplicates link
  *     • Bulk action bar when rows are selected
  *     • <LeadsTable /> or <LeadsKanban />
  *     • Pagination
- *
- * Data flow is fully client-side: every dependent query refetches
- * through `getCrmLeads` whenever the filter or page state changes,
- * matching the original page's `useTransition` + `useDebouncedCallback`
- * pattern. All KPI counts come from a separate `getCrmLeadKpis` call
- * that runs once per filter-relevant render.
  */
 
 import * as React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useDebouncedCallback } from 'use-debounce';
-import {
-    Archive,
-    BarChart3,
-    Building,
-    CheckCircle2,
-    LayoutGrid,
-    List,
-    Plus,
-    Sparkles,
-    Trophy,
-    Users,
-    X,
-} from 'lucide-react';
+import { Plus, Sparkles } from 'lucide-react';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import { PaginationBar } from '@/components/crm/pagination-bar';
-import {
-    ZoruButton,
-    ZoruStatCard,
-    useZoruToast,
-} from '@/components/zoruui';
+import { ZoruButton, useZoruToast } from '@/components/zoruui';
 
 import {
     archiveCrmLead,
@@ -57,19 +36,21 @@ import {
     type CrmLeadListFilters,
 } from '@/app/actions/crm-leads.actions';
 import { convertLeadToAccount } from '@/app/actions/worksuite/conversions.actions';
+import { getSession } from '@/app/actions/user.actions';
 import type { CrmLead } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
 import type { DateRange } from 'react-day-picker';
 
 import { LeadsTable } from './_components/leads-table';
 import { LeadsKanban } from './_components/leads-kanban';
+import { LeadsKpiStrip } from './_components/leads-kpi-strip';
+import { LeadsHeaderTools, type LeadsViewMode } from './_components/leads-header-tools';
 import {
     LeadsBulkBar,
     LeadsFiltersRow,
+    buildLeadsViewState,
     type LeadsStatusFilter,
 } from './_components/leads-filters';
-
-type ViewMode = 'table' | 'kanban';
 
 const LEADS_PER_PAGE = 20;
 
@@ -103,9 +84,27 @@ export default function AllLeadsPage() {
     const [minValue, setMinValue] = React.useState<string>('');
     const [maxValue, setMaxValue] = React.useState<string>('');
 
+    // Saved view preset + extra client-side predicate
+    const [activePresetId, setActivePresetId] = React.useState<string>('all');
+    const [clientPredicate, setClientPredicate] = React.useState<
+        ((lead: Record<string, unknown>) => boolean) | null
+    >(null);
+    const [currentUserId, setCurrentUserId] = React.useState<string | undefined>();
+
+    React.useEffect(() => {
+        let cancelled = false;
+        getSession().then((s) => {
+            if (cancelled) return;
+            setCurrentUserId(s?.user?._id ? String(s.user._id) : undefined);
+        });
+        return () => {
+            cancelled = true;
+        };
+    }, []);
+
     // Selection + view + dialogs
     const [selected, setSelected] = React.useState<Set<string>>(new Set());
-    const [view, setView] = React.useState<ViewMode>('table');
+    const [view, setView] = React.useState<LeadsViewMode>('table');
     const [convertingId, setConvertingId] = React.useState<string | null>(null);
     const [archiveTargetId, setArchiveTargetId] = React.useState<string | null>(null);
     const [deleteTargetId, setDeleteTargetId] = React.useState<string | null>(null);
@@ -159,6 +158,8 @@ export default function AllLeadsPage() {
         setMaxValue('');
         setSearch('');
         setPage(1);
+        setActivePresetId('all');
+        setClientPredicate(null);
     }, []);
 
     const hasActiveFilters =
@@ -169,7 +170,8 @@ export default function AllLeadsPage() {
         !!dateRange?.from ||
         !!dateRange?.to ||
         !!minValue ||
-        !!maxValue;
+        !!maxValue ||
+        activePresetId !== 'all';
 
     // ─── Row actions ─────────────────────────────────────────────────────
     const handleToggleOne = React.useCallback((id: string) => {
@@ -181,11 +183,16 @@ export default function AllLeadsPage() {
         });
     }, []);
 
+    const displayedLeads = React.useMemo(() => {
+        if (!clientPredicate) return leads;
+        return leads.filter((l) => clientPredicate(l as unknown as Record<string, unknown>));
+    }, [leads, clientPredicate]);
+
     const handleToggleAll = React.useCallback(
         (all: boolean) => {
-            setSelected(all ? new Set(leads.map((l) => String(l._id))) : new Set());
+            setSelected(all ? new Set(displayedLeads.map((l) => String(l._id))) : new Set());
         },
-        [leads],
+        [displayedLeads],
     );
 
     const handleConvert = React.useCallback(
@@ -254,7 +261,7 @@ export default function AllLeadsPage() {
 
     // ─── Bulk actions ────────────────────────────────────────────────────
     const runBulk = React.useCallback(
-        async (op: 'archive' | 'delete' | 'status', payload?: string) => {
+        async (op: 'archive' | 'delete' | 'status' | 'assign', payload?: string) => {
             if (selected.size === 0) return;
             const ids = Array.from(selected);
             const res = await bulkLeadAction(ids, op, payload);
@@ -273,6 +280,28 @@ export default function AllLeadsPage() {
             }
         },
         [selected, fetchData, toast],
+    );
+
+    const runBulkAddTags = React.useCallback(
+        async (tagIds: string[]) => {
+            if (selected.size === 0 || tagIds.length === 0) return;
+            const ids = Array.from(selected);
+            // Re-uses updateCrmLeadTags per lead — additive merge of tags.
+            const { updateCrmLeadTags } = await import('@/app/actions/crm-leads.actions');
+            const existingLeadsById = new Map(leads.map((l) => [String(l._id), l]));
+            let ok = 0;
+            for (const id of ids) {
+                const lead = existingLeadsById.get(id);
+                const current = ((lead as any)?.tags as string[] | undefined) ?? [];
+                const next = Array.from(new Set([...current, ...tagIds]));
+                const res = await updateCrmLeadTags(id, next);
+                if (res.success) ok += 1;
+            }
+            toast({ title: `${ok} lead${ok === 1 ? '' : 's'} tagged` });
+            setSelected(new Set());
+            fetchData();
+        },
+        [selected, leads, fetchData, toast],
     );
 
     const exportCsv = React.useCallback(() => {
@@ -327,26 +356,46 @@ export default function AllLeadsPage() {
         setPage(1);
     }, []);
 
-    const kpiCard = (
-        label: string,
-        value: React.ReactNode,
-        icon: React.ReactNode,
-        active: boolean,
-        onClick: () => void,
-    ) => (
-        <button
-            type="button"
-            onClick={onClick}
-            className={[
-                'text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-zoru-primary',
-                active ? 'ring-1 ring-zoru-primary rounded-[var(--zoru-radius-lg)]' : '',
-            ].join(' ')}
-        >
-            <ZoruStatCard label={label} value={value} icon={icon} />
-        </button>
+    const applyPreset = React.useCallback(
+        (presetId: string) => {
+            const next = buildLeadsViewState(presetId, currentUserId);
+            setActivePresetId(presetId);
+            setLeadsStatusFilter(next.statusFilter);
+            setSourceFilter(next.sourceFilter);
+            setPipelineFilter(next.pipelineFilter);
+            setOwnerFilter(next.ownerFilter);
+            setDateRange(next.dateRange);
+            setMinValue(next.minValue);
+            setMaxValue(next.maxValue);
+            setClientPredicate(next.clientPredicate ? () => next.clientPredicate! : null);
+            setPage(1);
+            if (typeof window !== 'undefined') {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        },
+        [currentUserId],
     );
 
     const totalPages = Math.max(1, Math.ceil(total / LEADS_PER_PAGE));
+
+    // Funnel stages — derived from KPIs + a quick projection over the
+    // currently loaded page for the Contacted/Proposal buckets that
+    // aren't broken out in the server aggregate.
+    const funnelStages = React.useMemo(() => {
+        const counters = { Contacted: 0, Proposal: 0 } as Record<string, number>;
+        for (const l of leads) {
+            const s = String((l as any).status ?? '').trim();
+            if (s === 'Contacted') counters.Contacted += 1;
+            if (s === 'Proposal' || (l as any).stage === 'Proposal') counters.Proposal += 1;
+        }
+        return [
+            { key: 'New', label: 'New', count: kpis.newCount },
+            { key: 'Contacted', label: 'Contacted', count: counters.Contacted },
+            { key: 'Qualified', label: 'Qualified', count: kpis.qualifiedCount },
+            { key: 'Proposal', label: 'Proposal', count: counters.Proposal },
+            { key: 'Won', label: 'Won', count: kpis.wonCount },
+        ];
+    }, [kpis, leads]);
 
     return (
         <>
@@ -354,34 +403,12 @@ export default function AllLeadsPage() {
                 title="All Leads"
                 subtitle="Pipeline of incoming prospects — convert into accounts and deals."
                 viewSwitcher={
-                    <div className="inline-flex rounded-md border border-zoru-line p-0.5">
-                        <button
-                            type="button"
-                            onClick={() => setView('table')}
-                            aria-pressed={view === 'table'}
-                            className={[
-                                'inline-flex items-center gap-1 rounded-sm px-2 py-1 text-[12px]',
-                                view === 'table'
-                                    ? 'bg-zoru-surface text-zoru-ink'
-                                    : 'text-zoru-ink-muted hover:text-zoru-ink',
-                            ].join(' ')}
-                        >
-                            <List className="h-3.5 w-3.5" /> Table
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => setView('kanban')}
-                            aria-pressed={view === 'kanban'}
-                            className={[
-                                'inline-flex items-center gap-1 rounded-sm px-2 py-1 text-[12px]',
-                                view === 'kanban'
-                                    ? 'bg-zoru-surface text-zoru-ink'
-                                    : 'text-zoru-ink-muted hover:text-zoru-ink',
-                            ].join(' ')}
-                        >
-                            <LayoutGrid className="h-3.5 w-3.5" /> Kanban
-                        </button>
-                    </div>
+                    <LeadsHeaderTools
+                        view={view}
+                        onViewChange={setView}
+                        activePresetId={activePresetId}
+                        onSelectPreset={applyPreset}
+                    />
                 }
                 search={{
                     value: search,
@@ -400,26 +427,36 @@ export default function AllLeadsPage() {
                         statusFilter={statusFilter}
                         onStatusChange={(v) => {
                             setLeadsStatusFilter(v);
+                            setActivePresetId('all');
+                            setClientPredicate(null);
                             setPage(1);
                         }}
                         sourceFilter={sourceFilter}
                         onSourceChange={(v) => {
                             setSourceFilter(v);
+                            setActivePresetId('all');
+                            setClientPredicate(null);
                             setPage(1);
                         }}
                         pipelineFilter={pipelineFilter}
                         onPipelineChange={(v) => {
                             setPipelineFilter(v);
+                            setActivePresetId('all');
+                            setClientPredicate(null);
                             setPage(1);
                         }}
                         ownerFilter={ownerFilter}
                         onOwnerChange={(v) => {
                             setOwnerFilter(v);
+                            setActivePresetId('all');
+                            setClientPredicate(null);
                             setPage(1);
                         }}
                         dateRange={dateRange}
                         onDateRangeChange={(r) => {
                             setDateRange(r);
+                            setActivePresetId('all');
+                            setClientPredicate(null);
                             setPage(1);
                         }}
                         minValue={minValue}
@@ -444,12 +481,14 @@ export default function AllLeadsPage() {
                             onArchive={() => runBulk('archive')}
                             onDelete={() => runBulk('delete')}
                             onStatusChange={(s) => runBulk('status', s)}
+                            onAssign={(userId) => runBulk('assign', userId ?? '')}
+                            onAddTags={runBulkAddTags}
                             onExport={exportCsv}
                         />
                     ) : null
                 }
                 empty={
-                    !isPending && leads.length === 0 ? (
+                    !isPending && displayedLeads.length === 0 ? (
                         <div className="flex flex-col items-center gap-3 p-4">
                             <Sparkles className="h-8 w-8 text-zoru-ink-muted" />
                             <h3 className="text-base font-medium text-zoru-ink">No leads yet</h3>
@@ -481,48 +520,18 @@ export default function AllLeadsPage() {
                 }
             >
                 <div className="flex flex-col gap-4">
-                    {/* KPI strip */}
-                    <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
-                        {kpiCard(
-                            'Total',
-                            kpis.total.toLocaleString(),
-                            <Users className="h-4 w-4" />,
-                            statusFilter === 'all' && !hasActiveFilters,
-                            () => clearFilters(),
-                        )}
-                        {kpiCard(
-                            'New',
-                            kpis.newCount.toLocaleString(),
-                            <Sparkles className="h-4 w-4" />,
-                            statusFilter === 'New',
-                            () => setFilterFromKpi('New'),
-                        )}
-                        {kpiCard(
-                            'Qualified',
-                            kpis.qualifiedCount.toLocaleString(),
-                            <CheckCircle2 className="h-4 w-4" />,
-                            statusFilter === 'Qualified',
-                            () => setFilterFromKpi('Qualified'),
-                        )}
-                        {kpiCard(
-                            'Won',
-                            kpis.wonCount.toLocaleString(),
-                            <Trophy className="h-4 w-4" />,
-                            statusFilter === 'Won',
-                            () => setFilterFromKpi('Won'),
-                        )}
-                        {kpiCard(
-                            'Conversion',
-                            `${kpis.conversionRate}%`,
-                            <BarChart3 className="h-4 w-4" />,
-                            false,
-                            () => {},
-                        )}
-                    </div>
+                    <LeadsKpiStrip
+                        kpis={kpis}
+                        statusFilter={statusFilter}
+                        hasActiveFilters={hasActiveFilters}
+                        funnelStages={funnelStages}
+                        onClearAll={clearFilters}
+                        onPickStatus={setFilterFromKpi}
+                    />
 
                     {view === 'table' ? (
                         <LeadsTable
-                            leads={leads}
+                            leads={displayedLeads}
                             loading={isPending}
                             selectedIds={selected}
                             onToggleOne={handleToggleOne}
@@ -533,7 +542,7 @@ export default function AllLeadsPage() {
                             convertingId={convertingId}
                         />
                     ) : (
-                        <LeadsKanban leads={leads} />
+                        <LeadsKanban leads={displayedLeads} onAfterMove={fetchData} />
                     )}
                 </div>
             </EntityListShell>
@@ -574,4 +583,3 @@ export default function AllLeadsPage() {
         </>
     );
 }
-

@@ -1,10 +1,10 @@
 /**
  * Edit quotation — `/dashboard/crm/sales/quotations/[id]/edit`.
  *
- * Hydrates the existing quotation, fetches custom-field definitions,
- * and passes both to the shared `<QuotationForm>` (re-used from the
- * Create flow). The form submits a PATCH because `_id` is rendered as
- * a hidden input.
+ * Server component. Hydrates the existing quotation, fetches the
+ * custom-field definitions, and hands both to the shared
+ * `<QuotationForm>` (re-used from the Create flow). The form submits a
+ * PATCH because `_id` is rendered as a hidden input.
  */
 
 import { notFound } from 'next/navigation';
@@ -18,11 +18,11 @@ import type { WsCustomField } from '@/lib/worksuite/meta-types';
 
 export const dynamic = 'force-dynamic';
 
-export default async function EditQuotationPage({
-  params,
-}: {
+interface PageProps {
   params: Promise<{ id: string }>;
-}) {
+}
+
+export default async function EditQuotationPage({ params }: PageProps) {
   const { id } = await params;
   const [{ quotation }, customFields] = await Promise.all([
     getQuotation(id),
@@ -41,6 +41,16 @@ export default async function EditQuotationPage({
         title={title}
         subtitle="Update quotation details."
         icon={FileText}
+        breadcrumbs={[
+          { label: 'CRM', href: '/dashboard/crm' },
+          { label: 'Sales', href: '/dashboard/crm/sales' },
+          { label: 'Quotations', href: '/dashboard/crm/sales/quotations' },
+          {
+            label: quotation.quotationNo,
+            href: `/dashboard/crm/sales/quotations/${id}`,
+          },
+          { label: 'Edit' },
+        ]}
       />
       <QuotationForm initial={quotation} customFields={customFields} />
     </div>

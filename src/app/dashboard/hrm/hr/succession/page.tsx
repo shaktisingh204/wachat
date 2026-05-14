@@ -25,9 +25,53 @@ export default function SuccessionPage() {
       subtitle="Role continuity and successor readiness."
       icon={UserPlus}
       singular="Plan"
+      basePath="/dashboard/hrm/hr/succession"
+      rowLinksToDetail
       getAllAction={getSuccessionPlans as any}
       saveAction={saveSuccessionPlan}
       deleteAction={deleteSuccessionPlan}
+      kpis={[
+        {
+          label: 'Active plans',
+          compute: (rows) => rows.length,
+        },
+        {
+          label: 'Ready-now successors',
+          compute: (rows) =>
+            rows.filter(
+              (r) =>
+                String((r as any).readiness || '').toLowerCase() === 'ready-now' ||
+                String((r as any).readiness || '').toLowerCase() === 'ready',
+            ).length,
+          tone: 'green',
+        },
+        {
+          label: 'Ready in 1yr',
+          compute: (rows) =>
+            rows.filter(
+              (r) => String((r as any).readiness || '').toLowerCase() === 'ready-1yr',
+            ).length,
+          tone: 'amber',
+        },
+        {
+          label: 'Ready in 2yr+',
+          compute: (rows) =>
+            rows.filter(
+              (r) => String((r as any).readiness || '').toLowerCase() === 'ready-2yr',
+            ).length,
+        },
+        {
+          label: 'Roles covered',
+          compute: (rows) => {
+            const set = new Set(
+              rows
+                .map((r) => String((r as any).role || (r as any).position || ''))
+                .filter(Boolean),
+            );
+            return set.size;
+          },
+        },
+      ]}
       columns={[
         { key: 'employeeId', label: 'Employee ID' },
         { key: 'successorId', label: 'Successor ID' },

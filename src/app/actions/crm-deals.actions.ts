@@ -2,6 +2,18 @@
 
 'use server';
 
+/**
+ * CRM Deal server actions.
+ *
+ * **Dual implementation:**
+ *  - When `USE_RUST_CRM === 'true'`, the core mutations delegate to the Rust
+ *    BFF (`/v1/crm/deals`) via `src/lib/rust-client/crm-deals.ts`.
+ *  - Otherwise (default), the legacy direct-Mongo path runs.
+ *
+ * Export shapes are identical across both paths so existing consumer pages
+ * keep working without changes.
+ */
+
 import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
@@ -12,6 +24,53 @@ import { getDealStagesForIndustry } from '@/lib/crm-industry-stages';
 import { appendLineage, buildLineageFromParent } from '@/lib/lineage';
 import { applyCustomFieldsToEntity } from '@/app/actions/worksuite/meta.actions';
 import { requirePermission } from '@/lib/rbac-server';
+import { writeAuditEntry } from '@/lib/audit-log';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+import { crmDealsApi, type CrmDealDoc, type CrmDealCreateInput, type CrmDealUpdateInput } from '@/lib/rust-client/crm-deals';
+import { RustApiError } from '@/lib/rust-client/fetcher';
+
+function useRustCrm(): boolean {
+    return process.env.USE_RUST_CRM === 'true';
+}
+
+function revalidateDealSurfaces(dealId?: string): void {
+    revalidatePath('/dashboard/crm/sales-crm/deals');
+    revalidatePath('/dashboard/crm/deals');
+    if (dealId) {
+        revalidatePath(`/dashboard/crm/sales-crm/deals/${dealId}`);
+        revalidatePath(`/dashboard/crm/sales-crm/deals/${dealId}/edit`);
+        revalidatePath(`/dashboard/crm/sales-crm/deals/${dealId}/activity`);
+    }
+}
+
+/* ─── Rust-shape → legacy TS-shape adapter ────────────────────────────── */
+
+function rustDocToLegacy(doc: CrmDealDoc): WithId<CrmDeal> {
+    const partyId = doc.party?.id;
+    const ownerRaw = doc.ownerId;
+    const out: any = {
+        ...(doc as unknown as Record<string, unknown>),
+        _id: doc._id ? (doc._id as unknown as ObjectId) : (undefined as unknown as ObjectId),
+        userId: (doc.identity?.userId ?? '') as unknown as ObjectId,
+        name: doc.title,
+        value: doc.amount ?? 0,
+        currency: doc.currency ?? 'INR',
+        stage: doc.stageId ?? doc.status,
+        probability: doc.probabilityPct,
+        closeDate: doc.expectedClose ? new Date(doc.expectedClose) : undefined,
+        accountId:
+            doc.party?.kind === 'client' && partyId && ObjectId.isValid(partyId)
+                ? (new ObjectId(partyId) as unknown as ObjectId)
+                : undefined,
+        assignedTo:
+            typeof ownerRaw === 'string' && ObjectId.isValid(ownerRaw)
+                ? (new ObjectId(ownerRaw) as unknown as ObjectId)
+                : undefined,
+        createdAt: doc.createdAt ? new Date(doc.createdAt) : doc.audit?.createdAt ? new Date(doc.audit.createdAt) : new Date(),
+        updatedAt: doc.updatedAt ? new Date(doc.updatedAt) : doc.audit?.updatedAt ? new Date(doc.audit.updatedAt) : undefined,
+    };
+    return out as WithId<CrmDeal>;
+}
 
 export async function getCrmDeals(
     page: number = 1,
@@ -20,6 +79,27 @@ export async function getCrmDeals(
 ): Promise<{ deals: WithId<CrmDeal>[], total: number }> {
     const session = await getSession();
     if (!session?.user) return { deals: [], total: 0 };
+
+    const guard = await requirePermission('crm_deal', 'view');
+    if (!guard.ok) return { deals: [], total: 0 };
+
+    if (useRustCrm()) {
+        try {
+            const resp = await crmDealsApi.list({
+                page: Math.max(0, page - 1),
+                limit,
+                q: query || undefined,
+            });
+            return {
+                deals: (resp.deals ?? []).map(rustDocToLegacy),
+                total: resp.total ?? (resp.deals ?? []).length,
+            };
+        } catch (e) {
+            console.error('[getCrmDeals] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'deal', op: 'list', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
+            // fall through
+        }
+    }
 
     try {
         const { db } = await connectToDatabase();
@@ -60,10 +140,28 @@ export async function getCrmDeals(
 }
 
 export async function getCrmDealById(dealId: string): Promise<WithId<CrmDeal> | null> {
-    if (!ObjectId.isValid(dealId)) return null;
+    if (!dealId) return null;
 
     const session = await getSession();
     if (!session?.user) return null;
+
+    const guard = await requirePermission('crm_deal', 'view');
+    if (!guard.ok) return null;
+
+    if (useRustCrm()) {
+        try {
+            const resp = await crmDealsApi.getById(dealId);
+            const deal = resp?.deal;
+            return deal ? rustDocToLegacy(deal) : null;
+        } catch (e) {
+            if (e instanceof RustApiError && e.status === 404) return null;
+            console.error('[getCrmDealById] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'deal', op: 'get', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
+            // fall through
+        }
+    }
+
+    if (!ObjectId.isValid(dealId)) return null;
 
     try {
         const { db } = await connectToDatabase();
@@ -85,13 +183,75 @@ export async function createCrmDeal(prevState: any, formData: FormData): Promise
     const guard = await requirePermission('crm_deal', 'create');
     if (!guard.ok) return { error: guard.error };
 
+    const dealName = formData.get('name') as string;
+    const dealStage = formData.get('stage') as string;
+    const dealValueRaw = formData.get('value');
+    const dealValue = Number(dealValueRaw);
+    if (!dealName || !dealStage || isNaN(dealValue)) {
+        return { error: 'Deal Name, Stage, and Value are required.' };
+    }
+
+    if (useRustCrm()) {
+        try {
+            const accountId = formData.get('accountId') as string | null;
+            const contactId = formData.get('contactId') as string | null;
+            const closeDate = (formData.get('closeDate') as string | null) || undefined;
+            const probabilityRaw = formData.get('probability') as string | null;
+            const fromKind = (formData.get('fromKind') as string | null) || undefined;
+            const fromId = (formData.get('fromId') as string | null) || undefined;
+
+            const partyId = (accountId && ObjectId.isValid(accountId))
+                ? accountId
+                : (contactId && ObjectId.isValid(contactId))
+                  ? contactId
+                  : '';
+            const partyKind: 'client' | 'lead' = fromKind === 'lead' ? 'lead' : 'client';
+
+            const input: CrmDealCreateInput = {
+                title: dealName,
+                pipelineId: (formData.get('pipelineId') as string | null) || '',
+                stageId: dealStage,
+                ownerId: String(session.user._id),
+                party: { kind: partyKind, id: partyId },
+                amount: dealValue,
+                currency: (formData.get('currency') as string | null) || 'INR',
+                probabilityPct:
+                    typeof probabilityRaw === 'string' && probabilityRaw.trim() !== ''
+                        ? Number(probabilityRaw)
+                        : undefined,
+                expectedClose: closeDate ?? new Date().toISOString(),
+                status: dealStage,
+                wonLostReason: (formData.get('lossReason') as string | null) || undefined,
+                fromKind: fromKind || undefined,
+                fromId: fromId || undefined,
+            };
+
+            const created = await crmDealsApi.create(input);
+
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'create',
+                entityKind: 'deal',
+                entityId: String(created.dealId ?? ''),
+            });
+
+            revalidateDealSurfaces();
+            return { message: 'Deal created successfully.' };
+        } catch (e) {
+            console.error('[createCrmDeal] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'deal', op: 'create', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
+            // fall through
+        }
+    }
+
     try {
         const newDeal: Partial<Omit<CrmDeal, '_id'>> = {
             userId: new ObjectId(session.user._id),
-            name: formData.get('name') as string,
-            value: Number(formData.get('value')),
+            name: dealName,
+            value: dealValue,
             currency: formData.get('currency') as string,
-            stage: formData.get('stage') as string,
+            stage: dealStage,
             leadSource: formData.get('leadSource') as string,
             createdAt: new Date(),
             updatedAt: new Date(),
@@ -119,10 +279,6 @@ export async function createCrmDeal(prevState: any, formData: FormData): Promise
         if (nextStep) newDeal.nextStep = nextStep;
         const campaign = formData.get('campaign') as string;
         if (campaign) newDeal.campaign = campaign;
-
-        if (!newDeal.name || !newDeal.stage || isNaN(newDeal.value ?? 0)) {
-            return { error: 'Deal Name, Stage, and Value are required.' };
-        }
 
         const { db } = await connectToDatabase();
 
@@ -205,7 +361,15 @@ export async function createCrmDeal(prevState: any, formData: FormData): Promise
             }
         }
 
-        revalidatePath('/dashboard/crm/deals');
+        await writeAuditEntry({
+            tenantUserId: String(session.user._id),
+            actorId: String(session.user._id),
+            action: 'create',
+            entityKind: 'deal',
+            entityId: String(insertResult.insertedId),
+        });
+
+        revalidateDealSurfaces();
         return { message: 'Deal created successfully.' };
     } catch (e: any) {
         return { error: getErrorMessage(e) };
@@ -221,9 +385,13 @@ export async function addCrmLeadAndDeal(
     if (!session?.user) return { error: "Access denied" };
 
     // Skip RBAC for API-key callers — those have their own scope checks upstream.
+    // Both lead+deal are created in this one call, so gate on both. Lead is
+    // created first, so its permission error wins when both are missing.
     if (!apiUser) {
-        const guard = await requirePermission('crm_deal', 'create');
-        if (!guard.ok) return { error: guard.error };
+        const leadGuard = await requirePermission('crm_lead', 'create');
+        if (!leadGuard.ok) return { error: leadGuard.error };
+        const dealGuard = await requirePermission('crm_deal', 'create');
+        if (!dealGuard.ok) return { error: dealGuard.error };
     }
 
     const { db } = await connectToDatabase();
@@ -314,7 +482,7 @@ export async function addCrmLeadAndDeal(
 
 
 export async function updateCrmDealStage(dealId: string, newStage: string): Promise<{ success: boolean; error?: string }> {
-    if (!ObjectId.isValid(dealId)) {
+    if (!dealId) {
         return { success: false, error: 'Invalid Deal ID.' };
     }
 
@@ -325,6 +493,31 @@ export async function updateCrmDealStage(dealId: string, newStage: string): Prom
 
     const guard = await requirePermission('crm_deal', 'edit');
     if (!guard.ok) return { success: false, error: guard.error };
+
+    if (useRustCrm()) {
+        try {
+            const patch: CrmDealUpdateInput = { stageId: newStage, status: newStage };
+            await crmDealsApi.update(dealId, patch);
+
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'stage_change',
+                entityKind: 'deal',
+                entityId: dealId,
+                diff: { stage: { after: newStage } },
+            });
+
+            revalidateDealSurfaces(dealId);
+            return { success: true };
+        } catch (e) {
+            console.error('[updateCrmDealStage] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'deal', op: 'update', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
+            // fall through
+        }
+    }
+
+    if (!ObjectId.isValid(dealId)) return { success: false, error: 'Invalid Deal ID.' };
 
     try {
         const { db } = await connectToDatabase();
@@ -339,9 +532,749 @@ export async function updateCrmDealStage(dealId: string, newStage: string): Prom
             { $set: { stage: newStage, updatedAt: new Date() } }
         );
 
-        revalidatePath('/dashboard/crm/deals');
+        await writeAuditEntry({
+            tenantUserId: String(session.user._id),
+            actorId: String(session.user._id),
+            action: 'status_change',
+            entityKind: 'deal',
+            entityId: dealId,
+            diff: { stage: { before: (deal as any).stage, after: newStage } },
+        });
+
+        revalidateDealSurfaces(dealId);
         return { success: true };
     } catch (e) {
         return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+/**
+ * Generic deal patcher. Lets the detail page do inline quick-edits
+ * (owner, status, expectedClose, wonLossReason, etc.) without needing a
+ * full FormData submission. Caller passes a sparse patch — only known
+ * keys are written.
+ */
+export async function updateCrmDeal(
+    dealId: string,
+    patch: Partial<{
+        ownerId: string | null;
+        stage: string;
+        status: 'open' | 'won' | 'lost' | 'archived';
+        expectedClose: string | null;
+        probability: number | null;
+        priority: CrmDeal['priority'];
+        nextStep: string | null;
+        wonLossReason: string | null;
+        lossReason: string | null;
+        labels: string[];
+    }>,
+): Promise<{ success: boolean; error?: string }> {
+    if (!dealId) return { success: false, error: 'Invalid Deal ID.' };
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied.' };
+
+    const guard = await requirePermission('crm_deal', 'edit');
+    if (!guard.ok) return { success: false, error: guard.error };
+
+    if (useRustCrm()) {
+        try {
+            const rustPatch: CrmDealUpdateInput = {};
+            if ('ownerId' in patch) {
+                if (patch.ownerId && ObjectId.isValid(patch.ownerId)) rustPatch.ownerId = patch.ownerId;
+            }
+            if (typeof patch.stage === 'string' && patch.stage) rustPatch.stageId = patch.stage;
+            if (typeof patch.status === 'string' && patch.status) rustPatch.status = patch.status;
+            if ('expectedClose' in patch && patch.expectedClose) rustPatch.expectedClose = patch.expectedClose;
+            if ('probability' in patch && typeof patch.probability === 'number' && !Number.isNaN(patch.probability)) {
+                rustPatch.probabilityPct = patch.probability;
+            }
+            if ('wonLossReason' in patch && patch.wonLossReason) rustPatch.wonLostReason = patch.wonLossReason;
+            else if ('lossReason' in patch && patch.lossReason) rustPatch.wonLostReason = patch.lossReason;
+
+            await crmDealsApi.update(dealId, rustPatch);
+
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'update',
+                entityKind: 'deal',
+                entityId: dealId,
+            });
+
+            revalidateDealSurfaces(dealId);
+            return { success: true };
+        } catch (e) {
+            console.error('[updateCrmDeal] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'deal', op: 'update', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
+            // fall through
+        }
+    }
+
+    if (!ObjectId.isValid(dealId)) return { success: false, error: 'Invalid Deal ID.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(String(session.user._id));
+        const before = await db.collection('crm_deals').findOne({ _id: new ObjectId(dealId), userId });
+        if (!before) return { success: false, error: 'Deal not found.' };
+
+        const set: Record<string, unknown> = { updatedAt: new Date() };
+        const unset: Record<string, unknown> = {};
+
+        if ('ownerId' in patch) {
+            if (patch.ownerId && ObjectId.isValid(patch.ownerId)) {
+                set.ownerId = new ObjectId(patch.ownerId);
+            } else {
+                unset.ownerId = '';
+            }
+        }
+        if (typeof patch.stage === 'string' && patch.stage) set.stage = patch.stage;
+        if (typeof patch.status === 'string' && patch.status) set.status = patch.status;
+        if ('expectedClose' in patch) {
+            if (patch.expectedClose) {
+                const d = new Date(patch.expectedClose);
+                if (!Number.isNaN(d.getTime())) set.closeDate = d;
+            } else {
+                unset.closeDate = '';
+            }
+        }
+        if ('probability' in patch) {
+            if (typeof patch.probability === 'number' && !Number.isNaN(patch.probability)) {
+                set.probability = patch.probability;
+            } else {
+                unset.probability = '';
+            }
+        }
+        if (patch.priority) set.priority = patch.priority;
+        if ('nextStep' in patch) {
+            if (patch.nextStep) set.nextStep = patch.nextStep;
+            else unset.nextStep = '';
+        }
+        if ('wonLossReason' in patch) {
+            if (patch.wonLossReason) set.wonLossReason = patch.wonLossReason;
+            else unset.wonLossReason = '';
+        }
+        if ('lossReason' in patch) {
+            if (patch.lossReason) set.lossReason = patch.lossReason;
+            else unset.lossReason = '';
+        }
+        if (Array.isArray(patch.labels)) set.labels = patch.labels;
+
+        const op: Record<string, unknown> = { $set: set };
+        if (Object.keys(unset).length) op.$unset = unset;
+
+        const result = await db.collection('crm_deals').updateOne(
+            { _id: new ObjectId(dealId), userId },
+            op,
+        );
+        if (result.matchedCount === 0) return { success: false, error: 'Deal not found.' };
+
+        const diff: Record<string, { before?: unknown; after?: unknown }> = {};
+        for (const [k, after] of Object.entries(set)) {
+            if (k === 'updatedAt') continue;
+            const beforeV = (before as Record<string, unknown>)[k];
+            if (JSON.stringify(beforeV) !== JSON.stringify(after)) {
+                diff[k] = { before: beforeV, after };
+            }
+        }
+
+        await writeAuditEntry({
+            tenantUserId: String(session.user._id),
+            actorId: String(session.user._id),
+            action: 'update',
+            entityKind: 'deal',
+            entityId: dealId,
+            diff: Object.keys(diff).length ? diff : undefined,
+        });
+
+        revalidateDealSurfaces(dealId);
+        return { success: true };
+    } catch (e) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+/**
+ * Soft-archive a deal. Sets `status: 'archived'` (and an `archivedAt`
+ * timestamp) — does not hard-delete.
+ */
+export async function archiveCrmDeal(
+    dealId: string,
+): Promise<{ success: boolean; error?: string }> {
+    if (!dealId) return { success: false, error: 'Invalid Deal ID.' };
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied.' };
+
+    const guard = await requirePermission('crm_deal', 'delete');
+    if (!guard.ok) return { success: false, error: guard.error };
+
+    if (useRustCrm()) {
+        try {
+            await crmDealsApi.delete(dealId);
+
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'archive',
+                entityKind: 'deal',
+                entityId: dealId,
+            });
+
+            revalidateDealSurfaces(dealId);
+            return { success: true };
+        } catch (e) {
+            console.error('[archiveCrmDeal] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'deal', op: 'delete', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
+            // fall through
+        }
+    }
+
+    if (!ObjectId.isValid(dealId)) return { success: false, error: 'Invalid Deal ID.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const result = await db.collection('crm_deals').updateOne(
+            { _id: new ObjectId(dealId), userId: new ObjectId(session.user._id) },
+            { $set: { status: 'archived', archivedAt: new Date(), updatedAt: new Date() } },
+        );
+        if (result.matchedCount === 0) return { success: false, error: 'Deal not found.' };
+
+        await writeAuditEntry({
+            tenantUserId: String(session.user._id),
+            actorId: String(session.user._id),
+            action: 'archive',
+            entityKind: 'deal',
+            entityId: dealId,
+        });
+
+        revalidateDealSurfaces(dealId);
+        return { success: true };
+    } catch (e) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+/**
+ * Bulk archive a set of deals. Each id writes its own audit entry.
+ */
+export async function bulkArchiveDeals(
+    ids: string[],
+): Promise<{ success: boolean; processed: number; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, processed: 0, error: 'Access denied.' };
+    const guard = await requirePermission('crm_deal', 'delete');
+    if (!guard.ok) return { success: false, processed: 0, error: guard.error };
+
+    const validIds = (ids ?? []).filter((id) => typeof id === 'string' && id.length > 0);
+    if (validIds.length === 0) return { success: false, processed: 0, error: 'No valid deals selected.' };
+
+    if (useRustCrm()) {
+        try {
+            let processed = 0;
+            for (const id of validIds) {
+                try {
+                    await crmDealsApi.delete(id);
+                    processed += 1;
+                } catch (innerErr) {
+                    console.error('[bulkArchiveDeals] per-row rust failure:', innerErr);
+                }
+            }
+            for (const id of validIds) {
+                await writeAuditEntry({
+                    tenantUserId: String(session.user._id),
+                    actorId: String(session.user._id),
+                    action: 'archive',
+                    entityKind: 'deal',
+                    entityId: id,
+                    reason: 'bulk:archive',
+                });
+            }
+            revalidateDealSurfaces();
+            return { success: true, processed };
+        } catch (e) {
+            console.error('[bulkArchiveDeals] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'deal', op: 'delete', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
+            // fall through
+        }
+    }
+
+    const objectIds = validIds.filter((id) => ObjectId.isValid(id)).map((id) => new ObjectId(id));
+    if (objectIds.length === 0) return { success: false, processed: 0, error: 'No valid deals selected.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(String(session.user._id));
+        const result = await db.collection('crm_deals').updateMany(
+            { _id: { $in: objectIds }, userId },
+            { $set: { status: 'archived', archivedAt: new Date(), updatedAt: new Date() } },
+        );
+        for (const id of objectIds) {
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'archive',
+                entityKind: 'deal',
+                entityId: String(id),
+                reason: 'bulk:archive',
+            });
+        }
+        revalidateDealSurfaces();
+        return { success: true, processed: result.modifiedCount ?? 0 };
+    } catch (e) {
+        return { success: false, processed: 0, error: getErrorMessage(e) };
+    }
+}
+
+/**
+ * Hard-delete a set of deals. Caller must gate behind ConfirmDialog with
+ * type-DELETE — this action does not double-check.
+ */
+export async function bulkDeleteDeals(
+    ids: string[],
+): Promise<{ success: boolean; processed: number; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, processed: 0, error: 'Access denied.' };
+    const guard = await requirePermission('crm_deal', 'delete');
+    if (!guard.ok) return { success: false, processed: 0, error: guard.error };
+
+    const validIds = (ids ?? []).filter((id) => typeof id === 'string' && id.length > 0);
+    if (validIds.length === 0) return { success: false, processed: 0, error: 'No valid deals selected.' };
+
+    if (useRustCrm()) {
+        try {
+            let processed = 0;
+            for (const id of validIds) {
+                try {
+                    await crmDealsApi.delete(id);
+                    processed += 1;
+                } catch (innerErr) {
+                    console.error('[bulkDeleteDeals] per-row rust failure:', innerErr);
+                }
+            }
+            for (const id of validIds) {
+                await writeAuditEntry({
+                    tenantUserId: String(session.user._id),
+                    actorId: String(session.user._id),
+                    action: 'delete',
+                    entityKind: 'deal',
+                    entityId: id,
+                    reason: 'bulk:delete',
+                });
+            }
+            revalidateDealSurfaces();
+            return { success: true, processed };
+        } catch (e) {
+            console.error('[bulkDeleteDeals] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'deal', op: 'delete', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
+            // fall through
+        }
+    }
+
+    const objectIds = validIds.filter((id) => ObjectId.isValid(id)).map((id) => new ObjectId(id));
+    if (objectIds.length === 0) return { success: false, processed: 0, error: 'No valid deals selected.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(String(session.user._id));
+        const result = await db.collection('crm_deals').deleteMany({ _id: { $in: objectIds }, userId });
+        for (const id of objectIds) {
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'delete',
+                entityKind: 'deal',
+                entityId: String(id),
+                reason: 'bulk:delete',
+            });
+        }
+        revalidateDealSurfaces();
+        return { success: true, processed: result.deletedCount ?? 0 };
+    } catch (e) {
+        return { success: false, processed: 0, error: getErrorMessage(e) };
+    }
+}
+
+/**
+ * Bulk-assign a set of deals to an owner. Pass `null` to unassign.
+ */
+export async function bulkAssignDeals(
+    ids: string[],
+    ownerUserId: string | null,
+): Promise<{ success: boolean; processed: number; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, processed: 0, error: 'Access denied.' };
+    const guard = await requirePermission('crm_deal', 'edit');
+    if (!guard.ok) return { success: false, processed: 0, error: guard.error };
+
+    const validIds = (ids ?? []).filter((id) => typeof id === 'string' && id.length > 0);
+    if (validIds.length === 0) return { success: false, processed: 0, error: 'No valid deals selected.' };
+
+    if (useRustCrm()) {
+        try {
+            let processed = 0;
+            const patch: CrmDealUpdateInput = ownerUserId && ObjectId.isValid(ownerUserId)
+                ? { ownerId: ownerUserId }
+                : {};
+            for (const id of validIds) {
+                try {
+                    await crmDealsApi.update(id, patch);
+                    processed += 1;
+                } catch (innerErr) {
+                    console.error('[bulkAssignDeals] per-row rust failure:', innerErr);
+                }
+            }
+            for (const id of validIds) {
+                await writeAuditEntry({
+                    tenantUserId: String(session.user._id),
+                    actorId: String(session.user._id),
+                    action: 'assign',
+                    entityKind: 'deal',
+                    entityId: id,
+                    reason: `bulk:assign:${ownerUserId ?? 'unassign'}`,
+                    diff: { ownerId: { after: ownerUserId ?? null } },
+                });
+            }
+            revalidateDealSurfaces();
+            return { success: true, processed };
+        } catch (e) {
+            console.error('[bulkAssignDeals] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'deal', op: 'update', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
+            // fall through
+        }
+    }
+
+    const objectIds = validIds.filter((id) => ObjectId.isValid(id)).map((id) => new ObjectId(id));
+    if (objectIds.length === 0) return { success: false, processed: 0, error: 'No valid deals selected.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(String(session.user._id));
+        const set: Record<string, unknown> = { updatedAt: new Date() };
+        const unset: Record<string, unknown> = {};
+        if (ownerUserId && ObjectId.isValid(ownerUserId)) {
+            set.ownerId = new ObjectId(ownerUserId);
+        } else {
+            unset.ownerId = '';
+        }
+        const op: Record<string, unknown> = { $set: set };
+        if (Object.keys(unset).length) op.$unset = unset;
+        const result = await db.collection('crm_deals').updateMany(
+            { _id: { $in: objectIds }, userId },
+            op,
+        );
+        for (const id of objectIds) {
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'assign',
+                entityKind: 'deal',
+                entityId: String(id),
+                reason: `bulk:assign:${ownerUserId ?? 'unassign'}`,
+                diff: { ownerId: { after: ownerUserId ?? null } },
+            });
+        }
+        revalidateDealSurfaces();
+        return { success: true, processed: result.modifiedCount ?? 0 };
+    } catch (e) {
+        return { success: false, processed: 0, error: getErrorMessage(e) };
+    }
+}
+
+/**
+ * Bulk stage-change. Optionally scopes by `pipelineId` so a deal in
+ * pipeline-A doesn't get a stage from pipeline-B.
+ */
+export async function bulkChangeStage(
+    ids: string[],
+    stage: string,
+    pipelineId?: string | null,
+): Promise<{ success: boolean; processed: number; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, processed: 0, error: 'Access denied.' };
+    const guard = await requirePermission('crm_deal', 'edit');
+    if (!guard.ok) return { success: false, processed: 0, error: guard.error };
+
+    if (!stage || !stage.trim()) return { success: false, processed: 0, error: 'Stage is required.' };
+    const validIds = (ids ?? []).filter((id) => typeof id === 'string' && id.length > 0);
+    if (validIds.length === 0) return { success: false, processed: 0, error: 'No valid deals selected.' };
+
+    if (useRustCrm()) {
+        try {
+            let processed = 0;
+            const patch: CrmDealUpdateInput = { stageId: stage, status: stage };
+            for (const id of validIds) {
+                try {
+                    await crmDealsApi.update(id, patch);
+                    processed += 1;
+                } catch (innerErr) {
+                    console.error('[bulkChangeStage] per-row rust failure:', innerErr);
+                }
+            }
+            for (const id of validIds) {
+                await writeAuditEntry({
+                    tenantUserId: String(session.user._id),
+                    actorId: String(session.user._id),
+                    action: 'status_change',
+                    entityKind: 'deal',
+                    entityId: id,
+                    reason: `bulk:stage:${stage}`,
+                });
+            }
+            revalidateDealSurfaces();
+            return { success: true, processed };
+        } catch (e) {
+            console.error('[bulkChangeStage] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'deal', op: 'update', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
+            // fall through
+        }
+    }
+
+    const objectIds = validIds.filter((id) => ObjectId.isValid(id)).map((id) => new ObjectId(id));
+    if (objectIds.length === 0) return { success: false, processed: 0, error: 'No valid deals selected.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(String(session.user._id));
+        const filter: Record<string, unknown> = { _id: { $in: objectIds }, userId };
+        if (pipelineId) filter.pipelineId = pipelineId;
+        const result = await db.collection('crm_deals').updateMany(filter, {
+            $set: { stage, updatedAt: new Date() },
+        });
+        for (const id of objectIds) {
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'status_change',
+                entityKind: 'deal',
+                entityId: String(id),
+                reason: `bulk:stage:${stage}`,
+            });
+        }
+        revalidateDealSurfaces();
+        return { success: true, processed: result.modifiedCount ?? 0 };
+    } catch (e) {
+        return { success: false, processed: 0, error: getErrorMessage(e) };
+    }
+}
+
+/**
+ * Placeholder email-send action — writes an audit entry but does NOT
+ * actually relay through SMTP yet. The Email composition flow uses this
+ * as the canonical landing slot so the swap-in is purely server-side
+ * when the comms sweep lands.
+ */
+export async function sendDealEmail(args: {
+    dealId: string;
+    to: string;
+    subject: string;
+    body: string;
+}): Promise<{ success: boolean; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied.' };
+    const guard = await requirePermission('crm_deal', 'edit');
+    if (!guard.ok) return { success: false, error: guard.error };
+    if (!args.dealId || !ObjectId.isValid(args.dealId)) {
+        return { success: false, error: 'Invalid deal id.' };
+    }
+    if (!args.to || !args.subject) return { success: false, error: 'To and subject are required.' };
+
+    try {
+        await writeAuditEntry({
+            tenantUserId: String(session.user._id),
+            actorId: String(session.user._id),
+            action: 'send',
+            entityKind: 'deal',
+            entityId: args.dealId,
+            reason: `email:to=${args.to}`,
+            diff: { subject: { after: args.subject } },
+        });
+        revalidateDealSurfaces(args.dealId);
+        return { success: true };
+    } catch (e) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+/**
+ * Live related-entity counts for the detail page right rail. Mirrors
+ * the legacy server-component helper so client islands can call it.
+ */
+export async function getCrmDealRelatedCounts(
+    dealId: string,
+): Promise<{ quotations: number; invoices: number; tasks: number; tickets: number; contacts: number }> {
+    const empty = { quotations: 0, invoices: 0, tasks: 0, tickets: 0, contacts: 0 };
+    if (!ObjectId.isValid(dealId)) return empty;
+    const session = await getSession();
+    if (!session?.user) return empty;
+
+    try {
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(String(session.user._id));
+        const dealObjectId = new ObjectId(dealId);
+
+        const deal = await db.collection('crm_deals').findOne(
+            { _id: dealObjectId, userId },
+            { projection: { accountId: 1 } },
+        );
+        const accountId = (deal as any)?.accountId
+            ? new ObjectId(String((deal as any).accountId))
+            : null;
+
+        const [quotations, invoices, tasks, tickets, contacts] = await Promise.all([
+            db.collection('crm_quotations').countDocuments({
+                userId,
+                $or: [{ dealId: dealObjectId }, { dealId: dealId }],
+            } as Record<string, unknown>).catch(() => 0),
+            db.collection('crm_invoices').countDocuments({
+                userId,
+                $or: [{ dealId: dealObjectId }, { dealId: dealId }],
+            } as Record<string, unknown>).catch(() => 0),
+            db.collection('crm_tasks').countDocuments({
+                userId,
+                $or: [{ dealId: dealObjectId }, { dealId: dealId }],
+            } as Record<string, unknown>).catch(() => 0),
+            db.collection('crm_tickets').countDocuments({
+                userId,
+                $or: [{ dealId: dealObjectId }, { dealId: dealId }],
+            } as Record<string, unknown>).catch(() => 0),
+            accountId
+                ? db.collection('crm_contacts').countDocuments({
+                      userId,
+                      accountId,
+                  } as Record<string, unknown>).catch(() => 0)
+                : Promise.resolve(0),
+        ]);
+
+        return {
+            quotations: Number(quotations) || 0,
+            invoices: Number(invoices) || 0,
+            tasks: Number(tasks) || 0,
+            tickets: Number(tickets) || 0,
+            contacts: Number(contacts) || 0,
+        };
+    } catch (e) {
+        console.error('[getCrmDealRelatedCounts] failed:', e);
+        return empty;
+    }
+}
+
+/**
+ * Find duplicate deals — groups by (clientId, value within ±5%,
+ * expectedClose within ±7d). Returns groups sized >= 2.
+ */
+export interface DealDuplicateGroup {
+    /** Identifier label (mostly for debug). */
+    key: string;
+    /** Member deals in the cluster. */
+    members: Array<{
+        _id: string;
+        name: string;
+        value: number;
+        currency?: string;
+        clientLabel?: string;
+        clientId?: string;
+        expectedClose?: string | null;
+        stage?: string;
+        createdAt?: string;
+    }>;
+}
+
+export async function findCrmDealDuplicates(): Promise<DealDuplicateGroup[]> {
+    const session = await getSession();
+    if (!session?.user) return [];
+    const guard = await requirePermission('crm_deal', 'view');
+    if (!guard.ok) return [];
+
+    try {
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(String(session.user._id));
+        const docs = await db
+            .collection<CrmDeal>('crm_deals')
+            .find({ userId } as Record<string, unknown>)
+            .project({ name: 1, value: 1, currency: 1, accountId: 1, contactIds: 1, closeDate: 1, stage: 1, createdAt: 1 })
+            .toArray();
+
+        const accountIds = Array.from(
+            new Set(
+                docs
+                    .map((d: any) => (d.accountId ? String(d.accountId) : ''))
+                    .filter((s) => Boolean(s)),
+            ),
+        );
+        const accountDocs = accountIds.length
+            ? await db
+                  .collection('crm_accounts')
+                  .find(
+                      { userId, _id: { $in: accountIds.map((id) => new ObjectId(id)) } } as Record<string, unknown>,
+                      { projection: { name: 1 } },
+                  )
+                  .toArray()
+            : [];
+        const accountNames = new Map<string, string>();
+        for (const a of accountDocs) accountNames.set(String((a as any)._id), String((a as any).name ?? ''));
+
+        // Cluster: same clientId, value within ±5%, expectedClose within ±7d.
+        type Row = {
+            _id: string;
+            name: string;
+            value: number;
+            currency?: string;
+            clientId?: string;
+            clientLabel?: string;
+            expectedClose?: string | null;
+            stage?: string;
+            createdAt?: string;
+        };
+        const rows: Row[] = docs.map((d: any) => ({
+            _id: String(d._id),
+            name: String(d.name ?? 'Untitled'),
+            value: typeof d.value === 'number' ? d.value : 0,
+            currency: d.currency,
+            clientId: d.accountId ? String(d.accountId) : (d.contactIds?.[0] ? String(d.contactIds[0]) : undefined),
+            clientLabel: d.accountId ? accountNames.get(String(d.accountId)) : undefined,
+            expectedClose: d.closeDate ? new Date(d.closeDate).toISOString() : null,
+            stage: d.stage,
+            createdAt: d.createdAt ? new Date(d.createdAt).toISOString() : undefined,
+        }));
+
+        const sevenDaysMs = 7 * 86_400_000;
+        const groups: Row[][] = [];
+        const used = new Set<string>();
+        for (let i = 0; i < rows.length; i++) {
+            const a = rows[i];
+            if (used.has(a._id)) continue;
+            if (!a.clientId) continue;
+            const cluster: Row[] = [a];
+            for (let j = i + 1; j < rows.length; j++) {
+                const b = rows[j];
+                if (used.has(b._id)) continue;
+                if (!b.clientId || b.clientId !== a.clientId) continue;
+                // Value within ±5%.
+                const ref = Math.max(Math.abs(a.value), Math.abs(b.value), 1);
+                if (Math.abs(a.value - b.value) / ref > 0.05) continue;
+                // Expected close within ±7d.
+                if (a.expectedClose && b.expectedClose) {
+                    const dt = Math.abs(new Date(a.expectedClose).getTime() - new Date(b.expectedClose).getTime());
+                    if (dt > sevenDaysMs) continue;
+                } else if (a.expectedClose !== b.expectedClose) {
+                    // One has a date, the other doesn't → skip
+                    continue;
+                }
+                cluster.push(b);
+                used.add(b._id);
+            }
+            if (cluster.length >= 2) {
+                used.add(a._id);
+                groups.push(cluster);
+            }
+        }
+
+        return groups.map((cluster, idx) => ({
+            key: `${cluster[0].clientId ?? 'no-client'}-${idx}`,
+            members: cluster,
+        }));
+    } catch (e) {
+        console.error('[findCrmDealDuplicates] failed:', e);
+        return [];
     }
 }

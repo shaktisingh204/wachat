@@ -22,7 +22,7 @@
 import * as React from 'react';
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { LoaderCircle, Plus, Trash2 } from 'lucide-react';
 
@@ -134,16 +134,24 @@ const INITIAL_STATE = { message: undefined, error: undefined, id: undefined };
 export function VendorBidForm({ initial }: VendorBidFormProps) {
   const router = useRouter();
   const { toast } = useZoruToast();
+  const searchParams = useSearchParams();
   const formRef = useRef<HTMLFormElement>(null);
   const [state, formAction] = useActionState(saveVendorBidAction, INITIAL_STATE);
 
   const editing = !!initial?._id;
 
+  // Lineage propagation from query string (e.g. `?fromKind=rfq&fromId=`).
+  // The §1D smart-default seeds the linked RFQ on the Create flow only.
+  const seededRfqId =
+    !editing && searchParams?.get('fromKind') === 'rfq'
+      ? (searchParams?.get('fromId') ?? '')
+      : '';
+
   const [currency, setCurrency] = useState<string>(initial?.currency ?? 'INR');
   const [status, setStatus] = useState<string>(
     typeof initial?.status === 'string' ? initial.status : 'submitted',
   );
-  const [rfqId, setRfqId] = useState<string>(initial?.rfqId ?? '');
+  const [rfqId, setRfqId] = useState<string>(initial?.rfqId ?? seededRfqId);
   const [lines, setLines] = useState<DraftLine[]>(() =>
     initial?.items && initial.items.length > 0
       ? initial.items.map(lineFromDoc)

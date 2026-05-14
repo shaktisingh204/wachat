@@ -1,0 +1,119 @@
+'use client';
+
+import * as React from 'react';
+import { use } from 'react';
+import { Award } from 'lucide-react';
+
+import { HrDetailPage } from '../../_components/hr-detail-page';
+import { getRecognitions, deleteRecognition } from '@/app/actions/hr.actions';
+import type { HrRecognition } from '@/lib/hr-types';
+import { ZoruSkeleton, ZoruCard } from '@/components/zoruui';
+
+type Row = HrRecognition & {
+  _id: string;
+  title?: string;
+  fromEmail?: string;
+  anonymous?: string;
+  approvedBy?: string;
+  linkedValue?: string;
+  monetaryReward?: number;
+  currency?: string;
+};
+
+export default function RecognitionDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = use(params);
+  const [row, setRow] = React.useState<Row | null>(null);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        const list = (await getRecognitions()) as Row[];
+        if (!active) return;
+        setRow(list.find((r) => String(r._id) === id) ?? null);
+      } finally {
+        if (active) setLoading(false);
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="flex w-full flex-col gap-4">
+        <ZoruSkeleton className="h-12 w-full" />
+        <ZoruSkeleton className="h-64 w-full" />
+      </div>
+    );
+  }
+  if (!row) return <div className="text-sm text-zoru-ink-muted">Recognition not found.</div>;
+
+  return (
+    <HrDetailPage
+      title={row.title || `${row.type} for ${String(row.employeeId ?? '')}`}
+      eyebrow="RECOGNITION"
+      status={{
+        label: row.visibility ?? 'team',
+        tone: row.visibility === 'public' ? 'green' : 'neutral',
+      }}
+      listHref="/dashboard/hrm/hr/recognition"
+      listLabel="Back to recognition"
+      editHref={`/dashboard/hrm/hr/recognition/${id}/edit`}
+      deleteAction={deleteRecognition}
+      entityId={id}
+      auditKind="hr_recognitions"
+      rightRail={
+        <ZoruCard className="p-4">
+          <div className="flex items-center gap-2 text-zoru-ink">
+            <Award className="h-5 w-5 text-zoru-warning-ink" />
+            <span className="text-sm font-medium">Celebration card</span>
+          </div>
+          <div className="mt-3 rounded-lg bg-gradient-to-br from-amber-50 to-orange-50 p-4 text-center">
+            <p className="text-xs uppercase tracking-wide text-amber-700">
+              {row.type}
+            </p>
+            <p className="mt-1 text-lg font-semibold text-amber-900">
+              {row.points ? `${row.points} pts` : '—'}
+            </p>
+            {row.monetaryReward != null ? (
+              <p className="mt-0.5 text-xs text-amber-800">
+                {row.currency ?? ''} {row.monetaryReward}
+              </p>
+            ) : null}
+          </div>
+        </ZoruCard>
+      }
+      sections={[
+        {
+          title: 'Recognition',
+          fields: [
+            { label: 'Recipient', value: String(row.employeeId ?? '—') },
+            { label: 'Type', value: row.type },
+            { label: 'Category', value: row.category },
+            { label: 'Linked value', value: row.linkedValue },
+            {
+              label: 'Awarded',
+              value: row.givenAt ? new Date(row.givenAt).toLocaleDateString() : null,
+            },
+            { label: 'Message', value: row.message, fullWidth: true },
+          ],
+        },
+        {
+          title: 'Awarded by',
+          fields: [
+            { label: 'From', value: row.anonymous === 'yes' ? 'Anonymous' : row.fromName },
+            { label: 'Email', value: row.anonymous === 'yes' ? '—' : row.fromEmail },
+            { label: 'Approved by', value: row.approvedBy },
+          ],
+        },
+      ]}
+    />
+  );
+}

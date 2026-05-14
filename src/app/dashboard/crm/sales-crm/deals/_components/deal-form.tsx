@@ -3,31 +3,12 @@
 /**
  * <DealForm> — shared by Create + Edit flows for the canonical Deals module.
  *
- * Wraps {@link EntityFormShell} and feeds it the four sections from §1D.3
- * (Overview, Money, Products[], Profile/Notes). Preserves every FormData
- * key consumed by `createCrmDeal` in `@/app/actions/crm-deals.actions`:
- *
- *   - `name`              (string, required)
- *   - `stage`             (string, required)
- *   - `value`             (number, required)
- *   - `currency`          (string)
- *   - `accountId`         (ObjectId string — when partyKind=client)
- *   - `contactId`         (ObjectId string — when partyKind=lead/contact)
- *   - `closeDate`         (yyyy-mm-dd)
- *   - `probability`       (0–100)
- *   - `leadSource`        (string)
- *   - `priority`          (low/medium/high/critical)
- *   - `lossReason`        (string)
- *   - `nextStep`          (string)
- *   - `campaign`          (string)
- *   - `pipelineId`        (string)
- *   - `description`       (string)
- *   - `fromKind` / `fromId` (optional lineage seed)
- *
- * Adds two non-persisted fields whose JSON is interpreted client-side
- * (`products`, `competitors`) — they're surfaced through hidden inputs so
- * the legacy action keeps working. The action ignores them today but the
- * Rust path will pick them up.
+ * Renders the four sections from §1D.3 (Overview, Money, Products[],
+ * Profile/Notes) plus tags. Preserves every FormData key consumed by
+ * `createCrmDeal` (name, stage, value, currency, accountId, contactId,
+ * closeDate, probability, leadSource, priority, lossReason, nextStep,
+ * campaign, pipelineId, description, fromKind, fromId, tagIds, labels).
+ * Auto-saves a draft to localStorage on /new every 30s while dirty.
  */
 
 import * as React from 'react';
@@ -48,6 +29,7 @@ import {
   useZoruToast,
 } from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EntityMultiFormField } from '@/components/crm/entity-multi-form-field';
 import { EntityPicker } from '@/components/crm/entity-picker';
 import { DirtyFormPrompt } from '@/components/crm/dirty-form-prompt';
 import { createCrmDeal } from '@/app/actions/crm-deals.actions';
@@ -55,6 +37,8 @@ import type { CrmDeal } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
 
 import { DealProductsEditor, type ProductRow } from './deal-products-editor';
+import { DealCompetitorsEditor } from './deal-competitors-editor';
+import { useDealDraft } from './use-deal-draft';
 
 type PartyKind = 'client' | 'lead';
 
@@ -73,6 +57,8 @@ interface DealFormProps {
   initial?: WithId<CrmDeal> | null;
   /** Successful redirect; defaults to canonical list. */
   redirectTo?: string;
+  /** Current session user id — used to scope the auto-save draft key. */
+  currentUserId?: string | null;
 }
 
 /* ─── Helpers ────────────────────────────────────────────────────────── */
@@ -91,11 +77,12 @@ function safeNumber(n: unknown, fallback = 0): number {
 
 /* ─── Component ──────────────────────────────────────────────────────── */
 
-export function DealForm({ initial, redirectTo }: DealFormProps) {
+export function DealForm({ initial, redirectTo, currentUserId }: DealFormProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useZoruToast();
   const editing = Boolean(initial?._id);
+  const formRef = React.useRef<HTMLFormElement>(null);
 
   // Smart defaults from ?fromKind=lead&fromId=...
   const fromKind = (searchParams?.get('fromKind') ?? '') as '' | 'lead';
@@ -137,17 +124,56 @@ export function DealForm({ initial, redirectTo }: DealFormProps) {
     const tagged = (initial as unknown as { competitors?: string[] } | null)?.competitors;
     return Array.isArray(tagged) ? tagged : [];
   });
-  const [competitorDraft, setCompetitorDraft] = useState('');
+
+  // Tags — entity-multi-pick
+  const [tagIds, setTagIds] = useState<string[]>(() => {
+    const labelIds = (initial as unknown as { tagIds?: string[] } | null)?.tagIds;
+    return Array.isArray(labelIds) ? labelIds : [];
+  });
 
   // Dirty tracking — pretty rough but sufficient for the beforeunload guard.
   const [dirty, setDirty] = useState(false);
   const markDirty = React.useCallback(() => setDirty(true), []);
+
+  // Auto-save draft (only on /new — `editing` short-circuits this).
+  const snapshotExtras = React.useCallback(
+    () => ({ competitors, products, partyKind, accountId, contactId, tagIds }),
+    [competitors, products, partyKind, accountId, contactId, tagIds],
+  );
+  const applyExtras = React.useCallback(
+    (v: { competitors?: string[]; products?: ProductRow[]; partyKind?: 'client' | 'lead'; accountId?: string | null; contactId?: string | null; tagIds?: string[] }) => {
+      if (v.products) setProducts(v.products);
+      if (v.competitors) setCompetitors(v.competitors);
+      if (v.partyKind) setPartyKind(v.partyKind);
+      if (v.accountId !== undefined) setAccountId(v.accountId);
+      if (v.contactId !== undefined) setContactId(v.contactId);
+      if (v.tagIds) setTagIds(v.tagIds);
+      setDirty(true);
+    },
+    [],
+  );
+  const {
+    draftAvailable,
+    draftDismissed,
+    restore: restoreDraft,
+    discard: discardDraft,
+    clearOnSave: clearDraftOnSave,
+  } = useDealDraft({
+    enabled: !editing,
+    dirty,
+    currentUserId: currentUserId ?? null,
+    formRef,
+    snapshotExtras,
+    applyExtras,
+  });
 
   /* Effects */
   useEffect(() => {
     if (state?.message) {
       toast({ title: 'Saved', description: state.message });
       setDirty(false);
+      // Clear the auto-saved draft now that the server accepted the save.
+      clearDraftOnSave();
       if (submitMode === 'saveNew') {
         // Reset form (router push to /new clears state).
         router.push('/dashboard/crm/sales-crm/deals/new');
@@ -179,13 +205,6 @@ export function DealForm({ initial, redirectTo }: DealFormProps) {
     setProducts((rows) => rows.map((r, i) => (i === idx ? { ...r, ...patch } : r)));
     markDirty();
   };
-  const addCompetitor = () => {
-    const v = competitorDraft.trim();
-    if (!v) return;
-    setCompetitors((arr) => (arr.includes(v) ? arr : [...arr, v]));
-    setCompetitorDraft('');
-    markDirty();
-  };
   const removeCompetitor = (name: string) => {
     setCompetitors((arr) => arr.filter((c) => c !== name));
     markDirty();
@@ -199,11 +218,27 @@ export function DealForm({ initial, redirectTo }: DealFormProps) {
   /* Render */
   return (
     <form
+      ref={formRef}
       action={formAction}
       onChange={markDirty}
       className="flex w-full flex-col gap-6"
     >
       <DirtyFormPrompt dirty={dirty} />
+
+      {/* Restore-draft banner (only on /new, only if a draft exists) */}
+      {!editing && draftAvailable && !draftDismissed ? (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-[12.5px] text-amber-900 dark:text-amber-300">
+          <span>You have an unsaved draft from a previous session.</span>
+          <div className="flex items-center gap-2">
+            <ZoruButton size="sm" variant="outline" type="button" onClick={restoreDraft}>
+              Restore draft
+            </ZoruButton>
+            <ZoruButton size="sm" variant="ghost" type="button" onClick={discardDraft}>
+              Discard
+            </ZoruButton>
+          </div>
+        </div>
+      ) : null}
 
       {/* Hidden inputs preserving the legacy createCrmDeal contract. */}
       {editing ? <input type="hidden" name="_id" value={String(initial!._id)} /> : null}
@@ -398,47 +433,14 @@ export function DealForm({ initial, redirectTo }: DealFormProps) {
 
       {/* ─── Section 4: Competitors ───────────────────────────────────── */}
       <ZoruCard className="space-y-4 p-6">
-        <div>
-          <h2 className="text-[15px] font-semibold text-zoru-ink">Competitors</h2>
-          <p className="text-[12.5px] text-zoru-ink-muted">
-            Free-text chips for now — wire to a vendor picker in a follow-up.
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          {competitors.map((c) => (
-            <span
-              key={c}
-              className="inline-flex items-center gap-1 rounded-full border border-zoru-line bg-zoru-surface-2 px-2 py-0.5 text-[12px]"
-            >
-              {c}
-              <button
-                type="button"
-                onClick={() => removeCompetitor(c)}
-                className="text-zoru-ink-muted hover:text-zoru-ink"
-                aria-label={`Remove ${c}`}
-              >
-                ×
-              </button>
-            </span>
-          ))}
-        </div>
-        <div className="flex items-center gap-2">
-          <ZoruInput
-            placeholder="Add competitor name…"
-            value={competitorDraft}
-            onChange={(e) => setCompetitorDraft(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                addCompetitor();
-              }
-            }}
-            className="max-w-xs"
-          />
-          <ZoruButton type="button" variant="outline" size="sm" onClick={addCompetitor}>
-            Add
-          </ZoruButton>
-        </div>
+        <DealCompetitorsEditor
+          competitors={competitors}
+          onAdd={(name) => {
+            setCompetitors((arr) => (arr.includes(name) ? arr : [...arr, name]));
+            markDirty();
+          }}
+          onRemove={removeCompetitor}
+        />
       </ZoruCard>
 
       {/* ─── Section 5: Profile (source/priority/tags) + Notes ────────── */}
@@ -513,6 +515,19 @@ export function DealForm({ initial, redirectTo }: DealFormProps) {
               defaultValue={initial?.description ?? ''}
               rows={4}
               placeholder="Internal notes about this opportunity"
+            />
+          </div>
+
+          {/* Tags — multi-pick */}
+          <div className="md:col-span-2 space-y-1.5">
+            <ZoruLabel>Tags</ZoruLabel>
+            <EntityMultiFormField
+              entity="tag"
+              name="tagIds"
+              initialIds={tagIds}
+              dualWriteName="labels"
+              allowCreate
+              inlineCreate
             />
           </div>
         </div>

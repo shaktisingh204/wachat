@@ -36,9 +36,56 @@ export default function ExitsPage() {
       subtitle="Offboarding, resignations, and full-and-final settlements."
       icon={LogOut}
       singular="Exit"
+      basePath="/dashboard/hrm/hr/exits"
+      rowLinksToDetail
       getAllAction={getExits as any}
       saveAction={saveExit}
       deleteAction={deleteExit}
+      kpis={[
+        {
+          label: 'This quarter',
+          compute: (rows) => {
+            const now = new Date();
+            const qStart = new Date(now.getFullYear(), Math.floor(now.getMonth() / 3) * 3, 1);
+            return rows.filter((r) => {
+              const d = new Date((r as any).exit_date || (r as any).lastWorkingDate);
+              return !isNaN(d.getTime()) && d >= qStart;
+            }).length;
+          },
+        },
+        {
+          label: 'Voluntary',
+          compute: (rows) =>
+            rows.filter((r) => {
+              const v = String((r as any).reason || '').toLowerCase();
+              return v === 'resignation' || v === 'retirement';
+            }).length,
+        },
+        {
+          label: 'Involuntary',
+          compute: (rows) =>
+            rows.filter((r) => {
+              const v = String((r as any).reason || '').toLowerCase();
+              return v === 'termination' || v === 'contract-end';
+            }).length,
+          tone: 'red',
+        },
+        {
+          label: 'Clearance pending',
+          compute: (rows) =>
+            rows.filter(
+              (r) => String((r as any).clearance_status || 'pending') === 'pending',
+            ).length,
+          tone: 'amber',
+        },
+        {
+          label: 'FnF pending',
+          compute: (rows) =>
+            rows.filter((r) => String((r as any).fnf_status || 'pending') === 'pending')
+              .length,
+          tone: 'amber',
+        },
+      ]}
       columns={[
         {
           key: 'employeeId',

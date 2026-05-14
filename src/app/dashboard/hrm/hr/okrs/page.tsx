@@ -1,102 +1,168 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
+/**
+ * OKRs — list page rebuilt to §1D.1 bar.
+ *
+ * Uses <HrListShell> with KPI strip (Active · Completed · Avg progress ·
+ * On-track count), status chip filter, search, bulk delete.
+ *
+ * Form lives at /new and /[id]/edit (HrFormPage on top of EntityFormShell).
+ * The `keyResults` array editor is rendered by HrFormPage's FieldArray and
+ * persisted to MongoDB via existing `saveOkr` action (jsonKeys: ['keyResults']).
+ */
 
+import * as React from 'react';
+import { useCallback, useEffect, useState, useTransition } from 'react';
 import { Target } from 'lucide-react';
-import { ClayBadge, HrEntityPage } from '../_components/hr-entity-page';
-import { getOkrs, saveOkr, deleteOkr } from '@/app/actions/hr.actions';
-import type { HrOkr } from '@/lib/hr-types';
-import { fields } from './_config';
 
-const STATUS_TONES: Record<string, 'neutral' | 'green' | 'amber' | 'red' | 'blue'> = {
-  'on-track': 'green',
-  'at-risk': 'amber',
-  'off-track': 'red',
-  completed: 'blue',
-  // legacy
-  draft: 'neutral',
-  'in-progress': 'blue',
-  achieved: 'green',
-  missed: 'red',
+import { getOkrs, deleteOkr } from '@/app/actions/hr.actions';
+import type { HrOkr } from '@/lib/hr-types';
+import {
+  HrChip,
+  HrDateCell,
+  HrListShell,
+  HrProgressCell,
+  HrStatusCell,
+} from '../_components/hr-list-shell';
+
+type Row = HrOkr & {
+  _id: string;
+  title?: string;
+  type?: string;
+  due_date?: string | Date;
+  progress?: number;
 };
 
-function ProgressBar({ value }: { value: unknown }) {
-  const pct = Math.min(100, Math.max(0, Number(value) || 0));
-  return (
-    <div className="flex items-center gap-2">
-      <div className="h-1.5 w-24 overflow-hidden rounded-full bg-border">
-        <div
-          className="h-full rounded-full bg-amber-500"
-          style={{ width: `${pct}%` }}
-        />
-      </div>
-      <span className="text-[12px] tabular-nums text-muted-foreground">{pct}%</span>
-    </div>
-  );
+function avgKrProgress(keyResults: Row['keyResults']): number {
+  if (!Array.isArray(keyResults) || keyResults.length === 0) return 0;
+  const sum = keyResults.reduce((a, k) => a + (Number(k?.progress) || 0), 0);
+  return Math.round(sum / keyResults.length);
 }
 
 export default function OkrsPage() {
+  const [rows, setRows] = useState<Row[]>([]);
+  const [isLoading, startTransition] = useTransition();
+
+  const refresh = useCallback(() => {
+    startTransition(async () => {
+      const data = (await getOkrs()) as Row[];
+      setRows(Array.isArray(data) ? data : []);
+    });
+  }, []);
+
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
+
+  const kpis = React.useMemo(() => {
+    const total = rows.length;
+    const completed = rows.filter((r) => {
+      const s = String(r.status ?? '').toLowerCase();
+      return s === 'achieved' || s === 'completed';
+    }).length;
+    const active = rows.filter((r) => {
+      const s = String(r.status ?? '').toLowerCase();
+      return s === 'in-progress' || s === 'on-track';
+    }).length;
+    const onTrack = rows.filter(
+      (r) => String(r.status ?? '').toLowerCase() === 'on-track',
+    ).length;
+    const avgProgress = total
+      ? Math.round(
+          rows.reduce(
+            (a, r) =>
+              a +
+              (Number(r.progress) ||
+                avgKrProgress(r.keyResults as Row['keyResults'])),
+            0,
+          ) / total,
+        )
+      : 0;
+    return [
+      { label: 'Active', value: active },
+      { label: 'Completed', value: completed, tone: 'green' as const },
+      { label: 'Avg progress', value: `${avgProgress}%` },
+      { label: 'On-track', value: onTrack, tone: 'blue' as const },
+    ];
+  }, [rows]);
+
   return (
-    <HrEntityPage<HrOkr & { _id: string }>
+    <HrListShell<Row>
       title="OKRs"
-      subtitle="Objectives and key results — track individual, team, and company goals."
+      subtitle="Objectives and key results — individual, team, and company level."
       icon={Target}
-      singular="OKR"
-      basePath="/dashboard/hrm/hr/okrs"
-      getAllAction={getOkrs as any}
-      saveAction={saveOkr}
-      deleteAction={deleteOkr}
+      newHref="/dashboard/hrm/hr/okrs/new"
+      editHref={(r) => `/dashboard/hrm/hr/okrs/${String(r._id)}/edit`}
+      detailHref={(r) => `/dashboard/hrm/hr/okrs/${String(r._id)}`}
+      rows={rows}
+      loading={isLoading}
+      kpis={kpis}
+      statusOptions={[
+        { value: 'on-track', label: 'On track' },
+        { value: 'at-risk', label: 'At risk' },
+        { value: 'off-track', label: 'Off track' },
+        { value: 'completed', label: 'Completed' },
+      ]}
+      getRowStatus={(r) => String(r.status ?? '')}
+      searchPlaceholder="Search objectives…"
+      searchPredicate={(r, q) =>
+        String(r.title ?? r.objective ?? '').toLowerCase().includes(q)
+      }
+      onDelete={deleteOkr}
+      onAfterChange={refresh}
+      emptyText="No OKRs yet"
       columns={[
         {
-          key: 'title',
-          label: 'Title',
-          render: (row) => (
-            <span className="block max-w-[220px] truncate font-medium">
-              {(row as any).title || (row as any).objective || '—'}
+          key: 'objective',
+          label: 'Objective',
+          render: (r) => (
+            <span className="block max-w-[280px] truncate font-medium">
+              {r.title ?? r.objective ?? '—'}
             </span>
           ),
         },
         {
-          key: 'type',
-          label: 'Type',
-          render: (row) => {
-            const t = (row as any).type;
-            return t ? (
-              <ClayBadge tone={t === 'company' ? 'blue' : t === 'team' ? 'amber' : 'neutral'}>
-                {t}
-              </ClayBadge>
-            ) : (
-              <span className="text-muted-foreground">—</span>
-            );
+          key: 'period',
+          label: 'Period',
+          render: (r) => {
+            const period = r.quarter;
+            return period ? <HrChip>{period}</HrChip> : <span className="text-zoru-ink-muted">—</span>;
           },
         },
         {
-          key: 'due_date',
-          label: 'Due Date',
-          render: (row) => {
-            const d = (row as any).due_date;
-            if (!d) return <span className="text-muted-foreground">—</span>;
-            const parsed = new Date(d);
-            return isNaN(parsed.getTime()) ? '—' : parsed.toISOString().slice(0, 10);
-          },
+          key: 'type',
+          label: 'Type',
+          render: (r) => (r.type ? <HrChip>{r.type}</HrChip> : <span className="text-zoru-ink-muted">—</span>),
+        },
+        {
+          key: 'krs',
+          label: 'KRs',
+          render: (r) => (
+            <span className="tabular-nums">
+              {Array.isArray(r.keyResults) ? r.keyResults.length : 0}
+            </span>
+          ),
         },
         {
           key: 'progress',
-          label: 'Progress',
-          render: (row) => <ProgressBar value={(row as any).progress} />,
+          label: 'Score',
+          render: (r) => (
+            <HrProgressCell
+              value={r.progress ?? avgKrProgress(r.keyResults as Row['keyResults'])}
+            />
+          ),
+        },
+        {
+          key: 'due',
+          label: 'Due',
+          render: (r) => <HrDateCell value={r.due_date} />,
         },
         {
           key: 'status',
           label: 'Status',
-          render: (row) => (
-            <ClayBadge tone={STATUS_TONES[row.status] || 'neutral'} dot>
-              {row.status}
-            </ClayBadge>
-          ),
+          render: (r) => <HrStatusCell value={String(r.status ?? '')} />,
         },
       ]}
-      fields={fields}
     />
   );
 }

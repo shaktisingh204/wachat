@@ -1,0 +1,235 @@
+'use client';
+
+/**
+ * <VoucherBookForm> — sectioned form for /new and /[id]/edit on Voucher Books.
+ * Builds on <EntityFormShell>. Preserves the action's FormData keys, plus
+ * `prefix`, `suffix`, `startingNumber`, `padding`, `resetFrequency`,
+ * `approvalRequired`, `isActive`, `isDefault`.
+ */
+
+import * as React from 'react';
+import { useRouter } from 'next/navigation';
+import { useActionState } from 'react';
+
+import {
+    ZoruInput,
+    ZoruLabel,
+    ZoruSelect,
+    ZoruSelectContent,
+    ZoruSelectItem,
+    ZoruSelectTrigger,
+    ZoruSelectValue,
+    ZoruSwitch,
+    useZoruToast,
+} from '@/components/zoruui';
+
+import { EntityFormShell } from '@/components/crm/entity-form-shell';
+import { saveVoucherBook } from '@/app/actions/crm-vouchers.actions';
+import type { CrmVoucherBook } from '@/lib/definitions';
+import type { WithId } from 'mongodb';
+
+import { VOUCHER_TYPES, type VoucherBookType, type VoucherResetFrequency } from './types';
+
+interface VoucherBookFormProps {
+    initial?: WithId<CrmVoucherBook> | null;
+}
+
+const initialState: { message?: string; error?: string } = {};
+
+export function VoucherBookForm({ initial }: VoucherBookFormProps): React.JSX.Element {
+    const isEdit = !!initial;
+    const router = useRouter();
+    const { toast } = useZoruToast();
+
+    const [state, formAction] = useActionState(saveVoucherBook, initialState);
+
+    React.useEffect(() => {
+        if (state.message) {
+            toast({ title: 'Saved', description: state.message });
+            router.push('/dashboard/crm/accounting/vouchers');
+        } else if (state.error) {
+            toast({ title: 'Error', description: state.error, variant: 'destructive' });
+        }
+    }, [state, router, toast]);
+
+    const init = initial as
+        | (WithId<CrmVoucherBook> & {
+              prefix?: string;
+              suffix?: string;
+              startingNumber?: number;
+              padding?: number;
+              resetFrequency?: VoucherResetFrequency;
+              approvalRequired?: boolean;
+              isActive?: boolean;
+          })
+        | null
+        | undefined;
+
+    return (
+        <EntityFormShell
+            title={isEdit ? `Edit ${init?.name}` : 'New Voucher Book'}
+            subtitle={
+                isEdit
+                    ? 'Adjust the book metadata, prefix scheme, and approval rules.'
+                    : 'Create a new voucher book for a specific transaction type.'
+            }
+            action={formAction}
+            submitLabel={isEdit ? 'Save changes' : 'Create voucher book'}
+            cancelHref={
+                isEdit
+                    ? `/dashboard/crm/accounting/vouchers/${init!._id.toString()}`
+                    : '/dashboard/crm/accounting/vouchers'
+            }
+            hiddenInputs={
+                isEdit ? <input type="hidden" name="voucherBookId" value={init!._id.toString()} /> : null
+            }
+            error={state.error}
+            message={state.message}
+            sections={[
+                {
+                    id: 'header',
+                    title: 'Header',
+                    description: 'Book identity and transaction type.',
+                    children: (
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                            <div className="space-y-2">
+                                <ZoruLabel htmlFor="voucherBookType">Type *</ZoruLabel>
+                                <ZoruSelect name="voucherBookType" required defaultValue={init?.type}>
+                                    <ZoruSelectTrigger id="voucherBookType">
+                                        <ZoruSelectValue placeholder="Pick a voucher type" />
+                                    </ZoruSelectTrigger>
+                                    <ZoruSelectContent>
+                                        {VOUCHER_TYPES.map((t: VoucherBookType) => (
+                                            <ZoruSelectItem key={t} value={t}>
+                                                {t}
+                                            </ZoruSelectItem>
+                                        ))}
+                                    </ZoruSelectContent>
+                                </ZoruSelect>
+                            </div>
+                            <div className="space-y-2">
+                                <ZoruLabel htmlFor="voucherBookName">Name *</ZoruLabel>
+                                <ZoruInput
+                                    id="voucherBookName"
+                                    name="voucherBookName"
+                                    placeholder="e.g. Sales Voucher — FY 2025-26"
+                                    required
+                                    defaultValue={init?.name}
+                                />
+                            </div>
+                        </div>
+                    ),
+                },
+                {
+                    id: 'numbering',
+                    title: 'Numbering scheme',
+                    description: 'Prefix / starting number / padding / reset frequency.',
+                    children: (
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+                            <div className="space-y-2">
+                                <ZoruLabel htmlFor="prefix">Prefix</ZoruLabel>
+                                <ZoruInput
+                                    id="prefix"
+                                    name="prefix"
+                                    placeholder="e.g. SV-"
+                                    defaultValue={init?.prefix ?? ''}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <ZoruLabel htmlFor="suffix">Suffix</ZoruLabel>
+                                <ZoruInput
+                                    id="suffix"
+                                    name="suffix"
+                                    placeholder="e.g. /FY25"
+                                    defaultValue={init?.suffix ?? ''}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <ZoruLabel htmlFor="startingNumber">Starting number</ZoruLabel>
+                                <ZoruInput
+                                    id="startingNumber"
+                                    name="startingNumber"
+                                    type="number"
+                                    min="0"
+                                    defaultValue={init?.startingNumber ?? 1}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <ZoruLabel htmlFor="padding">Padding</ZoruLabel>
+                                <ZoruInput
+                                    id="padding"
+                                    name="padding"
+                                    type="number"
+                                    min="0"
+                                    max="10"
+                                    defaultValue={init?.padding ?? 4}
+                                />
+                                <p className="text-[11.5px] text-muted-foreground">
+                                    Pads numbers with leading zeros to this width.
+                                </p>
+                            </div>
+                            <div className="space-y-2 md:col-span-2">
+                                <ZoruLabel htmlFor="resetFrequency">Reset frequency</ZoruLabel>
+                                <ZoruSelect
+                                    name="resetFrequency"
+                                    defaultValue={init?.resetFrequency ?? 'none'}
+                                >
+                                    <ZoruSelectTrigger id="resetFrequency">
+                                        <ZoruSelectValue />
+                                    </ZoruSelectTrigger>
+                                    <ZoruSelectContent>
+                                        <ZoruSelectItem value="none">Never reset</ZoruSelectItem>
+                                        <ZoruSelectItem value="yearly">Reset yearly (FY)</ZoruSelectItem>
+                                        <ZoruSelectItem value="monthly">Reset monthly</ZoruSelectItem>
+                                    </ZoruSelectContent>
+                                </ZoruSelect>
+                            </div>
+                        </div>
+                    ),
+                },
+                {
+                    id: 'flags',
+                    title: 'Defaults + approval',
+                    description: 'Mark this as default for the module and require approval before posting.',
+                    children: (
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                            <label className="flex items-center justify-between rounded-lg border border-border bg-secondary p-3">
+                                <div>
+                                    <p className="text-[13px] font-medium text-foreground">Default for type</p>
+                                    <p className="text-[11.5px] text-muted-foreground">
+                                        Auto-selected on new voucher entry.
+                                    </p>
+                                </div>
+                                <ZoruSwitch name="isDefault" defaultChecked={init?.isDefault ?? false} />
+                            </label>
+                            <label className="flex items-center justify-between rounded-lg border border-border bg-secondary p-3">
+                                <div>
+                                    <p className="text-[13px] font-medium text-foreground">Approval required</p>
+                                    <p className="text-[11.5px] text-muted-foreground">
+                                        Block posting until an approver signs off.
+                                    </p>
+                                </div>
+                                <ZoruSwitch
+                                    name="approvalRequired"
+                                    defaultChecked={init?.approvalRequired ?? false}
+                                />
+                            </label>
+                            <label className="flex items-center justify-between rounded-lg border border-border bg-secondary p-3">
+                                <div>
+                                    <p className="text-[13px] font-medium text-foreground">Active</p>
+                                    <p className="text-[11.5px] text-muted-foreground">
+                                        Inactive books stay in history but hide from new-entry pickers.
+                                    </p>
+                                </div>
+                                <ZoruSwitch
+                                    name="isActive"
+                                    defaultChecked={init?.isActive ?? true}
+                                />
+                            </label>
+                        </div>
+                    ),
+                },
+            ]}
+        />
+    );
+}

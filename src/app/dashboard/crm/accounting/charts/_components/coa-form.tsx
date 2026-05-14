@@ -1,0 +1,291 @@
+'use client';
+
+/**
+ * <CoaForm> — sectioned form for /new and /[id]/edit on Chart of Accounts.
+ * Builds on <EntityFormShell> (Phase 1A). Preserves the existing FormData keys
+ * the server action consumes (`accountId`, `name`, `accountGroupId`,
+ * `openingBalance`, `balanceType`, `currency`, `description`, `status`, `code`,
+ * `openingBalanceDate`, `affectsGrossProfit`, `taxBehavior`).
+ */
+
+import * as React from 'react';
+import { useRouter } from 'next/navigation';
+import { useActionState } from 'react';
+
+import {
+    ZoruDatePicker,
+    ZoruInput,
+    ZoruLabel,
+    ZoruRadioGroup,
+    ZoruRadioGroupItem,
+    ZoruSelect,
+    ZoruSelectContent,
+    ZoruSelectItem,
+    ZoruSelectTrigger,
+    ZoruSelectValue,
+    ZoruSwitch,
+    ZoruTextarea,
+    useZoruToast,
+} from '@/components/zoruui';
+
+import { EntityFormShell } from '@/components/crm/entity-form-shell';
+import { saveCrmChartOfAccount } from '@/app/actions/crm-accounting.actions';
+import type { CrmAccountGroup, CrmChartOfAccount } from '@/lib/definitions';
+import type { WithId } from 'mongodb';
+
+interface CoaFormProps {
+    initial?: WithId<CrmChartOfAccount> | null;
+    groups: WithId<CrmAccountGroup>[];
+}
+
+const initialState: { message?: string; error?: string } = {};
+
+export function CoaForm({ initial, groups }: CoaFormProps): React.JSX.Element {
+    const isEdit = !!initial;
+    const router = useRouter();
+    const { toast } = useZoruToast();
+
+    const [state, formAction] = useActionState(saveCrmChartOfAccount, initialState);
+
+    const [groupId, setGroupId] = React.useState(initial?.accountGroupId?.toString() ?? '');
+    const [openingBalanceDate, setOpeningBalanceDate] = React.useState<Date | undefined>(
+        new Date(),
+    );
+
+    React.useEffect(() => {
+        if (state.message) {
+            toast({ title: 'Saved', description: state.message });
+            router.push('/dashboard/crm/accounting/charts');
+        } else if (state.error) {
+            toast({ title: 'Error', description: state.error, variant: 'destructive' });
+        }
+    }, [state, router, toast]);
+
+    const selectedGroup = groups.find((g) => g._id.toString() === groupId);
+    const selectedNature = selectedGroup?.type;
+
+    return (
+        <EntityFormShell
+            title={isEdit ? `Edit ${initial?.name}` : 'New Account'}
+            subtitle={
+                isEdit
+                    ? 'Adjust the chart-of-account properties below.'
+                    : 'Add an account to your chart. Use the parent group to keep your CoA navigable.'
+            }
+            action={formAction}
+            submitLabel={isEdit ? 'Save changes' : 'Create account'}
+            cancelHref={
+                isEdit
+                    ? `/dashboard/crm/accounting/charts/${initial?._id.toString()}`
+                    : '/dashboard/crm/accounting/charts'
+            }
+            hiddenInputs={
+                <>
+                    {isEdit ? <input type="hidden" name="accountId" value={initial!._id.toString()} /> : null}
+                    <input type="hidden" name="accountGroupId" value={groupId} />
+                    <input
+                        type="hidden"
+                        name="openingBalanceDate"
+                        value={openingBalanceDate?.toISOString() ?? ''}
+                    />
+                </>
+            }
+            error={state.error}
+            message={state.message}
+            sections={[
+                {
+                    id: 'header',
+                    title: 'Header',
+                    description: 'Account identification and parent grouping.',
+                    children: (
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                            <div className="space-y-2">
+                                <ZoruLabel htmlFor="code">Account code</ZoruLabel>
+                                <ZoruInput
+                                    id="code"
+                                    name="code"
+                                    placeholder="e.g. 1100"
+                                    defaultValue={(initial as { code?: string } | null | undefined)?.code ?? ''}
+                                />
+                                <p className="text-[11.5px] text-muted-foreground">
+                                    Optional. Useful for chart numbering schemes.
+                                </p>
+                            </div>
+                            <div className="space-y-2">
+                                <ZoruLabel htmlFor="name">Account name *</ZoruLabel>
+                                <ZoruInput
+                                    id="name"
+                                    name="name"
+                                    placeholder="e.g. Bank — HDFC Current"
+                                    required
+                                    defaultValue={initial?.name ?? ''}
+                                />
+                            </div>
+                            <div className="space-y-2 md:col-span-2">
+                                <ZoruLabel htmlFor="accountGroupId">Parent group *</ZoruLabel>
+                                <ZoruSelect value={groupId} onValueChange={setGroupId}>
+                                    <ZoruSelectTrigger id="accountGroupId">
+                                        <ZoruSelectValue placeholder="Select an account group" />
+                                    </ZoruSelectTrigger>
+                                    <ZoruSelectContent>
+                                        {groups.length === 0 ? (
+                                            <ZoruSelectItem value="" disabled>
+                                                No groups yet — create one under Account Groups
+                                            </ZoruSelectItem>
+                                        ) : (
+                                            groups.map((g) => (
+                                                <ZoruSelectItem key={g._id.toString()} value={g._id.toString()}>
+                                                    {g.name} · {g.type} · {g.category.replace(/_/g, ' ')}
+                                                </ZoruSelectItem>
+                                            ))
+                                        )}
+                                    </ZoruSelectContent>
+                                </ZoruSelect>
+                                {selectedNature ? (
+                                    <p className="text-[11.5px] text-muted-foreground">
+                                        Nature: <strong>{selectedNature}</strong> ·{' '}
+                                        Sub-nature: <strong>{selectedGroup?.category.replace(/_/g, ' ')}</strong>
+                                    </p>
+                                ) : null}
+                            </div>
+                        </div>
+                    ),
+                },
+                {
+                    id: 'opening',
+                    title: 'Opening balance',
+                    description:
+                        'Carry-forward value from your previous accounting system. Choose the side (Dr/Cr) carefully.',
+                    children: (
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                            <div className="space-y-2">
+                                <ZoruLabel htmlFor="openingBalance">Opening balance</ZoruLabel>
+                                <ZoruInput
+                                    id="openingBalance"
+                                    name="openingBalance"
+                                    type="number"
+                                    step="0.01"
+                                    min="-100000000000"
+                                    max="100000000000"
+                                    defaultValue={initial?.openingBalance ?? 0}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <ZoruLabel>Balance type</ZoruLabel>
+                                <ZoruRadioGroup
+                                    name="balanceType"
+                                    defaultValue={initial?.balanceType ?? 'Dr'}
+                                    className="flex items-center gap-4 pt-1"
+                                >
+                                    <label className="inline-flex items-center gap-2">
+                                        <ZoruRadioGroupItem value="Dr" id="balanceType-dr" />
+                                        <span className="text-[13px]">Debit</span>
+                                    </label>
+                                    <label className="inline-flex items-center gap-2">
+                                        <ZoruRadioGroupItem value="Cr" id="balanceType-cr" />
+                                        <span className="text-[13px]">Credit</span>
+                                    </label>
+                                </ZoruRadioGroup>
+                            </div>
+                            <div className="space-y-2">
+                                <ZoruLabel>As of</ZoruLabel>
+                                <ZoruDatePicker
+                                    value={openingBalanceDate}
+                                    onChange={setOpeningBalanceDate}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <ZoruLabel htmlFor="currency">Currency</ZoruLabel>
+                                <ZoruSelect name="currency" defaultValue={initial?.currency ?? 'INR'}>
+                                    <ZoruSelectTrigger id="currency">
+                                        <ZoruSelectValue />
+                                    </ZoruSelectTrigger>
+                                    <ZoruSelectContent>
+                                        <ZoruSelectItem value="INR">Indian Rupee (INR)</ZoruSelectItem>
+                                        <ZoruSelectItem value="USD">US Dollar (USD)</ZoruSelectItem>
+                                        <ZoruSelectItem value="EUR">Euro (EUR)</ZoruSelectItem>
+                                        <ZoruSelectItem value="GBP">British Pound (GBP)</ZoruSelectItem>
+                                    </ZoruSelectContent>
+                                </ZoruSelect>
+                            </div>
+                        </div>
+                    ),
+                },
+                {
+                    id: 'tax',
+                    title: 'Tax + behavior',
+                    description: 'Optional accounting metadata for reporting / GST treatment.',
+                    children: (
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                            <div className="space-y-2">
+                                <ZoruLabel>Tax behavior</ZoruLabel>
+                                <ZoruSelect
+                                    name="taxBehavior"
+                                    defaultValue={(initial as { taxBehavior?: string } | null | undefined)?.taxBehavior ?? 'none'}
+                                >
+                                    <ZoruSelectTrigger>
+                                        <ZoruSelectValue />
+                                    </ZoruSelectTrigger>
+                                    <ZoruSelectContent>
+                                        <ZoruSelectItem value="none">None</ZoruSelectItem>
+                                        <ZoruSelectItem value="output">Output (sales)</ZoruSelectItem>
+                                        <ZoruSelectItem value="input">Input (purchase)</ZoruSelectItem>
+                                        <ZoruSelectItem value="reverse_charge">Reverse charge</ZoruSelectItem>
+                                    </ZoruSelectContent>
+                                </ZoruSelect>
+                            </div>
+                            <label className="flex items-center justify-between rounded-lg border border-border bg-secondary p-3">
+                                <div>
+                                    <p className="text-[13px] font-medium text-foreground">
+                                        Affects gross profit
+                                    </p>
+                                    <p className="text-[11.5px] text-muted-foreground">
+                                        Include this account in COGS / gross-profit calculations.
+                                    </p>
+                                </div>
+                                <ZoruSwitch
+                                    name="affectsGrossProfit"
+                                    defaultChecked={
+                                        (initial as { affectsGrossProfit?: boolean } | null | undefined)
+                                            ?.affectsGrossProfit ?? false
+                                    }
+                                />
+                            </label>
+                        </div>
+                    ),
+                },
+                {
+                    id: 'meta',
+                    title: 'Description + status',
+                    description: 'Optional notes and active flag.',
+                    children: (
+                        <div className="space-y-4">
+                            <div className="space-y-2">
+                                <ZoruLabel htmlFor="description">Description</ZoruLabel>
+                                <ZoruTextarea
+                                    id="description"
+                                    name="description"
+                                    rows={3}
+                                    placeholder="What is this account used for?"
+                                    defaultValue={initial?.description ?? ''}
+                                />
+                            </div>
+                            <label className="flex items-center justify-between rounded-lg border border-border bg-secondary p-3">
+                                <div>
+                                    <p className="text-[13px] font-medium text-foreground">Active</p>
+                                    <p className="text-[11.5px] text-muted-foreground">
+                                        Inactive accounts stay in your history but hide from pickers.
+                                    </p>
+                                </div>
+                                <ZoruSwitch
+                                    name="status"
+                                    defaultChecked={initial ? initial.status === 'Active' : true}
+                                />
+                            </label>
+                        </div>
+                    ),
+                },
+            ]}
+        />
+    );
+}

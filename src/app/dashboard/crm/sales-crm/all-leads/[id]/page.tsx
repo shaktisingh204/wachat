@@ -1,22 +1,25 @@
 'use client';
 
 /**
- * Lead detail page (§1D.2).
+ * Lead detail page (§1D.2 + follow-up additions).
  *
  * Layout (per `<EntityDetailShell>`):
- *   • Header: status pill, back link, eyebrow, title, action group (8+ buttons).
- *   • Main column: Overview · Money summary · Notes composer · Attachments.
- *   • Right rail: Pipeline · Stage · Owner · Lifetime stats · Related entities.
- *   • Footer: <EntityAuditTimeline entityKind="lead" entityId={id} />.
+ *   • Header: status pill, back link, eyebrow, title, action group.
+ *   • Main column: Overview · Money summary · Tags · Notes timeline.
+ *   • Right rail: Pipeline · Activity stats · Related entities with
+ *     live counts. Inline-edit popovers for Owner / Stage / Status.
+ *   • Quick-add Task button opens an inline dialog.
+ *
+ * `?print=1` collapses the page into a single-column print-friendly
+ * view via `<LeadsPrintView>`.
  *
  * Lead is the root of the sales chain → no <LineageRail>.
  */
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
-import { formatDistanceToNow } from 'date-fns';
-import { Sparkles } from 'lucide-react';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { Plus, Sparkles } from 'lucide-react';
 
 import {
     ZoruBadge,
@@ -30,30 +33,27 @@ import {
     useZoruToast,
 } from '@/components/zoruui';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
-import { StatusPill, statusToTone } from '@/components/crm/status-pill';
+import { statusToTone } from '@/components/crm/status-pill';
 import { ComposeEmailDialog } from '@/components/wabasimplify/crm-compose-email-dialog';
+import { CrmNotes } from '@/components/wabasimplify/crm-notes';
 import { LeadDetailActions } from '../_components/leads-detail-actions';
+import { LeadTagsChips } from '../_components/leads-tags-chip';
+import { LeadsAddTaskDialog } from '../_components/leads-add-task-dialog';
+import { LeadsDetailRail } from '../_components/leads-detail-rail';
+import { LeadsPrintView } from '../_components/leads-print-view';
 
 import {
     archiveCrmLead,
-    changeCrmLeadStatus,
     deleteCrmLead,
     getCrmLeadById,
+    getCrmLeadRelatedCounts,
     unarchiveCrmLead,
+    type CrmLeadRelatedCounts,
 } from '@/app/actions/crm-leads.actions';
 import { convertLeadToAccount } from '@/app/actions/worksuite/conversions.actions';
 import type { CrmLead } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
-
-const LEAD_STATUSES = [
-    'New',
-    'Contacted',
-    'Qualified',
-    'Unqualified',
-    'Converted',
-] as const;
 
 function formatMoney(value: number | undefined, currency: string | undefined): string {
     const ccy = currency || 'INR';
@@ -68,49 +68,46 @@ function formatMoney(value: number | undefined, currency: string | undefined): s
     }
 }
 
+const EMPTY_COUNTS: CrmLeadRelatedCounts = {
+    deals: 0,
+    tasks: 0,
+    tickets: 0,
+    quotations: 0,
+};
+
 export default function LeadDetailPage() {
     const params = useParams();
     const router = useRouter();
+    const searchParams = useSearchParams();
     const { toast } = useZoruToast();
 
     const leadId = (params?.id as string) || '';
+    const isPrint = searchParams?.get('print') === '1';
 
     const [lead, setLead] = React.useState<WithId<CrmLead> | null>(null);
+    const [counts, setCounts] = React.useState<CrmLeadRelatedCounts>(EMPTY_COUNTS);
     const [isPending, startTransition] = React.useTransition();
     const [archiveOpen, setArchiveOpen] = React.useState(false);
     const [deleteOpen, setDeleteOpen] = React.useState(false);
     const [composeOpen, setComposeOpen] = React.useState(false);
+    const [addTaskOpen, setAddTaskOpen] = React.useState(false);
     const [converting, setConverting] = React.useState(false);
 
     const refresh = React.useCallback(() => {
         if (!leadId) return;
         startTransition(async () => {
-            const data = await getCrmLeadById(leadId);
+            const [data, c] = await Promise.all([
+                getCrmLeadById(leadId),
+                getCrmLeadRelatedCounts(leadId),
+            ]);
             setLead(data);
+            setCounts(c ?? EMPTY_COUNTS);
         });
     }, [leadId]);
 
     React.useEffect(() => {
         refresh();
     }, [refresh]);
-
-    const handleStatusChange = React.useCallback(
-        async (next: string) => {
-            if (!leadId || !lead || next === lead.status) return;
-            const res = await changeCrmLeadStatus(leadId, next);
-            if (res.success) {
-                toast({ title: `Status set to ${next}` });
-                refresh();
-            } else {
-                toast({
-                    title: 'Status change failed',
-                    description: res.error,
-                    variant: 'destructive',
-                });
-            }
-        },
-        [leadId, lead, refresh, toast],
-    );
 
     const handleArchive = React.useCallback(async () => {
         if (!leadId || !lead) return;
@@ -187,6 +184,10 @@ export default function LeadDetailPage() {
         );
     }
 
+    if (isPrint) {
+        return <LeadsPrintView lead={lead} />;
+    }
+
     const status = (lead.status as string) || 'New';
     const tone = statusToTone(status);
     const archived = status.toLowerCase() === 'archived';
@@ -194,6 +195,26 @@ export default function LeadDetailPage() {
     const expectedClose = (lead as any).expectedClose
         ? new Date((lead as any).expectedClose)
         : null;
+
+    // Existing notes embedded on the lead document (legacy schema mirrors
+    // the contact/account/deal pattern).
+    const existingNotes = ((lead as any).notes ?? []) as {
+        content: string;
+        createdAt: Date | string;
+        author: string;
+    }[];
+
+    const tags = ((lead as any).tags ?? []) as string[];
+
+    // Quick-create Deal href — uses ?fromKind=lead which the deal form
+    // already understands (see crm-deals.actions §13.5).
+    const convertToDealHref =
+        `/dashboard/crm/sales-crm/deals/new` +
+        `?fromKind=lead&fromId=${encodeURIComponent(leadId)}` +
+        `&title=${encodeURIComponent(lead.title ?? '')}` +
+        `&amount=${encodeURIComponent(String(lead.value ?? 0))}` +
+        (lead.source ? `&leadSource=${encodeURIComponent(lead.source)}` : '');
+
     return (
         <>
             <ComposeEmailDialog
@@ -202,152 +223,65 @@ export default function LeadDetailPage() {
                 initialTo={lead.email ?? ''}
                 initialSubject={`Re: ${lead.title}`}
             />
+            <LeadsAddTaskDialog
+                leadId={leadId}
+                open={addTaskOpen}
+                onOpenChange={setAddTaskOpen}
+                onCreated={refresh}
+            />
 
             <EntityDetailShell
                 back={{ href: '/dashboard/crm/sales-crm/all-leads', label: 'Back to All Leads' }}
                 eyebrow="LEAD"
                 title={lead.title || lead.contactName || 'Untitled lead'}
-                status={{ label: status, tone: tone === 'amber' ? 'amber' : tone === 'red' ? 'red' : tone === 'green' ? 'green' : tone === 'blue' ? 'blue' : 'neutral' }}
-                /* audit timeline is server-only; the dedicated /activity route renders <EntityAuditTimeline>. */
+                status={{
+                    label: status,
+                    tone:
+                        tone === 'amber'
+                            ? 'amber'
+                            : tone === 'red'
+                              ? 'red'
+                              : tone === 'green'
+                                ? 'green'
+                                : tone === 'blue'
+                                  ? 'blue'
+                                  : 'neutral',
+                }}
                 actions={
-                    <LeadDetailActions
-                        leadId={leadId}
-                        email={lead.email}
-                        phone={lead.phone}
-                        archived={archived}
-                        converted={status === 'Converted'}
-                        converting={converting}
-                        onConvert={handleConvert}
-                        onComposeEmail={() => setComposeOpen(true)}
-                        onArchive={() => setArchiveOpen(true)}
-                        onDelete={() => setDeleteOpen(true)}
-                    />
+                    <div className="flex flex-wrap items-center gap-2">
+                        <ZoruButton asChild variant="outline" size="sm">
+                            <Link href={convertToDealHref}>
+                                <Sparkles className="h-3.5 w-3.5" /> Convert to Deal
+                            </Link>
+                        </ZoruButton>
+                        <ZoruButton
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setAddTaskOpen(true)}
+                        >
+                            <Plus className="h-3.5 w-3.5" /> Add Task
+                        </ZoruButton>
+                        <LeadDetailActions
+                            leadId={leadId}
+                            email={lead.email}
+                            phone={lead.phone}
+                            archived={archived}
+                            converted={status === 'Converted'}
+                            converting={converting}
+                            onConvert={handleConvert}
+                            onComposeEmail={() => setComposeOpen(true)}
+                            onArchive={() => setArchiveOpen(true)}
+                            onDelete={() => setDeleteOpen(true)}
+                        />
+                    </div>
                 }
                 rightRail={
-                    <>
-                        {/* Pipeline & stage */}
-                        <ZoruCard>
-                            <ZoruCardHeader>
-                                <ZoruCardTitle>Pipeline</ZoruCardTitle>
-                            </ZoruCardHeader>
-                            <ZoruCardContent className="space-y-3 text-sm">
-                                <div className="flex items-center justify-between gap-2">
-                                    <span className="text-zoru-ink-muted">Pipeline</span>
-                                    {lead.pipelineId ? (
-                                        <EntityPickerChip entity="pipeline" id={lead.pipelineId} />
-                                    ) : (
-                                        <span className="text-zoru-ink-muted">—</span>
-                                    )}
-                                </div>
-                                <div className="flex items-center justify-between gap-2">
-                                    <span className="text-zoru-ink-muted">Stage</span>
-                                    {lead.stage ? (
-                                        <StatusPill label={lead.stage} tone={statusToTone(lead.stage)} />
-                                    ) : (
-                                        <span className="text-zoru-ink-muted">—</span>
-                                    )}
-                                </div>
-                                <div className="flex items-center justify-between gap-2">
-                                    <span className="text-zoru-ink-muted">Owner</span>
-                                    {lead.assignedTo ? (
-                                        <EntityPickerChip
-                                            entity="user"
-                                            id={String(lead.assignedTo)}
-                                            fallback="Unassigned"
-                                        />
-                                    ) : (
-                                        <span className="text-zoru-ink-muted">Unassigned</span>
-                                    )}
-                                </div>
-                                <div className="space-y-1 pt-1">
-                                    <span className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
-                                        Set status
-                                    </span>
-                                    <div className="flex flex-wrap gap-1.5">
-                                        {LEAD_STATUSES.map((s) => (
-                                            <button
-                                                key={s}
-                                                type="button"
-                                                onClick={() => void handleStatusChange(s)}
-                                                aria-pressed={status === s}
-                                                className={[
-                                                    'rounded-full border px-2 py-0.5 text-[11.5px]',
-                                                    status === s
-                                                        ? 'border-zoru-primary bg-zoru-primary/10 text-zoru-ink'
-                                                        : 'border-zoru-line text-zoru-ink-muted hover:text-zoru-ink',
-                                                ].join(' ')}
-                                            >
-                                                {s}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-                            </ZoruCardContent>
-                        </ZoruCard>
-
-                        {/* Lifetime stats */}
-                        <ZoruCard>
-                            <ZoruCardHeader>
-                                <ZoruCardTitle>Activity stats</ZoruCardTitle>
-                            </ZoruCardHeader>
-                            <ZoruCardContent className="space-y-2 text-sm">
-                                <Stat
-                                    label="Created"
-                                    value={
-                                        lead.createdAt
-                                            ? formatDistanceToNow(new Date(lead.createdAt), {
-                                                  addSuffix: true,
-                                              })
-                                            : '—'
-                                    }
-                                />
-                                <Stat
-                                    label="Last updated"
-                                    value={
-                                        lead.updatedAt
-                                            ? formatDistanceToNow(new Date(lead.updatedAt), {
-                                                  addSuffix: true,
-                                              })
-                                            : '—'
-                                    }
-                                />
-                                <Stat
-                                    label="Next follow-up"
-                                    value={
-                                        lead.nextFollowUp
-                                            ? new Date(lead.nextFollowUp).toLocaleDateString()
-                                            : 'Not set'
-                                    }
-                                />
-                                <Stat
-                                    label="Lead score"
-                                    value={(lead as any).leadScore ?? '—'}
-                                />
-                            </ZoruCardContent>
-                        </ZoruCard>
-
-                        {/* Related entities — currently links only; counts deferred to a follow-up */}
-                        <ZoruCard>
-                            <ZoruCardHeader>
-                                <ZoruCardTitle>Related</ZoruCardTitle>
-                            </ZoruCardHeader>
-                            <ZoruCardContent className="space-y-2 text-sm">
-                                <RelatedLink
-                                    label="Deals"
-                                    href={`/dashboard/crm/deals?leadId=${leadId}`}
-                                />
-                                <RelatedLink
-                                    label="Tasks"
-                                    href={`/dashboard/crm/tasks?leadId=${leadId}`}
-                                />
-                                <RelatedLink
-                                    label="Tickets"
-                                    href={`/dashboard/crm/tickets?leadId=${leadId}`}
-                                />
-                                {/* TODO 1D.2: live counts on related entities deferred — no aggregator endpoint yet. */}
-                            </ZoruCardContent>
-                        </ZoruCard>
-                    </>
+                    <LeadsDetailRail
+                        leadId={leadId}
+                        lead={lead}
+                        counts={counts}
+                        onSaved={refresh}
+                    />
                 }
             >
                 {/* ─── Overview ─────────────────────────────────────────── */}
@@ -456,31 +390,30 @@ export default function LeadDetailPage() {
                     </ZoruCardContent>
                 </ZoruCard>
 
-                {/* ─── Inline notes composer (lightweight; persisted into lead.description) ─ */}
+                {/* ─── Tags ─────────────────────────────────────────────── */}
                 <ZoruCard>
                     <ZoruCardHeader>
-                        <ZoruCardTitle>Add note</ZoruCardTitle>
+                        <ZoruCardTitle>Tags</ZoruCardTitle>
                     </ZoruCardHeader>
                     <ZoruCardContent>
-                        {/* TODO 1D.2: full notes timeline + attachments deferred —
-                            crm-notes accepts only contact|account|deal record types
-                            (no 'lead' yet); switching it without breaking callers
-                            needs a separate diff. For now we surface the existing
-                            description content above and link out to Edit for changes. */}
-                        <p className="text-sm text-zoru-ink-muted">
-                            Use{' '}
-                            <Link
-                                className="underline"
-                                href={`/dashboard/crm/sales-crm/all-leads/${leadId}/edit`}
-                            >
-                                Edit
-                            </Link>{' '}
-                            to capture additional notes on this lead until inline notes ship for the
-                            <code className="mx-1 rounded bg-zoru-surface-2 px-1">lead</code>
-                            record type.
-                        </p>
+                        <LeadTagsChips
+                            leadId={leadId}
+                            tags={tags}
+                            onTagsChanged={refresh}
+                        />
                     </ZoruCardContent>
                 </ZoruCard>
+
+                {/* ─── Notes timeline composer ─────────────────────────── */}
+                <CrmNotes
+                    recordId={leadId}
+                    recordType="lead"
+                    notes={existingNotes.map((n) => ({
+                        content: n.content,
+                        author: n.author,
+                        createdAt: new Date(n.createdAt as Date),
+                    }))}
+                />
             </EntityDetailShell>
 
             <ConfirmDialog
@@ -519,26 +452,5 @@ function Field({ label, value }: { label: string; value: React.ReactNode }) {
             </p>
             <div className="text-sm text-zoru-ink">{value}</div>
         </div>
-    );
-}
-
-function Stat({ label, value }: { label: string; value: React.ReactNode }) {
-    return (
-        <div className="flex items-center justify-between gap-2 text-sm">
-            <span className="text-zoru-ink-muted">{label}</span>
-            <span className="text-zoru-ink">{value}</span>
-        </div>
-    );
-}
-
-function RelatedLink({ label, href }: { label: string; href: string }) {
-    return (
-        <Link
-            href={href}
-            className="flex items-center justify-between rounded-md px-2 py-1.5 text-sm text-zoru-ink hover:bg-zoru-surface-2"
-        >
-            <span>{label}</span>
-            <Sparkles className="h-3.5 w-3.5 text-zoru-ink-muted" />
-        </Link>
     );
 }

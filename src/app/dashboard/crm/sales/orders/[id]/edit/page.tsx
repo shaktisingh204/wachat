@@ -1,8 +1,8 @@
 /**
  * Edit sales order — `/dashboard/crm/sales/orders/[id]/edit`.
  *
- * Hydrates the existing sales order and passes it to the shared
- * `<SalesOrderForm>` (re-used from the Create flow). The form submits
+ * Hydrates the existing sales order and passes it to the shared §1D
+ * `<SalesOrdersForm>` (re-used from the Create flow). The form submits
  * a PATCH because `_id` is rendered as a hidden input.
  *
  * No custom-fields round-trip — sales orders skip that pipeline.
@@ -12,7 +12,7 @@ import { notFound } from 'next/navigation';
 import { ShoppingCart } from 'lucide-react';
 
 import { CrmPageHeader } from '../../../../_components/crm-page-header';
-import { SalesOrderForm } from '../../_components/sales-order-form';
+import { SalesOrdersForm } from '../../_components/sales-orders-form';
 import { getSalesOrder } from '@/app/actions/crm/sales-orders.actions';
 
 export const dynamic = 'force-dynamic';
@@ -34,7 +34,7 @@ export default async function EditSalesOrderPage({
         subtitle="Update sales order details."
         icon={ShoppingCart}
       />
-      <SalesOrderForm initial={order} />
+      <SalesOrdersForm initial={order} />
     </div>
   );
 }

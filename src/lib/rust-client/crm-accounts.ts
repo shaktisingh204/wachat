@@ -93,7 +93,17 @@ export type CrmAccountUpdateInput = Partial<CrmAccountCreateInput> & {
 
 /* ─── Public API ─────────────────────────────────────────────────────── */
 
-export const accountApi: CrmClient<CrmAccountDoc, CrmAccountCreateInput> = makeCrmClient<
+/**
+ * Account client signature mirrors the generic `CrmClient`, but the PATCH
+ * body widens to `CrmAccountUpdateInput` so callers can flip
+ * `status: 'active' | 'archived'` (used by archive/unarchive flows).
+ */
+export interface CrmAccountClient
+    extends Omit<CrmClient<CrmAccountDoc, CrmAccountCreateInput>, 'update'> {
+    update(id: string, patch: CrmAccountUpdateInput): Promise<CrmAccountDoc>;
+}
+
+export const accountApi: CrmAccountClient = makeCrmClient<
     CrmAccountDoc,
     CrmAccountCreateInput
->('/v1/crm/accounts');
+>('/v1/crm/accounts') as unknown as CrmAccountClient;

@@ -1,179 +1,219 @@
-'use client';
-import { ZoruButton, ZoruCard, ZoruDropdownMenu, ZoruDropdownMenuContent, ZoruDropdownMenuItem, ZoruDropdownMenuTrigger, ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/zoruui';
-import { useRouter } from 'next/navigation';
-import { getCrmChartOfAccountById, getVoucherEntriesForAccount } from '@/app/actions/crm-accounting.actions';
-
-import { ArrowLeft, Download, ChevronDown, LoaderCircle } from 'lucide-react';
 import Link from 'next/link';
+import { notFound } from 'next/navigation';
+import { Edit, History, Printer, Archive, Plus } from 'lucide-react';
 
-import { useEffect, useState, useTransition, useCallback, use } from 'react';
-import type { WithId, CrmChartOfAccount, CrmVoucherEntry } from '@/lib/definitions';
-import { CrmChartOfAccountDialog } from '@/components/wabasimplify/crm-chart-of-account-dialog';
+import {
+    ZoruButton,
+    ZoruCard,
+    ZoruTable,
+    ZoruTableBody,
+    ZoruTableCell,
+    ZoruTableHead,
+    ZoruTableHeader,
+    ZoruTableRow,
+} from '@/components/zoruui';
 
-export default function AccountDetailPage(props: { params: Promise<{ accountId: string }> }) {
-    const params = use(props.params);
-    const [account, setAccount] = useState<WithId<CrmChartOfAccount> | null>(null);
-    const [entries, setEntries] = useState<WithId<CrmVoucherEntry>[]>([]);
-    const [isLoading, startTransition] = useTransition();
-    const [financialYear, setFinancialYear] = useState('fy2526');
-    const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-    const router = useRouter();
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
+import { StatusPill } from '@/components/crm/status-pill';
 
-    const getDatesFromFy = (fy: string) => {
-        const startYear = parseInt(fy.substring(2, 4), 10) + 2000;
-        const startDate = new Date(startYear, 3, 1);
-        const endDate = new Date(startYear + 1, 2, 31);
-        return { startDate, endDate };
-    }
+import {
+    getVoucherBookById,
+    getVoucherEntriesByBook,
+} from '@/app/actions/crm-vouchers.actions';
 
-    const fetchData = useCallback(() => {
-        startTransition(async () => {
-            const { startDate, endDate } = getDatesFromFy(financialYear);
-            const [accountData, entriesData] = await Promise.all([
-                getCrmChartOfAccountById(params.accountId),
-                getVoucherEntriesForAccount(params.accountId, startDate, endDate)
-            ]);
-            if (!accountData) {
-                console.error("Account not found");
-                return;
-            }
-            setAccount(accountData);
-            setEntries(entriesData);
-        });
-    }, [params.accountId, financialYear]);
+export default async function VoucherBookDetailPage(props: {
+    params: Promise<{ voucherBookId: string }>;
+}) {
+    const { voucherBookId } = await props.params;
 
-    useEffect(() => {
-        fetchData();
-    }, [fetchData]);
+    const [book, entries] = await Promise.all([
+        getVoucherBookById(voucherBookId),
+        getVoucherEntriesByBook(voucherBookId, 50),
+    ]);
+    if (!book) notFound();
 
-    if (isLoading && !account) {
-        return <div className="flex justify-center"><LoaderCircle className="h-8 w-8 animate-spin text-muted-foreground"/></div>;
-    }
-
-    if (!account) {
-        return <div className="py-10 text-center text-[13px] text-muted-foreground">Account not found.</div>;
-    }
-
-    const openingBalance = account.balanceType === 'Cr' ? -account.openingBalance : account.openingBalance;
-    const { totalDebit, totalCredit } = entries.reduce((acc, entry) => {
-        entry.debitEntries.forEach(de => {
-            if (de.accountId.toString() === account._id.toString()) acc.totalDebit += de.amount;
-        });
-        entry.creditEntries.forEach(ce => {
-            if (ce.accountId.toString() === account._id.toString()) acc.totalCredit += ce.amount;
-        });
-        return acc;
-    }, { totalDebit: 0, totalCredit: 0 });
-
-    const currentBalance = openingBalance + totalDebit - totalCredit;
-
-    const balanceDetails = [
-        { label: 'Opening Balance', value: account.openingBalance, type: account.balanceType },
-        { label: 'Current Balance', value: Math.abs(currentBalance), type: currentBalance >= 0 ? 'Dr' : 'Cr' },
-    ];
+    const meta = book as typeof book & {
+        prefix?: string;
+        suffix?: string;
+        startingNumber?: number;
+        padding?: number;
+        resetFrequency?: 'none' | 'yearly' | 'monthly';
+        approvalRequired?: boolean;
+        isActive?: boolean;
+    };
 
     return (
-        <>
-            <CrmChartOfAccountDialog
-                isOpen={isEditDialogOpen}
-                onOpenChange={setIsEditDialogOpen}
-                initialData={account}
-                onSave={fetchData}
-                accountGroups={[]}
-            />
-            <div className="flex w-full flex-col gap-6">
-                <div>
-                    <ZoruButton variant="ghost" asChild className="mb-2 -ml-4 text-muted-foreground hover:text-foreground">
-                        <Link href="/dashboard/crm/accounting/charts"><ArrowLeft className="mr-2 h-4 w-4" />Back to Chart of Accounts</Link>
+        <EntityDetailShell
+            back={{ href: '/dashboard/crm/accounting/vouchers', label: 'Back to Voucher Books' }}
+            eyebrow={`VOUCHER BOOK · ${book.type.toUpperCase()}`}
+            title={book.name}
+            status={{
+                label: meta.isActive === false ? 'Inactive' : 'Active',
+                tone: meta.isActive === false ? 'neutral' : 'green',
+            }}
+            actions={
+                <div className="flex flex-wrap items-center gap-2">
+                    <ZoruButton asChild variant="outline" size="sm">
+                        <Link href={`/dashboard/crm/accounting/vouchers/${voucherBookId}/edit`}>
+                            <Edit className="mr-1.5 h-3.5 w-3.5" /> Edit
+                        </Link>
                     </ZoruButton>
-                    <div className="flex flex-wrap items-start justify-between gap-4">
-                        <div>
-                            <h1 className="text-[24px] font-semibold tracking-tight text-foreground">{account.name}</h1>
-                            <p className="mt-1 text-[13px] text-muted-foreground">{(account as any).accountGroupName} [{(account as any).accountGroupCategory?.replace(/_/g, ' ')}]</p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <ZoruSelect value={financialYear} onValueChange={setFinancialYear}>
-                                <ZoruSelectTrigger className="w-[180px]"><ZoruSelectValue /></ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    <ZoruSelectItem value="fy2526">FY 2025-2026</ZoruSelectItem>
-                                    <ZoruSelectItem value="fy2425">FY 2024-2025</ZoruSelectItem>
-                                </ZoruSelectContent>
-                            </ZoruSelect>
-                            <ZoruDropdownMenu>
-                                <ZoruDropdownMenuTrigger asChild>
-                                    <ZoruButton variant="outline">
-                                        Actions
-                                    </ZoruButton>
-                                </ZoruDropdownMenuTrigger>
-                                <ZoruDropdownMenuContent align="end">
-                                    <ZoruDropdownMenuItem onClick={() => setIsEditDialogOpen(true)}>Edit Account</ZoruDropdownMenuItem>
-                                </ZoruDropdownMenuContent>
-                            </ZoruDropdownMenu>
-                            <ZoruButton variant="outline" disabled>
-                                Download CSV
-                            </ZoruButton>
-                        </div>
-                    </div>
+                    <ZoruButton asChild variant="outline" size="sm">
+                        <Link href={`/dashboard/crm/accounting/vouchers/${voucherBookId}`}>
+                            View entries
+                        </Link>
+                    </ZoruButton>
+                    <ZoruButton asChild variant="outline" size="sm">
+                        <Link href={`/dashboard/crm/accounting/vouchers/${voucherBookId}?print=1`}>
+                            <Printer className="mr-1.5 h-3.5 w-3.5" /> Print
+                        </Link>
+                    </ZoruButton>
+                    <ZoruButton variant="outline" size="sm" disabled>
+                        <Archive className="mr-1.5 h-3.5 w-3.5" /> Archive
+                    </ZoruButton>
+                    <ZoruButton asChild variant="outline" size="sm">
+                        <Link href={`/dashboard/crm/accounting/vouchers/${voucherBookId}/activity`}>
+                            <History className="mr-1.5 h-3.5 w-3.5" /> Activity
+                        </Link>
+                    </ZoruButton>
+                    <ZoruButton asChild size="sm">
+                        <Link href={`/dashboard/crm/accounting/vouchers/new?mode=entry&bookId=${voucherBookId}`}>
+                            <Plus className="mr-1.5 h-3.5 w-3.5" /> New entry
+                        </Link>
+                    </ZoruButton>
                 </div>
-
-                <ZoruCard>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        {balanceDetails.map(item => (
-                            <div key={item.label} className="p-4 bg-secondary border border-border rounded-lg">
-                                <p className="text-[12.5px] text-muted-foreground">{item.label}</p>
-                                <p className="mt-1 text-[22px] font-semibold text-foreground">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: account.currency }).format(item.value)}</p>
-                                <p className="text-[11.5px] font-mono text-muted-foreground">{item.type}</p>
+            }
+            rightRail={
+                <div className="flex flex-col gap-4">
+                    <ZoruCard className="p-4">
+                        <p className="text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">
+                            Numbering
+                        </p>
+                        <dl className="mt-2 space-y-1.5 text-[13px]">
+                            <div className="flex justify-between gap-3">
+                                <dt className="text-muted-foreground">Prefix</dt>
+                                <dd className="font-mono text-right">{meta.prefix || '—'}</dd>
                             </div>
-                        ))}
+                            <div className="flex justify-between gap-3">
+                                <dt className="text-muted-foreground">Suffix</dt>
+                                <dd className="font-mono text-right">{meta.suffix || '—'}</dd>
+                            </div>
+                            <div className="flex justify-between gap-3">
+                                <dt className="text-muted-foreground">Starting #</dt>
+                                <dd className="font-mono text-right">{meta.startingNumber ?? 1}</dd>
+                            </div>
+                            <div className="flex justify-between gap-3">
+                                <dt className="text-muted-foreground">Padding</dt>
+                                <dd className="font-mono text-right">{meta.padding ?? 0}</dd>
+                            </div>
+                            <div className="flex justify-between gap-3">
+                                <dt className="text-muted-foreground">Reset</dt>
+                                <dd className="text-right capitalize">{meta.resetFrequency ?? 'none'}</dd>
+                            </div>
+                        </dl>
+                    </ZoruCard>
+                    <ZoruCard className="p-4">
+                        <p className="text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">
+                            Flags
+                        </p>
+                        <dl className="mt-2 space-y-1.5 text-[13px]">
+                            <div className="flex justify-between gap-3">
+                                <dt className="text-muted-foreground">Default for type</dt>
+                                <dd>{book.isDefault ? <StatusPill label="Default" tone="blue" /> : <span className="text-[12px] text-muted-foreground">No</span>}</dd>
+                            </div>
+                            <div className="flex justify-between gap-3">
+                                <dt className="text-muted-foreground">Approval required</dt>
+                                <dd>
+                                    {meta.approvalRequired ? (
+                                        <StatusPill label="Required" tone="amber" />
+                                    ) : (
+                                        <span className="text-[12px] text-muted-foreground">No</span>
+                                    )}
+                                </dd>
+                            </div>
+                        </dl>
+                    </ZoruCard>
+                </div>
+            }
+            audit={{ entityKind: 'voucher_book', entityId: voucherBookId }}
+        >
+            <div className="flex flex-col gap-4">
+                <ZoruCard>
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                        <SummaryCell label="Total entries" value={(book.entryCount ?? entries.length).toLocaleString()} />
+                        <SummaryCell
+                            label="Last entry"
+                            value={book.lastEntryDate ? new Date(book.lastEntryDate).toLocaleDateString() : '—'}
+                        />
+                        <SummaryCell label="Type" value={book.type} />
                     </div>
                 </ZoruCard>
-
-                <div className="overflow-x-auto rounded-lg border border-border">
-                    <ZoruTable>
-                        <ZoruTableHeader>
-                            <ZoruTableRow className="border-border hover:bg-transparent">
-                                <ZoruTableHead className="text-muted-foreground">Date</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">Voucher Book</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">Voucher #</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">Note</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground text-right">Debit</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground text-right">Credit</ZoruTableHead>
-                            </ZoruTableRow>
-                        </ZoruTableHeader>
-                        <ZoruTableBody>
-                            {isLoading ? (
-                                <ZoruTableRow className="border-border">
-                                    <ZoruTableCell colSpan={6} className="h-24 text-center">
-                                        <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground"/>
-                                    </ZoruTableCell>
+                <ZoruCard className="p-0">
+                    <div className="px-4 py-3">
+                        <p className="text-[13px] font-semibold text-foreground">Recent entries</p>
+                        <p className="text-[11.5px] text-muted-foreground">
+                            Last 50 voucher entries posted under this book.
+                        </p>
+                    </div>
+                    <div className="overflow-x-auto border-t border-border">
+                        <ZoruTable>
+                            <ZoruTableHeader>
+                                <ZoruTableRow className="border-border hover:bg-transparent">
+                                    <ZoruTableHead className="text-muted-foreground">Date</ZoruTableHead>
+                                    <ZoruTableHead className="text-muted-foreground">Voucher #</ZoruTableHead>
+                                    <ZoruTableHead className="text-muted-foreground">Note</ZoruTableHead>
+                                    <ZoruTableHead className="text-right text-muted-foreground">Total Debit</ZoruTableHead>
+                                    <ZoruTableHead className="text-right text-muted-foreground">Total Credit</ZoruTableHead>
                                 </ZoruTableRow>
-                            ) : entries.length > 0 ? (
-                                entries.map(entry => {
-                                    const debitAmount = entry.debitEntries.find(d => d.accountId.toString() === account._id.toString())?.amount || 0;
-                                    const creditAmount = entry.creditEntries.find(c => c.accountId.toString() === account._id.toString())?.amount || 0;
-
-                                    return (
+                            </ZoruTableHeader>
+                            <ZoruTableBody>
+                                {entries.length === 0 ? (
+                                    <ZoruTableRow className="border-border">
+                                        <ZoruTableCell colSpan={5} className="h-24 text-center text-muted-foreground">
+                                            No entries posted yet.
+                                        </ZoruTableCell>
+                                    </ZoruTableRow>
+                                ) : (
+                                    entries.map((entry) => (
                                         <ZoruTableRow key={entry._id.toString()} className="border-border">
-                                            <ZoruTableCell className="text-foreground">{new Date(entry.date).toLocaleDateString()}</ZoruTableCell>
-                                            <ZoruTableCell className="text-foreground">Voucher Book Name</ZoruTableCell>
-                                            <ZoruTableCell className="font-mono text-[11.5px] text-foreground">{entry.voucherNumber}</ZoruTableCell>
-                                            <ZoruTableCell className="text-muted-foreground text-[11.5px]">{entry.note}</ZoruTableCell>
-                                            <ZoruTableCell className="text-right font-mono text-foreground">{debitAmount > 0 ? debitAmount.toFixed(2) : '-'}</ZoruTableCell>
-                                            <ZoruTableCell className="text-right font-mono text-foreground">{creditAmount > 0 ? creditAmount.toFixed(2) : '-'}</ZoruTableCell>
+                                            <ZoruTableCell className="text-foreground">
+                                                {new Date(entry.date).toLocaleDateString()}
+                                            </ZoruTableCell>
+                                            <ZoruTableCell className="font-mono text-[12px] text-foreground">
+                                                {entry.voucherNumber}
+                                            </ZoruTableCell>
+                                            <ZoruTableCell className="text-[12px] text-muted-foreground">
+                                                {entry.note}
+                                            </ZoruTableCell>
+                                            <ZoruTableCell className="text-right font-mono text-foreground">
+                                                {entry.totalDebit?.toLocaleString('en-IN', {
+                                                    style: 'currency',
+                                                    currency: 'INR',
+                                                })}
+                                            </ZoruTableCell>
+                                            <ZoruTableCell className="text-right font-mono text-foreground">
+                                                {entry.totalCredit?.toLocaleString('en-IN', {
+                                                    style: 'currency',
+                                                    currency: 'INR',
+                                                })}
+                                            </ZoruTableCell>
                                         </ZoruTableRow>
-                                    )
-                                })
-                            ) : (
-                                <ZoruTableRow className="border-border">
-                                    <ZoruTableCell colSpan={6} className="h-24 text-center text-muted-foreground">
-                                        No transactions for this period.
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
-                            )}
-                        </ZoruTableBody>
-                    </ZoruTable>
-                </div>
+                                    ))
+                                )}
+                            </ZoruTableBody>
+                        </ZoruTable>
+                    </div>
+                </ZoruCard>
             </div>
-        </>
+        </EntityDetailShell>
+    );
+}
+
+function SummaryCell({ label, value }: { label: string; value: string }) {
+    return (
+        <div className="rounded-lg border border-border bg-secondary p-3">
+            <p className="text-[11.5px] text-muted-foreground">{label}</p>
+            <p className="mt-1 text-[18px] font-semibold text-foreground">{value}</p>
+        </div>
     );
 }

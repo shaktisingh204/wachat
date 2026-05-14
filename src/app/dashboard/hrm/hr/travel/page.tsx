@@ -37,9 +37,70 @@ export default function TravelPage() {
       icon={Plane}
       singular="Travel Request"
       basePath="/dashboard/hrm/hr/travel"
+      rowLinksToDetail
       getAllAction={getTravelRequests as any}
       saveAction={saveTravelRequest}
       deleteAction={deleteTravelRequest}
+      kpis={[
+        {
+          label: 'Pending',
+          compute: (rows) =>
+            rows.filter((r) => String((r as any).status || 'pending') === 'pending').length,
+          tone: 'amber',
+        },
+        {
+          label: 'Approved',
+          compute: (rows) =>
+            rows.filter((r) => String((r as any).status) === 'approved').length,
+          tone: 'green',
+        },
+        {
+          label: 'This month',
+          compute: (rows) => {
+            const now = new Date();
+            return rows.filter((r) => {
+              const d = (r as any).fromDate ? new Date((r as any).fromDate) : null;
+              return (
+                d &&
+                !isNaN(d.getTime()) &&
+                d.getFullYear() === now.getFullYear() &&
+                d.getMonth() === now.getMonth()
+              );
+            }).length;
+          },
+        },
+        {
+          label: 'Total estimated',
+          compute: (rows) => {
+            const total = rows.reduce(
+              (a, r) => a + (Number((r as any).estimatedCost) || 0),
+              0,
+            );
+            if (!total) return '—';
+            return new Intl.NumberFormat('en-IN', {
+              style: 'currency',
+              currency: 'INR',
+              maximumFractionDigits: 0,
+            }).format(total);
+          },
+        },
+        {
+          label: 'Avg trip cost',
+          compute: (rows) => {
+            if (rows.length === 0) return '—';
+            const total = rows.reduce(
+              (a, r) => a + (Number((r as any).estimatedCost) || 0),
+              0,
+            );
+            if (!total) return '—';
+            return new Intl.NumberFormat('en-IN', {
+              style: 'currency',
+              currency: 'INR',
+              maximumFractionDigits: 0,
+            }).format(total / rows.length);
+          },
+        },
+      ]}
       columns={[
         { key: 'destination', label: 'Destination' },
         {

@@ -7,6 +7,7 @@ import {
   Pencil,
   Trash2,
   LoaderCircle,
+  ExternalLink,
 } from 'lucide-react';
 import { useActionState, useEffect, useState, useTransition } from 'react';
 
@@ -189,6 +190,20 @@ function toNode(value: unknown): React.ReactNode {
   return String(value);
 }
 
+export interface HrKpi<T> {
+  /** KPI label (short, e.g. "Submitted this week"). */
+  label: string;
+  /**
+   * Compute the KPI value from the loaded rows.
+   * Return a number, string, or React node.
+   */
+  compute: (rows: T[]) => React.ReactNode;
+  /** Optional small caption shown under the value. */
+  hint?: string | ((rows: T[]) => string);
+  /** Optional accent tone for the value text. */
+  tone?: 'neutral' | 'green' | 'amber' | 'red' | 'blue';
+}
+
 export interface HrEntityPageProps<T extends { _id: string }> {
   title: string;
   subtitle: string;
@@ -211,6 +226,21 @@ export interface HrEntityPageProps<T extends { _id: string }> {
    * and `${basePath}/${row._id}/edit`.
    */
   basePath?: string;
+  /**
+   * Optional KPI strip rendered above the table. Each KPI receives the
+   * full row list and returns a displayable value (number / string /
+   * React node). Per §1D.1 of the CRM rebuild contract, every list page
+   * SHOULD ship 3–5 summary cards. Cards are NOT clickable filters in
+   * this minimal implementation — that's a TODO once the list shell
+   * grows filter state.
+   */
+  kpis?: HrKpi<T>[];
+  /**
+   * When set, the row's primary cell links to `${basePath}/${row._id}`
+   * (the detail page) rather than opening the edit dialog. Defaults to
+   * `false` so existing pages keep their click-to-edit affordance.
+   */
+  rowLinksToDetail?: boolean;
 }
 
 function renderField(field: HrField, value?: unknown) {
@@ -428,6 +458,39 @@ function FieldArray({
   );
 }
 
+const KPI_TONE_CLASS: Record<NonNullable<HrKpi<any>['tone']>, string> = {
+  neutral: 'text-zoru-ink',
+  green: 'text-zoru-success-ink',
+  amber: 'text-zoru-warning-ink',
+  red: 'text-zoru-danger-ink',
+  blue: 'text-zoru-ink',
+};
+
+function HrKpiStrip<T>({ rows, kpis }: { rows: T[]; kpis: HrKpi<T>[] }) {
+  return (
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+      {kpis.map((k, i) => {
+        const value = k.compute(rows);
+        const hint = typeof k.hint === 'function' ? k.hint(rows) : k.hint;
+        const toneClass = KPI_TONE_CLASS[k.tone || 'neutral'];
+        return (
+          <ZoruCard key={i} className="p-3">
+            <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+              {k.label}
+            </div>
+            <div className={cn('mt-1 text-[20px] font-semibold leading-tight', toneClass)}>
+              {value === null || value === undefined || value === '' ? '—' : value}
+            </div>
+            {hint ? (
+              <div className="mt-0.5 text-[11px] text-zoru-ink-muted">{hint}</div>
+            ) : null}
+          </ZoruCard>
+        );
+      })}
+    </div>
+  );
+}
+
 export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
   title,
   subtitle,
@@ -440,6 +503,8 @@ export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
   deleteAction,
   emptyText,
   basePath,
+  kpis,
+  rowLinksToDetail,
 }: HrEntityPageProps<T>) {
   const { toast } = useZoruToast();
   const [rows, setRows] = useState<T[]>([]);
@@ -523,6 +588,10 @@ export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
         }
       />
 
+      {kpis && kpis.length > 0 ? (
+        <HrKpiStrip rows={rows} kpis={kpis} />
+      ) : null}
+
       <ZoruCard className="p-6">
         <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-zoru-line">
           <ZoruTable>
@@ -533,7 +602,7 @@ export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
                     {c.label}
                   </ZoruTableHead>
                 ))}
-                <ZoruTableHead className="w-[120px] text-right">Actions</ZoruTableHead>
+                <ZoruTableHead className="w-[140px] text-right">Actions</ZoruTableHead>
               </ZoruTableRow>
             </ZoruTableHeader>
             <ZoruTableBody>
@@ -564,6 +633,13 @@ export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
                     ))}
                     <ZoruTableCell className="text-right">
                       <div className="flex justify-end gap-1">
+                        {basePath && rowLinksToDetail ? (
+                          <ZoruButton variant="ghost" size="sm" asChild>
+                            <Link href={`${basePath}/${row._id}`} aria-label="View">
+                              <ExternalLink className="h-3.5 w-3.5" />
+                            </Link>
+                          </ZoruButton>
+                        ) : null}
                         {basePath ? (
                           <ZoruButton variant="ghost" size="sm" asChild>
                             <Link href={`${basePath}/${row._id}/edit`} aria-label="Edit">

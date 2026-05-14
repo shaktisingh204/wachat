@@ -1,59 +1,112 @@
-'use client';
-import { ZoruBadge, ZoruButton, ZoruCard, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/zoruui';
-import { useCallback, useEffect, useState, useTransition } from 'react';
-import Link from 'next/link';
-import { Plus, Repeat, LoaderCircle } from 'lucide-react';
+/**
+ * Recurring Expenses list — `/dashboard/crm/purchases/recurring-expenses`.
+ *
+ * Server component. Hydrates Mongo-backed schedules via
+ * `getRecurringExpenses`, computes the KPI strip, then hands off to
+ * `<RecurringExpensesListClient>` (KPI + filters + bulk bar + table).
+ *
+ * Per CRM_REBUILD_PLAN §1D — thin slice (list + new + detail; edit /
+ * activity sub-routes deferred to a follow-up pass).
+ */
+
+import { Repeat } from 'lucide-react';
 
 import { CrmPageHeader } from '../../_components/crm-page-header';
 import { getRecurringExpenses } from '@/app/actions/worksuite/billing.actions';
 import type { WsRecurringExpense } from '@/lib/worksuite/billing-types';
 
-type Row = WsRecurringExpense & { _id: string };
+import { RecurringExpensesListClient } from './_components/recurring-expenses-list-client';
+import type {
+  RecurringExpenseKpiSnapshot,
+  RecurringExpenseRow,
+} from './_components/types';
 
-const STATUS_TONES: Record<string, 'green' | 'amber' | 'red'> = {
-  active: 'green',
-  paused: 'amber',
-  stopped: 'red',
-};
+export const dynamic = 'force-dynamic';
 
-const FREQUENCY_TONES: Record<string, 'blue' | 'rose-soft' | 'amber' | 'green'> = {
-  days: 'blue',
-  weeks: 'rose-soft',
-  months: 'amber',
-  years: 'green',
-};
-
-function fmtDate(v: unknown): string {
-  if (!v) return '—';
-  const d = new Date(v as any);
-  return isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
+function toRow(doc: WsRecurringExpense & { _id: unknown }): RecurringExpenseRow {
+  return {
+    _id: String(doc._id),
+    name: doc.name ?? '',
+    amount: typeof doc.amount === 'number' ? doc.amount : 0,
+    currency: doc.currency ?? 'INR',
+    vendor: doc.vendor,
+    category_name: doc.category_name,
+    frequency: doc.frequency,
+    frequency_count: doc.frequency_count ?? 1,
+    status: doc.status,
+    start_date: doc.start_date ? new Date(doc.start_date).toISOString() : undefined,
+    next_run_date: doc.next_run_date
+      ? new Date(doc.next_run_date).toISOString()
+      : undefined,
+    last_run_date: doc.last_run_date
+      ? new Date(doc.last_run_date).toISOString()
+      : undefined,
+    until_date: doc.until_date ? new Date(doc.until_date).toISOString() : undefined,
+    stop_at_count: doc.stop_at_count,
+    run_count: doc.run_count ?? 0,
+    payment_method: doc.payment_method,
+    notes: doc.notes,
+    generated_expense_ids: Array.isArray(doc.generated_expense_ids)
+      ? doc.generated_expense_ids.map((g) => String(g))
+      : undefined,
+  };
 }
 
-function fmtMoney(n: number | undefined, currency = 'INR'): string {
-  try {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency,
-    }).format(n || 0);
-  } catch {
-    return `${currency} ${n || 0}`;
+/**
+ * Project a list of schedules into the KPI strip:
+ *   - active: count of `status === 'active'`
+ *   - paused: count of `status === 'paused'`
+ *   - dueNext7: number of active schedules with `next_run_date` in the
+ *     next 7 days (inclusive of today).
+ *   - totalMonthlyValue: sum of each active schedule's amount normalized
+ *     to a calendar month (daily * 30, weekly * 4.33, yearly / 12).
+ */
+function computeKpis(rows: RecurringExpenseRow[]): RecurringExpenseKpiSnapshot {
+  const now = Date.now();
+  const week = now + 7 * 86_400_000;
+  let active = 0;
+  let paused = 0;
+  let dueNext7 = 0;
+  let totalMonthlyValue = 0;
+
+  for (const r of rows) {
+    if (r.status === 'active') {
+      active += 1;
+      if (r.next_run_date) {
+        const t = new Date(r.next_run_date).getTime();
+        if (!Number.isNaN(t) && t >= now && t <= week) dueNext7 += 1;
+      }
+      const amt = Number(r.amount) || 0;
+      const count = Number(r.frequency_count) || 1;
+      let perMonth = 0;
+      switch (r.frequency) {
+        case 'days':
+          perMonth = (amt / count) * 30;
+          break;
+        case 'weeks':
+          perMonth = (amt / count) * (30 / 7);
+          break;
+        case 'months':
+          perMonth = amt / count;
+          break;
+        case 'years':
+          perMonth = amt / (count * 12);
+          break;
+      }
+      totalMonthlyValue += perMonth;
+    } else if (r.status === 'paused') {
+      paused += 1;
+    }
   }
+  return { active, paused, dueNext7, totalMonthlyValue };
 }
 
-export default function RecurringExpensesPage() {
-  const [rows, setRows] = useState<Row[]>([]);
-  const [isLoading, start] = useTransition();
-
-  const load = useCallback(() => {
-    start(async () => {
-      const data = (await getRecurringExpenses()) as unknown as Row[];
-      setRows(Array.isArray(data) ? data : []);
-    });
-  }, []);
-
-  useEffect(() => {
-    load();
-  }, [load]);
+export default async function RecurringExpensesPage() {
+  const docs = (await getRecurringExpenses()) as unknown as Array<
+    WsRecurringExpense & { _id: unknown }
+  >;
+  const rows = (Array.isArray(docs) ? docs : []).map(toRow);
+  const kpi = computeKpis(rows);
 
   return (
     <div className="flex w-full flex-col gap-6">
@@ -61,90 +114,18 @@ export default function RecurringExpensesPage() {
         title="Recurring Expenses"
         subtitle="Templates that auto-generate expense entries on a schedule."
         icon={Repeat}
-        actions={
-          <Link href="/dashboard/crm/purchases/recurring-expenses/new">
-            <ZoruButton
-             
-             
-            >
-              New Recurring Expense
-            </ZoruButton>
-          </Link>
-        }
+        breadcrumbs={[
+          { label: 'CRM', href: '/dashboard/crm' },
+          { label: 'Purchases', href: '/dashboard/crm/purchases' },
+          { label: 'Recurring Expenses' },
+        ]}
       />
 
-      <ZoruCard>
-        <div className="mb-4">
-          <h2 className="text-[16px] font-semibold text-foreground">Schedules</h2>
-        </div>
-        <div className="overflow-x-auto rounded-lg border border-border">
-          <ZoruTable>
-            <ZoruTableHeader>
-              <ZoruTableRow className="border-border hover:bg-transparent">
-                <ZoruTableHead className="text-muted-foreground">Name</ZoruTableHead>
-                <ZoruTableHead className="text-muted-foreground">Vendor</ZoruTableHead>
-                <ZoruTableHead className="text-muted-foreground">Frequency</ZoruTableHead>
-                <ZoruTableHead className="text-muted-foreground">Next Run</ZoruTableHead>
-                <ZoruTableHead className="text-muted-foreground">Status</ZoruTableHead>
-                <ZoruTableHead className="text-muted-foreground text-right">Amount</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
-              {isLoading ? (
-                <ZoruTableRow className="border-border">
-                  <ZoruTableCell colSpan={6} className="h-24 text-center">
-                    <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
-                  </ZoruTableCell>
-                </ZoruTableRow>
-              ) : rows.length === 0 ? (
-                <ZoruTableRow className="border-border">
-                  <ZoruTableCell
-                    colSpan={6}
-                    className="h-24 text-center text-[13px] text-muted-foreground"
-                  >
-                    No recurring expenses yet.
-                  </ZoruTableCell>
-                </ZoruTableRow>
-              ) : (
-                rows.map((row) => (
-                  <ZoruTableRow
-                    key={String(row._id)}
-                    className="cursor-pointer border-border"
-                  >
-                    <ZoruTableCell className="text-foreground">
-                      <Link
-                        href={`/dashboard/crm/purchases/recurring-expenses/${row._id}`}
-                        className="hover:underline"
-                      >
-                        {row.name || '—'}
-                      </Link>
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-foreground">
-                      {row.vendor || '—'}
-                    </ZoruTableCell>
-                    <ZoruTableCell>
-                      <ZoruBadge variant={(FREQUENCY_TONES[row.frequency] || 'neutral') as any}>
-                        Every {row.frequency_count} {row.frequency}
-                      </ZoruBadge>
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-foreground">
-                      {fmtDate(row.next_run_date)}
-                    </ZoruTableCell>
-                    <ZoruTableCell>
-                      <ZoruBadge variant={(STATUS_TONES[row.status] || 'neutral') as any}>
-                        {row.status}
-                      </ZoruBadge>
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right font-medium text-foreground">
-                      {fmtMoney(row.amount, row.currency)}
-                    </ZoruTableCell>
-                  </ZoruTableRow>
-                ))
-              )}
-            </ZoruTableBody>
-          </ZoruTable>
-        </div>
-      </ZoruCard>
+      <RecurringExpensesListClient
+        rows={rows}
+        kpi={kpi}
+        defaultCurrency="INR"
+      />
     </div>
   );
 }

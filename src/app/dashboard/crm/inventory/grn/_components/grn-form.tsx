@@ -46,9 +46,25 @@ import type {
   CrmGrnStatus,
 } from '@/lib/rust-client/crm-grns';
 
+export interface GrnFormSeed {
+  /** Vendor pre-fill (from a PO conversion). */
+  vendorId?: string;
+  /** Warehouse pre-fill (from a PO conversion). */
+  warehouseId?: string;
+  /** PO id pre-fill (from a PO conversion). */
+  poId?: string;
+  /** Optional line-item seeds (carried over from the parent PO). */
+  items?: Array<{
+    itemId: string;
+    orderedQty: number;
+  }>;
+}
+
 interface GrnFormProps {
   /** Existing GRN — present in Edit mode, omit for Create. */
   initial?: CrmGrnDoc | null;
+  /** Optional pre-fill from a parent PO (PO→GRN conversion). */
+  seed?: GrnFormSeed;
 }
 
 const STATUS_OPTIONS: ReadonlyArray<{
@@ -125,7 +141,7 @@ function SubmitButton({ editing }: { editing: boolean }) {
 
 const INITIAL_STATE = { message: undefined, error: undefined, id: undefined };
 
-export function GrnForm({ initial }: GrnFormProps) {
+export function GrnForm({ initial, seed }: GrnFormProps) {
   const router = useRouter();
   const { toast } = useZoruToast();
   const formRef = useRef<HTMLFormElement>(null);
@@ -136,11 +152,28 @@ export function GrnForm({ initial }: GrnFormProps) {
   const [status, setStatus] = useState<string>(
     typeof initial?.status === 'string' ? initial.status : 'draft',
   );
-  const [lines, setLines] = useState<DraftLine[]>(() =>
-    initial?.items && initial.items.length > 0
-      ? initial.items.map(lineFromDoc)
-      : [newLine()],
-  );
+  const [lines, setLines] = useState<DraftLine[]>(() => {
+    if (initial?.items && initial.items.length > 0) {
+      return initial.items.map(lineFromDoc);
+    }
+    if (seed?.items && seed.items.length > 0) {
+      return seed.items.map((it) =>
+        newLine({
+          itemId: it.itemId,
+          orderedQty: Number.isFinite(it.orderedQty)
+            ? String(it.orderedQty)
+            : '',
+          receivedQty: Number.isFinite(it.orderedQty)
+            ? String(it.orderedQty)
+            : '',
+          acceptedQty: Number.isFinite(it.orderedQty)
+            ? String(it.orderedQty)
+            : '',
+        }),
+      );
+    }
+    return [newLine()];
+  });
 
   // Serialise lines for the hidden `items` field so the server action
   // can rebuild the wire shape without re-doing per-input parsing.
@@ -247,7 +280,7 @@ export function GrnForm({ initial }: GrnFormProps) {
               <EntityFormField
                 entity="vendor"
                 name="vendorId"
-                initialId={initial?.vendorId ?? null}
+                initialId={initial?.vendorId ?? seed?.vendorId ?? null}
                 required
               />
             </div>
@@ -260,7 +293,7 @@ export function GrnForm({ initial }: GrnFormProps) {
               <EntityFormField
                 entity="warehouse"
                 name="warehouseId"
-                initialId={initial?.warehouseId ?? null}
+                initialId={initial?.warehouseId ?? seed?.warehouseId ?? null}
                 required
               />
             </div>
@@ -270,15 +303,17 @@ export function GrnForm({ initial }: GrnFormProps) {
             <ZoruInput
               id="poId"
               name="poId"
-              defaultValue={initial?.poId ?? ''}
+              defaultValue={initial?.poId ?? seed?.poId ?? ''}
               placeholder="Optional — paste a 24-char PO ObjectId"
               className="mt-1.5"
-              readOnly={editing}
+              readOnly={editing || !!seed?.poId}
             />
             <p className="mt-1 text-[11px] text-zoru-ink-muted">
               {editing
                 ? 'The PO link is set at create time and is not editable here.'
-                : 'Leave blank for a direct receipt with no parent PO.'}
+                : seed?.poId
+                  ? 'Pre-filled from the source Purchase Order.'
+                  : 'Leave blank for a direct receipt with no parent PO.'}
             </p>
           </div>
         </div>

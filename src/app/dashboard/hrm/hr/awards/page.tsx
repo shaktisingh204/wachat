@@ -80,6 +80,27 @@ export default async function AwardsPage() {
     }
   }
 
+  // §1D.1 KPI strip
+  const totalNominations = programs.reduce(
+    (a, p) => a + (Array.isArray(p.nominations) ? p.nominations.length : 0),
+    0,
+  );
+  const totalWinners = programs.reduce(
+    (a, p) => a + (Array.isArray(p.winners) ? p.winners.length : 0),
+    0,
+  );
+  const activePrograms = programs.filter(
+    (p) => String(p.status || '').toLowerCase() === 'active',
+  ).length;
+  // Top program by nomination count.
+  const topProgram = programs.reduce<{ name: string; count: number }>(
+    (acc, p) => {
+      const c = Array.isArray(p.nominations) ? p.nominations.length : 0;
+      return c > acc.count ? { name: p.name || 'Untitled', count: c } : acc;
+    },
+    { name: '—', count: 0 },
+  );
+
   return (
     <div className="flex w-full flex-col gap-6">
       <CrmPageHeader
@@ -94,6 +115,52 @@ export default async function AwardsPage() {
           </ZoruButton>
         }
       />
+
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+        <ZoruCard className="p-3">
+          <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+            Total programs
+          </div>
+          <div className="mt-1 text-[20px] font-semibold leading-tight text-zoru-ink">
+            {programs.length}
+          </div>
+        </ZoruCard>
+        <ZoruCard className="p-3">
+          <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+            Active
+          </div>
+          <div className="mt-1 text-[20px] font-semibold leading-tight text-zoru-success-ink">
+            {activePrograms}
+          </div>
+        </ZoruCard>
+        <ZoruCard className="p-3">
+          <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+            Total nominations
+          </div>
+          <div className="mt-1 text-[20px] font-semibold leading-tight text-zoru-ink">
+            {totalNominations}
+          </div>
+        </ZoruCard>
+        <ZoruCard className="p-3">
+          <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+            Total winners
+          </div>
+          <div className="mt-1 text-[20px] font-semibold leading-tight text-zoru-ink">
+            {totalWinners}
+          </div>
+        </ZoruCard>
+        <ZoruCard className="p-3">
+          <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+            Top program
+          </div>
+          <div className="mt-1 truncate text-[15px] font-semibold leading-tight text-zoru-ink">
+            {topProgram.name}
+          </div>
+          <div className="mt-0.5 text-[11px] text-zoru-ink-muted">
+            {topProgram.count} nominations
+          </div>
+        </ZoruCard>
+      </div>
 
       <ZoruCard className="p-6">
         <div className="mb-4">
@@ -138,7 +205,12 @@ export default async function AwardsPage() {
                   return (
                     <ZoruTableRow key={id} className="border-zoru-line">
                       <ZoruTableCell className="text-zoru-ink">
-                        {program.name || 'Untitled program'}
+                        <Link
+                          href={`/dashboard/hrm/hr/awards/${id}`}
+                          className="hover:underline"
+                        >
+                          {program.name || 'Untitled program'}
+                        </Link>
                       </ZoruTableCell>
                       <ZoruTableCell className="text-zoru-ink">
                         {formatPeriod(program.periodStart, program.periodEnd)}

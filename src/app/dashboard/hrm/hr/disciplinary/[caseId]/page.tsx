@@ -74,12 +74,14 @@ export default async function DisciplinaryCaseDetailPage({
     const decision = ((c as any).decision as string | undefined) || '';
     const notes = ((c as any).notes as string | undefined) || '';
 
-    const evidenceCount = Array.isArray((c as any).evidence)
-        ? ((c as any).evidence as unknown[]).length
-        : 0;
-    const hearingsCount = Array.isArray((c as any).hearings)
-        ? ((c as any).hearings as unknown[]).length
-        : 0;
+    const evidenceList = Array.isArray((c as any).evidence)
+        ? ((c as any).evidence as Array<Record<string, unknown>>)
+        : [];
+    const hearingsList = Array.isArray((c as any).hearings)
+        ? ((c as any).hearings as Array<Record<string, unknown>>)
+        : [];
+    const evidenceCount = evidenceList.length;
+    const hearingsCount = hearingsList.length;
 
     const severityVariant: SeverityVariant = SEVERITY_VARIANT[severity.toLowerCase()] ?? 'ghost';
     const statusVariant: StatusVariant = STATUS_VARIANT[status.toLowerCase()] ?? 'ghost';
@@ -192,6 +194,94 @@ export default async function DisciplinaryCaseDetailPage({
                         </div>
                     )}
                 </div>
+            </ZoruCard>
+
+            {/* Hearings timeline */}
+            <ZoruCard className="p-6">
+                <div className="mb-4 flex items-center justify-between">
+                    <h2 className="text-[15px] font-medium text-zoru-ink">Hearings</h2>
+                    <span className="text-[12px] text-zoru-ink-muted">
+                        {hearingsCount} hearing{hearingsCount === 1 ? '' : 's'}
+                    </span>
+                </div>
+                {hearingsList.length === 0 ? (
+                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-6 text-center text-[12.5px] text-zoru-ink-muted">
+                        No hearings scheduled.
+                    </div>
+                ) : (
+                    <ol className="space-y-3">
+                        {hearingsList.map((h, i) => (
+                            <li
+                                key={i}
+                                className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-3"
+                            >
+                                <div className="flex flex-wrap items-baseline justify-between gap-2">
+                                    <div className="text-[13px] font-medium text-zoru-ink">
+                                        Hearing #{i + 1}
+                                        {h.title ? ` · ${String(h.title)}` : ''}
+                                    </div>
+                                    <div className="text-[12px] text-zoru-ink-muted">
+                                        {fmtDate(h.date || h.scheduledAt)}
+                                    </div>
+                                </div>
+                                {h.outcome ? (
+                                    <div className="mt-1.5">
+                                        <ZoruBadge variant="ghost">{String(h.outcome)}</ZoruBadge>
+                                    </div>
+                                ) : null}
+                                {h.notes ? (
+                                    <div className="mt-1.5 whitespace-pre-wrap text-[12.5px] text-zoru-ink">
+                                        {String(h.notes)}
+                                    </div>
+                                ) : null}
+                                {h.panelMembers ? (
+                                    <div className="mt-1.5 text-[11.5px] text-zoru-ink-muted">
+                                        Panel: {String(h.panelMembers)}
+                                    </div>
+                                ) : null}
+                            </li>
+                        ))}
+                    </ol>
+                )}
+            </ZoruCard>
+
+            {/* Evidence */}
+            <ZoruCard className="p-6">
+                <div className="mb-4 flex items-center justify-between">
+                    <h2 className="text-[15px] font-medium text-zoru-ink">Evidence</h2>
+                    <span className="text-[12px] text-zoru-ink-muted">
+                        {evidenceCount} item{evidenceCount === 1 ? '' : 's'}
+                    </span>
+                </div>
+                {evidenceList.length === 0 ? (
+                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-6 text-center text-[12.5px] text-zoru-ink-muted">
+                        No evidence attached.
+                    </div>
+                ) : (
+                    <div className="flex flex-wrap gap-2">
+                        {evidenceList.map((ev, i) => {
+                            const url = (ev.url as string) || (ev.fileUrl as string) || '';
+                            const label =
+                                (ev.name as string) ||
+                                (ev.title as string) ||
+                                (ev.type as string) ||
+                                `Evidence #${i + 1}`;
+                            return url ? (
+                                <a
+                                    key={i}
+                                    href={url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 px-2.5 py-1 text-[12px] text-zoru-ink hover:underline"
+                                >
+                                    {label}
+                                </a>
+                            ) : (
+                                <ZoruBadge key={i} variant="ghost">{label}</ZoruBadge>
+                            );
+                        })}
+                    </div>
+                )}
             </ZoruCard>
         </div>
     );

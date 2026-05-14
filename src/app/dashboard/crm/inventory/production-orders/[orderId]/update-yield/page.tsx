@@ -1,10 +1,18 @@
 'use client';
 
+/**
+ * Update-yield dialog target — preserved route per §1D scope notes.
+ *
+ * Captures actual yield, scrap, status transition (default → completed)
+ * and notes. Submits to `updateProductionOrderYield`.
+ */
+
 import { useActionState, useEffect } from 'react';
 import { useFormStatus } from 'react-dom';
 import { ArrowLeft, Save, LoaderCircle, Factory } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
+
 import {
   ZoruButton,
   ZoruCard,
@@ -58,8 +66,8 @@ export default function UpdateYieldPage() {
   return (
     <div className="flex w-full flex-col gap-6">
       <CrmPageHeader
-        title="Update Yield"
-        subtitle="Record actual output and completion status for this production order."
+        title="Update yield"
+        subtitle="Record actual output, scrap and completion status for this order."
         icon={Factory}
         actions={
           <ZoruButton variant="ghost" asChild className="text-zoru-ink-muted hover:text-zoru-ink">
@@ -75,21 +83,32 @@ export default function UpdateYieldPage() {
         <form action={formAction} className="flex flex-col gap-6">
           <input type="hidden" name="orderId" value={orderId} />
 
-          {/* Actual Yield */}
-          <div className="space-y-1.5">
-            <ZoruLabel htmlFor="actualYield">Actual Yield *</ZoruLabel>
-            <ZoruInput
-              id="actualYield"
-              name="actualYield"
-              type="number"
-              min="0"
-              step="0.01"
-              placeholder="0.00"
-              required
-            />
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="space-y-1.5">
+              <ZoruLabel htmlFor="actualYield">Actual yield *</ZoruLabel>
+              <ZoruInput
+                id="actualYield"
+                name="actualYield"
+                type="number"
+                min="0"
+                step="0.01"
+                placeholder="0.00"
+                required
+              />
+            </div>
+            <div className="space-y-1.5">
+              <ZoruLabel htmlFor="scrap">Scrap</ZoruLabel>
+              <ZoruInput
+                id="scrap"
+                name="scrap"
+                type="number"
+                min="0"
+                step="0.01"
+                placeholder="0.00"
+              />
+            </div>
           </div>
 
-          {/* Status */}
           <div className="space-y-1.5">
             <ZoruLabel htmlFor="status">Status</ZoruLabel>
             <ZoruSelect name="status" defaultValue="completed">
@@ -97,15 +116,16 @@ export default function UpdateYieldPage() {
                 <ZoruSelectValue placeholder="Select status" />
               </ZoruSelectTrigger>
               <ZoruSelectContent>
-                <ZoruSelectItem value="draft">Draft</ZoruSelectItem>
-                <ZoruSelectItem value="in_progress">In Progress</ZoruSelectItem>
+                <ZoruSelectItem value="planned">Planned</ZoruSelectItem>
+                <ZoruSelectItem value="released">Released</ZoruSelectItem>
+                <ZoruSelectItem value="in_progress">In progress</ZoruSelectItem>
                 <ZoruSelectItem value="completed">Completed</ZoruSelectItem>
+                <ZoruSelectItem value="closed">Closed</ZoruSelectItem>
                 <ZoruSelectItem value="cancelled">Cancelled</ZoruSelectItem>
               </ZoruSelectContent>
             </ZoruSelect>
           </div>
 
-          {/* Notes */}
           <div className="space-y-1.5">
             <ZoruLabel htmlFor="notes">Notes</ZoruLabel>
             <ZoruTextarea

@@ -3,18 +3,19 @@
 /**
  * <DealCalendar> — month-view calendar grouping deals by `expectedClose`.
  *
- * Minimal first-cut: read-only month grid with day cells. Each day shows
- * up to 3 deal chips + a "+N more" overflow. Click the month-nav buttons
- * to move forward / back; the calendar is purely client-side after the
- * server passes the full list of deals.
+ * Read-only month grid with day cells. Each day shows up to 3 deal chips
+ * + a "+N more" overflow. Click the month-nav buttons to move forward /
+ * back. Drag a deal chip onto another cell to reschedule its expected
+ * close — optimistic-update, revert + toast on error.
  */
 
 import * as React from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-import { ZoruButton } from '@/components/zoruui';
-import { statusToTone, StatusPill } from '@/components/crm/status-pill';
+import { ZoruButton, useZoruToast } from '@/components/zoruui';
+import { updateCrmDeal } from '@/app/actions/crm-deals.actions';
 import type { DealListRow } from './types';
 
 interface DealCalendarProps {
@@ -33,8 +34,22 @@ function dayKey(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
-export function DealCalendar({ deals }: DealCalendarProps) {
+export function DealCalendar({ deals: serverDeals }: DealCalendarProps) {
+  const router = useRouter();
+  const { toast } = useZoruToast();
   const [cursor, setCursor] = React.useState<Date>(() => startOfMonth(new Date()));
+
+  // Local overrides for optimistic rescheduling — keyed by deal id.
+  const [overrides, setOverrides] = React.useState<Record<string, string>>({});
+  const [dragOverKey, setDragOverKey] = React.useState<string | null>(null);
+
+  const deals = React.useMemo(
+    () =>
+      serverDeals.map((d) =>
+        overrides[d._id] != null ? { ...d, expectedClose: overrides[d._id] } : d,
+      ),
+    [serverDeals, overrides],
+  );
 
   // Group deals by ISO date string (yyyy-mm-dd) of expectedClose.
   const byDay = React.useMemo(() => {
@@ -69,6 +84,43 @@ export function DealCalendar({ deals }: DealCalendarProps) {
 
   const today = new Date();
   const todayKey = dayKey(today);
+
+  const handleDrop = React.useCallback(
+    (cellDateKey: string, e: React.DragEvent<HTMLDivElement>) => {
+      e.preventDefault();
+      setDragOverKey(null);
+      const dealId = e.dataTransfer.getData('text/deal-id');
+      if (!dealId) return;
+      const target = serverDeals.find((d) => d._id === dealId);
+      const previous = target?.expectedClose ?? null;
+      // Optimistic update.
+      setOverrides((prev) => ({ ...prev, [dealId]: cellDateKey }));
+
+      const targetDate = new Date(`${cellDateKey}T00:00:00`);
+      const iso = targetDate.toISOString();
+
+      updateCrmDeal(dealId, { expectedClose: iso }).then((res) => {
+        if (!res.success) {
+          // Revert.
+          setOverrides((prev) => {
+            const next = { ...prev };
+            if (previous == null) delete next[dealId];
+            else next[dealId] = previous;
+            return next;
+          });
+          toast({
+            title: 'Reschedule failed',
+            description: res.error,
+            variant: 'destructive',
+          });
+          return;
+        }
+        toast({ title: 'Deal rescheduled' });
+        router.refresh();
+      });
+    },
+    [serverDeals, router, toast],
+  );
 
   return (
     <div className="flex w-full flex-col gap-3">
@@ -119,12 +171,21 @@ export function DealCalendar({ deals }: DealCalendarProps) {
           const isToday = key === todayKey;
           const items = byDay.get(key) ?? [];
           const overflow = items.length - 3;
+          const isDropTarget = dragOverKey === key;
           return (
             <div
               key={i}
+              onDragOver={(e) => {
+                e.preventDefault();
+                if (dragOverKey !== key) setDragOverKey(key);
+              }}
+              onDragLeave={() => {
+                if (dragOverKey === key) setDragOverKey(null);
+              }}
+              onDrop={(e) => handleDrop(key, e)}
               className={`min-h-[88px] bg-zoru-surface p-1 ${
                 inMonth ? '' : 'bg-zoru-surface-2/60 text-zoru-ink-muted'
-              }`}
+              } ${isDropTarget ? 'ring-1 ring-zoru-primary' : ''}`}
             >
               <div className="flex items-center justify-between">
                 <span
@@ -146,7 +207,12 @@ export function DealCalendar({ deals }: DealCalendarProps) {
                     key={deal._id}
                     href={`/dashboard/crm/sales-crm/deals/${deal._id}`}
                     className="truncate rounded bg-zoru-surface-2 px-1.5 py-0.5 text-[11px] text-zoru-ink hover:bg-zoru-line"
-                    title={deal.name}
+                    title={`${deal.name} (drag to reschedule)`}
+                    draggable
+                    onDragStart={(e) => {
+                      e.dataTransfer.setData('text/deal-id', deal._id);
+                      e.dataTransfer.effectAllowed = 'move';
+                    }}
                   >
                     {deal.name}
                   </Link>
@@ -161,7 +227,7 @@ export function DealCalendar({ deals }: DealCalendarProps) {
       </div>
 
       <p className="text-[11px] text-zoru-ink-muted">
-        Deals plotted by expected close date. Drag-to-reschedule is queued for a follow-up.
+        Deals plotted by expected close date. Drag a chip onto another day to reschedule.
       </p>
     </div>
   );

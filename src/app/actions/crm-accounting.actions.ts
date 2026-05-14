@@ -9,6 +9,25 @@ import { getSession } from '@/app/actions/index.ts';
 import type { CrmAccountGroup, CrmChartOfAccount, CrmVoucherEntry } from '@/lib/definitions';
 import { coerceFiniteMoney } from '@/lib/crm/number-safety';
 import { getErrorMessage } from '@/lib/utils';
+import { writeAuditEntry } from '@/lib/audit-log';
+
+/* ─── Account Group: per-id getter (used by group detail / inline editing) ── */
+
+export async function getCrmAccountGroupById(groupId: string): Promise<WithId<CrmAccountGroup> | null> {
+    const session = await getSession();
+    if (!session?.user || !ObjectId.isValid(groupId)) return null;
+    try {
+        const { db } = await connectToDatabase();
+        const group = await db.collection<CrmAccountGroup>('crm_account_groups').findOne({
+            _id: new ObjectId(groupId),
+            userId: new ObjectId(session.user._id),
+        });
+        return group ? JSON.parse(JSON.stringify(group)) : null;
+    } catch (e) {
+        console.error('Failed to fetch account group by ID:', e);
+        return null;
+    }
+}
 
 export async function getCrmAccountGroups(): Promise<WithId<CrmAccountGroup>[]> {
     const session = await getSession();
@@ -61,22 +80,69 @@ export async function saveCrmAccountGroup(prevState: any, formData: FormData): P
             return { error: `An account group named "${groupData.name}" already exists.`};
         }
 
+        let savedId: string;
         if (isEditing && ObjectId.isValid(groupId)) {
             await db.collection('crm_account_groups').updateOne(
                 { _id: new ObjectId(groupId!) },
                 { $set: groupData }
             );
+            savedId = groupId!;
         } else {
-            await db.collection('crm_account_groups').insertOne({
+            const result = await db.collection('crm_account_groups').insertOne({
                 ...groupData,
                 createdAt: new Date()
             } as CrmAccountGroup);
+            savedId = result.insertedId.toString();
         }
-        
+
+        await writeAuditEntry({
+            tenantUserId: session.user._id,
+            action: isEditing ? 'update' : 'create',
+            entityKind: 'account_group',
+            entityId: savedId,
+            reason: groupData.name,
+        });
+
         revalidatePath('/dashboard/crm/accounting/groups');
+        revalidatePath('/dashboard/crm/accounting/charts');
         return { message: 'Account group saved successfully.' };
     } catch(e: any) {
         return { error: getErrorMessage(e) };
+    }
+}
+
+export async function getCrmAccountGroupsWithCounts(): Promise<WithId<any>[]> {
+    const session = await getSession();
+    if (!session?.user) return [];
+    try {
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(session.user._id);
+        const groups = await db.collection<CrmAccountGroup>('crm_account_groups')
+            .aggregate([
+                { $match: { userId } },
+                { $sort: { type: 1, name: 1 } },
+                {
+                    $lookup: {
+                        from: 'crm_chart_of_accounts',
+                        let: { gid: '$_id' },
+                        pipeline: [
+                            { $match: { $expr: { $eq: ['$accountGroupId', '$$gid'] } } },
+                            { $count: 'n' },
+                        ],
+                        as: 'accountCount',
+                    },
+                },
+                {
+                    $addFields: {
+                        accountCount: { $ifNull: [{ $arrayElemAt: ['$accountCount.n', 0] }, 0] },
+                    },
+                },
+            ])
+            .toArray();
+        return JSON.parse(JSON.stringify(groups));
+    } catch (e) {
+        console.error('Failed to fetch account groups with counts:', e);
+        return [];
     }
 }
 
@@ -93,6 +159,12 @@ export async function deleteCrmAccountGroup(groupId: string): Promise<{ success:
         await db.collection('crm_account_groups').deleteOne({
             _id: new ObjectId(groupId),
             userId: new ObjectId(session.user._id)
+        });
+        await writeAuditEntry({
+            tenantUserId: session.user._id,
+            action: 'delete',
+            entityKind: 'account_group',
+            entityId: groupId,
         });
         revalidatePath('/dashboard/crm/accounting/groups');
         return { success: true };
@@ -231,20 +303,31 @@ export async function saveCrmChartOfAccount(prevState: any, formData: FormData):
 
         const { db } = await connectToDatabase();
         
+        let savedId: string;
         if (isEditing && ObjectId.isValid(accountId)) {
             await db.collection('crm_chart_of_accounts').updateOne(
                 { _id: new ObjectId(accountId!), userId: new ObjectId(session.user._id) },
                 { $set: accountData }
             );
+            savedId = accountId!;
         } else {
-            await db.collection('crm_chart_of_accounts').insertOne({
+            const result = await db.collection('crm_chart_of_accounts').insertOne({
                 ...accountData,
                 createdAt: new Date()
             } as CrmChartOfAccount);
+            savedId = result.insertedId.toString();
         }
-        
+
+        await writeAuditEntry({
+            tenantUserId: session.user._id,
+            action: isEditing ? 'update' : 'create',
+            entityKind: 'chart_of_account',
+            entityId: savedId,
+            reason: accountData.name,
+        });
+
         revalidatePath('/dashboard/crm/accounting/charts');
-        revalidatePath(`/dashboard/crm/accounting/charts/${accountId}`);
+        revalidatePath(`/dashboard/crm/accounting/charts/${savedId}`);
         return { message: 'Account saved successfully.' };
     } catch(e: any) {
         return { error: getErrorMessage(e) };
@@ -265,10 +348,126 @@ export async function deleteCrmChartOfAccount(accountId: string): Promise<{ succ
             _id: new ObjectId(accountId),
             userId: new ObjectId(session.user._id)
         });
+        await writeAuditEntry({
+            tenantUserId: session.user._id,
+            action: 'delete',
+            entityKind: 'chart_of_account',
+            entityId: accountId,
+        });
         revalidatePath('/dashboard/crm/accounting/charts');
         return { success: true };
     } catch (e: any) {
         return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+/* ─── Bulk delete + archive (used by CoA bulk bar) ─────────────────────── */
+
+export async function bulkUpdateCrmChartOfAccounts(
+    ids: string[],
+    op: 'archive' | 'activate' | 'delete'
+): Promise<{ success: boolean; updated?: number; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied' };
+    const oids = ids.filter(ObjectId.isValid).map((id) => new ObjectId(id));
+    if (oids.length === 0) return { success: false, error: 'No valid IDs supplied' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const filter = { _id: { $in: oids }, userId: new ObjectId(session.user._id) };
+        let updated = 0;
+        if (op === 'delete') {
+            const r = await db.collection('crm_chart_of_accounts').deleteMany(filter);
+            updated = r.deletedCount ?? 0;
+        } else {
+            const r = await db
+                .collection('crm_chart_of_accounts')
+                .updateMany(filter, { $set: { status: op === 'activate' ? 'Active' : 'Inactive' } });
+            updated = r.modifiedCount ?? 0;
+        }
+
+        for (const id of ids) {
+            await writeAuditEntry({
+                tenantUserId: session.user._id,
+                action: op === 'delete' ? 'delete' : op === 'archive' ? 'archive' : 'restore',
+                entityKind: 'chart_of_account',
+                entityId: id,
+                reason: 'bulk',
+            });
+        }
+
+        revalidatePath('/dashboard/crm/accounting/charts');
+        return { success: true, updated };
+    } catch (e) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+/* ─── Computed CoA: list with current balance (cheap, single pass) ──────── */
+
+export async function getCrmChartOfAccountsWithBalances(): Promise<WithId<any>[]> {
+    const session = await getSession();
+    if (!session?.user) return [];
+
+    try {
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(session.user._id);
+
+        const [accounts, vouchers] = await Promise.all([
+            db
+                .collection<CrmChartOfAccount>('crm_chart_of_accounts')
+                .aggregate([
+                    { $match: { userId } },
+                    { $sort: { name: 1 } },
+                    {
+                        $lookup: {
+                            from: 'crm_account_groups',
+                            localField: 'accountGroupId',
+                            foreignField: '_id',
+                            as: 'accountGroupInfo',
+                        },
+                    },
+                    { $unwind: { path: '$accountGroupInfo', preserveNullAndEmptyArrays: true } },
+                    {
+                        $addFields: {
+                            accountGroupName: '$accountGroupInfo.name',
+                            accountGroupCategory: '$accountGroupInfo.category',
+                            accountGroupType: '$accountGroupInfo.type',
+                        },
+                    },
+                    { $project: { accountGroupInfo: 0 } },
+                ])
+                .toArray(),
+            db.collection<CrmVoucherEntry>('crm_voucher_entries').find({ userId }).toArray(),
+        ]);
+
+        // Build O(1) account → balance map in a single pass over voucher entries.
+        const deltas = new Map<string, number>();
+        for (const v of vouchers) {
+            for (const d of v.debitEntries || []) {
+                const k = d.accountId?.toString();
+                if (!k) continue;
+                deltas.set(k, (deltas.get(k) ?? 0) + (d.amount || 0));
+            }
+            for (const c of v.creditEntries || []) {
+                const k = c.accountId?.toString();
+                if (!k) continue;
+                deltas.set(k, (deltas.get(k) ?? 0) - (c.amount || 0));
+            }
+        }
+
+        for (const a of accounts) {
+            const opening = a.balanceType === 'Cr' ? -(a.openingBalance || 0) : (a.openingBalance || 0);
+            const delta = deltas.get(a._id.toString()) ?? 0;
+            const closing = opening + delta;
+            (a as any).currentBalance = Math.abs(closing);
+            (a as any).currentBalanceType = closing >= 0 ? 'Dr' : 'Cr';
+        }
+
+        return JSON.parse(JSON.stringify(accounts));
+    } catch (e) {
+        console.error('Failed to fetch CoA with balances:', e);
+        return [];
     }
 }
 

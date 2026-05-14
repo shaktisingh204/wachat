@@ -1,167 +1,75 @@
-'use client';
-import { ZoruButton, ZoruCard, ZoruTextarea, useZoruToast } from '@/components/zoruui';
-import * as React from 'react';
-import Link from 'next/link';
-import { useParams } from 'next/navigation';
-import {
-  ArrowLeft,
-  MessagesSquare,
-  LoaderCircle,
-  Send,
-} from 'lucide-react';
+/**
+ * Discussion detail — §1D.2 bar.
+ */
 
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { notFound } from 'next/navigation';
+
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
+import { ZoruBadge, ZoruCard } from '@/components/zoruui';
 
 import {
-  getDiscussionById,
-  getDiscussionReplies,
-  addDiscussionReply,
-  deleteDiscussionReply,
+    getDiscussionById,
+    getDiscussionCategories,
 } from '@/app/actions/worksuite/knowledge.actions';
-import type {
-  WsDiscussion,
-  WsDiscussionReply,
-} from '@/lib/worksuite/knowledge-types';
 
-function fmt(v: unknown) {
-  if (!v) return '';
-  const d = new Date(v as any);
-  return isNaN(d.getTime()) ? '' : d.toLocaleString();
-}
+import { DiscussionsDetailActions } from '../_components/discussions-detail-actions';
+import { DiscussionsRepliesPanel } from '../_components/discussions-replies-panel';
+import { fmtDate } from '../_components/discussions-shared';
 
-export default function DiscussionDetailPage() {
-  const params = useParams<{ id: string }>();
-  const id = params?.id;
-  const { toast } = useZoruToast();
-  const [discussion, setDiscussion] = React.useState<
-    (WsDiscussion & { _id: string }) | null
-  >(null);
-  const [replies, setReplies] = React.useState<(WsDiscussionReply & { _id: string })[]>([]);
-  const [body, setBody] = React.useState('');
-  const [loading, setLoading] = React.useState(true);
-  const [submitting, setSubmitting] = React.useState(false);
+export const dynamic = 'force-dynamic';
 
-  const refresh = React.useCallback(async () => {
-    if (!id) return;
-    const [d, r] = await Promise.all([
-      getDiscussionById(id),
-      getDiscussionReplies(id),
+export default async function DiscussionDetailPage({
+    params,
+}: {
+    params: Promise<{ id: string }>;
+}) {
+    const { id } = await params;
+    const [d, categories] = await Promise.all([
+        getDiscussionById(id),
+        getDiscussionCategories(),
     ]);
-    setDiscussion(d as any);
-    setReplies(r as any);
-  }, [id]);
+    if (!d) notFound();
 
-  React.useEffect(() => {
-    (async () => {
-      await refresh();
-      setLoading(false);
-    })();
-  }, [refresh]);
+    const cat = categories.find((c) => String(c._id) === String(d.category_id));
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!id || !body.trim()) return;
-    setSubmitting(true);
-    const res = await addDiscussionReply(id, body);
-    setSubmitting(false);
-    if (res.success) {
-      setBody('');
-      refresh();
-    } else {
-      toast({ title: 'Error', description: res.error, variant: 'destructive' });
-    }
-  };
-
-  const handleDeleteReply = async (rid: string) => {
-    const r = await deleteDiscussionReply(rid);
-    if (r.success) refresh();
-    else toast({ title: 'Error', description: r.error, variant: 'destructive' });
-  };
-
-  if (loading) {
     return (
-      <div className="flex w-full items-center justify-center">
-        <LoaderCircle className="h-5 w-5 animate-spin text-muted-foreground" />
-      </div>
-    );
-  }
-
-  if (!discussion) {
-    return (
-      <div className="flex w-full flex-col gap-4">
-        <CrmPageHeader title="Discussion" subtitle="Not found" icon={MessagesSquare} />
-        <ZoruCard><p className="text-center text-[13px] text-muted-foreground">Discussion not found.</p></ZoruCard>
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title={discussion.title}
-        subtitle="Discussion"
-        icon={MessagesSquare}
-        actions={
-          <Link href="/dashboard/crm/workspace/discussions">
-            <ZoruButton variant="outline">
-              Back
-            </ZoruButton>
-          </Link>
-        }
-      />
-
-      <ZoruCard>
-        <p className="whitespace-pre-wrap text-[14px] leading-relaxed text-foreground">
-          {discussion.description || 'No description.'}
-        </p>
-      </ZoruCard>
-
-      <ZoruCard>
-        <h3 className="mb-3 text-[14px] font-semibold text-foreground">
-          Replies ({replies.length})
-        </h3>
-        <div className="flex flex-col gap-3">
-          {replies.length === 0 ? (
-            <p className="text-[13px] text-muted-foreground">No replies yet — be the first.</p>
-          ) : (
-            replies.map((r) => (
-              <ZoruCard key={r._id}>
-                <div className="flex items-start justify-between gap-2">
-                  <div className="min-w-0">
-                    <p className="text-[12px] font-semibold text-foreground">{r.user_name || r.user_id}</p>
-                    <p className="text-[11px] text-muted-foreground">{fmt(r.createdAt)}</p>
-                    <p className="mt-1 whitespace-pre-wrap text-[13.5px] text-foreground">{r.body}</p>
-                  </div>
-                  <ZoruButton variant="ghost" size="sm" onClick={() => handleDeleteReply(r._id)}>
-                    Delete
-                  </ZoruButton>
-                </div>
-              </ZoruCard>
-            ))
-          )}
-        </div>
-      </ZoruCard>
-
-      <ZoruCard>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-          <ZoruTextarea
-            value={body}
-            onChange={(e) => setBody(e.target.value)}
-            placeholder="Write a reply…"
-            rows={3}
-          />
-          <div className="flex justify-end">
-            <ZoruButton
-              type="submit"
-             
-              disabled={submitting || !body.trim()}
-             
+        <div className="p-4 md:p-6">
+            <EntityDetailShell
+                title={d.title}
+                eyebrow="DISCUSSION"
+                back={{ href: '/dashboard/crm/workspace/discussions', label: 'Back to discussions' }}
+                actions={<DiscussionsDetailActions discussionId={String(d._id)} />}
+                audit={{ entityKind: 'discussion', entityId: String(d._id) }}
+                rightRail={
+                    <ZoruCard>
+                        <h3 className="mb-2 text-[13.5px] font-semibold text-zoru-ink">
+                            Participants
+                        </h3>
+                        <p className="text-[12.5px] text-zoru-ink-muted">
+                            Roster derived from replies once they arrive. The full participant
+                            view will land with bulk-invite (TODO 1D.2).
+                        </p>
+                    </ZoruCard>
+                }
             >
-              Post reply
-            </ZoruButton>
-          </div>
-        </form>
-      </ZoruCard>
-    </div>
-  );
+                <ZoruCard>
+                    <div className="mb-3 flex flex-wrap items-center gap-2">
+                        <ZoruBadge variant="ghost">
+                            Category: {cat?.name ?? 'Uncategorized'}
+                        </ZoruBadge>
+                        <ZoruBadge variant="secondary">
+                            Opened {fmtDate(d.createdAt)}
+                        </ZoruBadge>
+                    </div>
+                    <p className="whitespace-pre-wrap text-[14px] leading-relaxed text-zoru-ink">
+                        {d.description || 'No description.'}
+                    </p>
+                </ZoruCard>
+
+                <div id="replies">
+                    <DiscussionsRepliesPanel discussionId={String(d._id)} />
+                </div>
+            </EntityDetailShell>
+        </div>
+    );
 }

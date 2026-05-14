@@ -1,161 +1,317 @@
+/**
+ * Production-order detail page — §1D.2 bar.
+ *
+ * Header: 7+ actions via <PoDetailActions /> (Edit · Release · Start ·
+ * Complete · Update yield · Print · Cancel). Activity sub-route is
+ * deferred (see CRM_REBUILD_PLAN.md §1D scope cap).
+ *
+ * Body cards:
+ *   • Header card (order metadata)
+ *   • Component-consumption table (from BOM)
+ *   • Yield / scrap progress
+ *   • Cost rollup (material + labour + overhead = total)
+ *
+ * Right rail: BOM ref summary card.
+ */
 import Link from 'next/link';
-import { redirect } from 'next/navigation';
-import { Factory, ArrowLeft } from 'lucide-react';
-import { ObjectId } from 'mongodb';
+import { notFound } from 'next/navigation';
 
-import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
-import { CrmPageHeader } from '../../../_components/crm-page-header';
-import { connectToDatabase } from '@/lib/mongodb';
-import { getSession } from '@/app/actions/user.actions';
+import {
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruProgress,
+} from '@/components/zoruui';
+import { EntityDetailShell, type EntityStatusTone } from '@/components/crm/entity-detail-shell';
+
+import { getProductionOrderById } from '@/app/actions/crm-production-orders.actions';
+
+import { PoDetailActions } from '../_components/po-detail-actions';
 
 export const dynamic = 'force-dynamic';
 
+interface PageProps {
+  params: Promise<{ orderId: string }>;
+}
+
 function fmtDate(v: unknown): string {
   if (!v) return '—';
-  const d = new Date(v as any);
-  return isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
+  const d = new Date(v as string);
+  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleString();
 }
 
-function getStatusVariant(
-  s?: string,
-): 'ghost' | 'warning' | 'success' | 'danger' {
-  const lower = (s || '').toLowerCase();
-  if (lower === 'completed') return 'success';
-  if (lower === 'in_progress') return 'warning';
-  if (lower === 'cancelled') return 'danger';
-  return 'ghost';
+function fmtINR(value: unknown): string {
+  if (typeof value !== 'number' || !Number.isFinite(value)) return '—';
+  try {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 2,
+    }).format(value);
+  } catch {
+    return `INR ${value}`;
+  }
 }
 
-export default async function ProductionOrderDetailPage({
-  params,
-}: {
-  params: Promise<{ orderId: string }>;
-}) {
+function statusTone(status: string | undefined): EntityStatusTone {
+  const s = (status || '').toLowerCase();
+  if (s === 'completed' || s === 'closed') return 'green';
+  if (s === 'in_progress' || s === 'released') return 'amber';
+  if (s === 'cancelled') return 'red';
+  if (s === 'planned' || s === 'draft') return 'neutral';
+  return 'blue';
+}
+
+export default async function ProductionOrderDetailPage({ params }: PageProps) {
   const { orderId } = await params;
+  const order = await getProductionOrderById(orderId);
+  if (!order) notFound();
 
-  if (!ObjectId.isValid(orderId)) {
-    redirect('/dashboard/crm/inventory/production-orders');
-  }
-
-  const session = await getSession();
-  if (!session?.user?._id) {
-    redirect('/dashboard/crm/inventory/production-orders');
-  }
-
-  const { db } = await connectToDatabase();
-  const doc = await db.collection('crm_production_orders').findOne({
-    _id: new ObjectId(orderId),
-    userId: new ObjectId(session.user._id),
-  } as any);
-
-  if (!doc) {
-    redirect('/dashboard/crm/inventory/production-orders');
-  }
-
-  const order = JSON.parse(JSON.stringify(doc)) as Record<string, any>;
-
-  const plannedQty: number = order.plannedQty ?? 0;
-  const actualYield: number = order.actualYield ?? 0;
-  const unit: string = order.unit ? ` ${order.unit}` : '';
+  const planned = order.plannedQty ?? 0;
+  const actual = order.actualYield ?? 0;
+  const scrap = order.scrap ?? Math.max(planned - actual, 0);
   const yieldPct =
-    plannedQty > 0 && actualYield > 0
-      ? `${Math.round((actualYield / plannedQty) * 100)}%`
-      : '—';
+    planned > 0 ? Math.min(Math.round((actual / planned) * 100), 100) : 0;
+  const scrapPct =
+    planned > 0 ? Math.min(Math.round((scrap / planned) * 100), 100) : 0;
+
+  const components = Array.isArray(order.components) ? order.components : [];
+  const materialCost =
+    typeof order.materialCost === 'number'
+      ? order.materialCost
+      : components.reduce(
+          (sum, c) => sum + (c.qty || 0) * (c.costPerUnit ?? 0),
+          0,
+        );
+  const labour = order.labourCost ?? 0;
+  const overhead = order.overheadCost ?? 0;
+  const total = order.totalCost ?? materialCost + labour + overhead;
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title={order.orderNo || 'Production Order'}
-        subtitle="Production order detail"
-        icon={Factory}
-        actions={
-          <div className="flex items-center gap-2">
-            <Link href="/dashboard/crm/inventory/production-orders">
-              <ZoruButton variant="outline">
-                <ArrowLeft className="h-4 w-4" />
-                Back
-              </ZoruButton>
-            </Link>
-            <Link href={`/dashboard/crm/inventory/production-orders/${order._id}/update-yield`}>
-              <ZoruButton variant="outline">
-                Update yield
-              </ZoruButton>
-            </Link>
-          </div>
-        }
-      />
-
-      <ZoruCard className="p-6">
-        <h2 className="mb-4 text-[14px] font-medium text-zoru-ink">
-          Order Details
-        </h2>
-        <div className="grid grid-cols-1 gap-x-8 gap-y-4 text-[13px] sm:grid-cols-2">
-          <div>
-            <div className="text-zoru-ink-muted">Order No</div>
-            <div className="font-mono text-zoru-ink">{order.orderNo || '—'}</div>
-          </div>
-          <div>
-            <div className="text-zoru-ink-muted">BOM Reference</div>
-            <div className="text-zoru-ink">{order.bomRef || '—'}</div>
-          </div>
-          <div>
-            <div className="text-zoru-ink-muted">Finished Good</div>
-            <div className="text-zoru-ink">{order.finishedGoodName || '—'}</div>
-          </div>
-          <div>
-            <div className="text-zoru-ink-muted">Planned Qty</div>
-            <div className="text-zoru-ink">
-              {plannedQty > 0 ? `${plannedQty}${unit}` : '—'}
-            </div>
-          </div>
-          <div>
-            <div className="text-zoru-ink-muted">Actual Yield</div>
-            <div className="text-zoru-ink">
-              {actualYield > 0 ? `${actualYield}${unit}` : '—'}
-            </div>
-          </div>
-          <div>
-            <div className="text-zoru-ink-muted">Yield %</div>
-            <div className="text-zoru-ink">{yieldPct}</div>
-          </div>
-          <div>
-            <div className="text-zoru-ink-muted">Machine / Line</div>
-            <div className="text-zoru-ink">{order.machineId || '—'}</div>
-          </div>
-          <div>
-            <div className="text-zoru-ink-muted">Operator</div>
-            <div className="text-zoru-ink">{order.machineOperator || '—'}</div>
-          </div>
-          <div>
-            <div className="text-zoru-ink-muted">Planned Start</div>
-            <div className="text-zoru-ink">{fmtDate(order.plannedStart)}</div>
-          </div>
-          <div>
-            <div className="text-zoru-ink-muted">Planned End</div>
-            <div className="text-zoru-ink">{fmtDate(order.plannedEnd)}</div>
-          </div>
-          <div>
-            <div className="text-zoru-ink-muted">Status</div>
-            <div className="mt-0.5">
-              {order.status ? (
-                <ZoruBadge variant={getStatusVariant(order.status)}>
-                  {order.status}
-                </ZoruBadge>
+    <EntityDetailShell
+      eyebrow="PRODUCTION ORDER"
+      title={order.orderNo || 'Production order'}
+      status={{ label: order.status || 'planned', tone: statusTone(order.status) }}
+      back={{
+        href: '/dashboard/crm/inventory/production-orders',
+        label: 'Back to all orders',
+      }}
+      actions={
+        <PoDetailActions
+          orderId={orderId}
+          orderNo={order.orderNo || ''}
+          currentStatus={order.status || 'planned'}
+        />
+      }
+      rightRail={
+        <div className="flex flex-col gap-4">
+          <ZoruCard>
+            <ZoruCardHeader>
+              <ZoruCardTitle>BOM reference</ZoruCardTitle>
+            </ZoruCardHeader>
+            <ZoruCardContent className="text-[13px]">
+              {order.bomRef || order.bomId ? (
+                <>
+                  <div className="font-mono text-zoru-ink">
+                    {order.bomRef || order.bomId}
+                  </div>
+                  {order.bomId ? (
+                    <Link
+                      href={`/dashboard/crm/inventory/bom/${order.bomId}`}
+                      className="mt-1 inline-block text-[12px] text-zoru-primary hover:underline"
+                    >
+                      Open BOM →
+                    </Link>
+                  ) : null}
+                </>
               ) : (
-                <span className="text-zoru-ink-muted">—</span>
+                <span className="text-zoru-ink-muted">No BOM linked.</span>
               )}
+            </ZoruCardContent>
+          </ZoruCard>
+
+          <ZoruCard>
+            <ZoruCardHeader>
+              <ZoruCardTitle>Cost rollup</ZoruCardTitle>
+            </ZoruCardHeader>
+            <ZoruCardContent>
+              <dl className="grid grid-cols-2 gap-x-3 gap-y-2 text-[12.5px]">
+                <dt className="text-zoru-ink-muted">Material</dt>
+                <dd className="text-right font-mono text-zoru-ink">
+                  {fmtINR(materialCost)}
+                </dd>
+                <dt className="text-zoru-ink-muted">Labour</dt>
+                <dd className="text-right font-mono text-zoru-ink">{fmtINR(labour)}</dd>
+                <dt className="text-zoru-ink-muted">Overhead</dt>
+                <dd className="text-right font-mono text-zoru-ink">{fmtINR(overhead)}</dd>
+                <dt className="border-t border-zoru-line pt-1 text-zoru-ink">Total</dt>
+                <dd className="border-t border-zoru-line pt-1 text-right font-mono font-semibold text-zoru-ink">
+                  {fmtINR(total)}
+                </dd>
+              </dl>
+            </ZoruCardContent>
+          </ZoruCard>
+        </div>
+      }
+      audit={{ entityKind: 'production_order', entityId: orderId }}
+    >
+      <ZoruCard>
+        <ZoruCardHeader>
+          <ZoruCardTitle>Order header</ZoruCardTitle>
+        </ZoruCardHeader>
+        <ZoruCardContent>
+          <dl className="grid grid-cols-1 gap-x-6 gap-y-3 text-sm sm:grid-cols-2">
+            <div>
+              <dt className="text-xs text-zinc-500">PO #</dt>
+              <dd className="font-mono text-zinc-900 dark:text-zinc-100">
+                {order.orderNo || '—'}
+              </dd>
             </div>
-          </div>
-          {order.notes && (
-            <div className="sm:col-span-2">
-              <div className="text-zoru-ink-muted">Notes</div>
-              <div className="mt-1 whitespace-pre-wrap text-zoru-ink">
-                {order.notes}
+            <div>
+              <dt className="text-xs text-zinc-500">BOM reference</dt>
+              <dd className="text-zinc-900 dark:text-zinc-100">
+                {order.bomRef || order.bomId || '—'}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-xs text-zinc-500">Finished good</dt>
+              <dd className="text-zinc-900 dark:text-zinc-100">
+                {order.finishedGoodName || '—'}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-xs text-zinc-500">Planned qty</dt>
+              <dd className="text-zinc-900 dark:text-zinc-100">
+                {planned} {order.unit ?? ''}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-xs text-zinc-500">Actual yield</dt>
+              <dd className="text-zinc-900 dark:text-zinc-100">
+                {actual} {order.unit ?? ''}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-xs text-zinc-500">Scrap</dt>
+              <dd className="text-zinc-900 dark:text-zinc-100">{scrap}</dd>
+            </div>
+            <div>
+              <dt className="text-xs text-zinc-500">Machine / line</dt>
+              <dd className="text-zinc-900 dark:text-zinc-100">
+                {order.machineId || '—'}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-xs text-zinc-500">Operator</dt>
+              <dd className="text-zinc-900 dark:text-zinc-100">
+                {order.machineOperator || '—'}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-xs text-zinc-500">Planned start</dt>
+              <dd className="text-zinc-900 dark:text-zinc-100">
+                {fmtDate(order.plannedStart)}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-xs text-zinc-500">Planned end</dt>
+              <dd className="text-zinc-900 dark:text-zinc-100">
+                {fmtDate(order.plannedEnd)}
+              </dd>
+            </div>
+            {order.notes ? (
+              <div className="sm:col-span-2">
+                <dt className="text-xs text-zinc-500">Notes</dt>
+                <dd className="whitespace-pre-wrap text-zinc-900 dark:text-zinc-100">
+                  {order.notes}
+                </dd>
               </div>
+            ) : null}
+          </dl>
+        </ZoruCardContent>
+      </ZoruCard>
+
+      <ZoruCard>
+        <ZoruCardHeader>
+          <ZoruCardTitle>Yield & scrap</ZoruCardTitle>
+        </ZoruCardHeader>
+        <ZoruCardContent className="flex flex-col gap-4">
+          <div>
+            <div className="mb-1 flex items-center justify-between text-[12.5px]">
+              <span className="text-zoru-ink-muted">Yield</span>
+              <span className="font-mono text-zoru-ink">
+                {actual} / {planned} ({yieldPct}%)
+              </span>
+            </div>
+            <ZoruProgress value={yieldPct} />
+          </div>
+          <div>
+            <div className="mb-1 flex items-center justify-between text-[12.5px]">
+              <span className="text-zoru-ink-muted">Scrap</span>
+              <span className="font-mono text-zoru-ink">
+                {scrap} ({scrapPct}%)
+              </span>
+            </div>
+            <ZoruProgress value={scrapPct} />
+          </div>
+        </ZoruCardContent>
+      </ZoruCard>
+
+      <ZoruCard>
+        <ZoruCardHeader>
+          <ZoruCardTitle>Component consumption ({components.length})</ZoruCardTitle>
+        </ZoruCardHeader>
+        <ZoruCardContent>
+          {components.length === 0 ? (
+            <p className="text-sm text-zinc-500">
+              No component snapshot for this order — pick a BOM during creation to
+              populate planned consumption.
+            </p>
+          ) : (
+            <div className="overflow-x-auto rounded border border-zinc-200 dark:border-zinc-800">
+              <table className="w-full text-sm">
+                <thead className="bg-zinc-50 dark:bg-zinc-900/50">
+                  <tr>
+                    <th className="px-3 py-2 text-left text-xs font-medium text-zinc-500">
+                      Item
+                    </th>
+                    <th className="px-3 py-2 text-right text-xs font-medium text-zinc-500">
+                      Planned
+                    </th>
+                    <th className="px-3 py-2 text-left text-xs font-medium text-zinc-500">
+                      Unit
+                    </th>
+                    <th className="px-3 py-2 text-right text-xs font-medium text-zinc-500">
+                      Cost / unit
+                    </th>
+                    <th className="px-3 py-2 text-right text-xs font-medium text-zinc-500">
+                      Subtotal
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {components.map((c: any, idx: number) => {
+                    const sub = (c.qty || 0) * (c.costPerUnit ?? 0);
+                    return (
+                      <tr
+                        key={`${c.itemName}-${idx}`}
+                        className="border-t border-zinc-200 dark:border-zinc-800"
+                      >
+                        <td className="px-3 py-2">{c.itemName || '—'}</td>
+                        <td className="px-3 py-2 text-right">{c.qty}</td>
+                        <td className="px-3 py-2">{c.unit || '—'}</td>
+                        <td className="px-3 py-2 text-right">{fmtINR(c.costPerUnit)}</td>
+                        <td className="px-3 py-2 text-right">{fmtINR(sub)}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
           )}
-        </div>
+        </ZoruCardContent>
       </ZoruCard>
-    </div>
+    </EntityDetailShell>
   );
 }

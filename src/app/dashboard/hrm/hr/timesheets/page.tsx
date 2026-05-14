@@ -36,9 +36,54 @@ export default function TimesheetsPage() {
       icon={Clock}
       singular="Timesheet"
       basePath="/dashboard/hrm/hr/timesheets"
+      rowLinksToDetail
       getAllAction={getTimesheets as any}
       saveAction={saveTimesheet}
       deleteAction={deleteTimesheet}
+      kpis={[
+        {
+          label: 'Submitted this week',
+          compute: (rows) => {
+            const now = new Date();
+            const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            return rows.filter((r) => {
+              const ws = (r as any).weekStart ? new Date((r as any).weekStart) : null;
+              return (
+                String((r as any).status) === 'submitted' &&
+                ws &&
+                !isNaN(ws.getTime()) &&
+                ws >= weekAgo
+              );
+            }).length;
+          },
+        },
+        {
+          label: 'Pending approval',
+          compute: (rows) =>
+            rows.filter((r) => String((r as any).status) === 'submitted').length,
+          tone: 'amber',
+        },
+        {
+          label: 'Approved',
+          compute: (rows) =>
+            rows.filter((r) => String((r as any).status) === 'approved').length,
+          tone: 'green',
+        },
+        {
+          label: 'Total hours',
+          compute: (rows) =>
+            rows.reduce((a, r) => a + (Number((r as any).totalHours) || 0), 0),
+        },
+        {
+          label: 'Billable hours',
+          compute: (rows) =>
+            rows.reduce(
+              (a, r) => a + (Number((r as any).billableHours) || 0),
+              0,
+            ),
+          tone: 'blue',
+        },
+      ]}
       columns={[
         {
           key: 'employeeId',

@@ -1,114 +1,425 @@
 'use client';
 
-import { useState, useEffect, useCallback, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
-import { Plus, FileCheck, LoaderCircle } from "lucide-react";
+/**
+ * Payment Receipts — list page (rebuilt per §1D.1).
+ *
+ * Composition:
+ *   <EntityListShell>
+ *     • KPI strip (4 cards) — Received this month, Cleared, Bounced,
+ *       Avg days to collect.
+ *     • Saved-view presets (All · This month · Bounced · Pending clearance).
+ *     • Filter row (status, customer, mode, bank account, date range).
+ *     • Bulk action bar (archive · delete · export · status).
+ *     • <ReceiptListClient /> table.
+ *     • Pagination.
+ */
+
+import * as React from 'react';
 import Link from 'next/link';
-import { getPaymentReceipts } from '@/app/actions/crm-payment-receipts.actions';
-import type { WithId, CrmPaymentReceipt } from '@/lib/definitions';
-import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
+import { Plus, FileCheck } from 'lucide-react';
+import { useDebouncedCallback } from 'use-debounce';
+import type { DateRange } from 'react-day-picker';
+
+import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { ConfirmDialog } from '@/components/crm/confirm-dialog';
+import { PaginationBar } from '@/components/crm/pagination-bar';
+import { ZoruButton, useZoruToast } from '@/components/zoruui';
 
 import {
-    ZoruButton,
-    ZoruCard,
-    ZoruTable,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-} from '@/components/zoruui';
-import { CrmPageHeader } from '../../_components/crm-page-header';
+    listPaymentReceipts,
+    getPaymentReceiptKpis,
+    bulkPaymentReceiptAction,
+    deletePaymentReceiptAction,
+    type PaymentReceiptKpis,
+} from '@/app/actions/crm/payment-receipts.actions';
+import type { CrmPaymentReceiptDoc } from '@/lib/rust-client/crm-payment-receipts';
+
+import { ReceiptKpiStrip, type ReceiptKpiFilter } from './_components/receipt-kpi-strip';
+import {
+    ReceiptListClient,
+    type ReceiptListPreset,
+} from './_components/receipt-list-client';
+import { ReceiptFiltersRow } from './_components/receipt-filters';
+import { ReceiptBulkBar } from './_components/receipt-bulk-bar';
+
+const RECEIPTS_PER_PAGE = 20;
+
+const EMPTY_KPIS: PaymentReceiptKpis = {
+    receivedThisMonthTotal: 0,
+    receivedThisMonthCount: 0,
+    clearedCount: 0,
+    bouncedCount: 0,
+    avgDaysToCollect: 0,
+    currency: 'INR',
+};
 
 export default function PaymentReceiptsPage() {
-    const [receipts, setReceipts] = useState<WithId<CrmPaymentReceipt>[]>([]);
-    const [accountsMap, setAccountsMap] = useState<Map<string, string>>(new Map());
-    const [isLoading, startTransition] = useTransition();
-    const router = useRouter();
+    const { toast } = useZoruToast();
 
-    const fetchData = useCallback(() => {
+    const [receipts, setReceipts] = React.useState<CrmPaymentReceiptDoc[]>([]);
+    const [page, setPage] = React.useState(1);
+    const [hasMore, setHasMore] = React.useState(false);
+    const [isPending, startTransition] = React.useTransition();
+    const [kpis, setKpis] = React.useState<PaymentReceiptKpis>(EMPTY_KPIS);
+
+    // Filters
+    const [search, setSearch] = React.useState('');
+    const [statusFilter, setStatusFilter] = React.useState<ReceiptKpiFilter>('all');
+    const [clientFilter, setClientFilter] = React.useState('');
+    const [modeFilter, setModeFilter] = React.useState('');
+    const [bankFilter, setBankFilter] = React.useState('');
+    const [dateRange, setDateRange] = React.useState<DateRange | undefined>();
+    const [activePreset, setActivePreset] = React.useState<ReceiptListPreset>('all');
+
+    // Selection + dialogs
+    const [selected, setSelected] = React.useState<Set<string>>(new Set());
+    const [deleteTargetId, setDeleteTargetId] = React.useState<string | null>(null);
+    const [bulkDelete, setBulkDelete] = React.useState(false);
+
+    const fetchData = React.useCallback(() => {
         startTransition(async () => {
-            const [receiptsData, accountsData] = await Promise.all([
-                getPaymentReceipts(),
-                getCrmAccounts()
+            const [{ receipts: rows, hasMore: more }, kpiData] = await Promise.all([
+                listPaymentReceipts({
+                    page,
+                    limit: RECEIPTS_PER_PAGE,
+                    q: search || undefined,
+                    clientId: clientFilter || undefined,
+                    status: statusFilter !== 'all' ? statusFilter : undefined,
+                }),
+                getPaymentReceiptKpis(),
             ]);
-            setReceipts(receiptsData.receipts);
-            const newMap = new Map(accountsData.accounts.map(acc => [acc._id.toString(), acc.name]));
-            setAccountsMap(newMap);
+            // Client-side filters for fields the BFF doesn't index.
+            let next = rows;
+            if (modeFilter) next = next.filter((r) => r.mode === modeFilter);
+            if (bankFilter) next = next.filter((r) => r.bankAccountId === bankFilter);
+            if (dateRange?.from) {
+                const from = dateRange.from.getTime();
+                next = next.filter((r) =>
+                    r.date ? new Date(r.date).getTime() >= from : true,
+                );
+            }
+            if (dateRange?.to) {
+                const to = dateRange.to.getTime();
+                next = next.filter((r) =>
+                    r.date ? new Date(r.date).getTime() <= to : true,
+                );
+            }
+            setReceipts(next);
+            setHasMore(more);
+            setKpis(kpiData);
         });
-    }, []);
+    }, [
+        page,
+        search,
+        clientFilter,
+        statusFilter,
+        modeFilter,
+        bankFilter,
+        dateRange,
+    ]);
 
-    useEffect(() => {
+    React.useEffect(() => {
         fetchData();
     }, [fetchData]);
 
+    const handleSearch = useDebouncedCallback((next: string) => {
+        setSearch(next);
+        setPage(1);
+    }, 300);
+
+    const clearFilters = React.useCallback(() => {
+        setStatusFilter('all');
+        setClientFilter('');
+        setModeFilter('');
+        setBankFilter('');
+        setDateRange(undefined);
+        setSearch('');
+        setPage(1);
+        setActivePreset('all');
+    }, []);
+
+    const hasActiveFilters =
+        statusFilter !== 'all' ||
+        !!clientFilter ||
+        !!modeFilter ||
+        !!bankFilter ||
+        !!dateRange?.from ||
+        !!dateRange?.to ||
+        activePreset !== 'all';
+
+    const applyPreset = React.useCallback((preset: ReceiptListPreset) => {
+        setActivePreset(preset);
+        setPage(1);
+        if (preset === 'all') {
+            setStatusFilter('all');
+            setDateRange(undefined);
+            return;
+        }
+        if (preset === 'this_month') {
+            const now = new Date();
+            const from = new Date(now.getFullYear(), now.getMonth(), 1);
+            const to = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+            setDateRange({ from, to });
+            setStatusFilter('all');
+            return;
+        }
+        if (preset === 'bounced') {
+            setStatusFilter('bounced');
+            setDateRange(undefined);
+            return;
+        }
+        if (preset === 'pending_clearance') {
+            // Pending = mode=cheque + status=received
+            setModeFilter('cheque');
+            setStatusFilter('all');
+            setDateRange(undefined);
+            return;
+        }
+    }, []);
+
+    // Row selection
+    const handleToggleOne = React.useCallback((id: string) => {
+        setSelected((prev) => {
+            const next = new Set(prev);
+            if (next.has(id)) next.delete(id);
+            else next.add(id);
+            return next;
+        });
+    }, []);
+
+    const handleToggleAll = React.useCallback(
+        (all: boolean) => {
+            setSelected(all ? new Set(receipts.map((r) => String(r._id))) : new Set());
+        },
+        [receipts],
+    );
+
+    // Single delete
+    const confirmDelete = React.useCallback(async () => {
+        if (!deleteTargetId) return;
+        const res = await deletePaymentReceiptAction(deleteTargetId);
+        if (res.success) {
+            toast({ title: 'Receipt deleted' });
+            fetchData();
+        } else {
+            toast({ title: 'Delete failed', description: res.error, variant: 'destructive' });
+        }
+        setDeleteTargetId(null);
+    }, [deleteTargetId, fetchData, toast]);
+
+    // Bulk
+    const runBulk = React.useCallback(
+        async (op: 'archive' | 'delete' | 'status', payload?: string) => {
+            if (selected.size === 0) return;
+            const ids = Array.from(selected);
+            const res = await bulkPaymentReceiptAction(ids, op, payload);
+            if (res.success) {
+                toast({
+                    title: `${res.processed} receipt${res.processed === 1 ? '' : 's'} updated`,
+                });
+                setSelected(new Set());
+                fetchData();
+            } else {
+                toast({
+                    title: 'Bulk action failed',
+                    description: res.error,
+                    variant: 'destructive',
+                });
+            }
+        },
+        [selected, fetchData, toast],
+    );
+
+    const exportCsv = React.useCallback(() => {
+        const rows =
+            selected.size > 0
+                ? receipts.filter((r) => selected.has(String(r._id)))
+                : receipts;
+        const header = [
+            'Receipt #',
+            'Date',
+            'Customer',
+            'Mode',
+            'Bank',
+            'Reference',
+            'Amount',
+            'Currency',
+            'Status',
+            'Applied invoices',
+        ];
+        const escape = (v: unknown) =>
+            `"${String(v ?? '').replace(/"/g, '""')}"`;
+        const csv = [
+            header.join(','),
+            ...rows.map((r) =>
+                [
+                    escape(r.receiptNo),
+                    escape(r.date),
+                    escape(r.clientId),
+                    escape(r.mode),
+                    escape(r.bankAccountId),
+                    escape(r.chequeNo || r.txnId || r.reference || ''),
+                    escape(r.amount ?? 0),
+                    escape(r.currency || 'INR'),
+                    escape(r.status || 'received'),
+                    escape(r.applyTo?.length ?? 0),
+                ].join(','),
+            ),
+        ].join('\n');
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `payment-receipts-${new Date().toISOString().slice(0, 10)}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+    }, [receipts, selected]);
+
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
+        <>
+            <EntityListShell
                 title="Payment Receipts"
-                subtitle="Record and manage payments received from clients."
-                icon={FileCheck}
-                actions={
-                    <Link href="/dashboard/crm/sales/receipts/new">
-                        <ZoruButton>
-                            <Plus className="h-4 w-4" strokeWidth={1.75} />
-                            New Receipt
-                        </ZoruButton>
-                    </Link>
+                subtitle="Record and reconcile payments received from clients."
+                search={{
+                    value: search,
+                    onChange: (v) => handleSearch(v),
+                    placeholder: 'Search by receipt #, reference, txn id…',
+                }}
+                primaryAction={
+                    <ZoruButton asChild>
+                        <Link href="/dashboard/crm/sales/receipts/new">
+                            <Plus className="h-4 w-4" /> New Receipt
+                        </Link>
+                    </ZoruButton>
                 }
+                filters={
+                    <ReceiptFiltersRow
+                        statusFilter={statusFilter}
+                        onStatusChange={(v) => {
+                            setStatusFilter(v);
+                            setActivePreset('all');
+                            setPage(1);
+                        }}
+                        clientFilter={clientFilter}
+                        onClientChange={(v) => {
+                            setClientFilter(v);
+                            setActivePreset('all');
+                            setPage(1);
+                        }}
+                        modeFilter={modeFilter}
+                        onModeChange={(v) => {
+                            setModeFilter(v);
+                            setActivePreset('all');
+                            setPage(1);
+                        }}
+                        bankFilter={bankFilter}
+                        onBankChange={(v) => {
+                            setBankFilter(v);
+                            setActivePreset('all');
+                            setPage(1);
+                        }}
+                        dateRange={dateRange}
+                        onDateRangeChange={(r) => {
+                            setDateRange(r);
+                            setActivePreset('all');
+                            setPage(1);
+                        }}
+                        activePreset={activePreset}
+                        onSelectPreset={applyPreset}
+                        hasActiveFilters={hasActiveFilters}
+                        onClear={clearFilters}
+                    />
+                }
+                bulkBar={
+                    selected.size > 0 ? (
+                        <ReceiptBulkBar
+                            count={selected.size}
+                            onClear={() => setSelected(new Set())}
+                            onArchive={() => runBulk('archive')}
+                            onDelete={() => setBulkDelete(true)}
+                            onMarkCleared={() => runBulk('status', 'cleared')}
+                            onMarkBounced={() => runBulk('status', 'bounced')}
+                            onExport={exportCsv}
+                        />
+                    ) : null
+                }
+                empty={
+                    !isPending && receipts.length === 0 ? (
+                        <div className="flex flex-col items-center gap-3 p-4">
+                            <FileCheck className="h-8 w-8 text-zoru-ink-muted" />
+                            <h3 className="text-base font-medium text-zoru-ink">
+                                No payment receipts yet
+                            </h3>
+                            <p className="max-w-sm text-sm text-zoru-ink-muted">
+                                Record your first payment received from a customer.
+                            </p>
+                            <ZoruButton asChild>
+                                <Link href="/dashboard/crm/sales/receipts/new">
+                                    <Plus className="h-4 w-4" /> Add first receipt
+                                </Link>
+                            </ZoruButton>
+                        </div>
+                    ) : null
+                }
+                loading={isPending && receipts.length === 0}
+                pagination={
+                    receipts.length > 0 ? (
+                        <PaginationBar
+                            page={page}
+                            limit={RECEIPTS_PER_PAGE}
+                            hasMore={hasMore}
+                            controlled={{
+                                onChange: (next) => setPage(next.page),
+                            }}
+                        />
+                    ) : null
+                }
+            >
+                <div className="flex flex-col gap-4">
+                    <ReceiptKpiStrip
+                        kpis={kpis}
+                        statusFilter={statusFilter}
+                        onClearAll={clearFilters}
+                        onPickStatus={(s) => {
+                            setStatusFilter((prev) => (prev === s ? 'all' : s));
+                            setActivePreset('all');
+                            setPage(1);
+                        }}
+                    />
+
+                    <ReceiptListClient
+                        receipts={receipts}
+                        loading={isPending}
+                        selectedIds={selected}
+                        onToggleOne={handleToggleOne}
+                        onToggleAll={handleToggleAll}
+                        onDelete={(id) => setDeleteTargetId(id)}
+                    />
+                </div>
+            </EntityListShell>
+
+            <ConfirmDialog
+                open={!!deleteTargetId}
+                onOpenChange={(o) => !o && setDeleteTargetId(null)}
+                title="Delete this receipt permanently?"
+                description="This permanently removes the payment receipt. The action cannot be undone."
+                requireTyped="DELETE"
+                confirmLabel="Delete"
+                onConfirm={confirmDelete}
             />
 
-            <ZoruCard className="p-6">
-                <div className="mb-4">
-                    <h2 className="text-[16px] text-zoru-ink">Recent Receipts</h2>
-                    <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">A list of payments you have recorded.</p>
-                </div>
-                <div className="overflow-x-auto rounded-lg border border-zoru-line">
-                    <ZoruTable>
-                        <ZoruTableHeader>
-                            <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                                <ZoruTableHead className="text-zoru-ink-muted">Receipt #</ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">Client</ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">Date</ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted text-right">Amount</ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted text-right">Actions</ZoruTableHead>
-                            </ZoruTableRow>
-                        </ZoruTableHeader>
-                        <ZoruTableBody>
-                            {isLoading ? (
-                                <ZoruTableRow className="border-zoru-line">
-                                    <ZoruTableCell colSpan={5} className="text-center h-24">
-                                        <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
-                            ) : receipts.length > 0 ? (
-                                receipts.map(r => (
-                                    <ZoruTableRow key={r._id.toString()} className="border-zoru-line cursor-pointer">
-                                        <ZoruTableCell className="text-zoru-ink">{r.receiptNumber}</ZoruTableCell>
-                                        <ZoruTableCell className="text-zoru-ink">{accountsMap.get(r.accountId.toString()) || 'Unknown Client'}</ZoruTableCell>
-                                        <ZoruTableCell className="text-zoru-ink">{new Date(r.receiptDate).toLocaleDateString()}</ZoruTableCell>
-                                        <ZoruTableCell className="text-right text-zoru-ink">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: r.currency || 'INR' }).format(r.totalAmountReceived)}</ZoruTableCell>
-                                        <ZoruTableCell className="text-right">
-                                            <Link
-                                                href={`/dashboard/crm/sales/receipts/${r._id}/edit`}
-                                                className="text-[12.5px] font-medium text-zoru-ink hover:underline"
-                                            >
-                                                Edit
-                                            </Link>
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
-                                ))
-                            ) : (
-                                <ZoruTableRow className="border-zoru-line">
-                                    <ZoruTableCell colSpan={5} className="h-24 text-center text-[13px] text-zoru-ink-muted">
-                                        No receipts found.
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
-                            )}
-                        </ZoruTableBody>
-                    </ZoruTable>
-                </div>
-            </ZoruCard>
-        </div>
+            <ConfirmDialog
+                open={bulkDelete}
+                onOpenChange={(o) => !o && setBulkDelete(false)}
+                title={`Delete ${selected.size} receipt${selected.size === 1 ? '' : 's'}?`}
+                description="This permanently removes the selected payment receipts. The action cannot be undone."
+                requireTyped="DELETE"
+                confirmLabel="Delete"
+                onConfirm={async () => {
+                    await runBulk('delete');
+                    setBulkDelete(false);
+                }}
+            />
+        </>
     );
 }

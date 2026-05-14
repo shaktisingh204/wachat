@@ -1,14 +1,26 @@
 'use client';
 
+/**
+ * HrFormPage — sectioned full-page form for HR entities, now composed on
+ * top of `<EntityFormShell>` to satisfy §1D.3 of the CRM rebuild bar.
+ *
+ *   <EntityFormShell>
+ *     sections[]:
+ *       - per configured section: rendered fields (entity, array, select,
+ *         input, textarea)
+ *       - remaining fields land in an "Additional details" section
+ *
+ * Server actions read fields by name unchanged — every existing FormData
+ * key is preserved (entity → name, array → JSON-encoded hidden input).
+ */
+
 import * as React from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useActionState, useEffect, useState } from 'react';
-import { ArrowLeft, LoaderCircle, Plus, Trash2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Plus, Trash2 } from 'lucide-react';
 
 import {
   ZoruButton,
-  ZoruCard,
   ZoruInput,
   ZoruLabel,
   ZoruSelect,
@@ -19,47 +31,38 @@ import {
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import {
+  EntityFormShell,
+  type EntityFormShellSection,
+} from '@/components/crm/entity-form-shell';
 import type { HrField } from './hr-entity-page';
 import { getRemainingFields } from '@/lib/hr-form-sections';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 
-/**
- * HrFormPage — full-page form for creating or editing an HR entity.
- * Replaces the dialog-based CRUD when a record's field set is large
- * enough that a modal would feel cramped.
- *
- * Use this for both `/entity/new` (no `initial`) and `/entity/[id]/edit`
- * (pass the fetched record as `initial`).
- */
 export interface HrFormPageProps {
-  /** Page title shown in the header. */
   title: string;
-  /** Page subtitle shown in the header. */
   subtitle?: string;
-  /** Lucide icon for the header chip. */
   icon: React.ElementType;
-  /** Where to return after save / cancel. */
   backHref: string;
-  /** Singular noun used for the save button (e.g. "Job"). */
   singular: string;
-  /** Form field config — same shape HrEntityPage accepts. */
   fields: HrField[];
-  /** Server action for save. */
   saveAction: (
-    prev: any,
+    prev: unknown,
     formData: FormData,
   ) => Promise<{ message?: string; error?: string; id?: string }>;
-  /** Pre-fill values (for edit mode). */
   initial?: Record<string, unknown> | null;
-  /** Optional section groups — renders fields under headings. */
   sections?: { title: string; fieldNames: string[] }[];
 }
+
+// Keep server action signature: `(prev, FormData) => ...`. EntityFormShell
+// hands the raw FormData to its `action` prop which we route through
+// useActionState so we still get message/error feedback.
+const SAVE_INITIAL = { message: '', error: '' } as const;
 
 export function HrFormPage({
   title,
   subtitle,
-  icon: Icon,
+  icon: _Icon,
   backHref,
   singular,
   fields,
@@ -67,12 +70,11 @@ export function HrFormPage({
   initial,
   sections,
 }: HrFormPageProps) {
+  void _Icon;
   const router = useRouter();
   const { toast } = useZoruToast();
-  const [state, formAction, isPending] = useActionState(saveAction, {
-    message: '',
-    error: '',
-  } as any);
+  const [state, formAction, _isPending] = useActionState(saveAction, SAVE_INITIAL);
+  void _isPending;
 
   useEffect(() => {
     if (state?.message) {
@@ -85,7 +87,7 @@ export function HrFormPage({
     }
   }, [state, toast, router, backHref]);
 
-  const isEdit = Boolean(initial && (initial as any)._id);
+  const isEdit = Boolean(initial && (initial as { _id?: unknown })._id);
 
   const fieldByName = React.useMemo(() => {
     const m = new Map<string, HrField>();
@@ -93,80 +95,59 @@ export function HrFormPage({
     return m;
   }, [fields]);
 
-  const renderSection = (title: string, names: string[]) => {
-    const sectionFields = names
-      .map((n) => fieldByName.get(n))
-      .filter(Boolean) as HrField[];
-    if (sectionFields.length === 0) return null;
-    return (
-      <ZoruCard key={title} className="p-6">
-        <div className="mb-4">
-          <h2 className="text-[15px] text-zoru-ink">{title}</h2>
-        </div>
-        <div className="grid gap-4 md:grid-cols-2">
-          {sectionFields.map((field) => (
-            <FieldCell key={field.name} field={field} initial={initial} />
-          ))}
-        </div>
-      </ZoruCard>
-    );
-  };
-
   const remainingFields = getRemainingFields(fields, sections);
 
-  return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title={title}
-        subtitle={subtitle}
-        icon={Icon}
-        actions={
-          <ZoruButton variant="outline" asChild>
-            <Link href={backHref}>
-              <ArrowLeft className="h-4 w-4" strokeWidth={1.75} />
-              Back
-            </Link>
-          </ZoruButton>
-        }
-      />
-
-      <form action={formAction} className="flex flex-col gap-6">
-        {isEdit ? (
-          <input type="hidden" name="_id" value={(initial as any)._id} />
-        ) : null}
-
-        {sections?.map((sec) => renderSection(sec.title, sec.fieldNames))}
-
-        {remainingFields.length > 0 ? (
-          <ZoruCard className="p-6">
-            {sections ? (
-              <div className="mb-4">
-                <h2 className="text-[15px] text-zoru-ink">
-                  Additional details
-                </h2>
-              </div>
-            ) : null}
-            <div className="grid gap-4 md:grid-cols-2">
-              {remainingFields.map((field) => (
-                <FieldCell key={field.name} field={field} initial={initial} />
-              ))}
-            </div>
-          </ZoruCard>
-        ) : null}
-
-        <div className="flex justify-end gap-2">
-          <ZoruButton type="button" variant="outline" asChild>
-            <Link href={backHref}>Cancel</Link>
-          </ZoruButton>
-          <ZoruButton type="submit" disabled={isPending}>
-            {isPending ? (
-              <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={1.75} />
-            ) : null}
-            {isEdit ? `Update ${singular}` : `Create ${singular}`}
-          </ZoruButton>
-        </div>
-      </form>
+  const renderFieldCells = (list: HrField[]) => (
+    <div className="grid gap-4 md:grid-cols-2">
+      {list.map((field) => (
+        <FieldCell key={field.name} field={field} initial={initial} />
+      ))}
     </div>
+  );
+
+  const shellSections: EntityFormShellSection[] = [];
+  if (sections) {
+    for (const sec of sections) {
+      const list = sec.fieldNames
+        .map((n) => fieldByName.get(n))
+        .filter(Boolean) as HrField[];
+      if (list.length === 0) continue;
+      shellSections.push({
+        id: sec.title,
+        title: sec.title,
+        children: renderFieldCells(list),
+      });
+    }
+  }
+  if (remainingFields.length > 0) {
+    shellSections.push({
+      id: 'additional',
+      title: sections ? 'Additional details' : 'Details',
+      children: renderFieldCells(remainingFields),
+    });
+  }
+
+  const editId = (initial as { _id?: unknown } | null)?._id;
+
+  return (
+    <EntityFormShell
+      title={title}
+      subtitle={subtitle}
+      action={formAction}
+      sections={shellSections}
+      submitLabel={isEdit ? `Update ${singular}` : `Create ${singular}`}
+      cancelHref={backHref}
+      error={state?.error || undefined}
+      message={state?.message || undefined}
+      hiddenInputs={
+        isEdit ? (
+          <>
+            <input type="hidden" name="_id" value={String(editId)} />
+            <input type="hidden" name="id" value={String(editId)} />
+          </>
+        ) : null
+      }
+    />
   );
 }
 
@@ -184,9 +165,7 @@ function FieldCell({
         {field.label}
         {field.required ? <span className="text-zoru-danger-ink"> *</span> : null}
       </ZoruLabel>
-      <div className="mt-1.5">
-        {renderField(field, raw)}
-      </div>
+      <div className="mt-1.5">{renderField(field, raw)}</div>
       {field.help ? (
         <p className="mt-1 text-[11.5px] text-zoru-ink-muted">{field.help}</p>
       ) : null}
@@ -259,8 +238,8 @@ function renderField(field: HrField, raw?: unknown) {
 function formatForInput(value: unknown, type?: string): string {
   if (value === null || value === undefined) return '';
   if (type === 'date' && value) {
-    const d = new Date(value as any);
-    if (!isNaN(d.getTime())) return d.toISOString().slice(0, 10);
+    const d = new Date(value as string | number | Date);
+    if (!Number.isNaN(d.getTime())) return d.toISOString().slice(0, 10);
   }
   if (typeof value === 'object') return JSON.stringify(value);
   return String(value);
@@ -277,7 +256,7 @@ function FieldArray({
   const parseInitial = (): Record<string, string>[] => {
     if (!initialValue) return [];
     const arr = Array.isArray(initialValue)
-      ? (initialValue as any[])
+      ? (initialValue as Record<string, unknown>[])
       : typeof initialValue === 'string'
         ? safeJsonArray(initialValue)
         : [];
@@ -405,7 +384,7 @@ function FieldArray({
   );
 }
 
-function safeJsonArray(s: string): any[] {
+function safeJsonArray(s: string): Record<string, unknown>[] {
   try {
     const parsed = JSON.parse(s);
     return Array.isArray(parsed) ? parsed : [];

@@ -2,8 +2,9 @@
  * Create quotation — `/dashboard/crm/sales/quotations/new`.
  *
  * Server component: fetches the tenant's quotation custom-field
- * definitions once, then hands off to the shared `<QuotationForm>`
- * (also used by Edit).
+ * definitions, then hands off to the canonical `<QuotationForm>`. The
+ * form supports smart defaults from `?fromKind=deal&fromId=…` and
+ * `?fromKind=lead&fromId=…` and renders the §1D.3 section layout.
  */
 
 import { FileText } from 'lucide-react';
@@ -24,6 +25,12 @@ export default async function NewQuotationPage() {
         title="New quotation"
         subtitle="Draft a new sales quotation."
         icon={FileText}
+        breadcrumbs={[
+          { label: 'CRM', href: '/dashboard/crm' },
+          { label: 'Sales', href: '/dashboard/crm/sales' },
+          { label: 'Quotations', href: '/dashboard/crm/sales/quotations' },
+          { label: 'New' },
+        ]}
       />
       <QuotationForm customFields={customFields} />
     </div>

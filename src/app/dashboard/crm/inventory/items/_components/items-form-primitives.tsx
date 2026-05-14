@@ -1,0 +1,80 @@
+'use client';
+
+/**
+ * Shared form primitives used by the item-form sections.
+ *
+ * Pulled out so both `items-form-sections.tsx` and
+ * `items-form-sections-extra.tsx` can render the same SectionCard /
+ * Field / BoolToggle wrapper without duplicating markup.
+ */
+
+import * as React from 'react';
+
+import { ZoruCard, ZoruCheckbox, ZoruLabel } from '@/components/zoruui';
+
+export function SectionCard({
+  title,
+  description,
+  children,
+}: {
+  title: string;
+  description?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <ZoruCard className="p-5">
+      <div className="mb-4">
+        <h3 className="text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+          {title}
+        </h3>
+        {description ? (
+          <p className="mt-0.5 text-[11.5px] text-zoru-ink-muted">{description}</p>
+        ) : null}
+      </div>
+      {children}
+    </ZoruCard>
+  );
+}
+
+export function Field({
+  label,
+  required,
+  children,
+}: {
+  label: string;
+  required?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="space-y-1">
+      <ZoruLabel>
+        {label}
+        {required ? <span className="ml-0.5 text-zoru-danger">*</span> : null}
+      </ZoruLabel>
+      {children}
+    </div>
+  );
+}
+
+export function BoolToggle({
+  label,
+  checked,
+  onChange,
+  name,
+}: {
+  label: string;
+  checked: boolean;
+  onChange: (v: boolean) => void;
+  name: string;
+}) {
+  return (
+    <label className="flex h-9 cursor-pointer items-center gap-2 rounded border border-zoru-line bg-zoru-surface px-2 text-[12.5px]">
+      <ZoruCheckbox
+        checked={checked}
+        onCheckedChange={(c) => onChange(Boolean(c))}
+      />
+      <span>{label}</span>
+      <input type="hidden" name={name} value={checked ? 'on' : ''} />
+    </label>
+  );
+}

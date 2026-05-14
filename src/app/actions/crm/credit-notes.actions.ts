@@ -298,3 +298,118 @@ export async function deleteCreditNoteAction(
     return { success: false, error: rustErr(e) };
   }
 }
+
+/* ─── KPIs ────────────────────────────────────────────────────── */
+
+export interface CreditNoteKpis {
+  totalCount: number;
+  refundedCount: number;
+  pendingRefundCount: number;
+  linkedInvoiceValue: number;
+  currency: string;
+}
+
+const EMPTY_CN_KPIS: CreditNoteKpis = {
+  totalCount: 0,
+  refundedCount: 0,
+  pendingRefundCount: 0,
+  linkedInvoiceValue: 0,
+  currency: 'INR',
+};
+
+/**
+ * Derive credit-note KPIs from a wide page. The Rust BFF doesn't expose
+ * an aggregate endpoint yet — compute on the server from the first
+ * 100 rows.
+ */
+export async function getCreditNoteKpis(): Promise<CreditNoteKpis> {
+  try {
+    const rows = await crmCreditNotesApi.list({ page: 1, limit: 100 });
+    if (!Array.isArray(rows) || rows.length === 0) return EMPTY_CN_KPIS;
+    let refundedCount = 0;
+    let pendingRefundCount = 0;
+    let linkedInvoiceValue = 0;
+    let currency = 'INR';
+    for (const cn of rows) {
+      currency = cn.currency || currency;
+      const status = (cn.status || '').toLowerCase();
+      if (status === 'refunded') refundedCount += 1;
+      else if (status !== 'cancelled') pendingRefundCount += 1;
+      if (cn.linkedInvoiceId) {
+        linkedInvoiceValue += Number(cn.totals?.total) || 0;
+      }
+    }
+    return {
+      totalCount: rows.length,
+      refundedCount,
+      pendingRefundCount,
+      linkedInvoiceValue,
+      currency,
+    };
+  } catch {
+    return EMPTY_CN_KPIS;
+  }
+}
+
+/* ─── Inline status / bulk mutators ───────────────────────────── */
+
+const CN_STATUSES: readonly CreditNoteStatus[] = [
+  'draft',
+  'issued',
+  'refunded',
+  'cancelled',
+];
+
+function isCnStatus(s: string): s is CreditNoteStatus {
+  return (CN_STATUSES as readonly string[]).includes(s);
+}
+
+/** Mark a single credit note with a new workflow status. */
+export async function setCreditNoteStatus(
+  id: string,
+  status: CreditNoteStatus,
+): Promise<{ success: boolean; error?: string }> {
+  if (!id) return { success: false, error: 'Missing credit note id.' };
+  if (!isCnStatus(status)) return { success: false, error: 'Invalid status.' };
+  try {
+    await crmCreditNotesApi.update(id, { status });
+    revalidatePath(LIST_PATH);
+    revalidatePath(`${LIST_PATH}/${id}`);
+    return { success: true };
+  } catch (e) {
+    return { success: false, error: rustErr(e) };
+  }
+}
+
+/** Run a bulk operation across many credit notes. */
+export async function bulkCreditNoteAction(
+  ids: string[],
+  op: 'archive' | 'delete' | 'refund',
+): Promise<{ success: boolean; processed: number; error?: string }> {
+  if (!Array.isArray(ids) || ids.length === 0) {
+    return { success: false, processed: 0, error: 'No credit notes selected.' };
+  }
+  try {
+    let processed = 0;
+    for (const id of ids) {
+      try {
+        if (op === 'delete') {
+          await crmCreditNotesApi.delete(id);
+        } else if (op === 'refund') {
+          await crmCreditNotesApi.update(id, { status: 'refunded' });
+        } else if (op === 'archive') {
+          // No `archived` flag on the Rust patch — TODO 1D.x: surface
+          // a first-class archived flag once the Rust DTO grows one.
+          await crmCreditNotesApi.update(id, { status: 'cancelled' });
+        }
+        processed += 1;
+      } catch {
+        // continue on per-row failure
+      }
+    }
+    revalidatePath(LIST_PATH);
+    return { success: processed > 0, processed };
+  } catch (e) {
+    return { success: false, processed: 0, error: rustErr(e) };
+  }
+}

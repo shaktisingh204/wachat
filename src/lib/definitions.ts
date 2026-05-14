@@ -886,18 +886,35 @@ export type CrmUnit = {
     updatedAt: Date;
 };
 
+export type CrmWarehouseType = 'main' | 'branch' | 'franchise' | '3pl' | 'virtual';
+export type CrmWarehouseStatus = 'active' | 'inactive' | 'archived';
+
 export type CrmWarehouse = {
     _id: ObjectId;
     userId: ObjectId;
     name: string;
+    /** Short human-friendly code (e.g. WH-01). Unique-per-user when set. */
+    code?: string;
+    /** Warehouse classification — main/branch/franchise/3PL/virtual. */
+    type?: CrmWarehouseType;
+    status?: CrmWarehouseStatus;
     address?: string;
     city?: string;
     state?: string;
     country?: string;
     pincode?: string;
     phone?: string;
+    /** Picker-driven employee reference. Stored alongside legacy `managerName`. */
+    managerId?: ObjectId;
     managerName?: string;
+    /** Tax registration. */
+    gstin?: string;
+    /** Capacity tracking. */
+    capacityUnits?: number;
+    capacitySqft?: number;
+    climateControlled?: boolean;
     isDefault?: boolean;
+    archived?: boolean;
     createdAt: Date;
     updatedAt: Date;
 };
@@ -963,15 +980,40 @@ export type CrmProduct = {
     updatedAt: Date;
 };
 
+export type CrmStockAdjustmentStatus = 'pending' | 'approved' | 'rejected';
+
+export type CrmStockAdjustmentLine = {
+    productId: ObjectId;
+    productName?: string;
+    qtyBefore?: number;
+    qtyAfter?: number;
+    /** Convenience: qtyAfter - qtyBefore. */
+    delta?: number;
+    batch?: string;
+    serial?: string;
+    costPerUnit?: number;
+};
+
 export type CrmStockAdjustment = {
     _id: ObjectId;
     userId: ObjectId;
+    /** Auto-generated, human-friendly identifier (e.g. ADJ-0001). */
+    adjustmentNumber?: string;
     date: Date;
-    reason: 'Stock Received' | 'Inventory Count' | 'Damage' | 'Theft' | 'Loss' | 'Return' | 'Other';
+    reason: 'Stock Received' | 'Inventory Count' | 'Damage' | 'Theft' | 'Loss' | 'Return' | 'Other' | 'Correction' | 'Found' | 'Transfer In' | 'Transfer Out';
     referenceNumber?: string;
     warehouseId: ObjectId;
     productId: ObjectId;
     quantity: number; // Positive for addition, Negative for reduction
+    costPerUnit?: number;
+    /** Per-line breakdown for multi-item adjustments. */
+    lines?: CrmStockAdjustmentLine[];
+    /** Approval workflow. */
+    status?: CrmStockAdjustmentStatus;
+    approvedBy?: ObjectId;
+    approvedByName?: string;
+    approvedAt?: Date;
+    approvalNotes?: string;
     notes?: string;
     createdAt: Date;
     updatedAt: Date;

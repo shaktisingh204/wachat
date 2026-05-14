@@ -40,9 +40,52 @@ export default function AssetsPage() {
       icon={Package}
       singular="Asset"
       basePath="/dashboard/hrm/hr/assets"
+      rowLinksToDetail
       getAllAction={getAssets as any}
       saveAction={saveAsset}
       deleteAction={deleteAsset}
+      kpis={[
+        {
+          label: 'Total assets',
+          compute: (rows) => rows.length,
+        },
+        {
+          label: 'Assigned',
+          compute: (rows) =>
+            rows.filter((r) => Boolean((r as any).assignedTo || (r as any).custodian))
+              .length,
+          tone: 'blue',
+        },
+        {
+          label: 'Available',
+          compute: (rows) =>
+            rows.filter((r) => !((r as any).assignedTo || (r as any).custodian)).length,
+          tone: 'green',
+        },
+        {
+          label: 'In good condition',
+          compute: (rows) =>
+            rows.filter((r) => {
+              const c = String((r as any).condition || '').toLowerCase();
+              return c === 'new' || c === 'good';
+            }).length,
+        },
+        {
+          label: 'Total value',
+          compute: (rows) => {
+            const total = rows.reduce(
+              (acc, r) => acc + (Number((r as any).purchaseCost) || 0),
+              0,
+            );
+            if (!total) return '—';
+            return new Intl.NumberFormat('en-IN', {
+              style: 'currency',
+              currency: 'INR',
+              maximumFractionDigits: 0,
+            }).format(total);
+          },
+        },
+      ]}
       columns={[
         { key: 'name', label: 'Asset Name' },
         { key: 'category', label: 'Type' },

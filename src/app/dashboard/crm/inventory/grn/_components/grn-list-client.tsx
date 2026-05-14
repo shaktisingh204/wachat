@@ -1,276 +1,527 @@
 'use client';
 
 /**
- * Client side of the GRN list — owns the search box, the table, and
- * the hard-delete confirmation dialog. Search input is debounced and
- * writes back to the URL so the server component re-fetches.
+ * §1D list client for GRNs — table + KPI strip + filter toolbar +
+ * bulk-bar + active-filter chips + delete dialogs.
+ *
+ * 10 columns per §1D.1:
+ *   select · GRN no · Vendor · PO ref · Date · Vehicle · Driver ·
+ *   Status · Linked Bill · Actions
+ *
+ * Inventory-side equivalent of `<DeliveryListClient>`. Presentational
+ * bits live in `./grn-list-bits.tsx`.
  */
 
 import * as React from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import {
-  AlertCircle,
-  Pencil,
-  Search,
-  Trash2,
-  LoaderCircle,
+    AlertCircle,
+    ArrowRightCircle,
+    LoaderCircle,
+    Pencil,
+    Trash2,
 } from 'lucide-react';
 
 import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
-  ZoruInput,
-  ZoruTable,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
+    ZoruAlertDialog,
+    ZoruAlertDialogAction,
+    ZoruAlertDialogCancel,
+    ZoruAlertDialogContent,
+    ZoruAlertDialogDescription,
+    ZoruAlertDialogFooter,
+    ZoruAlertDialogHeader,
+    ZoruAlertDialogTitle,
+    ZoruButton,
+    ZoruCard,
+    ZoruCheckbox,
+    ZoruTable,
+    ZoruTableBody,
+    ZoruTableCell,
+    ZoruTableHead,
+    ZoruTableHeader,
+    ZoruTableRow,
+    useZoruToast,
 } from '@/components/zoruui';
-import { PaginationBar } from '@/components/crm/pagination-bar';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
+import { PaginationBar } from '@/components/crm/pagination-bar';
+import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import { deleteGrnAction } from '@/app/actions/crm/grns.actions';
+import type { GrnKpis } from '@/app/actions/crm/grns.actions';
 import type { CrmGrnDoc } from '@/lib/rust-client/crm-grns';
-
-interface GrnListClientProps {
-  grns: CrmGrnDoc[];
-  page: number;
-  limit: number;
-  hasMore: boolean;
-  initialQuery: string;
-  error?: string;
-}
+import {
+    GrnBulkBar,
+    GrnFiltersBar,
+    GrnKpiStrip,
+    grnsToCsv,
+    type GrnFilters,
+    type GrnStatusKey,
+} from './grn-list-bits';
 
 function fmtDate(v?: string): string {
-  if (!v) return '—';
-  const d = new Date(v);
-  return isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
+    if (!v) return '—';
+    const d = new Date(v);
+    return isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
 }
 
-function statusLabel(status?: string): string {
-  if (!status) return '—';
-  return status
-    .split('_')
-    .map((p) => (p ? p[0].toUpperCase() + p.slice(1) : p))
-    .join(' ');
+export interface GrnListClientProps {
+    grns: CrmGrnDoc[];
+    page: number;
+    limit: number;
+    hasMore: boolean;
+    initialQuery: string;
+    initialStatus: string;
+    initialVendorId: string;
+    initialWarehouseId: string;
+    initialQcStatus: string;
+    initialDateFrom: string;
+    initialDateTo: string;
+    kpis: GrnKpis;
+    error?: string;
 }
 
 export function GrnListClient({
-  grns,
-  page,
-  limit,
-  hasMore,
-  initialQuery,
-  error,
+    grns,
+    page,
+    limit,
+    hasMore,
+    initialQuery,
+    initialStatus,
+    initialVendorId,
+    initialWarehouseId,
+    initialQcStatus,
+    initialDateFrom,
+    initialDateTo,
+    kpis,
+    error,
 }: GrnListClientProps) {
-  const { toast } = useZoruToast();
-  const router = useRouter();
-  const pathname = usePathname();
-  const sp = useSearchParams();
+    const { toast } = useZoruToast();
+    const router = useRouter();
+    const pathname = usePathname();
+    const sp = useSearchParams();
 
-  const [query, setQuery] = React.useState(initialQuery);
-  const [pendingDelete, setPendingDelete] = React.useState<CrmGrnDoc | null>(
-    null,
-  );
-  const [deleting, startDelete] = React.useTransition();
+    const [query, setQuery] = React.useState(initialQuery);
+    const [pendingDelete, setPendingDelete] = React.useState<CrmGrnDoc | null>(null);
+    const [pendingBulkDelete, setPendingBulkDelete] = React.useState(false);
+    const [busy, startBusy] = React.useTransition();
+    const [selected, setSelected] = React.useState<Set<string>>(new Set());
 
-  // Debounce search → URL.
-  React.useEffect(() => {
-    if (query === initialQuery) return;
-    const t = setTimeout(() => {
-      const params = new URLSearchParams(sp?.toString() ?? '');
-      if (query.trim()) params.set('q', query.trim());
-      else params.delete('q');
-      params.set('page', '1');
-      const qs = params.toString();
-      router.push(qs ? `${pathname}?${qs}` : pathname);
-    }, 300);
-    return () => clearTimeout(t);
-  }, [query, initialQuery, sp, pathname, router]);
+    const filters: GrnFilters = {
+        query,
+        status: initialStatus,
+        vendorId: initialVendorId,
+        warehouseId: initialWarehouseId,
+        qcStatus: initialQcStatus,
+        dateFrom: initialDateFrom,
+        dateTo: initialDateTo,
+    };
 
-  const confirmDelete = () => {
-    if (!pendingDelete?._id) return;
-    const id = String(pendingDelete._id);
-    const label = pendingDelete.grnNo || id;
-    startDelete(async () => {
-      const res = await deleteGrnAction(id);
-      if (res.success) {
-        toast({ title: 'Deleted', description: `${label} removed.` });
-        setPendingDelete(null);
-        router.refresh();
-      } else {
-        toast({
-          title: 'Delete failed',
-          description: res.error,
-          variant: 'destructive',
+    React.useEffect(() => {
+        if (query === initialQuery) return;
+        const t = setTimeout(() => {
+            pushParams({ q: query.trim() || undefined, page: '1' });
+        }, 300);
+        return () => clearTimeout(t);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [query]);
+
+    function pushParams(updates: Record<string, string | undefined>) {
+        const params = new URLSearchParams(sp?.toString() ?? '');
+        for (const [k, v] of Object.entries(updates)) {
+            if (v == null || v === '') params.delete(k);
+            else params.set(k, v);
+        }
+        const qs = params.toString();
+        router.push(qs ? `${pathname}?${qs}` : pathname);
+    }
+
+    function clearAllFilters() {
+        const params = new URLSearchParams();
+        if (query.trim()) params.set('q', query.trim());
+        const qs = params.toString();
+        router.push(qs ? `${pathname}?${qs}` : pathname);
+    }
+
+    const allIds = React.useMemo(() => grns.map((g) => String(g._id)), [grns]);
+    const allSelected = allIds.length > 0 && allIds.every((id) => selected.has(id));
+
+    function toggleOne(id: string) {
+        setSelected((prev) => {
+            const next = new Set(prev);
+            if (next.has(id)) next.delete(id);
+            else next.add(id);
+            return next;
         });
-      }
-    });
-  };
+    }
+    function toggleAll() {
+        setSelected(allSelected ? new Set() : new Set(allIds));
+    }
+    function clearSelection() {
+        setSelected(new Set());
+    }
 
-  return (
-    <ZoruCard className="overflow-hidden p-0">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zoru-line p-3">
-        <div className="relative max-w-sm flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
-          <ZoruInput
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search by GRN number…"
-            className="h-9 pl-9 text-[13px]"
-          />
-        </div>
-      </div>
+    function confirmDelete() {
+        if (!pendingDelete) return;
+        const id = String(pendingDelete._id);
+        const label = pendingDelete.grnNo || id;
+        startBusy(async () => {
+            const res = await deleteGrnAction(id);
+            if (res.success) {
+                toast({ title: 'Deleted', description: `${label} removed.` });
+                setPendingDelete(null);
+                router.refresh();
+            } else {
+                toast({
+                    title: 'Delete failed',
+                    description: res.error,
+                    variant: 'destructive',
+                });
+            }
+        });
+    }
 
-      {error ? (
-        <div className="flex items-center gap-2 border-b border-amber-500/40 bg-amber-500/10 px-4 py-2.5 text-[13px] text-amber-600">
-          <AlertCircle className="h-4 w-4 shrink-0" />
-          {error}
-        </div>
-      ) : null}
+    function confirmBulkDelete() {
+        if (selected.size === 0) return;
+        startBusy(async () => {
+            let ok = 0;
+            let fail = 0;
+            for (const id of selected) {
+                const res = await deleteGrnAction(id);
+                if (res.success) ok++;
+                else fail++;
+            }
+            toast({
+                title: `Deleted ${ok}`,
+                description: fail > 0 ? `${fail} failed.` : 'All selected removed.',
+                variant: fail > 0 ? 'destructive' : undefined,
+            });
+            clearSelection();
+            setPendingBulkDelete(false);
+            router.refresh();
+        });
+    }
 
-      <ZoruTable>
-        <ZoruTableHeader>
-          <ZoruTableRow>
-            <ZoruTableHead>GRN #</ZoruTableHead>
-            <ZoruTableHead>Date</ZoruTableHead>
-            <ZoruTableHead>Vendor</ZoruTableHead>
-            <ZoruTableHead>Warehouse</ZoruTableHead>
-            <ZoruTableHead className="text-right">Lines</ZoruTableHead>
-            <ZoruTableHead>Status</ZoruTableHead>
-            <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-          </ZoruTableRow>
-        </ZoruTableHeader>
-        <ZoruTableBody>
-          {grns.length === 0 ? (
-            <ZoruTableRow>
-              <ZoruTableCell
-                colSpan={7}
-                className="h-24 text-center text-[13px] text-zoru-ink-muted"
-              >
-                {initialQuery
-                  ? 'No GRNs match this search.'
-                  : 'No GRNs yet — click "New GRN" to record one.'}
-              </ZoruTableCell>
-            </ZoruTableRow>
-          ) : (
-            grns.map((grn) => {
-              const id = String(grn._id);
-              const lineCount = Array.isArray(grn.items) ? grn.items.length : 0;
-              return (
-                <ZoruTableRow key={id}>
-                  <ZoruTableCell>
-                    <Link
-                      href={`/dashboard/crm/inventory/grn/${id}`}
-                      className="font-medium text-zoru-ink hover:underline"
-                    >
-                      {grn.grnNo || id}
-                    </Link>
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
-                    {fmtDate(grn.date)}
-                  </ZoruTableCell>
-                  <ZoruTableCell>
-                    {grn.vendorId ? (
-                      <EntityPickerChip entity="vendor" id={grn.vendorId} />
-                    ) : (
-                      <span className="text-[12.5px] text-zoru-ink-muted">—</span>
-                    )}
-                  </ZoruTableCell>
-                  <ZoruTableCell>
-                    {grn.warehouseId ? (
-                      <EntityPickerChip
-                        entity="warehouse"
-                        id={grn.warehouseId}
-                      />
-                    ) : (
-                      <span className="text-[12.5px] text-zoru-ink-muted">—</span>
-                    )}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-right text-[12.5px] tabular-nums text-zoru-ink">
-                    {lineCount}
-                  </ZoruTableCell>
-                  <ZoruTableCell>
-                    {grn.status ? (
-                      <ZoruBadge variant="outline">
-                        {statusLabel(
-                          typeof grn.status === 'string' ? grn.status : undefined,
-                        )}
-                      </ZoruBadge>
-                    ) : (
-                      <span className="text-[12.5px] text-zoru-ink-muted">—</span>
-                    )}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-right">
-                    <div className="flex justify-end gap-1">
-                      <ZoruButton size="sm" variant="ghost" asChild>
-                        <Link href={`/dashboard/crm/inventory/grn/${id}/edit`}>
-                          <Pencil className="h-3.5 w-3.5" />
-                        </Link>
-                      </ZoruButton>
-                      <ZoruButton
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => setPendingDelete(grn)}
-                        className="text-zoru-danger-ink"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </ZoruButton>
+    function bulkExport() {
+        const sel = grns.filter((g) => selected.has(String(g._id)));
+        const csv = grnsToCsv(sel);
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `grns-${new Date().toISOString().slice(0, 10)}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+
+    function bulkConvertToBill() {
+        for (const id of selected) {
+            window.open(
+                `/dashboard/crm/purchases/expenses/new?fromKind=grn&fromId=${id}`,
+                '_blank',
+            );
+        }
+    }
+
+    // Map the KPI buckets back into the `status` URL param. "Partial"
+    // is filter-only (no first-class status), so it sets a synthetic
+    // `qcStatus=partial` chip instead.
+    function pickKpiBucket(bucket: GrnStatusKey) {
+        if (bucket === 'partial') {
+            pushParams({
+                qcStatus: filters.qcStatus === 'partial' ? undefined : 'partial',
+                status: undefined,
+                page: '1',
+            });
+            return;
+        }
+        const next = filters.status === bucket ? undefined : bucket;
+        pushParams({ status: next, qcStatus: undefined, page: '1' });
+    }
+
+    const currentBucket: GrnStatusKey | '' = filters.qcStatus === 'partial'
+        ? 'partial'
+        : (filters.status as GrnStatusKey | '') || '';
+
+    const hasActive =
+        !!initialStatus ||
+        !!initialVendorId ||
+        !!initialWarehouseId ||
+        !!initialQcStatus ||
+        !!initialDateFrom ||
+        !!initialDateTo;
+
+    return (
+        <div className="flex flex-col gap-4">
+            <GrnKpiStrip
+                kpis={kpis}
+                currentBucket={currentBucket}
+                onPick={pickKpiBucket}
+            />
+
+            <ZoruCard className="overflow-hidden p-0">
+                <GrnFiltersBar
+                    filters={filters}
+                    onQueryChange={setQuery}
+                    onUpdate={pushParams}
+                    hasActive={hasActive}
+                    onClear={clearAllFilters}
+                />
+
+                {error ? (
+                    <div className="flex items-center gap-2 border-b border-amber-500/40 bg-amber-500/10 px-4 py-2.5 text-[13px] text-amber-600">
+                        <AlertCircle className="h-4 w-4 shrink-0" />
+                        {error}
                     </div>
-                  </ZoruTableCell>
-                </ZoruTableRow>
-              );
-            })
-          )}
-        </ZoruTableBody>
-      </ZoruTable>
+                ) : null}
 
-      <PaginationBar page={page} limit={limit} hasMore={hasMore} />
+                <GrnBulkBar
+                    count={selected.size}
+                    onClear={clearSelection}
+                    onExport={bulkExport}
+                    onConvertToBill={bulkConvertToBill}
+                    onDelete={() => setPendingBulkDelete(true)}
+                />
 
-      <ZoruAlertDialog
-        open={pendingDelete !== null}
-        onOpenChange={(o) => !o && setPendingDelete(null)}
-      >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>Delete GRN?</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
-              This permanently removes{' '}
-              <strong>{pendingDelete?.grnNo || ''}</strong> from the database.
-              The action cannot be undone.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel disabled={deleting}>
-              Cancel
-            </ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction
-              onClick={(e) => {
-                e.preventDefault();
-                confirmDelete();
-              }}
-              disabled={deleting}
-              className="bg-zoru-danger text-white hover:bg-zoru-danger/90"
-            >
-              {deleting ? (
-                <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
-              ) : null}
-              Delete permanently
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
-    </ZoruCard>
-  );
+                <ZoruTable>
+                    <ZoruTableHeader>
+                        <ZoruTableRow>
+                            <ZoruTableHead className="w-[36px]">
+                                <ZoruCheckbox
+                                    checked={allSelected}
+                                    onCheckedChange={toggleAll}
+                                    aria-label="Select all"
+                                />
+                            </ZoruTableHead>
+                            <ZoruTableHead>GRN #</ZoruTableHead>
+                            <ZoruTableHead>Vendor</ZoruTableHead>
+                            <ZoruTableHead>PO ref</ZoruTableHead>
+                            <ZoruTableHead>Date</ZoruTableHead>
+                            <ZoruTableHead>Vehicle</ZoruTableHead>
+                            <ZoruTableHead>Driver</ZoruTableHead>
+                            <ZoruTableHead>Status</ZoruTableHead>
+                            <ZoruTableHead>Linked Bill</ZoruTableHead>
+                            <ZoruTableHead className="text-right">Actions</ZoruTableHead>
+                        </ZoruTableRow>
+                    </ZoruTableHeader>
+                    <ZoruTableBody>
+                        {grns.length === 0 ? (
+                            <ZoruTableRow>
+                                <ZoruTableCell
+                                    colSpan={10}
+                                    className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                                >
+                                    {initialQuery || hasActive
+                                        ? 'No GRNs match these filters.'
+                                        : 'No GRNs yet — click "New GRN" to add one.'}
+                                </ZoruTableCell>
+                            </ZoruTableRow>
+                        ) : (
+                            grns.map((grn) => {
+                                const id = String(grn._id);
+                                const isSelected = selected.has(id);
+                                const statusLabel = typeof grn.status === 'string'
+                                    ? grn.status
+                                    : '—';
+                                // Surface forward-link bill if the GRN's
+                                // lineage has one. Backwards-compat: also
+                                // check loose `linkedBillId` on the doc.
+                                const lineageBill = (grn.lineage ?? []).find(
+                                    (l) => l.kind === 'bill',
+                                )?.id;
+                                const linkedBillId =
+                                    lineageBill ??
+                                    (grn as unknown as { linkedBillId?: string })
+                                        .linkedBillId;
+                                const tx = (grn as unknown as {
+                                    transportDetails?: {
+                                        vehicleNumber?: string;
+                                        driverName?: string;
+                                    };
+                                }).transportDetails;
+                                return (
+                                    <ZoruTableRow
+                                        key={id}
+                                        data-state={isSelected ? 'selected' : undefined}
+                                    >
+                                        <ZoruTableCell>
+                                            <ZoruCheckbox
+                                                checked={isSelected}
+                                                onCheckedChange={() => toggleOne(id)}
+                                                aria-label={`Select ${grn.grnNo}`}
+                                            />
+                                        </ZoruTableCell>
+                                        <ZoruTableCell>
+                                            <Link
+                                                href={`/dashboard/crm/inventory/grn/${id}`}
+                                                className="font-medium text-zoru-ink hover:underline"
+                                            >
+                                                {grn.grnNo || id.slice(-6)}
+                                            </Link>
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-[12.5px]">
+                                            {grn.vendorId ? (
+                                                <EntityPickerChip
+                                                    entity="vendor"
+                                                    id={grn.vendorId}
+                                                />
+                                            ) : (
+                                                <span className="text-zoru-ink-muted">—</span>
+                                            )}
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                                            {grn.poId ? (
+                                                <Link
+                                                    href={`/dashboard/crm/purchases/orders/${grn.poId}`}
+                                                    className="hover:underline"
+                                                >
+                                                    {grn.poId.slice(-6)}
+                                                </Link>
+                                            ) : (
+                                                '—'
+                                            )}
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                                            {fmtDate(grn.date)}
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-[12.5px] text-zoru-ink">
+                                            {tx?.vehicleNumber || '—'}
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-[12.5px] text-zoru-ink">
+                                            {tx?.driverName || '—'}
+                                        </ZoruTableCell>
+                                        <ZoruTableCell>
+                                            {statusLabel ? (
+                                                <StatusPill
+                                                    label={statusLabel}
+                                                    tone={statusToTone(statusLabel)}
+                                                />
+                                            ) : (
+                                                <span className="text-[12.5px] text-zoru-ink-muted">
+                                                    —
+                                                </span>
+                                            )}
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                                            {linkedBillId ? (
+                                                <Link
+                                                    href={`/dashboard/crm/purchases/expenses/${linkedBillId}`}
+                                                    className="hover:underline"
+                                                >
+                                                    {linkedBillId.slice(-6)}
+                                                </Link>
+                                            ) : (
+                                                '—'
+                                            )}
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-right">
+                                            <div className="flex justify-end gap-1">
+                                                <ZoruButton
+                                                    size="sm"
+                                                    variant="ghost"
+                                                    asChild
+                                                    title="Convert to Bill"
+                                                >
+                                                    <Link
+                                                        href={`/dashboard/crm/purchases/expenses/new?fromKind=grn&fromId=${id}`}
+                                                    >
+                                                        <ArrowRightCircle className="h-3.5 w-3.5" />
+                                                    </Link>
+                                                </ZoruButton>
+                                                <ZoruButton size="sm" variant="ghost" asChild>
+                                                    <Link
+                                                        href={`/dashboard/crm/inventory/grn/${id}/edit`}
+                                                    >
+                                                        <Pencil className="h-3.5 w-3.5" />
+                                                    </Link>
+                                                </ZoruButton>
+                                                <ZoruButton
+                                                    size="sm"
+                                                    variant="ghost"
+                                                    onClick={() => setPendingDelete(grn)}
+                                                    className="text-zoru-danger-ink"
+                                                >
+                                                    <Trash2 className="h-3.5 w-3.5" />
+                                                </ZoruButton>
+                                            </div>
+                                        </ZoruTableCell>
+                                    </ZoruTableRow>
+                                );
+                            })
+                        )}
+                    </ZoruTableBody>
+                </ZoruTable>
+
+                <PaginationBar page={page} limit={limit} hasMore={hasMore} />
+
+                <ZoruAlertDialog
+                    open={pendingDelete !== null}
+                    onOpenChange={(o) => !o && setPendingDelete(null)}
+                >
+                    <ZoruAlertDialogContent>
+                        <ZoruAlertDialogHeader>
+                            <ZoruAlertDialogTitle>Delete GRN?</ZoruAlertDialogTitle>
+                            <ZoruAlertDialogDescription>
+                                This permanently removes{' '}
+                                <strong>{pendingDelete?.grnNo ?? ''}</strong> from the
+                                database. The action cannot be undone.
+                            </ZoruAlertDialogDescription>
+                        </ZoruAlertDialogHeader>
+                        <ZoruAlertDialogFooter>
+                            <ZoruAlertDialogCancel disabled={busy}>
+                                Cancel
+                            </ZoruAlertDialogCancel>
+                            <ZoruAlertDialogAction
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    confirmDelete();
+                                }}
+                                disabled={busy}
+                                className="bg-zoru-danger text-white hover:bg-zoru-danger/90"
+                            >
+                                {busy ? (
+                                    <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
+                                ) : null}
+                                Delete permanently
+                            </ZoruAlertDialogAction>
+                        </ZoruAlertDialogFooter>
+                    </ZoruAlertDialogContent>
+                </ZoruAlertDialog>
+
+                <ZoruAlertDialog
+                    open={pendingBulkDelete}
+                    onOpenChange={(o) => !o && setPendingBulkDelete(false)}
+                >
+                    <ZoruAlertDialogContent>
+                        <ZoruAlertDialogHeader>
+                            <ZoruAlertDialogTitle>
+                                Delete {selected.size} GRN{selected.size === 1 ? '' : 's'}?
+                            </ZoruAlertDialogTitle>
+                            <ZoruAlertDialogDescription>
+                                This permanently removes the selected GRNs. The
+                                action cannot be undone.
+                            </ZoruAlertDialogDescription>
+                        </ZoruAlertDialogHeader>
+                        <ZoruAlertDialogFooter>
+                            <ZoruAlertDialogCancel disabled={busy}>
+                                Cancel
+                            </ZoruAlertDialogCancel>
+                            <ZoruAlertDialogAction
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    confirmBulkDelete();
+                                }}
+                                disabled={busy}
+                                className="bg-zoru-danger text-white hover:bg-zoru-danger/90"
+                            >
+                                {busy ? (
+                                    <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
+                                ) : null}
+                                Delete permanently
+                            </ZoruAlertDialogAction>
+                        </ZoruAlertDialogFooter>
+                    </ZoruAlertDialogContent>
+                </ZoruAlertDialog>
+            </ZoruCard>
+        </div>
+    );
 }

@@ -8,6 +8,45 @@ import { getSession } from '@/app/actions/user.actions';
 import type { CrmPaymentAccount, CrmVoucherEntry, BankAccountDetails } from '@/lib/definitions';
 import { coerceFiniteMoney } from '@/lib/crm/number-safety';
 import { getErrorMessage } from '@/lib/utils';
+import { writeAuditEntry } from '@/lib/audit-log';
+
+export async function getCrmPaymentAccountById(accountId: string): Promise<WithId<CrmPaymentAccount> | null> {
+    const session = await getSession();
+    if (!session?.user || !ObjectId.isValid(accountId)) return null;
+    try {
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(session.user._id);
+        const account = await db.collection<CrmPaymentAccount>('crm_payment_accounts').findOne({
+            _id: new ObjectId(accountId),
+            userId,
+        });
+        if (!account) return null;
+
+        // Inline current balance same way getCrmPaymentAccounts does for the list.
+        const voucherEntries = await db.collection<CrmVoucherEntry>('crm_voucher_entries').find({
+            userId,
+            $or: [
+                { 'debitEntries.accountId': account._id },
+                { 'creditEntries.accountId': account._id },
+            ],
+        }).toArray();
+
+        let balance = account.openingBalance || 0;
+        for (const entry of voucherEntries) {
+            for (const d of entry.debitEntries || []) {
+                if (d.accountId?.equals(account._id)) balance += d.amount || 0;
+            }
+            for (const c of entry.creditEntries || []) {
+                if (c.accountId?.equals(account._id)) balance -= c.amount || 0;
+            }
+        }
+        (account as any).currentBalance = balance;
+        return JSON.parse(JSON.stringify(account));
+    } catch (e) {
+        console.error('Failed to fetch payment account by ID:', e);
+        return null;
+    }
+}
 
 export async function getCrmPaymentAccounts(): Promise<WithId<CrmPaymentAccount>[]> {
     const session = await getSession();
@@ -105,20 +144,34 @@ export async function saveCrmPaymentAccount(prevState: any, formData: FormData):
             await db.collection('crm_payment_accounts').updateMany({ userId: accountData.userId }, { $set: { isDefault: false } });
         }
 
+        let savedId: string;
         if (isEditing && ObjectId.isValid(accountId)) {
             await db.collection('crm_payment_accounts').updateOne(
                 { _id: new ObjectId(accountId), userId: new ObjectId(session.user._id) },
-                { $set: accountData }
+                { $set: { ...accountData, updatedAt: new Date() } }
             );
+            savedId = accountId;
         } else {
-            await db.collection('crm_payment_accounts').insertOne({
+            const result = await db.collection('crm_payment_accounts').insertOne({
                 ...accountData,
                 createdAt: new Date(),
                 updatedAt: new Date()
             } as CrmPaymentAccount);
+            savedId = result.insertedId.toString();
         }
 
+        await writeAuditEntry({
+            tenantUserId: session.user._id,
+            action: isEditing ? 'update' : 'create',
+            entityKind: 'payment_account',
+            entityId: savedId,
+            reason: accountData.accountName,
+        });
+
         revalidatePath('/dashboard/crm/banking/all');
+        revalidatePath('/dashboard/crm/banking/bank-accounts');
+        revalidatePath('/dashboard/crm/banking/employee-accounts');
+        revalidatePath(`/dashboard/crm/banking/all/${savedId}`);
         return { message: `Account "${accountData.accountName}" saved successfully.` };
     } catch (e: any) {
         return { error: getErrorMessage(e) };
@@ -142,9 +195,56 @@ export async function deleteCrmPaymentAccount(accountId: string): Promise<{ succ
             _id: new ObjectId(accountId),
             userId: new ObjectId(session.user._id)
         });
+        await writeAuditEntry({
+            tenantUserId: session.user._id,
+            action: 'delete',
+            entityKind: 'payment_account',
+            entityId: accountId,
+        });
         revalidatePath('/dashboard/crm/banking/all');
+        revalidatePath('/dashboard/crm/banking/bank-accounts');
+        revalidatePath('/dashboard/crm/banking/employee-accounts');
         return { success: true };
     } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function bulkUpdateCrmPaymentAccounts(
+    ids: string[],
+    op: 'archive' | 'activate' | 'delete'
+): Promise<{ success: boolean; updated?: number; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied' };
+    const oids = ids.filter(ObjectId.isValid).map((id) => new ObjectId(id));
+    if (oids.length === 0) return { success: false, error: 'No valid IDs supplied' };
+    try {
+        const { db } = await connectToDatabase();
+        const filter = { _id: { $in: oids }, userId: new ObjectId(session.user._id) };
+        let updated = 0;
+        if (op === 'delete') {
+            const r = await db.collection('crm_payment_accounts').deleteMany(filter);
+            updated = r.deletedCount ?? 0;
+        } else {
+            const r = await db
+                .collection('crm_payment_accounts')
+                .updateMany(filter, { $set: { status: op === 'activate' ? 'active' : 'inactive', updatedAt: new Date() } });
+            updated = r.modifiedCount ?? 0;
+        }
+        for (const id of ids) {
+            await writeAuditEntry({
+                tenantUserId: session.user._id,
+                action: op === 'delete' ? 'delete' : op === 'archive' ? 'archive' : 'restore',
+                entityKind: 'payment_account',
+                entityId: id,
+                reason: 'bulk',
+            });
+        }
+        revalidatePath('/dashboard/crm/banking/all');
+        revalidatePath('/dashboard/crm/banking/bank-accounts');
+        revalidatePath('/dashboard/crm/banking/employee-accounts');
+        return { success: true, updated };
+    } catch (e) {
         return { success: false, error: getErrorMessage(e) };
     }
 }

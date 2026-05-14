@@ -2,8 +2,20 @@
 
 'use server';
 
+/**
+ * CRM Lead server actions.
+ *
+ * **Dual implementation:**
+ *  - When `USE_RUST_CRM === 'true'`, every action delegates to the Rust BFF
+ *    (`/v1/crm/leads`) via `src/lib/rust-client/crm-leads.ts`.
+ *  - Otherwise (default), the legacy direct-Mongo path runs.
+ *
+ * Export shapes are identical across both paths so existing pages keep
+ * working without changes.
+ */
+
 import { revalidatePath } from 'next/cache';
-import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
+import { ObjectId, type WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
 import type { CrmLead, User } from '@/lib/definitions';
@@ -11,6 +23,13 @@ import { getErrorMessage } from '@/lib/utils';
 import { z } from 'zod';
 import { requirePermission } from '@/lib/rbac-server';
 import { writeAuditEntry } from '@/lib/audit-log';
+import { crmLeadsApi, type CrmLeadDoc, type CrmLeadCreateInput, type CrmLeadUpdateInput } from '@/lib/rust-client/crm-leads';
+import { RustApiError } from '@/lib/rust-client/fetcher';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+
+function useRustCrm(): boolean {
+    return process.env.USE_RUST_CRM === 'true';
+}
 
 function revalidateLeadSurfaces(leadId?: string): void {
     revalidatePath('/dashboard/crm/sales-crm/all-leads');
@@ -19,6 +38,97 @@ function revalidateLeadSurfaces(leadId?: string): void {
         revalidatePath(`/dashboard/crm/sales-crm/all-leads/${leadId}/edit`);
         revalidatePath(`/dashboard/crm/sales-crm/all-leads/${leadId}/activity`);
     }
+}
+
+/* ─── Rust-shape → legacy TS-shape adapter ────────────────────────────── */
+
+function splitContactName(contactName: string): { firstName: string; lastName: string } {
+    const trimmed = (contactName ?? '').trim();
+    if (!trimmed) return { firstName: '', lastName: '' };
+    const parts = trimmed.split(/\s+/);
+    if (parts.length === 1) return { firstName: parts[0], lastName: '' };
+    return { firstName: parts[0], lastName: parts.slice(1).join(' ') };
+}
+
+function joinContactName(firstName?: string, lastName?: string): string {
+    return [firstName, lastName].filter(Boolean).join(' ').trim();
+}
+
+function rustDocToLegacy(doc: CrmLeadDoc): WithId<CrmLead> {
+    const contactName = joinContactName(doc.firstName, doc.lastName);
+    const assignedToRaw = doc.assignment?.assignedTo;
+    const ownerRaw = doc.ownerId;
+    const out: any = {
+        ...(doc as unknown as Record<string, unknown>),
+        _id: doc._id ? (doc._id as unknown as ObjectId) : (undefined as unknown as ObjectId),
+        userId: (doc.identity?.userId ?? '') as unknown as ObjectId,
+        title: (doc as unknown as { title?: string }).title ?? contactName,
+        contactName,
+        email: doc.email,
+        phone: doc.phone,
+        company: doc.company,
+        industry: doc.industry,
+        status: doc.status?.name ?? (doc.archived ? 'archived' : undefined),
+        source: doc.attribution?.source,
+        value: doc.estimatedValue ?? 0,
+        currency: doc.currency ?? 'INR',
+        leadScore: doc.leadScore,
+        probabilityPct: doc.probabilityPct,
+        expectedClose: doc.expectedClose ? new Date(doc.expectedClose) : undefined,
+        assignedTo:
+            typeof assignedToRaw === 'string' && ObjectId.isValid(assignedToRaw)
+                ? (new ObjectId(assignedToRaw) as unknown as ObjectId)
+                : typeof ownerRaw === 'string' && ObjectId.isValid(ownerRaw)
+                  ? (new ObjectId(ownerRaw) as unknown as ObjectId)
+                  : undefined,
+        createdAt: doc.createdAt ? new Date(doc.createdAt) : doc.audit?.createdAt ? new Date(doc.audit.createdAt) : new Date(),
+        updatedAt: doc.updatedAt ? new Date(doc.updatedAt) : doc.audit?.updatedAt ? new Date(doc.audit.updatedAt) : undefined,
+    };
+    return out as WithId<CrmLead>;
+}
+
+function formDataToRustCreateInput(formData: FormData): CrmLeadCreateInput {
+    const contactName = (formData.get('contactName') as string | null) ?? '';
+    const { firstName, lastName } = splitContactName(contactName);
+    const valueRaw = formData.get('value');
+    const value =
+        typeof valueRaw === 'string' && valueRaw.trim() !== ''
+            ? Number(valueRaw)
+            : undefined;
+    const leadScoreRaw = formData.get('leadScore');
+    const probabilityRaw = formData.get('probabilityPct');
+    const expectedCloseRaw = formData.get('expectedClose');
+    const assignedToRaw = formData.get('assignedTo');
+
+    return {
+        firstName: firstName || contactName || '',
+        lastName,
+        email: (formData.get('email') as string | null) || undefined,
+        phone: (formData.get('phone') as string | null) || undefined,
+        company: (formData.get('company') as string | null) || undefined,
+        title: (formData.get('title') as string | null) || undefined,
+        source: (formData.get('source') as string | null) || undefined,
+        status: (formData.get('status') as string | null) || undefined,
+        leadScore:
+            typeof leadScoreRaw === 'string' && leadScoreRaw.trim() !== ''
+                ? Number(leadScoreRaw)
+                : undefined,
+        assignedTo:
+            typeof assignedToRaw === 'string' && assignedToRaw && ObjectId.isValid(assignedToRaw)
+                ? assignedToRaw
+                : undefined,
+        estimatedValue: typeof value === 'number' && !isNaN(value) ? value : undefined,
+        currency: (formData.get('currency') as string | null) || undefined,
+        probabilityPct:
+            typeof probabilityRaw === 'string' && probabilityRaw.trim() !== ''
+                ? Number(probabilityRaw)
+                : undefined,
+        expectedClose:
+            typeof expectedCloseRaw === 'string' && expectedCloseRaw.trim() !== ''
+                ? expectedCloseRaw
+                : undefined,
+        industry: (formData.get('industry') as string | null) || undefined,
+    };
 }
 
 const leadSchema = z.object({
@@ -86,6 +196,26 @@ export async function getCrmLeads(
 ): Promise<{ leads: WithId<CrmLead>[], total: number }> {
     const session = await getSession();
     if (!session?.user) return { leads: [], total: 0 };
+
+    const guard = await requirePermission('crm_lead', 'view');
+    if (!guard.ok) return { leads: [], total: 0 };
+
+    if (useRustCrm()) {
+        try {
+            const text = (query ?? filters.query ?? '').trim();
+            const items = await crmLeadsApi.list({
+                page: Math.max(0, page - 1),
+                limit,
+                q: text || undefined,
+            });
+            const leads = items.map(rustDocToLegacy);
+            return { leads, total: leads.length };
+        } catch (e) {
+            console.error('[getCrmLeads] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'lead', op: 'list', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
+            // fall through
+        }
+    }
 
     try {
         const { db } = await connectToDatabase();
@@ -162,6 +292,37 @@ export async function getCrmLeadKpis(): Promise<CrmLeadKpis> {
     const session = await getSession();
     if (!session?.user) return empty;
 
+    const guard = await requirePermission('crm_lead', 'view');
+    if (!guard.ok) return empty;
+
+    if (useRustCrm()) {
+        try {
+            // Rust KPI endpoint isn't exposed yet — pull list and aggregate
+            // client-side so the rust path still produces non-empty data.
+            const items = await crmLeadsApi.list({ page: 0, limit: 500 });
+            let total = 0;
+            let newCount = 0;
+            let qualifiedCount = 0;
+            let wonCount = 0;
+            let archivedCount = 0;
+            for (const doc of items) {
+                total += 1;
+                const status = String(doc.status?.name ?? '').toLowerCase();
+                if (doc.archived || status === 'archived') archivedCount += 1;
+                else if (status === 'new') newCount += 1;
+                else if (status === 'qualified') qualifiedCount += 1;
+                else if (status === 'won' || status === 'converted') wonCount += 1;
+            }
+            const denom = total - archivedCount;
+            const conversionRate = denom > 0 ? Math.round((wonCount / denom) * 1000) / 10 : 0;
+            return { total, newCount, qualifiedCount, wonCount, archivedCount, conversionRate };
+        } catch (e) {
+            console.error('[getCrmLeadKpis] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'lead', op: 'other', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
+            // fall through
+        }
+    }
+
     try {
         const { db } = await connectToDatabase();
         const userId = new ObjectId(session.user._id);
@@ -209,7 +370,24 @@ export async function getCrmLeadKpis(): Promise<CrmLeadKpis> {
 export async function getCrmLeadById(leadId: string): Promise<WithId<CrmLead> | null> {
     const session = await getSession();
     if (!session?.user) return null;
-    if (!leadId || !ObjectId.isValid(leadId)) return null;
+    if (!leadId) return null;
+
+    const guard = await requirePermission('crm_lead', 'view');
+    if (!guard.ok) return null;
+
+    if (useRustCrm()) {
+        try {
+            const doc = await crmLeadsApi.getById(leadId);
+            return doc ? rustDocToLegacy(doc) : null;
+        } catch (e) {
+            if (e instanceof RustApiError && e.status === 404) return null;
+            console.error('[getCrmLeadById] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'lead', op: 'get', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
+            // fall through
+        }
+    }
+
+    if (!ObjectId.isValid(leadId)) return null;
 
     try {
         const { db } = await connectToDatabase();
@@ -270,6 +448,29 @@ export async function addCrmLead(prevState: any, formData: FormData, apiUser?: W
         return { error: `Invalid data provided. Errors: ${errorString}` };
     }
 
+    if (useRustCrm()) {
+        try {
+            const input = formDataToRustCreateInput(formData);
+            const created = await crmLeadsApi.create(input);
+            const newId = created._id ?? '';
+
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'create',
+                entityKind: 'lead',
+                entityId: String(newId),
+            });
+
+            revalidateLeadSurfaces(newId);
+            return { message: 'Lead added successfully.', leadId: newId };
+        } catch (e) {
+            console.error('[addCrmLead] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'lead', op: 'create', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
+            // fall through
+        }
+    }
+
     try {
         const { db } = await connectToDatabase();
         const assignedToRaw = formData.get('assignedTo');
@@ -318,7 +519,7 @@ export async function updateCrmLead(
     if (!guard.ok) return { error: guard.error };
 
     const leadId = String(formData.get('leadId') ?? '');
-    if (!leadId || !ObjectId.isValid(leadId)) return { error: 'Invalid lead id.' };
+    if (!leadId) return { error: 'Invalid lead id.' };
 
     const rawData = {
         title: formData.get('title'),
@@ -350,6 +551,30 @@ export async function updateCrmLead(
         const msg = Object.entries(flat).map(([k, v]) => `${k}: ${v?.join(', ')}`).join('; ');
         return { error: `Invalid data provided. Errors: ${msg}` };
     }
+
+    if (useRustCrm()) {
+        try {
+            const patch: CrmLeadUpdateInput = formDataToRustCreateInput(formData);
+            await crmLeadsApi.update(leadId, patch);
+
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'update',
+                entityKind: 'lead',
+                entityId: leadId,
+            });
+
+            revalidateLeadSurfaces(leadId);
+            return { message: 'Lead updated successfully.', leadId };
+        } catch (e) {
+            console.error('[updateCrmLead] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'lead', op: 'update', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
+            // fall through
+        }
+    }
+
+    if (!ObjectId.isValid(leadId)) return { error: 'Invalid lead id.' };
 
     try {
         const { db } = await connectToDatabase();
@@ -411,9 +636,33 @@ export async function changeCrmLeadStatus(
     if (!session?.user) return { success: false, error: 'Access denied' };
     const guard = await requirePermission('crm_lead', 'edit');
     if (!guard.ok) return { success: false, error: guard.error };
-    if (!leadId || !ObjectId.isValid(leadId)) return { success: false, error: 'Invalid lead id.' };
+    if (!leadId) return { success: false, error: 'Invalid lead id.' };
     const status = String(nextStatus ?? '').trim();
     if (!status) return { success: false, error: 'Status is required.' };
+
+    if (useRustCrm()) {
+        try {
+            await crmLeadsApi.update(leadId, { status });
+
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'status_change',
+                entityKind: 'lead',
+                entityId: leadId,
+                diff: { status: { after: status } },
+            });
+
+            revalidateLeadSurfaces(leadId);
+            return { success: true };
+        } catch (e) {
+            console.error('[changeCrmLeadStatus] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'lead', op: 'update', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
+            // fall through
+        }
+    }
+
+    if (!ObjectId.isValid(leadId)) return { success: false, error: 'Invalid lead id.' };
 
     try {
         const { db } = await connectToDatabase();
@@ -455,7 +704,31 @@ export async function archiveCrmLead(
     if (!session?.user) return { success: false, error: 'Access denied.' };
     const guard = await requirePermission('crm_lead', 'delete');
     if (!guard.ok) return { success: false, error: guard.error };
-    if (!leadId || !ObjectId.isValid(leadId)) return { success: false, error: 'Invalid lead id.' };
+    if (!leadId) return { success: false, error: 'Invalid lead id.' };
+
+    if (useRustCrm()) {
+        try {
+            // DELETE /v1/crm/leads/:id is soft-delete in the Rust handler.
+            await crmLeadsApi.delete(leadId);
+
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'archive',
+                entityKind: 'lead',
+                entityId: leadId,
+            });
+
+            revalidateLeadSurfaces(leadId);
+            return { success: true };
+        } catch (e) {
+            console.error('[archiveCrmLead] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'lead', op: 'delete', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
+            // fall through
+        }
+    }
+
+    if (!ObjectId.isValid(leadId)) return { success: false, error: 'Invalid lead id.' };
 
     try {
         const { db } = await connectToDatabase();
@@ -491,7 +764,30 @@ export async function unarchiveCrmLead(
     if (!session?.user) return { success: false, error: 'Access denied.' };
     const guard = await requirePermission('crm_lead', 'edit');
     if (!guard.ok) return { success: false, error: guard.error };
-    if (!leadId || !ObjectId.isValid(leadId)) return { success: false, error: 'Invalid lead id.' };
+    if (!leadId) return { success: false, error: 'Invalid lead id.' };
+
+    if (useRustCrm()) {
+        try {
+            await crmLeadsApi.update(leadId, { status: 'New' });
+
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'restore',
+                entityKind: 'lead',
+                entityId: leadId,
+            });
+
+            revalidateLeadSurfaces(leadId);
+            return { success: true };
+        } catch (e) {
+            console.error('[unarchiveCrmLead] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'lead', op: 'update', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
+            // fall through
+        }
+    }
+
+    if (!ObjectId.isValid(leadId)) return { success: false, error: 'Invalid lead id.' };
 
     try {
         const { db } = await connectToDatabase();
@@ -530,7 +826,34 @@ export async function assignCrmLead(
     if (!session?.user) return { success: false, error: 'Access denied' };
     const guard = await requirePermission('crm_lead', 'edit');
     if (!guard.ok) return { success: false, error: guard.error };
-    if (!leadId || !ObjectId.isValid(leadId)) return { success: false, error: 'Invalid lead id.' };
+    if (!leadId) return { success: false, error: 'Invalid lead id.' };
+
+    if (useRustCrm()) {
+        try {
+            const patch: CrmLeadUpdateInput = userId && ObjectId.isValid(userId)
+                ? { assignedTo: userId }
+                : { assignedTo: undefined };
+            await crmLeadsApi.update(leadId, patch);
+
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'assign',
+                entityKind: 'lead',
+                entityId: leadId,
+                diff: { assignedTo: { after: userId || null } },
+            });
+
+            revalidateLeadSurfaces(leadId);
+            return { success: true };
+        } catch (e) {
+            console.error('[assignCrmLead] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'lead', op: 'update', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
+            // fall through
+        }
+    }
+
+    if (!ObjectId.isValid(leadId)) return { success: false, error: 'Invalid lead id.' };
 
     try {
         const { db } = await connectToDatabase();
@@ -579,7 +902,56 @@ export async function bulkLeadAction(
     const guard = await requirePermission('crm_lead', action);
     if (!guard.ok) return { success: false, processed: 0, error: guard.error };
 
-    const ids = (leadIds ?? []).filter((id) => ObjectId.isValid(id)).map((id) => new ObjectId(id));
+    const validIds = (leadIds ?? []).filter((id) => typeof id === 'string' && id.length > 0);
+    if (validIds.length === 0) return { success: false, processed: 0, error: 'No valid leads selected.' };
+
+    if (useRustCrm()) {
+        try {
+            let processed = 0;
+            for (const id of validIds) {
+                try {
+                    if (op === 'delete' || op === 'archive') {
+                        await crmLeadsApi.delete(id);
+                        processed += 1;
+                    } else if (op === 'status') {
+                        const status = String(payload ?? '').trim();
+                        if (!status) throw new Error('Status is required.');
+                        await crmLeadsApi.update(id, { status });
+                        processed += 1;
+                    } else if (op === 'assign') {
+                        const patch: CrmLeadUpdateInput = payload && ObjectId.isValid(payload)
+                            ? { assignedTo: payload }
+                            : { assignedTo: undefined };
+                        await crmLeadsApi.update(id, patch);
+                        processed += 1;
+                    }
+                } catch (innerErr) {
+                    // Surface the first per-row error but keep tallying so partials are honest.
+                    console.error('[bulkLeadAction] per-row rust failure:', innerErr);
+                }
+            }
+
+            for (const id of validIds) {
+                await writeAuditEntry({
+                    tenantUserId: String(session.user._id),
+                    actorId: String(session.user._id),
+                    action: op === 'status' ? 'status_change' : op === 'assign' ? 'assign' : op,
+                    entityKind: 'lead',
+                    entityId: id,
+                    reason: payload ? `bulk:${payload}` : `bulk:${op}`,
+                });
+            }
+
+            revalidateLeadSurfaces();
+            return { success: true, processed };
+        } catch (e) {
+            console.error('[bulkLeadAction] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'lead', op: op === 'delete' ? 'delete' : 'update', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
+            // fall through
+        }
+    }
+
+    const ids = validIds.filter((id) => ObjectId.isValid(id)).map((id) => new ObjectId(id));
     if (ids.length === 0) return { success: false, processed: 0, error: 'No valid leads selected.' };
 
     try {
@@ -642,6 +1014,29 @@ export async function deleteCrmLead(leadId: string): Promise<{ success: boolean;
     const guard = await requirePermission('crm_lead', 'delete');
     if (!guard.ok) return { success: false, error: guard.error };
 
+    if (!leadId) return { success: false, error: 'Invalid lead id.' };
+
+    if (useRustCrm()) {
+        try {
+            await crmLeadsApi.delete(leadId);
+
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'delete',
+                entityKind: 'lead',
+                entityId: leadId,
+            });
+
+            revalidateLeadSurfaces();
+            return { success: true };
+        } catch (e) {
+            console.error('[deleteCrmLead] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'lead', op: 'delete', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
+            // fall through
+        }
+    }
+
     if (!ObjectId.isValid(leadId)) return { success: false, error: 'Invalid lead id.' };
 
     try {
@@ -667,5 +1062,309 @@ export async function deleteCrmLead(leadId: string): Promise<{ success: boolean;
         return { success: true };
     } catch (e: any) {
         return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+/* ──────────────────────────────────────────────────────────────────────
+ * Extended actions added in §1D follow-up.
+ * Each action keeps the existing export-signature invariant — purely
+ * additive over the shipping surface.
+ * ────────────────────────────────────────────────────────────────────── */
+
+export interface CrmLeadRelatedCounts {
+    deals: number;
+    tasks: number;
+    tickets: number;
+    quotations: number;
+}
+
+/**
+ * Live counts on the right-rail of the lead detail page.
+ * Each count is tenant-scoped (`userId`) and matches by:
+ *  - deals:       `lineage[].kind === 'lead' && lineage[].id === leadId`
+ *  - tasks:       `linkedKind === 'lead' && linkedId === leadId`
+ *  - tickets:     `leadId === <objectId>`  (legacy direct FK)
+ *  - quotations:  `linkedKind === 'lead' && linkedId === leadId`
+ *
+ * Falls back gracefully (returns 0 per bucket on aggregate failure)
+ * so the right rail never blows up.
+ */
+export async function getCrmLeadRelatedCounts(
+    leadId: string,
+): Promise<CrmLeadRelatedCounts> {
+    const empty: CrmLeadRelatedCounts = { deals: 0, tasks: 0, tickets: 0, quotations: 0 };
+    const session = await getSession();
+    if (!session?.user) return empty;
+    if (!leadId || !ObjectId.isValid(leadId)) return empty;
+    const guard = await requirePermission('crm_lead', 'view');
+    if (!guard.ok) return empty;
+
+    try {
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(session.user._id);
+        const objId = new ObjectId(leadId);
+
+        const [deals, tasks, tickets, quotations] = await Promise.all([
+            db.collection('crm_deals').countDocuments({
+                userId,
+                lineage: { $elemMatch: { kind: 'lead', id: leadId } },
+            } as Record<string, unknown>).catch(() => 0),
+            db.collection('crm_tasks').countDocuments({
+                userId,
+                $or: [
+                    { linkedKind: 'lead', linkedId: objId },
+                    { linkedKind: 'lead', linkedId: leadId },
+                ],
+            } as Record<string, unknown>).catch(() => 0),
+            db.collection('crm_tickets').countDocuments({
+                userId,
+                $or: [{ leadId: objId }, { leadId }],
+            } as Record<string, unknown>).catch(() => 0),
+            db.collection('crm_quotations').countDocuments({
+                userId,
+                $or: [
+                    { linkedKind: 'lead', linkedId: objId },
+                    { linkedKind: 'lead', linkedId: leadId },
+                    { lineage: { $elemMatch: { kind: 'lead', id: leadId } } },
+                ],
+            } as Record<string, unknown>).catch(() => 0),
+        ]);
+
+        return { deals, tasks, tickets, quotations };
+    } catch (e) {
+        console.error('[getCrmLeadRelatedCounts] failed:', e);
+        return empty;
+    }
+}
+
+/**
+ * Inline stage change (used by the Kanban DnD handler and the detail-page
+ * stage pill popover). Mirrors `changeCrmLeadStatus` semantics so callers
+ * can call either without caring which field they're moving.
+ */
+export async function updateCrmLeadStage(
+    leadId: string,
+    nextStage: string,
+): Promise<{ success: boolean; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied' };
+    const guard = await requirePermission('crm_lead', 'edit');
+    if (!guard.ok) return { success: false, error: guard.error };
+    if (!leadId || !ObjectId.isValid(leadId)) return { success: false, error: 'Invalid lead id.' };
+    const stage = String(nextStage ?? '').trim();
+
+    try {
+        const { db } = await connectToDatabase();
+        const before = await db.collection('crm_leads').findOne({
+            _id: new ObjectId(leadId),
+            userId: new ObjectId(session.user._id),
+        });
+        if (!before) return { success: false, error: 'Lead not found.' };
+
+        const update: Record<string, unknown> = { updatedAt: new Date() };
+        const unset: Record<string, unknown> = {};
+        if (stage) update.stage = stage;
+        else unset.stage = '';
+        const op: Record<string, unknown> = { $set: update };
+        if (Object.keys(unset).length) op.$unset = unset;
+
+        await db.collection('crm_leads').updateOne(
+            { _id: new ObjectId(leadId), userId: new ObjectId(session.user._id) },
+            op,
+        );
+
+        await writeAuditEntry({
+            tenantUserId: String(session.user._id),
+            actorId: String(session.user._id),
+            action: 'stage_change',
+            entityKind: 'lead',
+            entityId: leadId,
+            diff: { stage: { before: (before as any).stage, after: stage || null } },
+        });
+
+        revalidateLeadSurfaces(leadId);
+        return { success: true };
+    } catch (e: any) {
+        recordRustFallback({ entity: 'lead', op: 'update' });
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+/**
+ * Persist the tags array on a lead. Accepts string IDs (typically tag
+ * lookup ids from `<EntityMultiFormField entity="tag">`). Stores as a
+ * de-duplicated string[] on `lead.tags`. Pass an empty array to clear.
+ */
+export async function updateCrmLeadTags(
+    leadId: string,
+    tags: string[],
+): Promise<{ success: boolean; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied' };
+    const guard = await requirePermission('crm_lead', 'edit');
+    if (!guard.ok) return { success: false, error: guard.error };
+    if (!leadId || !ObjectId.isValid(leadId)) return { success: false, error: 'Invalid lead id.' };
+
+    const next = Array.from(
+        new Set((tags ?? []).map((t) => String(t ?? '').trim()).filter(Boolean)),
+    );
+
+    try {
+        const { db } = await connectToDatabase();
+        const before = await db.collection('crm_leads').findOne({
+            _id: new ObjectId(leadId),
+            userId: new ObjectId(session.user._id),
+        });
+        if (!before) return { success: false, error: 'Lead not found.' };
+
+        await db.collection('crm_leads').updateOne(
+            { _id: new ObjectId(leadId), userId: new ObjectId(session.user._id) },
+            { $set: { tags: next, updatedAt: new Date() } },
+        );
+
+        await writeAuditEntry({
+            tenantUserId: String(session.user._id),
+            actorId: String(session.user._id),
+            action: 'update',
+            entityKind: 'lead',
+            entityId: leadId,
+            diff: { tags: { before: (before as any).tags ?? [], after: next } },
+        });
+
+        revalidateLeadSurfaces(leadId);
+        return { success: true };
+    } catch (e: any) {
+        recordRustFallback({ entity: 'lead', op: 'update' });
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+/* ─── Duplicate finder ─────────────────────────────────────────────── */
+
+export interface DuplicateLeadEntry {
+    _id: string;
+    title?: string;
+    contactName?: string;
+    email?: string;
+    phone?: string;
+    company?: string;
+    status?: string;
+    value?: number;
+    currency?: string;
+    createdAt?: string;
+}
+
+export interface DuplicateGroup {
+    key: 'email' | 'phone';
+    value: string;
+    leads: DuplicateLeadEntry[];
+}
+
+/**
+ * Aggregate duplicate leads sharing the same (normalised) email or phone
+ * within the current tenant. Two groups are returned per lead pair —
+ * one for email matches, one for phone matches. Archived leads are
+ * excluded.
+ */
+export async function findCrmLeadDuplicates(): Promise<DuplicateGroup[]> {
+    const session = await getSession();
+    if (!session?.user) return [];
+    const guard = await requirePermission('crm_lead', 'view');
+    if (!guard.ok) return [];
+
+    try {
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(session.user._id);
+
+        const matchStage = {
+            $match: {
+                userId,
+                status: { $ne: 'archived' },
+            },
+        } as const;
+
+        const groupByEmail = await db
+            .collection('crm_leads')
+            .aggregate([
+                matchStage,
+                {
+                    $match: {
+                        email: { $exists: true, $ne: null, $not: { $eq: '' } },
+                    },
+                },
+                {
+                    $group: {
+                        _id: { $toLower: { $trim: { input: '$email' } } },
+                        leads: { $push: '$$ROOT' },
+                        count: { $sum: 1 },
+                    },
+                },
+                { $match: { count: { $gt: 1 } } },
+                { $sort: { count: -1 } },
+                { $limit: 200 },
+            ])
+            .toArray();
+
+        const groupByPhone = await db
+            .collection('crm_leads')
+            .aggregate([
+                matchStage,
+                {
+                    $match: {
+                        phone: { $exists: true, $ne: null, $not: { $eq: '' } },
+                    },
+                },
+                {
+                    $addFields: {
+                        normalizedPhone: {
+                            $replaceAll: {
+                                input: { $replaceAll: { input: { $ifNull: ['$phone', ''] }, find: ' ', replacement: '' } },
+                                find: '-',
+                                replacement: '',
+                            },
+                        },
+                    },
+                },
+                {
+                    $group: {
+                        _id: '$normalizedPhone',
+                        leads: { $push: '$$ROOT' },
+                        count: { $sum: 1 },
+                    },
+                },
+                { $match: { count: { $gt: 1 } } },
+                { $sort: { count: -1 } },
+                { $limit: 200 },
+            ])
+            .toArray();
+
+        const toEntry = (l: any): DuplicateLeadEntry => ({
+            _id: String(l._id),
+            title: l.title,
+            contactName: l.contactName,
+            email: l.email,
+            phone: l.phone,
+            company: l.company,
+            status: l.status,
+            value: l.value,
+            currency: l.currency,
+            createdAt: l.createdAt ? new Date(l.createdAt).toISOString() : undefined,
+        });
+
+        const groups: DuplicateGroup[] = [];
+        for (const g of groupByEmail) {
+            const value = String(g._id ?? '');
+            if (!value) continue;
+            groups.push({ key: 'email', value, leads: (g.leads ?? []).map(toEntry) });
+        }
+        for (const g of groupByPhone) {
+            const value = String(g._id ?? '');
+            if (!value) continue;
+            groups.push({ key: 'phone', value, leads: (g.leads ?? []).map(toEntry) });
+        }
+        return groups;
+    } catch (e) {
+        console.error('[findCrmLeadDuplicates] failed:', e);
+        return [];
     }
 }

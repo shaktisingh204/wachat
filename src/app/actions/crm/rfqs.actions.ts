@@ -23,8 +23,12 @@ import {
   type CrmRfqDoc,
   type CrmRfqLineItem,
   type CrmRfqListParams,
+  type CrmRfqStatus,
   type CrmRfqUpdateInput,
 } from '@/lib/rust-client/crm-rfqs';
+import { writeAuditEntry } from '@/lib/audit-log';
+import { getSession } from '@/app/actions/user.actions';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
 
 const LIST_PATH = '/dashboard/crm/purchases/rfqs';
 
@@ -302,4 +306,145 @@ export async function updateRfq(id: string, patch: CrmRfqUpdateInput) {
 
 export async function deleteRfq(id: string) {
   return crmRfqsApi.delete(id);
+}
+
+/* ─── Bulk + status helpers ───────────────────────────────────── */
+
+async function recordAudit(
+  action: 'update' | 'delete' | 'archive' | 'create' | 'status_change',
+  entityId: string,
+): Promise<void> {
+  try {
+    const session = await getSession();
+    if (!session?.user?._id) return;
+    await writeAuditEntry({
+      tenantUserId: String(session.user._id),
+      actorId: String(session.user._id),
+      action,
+      entityKind: 'rfq',
+      entityId,
+    });
+  } catch (e) {
+    console.error('[rfqs audit] non-fatal:', e);
+  }
+}
+
+function trackFallback(op: 'update' | 'delete', e: unknown): void {
+  recordRustFallback({
+    entity: 'rfq',
+    op,
+    errorCode: e instanceof RustApiError ? e.code : undefined,
+    status: e instanceof RustApiError ? e.status : undefined,
+  });
+}
+
+export async function updateRfqStatus(
+  id: string,
+  status: CrmRfqStatus | string,
+): Promise<{ success: boolean; error?: string }> {
+  if (!id) return { success: false, error: 'Missing RFQ id.' };
+  try {
+    await crmRfqsApi.update(id, { status });
+    await recordAudit('status_change', id);
+    revalidatePath(LIST_PATH);
+    revalidatePath(`${LIST_PATH}/${id}`);
+    return { success: true };
+  } catch (e) {
+    trackFallback('update', e);
+    return { success: false, error: rustErr(e) };
+  }
+}
+
+export async function archiveRfqAction(
+  id: string,
+): Promise<{ success: boolean; error?: string }> {
+  if (!id) return { success: false, error: 'Missing RFQ id.' };
+  try {
+    // Rust RFQ DTO doesn't model archived directly — soft-state via
+    // status = cancelled is the canonical "out-of-flow" terminal.
+    await crmRfqsApi.update(id, { status: 'cancelled' });
+    await recordAudit('archive', id);
+    revalidatePath(LIST_PATH);
+    return { success: true };
+  } catch (e) {
+    trackFallback('update', e);
+    return { success: false, error: rustErr(e) };
+  }
+}
+
+export async function awardRfqAction(
+  id: string,
+): Promise<{ success: boolean; error?: string }> {
+  if (!id) return { success: false, error: 'Missing RFQ id.' };
+  try {
+    await crmRfqsApi.update(id, { status: 'awarded' });
+    await recordAudit('status_change', id);
+    revalidatePath(LIST_PATH);
+    revalidatePath(`${LIST_PATH}/${id}`);
+    return { success: true };
+  } catch (e) {
+    trackFallback('update', e);
+    return { success: false, error: rustErr(e) };
+  }
+}
+
+interface BulkResult {
+  success: boolean;
+  processed: number;
+  error?: string;
+}
+
+async function runBulk(
+  ids: string[],
+  fn: (id: string) => Promise<void>,
+): Promise<BulkResult> {
+  if (!Array.isArray(ids) || ids.length === 0) {
+    return { success: false, processed: 0, error: 'No RFQ ids supplied.' };
+  }
+  let processed = 0;
+  let lastErr: string | undefined;
+  for (const id of ids) {
+    try {
+      await fn(id);
+      processed += 1;
+    } catch (e) {
+      lastErr = rustErr(e);
+    }
+  }
+  revalidatePath(LIST_PATH);
+  if (processed === 0) {
+    return { success: false, processed, error: lastErr ?? 'Bulk operation failed.' };
+  }
+  return { success: true, processed, error: lastErr };
+}
+
+export async function bulkDeleteRfqs(ids: string[]): Promise<BulkResult> {
+  return runBulk(ids, async (id) => {
+    await crmRfqsApi.delete(id);
+    await recordAudit('delete', id);
+  });
+}
+
+export async function bulkArchiveRfqs(ids: string[]): Promise<BulkResult> {
+  return runBulk(ids, async (id) => {
+    await crmRfqsApi.update(id, { status: 'cancelled' });
+    await recordAudit('archive', id);
+  });
+}
+
+export async function bulkChangeRfqStatus(
+  ids: string[],
+  status: CrmRfqStatus | string,
+): Promise<BulkResult> {
+  return runBulk(ids, async (id) => {
+    await crmRfqsApi.update(id, { status });
+    await recordAudit('status_change', id);
+  });
+}
+
+export async function bulkCloseRfqs(ids: string[]): Promise<BulkResult> {
+  return runBulk(ids, async (id) => {
+    await crmRfqsApi.update(id, { status: 'closed' });
+    await recordAudit('status_change', id);
+  });
 }

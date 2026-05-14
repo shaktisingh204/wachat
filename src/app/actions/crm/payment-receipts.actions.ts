@@ -17,6 +17,7 @@ import { revalidatePath } from 'next/cache';
 import { RustApiError } from '@/lib/rust-client';
 import {
   crmPaymentReceiptsApi,
+  type CrmInvoiceApplication,
   type CrmPaymentMode,
   type CrmPaymentReceiptCreateInput,
   type CrmPaymentReceiptDoc,
@@ -25,7 +26,7 @@ import {
   type CrmReceiptStatus,
 } from '@/lib/rust-client/crm-payment-receipts';
 
-const LIST_PATH = '/dashboard/crm/sales/payments';
+const LIST_PATH = '/dashboard/crm/sales/receipts';
 
 function rustErr(e: unknown): string {
   if (e instanceof RustApiError) return e.message;
@@ -122,6 +123,68 @@ function pickNumber(formData: FormData, key: string): number | undefined {
   return Number.isFinite(n) ? n : undefined;
 }
 
+function pickBool(formData: FormData, key: string): boolean | undefined {
+  const v = formData.get(key);
+  if (typeof v !== 'string' || v.length === 0) return undefined;
+  return v === 'true' || v === 'on' || v === '1';
+}
+
+/**
+ * Parse the receipt → invoice allocation table out of the form.
+ *
+ * Accepts BOTH a single JSON blob under `applyTo` (preferred — matches
+ * the credit-note pattern) AND indexed flat keys like `applyTo[0].invoiceId`
+ * / `applyTo[0].amount` for backwards-compat with the legacy form. Empty
+ * or zero-amount rows are filtered out.
+ */
+function parseApplyTo(formData: FormData): CrmInvoiceApplication[] {
+  const raw = formData.get('applyTo');
+  if (typeof raw === 'string' && raw.length > 0) {
+    try {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        return parsed
+          .map((row): CrmInvoiceApplication | null => {
+            if (!row || typeof row !== 'object') return null;
+            const r = row as Record<string, unknown>;
+            const invoiceId = typeof r.invoiceId === 'string' ? r.invoiceId.trim() : '';
+            const amount = Number(r.amount);
+            if (!invoiceId || !Number.isFinite(amount) || amount <= 0) return null;
+            return { invoiceId, amount };
+          })
+          .filter((r): r is CrmInvoiceApplication => r !== null);
+      }
+    } catch {
+      // fall through to flat-key parse below
+    }
+  }
+
+  // Flat-key fallback: applyTo[0].invoiceId / applyTo[0].amount …
+  const acc = new Map<number, { invoiceId?: string; amount?: number }>();
+  for (const [key, value] of formData.entries()) {
+    const m = /^applyTo\[(\d+)\]\.(invoiceId|amount)$/.exec(key);
+    if (!m) continue;
+    const idx = Number(m[1]);
+    const field = m[2] as 'invoiceId' | 'amount';
+    const v = typeof value === 'string' ? value.trim() : '';
+    const slot = acc.get(idx) ?? {};
+    if (field === 'invoiceId' && v) slot.invoiceId = v;
+    if (field === 'amount' && v) {
+      const n = Number(v);
+      if (Number.isFinite(n)) slot.amount = n;
+    }
+    acc.set(idx, slot);
+  }
+  return Array.from(acc.values())
+    .filter((r): r is { invoiceId: string; amount: number } =>
+      typeof r.invoiceId === 'string' &&
+      r.invoiceId.length > 0 &&
+      typeof r.amount === 'number' &&
+      r.amount > 0,
+    )
+    .map((r) => ({ invoiceId: r.invoiceId, amount: r.amount }));
+}
+
 /**
  * Server-action entry point for the create / edit form.
  *
@@ -173,6 +236,14 @@ export async function savePaymentReceiptAction(
         return { error: 'Amount must be greater than zero.' };
       }
 
+      const applyTo = parseApplyTo(formData);
+      const fromKindRaw = pickString(formData, 'fromKind');
+      const fromKind =
+        fromKindRaw === 'invoice' || fromKindRaw === 'proforma'
+          ? (fromKindRaw as 'invoice' | 'proforma')
+          : undefined;
+      const fromId = pickString(formData, 'fromId');
+
       const draft: CrmPaymentReceiptCreateInput = {
         receiptNo,
         date,
@@ -181,6 +252,7 @@ export async function savePaymentReceiptAction(
         bankAccountId,
         amount,
         currency,
+        exchangeRate: pickNumber(formData, 'exchangeRate'),
         chequeNo: pickString(formData, 'chequeNo'),
         chequeDate: pickString(formData, 'chequeDate'),
         txnId: pickString(formData, 'txnId'),
@@ -188,7 +260,10 @@ export async function savePaymentReceiptAction(
         tdsDeducted: pickNumber(formData, 'tdsDeducted'),
         bankCharges: pickNumber(formData, 'bankCharges'),
         notes: pickString(formData, 'notes'),
-        excessAsAdvance: false,
+        applyTo: applyTo.length > 0 ? applyTo : undefined,
+        excessAsAdvance: pickBool(formData, 'excessAsAdvance') ?? false,
+        fromKind,
+        fromId: fromKind ? fromId : undefined,
       };
       result = await crmPaymentReceiptsApi.create(draft);
     }
@@ -245,4 +320,143 @@ export async function updatePaymentReceipt(
 
 export async function deletePaymentReceipt(id: string) {
   return crmPaymentReceiptsApi.delete(id);
+}
+
+/* ─── KPIs ────────────────────────────────────────────────────── */
+
+export interface PaymentReceiptKpis {
+  receivedThisMonthTotal: number;
+  receivedThisMonthCount: number;
+  clearedCount: number;
+  bouncedCount: number;
+  avgDaysToCollect: number;
+  currency: string;
+}
+
+const EMPTY_KPIS: PaymentReceiptKpis = {
+  receivedThisMonthTotal: 0,
+  receivedThisMonthCount: 0,
+  clearedCount: 0,
+  bouncedCount: 0,
+  avgDaysToCollect: 0,
+  currency: 'INR',
+};
+
+/**
+ * Derive header KPIs from the loaded page. The Rust BFF doesn't expose
+ * an aggregate endpoint yet, so we walk a wider page (up to 100) and
+ * compute on the server.
+ */
+export async function getPaymentReceiptKpis(): Promise<PaymentReceiptKpis> {
+  try {
+    const rows = await crmPaymentReceiptsApi.list({ page: 1, limit: 100 });
+    if (!Array.isArray(rows) || rows.length === 0) return EMPTY_KPIS;
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    let receivedThisMonthTotal = 0;
+    let receivedThisMonthCount = 0;
+    let clearedCount = 0;
+    let bouncedCount = 0;
+    let daySum = 0;
+    let daySamples = 0;
+    let currency = 'INR';
+    for (const r of rows) {
+      currency = r.currency || currency;
+      const dt = r.date ? new Date(r.date) : null;
+      if (dt && !isNaN(dt.getTime()) && dt >= monthStart) {
+        receivedThisMonthTotal += Number(r.amount) || 0;
+        receivedThisMonthCount += 1;
+      }
+      const status = (r.status || '').toLowerCase();
+      if (status === 'cleared') clearedCount += 1;
+      if (status === 'bounced') bouncedCount += 1;
+
+      // Days-to-collect proxy: receipt.date − earliest applied invoice.
+      // We don't have invoice dates loaded here, so we fall back to
+      // (createdAt − date) in days for a rough estimate.
+      const created = r.createdAt ? new Date(r.createdAt) : null;
+      if (dt && created && !isNaN(dt.getTime()) && !isNaN(created.getTime())) {
+        const days = Math.max(0, (created.getTime() - dt.getTime()) / 86_400_000);
+        if (Number.isFinite(days) && days < 365) {
+          daySum += days;
+          daySamples += 1;
+        }
+      }
+    }
+    return {
+      receivedThisMonthTotal,
+      receivedThisMonthCount,
+      clearedCount,
+      bouncedCount,
+      avgDaysToCollect: daySamples > 0 ? Math.round(daySum / daySamples) : 0,
+      currency,
+    };
+  } catch {
+    return EMPTY_KPIS;
+  }
+}
+
+/* ─── Inline status / bulk mutators ───────────────────────────── */
+
+const STATUS_ALLOWED: readonly CrmReceiptStatus[] = ['received', 'cleared', 'bounced'];
+
+function isStatus(s: string): s is CrmReceiptStatus {
+  return (STATUS_ALLOWED as readonly string[]).includes(s);
+}
+
+/** Mark a single receipt with a new workflow status. */
+export async function setPaymentReceiptStatus(
+  id: string,
+  status: CrmReceiptStatus,
+): Promise<{ success: boolean; error?: string }> {
+  if (!id) return { success: false, error: 'Missing receipt id.' };
+  if (!isStatus(status)) return { success: false, error: 'Invalid status.' };
+  try {
+    await crmPaymentReceiptsApi.update(id, { status });
+    revalidatePath(LIST_PATH);
+    revalidatePath(`${LIST_PATH}/${id}`);
+    return { success: true };
+  } catch (e) {
+    return { success: false, error: rustErr(e) };
+  }
+}
+
+/** Run a bulk operation across many receipts. */
+export async function bulkPaymentReceiptAction(
+  ids: string[],
+  op: 'archive' | 'delete' | 'status',
+  payload?: string,
+): Promise<{ success: boolean; processed: number; error?: string }> {
+  if (!Array.isArray(ids) || ids.length === 0) {
+    return { success: false, processed: 0, error: 'No receipts selected.' };
+  }
+  try {
+    let processed = 0;
+    for (const id of ids) {
+      try {
+        if (op === 'delete') {
+          await crmPaymentReceiptsApi.delete(id);
+        } else if (op === 'status') {
+          const s = (payload ?? '').toLowerCase();
+          if (!isStatus(s)) continue;
+          await crmPaymentReceiptsApi.update(id, { status: s });
+        } else if (op === 'archive') {
+          // No `archived` flag on the Rust patch — best-effort: mark
+          // `notes` with an [archived] tag so it survives a re-read.
+          // TODO 1D.x: surface a first-class archived flag once the
+          // Rust DTO grows one.
+          await crmPaymentReceiptsApi.update(id, {
+            notes: '[archived]',
+          });
+        }
+        processed += 1;
+      } catch {
+        // continue on per-row failure
+      }
+    }
+    revalidatePath(LIST_PATH);
+    return { success: processed > 0, processed };
+  } catch (e) {
+    return { success: false, processed: 0, error: rustErr(e) };
+  }
 }

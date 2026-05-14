@@ -3,14 +3,29 @@
 /**
  * CRM Invoice server actions.
  *
- * Thin shims over the Rust BFF (`crmInvoicesApi`). No direct Mongo access.
- * FormData callers (the new/edit pages) hit `saveInvoiceAction` /
- * `deleteInvoiceAction`; programmatic callers can use the typed helpers
- * (`listInvoices`, `getInvoice`, `createInvoice`, `updateInvoice`,
- * `deleteInvoice`).
+ * Thin shims over the Rust BFF (`crmInvoicesApi`). No direct Mongo access
+ * for the core CRUD path. FormData callers (the new/edit pages) hit
+ * `saveInvoiceAction` / `deleteInvoiceAction`; programmatic callers can
+ * use the typed helpers (`listInvoices`, `getInvoice`, `createInvoice`,
+ * `updateInvoice`, `deleteInvoice`).
+ *
+ * §1D additions:
+ *  - `getInvoiceKpis()` — list-page KPI strip aggregate.
+ *  - `getCrmInvoiceRelatedCounts()` — right-rail counts.
+ *  - `findInvoiceDuplicates()` — list-page "Find duplicates".
+ *  - `bulkArchiveInvoices / bulkDeleteInvoices / bulkChangeInvoiceStatus
+ *    / bulkAssignInvoices` — list bulk-bar wiring.
+ *  - `patchInvoice` / `updateInvoiceStatus` — detail-page quick-edits.
+ *  - `sendInvoiceEmail` — detail-page email composer.
+ *
+ * All mutations write audit entries (best-effort). The Rust path is the
+ * authoritative source; the Mongo fall-throughs exist purely so legacy
+ * envs keep working.
  */
 
 import { revalidatePath } from 'next/cache';
+import { ObjectId } from 'mongodb';
+
 import { RustApiError } from '@/lib/rust-client';
 import {
   crmInvoicesApi,
@@ -18,10 +33,15 @@ import {
   type CrmInvoiceDoc,
   type CrmInvoiceLineItem,
   type CrmInvoiceListParams,
+  type CrmInvoiceStatus,
   type CrmInvoiceTotals,
   type CrmInvoiceUpdateInput,
 } from '@/lib/rust-client/crm-invoices';
 import { applyCustomFieldsToEntity } from '@/app/actions/worksuite/meta.actions';
+import { getSession } from '@/app/actions/user.actions';
+import { connectToDatabase } from '@/lib/mongodb';
+import { writeAuditEntry } from '@/lib/audit-log';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
 
 const LIST_PATH = '/dashboard/crm/sales/invoices';
 
@@ -29,6 +49,15 @@ function rustErr(e: unknown): string {
   if (e instanceof RustApiError) return e.message;
   if (e instanceof Error) return e.message;
   return 'Unexpected error.';
+}
+
+function revalidateSurfaces(invoiceId?: string): void {
+  revalidatePath(LIST_PATH);
+  if (invoiceId) {
+    revalidatePath(`${LIST_PATH}/${invoiceId}`);
+    revalidatePath(`${LIST_PATH}/${invoiceId}/edit`);
+    revalidatePath(`${LIST_PATH}/${invoiceId}/activity`);
+  }
 }
 
 /* ─── Read ────────────────────────────────────────────────────── */
@@ -52,6 +81,12 @@ export async function listInvoices(
     const invoices = await crmInvoicesApi.list({ ...params, page, limit });
     return { invoices, page, limit, hasMore: invoices.length === limit };
   } catch (e) {
+    recordRustFallback({
+      entity: 'invoice',
+      op: 'list',
+      errorCode: e instanceof RustApiError ? e.code : undefined,
+      status: e instanceof RustApiError ? e.status : undefined,
+    });
     return { invoices: [], page, limit, hasMore: false, error: rustErr(e) };
   }
 }
@@ -67,6 +102,12 @@ export async function getInvoice(
     if (e instanceof RustApiError && e.status === 404) {
       return { invoice: null, error: 'Invoice not found.' };
     }
+    recordRustFallback({
+      entity: 'invoice',
+      op: 'get',
+      errorCode: e instanceof RustApiError ? e.code : undefined,
+      status: e instanceof RustApiError ? e.status : undefined,
+    });
     return { invoice: null, error: rustErr(e) };
   }
 }
@@ -92,7 +133,9 @@ function parseCustomFields(formData: FormData): Record<string, unknown> | null {
   if (typeof raw !== 'string' || raw.length === 0 || raw === '{}') return null;
   try {
     const parsed = JSON.parse(raw);
-    return parsed && typeof parsed === 'object' ? (parsed as Record<string, unknown>) : null;
+    return parsed && typeof parsed === 'object'
+      ? (parsed as Record<string, unknown>)
+      : null;
   } catch {
     return null;
   }
@@ -102,8 +145,7 @@ function parseCustomFields(formData: FormData): Record<string, unknown> | null {
  * Parse the JSON-encoded `lineItems` blob from the form. Each row is
  * normalized into a `CrmInvoiceLineItem` — strings get coerced to
  * numbers, blanks are dropped, and the per-line `total` is recomputed
- * (qty × rate) so the wire payload is internally consistent regardless
- * of any client-side rounding skew.
+ * (qty × rate × (1 − discount%) × (1 + tax%)).
  */
 function parseLineItems(formData: FormData): CrmInvoiceLineItem[] {
   const raw = formData.get('lineItems');
@@ -136,6 +178,14 @@ function parseLineItems(formData: FormData): CrmInvoiceLineItem[] {
     if (Number.isFinite(dp)) item.discountPct = dp;
     const tp = Number(r.taxRatePct);
     if (Number.isFinite(tp)) item.taxRatePct = tp;
+    const cgst = Number(r.cgstAmount);
+    if (Number.isFinite(cgst)) item.cgstAmount = cgst;
+    const sgst = Number(r.sgstAmount);
+    if (Number.isFinite(sgst)) item.sgstAmount = sgst;
+    const igst = Number(r.igstAmount);
+    if (Number.isFinite(igst)) item.igstAmount = igst;
+    const cess = Number(r.cessAmount);
+    if (Number.isFinite(cess)) item.cessAmount = cess;
     out.push(item);
   }
   return out;
@@ -146,9 +196,29 @@ function parseLineItems(formData: FormData): CrmInvoiceLineItem[] {
  * UI computes these client-side for the preview pane, but we recompute
  * here so server-side state is the source of truth on save.
  */
-function deriveTotals(items: CrmInvoiceLineItem[]): CrmInvoiceTotals {
-  const subTotal = items.reduce((s, li) => s + (li.total ?? li.qty * li.rate), 0);
-  return { subTotal, total: subTotal };
+function deriveTotals(items: CrmInvoiceLineItem[], extras?: {
+  discountOverall?: number;
+  shippingCharge?: number;
+  adjustment?: number;
+  roundOff?: number;
+}): CrmInvoiceTotals {
+  const subTotal = items.reduce(
+    (s, li) => s + (li.total ?? li.qty * li.rate),
+    0,
+  );
+  const discountOverall = extras?.discountOverall ?? 0;
+  const shippingCharge = extras?.shippingCharge ?? 0;
+  const adjustment = extras?.adjustment ?? 0;
+  const roundOff = extras?.roundOff ?? 0;
+  const total = subTotal - discountOverall + shippingCharge + adjustment + roundOff;
+  return {
+    subTotal,
+    discountOverall: extras?.discountOverall,
+    shippingCharge: extras?.shippingCharge,
+    adjustment: extras?.adjustment,
+    roundOff: extras?.roundOff,
+    total,
+  };
 }
 
 /**
@@ -159,11 +229,17 @@ function deriveTotals(items: CrmInvoiceLineItem[]): CrmInvoiceTotals {
  * persisted via `applyCustomFieldsToEntity` after the main row is
  * created/updated — failures there are logged but do not roll back the
  * invoice save.
+ *
+ * Preserves all FormData field names callers in the form / detail pages
+ * write today.
  */
 export async function saveInvoiceAction(
   _prev: unknown,
   formData: FormData,
 ): Promise<{ message?: string; error?: string; id?: string }> {
+  const session = await getSession();
+  if (!session?.user) return { error: 'Access denied.' };
+
   const id = pickString(formData, '_id');
   const invoiceNo = pickString(formData, 'invoiceNo');
   const clientId = pickString(formData, 'clientId');
@@ -194,7 +270,15 @@ export async function saveInvoiceAction(
   if (items.length === 0) {
     return { error: 'At least one line item is required.' };
   }
-  const totals = deriveTotals(items);
+  const totals = deriveTotals(items, {
+    discountOverall: pickNumber(formData, 'discountOverall'),
+    shippingCharge: pickNumber(formData, 'shippingCharge'),
+    adjustment: pickNumber(formData, 'adjustment'),
+    roundOff: pickNumber(formData, 'roundOff'),
+  });
+
+  const fromKindRaw = pickString(formData, 'fromKind');
+  const fromIdRaw = pickString(formData, 'fromId');
 
   const draft: CrmInvoiceCreateInput = {
     invoiceNo,
@@ -210,6 +294,9 @@ export async function saveInvoiceAction(
     paymentTerms: pickString(formData, 'paymentTerms'),
     customerNotes: pickString(formData, 'customerNotes'),
     termsAndConditions: pickString(formData, 'termsAndConditions'),
+    ...(fromKindRaw && fromIdRaw
+      ? { fromKind: fromKindRaw as CrmInvoiceCreateInput['fromKind'], fromId: fromIdRaw }
+      : {}),
   };
 
   try {
@@ -233,13 +320,30 @@ export async function saveInvoiceAction(
       }
     }
 
-    revalidatePath(LIST_PATH);
-    revalidatePath(`${LIST_PATH}/${String(result._id)}`);
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action: id ? 'update' : 'create',
+        entityKind: 'invoice',
+        entityId: String(result._id),
+      });
+    } catch {
+      /* non-fatal */
+    }
+
+    revalidateSurfaces(String(result._id));
     return {
       message: id ? 'Invoice updated.' : 'Invoice created.',
       id: String(result._id),
     };
   } catch (e) {
+    recordRustFallback({
+      entity: 'invoice',
+      op: id ? 'update' : 'create',
+      errorCode: e instanceof RustApiError ? e.code : undefined,
+      status: e instanceof RustApiError ? e.status : undefined,
+    });
     return { error: rustErr(e) };
   }
 }
@@ -252,14 +356,33 @@ export async function deleteInvoiceAction(
   id: string,
 ): Promise<{ success: boolean; error?: string }> {
   if (!id) return { success: false, error: 'Missing invoice id.' };
+  const session = await getSession();
+  if (!session?.user) return { success: false, error: 'Access denied.' };
   try {
     await crmInvoicesApi.delete(id);
-    revalidatePath(LIST_PATH);
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action: 'delete',
+        entityKind: 'invoice',
+        entityId: id,
+      });
+    } catch {
+      /* non-fatal */
+    }
+    revalidateSurfaces(id);
     return { success: true };
   } catch (e) {
     if (e instanceof RustApiError && e.status === 404) {
       return { success: false, error: 'Invoice not found.' };
     }
+    recordRustFallback({
+      entity: 'invoice',
+      op: 'delete',
+      errorCode: e instanceof RustApiError ? e.code : undefined,
+      status: e instanceof RustApiError ? e.status : undefined,
+    });
     return { success: false, error: rustErr(e) };
   }
 }
@@ -276,4 +399,561 @@ export async function updateInvoice(id: string, patch: CrmInvoiceUpdateInput) {
 
 export async function deleteInvoice(id: string) {
   return crmInvoicesApi.delete(id);
+}
+
+/* ─── §1D additions ───────────────────────────────────────────── */
+
+export async function getInvoiceById(id: string): Promise<CrmInvoiceDoc | null> {
+  const { invoice } = await getInvoice(id);
+  return invoice;
+}
+
+export interface InvoiceKpiSummary {
+  /** Sum of `balance` for invoices not yet fully paid / cancelled. */
+  outstanding: number;
+  /** Number of invoices past their due date and still unpaid. */
+  overdueCount: number;
+  /** Total outstanding balance across overdue invoices. */
+  overdueAmount: number;
+  /** Number of invoices marked `paid` in the current calendar month. */
+  paidThisMonthCount: number;
+  /** Sum of `totals.total` for invoices paid this month. */
+  paidThisMonthAmount: number;
+  /** Number of draft invoices. */
+  draftCount: number;
+  /** Average days between create and full-pay across paid invoices. `null` if none. */
+  avgDaysToPay: number | null;
+}
+
+/**
+ * Compute the §1D KPI strip from a snapshot of invoice rows. The Rust
+ * BFF doesn't have a server-side aggregate today, so the page handler
+ * loads a representative window of invoices (e.g. last 200) and passes
+ * them here. Pure function — no IO.
+ */
+export function computeInvoiceKpis(
+  rows: Pick<
+    CrmInvoiceDoc,
+    | 'status'
+    | 'balance'
+    | 'totals'
+    | 'dueDate'
+    | 'date'
+    | 'amountPaid'
+    | 'updatedAt'
+  >[],
+): InvoiceKpiSummary {
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+  let outstanding = 0;
+  let overdueCount = 0;
+  let overdueAmount = 0;
+  let paidThisMonthCount = 0;
+  let paidThisMonthAmount = 0;
+  let draftCount = 0;
+  let daysToPayTotal = 0;
+  let daysToPayCount = 0;
+
+  for (const r of rows) {
+    const status = (r.status ?? '').toLowerCase();
+    const balance = typeof r.balance === 'number' ? r.balance : r.totals?.total ?? 0;
+    const total = typeof r.totals?.total === 'number' ? r.totals.total : 0;
+
+    if (status === 'draft') draftCount += 1;
+    if (status !== 'paid' && status !== 'cancelled') {
+      outstanding += balance;
+      const due = r.dueDate ? new Date(r.dueDate).getTime() : NaN;
+      if (!Number.isNaN(due) && due < now.getTime()) {
+        overdueCount += 1;
+        overdueAmount += balance;
+      }
+    }
+    if (status === 'paid') {
+      const paidAt = r.updatedAt ? new Date(r.updatedAt).getTime() : NaN;
+      if (!Number.isNaN(paidAt) && paidAt >= monthStart.getTime()) {
+        paidThisMonthCount += 1;
+        paidThisMonthAmount += total;
+      }
+      const created = r.date ? new Date(r.date).getTime() : NaN;
+      if (!Number.isNaN(created) && !Number.isNaN(paidAt) && paidAt >= created) {
+        daysToPayTotal += (paidAt - created) / 86_400_000;
+        daysToPayCount += 1;
+      }
+    }
+  }
+
+  return {
+    outstanding,
+    overdueCount,
+    overdueAmount,
+    paidThisMonthCount,
+    paidThisMonthAmount,
+    draftCount,
+    avgDaysToPay: daysToPayCount > 0 ? daysToPayTotal / daysToPayCount : null,
+  };
+}
+
+/**
+ * Live related-entity counts for the detail page right rail. Reads
+ * directly from Mongo (the Rust BFF doesn't expose a count endpoint).
+ */
+export async function getCrmInvoiceRelatedCounts(
+  invoiceId: string,
+): Promise<{
+  receipts: number;
+  creditNotes: number;
+  quotations: number;
+  salesOrders: number;
+  deliveries: number;
+}> {
+  const empty = {
+    receipts: 0,
+    creditNotes: 0,
+    quotations: 0,
+    salesOrders: 0,
+    deliveries: 0,
+  };
+  if (!invoiceId) return empty;
+  const session = await getSession();
+  if (!session?.user) return empty;
+
+  try {
+    const { db } = await connectToDatabase();
+    const userId = new ObjectId(String(session.user._id));
+    const idCandidates: unknown[] = [invoiceId];
+    if (ObjectId.isValid(invoiceId)) idCandidates.push(new ObjectId(invoiceId));
+
+    // Direct invoiceId-on-doc references first, lineage-based as a
+    // secondary clause. Failures degrade silently to 0.
+    const [receipts, creditNotes, quotations, salesOrders, deliveries] =
+      await Promise.all([
+        db
+          .collection('crm_payment_receipts')
+          .countDocuments({
+            userId,
+            $or: [
+              { invoiceId: { $in: idCandidates } },
+              { 'allocations.invoiceId': { $in: idCandidates } },
+              { 'lineage.id': invoiceId, 'lineage.kind': 'invoice' },
+            ],
+          } as Record<string, unknown>)
+          .catch(() => 0),
+        db
+          .collection('crm_credit_notes')
+          .countDocuments({
+            userId,
+            $or: [
+              { invoiceId: { $in: idCandidates } },
+              { 'lineage.id': invoiceId, 'lineage.kind': 'invoice' },
+            ],
+          } as Record<string, unknown>)
+          .catch(() => 0),
+        db
+          .collection('crm_quotations')
+          .countDocuments({
+            userId,
+            'lineage.id': invoiceId,
+            'lineage.kind': 'invoice',
+          } as Record<string, unknown>)
+          .catch(() => 0),
+        db
+          .collection('crm_sales_orders')
+          .countDocuments({
+            userId,
+            'lineage.id': invoiceId,
+            'lineage.kind': 'invoice',
+          } as Record<string, unknown>)
+          .catch(() => 0),
+        db
+          .collection('crm_delivery_challans')
+          .countDocuments({
+            userId,
+            'lineage.id': invoiceId,
+            'lineage.kind': 'invoice',
+          } as Record<string, unknown>)
+          .catch(() => 0),
+      ]);
+
+    return {
+      receipts: Number(receipts) || 0,
+      creditNotes: Number(creditNotes) || 0,
+      quotations: Number(quotations) || 0,
+      salesOrders: Number(salesOrders) || 0,
+      deliveries: Number(deliveries) || 0,
+    };
+  } catch (e) {
+    console.error('[getCrmInvoiceRelatedCounts] failed:', e);
+    return empty;
+  }
+}
+
+/* ─── Duplicates ──────────────────────────────────────────────── */
+
+export interface InvoiceDuplicateGroup {
+  key: string;
+  members: Array<{
+    _id: string;
+    invoiceNo: string;
+    clientId?: string;
+    total: number;
+    currency?: string;
+    date?: string;
+    status?: string;
+  }>;
+}
+
+/**
+ * Cluster invoices that look like accidental duplicates: same
+ * `(clientId, invoiceNo)` or same `(clientId, total)` issued within
+ * ±7 days. Read-only — no merge action yet.
+ */
+export async function findInvoiceDuplicates(): Promise<InvoiceDuplicateGroup[]> {
+  const session = await getSession();
+  if (!session?.user) return [];
+  try {
+    const all = await crmInvoicesApi.list({ page: 1, limit: 500 });
+    const sevenDaysMs = 7 * 86_400_000;
+    const groups: InvoiceDuplicateGroup['members'][] = [];
+    const used = new Set<string>();
+
+    type Row = InvoiceDuplicateGroup['members'][number];
+    const rows: Row[] = all.map((d) => ({
+      _id: String(d._id),
+      invoiceNo: d.invoiceNo ?? '',
+      clientId: d.clientId,
+      total: typeof d.totals?.total === 'number' ? d.totals.total : 0,
+      currency: d.currency,
+      date: d.date,
+      status: d.status,
+    }));
+
+    for (let i = 0; i < rows.length; i++) {
+      const a = rows[i];
+      if (used.has(a._id) || !a.clientId) continue;
+      const cluster: Row[] = [a];
+      for (let j = i + 1; j < rows.length; j++) {
+        const b = rows[j];
+        if (used.has(b._id) || b.clientId !== a.clientId) continue;
+        const sameNo = a.invoiceNo && a.invoiceNo === b.invoiceNo;
+        const ref = Math.max(Math.abs(a.total), Math.abs(b.total), 1);
+        const sameAmount = Math.abs(a.total - b.total) / ref <= 0.01;
+        let withinWeek = true;
+        if (a.date && b.date) {
+          const dt = Math.abs(new Date(a.date).getTime() - new Date(b.date).getTime());
+          withinWeek = dt <= sevenDaysMs;
+        }
+        if ((sameNo || sameAmount) && withinWeek) {
+          cluster.push(b);
+          used.add(b._id);
+        }
+      }
+      if (cluster.length >= 2) {
+        used.add(a._id);
+        groups.push(cluster);
+      }
+    }
+
+    return groups.map((cluster, idx) => ({
+      key: `${cluster[0].clientId ?? 'no-client'}-${idx}`,
+      members: cluster,
+    }));
+  } catch (e) {
+    console.error('[findInvoiceDuplicates] failed:', e);
+    return [];
+  }
+}
+
+/* ─── Bulk ops ────────────────────────────────────────────────── */
+
+async function audit(
+  session: NonNullable<Awaited<ReturnType<typeof getSession>>>,
+  ids: string[],
+  action: string,
+  reason?: string,
+): Promise<void> {
+  for (const id of ids) {
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action,
+        entityKind: 'invoice',
+        entityId: id,
+        reason,
+      });
+    } catch {
+      /* non-fatal */
+    }
+  }
+}
+
+export async function bulkDeleteInvoices(
+  ids: string[],
+): Promise<{ success: boolean; processed: number; error?: string }> {
+  const session = await getSession();
+  if (!session?.user) {
+    return { success: false, processed: 0, error: 'Access denied.' };
+  }
+  const valid = (ids ?? []).filter((id) => typeof id === 'string' && id.length > 0);
+  if (valid.length === 0) {
+    return { success: false, processed: 0, error: 'No invoices selected.' };
+  }
+  let processed = 0;
+  try {
+    for (const id of valid) {
+      try {
+        await crmInvoicesApi.delete(id);
+        processed += 1;
+      } catch (e) {
+        console.error('[bulkDeleteInvoices] per-row failure:', e);
+        recordRustFallback({
+          entity: 'invoice',
+          op: 'delete',
+          errorCode: e instanceof RustApiError ? e.code : undefined,
+          status: e instanceof RustApiError ? e.status : undefined,
+        });
+      }
+    }
+    await audit(session, valid, 'delete', 'bulk:delete');
+    revalidateSurfaces();
+    return { success: true, processed };
+  } catch (e) {
+    return { success: false, processed, error: rustErr(e) };
+  }
+}
+
+export async function bulkArchiveInvoices(
+  ids: string[],
+): Promise<{ success: boolean; processed: number; error?: string }> {
+  const session = await getSession();
+  if (!session?.user) {
+    return { success: false, processed: 0, error: 'Access denied.' };
+  }
+  const valid = (ids ?? []).filter((id) => typeof id === 'string' && id.length > 0);
+  if (valid.length === 0) {
+    return { success: false, processed: 0, error: 'No invoices selected.' };
+  }
+  let processed = 0;
+  try {
+    for (const id of valid) {
+      try {
+        await crmInvoicesApi.update(id, { status: 'cancelled' });
+        processed += 1;
+      } catch (e) {
+        console.error('[bulkArchiveInvoices] per-row failure:', e);
+        recordRustFallback({
+          entity: 'invoice',
+          op: 'update',
+          errorCode: e instanceof RustApiError ? e.code : undefined,
+          status: e instanceof RustApiError ? e.status : undefined,
+        });
+      }
+    }
+    await audit(session, valid, 'archive', 'bulk:archive');
+    revalidateSurfaces();
+    return { success: true, processed };
+  } catch (e) {
+    return { success: false, processed, error: rustErr(e) };
+  }
+}
+
+export async function bulkChangeInvoiceStatus(
+  ids: string[],
+  status: CrmInvoiceStatus | string,
+): Promise<{ success: boolean; processed: number; error?: string }> {
+  const session = await getSession();
+  if (!session?.user) {
+    return { success: false, processed: 0, error: 'Access denied.' };
+  }
+  const valid = (ids ?? []).filter((id) => typeof id === 'string' && id.length > 0);
+  if (valid.length === 0) {
+    return { success: false, processed: 0, error: 'No invoices selected.' };
+  }
+  let processed = 0;
+  try {
+    for (const id of valid) {
+      try {
+        await crmInvoicesApi.update(id, { status });
+        processed += 1;
+      } catch (e) {
+        console.error('[bulkChangeInvoiceStatus] per-row failure:', e);
+        recordRustFallback({
+          entity: 'invoice',
+          op: 'update',
+          errorCode: e instanceof RustApiError ? e.code : undefined,
+          status: e instanceof RustApiError ? e.status : undefined,
+        });
+      }
+    }
+    await audit(session, valid, 'status_change', `bulk:status=${status}`);
+    revalidateSurfaces();
+    return { success: true, processed };
+  } catch (e) {
+    return { success: false, processed, error: rustErr(e) };
+  }
+}
+
+/**
+ * Bulk-assign owner. The Rust update endpoint doesn't expose an owner
+ * field today (per `CrmInvoiceUpdateInput`), so this is a Mongo-only
+ * patch — emits per-id audit + revalidate, ignoring rows that aren't
+ * valid ObjectIds.
+ */
+export async function bulkAssignInvoices(
+  ids: string[],
+  userId: string | null,
+): Promise<{ success: boolean; processed: number; error?: string }> {
+  const session = await getSession();
+  if (!session?.user) {
+    return { success: false, processed: 0, error: 'Access denied.' };
+  }
+  const valid = (ids ?? []).filter((id) => typeof id === 'string' && id.length > 0);
+  if (valid.length === 0) {
+    return { success: false, processed: 0, error: 'No invoices selected.' };
+  }
+  const objectIds = valid
+    .filter((id) => ObjectId.isValid(id))
+    .map((id) => new ObjectId(id));
+  if (objectIds.length === 0) {
+    return { success: false, processed: 0, error: 'No valid invoices.' };
+  }
+  try {
+    const { db } = await connectToDatabase();
+    const tenant = new ObjectId(String(session.user._id));
+    const ownerValue = userId && ObjectId.isValid(userId) ? new ObjectId(userId) : null;
+    const result = await db.collection('crm_invoices').updateMany(
+      { _id: { $in: objectIds }, userId: tenant },
+      {
+        $set: {
+          'assignment.assignedTo': ownerValue,
+          'assignment.assignedAt': new Date(),
+          updatedAt: new Date(),
+        },
+      },
+    );
+    await audit(session, valid, 'assign', `bulk:assign=${userId ?? 'null'}`);
+    revalidateSurfaces();
+    return { success: true, processed: result.modifiedCount ?? 0 };
+  } catch (e) {
+    return { success: false, processed: 0, error: rustErr(e) };
+  }
+}
+
+/* ─── Detail-page quick edits ─────────────────────────────────── */
+
+export async function updateInvoiceStatus(
+  id: string,
+  status: CrmInvoiceStatus | string,
+): Promise<{ success: boolean; error?: string }> {
+  if (!id) return { success: false, error: 'Missing invoice id.' };
+  const session = await getSession();
+  if (!session?.user) return { success: false, error: 'Access denied.' };
+  try {
+    await crmInvoicesApi.update(id, { status });
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action: 'status_change',
+        entityKind: 'invoice',
+        entityId: id,
+        diff: { status: { after: status } },
+      });
+    } catch {
+      /* non-fatal */
+    }
+    revalidateSurfaces(id);
+    return { success: true };
+  } catch (e) {
+    recordRustFallback({
+      entity: 'invoice',
+      op: 'update',
+      errorCode: e instanceof RustApiError ? e.code : undefined,
+      status: e instanceof RustApiError ? e.status : undefined,
+    });
+    return { success: false, error: rustErr(e) };
+  }
+}
+
+/**
+ * Generic patch helper for detail-page quick-edit chips (customer
+ * change, currency change, due date reschedule…). Pass any subset of
+ * the canonical update shape.
+ */
+export async function patchInvoice(
+  id: string,
+  patch: CrmInvoiceUpdateInput,
+): Promise<{ success: boolean; error?: string }> {
+  if (!id) return { success: false, error: 'Missing invoice id.' };
+  const session = await getSession();
+  if (!session?.user) return { success: false, error: 'Access denied.' };
+  try {
+    await crmInvoicesApi.update(id, patch);
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action: 'update',
+        entityKind: 'invoice',
+        entityId: id,
+      });
+    } catch {
+      /* non-fatal */
+    }
+    revalidateSurfaces(id);
+    return { success: true };
+  } catch (e) {
+    recordRustFallback({
+      entity: 'invoice',
+      op: 'update',
+      errorCode: e instanceof RustApiError ? e.code : undefined,
+      status: e instanceof RustApiError ? e.status : undefined,
+    });
+    return { success: false, error: rustErr(e) };
+  }
+}
+
+/* ─── Email (detail-page composer) ────────────────────────────── */
+
+export async function sendInvoiceEmail(args: {
+  invoiceId: string;
+  to: string;
+  subject: string;
+  message: string;
+}): Promise<{ success: boolean; error?: string }> {
+  const session = await getSession();
+  if (!session?.user) return { success: false, error: 'Access denied.' };
+  const { invoiceId, to, subject } = args;
+  if (!invoiceId || !to || !subject) {
+    return { success: false, error: 'Missing required field.' };
+  }
+  try {
+    // Mark sent on the doc + audit. Real SMTP delivery hooks live
+    // outside this file; this action is the persistence/audit half.
+    await crmInvoicesApi.update(invoiceId, { status: 'sent' });
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action: 'send',
+        entityKind: 'invoice',
+        entityId: invoiceId,
+        reason: `email:to=${to}`,
+        diff: { subject: { after: subject } },
+      });
+    } catch {
+      /* non-fatal */
+    }
+    revalidateSurfaces(invoiceId);
+    return { success: true };
+  } catch (e) {
+    recordRustFallback({
+      entity: 'invoice',
+      op: 'update',
+      errorCode: e instanceof RustApiError ? e.code : undefined,
+      status: e instanceof RustApiError ? e.status : undefined,
+    });
+    return { success: false, error: rustErr(e) };
+  }
 }

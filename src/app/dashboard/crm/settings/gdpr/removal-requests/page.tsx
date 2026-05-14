@@ -31,6 +31,7 @@ import {
   ZoruDialogTitle,
   ZoruLabel,
   ZoruSkeleton,
+  ZoruStatCard,
   ZoruTable,
   ZoruTableBody,
   ZoruTableCell,
@@ -245,6 +246,12 @@ export default function RemovalRequestsPage() {
       </ZoruTableRow>
     ));
 
+  // KPI strip: Pending · Completed · Rejected (across users + leads)
+  const allRows = [...userRows, ...leadRows];
+  const pendingCount = allRows.filter((r) => r.status === 'pending').length;
+  const completedCount = allRows.filter((r) => r.status === 'completed').length;
+  const rejectedCount = allRows.filter((r) => r.status === 'rejected').length;
+
   return (
     <div className="flex w-full flex-col gap-6">
       <CrmPageHeader
@@ -252,6 +259,12 @@ export default function RemovalRequestsPage() {
         subtitle="GDPR right-to-be-forgotten submissions from users and leads."
         icon={UserMinus}
       />
+
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+        <ZoruStatCard label="Pending" value={pendingCount.toLocaleString()} />
+        <ZoruStatCard label="Completed" value={completedCount.toLocaleString()} />
+        <ZoruStatCard label="Rejected" value={rejectedCount.toLocaleString()} />
+      </div>
 
       <ZoruCard className="p-6">
         <div className="mb-4 inline-flex gap-1 rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface p-1">

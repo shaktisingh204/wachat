@@ -1,51 +1,30 @@
 'use client';
 
+/**
+ * KPI tracking — list page rebuilt to §1D.1 bar.
+ *
+ * KPI strip: Total · On-track · Achieved · Behind.
+ * Server actions preserved: getCrmKpis / deleteCrmKpi.
+ */
+
 import * as React from 'react';
-import { useTransition, useActionState, useEffect, useState } from 'react';
-import { LineChart, Plus, Pencil, Trash2, LoaderCircle } from 'lucide-react';
+import { useCallback, useEffect, useState, useTransition } from 'react';
+import { LineChart } from 'lucide-react';
 
 import {
-  ZoruCard,
-  ZoruBadge,
-  ZoruButton,
-  ZoruDialog,
-  ZoruDialogContent,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogDescription,
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  ZoruSkeleton,
-  useZoruToast,
-} from '@/components/zoruui';
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
-import {
   getCrmKpis,
-  saveCrmKpi,
   deleteCrmKpi,
   type CrmKpi,
 } from '@/app/actions/crm-hr-appraisals.actions';
-import { WithId } from 'mongodb';
+import type { WithId } from 'mongodb';
 
-const STATUS_VARIANTS: Record<CrmKpi['status'], 'success' | 'warning' | 'danger'> = {
-  achieved: 'success',
-  'on-track': 'warning',
-  behind: 'danger',
-};
+import {
+  HrChip,
+  HrListShell,
+  HrStatusCell,
+} from '../../hr/_components/hr-list-shell';
+
+type Row = WithId<CrmKpi>;
 
 function AchievementBar({ target, actual }: { target: number; actual: number }) {
   const pct = target > 0 ? Math.min(100, Math.round((actual / target) * 100)) : 0;
@@ -61,162 +40,14 @@ function AchievementBar({ target, actual }: { target: number; actual: number }) 
   );
 }
 
-const SAVE_INITIAL = { message: '', error: '' };
-
-function KpiFormDialog({
-  open,
-  onOpenChange,
-  kpi,
-  onSaved,
-}: {
-  open: boolean;
-  onOpenChange: (v: boolean) => void;
-  kpi: WithId<CrmKpi> | null;
-  onSaved: () => void;
-}) {
-  const { toast } = useZoruToast();
-  const [state, formAction, isPending] = useActionState(saveCrmKpi, SAVE_INITIAL);
-  const isEdit = Boolean(kpi?._id);
-
-  useEffect(() => {
-    if (state?.message) {
-      toast({ title: 'Saved', description: state.message });
-      onOpenChange(false);
-      onSaved();
-    }
-    if (state?.error) {
-      toast({ title: 'Error', description: state.error, variant: 'destructive' });
-    }
-  }, [state, toast, onOpenChange, onSaved]);
-
-  return (
-    <ZoruDialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="max-w-lg">
-        <ZoruDialogHeader>
-          <ZoruDialogTitle className="text-zoru-ink">
-            {isEdit ? 'Edit KPI' : 'New KPI'}
-          </ZoruDialogTitle>
-          <ZoruDialogDescription className="text-zoru-ink-muted">
-            Define a key performance indicator and track progress.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
-
-        <form action={formAction} className="space-y-4 py-2">
-          {isEdit && <input type="hidden" name="id" value={String(kpi!._id)} />}
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-1.5 md:col-span-2">
-              <ZoruLabel className="text-zoru-ink">
-                KPI Name <span className="text-zoru-danger-ink">*</span>
-              </ZoruLabel>
-              <ZoruInput
-                name="kpi_name"
-                required
-                defaultValue={kpi?.kpi_name ?? ''}
-                placeholder="e.g. Monthly Sales Revenue"
-                className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <ZoruLabel className="text-zoru-ink">Employee</ZoruLabel>
-              <ZoruInput
-                name="employee_id"
-                defaultValue={kpi?.employee_id ?? ''}
-                placeholder="Employee ID or name"
-                className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <ZoruLabel className="text-zoru-ink">Period</ZoruLabel>
-              <ZoruInput
-                name="period"
-                defaultValue={kpi?.period ?? ''}
-                placeholder="Q1 2026"
-                className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <ZoruLabel className="text-zoru-ink">Target Value</ZoruLabel>
-              <ZoruInput
-                name="target_value"
-                type="number"
-                defaultValue={kpi?.target_value ?? ''}
-                placeholder="100"
-                className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <ZoruLabel className="text-zoru-ink">Actual Value</ZoruLabel>
-              <ZoruInput
-                name="actual_value"
-                type="number"
-                defaultValue={kpi?.actual_value ?? ''}
-                placeholder="0"
-                className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <ZoruLabel className="text-zoru-ink">Unit</ZoruLabel>
-              <ZoruSelect name="unit" defaultValue={kpi?.unit ?? '%'}>
-                <ZoruSelectTrigger className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
-                  <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="%">% (Percentage)</ZoruSelectItem>
-                  <ZoruSelectItem value="$">$ (Currency)</ZoruSelectItem>
-                  <ZoruSelectItem value="count">Count</ZoruSelectItem>
-                </ZoruSelectContent>
-              </ZoruSelect>
-            </div>
-            <div className="space-y-1.5">
-              <ZoruLabel className="text-zoru-ink">Status</ZoruLabel>
-              <ZoruSelect name="status" defaultValue={kpi?.status ?? 'on-track'}>
-                <ZoruSelectTrigger className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
-                  <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="on-track">On Track</ZoruSelectItem>
-                  <ZoruSelectItem value="behind">Behind</ZoruSelectItem>
-                  <ZoruSelectItem value="achieved">Achieved</ZoruSelectItem>
-                </ZoruSelectContent>
-              </ZoruSelect>
-            </div>
-          </div>
-
-          <ZoruDialogFooter className="gap-2">
-            <ZoruButton type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
-            </ZoruButton>
-            <ZoruButton
-              type="submit"
-              disabled={isPending}
-            >
-              {isPending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
-              {isEdit ? 'Update KPI' : 'Create KPI'}
-            </ZoruButton>
-          </ZoruDialogFooter>
-        </form>
-      </ZoruDialogContent>
-    </ZoruDialog>
-  );
-}
-
 export default function KpiTrackingPage() {
-  const { toast } = useZoruToast();
-  const [kpis, setKpis] = useState<WithId<CrmKpi>[]>([]);
-  const [isLoading, startLoading] = useTransition();
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [editing, setEditing] = useState<WithId<CrmKpi> | null>(null);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [rows, setRows] = useState<Row[]>([]);
+  const [isLoading, startTransition] = useTransition();
 
-  const refresh = React.useCallback(() => {
-    startLoading(async () => {
-      try {
-        const data = await getCrmKpis();
-        setKpis(data);
-      } catch {
-        setKpis([]);
-      }
+  const refresh = useCallback(() => {
+    startTransition(async () => {
+      const data = (await getCrmKpis()) as Row[];
+      setRows(Array.isArray(data) ? data : []);
     });
   }, []);
 
@@ -224,160 +55,114 @@ export default function KpiTrackingPage() {
     refresh();
   }, [refresh]);
 
-  const handleDelete = async () => {
-    if (!deletingId) return;
-    const res = await deleteCrmKpi(deletingId);
-    if (res.success) {
-      toast({ title: 'Deleted', description: 'KPI removed.' });
-      setDeletingId(null);
-      refresh();
-    } else {
-      toast({ title: 'Error', description: res.error ?? 'Failed to delete', variant: 'destructive' });
-    }
-  };
+  const kpis = React.useMemo(() => {
+    const total = rows.length;
+    const onTrack = rows.filter((r) => r.status === 'on-track').length;
+    const achieved = rows.filter((r) => r.status === 'achieved').length;
+    const behind = rows.filter((r) => r.status === 'behind').length;
+    return [
+      { label: 'Total', value: total },
+      { label: 'On track', value: onTrack, tone: 'amber' as const },
+      { label: 'Achieved', value: achieved, tone: 'green' as const },
+      { label: 'Behind', value: behind, tone: 'red' as const },
+    ];
+  }, [rows]);
+
+  // Cast `_id` to string for the shell — HrListShell expects string ids
+  // for table keys / nav hrefs.
+  type StringRow = Omit<Row, '_id'> & { _id: string };
+  const stringRows: StringRow[] = rows.map((r) => ({
+    ...r,
+    _id: String(r._id),
+  })) as StringRow[];
 
   return (
-    <>
-      <KpiFormDialog
-        open={dialogOpen}
-        onOpenChange={setDialogOpen}
-        kpi={editing}
-        onSaved={refresh}
-      />
-      <ZoruAlertDialog
-        open={deletingId !== null}
-        onOpenChange={(o) => !o && setDeletingId(null)}
-      >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle className="text-zoru-ink">Delete KPI?</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription className="text-zoru-ink-muted">
-              This action cannot be undone.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction onClick={handleDelete}>Delete</ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
-
-      <div className="flex w-full flex-col gap-6">
-        <CrmPageHeader
-          title="KPI Tracking"
-          subtitle="Define and monitor key performance indicators for teams and employees."
-          icon={LineChart}
-          actions={
-            <ZoruButton
-              onClick={() => {
-                setEditing(null);
-                setDialogOpen(true);
-              }}
-            >
-              <Plus className="h-4 w-4" />
-              New KPI
-            </ZoruButton>
-          }
-        />
-
-        <ZoruCard className="p-6">
-          <div className="overflow-x-auto rounded-lg border border-zoru-line">
-            <table className="w-full text-left text-[13px]">
-              <thead>
-                <tr className="border-b border-zoru-line">
-                  <th className="px-4 py-3 text-[12px] text-zoru-ink-muted">KPI Name</th>
-                  <th className="px-4 py-3 text-[12px] text-zoru-ink-muted">Employee</th>
-                  <th className="px-4 py-3 text-[12px] text-zoru-ink-muted">Period</th>
-                  <th className="px-4 py-3 text-[12px] text-zoru-ink-muted">Target</th>
-                  <th className="px-4 py-3 text-[12px] text-zoru-ink-muted">Actual</th>
-                  <th className="px-4 py-3 text-[12px] text-zoru-ink-muted">Achievement</th>
-                  <th className="px-4 py-3 text-[12px] text-zoru-ink-muted">Status</th>
-                  <th className="px-4 py-3 text-right text-[12px] text-zoru-ink-muted">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {isLoading && kpis.length === 0 ? (
-                  [0, 1, 2].map((i) => (
-                    <tr key={i} className="border-b border-zoru-line">
-                      <td colSpan={8} className="px-4 py-3">
-                        <ZoruSkeleton className="h-5 w-full" />
-                      </td>
-                    </tr>
-                  ))
-                ) : kpis.length === 0 ? (
-                  <tr>
-                    <td
-                      colSpan={8}
-                      className="px-4 py-12 text-center text-[13px] text-zoru-ink-muted"
-                    >
-                      No KPIs yet — click New KPI to get started.
-                    </td>
-                  </tr>
-                ) : (
-                  kpis.map((kpi) => (
-                    <tr
-                      key={String(kpi._id)}
-                      className="border-b border-zoru-line last:border-0"
-                    >
-                      <td className="px-4 py-3 text-zoru-ink">
-                        {kpi.kpi_name}
-                      </td>
-                      <td className="max-w-[120px] truncate px-4 py-3 text-zoru-ink-muted">
-                        {kpi.employee_id || '—'}
-                      </td>
-                      <td className="px-4 py-3 text-zoru-ink-muted">{kpi.period || '—'}</td>
-                      <td className="px-4 py-3 tabular-nums text-zoru-ink">
-                        {kpi.target_value}
-                        <span className="ml-0.5 text-[11px] text-zoru-ink-muted">
-                          {kpi.unit}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 tabular-nums text-zoru-ink">
-                        {kpi.actual_value}
-                        <span className="ml-0.5 text-[11px] text-zoru-ink-muted">
-                          {kpi.unit}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <AchievementBar
-                          target={kpi.target_value}
-                          actual={kpi.actual_value}
-                        />
-                      </td>
-                      <td className="px-4 py-3">
-                        <ZoruBadge variant={STATUS_VARIANTS[kpi.status] ?? 'secondary'}>
-                          {kpi.status}
-                        </ZoruBadge>
-                      </td>
-                      <td className="px-4 py-3 text-right">
-                        <div className="flex justify-end gap-1">
-                          <ZoruButton
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => {
-                              setEditing(kpi);
-                              setDialogOpen(true);
-                            }}
-                          >
-                            <Pencil className="h-3.5 w-3.5" />
-                          </ZoruButton>
-                          <ZoruButton
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setDeletingId(String(kpi._id))}
-                          >
-                            <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
-                          </ZoruButton>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </ZoruCard>
-      </div>
-    </>
+    <HrListShell<StringRow>
+      title="KPI tracking"
+      subtitle="Key performance indicators with target vs actual achievement."
+      icon={LineChart}
+      newHref="/dashboard/hrm/payroll/kpi-tracking/new"
+      editHref={(r) => `/dashboard/hrm/payroll/kpi-tracking/${r._id}/edit`}
+      detailHref={(r) => `/dashboard/hrm/payroll/kpi-tracking/${r._id}`}
+      rows={stringRows}
+      loading={isLoading}
+      kpis={kpis}
+      statusOptions={[
+        { value: 'on-track', label: 'On track' },
+        { value: 'achieved', label: 'Achieved' },
+        { value: 'behind', label: 'Behind' },
+      ]}
+      getRowStatus={(r) => String(r.status ?? '')}
+      searchPlaceholder="Search KPIs…"
+      searchPredicate={(r, q) =>
+        String(r.kpi_name ?? '').toLowerCase().includes(q) ||
+        String(r.employee_id ?? '').toLowerCase().includes(q)
+      }
+      onDelete={deleteCrmKpi}
+      onAfterChange={refresh}
+      emptyText="No KPIs yet"
+      columns={[
+        {
+          key: 'name',
+          label: 'KPI',
+          render: (r) => (
+            <span className="block max-w-[220px] truncate font-medium">
+              {r.kpi_name}
+            </span>
+          ),
+        },
+        {
+          key: 'employee',
+          label: 'Employee',
+          render: (r) =>
+            r.employee_id ? (
+              <span className="block max-w-[140px] truncate">{r.employee_id}</span>
+            ) : (
+              <span className="text-zoru-ink-muted">—</span>
+            ),
+        },
+        {
+          key: 'period',
+          label: 'Period',
+          render: (r) =>
+            r.period ? <HrChip>{r.period}</HrChip> : <span className="text-zoru-ink-muted">—</span>,
+        },
+        {
+          key: 'target',
+          label: 'Target',
+          render: (r) => (
+            <span className="tabular-nums">
+              {r.target_value}
+              <span className="ml-0.5 text-[11px] text-zoru-ink-muted">{r.unit}</span>
+            </span>
+          ),
+        },
+        {
+          key: 'actual',
+          label: 'Actual',
+          render: (r) => (
+            <span className="tabular-nums">
+              {r.actual_value}
+              <span className="ml-0.5 text-[11px] text-zoru-ink-muted">{r.unit}</span>
+            </span>
+          ),
+        },
+        {
+          key: 'achievement',
+          label: 'Achievement',
+          render: (r) => (
+            <AchievementBar
+              target={r.target_value}
+              actual={r.actual_value}
+            />
+          ),
+        },
+        {
+          key: 'status',
+          label: 'Status',
+          render: (r) => <HrStatusCell value={String(r.status ?? '')} />,
+        },
+      ]}
+    />
   );
 }

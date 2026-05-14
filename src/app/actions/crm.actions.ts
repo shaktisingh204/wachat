@@ -507,7 +507,7 @@ export async function addCrmNote(prevState: any, formData: FormData): Promise<{ 
     if (!session?.user) return { error: "Access denied" };
 
     const recordId = formData.get('recordId') as string;
-    const recordType = formData.get('recordType') as 'contact' | 'account' | 'deal';
+    const recordType = formData.get('recordType') as 'contact' | 'account' | 'deal' | 'lead';
     const content = formData.get('noteContent') as string;
 
     if (!recordId || !ObjectId.isValid(recordId) || !recordType || !content) {
@@ -518,8 +518,12 @@ export async function addCrmNote(prevState: any, formData: FormData): Promise<{ 
         contact: 'crm_contacts',
         account: 'crm_accounts',
         deal: 'crm_deals',
+        lead: 'crm_leads',
     };
     const collectionName = collectionMap[recordType];
+    if (!collectionName) {
+        return { error: `Unsupported record type: ${recordType}` };
+    }
 
     try {
         const { db } = await connectToDatabase();
@@ -532,7 +536,11 @@ export async function addCrmNote(prevState: any, formData: FormData): Promise<{ 
             { _id: new ObjectId(recordId), userId: new ObjectId(session.user._id) },
             { $push: { notes: { $each: [newNote], $position: 0 } } } as any
         );
-        revalidatePath(`/dashboard/crm/${recordType}s/${recordId}`);
+        if (recordType === 'lead') {
+            revalidatePath(`/dashboard/crm/sales-crm/all-leads/${recordId}`);
+        } else {
+            revalidatePath(`/dashboard/crm/${recordType}s/${recordId}`);
+        }
         return {
             message: "Note added.",
             note: {

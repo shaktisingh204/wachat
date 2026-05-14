@@ -301,3 +301,163 @@ export async function updateGrn(id: string, patch: CrmGrnUpdateInput) {
 export async function deleteGrn(id: string) {
   return crmGrnsApi.delete(id);
 }
+
+/* ─── KPIs ────────────────────────────────────────────────────── */
+
+export interface GrnKpis {
+  pendingQcCount: number;
+  acceptedCount: number;
+  partiallyAcceptedCount: number;
+  rejectedCount: number;
+}
+
+const EMPTY_GRN_KPIS: GrnKpis = {
+  pendingQcCount: 0,
+  acceptedCount: 0,
+  partiallyAcceptedCount: 0,
+  rejectedCount: 0,
+};
+
+/**
+ * Derive GRN KPIs from a wide page. "Pending QC" maps to `draft` (the
+ * pre-inspection state); "Accepted" maps to `posted` (fully accepted);
+ * "Partially accepted" maps to `inspected` rows where some lines were
+ * rejected; "Rejected" maps to `rejected`.
+ */
+export async function getGrnKpis(): Promise<GrnKpis> {
+  try {
+    const rows = await crmGrnsApi.list({ page: 1, limit: 100 });
+    if (!Array.isArray(rows) || rows.length === 0) return EMPTY_GRN_KPIS;
+    let pendingQcCount = 0;
+    let acceptedCount = 0;
+    let partiallyAcceptedCount = 0;
+    let rejectedCount = 0;
+    for (const g of rows) {
+      const status = (typeof g.status === 'string' ? g.status : '').toLowerCase();
+      if (status === 'draft' || status === '') {
+        pendingQcCount += 1;
+      } else if (status === 'posted') {
+        acceptedCount += 1;
+      } else if (status === 'rejected') {
+        rejectedCount += 1;
+      } else if (status === 'inspected') {
+        // Partial-accept hint: any rejected qty across the items?
+        const hasRejected = (g.items ?? []).some(
+          (it) => Number(it.rejectedQty) > 0,
+        );
+        if (hasRejected) partiallyAcceptedCount += 1;
+        else acceptedCount += 1;
+      }
+    }
+    return {
+      pendingQcCount,
+      acceptedCount,
+      partiallyAcceptedCount,
+      rejectedCount,
+    };
+  } catch {
+    return EMPTY_GRN_KPIS;
+  }
+}
+
+/* ─── Inline status / bulk mutators ───────────────────────────── */
+
+const GRN_STATUSES = ['draft', 'inspected', 'posted', 'rejected'] as const;
+
+function isGrnStatus(s: string): boolean {
+  return (GRN_STATUSES as readonly string[]).includes(s);
+}
+
+/** Mark a single GRN with a new workflow status. */
+export async function setGrnStatus(
+  id: string,
+  status: string,
+): Promise<{ success: boolean; error?: string }> {
+  if (!id) return { success: false, error: 'Missing GRN id.' };
+  if (!isGrnStatus(status)) {
+    return { success: false, error: 'Invalid status.' };
+  }
+  try {
+    await crmGrnsApi.update(id, { status });
+    revalidatePath(LIST_PATH);
+    revalidatePath(`${LIST_PATH}/${id}`);
+    return { success: true };
+  } catch (e) {
+    return { success: false, error: rustErr(e) };
+  }
+}
+
+/** Run a bulk operation across many GRNs. */
+export async function bulkGrnAction(
+  ids: string[],
+  op: 'delete' | 'status',
+  payload?: string,
+): Promise<{ success: boolean; processed: number; error?: string }> {
+  if (!Array.isArray(ids) || ids.length === 0) {
+    return { success: false, processed: 0, error: 'No GRNs selected.' };
+  }
+  try {
+    let processed = 0;
+    for (const id of ids) {
+      try {
+        if (op === 'delete') {
+          await crmGrnsApi.delete(id);
+        } else if (op === 'status') {
+          const s = (payload ?? '').toLowerCase();
+          if (!isGrnStatus(s)) continue;
+          await crmGrnsApi.update(id, { status: s });
+        }
+        processed += 1;
+      } catch {
+        // continue on per-row failure
+      }
+    }
+    revalidatePath(LIST_PATH);
+    return { success: processed > 0, processed };
+  } catch (e) {
+    return { success: false, processed: 0, error: rustErr(e) };
+  }
+}
+
+/* ─── PO seed for the "Convert PO → GRN" flow ─────────────────── */
+
+export interface GrnSeed {
+  vendorId?: string;
+  warehouseId?: string;
+  poId?: string;
+  items?: Array<{
+    itemId: string;
+    orderedQty: number;
+  }>;
+}
+
+/**
+ * Build a `GrnSeed` from a Purchase Order id. The Rust BFF for POs
+ * isn't unified yet, so we resolve via the legacy action layer.
+ */
+export async function getGrnSeedFromPo(poId: string): Promise<GrnSeed | null> {
+  if (!poId) return null;
+  try {
+    // Legacy Mongo action — keeps the file dependency-light vs the
+    // full purchaseOrders crate. The PO doc shape carries `vendorId`,
+    // `warehouseId`, and `items[]` with `qty` / `itemId`.
+    const mod = await import('@/app/actions/crm-purchase-orders.actions');
+    const po: any = await mod.getPurchaseOrderById(poId);
+    if (!po) return null;
+    return {
+      poId,
+      vendorId: po.vendorId ? String(po.vendorId) : undefined,
+      warehouseId: po.warehouseId ? String(po.warehouseId) : undefined,
+      items: Array.isArray(po.items)
+        ? po.items
+            .filter((it: any) => it?.itemId)
+            .map((it: any) => ({
+              itemId: String(it.itemId),
+              orderedQty: Number(it.qty ?? it.orderedQty ?? 0),
+            }))
+        : [],
+    };
+  } catch {
+    return null;
+  }
+}
