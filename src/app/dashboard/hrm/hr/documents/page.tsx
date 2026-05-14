@@ -28,9 +28,64 @@ export default function DocumentsPage() {
       icon={FileText}
       singular="Document"
       basePath="/dashboard/hrm/hr/documents"
+      rowLinksToDetail
       getAllAction={getDocuments as any}
       saveAction={saveDocument}
       deleteAction={deleteDocument}
+      kpis={[
+        {
+          label: 'Total',
+          compute: (rows) => rows.length,
+        },
+        {
+          label: 'Verified',
+          compute: (rows) =>
+            rows.filter(
+              (r) =>
+                (r as any).verified === true ||
+                (r as any).verified === 'yes' ||
+                (r as any).isVerified === true,
+            ).length,
+          tone: 'green',
+        },
+        {
+          label: 'Confidential',
+          compute: (rows) =>
+            rows.filter(
+              (r) =>
+                (r as any).isConfidential === true ||
+                (r as any).isConfidential === 'yes',
+            ).length,
+          tone: 'amber',
+        },
+        {
+          label: 'Expiring 90d',
+          compute: (rows) => {
+            const now = new Date();
+            const cutoff = new Date(now.getTime() + 90 * 24 * 60 * 60 * 1000);
+            return rows.filter((r) => {
+              const exp = (r as any).expiresAt;
+              if (!exp) return false;
+              const d = new Date(exp);
+              return !isNaN(d.getTime()) && d >= now && d <= cutoff;
+            }).length;
+          },
+          tone: 'red',
+        },
+        {
+          label: 'Expired',
+          compute: (rows) => {
+            const now = new Date();
+            return rows.filter((r) => {
+              const exp = (r as any).expiresAt;
+              if (!exp) return false;
+              const d = new Date(exp);
+              return !isNaN(d.getTime()) && d < now;
+            }).length;
+          },
+          tone: 'red',
+        },
+      ]}
       columns={[
         { key: 'name', label: 'Document Name' },
         {

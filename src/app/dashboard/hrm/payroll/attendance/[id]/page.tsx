@@ -5,11 +5,16 @@
  * resolves relational fields through `<EntityPickerChip>`. Uses
  * `<EntityDetailShell>` to render header + sectioned body cards +
  * activity timeline. Edit / Back actions live in the header.
+ *
+ * §1D rebuild additions:
+ *   - Late-by / Early-out badges with the computed delta
+ *   - Punch-location chip + "View on Google Maps" deep-link (no
+ *     embedded map per the scope cap)
  */
 
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { Pencil, ArrowLeft } from 'lucide-react';
+import { ArrowLeft, ExternalLink, Pencil } from 'lucide-react';
 
 import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
@@ -107,6 +112,15 @@ export default async function AttendanceDetailPage({
     notFound();
   }
 
+  const lateBy = record.lateByMinutes ?? 0;
+  const earlyOut = record.earlyOutByMinutes ?? 0;
+  const lat = record.punchIn?.lat;
+  const lng = record.punchIn?.lng;
+  const hasLocation = typeof lat === 'number' && typeof lng === 'number';
+  const mapsUrl = hasLocation
+    ? `https://www.google.com/maps?q=${encodeURIComponent(`${lat},${lng}`)}`
+    : null;
+
   return (
     <EntityDetailShell
       eyebrow="Attendance"
@@ -140,16 +154,29 @@ export default async function AttendanceDetailPage({
             Source
           </h3>
           <ZoruBadge variant="outline">{record.source}</ZoruBadge>
-          {record.punchIn?.lat != null || record.punchIn?.lng != null ? (
-            <>
-              <h3 className="mb-3 mt-6 text-[11px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
-                Punch-in location
-              </h3>
-              <p className="text-[12px] text-zoru-ink-muted">
-                {record.punchIn?.lat ?? '—'}, {record.punchIn?.lng ?? '—'}
+          <h3 className="mb-3 mt-6 text-[11px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+            Punch-in location
+          </h3>
+          {hasLocation ? (
+            <div className="space-y-2 text-[12px] text-zoru-ink">
+              <p className="font-mono">
+                {(lat as number).toFixed(5)}, {(lng as number).toFixed(5)}
               </p>
-            </>
-          ) : null}
+              <ZoruButton variant="outline" size="sm" asChild>
+                <a
+                  href={mapsUrl ?? '#'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <ExternalLink className="h-3.5 w-3.5" /> View on Google Maps
+                </a>
+              </ZoruButton>
+            </div>
+          ) : (
+            <p className="text-[12px] text-zoru-ink-muted">
+              No location captured for this punch.
+            </p>
+          )}
         </ZoruCard>
       }
     >
@@ -186,9 +213,21 @@ export default async function AttendanceDetailPage({
           <Field label="Check-out">{fmtDateTime(record.punchOut?.at)}</Field>
           <Field label="Total hours">{fmtHours(record.totalHours)}</Field>
           <Field label="Overtime hours">{fmtHours(record.overtimeHours)}</Field>
-          <Field label="Late by">{fmtMinutes(record.lateByMinutes)}</Field>
+          <Field label="Late by">
+            <span className="inline-flex items-center gap-2">
+              {fmtMinutes(record.lateByMinutes)}
+              {lateBy > 0 ? (
+                <ZoruBadge variant="warning">+{lateBy}m late</ZoruBadge>
+              ) : null}
+            </span>
+          </Field>
           <Field label="Early-out by">
-            {fmtMinutes(record.earlyOutByMinutes)}
+            <span className="inline-flex items-center gap-2">
+              {fmtMinutes(record.earlyOutByMinutes)}
+              {earlyOut > 0 ? (
+                <ZoruBadge variant="warning">−{earlyOut}m early</ZoruBadge>
+              ) : null}
+            </span>
           </Field>
         </div>
       </ZoruCard>

@@ -3,10 +3,18 @@
 /**
  * CRM Bill (expense) server actions.
  *
- * Thin shims over the Rust BFF (`crmBillsApi`). No direct Mongo access.
- * FormData callers (the new/edit pages) hit `saveBillAction` /
- * `deleteBillAction`; programmatic callers can use the typed helpers
- * (`listBills`, `getBill`, `createBill`, `updateBill`, `deleteBill`).
+ * Thin shims over the Rust BFF (`crmBillsApi`). No direct Mongo access
+ * for the core CRUD path. FormData callers (the new/edit pages) hit
+ * `saveBillAction` / `deleteBillAction`; programmatic callers can use
+ * the typed helpers (`listBills`, `getBill`, `createBill`, `updateBill`,
+ * `deleteBill`).
+ *
+ * §1D additions (Bills rebuild — mirrors invoices.actions.ts):
+ *  - `computeBillKpis()` — list-page KPI strip aggregate.
+ *  - `getCrmBillRelatedCounts()` — right-rail counts.
+ *  - `bulkArchiveBills / bulkDeleteBills / bulkChangeBillStatus` —
+ *    list bulk-bar wiring.
+ *  - `patchBill` / `updateBillStatus` — detail-page quick-edits.
  *
  * The Rust crate calls these "bills" (vendor invoices, buy-side); the
  * user-facing route is `/dashboard/crm/purchases/expenses/` for legacy
@@ -15,17 +23,24 @@
  */
 
 import { revalidatePath } from 'next/cache';
+import { ObjectId } from 'mongodb';
 import { RustApiError } from '@/lib/rust-client';
 import {
   crmBillsApi,
   type CrmBillCreateInput,
   type CrmBillDoc,
+  type CrmBillExpenseLine,
   type CrmBillLineItem,
   type CrmBillListParams,
+  type CrmBillStatus,
   type CrmBillTotals,
   type CrmBillUpdateInput,
 } from '@/lib/rust-client/crm-bills';
 import { applyCustomFieldsToEntity } from '@/app/actions/worksuite/meta.actions';
+import { getSession } from '@/app/actions/user.actions';
+import { connectToDatabase } from '@/lib/mongodb';
+import { writeAuditEntry } from '@/lib/audit-log';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
 
 const LIST_PATH = '/dashboard/crm/purchases/expenses';
 
@@ -33,6 +48,15 @@ function rustErr(e: unknown): string {
   if (e instanceof RustApiError) return e.message;
   if (e instanceof Error) return e.message;
   return 'Unexpected error.';
+}
+
+function revalidateSurfaces(billId?: string): void {
+  revalidatePath(LIST_PATH);
+  if (billId) {
+    revalidatePath(`${LIST_PATH}/${billId}`);
+    revalidatePath(`${LIST_PATH}/${billId}/edit`);
+    revalidatePath(`${LIST_PATH}/${billId}/activity`);
+  }
 }
 
 /* ─── Read ────────────────────────────────────────────────────── */
@@ -152,12 +176,53 @@ function parseLineItems(formData: FormData): CrmBillLineItem[] {
 }
 
 /**
- * Derive document-level totals from a normalized line-item array. The
- * UI computes these client-side for the preview pane, but we recompute
+ * Parse the JSON-encoded `expenseLines` blob from the form (direct-to-
+ * ledger expense rows like rent, utilities). Each row has `accountId +
+ * amount + tax + project + description`; we coerce numerics and drop
+ * malformed rows quietly.
+ */
+function parseExpenseLines(formData: FormData): CrmBillExpenseLine[] {
+  const raw = formData.get('expenseLines');
+  if (typeof raw !== 'string' || raw.length === 0) return [];
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    return [];
+  }
+  if (!Array.isArray(parsed)) return [];
+  const out: CrmBillExpenseLine[] = [];
+  for (const row of parsed) {
+    if (!row || typeof row !== 'object') continue;
+    const r = row as Record<string, unknown>;
+    const amount = Number(r.amount ?? 0);
+    if (!Number.isFinite(amount)) continue;
+    const item: CrmBillExpenseLine = { amount };
+    if (typeof r.accountId === 'string' && r.accountId) item.accountId = r.accountId;
+    if (typeof r.description === 'string' && r.description)
+      item.description = r.description;
+    const tp = Number(r.taxRatePct);
+    if (Number.isFinite(tp)) item.taxRatePct = tp;
+    out.push(item);
+  }
+  return out;
+}
+
+/**
+ * Derive document-level totals from a normalized line/expense-line array.
+ * The UI computes these client-side for the preview pane, but we recompute
  * here so server-side state is the source of truth on save.
  */
-function deriveTotals(items: CrmBillLineItem[]): CrmBillTotals {
-  const subTotal = items.reduce((s, li) => s + (li.total ?? li.qty * li.rate), 0);
+function deriveTotals(
+  items: CrmBillLineItem[],
+  expenseLines: CrmBillExpenseLine[] = [],
+): CrmBillTotals {
+  const itemsSub = items.reduce(
+    (s, li) => s + (li.total ?? li.qty * li.rate),
+    0,
+  );
+  const expensesSub = expenseLines.reduce((s, el) => s + (el.amount || 0), 0);
+  const subTotal = itemsSub + expensesSub;
   return { subTotal, total: subTotal };
 }
 
@@ -174,6 +239,9 @@ export async function saveBillAction(
   _prev: unknown,
   formData: FormData,
 ): Promise<{ message?: string; error?: string; id?: string }> {
+  const session = await getSession();
+  if (!session?.user) return { error: 'Access denied.' };
+
   const id = pickString(formData, '_id');
   const vendorId = pickString(formData, 'vendorId');
   const currency = pickString(formData, 'currency') ?? 'INR';
@@ -200,10 +268,14 @@ export async function saveBillAction(
   }
 
   const items = parseLineItems(formData);
-  if (items.length === 0) {
-    return { error: 'At least one line item is required.' };
+  const expenseLines = parseExpenseLines(formData);
+  if (items.length === 0 && expenseLines.length === 0) {
+    return { error: 'At least one line item or expense line is required.' };
   }
-  const totals = deriveTotals(items);
+  const totals = deriveTotals(items, expenseLines);
+
+  const fromKindRaw = pickString(formData, 'fromKind');
+  const fromIdRaw = pickString(formData, 'fromId');
 
   const draft: CrmBillCreateInput = {
     billNo: pickString(formData, 'billNo'),
@@ -212,6 +284,7 @@ export async function saveBillAction(
     dueDate: dueDate ? dueDate.toISOString() : undefined,
     vendorId,
     items,
+    expenseLines: expenseLines.length ? expenseLines : undefined,
     tdsSection: pickString(formData, 'tdsSection'),
     tdsAmount: pickNumber(formData, 'tdsAmount'),
     reverseCharge: pickBool(formData, 'reverseCharge'),
@@ -219,6 +292,9 @@ export async function saveBillAction(
     currency,
     totals,
     notes: pickString(formData, 'notes'),
+    ...(fromKindRaw === 'purchaseOrder' || fromKindRaw === 'grn'
+      ? { fromKind: fromKindRaw, fromId: fromIdRaw }
+      : {}),
   };
 
   try {
@@ -230,6 +306,7 @@ export async function saveBillAction(
         dueDate: draft.dueDate,
         vendorId: draft.vendorId,
         items: draft.items,
+        expenseLines: draft.expenseLines,
         tdsSection: draft.tdsSection,
         tdsAmount: draft.tdsAmount,
         reverseCharge: draft.reverseCharge,
@@ -253,13 +330,30 @@ export async function saveBillAction(
       }
     }
 
-    revalidatePath(LIST_PATH);
-    revalidatePath(`${LIST_PATH}/${String(result._id)}`);
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action: id ? 'update' : 'create',
+        entityKind: 'bill',
+        entityId: String(result._id),
+      });
+    } catch {
+      /* non-fatal */
+    }
+
+    revalidateSurfaces(String(result._id));
     return {
       message: id ? 'Bill updated.' : 'Bill created.',
       id: String(result._id),
     };
   } catch (e) {
+    recordRustFallback({
+      entity: 'bill',
+      op: id ? 'update' : 'create',
+      errorCode: e instanceof RustApiError ? e.code : undefined,
+      status: e instanceof RustApiError ? e.status : undefined,
+    });
     return { error: rustErr(e) };
   }
 }
@@ -272,14 +366,33 @@ export async function deleteBillAction(
   id: string,
 ): Promise<{ success: boolean; error?: string }> {
   if (!id) return { success: false, error: 'Missing bill id.' };
+  const session = await getSession();
+  if (!session?.user) return { success: false, error: 'Access denied.' };
   try {
     await crmBillsApi.delete(id);
-    revalidatePath(LIST_PATH);
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action: 'delete',
+        entityKind: 'bill',
+        entityId: id,
+      });
+    } catch {
+      /* non-fatal */
+    }
+    revalidateSurfaces(id);
     return { success: true };
   } catch (e) {
     if (e instanceof RustApiError && e.status === 404) {
       return { success: false, error: 'Bill not found.' };
     }
+    recordRustFallback({
+      entity: 'bill',
+      op: 'delete',
+      errorCode: e instanceof RustApiError ? e.code : undefined,
+      status: e instanceof RustApiError ? e.status : undefined,
+    });
     return { success: false, error: rustErr(e) };
   }
 }
@@ -296,4 +409,376 @@ export async function updateBill(id: string, patch: CrmBillUpdateInput) {
 
 export async function deleteBill(id: string) {
   return crmBillsApi.delete(id);
+}
+
+/* ─── §1D additions ───────────────────────────────────────────── */
+
+export interface BillKpiSummary {
+  /** Sum of `balance` for bills not yet fully paid / cancelled. */
+  outstanding: number;
+  /** Number of bills past their due date and still unpaid. */
+  overdueCount: number;
+  /** Total outstanding balance across overdue bills. */
+  overdueAmount: number;
+  /** Number of bills marked `paid` in the current calendar month. */
+  paidThisMonthCount: number;
+  /** Sum of `totals.total` for bills paid this month. */
+  paidThisMonthAmount: number;
+  /** Number of draft bills. */
+  draftCount: number;
+  /** Average days between bill date and full-pay across paid bills. */
+  avgDaysToPay: number | null;
+}
+
+/**
+ * Compute the §1D KPI strip from a snapshot of bill rows. The Rust
+ * BFF doesn't have a server-side aggregate today, so the page handler
+ * loads a representative window of bills and passes them here. Pure
+ * function — no IO.
+ */
+export function computeBillKpis(
+  rows: Pick<
+    CrmBillDoc,
+    | 'status'
+    | 'balance'
+    | 'totals'
+    | 'dueDate'
+    | 'billDate'
+    | 'amountPaid'
+    | 'updatedAt'
+  >[],
+): BillKpiSummary {
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+  let outstanding = 0;
+  let overdueCount = 0;
+  let overdueAmount = 0;
+  let paidThisMonthCount = 0;
+  let paidThisMonthAmount = 0;
+  let draftCount = 0;
+  let daysToPayTotal = 0;
+  let daysToPayCount = 0;
+
+  for (const r of rows) {
+    const status = (r.status ?? '').toLowerCase();
+    const balance =
+      typeof r.balance === 'number' ? r.balance : r.totals?.total ?? 0;
+    const total = typeof r.totals?.total === 'number' ? r.totals.total : 0;
+
+    if (status === 'draft') draftCount += 1;
+    if (status !== 'paid' && status !== 'cancelled') {
+      outstanding += balance;
+      const due = r.dueDate ? new Date(r.dueDate).getTime() : NaN;
+      if (!Number.isNaN(due) && due < now.getTime()) {
+        overdueCount += 1;
+        overdueAmount += balance;
+      }
+    }
+    if (status === 'paid') {
+      const paidAt = r.updatedAt ? new Date(r.updatedAt).getTime() : NaN;
+      if (!Number.isNaN(paidAt) && paidAt >= monthStart.getTime()) {
+        paidThisMonthCount += 1;
+        paidThisMonthAmount += total;
+      }
+      const created = r.billDate ? new Date(r.billDate).getTime() : NaN;
+      if (!Number.isNaN(created) && !Number.isNaN(paidAt) && paidAt >= created) {
+        daysToPayTotal += (paidAt - created) / 86_400_000;
+        daysToPayCount += 1;
+      }
+    }
+  }
+
+  return {
+    outstanding,
+    overdueCount,
+    overdueAmount,
+    paidThisMonthCount,
+    paidThisMonthAmount,
+    draftCount,
+    avgDaysToPay: daysToPayCount > 0 ? daysToPayTotal / daysToPayCount : null,
+  };
+}
+
+/**
+ * Live related-entity counts for the detail page right rail. Reads
+ * directly from Mongo (the Rust BFF doesn't expose a count endpoint).
+ */
+export async function getCrmBillRelatedCounts(billId: string): Promise<{
+  payouts: number;
+  debitNotes: number;
+  purchaseOrders: number;
+  grns: number;
+}> {
+  const empty = { payouts: 0, debitNotes: 0, purchaseOrders: 0, grns: 0 };
+  if (!billId) return empty;
+  const session = await getSession();
+  if (!session?.user) return empty;
+
+  try {
+    const { db } = await connectToDatabase();
+    const userId = new ObjectId(String(session.user._id));
+    const idCandidates: unknown[] = [billId];
+    if (ObjectId.isValid(billId)) idCandidates.push(new ObjectId(billId));
+
+    const [payouts, debitNotes, purchaseOrders, grns] = await Promise.all([
+      db
+        .collection('crm_payouts')
+        .countDocuments({
+          userId,
+          $or: [
+            { billId: { $in: idCandidates } },
+            { 'allocations.billId': { $in: idCandidates } },
+            { 'lineage.id': billId, 'lineage.kind': 'bill' },
+          ],
+        } as Record<string, unknown>)
+        .catch(() => 0),
+      db
+        .collection('crm_debit_notes')
+        .countDocuments({
+          userId,
+          $or: [
+            { billId: { $in: idCandidates } },
+            { 'lineage.id': billId, 'lineage.kind': 'bill' },
+          ],
+        } as Record<string, unknown>)
+        .catch(() => 0),
+      db
+        .collection('crm_purchase_orders')
+        .countDocuments({
+          userId,
+          'lineage.id': billId,
+          'lineage.kind': 'bill',
+        } as Record<string, unknown>)
+        .catch(() => 0),
+      db
+        .collection('crm_grns')
+        .countDocuments({
+          userId,
+          'lineage.id': billId,
+          'lineage.kind': 'bill',
+        } as Record<string, unknown>)
+        .catch(() => 0),
+    ]);
+
+    return {
+      payouts: Number(payouts) || 0,
+      debitNotes: Number(debitNotes) || 0,
+      purchaseOrders: Number(purchaseOrders) || 0,
+      grns: Number(grns) || 0,
+    };
+  } catch (e) {
+    console.error('[getCrmBillRelatedCounts] failed:', e);
+    return empty;
+  }
+}
+
+/* ─── Bulk ops ────────────────────────────────────────────────── */
+
+async function auditMany(
+  session: NonNullable<Awaited<ReturnType<typeof getSession>>>,
+  ids: string[],
+  action: string,
+  reason?: string,
+): Promise<void> {
+  for (const id of ids) {
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action,
+        entityKind: 'bill',
+        entityId: id,
+        reason,
+      });
+    } catch {
+      /* non-fatal */
+    }
+  }
+}
+
+export async function bulkDeleteBills(
+  ids: string[],
+): Promise<{ success: boolean; processed: number; error?: string }> {
+  const session = await getSession();
+  if (!session?.user) {
+    return { success: false, processed: 0, error: 'Access denied.' };
+  }
+  const valid = (ids ?? []).filter(
+    (id) => typeof id === 'string' && id.length > 0,
+  );
+  if (valid.length === 0) {
+    return { success: false, processed: 0, error: 'No bills selected.' };
+  }
+  let processed = 0;
+  try {
+    for (const id of valid) {
+      try {
+        await crmBillsApi.delete(id);
+        processed += 1;
+      } catch (e) {
+        console.error('[bulkDeleteBills] per-row failure:', e);
+        recordRustFallback({
+          entity: 'bill',
+          op: 'delete',
+          errorCode: e instanceof RustApiError ? e.code : undefined,
+          status: e instanceof RustApiError ? e.status : undefined,
+        });
+      }
+    }
+    await auditMany(session, valid, 'delete', 'bulk:delete');
+    revalidateSurfaces();
+    return { success: true, processed };
+  } catch (e) {
+    return { success: false, processed, error: rustErr(e) };
+  }
+}
+
+export async function bulkArchiveBills(
+  ids: string[],
+): Promise<{ success: boolean; processed: number; error?: string }> {
+  const session = await getSession();
+  if (!session?.user) {
+    return { success: false, processed: 0, error: 'Access denied.' };
+  }
+  const valid = (ids ?? []).filter(
+    (id) => typeof id === 'string' && id.length > 0,
+  );
+  if (valid.length === 0) {
+    return { success: false, processed: 0, error: 'No bills selected.' };
+  }
+  let processed = 0;
+  try {
+    for (const id of valid) {
+      try {
+        await crmBillsApi.update(id, { status: 'cancelled' });
+        processed += 1;
+      } catch (e) {
+        console.error('[bulkArchiveBills] per-row failure:', e);
+        recordRustFallback({
+          entity: 'bill',
+          op: 'update',
+          errorCode: e instanceof RustApiError ? e.code : undefined,
+          status: e instanceof RustApiError ? e.status : undefined,
+        });
+      }
+    }
+    await auditMany(session, valid, 'archive', 'bulk:archive');
+    revalidateSurfaces();
+    return { success: true, processed };
+  } catch (e) {
+    return { success: false, processed, error: rustErr(e) };
+  }
+}
+
+export async function bulkChangeBillStatus(
+  ids: string[],
+  status: CrmBillStatus | string,
+): Promise<{ success: boolean; processed: number; error?: string }> {
+  const session = await getSession();
+  if (!session?.user) {
+    return { success: false, processed: 0, error: 'Access denied.' };
+  }
+  const valid = (ids ?? []).filter(
+    (id) => typeof id === 'string' && id.length > 0,
+  );
+  if (valid.length === 0) {
+    return { success: false, processed: 0, error: 'No bills selected.' };
+  }
+  let processed = 0;
+  try {
+    for (const id of valid) {
+      try {
+        await crmBillsApi.update(id, { status });
+        processed += 1;
+      } catch (e) {
+        console.error('[bulkChangeBillStatus] per-row failure:', e);
+        recordRustFallback({
+          entity: 'bill',
+          op: 'update',
+          errorCode: e instanceof RustApiError ? e.code : undefined,
+          status: e instanceof RustApiError ? e.status : undefined,
+        });
+      }
+    }
+    await auditMany(session, valid, 'status_change', `bulk:status=${status}`);
+    revalidateSurfaces();
+    return { success: true, processed };
+  } catch (e) {
+    return { success: false, processed, error: rustErr(e) };
+  }
+}
+
+/* ─── Detail-page quick edits ─────────────────────────────────── */
+
+export async function updateBillStatus(
+  id: string,
+  status: CrmBillStatus | string,
+): Promise<{ success: boolean; error?: string }> {
+  if (!id) return { success: false, error: 'Missing bill id.' };
+  const session = await getSession();
+  if (!session?.user) return { success: false, error: 'Access denied.' };
+  try {
+    await crmBillsApi.update(id, { status });
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action: 'status_change',
+        entityKind: 'bill',
+        entityId: id,
+        diff: { status: { after: status } },
+      });
+    } catch {
+      /* non-fatal */
+    }
+    revalidateSurfaces(id);
+    return { success: true };
+  } catch (e) {
+    recordRustFallback({
+      entity: 'bill',
+      op: 'update',
+      errorCode: e instanceof RustApiError ? e.code : undefined,
+      status: e instanceof RustApiError ? e.status : undefined,
+    });
+    return { success: false, error: rustErr(e) };
+  }
+}
+
+/**
+ * Generic patch helper for detail-page quick-edit chips (vendor change,
+ * currency change, due date reschedule...). Pass any subset of the
+ * canonical update shape.
+ */
+export async function patchBill(
+  id: string,
+  patch: CrmBillUpdateInput,
+): Promise<{ success: boolean; error?: string }> {
+  if (!id) return { success: false, error: 'Missing bill id.' };
+  const session = await getSession();
+  if (!session?.user) return { success: false, error: 'Access denied.' };
+  try {
+    await crmBillsApi.update(id, patch);
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action: 'update',
+        entityKind: 'bill',
+        entityId: id,
+      });
+    } catch {
+      /* non-fatal */
+    }
+    revalidateSurfaces(id);
+    return { success: true };
+  } catch (e) {
+    recordRustFallback({
+      entity: 'bill',
+      op: 'update',
+      errorCode: e instanceof RustApiError ? e.code : undefined,
+      status: e instanceof RustApiError ? e.status : undefined,
+    });
+    return { success: false, error: rustErr(e) };
+  }
 }

@@ -1,115 +1,155 @@
-import { ZoruAvatar, ZoruAvatarFallback, ZoruAvatarImage, ZoruButton, ZoruCard, ZoruInput, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/zoruui';
-export const dynamic = 'force-dynamic';
+/**
+ * Canonical Items list — `/dashboard/crm/inventory/items`.
+ *
+ * Server component. Reads page/limit/q from the URL, hands the data to
+ * `<ItemsListClient>` for the §1D experience (KPI strip, filters, view
+ * switcher, bulk bar, card grid).
+ *
+ * Per CRM_REBUILD_PLAN §1D.1.
+ */
 
-import { Plus, Search, Package } from "lucide-react";
-import Link from "next/link";
+import { Package } from 'lucide-react';
 
-import { getCrmProducts, deleteCrmProduct } from "@/app/actions/crm-products.actions";
-import { DeleteButton } from "@/components/wabasimplify/delete-button";
+import type { WithId } from 'mongodb';
+
+import { getCrmProducts } from '@/app/actions/crm-products.actions';
+import type { CrmProduct } from '@/lib/definitions';
 
 import { CrmPageHeader } from '../../_components/crm-page-header';
+import { ItemsListClient } from './_components/items-list-client';
+import type { ItemKpiSnapshot, ItemListRow } from './_components/types';
+import {
+  inventoryValue,
+  isLowStock,
+  isOutOfStock,
+} from './_components/types';
 
-export default async function InventoryItemsPage(
-    props: {
-        searchParams: Promise<{ query?: string; page?: string }>;
-    }
-) {
-    const searchParams = await props.searchParams;
-    const query = searchParams?.query || '';
-    const currentPage = Number(searchParams?.page) || 1;
+export const dynamic = 'force-dynamic';
 
-    const { products } = await getCrmProducts(currentPage, 20, query);
+interface SearchParams {
+  page?: string;
+  limit?: string;
+  q?: string;
+  query?: string;
+}
 
-    return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="Inventory Items"
-                subtitle="Manage your products and stock levels."
-                icon={Package}
-                actions={
-                    <Link href="/dashboard/crm/inventory/items/new">
-                        <ZoruButton>
-                            Add Item
-                        </ZoruButton>
-                    </Link>
-                }
-            />
+interface PageProps {
+  searchParams: Promise<SearchParams>;
+}
 
-            <ZoruCard>
-                <div className="mb-4 relative max-w-md">
-                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                    <ZoruInput
-                        placeholder="Search items..."
-                        className="h-10 rounded-lg border-border bg-card pl-9 text-[13px]"
-                        defaultValue={query}
-                    />
-                </div>
-                <div className="overflow-x-auto rounded-lg border border-border">
-                    <ZoruTable>
-                        <ZoruTableHeader>
-                            <ZoruTableRow className="border-border hover:bg-transparent">
-                                <ZoruTableHead className="text-muted-foreground w-[80px]">Image</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">Name</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">SKU</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">Price</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">Stock</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground text-right">Actions</ZoruTableHead>
-                            </ZoruTableRow>
-                        </ZoruTableHeader>
-                        <ZoruTableBody>
-                            {products.length === 0 ? (
-                                <ZoruTableRow className="border-border">
-                                    <ZoruTableCell colSpan={6} className="h-24 text-center text-muted-foreground">
-                                        No items found.
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
-                            ) : (
-                                products.map((product) => (
-                                    <ZoruTableRow key={product._id.toString()} className="border-border">
-                                        <ZoruTableCell>
-                                            <ZoruAvatar className="h-10 w-10 rounded-sm">
-                                                <ZoruAvatarImage src={product.images?.[0] || (product as any).imageUrl} alt={product.name} />
-                                                <ZoruAvatarFallback className="rounded-sm bg-accent text-accent-foreground">{product.name.charAt(0)}</ZoruAvatarFallback>
-                                            </ZoruAvatar>
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="font-medium">
-                                            <div className="flex flex-col">
-                                                <span className="text-foreground">{product.name}</span>
-                                                {product.itemType && <span className="text-[11.5px] text-muted-foreground capitalize">{product.itemType}</span>}
-                                            </div>
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-foreground">{product.sku || '-'}</ZoruTableCell>
-                                        <ZoruTableCell className="text-foreground">
-                                            {product.currency} {product.sellingPrice}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell>
-                                            {product.isTrackInventory ? (
-                                                <span className={product.totalStock <= 5 ? "text-destructive font-medium" : "text-foreground"}>
-                                                    {product.totalStock}
-                                                </span>
-                                            ) : (
-                                                <span className="text-muted-foreground text-[12.5px]">N/A</span>
-                                            )}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-right">
-                                            <div className="flex justify-end gap-2">
-                                                <Link href={`/dashboard/crm/inventory/items/${product._id}/edit`}>
-                                                    <ZoruButton variant="ghost" size="sm">Edit</ZoruButton>
-                                                </Link>
-                                                <DeleteButton
-                                                    id={product._id.toString()}
-                                                    action={deleteCrmProduct}
-                                                    resourceName="Product"
-                                                />
-                                            </div>
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
-                                ))
-                            )}
-                        </ZoruTableBody>
-                    </ZoruTable>
-                </div>
-            </ZoruCard>
-        </div>
-    );
+function toRow(doc: WithId<CrmProduct>): ItemListRow {
+  // The Mongo CrmProduct shape exposes inventory rows + totalStock but
+  // doesn't have an explicit `status` column today. We surface a synthetic
+  // active status until soft-archive lands so `<StatusPill>` has something
+  // meaningful to render.
+  const d = doc as WithId<CrmProduct> & {
+    barcode?: string;
+    vendorIds?: unknown;
+    taxRateId?: unknown;
+    status?: 'active' | 'archived';
+    reorderPoint?: number;
+    images?: string[];
+  };
+  const vendorIds = Array.isArray(d.vendorIds)
+    ? (d.vendorIds as unknown[]).map((id) => String(id))
+    : [];
+  const inventory = (d.inventory ?? []).map((row) => ({
+    warehouseId: String(row.warehouseId),
+    stock: Number(row.stock ?? 0),
+    reorderPoint: row.reorderPoint,
+  }));
+  return {
+    _id: String(d._id),
+    name: d.name,
+    sku: d.sku,
+    description: d.description,
+    itemType: (d.itemType as 'goods' | 'service' | 'bundle') ?? 'goods',
+    categoryId: d.categoryId ? String(d.categoryId) : null,
+    brandId: d.brandId ? String(d.brandId) : null,
+    unitId: d.unitId ? String(d.unitId) : null,
+    vendorIds,
+    taxRateId: d.taxRateId ? String(d.taxRateId) : null,
+    hsnSac: d.hsnSac,
+    barcode: d.barcode,
+    currency: d.currency ?? 'INR',
+    costPrice: Number(d.costPrice ?? 0),
+    sellingPrice: Number(d.sellingPrice ?? 0),
+    taxRate: d.taxRate,
+    isTrackInventory: Boolean(d.isTrackInventory),
+    inventory,
+    totalStock: Number(d.totalStock ?? 0),
+    reorderPoint:
+      typeof d.reorderPoint === 'number'
+        ? d.reorderPoint
+        : inventory[0]?.reorderPoint,
+    thumbnail: d.images?.[0],
+    status: d.status ?? 'active',
+    createdAt: d.createdAt ? new Date(d.createdAt).toISOString() : undefined,
+    updatedAt: d.updatedAt ? new Date(d.updatedAt).toISOString() : undefined,
+  };
+}
+
+function computeKpi(rows: ItemListRow[], total: number): ItemKpiSnapshot {
+  let active = 0;
+  let low = 0;
+  let out = 0;
+  let value = 0;
+  for (const r of rows) {
+    if ((r.status ?? 'active') === 'active') active += 1;
+    if (isLowStock(r)) low += 1;
+    if (isOutOfStock(r)) out += 1;
+    value += inventoryValue(r);
+  }
+  return {
+    totalCount: total,
+    activeCount: active,
+    lowStockCount: low,
+    outOfStockCount: out,
+    inventoryValue: value,
+  };
+}
+
+export default async function InventoryItemsPage({ searchParams }: PageProps) {
+  const sp = await searchParams;
+  const page = Math.max(1, Number(sp.page) || 1);
+  const limit = Math.min(Math.max(1, Number(sp.limit) || 20), 100);
+  const q = (sp.q ?? sp.query ?? '').trim();
+
+  // Load the current page for the table, plus a wider window for the KPI
+  // strip so totals aren't capped by `limit`. The list action sources from
+  // either Rust BFF or legacy Mongo — see crm-products.actions.ts.
+  const [pageResult, kpiResult] = await Promise.all([
+    getCrmProducts(page, limit, q || undefined),
+    getCrmProducts(1, 200, undefined),
+  ]);
+
+  const rows = pageResult.products.map(toRow);
+  const kpiRows = kpiResult.products.map(toRow);
+  const kpi = computeKpi(kpiRows, kpiResult.total ?? kpiRows.length);
+  const hasMore = page * limit < (pageResult.total ?? rows.length);
+
+  return (
+    <div className="flex w-full flex-col gap-6">
+      <CrmPageHeader
+        title="Items"
+        subtitle="Products, services and bundles tracked across warehouses."
+        icon={Package}
+        breadcrumbs={[
+          { label: 'CRM', href: '/dashboard/crm' },
+          { label: 'Inventory', href: '/dashboard/crm/inventory' },
+          { label: 'Items' },
+        ]}
+      />
+
+      <ItemsListClient
+        items={rows}
+        page={page}
+        limit={limit}
+        hasMore={hasMore}
+        initialQuery={q}
+        kpi={kpi}
+        defaultCurrency={rows[0]?.currency ?? 'INR'}
+      />
+    </div>
+  );
 }

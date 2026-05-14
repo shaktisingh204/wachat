@@ -1,53 +1,17 @@
-'use client';
+/**
+ * Jobs list — §1D.1 rebuild.
+ *
+ * KPI (4): Open · Filled · Closed · Avg time-to-fill
+ * Columns (9): title, department, designation, type, openings,
+ *   applicants, status, expiry, created
+ * Filters (5): status, department, type, location, owner
+ */
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
+import { getJobPostings } from '@/app/actions/hr.actions';
+import { JobsView } from './_components/jobs-view';
 
-import { Briefcase } from 'lucide-react';
-import { ClayBadge, HrEntityPage } from '../_components/hr-entity-page';
-import {
-  getJobPostings,
-  saveJobPosting,
-  deleteJobPosting,
-} from '@/app/actions/hr.actions';
-import type { HrJobPosting } from '@/lib/hr-types';
-import { fields } from './_config';
-
-const STATUS_TONES: Record<string, 'neutral' | 'green' | 'amber' | 'red'> = {
-  draft: 'neutral',
-  open: 'green',
-  'on-hold': 'amber',
-  closed: 'red',
-};
-
-export default function JobsPage() {
-  return (
-    <HrEntityPage<HrJobPosting & { _id: string }>
-      title="Job Postings"
-      subtitle="Open roles, JDs, and hiring pipelines."
-      icon={Briefcase}
-      singular="Job"
-      basePath="/dashboard/hrm/hr/jobs"
-      getAllAction={getJobPostings as any}
-      saveAction={saveJobPosting}
-      deleteAction={deleteJobPosting}
-      columns={[
-        { key: 'title', label: 'Title' },
-        { key: 'departmentId', label: 'Department' },
-        { key: 'location', label: 'Location' },
-        { key: 'employmentType', label: 'Type' },
-        { key: 'totalOpenings', label: 'Openings' },
-        {
-          key: 'status',
-          label: 'Status',
-          render: (row) => (
-            <ClayBadge tone={STATUS_TONES[row.status] || 'neutral'} dot>
-              {row.status}
-            </ClayBadge>
-          ),
-        },
-      ]}
-      fields={fields}
-    />
-  );
+export default async function JobsPage() {
+  const raw = await getJobPostings();
+  const jobs = (raw as any[]).map((j) => ({ ...j, _id: String(j._id) }));
+  return <JobsView initial={jobs as any} />;
 }

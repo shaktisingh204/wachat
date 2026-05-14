@@ -28,9 +28,50 @@ export default function PoliciesPage() {
       icon={FileText}
       singular="Policy"
       basePath="/dashboard/hrm/hr/policies"
+      rowLinksToDetail
       getAllAction={getPolicies as any}
       saveAction={savePolicy}
       deleteAction={deletePolicy}
+      kpis={[
+        {
+          label: 'Total',
+          compute: (rows) => rows.length,
+        },
+        {
+          label: 'Active',
+          compute: (rows) =>
+            rows.filter((r) => String((r as any).status) === 'active').length,
+          tone: 'green',
+        },
+        {
+          label: 'Draft',
+          compute: (rows) =>
+            rows.filter((r) => String((r as any).status) === 'draft').length,
+          tone: 'amber',
+        },
+        {
+          label: 'Categories',
+          compute: (rows) => {
+            const set = new Set(
+              rows.map((r) => String((r as any).category || '')).filter(Boolean),
+            );
+            return set.size;
+          },
+        },
+        {
+          label: 'Last updated',
+          compute: (rows) => {
+            const dates = rows
+              .map((r) => {
+                const v = (r as any).updatedAt || (r as any).effectiveDate;
+                return v ? new Date(v).getTime() : 0;
+              })
+              .filter((n) => n > 0);
+            if (dates.length === 0) return '—';
+            return new Date(Math.max(...dates)).toLocaleDateString();
+          },
+        },
+      ]}
       columns={[
         { key: 'title', label: 'Title' },
         { key: 'category', label: 'Category' },

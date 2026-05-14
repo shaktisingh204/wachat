@@ -1,114 +1,145 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
+/**
+ * Training programs — list page rebuilt to §1D.1 bar.
+ *
+ * KPI strip: Active · Completed · Total hours · Avg duration.
+ * Server actions preserved: getTrainingPrograms / deleteTrainingProgram.
+ */
 
+import * as React from 'react';
+import { useCallback, useEffect, useState, useTransition } from 'react';
 import { BookOpen } from 'lucide-react';
-import { ClayBadge, HrEntityPage } from '../_components/hr-entity-page';
+
 import {
   getTrainingPrograms,
-  saveTrainingProgram,
   deleteTrainingProgram,
 } from '@/app/actions/hr.actions';
 import type { HrTrainingProgram } from '@/lib/hr-types';
-import { fields } from './_config';
 
-const STATUS_TONES: Record<string, 'neutral' | 'amber' | 'blue' | 'green' | 'red'> = {
-  draft: 'neutral',
-  upcoming: 'amber',
-  scheduled: 'amber',
-  ongoing: 'blue',
-  running: 'blue',
-  completed: 'green',
-  cancelled: 'red',
+import {
+  HrChip,
+  HrDateCell,
+  HrListShell,
+  HrStatusCell,
+} from '../_components/hr-list-shell';
+
+type Row = HrTrainingProgram & {
+  _id: string;
+  format?: string;
+  trainer?: string;
+  durationHours?: number;
+  maxParticipants?: number;
 };
 
-function formatDate(value: unknown) {
-  if (!value) return '—';
-  const d = new Date(value as any);
-  if (isNaN(d.getTime())) return '—';
-  return d.toISOString().slice(0, 10);
-}
-
 export default function TrainingPage() {
+  const [rows, setRows] = useState<Row[]>([]);
+  const [isLoading, startTransition] = useTransition();
+
+  const refresh = useCallback(() => {
+    startTransition(async () => {
+      const data = (await getTrainingPrograms()) as Row[];
+      setRows(Array.isArray(data) ? data : []);
+    });
+  }, []);
+
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
+
+  const kpis = React.useMemo(() => {
+    const total = rows.length;
+    const completed = rows.filter(
+      (r) => String(r.status ?? '').toLowerCase() === 'completed',
+    ).length;
+    const active = rows.filter((r) => {
+      const s = String(r.status ?? '').toLowerCase();
+      return s === 'ongoing' || s === 'running' || s === 'upcoming' || s === 'scheduled';
+    }).length;
+    const totalHours = rows.reduce(
+      (a, r) => a + (Number(r.durationHours) || 0),
+      0,
+    );
+    const avg = total ? Math.round(totalHours / total) : 0;
+    return [
+      { label: 'Active', value: active, tone: 'blue' as const },
+      { label: 'Completed', value: completed, tone: 'green' as const },
+      { label: 'Total hours', value: totalHours, hint: 'Across all programs' },
+      { label: 'Avg duration', value: `${avg}h` },
+    ];
+  }, [rows]);
+
   return (
-    <HrEntityPage<HrTrainingProgram & { _id: string }>
-      title="Training Programs"
+    <HrListShell<Row>
+      title="Training programs"
       subtitle="Online, classroom, and on-the-job learning sessions."
       icon={BookOpen}
-      singular="Program"
-      basePath="/dashboard/hrm/hr/training"
-      getAllAction={getTrainingPrograms as any}
-      saveAction={saveTrainingProgram}
-      deleteAction={deleteTrainingProgram}
+      newHref="/dashboard/hrm/hr/training/new"
+      editHref={(r) => `/dashboard/hrm/hr/training/${r._id}/edit`}
+      detailHref={(r) => `/dashboard/hrm/hr/training/${r._id}`}
+      rows={rows}
+      loading={isLoading}
+      kpis={kpis}
+      statusOptions={[
+        { value: 'upcoming', label: 'Upcoming' },
+        { value: 'ongoing', label: 'Ongoing' },
+        { value: 'completed', label: 'Completed' },
+        { value: 'cancelled', label: 'Cancelled' },
+        { value: 'draft', label: 'Draft' },
+      ]}
+      getRowStatus={(r) => String(r.status ?? '')}
+      searchPlaceholder="Search programs…"
+      searchPredicate={(r, q) =>
+        String(r.name ?? '').toLowerCase().includes(q) ||
+        String(r.trainer ?? '').toLowerCase().includes(q)
+      }
+      onDelete={deleteTrainingProgram}
+      onAfterChange={refresh}
+      emptyText="No training programs yet"
       columns={[
         {
           key: 'name',
-          label: 'Title',
-          render: (row) => (
-            <span className="block max-w-[200px] truncate font-medium">
-              {(row as any).name || '—'}
+          label: 'Program',
+          render: (r) => (
+            <span className="block max-w-[260px] truncate font-medium">
+              {r.name}
             </span>
           ),
         },
         {
           key: 'format',
-          label: 'Type',
-          render: (row) => {
-            const t = (row as any).format ?? (row as any).category;
-            return t ? (
-              <ClayBadge tone="neutral">{t}</ClayBadge>
+          label: 'Mode',
+          render: (r) => (r.format ? <HrChip>{r.format}</HrChip> : <span className="text-zoru-ink-muted">—</span>),
+        },
+        { key: 'trainer', label: 'Trainer', render: (r) => r.trainer ?? '—' },
+        { key: 'start', label: 'Start', render: (r) => <HrDateCell value={r.startDate} /> },
+        { key: 'end', label: 'End', render: (r) => <HrDateCell value={r.endDate} /> },
+        {
+          key: 'cap',
+          label: 'Capacity',
+          render: (r) =>
+            r.maxParticipants != null ? (
+              <span className="tabular-nums">{r.maxParticipants}</span>
             ) : (
-              <span className="text-muted-foreground">—</span>
-            );
-          },
-        },
-        { key: 'trainer', label: 'Trainer' },
-        {
-          key: 'startDate',
-          label: 'Start Date',
-          render: (row) => <span>{formatDate((row as any).startDate)}</span>,
+              <span className="text-zoru-ink-muted">—</span>
+            ),
         },
         {
-          key: 'endDate',
-          label: 'End Date',
-          render: (row) => <span>{formatDate((row as any).endDate)}</span>,
-        },
-        {
-          key: 'durationHours',
+          key: 'hours',
           label: 'Hours',
-          render: (row) => {
-            const h = (row as any).durationHours;
-            return h != null ? (
-              <span className="tabular-nums">{h}h</span>
+          render: (r) =>
+            r.durationHours != null ? (
+              <span className="tabular-nums">{r.durationHours}h</span>
             ) : (
-              <span className="text-muted-foreground">—</span>
-            );
-          },
-        },
-        {
-          key: 'maxParticipants',
-          label: 'Max',
-          render: (row) => {
-            const m = (row as any).maxParticipants;
-            return m != null ? (
-              <span className="tabular-nums">{m}</span>
-            ) : (
-              <span className="text-muted-foreground">—</span>
-            );
-          },
+              <span className="text-zoru-ink-muted">—</span>
+            ),
         },
         {
           key: 'status',
           label: 'Status',
-          render: (row) => (
-            <ClayBadge tone={STATUS_TONES[row.status] ?? 'neutral'} dot>
-              {row.status}
-            </ClayBadge>
-          ),
+          render: (r) => <HrStatusCell value={String(r.status ?? '')} />,
         },
       ]}
-      fields={fields}
     />
   );
 }

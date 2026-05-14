@@ -12,7 +12,7 @@ import { Receipt } from 'lucide-react';
 
 import { CrmPageHeader } from '../../../../_components/crm-page-header';
 import { InvoiceForm } from '../../_components/invoice-form';
-import { getInvoice } from '@/app/actions/crm/invoices.actions';
+import { getInvoice, getInvoiceById } from '@/app/actions/crm/invoices.actions';
 import { getCustomFieldsFor } from '@/app/actions/worksuite/meta.actions';
 import type { WsCustomField } from '@/lib/worksuite/meta-types';
 
@@ -29,16 +29,33 @@ export default async function EditInvoicePage({
     getCustomFieldsFor('invoice') as Promise<WsCustomField[]>,
   ]);
 
-  if (!invoice) notFound();
+  // Belt-and-braces: also hit getInvoiceById in case the Rust path
+  // surfaced an error we want to silently fall through.
+  const fallback = invoice ?? (await getInvoiceById(id));
+  if (!fallback) notFound();
 
   return (
     <div className="flex w-full flex-col gap-6">
       <CrmPageHeader
-        title={`Edit ${invoice.invoiceNo || 'invoice'}`}
+        title={`Edit ${fallback.invoiceNo || 'invoice'}`}
         subtitle="Update invoice details and line items."
         icon={Receipt}
+        breadcrumbs={[
+          { label: 'CRM', href: '/dashboard/crm' },
+          { label: 'Sales', href: '/dashboard/crm/sales' },
+          { label: 'Invoices', href: '/dashboard/crm/sales/invoices' },
+          {
+            label: fallback.invoiceNo || 'Invoice',
+            href: `/dashboard/crm/sales/invoices/${id}`,
+          },
+          { label: 'Edit' },
+        ]}
       />
-      <InvoiceForm initial={invoice} customFields={customFields} />
+      <InvoiceForm
+        initial={fallback}
+        customFields={customFields}
+        redirectTo={`/dashboard/crm/sales/invoices/${id}`}
+      />
     </div>
   );
 }

@@ -1,168 +1,244 @@
+/**
+ * KB article detail — `/dashboard/crm/tickets/knowledge-base/[articleId]` (§1D.2).
+ *
+ * Server-rendered shell with 7 header actions (Edit · Publish/Unpublish ·
+ * Duplicate · Share · Email · Archive · Activity) wired through
+ * `<KbDetailActions>`. The body renders with `whitespace-pre-wrap` so
+ * Markdown content keeps its formatting until we wire a real renderer.
+ *
+ * Side rail includes the "Was this helpful?" widget that increments
+ * helpful counters server-side.
+ */
+
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { BookOpen, ArrowLeft } from 'lucide-react';
+import { ArrowLeft, BookOpen } from 'lucide-react';
 import { ObjectId } from 'mongodb';
 
-import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
+import {
+    ZoruBadge,
+    ZoruButton,
+    ZoruCard,
+    ZoruCardContent,
+    ZoruCardHeader,
+    ZoruCardTitle,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityPickerChip } from '@/components/crm/entity-picker';
+import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
+
+import {
+    KbDetailActions,
+    KbHelpfulWidget,
+} from '../_components/kb-detail-actions';
 
 export const dynamic = 'force-dynamic';
 
 function fmtDate(v: unknown): string {
-  if (!v) return '—';
-  const d = new Date(v as any);
-  return isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
+    if (!v) return '—';
+    const d = new Date(v as string);
+    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
 }
 
-function getVisibilityVariant(
-  v?: string,
-): 'success' | 'warning' | 'ghost' {
-  const s = (v || '').toLowerCase();
-  if (s === 'public') return 'success';
-  if (s === 'portal') return 'warning';
-  return 'ghost';
-}
-
-function getStatusVariant(
-  s?: string,
-): 'success' | 'ghost' | 'danger' {
-  const lower = (s || '').toLowerCase();
-  if (lower === 'published') return 'success';
-  if (lower === 'archived') return 'danger';
-  return 'ghost';
-}
+const VISIBILITY_VARIANTS: Record<
+    string,
+    React.ComponentProps<typeof ZoruBadge>['variant']
+> = {
+    public: 'success',
+    portal: 'warning',
+    internal: 'ghost',
+};
 
 export default async function KbArticleDetailPage({
-  params,
+    params,
 }: {
-  params: Promise<{ articleId: string }>;
+    params: Promise<{ articleId: string }>;
 }) {
-  const { articleId } = await params;
+    const { articleId } = await params;
+    if (!ObjectId.isValid(articleId)) {
+        redirect('/dashboard/crm/tickets/knowledge-base');
+    }
 
-  if (!ObjectId.isValid(articleId)) {
-    redirect('/dashboard/crm/tickets/knowledge-base');
-  }
+    const session = await getSession();
+    if (!session?.user?._id) {
+        redirect('/dashboard/crm/tickets/knowledge-base');
+    }
 
-  const session = await getSession();
-  if (!session?.user?._id) {
-    redirect('/dashboard/crm/tickets/knowledge-base');
-  }
+    const { db } = await connectToDatabase();
+    const doc = await db.collection('crm_kb_articles').findOne({
+        _id: new ObjectId(articleId),
+        userId: new ObjectId(session.user._id),
+    } as any);
 
-  const { db } = await connectToDatabase();
-  const doc = await db.collection('crm_kb_articles').findOne({
-    _id: new ObjectId(articleId),
-    userId: new ObjectId(session.user._id),
-  } as any);
+    if (!doc) {
+        redirect('/dashboard/crm/tickets/knowledge-base');
+    }
 
-  if (!doc) {
-    redirect('/dashboard/crm/tickets/knowledge-base');
-  }
+    const article = JSON.parse(JSON.stringify(doc)) as Record<string, any>;
+    const title: string = article.title || 'Untitled article';
+    const tags: string[] = Array.isArray(article.tags) ? article.tags : [];
+    const status = String(article.status ?? '').toLowerCase();
+    const visibility = String(article.visibility ?? '').toLowerCase();
 
-  const article = JSON.parse(JSON.stringify(doc)) as Record<string, any>;
-  const title: string = article.title || 'Untitled article';
-  const tags: string = Array.isArray(article.tags) && article.tags.length > 0
-    ? article.tags.join(', ')
-    : '—';
+    return (
+        <div className="flex w-full flex-col gap-6 p-4 md:p-6">
+            <CrmPageHeader
+                title={title}
+                subtitle={
+                    article.slug
+                        ? `/${article.slug}`
+                        : 'Knowledge base article'
+                }
+                icon={BookOpen}
+                actions={
+                    <ZoruButton variant="outline" asChild>
+                        <Link href="/dashboard/crm/tickets/knowledge-base">
+                            <ArrowLeft className="h-4 w-4" /> Back
+                        </Link>
+                    </ZoruButton>
+                }
+            />
 
-  return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title={title}
-        subtitle="Knowledge base article"
-        icon={BookOpen}
-        actions={
-          <div className="flex items-center gap-2">
-            <Link href="/dashboard/crm/tickets/knowledge-base">
-              <ZoruButton variant="outline">
-                <ArrowLeft className="h-4 w-4" />
-                Back
-              </ZoruButton>
-            </Link>
-            <Link href={`/dashboard/crm/tickets/knowledge-base/${article._id}/edit`}>
-              <ZoruButton variant="outline">Edit</ZoruButton>
-            </Link>
-          </div>
-        }
-      />
-
-      <ZoruCard className="p-6">
-        <h2 className="mb-4 text-[14px] font-medium text-zoru-ink">
-          Article Details
-        </h2>
-        <div className="grid grid-cols-1 gap-x-8 gap-y-4 text-[13px] sm:grid-cols-2">
-          <div>
-            <div className="text-zoru-ink-muted">Title</div>
-            <div className="text-zoru-ink">{article.title || '—'}</div>
-          </div>
-          <div>
-            <div className="text-zoru-ink-muted">Slug</div>
-            <div className="font-mono text-zoru-ink">{article.slug || '—'}</div>
-          </div>
-          <div>
-            <div className="text-zoru-ink-muted">Category</div>
-            <div className="text-zoru-ink">{article.category || '—'}</div>
-          </div>
-          <div>
-            <div className="text-zoru-ink-muted">Tags</div>
-            <div className="text-zoru-ink">{tags}</div>
-          </div>
-          <div>
-            <div className="text-zoru-ink-muted">Visibility</div>
-            <div className="mt-0.5">
-              {article.visibility ? (
-                <ZoruBadge variant={getVisibilityVariant(article.visibility)}>
-                  {article.visibility}
-                </ZoruBadge>
-              ) : (
-                <span className="text-zoru-ink-muted">—</span>
-              )}
+            <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="flex flex-wrap items-center gap-2">
+                    {status ? (
+                        <StatusPill label={status} tone={statusToTone(status)} />
+                    ) : null}
+                    {visibility ? (
+                        <ZoruBadge variant={VISIBILITY_VARIANTS[visibility] ?? 'ghost'}>
+                            {visibility}
+                        </ZoruBadge>
+                    ) : null}
+                </div>
+                <KbDetailActions articleId={articleId} article={article} />
             </div>
-          </div>
-          <div>
-            <div className="text-zoru-ink-muted">Status</div>
-            <div className="mt-0.5">
-              {article.status ? (
-                <ZoruBadge variant={getStatusVariant(article.status)}>
-                  {article.status}
-                </ZoruBadge>
-              ) : (
-                <span className="text-zoru-ink-muted">—</span>
-              )}
+
+            <div className="grid gap-4 lg:grid-cols-3">
+                <div className="flex flex-col gap-4 lg:col-span-2">
+                    <ZoruCard className="p-6">
+                        <h2 className="mb-4 text-[14px] font-medium text-zoru-ink">
+                            Content
+                        </h2>
+                        {article.body ? (
+                            <div className="prose-zoru whitespace-pre-wrap rounded-lg bg-zoru-surface-2 p-4 text-[14px] leading-relaxed text-zoru-ink">
+                                {article.body}
+                            </div>
+                        ) : (
+                            <div className="rounded-lg bg-zoru-surface-2 p-4 text-[13px] text-zoru-ink-muted">
+                                No content yet.
+                            </div>
+                        )}
+                    </ZoruCard>
+
+                    {(article.seoTitle || article.seoDescription) ? (
+                        <ZoruCard className="p-6">
+                            <h2 className="mb-4 text-[14px] font-medium text-zoru-ink">
+                                SEO meta
+                            </h2>
+                            <div className="grid gap-3 text-[13px]">
+                                <div>
+                                    <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                                        SEO title
+                                    </div>
+                                    <div className="text-zoru-ink">
+                                        {article.seoTitle || '—'}
+                                    </div>
+                                </div>
+                                <div>
+                                    <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                                        SEO description
+                                    </div>
+                                    <div className="text-zoru-ink">
+                                        {article.seoDescription || '—'}
+                                    </div>
+                                </div>
+                            </div>
+                        </ZoruCard>
+                    ) : null}
+                </div>
+
+                <aside className="flex flex-col gap-4">
+                    <ZoruCard>
+                        <ZoruCardHeader>
+                            <ZoruCardTitle>Article details</ZoruCardTitle>
+                        </ZoruCardHeader>
+                        <ZoruCardContent className="space-y-3 text-[13px]">
+                            <div>
+                                <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                                    Slug
+                                </div>
+                                <div className="font-mono text-zoru-ink">
+                                    {article.slug || '—'}
+                                </div>
+                            </div>
+                            <div>
+                                <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                                    Category
+                                </div>
+                                <div className="text-zoru-ink">
+                                    {article.category ? (
+                                        <EntityPickerChip
+                                            entity="category"
+                                            id={article.category}
+                                            fallback={article.category}
+                                        />
+                                    ) : (
+                                        '—'
+                                    )}
+                                </div>
+                            </div>
+                            <div>
+                                <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                                    Tags
+                                </div>
+                                <div className="flex flex-wrap gap-1">
+                                    {tags.length === 0 ? (
+                                        <span className="text-zoru-ink-muted">—</span>
+                                    ) : (
+                                        tags.map((t) => (
+                                            <ZoruBadge key={t} variant="ghost">
+                                                {t}
+                                            </ZoruBadge>
+                                        ))
+                                    )}
+                                </div>
+                            </div>
+                            <div>
+                                <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                                    Views
+                                </div>
+                                <div className="text-zoru-ink">
+                                    {article.viewCount ?? 0}
+                                </div>
+                            </div>
+                            <div>
+                                <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                                    Created
+                                </div>
+                                <div className="text-zoru-ink">
+                                    {fmtDate(article.createdAt)}
+                                </div>
+                            </div>
+                            <div>
+                                <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                                    Updated
+                                </div>
+                                <div className="text-zoru-ink">
+                                    {fmtDate(article.updatedAt)}
+                                </div>
+                            </div>
+                        </ZoruCardContent>
+                    </ZoruCard>
+
+                    <KbHelpfulWidget
+                        articleId={articleId}
+                        helpfulYes={Number(article.helpfulYes ?? 0)}
+                        helpfulNo={Number(article.helpfulNo ?? 0)}
+                    />
+                </aside>
             </div>
-          </div>
-          <div>
-            <div className="text-zoru-ink-muted">Helpful count</div>
-            <div className="text-zoru-ink">
-              {typeof article.helpfulCount === 'number' ? article.helpfulCount : '—'}
-            </div>
-          </div>
-          <div>
-            <div className="text-zoru-ink-muted">View count</div>
-            <div className="text-zoru-ink">
-              {typeof article.viewCount === 'number' ? article.viewCount : '—'}
-            </div>
-          </div>
-          <div>
-            <div className="text-zoru-ink-muted">Created</div>
-            <div className="text-zoru-ink">{fmtDate(article.createdAt)}</div>
-          </div>
         </div>
-      </ZoruCard>
-
-      <ZoruCard className="p-6">
-        <h2 className="mb-4 text-[14px] font-medium text-zoru-ink">Content</h2>
-        {article.body ? (
-          <div className="whitespace-pre-wrap rounded-lg bg-zoru-surface-2 p-4 text-sm text-zoru-ink">
-            {article.body}
-          </div>
-        ) : (
-          <div className="rounded-lg bg-zoru-surface-2 p-4 text-sm text-zoru-ink-muted">
-            No content yet.
-          </div>
-        )}
-      </ZoruCard>
-    </div>
-  );
+    );
 }

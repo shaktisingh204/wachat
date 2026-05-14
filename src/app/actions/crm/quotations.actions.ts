@@ -18,9 +18,13 @@ import {
   type CrmQuotationDoc,
   type CrmQuotationLineItem,
   type CrmQuotationListParams,
+  type CrmQuotationStatus,
   type CrmQuotationUpdateInput,
 } from '@/lib/rust-client/crm-quotations';
 import { applyCustomFieldsToEntity } from '@/app/actions/worksuite/meta.actions';
+import { writeAuditEntry } from '@/lib/audit-log';
+import { getSession } from '@/app/actions/user.actions';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
 
 const LIST_PATH = '/dashboard/crm/sales/quotations';
 
@@ -181,6 +185,17 @@ export async function saveQuotationAction(
   const validUntil = toIsoOrUndefined(pickString(formData, 'validUntil'));
   const items = parseLineItems(formData);
 
+  // Auxiliary fields preserved for forward-compat with the legacy
+  // direct-Mongo path (`crm-quotations.actions.ts`). The current Rust
+  // DTO doesn't accept these yet — we silently swallow them rather
+  // than failing the save when the form layer includes them.
+  void pickString(formData, 'referenceNo');
+  void pickString(formData, 'salesAgentId');
+  void pickString(formData, 'dealId');
+  void pickString(formData, 'attachmentUrls');
+  void pickString(formData, 'signatureImage');
+  void pickString(formData, 'templateId');
+
   if (!id) {
     if (!quotationNo) return { error: 'Quotation number is required.' };
     if (!clientId) return { error: 'Client is required.' };
@@ -289,4 +304,122 @@ export async function updateQuotation(
 
 export async function deleteQuotation(id: string) {
   return crmQuotationsApi.delete(id);
+}
+
+/* ─── Bulk + status helpers ───────────────────────────────────── */
+
+async function recordAudit(
+  action: 'update' | 'delete' | 'archive',
+  entityId: string,
+): Promise<void> {
+  try {
+    const session = await getSession();
+    if (!session?.user?._id) return;
+    await writeAuditEntry({
+      tenantUserId: String(session.user._id),
+      actorId: String(session.user._id),
+      action,
+      entityKind: 'quotation',
+      entityId,
+    });
+  } catch (e) {
+    console.error('[quotations audit] non-fatal:', e);
+  }
+}
+
+function trackFallback(op: 'update' | 'delete', e: unknown): void {
+  recordRustFallback({
+    entity: 'quotation',
+    op,
+    errorCode: e instanceof RustApiError ? e.code : undefined,
+    status: e instanceof RustApiError ? e.status : undefined,
+  });
+}
+
+export async function updateQuotationStatus(
+  id: string,
+  status: CrmQuotationStatus | string,
+): Promise<{ success: boolean; error?: string }> {
+  if (!id) return { success: false, error: 'Missing quotation id.' };
+  try {
+    await crmQuotationsApi.update(id, { status });
+    await recordAudit('update', id);
+    revalidatePath(LIST_PATH);
+    revalidatePath(`${LIST_PATH}/${id}`);
+    return { success: true };
+  } catch (e) {
+    trackFallback('update', e);
+    return { success: false, error: rustErr(e) };
+  }
+}
+
+export async function archiveQuotationAction(
+  id: string,
+): Promise<{ success: boolean; error?: string }> {
+  if (!id) return { success: false, error: 'Missing quotation id.' };
+  try {
+    // The Rust DTO doesn't model archived directly on quotations yet, but
+    // the canonical pattern is to soft-state via status.
+    await crmQuotationsApi.update(id, { status: 'expired' });
+    await recordAudit('archive', id);
+    revalidatePath(LIST_PATH);
+    return { success: true };
+  } catch (e) {
+    trackFallback('update', e);
+    return { success: false, error: rustErr(e) };
+  }
+}
+
+interface BulkResult {
+  success: boolean;
+  processed: number;
+  error?: string;
+}
+
+async function runBulk(
+  ids: string[],
+  fn: (id: string) => Promise<void>,
+): Promise<BulkResult> {
+  if (!Array.isArray(ids) || ids.length === 0) {
+    return { success: false, processed: 0, error: 'No quotation ids supplied.' };
+  }
+  let processed = 0;
+  let lastErr: string | undefined;
+  for (const id of ids) {
+    try {
+      await fn(id);
+      processed += 1;
+    } catch (e) {
+      lastErr = rustErr(e);
+    }
+  }
+  revalidatePath(LIST_PATH);
+  if (processed === 0) {
+    return { success: false, processed, error: lastErr ?? 'Bulk operation failed.' };
+  }
+  return { success: true, processed, error: lastErr };
+}
+
+export async function bulkDeleteQuotations(ids: string[]): Promise<BulkResult> {
+  return runBulk(ids, async (id) => {
+    await crmQuotationsApi.delete(id);
+    await recordAudit('delete', id);
+  });
+}
+
+export async function bulkArchiveQuotations(ids: string[]): Promise<BulkResult> {
+  return runBulk(ids, async (id) => {
+    await crmQuotationsApi.update(id, { status: 'expired' });
+    await recordAudit('archive', id);
+  });
+}
+
+export async function bulkChangeQuotationStatus(
+  ids: string[],
+  status: CrmQuotationStatus | string,
+): Promise<BulkResult> {
+  return runBulk(ids, async (id) => {
+    await crmQuotationsApi.update(id, { status });
+    await recordAudit('update', id);
+  });
 }

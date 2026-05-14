@@ -1,28 +1,95 @@
 /**
  * Create sales order — `/dashboard/crm/sales/orders/new`.
  *
- * Server component shell. Sales orders skip the worksuite custom-field
- * pipeline (`sales-order` isn't in `WsCustomFieldBelongsTo`), so this
- * renders `<SalesOrderForm>` directly with no `getCustomFieldsFor`
- * round-trip.
+ * Server component shell. When invoked with `?fromKind=quotation&fromId=…`
+ * (the canonical conversion entry point) it hydrates the parent
+ * quotation and seeds the form with customer + currency + line items so
+ * the user only confirms.
+ *
+ * Sales orders skip the worksuite custom-field pipeline, so there's
+ * no `getCustomFieldsFor` round-trip.
  */
 
 import { ShoppingCart } from 'lucide-react';
 
 import { CrmPageHeader } from '../../../_components/crm-page-header';
-import { SalesOrderForm } from '../_components/sales-order-form';
+import { SalesOrdersForm } from '../_components/sales-orders-form';
+import { crmQuotationsApi } from '@/lib/rust-client/crm-quotations';
+import type { CrmSalesOrderLineItem } from '@/lib/rust-client/crm-sales-orders';
 
 export const dynamic = 'force-dynamic';
 
-export default function NewSalesOrderPage() {
+interface NewSalesOrderSearch {
+  fromKind?: string;
+  fromId?: string;
+}
+
+export default async function NewSalesOrderPage({
+  searchParams,
+}: {
+  searchParams: Promise<NewSalesOrderSearch>;
+}) {
+  const sp = await searchParams;
+  const fromKind = (sp.fromKind ?? '').trim();
+  const fromId = (sp.fromId ?? '').trim();
+
+  let seed:
+    | {
+        quotationRef?: string;
+        clientId?: string;
+        currency?: string;
+        items?: CrmSalesOrderLineItem[];
+        paymentTerms?: string;
+        customerNotes?: string;
+      }
+    | undefined;
+
+  if (fromKind === 'quotation' && fromId) {
+    try {
+      const q = await crmQuotationsApi.getById(fromId);
+      // Map quotation lines → sales-order lines. Both share the same
+      // CrmLineItem shape but use slightly different field names.
+      const mapped: CrmSalesOrderLineItem[] = (q.items ?? []).map((li) => ({
+        itemId: li.itemId,
+        description: li.description,
+        hsnSac: li.hsnSac,
+        qty: li.qty,
+        rate: li.rate,
+        unit: li.unit,
+        taxRatePct: li.taxRatePct,
+        cgstAmount: li.cgstAmount,
+        sgstAmount: li.sgstAmount,
+        igstAmount: li.igstAmount,
+        cessAmount: li.cessAmount,
+        total: li.total,
+        qtyPending: li.qty,
+        qtyDelivered: 0,
+        qtyInvoiced: 0,
+      }));
+      seed = {
+        quotationRef: fromId,
+        clientId: q.clientId,
+        currency: q.currency,
+        items: mapped,
+        customerNotes: q.customerNotes,
+      };
+    } catch {
+      // Bad / missing parent — fall through with no seed.
+    }
+  }
+
   return (
     <div className="flex w-full flex-col gap-6">
       <CrmPageHeader
         title="New sales order"
-        subtitle="Confirm a customer order with line items and totals."
+        subtitle={
+          seed?.quotationRef
+            ? 'Pre-filled from a quotation — confirm and save.'
+            : 'Confirm a customer order with line items and totals.'
+        }
         icon={ShoppingCart}
       />
-      <SalesOrderForm />
+      <SalesOrdersForm seed={seed} />
     </div>
   );
 }

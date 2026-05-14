@@ -1,5 +1,20 @@
 'use client';
 
+/**
+ * Careers page settings — §1D.4 specialised "settings list" upgrade.
+ *
+ * Singular configuration document (not a CRUD list). Renders sectioned
+ * cards covering:
+ *   • Slug + theme
+ *   • Intro text + headline
+ *   • CTA + visibility
+ *   • SEO meta (placeholders — server keys are preserved)
+ *
+ * Preserves every FormData key the existing `saveCareersPageConfig`
+ * action reads (headline · intro · logoUrl · primaryColor · ctaLabel ·
+ * slug · isPublished).
+ */
+
 import * as React from 'react';
 import { useActionState, useEffect, useState, useTransition } from 'react';
 import { Globe, LoaderCircle } from 'lucide-react';
@@ -7,6 +22,10 @@ import { Globe, LoaderCircle } from 'lucide-react';
 import {
   ZoruButton,
   ZoruCard,
+  ZoruCardContent,
+  ZoruCardDescription,
+  ZoruCardHeader,
+  ZoruCardTitle,
   ZoruInput,
   ZoruLabel,
   ZoruSelect,
@@ -26,9 +45,7 @@ import {
 } from '@/app/actions/hr.actions';
 import type { HrCareersPageConfig } from '@/lib/hr-types';
 
-type ConfigDoc =
-  | (HrCareersPageConfig & { _id: unknown })
-  | null;
+type ConfigDoc = (HrCareersPageConfig & { _id: unknown }) | null;
 
 export default function CareersPageConfigPage() {
   const { toast } = useZoruToast();
@@ -92,143 +109,166 @@ export default function CareersPageConfigPage() {
     <div className="flex w-full flex-col gap-6">
       <CrmPageHeader
         title="Careers Page"
-        subtitle="Public-facing careers site configuration."
+        subtitle="Public-facing careers site — slug, theme, intro, jobs & SEO."
         icon={Globe}
       />
 
-      <ZoruCard className="p-6">
-        {isLoading && !config ? (
-          <div className="space-y-4">
-            <ZoruSkeleton className="h-10 w-full" />
-            <ZoruSkeleton className="h-24 w-full" />
-            <ZoruSkeleton className="h-10 w-full" />
+      {isLoading && !config ? (
+        <div className="space-y-4">
+          <ZoruSkeleton className="h-32 w-full" />
+          <ZoruSkeleton className="h-32 w-full" />
+        </div>
+      ) : (
+        <form action={saveFormAction} className="flex flex-col gap-4">
+          {configId ? (
+            <input type="hidden" name="_id" value={configId} />
+          ) : null}
+
+          {/* ─── Slug + theme ──────────────────────────────────────── */}
+          <ZoruCard>
+            <ZoruCardHeader>
+              <ZoruCardTitle className="text-[15px]">Slug & theme</ZoruCardTitle>
+              <ZoruCardDescription>
+                Public URL slug and brand colours.
+              </ZoruCardDescription>
+            </ZoruCardHeader>
+            <ZoruCardContent className="grid gap-4 md:grid-cols-2">
+              <div>
+                <ZoruLabel htmlFor="slug">Slug</ZoruLabel>
+                <ZoruInput
+                  id="slug"
+                  name="slug"
+                  defaultValue={value('slug')}
+                  placeholder="careers-acme"
+                />
+              </div>
+              <div>
+                <ZoruLabel htmlFor="primaryColor">Primary colour</ZoruLabel>
+                <ZoruInput
+                  id="primaryColor"
+                  name="primaryColor"
+                  defaultValue={value('primaryColor')}
+                  placeholder="#E11D48"
+                />
+              </div>
+              <div className="md:col-span-2">
+                <ZoruLabel htmlFor="logoUrl">Logo</ZoruLabel>
+                <SabFileUrlInput
+                  id="logoUrl"
+                  name="logoUrl"
+                  accept="image"
+                  value={logoUrl}
+                  onChange={(v) => setLogoUrl(v)}
+                />
+              </div>
+            </ZoruCardContent>
+          </ZoruCard>
+
+          {/* ─── Intro text ────────────────────────────────────────── */}
+          <ZoruCard>
+            <ZoruCardHeader>
+              <ZoruCardTitle className="text-[15px]">
+                Headline & intro
+              </ZoruCardTitle>
+              <ZoruCardDescription>
+                The top-of-fold copy candidates land on.
+              </ZoruCardDescription>
+            </ZoruCardHeader>
+            <ZoruCardContent className="grid gap-4 md:grid-cols-2">
+              <div className="md:col-span-2">
+                <ZoruLabel htmlFor="headline">Headline</ZoruLabel>
+                <ZoruInput
+                  id="headline"
+                  name="headline"
+                  defaultValue={value('headline')}
+                  placeholder="Join us — we're hiring."
+                />
+              </div>
+              <div className="md:col-span-2">
+                <ZoruLabel htmlFor="intro">Intro</ZoruLabel>
+                <ZoruTextarea
+                  id="intro"
+                  name="intro"
+                  rows={4}
+                  defaultValue={value('intro')}
+                  placeholder="Tell candidates about the company, the mission, and what makes the team great."
+                />
+              </div>
+            </ZoruCardContent>
+          </ZoruCard>
+
+          {/* ─── Visibility + CTA ──────────────────────────────────── */}
+          <ZoruCard>
+            <ZoruCardHeader>
+              <ZoruCardTitle className="text-[15px]">CTA & visibility</ZoruCardTitle>
+              <ZoruCardDescription>
+                Apply button copy and whether the public page is live.
+              </ZoruCardDescription>
+            </ZoruCardHeader>
+            <ZoruCardContent className="grid gap-4 md:grid-cols-2">
+              <div>
+                <ZoruLabel htmlFor="ctaLabel">CTA label</ZoruLabel>
+                <ZoruInput
+                  id="ctaLabel"
+                  name="ctaLabel"
+                  defaultValue={value('ctaLabel')}
+                  placeholder="Apply now"
+                />
+              </div>
+              <div>
+                <ZoruLabel htmlFor="isPublished">Published</ZoruLabel>
+                <ZoruSelect
+                  name="isPublished"
+                  defaultValue={
+                    config && (config as any).isPublished ? 'yes' : 'no'
+                  }
+                >
+                  <ZoruSelectTrigger id="isPublished">
+                    <ZoruSelectValue placeholder="Select" />
+                  </ZoruSelectTrigger>
+                  <ZoruSelectContent>
+                    <ZoruSelectItem value="yes">Yes</ZoruSelectItem>
+                    <ZoruSelectItem value="no">No</ZoruSelectItem>
+                  </ZoruSelectContent>
+                </ZoruSelect>
+              </div>
+            </ZoruCardContent>
+          </ZoruCard>
+
+          {/* ─── SEO meta ──────────────────────────────────────────── */}
+          {/* TODO 1D.4: SEO fields (meta title/description/og-image) +
+              "visible jobs" picker + custom application form builder
+              once a `careers_page_seo` action lands. Keys are emitted
+              as no-op until then so the save action sees nothing new. */}
+          <ZoruCard>
+            <ZoruCardHeader>
+              <ZoruCardTitle className="text-[15px]">SEO meta</ZoruCardTitle>
+              <ZoruCardDescription>
+                Coming soon — meta title, description, OG image picker,
+                and visible-jobs allow-list. The save action will surface
+                these keys once the schema ships.
+              </ZoruCardDescription>
+            </ZoruCardHeader>
+            <ZoruCardContent>
+              <p className="text-[12.5px] text-zoru-ink-muted">
+                For now SEO inherits the headline + intro defined above.
+              </p>
+            </ZoruCardContent>
+          </ZoruCard>
+
+          <div className="sticky bottom-0 -mx-1 flex justify-end gap-2 bg-zoru-bg/95 px-1 py-3 backdrop-blur">
+            <ZoruButton type="submit" disabled={isSaving}>
+              {isSaving ? (
+                <LoaderCircle
+                  className="h-4 w-4 animate-spin"
+                  strokeWidth={1.75}
+                />
+              ) : null}
+              Save
+            </ZoruButton>
           </div>
-        ) : (
-          <form action={saveFormAction} className="space-y-4">
-            {configId ? (
-              <input type="hidden" name="_id" value={configId} />
-            ) : null}
-
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="md:col-span-2">
-                <ZoruLabel htmlFor="headline" className="text-zoru-ink">
-                  Headline
-                </ZoruLabel>
-                <div className="mt-1.5">
-                  <ZoruInput
-                    id="headline"
-                    name="headline"
-                    defaultValue={value('headline')}
-                  />
-                </div>
-              </div>
-
-              <div className="md:col-span-2">
-                <ZoruLabel htmlFor="intro" className="text-zoru-ink">
-                  Intro
-                </ZoruLabel>
-                <div className="mt-1.5">
-                  <ZoruTextarea
-                    id="intro"
-                    name="intro"
-                    rows={3}
-                    defaultValue={value('intro')}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <ZoruLabel htmlFor="logoUrl" className="text-zoru-ink">
-                  Logo URL
-                </ZoruLabel>
-                <div className="mt-1.5">
-                  <SabFileUrlInput
-                    id="logoUrl"
-                    name="logoUrl"
-                    accept="image"
-                    value={logoUrl}
-                    onChange={(v) => setLogoUrl(v)}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <ZoruLabel htmlFor="primaryColor" className="text-zoru-ink">
-                  Primary Color
-                </ZoruLabel>
-                <div className="mt-1.5">
-                  <ZoruInput
-                    id="primaryColor"
-                    name="primaryColor"
-                    defaultValue={value('primaryColor')}
-                    placeholder="#E11D48"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <ZoruLabel htmlFor="ctaLabel" className="text-zoru-ink">
-                  CTA Label
-                </ZoruLabel>
-                <div className="mt-1.5">
-                  <ZoruInput
-                    id="ctaLabel"
-                    name="ctaLabel"
-                    defaultValue={value('ctaLabel')}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <ZoruLabel htmlFor="slug" className="text-zoru-ink">
-                  Slug
-                </ZoruLabel>
-                <div className="mt-1.5">
-                  <ZoruInput
-                    id="slug"
-                    name="slug"
-                    defaultValue={value('slug')}
-                  />
-                </div>
-              </div>
-
-              <div className="md:col-span-2">
-                <ZoruLabel htmlFor="isPublished" className="text-zoru-ink">
-                  Published
-                </ZoruLabel>
-                <div className="mt-1.5">
-                  <ZoruSelect
-                    name="isPublished"
-                    defaultValue={
-                      config && (config as any).isPublished ? 'yes' : 'no'
-                    }
-                  >
-                    <ZoruSelectTrigger id="isPublished">
-                      <ZoruSelectValue placeholder="Select" />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                      <ZoruSelectItem value="yes">Yes</ZoruSelectItem>
-                      <ZoruSelectItem value="no">No</ZoruSelectItem>
-                    </ZoruSelectContent>
-                  </ZoruSelect>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex justify-end gap-2 pt-2">
-              <ZoruButton type="submit" disabled={isSaving}>
-                {isSaving ? (
-                  <LoaderCircle
-                    className="h-4 w-4 animate-spin"
-                    strokeWidth={1.75}
-                  />
-                ) : null}
-                Save
-              </ZoruButton>
-            </div>
-          </form>
-        )}
-      </ZoruCard>
+        </form>
+      )}
     </div>
   );
 }

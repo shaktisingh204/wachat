@@ -1,21 +1,24 @@
 /**
- * CRM RFQs list — `/dashboard/crm/purchases/rfqs`.
+ * Canonical RFQs list — `/dashboard/crm/purchases/rfqs`.
  *
- * Server component shell. Reads search/page/limit/status from the URL,
- * fetches via the Rust-backed `listRfqs` action, and hands off to
- * `<RfqListClient>` for interactive bits (search, delete dialog).
+ * Server component. Reads page/limit/q from the URL, fetches via the
+ * canonical (Rust-backed) `listRfqs` action, then projects each
+ * `CrmRfqDoc` into the `RfqListRow` wire shape the client islands
+ * consume. KPI strip values are computed in the same pass so the
+ * client doesn't need a follow-up round trip.
  *
- * Pagination is hasMore-driven (the Rust endpoint doesn't return a
- * total count) — see `<PaginationBar>`.
+ * Per `docs/ecosystem/CRM_REBUILD_PLAN.md` §1D — purchase-side mirror
+ * of the canonical Quotations module.
  */
 
-import Link from 'next/link';
-import { ClipboardList, Plus } from 'lucide-react';
+import { ClipboardList } from 'lucide-react';
 
-import { ZoruButton } from '@/components/zoruui';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 import { listRfqs } from '@/app/actions/crm/rfqs.actions';
+import type { CrmRfqDoc } from '@/lib/rust-client/crm-rfqs';
+
 import { RfqListClient } from './_components/rfq-list-client';
+import type { RfqKpiSummary, RfqListRow } from './_components/types';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,49 +26,114 @@ interface SearchParams {
   page?: string;
   limit?: string;
   q?: string;
-  status?: string;
 }
 
-export default async function RfqsPage({
-  searchParams,
-}: {
+interface PageProps {
   searchParams: Promise<SearchParams>;
-}) {
+}
+
+/* ─── Helpers ─────────────────────────────────────────────────────── */
+
+function isDeadlinePassed(doc: CrmRfqDoc): boolean {
+  if (!doc.deadline) return false;
+  const v = new Date(doc.deadline).getTime();
+  if (Number.isNaN(v)) return false;
+  return v < Date.now();
+}
+
+function toRow(doc: CrmRfqDoc): RfqListRow {
+  const rawStatus = (typeof doc.status === 'string' ? doc.status : 'draft').toLowerCase();
+  const invited = Array.isArray(doc.vendorsInvited) ? doc.vendorsInvited.length : 0;
+  // Owner / currency / estimated value aren't first-class on the RFQ
+  // wire shape yet — read them out of audit/identity + a customFields
+  // bag when present so the new columns can hydrate gradually.
+  const anyDoc = doc as unknown as Record<string, unknown>;
+  const customFields = (anyDoc.customFields ?? {}) as Record<string, unknown>;
+  const estimatedRaw = customFields._estimatedValue;
+  const estimatedValue =
+    typeof estimatedRaw === 'number' && Number.isFinite(estimatedRaw)
+      ? estimatedRaw
+      : undefined;
+  const currency =
+    typeof anyDoc.currency === 'string' && anyDoc.currency
+      ? (anyDoc.currency as string)
+      : typeof customFields._currency === 'string'
+        ? (customFields._currency as string)
+        : undefined;
+  const ownerId =
+    (anyDoc.ownerId as string | null | undefined) ??
+    doc.audit?.createdBy ??
+    null;
+  return {
+    _id: String(doc._id),
+    title: doc.title || '',
+    vendorsInvitedCount: invited,
+    deadline: doc.deadline,
+    requiredBy: doc.requiredBy,
+    currency,
+    estimatedValue,
+    status: rawStatus,
+    ownerId,
+    createdAt: doc.createdAt ?? doc.audit?.createdAt,
+    updatedAt: doc.updatedAt ?? doc.audit?.updatedAt,
+    deadlinePassed: isDeadlinePassed(doc),
+  };
+}
+
+function computeKpi(rows: RfqListRow[]): RfqKpiSummary {
+  let draft = 0;
+  let open = 0;
+  let closed = 0;
+  let awarded = 0;
+  let cancelled = 0;
+  for (const r of rows) {
+    if (r.status === 'draft') draft += 1;
+    else if (r.status === 'open') open += 1;
+    else if (r.status === 'closed') closed += 1;
+    else if (r.status === 'awarded') awarded += 1;
+    else if (r.status === 'cancelled') cancelled += 1;
+  }
+  return { draft, open, closed, awarded, cancelled };
+}
+
+/* ─── Page ────────────────────────────────────────────────────────── */
+
+export default async function RfqsPage({ searchParams }: PageProps) {
   const sp = await searchParams;
   const page = Math.max(1, Number(sp.page) || 1);
-  const limit = Math.min(Math.max(1, Number(sp.limit) || 20), 100);
+  const limit = Math.min(Math.max(1, Number(sp.limit) || 50), 200);
   const q = (sp.q ?? '').trim();
-  const status = (sp.status ?? '').trim();
 
   const { rfqs, hasMore, error } = await listRfqs({
     page,
     limit,
     q: q || undefined,
-    status: status || undefined,
   });
+
+  const rows = rfqs.map(toRow);
+  const kpi = computeKpi(rows);
 
   return (
     <div className="flex w-full flex-col gap-6">
       <CrmPageHeader
         title="Request for Quotations"
-        subtitle="Send RFQs to vendors and compare bids side by side."
+        subtitle="Issue RFQs to vendors and award the winning bid — draft, open, closed, awarded, cancelled."
         icon={ClipboardList}
-        actions={
-          <ZoruButton asChild>
-            <Link href="/dashboard/crm/purchases/rfqs/new">
-              <Plus className="h-4 w-4" />
-              New RFQ
-            </Link>
-          </ZoruButton>
-        }
+        breadcrumbs={[
+          { label: 'CRM', href: '/dashboard/crm' },
+          { label: 'Purchases', href: '/dashboard/crm/purchases' },
+          { label: 'RFQs' },
+        ]}
       />
 
       <RfqListClient
-        rfqs={rfqs}
+        rfqs={rows}
         page={page}
         limit={limit}
         hasMore={hasMore}
         initialQuery={q}
+        kpi={kpi}
+        defaultCurrency="INR"
         error={error}
       />
     </div>

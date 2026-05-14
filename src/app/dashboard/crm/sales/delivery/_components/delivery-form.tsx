@@ -1,0 +1,463 @@
+'use client';
+
+/**
+ * §1D Delivery-Challan form — thin variant per the rebuild plan's
+ * scope cap. Owns Create flow (and acts as the canonical form when an
+ * edit sub-route is added).
+ *
+ * Sectioned cards: header · line items (`<DcLineItemsTable>`) ·
+ * dispatch & ship-to · transport · notes.
+ *
+ * Preserves the existing FormData keys consumed by
+ * `saveDeliveryChallan`: `accountId`, `challanNumber`, `challanDate`,
+ * `lineItems` (JSON), `reason`, `vehicleNumber`, `driverName`, `mode`,
+ * `notes`, `fromKind`, `fromId`. Adds: `warehouseId`, `transporterId`,
+ * `shipTo` (JSON), `lrNumber`, `lrDate`, `ewayBillNumber`, `soRef`.
+ *
+ * The current action layer only reads the canonical keys above — the
+ * extras are accepted-but-ignored until the action is widened (matches
+ * the rebuild plan's "preserve FormData keys" rule).
+ */
+
+import * as React from 'react';
+import { useActionState, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useFormStatus } from 'react-dom';
+import Link from 'next/link';
+import { LoaderCircle, Save, ArrowLeft } from 'lucide-react';
+
+import {
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruTextarea,
+  useZoruToast,
+} from '@/components/zoruui';
+import { EntityFormField } from '@/components/crm/entity-form-field';
+import { saveDeliveryChallan } from '@/app/actions/crm-delivery-challans.actions';
+import { DcLineItemsTable, type DcLineRow } from './delivery-form-lines';
+
+export interface DeliveryFormSeed {
+  /** Pre-filled when invoked with `?fromKind=salesOrder&fromId=…`. */
+  soRef?: string;
+  clientId?: string;
+  challanNumber?: string;
+  items?: Array<{
+    itemId?: string;
+    name: string;
+    hsnCode?: string;
+    unit?: string;
+    quantity: number;
+  }>;
+  shipTo?: {
+    line1?: string;
+    city?: string;
+    state?: string;
+    postalCode?: string;
+    country?: string;
+  };
+}
+
+export interface DeliveryFormProps {
+  /** Optional pre-fill from a parent doc. */
+  seed?: DeliveryFormSeed;
+  /** Lineage parent kind (passed through to the action layer). */
+  fromKind?: string;
+  /** Lineage parent id. */
+  fromId?: string;
+}
+
+const TRANSPORT_MODES = [
+  { value: 'road', label: 'By road' },
+  { value: 'rail', label: 'By rail' },
+  { value: 'air', label: 'By air' },
+  { value: 'ship', label: 'By ship' },
+  { value: 'hand', label: 'Hand delivery' },
+];
+
+const INITIAL_STATE: { message?: string; error?: string } = {
+  message: undefined,
+  error: undefined,
+};
+
+function SaveButton() {
+  const { pending } = useFormStatus();
+  return (
+    <ZoruButton type="submit" disabled={pending}>
+      {pending ? (
+        <LoaderCircle className="h-4 w-4 animate-spin" />
+      ) : (
+        <Save className="h-4 w-4" />
+      )}
+      Save challan
+    </ZoruButton>
+  );
+}
+
+function blankRow(): DcLineRow {
+  return {
+    id: `row-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+    name: '',
+    quantity: 1,
+  };
+}
+
+function fromSeedItems(seed?: DeliveryFormSeed): DcLineRow[] {
+  if (!seed?.items?.length) return [blankRow()];
+  return seed.items.map((it, idx) => ({
+    id: `seed-${idx}-${Math.random().toString(36).slice(2, 7)}`,
+    itemId: it.itemId,
+    name: it.name,
+    hsnCode: it.hsnCode,
+    unit: it.unit,
+    quantity: it.quantity,
+  }));
+}
+
+export function DeliveryForm({ seed, fromKind, fromId }: DeliveryFormProps) {
+  const router = useRouter();
+  const { toast } = useZoruToast();
+  const [state, formAction] = useActionState(saveDeliveryChallan, INITIAL_STATE);
+
+  const [clientId, setClientId] = useState<string>(seed?.clientId ?? '');
+  const [warehouseId, setWarehouseId] = useState<string>('');
+  const [transporterId, setTransporterId] = useState<string>('');
+  const [challanDate, setChallanDate] = useState<string>(
+    new Date().toISOString().slice(0, 10),
+  );
+  const [mode, setMode] = useState<string>('road');
+  const [lineItems, setLineItems] = useState<DcLineRow[]>(() => fromSeedItems(seed));
+
+  const [shipTo, setShipTo] = useState({
+    line1: seed?.shipTo?.line1 ?? '',
+    city: seed?.shipTo?.city ?? '',
+    state: seed?.shipTo?.state ?? '',
+    postalCode: seed?.shipTo?.postalCode ?? '',
+    country: seed?.shipTo?.country ?? '',
+  });
+
+  useEffect(() => {
+    if (state.message) {
+      toast({ title: 'Saved', description: state.message });
+      router.push('/dashboard/crm/sales/delivery');
+    }
+    if (state.error) {
+      toast({ title: 'Error', description: state.error, variant: 'destructive' });
+    }
+  }, [state, toast, router]);
+
+  function addRow() {
+    setLineItems((prev) => [...prev, blankRow()]);
+  }
+  function removeRow(id: string) {
+    setLineItems((prev) =>
+      prev.length === 1 ? prev : prev.filter((r) => r.id !== id),
+    );
+  }
+  function patchRow(id: string, patch: Partial<DcLineRow>) {
+    setLineItems((prev) =>
+      prev.map((r) => (r.id === id ? { ...r, ...patch } : r)),
+    );
+  }
+
+  const itemsPayload = React.useMemo(
+    () =>
+      JSON.stringify(
+        lineItems
+          .filter((r) => (r.name && r.name.trim()) || r.itemId)
+          .map((r) => ({
+            id: r.id,
+            itemId: r.itemId,
+            name: r.name,
+            hsnCode: r.hsnCode,
+            quantity: r.quantity,
+            unit: r.unit,
+            batch: r.batch,
+            expiry: r.expiry,
+            serialNumbers: (r.serialNumbersText ?? '')
+              .split(/[,\n]/)
+              .map((s) => s.trim())
+              .filter(Boolean),
+          })),
+      ),
+    [lineItems],
+  );
+
+  return (
+    <form action={formAction} className="space-y-6">
+      <input type="hidden" name="accountId" value={clientId} />
+      <input type="hidden" name="challanDate" value={new Date(challanDate).toISOString()} />
+      <input type="hidden" name="lineItems" value={itemsPayload} />
+      <input type="hidden" name="warehouseId" value={warehouseId} />
+      <input type="hidden" name="transporterId" value={transporterId} />
+      <input type="hidden" name="mode" value={mode} />
+      <input type="hidden" name="shipTo" value={JSON.stringify(shipTo)} />
+      {fromKind ? <input type="hidden" name="fromKind" value={fromKind} /> : null}
+      {fromId ? <input type="hidden" name="fromId" value={fromId} /> : null}
+
+      {/* Header */}
+      <ZoruCard className="p-6">
+        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+          Header
+        </h3>
+        <div className="grid gap-4 md:grid-cols-2">
+          <div>
+            <ZoruLabel htmlFor="challanNumber">
+              Challan # <span className="text-zoru-danger-ink">*</span>
+            </ZoruLabel>
+            <ZoruInput
+              id="challanNumber"
+              name="challanNumber"
+              defaultValue={seed?.challanNumber ?? 'DC-00001'}
+              required
+              className="mt-1.5"
+              maxLength={50}
+            />
+          </div>
+          <div>
+            <ZoruLabel htmlFor="challanDate">
+              Challan date <span className="text-zoru-danger-ink">*</span>
+            </ZoruLabel>
+            <ZoruInput
+              id="challanDate"
+              type="date"
+              required
+              value={challanDate}
+              onChange={(e) => setChallanDate(e.target.value)}
+              className="mt-1.5"
+            />
+          </div>
+          <div>
+            <ZoruLabel>
+              Customer <span className="text-zoru-danger-ink">*</span>
+            </ZoruLabel>
+            <div className="mt-1.5">
+              <EntityFormField
+                entity="client"
+                name="__client_picker"
+                initialId={clientId || null}
+                placeholder="Select customer…"
+                required
+                onChange={(id) => setClientId(id ?? '')}
+              />
+            </div>
+          </div>
+          <div>
+            <ZoruLabel htmlFor="soRef">Linked sales order</ZoruLabel>
+            <ZoruInput
+              id="soRef"
+              name="soRef"
+              defaultValue={seed?.soRef ?? ''}
+              placeholder="Sales order id (optional)"
+              className="mt-1.5"
+              readOnly={Boolean(seed?.soRef)}
+            />
+          </div>
+        </div>
+      </ZoruCard>
+
+      {/* Line items */}
+      <ZoruCard className="p-6">
+        <DcLineItemsTable
+          rows={lineItems}
+          onAdd={addRow}
+          onRemove={removeRow}
+          onPatch={patchRow}
+        />
+      </ZoruCard>
+
+      {/* Dispatch + ship-to */}
+      <ZoruCard className="p-6">
+        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+          Dispatch & ship-to
+        </h3>
+        <div className="grid gap-4 md:grid-cols-2">
+          <div>
+            <ZoruLabel>Dispatch warehouse</ZoruLabel>
+            <div className="mt-1.5">
+              <EntityFormField
+                entity="warehouse"
+                name="__dispatchWarehouse"
+                initialId={warehouseId || null}
+                placeholder="Pick a warehouse…"
+                onChange={(id) => setWarehouseId(id ?? '')}
+              />
+            </div>
+          </div>
+          <div>
+            <ZoruLabel htmlFor="reason">Reason for transport</ZoruLabel>
+            <ZoruInput
+              id="reason"
+              name="reason"
+              placeholder="e.g. For job work, sale on approval"
+              className="mt-1.5"
+              maxLength={200}
+            />
+          </div>
+          <div className="md:col-span-2">
+            <ZoruLabel htmlFor="ship-line1">Ship-to address — line 1</ZoruLabel>
+            <ZoruInput
+              id="ship-line1"
+              value={shipTo.line1}
+              onChange={(e) => setShipTo((p) => ({ ...p, line1: e.target.value }))}
+              className="mt-1.5"
+              maxLength={200}
+            />
+          </div>
+          <div>
+            <ZoruLabel htmlFor="ship-city">City</ZoruLabel>
+            <ZoruInput
+              id="ship-city"
+              value={shipTo.city}
+              onChange={(e) => setShipTo((p) => ({ ...p, city: e.target.value }))}
+              className="mt-1.5"
+              maxLength={100}
+            />
+          </div>
+          <div>
+            <ZoruLabel htmlFor="ship-state">State</ZoruLabel>
+            <ZoruInput
+              id="ship-state"
+              value={shipTo.state}
+              onChange={(e) => setShipTo((p) => ({ ...p, state: e.target.value }))}
+              className="mt-1.5"
+              maxLength={100}
+            />
+          </div>
+          <div>
+            <ZoruLabel htmlFor="ship-postal">Postal code</ZoruLabel>
+            <ZoruInput
+              id="ship-postal"
+              value={shipTo.postalCode}
+              onChange={(e) => setShipTo((p) => ({ ...p, postalCode: e.target.value }))}
+              className="mt-1.5"
+              maxLength={20}
+            />
+          </div>
+          <div>
+            <ZoruLabel htmlFor="ship-country">Country</ZoruLabel>
+            <ZoruInput
+              id="ship-country"
+              value={shipTo.country}
+              onChange={(e) => setShipTo((p) => ({ ...p, country: e.target.value }))}
+              className="mt-1.5"
+              maxLength={100}
+            />
+          </div>
+        </div>
+      </ZoruCard>
+
+      {/* Transport */}
+      <ZoruCard className="p-6">
+        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+          Transport
+        </h3>
+        <div className="grid gap-4 md:grid-cols-2">
+          <div>
+            <ZoruLabel htmlFor="vehicleNumber">Vehicle number</ZoruLabel>
+            <ZoruInput
+              id="vehicleNumber"
+              name="vehicleNumber"
+              placeholder="e.g. RJ14 AB 1234"
+              className="mt-1.5"
+              maxLength={20}
+            />
+          </div>
+          <div>
+            <ZoruLabel htmlFor="driverName">Driver name</ZoruLabel>
+            <ZoruInput
+              id="driverName"
+              name="driverName"
+              placeholder="e.g. John Doe"
+              className="mt-1.5"
+              maxLength={100}
+            />
+          </div>
+          <div>
+            <ZoruLabel>Transporter</ZoruLabel>
+            <div className="mt-1.5">
+              <EntityFormField
+                entity="employee"
+                name="__transporterPicker"
+                initialId={transporterId || null}
+                placeholder="Pick transporter contact…"
+                onChange={(id) => setTransporterId(id ?? '')}
+              />
+            </div>
+          </div>
+          <div>
+            <ZoruLabel htmlFor="lrNumber">LR / consignment no</ZoruLabel>
+            <ZoruInput
+              id="lrNumber"
+              name="lrNumber"
+              placeholder="LR-12345"
+              className="mt-1.5"
+              maxLength={50}
+            />
+          </div>
+          <div>
+            <ZoruLabel htmlFor="lrDate">LR date</ZoruLabel>
+            <ZoruInput
+              id="lrDate"
+              name="lrDate"
+              type="date"
+              className="mt-1.5"
+            />
+          </div>
+          <div>
+            <ZoruLabel htmlFor="ewayBillNumber">E-way bill no</ZoruLabel>
+            <ZoruInput
+              id="ewayBillNumber"
+              name="ewayBillNumber"
+              placeholder="123456789012"
+              className="mt-1.5"
+              maxLength={20}
+            />
+          </div>
+          <div className="md:col-span-2">
+            <ZoruLabel>Mode of transport</ZoruLabel>
+            <ZoruSelect value={mode} onValueChange={setMode}>
+              <ZoruSelectTrigger className="mt-1.5">
+                <ZoruSelectValue />
+              </ZoruSelectTrigger>
+              <ZoruSelectContent>
+                {TRANSPORT_MODES.map((m) => (
+                  <ZoruSelectItem key={m.value} value={m.value}>
+                    {m.label}
+                  </ZoruSelectItem>
+                ))}
+              </ZoruSelectContent>
+            </ZoruSelect>
+          </div>
+        </div>
+      </ZoruCard>
+
+      {/* Notes */}
+      <ZoruCard className="p-6">
+        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+          Notes
+        </h3>
+        <ZoruTextarea
+          name="notes"
+          placeholder="Any special instructions…"
+          maxLength={500}
+        />
+      </ZoruCard>
+
+      <div className="flex justify-between gap-2">
+        <ZoruButton variant="outline" asChild>
+          <Link href="/dashboard/crm/sales/delivery">
+            <ArrowLeft className="h-4 w-4" /> Cancel
+          </Link>
+        </ZoruButton>
+        <SaveButton />
+      </div>
+    </form>
+  );
+}

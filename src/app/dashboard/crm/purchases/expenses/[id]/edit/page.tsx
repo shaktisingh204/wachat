@@ -39,6 +39,13 @@ export default async function EditBillPage({
         title={`Edit ${title}`}
         subtitle="Update bill details."
         icon={Wallet}
+        breadcrumbs={[
+          { label: 'CRM', href: '/dashboard/crm' },
+          { label: 'Purchases', href: '/dashboard/crm/purchases' },
+          { label: 'Bills', href: '/dashboard/crm/purchases/expenses' },
+          { label: title, href: `/dashboard/crm/purchases/expenses/${id}` },
+          { label: 'Edit' },
+        ]}
       />
       <BillForm initial={bill} customFields={customFields} />
     </div>

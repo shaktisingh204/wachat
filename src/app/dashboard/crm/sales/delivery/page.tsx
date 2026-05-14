@@ -1,136 +1,143 @@
-'use client';
+/**
+ * CRM Delivery Challans list — `/dashboard/crm/sales/delivery`.
+ *
+ * §1D list shell (thin variant). Server component reads search/filter
+ * params from the URL, hydrates a page of challans + KPI bucket counts
+ * via the existing `getDeliveryChallans` action, and hands off to
+ * `<DeliveryListClient>` for KPIs/search/filters/bulk-bar/delete.
+ *
+ * Skipped per the rebuild plan's scope cap: activity sub-route +
+ * density toggle (defer to a follow-up sprint).
+ */
 
-import { useState, useEffect, useCallback, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
-import { Plus, Truck, LoaderCircle } from "lucide-react";
 import Link from 'next/link';
-import { getDeliveryChallans } from '@/app/actions/crm-delivery-challans.actions';
-import type { WithId, CrmDeliveryChallan } from '@/lib/definitions';
-import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
+import { Truck, Plus } from 'lucide-react';
 
-import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruTable,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-} from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
 import { CrmPageHeader } from '../../_components/crm-page-header';
+import { getDeliveryChallans } from '@/app/actions/crm-delivery-challans.actions';
+import {
+  DeliveryListClient,
+  type DcStatus,
+} from './_components/delivery-list-client';
+import type { LineageRef } from '@/lib/definitions';
 
-export default function DeliveryChallansPage() {
-    const [challans, setChallans] = useState<WithId<CrmDeliveryChallan>[]>([]);
-    const [accountsMap, setAccountsMap] = useState<Map<string, string>>(new Map());
-    const [isLoading, startTransition] = useTransition();
-    const router = useRouter();
+export const dynamic = 'force-dynamic';
 
-    const fetchData = useCallback(() => {
-        startTransition(async () => {
-            const [challansData, accountsData] = await Promise.all([
-                getDeliveryChallans(),
-                getCrmAccounts()
-            ]);
-            setChallans(challansData.challans);
-            const newMap = new Map(accountsData.accounts.map(acc => [acc._id.toString(), acc.name]));
-            setAccountsMap(newMap);
-        });
-    }, []);
+interface SearchParams {
+  page?: string;
+  limit?: string;
+  q?: string;
+  status?: string;
+  clientId?: string;
+  transporterId?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  warehouseId?: string;
+}
 
-    useEffect(() => {
-        fetchData();
-    }, [fetchData]);
+export default async function DeliveryChallansPage({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
+  const sp = await searchParams;
+  const page = Math.max(1, Number(sp.page) || 1);
+  const limit = Math.min(Math.max(1, Number(sp.limit) || 20), 100);
+  const q = (sp.q ?? '').trim();
+  const status = (sp.status ?? '').trim();
+  const clientId = (sp.clientId ?? '').trim();
+  const transporterId = (sp.transporterId ?? '').trim();
+  const dateFrom = (sp.dateFrom ?? '').trim();
+  const dateTo = (sp.dateTo ?? '').trim();
+  const warehouseId = (sp.warehouseId ?? '').trim();
 
-    const getStatusVariant = (status: string): 'success' | 'warning' | 'danger' | 'ghost' => {
-        const s = status.toLowerCase();
-        if (s === 'delivered') return 'success';
-        if (s === 'in transit') return 'warning';
-        if (s === 'returned') return 'danger';
-        return 'ghost';
+  // Fetch a wider window for client-side filter + KPI bucketing. The
+  // Mongo action returns up to `limit` rows, so we ask for the largest
+  // sensible page (200) and slice down. This is a temporary
+  // approximation — a Rust crate + dedicated /counts endpoint is the
+  // future state (see CRM_REBUILD_PLAN.md Phase 2 W4).
+  const wide = await getDeliveryChallans(1, 200, q || undefined);
+  const all = wide.challans;
+
+  // KPI counts across the loaded window.
+  const kpis = {
+    draft: all.filter((c) => c.status === 'Draft').length,
+    inTransit: all.filter((c) => c.status === 'In Transit').length,
+    delivered: all.filter((c) => c.status === 'Delivered').length,
+    returned: all.filter((c) => c.status === 'Returned').length,
+  };
+
+  // Server-side filter (Mongo action doesn't yet expose these filters).
+  const filtered = all.filter((c) => {
+    if (status && c.status !== status) return false;
+    if (clientId && String(c.accountId) !== clientId) return false;
+    if (dateFrom) {
+      const d = new Date(c.challanDate);
+      if (isNaN(d.getTime()) || d.toISOString().slice(0, 10) < dateFrom) return false;
+    }
+    if (dateTo) {
+      const d = new Date(c.challanDate);
+      if (isNaN(d.getTime()) || d.toISOString().slice(0, 10) > dateTo) return false;
+    }
+    return true;
+  });
+
+  // Pagination over the filtered set.
+  const skip = (page - 1) * limit;
+  const pageSlice = filtered.slice(skip, skip + limit);
+  const hasMore = filtered.length > skip + limit;
+
+  // Project rows to the lean shape the client expects.
+  const rows = pageSlice.map((c) => {
+    const soRef = ((c.lineage ?? []) as LineageRef[]).find((l) => l.kind === 'salesOrder')?.id;
+    return {
+      _id: String(c._id),
+      challanNumber: c.challanNumber || '',
+      accountId: String(c.accountId),
+      challanDate: new Date(c.challanDate).toISOString(),
+      status: (c.status as DcStatus) ?? 'Draft',
+      reason: c.reason,
+      vehicleNumber: c.transportDetails?.vehicleNumber,
+      driverName: c.transportDetails?.driverName,
+      mode: c.transportDetails?.mode,
+      warehouseId: undefined,
+      transporterId: undefined,
+      soRef,
+      createdAt: c.createdAt ? new Date(c.createdAt).toISOString() : undefined,
     };
+  });
 
-    if (isLoading && challans.length === 0) {
-        return (
-            <div className="flex justify-center items-center h-full">
-                <LoaderCircle className="h-8 w-8 animate-spin text-zoru-ink-muted" />
-            </div>
-        );
-    }
+  return (
+    <div className="flex w-full flex-col gap-6">
+      <CrmPageHeader
+        title="Delivery Challans"
+        subtitle="Create, share, and track delivery challans."
+        icon={Truck}
+        actions={
+          <ZoruButton asChild>
+            <Link href="/dashboard/crm/sales/delivery/new">
+              <Plus className="h-4 w-4" />
+              New challan
+            </Link>
+          </ZoruButton>
+        }
+      />
 
-    if (!isLoading && challans.length === 0) {
-        return (
-            <div className="flex w-full flex-col gap-6">
-                <CrmPageHeader
-                    title="Delivery Challans"
-                    subtitle="Create, share, and track delivery challans."
-                    icon={Truck}
-                />
-                <ZoruCard className="p-6 border-dashed">
-                    <div className="flex flex-col items-center gap-3 py-12 text-center">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-zoru-surface-2">
-                            <Truck className="h-6 w-6 text-zoru-ink" strokeWidth={1.75} />
-                        </div>
-                        <h3 className="text-[15px] text-zoru-ink">Delivery Challans</h3>
-                        <p className="max-w-md text-[12.5px] text-zoru-ink-muted">
-                            Create, share, and track delivery challans for transportation or delivery of goods.
-                        </p>
-                        <Link href="/dashboard/crm/sales/delivery/new">
-                            <ZoruButton>
-                                <Plus className="h-4 w-4" strokeWidth={1.75} />
-                                Create First Delivery Challan
-                            </ZoruButton>
-                        </Link>
-                    </div>
-                </ZoruCard>
-            </div>
-        );
-    }
-
-    return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="Delivery Challans"
-                subtitle="Manage your delivery challans."
-                icon={Truck}
-                actions={
-                    <Link href="/dashboard/crm/sales/delivery/new">
-                        <ZoruButton>
-                            <Plus className="h-4 w-4" strokeWidth={1.75} />
-                            New Challan
-                        </ZoruButton>
-                    </Link>
-                }
-            />
-
-            <ZoruCard className="p-6">
-                <div className="mb-4">
-                    <h2 className="text-[16px] text-zoru-ink">Recent Challans</h2>
-                </div>
-                <div className="overflow-x-auto rounded-lg border border-zoru-line">
-                    <ZoruTable>
-                        <ZoruTableHeader>
-                            <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                                <ZoruTableHead className="text-zoru-ink-muted">Challan #</ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">Client</ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">Date</ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
-                            </ZoruTableRow>
-                        </ZoruTableHeader>
-                        <ZoruTableBody>
-                            {challans.map(challan => (
-                                <ZoruTableRow key={challan._id.toString()} className="border-zoru-line">
-                                    <ZoruTableCell className="text-zoru-ink">{challan.challanNumber}</ZoruTableCell>
-                                    <ZoruTableCell className="text-zoru-ink">{accountsMap.get(challan.accountId.toString()) || 'Unknown'}</ZoruTableCell>
-                                    <ZoruTableCell className="text-zoru-ink">{new Date(challan.challanDate).toLocaleDateString()}</ZoruTableCell>
-                                    <ZoruTableCell><ZoruBadge variant={getStatusVariant(challan.status)}>{challan.status}</ZoruBadge></ZoruTableCell>
-                                </ZoruTableRow>
-                            ))}
-                        </ZoruTableBody>
-                    </ZoruTable>
-                </div>
-            </ZoruCard>
-        </div>
-    );
+      <DeliveryListClient
+        rows={rows}
+        page={page}
+        limit={limit}
+        hasMore={hasMore}
+        initialQuery={q}
+        initialStatus={status}
+        initialClientId={clientId}
+        initialTransporterId={transporterId}
+        initialDateFrom={dateFrom}
+        initialDateTo={dateTo}
+        initialWarehouseId={warehouseId}
+        kpis={kpis}
+      />
+    </div>
+  );
 }

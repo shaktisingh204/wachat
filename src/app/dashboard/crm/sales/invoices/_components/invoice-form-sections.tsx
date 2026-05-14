@@ -1,0 +1,552 @@
+'use client';
+
+/**
+ * Section sub-cards for `<InvoiceForm>`. Hoisted out so the form file
+ * stays under the 600-line cap. Each section is presentational —
+ * controlled state lives in the parent.
+ */
+
+import * as React from 'react';
+
+import {
+  ZoruCard,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruTextarea,
+} from '@/components/zoruui';
+import { EntityFormField } from '@/components/crm/entity-form-field';
+import type {
+  CrmInvoiceGstTreatment,
+  CrmInvoiceRecurringFrequency,
+} from '@/lib/rust-client/crm-invoices';
+
+const GST_TREATMENTS: { value: CrmInvoiceGstTreatment; label: string }[] = [
+  { value: 'registered', label: 'Registered' },
+  { value: 'composition', label: 'Composition' },
+  { value: 'unregistered', label: 'Unregistered' },
+  { value: 'overseas', label: 'Overseas' },
+  { value: 'sez_with_payment', label: 'SEZ — with payment' },
+  { value: 'sez_without_payment', label: 'SEZ — without payment' },
+  { value: 'deemed_export', label: 'Deemed export' },
+  { value: 'consumer', label: 'Consumer' },
+];
+
+const RECURRING_FREQUENCIES: {
+  value: CrmInvoiceRecurringFrequency;
+  label: string;
+}[] = [
+  { value: 'daily', label: 'Daily' },
+  { value: 'weekly', label: 'Weekly' },
+  { value: 'monthly', label: 'Monthly' },
+  { value: 'quarterly', label: 'Quarterly' },
+  { value: 'yearly', label: 'Yearly' },
+];
+
+export interface HeaderSectionProps {
+  defaultInvoiceNo: string;
+  defaultDate: string;
+  defaultDueDate: string;
+  defaultPlaceOfSupply?: string;
+  gstTreatment: CrmInvoiceGstTreatment | '';
+  onGstTreatment: (next: CrmInvoiceGstTreatment | '') => void;
+  reverseCharge: boolean;
+  onReverseCharge: (next: boolean) => void;
+}
+
+export function HeaderSection({
+  defaultInvoiceNo,
+  defaultDate,
+  defaultDueDate,
+  defaultPlaceOfSupply,
+  gstTreatment,
+  onGstTreatment,
+  reverseCharge,
+  onReverseCharge,
+}: HeaderSectionProps) {
+  return (
+    <ZoruCard className="p-6">
+      <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        Header
+      </h3>
+      <div className="grid gap-4 md:grid-cols-2">
+        <div>
+          <ZoruLabel htmlFor="invoiceNo">
+            Invoice number <span className="text-zoru-danger-ink">*</span>
+          </ZoruLabel>
+          <ZoruInput
+            id="invoiceNo"
+            name="invoiceNo"
+            required
+            defaultValue={defaultInvoiceNo}
+            className="mt-1.5"
+            placeholder="INV-2026-0001"
+          />
+        </div>
+        <div>
+          <ZoruLabel htmlFor="date">
+            Invoice date <span className="text-zoru-danger-ink">*</span>
+          </ZoruLabel>
+          <ZoruInput
+            id="date"
+            name="date"
+            type="date"
+            required
+            defaultValue={defaultDate}
+            className="mt-1.5"
+          />
+        </div>
+        <div>
+          <ZoruLabel htmlFor="dueDate">
+            Due date <span className="text-zoru-danger-ink">*</span>
+          </ZoruLabel>
+          <ZoruInput
+            id="dueDate"
+            name="dueDate"
+            type="date"
+            required
+            defaultValue={defaultDueDate}
+            className="mt-1.5"
+          />
+        </div>
+        <div>
+          <ZoruLabel htmlFor="placeOfSupply">Place of supply</ZoruLabel>
+          <ZoruInput
+            id="placeOfSupply"
+            name="placeOfSupply"
+            defaultValue={defaultPlaceOfSupply ?? ''}
+            className="mt-1.5"
+            placeholder="29-Karnataka"
+          />
+        </div>
+        <div>
+          <ZoruLabel>GST treatment</ZoruLabel>
+          <ZoruSelect
+            value={gstTreatment || undefined}
+            onValueChange={(v) => onGstTreatment(v as CrmInvoiceGstTreatment)}
+          >
+            <ZoruSelectTrigger className="mt-1.5">
+              <ZoruSelectValue placeholder="Select treatment" />
+            </ZoruSelectTrigger>
+            <ZoruSelectContent>
+              {GST_TREATMENTS.map((g) => (
+                <ZoruSelectItem key={g.value} value={g.value}>
+                  {g.label}
+                </ZoruSelectItem>
+              ))}
+            </ZoruSelectContent>
+          </ZoruSelect>
+        </div>
+        <label className="mt-2 inline-flex items-center gap-2 text-[13px]">
+          <input
+            type="checkbox"
+            checked={reverseCharge}
+            onChange={(e) => onReverseCharge(e.target.checked)}
+          />
+          Reverse charge
+        </label>
+      </div>
+    </ZoruCard>
+  );
+}
+
+export interface CustomerSectionProps {
+  initialClientId: string | null;
+  currency: string;
+  onCurrencyChange: (next: string) => void;
+  billingAddress: string;
+  onBillingAddress: (next: string) => void;
+  shippingAddress: string;
+  onShippingAddress: (next: string) => void;
+}
+
+export function CustomerSection({
+  initialClientId,
+  currency,
+  onCurrencyChange,
+  billingAddress,
+  onBillingAddress,
+  shippingAddress,
+  onShippingAddress,
+}: CustomerSectionProps) {
+  return (
+    <ZoruCard className="p-6">
+      <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        Customer
+      </h3>
+      <div className="grid gap-4 md:grid-cols-2">
+        <div>
+          <ZoruLabel>
+            Customer <span className="text-zoru-danger-ink">*</span>
+          </ZoruLabel>
+          <div className="mt-1.5">
+            <EntityFormField
+              entity="client"
+              name="clientId"
+              initialId={initialClientId}
+              required
+            />
+          </div>
+        </div>
+        <div>
+          <ZoruLabel>Currency</ZoruLabel>
+          <div className="mt-1.5">
+            <EntityFormField
+              entity="currency"
+              name="__currency_picker"
+              initialId={currency}
+              onChange={(id) => onCurrencyChange(id || 'INR')}
+            />
+          </div>
+        </div>
+        <div className="md:col-span-2">
+          <ZoruLabel htmlFor="billingAddress">Billing address</ZoruLabel>
+          <ZoruTextarea
+            id="billingAddress"
+            rows={2}
+            value={billingAddress}
+            onChange={(e) => onBillingAddress(e.target.value)}
+            className="mt-1.5"
+            placeholder="Street, City, State, PIN"
+          />
+        </div>
+        <div className="md:col-span-2">
+          <ZoruLabel htmlFor="shippingAddress">Shipping address</ZoruLabel>
+          <ZoruTextarea
+            id="shippingAddress"
+            rows={2}
+            value={shippingAddress}
+            onChange={(e) => onShippingAddress(e.target.value)}
+            className="mt-1.5"
+            placeholder="Same as billing if blank"
+          />
+        </div>
+      </div>
+    </ZoruCard>
+  );
+}
+
+export interface NotesSectionProps {
+  defaultPaymentTerms?: string;
+  statusValue: string;
+  onStatusChange: (next: string) => void;
+  statusOptions: { value: string; label: string }[];
+  defaultCustomerNotes?: string;
+  defaultTermsAndConditions?: string;
+}
+
+export function NotesSection({
+  defaultPaymentTerms,
+  statusValue,
+  onStatusChange,
+  statusOptions,
+  defaultCustomerNotes,
+  defaultTermsAndConditions,
+}: NotesSectionProps) {
+  return (
+    <ZoruCard className="p-6">
+      <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        Notes &amp; Terms
+      </h3>
+      <div className="grid gap-4 md:grid-cols-2">
+        <div>
+          <ZoruLabel htmlFor="paymentTerms">Payment terms</ZoruLabel>
+          <ZoruInput
+            id="paymentTerms"
+            name="paymentTerms"
+            defaultValue={defaultPaymentTerms ?? ''}
+            className="mt-1.5"
+            placeholder="Net 30"
+          />
+        </div>
+        <div>
+          <ZoruLabel htmlFor="status">Status</ZoruLabel>
+          <ZoruSelect value={statusValue} onValueChange={onStatusChange}>
+            <ZoruSelectTrigger id="status" className="mt-1.5">
+              <ZoruSelectValue />
+            </ZoruSelectTrigger>
+            <ZoruSelectContent>
+              {statusOptions.map((s) => (
+                <ZoruSelectItem key={s.value} value={s.value}>
+                  {s.label}
+                </ZoruSelectItem>
+              ))}
+            </ZoruSelectContent>
+          </ZoruSelect>
+        </div>
+        <div className="md:col-span-2">
+          <ZoruLabel htmlFor="customerNotes">Customer notes</ZoruLabel>
+          <ZoruTextarea
+            id="customerNotes"
+            name="customerNotes"
+            rows={3}
+            defaultValue={defaultCustomerNotes ?? ''}
+            className="mt-1.5"
+          />
+        </div>
+        <div className="md:col-span-2">
+          <ZoruLabel htmlFor="termsAndConditions">Terms &amp; conditions</ZoruLabel>
+          <ZoruTextarea
+            id="termsAndConditions"
+            name="termsAndConditions"
+            rows={3}
+            defaultValue={defaultTermsAndConditions ?? ''}
+            className="mt-1.5"
+          />
+        </div>
+      </div>
+    </ZoruCard>
+  );
+}
+
+export interface BankSectionProps {
+  bankAccountId: string | null;
+  onBankAccountId: (next: string | null) => void;
+  upiId: string;
+  onUpiId: (next: string) => void;
+  qrImageFileId: string;
+  onQrImageFileId: (next: string) => void;
+}
+
+export function BankSection({
+  bankAccountId,
+  onBankAccountId,
+  upiId,
+  onUpiId,
+  qrImageFileId,
+  onQrImageFileId,
+}: BankSectionProps) {
+  return (
+    <ZoruCard className="p-6">
+      <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        Bank &amp; UPI
+      </h3>
+      <div className="grid gap-4 md:grid-cols-2">
+        <div>
+          <ZoruLabel>Bank account</ZoruLabel>
+          <div className="mt-1.5">
+            <EntityFormField
+              entity="bankAccount"
+              name="__bank_picker"
+              initialId={bankAccountId}
+              onChange={(id) => onBankAccountId(id)}
+            />
+          </div>
+        </div>
+        <div>
+          <ZoruLabel htmlFor="upiId">UPI id</ZoruLabel>
+          <ZoruInput
+            id="upiId"
+            value={upiId}
+            onChange={(e) => onUpiId(e.target.value)}
+            className="mt-1.5"
+            placeholder="name@bank"
+          />
+        </div>
+        <div className="md:col-span-2">
+          <ZoruLabel htmlFor="qrImageFileId">QR image (SabFile id)</ZoruLabel>
+          <ZoruInput
+            id="qrImageFileId"
+            value={qrImageFileId}
+            onChange={(e) => onQrImageFileId(e.target.value)}
+            className="mt-1.5"
+            placeholder="Paste a SabFile id"
+          />
+          <p className="mt-1 text-[11px] text-zoru-ink-muted">
+            {/* TODO 1D.3: wire <SabFilePickerButton/> for QR image upload */}
+            Use a SabFile id. Picker integration is queued.
+          </p>
+        </div>
+      </div>
+    </ZoruCard>
+  );
+}
+
+export interface EInvoiceSectionProps {
+  irn: string;
+  onIrn: (next: string) => void;
+  qrString: string;
+  onQrString: (next: string) => void;
+  ackNo: string;
+  onAckNo: (next: string) => void;
+  ackDate: string;
+  onAckDate: (next: string) => void;
+}
+
+export function EInvoiceSection({
+  irn,
+  onIrn,
+  qrString,
+  onQrString,
+  ackNo,
+  onAckNo,
+  ackDate,
+  onAckDate,
+}: EInvoiceSectionProps) {
+  return (
+    <ZoruCard className="p-6">
+      <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        E-invoice
+      </h3>
+      <p className="mb-3 text-[11px] text-zoru-ink-muted">
+        {/* TODO 1D.3: e-invoice auto-fetch (IRP). Manual entry only. */}
+        IRP auto-fetch deferred; enter manually if you have the IRN.
+      </p>
+      <div className="grid gap-4 md:grid-cols-2">
+        <div>
+          <ZoruLabel htmlFor="eInvoiceIrn">IRN</ZoruLabel>
+          <ZoruInput
+            id="eInvoiceIrn"
+            value={irn}
+            onChange={(e) => onIrn(e.target.value)}
+            className="mt-1.5"
+          />
+        </div>
+        <div>
+          <ZoruLabel htmlFor="eInvoiceAckNo">Acknowledgement number</ZoruLabel>
+          <ZoruInput
+            id="eInvoiceAckNo"
+            value={ackNo}
+            onChange={(e) => onAckNo(e.target.value)}
+            className="mt-1.5"
+          />
+        </div>
+        <div>
+          <ZoruLabel htmlFor="eInvoiceAckDate">Acknowledgement date</ZoruLabel>
+          <ZoruInput
+            id="eInvoiceAckDate"
+            type="date"
+            value={ackDate}
+            onChange={(e) => onAckDate(e.target.value)}
+            className="mt-1.5"
+          />
+        </div>
+        <div className="md:col-span-2">
+          <ZoruLabel htmlFor="eInvoiceQr">QR string</ZoruLabel>
+          <ZoruTextarea
+            id="eInvoiceQr"
+            rows={2}
+            value={qrString}
+            onChange={(e) => onQrString(e.target.value)}
+            className="mt-1.5"
+            placeholder="JSON payload encoded in the IRP QR"
+          />
+        </div>
+      </div>
+    </ZoruCard>
+  );
+}
+
+export interface RecurringSectionProps {
+  enabled: boolean;
+  onEnabled: (next: boolean) => void;
+  frequency: CrmInvoiceRecurringFrequency | '';
+  onFrequency: (next: CrmInvoiceRecurringFrequency | '') => void;
+  endDate: string;
+  onEndDate: (next: string) => void;
+  nextRun: string;
+  onNextRun: (next: string) => void;
+}
+
+export function RecurringSection({
+  enabled,
+  onEnabled,
+  frequency,
+  onFrequency,
+  endDate,
+  onEndDate,
+  nextRun,
+  onNextRun,
+}: RecurringSectionProps) {
+  return (
+    <ZoruCard className="p-6">
+      <details open={enabled}>
+        <summary className="cursor-pointer list-none">
+          <h3 className="inline text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+            Recurring
+          </h3>
+          <label className="ml-3 inline-flex items-center gap-2 text-[13px]">
+            <input
+              type="checkbox"
+              checked={enabled}
+              onChange={(e) => onEnabled(e.target.checked)}
+            />
+            Enable
+          </label>
+        </summary>
+        {enabled ? (
+          <div className="mt-3 grid gap-4 md:grid-cols-3">
+            <div>
+              <ZoruLabel>Frequency</ZoruLabel>
+              <ZoruSelect
+                value={frequency || undefined}
+                onValueChange={(v) =>
+                  onFrequency(v as CrmInvoiceRecurringFrequency)
+                }
+              >
+                <ZoruSelectTrigger className="mt-1.5">
+                  <ZoruSelectValue placeholder="Select" />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
+                  {RECURRING_FREQUENCIES.map((f) => (
+                    <ZoruSelectItem key={f.value} value={f.value}>
+                      {f.label}
+                    </ZoruSelectItem>
+                  ))}
+                </ZoruSelectContent>
+              </ZoruSelect>
+            </div>
+            <div>
+              <ZoruLabel htmlFor="recurringEnd">End date</ZoruLabel>
+              <ZoruInput
+                id="recurringEnd"
+                type="date"
+                value={endDate}
+                onChange={(e) => onEndDate(e.target.value)}
+                className="mt-1.5"
+              />
+            </div>
+            <div>
+              <ZoruLabel htmlFor="recurringNextRun">Next run</ZoruLabel>
+              <ZoruInput
+                id="recurringNextRun"
+                type="date"
+                value={nextRun}
+                onChange={(e) => onNextRun(e.target.value)}
+                className="mt-1.5"
+              />
+            </div>
+          </div>
+        ) : null}
+      </details>
+    </ZoruCard>
+  );
+}
+
+export interface EwayBillSectionProps {
+  value: string;
+  onChange: (next: string) => void;
+}
+
+export function EwayBillSection({ value, onChange }: EwayBillSectionProps) {
+  return (
+    <ZoruCard className="p-6">
+      <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        E-way bill
+      </h3>
+      <div>
+        <ZoruLabel htmlFor="ewayBillNo">E-way bill number</ZoruLabel>
+        <ZoruInput
+          id="ewayBillNo"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="mt-1.5"
+        />
+      </div>
+    </ZoruCard>
+  );
+}

@@ -1,333 +1,515 @@
 'use client';
 
 /**
- * <TicketForm> — single source of truth for both Create and Edit flows.
+ * <TicketForm> — Create / Edit form for tickets (§1D.3 bar).
  *
- * Server-action driven via `saveTicketAction`. The form encodes every
- * relational/reference field as an `<EntityFormField>` so the value
- * stored is an id (or an inline-created string for reference entities).
- * The enum-typed fields (`status`, `priority`, `severity`, `channel`)
- * use `<ZoruSelect>` because they're closed vocabularies on the Rust
- * side rather than picker-backed entities. Custom fields are rendered
- * below the standard fields and submitted as a single `customFields`
- * JSON blob — the action layer fans them out via
- * `applyCustomFieldsToEntity`.
+ * Sections rendered as `<ZoruCard>`:
+ *   1. Basics — subject, description, requester (polymorphic), channel,
+ *      product, category + sub-category.
+ *   2. Workflow — priority, severity, status, SLA, due-by, agent group.
+ *   3. Assignment — assignee, linked deal / invoice, parent ticket, tags.
+ *   4. Custom fields (when defined).
+ *
+ * Polymorphic requester (§1D.3): the `requesterKind` discriminator
+ * (client / lead / employee) drives which `<EntityFormField>` renders
+ * for `requesterId`. The kind is persisted into `customFields.requesterKind`
+ * (the wire schema doesn't yet carry a dedicated field, but the chip
+ * lookup on the list page reads from there).
+ *
+ * Smart defaults: `?fromKind=&fromId=` query string seeds the requester
+ * picker (used by Email→Ticket and Lead→Ticket conversions).
  */
 
 import * as React from 'react';
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { LoaderCircle } from 'lucide-react';
 
 import {
-  ZoruButton,
-  ZoruCard,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  useZoruToast,
+    ZoruButton,
+    ZoruCard,
+    ZoruInput,
+    ZoruLabel,
+    ZoruSelect,
+    ZoruSelectContent,
+    ZoruSelectItem,
+    ZoruSelectTrigger,
+    ZoruSelectValue,
+    ZoruTextarea,
+    useZoruToast,
 } from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import {
-  CustomFieldInput,
-  type CustomFieldValue,
+    CustomFieldInput,
+    type CustomFieldValue,
 } from '@/components/crm/custom-field-input';
+import { EntityMultiFormField } from '@/components/crm/entity-multi-form-field';
 import { saveTicketAction } from '@/app/actions/crm/tickets.actions';
 import type { CrmTicketDoc } from '@/lib/rust-client/crm-tickets';
 import type { WsCustomField } from '@/lib/worksuite/meta-types';
+import type { EntityKey } from '@/lib/lookup-registry';
+
+type RequesterKind = 'client' | 'lead' | 'employee';
 
 interface TicketFormProps {
-  /** Existing ticket — present in Edit mode, omit for Create. */
-  initial?: CrmTicketDoc | null;
-  /** Custom field definitions for `belongs_to = 'ticket'`. */
-  customFields: WsCustomField[];
+    initial?: CrmTicketDoc | null;
+    customFields: WsCustomField[];
 }
+
+const INITIAL_STATE = {
+    message: undefined as string | undefined,
+    error: undefined as string | undefined,
+    id: undefined as string | undefined,
+};
+
+const CHANNEL_OPTIONS = [
+    { value: 'email', label: 'Email' },
+    { value: 'web', label: 'Web' },
+    { value: 'whatsapp', label: 'WhatsApp' },
+    { value: 'chat', label: 'Chat' },
+    { value: 'phone', label: 'Phone' },
+    { value: 'portal', label: 'Portal' },
+];
+
+const STATUS_OPTIONS = [
+    { value: 'open', label: 'Open' },
+    { value: 'pending', label: 'Pending' },
+    { value: 'on_hold', label: 'On hold' },
+    { value: 'resolved', label: 'Resolved' },
+    { value: 'closed', label: 'Closed' },
+    { value: 'reopened', label: 'Reopened' },
+];
+
+const PRIORITY_OPTIONS = [
+    { value: 'low', label: 'Low' },
+    { value: 'medium', label: 'Medium' },
+    { value: 'high', label: 'High' },
+    { value: 'critical', label: 'Critical' },
+];
+
+const SEVERITY_OPTIONS = [
+    { value: 'sev1', label: 'Sev 1 — critical' },
+    { value: 'sev2', label: 'Sev 2 — high' },
+    { value: 'sev3', label: 'Sev 3 — normal' },
+    { value: 'sev4', label: 'Sev 4 — low' },
+];
+
+const REQUESTER_OPTIONS: { value: RequesterKind; label: string; entity: EntityKey }[] = [
+    { value: 'client', label: 'Client', entity: 'client' },
+    { value: 'lead', label: 'Lead', entity: 'lead' },
+    { value: 'employee', label: 'Employee', entity: 'employee' },
+];
 
 function SubmitButton({ editing }: { editing: boolean }) {
-  const { pending } = useFormStatus();
-  return (
-    <ZoruButton type="submit" disabled={pending}>
-      {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
-      {editing ? 'Save changes' : 'Create ticket'}
-    </ZoruButton>
-  );
+    const { pending } = useFormStatus();
+    return (
+        <ZoruButton type="submit" disabled={pending}>
+            {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
+            {editing ? 'Save changes' : 'Create ticket'}
+        </ZoruButton>
+    );
 }
-
-const INITIAL_STATE = { message: undefined, error: undefined, id: undefined };
-
-/* ─── Enum vocabularies (mirror crm_extras_types + crm_core) ──── */
-
-const CHANNEL_OPTIONS: { value: string; label: string }[] = [
-  { value: 'email', label: 'Email' },
-  { value: 'web', label: 'Web' },
-  { value: 'whatsapp', label: 'WhatsApp' },
-  { value: 'chat', label: 'Chat' },
-  { value: 'phone', label: 'Phone' },
-  { value: 'portal', label: 'Portal' },
-];
-
-const STATUS_OPTIONS: { value: string; label: string }[] = [
-  { value: 'open', label: 'Open' },
-  { value: 'pending', label: 'Pending' },
-  { value: 'on_hold', label: 'On hold' },
-  { value: 'resolved', label: 'Resolved' },
-  { value: 'closed', label: 'Closed' },
-  { value: 'reopened', label: 'Reopened' },
-];
-
-const PRIORITY_OPTIONS: { value: string; label: string }[] = [
-  { value: 'low', label: 'Low' },
-  { value: 'medium', label: 'Medium' },
-  { value: 'high', label: 'High' },
-  { value: 'critical', label: 'Critical' },
-];
-
-const SEVERITY_OPTIONS: { value: string; label: string }[] = [
-  { value: 'sev1', label: 'Sev 1 — critical' },
-  { value: 'sev2', label: 'Sev 2 — high' },
-  { value: 'sev3', label: 'Sev 3 — normal' },
-  { value: 'sev4', label: 'Sev 4 — low' },
-];
 
 export function TicketForm({ initial, customFields }: TicketFormProps) {
-  const router = useRouter();
-  const { toast } = useZoruToast();
-  const formRef = useRef<HTMLFormElement>(null);
-  const [state, formAction] = useActionState(saveTicketAction, INITIAL_STATE);
+    const router = useRouter();
+    const { toast } = useZoruToast();
+    const sp = useSearchParams();
+    const formRef = useRef<HTMLFormElement>(null);
+    const [state, formAction] = useActionState(saveTicketAction, INITIAL_STATE);
+    const editing = !!initial?._id;
 
-  const editing = !!initial?._id;
+    // Read initial requesterKind from customFields bag (post-§1D); fall
+    // back to the URL prefill (?fromKind=) or 'client' for legacy rows.
+    const initialBag = (initial?.customFields ?? {}) as Record<string, unknown>;
+    const prefillKind = (sp?.get('fromKind') as RequesterKind | null) ?? null;
+    const prefillId = sp?.get('fromId') ?? null;
 
-  // The enum-typed fields are controlled by local state because the
-  // ZoruSelect is a controlled Radix component. They sync into hidden
-  // inputs so the form's FormData carries them on submit.
-  const [channel, setChannel] = useState<string>(initial?.channel ?? 'email');
-  const [status, setStatus] = useState<string>(initial?.status ?? 'open');
-  const [priority, setPriority] = useState<string>(initial?.priority ?? '');
-  const [severity, setSeverity] = useState<string>(initial?.severity ?? 'sev3');
+    const [requesterKind, setRequesterKind] = useState<RequesterKind>(() => {
+        const stored = String(initialBag.requesterKind ?? '').toLowerCase();
+        if (stored === 'lead' || stored === 'employee') return stored;
+        if (prefillKind === 'lead' || prefillKind === 'employee') return prefillKind;
+        return 'client';
+    });
+    const [requesterId, setRequesterId] = useState<string>(
+        initial?.requesterId ?? prefillId ?? '',
+    );
 
-  const [customFieldValues, setCustomFieldValues] = useState<
-    Record<string, CustomFieldValue>
-  >(() => {
-    const seed: Record<string, CustomFieldValue> = {};
-    const bag = (initial?.customFields ?? {}) as Record<string, unknown>;
-    for (const f of customFields) {
-      const v = bag[f.name];
-      if (v !== undefined) {
-        seed[f.name] = v as CustomFieldValue;
-      }
-    }
-    return seed;
-  });
+    const [channel, setChannel] = useState<string>(initial?.channel ?? 'email');
+    const [status, setStatus] = useState<string>(initial?.status ?? 'open');
+    const [priority, setPriority] = useState<string>(initial?.priority ?? '');
+    const [severity, setSeverity] = useState<string>(initial?.severity ?? 'sev3');
 
-  useEffect(() => {
-    if (state?.message) {
-      toast({ title: 'Saved', description: state.message });
-      router.push(
-        state.id
-          ? `/dashboard/crm/tickets/${state.id}`
-          : '/dashboard/crm/tickets',
-      );
-    }
-    if (state?.error) {
-      toast({ title: 'Error', description: state.error, variant: 'destructive' });
-    }
-  }, [state, toast, router]);
+    const initialTags = Array.isArray(initialBag.tags)
+        ? (initialBag.tags as unknown[]).map((x) => String(x))
+        : [];
+    const [tagIds, setTagIds] = useState<string[]>(initialTags);
 
-  const handleCustomFieldChange = (name: string, next: CustomFieldValue) => {
-    setCustomFieldValues((prev) => ({ ...prev, [name]: next }));
-  };
+    const [customFieldValues, setCustomFieldValues] = useState<
+        Record<string, CustomFieldValue>
+    >(() => {
+        const seed: Record<string, CustomFieldValue> = {};
+        for (const f of customFields) {
+            const v = initialBag[f.name];
+            if (v !== undefined) seed[f.name] = v as CustomFieldValue;
+        }
+        return seed;
+    });
 
-  return (
-    <form ref={formRef} action={formAction} className="space-y-6">
-      {editing ? <input type="hidden" name="_id" value={String(initial!._id)} /> : null}
-      <input
-        type="hidden"
-        name="customFields"
-        value={JSON.stringify(customFieldValues)}
-      />
-      {/* Enum hidden inputs — sync'd from controlled ZoruSelect state. */}
-      <input type="hidden" name="channel" value={channel} />
-      <input type="hidden" name="status" value={status} />
-      <input type="hidden" name="priority" value={priority} />
-      <input type="hidden" name="severity" value={severity} />
+    useEffect(() => {
+        if (state?.message) {
+            toast({ title: 'Saved', description: state.message });
+            router.push(
+                state.id
+                    ? `/dashboard/crm/tickets/${state.id}`
+                    : '/dashboard/crm/tickets',
+            );
+        }
+        if (state?.error) {
+            toast({
+                title: 'Error',
+                description: state.error,
+                variant: 'destructive',
+            });
+        }
+    }, [state, toast, router]);
 
-      <ZoruCard className="p-6">
-        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
-          Basics
-        </h3>
-        <div className="grid gap-4 md:grid-cols-2">
-          <div className="md:col-span-2">
-            <ZoruLabel htmlFor="subject">
-              Subject <span className="text-zoru-danger-ink">*</span>
-            </ZoruLabel>
-            <ZoruInput
-              id="subject"
-              name="subject"
-              required
-              defaultValue={initial?.subject ?? ''}
-              className="mt-1.5"
-              placeholder="Login broken on mobile"
+    const requesterEntity =
+        REQUESTER_OPTIONS.find((o) => o.value === requesterKind)?.entity ?? 'client';
+
+    // The customFields blob carries the polymorphic requesterKind + tags
+    // so the list page chip lookup can resolve it. Augment whatever the
+    // user typed for the worksuite custom fields with these reserved keys.
+    const customFieldsForSubmit = React.useMemo(
+        () => ({
+            ...customFieldValues,
+            requesterKind,
+            tags: tagIds,
+        }),
+        [customFieldValues, requesterKind, tagIds],
+    );
+
+    return (
+        <form ref={formRef} action={formAction} className="space-y-6">
+            {editing ? (
+                <input type="hidden" name="_id" value={String(initial!._id)} />
+            ) : null}
+            <input
+                type="hidden"
+                name="customFields"
+                value={JSON.stringify(customFieldsForSubmit)}
             />
-          </div>
-          <div>
-            <ZoruLabel>Client (requester) <span className="text-zoru-danger-ink">*</span></ZoruLabel>
-            <div className="mt-1.5">
-              <EntityFormField
-                entity="client"
-                name="requesterId"
-                initialId={initial?.requesterId ?? null}
-                required
-              />
+            <input type="hidden" name="channel" value={channel} />
+            <input type="hidden" name="status" value={status} />
+            <input type="hidden" name="priority" value={priority} />
+            <input type="hidden" name="severity" value={severity} />
+
+            {/* ─── Basics ──────────────────────────────────────────────── */}
+            <ZoruCard className="p-6">
+                <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+                    Basics
+                </h3>
+                <div className="grid gap-4 md:grid-cols-2">
+                    <div className="md:col-span-2">
+                        <ZoruLabel htmlFor="subject">
+                            Subject <span className="text-zoru-danger-ink">*</span>
+                        </ZoruLabel>
+                        <ZoruInput
+                            id="subject"
+                            name="subject"
+                            required
+                            defaultValue={initial?.subject ?? ''}
+                            className="mt-1.5"
+                            placeholder="Login broken on mobile"
+                        />
+                    </div>
+
+                    <div className="md:col-span-2">
+                        <ZoruLabel htmlFor="description">Description</ZoruLabel>
+                        <ZoruTextarea
+                            id="description"
+                            name="description"
+                            rows={3}
+                            defaultValue={(initialBag.description as string | undefined) ?? ''}
+                            className="mt-1.5"
+                            placeholder="What is happening? Steps to reproduce, expected vs actual…"
+                        />
+                    </div>
+
+                    <div>
+                        <ZoruLabel htmlFor="requesterKind">
+                            Requester type <span className="text-zoru-danger-ink">*</span>
+                        </ZoruLabel>
+                        <ZoruSelect
+                            value={requesterKind}
+                            onValueChange={(v) => {
+                                setRequesterKind(v as RequesterKind);
+                                setRequesterId('');
+                            }}
+                        >
+                            <ZoruSelectTrigger id="requesterKind" className="mt-1.5">
+                                <ZoruSelectValue placeholder="Type…" />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                {REQUESTER_OPTIONS.map((o) => (
+                                    <ZoruSelectItem key={o.value} value={o.value}>
+                                        {o.label}
+                                    </ZoruSelectItem>
+                                ))}
+                            </ZoruSelectContent>
+                        </ZoruSelect>
+                    </div>
+
+                    <div>
+                        <ZoruLabel>
+                            Requester <span className="text-zoru-danger-ink">*</span>
+                        </ZoruLabel>
+                        <div className="mt-1.5">
+                            <EntityFormField
+                                key={requesterKind}
+                                entity={requesterEntity}
+                                name="requesterId"
+                                initialId={requesterId || null}
+                                required
+                                onChange={(next) => setRequesterId(next ?? '')}
+                            />
+                        </div>
+                    </div>
+
+                    <div>
+                        <ZoruLabel htmlFor="channel-select">
+                            Channel <span className="text-zoru-danger-ink">*</span>
+                        </ZoruLabel>
+                        <ZoruSelect value={channel} onValueChange={setChannel}>
+                            <ZoruSelectTrigger id="channel-select" className="mt-1.5">
+                                <ZoruSelectValue placeholder="Select channel…" />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                {CHANNEL_OPTIONS.map((o) => (
+                                    <ZoruSelectItem key={o.value} value={o.value}>
+                                        {o.label}
+                                    </ZoruSelectItem>
+                                ))}
+                            </ZoruSelectContent>
+                        </ZoruSelect>
+                    </div>
+
+                    <div>
+                        <ZoruLabel>Product</ZoruLabel>
+                        <div className="mt-1.5">
+                            <EntityFormField
+                                entity="item"
+                                name="productId"
+                                initialId={initial?.productId ?? null}
+                            />
+                        </div>
+                    </div>
+
+                    <div>
+                        <ZoruLabel>Category</ZoruLabel>
+                        <div className="mt-1.5">
+                            <EntityFormField
+                                entity="category"
+                                name="category"
+                                initialId={initial?.category ?? null}
+                            />
+                        </div>
+                    </div>
+
+                    <div>
+                        <ZoruLabel htmlFor="subCategory">Sub-category</ZoruLabel>
+                        <ZoruInput
+                            id="subCategory"
+                            name="subCategory"
+                            defaultValue={(initialBag.subCategory as string | undefined) ?? ''}
+                            className="mt-1.5"
+                            placeholder="Optional"
+                        />
+                    </div>
+                </div>
+            </ZoruCard>
+
+            {/* ─── Workflow ────────────────────────────────────────────── */}
+            <ZoruCard className="p-6">
+                <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+                    Workflow
+                </h3>
+                <div className="grid gap-4 md:grid-cols-2">
+                    <div>
+                        <ZoruLabel htmlFor="priority-select">Priority</ZoruLabel>
+                        <ZoruSelect value={priority} onValueChange={setPriority}>
+                            <ZoruSelectTrigger id="priority-select" className="mt-1.5">
+                                <ZoruSelectValue placeholder="Select priority…" />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                {PRIORITY_OPTIONS.map((o) => (
+                                    <ZoruSelectItem key={o.value} value={o.value}>
+                                        {o.label}
+                                    </ZoruSelectItem>
+                                ))}
+                            </ZoruSelectContent>
+                        </ZoruSelect>
+                    </div>
+                    <div>
+                        <ZoruLabel htmlFor="severity-select">
+                            Severity <span className="text-zoru-danger-ink">*</span>
+                        </ZoruLabel>
+                        <ZoruSelect value={severity} onValueChange={setSeverity}>
+                            <ZoruSelectTrigger id="severity-select" className="mt-1.5">
+                                <ZoruSelectValue placeholder="Select severity…" />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                {SEVERITY_OPTIONS.map((o) => (
+                                    <ZoruSelectItem key={o.value} value={o.value}>
+                                        {o.label}
+                                    </ZoruSelectItem>
+                                ))}
+                            </ZoruSelectContent>
+                        </ZoruSelect>
+                    </div>
+                    <div>
+                        <ZoruLabel htmlFor="status-select">Status</ZoruLabel>
+                        <ZoruSelect value={status} onValueChange={setStatus}>
+                            <ZoruSelectTrigger id="status-select" className="mt-1.5">
+                                <ZoruSelectValue placeholder="Select status…" />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                {STATUS_OPTIONS.map((o) => (
+                                    <ZoruSelectItem key={o.value} value={o.value}>
+                                        {o.label}
+                                    </ZoruSelectItem>
+                                ))}
+                            </ZoruSelectContent>
+                        </ZoruSelect>
+                    </div>
+                    <div>
+                        <ZoruLabel htmlFor="dueBy">Due by</ZoruLabel>
+                        <ZoruInput
+                            id="dueBy"
+                            name="dueBy"
+                            type="datetime-local"
+                            defaultValue={
+                                initial?.dueBy
+                                    ? new Date(initial.dueBy).toISOString().slice(0, 16)
+                                    : ''
+                            }
+                            className="mt-1.5"
+                        />
+                    </div>
+                    <div>
+                        <ZoruLabel>Agent group</ZoruLabel>
+                        <div className="mt-1.5">
+                            <EntityFormField
+                                entity="ticketGroup"
+                                name="agentGroupId"
+                                initialId={
+                                    (initialBag.agentGroupId as string | undefined) ?? null
+                                }
+                            />
+                        </div>
+                    </div>
+                </div>
+            </ZoruCard>
+
+            {/* ─── Assignment & linked ─────────────────────────────────── */}
+            <ZoruCard className="p-6">
+                <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+                    Assignment & links
+                </h3>
+                <div className="grid gap-4 md:grid-cols-2">
+                    <div>
+                        <ZoruLabel>Assignee (agent)</ZoruLabel>
+                        <div className="mt-1.5">
+                            <EntityFormField
+                                entity="user"
+                                name="assigneeId"
+                                initialId={initial?.assigneeId ?? null}
+                            />
+                        </div>
+                    </div>
+                    <div>
+                        <ZoruLabel>Linked deal</ZoruLabel>
+                        <div className="mt-1.5">
+                            <EntityFormField
+                                entity="deal"
+                                name="linkedDealId"
+                                initialId={initial?.linkedDealId ?? null}
+                            />
+                        </div>
+                    </div>
+                    <div>
+                        <ZoruLabel>Linked invoice</ZoruLabel>
+                        <div className="mt-1.5">
+                            <EntityFormField
+                                entity="invoice"
+                                name="linkedInvoiceId"
+                                initialId={initial?.linkedInvoiceId ?? null}
+                            />
+                        </div>
+                    </div>
+                    <div>
+                        <ZoruLabel>Parent ticket</ZoruLabel>
+                        <div className="mt-1.5">
+                            <EntityFormField
+                                entity="ticketGroup"
+                                name="parentTicketId"
+                                initialId={initial?.parentTicketId ?? null}
+                                placeholder="Pick a ticket group/parent"
+                            />
+                        </div>
+                    </div>
+                    <div className="md:col-span-2">
+                        <ZoruLabel>Tags</ZoruLabel>
+                        <div className="mt-1.5">
+                            <EntityMultiFormField
+                                entity="tag"
+                                name="ticketTags"
+                                initialIds={tagIds}
+                                placeholder="Pick tags…"
+                                onChange={setTagIds}
+                            />
+                        </div>
+                    </div>
+                </div>
+            </ZoruCard>
+
+            {customFields.length > 0 ? (
+                <ZoruCard className="p-6">
+                    <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+                        Custom fields
+                    </h3>
+                    <div className="grid gap-4 md:grid-cols-2">
+                        {customFields.map((f) => (
+                            <CustomFieldInput
+                                key={String(f._id ?? f.name)}
+                                field={f}
+                                value={customFieldValues[f.name]}
+                                onChange={(v) =>
+                                    setCustomFieldValues((prev) => ({ ...prev, [f.name]: v }))
+                                }
+                            />
+                        ))}
+                    </div>
+                </ZoruCard>
+            ) : null}
+
+            <div className="flex justify-end gap-2">
+                <ZoruButton variant="outline" asChild>
+                    <Link
+                        href={
+                            editing
+                                ? `/dashboard/crm/tickets/${String(initial!._id)}`
+                                : '/dashboard/crm/tickets'
+                        }
+                    >
+                        Cancel
+                    </Link>
+                </ZoruButton>
+                <SubmitButton editing={editing} />
             </div>
-          </div>
-          <div>
-            <ZoruLabel>Category</ZoruLabel>
-            <div className="mt-1.5">
-              <EntityFormField
-                entity="category"
-                name="category"
-                initialId={initial?.category ?? null}
-              />
-            </div>
-          </div>
-          <div>
-            <ZoruLabel htmlFor="channel-select">Channel <span className="text-zoru-danger-ink">*</span></ZoruLabel>
-            <ZoruSelect value={channel} onValueChange={setChannel}>
-              <ZoruSelectTrigger id="channel-select" className="mt-1.5">
-                <ZoruSelectValue placeholder="Select channel…" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                {CHANNEL_OPTIONS.map((o) => (
-                  <ZoruSelectItem key={o.value} value={o.value}>
-                    {o.label}
-                  </ZoruSelectItem>
-                ))}
-              </ZoruSelectContent>
-            </ZoruSelect>
-          </div>
-          <div>
-            <ZoruLabel htmlFor="severity-select">Severity <span className="text-zoru-danger-ink">*</span></ZoruLabel>
-            <ZoruSelect value={severity} onValueChange={setSeverity}>
-              <ZoruSelectTrigger id="severity-select" className="mt-1.5">
-                <ZoruSelectValue placeholder="Select severity…" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                {SEVERITY_OPTIONS.map((o) => (
-                  <ZoruSelectItem key={o.value} value={o.value}>
-                    {o.label}
-                  </ZoruSelectItem>
-                ))}
-              </ZoruSelectContent>
-            </ZoruSelect>
-          </div>
-        </div>
-      </ZoruCard>
-
-      <ZoruCard className="p-6">
-        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
-          Workflow
-        </h3>
-        <div className="grid gap-4 md:grid-cols-2">
-          <div>
-            <ZoruLabel htmlFor="status-select">Status</ZoruLabel>
-            <ZoruSelect value={status} onValueChange={setStatus}>
-              <ZoruSelectTrigger id="status-select" className="mt-1.5">
-                <ZoruSelectValue placeholder="Select status…" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                {STATUS_OPTIONS.map((o) => (
-                  <ZoruSelectItem key={o.value} value={o.value}>
-                    {o.label}
-                  </ZoruSelectItem>
-                ))}
-              </ZoruSelectContent>
-            </ZoruSelect>
-          </div>
-          <div>
-            <ZoruLabel htmlFor="priority-select">Priority</ZoruLabel>
-            <ZoruSelect
-              value={priority}
-              onValueChange={(v) => setPriority(v)}
-            >
-              <ZoruSelectTrigger id="priority-select" className="mt-1.5">
-                <ZoruSelectValue placeholder="Select priority…" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                {PRIORITY_OPTIONS.map((o) => (
-                  <ZoruSelectItem key={o.value} value={o.value}>
-                    {o.label}
-                  </ZoruSelectItem>
-                ))}
-              </ZoruSelectContent>
-            </ZoruSelect>
-          </div>
-          <div>
-            <ZoruLabel htmlFor="dueBy">Due by</ZoruLabel>
-            <ZoruInput
-              id="dueBy"
-              name="dueBy"
-              type="datetime-local"
-              defaultValue={
-                initial?.dueBy
-                  ? new Date(initial.dueBy).toISOString().slice(0, 16)
-                  : ''
-              }
-              className="mt-1.5"
-            />
-          </div>
-        </div>
-      </ZoruCard>
-
-      <ZoruCard className="p-6">
-        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
-          Assignment
-        </h3>
-        <div className="grid gap-4 md:grid-cols-2">
-          <div>
-            <ZoruLabel>Assignee (agent)</ZoruLabel>
-            <div className="mt-1.5">
-              <EntityFormField
-                entity="user"
-                name="assigneeId"
-                initialId={initial?.assigneeId ?? null}
-              />
-            </div>
-          </div>
-        </div>
-      </ZoruCard>
-
-      {customFields.length > 0 ? (
-        <ZoruCard className="p-6">
-          <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
-            Custom fields
-          </h3>
-          <div className="grid gap-4 md:grid-cols-2">
-            {customFields.map((f) => (
-              <CustomFieldInput
-                key={String(f._id ?? f.name)}
-                field={f}
-                value={customFieldValues[f.name]}
-                onChange={(v) => handleCustomFieldChange(f.name, v)}
-              />
-            ))}
-          </div>
-        </ZoruCard>
-      ) : null}
-
-      <div className="flex justify-end gap-2">
-        <ZoruButton variant="outline" asChild>
-          <Link href={editing ? `/dashboard/crm/tickets/${String(initial!._id)}` : '/dashboard/crm/tickets'}>
-            Cancel
-          </Link>
-        </ZoruButton>
-        <SubmitButton editing={editing} />
-      </div>
-    </form>
-  );
+        </form>
+    );
 }
+
+export default TicketForm;

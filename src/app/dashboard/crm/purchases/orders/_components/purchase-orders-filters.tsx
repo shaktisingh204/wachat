@@ -1,0 +1,227 @@
+'use client';
+
+/**
+ * <PurchaseOrdersFilters> — collapsible filter row for the PO list.
+ *
+ * Eight dimensions: status, vendor, owner (buyer), date range,
+ * expected-delivery range, amount range, branch, approval-status.
+ * Pure presentational — parent owns state.
+ */
+
+import * as React from 'react';
+
+import {
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+} from '@/components/zoruui';
+import { EntityFormField } from '@/components/crm/entity-form-field';
+
+const STATUS_OPTIONS = [
+  { value: 'all', label: 'All statuses' },
+  { value: 'draft', label: 'Draft' },
+  { value: 'awaiting_approval', label: 'Awaiting approval' },
+  { value: 'approved', label: 'Approved' },
+  { value: 'sent', label: 'Sent' },
+  { value: 'partial', label: 'Partial' },
+  { value: 'received', label: 'Received' },
+  { value: 'closed', label: 'Closed' },
+  { value: 'cancelled', label: 'Cancelled' },
+  { value: 'overdue', label: 'Overdue (delivery)' },
+];
+
+const APPROVAL_STATUS_OPTIONS = [
+  { value: 'any', label: 'Any approval' },
+  { value: 'pending', label: 'Pending approval' },
+  { value: 'approved', label: 'Approved' },
+];
+
+interface PurchaseOrdersFiltersProps {
+  filtersActive: boolean;
+  onClearAll: () => void;
+  statusFilter: string;
+  onStatusFilter: (next: string) => void;
+  vendorFilter: string | null;
+  onVendorFilter: (next: string | null) => void;
+  buyerFilter: string | null;
+  onBuyerFilter: (next: string | null) => void;
+  branchFilter: string | null;
+  onBranchFilter: (next: string | null) => void;
+  approvalFilter: string;
+  onApprovalFilter: (next: string) => void;
+  fromDate: string;
+  onFromDate: (v: string) => void;
+  toDate: string;
+  onToDate: (v: string) => void;
+  expectedFrom: string;
+  onExpectedFrom: (v: string) => void;
+  expectedTo: string;
+  onExpectedTo: (v: string) => void;
+  amountMin: string;
+  onAmountMin: (v: string) => void;
+  amountMax: string;
+  onAmountMax: (v: string) => void;
+}
+
+export function PurchaseOrdersFilters({
+  filtersActive,
+  onClearAll,
+  statusFilter,
+  onStatusFilter,
+  vendorFilter,
+  onVendorFilter,
+  buyerFilter,
+  onBuyerFilter,
+  branchFilter,
+  onBranchFilter,
+  approvalFilter,
+  onApprovalFilter,
+  fromDate,
+  onFromDate,
+  toDate,
+  onToDate,
+  expectedFrom,
+  onExpectedFrom,
+  expectedTo,
+  onExpectedTo,
+  amountMin,
+  onAmountMin,
+  amountMax,
+  onAmountMax,
+}: PurchaseOrdersFiltersProps) {
+  return (
+    <details className="border-b border-zoru-line bg-zoru-surface-2/40" open>
+      <summary className="cursor-pointer list-none px-3 py-2 text-[12px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+        Filters{' '}
+        {filtersActive ? (
+          <>
+            <span className="ml-2 text-zoru-ink">·</span>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                onClearAll();
+              }}
+              className="ml-1 text-zoru-primary hover:underline"
+            >
+              clear all
+            </button>
+          </>
+        ) : null}
+      </summary>
+      <div className="grid gap-3 px-3 pb-3 md:grid-cols-3 lg:grid-cols-4">
+        <div className="space-y-1">
+          <ZoruLabel>Status</ZoruLabel>
+          <ZoruSelect value={statusFilter} onValueChange={onStatusFilter}>
+            <ZoruSelectTrigger>
+              <ZoruSelectValue />
+            </ZoruSelectTrigger>
+            <ZoruSelectContent>
+              {STATUS_OPTIONS.map((o) => (
+                <ZoruSelectItem key={o.value} value={o.value}>
+                  {o.label}
+                </ZoruSelectItem>
+              ))}
+            </ZoruSelectContent>
+          </ZoruSelect>
+        </div>
+        <div className="space-y-1">
+          <ZoruLabel>Vendor</ZoruLabel>
+          <EntityFormField
+            entity="vendor"
+            name="_filter_vendor"
+            initialId={vendorFilter}
+            onChange={onVendorFilter}
+          />
+        </div>
+        <div className="space-y-1">
+          <ZoruLabel>Buyer / Owner</ZoruLabel>
+          <EntityFormField
+            entity="user"
+            name="_filter_buyer"
+            initialId={buyerFilter}
+            onChange={onBuyerFilter}
+          />
+        </div>
+        <div className="space-y-1">
+          <ZoruLabel>Branch</ZoruLabel>
+          <EntityFormField
+            entity="branch"
+            name="_filter_branch"
+            initialId={branchFilter}
+            onChange={onBranchFilter}
+          />
+        </div>
+        <div className="space-y-1">
+          <ZoruLabel>Approval status</ZoruLabel>
+          <ZoruSelect value={approvalFilter} onValueChange={onApprovalFilter}>
+            <ZoruSelectTrigger>
+              <ZoruSelectValue />
+            </ZoruSelectTrigger>
+            <ZoruSelectContent>
+              {APPROVAL_STATUS_OPTIONS.map((o) => (
+                <ZoruSelectItem key={o.value} value={o.value}>
+                  {o.label}
+                </ZoruSelectItem>
+              ))}
+            </ZoruSelectContent>
+          </ZoruSelect>
+        </div>
+        <div className="space-y-1">
+          <ZoruLabel>PO date — from</ZoruLabel>
+          <ZoruInput
+            type="date"
+            value={fromDate}
+            onChange={(e) => onFromDate(e.target.value)}
+          />
+        </div>
+        <div className="space-y-1">
+          <ZoruLabel>PO date — to</ZoruLabel>
+          <ZoruInput
+            type="date"
+            value={toDate}
+            onChange={(e) => onToDate(e.target.value)}
+          />
+        </div>
+        <div className="space-y-1">
+          <ZoruLabel>Expected delivery — from</ZoruLabel>
+          <ZoruInput
+            type="date"
+            value={expectedFrom}
+            onChange={(e) => onExpectedFrom(e.target.value)}
+          />
+        </div>
+        <div className="space-y-1">
+          <ZoruLabel>Expected delivery — to</ZoruLabel>
+          <ZoruInput
+            type="date"
+            value={expectedTo}
+            onChange={(e) => onExpectedTo(e.target.value)}
+          />
+        </div>
+        <div className="space-y-1">
+          <ZoruLabel>Amount min</ZoruLabel>
+          <ZoruInput
+            type="number"
+            value={amountMin}
+            onChange={(e) => onAmountMin(e.target.value)}
+            placeholder="0"
+          />
+        </div>
+        <div className="space-y-1">
+          <ZoruLabel>Amount max</ZoruLabel>
+          <ZoruInput
+            type="number"
+            value={amountMax}
+            onChange={(e) => onAmountMax(e.target.value)}
+            placeholder="∞"
+          />
+        </div>
+      </div>
+    </details>
+  );
+}

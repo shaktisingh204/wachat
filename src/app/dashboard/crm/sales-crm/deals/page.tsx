@@ -238,6 +238,7 @@ export default async function DealsListPage({ searchParams }: PageProps) {
         kpi={kpi}
         stages={stagesFromIndustry}
         defaultCurrency="INR"
+        currentUserId={session?.user?._id ? String(session.user._id) : null}
         error={error}
       />
     </div>

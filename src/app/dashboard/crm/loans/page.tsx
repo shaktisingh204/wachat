@@ -3,25 +3,19 @@ import { ObjectId } from 'mongodb';
 import Link from 'next/link';
 
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
-import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
-  ZoruTable,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
 import { getSession } from '@/app/actions/user.actions';
 import { connectToDatabase } from '@/lib/mongodb';
+
+import { LoansListClient } from './_components/loans-list-client';
+import type { LoanRow } from './_components/loans-types';
 
 type AnyLoan = {
   _id?: { toString(): string } | string;
   type?: string;
   borrowerId?: { toString(): string } | string;
   borrowerName?: string;
+  borrowerType?: string;
   principal?: number;
   interestRate?: number;
   tenureMonths?: number;
@@ -29,63 +23,76 @@ type AnyLoan = {
   outstanding?: number;
   npa?: boolean;
   status?: string;
+  nextPaymentAt?: string | Date;
   createdAt?: string | Date;
 };
 
-const inr = new Intl.NumberFormat('en-IN', {
-  style: 'currency',
-  currency: 'INR',
-  maximumFractionDigits: 2,
-});
-
-function formatMoney(value: number | undefined): string {
-  if (typeof value !== 'number' || Number.isNaN(value)) return '—';
-  if (value === 0) return '₹0';
-  return inr.format(value);
+function toId(v: AnyLoan['_id'], fallback: string): string {
+  if (typeof v === 'string') return v;
+  if (v && typeof v === 'object' && 'toString' in v) {
+    try {
+      return v.toString();
+    } catch {
+      return fallback;
+    }
+  }
+  return fallback;
 }
 
-function formatNumber(value: number | undefined): string {
-  if (typeof value !== 'number' || Number.isNaN(value)) return '—';
-  return String(value);
+function toIdMaybe(v: AnyLoan['borrowerId']): string | undefined {
+  if (typeof v === 'string') return v;
+  if (v && typeof v === 'object' && 'toString' in v) {
+    try {
+      return v.toString();
+    } catch {
+      return undefined;
+    }
+  }
+  return undefined;
 }
 
-function formatPercent(value: number | undefined): string {
-  if (typeof value !== 'number' || Number.isNaN(value)) return '—';
-  return `${value}%`;
-}
-
-function getStatusVariant(status?: string): 'success' | 'warning' | 'danger' | 'ghost' {
-  const s = (status || '').toLowerCase();
-  if (s === 'active' || s === 'approved' || s === 'closed') return 'success';
-  if (s === 'draft' || s === 'pending') return 'ghost';
-  if (s === 'npa' || s === 'cancelled' || s === 'expired' || s === 'lost') return 'danger';
-  return 'warning';
-}
-
-function formatType(type?: string): string {
-  if (!type) return '—';
-  return type
-    .split('_')
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(' ');
+function toIso(v: string | Date | undefined | null): string | null {
+  if (!v) return null;
+  if (typeof v === 'string') return v;
+  const t = new Date(v);
+  return Number.isNaN(t.getTime()) ? null : t.toISOString();
 }
 
 export default async function LoansPage() {
   const session = await getSession();
-  let loans: AnyLoan[] = [];
+  let loans: LoanRow[] = [];
   let loadError = false;
 
   if (session?.user?._id) {
     try {
       const { db } = await connectToDatabase();
       const userObjectId = new ObjectId(session.user._id as string);
-      const docs = await db
+      const docs = (await db
         .collection('crm_loans')
-        .find({ userId: userObjectId } as any)
+        .find({ userId: userObjectId } as Record<string, unknown>)
         .sort({ createdAt: -1 })
-        .limit(50)
-        .toArray();
-      loans = JSON.parse(JSON.stringify(docs)) as AnyLoan[];
+        .limit(200)
+        .toArray()) as unknown as AnyLoan[];
+      loans = docs.map((l, idx) => ({
+        _id: toId(l._id, String(idx)),
+        type: l.type,
+        borrowerId: toIdMaybe(l.borrowerId),
+        borrowerName: l.borrowerName,
+        borrowerType: l.borrowerType,
+        principal:
+          typeof l.principal === 'number' ? l.principal : undefined,
+        interestRate:
+          typeof l.interestRate === 'number' ? l.interestRate : undefined,
+        tenureMonths:
+          typeof l.tenureMonths === 'number' ? l.tenureMonths : undefined,
+        emi: typeof l.emi === 'number' ? l.emi : undefined,
+        outstanding:
+          typeof l.outstanding === 'number' ? l.outstanding : undefined,
+        npa: Boolean(l.npa),
+        status: l.status,
+        nextPaymentAt: toIso(l.nextPaymentAt),
+        createdAt: toIso(l.createdAt),
+      }));
     } catch (e) {
       console.error('Failed to load crm_loans:', e);
       loadError = true;
@@ -107,101 +114,13 @@ export default async function LoansPage() {
         }
       />
 
-      <ZoruCard className="p-6">
-        <div className="mb-4">
-          <h2 className="text-[16px] text-zoru-ink">All loans</h2>
-          <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
-            Principal, EMI schedule and outstanding balance per borrower.
-          </p>
+      {loadError ? (
+        <div className="rounded-md border border-amber-500/40 bg-amber-500/10 px-4 py-2.5 text-[13px] text-amber-600">
+          Could not load loans. Please try again.
         </div>
-        <div className="overflow-x-auto rounded-lg border border-zoru-line">
-          <ZoruTable>
-            <ZoruTableHeader>
-              <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                <ZoruTableHead className="text-zoru-ink-muted">Type</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Borrower</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Principal</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Interest %</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Tenure (months)</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">EMI</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Outstanding</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">NPA</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
-              {loadError ? (
-                <ZoruTableRow className="border-zoru-line">
-                  <ZoruTableCell
-                    colSpan={9}
-                    className="h-24 text-center text-[13px] text-zoru-ink-muted"
-                  >
-                    Could not load loans. Please try again.
-                  </ZoruTableCell>
-                </ZoruTableRow>
-              ) : loans.length > 0 ? (
-                loans.map((loan, idx) => {
-                  const id =
-                    typeof loan._id === 'string'
-                      ? loan._id
-                      : (loan._id as any)?.toString?.() ?? String(idx);
-                  const borrower =
-                    (loan as any).borrowerName ||
-                    (typeof loan.borrowerId === 'string'
-                      ? loan.borrowerId
-                      : (loan.borrowerId as any)?.toString?.()) ||
-                    '—';
-                  const isNpa = Boolean((loan as any).npa);
-                  return (
-                    <ZoruTableRow key={id} className="border-zoru-line">
-                      <ZoruTableCell className="text-zoru-ink">
-                        {formatType(loan.type)}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-zoru-ink">{borrower}</ZoruTableCell>
-                      <ZoruTableCell className="text-zoru-ink">
-                        {formatMoney((loan as any).principal)}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-zoru-ink">
-                        {formatPercent((loan as any).interestRate)}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-zoru-ink">
-                        {formatNumber((loan as any).tenureMonths)}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-zoru-ink">
-                        {formatMoney((loan as any).emi)}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-zoru-ink">
-                        {formatMoney((loan as any).outstanding)}
-                      </ZoruTableCell>
-                      <ZoruTableCell>
-                        {isNpa ? (
-                          <ZoruBadge variant="danger">Yes</ZoruBadge>
-                        ) : (
-                          <span className="text-zoru-ink-muted">No</span>
-                        )}
-                      </ZoruTableCell>
-                      <ZoruTableCell>
-                        <ZoruBadge variant={getStatusVariant(loan.status)}>
-                          {loan.status || 'draft'}
-                        </ZoruBadge>
-                      </ZoruTableCell>
-                    </ZoruTableRow>
-                  );
-                })
-              ) : (
-                <ZoruTableRow className="border-zoru-line">
-                  <ZoruTableCell
-                    colSpan={9}
-                    className="h-24 text-center text-[13px] text-zoru-ink-muted"
-                  >
-                    No loans yet. Disburse a new loan to start tracking EMIs.
-                  </ZoruTableCell>
-                </ZoruTableRow>
-              )}
-            </ZoruTableBody>
-          </ZoruTable>
-        </div>
-      </ZoruCard>
+      ) : null}
+
+      <LoansListClient loans={loans} />
     </div>
   );
 }

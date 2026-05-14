@@ -35,9 +35,61 @@ export default function ExpenseClaimsPage() {
       icon={Wallet}
       singular="Claim"
       basePath="/dashboard/hrm/hr/expense-claims"
+      rowLinksToDetail
       getAllAction={getExpenseClaims as any}
       saveAction={saveExpenseClaim}
       deleteAction={deleteExpenseClaim}
+      kpis={[
+        {
+          label: 'Pending',
+          compute: (rows) =>
+            rows.filter((r) => String((r as any).status || 'pending') === 'pending').length,
+          tone: 'amber',
+        },
+        {
+          label: 'Approved',
+          compute: (rows) =>
+            rows.filter((r) => String((r as any).status) === 'approved').length,
+          tone: 'green',
+        },
+        {
+          label: 'Reimbursed',
+          compute: (rows) =>
+            rows.filter((r) => String((r as any).status) === 'reimbursed').length,
+          tone: 'blue',
+        },
+        {
+          label: 'Total claimed',
+          compute: (rows) => {
+            const total = rows.reduce(
+              (a, r) => a + (Number((r as any).amount) || 0),
+              0,
+            );
+            if (!total) return '—';
+            return new Intl.NumberFormat('en-IN', {
+              style: 'currency',
+              currency: 'INR',
+              maximumFractionDigits: 0,
+            }).format(total);
+          },
+        },
+        {
+          label: 'Avg claim',
+          compute: (rows) => {
+            if (rows.length === 0) return '—';
+            const total = rows.reduce(
+              (a, r) => a + (Number((r as any).amount) || 0),
+              0,
+            );
+            if (!total) return '—';
+            return new Intl.NumberFormat('en-IN', {
+              style: 'currency',
+              currency: 'INR',
+              maximumFractionDigits: 0,
+            }).format(total / rows.length);
+          },
+        },
+      ]}
       columns={[
         { key: 'title', label: 'Title' },
         {

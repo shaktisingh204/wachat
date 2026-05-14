@@ -1,81 +1,141 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
+/**
+ * Recognition — list page rebuilt to §1D.1 bar.
+ *
+ * KPI strip: Total · This month · Points awarded · Public count.
+ * Server actions preserved: getRecognitions / deleteRecognition.
+ */
 
+import * as React from 'react';
+import { useCallback, useEffect, useState, useTransition } from 'react';
 import { Award } from 'lucide-react';
-import { ClayBadge, HrEntityPage } from '../_components/hr-entity-page';
+
 import {
   getRecognitions,
-  saveRecognition,
   deleteRecognition,
 } from '@/app/actions/hr.actions';
 import type { HrRecognition } from '@/lib/hr-types';
-import { fields } from './_config';
+
+import {
+  HrChip,
+  HrDateCell,
+  HrListShell,
+} from '../_components/hr-list-shell';
+import { StatusPill } from '@/components/crm/status-pill';
+
+type Row = HrRecognition & {
+  _id: string;
+  title?: string;
+};
 
 export default function RecognitionPage() {
+  const [rows, setRows] = useState<Row[]>([]);
+  const [isLoading, startTransition] = useTransition();
+
+  const refresh = useCallback(() => {
+    startTransition(async () => {
+      const data = (await getRecognitions()) as Row[];
+      setRows(Array.isArray(data) ? data : []);
+    });
+  }, []);
+
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
+
+  const kpis = React.useMemo(() => {
+    const now = new Date();
+    const firstOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+    let thisMonth = 0;
+    let points = 0;
+    let publicCount = 0;
+    for (const r of rows) {
+      const t = r.givenAt ? new Date(r.givenAt).getTime() : NaN;
+      if (Number.isFinite(t) && t >= firstOfMonth) thisMonth += 1;
+      points += Number(r.points) || 0;
+      if (r.visibility === 'public') publicCount += 1;
+    }
+    return [
+      { label: 'Total', value: rows.length },
+      { label: 'This month', value: thisMonth, tone: 'blue' as const },
+      { label: 'Points awarded', value: points },
+      { label: 'Public', value: publicCount, tone: 'green' as const },
+    ];
+  }, [rows]);
+
   return (
-    <HrEntityPage<HrRecognition & { _id: string }>
+    <HrListShell<Row>
       title="Recognition"
-      subtitle="Kudos, spot awards, and peer recognition."
+      subtitle="Kudos, spot awards, and peer-to-peer recognition."
       icon={Award}
-      singular="Recognition"
-      basePath="/dashboard/hrm/hr/recognition"
-      getAllAction={getRecognitions as any}
-      saveAction={saveRecognition}
-      deleteAction={deleteRecognition}
+      newHref="/dashboard/hrm/hr/recognition/new"
+      editHref={(r) => `/dashboard/hrm/hr/recognition/${r._id}/edit`}
+      detailHref={(r) => `/dashboard/hrm/hr/recognition/${r._id}`}
+      rows={rows}
+      loading={isLoading}
+      kpis={kpis}
+      statusOptions={[
+        { value: 'kudos', label: 'Kudos' },
+        { value: 'spot-award', label: 'Spot Award' },
+        { value: 'performance', label: 'Performance' },
+        { value: 'values', label: 'Values' },
+      ]}
+      getRowStatus={(r) => String(r.type ?? '')}
+      searchPlaceholder="Search messages / recipients…"
+      searchPredicate={(r, q) =>
+        String(r.message ?? '').toLowerCase().includes(q) ||
+        String(r.fromName ?? '').toLowerCase().includes(q)
+      }
+      onDelete={deleteRecognition}
+      onAfterChange={refresh}
+      emptyText="No recognition yet — start celebrating wins!"
       columns={[
         {
-          key: 'employeeId',
-          label: 'Employee',
-          render: (row) => (
-            <span className="block max-w-[160px] truncate">{String(row.employeeId)}</span>
-          ),
+          key: 'employee',
+          label: 'Recipient',
+          render: (r) => String(r.employeeId ?? '—'),
         },
-        { key: 'fromName', label: 'Recognized By' },
         {
           key: 'type',
           label: 'Type',
-          render: (row) => (
-            <ClayBadge tone="rose-soft">{row.type}</ClayBadge>
-          ),
+          render: (r) => <HrChip>{r.type}</HrChip>,
         },
         {
-          key: 'category',
-          label: 'Category',
-          render: (row) => row.category ? (
-            <ClayBadge tone="neutral">{row.category}</ClayBadge>
-          ) : <span className="text-muted-foreground">—</span>,
+          key: 'points',
+          label: 'Points',
+          render: (r) =>
+            r.points != null ? (
+              <span className="tabular-nums">{r.points}</span>
+            ) : (
+              <span className="text-zoru-ink-muted">—</span>
+            ),
         },
         {
           key: 'message',
-          label: 'Description',
-          render: (row) => {
-            const msg = String(row.message || '');
-            return (
-              <span className="block max-w-[240px] truncate">
-                {msg.length > 50 ? msg.slice(0, 50) + '…' : msg || '—'}
-              </span>
-            );
-          },
+          label: 'Message',
+          render: (r) => (
+            <span className="block max-w-[260px] truncate text-zoru-ink-muted">
+              {r.message ?? '—'}
+            </span>
+          ),
         },
+        { key: 'from', label: 'From', render: (r) => r.fromName ?? '—' },
         {
           key: 'visibility',
           label: 'Visibility',
-          render: (row) => row.visibility ? (
-            <ClayBadge tone={row.visibility === 'public' ? 'green' : row.visibility === 'private' ? 'neutral' : 'amber'}>
-              {row.visibility}
-            </ClayBadge>
-          ) : <span className="text-muted-foreground">—</span>,
+          render: (r) =>
+            r.visibility ? (
+              <StatusPill
+                label={r.visibility}
+                tone={r.visibility === 'public' ? 'green' : 'neutral'}
+              />
+            ) : (
+              <span className="text-zoru-ink-muted">—</span>
+            ),
         },
-        {
-          key: 'givenAt',
-          label: 'Awarded Date',
-          render: (row) =>
-            row.givenAt ? new Date(row.givenAt).toLocaleDateString() : '—',
-        },
+        { key: 'givenAt', label: 'Date', render: (r) => <HrDateCell value={r.givenAt} /> },
       ]}
-      fields={fields}
     />
   );
 }

@@ -1,94 +1,164 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
+/**
+ * Learning paths — list page rebuilt to §1D.1 bar.
+ *
+ * KPI strip: Total · Active · Avg steps · Total est. hours.
+ * Server actions preserved: getLearningPaths / deleteLearningPath.
+ */
 
+import * as React from 'react';
+import { useCallback, useEffect, useState, useTransition } from 'react';
 import { Route } from 'lucide-react';
-import { ClayBadge, HrEntityPage } from '../_components/hr-entity-page';
+
 import {
   getLearningPaths,
-  saveLearningPath,
   deleteLearningPath,
 } from '@/app/actions/hr.actions';
 import type { HrLearningPath } from '@/lib/hr-types';
-import { fields } from './_config';
 
-const STATUS_TONES: Record<string, 'green' | 'neutral'> = {
-  active: 'green',
-  inactive: 'neutral',
+import {
+  HrChip,
+  HrListShell,
+  HrStatusCell,
+} from '../_components/hr-list-shell';
+
+type Row = HrLearningPath & {
+  _id: string;
+  status?: string;
+  assigned_to?: string;
+  estimatedHours?: number;
+  category?: string;
+  difficulty?: string;
+  isPublished?: string;
+  prerequisites?: string;
 };
 
 export default function LearningPathsPage() {
+  const [rows, setRows] = useState<Row[]>([]);
+  const [isLoading, startTransition] = useTransition();
+
+  const refresh = useCallback(() => {
+    startTransition(async () => {
+      const data = (await getLearningPaths()) as Row[];
+      setRows(Array.isArray(data) ? data : []);
+    });
+  }, []);
+
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
+
+  const kpis = React.useMemo(() => {
+    const total = rows.length;
+    const active = rows.filter(
+      (r) => String(r.status ?? '').toLowerCase() === 'active',
+    ).length;
+    const totalSteps = rows.reduce(
+      (a, r) => a + (Array.isArray(r.steps) ? r.steps.length : 0),
+      0,
+    );
+    const avgSteps = total ? Math.round(totalSteps / total) : 0;
+    const totalHours = rows.reduce(
+      (a, r) => a + (Number(r.estimatedHours) || 0),
+      0,
+    );
+    return [
+      { label: 'Total', value: total },
+      { label: 'Active', value: active, tone: 'green' as const },
+      { label: 'Avg steps', value: avgSteps, hint: 'Per path' },
+      { label: 'Total est. hours', value: totalHours },
+    ];
+  }, [rows]);
+
   return (
-    <HrEntityPage<HrLearningPath & { _id: string }>
-      title="Learning Paths"
-      subtitle="Structured learning tracks — assign courses and set estimated hours."
+    <HrListShell<Row>
+      title="Learning paths"
+      subtitle="Structured tracks with prerequisites, steps, and completion targets."
       icon={Route}
-      singular="Path"
-      basePath="/dashboard/hrm/hr/learning-paths"
-      getAllAction={getLearningPaths as any}
-      saveAction={saveLearningPath}
-      deleteAction={deleteLearningPath}
+      newHref="/dashboard/hrm/hr/learning-paths/new"
+      editHref={(r) => `/dashboard/hrm/hr/learning-paths/${r._id}/edit`}
+      detailHref={(r) => `/dashboard/hrm/hr/learning-paths/${r._id}`}
+      rows={rows}
+      loading={isLoading}
+      kpis={kpis}
+      statusOptions={[
+        { value: 'active', label: 'Active' },
+        { value: 'inactive', label: 'Inactive' },
+      ]}
+      getRowStatus={(r) => String(r.status ?? '')}
+      searchPlaceholder="Search paths…"
+      searchPredicate={(r, q) =>
+        String(r.name ?? '').toLowerCase().includes(q) ||
+        String(r.category ?? '').toLowerCase().includes(q)
+      }
+      onDelete={deleteLearningPath}
+      onAfterChange={refresh}
+      emptyText="No learning paths yet"
       columns={[
         {
           key: 'name',
           label: 'Title',
-          render: (row) => (
-            <span className="block max-w-[220px] truncate font-medium">
-              {(row as any).name || '—'}
+          render: (r) => (
+            <span className="block max-w-[220px] truncate font-medium">{r.name}</span>
+          ),
+        },
+        {
+          key: 'steps',
+          label: 'Steps',
+          render: (r) => (
+            <span className="tabular-nums">
+              {Array.isArray(r.steps) ? r.steps.length : 0}
             </span>
           ),
         },
         {
-          key: 'assigned_to',
-          label: 'Assigned To',
-          render: (row) => {
-            const v = (row as any).assigned_to;
-            return v ? (
-              <span className="block max-w-[140px] truncate text-muted-foreground">{v}</span>
-            ) : (
-              <span className="text-muted-foreground">—</span>
-            );
-          },
+          key: 'prereq',
+          label: 'Prerequisites',
+          render: (r) => (
+            <span className="block max-w-[180px] truncate text-zoru-ink-muted">
+              {r.prerequisites || '—'}
+            </span>
+          ),
         },
         {
-          key: 'estimatedHours',
-          label: 'Est. Hours',
-          render: (row) => {
-            const h = (row as any).estimatedHours ?? (row as any).estimatedDuration;
-            return h != null ? (
-              <span className="tabular-nums">{h}{typeof h === 'number' ? 'h' : ''}</span>
-            ) : (
-              <span className="text-muted-foreground">—</span>
-            );
-          },
+          key: 'category',
+          label: 'Category',
+          render: (r) => (r.category ? <HrChip>{r.category}</HrChip> : <span className="text-zoru-ink-muted">—</span>),
         },
         {
-          key: 'steps',
-          label: 'Courses',
-          render: (row) => {
-            const s = (row as any).steps;
-            const count = Array.isArray(s) ? s.length : 0;
-            return (
-              <span className="tabular-nums text-muted-foreground">{count}</span>
-            );
-          },
+          key: 'difficulty',
+          label: 'Difficulty',
+          render: (r) => (r.difficulty ? <HrChip>{r.difficulty}</HrChip> : <span className="text-zoru-ink-muted">—</span>),
+        },
+        {
+          key: 'hours',
+          label: 'Hours',
+          render: (r) =>
+            r.estimatedHours != null ? (
+              <span className="tabular-nums">{r.estimatedHours}h</span>
+            ) : (
+              <span className="text-zoru-ink-muted">—</span>
+            ),
+        },
+        {
+          key: 'assigned',
+          label: 'Assigned',
+          render: (r) =>
+            r.assigned_to ? (
+              <span className="block max-w-[120px] truncate text-zoru-ink-muted">
+                {r.assigned_to}
+              </span>
+            ) : (
+              <span className="text-zoru-ink-muted">—</span>
+            ),
         },
         {
           key: 'status',
           label: 'Status',
-          render: (row) => {
-            const s = (row as any).status;
-            if (!s) return <span className="text-muted-foreground">—</span>;
-            return (
-              <ClayBadge tone={STATUS_TONES[s] ?? 'neutral'} dot>
-                {s}
-              </ClayBadge>
-            );
-          },
+          render: (r) => <HrStatusCell value={String(r.status ?? '')} />,
         },
       ]}
-      fields={fields}
     />
   );
 }

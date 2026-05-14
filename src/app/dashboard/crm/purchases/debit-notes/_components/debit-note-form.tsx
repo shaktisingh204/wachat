@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { useActionState, useEffect, useMemo, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { LoaderCircle, PlusCircle, Trash2 } from 'lucide-react';
 
@@ -188,11 +188,14 @@ function fmtMoney(value: number, currency: string): string {
 
 export function DebitNoteForm({ initial }: DebitNoteFormProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast } = useZoruToast();
   const formRef = useRef<HTMLFormElement>(null);
   const [state, formAction] = useActionState(saveDebitNoteAction, INITIAL_STATE);
 
   const editing = !!initial?._id;
+  // Smart-default: pre-fill `linkedBillId` from `?billId=…` if present.
+  const presetBillId = searchParams?.get('billId') ?? '';
 
   const [items, setItems] = useState<EditableLineRow[]>(() => {
     if (initial?.items?.length) return initial.items.map(rowFromLineItem);
@@ -331,7 +334,7 @@ export function DebitNoteForm({ initial }: DebitNoteFormProps) {
             <ZoruInput
               id="linkedBillId"
               name="linkedBillId"
-              defaultValue={initial?.linkedBillId ?? ''}
+              defaultValue={initial?.linkedBillId ?? presetBillId}
               className="mt-1.5"
               placeholder="BILL-00012"
             />

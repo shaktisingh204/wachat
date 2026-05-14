@@ -1,0 +1,63 @@
+'use client';
+
+/**
+ * Bulk action bar for the Payouts list. Renders only when at least one
+ * row is selected. Provides Archive, Delete, Export, and status
+ * mutations (Mark Cleared / Mark Failed) per §1D.1.
+ */
+
+import { Archive, CheckCircle2, Download, Trash2, X, XCircle } from 'lucide-react';
+
+import { ZoruButton } from '@/components/zoruui';
+
+interface PayoutBulkBarProps {
+    count: number;
+    onClear: () => void;
+    onArchive: () => void;
+    onDelete: () => void;
+    onMarkCleared: () => void;
+    onMarkFailed: () => void;
+    onExport: () => void;
+}
+
+export function PayoutBulkBar({
+    count,
+    onClear,
+    onArchive,
+    onDelete,
+    onMarkCleared,
+    onMarkFailed,
+    onExport,
+}: PayoutBulkBarProps) {
+    return (
+        <div className="flex flex-wrap items-center gap-2">
+            <span className="text-[13px] font-medium text-zoru-ink">
+                {count} selected
+            </span>
+            <span className="flex-1" />
+            <ZoruButton size="sm" variant="outline" onClick={onMarkCleared}>
+                <CheckCircle2 className="h-3.5 w-3.5" /> Mark cleared
+            </ZoruButton>
+            <ZoruButton size="sm" variant="outline" onClick={onMarkFailed}>
+                <XCircle className="h-3.5 w-3.5" /> Mark failed
+            </ZoruButton>
+            <ZoruButton size="sm" variant="outline" onClick={onExport}>
+                <Download className="h-3.5 w-3.5" /> Export
+            </ZoruButton>
+            <ZoruButton size="sm" variant="outline" onClick={onArchive}>
+                <Archive className="h-3.5 w-3.5" /> Archive
+            </ZoruButton>
+            <ZoruButton
+                size="sm"
+                variant="outline"
+                onClick={onDelete}
+                className="text-zoru-danger-ink"
+            >
+                <Trash2 className="h-3.5 w-3.5" /> Delete
+            </ZoruButton>
+            <ZoruButton size="sm" variant="ghost" onClick={onClear}>
+                <X className="h-3.5 w-3.5" />
+            </ZoruButton>
+        </div>
+    );
+}

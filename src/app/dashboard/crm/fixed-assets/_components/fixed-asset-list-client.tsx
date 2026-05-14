@@ -2,9 +2,9 @@
 
 /**
  * Client side of the Fixed Assets list — owns the search box, the
- * table, and the hard-delete confirmation dialog. Search input is
- * debounced and writes back to the URL so the server component
- * re-fetches.
+ * table, the bulk action bar, the KPI strip, and the hard-delete
+ * confirmation dialog. Search input is debounced and writes back to
+ * the URL so the server component re-fetches.
  */
 
 import * as React from 'react';
@@ -12,25 +12,24 @@ import Link from 'next/link';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import {
   AlertCircle,
+  ListChecks,
   Pencil,
   Search,
   Trash2,
-  LoaderCircle,
+  X,
 } from 'lucide-react';
 
 import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
   ZoruBadge,
   ZoruButton,
   ZoruCard,
+  ZoruCheckbox,
   ZoruInput,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
   ZoruTable,
   ZoruTableBody,
   ZoruTableCell,
@@ -43,6 +42,15 @@ import { PaginationBar } from '@/components/crm/pagination-bar';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { deleteFixedAssetAction } from '@/app/actions/crm/fixed-assets.actions';
 import type { CrmFixedAssetDoc } from '@/lib/rust-client/crm-fixed-assets';
+
+import {
+  FixedAssetsKpiStrip,
+  computeFixedAssetKpis,
+} from './fixed-assets-kpi-strip';
+import {
+  FixedAssetBulkDeleteDialog,
+  FixedAssetSingleDeleteDialog,
+} from './fixed-asset-list-dialogs';
 
 interface FixedAssetListClientProps {
   assets: CrmFixedAssetDoc[];
@@ -86,8 +94,29 @@ export function FixedAssetListClient({
   const sp = useSearchParams();
 
   const [query, setQuery] = React.useState(initialQuery);
-  const [pendingDelete, setPendingDelete] = React.useState<CrmFixedAssetDoc | null>(null);
+  const [statusFilter, setStatusFilter] = React.useState<
+    'all' | 'active' | 'retired'
+  >('all');
+  const [categoryFilter, setCategoryFilter] = React.useState<'all' | string>(
+    'all',
+  );
+  const [custodianFilter, setCustodianFilter] = React.useState<'all' | string>(
+    'all',
+  );
+  const [locationFilter, setLocationFilter] = React.useState<'all' | string>(
+    'all',
+  );
+  const [purchaseFrom, setPurchaseFrom] = React.useState('');
+  const [purchaseTo, setPurchaseTo] = React.useState('');
+
+  const [pendingDelete, setPendingDelete] = React.useState<CrmFixedAssetDoc | null>(
+    null,
+  );
   const [deleting, startDelete] = React.useTransition();
+
+  const [selected, setSelected] = React.useState<Set<string>>(new Set());
+  const [bulkDeleting, startBulkDelete] = React.useTransition();
+  const [bulkConfirmOpen, setBulkConfirmOpen] = React.useState(false);
 
   // Debounce search → URL.
   React.useEffect(() => {
@@ -102,6 +131,78 @@ export function FixedAssetListClient({
     }, 300);
     return () => clearTimeout(t);
   }, [query, initialQuery, sp, pathname, router]);
+
+  const categoryOptions = React.useMemo(() => {
+    const s = new Set<string>();
+    for (const a of assets) if (a.category) s.add(a.category);
+    return Array.from(s).sort();
+  }, [assets]);
+
+  const custodianOptions = React.useMemo(() => {
+    const s = new Set<string>();
+    for (const a of assets) if (a.custodianEmployeeId) s.add(a.custodianEmployeeId);
+    return Array.from(s);
+  }, [assets]);
+
+  const locationOptions = React.useMemo(() => {
+    const s = new Set<string>();
+    for (const a of assets) if (a.location) s.add(a.location);
+    return Array.from(s).sort();
+  }, [assets]);
+
+  const kpis = React.useMemo(() => computeFixedAssetKpis(assets), [assets]);
+
+  const filtered = React.useMemo(() => {
+    const from = purchaseFrom ? new Date(purchaseFrom).getTime() : NaN;
+    const to = purchaseTo ? new Date(purchaseTo).getTime() : NaN;
+    return assets.filter((a) => {
+      if (statusFilter === 'active' && a.archived === true) return false;
+      if (statusFilter === 'retired' && a.archived !== true) return false;
+      if (categoryFilter !== 'all' && a.category !== categoryFilter)
+        return false;
+      if (
+        custodianFilter !== 'all' &&
+        a.custodianEmployeeId !== custodianFilter
+      )
+        return false;
+      if (locationFilter !== 'all' && a.location !== locationFilter)
+        return false;
+      if (Number.isFinite(from) || Number.isFinite(to)) {
+        const t = a.purchaseDate ? new Date(a.purchaseDate).getTime() : NaN;
+        if (!Number.isFinite(t)) return false;
+        if (Number.isFinite(from) && t < from) return false;
+        if (Number.isFinite(to) && t > to + 24 * 60 * 60 * 1000) return false;
+      }
+      return true;
+    });
+  }, [
+    assets,
+    statusFilter,
+    categoryFilter,
+    custodianFilter,
+    locationFilter,
+    purchaseFrom,
+    purchaseTo,
+  ]);
+
+  const hasActiveFilters =
+    !!query.trim() ||
+    statusFilter !== 'all' ||
+    categoryFilter !== 'all' ||
+    custodianFilter !== 'all' ||
+    locationFilter !== 'all' ||
+    !!purchaseFrom ||
+    !!purchaseTo;
+
+  const clearFilters = () => {
+    setQuery('');
+    setStatusFilter('all');
+    setCategoryFilter('all');
+    setCustodianFilter('all');
+    setLocationFilter('all');
+    setPurchaseFrom('');
+    setPurchaseTo('');
+  };
 
   const confirmDelete = () => {
     if (!pendingDelete?._id) return;
@@ -119,163 +220,362 @@ export function FixedAssetListClient({
     });
   };
 
+  const toggleOne = (id: string) =>
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+
+  const toggleAll = (all: boolean) =>
+    setSelected(
+      all ? new Set(filtered.map((a) => String(a._id))) : new Set(),
+    );
+
+  const exportCsv = () => {
+    const subset =
+      selected.size > 0
+        ? filtered.filter((a) => selected.has(String(a._id)))
+        : filtered;
+    const header = [
+      'Code',
+      'Name',
+      'Category',
+      'Purchase date',
+      'Cost',
+      'NBV',
+      'Custodian',
+      'Location',
+      'Status',
+    ];
+    const esc = (v: unknown) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+    const csv = [
+      header.join(','),
+      ...subset.map((a) =>
+        [
+          esc(a.code),
+          esc(a.name),
+          esc(a.category),
+          esc(a.purchaseDate),
+          esc(a.cost),
+          esc(a.netBookValue ?? ''),
+          esc(a.custodianEmployeeId),
+          esc(a.location),
+          esc(a.archived ? 'retired' : 'active'),
+        ].join(','),
+      ),
+    ].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `fixed-assets-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const runBulkDelete = () => {
+    if (selected.size === 0) return;
+    setBulkConfirmOpen(false);
+    const ids = Array.from(selected);
+    startBulkDelete(async () => {
+      let ok = 0;
+      let failed = 0;
+      for (const id of ids) {
+        const res = await deleteFixedAssetAction(id);
+        if (res.success) ok += 1;
+        else failed += 1;
+      }
+      toast({
+        title:
+          failed === 0
+            ? `${ok} asset${ok === 1 ? '' : 's'} deleted`
+            : `${ok} deleted · ${failed} failed`,
+        variant: failed > 0 ? 'destructive' : undefined,
+      });
+      setSelected(new Set());
+      router.refresh();
+    });
+  };
+
+  const headChecked =
+    filtered.length > 0 &&
+    filtered.every((a) => selected.has(String(a._id)));
+
   return (
-    <ZoruCard className="overflow-hidden p-0">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zoru-line p-3">
+    <div className="flex flex-col gap-4">
+      <FixedAssetsKpiStrip
+        counts={kpis}
+        active={statusFilter === 'all' ? 'all' : statusFilter}
+        onPick={(k) => {
+          if (k === 'all') setStatusFilter('all');
+          else setStatusFilter(k);
+        }}
+      />
+
+      <div className="flex flex-wrap items-center gap-2">
         <div className="relative max-w-sm flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
           <ZoruInput
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search by code, name, or location…"
+            placeholder="Search by code, name, location…"
             className="h-9 pl-9 text-[13px]"
           />
         </div>
+        <ZoruSelect
+          value={statusFilter}
+          onValueChange={(v) =>
+            setStatusFilter(v as 'all' | 'active' | 'retired')
+          }
+        >
+          <ZoruSelectTrigger className="h-9 w-[140px] text-[13px]">
+            <ZoruSelectValue placeholder="Status" />
+          </ZoruSelectTrigger>
+          <ZoruSelectContent>
+            <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
+            <ZoruSelectItem value="active">Active</ZoruSelectItem>
+            <ZoruSelectItem value="retired">Retired</ZoruSelectItem>
+          </ZoruSelectContent>
+        </ZoruSelect>
+        <ZoruSelect value={categoryFilter} onValueChange={setCategoryFilter}>
+          <ZoruSelectTrigger className="h-9 w-[160px] text-[13px]">
+            <ZoruSelectValue placeholder="Category" />
+          </ZoruSelectTrigger>
+          <ZoruSelectContent>
+            <ZoruSelectItem value="all">All categories</ZoruSelectItem>
+            {categoryOptions.map((c) => (
+              <ZoruSelectItem key={c} value={c}>
+                {c}
+              </ZoruSelectItem>
+            ))}
+          </ZoruSelectContent>
+        </ZoruSelect>
+        <ZoruSelect value={custodianFilter} onValueChange={setCustodianFilter}>
+          <ZoruSelectTrigger className="h-9 w-[180px] text-[13px]">
+            <ZoruSelectValue placeholder="Custodian" />
+          </ZoruSelectTrigger>
+          <ZoruSelectContent>
+            <ZoruSelectItem value="all">All custodians</ZoruSelectItem>
+            {custodianOptions.map((c) => (
+              <ZoruSelectItem key={c} value={c}>
+                {c.slice(-6)}
+              </ZoruSelectItem>
+            ))}
+          </ZoruSelectContent>
+        </ZoruSelect>
+        <ZoruSelect value={locationFilter} onValueChange={setLocationFilter}>
+          <ZoruSelectTrigger className="h-9 w-[160px] text-[13px]">
+            <ZoruSelectValue placeholder="Location" />
+          </ZoruSelectTrigger>
+          <ZoruSelectContent>
+            <ZoruSelectItem value="all">All locations</ZoruSelectItem>
+            {locationOptions.map((l) => (
+              <ZoruSelectItem key={l} value={l}>
+                {l}
+              </ZoruSelectItem>
+            ))}
+          </ZoruSelectContent>
+        </ZoruSelect>
+        <ZoruInput
+          type="date"
+          value={purchaseFrom}
+          onChange={(e) => setPurchaseFrom(e.target.value)}
+          className="h-9 w-[150px] text-[13px]"
+          aria-label="Purchase from"
+        />
+        <ZoruInput
+          type="date"
+          value={purchaseTo}
+          onChange={(e) => setPurchaseTo(e.target.value)}
+          className="h-9 w-[150px] text-[13px]"
+          aria-label="Purchase to"
+        />
+        {hasActiveFilters ? (
+          <ZoruButton variant="ghost" size="sm" onClick={clearFilters}>
+            <X className="h-3.5 w-3.5" /> Clear
+          </ZoruButton>
+        ) : null}
       </div>
 
-      {error ? (
-        <div className="flex items-center gap-2 border-b border-amber-500/40 bg-amber-500/10 px-4 py-2.5 text-[13px] text-amber-600">
-          <AlertCircle className="h-4 w-4 shrink-0" />
-          {error}
+      {selected.size > 0 ? (
+        <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface px-3 py-2 shadow-[var(--zoru-shadow-sm)]">
+          <div className="flex items-center gap-2 text-[12.5px] text-zoru-ink">
+            <ListChecks className="h-4 w-4 text-zoru-primary" />
+            {selected.size} selected
+          </div>
+          <div className="flex items-center gap-1">
+            <ZoruButton size="sm" variant="outline" onClick={exportCsv}>
+              Export CSV
+            </ZoruButton>
+            <ZoruButton
+              size="sm"
+              variant="destructive"
+              onClick={() => setBulkConfirmOpen(true)}
+              disabled={bulkDeleting}
+            >
+              <Trash2 className="h-3.5 w-3.5" /> Delete
+            </ZoruButton>
+            <ZoruButton
+              size="sm"
+              variant="ghost"
+              onClick={() => setSelected(new Set())}
+              aria-label="Clear selection"
+            >
+              <X className="h-3.5 w-3.5" />
+            </ZoruButton>
+          </div>
         </div>
       ) : null}
 
-      <ZoruTable>
-        <ZoruTableHeader>
-          <ZoruTableRow>
-            <ZoruTableHead>Code / Name</ZoruTableHead>
-            <ZoruTableHead>Category</ZoruTableHead>
-            <ZoruTableHead>Vendor</ZoruTableHead>
-            <ZoruTableHead>Custodian</ZoruTableHead>
-            <ZoruTableHead>Location</ZoruTableHead>
-            <ZoruTableHead>Condition</ZoruTableHead>
-            <ZoruTableHead>Cost</ZoruTableHead>
-            <ZoruTableHead>Net Book Value</ZoruTableHead>
-            <ZoruTableHead>Purchase Date</ZoruTableHead>
-            <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-          </ZoruTableRow>
-        </ZoruTableHeader>
-        <ZoruTableBody>
-          {assets.length === 0 ? (
+      <ZoruCard className="overflow-hidden p-0">
+        {error ? (
+          <div className="flex items-center gap-2 border-b border-amber-500/40 bg-amber-500/10 px-4 py-2.5 text-[13px] text-amber-600">
+            <AlertCircle className="h-4 w-4 shrink-0" />
+            {error}
+          </div>
+        ) : null}
+
+        <ZoruTable>
+          <ZoruTableHeader>
             <ZoruTableRow>
-              <ZoruTableCell
-                colSpan={10}
-                className="h-24 text-center text-[13px] text-zoru-ink-muted"
-              >
-                {initialQuery
-                  ? 'No fixed assets match this search.'
-                  : 'No fixed assets yet — click "New fixed asset" to add one.'}
-              </ZoruTableCell>
+              <ZoruTableHead className="w-8">
+                <ZoruCheckbox
+                  checked={headChecked}
+                  onCheckedChange={(c) => toggleAll(Boolean(c))}
+                  aria-label="Select all"
+                />
+              </ZoruTableHead>
+              <ZoruTableHead>Code / Name</ZoruTableHead>
+              <ZoruTableHead>Category</ZoruTableHead>
+              <ZoruTableHead>Vendor</ZoruTableHead>
+              <ZoruTableHead>Custodian</ZoruTableHead>
+              <ZoruTableHead>Location</ZoruTableHead>
+              <ZoruTableHead>Condition</ZoruTableHead>
+              <ZoruTableHead>Cost</ZoruTableHead>
+              <ZoruTableHead>Net Book Value</ZoruTableHead>
+              <ZoruTableHead>Purchase Date</ZoruTableHead>
+              <ZoruTableHead className="text-right">Actions</ZoruTableHead>
             </ZoruTableRow>
-          ) : (
-            assets.map((asset) => {
-              const id = String(asset._id);
-              return (
-                <ZoruTableRow key={id}>
-                  <ZoruTableCell>
-                    <Link
-                      href={`/dashboard/crm/fixed-assets/${id}`}
-                      className="font-medium text-zoru-ink hover:underline"
-                    >
-                      {asset.code}
-                    </Link>
-                    <div className="text-[12px] text-zoru-ink-muted">
-                      {asset.name}
-                    </div>
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
-                    {asset.category || '—'}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
-                    {asset.supplierId ? (
-                      <EntityPickerChip entity="vendor" id={asset.supplierId} />
-                    ) : (
-                      '—'
-                    )}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
-                    {asset.custodianEmployeeId ? (
-                      <EntityPickerChip entity="employee" id={asset.custodianEmployeeId} />
-                    ) : (
-                      '—'
-                    )}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
-                    {asset.location || '—'}
-                  </ZoruTableCell>
-                  <ZoruTableCell>
-                    {asset.condition ? (
-                      <ZoruBadge variant="outline">{asset.condition}</ZoruBadge>
-                    ) : (
-                      <span className="text-[12.5px] text-zoru-ink-muted">—</span>
-                    )}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-[12.5px] tabular-nums text-zoru-ink">
-                    {fmtMoney(asset.cost, asset.currency)}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-[12.5px] tabular-nums text-zoru-ink">
-                    {fmtMoney(asset.netBookValue, asset.currency)}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
-                    {fmtDate(asset.purchaseDate)}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-right">
-                    <div className="flex justify-end gap-1">
-                      <ZoruButton size="sm" variant="ghost" asChild>
-                        <Link href={`/dashboard/crm/fixed-assets/${id}/edit`}>
-                          <Pencil className="h-3.5 w-3.5" />
-                        </Link>
-                      </ZoruButton>
-                      <ZoruButton
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => setPendingDelete(asset)}
-                        className="text-zoru-danger-ink"
+          </ZoruTableHeader>
+          <ZoruTableBody>
+            {filtered.length === 0 ? (
+              <ZoruTableRow>
+                <ZoruTableCell
+                  colSpan={11}
+                  className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                >
+                  {initialQuery || hasActiveFilters
+                    ? 'No fixed assets match these filters.'
+                    : 'No fixed assets yet — click "New fixed asset" to add one.'}
+                </ZoruTableCell>
+              </ZoruTableRow>
+            ) : (
+              filtered.map((asset) => {
+                const id = String(asset._id);
+                const checked = selected.has(id);
+                return (
+                  <ZoruTableRow key={id}>
+                    <ZoruTableCell>
+                      <ZoruCheckbox
+                        checked={checked}
+                        onCheckedChange={() => toggleOne(id)}
+                        aria-label={`Select asset ${asset.code}`}
+                      />
+                    </ZoruTableCell>
+                    <ZoruTableCell>
+                      <Link
+                        href={`/dashboard/crm/fixed-assets/${id}`}
+                        className="font-medium text-zoru-ink hover:underline"
                       >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </ZoruButton>
-                    </div>
-                  </ZoruTableCell>
-                </ZoruTableRow>
-              );
-            })
-          )}
-        </ZoruTableBody>
-      </ZoruTable>
+                        {asset.code}
+                      </Link>
+                      <div className="text-[12px] text-zoru-ink-muted">
+                        {asset.name}
+                      </div>
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                      {asset.category || '—'}
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                      {asset.supplierId ? (
+                        <EntityPickerChip entity="vendor" id={asset.supplierId} />
+                      ) : (
+                        '—'
+                      )}
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                      {asset.custodianEmployeeId ? (
+                        <EntityPickerChip
+                          entity="employee"
+                          id={asset.custodianEmployeeId}
+                        />
+                      ) : (
+                        '—'
+                      )}
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                      {asset.location || '—'}
+                    </ZoruTableCell>
+                    <ZoruTableCell>
+                      {asset.condition ? (
+                        <ZoruBadge variant="outline">{asset.condition}</ZoruBadge>
+                      ) : (
+                        <span className="text-[12.5px] text-zoru-ink-muted">—</span>
+                      )}
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-[12.5px] tabular-nums text-zoru-ink">
+                      {fmtMoney(asset.cost, asset.currency)}
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-[12.5px] tabular-nums text-zoru-ink">
+                      {fmtMoney(asset.netBookValue, asset.currency)}
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                      {fmtDate(asset.purchaseDate)}
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-right">
+                      <div className="flex justify-end gap-1">
+                        <ZoruButton size="sm" variant="ghost" asChild>
+                          <Link href={`/dashboard/crm/fixed-assets/${id}/edit`}>
+                            <Pencil className="h-3.5 w-3.5" />
+                          </Link>
+                        </ZoruButton>
+                        <ZoruButton
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => setPendingDelete(asset)}
+                          className="text-zoru-danger-ink"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </ZoruButton>
+                      </div>
+                    </ZoruTableCell>
+                  </ZoruTableRow>
+                );
+              })
+            )}
+          </ZoruTableBody>
+        </ZoruTable>
 
-      <PaginationBar page={page} limit={limit} hasMore={hasMore} />
+        <PaginationBar page={page} limit={limit} hasMore={hasMore} />
+      </ZoruCard>
 
-      <ZoruAlertDialog
+      <FixedAssetSingleDeleteDialog
         open={pendingDelete !== null}
         onOpenChange={(o) => !o && setPendingDelete(null)}
-      >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>Delete fixed asset?</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
-              This permanently removes{' '}
-              <strong>
-                {pendingDelete ? pendingDelete.name || pendingDelete.code : ''}
-              </strong>{' '}
-              from the database. The action cannot be undone.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel disabled={deleting}>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction
-              onClick={(e) => {
-                e.preventDefault();
-                confirmDelete();
-              }}
-              disabled={deleting}
-              className="bg-zoru-danger text-white hover:bg-zoru-danger/90"
-            >
-              {deleting ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : null}
-              Delete permanently
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
-    </ZoruCard>
+        label={pendingDelete ? pendingDelete.name || pendingDelete.code : ''}
+        busy={deleting}
+        onConfirm={confirmDelete}
+      />
+
+      <FixedAssetBulkDeleteDialog
+        open={bulkConfirmOpen}
+        onOpenChange={setBulkConfirmOpen}
+        count={selected.size}
+        busy={bulkDeleting}
+        onConfirm={runBulkDelete}
+      />
+    </div>
   );
 }

@@ -1,20 +1,10 @@
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
+/**
+ * New Warehouse route — wraps the §1D `<WarehouseForm>` in a server
+ * component so the page itself can stay tiny and idempotent.
+ */
 
-import { Warehouse as WarehouseIcon } from 'lucide-react';
-import { WarehouseForm } from "./warehouse-form";
-
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { WarehouseForm } from './warehouse-form';
 
 export default function NewWarehousePage() {
-    return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="Add Warehouse"
-                subtitle="Create a new storage location."
-                icon={WarehouseIcon}
-            />
-            <WarehouseForm />
-        </div>
-    );
+    return <WarehouseForm />;
 }

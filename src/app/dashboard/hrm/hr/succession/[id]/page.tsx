@@ -1,65 +1,161 @@
+/**
+ * Succession plan detail page (§1D.2).
+ *
+ * Loads a single document from `hr_succession_plans` and renders an
+ * overview grid + a candidates / successors table when present.
+ * Actions: Edit · Mark reviewed · Promote (stubs).
+ */
+
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import {
+    Users,
+    Pencil,
+    CheckCircle2,
+    ArrowUpCircle,
+    ArrowLeft,
+} from 'lucide-react';
 
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { ZoruButton, ZoruCard, ZoruCardContent } from '@/components/zoruui';
-import { getCrmSuccessionPlanById } from '@/app/actions/crm-succession.actions';
+import {
+    ZoruBadge,
+    ZoruButton,
+    ZoruCard,
+    ZoruTable,
+    ZoruTableBody,
+    ZoruTableCell,
+    ZoruTableHead,
+    ZoruTableHeader,
+    ZoruTableRow,
+} from '@/components/zoruui';
+import { statusToTone } from '@/components/crm/status-pill';
+import {
+    getHrEntityById,
+    fmtDate,
+    fmtText,
+    fmtShortId,
+} from '../../_components/hr-detail-loader';
+import { HrDetailGrid, HrDetailRow } from '../../_components/hr-detail-grid';
 
 interface PageProps {
     params: Promise<{ id: string }>;
 }
 
+const BASE = '/dashboard/hrm/hr/succession';
+
+interface Successor {
+    employeeId?: string;
+    employeeName?: string;
+    readiness?: string;
+    notes?: string;
+}
+
 export default async function SuccessionDetailPage({ params }: PageProps) {
     const { id } = await params;
-    const plan = await getCrmSuccessionPlanById(id);
-    if (!plan) notFound();
+    const doc = await getHrEntityById('hr_succession_plans', id);
+    if (!doc) notFound();
 
-    const p = plan as any;
+    const p = doc as Record<string, unknown>;
+    const role = (p.role as string) || (p.position as string) || 'Succession plan';
+    const status = String(p.status || 'active');
+    const incumbent =
+        (p.incumbentName as string) ||
+        (p.incumbentEmployeeId as string) ||
+        (p.employeeId as string) ||
+        '—';
+    const successors: Successor[] = Array.isArray(p.successors)
+        ? (p.successors as Successor[])
+        : Array.isArray(p.candidates)
+            ? (p.candidates as Successor[])
+            : [];
 
     return (
         <EntityDetailShell
-            title={p.role || 'Succession plan'}
-            eyebrow="SUCCESSION"
-            back={{ href: '/dashboard/hrm/hr/succession', label: 'All plans' }}
+            title={`${role} · ${fmtShortId(incumbent)}`}
+            eyebrow="HR · SUCCESSION"
+            back={{ href: BASE, label: 'All plans' }}
+            status={{ label: status, tone: statusToTone(status) }}
             actions={
-                <Link href={`/dashboard/hrm/hr/succession/${id}/edit`}>
-                    <ZoruButton size="sm">Edit</ZoruButton>
-                </Link>
+                <>
+                    <Link href={BASE}>
+                        <ZoruButton variant="outline" size="sm">
+                            <ArrowLeft className="h-4 w-4" /> Back
+                        </ZoruButton>
+                    </Link>
+                    <Link href={`${BASE}/${id}/edit`}>
+                        <ZoruButton size="sm">
+                            <Pencil className="h-4 w-4" /> Edit
+                        </ZoruButton>
+                    </Link>
+                    {/* TODO 1D.2: wire Mark reviewed / Promote successor. */}
+                    <ZoruButton variant="outline" size="sm" disabled>
+                        <CheckCircle2 className="h-4 w-4" /> Mark reviewed
+                    </ZoruButton>
+                    <ZoruButton variant="outline" size="sm" disabled>
+                        <ArrowUpCircle className="h-4 w-4" /> Promote successor
+                    </ZoruButton>
+                </>
             }
             audit={{ entityKind: 'succession', entityId: id }}
         >
-            <ZoruCard>
-                <ZoruCardContent className="space-y-4 p-6 text-sm">
-                    <Row label="Role" value={p.role} />
-                    <Row label="Incumbent" value={p.incumbentEmployeeId} />
-                    <Row label="Department" value={p.department} />
-                    <Row label="Review date" value={p.reviewDate} />
-                    <Row label="Notes" value={p.notes} />
-                    {Array.isArray(p.candidates) && p.candidates.length > 0 ? (
-                        <div>
-                            <div className="mb-1 text-zoru-ink-muted">Candidates</div>
-                            <ul className="list-disc space-y-1 pl-5">
-                                {p.candidates.map((c: any, i: number) => (
-                                    <li key={i}>
-                                        {typeof c === 'string'
-                                            ? c
-                                            : `${c.employeeId ?? '—'} · ${c.readiness ?? '—'}${c.notes ? ' · ' + c.notes : ''}`}
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    ) : null}
-                </ZoruCardContent>
-            </ZoruCard>
-        </EntityDetailShell>
-    );
-}
+            <HrDetailGrid title="Overview">
+                <HrDetailRow label="Role / Position">{role}</HrDetailRow>
+                <HrDetailRow label="Department">{fmtText(p.department)}</HrDetailRow>
+                <HrDetailRow label="Incumbent">{fmtText(incumbent)}</HrDetailRow>
+                <HrDetailRow label="Successor (primary)">
+                    {fmtText(p.successorId || p.primarySuccessorId)}
+                </HrDetailRow>
+                <HrDetailRow label="Readiness">
+                    {fmtText(p.readiness)}
+                </HrDetailRow>
+                <HrDetailRow label="Review date">{fmtDate(p.reviewDate)}</HrDetailRow>
+                <HrDetailRow label="Status">
+                    <ZoruBadge variant={status === 'active' ? 'success' : 'ghost'}>
+                        {status}
+                    </ZoruBadge>
+                </HrDetailRow>
+                {p.notes ? (
+                    <HrDetailRow label="Notes" fullWidth>
+                        {String(p.notes)}
+                    </HrDetailRow>
+                ) : null}
+            </HrDetailGrid>
 
-function Row({ label, value }: { label: string; value?: string | null }) {
-    return (
-        <div className="flex items-baseline gap-3">
-            <span className="w-40 shrink-0 text-zoru-ink-muted">{label}</span>
-            <span className="text-zoru-ink whitespace-pre-wrap">{value || '—'}</span>
-        </div>
+            <ZoruCard className="p-6">
+                <div className="mb-4 text-[15px] font-medium text-zoru-ink">Successors / candidates</div>
+                {successors.length === 0 ? (
+                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-6 text-center text-[12.5px] text-zoru-ink-muted">
+                        No successors listed.
+                    </div>
+                ) : (
+                    <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-zoru-line">
+                        <ZoruTable>
+                            <ZoruTableHeader>
+                                <ZoruTableRow>
+                                    <ZoruTableHead>Employee</ZoruTableHead>
+                                    <ZoruTableHead>Readiness</ZoruTableHead>
+                                    <ZoruTableHead>Notes</ZoruTableHead>
+                                </ZoruTableRow>
+                            </ZoruTableHeader>
+                            <ZoruTableBody>
+                                {successors.map((c, idx) => (
+                                    <ZoruTableRow key={idx}>
+                                        <ZoruTableCell>
+                                            {fmtText(c.employeeName || c.employeeId)}
+                                        </ZoruTableCell>
+                                        <ZoruTableCell>
+                                            <ZoruBadge variant="ghost">{c.readiness || '—'}</ZoruBadge>
+                                        </ZoruTableCell>
+                                        <ZoruTableCell>{fmtText(c.notes)}</ZoruTableCell>
+                                    </ZoruTableRow>
+                                ))}
+                            </ZoruTableBody>
+                        </ZoruTable>
+                    </div>
+                )}
+            </ZoruCard>
+
+            <Users className="hidden" />
+        </EntityDetailShell>
     );
 }

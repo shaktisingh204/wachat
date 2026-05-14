@@ -17,7 +17,17 @@ import { redirect } from 'next/navigation';
 import { ObjectId } from 'mongodb';
 import { ArrowLeft, Trophy, PlusCircle } from 'lucide-react';
 
-import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
+import {
+    ZoruBadge,
+    ZoruButton,
+    ZoruCard,
+    ZoruTable,
+    ZoruTableBody,
+    ZoruTableCell,
+    ZoruTableHead,
+    ZoruTableHeader,
+    ZoruTableRow,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '../../../../crm/_components/crm-page-header';
 import { getAwardProgramById } from '@/app/actions/crm-awards.actions';
 import { getSession } from '@/app/actions/user.actions';
@@ -98,8 +108,10 @@ export default async function AwardProgramDetailPage({
     const type = (p.type as string) || '—';
     const frequency = (p.frequency as string) || '—';
     const status = (p.status as string) || 'draft';
-    const nominations = Array.isArray(p.nominations) ? p.nominations.length : 0;
-    const winners = Array.isArray(p.winners) ? p.winners.length : 0;
+    const nominationsList = Array.isArray(p.nominations) ? (p.nominations as Array<Record<string, unknown>>) : [];
+    const winnersList = Array.isArray(p.winners) ? (p.winners as Array<Record<string, unknown>>) : [];
+    const nominations = nominationsList.length;
+    const winners = winnersList.length;
     const pointsValue = typeof p.pointsValue === 'number' ? p.pointsValue : null;
     const cashValue = typeof p.cashValue === 'number' ? p.cashValue : null;
     const createdAt = p.createdAt;
@@ -156,6 +168,90 @@ export default async function AwardProgramDetailPage({
                         </DetailRow>
                     ) : null}
                 </div>
+            </ZoruCard>
+
+            {/* Nominations */}
+            <ZoruCard className="p-6">
+                <div className="mb-4 flex items-center justify-between">
+                    <h2 className="text-[15px] font-medium text-zoru-ink">Nominations</h2>
+                    <span className="text-[12px] text-zoru-ink-muted">{nominations} total</span>
+                </div>
+                {nominationsList.length === 0 ? (
+                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-6 text-center text-[12.5px] text-zoru-ink-muted">
+                        No nominations yet.
+                    </div>
+                ) : (
+                    <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-zoru-line">
+                        <ZoruTable>
+                            <ZoruTableHeader>
+                                <ZoruTableRow>
+                                    <ZoruTableHead>Nominee</ZoruTableHead>
+                                    <ZoruTableHead>Nominated by</ZoruTableHead>
+                                    <ZoruTableHead>Reason</ZoruTableHead>
+                                    <ZoruTableHead>Submitted</ZoruTableHead>
+                                </ZoruTableRow>
+                            </ZoruTableHeader>
+                            <ZoruTableBody>
+                                {nominationsList.map((n, i) => (
+                                    <ZoruTableRow key={i}>
+                                        <ZoruTableCell>
+                                            {String(n.nomineeName || n.nomineeId || '—')}
+                                        </ZoruTableCell>
+                                        <ZoruTableCell>
+                                            {String(n.nominatorName || n.nominatorId || '—')}
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="max-w-[320px] truncate">
+                                            {String(n.reason || n.notes || '—')}
+                                        </ZoruTableCell>
+                                        <ZoruTableCell>
+                                            {fmtDate(n.submittedAt || n.createdAt)}
+                                        </ZoruTableCell>
+                                    </ZoruTableRow>
+                                ))}
+                            </ZoruTableBody>
+                        </ZoruTable>
+                    </div>
+                )}
+            </ZoruCard>
+
+            {/* Winners */}
+            <ZoruCard className="p-6">
+                <div className="mb-4 flex items-center justify-between">
+                    <h2 className="text-[15px] font-medium text-zoru-ink">Winners</h2>
+                    <span className="text-[12px] text-zoru-ink-muted">{winners} total</span>
+                </div>
+                {winnersList.length === 0 ? (
+                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-6 text-center text-[12.5px] text-zoru-ink-muted">
+                        No winners declared yet.
+                    </div>
+                ) : (
+                    <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-zoru-line">
+                        <ZoruTable>
+                            <ZoruTableHeader>
+                                <ZoruTableRow>
+                                    <ZoruTableHead>Winner</ZoruTableHead>
+                                    <ZoruTableHead>Award date</ZoruTableHead>
+                                    <ZoruTableHead>Citation</ZoruTableHead>
+                                </ZoruTableRow>
+                            </ZoruTableHeader>
+                            <ZoruTableBody>
+                                {winnersList.map((w, i) => (
+                                    <ZoruTableRow key={i}>
+                                        <ZoruTableCell>
+                                            {String(w.employeeName || w.employeeId || '—')}
+                                        </ZoruTableCell>
+                                        <ZoruTableCell>
+                                            {fmtDate(w.awardedAt || w.date)}
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="max-w-[320px] truncate">
+                                            {String(w.citation || w.reason || '—')}
+                                        </ZoruTableCell>
+                                    </ZoruTableRow>
+                                ))}
+                            </ZoruTableBody>
+                        </ZoruTable>
+                    </div>
+                )}
             </ZoruCard>
         </div>
     );

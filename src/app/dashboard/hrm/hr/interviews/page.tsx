@@ -1,59 +1,20 @@
-'use client';
+/**
+ * Interviews list — §1D.1 rebuild.
+ *
+ * KPI (4): Today · This week · Pending feedback · Cancelled
+ * Columns (8): candidate, round, mode, panel, slot, status, score, link
+ * Filters (5): status, mode, from-date, candidate, panel
+ * Views: table | calendar (by slot date)
+ */
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
+import { getInterviews } from '@/app/actions/hr.actions';
+import { InterviewsView } from './_components/interviews-view';
 
-import { Calendar } from 'lucide-react';
-import { ClayBadge, HrEntityPage } from '../_components/hr-entity-page';
-import {
-  getInterviews,
-  saveInterview,
-  deleteInterview,
-} from '@/app/actions/hr.actions';
-import type { HrInterview } from '@/lib/hr-types';
-import { fields } from './_config';
-
-const RESULT_TONES: Record<string, 'neutral' | 'green' | 'amber' | 'red'> = {
-  pending: 'amber',
-  passed: 'green',
-  failed: 'red',
-  rescheduled: 'amber',
-};
-
-export default function InterviewsPage() {
-  return (
-    <HrEntityPage<HrInterview & { _id: string }>
-      title="Interviews"
-      subtitle="Schedule rounds, panel feedback, and recommendations."
-      icon={Calendar}
-      singular="Interview"
-      basePath="/dashboard/hrm/hr/interviews"
-      getAllAction={getInterviews as any}
-      saveAction={saveInterview}
-      deleteAction={deleteInterview}
-      columns={[
-        { key: 'interviewerName', label: 'Interviewer' },
-        { key: 'roundNumber', label: 'Round' },
-        {
-          key: 'scheduledAt',
-          label: 'Scheduled',
-          render: (row) =>
-            row.scheduledAt
-              ? new Date(row.scheduledAt).toLocaleDateString()
-              : '—',
-        },
-        { key: 'type', label: 'Type' },
-        {
-          key: 'result',
-          label: 'Result',
-          render: (row) => (
-            <ClayBadge tone={RESULT_TONES[(row as any).result] || 'neutral'} dot>
-              {(row as any).result || 'pending'}
-            </ClayBadge>
-          ),
-        },
-      ]}
-      fields={fields}
-    />
-  );
+export default async function InterviewsPage() {
+  const raw = await getInterviews();
+  const interviews = (raw as any[]).map((i) => ({
+    ...i,
+    _id: String(i._id),
+  }));
+  return <InterviewsView initial={interviews as any} />;
 }

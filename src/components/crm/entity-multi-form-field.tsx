@@ -29,6 +29,13 @@ export interface EntityMultiFormFieldProps {
   required?: boolean;
   disabled?: boolean;
   placeholder?: string;
+  /**
+   * Optional callback fired whenever the user picks/removes ids.
+   * Mirrors the hidden-input value so consumers needing live updates
+   * (e.g. apply buttons gated on a non-empty selection) can wire in
+   * without DOM observation hacks.
+   */
+  onChange?: (ids: string[], hydrated?: LookupItem[]) => void;
 }
 
 export function EntityMultiFormField(props: EntityMultiFormFieldProps) {
@@ -56,6 +63,7 @@ export function EntityMultiFormField(props: EntityMultiFormFieldProps) {
           const labelsMap = new Map<string, string>();
           hydratedArr.forEach((h) => h && labelsMap.set(h.id, h.chip.primary));
           setLabels((prev) => nextIds.map((id, i) => labelsMap.get(id) ?? prev[i] ?? id));
+          props.onChange?.(nextIds, hydratedArr);
         }}
         filter={props.filter}
         allowCreate={props.allowCreate}

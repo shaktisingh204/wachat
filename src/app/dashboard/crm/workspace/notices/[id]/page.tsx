@@ -1,87 +1,73 @@
-'use client';
-import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
-import * as React from 'react';
-import Link from 'next/link';
-import { useParams } from 'next/navigation';
-import { ArrowLeft, Megaphone, Pin, LoaderCircle } from 'lucide-react';
+/**
+ * Notice detail — §1D.2 bar.
+ */
 
-import { CrmPageHeader } from '../../../_components/crm-page-header';
-import {
-  getNoticeById,
-  markNoticeViewed,
-} from '@/app/actions/worksuite/knowledge.actions';
-import type { WsNotice } from '@/lib/worksuite/knowledge-types';
+import { notFound } from 'next/navigation';
+import { Pin } from 'lucide-react';
 
-export default function NoticeDetailPage() {
-  const params = useParams<{ id: string }>();
-  const id = params?.id;
-  const [notice, setNotice] = React.useState<(WsNotice & { _id: string }) | null>(null);
-  const [loading, setLoading] = React.useState(true);
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
+import { ZoruBadge, ZoruCard } from '@/components/zoruui';
 
-  React.useEffect(() => {
-    if (!id) return;
-    let active = true;
-    (async () => {
-      try {
-        const n = await getNoticeById(id);
-        if (active) setNotice(n as any);
-        // Auto-mark as viewed on mount.
-        await markNoticeViewed(id);
-      } finally {
-        if (active) setLoading(false);
-      }
-    })();
-    return () => {
-      active = false;
-    };
-  }, [id]);
+import { getNoticeById } from '@/app/actions/worksuite/knowledge.actions';
 
-  if (loading) {
+import { NoticesDetailActions } from '../_components/notices-detail-actions';
+import { fmtDate } from '../_components/notices-shared';
+
+export const dynamic = 'force-dynamic';
+
+export default async function NoticeDetailPage({
+    params,
+}: {
+    params: Promise<{ id: string }>;
+}) {
+    const { id } = await params;
+    const notice = await getNoticeById(id);
+    if (!notice) notFound();
+
+    const n = notice as any;
+
     return (
-      <div className="flex w-full items-center justify-center">
-        <LoaderCircle className="h-5 w-5 animate-spin text-muted-foreground" />
-      </div>
-    );
-  }
-
-  if (!notice) {
-    return (
-      <div className="flex w-full flex-col gap-4">
-        <CrmPageHeader title="Notice" subtitle="Not found" icon={Megaphone} />
-        <ZoruCard>
-          <p className="text-center text-[13px] text-muted-foreground">Notice not found.</p>
-        </ZoruCard>
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title={notice.heading}
-        subtitle="Notice"
-        icon={Megaphone}
-        actions={
-          <Link href="/dashboard/crm/workspace/notices">
-            <ZoruButton variant="outline">
-              Back
-            </ZoruButton>
-          </Link>
-        }
-      />
-      <ZoruCard>
-        <div className="mb-4 flex flex-wrap items-center gap-2">
-          <ZoruBadge variant="ghost" className="capitalize">{notice.notice_to}</ZoruBadge>
-          {notice.pinned ? (
-            <ZoruBadge variant="ghost">
-              <Pin className="h-3 w-3" /> Pinned
-            </ZoruBadge>
-          ) : null}
+        <div className="p-4 md:p-6">
+            <EntityDetailShell
+                title={n.heading}
+                eyebrow="NOTICE"
+                back={{ href: '/dashboard/crm/workspace/notices', label: 'Back to notices' }}
+                actions={<NoticesDetailActions noticeId={n._id} />}
+                audit={{ entityKind: 'notice', entityId: n._id }}
+                rightRail={
+                    <ZoruCard>
+                        <h3 className="mb-3 text-[13.5px] font-semibold text-zoru-ink">
+                            Acknowledgement
+                        </h3>
+                        <p className="text-[12.5px] text-zoru-ink-muted">
+                            Tracking per-user reads. Use the table on the list page to see who
+                            has and hasn’t opened this notice.
+                        </p>
+                        {/* TODO 1D.2: ack-table fetched per-notice — server action exists
+                            only as per-user view; needs a `getNoticeAcknowledgements(noticeId)`
+                            companion. */}
+                    </ZoruCard>
+                }
+            >
+                <ZoruCard>
+                    <div className="mb-3 flex flex-wrap items-center gap-2">
+                        <ZoruBadge variant="ghost" className="capitalize">
+                            Audience: {n.notice_to}
+                        </ZoruBadge>
+                        {n.pinned ? (
+                            <ZoruBadge variant="warning">
+                                <Pin className="h-3 w-3" /> Pinned
+                            </ZoruBadge>
+                        ) : null}
+                        <ZoruBadge variant="secondary">
+                            Published {fmtDate(n.createdAt)}
+                        </ZoruBadge>
+                    </div>
+                    <div className="whitespace-pre-wrap text-[14px] leading-relaxed text-zoru-ink">
+                        {n.description}
+                    </div>
+                </ZoruCard>
+            </EntityDetailShell>
         </div>
-        <div className="whitespace-pre-wrap text-[14px] leading-relaxed text-foreground">
-          {notice.description}
-        </div>
-      </ZoruCard>
-    </div>
-  );
+    );
 }

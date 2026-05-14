@@ -10,10 +10,13 @@ import { Trophy } from 'lucide-react';
 
 import { CrmPageHeader } from '../../../_components/crm-page-header';
 import { DealForm } from '../_components/deal-form';
+import { getSession } from '@/app/actions/user.actions';
 
 export const dynamic = 'force-dynamic';
 
-export default function NewDealPage() {
+export default async function NewDealPage() {
+  const session = await getSession();
+  const userId = session?.user?._id ? String(session.user._id) : null;
   return (
     <div className="flex w-full flex-col gap-6">
       <CrmPageHeader
@@ -27,7 +30,7 @@ export default function NewDealPage() {
           { label: 'New' },
         ]}
       />
-      <DealForm />
+      <DealForm currentUserId={userId} />
     </div>
   );
 }

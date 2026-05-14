@@ -175,3 +175,33 @@ export async function saveDeliveryChallan(prevState: any, formData: FormData): P
         return { error: getErrorMessage(e) };
     }
 }
+
+/**
+ * Hard-delete a delivery challan. Used by the §1D list-page row actions
+ * and bulk-delete dialog. Tenant-scoped: only deletes when the
+ * `userId` matches the session.
+ */
+export async function deleteDeliveryChallanAction(
+    challanId: string,
+): Promise<{ success: boolean; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied' };
+    if (!ObjectId.isValid(challanId)) {
+        return { success: false, error: 'Invalid challan id.' };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const res = await db.collection('crm_delivery_challans').deleteOne({
+            _id: new ObjectId(challanId),
+            userId: new ObjectId(session.user._id),
+        });
+        if (res.deletedCount === 0) {
+            return { success: false, error: 'Challan not found.' };
+        }
+        revalidatePath('/dashboard/crm/sales/delivery');
+        return { success: true };
+    } catch (e) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}

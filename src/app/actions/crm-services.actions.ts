@@ -176,6 +176,179 @@ export async function signContract(
       },
     },
   );
+  try {
+    await writeAuditEntry({
+      tenantUserId: String(user._id),
+      actorId: String(user._id),
+      action: 'sign',
+      entityKind: 'contract',
+      entityId: contractId,
+      reason: payload.signedByName,
+    });
+  } catch { /* non-fatal */ }
+  revalidatePath(`/dashboard/crm/contracts/${contractId}`);
+  revalidatePath('/dashboard/crm/contracts');
+  return { success: true };
+}
+
+/** Mark a contract `sent` and record the signers list in `signers[]`. */
+export async function sendContractForSignature(
+  contractId: string,
+  signers: Array<{ name: string; email: string }>,
+): Promise<{ success: boolean; error?: string }> {
+  const user = await requireSession();
+  if (!user) return { success: false, error: 'Access denied' };
+  if (!ObjectId.isValid(contractId)) return { success: false, error: 'Invalid contract' };
+  if (!signers.length) return { success: false, error: 'At least one signer is required.' };
+  const clean = signers
+    .map((s) => ({ name: (s.name || '').trim(), email: (s.email || '').trim() }))
+    .filter((s) => s.email && s.email.includes('@'));
+  if (!clean.length) return { success: false, error: 'No valid signers provided.' };
+
+  const { db } = await connectToDatabase();
+  const res = await db.collection('crm_contracts').updateOne(
+    { _id: new ObjectId(contractId), userId: new ObjectId(user._id) },
+    {
+      $set: {
+        status: 'sent',
+        signers: clean,
+        sentAt: new Date(),
+        updatedAt: new Date(),
+      },
+    },
+  );
+  if (res.matchedCount === 0) {
+    return { success: false, error: 'Contract not found.' };
+  }
+  try {
+    await writeAuditEntry({
+      tenantUserId: String(user._id),
+      actorId: String(user._id),
+      action: 'send',
+      entityKind: 'contract',
+      entityId: contractId,
+      reason: `Sent to ${clean.length} signer${clean.length === 1 ? '' : 's'}`,
+    });
+  } catch { /* non-fatal */ }
+  revalidatePath(`/dashboard/crm/contracts/${contractId}`);
+  revalidatePath('/dashboard/crm/contracts');
+  return { success: true };
+}
+
+/** Move the contract to `terminated` with a reason. */
+export async function voidContract(
+  contractId: string,
+  reason: string,
+): Promise<{ success: boolean; error?: string }> {
+  const user = await requireSession();
+  if (!user) return { success: false, error: 'Access denied' };
+  if (!ObjectId.isValid(contractId)) return { success: false, error: 'Invalid contract' };
+  const { db } = await connectToDatabase();
+  const res = await db.collection('crm_contracts').updateOne(
+    { _id: new ObjectId(contractId), userId: new ObjectId(user._id) },
+    {
+      $set: {
+        status: 'terminated',
+        voidedAt: new Date(),
+        voidReason: reason || '',
+        updatedAt: new Date(),
+      },
+    },
+  );
+  if (res.matchedCount === 0) {
+    return { success: false, error: 'Contract not found.' };
+  }
+  try {
+    await writeAuditEntry({
+      tenantUserId: String(user._id),
+      actorId: String(user._id),
+      action: 'void',
+      entityKind: 'contract',
+      entityId: contractId,
+      reason: reason || undefined,
+    });
+  } catch { /* non-fatal */ }
+  revalidatePath(`/dashboard/crm/contracts/${contractId}`);
+  revalidatePath('/dashboard/crm/contracts');
+  return { success: true };
+}
+
+/** Renew with a new end date; resets status to `draft`. */
+export async function renewContract(
+  contractId: string,
+  newEndDate: string,
+): Promise<{ success: boolean; error?: string }> {
+  const user = await requireSession();
+  if (!user) return { success: false, error: 'Access denied' };
+  if (!ObjectId.isValid(contractId)) return { success: false, error: 'Invalid contract' };
+  if (!newEndDate) return { success: false, error: 'End date is required.' };
+  const parsed = new Date(newEndDate);
+  if (Number.isNaN(parsed.getTime())) {
+    return { success: false, error: 'Invalid end date.' };
+  }
+  const { db } = await connectToDatabase();
+  const res = await db.collection('crm_contracts').updateOne(
+    { _id: new ObjectId(contractId), userId: new ObjectId(user._id) },
+    {
+      $set: {
+        endDate: parsed,
+        status: 'draft',
+        renewedAt: new Date(),
+        updatedAt: new Date(),
+      },
+    },
+  );
+  if (res.matchedCount === 0) {
+    return { success: false, error: 'Contract not found.' };
+  }
+  try {
+    await writeAuditEntry({
+      tenantUserId: String(user._id),
+      actorId: String(user._id),
+      action: 'update',
+      entityKind: 'contract',
+      entityId: contractId,
+      reason: 'renewed',
+      diff: { endDate: { after: parsed.toISOString() } },
+    });
+  } catch { /* non-fatal */ }
+  revalidatePath(`/dashboard/crm/contracts/${contractId}`);
+  revalidatePath('/dashboard/crm/contracts');
+  return { success: true };
+}
+
+/** Set status without other side effects (e.g. mark signed manually). */
+export async function updateContractStatus(
+  contractId: string,
+  status: 'draft' | 'sent' | 'signed' | 'expired' | 'terminated',
+): Promise<{ success: boolean; error?: string }> {
+  const user = await requireSession();
+  if (!user) return { success: false, error: 'Access denied' };
+  if (!ObjectId.isValid(contractId)) return { success: false, error: 'Invalid contract' };
+  const { db } = await connectToDatabase();
+  const res = await db.collection('crm_contracts').updateOne(
+    { _id: new ObjectId(contractId), userId: new ObjectId(user._id) },
+    {
+      $set: {
+        status,
+        updatedAt: new Date(),
+        ...(status === 'signed' ? { signedAt: new Date() } : {}),
+      },
+    },
+  );
+  if (res.matchedCount === 0) {
+    return { success: false, error: 'Contract not found.' };
+  }
+  try {
+    await writeAuditEntry({
+      tenantUserId: String(user._id),
+      actorId: String(user._id),
+      action: 'status_change',
+      entityKind: 'contract',
+      entityId: contractId,
+      diff: { status: { after: status } },
+    });
+  } catch { /* non-fatal */ }
   revalidatePath(`/dashboard/crm/contracts/${contractId}`);
   revalidatePath('/dashboard/crm/contracts');
   return { success: true };

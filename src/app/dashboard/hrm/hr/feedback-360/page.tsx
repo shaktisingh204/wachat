@@ -1,117 +1,174 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
+/**
+ * 360° Feedback — list page rebuilt to §1D.1 bar.
+ *
+ * KPI strip: Total · Pending · Submitted · Avg score.
+ * Server actions preserved: getFeedback360 / deleteFeedback360.
+ */
 
 import * as React from 'react';
+import { useCallback, useEffect, useState, useTransition } from 'react';
 import { Star } from 'lucide-react';
-import { ClayBadge, HrEntityPage } from '../_components/hr-entity-page';
+
 import {
   getFeedback360,
-  saveFeedback360,
   deleteFeedback360,
 } from '@/app/actions/hr.actions';
 import type { HrFeedback360 } from '@/lib/hr-types';
-import { fields } from './_config';
 
-const STATUS_TONES: Record<string, 'neutral' | 'green' | 'amber'> = {
-  pending: 'amber',
-  submitted: 'green',
+import {
+  HrChip,
+  HrListShell,
+  HrStatusCell,
+} from '../_components/hr-list-shell';
+
+type Row = HrFeedback360 & {
+  _id: string;
+  reviewer_id?: string;
+  reviewee_id?: string;
+  type?: string;
+  period?: string;
+  status?: string;
+  rating_communication?: number;
+  rating_teamwork?: number;
+  rating_leadership?: number;
+  rating_technical?: number;
+  reviewCycle?: string;
 };
 
-const TYPE_TONES: Record<string, 'neutral' | 'blue' | 'amber' | 'green' | 'rose-soft'> = {
-  self: 'neutral',
-  peer: 'blue',
-  manager: 'amber',
-  'direct-report': 'green',
-};
+function avgRating(r: Row): number {
+  const vals = [
+    r.rating_communication,
+    r.rating_teamwork,
+    r.rating_leadership,
+    r.rating_technical,
+    r.rating,
+  ].filter((v): v is number => typeof v === 'number' && !Number.isNaN(v));
+  if (vals.length === 0) return 0;
+  return vals.reduce((a, b) => a + b, 0) / vals.length;
+}
 
-function RatingDots({ value }: { value: unknown }) {
-  const n = Math.min(5, Math.max(0, Number(value) || 0));
+function StarBar({ value }: { value: number }) {
+  const n = Math.round(Math.min(5, Math.max(0, value)));
   return (
     <div className="flex items-center gap-0.5">
       {[1, 2, 3, 4, 5].map((i) => (
         <Star
           key={i}
-          className={`h-3 w-3 ${i <= n ? 'fill-yellow-400 text-yellow-400' : 'fill-transparent text-border'}`}
+          className={`h-3 w-3 ${i <= n ? 'fill-yellow-400 text-yellow-400' : 'fill-transparent text-zoru-line'}`}
         />
       ))}
+      <span className="ml-1 text-[12px] tabular-nums text-zoru-ink-muted">
+        {value > 0 ? value.toFixed(1) : '—'}
+      </span>
     </div>
   );
 }
 
 export default function Feedback360Page() {
+  const [rows, setRows] = useState<Row[]>([]);
+  const [isLoading, startTransition] = useTransition();
+
+  const refresh = useCallback(() => {
+    startTransition(async () => {
+      const data = (await getFeedback360()) as Row[];
+      setRows(Array.isArray(data) ? data : []);
+    });
+  }, []);
+
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
+
+  const kpis = React.useMemo(() => {
+    const total = rows.length;
+    const pending = rows.filter(
+      (r) => String(r.status ?? '').toLowerCase() === 'pending',
+    ).length;
+    const submitted = rows.filter(
+      (r) => String(r.status ?? '').toLowerCase() === 'submitted',
+    ).length;
+    const ratings = rows.map(avgRating).filter((v) => v > 0);
+    const avg = ratings.length
+      ? Math.round((ratings.reduce((a, b) => a + b, 0) / ratings.length) * 10) /
+        10
+      : 0;
+    return [
+      { label: 'Total', value: total },
+      { label: 'Pending', value: pending, tone: 'amber' as const },
+      { label: 'Submitted', value: submitted, tone: 'green' as const },
+      { label: 'Avg score', value: avg ? avg.toFixed(1) : '—' },
+    ];
+  }, [rows]);
+
   return (
-    <HrEntityPage<HrFeedback360 & { _id: string }>
+    <HrListShell<Row>
       title="360° Feedback"
-      subtitle="Peer, manager, direct-report, and self reviews."
+      subtitle="Peer, manager, direct-report, and self reviews per cycle."
       icon={Star}
-      singular="Feedback"
-      basePath="/dashboard/hrm/hr/feedback-360"
-      getAllAction={getFeedback360 as any}
-      saveAction={saveFeedback360}
-      deleteAction={deleteFeedback360}
+      newHref="/dashboard/hrm/hr/feedback-360/new"
+      editHref={(r) => `/dashboard/hrm/hr/feedback-360/${r._id}/edit`}
+      detailHref={(r) => `/dashboard/hrm/hr/feedback-360/${r._id}`}
+      rows={rows}
+      loading={isLoading}
+      kpis={kpis}
+      statusOptions={[
+        { value: 'pending', label: 'Pending' },
+        { value: 'submitted', label: 'Submitted' },
+      ]}
+      getRowStatus={(r) => String(r.status ?? '')}
+      searchPlaceholder="Search reviewers / reviewees…"
+      searchPredicate={(r, q) =>
+        String(r.reviewer_id ?? r.reviewerName ?? '').toLowerCase().includes(q) ||
+        String(r.reviewee_id ?? '').toLowerCase().includes(q) ||
+        String(r.period ?? r.reviewCycle ?? '').toLowerCase().includes(q)
+      }
+      onDelete={deleteFeedback360}
+      onAfterChange={refresh}
+      emptyText="No 360° feedback yet"
       columns={[
         {
-          key: 'reviewee_id',
+          key: 'reviewee',
           label: 'Reviewee',
-          render: (row) => (
-            <span className="block max-w-[140px] truncate">
-              {(row as any).reviewee_id || String(row.employeeId) || '—'}
-            </span>
-          ),
+          render: (r) => String(r.reviewee_id ?? r.employeeId ?? '—'),
         },
         {
-          key: 'reviewer_id',
+          key: 'reviewer',
           label: 'Reviewer',
-          render: (row) => (
-            <span className="block max-w-[140px] truncate">
-              {(row as any).reviewer_id || (row as any).reviewerName || '—'}
-            </span>
-          ),
+          render: (r) => String(r.reviewer_id ?? r.reviewerName ?? '—'),
         },
         {
           key: 'type',
           label: 'Type',
-          render: (row) => {
-            const t = (row as any).type || row.reviewerType;
-            return t ? (
-              <ClayBadge tone={TYPE_TONES[t] || 'neutral'} dot>
-                {t}
-              </ClayBadge>
+          render: (r) =>
+            r.type || r.reviewerType ? (
+              <HrChip>{r.type ?? r.reviewerType}</HrChip>
             ) : (
-              <span className="text-muted-foreground">—</span>
-            );
-          },
+              <span className="text-zoru-ink-muted">—</span>
+            ),
         },
         {
           key: 'period',
           label: 'Period',
-          render: (row) => (row as any).period || (row as any).reviewCycle || '—',
+          render: (r) =>
+            r.period || r.reviewCycle ? (
+              <HrChip>{r.period ?? r.reviewCycle}</HrChip>
+            ) : (
+              <span className="text-zoru-ink-muted">—</span>
+            ),
+        },
+        {
+          key: 'score',
+          label: 'Avg score',
+          render: (r) => <StarBar value={avgRating(r)} />,
         },
         {
           key: 'status',
           label: 'Status',
-          render: (row) => {
-            const s = (row as any).status;
-            return s ? (
-              <ClayBadge tone={STATUS_TONES[s] || 'neutral'} dot>
-                {s}
-              </ClayBadge>
-            ) : (
-              <span className="text-muted-foreground">—</span>
-            );
-          },
-        },
-        {
-          key: 'rating_communication',
-          label: 'Communication',
-          render: (row) => (
-            <RatingDots value={(row as any).rating_communication ?? (row as any).rating} />
-          ),
+          render: (r) => <HrStatusCell value={String(r.status ?? '')} />,
         },
       ]}
-      fields={fields}
     />
   );
 }

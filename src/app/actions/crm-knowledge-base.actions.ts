@@ -5,6 +5,194 @@ import { ObjectId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
 
+export interface KbArticleDoc {
+  _id: string;
+  title?: string;
+  slug?: string;
+  body?: string;
+  category?: string;
+  tags?: string[];
+  visibility?: 'public' | 'portal' | 'internal' | string;
+  status?: 'draft' | 'published' | 'archived' | string;
+  helpfulCount?: number;
+  helpfulYes?: number;
+  helpfulNo?: number;
+  viewCount?: number;
+  ownerId?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  lastReviewedAt?: string;
+  /** Optional related article ids (entity refs). */
+  relatedArticles?: string[];
+  /** SEO meta fields. */
+  seoTitle?: string;
+  seoDescription?: string;
+}
+
+export interface KbListResult {
+  articles: KbArticleDoc[];
+  error?: string;
+}
+
+/**
+ * List KB articles for the current tenant.
+ *
+ * Returns the recently-updated articles up to `limit` (default 200). The
+ * UI applies filtering / search / pagination client-side because the
+ * dataset is small enough to ship in one round trip.
+ */
+export async function listKbArticles(
+  limit = 200,
+): Promise<KbListResult> {
+  const session = await getSession();
+  if (!session?.user?._id) return { articles: [], error: 'Access denied' };
+  try {
+    const { db } = await connectToDatabase();
+    const userObjectId = new ObjectId(session.user._id);
+    const docs = await db
+      .collection('crm_kb_articles')
+      .find({ userId: userObjectId } as any)
+      .sort({ updatedAt: -1, createdAt: -1 })
+      .limit(limit)
+      .toArray();
+    const articles = JSON.parse(JSON.stringify(docs)) as KbArticleDoc[];
+    return { articles };
+  } catch (e: any) {
+    return { articles: [], error: e?.message ?? 'Failed to load articles.' };
+  }
+}
+
+/** Hard-delete a KB article. */
+export async function deleteKbArticle(
+  articleId: string,
+): Promise<{ success: boolean; error?: string }> {
+  if (!ObjectId.isValid(articleId)) return { success: false, error: 'Invalid ID.' };
+  const session = await getSession();
+  if (!session?.user?._id) return { success: false, error: 'Access denied.' };
+  try {
+    const { db } = await connectToDatabase();
+    const res = await db.collection('crm_kb_articles').deleteOne({
+      _id: new ObjectId(articleId),
+      userId: new ObjectId(session.user._id),
+    } as any);
+    if (res.deletedCount === 0) return { success: false, error: 'Not found.' };
+    revalidatePath('/dashboard/crm/tickets/knowledge-base');
+    return { success: true };
+  } catch (e: any) {
+    return { success: false, error: e?.message ?? 'Failed to delete.' };
+  }
+}
+
+/** Flip published / draft / archived without going through the form. */
+export async function setKbArticleStatus(
+  articleId: string,
+  status: 'draft' | 'published' | 'archived',
+): Promise<{ success: boolean; error?: string }> {
+  if (!ObjectId.isValid(articleId)) return { success: false, error: 'Invalid ID.' };
+  const session = await getSession();
+  if (!session?.user?._id) return { success: false, error: 'Access denied.' };
+  try {
+    const { db } = await connectToDatabase();
+    const res = await db.collection('crm_kb_articles').updateOne(
+      {
+        _id: new ObjectId(articleId),
+        userId: new ObjectId(session.user._id),
+      } as any,
+      { $set: { status, updatedAt: new Date() } },
+    );
+    if (res.matchedCount === 0) return { success: false, error: 'Not found.' };
+    revalidatePath('/dashboard/crm/tickets/knowledge-base');
+    revalidatePath(`/dashboard/crm/tickets/knowledge-base/${articleId}`);
+    return { success: true };
+  } catch (e: any) {
+    return { success: false, error: e?.message ?? 'Failed to update.' };
+  }
+}
+
+/** Record a helpful/not-helpful vote on an article. */
+export async function recordKbHelpfulVote(
+  articleId: string,
+  helpful: boolean,
+): Promise<{ success: boolean; error?: string }> {
+  if (!ObjectId.isValid(articleId)) return { success: false, error: 'Invalid ID.' };
+  const session = await getSession();
+  if (!session?.user?._id) return { success: false, error: 'Access denied.' };
+  try {
+    const { db } = await connectToDatabase();
+    const inc = helpful ? { helpfulYes: 1, helpfulCount: 1 } : { helpfulNo: 1 };
+    const res = await db.collection('crm_kb_articles').updateOne(
+      {
+        _id: new ObjectId(articleId),
+        userId: new ObjectId(session.user._id),
+      } as any,
+      { $inc: inc as any, $set: { updatedAt: new Date() } },
+    );
+    if (res.matchedCount === 0) return { success: false, error: 'Not found.' };
+    revalidatePath(`/dashboard/crm/tickets/knowledge-base/${articleId}`);
+    return { success: true };
+  } catch (e: any) {
+    return { success: false, error: e?.message ?? 'Failed to record vote.' };
+  }
+}
+
+/** Increment view count. Fire-and-forget on detail page mount. */
+export async function recordKbView(
+  articleId: string,
+): Promise<{ success: boolean }> {
+  if (!ObjectId.isValid(articleId)) return { success: false };
+  const session = await getSession();
+  if (!session?.user?._id) return { success: false };
+  try {
+    const { db } = await connectToDatabase();
+    await db.collection('crm_kb_articles').updateOne(
+      {
+        _id: new ObjectId(articleId),
+        userId: new ObjectId(session.user._id),
+      } as any,
+      { $inc: { viewCount: 1 } as any },
+    );
+    return { success: true };
+  } catch {
+    return { success: false };
+  }
+}
+
+/** Bulk publish / unpublish / delete. */
+export async function bulkKbAction(
+  ids: string[],
+  op: 'publish' | 'unpublish' | 'delete',
+): Promise<{ success: boolean; processed: number; error?: string }> {
+  const valid = ids.filter((id) => ObjectId.isValid(id));
+  if (valid.length === 0) {
+    return { success: false, processed: 0, error: 'No valid IDs.' };
+  }
+  const session = await getSession();
+  if (!session?.user?._id) {
+    return { success: false, processed: 0, error: 'Access denied.' };
+  }
+  try {
+    const { db } = await connectToDatabase();
+    const objIds = valid.map((id) => new ObjectId(id));
+    const filter = {
+      _id: { $in: objIds },
+      userId: new ObjectId(session.user._id),
+    } as any;
+    if (op === 'delete') {
+      const res = await db.collection('crm_kb_articles').deleteMany(filter);
+      revalidatePath('/dashboard/crm/tickets/knowledge-base');
+      return { success: true, processed: res.deletedCount ?? 0 };
+    }
+    const nextStatus = op === 'publish' ? 'published' : 'draft';
+    const res = await db.collection('crm_kb_articles').updateMany(filter, {
+      $set: { status: nextStatus, updatedAt: new Date() },
+    });
+    revalidatePath('/dashboard/crm/tickets/knowledge-base');
+    return { success: true, processed: res.modifiedCount ?? 0 };
+  } catch (e: any) {
+    return { success: false, processed: 0, error: e?.message ?? 'Bulk failed.' };
+  }
+}
+
 export async function saveKbArticle(
   _prev: any,
   formData: FormData,

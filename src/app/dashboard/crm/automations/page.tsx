@@ -242,10 +242,38 @@ export default function CrmAutomationsPage() {
         ];
     };
 
+    // ── KPI strip (sidebar): Active · Total · Failed runs (deferred) · Avg success rate (deferred)
+    const activeCount = flows.length;
+    const totalRuns30d = 0; // Runtime engine deferred — see §1D scope notes
+    const failedRuns = 0;
+    const avgSuccess = 0;
+
     return (
         <div className="flex h-[calc(100vh-theme(spacing.20))] bg-muted/30">
             <aside className="w-72 bg-background border-r p-4 flex flex-col gap-4">
                 <h2 className="text-xl font-bold">Automations</h2>
+                <div className="grid grid-cols-2 gap-2 text-[11px]">
+                    <div className="rounded border bg-card p-2">
+                        <div className="text-muted-foreground">Active</div>
+                        <div className="text-base font-semibold">{activeCount}</div>
+                    </div>
+                    <div className="rounded border bg-card p-2">
+                        <div className="text-muted-foreground">Runs 30d</div>
+                        <div className="text-base font-semibold">{totalRuns30d}</div>
+                    </div>
+                    <div className="rounded border bg-card p-2">
+                        <div className="text-muted-foreground">Failed</div>
+                        <div className="text-base font-semibold">{failedRuns}</div>
+                    </div>
+                    <div className="rounded border bg-card p-2">
+                        <div className="text-muted-foreground">Success</div>
+                        <div className="text-base font-semibold">{avgSuccess}%</div>
+                    </div>
+                </div>
+                <p className="text-[10.5px] text-muted-foreground">
+                    Run metrics will populate once the automation runtime ships. Rule
+                    configs persist today.
+                </p>
                 <div className="flex gap-2">
                     <ZoruButton size="sm" className="flex-1" onClick={handleCreateNewFlow}><Plus className="mr-2 h-4 w-4"/>New</ZoruButton>
                 </div>

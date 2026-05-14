@@ -105,6 +105,8 @@ export interface CrmPaymentReceiptCreateInput {
   bankAccountId: string;
   amount: number;
   currency: string;
+  /** Optional FX rate when the receipt currency differs from the tenant default. */
+  exchangeRate?: number;
 
   chequeNo?: string;
   chequeDate?: string;

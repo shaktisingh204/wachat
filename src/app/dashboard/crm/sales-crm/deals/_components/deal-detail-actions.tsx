@@ -4,12 +4,10 @@
  * <DealDetailActions> — top-right action group for the deal detail page.
  *
  * Renders the 8+ actions §1D.2 requires (Edit, Convert, Email, WhatsApp,
- * Print, Archive, Mark Won, Mark Lost, Activity) plus a clickable status
- * pill whose dropdown changes the deal stage via `updateCrmDealStage`.
- *
- * "Email" / "WhatsApp" / "Print" / "Archive" surface as toasts until the
- * respective compose dialogs / archive endpoint ship — keeps the slot
- * shape stable so consumers don't have to refactor when they do land.
+ * Print, Archive, Mark Won, Mark Lost, Activity, Add Task) plus a
+ * clickable status pill whose dropdown changes the deal stage via
+ * `updateCrmDealStage`. Email / WhatsApp / Archive / Won-Loss all
+ * surface real dialogs now (no more toast stubs).
  */
 
 import * as React from 'react';
@@ -25,6 +23,7 @@ import {
   Trophy,
   CircleX,
   Activity,
+  ListPlus,
 } from 'lucide-react';
 
 import {
@@ -36,19 +35,48 @@ import {
   useZoruToast,
 } from '@/components/zoruui';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
-import { updateCrmDealStage } from '@/app/actions/crm-deals.actions';
+import { ConfirmDialog } from '@/components/crm/confirm-dialog';
+import { archiveCrmDeal, updateCrmDealStage } from '@/app/actions/crm-deals.actions';
+
+import {
+  DealAddTaskDialog,
+  DealEmailDialog,
+  DealWhatsAppDialog,
+  DealWonLossDialog,
+} from './deal-dialogs';
 
 interface DealDetailActionsProps {
   dealId: string;
   stage: string;
   stages: string[];
+  /** Linked account email for prefilled compose. */
+  contactEmail?: string | null;
+  /** Linked contact phone for the WhatsApp deep link. */
+  contactPhone?: string | null;
+  /** Optional won/loss reason vocabulary (pipeline-level config). */
+  wonLossReasons?: string[];
 }
 
-export function DealDetailActions({ dealId, stage, stages }: DealDetailActionsProps) {
+export function DealDetailActions({
+  dealId,
+  stage,
+  stages,
+  contactEmail,
+  contactPhone,
+  wonLossReasons,
+}: DealDetailActionsProps) {
   const router = useRouter();
   const { toast } = useZoruToast();
   const [currentStage, setCurrentStage] = React.useState(stage);
   const [, startTransition] = React.useTransition();
+
+  const [emailOpen, setEmailOpen] = React.useState(false);
+  const [whatsAppOpen, setWhatsAppOpen] = React.useState(false);
+  const [archiveOpen, setArchiveOpen] = React.useState(false);
+  const [addTaskOpen, setAddTaskOpen] = React.useState(false);
+  const [wonLossOpen, setWonLossOpen] = React.useState(false);
+  const [wonLossOutcome, setWonLossOutcome] = React.useState<'won' | 'lost' | null>(null);
+  const [wonLossTargetStage, setWonLossTargetStage] = React.useState('');
 
   React.useEffect(() => {
     setCurrentStage(stage);
@@ -74,8 +102,20 @@ export function DealDetailActions({ dealId, stage, stages }: DealDetailActionsPr
     });
   };
 
-  const placeholder = (label: string, description: string) =>
-    toast({ title: label, description });
+  const openWonLoss = (outcome: 'won' | 'lost') => {
+    const matcher = outcome === 'won' ? 'won' : 'lost';
+    const target = stages.find((s) => s.toLowerCase().includes(matcher));
+    if (!target) {
+      toast({
+        title: `No "${outcome}" stage`,
+        description: `Add a ${matcher} stage to this pipeline first.`,
+      });
+      return;
+    }
+    setWonLossOutcome(outcome);
+    setWonLossTargetStage(target);
+    setWonLossOpen(true);
+  };
 
   return (
     <div className="flex flex-wrap items-center gap-2">
@@ -111,67 +151,37 @@ export function DealDetailActions({ dealId, stage, stages }: DealDetailActionsPr
         </Link>
       </ZoruButton>
 
-      <ZoruButton
-        size="sm"
-        variant="outline"
-        onClick={() =>
-          placeholder('Compose email', 'Email dialog wires in with the sales-comms sweep.')
-        }
-      >
+      <ZoruButton size="sm" variant="outline" onClick={() => setEmailOpen(true)}>
         <Mail className="h-3.5 w-3.5" /> Email
       </ZoruButton>
 
-      <ZoruButton
-        size="sm"
-        variant="outline"
-        onClick={() =>
-          placeholder('Send WhatsApp', 'WhatsApp template send queued — same sweep as Email.')
-        }
-      >
+      <ZoruButton size="sm" variant="outline" onClick={() => setWhatsAppOpen(true)}>
         <MessageCircle className="h-3.5 w-3.5" /> WhatsApp
       </ZoruButton>
 
-      <ZoruButton
-        size="sm"
-        variant="outline"
-        onClick={() => {
-          if (typeof window !== 'undefined') window.print();
-        }}
-      >
-        <Printer className="h-3.5 w-3.5" /> Print
+      <ZoruButton size="sm" variant="outline" onClick={() => setAddTaskOpen(true)}>
+        <ListPlus className="h-3.5 w-3.5" /> Add task
       </ZoruButton>
 
-      <ZoruButton
-        size="sm"
-        variant="outline"
-        onClick={() =>
-          placeholder('Archive', 'Archive endpoint ships with the dual-impl deals action.')
-        }
-      >
+      <ZoruButton size="sm" variant="outline" asChild>
+        <a
+          href={`/dashboard/crm/sales-crm/deals/${dealId}?print=1`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <Printer className="h-3.5 w-3.5" /> Print
+        </a>
+      </ZoruButton>
+
+      <ZoruButton size="sm" variant="outline" onClick={() => setArchiveOpen(true)}>
         <Archive className="h-3.5 w-3.5" /> Archive
       </ZoruButton>
 
-      <ZoruButton
-        size="sm"
-        variant="outline"
-        onClick={() => {
-          const wonStage = stages.find((s) => s.toLowerCase().includes('won'));
-          if (wonStage) moveTo(wonStage);
-          else placeholder('No "Won" stage', 'Add a Won stage to this pipeline first.');
-        }}
-      >
+      <ZoruButton size="sm" variant="outline" onClick={() => openWonLoss('won')}>
         <Trophy className="h-3.5 w-3.5" /> Mark won
       </ZoruButton>
 
-      <ZoruButton
-        size="sm"
-        variant="outline"
-        onClick={() => {
-          const lostStage = stages.find((s) => s.toLowerCase().includes('lost'));
-          if (lostStage) moveTo(lostStage);
-          else placeholder('No "Lost" stage', 'Add a Lost stage to this pipeline first.');
-        }}
-      >
+      <ZoruButton size="sm" variant="outline" onClick={() => openWonLoss('lost')}>
         <CircleX className="h-3.5 w-3.5" /> Mark lost
       </ZoruButton>
 
@@ -180,6 +190,52 @@ export function DealDetailActions({ dealId, stage, stages }: DealDetailActionsPr
           <Activity className="h-3.5 w-3.5" /> Activity
         </Link>
       </ZoruButton>
+
+      {/* Dialogs */}
+      <DealEmailDialog
+        open={emailOpen}
+        onOpenChange={setEmailOpen}
+        dealId={dealId}
+        initialTo={contactEmail ?? ''}
+      />
+      <DealWhatsAppDialog
+        open={whatsAppOpen}
+        onOpenChange={setWhatsAppOpen}
+        dealId={dealId}
+        initialPhone={contactPhone ?? ''}
+      />
+      <DealAddTaskDialog
+        open={addTaskOpen}
+        onOpenChange={setAddTaskOpen}
+        dealId={dealId}
+        onCreated={() => router.refresh()}
+      />
+      <DealWonLossDialog
+        open={wonLossOpen}
+        onOpenChange={setWonLossOpen}
+        dealId={dealId}
+        outcome={wonLossOutcome}
+        targetStage={wonLossTargetStage}
+        reasons={wonLossReasons}
+        onCompleted={() => router.refresh()}
+      />
+      <ConfirmDialog
+        open={archiveOpen}
+        onOpenChange={setArchiveOpen}
+        title="Archive this deal?"
+        description="The deal is hidden from default views but the data remains. You can restore it later."
+        confirmLabel="Archive"
+        confirmTone="primary"
+        onConfirm={async () => {
+          const res = await archiveCrmDeal(dealId);
+          if (res.success) {
+            toast({ title: 'Archived' });
+            router.refresh();
+          } else {
+            toast({ title: 'Archive failed', description: res.error, variant: 'destructive' });
+          }
+        }}
+      />
     </div>
   );
 }

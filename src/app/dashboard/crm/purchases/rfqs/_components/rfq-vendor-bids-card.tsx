@@ -1,0 +1,139 @@
+/**
+ * <RfqVendorBidsCard> — server component that lists all vendor bids
+ * submitted against an RFQ. Highlights the awarded vendor and exposes
+ * deep links into each bid's detail page.
+ *
+ * Pure server render; no client islands needed. Status pill uses the
+ * canonical `statusToTone()` mapper so colour semantics match the
+ * Vendor Bid list view.
+ */
+
+import Link from 'next/link';
+
+import { ZoruButton, ZoruCard } from '@/components/zoruui';
+import { EntityPickerChip } from '@/components/crm/entity-picker';
+import { StatusPill, statusToTone } from '@/components/crm/status-pill';
+import { listVendorBids } from '@/app/actions/crm/vendor-bids.actions';
+
+interface RfqVendorBidsCardProps {
+  rfqId: string;
+}
+
+function fmtMoney(value?: number | null, currency = 'INR'): string {
+  if (typeof value !== 'number' || Number.isNaN(value)) return '—';
+  try {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency,
+      maximumFractionDigits: 0,
+    }).format(value);
+  } catch {
+    return `${currency} ${value}`;
+  }
+}
+
+function fmtDate(v?: string | null): string {
+  if (!v) return '—';
+  const d = new Date(v);
+  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
+}
+
+export async function RfqVendorBidsCard({ rfqId }: RfqVendorBidsCardProps) {
+  const { bids, error } = await listVendorBids({
+    rfqId,
+    page: 1,
+    limit: 100,
+  });
+
+  return (
+    <ZoruCard className="overflow-hidden p-0">
+      <div className="flex items-center justify-between border-b border-zoru-line p-3">
+        <h2 className="text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+          Vendor bids received
+        </h2>
+        <ZoruButton size="sm" variant="outline" asChild>
+          <Link
+            href={`/dashboard/crm/purchases/vendor-bids/new?fromKind=rfq&fromId=${rfqId}`}
+          >
+            Record a bid
+          </Link>
+        </ZoruButton>
+      </div>
+
+      {error ? (
+        <div className="border-b border-amber-500/40 bg-amber-500/10 px-3 py-2 text-[12.5px] text-amber-700 dark:text-amber-400">
+          {error}
+        </div>
+      ) : null}
+
+      {bids.length === 0 ? (
+        <div className="px-3 py-6 text-center text-[13px] text-zoru-ink-muted">
+          No bids submitted against this RFQ yet.
+        </div>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full text-[12.5px]">
+            <thead className="bg-zoru-surface-2 text-zoru-ink-muted">
+              <tr>
+                <th className="p-2 text-left">Vendor</th>
+                <th className="p-2 text-left">Submitted</th>
+                <th className="p-2 text-left">Currency</th>
+                <th className="p-2 text-right">Total</th>
+                <th className="p-2 text-left">Status</th>
+                <th className="p-2"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {bids.map((b) => {
+                const id = String(b._id);
+                const isAwarded =
+                  typeof b.status === 'string' &&
+                  b.status.toLowerCase() === 'awarded';
+                return (
+                  <tr
+                    key={id}
+                    className={`border-t border-zoru-line ${
+                      isAwarded ? 'bg-emerald-500/5' : 'hover:bg-zoru-surface-2/60'
+                    }`}
+                  >
+                    <td className="p-2 align-middle">
+                      {b.vendorId ? (
+                        <EntityPickerChip entity="vendor" id={b.vendorId} />
+                      ) : (
+                        <span className="text-zoru-ink-muted">
+                          {b.vendorName || '—'}
+                        </span>
+                      )}
+                    </td>
+                    <td className="p-2 align-middle text-zoru-ink-muted">
+                      {fmtDate(b.submittedAt || b.createdAt)}
+                    </td>
+                    <td className="p-2 align-middle text-zoru-ink-muted">
+                      {b.currency || 'INR'}
+                    </td>
+                    <td className="p-2 text-right align-middle font-mono tabular-nums text-zoru-ink">
+                      {fmtMoney(b.totals?.total, b.currency)}
+                    </td>
+                    <td className="p-2 align-middle">
+                      <StatusPill
+                        label={typeof b.status === 'string' ? b.status : '—'}
+                        tone={statusToTone(typeof b.status === 'string' ? b.status : '')}
+                      />
+                    </td>
+                    <td className="p-2 text-right align-middle">
+                      <ZoruButton size="sm" variant="ghost" asChild>
+                        <Link href={`/dashboard/crm/purchases/vendor-bids/${id}`}>
+                          Open
+                        </Link>
+                      </ZoruButton>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </ZoruCard>
+  );
+}

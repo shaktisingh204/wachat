@@ -1,0 +1,158 @@
+'use client';
+
+/**
+ * Notice form (§1D.3) — shared by /new and /[id]/edit.
+ *
+ * Preserves FormData keys consumed by `saveNotice`: heading, description,
+ * notice_to, department_id, employee_ids (JSON), pinned, file_attached.
+ */
+
+import * as React from 'react';
+import { useActionState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+
+import { EntityFormShell } from '@/components/crm/entity-form-shell';
+import {
+    ZoruInput,
+    ZoruLabel,
+    ZoruSelect,
+    ZoruSelectContent,
+    ZoruSelectItem,
+    ZoruSelectTrigger,
+    ZoruSelectValue,
+    ZoruTextarea,
+    useZoruToast,
+} from '@/components/zoruui';
+
+import { saveNotice } from '@/app/actions/worksuite/knowledge.actions';
+import type { WsNotice } from '@/lib/worksuite/knowledge-types';
+
+export interface NoticesFormProps {
+    mode: 'new' | 'edit';
+    notice?: (WsNotice & { _id: string }) | null;
+}
+
+export function NoticesForm({ mode, notice }: NoticesFormProps): React.JSX.Element {
+    const router = useRouter();
+    const { toast } = useZoruToast();
+    const [state, formAction] = useActionState(saveNotice, {
+        message: '',
+        error: '',
+    } as { message?: string; error?: string });
+
+    useEffect(() => {
+        if (state?.message) {
+            toast({ title: 'Saved', description: state.message });
+            router.push('/dashboard/crm/workspace/notices');
+        }
+        if (state?.error) {
+            toast({ title: 'Error', description: state.error, variant: 'destructive' });
+        }
+    }, [state, toast, router]);
+
+    return (
+        <EntityFormShell
+            title={mode === 'edit' ? 'Edit notice' : 'New notice'}
+            subtitle="Publish a notice to your team."
+            action={formAction}
+            cancelHref="/dashboard/crm/workspace/notices"
+            submitLabel={mode === 'edit' ? 'Save changes' : 'Publish'}
+            hiddenInputs={
+                <>
+                    {notice?._id ? <input type="hidden" name="id" value={notice._id} /> : null}
+                    <input type="hidden" name="file_attached" value="false" />
+                </>
+            }
+            error={state?.error}
+            message={state?.message}
+            sections={[
+                {
+                    id: 'content',
+                    title: 'Content',
+                    description: 'Heading and body of the notice.',
+                    children: (
+                        <div className="grid gap-4">
+                            <div>
+                                <ZoruLabel htmlFor="heading">Heading *</ZoruLabel>
+                                <ZoruInput
+                                    id="heading"
+                                    name="heading"
+                                    required
+                                    defaultValue={notice?.heading ?? ''}
+                                    className="mt-1.5 h-10"
+                                />
+                            </div>
+                            <div>
+                                <ZoruLabel htmlFor="description">Description *</ZoruLabel>
+                                <ZoruTextarea
+                                    id="description"
+                                    name="description"
+                                    rows={6}
+                                    required
+                                    defaultValue={notice?.description ?? ''}
+                                    className="mt-1.5"
+                                />
+                            </div>
+                        </div>
+                    ),
+                },
+                {
+                    id: 'audience',
+                    title: 'Audience & pin',
+                    description: 'Who sees this notice and whether it stays at the top.',
+                    children: (
+                        <div className="grid gap-4 md:grid-cols-2">
+                            <div>
+                                <ZoruLabel htmlFor="notice_to">Audience</ZoruLabel>
+                                <ZoruSelect name="notice_to" defaultValue={notice?.notice_to ?? 'all'}>
+                                    <ZoruSelectTrigger id="notice_to" className="mt-1.5 h-10">
+                                        <ZoruSelectValue />
+                                    </ZoruSelectTrigger>
+                                    <ZoruSelectContent>
+                                        <ZoruSelectItem value="all">Everyone</ZoruSelectItem>
+                                        <ZoruSelectItem value="department">Department</ZoruSelectItem>
+                                        <ZoruSelectItem value="employee">Specific employees</ZoruSelectItem>
+                                    </ZoruSelectContent>
+                                </ZoruSelect>
+                            </div>
+                            <div>
+                                <ZoruLabel htmlFor="pinned">Pinned</ZoruLabel>
+                                <ZoruSelect name="pinned" defaultValue={notice?.pinned ? 'true' : 'false'}>
+                                    <ZoruSelectTrigger id="pinned" className="mt-1.5 h-10">
+                                        <ZoruSelectValue />
+                                    </ZoruSelectTrigger>
+                                    <ZoruSelectContent>
+                                        <ZoruSelectItem value="false">No</ZoruSelectItem>
+                                        <ZoruSelectItem value="true">Yes</ZoruSelectItem>
+                                    </ZoruSelectContent>
+                                </ZoruSelect>
+                            </div>
+                            <div>
+                                <ZoruLabel htmlFor="department_id">Department id</ZoruLabel>
+                                <ZoruInput
+                                    id="department_id"
+                                    name="department_id"
+                                    defaultValue={notice?.department_id ?? ''}
+                                    className="mt-1.5 h-10"
+                                    placeholder="When audience is Department"
+                                />
+                            </div>
+                            <div>
+                                <ZoruLabel htmlFor="employee_ids">Employee ids (JSON)</ZoruLabel>
+                                <ZoruInput
+                                    id="employee_ids"
+                                    name="employee_ids"
+                                    defaultValue={JSON.stringify(notice?.employee_ids ?? [])}
+                                    className="mt-1.5 h-10 font-mono text-[12px]"
+                                    placeholder='["empId1","empId2"]'
+                                />
+                            </div>
+                        </div>
+                    ),
+                },
+            ]}
+        />
+    );
+}
+
+export default NoticesForm;

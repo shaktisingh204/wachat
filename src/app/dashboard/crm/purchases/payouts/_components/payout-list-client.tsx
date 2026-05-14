@@ -1,270 +1,279 @@
 'use client';
 
 /**
- * Client side of the Payouts list — owns the search box, the table, and
- * the hard-delete confirmation dialog. Search input is debounced and
- * writes back to the URL so the server component re-fetches.
+ * Payouts table — 11 columns per §1D.1:
+ *
+ *   select · Payment no · Vendor · Date · Mode · Bank · Cheque/Ref ·
+ *   Amount · Status · Applied (count chip) · Actions
+ *
+ * Selection-aware; selection state lives in the parent list page so
+ * the bulk-action bar can read it. Mark Cleared / Mark Failed actions
+ * live on each row's overflow menu.
  */
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useRouter, useSearchParams, usePathname } from 'next/navigation';
-import {
-  AlertCircle,
-  Pencil,
-  Search,
-  Trash2,
-  LoaderCircle,
-} from 'lucide-react';
+import { Pencil, Trash2, MoreHorizontal, CheckCircle2, XCircle, FileText } from 'lucide-react';
 
 import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
-  ZoruInput,
-  ZoruTable,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
+    ZoruBadge,
+    ZoruButton,
+    ZoruCard,
+    ZoruCheckbox,
+    ZoruDropdownMenu,
+    ZoruDropdownMenuContent,
+    ZoruDropdownMenuItem,
+    ZoruDropdownMenuTrigger,
+    ZoruDropdownMenuSeparator,
+    ZoruTable,
+    ZoruTableBody,
+    ZoruTableCell,
+    ZoruTableHead,
+    ZoruTableHeader,
+    ZoruTableRow,
+    useZoruToast,
 } from '@/components/zoruui';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
-import { PaginationBar } from '@/components/crm/pagination-bar';
-import { deletePayoutAction } from '@/app/actions/crm/payouts.actions';
+import { StatusPill, statusToTone } from '@/components/crm/status-pill';
+import { setPayoutStatus } from '@/app/actions/crm/payouts.actions';
 import type { CrmPayoutDoc } from '@/lib/rust-client/crm-payouts';
 
 interface PayoutListClientProps {
-  payouts: CrmPayoutDoc[];
-  page: number;
-  limit: number;
-  hasMore: boolean;
-  initialQuery: string;
-  error?: string;
+    payouts: CrmPayoutDoc[];
+    loading: boolean;
+    selectedIds: Set<string>;
+    onToggleOne: (id: string) => void;
+    onToggleAll: (all: boolean) => void;
+    onDelete: (id: string) => void;
 }
 
 function fmtMoney(value?: number, currency?: string): string {
-  if (typeof value !== 'number') return '—';
-  try {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: currency || 'INR',
-      maximumFractionDigits: 0,
-    }).format(value);
-  } catch {
-    return `${currency || 'INR'} ${value}`;
-  }
+    if (typeof value !== 'number') return '—';
+    try {
+        return new Intl.NumberFormat('en-IN', {
+            style: 'currency',
+            currency: currency || 'INR',
+            maximumFractionDigits: 0,
+        }).format(value);
+    } catch {
+        return `${currency || 'INR'} ${value}`;
+    }
 }
 
 function fmtDate(v?: string): string {
-  if (!v) return '—';
-  const d = new Date(v);
-  return isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
+    if (!v) return '—';
+    const d = new Date(v);
+    return isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
+}
+
+function modeLabel(mode: string | undefined): string {
+    if (!mode) return '—';
+    const map: Record<string, string> = {
+        cash: 'Cash',
+        cheque: 'Cheque',
+        upi: 'UPI',
+        neft: 'NEFT',
+        rtgs: 'RTGS',
+        imps: 'IMPS',
+        card: 'Card',
+        wallet: 'Wallet',
+    };
+    return map[mode] ?? mode;
 }
 
 export function PayoutListClient({
-  payouts,
-  page,
-  limit,
-  hasMore,
-  initialQuery,
-  error,
+    payouts,
+    loading,
+    selectedIds,
+    onToggleOne,
+    onToggleAll,
+    onDelete,
 }: PayoutListClientProps) {
-  const { toast } = useZoruToast();
-  const router = useRouter();
-  const pathname = usePathname();
-  const sp = useSearchParams();
+    const { toast } = useZoruToast();
+    const [pendingId, startTransition] = React.useTransition();
+    const [busyId, setBusyId] = React.useState<string | null>(null);
 
-  const [query, setQuery] = React.useState(initialQuery);
-  const [pendingDelete, setPendingDelete] =
-    React.useState<CrmPayoutDoc | null>(null);
-  const [deleting, startDelete] = React.useTransition();
+    const allSelected =
+        payouts.length > 0 && payouts.every((p) => selectedIds.has(String(p._id)));
+    const someSelected =
+        payouts.some((p) => selectedIds.has(String(p._id))) && !allSelected;
 
-  // Debounce search → URL.
-  React.useEffect(() => {
-    if (query === initialQuery) return;
-    const t = setTimeout(() => {
-      const params = new URLSearchParams(sp?.toString() ?? '');
-      if (query.trim()) params.set('q', query.trim());
-      else params.delete('q');
-      params.set('page', '1');
-      const qs = params.toString();
-      router.push(qs ? `${pathname}?${qs}` : pathname);
-    }, 300);
-    return () => clearTimeout(t);
-  }, [query, initialQuery, sp, pathname, router]);
+    const inlineSetStatus = (id: string, status: 'cleared' | 'failed') => {
+        setBusyId(id);
+        startTransition(async () => {
+            const res = await setPayoutStatus(id, status);
+            setBusyId(null);
+            if (res.success) {
+                toast({ title: `Marked ${status}` });
+            } else {
+                toast({
+                    title: 'Update failed',
+                    description: res.error,
+                    variant: 'destructive',
+                });
+            }
+        });
+    };
 
-  const confirmDelete = () => {
-    if (!pendingDelete?._id) return;
-    const id = String(pendingDelete._id);
-    const label = pendingDelete.paymentNo || id;
-    startDelete(async () => {
-      const res = await deletePayoutAction(id);
-      if (res.success) {
-        toast({ title: 'Deleted', description: `${label} removed.` });
-        setPendingDelete(null);
-        router.refresh();
-      } else {
-        toast({ title: 'Delete failed', description: res.error, variant: 'destructive' });
-      }
-    });
-  };
-
-  return (
-    <ZoruCard className="overflow-hidden p-0">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zoru-line p-3">
-        <div className="relative max-w-sm flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
-          <ZoruInput
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search by payout #, reference, txn id…"
-            className="h-9 pl-9 text-[13px]"
-          />
-        </div>
-      </div>
-
-      {error ? (
-        <div className="flex items-center gap-2 border-b border-amber-500/40 bg-amber-500/10 px-4 py-2.5 text-[13px] text-amber-600">
-          <AlertCircle className="h-4 w-4 shrink-0" />
-          {error}
-        </div>
-      ) : null}
-
-      <ZoruTable>
-        <ZoruTableHeader>
-          <ZoruTableRow>
-            <ZoruTableHead>Payout #</ZoruTableHead>
-            <ZoruTableHead>Vendor</ZoruTableHead>
-            <ZoruTableHead>Date</ZoruTableHead>
-            <ZoruTableHead>Method</ZoruTableHead>
-            <ZoruTableHead>Reference</ZoruTableHead>
-            <ZoruTableHead>Amount</ZoruTableHead>
-            <ZoruTableHead>Status</ZoruTableHead>
-            <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-          </ZoruTableRow>
-        </ZoruTableHeader>
-        <ZoruTableBody>
-          {payouts.length === 0 ? (
-            <ZoruTableRow>
-              <ZoruTableCell colSpan={8} className="h-24 text-center text-[13px] text-zoru-ink-muted">
-                {initialQuery
-                  ? 'No payouts match this search.'
-                  : 'No payouts yet — click "New payout" to add one.'}
-              </ZoruTableCell>
-            </ZoruTableRow>
-          ) : (
-            payouts.map((payout) => {
-              const id = String(payout._id);
-              return (
-                <ZoruTableRow key={id}>
-                  <ZoruTableCell>
-                    <Link
-                      href={`/dashboard/crm/purchases/payouts/${id}`}
-                      className="font-medium text-zoru-ink hover:underline"
-                    >
-                      {payout.paymentNo || id}
-                    </Link>
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
-                    {payout.vendorId ? (
-                      <EntityPickerChip entity="vendor" id={payout.vendorId} />
+    return (
+        <ZoruCard className="overflow-hidden p-0">
+            <ZoruTable>
+                <ZoruTableHeader>
+                    <ZoruTableRow>
+                        <ZoruTableHead className="w-[36px]">
+                            <ZoruCheckbox
+                                checked={allSelected}
+                                aria-checked={someSelected ? 'mixed' : allSelected}
+                                onCheckedChange={(v) => onToggleAll(v === true)}
+                                aria-label="Select all"
+                            />
+                        </ZoruTableHead>
+                        <ZoruTableHead>Payment #</ZoruTableHead>
+                        <ZoruTableHead>Vendor</ZoruTableHead>
+                        <ZoruTableHead>Date</ZoruTableHead>
+                        <ZoruTableHead>Mode</ZoruTableHead>
+                        <ZoruTableHead>Bank</ZoruTableHead>
+                        <ZoruTableHead>Cheque / Ref</ZoruTableHead>
+                        <ZoruTableHead className="text-right">Amount</ZoruTableHead>
+                        <ZoruTableHead>Status</ZoruTableHead>
+                        <ZoruTableHead className="text-right">Applied</ZoruTableHead>
+                        <ZoruTableHead className="text-right">Actions</ZoruTableHead>
+                    </ZoruTableRow>
+                </ZoruTableHeader>
+                <ZoruTableBody>
+                    {payouts.length === 0 ? (
+                        <ZoruTableRow>
+                            <ZoruTableCell
+                                colSpan={11}
+                                className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                            >
+                                {loading ? 'Loading…' : 'No payouts.'}
+                            </ZoruTableCell>
+                        </ZoruTableRow>
                     ) : (
-                      '—'
+                        payouts.map((p) => {
+                            const id = String(p._id);
+                            const isChecked = selectedIds.has(id);
+                            const refLabel = p.chequeNo || p.txnId || p.reference || '—';
+                            const appliedCount = p.applyTo?.length ?? 0;
+                            const statusLabel = p.status || 'sent';
+                            return (
+                                <ZoruTableRow key={id}>
+                                    <ZoruTableCell>
+                                        <ZoruCheckbox
+                                            checked={isChecked}
+                                            onCheckedChange={() => onToggleOne(id)}
+                                            aria-label={`Select ${p.paymentNo}`}
+                                        />
+                                    </ZoruTableCell>
+                                    <ZoruTableCell>
+                                        <Link
+                                            href={`/dashboard/crm/purchases/payouts/${id}`}
+                                            className="font-medium text-zoru-ink hover:underline"
+                                        >
+                                            {p.paymentNo || id.slice(-6)}
+                                        </Link>
+                                    </ZoruTableCell>
+                                    <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                                        {p.vendorId ? (
+                                            <EntityPickerChip entity="vendor" id={p.vendorId} />
+                                        ) : (
+                                            '—'
+                                        )}
+                                    </ZoruTableCell>
+                                    <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                                        {fmtDate(p.date)}
+                                    </ZoruTableCell>
+                                    <ZoruTableCell>
+                                        <ZoruBadge variant="outline">{modeLabel(p.mode)}</ZoruBadge>
+                                    </ZoruTableCell>
+                                    <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                                        {p.bankAccountId ? (
+                                            <EntityPickerChip
+                                                entity="bankAccount"
+                                                id={p.bankAccountId}
+                                            />
+                                        ) : (
+                                            '—'
+                                        )}
+                                    </ZoruTableCell>
+                                    <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                                        {refLabel}
+                                    </ZoruTableCell>
+                                    <ZoruTableCell className="text-right tabular-nums text-[12.5px] text-zoru-ink">
+                                        {fmtMoney(p.amount, p.currency)}
+                                    </ZoruTableCell>
+                                    <ZoruTableCell>
+                                        <StatusPill
+                                            label={statusLabel}
+                                            tone={statusToTone(statusLabel)}
+                                        />
+                                    </ZoruTableCell>
+                                    <ZoruTableCell className="text-right">
+                                        {appliedCount > 0 ? (
+                                            <ZoruBadge variant="secondary">
+                                                <FileText className="mr-1 h-3 w-3" /> {appliedCount}
+                                            </ZoruBadge>
+                                        ) : (
+                                            <span className="text-[12.5px] text-zoru-ink-muted">
+                                                —
+                                            </span>
+                                        )}
+                                    </ZoruTableCell>
+                                    <ZoruTableCell className="text-right">
+                                        <div className="flex items-center justify-end gap-1">
+                                            <ZoruButton size="sm" variant="ghost" asChild>
+                                                <Link
+                                                    href={`/dashboard/crm/purchases/payouts/${id}/edit`}
+                                                >
+                                                    <Pencil className="h-3.5 w-3.5" />
+                                                </Link>
+                                            </ZoruButton>
+                                            <ZoruDropdownMenu>
+                                                <ZoruDropdownMenuTrigger asChild>
+                                                    <ZoruButton
+                                                        size="sm"
+                                                        variant="ghost"
+                                                        disabled={busyId === id || pendingId}
+                                                    >
+                                                        <MoreHorizontal className="h-3.5 w-3.5" />
+                                                    </ZoruButton>
+                                                </ZoruDropdownMenuTrigger>
+                                                <ZoruDropdownMenuContent align="end">
+                                                    <ZoruDropdownMenuItem
+                                                        onClick={() =>
+                                                            inlineSetStatus(id, 'cleared')
+                                                        }
+                                                    >
+                                                        <CheckCircle2 className="h-3.5 w-3.5" />
+                                                        Mark cleared
+                                                    </ZoruDropdownMenuItem>
+                                                    <ZoruDropdownMenuItem
+                                                        onClick={() =>
+                                                            inlineSetStatus(id, 'failed')
+                                                        }
+                                                    >
+                                                        <XCircle className="h-3.5 w-3.5" />
+                                                        Mark failed
+                                                    </ZoruDropdownMenuItem>
+                                                    <ZoruDropdownMenuSeparator />
+                                                    <ZoruDropdownMenuItem
+                                                        onClick={() => onDelete(id)}
+                                                        className="text-zoru-danger-ink"
+                                                    >
+                                                        <Trash2 className="h-3.5 w-3.5" />
+                                                        Delete
+                                                    </ZoruDropdownMenuItem>
+                                                </ZoruDropdownMenuContent>
+                                            </ZoruDropdownMenu>
+                                        </div>
+                                    </ZoruTableCell>
+                                </ZoruTableRow>
+                            );
+                        })
                     )}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
-                    {fmtDate(payout.date)}
-                  </ZoruTableCell>
-                  <ZoruTableCell>
-                    <ZoruBadge variant="outline">{payout.mode}</ZoruBadge>
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
-                    <div className="flex flex-col">
-                      {payout.reference ? <span>{payout.reference}</span> : null}
-                      {payout.txnId ? (
-                        <span className="font-mono text-[11.5px]">{payout.txnId}</span>
-                      ) : null}
-                      {payout.chequeNo ? <span>Cheque {payout.chequeNo}</span> : null}
-                      {!payout.reference && !payout.txnId && !payout.chequeNo ? (
-                        <span>—</span>
-                      ) : null}
-                    </div>
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-[12.5px] tabular-nums text-zoru-ink">
-                    {fmtMoney(payout.amount, payout.currency)}
-                  </ZoruTableCell>
-                  <ZoruTableCell>
-                    {payout.status ? (
-                      <ZoruBadge variant="outline">{payout.status}</ZoruBadge>
-                    ) : (
-                      <span className="text-[12.5px] text-zoru-ink-muted">—</span>
-                    )}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-right">
-                    <div className="flex justify-end gap-1">
-                      <ZoruButton size="sm" variant="ghost" asChild>
-                        <Link href={`/dashboard/crm/purchases/payouts/${id}/edit`}>
-                          <Pencil className="h-3.5 w-3.5" />
-                        </Link>
-                      </ZoruButton>
-                      <ZoruButton
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => setPendingDelete(payout)}
-                        className="text-zoru-danger-ink"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </ZoruButton>
-                    </div>
-                  </ZoruTableCell>
-                </ZoruTableRow>
-              );
-            })
-          )}
-        </ZoruTableBody>
-      </ZoruTable>
-
-      <PaginationBar page={page} limit={limit} hasMore={hasMore} />
-
-      <ZoruAlertDialog
-        open={pendingDelete !== null}
-        onOpenChange={(o) => !o && setPendingDelete(null)}
-      >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>Delete payout?</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
-              This permanently removes payout{' '}
-              <strong>{pendingDelete?.paymentNo ?? ''}</strong> from the
-              database. The action cannot be undone.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel disabled={deleting}>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction
-              onClick={(e) => {
-                e.preventDefault();
-                confirmDelete();
-              }}
-              disabled={deleting}
-              className="bg-zoru-danger text-white hover:bg-zoru-danger/90"
-            >
-              {deleting ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : null}
-              Delete permanently
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
-    </ZoruCard>
-  );
+                </ZoruTableBody>
+            </ZoruTable>
+        </ZoruCard>
+    );
 }

@@ -23,6 +23,8 @@ import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 
 import type { DealListRow } from './types';
 
+type DensityMode = 'comfortable' | 'compact' | 'dense';
+
 interface DealTableProps {
   deals: DealListRow[];
   selected: Set<string>;
@@ -31,7 +33,14 @@ interface DealTableProps {
   allSelectedOnPage: boolean;
   filtersActive: boolean;
   defaultCurrency: string;
+  density?: DensityMode;
 }
+
+const DENSITY_CELL: Record<DensityMode, string> = {
+  comfortable: 'p-2',
+  compact: 'p-1.5',
+  dense: 'p-1',
+};
 
 function fmtMoney(value?: number | null, currency = 'INR'): string {
   if (typeof value !== 'number' || Number.isNaN(value)) return '—';
@@ -60,13 +69,15 @@ export function DealTable({
   allSelectedOnPage,
   filtersActive,
   defaultCurrency,
+  density = 'comfortable',
 }: DealTableProps) {
+  const cell = DENSITY_CELL[density];
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-[12.5px]">
         <thead className="bg-zoru-surface-2 text-zoru-ink-muted">
           <tr>
-            <th className="p-2 text-left">
+            <th className={`${cell} text-left`}>
               <input
                 type="checkbox"
                 checked={allSelectedOnPage}
@@ -74,16 +85,16 @@ export function DealTable({
                 aria-label="Select all visible deals"
               />
             </th>
-            <th className="p-2 text-left">Title</th>
-            <th className="p-2 text-left">Client</th>
-            <th className="p-2 text-right">Amount</th>
-            <th className="p-2 text-left">Stage</th>
-            <th className="p-2 text-left">Pipeline</th>
-            <th className="p-2 text-left">Owner</th>
-            <th className="p-2 text-right">Probability</th>
-            <th className="p-2 text-left">Expected close</th>
-            <th className="p-2 text-left">Created</th>
-            <th className="p-2"></th>
+            <th className={`${cell} text-left`}>Title</th>
+            <th className={`${cell} text-left`}>Client</th>
+            <th className={`${cell} text-right`}>Amount</th>
+            <th className={`${cell} text-left`}>Stage</th>
+            <th className={`${cell} text-left`}>Pipeline</th>
+            <th className={`${cell} text-left`}>Owner</th>
+            <th className={`${cell} text-right`}>Probability</th>
+            <th className={`${cell} text-left`}>Expected close</th>
+            <th className={`${cell} text-left`}>Created</th>
+            <th className={cell}></th>
           </tr>
         </thead>
         <tbody>
@@ -98,7 +109,7 @@ export function DealTable({
           ) : (
             deals.map((d) => (
               <tr key={d._id} className="border-t border-zoru-line hover:bg-zoru-surface-2/60">
-                <td className="p-2 align-middle">
+                <td className={`${cell} align-middle`}>
                   <input
                     type="checkbox"
                     checked={selected.has(d._id)}
@@ -106,7 +117,7 @@ export function DealTable({
                     aria-label={`Select ${d.name}`}
                   />
                 </td>
-                <td className="p-2 align-middle">
+                <td className={`${cell} align-middle`}>
                   <Link
                     href={`/dashboard/crm/sales-crm/deals/${d._id}`}
                     className="font-medium text-zoru-ink hover:underline"
@@ -114,7 +125,7 @@ export function DealTable({
                     {d.name || 'Untitled deal'}
                   </Link>
                 </td>
-                <td className="p-2 align-middle">
+                <td className={`${cell} align-middle`}>
                   {d.accountId ? (
                     <EntityPickerChip entity="client" id={d.accountId} />
                   ) : d.contactId ? (
@@ -123,24 +134,24 @@ export function DealTable({
                     <span className="text-zoru-ink-muted">{d.clientLabel ?? '—'}</span>
                   )}
                 </td>
-                <td className="p-2 text-right align-middle font-mono tabular-nums text-zoru-ink">
+                <td className={`${cell} text-right align-middle font-mono tabular-nums text-zoru-ink`}>
                   {fmtMoney(d.amount, d.currency ?? defaultCurrency)}
                 </td>
-                <td className="p-2 align-middle">
+                <td className={`${cell} align-middle`}>
                   {d.stage ? <StatusPill label={d.stage} tone={statusToTone(d.stage)} /> : '—'}
                 </td>
-                <td className="p-2 align-middle">
+                <td className={`${cell} align-middle`}>
                   {d.pipelineId ? <EntityPickerChip entity="pipeline" id={d.pipelineId} /> : '—'}
                 </td>
-                <td className="p-2 align-middle">
+                <td className={`${cell} align-middle`}>
                   {d.ownerId ? <EntityPickerChip entity="user" id={d.ownerId} /> : '—'}
                 </td>
-                <td className="p-2 text-right align-middle text-zoru-ink">
+                <td className={`${cell} text-right align-middle text-zoru-ink`}>
                   {typeof d.probability === 'number' ? `${d.probability}%` : '—'}
                 </td>
-                <td className="p-2 align-middle text-zoru-ink-muted">{fmtDate(d.expectedClose)}</td>
-                <td className="p-2 align-middle text-zoru-ink-muted">{fmtDate(d.createdAt)}</td>
-                <td className="p-2 text-right align-middle">
+                <td className={`${cell} align-middle text-zoru-ink-muted`}>{fmtDate(d.expectedClose)}</td>
+                <td className={`${cell} align-middle text-zoru-ink-muted`}>{fmtDate(d.createdAt)}</td>
+                <td className={`${cell} text-right align-middle`}>
                   <ZoruDropdownMenu>
                     <ZoruDropdownMenuTrigger asChild>
                       <ZoruButton size="sm" variant="ghost" aria-label="Row actions">

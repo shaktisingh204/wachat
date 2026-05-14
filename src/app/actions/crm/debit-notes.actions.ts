@@ -285,3 +285,112 @@ export async function deleteDebitNoteAction(
     return { success: false, error: rustErr(e) };
   }
 }
+
+/* ─── KPIs ────────────────────────────────────────────────────── */
+
+export interface DebitNoteKpis {
+  totalCount: number;
+  refundedCount: number;
+  pendingRefundCount: number;
+  linkedBillValue: number;
+  currency: string;
+}
+
+const EMPTY_DN_KPIS: DebitNoteKpis = {
+  totalCount: 0,
+  refundedCount: 0,
+  pendingRefundCount: 0,
+  linkedBillValue: 0,
+  currency: 'INR',
+};
+
+/**
+ * Derive debit-note KPIs from a wide page. Mirrors the credit-note KPI
+ * shape — "linked invoice value" is replaced by "linked bill value".
+ */
+export async function getDebitNoteKpis(): Promise<DebitNoteKpis> {
+  try {
+    const rows = await crmDebitNotesApi.list({ page: 1, limit: 100 });
+    if (!Array.isArray(rows) || rows.length === 0) return EMPTY_DN_KPIS;
+    let refundedCount = 0;
+    let pendingRefundCount = 0;
+    let linkedBillValue = 0;
+    let currency = 'INR';
+    for (const dn of rows) {
+      currency = dn.currency || currency;
+      const status = (dn.status || '').toLowerCase();
+      if (status === 'refunded') refundedCount += 1;
+      else if (status !== 'cancelled') pendingRefundCount += 1;
+      if (dn.linkedBillId) {
+        linkedBillValue += Number(dn.totals?.total) || 0;
+      }
+    }
+    return {
+      totalCount: rows.length,
+      refundedCount,
+      pendingRefundCount,
+      linkedBillValue,
+      currency,
+    };
+  } catch {
+    return EMPTY_DN_KPIS;
+  }
+}
+
+/* ─── Inline status / bulk mutators ───────────────────────────── */
+
+function isDnStatus(s: string): s is DebitNoteStatus {
+  return (STATUSES as readonly string[]).includes(s);
+}
+
+/** Mark a single debit note with a new workflow status. */
+export async function setDebitNoteStatus(
+  id: string,
+  status: DebitNoteStatus,
+): Promise<{ success: boolean; error?: string }> {
+  if (!id) return { success: false, error: 'Missing debit note id.' };
+  if (!isDnStatus(status)) {
+    return { success: false, error: 'Invalid status.' };
+  }
+  try {
+    await crmDebitNotesApi.update(id, { status });
+    revalidatePath(LIST_PATH);
+    revalidatePath(`${LIST_PATH}/${id}`);
+    return { success: true };
+  } catch (e) {
+    return { success: false, error: rustErr(e) };
+  }
+}
+
+/** Run a bulk operation across many debit notes. */
+export async function bulkDebitNoteAction(
+  ids: string[],
+  op: 'archive' | 'delete' | 'refund',
+): Promise<{ success: boolean; processed: number; error?: string }> {
+  if (!Array.isArray(ids) || ids.length === 0) {
+    return { success: false, processed: 0, error: 'No debit notes selected.' };
+  }
+  try {
+    let processed = 0;
+    for (const id of ids) {
+      try {
+        if (op === 'delete') {
+          await crmDebitNotesApi.delete(id);
+        } else if (op === 'refund') {
+          await crmDebitNotesApi.update(id, { status: 'refunded' });
+        } else if (op === 'archive') {
+          // No `archived` flag on the Rust patch — set status=cancelled
+          // as a best-effort proxy (mirrors credit-notes behaviour).
+          await crmDebitNotesApi.update(id, { status: 'cancelled' });
+        }
+        processed += 1;
+      } catch {
+        // continue on per-row failure
+      }
+    }
+    revalidatePath(LIST_PATH);
+    return { success: processed > 0, processed };
+  } catch (e) {
+    return { success: false, processed: 0, error: rustErr(e) };
+  }
+}
