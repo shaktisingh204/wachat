@@ -31,6 +31,11 @@ import {
 import { CrmPageHeader } from '../../../../crm/_components/crm-page-header';
 import { getAwardProgramById } from '@/app/actions/crm-awards.actions';
 import { getSession } from '@/app/actions/user.actions';
+import { HrActionButtons } from '../../_components/hr-action-buttons';
+import {
+    recordAwardVote,
+    declareAwardWinner,
+} from '@/app/actions/hr-status-flow.actions';
 
 const AWARDS_LIST_HREF = '/dashboard/hrm/hr/awards';
 
@@ -131,10 +136,58 @@ export default async function AwardProgramDetailPage({
                                 Back
                             </ZoruButton>
                         </Link>
-                        <ZoruButton variant="outline" disabled>
-                            <PlusCircle className="h-4 w-4" />
-                            Add Nomination
-                        </ZoruButton>
+                        <HrActionButtons
+                            actions={[
+                                {
+                                    key: 'vote',
+                                    kind: 'prompt',
+                                    label: 'Cast vote',
+                                    icon: <PlusCircle className="h-4 w-4" />,
+                                    promptTitle: 'Cast a vote',
+                                    promptDescription:
+                                        'Record a vote for a nominee. Voting auto-tallies against the program.',
+                                    submitLabel: 'Vote',
+                                    fields: [
+                                        {
+                                            name: 'nomineeRef',
+                                            label: 'Nominee (employee id or name)',
+                                            required: true,
+                                        },
+                                    ],
+                                    onRun: (v) =>
+                                        recordAwardVote(programId, v.nomineeRef ?? ''),
+                                },
+                                {
+                                    key: 'winner',
+                                    kind: 'prompt',
+                                    label: 'Declare winner',
+                                    icon: <Trophy className="h-4 w-4" />,
+                                    promptTitle: 'Declare winner',
+                                    promptDescription:
+                                        'Pick the winner for this program. The program will be marked closed.',
+                                    submitLabel: 'Declare',
+                                    fields: [
+                                        {
+                                            name: 'winnerRef',
+                                            label: 'Winner (employee id or name)',
+                                            required: true,
+                                        },
+                                        {
+                                            name: 'citation',
+                                            label: 'Citation',
+                                            type: 'textarea',
+                                            placeholder: 'Why this person was chosen',
+                                        },
+                                    ],
+                                    onRun: (v) =>
+                                        declareAwardWinner(
+                                            programId,
+                                            v.winnerRef ?? '',
+                                            v.citation ?? undefined,
+                                        ),
+                                },
+                            ]}
+                        />
                     </div>
                 }
             />

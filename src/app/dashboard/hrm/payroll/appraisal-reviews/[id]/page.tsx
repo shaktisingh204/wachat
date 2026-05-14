@@ -102,7 +102,6 @@ export default function AppraisalDetailPage({
       editHref={`/dashboard/hrm/payroll/appraisal-reviews/${id}/edit`}
       deleteAction={deleteCrmAppraisalReview}
       entityId={id}
-      auditKind="crm_appraisal_reviews"
       sections={[
         {
           title: 'Participants',

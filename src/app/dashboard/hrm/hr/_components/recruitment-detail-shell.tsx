@@ -1,5 +1,3 @@
-'use client';
-
 /**
  * RecruitmentDetailShell — §1D.2 detail-page chrome shared by every HR
  * recruitment pillar. Wraps the shared `<EntityDetailShell>` with:
@@ -55,12 +53,22 @@ export interface RecruitmentDetailShellProps {
   back: { href: string; label: string };
   /** Header action group — 7-8 actions recommended. */
   actions?: DetailAction[];
+  /**
+   * Optional pre-built action slot rendered after `actions`. Use this
+   * to mount a client island (e.g. `<HrActionButtons />`) for wired
+   * mutations alongside the static link-style buttons in `actions`.
+   */
+  actionsSlot?: React.ReactNode;
   /** Main body content (the per-entity field cards). */
   children: React.ReactNode;
   /** Right rail — related entities + quick stats. */
   rightRail?: React.ReactNode;
-  /** Audit timeline source. */
-  audit?: { entityKind: string; entityId: string };
+  /**
+   * Footer activity slot — pass `<EntityAuditTimeline />` here from the
+   * server-side caller. Typed as ReactNode so this shell stays safe to
+   * reach through any client-component import chain.
+   */
+  audit?: React.ReactNode;
 }
 
 /* ─── Component ─────────────────────────────────────────────────────── */
@@ -71,10 +79,12 @@ export function RecruitmentDetailShell({
   status,
   back,
   actions,
+  actionsSlot,
   children,
   rightRail,
   audit,
 }: RecruitmentDetailShellProps) {
+  const hasActions = (actions && actions.length > 0) || actionsSlot;
   return (
     <EntityDetailShell
       title={title}
@@ -83,45 +93,48 @@ export function RecruitmentDetailShell({
       back={back}
       audit={audit}
       actions={
-        actions && actions.length > 0 ? (
+        hasActions ? (
           <div className="flex flex-wrap items-center gap-1">
-            {actions.map((a) => {
-              const variant = a.variant || 'ghost';
-              const cls =
-                variant === 'destructive'
-                  ? 'text-zoru-danger-ink'
-                  : undefined;
-              const inner = (
-                <>
-                  {a.icon}
-                  <span>{a.label}</span>
-                </>
-              );
-              if (a.href) {
-                return (
-                  <ZoruButton
-                    key={a.key}
-                    variant={variant === 'destructive' ? 'ghost' : variant}
-                    size="sm"
-                    className={cls}
-                    asChild
-                  >
-                    <Link href={a.href}>{inner}</Link>
-                  </ZoruButton>
-                );
-              }
-              return (
-                <ZoruButton
-                  key={a.key}
-                  variant={variant === 'destructive' ? 'ghost' : variant}
-                  size="sm"
-                  className={cls}
-                  type="button"
-                >
-                  {inner}
-                </ZoruButton>
-              );
-            })}
+            {actions
+              ? actions.map((a) => {
+                  const variant = a.variant || 'ghost';
+                  const cls =
+                    variant === 'destructive'
+                      ? 'text-zoru-danger-ink'
+                      : undefined;
+                  const inner = (
+                    <>
+                      {a.icon}
+                      <span>{a.label}</span>
+                    </>
+                  );
+                  if (a.href) {
+                    return (
+                      <ZoruButton
+                        key={a.key}
+                        variant={variant === 'destructive' ? 'ghost' : variant}
+                        size="sm"
+                        className={cls}
+                        asChild
+                      >
+                        <Link href={a.href}>{inner}</Link>
+                      </ZoruButton>
+                    );
+                  }
+                  return (
+                    <ZoruButton
+                      key={a.key}
+                      variant={variant === 'destructive' ? 'ghost' : variant}
+                      size="sm"
+                      className={cls}
+                      type="button"
+                    >
+                      {inner}
+                    </ZoruButton>
+                  );
+                })
+              : null}
+            {actionsSlot}
           </div>
         ) : null
       }

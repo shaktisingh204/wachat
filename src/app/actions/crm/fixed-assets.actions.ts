@@ -23,6 +23,8 @@ import {
   type CrmFixedAssetListParams,
   type CrmFixedAssetUpdateInput,
 } from '@/lib/rust-client/crm-fixed-assets';
+import { getSession } from '@/app/actions/user.actions';
+import { writeAuditEntry } from '@/lib/audit-log';
 
 const LIST_PATH = '/dashboard/crm/fixed-assets';
 
@@ -226,4 +228,146 @@ export async function updateFixedAsset(id: string, patch: CrmFixedAssetUpdateInp
 
 export async function deleteFixedAsset(id: string) {
   return crmFixedAssetsApi.delete(id);
+}
+
+/* ─── Lifecycle helpers ──────────────────────────────────────── */
+//
+// These actions piggy-back on the Rust PATCH endpoint by sending
+// targeted partial updates. They emit an audit row via `writeAuditEntry`
+// so the Activity feed records the lifecycle event distinctly from a
+// generic edit.
+
+export async function assignFixedAsset(
+  assetId: string,
+  employeeId: string,
+  from?: string,
+): Promise<{ success: boolean; error?: string }> {
+  const session = await getSession();
+  if (!session?.user?._id) return { success: false, error: 'Unauthorized' };
+  if (!assetId) return { success: false, error: 'Missing fixed-asset id.' };
+  if (!employeeId)
+    return { success: false, error: 'Employee is required.' };
+  try {
+    await crmFixedAssetsApi.update(assetId, {
+      custodianEmployeeId: employeeId,
+    });
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action: 'assign',
+        entityKind: 'fixed_asset',
+        entityId: assetId,
+        reason: from ? `From ${from}` : undefined,
+        diff: { custodianEmployeeId: { after: employeeId } },
+      });
+    } catch {
+      /* non-fatal */
+    }
+    revalidatePath(LIST_PATH);
+    revalidatePath(`${LIST_PATH}/${assetId}`);
+    return { success: true };
+  } catch (e) {
+    return { success: false, error: rustErr(e) };
+  }
+}
+
+export async function unassignFixedAsset(
+  assetId: string,
+): Promise<{ success: boolean; error?: string }> {
+  const session = await getSession();
+  if (!session?.user?._id) return { success: false, error: 'Unauthorized' };
+  if (!assetId) return { success: false, error: 'Missing fixed-asset id.' };
+  try {
+    // Rust PATCH treats `undefined` fields as no-op. Send an empty
+    // string to clear the custodian — the BFF maps it to None / null.
+    await crmFixedAssetsApi.update(assetId, {
+      custodianEmployeeId: '',
+    });
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action: 'assign',
+        entityKind: 'fixed_asset',
+        entityId: assetId,
+        reason: 'unassigned',
+      });
+    } catch {
+      /* non-fatal */
+    }
+    revalidatePath(LIST_PATH);
+    revalidatePath(`${LIST_PATH}/${assetId}`);
+    return { success: true };
+  } catch (e) {
+    return { success: false, error: rustErr(e) };
+  }
+}
+
+/**
+ * Run depreciation. Until a dedicated Rust endpoint exists, this writes
+ * an audit row only — the actual numeric calc must happen via the
+ * scheduled depreciation job (see `crm-jobs` worker).
+ * TODO 1D.2: needs server-side endpoint to mutate accumulated depreciation.
+ */
+export async function runDepreciation(
+  assetId: string,
+): Promise<{ success: boolean; error?: string }> {
+  const session = await getSession();
+  if (!session?.user?._id) return { success: false, error: 'Unauthorized' };
+  if (!assetId) return { success: false, error: 'Missing fixed-asset id.' };
+  try {
+    await writeAuditEntry({
+      tenantUserId: String(session.user._id),
+      actorId: String(session.user._id),
+      action: 'update',
+      entityKind: 'fixed_asset',
+      entityId: assetId,
+      reason: 'depreciation_requested',
+    });
+    return { success: true };
+  } catch (e) {
+    return { success: false, error: rustErr(e) };
+  }
+}
+
+export async function retireFixedAsset(
+  assetId: string,
+  payload: { date: string; saleValue?: number; reason: string },
+): Promise<{ success: boolean; error?: string }> {
+  const session = await getSession();
+  if (!session?.user?._id) return { success: false, error: 'Unauthorized' };
+  if (!assetId) return { success: false, error: 'Missing fixed-asset id.' };
+  if (!payload.date)
+    return { success: false, error: 'Retirement date is required.' };
+  try {
+    // Capture the disposition by setting condition + emitting audit.
+    // Rust DTO doesn't accept retireOrSell on PATCH yet, so we keep the
+    // numeric retirement in the audit log until the BFF grows the field.
+    await crmFixedAssetsApi.update(assetId, {
+      condition: 'retired',
+    });
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action: 'archive',
+        entityKind: 'fixed_asset',
+        entityId: assetId,
+        reason: payload.reason,
+        diff: {
+          condition: { after: 'retired' },
+          retirementDate: { after: payload.date },
+          saleValue: { after: payload.saleValue ?? 0 },
+        },
+      });
+    } catch {
+      /* non-fatal */
+    }
+    revalidatePath(LIST_PATH);
+    revalidatePath(`${LIST_PATH}/${assetId}`);
+    return { success: true };
+  } catch (e) {
+    return { success: false, error: rustErr(e) };
+  }
 }

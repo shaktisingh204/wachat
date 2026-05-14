@@ -1,0 +1,296 @@
+'use client';
+
+/**
+ * Booking detail-page dialogs:
+ *   • <BookingCancelDialog> — captures a reason, calls cancelBooking.
+ *   • <BookingRescheduleDialog> — picks a new slot, calls rescheduleBooking.
+ *   • <BookingSendConfirmationDialog> — sends a wa.me / mailto link with
+ *     pre-filled booking details. No server endpoint yet — fallback to
+ *     the user's mail client until a transactional email endpoint exists.
+ */
+
+import * as React from 'react';
+import { useRouter } from 'next/navigation';
+
+import {
+  ZoruButton,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruInput,
+  ZoruLabel,
+  ZoruTextarea,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  cancelBooking,
+  rescheduleBooking,
+} from '@/app/actions/crm/bookings.actions';
+
+interface BaseDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  bookingId: string;
+}
+
+export function BookingCancelDialog({
+  open,
+  onOpenChange,
+  bookingId,
+}: BaseDialogProps) {
+  const router = useRouter();
+  const { toast } = useZoruToast();
+  const [reason, setReason] = React.useState('');
+  const [pending, startTransition] = React.useTransition();
+
+  React.useEffect(() => {
+    if (open) setReason('');
+  }, [open]);
+
+  const onSubmit = () => {
+    startTransition(async () => {
+      const res = await cancelBooking(bookingId, reason);
+      if (res.success) {
+        toast({ title: 'Cancelled' });
+        onOpenChange(false);
+        router.refresh();
+      } else {
+        toast({
+          title: 'Cancel failed',
+          description: res.error,
+          variant: 'destructive',
+        });
+      }
+    });
+  };
+
+  return (
+    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+      <ZoruDialogContent>
+        <ZoruDialogHeader>
+          <ZoruDialogTitle>Cancel this booking?</ZoruDialogTitle>
+          <ZoruDialogDescription>
+            Sets status to <strong>cancelled</strong> and records the reason
+            in the audit log.
+          </ZoruDialogDescription>
+        </ZoruDialogHeader>
+        <div className="space-y-3 py-2">
+          <div>
+            <ZoruLabel htmlFor="cancel-reason">Reason</ZoruLabel>
+            <ZoruTextarea
+              id="cancel-reason"
+              rows={3}
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              className="mt-1.5"
+              placeholder="e.g. Customer rescheduled to next month"
+            />
+          </div>
+        </div>
+        <ZoruDialogFooter>
+          <ZoruButton variant="ghost" onClick={() => onOpenChange(false)}>
+            Back
+          </ZoruButton>
+          <ZoruButton
+            variant="destructive"
+            onClick={onSubmit}
+            disabled={pending}
+          >
+            {pending ? 'Cancelling…' : 'Cancel booking'}
+          </ZoruButton>
+        </ZoruDialogFooter>
+      </ZoruDialogContent>
+    </ZoruDialog>
+  );
+}
+
+interface BookingRescheduleDialogProps extends BaseDialogProps {
+  initialStart?: string;
+  initialEnd?: string;
+}
+
+function toLocalDateTimeInput(value?: string): string {
+  if (!value) return '';
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return '';
+  // <input type="datetime-local"> wants `YYYY-MM-DDTHH:mm`.
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+export function BookingRescheduleDialog({
+  open,
+  onOpenChange,
+  bookingId,
+  initialStart,
+  initialEnd,
+}: BookingRescheduleDialogProps) {
+  const router = useRouter();
+  const { toast } = useZoruToast();
+  const [start, setStart] = React.useState('');
+  const [end, setEnd] = React.useState('');
+  const [pending, startTransition] = React.useTransition();
+
+  React.useEffect(() => {
+    if (open) {
+      setStart(toLocalDateTimeInput(initialStart));
+      setEnd(toLocalDateTimeInput(initialEnd));
+    }
+  }, [open, initialStart, initialEnd]);
+
+  const onSubmit = () => {
+    if (!start || !end) {
+      toast({
+        title: 'Slot required',
+        description: 'Pick both a start and an end time.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    startTransition(async () => {
+      const res = await rescheduleBooking(bookingId, {
+        slotStart: new Date(start).toISOString(),
+        slotEnd: new Date(end).toISOString(),
+      });
+      if (res.success) {
+        toast({ title: 'Rescheduled' });
+        onOpenChange(false);
+        router.refresh();
+      } else {
+        toast({
+          title: 'Reschedule failed',
+          description: res.error,
+          variant: 'destructive',
+        });
+      }
+    });
+  };
+
+  return (
+    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+      <ZoruDialogContent>
+        <ZoruDialogHeader>
+          <ZoruDialogTitle>Reschedule booking</ZoruDialogTitle>
+          <ZoruDialogDescription>
+            Pick the new slot — the original is overwritten and the change is
+            audit-logged.
+          </ZoruDialogDescription>
+        </ZoruDialogHeader>
+        <div className="space-y-3 py-2">
+          <div>
+            <ZoruLabel htmlFor="resched-start">New start</ZoruLabel>
+            <ZoruInput
+              id="resched-start"
+              type="datetime-local"
+              value={start}
+              onChange={(e) => setStart(e.target.value)}
+              className="mt-1.5"
+            />
+          </div>
+          <div>
+            <ZoruLabel htmlFor="resched-end">New end</ZoruLabel>
+            <ZoruInput
+              id="resched-end"
+              type="datetime-local"
+              value={end}
+              onChange={(e) => setEnd(e.target.value)}
+              className="mt-1.5"
+            />
+          </div>
+        </div>
+        <ZoruDialogFooter>
+          <ZoruButton variant="ghost" onClick={() => onOpenChange(false)}>
+            Cancel
+          </ZoruButton>
+          <ZoruButton onClick={onSubmit} disabled={pending}>
+            {pending ? 'Saving…' : 'Reschedule'}
+          </ZoruButton>
+        </ZoruDialogFooter>
+      </ZoruDialogContent>
+    </ZoruDialog>
+  );
+}
+
+interface BookingSendConfirmationDialogProps extends BaseDialogProps {
+  initialEmail?: string;
+}
+
+export function BookingSendConfirmationDialog({
+  open,
+  onOpenChange,
+  bookingId,
+  initialEmail,
+}: BookingSendConfirmationDialogProps) {
+  const { toast } = useZoruToast();
+  const [to, setTo] = React.useState(initialEmail ?? '');
+  const [message, setMessage] = React.useState(
+    `Your booking is confirmed. Reference ID: ${bookingId}.`,
+  );
+
+  React.useEffect(() => {
+    if (open) {
+      setTo(initialEmail ?? '');
+    }
+  }, [open, initialEmail]);
+
+  const onSubmit = () => {
+    if (!to) {
+      toast({
+        title: 'Recipient required',
+        description: 'Enter an email or phone to send the confirmation.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    const subject = `Booking confirmation #${bookingId.slice(-6)}`;
+    const href = `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`;
+    window.open(href, '_blank', 'noopener,noreferrer');
+    onOpenChange(false);
+    /* TODO 1D.2: transactional booking-confirmation email needs server-side endpoint */
+  };
+
+  return (
+    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+      <ZoruDialogContent>
+        <ZoruDialogHeader>
+          <ZoruDialogTitle>Send confirmation</ZoruDialogTitle>
+          <ZoruDialogDescription>
+            Opens your mail client with the confirmation pre-filled.
+          </ZoruDialogDescription>
+        </ZoruDialogHeader>
+        <div className="space-y-3 py-2">
+          <div>
+            <ZoruLabel htmlFor="bcd-to">Recipient email</ZoruLabel>
+            <ZoruInput
+              id="bcd-to"
+              type="email"
+              value={to}
+              onChange={(e) => setTo(e.target.value)}
+              className="mt-1.5"
+              placeholder="customer@example.com"
+            />
+          </div>
+          <div>
+            <ZoruLabel htmlFor="bcd-msg">Message</ZoruLabel>
+            <ZoruTextarea
+              id="bcd-msg"
+              rows={4}
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              className="mt-1.5"
+            />
+          </div>
+        </div>
+        <ZoruDialogFooter>
+          <ZoruButton variant="ghost" onClick={() => onOpenChange(false)}>
+            Cancel
+          </ZoruButton>
+          <ZoruButton onClick={onSubmit}>Open mail client</ZoruButton>
+        </ZoruDialogFooter>
+      </ZoruDialogContent>
+    </ZoruDialog>
+  );
+}

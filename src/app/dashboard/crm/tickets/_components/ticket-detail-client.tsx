@@ -139,7 +139,11 @@ export function TicketDetailClient({ ticket }: TicketDetailClientProps) {
                             ))}
                         </ZoruDropdownMenuContent>
                     </ZoruDropdownMenu>
-                    <TicketSlaBadge dueBy={ticket.dueBy} status={status} />
+                    <TicketSlaBadge
+                        ticketId={id}
+                        dueBy={ticket.dueBy}
+                        status={status}
+                    />
                 </div>
                 <TicketDetailActions
                     ticket={ticket}

@@ -68,7 +68,6 @@ export default function RecognitionDetailPage({
       editHref={`/dashboard/hrm/hr/recognition/${id}/edit`}
       deleteAction={deleteRecognition}
       entityId={id}
-      auditKind="hr_recognitions"
       rightRail={
         <ZoruCard className="p-4">
           <div className="flex items-center gap-2 text-zoru-ink">

@@ -1,442 +1,119 @@
-'use client';
-import { ZoruBadge, ZoruButton, ZoruCard, ZoruInput, ZoruLabel, ZoruSkeleton, useZoruToast } from '@/components/zoruui';
-import {
-  use,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-  useTransition,
-} from 'react';
-import Link from 'next/link';
-import {
-  FileSignature,
-  ArrowLeft,
-  Calendar,
-  DollarSign,
-  User,
-  CheckCircle2,
-  Eraser,
-  LoaderCircle,
-} from 'lucide-react';
-import {
-  getContractById,
-  signContract,
-} from '@/app/actions/crm-services.actions';
+/**
+ * Contract detail — `/dashboard/crm/contracts/[contractId]`.
+ *
+ * Server component per CRM_REBUILD_PLAN §1D.2. Composes:
+ *   - Header: status pill + 10 actions (via <ContractDetailActions>).
+ *   - Body: Overview · Parties · Terms & body · Signature audit trail ·
+ *     Notes (via <ContractDetailBody>).
+ *   - Right rail: LineageRail (chain doc — deal → contract → invoice) ·
+ *     Status card · Parties chips · Related stub · Term card.
+ *   - Audit footer via `<EntityAuditTimeline>` (through EntityDetailShell).
+ *
+ * Self-signature flow lives at `/dashboard/crm/contracts/[contractId]/sign`
+ * (rendered via the public `/share/[token]` link). This page focuses on
+ * the operator view.
+ */
+
+import { notFound } from 'next/navigation';
+
+import { EntityDetailShell, type EntityStatusTone } from '@/components/crm/entity-detail-shell';
+import { LineageRail } from '@/components/crm/lineage-rail';
+import { getContractById } from '@/app/actions/crm-services.actions';
 import type { HrContract } from '@/lib/hr-types';
+import type { LineageKind, LineageRef } from '@/lib/definitions';
 
-import { SharePublicLinkButton } from '@/components/worksuite/share-public-link-button';
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { ContractDetailActions } from '../_components/contract-detail-actions';
+import { ContractDetailBody } from '../_components/contract-detail-body';
+import { ContractRelatedRail } from '../_components/contract-related-rail';
 
-type Contract = HrContract & { _id: string };
+export const dynamic = 'force-dynamic';
 
-const STATUS_TONES: Record<string, 'neutral' | 'amber' | 'green' | 'red'> = {
-  draft: 'neutral',
-  sent: 'amber',
-  signed: 'green',
-  expired: 'red',
-  terminated: 'red',
+type ContractDoc = HrContract & {
+  _id: string;
+  lineage?: LineageRef[];
+  notes?: string;
+  signers?: Array<{ name?: string; email?: string }>;
+  sentAt?: string | Date;
+  voidedAt?: string | Date;
+  voidReason?: string;
+  renewedAt?: string | Date;
+  signedAt?: string | Date;
 };
 
-function fmtDateTime(v: unknown): string {
-  if (!v) return '—';
-  const d = new Date(v as any);
-  return isNaN(d.getTime()) ? '—' : d.toLocaleString();
+function statusTone(status?: string): EntityStatusTone {
+  const s = (status || '').toLowerCase();
+  if (s === 'signed') return 'green';
+  if (s === 'draft') return 'neutral';
+  if (s === 'expired' || s === 'terminated') return 'red';
+  return 'amber';
 }
 
-function fmtDate(v: unknown): string {
-  if (!v) return '—';
-  const d = new Date(v as any);
-  return isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
-}
-
-export default function ContractDetailPage(props: {
+interface PageProps {
   params: Promise<{ contractId: string }>;
-}) {
-  const { contractId } = use(props.params);
-  const { toast } = useZoruToast();
+}
 
-  const [contract, setContract] = useState<Contract | null>(null);
-  const [isLoading, startLoading] = useTransition();
-  const [signerName, setSignerName] = useState('');
-  const [signerEmail, setSignerEmail] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+export default async function ContractDetailPage({ params }: PageProps) {
+  const { contractId } = await params;
+  const contract = (await getContractById(contractId)) as ContractDoc | null;
+  if (!contract) notFound();
 
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const drawingRef = useRef(false);
-  const hasDrawnRef = useRef(false);
-  const lastPtRef = useRef<{ x: number; y: number } | null>(null);
-
-  const refresh = useCallback(() => {
-    startLoading(async () => {
-      const c = await getContractById(contractId);
-      setContract(c as Contract | null);
-    });
-  }, [contractId]);
-
-  useEffect(() => {
-    refresh();
-  }, [refresh]);
-
-  // Setup canvas dimensions
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const resize = () => {
-      const rect = canvas.getBoundingClientRect();
-      canvas.width = Math.max(1, Math.floor(rect.width));
-      canvas.height = 180;
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.strokeStyle = '#1a1a1a';
-        ctx.lineWidth = 2;
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-      }
-      hasDrawnRef.current = false;
-    };
-    resize();
-    window.addEventListener('resize', resize);
-    return () => window.removeEventListener('resize', resize);
-  }, [contract?.status]);
-
-  const getPoint = (
-    canvas: HTMLCanvasElement,
-    e: React.PointerEvent<HTMLCanvasElement>,
-  ) => {
-    const rect = canvas.getBoundingClientRect();
-    return {
-      x: ((e.clientX - rect.left) * canvas.width) / rect.width,
-      y: ((e.clientY - rect.top) * canvas.height) / rect.height,
-    };
-  };
-
-  const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    canvas.setPointerCapture(e.pointerId);
-    drawingRef.current = true;
-    lastPtRef.current = getPoint(canvas, e);
-  };
-
-  const handlePointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
-    if (!drawingRef.current) return;
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    const pt = getPoint(canvas, e);
-    const last = lastPtRef.current;
-    if (last) {
-      ctx.beginPath();
-      ctx.moveTo(last.x, last.y);
-      ctx.lineTo(pt.x, pt.y);
-      ctx.stroke();
-    }
-    lastPtRef.current = pt;
-    hasDrawnRef.current = true;
-  };
-
-  const handlePointerUp = (e: React.PointerEvent<HTMLCanvasElement>) => {
-    drawingRef.current = false;
-    lastPtRef.current = null;
-    const canvas = canvasRef.current;
-    if (canvas) {
-      try {
-        canvas.releasePointerCapture(e.pointerId);
-      } catch {
-        /* ignore */
-      }
-    }
-  };
-
-  const clearCanvas = () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    hasDrawnRef.current = false;
-  };
-
-  const handleSign = async () => {
-    if (!signerName.trim() || !signerEmail.trim()) {
-      toast({
-        title: 'Missing info',
-        description: 'Please enter your full name and email.',
-        variant: 'destructive',
-      });
-      return;
-    }
-    if (!hasDrawnRef.current) {
-      toast({
-        title: 'Signature required',
-        description: 'Please draw your signature before submitting.',
-        variant: 'destructive',
-      });
-      return;
-    }
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const signatureDataUrl = canvas.toDataURL('image/png');
-
-    setIsSubmitting(true);
-    const res = await signContract(contractId, {
-      signedByName: signerName.trim(),
-      signedByEmail: signerEmail.trim(),
-      signatureDataUrl,
-    });
-    setIsSubmitting(false);
-
-    if (res.success) {
-      toast({
-        title: 'Signed',
-        description: 'Contract has been signed successfully.',
-      });
-      refresh();
-    } else {
-      toast({
-        title: 'Error',
-        description: res.error || 'Failed to sign contract',
-        variant: 'destructive',
-      });
-    }
-  };
-
-  if (isLoading && !contract) {
-    return (
-      <div className="flex w-full flex-col gap-6">
-        <ZoruSkeleton className="h-10 w-64" />
-        <ZoruSkeleton className="h-64 w-full" />
-      </div>
-    );
+  const status = contract.status || 'draft';
+  const clientEmail: string | null =
+    contract.signedByEmail ??
+    (Array.isArray(contract.signers) ? contract.signers[0]?.email ?? null : null);
+  const endDateRaw: unknown = contract.endDate;
+  let endDateStr = '';
+  if (endDateRaw instanceof Date) {
+    endDateStr = endDateRaw.toISOString().slice(0, 10);
+  } else if (typeof endDateRaw === 'string' && endDateRaw.length > 0) {
+    endDateStr = endDateRaw.slice(0, 10);
   }
-
-  if (!contract) {
-    return (
-      <ZoruCard variant="outline" className="border-dashed">
-        <div className="flex flex-col items-center gap-3 py-12 text-center">
-          <p className="text-[13px] text-muted-foreground">Contract not found.</p>
-          <Link href="/dashboard/crm/contracts">
-            <ZoruButton variant="outline">
-              Back to Contracts
-            </ZoruButton>
-          </Link>
-        </div>
-      </ZoruCard>
-    );
-  }
-
-  const isSigned = contract.status === 'signed';
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title={contract.title}
-        subtitle="Contract details and e-signature."
-        icon={FileSignature}
-        actions={
-          <>
-            <Link href="/dashboard/crm/contracts">
-              <ZoruButton variant="outline">
-                All Contracts
-              </ZoruButton>
-            </Link>
-            <SharePublicLinkButton
-              resourceType="contract"
-              resourceId={contractId}
+    <EntityDetailShell
+      title={contract.title || 'Contract'}
+      eyebrow="CONTRACT"
+      status={{ label: status, tone: statusTone(status) }}
+      back={{ href: '/dashboard/crm/contracts', label: 'Back to contracts' }}
+      actions={
+        <ContractDetailActions
+          contractId={contractId}
+          status={status}
+          contactEmail={clientEmail}
+          endDate={endDateStr}
+        />
+      }
+      audit={{ entityKind: 'contract', entityId: contractId }}
+      rightRail={
+        <>
+          {Array.isArray(contract.lineage) && contract.lineage.length > 0 ? (
+            <LineageRail
+              // Contract isn't a LineageKind, so render the rail in the
+              // context of the upstream deal (chain: Lead → Deal → … → Invoice).
+              current={{
+                kind: 'deal' as LineageKind,
+                id:
+                  contract.lineage.find((r) => r.kind === 'deal')?.id ??
+                  contractId,
+                no: contract.title,
+                status,
+              }}
+              lineage={contract.lineage as LineageRef[]}
             />
-          </>
-        }
-      />
-
-      <ZoruCard>
-        <div className="mb-4 flex items-center gap-2">
-          <ZoruBadge variant={(STATUS_TONES[contract.status] || 'neutral') as any}>
-            {contract.status}
-          </ZoruBadge>
-        </div>
-        <div className="grid gap-4 md:grid-cols-4">
-          <div className="flex items-start gap-3">
-            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent">
-              <User className="h-4 w-4 text-accent-foreground" strokeWidth={1.75} />
-            </div>
-            <div>
-              <p className="text-[11.5px] text-muted-foreground">Client</p>
-              <p className="text-[13px] font-medium text-foreground">
-                {contract.clientName || '—'}
-              </p>
-            </div>
-          </div>
-          <div className="flex items-start gap-3">
-            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent">
-              <DollarSign className="h-4 w-4 text-accent-foreground" strokeWidth={1.75} />
-            </div>
-            <div>
-              <p className="text-[11.5px] text-muted-foreground">Value</p>
-              <p className="text-[13px] font-medium text-foreground">
-                {contract.value != null
-                  ? new Intl.NumberFormat('en-IN', {
-                      style: 'currency',
-                      currency: contract.currency || 'INR',
-                    }).format(contract.value)
-                  : '—'}
-              </p>
-            </div>
-          </div>
-          <div className="flex items-start gap-3">
-            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent">
-              <Calendar className="h-4 w-4 text-accent-foreground" strokeWidth={1.75} />
-            </div>
-            <div>
-              <p className="text-[11.5px] text-muted-foreground">Start</p>
-              <p className="text-[13px] font-medium text-foreground">
-                {fmtDate(contract.startDate)}
-              </p>
-            </div>
-          </div>
-          <div className="flex items-start gap-3">
-            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent">
-              <Calendar className="h-4 w-4 text-accent-foreground" strokeWidth={1.75} />
-            </div>
-            <div>
-              <p className="text-[11.5px] text-muted-foreground">End</p>
-              <p className="text-[13px] font-medium text-foreground">
-                {fmtDate(contract.endDate)}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {contract.body ? (
-          <div className="mt-6">
-            <p className="mb-2 text-[11.5px] font-medium uppercase tracking-wide text-muted-foreground">
-              Contract Body
-            </p>
-            <div className="rounded-lg border border-border bg-secondary p-4">
-              <pre className="whitespace-pre-wrap font-sans text-[13px] text-foreground">
-                {contract.body}
-              </pre>
-            </div>
-          </div>
-        ) : null}
-      </ZoruCard>
-
-      {isSigned ? (
-        <ZoruCard>
-          <div className="flex items-center gap-2">
-            <CheckCircle2 className="h-5 w-5 text-emerald-500" />
-            <h2 className="text-[16px] font-semibold text-foreground">
-              Signed Contract
-            </h2>
-          </div>
-          <div className="mt-4 grid gap-4 md:grid-cols-3">
-            <div>
-              <p className="text-[11.5px] text-muted-foreground">Signed by</p>
-              <p className="text-[13px] font-medium text-foreground">
-                {contract.signedByName || '—'}
-              </p>
-              <p className="text-[11.5px] text-muted-foreground">
-                {contract.signedByEmail || ''}
-              </p>
-            </div>
-            <div>
-              <p className="text-[11.5px] text-muted-foreground">Signed at</p>
-              <p className="text-[13px] font-medium text-foreground">
-                {fmtDateTime(contract.signedAt)}
-              </p>
-            </div>
-            <div>
-              <p className="text-[11.5px] text-muted-foreground">Signature</p>
-              {contract.signatureDataUrl ? (
-                // Signature is a user-drawn PNG data URL; next/image isn't practical here.
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={contract.signatureDataUrl}
-                  alt="Signature"
-                  className="mt-1 max-h-24 rounded-lg border border-border bg-white p-2"
-                />
-              ) : (
-                <p className="text-[13px] text-muted-foreground">—</p>
-              )}
-            </div>
-          </div>
-        </ZoruCard>
-      ) : (
-        <ZoruCard>
-          <div className="mb-4">
-            <h2 className="text-[16px] font-semibold text-foreground">
-              Sign this contract
-            </h2>
-            <p className="mt-0.5 text-[12.5px] text-muted-foreground">
-              Enter your details and draw your signature below.
-            </p>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <div>
-              <ZoruLabel className="text-foreground">Full Name</ZoruLabel>
-              <ZoruInput
-                value={signerName}
-                onChange={(e) => setSignerName(e.target.value)}
-                placeholder="Jane Doe"
-                className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
-              />
-            </div>
-            <div>
-              <ZoruLabel className="text-foreground">Email</ZoruLabel>
-              <ZoruInput
-                type="email"
-                value={signerEmail}
-                onChange={(e) => setSignerEmail(e.target.value)}
-                placeholder="jane@example.com"
-                className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
-              />
-            </div>
-          </div>
-
-          <div className="mt-4">
-            <ZoruLabel className="text-foreground">Signature</ZoruLabel>
-            <div className="mt-1.5 rounded-lg border border-border bg-white p-2">
-              <canvas
-                ref={canvasRef}
-                className="block w-full touch-none rounded-lg bg-white"
-                style={{ height: 180 }}
-                onPointerDown={handlePointerDown}
-                onPointerMove={handlePointerMove}
-                onPointerUp={handlePointerUp}
-                onPointerCancel={handlePointerUp}
-                onPointerLeave={handlePointerUp}
-              />
-            </div>
-            <p className="mt-1 text-[11.5px] text-muted-foreground">
-              Use your mouse, stylus, or finger to draw your signature.
-            </p>
-          </div>
-
-          <div className="mt-4 flex flex-wrap justify-end gap-2">
-            <ZoruButton
-              variant="outline"
-             
-              onClick={clearCanvas}
-              disabled={isSubmitting}
-            >
-              Clear
-            </ZoruButton>
-            <ZoruButton
-             
-              onClick={handleSign}
-              disabled={isSubmitting}
-             
-            >
-              Sign &amp; Submit
-            </ZoruButton>
-          </div>
-        </ZoruCard>
-      )}
-    </div>
+          ) : null}
+          <ContractRelatedRail
+            contractId={contractId}
+            status={status}
+            startDate={contract.startDate as unknown as string}
+            endDate={contract.endDate as unknown as string}
+            clientName={contract.clientName}
+            value={contract.value}
+            currency={contract.currency}
+          />
+        </>
+      }
+    >
+      <ContractDetailBody contract={contract} />
+    </EntityDetailShell>
   );
 }

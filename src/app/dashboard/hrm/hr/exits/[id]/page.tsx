@@ -31,6 +31,12 @@ import {
 } from '../../_components/hr-detail-loader';
 import { HrDetailGrid, HrDetailRow } from '../../_components/hr-detail-grid';
 import { statusToTone } from '@/components/crm/status-pill';
+import { HrActionButtons } from '../../_components/hr-action-buttons';
+import {
+    confirmExitKt,
+    markExitNoc,
+} from '@/app/actions/hr-status.actions';
+import { deleteExit } from '@/app/actions/hr.actions';
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -67,22 +73,64 @@ export default async function ExitDetailPage({ params }: PageProps) {
                             <Pencil className="h-4 w-4" /> Edit
                         </ZoruButton>
                     </Link>
-                    {/* TODO 1D.2: wire Confirm KT to a status mutation. */}
-                    <ZoruButton variant="outline" size="sm" disabled>
-                        <CheckCircle2 className="h-4 w-4" /> Confirm KT
-                    </ZoruButton>
-                    {/* TODO 1D.2: wire Mark NOC to a status mutation. */}
-                    <ZoruButton variant="outline" size="sm" disabled>
-                        <FileSignature className="h-4 w-4" /> Mark NOC
-                    </ZoruButton>
-                    {/* TODO 1D.2: wire Print clearance to ?print=1 route. */}
-                    <ZoruButton variant="outline" size="sm" disabled>
-                        <Printer className="h-4 w-4" /> Print clearance
-                    </ZoruButton>
-                    {/* TODO 1D.2: wire Delete with ConfirmDialog. */}
-                    <ZoruButton variant="ghost" size="sm" disabled>
-                        <Trash2 className="h-4 w-4" />
-                    </ZoruButton>
+                    <a href={`${BASE}/${id}?print=1`} target="_blank" rel="noopener noreferrer">
+                        <ZoruButton variant="outline" size="sm">
+                            <Printer className="h-4 w-4" /> Print clearance
+                        </ZoruButton>
+                    </a>
+                    <HrActionButtons
+                        actions={[
+                            {
+                                key: 'confirm-kt',
+                                kind: 'action',
+                                label: 'Confirm KT',
+                                icon: <CheckCircle2 className="h-4 w-4" />,
+                                onRun: () => confirmExitKt(id),
+                            },
+                            {
+                                key: 'mark-noc',
+                                kind: 'prompt',
+                                label: 'Mark NOC',
+                                icon: <FileSignature className="h-4 w-4" />,
+                                promptTitle: 'Mark NOC status',
+                                promptDescription:
+                                    'Set the NOC (No Objection Certificate) status for this exit.',
+                                submitLabel: 'Save',
+                                fields: [
+                                    {
+                                        name: 'nocStatus',
+                                        label: 'NOC status',
+                                        defaultValue: 'issued',
+                                        placeholder: 'issued | na',
+                                        required: true,
+                                    },
+                                ],
+                                onRun: (v) => {
+                                    const next =
+                                        v.nocStatus === 'na' ? 'na' : 'issued';
+                                    return markExitNoc(id, next);
+                                },
+                            },
+                            {
+                                key: 'delete',
+                                kind: 'confirm',
+                                label: 'Delete',
+                                icon: <Trash2 className="h-4 w-4" />,
+                                variant: 'destructive',
+                                confirmTitle: 'Delete this exit record?',
+                                confirmDescription:
+                                    'This soft-deletes the exit. You can restore it from the archive list.',
+                                confirmLabel: 'Delete',
+                                onRun: async () => {
+                                    const r = await deleteExit(id);
+                                    if (r.success) {
+                                        return { message: 'Exit deleted.' };
+                                    }
+                                    return { error: r.error || 'Delete failed.' };
+                                },
+                            },
+                        ]}
+                    />
                 </>
             }
             audit={{ entityKind: 'exit', entityId: id }}

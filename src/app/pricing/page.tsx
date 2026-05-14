@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Check } from 'lucide-react';
+import { LandingHeader } from '@/components/landing/landing-header';
 
 const plans = [
     {
@@ -48,7 +49,9 @@ const plans = [
 
 export default function PricingPage() {
   return (
-    <div className="min-h-screen bg-background py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-background">
+      <LandingHeader active="pricing" />
+      <div className="py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-12">
             <Link href="/" className="text-primary hover:underline mb-4 inline-block">
@@ -86,6 +89,7 @@ export default function PricingPage() {
                 </Card>
             ))}
         </div>
+      </div>
       </div>
     </div>
   );

@@ -4,6 +4,8 @@ import { ObjectId } from 'mongodb';
 import { revalidatePath } from 'next/cache';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
+import { writeAuditEntry } from '@/lib/audit-log';
+import { randomBytes } from 'node:crypto';
 
 export async function savePortalUser(
   _prev: any,
@@ -165,5 +167,126 @@ export async function getPortalUserById(id: string): Promise<any | null> {
   } catch (e) {
     console.error('Failed to fetch portal user by id:', e);
     return null;
+  }
+}
+
+/* ─── Lifecycle ───────────────────────────────────────────────── */
+
+async function setPortalField(
+  portalUserId: string,
+  set: Record<string, unknown>,
+  audit: { action: string; reason?: string; diff?: Record<string, { before?: unknown; after?: unknown }> },
+): Promise<{ success: boolean; error?: string; magicLink?: string }> {
+  const session = await getSession();
+  if (!session?.user?._id) return { success: false, error: 'Unauthorized.' };
+  if (!ObjectId.isValid(portalUserId)) {
+    return { success: false, error: 'Invalid portal user ID.' };
+  }
+  try {
+    const { db } = await connectToDatabase();
+    const res = await db.collection('crm_portal_users').updateOne(
+      {
+        _id: new ObjectId(portalUserId),
+        userId: new ObjectId(session.user._id as string),
+      },
+      { $set: { ...set, updatedAt: new Date() } } as any,
+    );
+    if (res.matchedCount === 0) {
+      return { success: false, error: 'Portal user not found.' };
+    }
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action: audit.action,
+        entityKind: 'portal_user',
+        entityId: portalUserId,
+        reason: audit.reason,
+        diff: audit.diff,
+      });
+    } catch {
+      /* non-fatal */
+    }
+    revalidatePath(`/dashboard/crm/portal/${portalUserId}`);
+    revalidatePath('/dashboard/crm/portal');
+    return { success: true };
+  } catch (e: any) {
+    return { success: false, error: e?.message || 'Update failed.' };
+  }
+}
+
+export async function sendMagicLink(
+  portalUserId: string,
+): Promise<{ success: boolean; error?: string; magicLink?: string }> {
+  const token = randomBytes(24).toString('hex');
+  const expiresAt = new Date(Date.now() + 24 * 3600_000);
+  const result = await setPortalField(
+    portalUserId,
+    {
+      magicLinkToken: token,
+      magicLinkExpiresAt: expiresAt,
+      lastMagicLinkAt: new Date(),
+    },
+    {
+      action: 'send',
+      reason: 'magic_link',
+    },
+  );
+  if (!result.success) return result;
+  /* TODO 1D.2: actually email the magic link via transactional sender. */
+  return {
+    success: true,
+    magicLink: `/portal/auth?token=${token}`,
+  };
+}
+
+export async function suspendPortalUser(portalUserId: string) {
+  return setPortalField(
+    portalUserId,
+    { status: 'suspended', suspendedAt: new Date() },
+    { action: 'archive', reason: 'suspended', diff: { status: { after: 'suspended' } } },
+  );
+}
+
+export async function restorePortalUser(portalUserId: string) {
+  return setPortalField(
+    portalUserId,
+    { status: 'active', restoredAt: new Date() },
+    { action: 'restore', reason: 'restored', diff: { status: { after: 'active' } } },
+  );
+}
+
+export async function deletePortalUser(
+  portalUserId: string,
+): Promise<{ success: boolean; error?: string }> {
+  const session = await getSession();
+  if (!session?.user?._id) return { success: false, error: 'Unauthorized.' };
+  if (!ObjectId.isValid(portalUserId)) {
+    return { success: false, error: 'Invalid portal user ID.' };
+  }
+  try {
+    const { db } = await connectToDatabase();
+    const res = await db.collection('crm_portal_users').deleteOne({
+      _id: new ObjectId(portalUserId),
+      userId: new ObjectId(session.user._id as string),
+    });
+    if (res.deletedCount === 0) {
+      return { success: false, error: 'Portal user not found.' };
+    }
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action: 'delete',
+        entityKind: 'portal_user',
+        entityId: portalUserId,
+      });
+    } catch {
+      /* non-fatal */
+    }
+    revalidatePath('/dashboard/crm/portal');
+    return { success: true };
+  } catch (e: any) {
+    return { success: false, error: e?.message || 'Delete failed.' };
   }
 }

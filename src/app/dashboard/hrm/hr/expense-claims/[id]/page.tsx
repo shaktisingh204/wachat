@@ -39,6 +39,12 @@ import {
     fmtShortId,
 } from '../../_components/hr-detail-loader';
 import { HrDetailGrid, HrDetailRow } from '../../_components/hr-detail-grid';
+import { HrActionButtons } from '../../_components/hr-action-buttons';
+import {
+    approveExpenseClaim,
+    rejectExpenseClaim,
+    markExpenseClaimReimbursed,
+} from '@/app/actions/hr-status-flow.actions';
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -87,22 +93,72 @@ export default async function ExpenseClaimDetailPage({ params }: PageProps) {
                             <Pencil className="h-4 w-4" /> Edit
                         </ZoruButton>
                     </Link>
-                    {/* TODO 1D.2: wire Approve/Reject/Reimburse to status mutations. */}
-                    <ZoruButton variant="outline" size="sm" disabled>
-                        <Check className="h-4 w-4" /> Approve
-                    </ZoruButton>
-                    <ZoruButton variant="outline" size="sm" disabled>
-                        <X className="h-4 w-4" /> Reject
-                    </ZoruButton>
-                    <ZoruButton variant="outline" size="sm" disabled>
-                        <Banknote className="h-4 w-4" /> Mark reimbursed
-                    </ZoruButton>
-                    <ZoruButton variant="outline" size="sm" disabled>
-                        <Printer className="h-4 w-4" /> Print
-                    </ZoruButton>
+                    <a href={`${BASE}/${id}?print=1`} target="_blank" rel="noopener noreferrer">
+                        <ZoruButton variant="outline" size="sm">
+                            <Printer className="h-4 w-4" /> Print
+                        </ZoruButton>
+                    </a>
+                    <HrActionButtons
+                        actions={[
+                            {
+                                key: 'approve',
+                                kind: 'action',
+                                label: 'Approve',
+                                icon: <Check className="h-4 w-4" />,
+                                onRun: () => approveExpenseClaim(id),
+                            },
+                            {
+                                key: 'reject',
+                                kind: 'prompt',
+                                label: 'Reject',
+                                icon: <X className="h-4 w-4" />,
+                                variant: 'destructive',
+                                promptTitle: 'Reject expense claim',
+                                promptDescription:
+                                    'Provide a reason for rejection — this will be visible to the claimant.',
+                                submitLabel: 'Reject',
+                                fields: [
+                                    {
+                                        name: 'reason',
+                                        label: 'Reason',
+                                        type: 'textarea',
+                                        required: true,
+                                    },
+                                ],
+                                onRun: (v) => rejectExpenseClaim(id, v.reason ?? ''),
+                            },
+                            {
+                                key: 'reimburse',
+                                kind: 'prompt',
+                                label: 'Mark reimbursed',
+                                icon: <Banknote className="h-4 w-4" />,
+                                promptTitle: 'Mark claim as reimbursed',
+                                promptDescription:
+                                    'Optionally record the reimbursed amount in the claim currency.',
+                                submitLabel: 'Mark reimbursed',
+                                fields: [
+                                    {
+                                        name: 'amount',
+                                        label: 'Reimbursed amount',
+                                        type: 'number',
+                                        placeholder: 'Optional',
+                                    },
+                                ],
+                                onRun: (v) => {
+                                    const n = Number(v.amount);
+                                    return markExpenseClaimReimbursed(
+                                        id,
+                                        Number.isFinite(n) && v.amount
+                                            ? n
+                                            : undefined,
+                                    );
+                                },
+                            },
+                        ]}
+                    />
                 </>
             }
-            audit={{ entityKind: 'expense-claim', entityId: id }}
+            audit={{ entityKind: 'expense_claim', entityId: id }}
         >
             <HrDetailGrid title="Overview">
                 <HrDetailRow label="Employee">{fmtText(employeeRef)}</HrDetailRow>

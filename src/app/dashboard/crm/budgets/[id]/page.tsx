@@ -1,115 +1,387 @@
 /**
- * Budget detail — server component.
- * Renders every field of the budget via <EntityDetailShell>.
+ * Budget detail — `/dashboard/crm/budgets/[id]`.
+ *
+ * Per §1D.2: 8 actions, body cards (Overview · Allocation · Actual vs
+ * Planned · Variance analysis · Notes), right rail with variance %,
+ * owner/approver chips, scenario switcher.
  */
 
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { Pencil } from 'lucide-react';
+import Link from 'next/link';
 
-import { EntityDetailShell, type EntityStatusTone } from '@/components/crm/entity-detail-shell';
 import {
-    ZoruButton,
-    ZoruCard,
-    ZoruCardContent,
-    ZoruCardHeader,
-    ZoruCardTitle,
+  ZoruBadge,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardHeader,
+  ZoruCardTitle,
 } from '@/components/zoruui';
+import { EntityDetailShell, type EntityStatusTone } from '@/components/crm/entity-detail-shell';
 import { getBudgetById } from '@/app/actions/crm-budgets.actions';
 
-interface PageProps {
-    params: Promise<{ id: string }>;
-}
+import { BudgetDetailActions } from '../_components/budget-detail-actions';
 
-function toneFor(status?: string): EntityStatusTone {
-    const s = (status || '').toLowerCase();
-    if (s === 'active' || s === 'approved') return 'green';
-    if (s === 'draft') return 'neutral';
-    if (s === 'closed' || s === 'archived') return 'red';
-    return 'amber';
+type BudgetDoc = {
+  _id: string;
+  budgetHead?: string;
+  period?: string;
+  scenario?: string;
+  planAmount?: number;
+  actual?: number;
+  variance?: number;
+  alertAt?: number;
+  ownerName?: string;
+  approverName?: string;
+  notes?: string;
+  status?: string;
+  locked?: boolean;
+  approvedAt?: string;
+  rejectedAt?: string;
+  rejectReason?: string;
+  actualLog?: Array<{ _id?: string; amount?: number; postedAt?: string }>;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+function statusTone(status?: string): EntityStatusTone {
+  switch (status) {
+    case 'approved':
+      return 'green';
+    case 'rejected':
+      return 'red';
+    case 'draft':
+      return 'neutral';
+    default:
+      return 'amber';
+  }
 }
 
 function fmtMoney(value: unknown): string {
-    if (typeof value !== 'number' || Number.isNaN(value)) return '—';
-    return new Intl.NumberFormat('en-IN', {
-        style: 'currency',
-        currency: 'INR',
-        maximumFractionDigits: 2,
-    }).format(value);
+  if (typeof value !== 'number' || Number.isNaN(value)) return '—';
+  return new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    maximumFractionDigits: 0,
+  }).format(value);
+}
+
+function fmtPct(plan?: number, actual?: number): string {
+  if (typeof plan !== 'number' || plan === 0) return '—';
+  const used = ((actual ?? 0) / plan) * 100;
+  return `${used.toFixed(1)}%`;
 }
 
 function fmtDate(value: unknown): string {
-    if (!value) return '—';
-    try {
-        const d = new Date(value as string);
-        if (Number.isNaN(d.getTime())) return '—';
-        return d.toLocaleDateString();
-    } catch {
-        return '—';
-    }
+  if (!value) return '—';
+  const d = new Date(value as string);
+  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
 }
 
-function Field({ label, value }: { label: string; value: React.ReactNode }) {
-    return (
-        <div className="grid grid-cols-3 gap-3 border-b border-zoru-line/60 py-2 last:border-0">
-            <dt className="col-span-1 text-[12.5px] text-zoru-ink-muted">{label}</dt>
-            <dd className="col-span-2 text-[13px] text-zoru-ink">{value ?? '—'}</dd>
-        </div>
-    );
+function Field({
+  label,
+  value,
+}: {
+  label: string;
+  value: React.ReactNode;
+}) {
+  return (
+    <div>
+      <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+        {label}
+      </div>
+      <div className="mt-1 text-[13px] text-zoru-ink">{value ?? '—'}</div>
+    </div>
+  );
+}
+
+interface PageProps {
+  params: Promise<{ id: string }>;
 }
 
 export default async function BudgetDetailPage({ params }: PageProps) {
-    const { id } = await params;
-    const budget = await getBudgetById(id);
-    if (!budget) notFound();
+  const { id } = await params;
+  const budget = (await getBudgetById(id)) as BudgetDoc | null;
+  if (!budget) notFound();
 
-    const title = (budget.budgetHead as string) || 'Budget';
-    const status = (budget.status as string) || 'draft';
+  const status = budget.status ?? 'draft';
+  const variancePct =
+    typeof budget.planAmount === 'number' && budget.planAmount !== 0
+      ? (((budget.variance ?? 0) / budget.planAmount) * 100).toFixed(1)
+      : '—';
+  const overrun =
+    typeof budget.variance === 'number' && budget.variance < 0;
+  const actualLog = budget.actualLog ?? [];
 
-    return (
-        <EntityDetailShell
-            title={title}
-            eyebrow="BUDGET"
-            status={{ label: status, tone: toneFor(status) }}
-            back={{ href: '/dashboard/crm/budgets', label: 'Back to budgets' }}
-            actions={
-                <ZoruButton variant="outline" size="sm" asChild>
-                    <Link href={`/dashboard/crm/budgets/${id}/edit`}>
-                        <Pencil className="h-3.5 w-3.5" strokeWidth={1.75} />
-                        Edit
-                    </Link>
-                </ZoruButton>
-            }
-            audit={{ entityKind: 'budget', entityId: id }}
-        >
-            <ZoruCard>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Budget details</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent>
-                    <dl>
-                        <Field label="Budget head" value={budget.budgetHead} />
-                        <Field label="Period" value={budget.period || '—'} />
-                        <Field label="Scenario" value={budget.scenario || '—'} />
-                        <Field label="Plan amount" value={fmtMoney(budget.planAmount)} />
-                        <Field label="Actual" value={fmtMoney(budget.actual)} />
-                        <Field label="Variance" value={fmtMoney(budget.variance)} />
-                        <Field
-                            label="Alert threshold"
-                            value={
-                                typeof budget.alertAt === 'number'
-                                    ? `${budget.alertAt}%`
-                                    : '—'
-                            }
-                        />
-                        <Field label="Owner" value={budget.ownerName || '—'} />
-                        <Field label="Status" value={status} />
-                        <Field label="Notes" value={budget.notes || '—'} />
-                        <Field label="Created" value={fmtDate(budget.createdAt)} />
-                        <Field label="Updated" value={fmtDate(budget.updatedAt)} />
-                    </dl>
-                </ZoruCardContent>
-            </ZoruCard>
-        </EntityDetailShell>
-    );
+  return (
+    <EntityDetailShell
+      title={budget.budgetHead || 'Budget'}
+      eyebrow={`BUDGET · ${budget.period || ''}`}
+      status={{ label: status, tone: statusTone(status) }}
+      back={{ href: '/dashboard/crm/budgets', label: 'Back to budgets' }}
+      actions={
+        <BudgetDetailActions
+          budgetId={id}
+          status={status}
+          locked={budget.locked}
+          scenario={budget.scenario}
+        />
+      }
+      audit={{ entityKind: 'budget', entityId: id }}
+      rightRail={
+        <>
+          <ZoruCard>
+            <ZoruCardHeader>
+              <ZoruCardTitle>Variance</ZoruCardTitle>
+            </ZoruCardHeader>
+            <ZoruCardContent>
+              <div className="space-y-2 text-[12.5px]">
+                <div className="flex items-center justify-between">
+                  <span className="text-zoru-ink-muted">% of plan used</span>
+                  <span className="font-mono tabular-nums">
+                    {fmtPct(budget.planAmount, budget.actual)}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-zoru-ink-muted">Variance</span>
+                  <span
+                    className={`font-mono tabular-nums ${overrun ? 'text-zoru-danger-ink' : 'text-zoru-ink'}`}
+                  >
+                    {fmtMoney(budget.variance)} ({variancePct}%)
+                  </span>
+                </div>
+                <div className="flex items-center justify-between border-t border-zoru-line pt-2">
+                  <span className="text-zoru-ink-muted">Plan</span>
+                  <span className="font-mono tabular-nums">
+                    {fmtMoney(budget.planAmount)}
+                  </span>
+                </div>
+              </div>
+            </ZoruCardContent>
+          </ZoruCard>
+
+          <ZoruCard>
+            <ZoruCardHeader>
+              <ZoruCardTitle>Stewards</ZoruCardTitle>
+            </ZoruCardHeader>
+            <ZoruCardContent>
+              <div className="space-y-2 text-[12.5px]">
+                <div>
+                  <div className="text-[11px] uppercase text-zoru-ink-muted">
+                    Owner
+                  </div>
+                  <div className="mt-0.5">{budget.ownerName || '—'}</div>
+                </div>
+                <div>
+                  <div className="text-[11px] uppercase text-zoru-ink-muted">
+                    Approver
+                  </div>
+                  <div className="mt-0.5">{budget.approverName || '—'}</div>
+                </div>
+              </div>
+            </ZoruCardContent>
+          </ZoruCard>
+
+          <ZoruCard>
+            <ZoruCardHeader>
+              <ZoruCardTitle>Scenario</ZoruCardTitle>
+            </ZoruCardHeader>
+            <ZoruCardContent>
+              <div className="space-y-2 text-[12.5px]">
+                <div className="flex items-center justify-between">
+                  <span className="text-zoru-ink-muted">Current</span>
+                  <ZoruBadge variant="outline">
+                    {budget.scenario || 'base'}
+                  </ZoruBadge>
+                </div>
+                <Link
+                  href={`/dashboard/crm/budgets?period=${budget.period || ''}&compare=1`}
+                  className="text-zoru-primary hover:underline"
+                >
+                  Switch scenario →
+                </Link>
+              </div>
+            </ZoruCardContent>
+          </ZoruCard>
+
+          <ZoruCard>
+            <ZoruCardHeader>
+              <ZoruCardTitle>Related</ZoruCardTitle>
+            </ZoruCardHeader>
+            <ZoruCardContent>
+              <div className="flex flex-col gap-2 text-[12.5px]">
+                <Link
+                  href={`/dashboard/crm/purchases/expenses?budgetId=${id}`}
+                  className="text-zoru-primary hover:underline"
+                >
+                  Expenses against this budget →
+                </Link>
+              </div>
+            </ZoruCardContent>
+          </ZoruCard>
+        </>
+      }
+    >
+      <ZoruCard>
+        <ZoruCardHeader>
+          <ZoruCardTitle>Overview</ZoruCardTitle>
+        </ZoruCardHeader>
+        <ZoruCardContent>
+          <div className="grid gap-4 md:grid-cols-2">
+            <Field label="Budget head" value={budget.budgetHead || '—'} />
+            <Field label="Period" value={budget.period || '—'} />
+            <Field label="Scenario" value={budget.scenario || 'base'} />
+            <Field
+              label="Plan amount"
+              value={fmtMoney(budget.planAmount)}
+            />
+            <Field
+              label="Actual"
+              value={fmtMoney(budget.actual)}
+            />
+            <Field
+              label="Variance"
+              value={
+                <span
+                  className={`font-mono tabular-nums ${overrun ? 'text-zoru-danger-ink' : ''}`}
+                >
+                  {fmtMoney(budget.variance)}
+                </span>
+              }
+            />
+            <Field
+              label="Alert threshold"
+              value={
+                typeof budget.alertAt === 'number'
+                  ? `${budget.alertAt}%`
+                  : '—'
+              }
+            />
+            <Field
+              label="Locked"
+              value={
+                budget.locked ? (
+                  <ZoruBadge variant="warning">Yes</ZoruBadge>
+                ) : (
+                  'No'
+                )
+              }
+            />
+          </div>
+        </ZoruCardContent>
+      </ZoruCard>
+
+      <ZoruCard>
+        <ZoruCardHeader>
+          <ZoruCardTitle>Allocation breakdown</ZoruCardTitle>
+        </ZoruCardHeader>
+        <ZoruCardContent>
+          {/* TODO 1D.2: cost-center allocation table needs a child schema */}
+          <p className="text-[13px] text-zoru-ink-muted">
+            No allocation breakdown yet. Allocation rules are configured per
+            cost center on the edit page.
+          </p>
+        </ZoruCardContent>
+      </ZoruCard>
+
+      <ZoruCard>
+        <ZoruCardHeader>
+          <ZoruCardTitle>Actual vs Planned</ZoruCardTitle>
+        </ZoruCardHeader>
+        <ZoruCardContent>
+          <table className="w-full text-[13px]">
+            <thead>
+              <tr className="border-b border-zoru-line/60 text-left text-[11px] uppercase text-zoru-ink-muted">
+                <th className="py-2">Metric</th>
+                <th className="py-2 text-right">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="border-b border-zoru-line/40">
+                <td className="py-2 text-zoru-ink-muted">Planned</td>
+                <td className="py-2 text-right font-mono tabular-nums">
+                  {fmtMoney(budget.planAmount)}
+                </td>
+              </tr>
+              <tr className="border-b border-zoru-line/40">
+                <td className="py-2 text-zoru-ink-muted">Actual</td>
+                <td className="py-2 text-right font-mono tabular-nums">
+                  {fmtMoney(budget.actual)}
+                </td>
+              </tr>
+              <tr>
+                <td className="py-2 font-medium">Variance</td>
+                <td
+                  className={`py-2 text-right font-mono font-medium tabular-nums ${overrun ? 'text-zoru-danger-ink' : ''}`}
+                >
+                  {fmtMoney(budget.variance)}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </ZoruCardContent>
+      </ZoruCard>
+
+      <ZoruCard>
+        <ZoruCardHeader>
+          <ZoruCardTitle>Variance analysis</ZoruCardTitle>
+        </ZoruCardHeader>
+        <ZoruCardContent>
+          {actualLog.length === 0 ? (
+            <p className="text-[13px] text-zoru-ink-muted">
+              No actuals posted yet. Use <strong>Record actual</strong> to
+              capture spend against this budget.
+            </p>
+          ) : (
+            <table className="w-full text-[13px]">
+              <thead>
+                <tr className="border-b border-zoru-line/60 text-left text-[11px] uppercase text-zoru-ink-muted">
+                  <th className="py-2">Posted at</th>
+                  <th className="py-2 text-right">Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                {actualLog.map((row, idx) => (
+                  <tr
+                    key={row._id ?? `${row.postedAt}-${idx}`}
+                    className="border-b border-zoru-line/40 last:border-0"
+                  >
+                    <td className="py-2">{fmtDate(row.postedAt)}</td>
+                    <td className="py-2 text-right font-mono tabular-nums">
+                      {fmtMoney(row.amount)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </ZoruCardContent>
+      </ZoruCard>
+
+      {budget.notes ? (
+        <ZoruCard>
+          <ZoruCardHeader>
+            <ZoruCardTitle>Notes</ZoruCardTitle>
+          </ZoruCardHeader>
+          <ZoruCardContent>
+            <p className="whitespace-pre-wrap text-[13px] text-zoru-ink">
+              {budget.notes}
+            </p>
+          </ZoruCardContent>
+        </ZoruCard>
+      ) : null}
+
+      {budget.rejectReason ? (
+        <ZoruCard>
+          <ZoruCardHeader>
+            <ZoruCardTitle>Rejection reason</ZoruCardTitle>
+          </ZoruCardHeader>
+          <ZoruCardContent>
+            <p className="whitespace-pre-wrap text-[13px] text-zoru-danger-ink">
+              {budget.rejectReason}
+            </p>
+          </ZoruCardContent>
+        </ZoruCard>
+      ) : null}
+    </EntityDetailShell>
+  );
 }

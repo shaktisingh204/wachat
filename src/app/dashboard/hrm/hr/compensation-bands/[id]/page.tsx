@@ -18,6 +18,8 @@ import {
     fmtCurrency,
 } from '../../_components/hr-detail-loader';
 import { HrDetailGrid, HrDetailRow } from '../../_components/hr-detail-grid';
+import { HrActionButtons } from '../../_components/hr-action-buttons';
+import { archiveCompensationBand } from '@/app/actions/hr-status.actions';
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -60,16 +62,30 @@ export default async function CompensationBandDetailPage({ params }: PageProps) 
                             <Pencil className="h-4 w-4" /> Edit
                         </ZoruButton>
                     </Link>
-                    {/* TODO 1D.2: wire Duplicate / Archive. */}
-                    <ZoruButton variant="outline" size="sm" disabled>
-                        <Copy className="h-4 w-4" /> Duplicate
-                    </ZoruButton>
-                    <ZoruButton variant="outline" size="sm" disabled>
-                        <Archive className="h-4 w-4" /> Archive
-                    </ZoruButton>
+                    <Link href={`${BASE}/new?duplicateOf=${id}`}>
+                        <ZoruButton variant="outline" size="sm">
+                            <Copy className="h-4 w-4" /> Duplicate
+                        </ZoruButton>
+                    </Link>
+                    <HrActionButtons
+                        actions={[
+                            {
+                                key: 'archive',
+                                kind: 'confirm',
+                                label: 'Archive',
+                                icon: <Archive className="h-4 w-4" />,
+                                variant: 'destructive',
+                                confirmTitle: 'Archive this compensation band?',
+                                confirmDescription:
+                                    'Archived bands are marked inactive but kept for historical reference.',
+                                confirmLabel: 'Archive',
+                                onRun: () => archiveCompensationBand(id),
+                            },
+                        ]}
+                    />
                 </>
             }
-            audit={{ entityKind: 'compensation-band', entityId: id }}
+            audit={{ entityKind: 'compensation_band', entityId: id }}
         >
             <HrDetailGrid title="Band">
                 <HrDetailRow label="Role / Designation">{title}</HrDetailRow>

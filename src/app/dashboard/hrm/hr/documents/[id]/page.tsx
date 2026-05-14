@@ -25,6 +25,11 @@ import {
     fmtText,
 } from '../../_components/hr-detail-loader';
 import { HrDetailGrid, HrDetailRow } from '../../_components/hr-detail-grid';
+import { HrActionButtons } from '../../_components/hr-action-buttons';
+import {
+    markDocumentVerified,
+    renewDocument,
+} from '@/app/actions/hr-status.actions';
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -97,14 +102,37 @@ export default async function DocumentDetailPage({ params }: PageProps) {
                             <ExternalLink className="h-4 w-4" /> Open file
                         </ZoruButton>
                     )}
-                    {/* TODO 1D.2: wire Mark verified to a status mutation. */}
-                    <ZoruButton variant="outline" size="sm" disabled>
-                        <CheckCircle2 className="h-4 w-4" /> Mark verified
-                    </ZoruButton>
-                    {/* TODO 1D.2: wire Renew to a duplicate-with-new-expiry flow. */}
-                    <ZoruButton variant="outline" size="sm" disabled>
-                        <RefreshCw className="h-4 w-4" /> Renew
-                    </ZoruButton>
+                    <HrActionButtons
+                        actions={[
+                            {
+                                key: 'verify',
+                                kind: 'action',
+                                label: 'Mark verified',
+                                icon: <CheckCircle2 className="h-4 w-4" />,
+                                onRun: () => markDocumentVerified(id),
+                                disabled: verified,
+                            },
+                            {
+                                key: 'renew',
+                                kind: 'prompt',
+                                label: 'Renew',
+                                icon: <RefreshCw className="h-4 w-4" />,
+                                promptTitle: 'Renew document',
+                                promptDescription:
+                                    'Set the new expiry date for this document.',
+                                submitLabel: 'Renew',
+                                fields: [
+                                    {
+                                        name: 'newExpiry',
+                                        label: 'New expiry date',
+                                        type: 'date',
+                                        required: true,
+                                    },
+                                ],
+                                onRun: (v) => renewDocument(id, v.newExpiry ?? ''),
+                            },
+                        ]}
+                    />
                 </>
             }
             audit={{ entityKind: 'document', entityId: id }}

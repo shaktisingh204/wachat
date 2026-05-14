@@ -68,7 +68,6 @@ export default function Feedback360DetailPage({
       editHref={`/dashboard/hrm/hr/feedback-360/${id}/edit`}
       deleteAction={deleteFeedback360}
       entityId={id}
-      auditKind="hr_feedback_360"
       sections={[
         {
           title: 'Participants',

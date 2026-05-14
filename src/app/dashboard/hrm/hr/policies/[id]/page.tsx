@@ -25,6 +25,8 @@ import {
     fmtText,
 } from '../../_components/hr-detail-loader';
 import { HrDetailGrid, HrDetailRow } from '../../_components/hr-detail-grid';
+import { HrActionButtons } from '../../_components/hr-action-buttons';
+import { publishPolicy, archivePolicy } from '@/app/actions/hr-status.actions';
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -61,16 +63,34 @@ export default async function PolicyDetailPage({ params }: PageProps) {
                             <Pencil className="h-4 w-4" /> Edit
                         </ZoruButton>
                     </Link>
-                    {/* TODO 1D.2: wire Publish / Archive / Print. */}
-                    <ZoruButton variant="outline" size="sm" disabled>
-                        <Send className="h-4 w-4" /> Publish
-                    </ZoruButton>
-                    <ZoruButton variant="outline" size="sm" disabled>
-                        <Archive className="h-4 w-4" /> Archive
-                    </ZoruButton>
-                    <ZoruButton variant="outline" size="sm" disabled>
-                        <Printer className="h-4 w-4" /> Print
-                    </ZoruButton>
+                    <a href={`${BASE}/${id}?print=1`} target="_blank" rel="noopener noreferrer">
+                        <ZoruButton variant="outline" size="sm">
+                            <Printer className="h-4 w-4" /> Print
+                        </ZoruButton>
+                    </a>
+                    <HrActionButtons
+                        actions={[
+                            {
+                                key: 'publish',
+                                kind: 'action',
+                                label: 'Publish',
+                                icon: <Send className="h-4 w-4" />,
+                                onRun: () => publishPolicy(id),
+                            },
+                            {
+                                key: 'archive',
+                                kind: 'confirm',
+                                label: 'Archive',
+                                icon: <Archive className="h-4 w-4" />,
+                                variant: 'destructive',
+                                confirmTitle: 'Archive this policy?',
+                                confirmDescription:
+                                    'Archived policies are hidden from the active policy list.',
+                                confirmLabel: 'Archive',
+                                onRun: () => archivePolicy(id),
+                            },
+                        ]}
+                    />
                 </>
             }
             audit={{ entityKind: 'policy', entityId: id }}

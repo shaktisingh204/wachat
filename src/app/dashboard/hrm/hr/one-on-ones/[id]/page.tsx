@@ -75,7 +75,6 @@ export default function OneOnOneDetailPage({
       editHref={`/dashboard/hrm/hr/one-on-ones/${id}/edit`}
       deleteAction={deleteOneOnOne}
       entityId={id}
-      auditKind="hr_one_on_ones"
       sections={[
         {
           title: 'Meeting',

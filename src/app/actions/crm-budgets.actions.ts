@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { ObjectId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/index.ts';
+import { writeAuditEntry } from '@/lib/audit-log';
 import { getErrorMessage } from '@/lib/utils';
 
 export async function getBudgets(): Promise<{ budgets: any[]; error?: string }> {
@@ -171,6 +172,140 @@ export async function deleteBudget(
     }
 
     revalidatePath('/dashboard/crm/budgets');
+    return { success: true };
+  } catch (e) {
+    return { success: false, error: getErrorMessage(e) };
+  }
+}
+
+/* ─── Lifecycle ───────────────────────────────────────────────── */
+
+async function setBudgetField(
+  id: string,
+  set: Record<string, unknown>,
+  audit: { action: string; reason?: string; diff?: Record<string, { before?: unknown; after?: unknown }> },
+): Promise<{ success: boolean; error?: string }> {
+  const session = await getSession();
+  if (!session?.user) return { success: false, error: 'Access denied.' };
+  if (!ObjectId.isValid(id)) {
+    return { success: false, error: 'Invalid budget ID.' };
+  }
+  try {
+    const { db } = await connectToDatabase();
+    const res = await db.collection('crm_budgets').updateOne(
+      {
+        _id: new ObjectId(id),
+        userId: new ObjectId(session.user._id as string),
+      },
+      { $set: { ...set, updatedAt: new Date() } } as any,
+    );
+    if (res.matchedCount === 0) {
+      return { success: false, error: 'Budget not found.' };
+    }
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action: audit.action,
+        entityKind: 'budget',
+        entityId: id,
+        reason: audit.reason,
+        diff: audit.diff,
+      });
+    } catch {
+      /* non-fatal */
+    }
+    revalidatePath(`/dashboard/crm/budgets/${id}`);
+    revalidatePath('/dashboard/crm/budgets');
+    return { success: true };
+  } catch (e) {
+    return { success: false, error: getErrorMessage(e) };
+  }
+}
+
+export async function approveBudget(budgetId: string) {
+  return setBudgetField(
+    budgetId,
+    { status: 'approved', approvedAt: new Date() },
+    { action: 'status_change', reason: 'approved', diff: { status: { after: 'approved' } } },
+  );
+}
+
+export async function rejectBudget(budgetId: string, reason?: string) {
+  return setBudgetField(
+    budgetId,
+    { status: 'rejected', rejectedAt: new Date(), rejectReason: reason || '' },
+    { action: 'status_change', reason: reason || 'rejected', diff: { status: { after: 'rejected' } } },
+  );
+}
+
+export async function lockBudget(budgetId: string) {
+  return setBudgetField(
+    budgetId,
+    { locked: true, lockedAt: new Date() },
+    { action: 'archive', reason: 'locked', diff: { locked: { after: true } } },
+  );
+}
+
+export async function recordBudgetActual(
+  budgetId: string,
+  amount: number,
+): Promise<{ success: boolean; error?: string }> {
+  const session = await getSession();
+  if (!session?.user) return { success: false, error: 'Access denied.' };
+  if (!ObjectId.isValid(budgetId)) {
+    return { success: false, error: 'Invalid budget ID.' };
+  }
+  if (!Number.isFinite(amount)) {
+    return { success: false, error: 'Invalid amount.' };
+  }
+  try {
+    const { db } = await connectToDatabase();
+    const budget = (await db.collection('crm_budgets').findOne({
+      _id: new ObjectId(budgetId),
+      userId: new ObjectId(session.user._id as string),
+    })) as { actual?: number; planAmount?: number } | null;
+    if (!budget) {
+      return { success: false, error: 'Budget not found.' };
+    }
+    const newActual = (budget.actual ?? 0) + amount;
+    const variance = (budget.planAmount ?? 0) - newActual;
+    await db.collection('crm_budgets').updateOne(
+      {
+        _id: new ObjectId(budgetId),
+        userId: new ObjectId(session.user._id as string),
+      },
+      {
+        $set: {
+          actual: newActual,
+          variance,
+          updatedAt: new Date(),
+        },
+        $push: {
+          actualLog: {
+            _id: new ObjectId(),
+            amount,
+            postedAt: new Date(),
+          },
+        } as any,
+      } as any,
+    );
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action: 'update',
+        entityKind: 'budget',
+        entityId: budgetId,
+        reason: 'actual_posted',
+        diff: {
+          actual: { before: budget.actual ?? 0, after: newActual },
+        },
+      });
+    } catch {
+      /* non-fatal */
+    }
+    revalidatePath(`/dashboard/crm/budgets/${budgetId}`);
     return { success: true };
   } catch (e) {
     return { success: false, error: getErrorMessage(e) };

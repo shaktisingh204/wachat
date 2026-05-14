@@ -4,6 +4,16 @@ import { ObjectId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
 import { revalidatePath } from 'next/cache';
+import { writeAuditEntry } from '@/lib/audit-log';
+import {
+  computeFirstResponseDueBy,
+  computeResolutionDueBy,
+  findApplicableSlaRule,
+  DEFAULT_BUSINESS_HOURS,
+  type SlaRule,
+  type BusinessHours,
+  type SlaTicket,
+} from '@/lib/sla/engine';
 
 export async function saveSla(
   _prev: any,
@@ -47,6 +57,7 @@ export async function saveSla(
       resolutionMinutes,
       businessHoursOnly,
       status: 'active',
+      active: true,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -65,5 +76,197 @@ export async function saveSla(
   } catch (e: any) {
     console.error('saveSla error:', e);
     return { error: e?.message || 'An unexpected error occurred.' };
+  }
+}
+
+/* ─── SLA engine integration ────────────────────────────────────── */
+
+function toSlaRuleDoc(doc: Record<string, any>): SlaRule {
+  return {
+    _id: doc._id ? String(doc._id) : undefined,
+    name: typeof doc.name === 'string' ? doc.name : undefined,
+    priority: (doc.priority ?? 'medium') as SlaRule['priority'],
+    severity: doc.severity as SlaRule['severity'],
+    channel: typeof doc.channel === 'string' ? doc.channel : undefined,
+    firstResponseMinutes: Number(
+      doc.firstResponseMinutes ?? doc.firstResponseMins ?? doc.firstResponseTargetMins ?? 60,
+    ),
+    resolutionMinutes: Number(
+      doc.resolutionMinutes ?? doc.resolutionMins ?? doc.resolutionTargetMins ?? 480,
+    ),
+    businessHoursOnly: Boolean(doc.businessHoursOnly ?? true),
+    escalateTo: typeof doc.escalateTo === 'string' ? doc.escalateTo : undefined,
+    escalateAfterMinutes:
+      typeof doc.escalateAfterMinutes === 'number' ? doc.escalateAfterMinutes : undefined,
+    escalationGroupId:
+      typeof doc.escalationGroupId === 'string' ? doc.escalationGroupId : undefined,
+  };
+}
+
+function toBusinessHoursDoc(raw: unknown): BusinessHours {
+  // Business hours can live either as a string (legacy free-text) or a
+  // structured object on the SLA / tenant settings record. We accept
+  // both and fall back to the platform default.
+  if (raw && typeof raw === 'object') {
+    const o = raw as Record<string, any>;
+    return {
+      timezone: typeof o.timezone === 'string' ? o.timezone : DEFAULT_BUSINESS_HOURS.timezone,
+      workDays: Array.isArray(o.workDays)
+        ? (o.workDays as number[]).filter((n) => Number.isInteger(n) && n >= 0 && n <= 6)
+        : DEFAULT_BUSINESS_HOURS.workDays,
+      startHour: Number.isFinite(Number(o.startHour))
+        ? Number(o.startHour)
+        : DEFAULT_BUSINESS_HOURS.startHour,
+      endHour: Number.isFinite(Number(o.endHour))
+        ? Number(o.endHour)
+        : DEFAULT_BUSINESS_HOURS.endHour,
+      holidays: Array.isArray(o.holidays)
+        ? (o.holidays as unknown[]).map((s) => String(s))
+        : DEFAULT_BUSINESS_HOURS.holidays,
+    };
+  }
+  return DEFAULT_BUSINESS_HOURS;
+}
+
+/**
+ * Look up the applicable SLA rule for a given ticket id and compute
+ * live due-by timestamps. Used by `<TicketSlaBadge>` to drive the
+ * countdown.
+ */
+export async function getApplicableSlaRule(ticketId: string): Promise<{
+  rule: SlaRule | null;
+  firstResponseDueBy?: string;
+  resolutionDueBy?: string;
+  firstResponseAt?: string;
+  resolvedAt?: string;
+  status?: string;
+  createdAt?: string;
+  error?: string;
+}> {
+  if (!ticketId) return { rule: null, error: 'Missing ticket id.' };
+  const session = await getSession();
+  if (!session?.user?._id) return { rule: null, error: 'Access denied.' };
+
+  try {
+    const { db } = await connectToDatabase();
+    const tenantId = new ObjectId(session.user._id as string);
+
+    let ticketDoc: Record<string, any> | null = null;
+    if (ObjectId.isValid(ticketId)) {
+      ticketDoc = await db
+        .collection('crm_tickets')
+        .findOne({ _id: new ObjectId(ticketId) } as any);
+    }
+    if (!ticketDoc) return { rule: null, error: 'Ticket not found.' };
+
+    const ruleDocs = await db
+      .collection('crm_slas')
+      .find({ userId: tenantId, $or: [{ active: true }, { status: 'active' }] } as any)
+      .toArray();
+    const rules = ruleDocs.map(toSlaRuleDoc);
+
+    const ticket: SlaTicket = {
+      _id: String(ticketDoc._id),
+      createdAt: ticketDoc.createdAt ?? ticketDoc?.audit?.createdAt,
+      firstResponseAt: ticketDoc.firstResponseAt,
+      resolvedAt: ticketDoc.resolvedAt,
+      status: ticketDoc.status,
+      priority: ticketDoc.priority,
+      severity: ticketDoc.severity,
+      channel: ticketDoc.channel,
+    };
+
+    const rule = findApplicableSlaRule(ticket, rules);
+    if (!rule) {
+      return {
+        rule: null,
+        status: ticket.status,
+        createdAt: ticket.createdAt ? new Date(ticket.createdAt).toISOString() : undefined,
+        firstResponseAt: ticket.firstResponseAt
+          ? new Date(ticket.firstResponseAt).toISOString()
+          : undefined,
+        resolvedAt: ticket.resolvedAt ? new Date(ticket.resolvedAt).toISOString() : undefined,
+      };
+    }
+
+    // Business-hours config: per-tenant `crm_settings.businessHours`
+    // overrides the platform default. Per-rule overrides live in the
+    // optional `businessHours` field.
+    const tenantSettings = await db
+      .collection('crm_settings')
+      .findOne({ userId: tenantId } as any);
+    const ruleBh = ruleDocs.find((d) => String(d._id) === rule._id)?.businessHours;
+    const bh = toBusinessHoursDoc(ruleBh ?? tenantSettings?.businessHours);
+
+    const firstResponseDueBy = computeFirstResponseDueBy(ticket, rule, bh);
+    const resolutionDueBy = computeResolutionDueBy(ticket, rule, bh);
+
+    return {
+      rule,
+      firstResponseDueBy: firstResponseDueBy.toISOString(),
+      resolutionDueBy: resolutionDueBy.toISOString(),
+      firstResponseAt: ticket.firstResponseAt
+        ? new Date(ticket.firstResponseAt).toISOString()
+        : undefined,
+      resolvedAt: ticket.resolvedAt ? new Date(ticket.resolvedAt).toISOString() : undefined,
+      status: ticket.status,
+      createdAt: ticket.createdAt ? new Date(ticket.createdAt).toISOString() : undefined,
+    };
+  } catch (e: any) {
+    console.error('[getApplicableSlaRule]', e);
+    return { rule: null, error: e?.message || 'Failed to load SLA rule.' };
+  }
+}
+
+/**
+ * Operator-driven breach acknowledgement.
+ *
+ * Clears the auto-escalation flag for the next sweep, leaving the
+ * historical `escalations[]` array intact. The cron's idempotency
+ * field (`lastSlaBreachCheckAt`) is also reset so the next run can
+ * re-trigger if the ticket is still over the line.
+ */
+export async function acknowledgeSlaBreach(
+  ticketId: string,
+  note?: string,
+): Promise<{ ok: boolean; error?: string }> {
+  if (!ticketId || !ObjectId.isValid(ticketId)) {
+    return { ok: false, error: 'Invalid ticket id.' };
+  }
+  const session = await getSession();
+  if (!session?.user?._id) return { ok: false, error: 'Access denied.' };
+
+  try {
+    const { db } = await connectToDatabase();
+    const now = new Date();
+
+    const res = await db.collection('crm_tickets').updateOne(
+      { _id: new ObjectId(ticketId) } as any,
+      {
+        $set: {
+          acknowledgedAt: now,
+          escalatedAt: null,
+          lastSlaBreachCheckAt: null,
+          updatedAt: now,
+        },
+      },
+    );
+
+    if (res.matchedCount === 0) return { ok: false, error: 'Ticket not found.' };
+
+    await writeAuditEntry({
+      tenantUserId: String(session.user._id),
+      actorId: String(session.user._id),
+      action: 'sla_acknowledged',
+      entityKind: 'ticket',
+      entityId: ticketId,
+      reason: note?.trim() || 'SLA breach acknowledged by operator',
+    });
+
+    revalidatePath(`/dashboard/crm/tickets/${ticketId}`);
+    return { ok: true };
+  } catch (e: any) {
+    console.error('[acknowledgeSlaBreach]', e);
+    return { ok: false, error: e?.message || 'Failed to acknowledge breach.' };
   }
 }

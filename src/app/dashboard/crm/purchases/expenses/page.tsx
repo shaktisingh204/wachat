@@ -14,7 +14,8 @@ import { ObjectId } from 'mongodb';
 import { Wallet } from 'lucide-react';
 
 import { CrmPageHeader } from '../../_components/crm-page-header';
-import { computeBillKpis, listBills } from '@/app/actions/crm/bills.actions';
+import { listBills } from '@/app/actions/crm/bills.actions';
+import { computeBillKpis } from '@/app/actions/crm/bills.kpis';
 import { getSession } from '@/app/actions/user.actions';
 import { connectToDatabase } from '@/lib/mongodb';
 import { crmBillsApi, type CrmBillDoc } from '@/lib/rust-client/crm-bills';

@@ -7,7 +7,7 @@ import { ArrowRight, ArrowUpRight, Check, ChevronRight, Sparkles, Plus, Minus } 
 import { FEATURES, getFeature, getRelatedFeatures } from '@/lib/features/catalog';
 import { FEATURE_CATEGORIES } from '@/lib/features/types';
 import { FEATURE_ICONS } from '@/lib/features/icons';
-import { FeatureHeader, FeatureCategoryStrip, FeatureFooter } from '@/components/features/FeatureChrome';
+import { FeatureHeader, FeatureCategoryStrip, FeatureFooter, FeatureHeroPattern } from '@/components/features/FeatureChrome';
 
 type Params = { slug: string };
 
@@ -121,7 +121,7 @@ export default async function FeatureDetailPage({
       </nav>
 
       {/* ───────────── Hero ───────────── */}
-      <section className="relative">
+      <section className="relative overflow-hidden">
         {/* feature-tinted halo */}
         <div
           aria-hidden
@@ -130,6 +130,8 @@ export default async function FeatureDetailPage({
             backgroundImage: `radial-gradient(60% 60% at 80% 0%, ${feature.color}22, transparent 70%), radial-gradient(50% 50% at 10% 30%, ${feature.tint}, transparent 70%)`,
           }}
         />
+        {/* per-category texture overlay — each category gets a distinct pattern */}
+        <FeatureHeroPattern category={feature.category} color={feature.color} />
         <div className="container mx-auto px-4 md:px-6 pt-12 md:pt-16 pb-10 md:pb-16 relative">
           <div className="grid grid-cols-12 gap-6 md:gap-10 items-end">
             <div className="col-span-12 md:col-span-8">

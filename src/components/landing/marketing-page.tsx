@@ -28,6 +28,7 @@ import {
   Zap,
 } from 'lucide-react';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
+import { LandingHeader } from '@/components/landing/landing-header';
 
 type PageIcon = LucideIcon;
 
@@ -65,14 +66,6 @@ type MarketingPageConfig = {
   finalTitle: string;
   finalBody: string;
 };
-
-const navItems = [
-  { label: 'Products', href: '/products' },
-  { label: 'Enterprise', href: '/enterprise' },
-  { label: 'Customers', href: '/customers' },
-  { label: 'Partners', href: '/partners' },
-  { label: 'Resources', href: '/resources' },
-];
 
 export const marketingPageConfigs: Record<string, MarketingPageConfig> = {
   products: {
@@ -308,41 +301,7 @@ export function MarketingNavPage({ config }: { config: MarketingPageConfig }) {
       <MarketingPageStyles />
       <div aria-hidden className="mp-bg" />
 
-      <header className="sticky top-0 z-40 border-b border-black/[0.07] bg-white/86 backdrop-blur-xl">
-        <div className="mx-auto flex h-16 max-w-7xl items-center gap-5 px-4 md:px-6">
-          <Link href="/" className="flex items-center gap-2">
-            <SabNodeLogo className="h-7 w-auto" />
-          </Link>
-
-          <nav className="ml-3 hidden items-center gap-1 rounded-full border border-black/[0.06] bg-black/[0.02] p-1 md:flex">
-            {navItems.map((item) => {
-              const active = item.href.slice(1) === config.navKey;
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`inline-flex h-8 items-center rounded-full px-3.5 text-[13px] font-semibold transition-colors ${
-                    active
-                      ? 'bg-white text-[#4F46E5] shadow-sm ring-1 ring-[#4F46E5]/20'
-                      : 'text-[#4A4A6B] hover:text-[#121126]'
-                  }`}
-                >
-                  {item.label}
-                </Link>
-              );
-            })}
-          </nav>
-
-          <div className="ml-auto flex items-center gap-2">
-            <Link href="/login" className="hidden h-9 items-center px-3 text-[13.5px] font-semibold text-[#121126] hover:text-[#4F46E5] sm:inline-flex">
-              Sign In
-            </Link>
-            <Link href="/signup" className="mp-btn-primary inline-flex h-9 items-center rounded-full px-4 text-[13.5px] font-semibold">
-              Sign Up
-            </Link>
-          </div>
-        </div>
-      </header>
+      <LandingHeader active={config.navKey} />
 
       <main className="relative z-10">
         <section className="mx-auto grid max-w-7xl gap-10 px-4 pb-16 pt-12 md:grid-cols-[1.05fr_0.95fr] md:px-6 md:pb-20 md:pt-20">

@@ -3,51 +3,70 @@ import Link from 'next/link';
 import { ArrowRight, ChevronRight } from 'lucide-react';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { FEATURE_CATEGORIES } from '@/lib/features/types';
+import { LandingHeader } from '@/components/landing/landing-header';
 
 /**
- * Top header used across /features routes. Server component, no JS.
- * Matches the SabUI aesthetic of the landing page (hairline border, white
- * blurred background, indigo primary).
+ * Top header used across /features routes. Delegates to the shared
+ * LandingHeader so feature pages get the same Zoho-style mega menu,
+ * mobile drawer, and authenticated-state handling as the rest of the
+ * marketing site.
  */
 export function FeatureHeader() {
+  return <LandingHeader active="features" />;
+}
+
+/**
+ * Per-category hero background pattern — gives each feature page a distinct
+ * visual texture while keeping the theme cohesive (same color tokens, same
+ * blur/halo system). The pattern overlays the existing radial gradient on
+ * the /features/[slug] hero.
+ */
+export function FeatureHeroPattern({
+  category,
+  color,
+}: {
+  category: string;
+  color: string;
+}) {
+  const c = encodeURIComponent(color);
+  const cFaded = encodeURIComponent(color + '33');
+
+  // Each category gets a distinct SVG pattern, all using `color` so they
+  // share the same accent tone as the rest of the feature page.
+  const patterns: Record<string, string> = {
+    // tight dot grid
+    conversations: `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='28' height='28'><circle cx='2' cy='2' r='1.2' fill='${c}'/></svg>")`,
+    // diagonal stripes
+    automation: `repeating-linear-gradient(135deg, ${color}1a 0 1px, transparent 1px 14px)`,
+    // crosshatch grid
+    'customer-data': `linear-gradient(${color}14 1px, transparent 1px), linear-gradient(90deg, ${color}14 1px, transparent 1px)`,
+    // soft wave (concentric arcs)
+    growth: `radial-gradient(circle at 50% 100%, ${color}22 0 1px, transparent 1px 18px)`,
+    // bar-chart silhouette
+    analytics: `repeating-linear-gradient(90deg, ${color}1c 0 2px, transparent 2px 22px)`,
+    // hex / triangle tile
+    commerce: `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='34'><polygon points='20,2 38,12 38,28 20,38 2,28 2,12' fill='none' stroke='${cFaded}' stroke-width='1'/></svg>")`,
+    // monospace bracket grid
+    developer: `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32'><path d='M4 8 L1 16 L4 24 M28 8 L31 16 L28 24' fill='none' stroke='${cFaded}' stroke-width='1' stroke-linecap='round'/></svg>")`,
+  };
+  const size: Record<string, string> = {
+    'customer-data': '40px 40px',
+    growth: '36px 36px',
+  };
+
+  const pattern = patterns[category] ?? patterns.conversations;
+
   return (
-    <header className="sticky top-0 z-40 w-full border-b sn-hair bg-white/88 backdrop-blur-xl">
-      <div className="container mx-auto px-4 md:px-6 flex h-16 items-center gap-6">
-        <Link href="/" className="flex items-center gap-2 flex-shrink-0">
-          <SabNodeLogo className="h-7 w-auto" />
-        </Link>
-
-        <nav className="hidden md:flex items-center gap-1 ml-4 rounded-full border border-black/[0.06] bg-black/[0.02] p-1">
-          <Link href="/features" className="inline-flex items-center gap-1 h-8 px-3.5 rounded-full text-[13px] font-semibold text-[#4F46E5] border border-[#4F46E5]/30 bg-white shadow-sm">
-            Features
-          </Link>
-          <Link href="/products" className="inline-flex items-center gap-1 h-8 px-3.5 rounded-full text-[13px] font-semibold text-[#121126] hover:text-[#4F46E5]">
-            Products
-          </Link>
-          <Link href="/enterprise" className="inline-flex items-center gap-1 h-8 px-3.5 rounded-full text-[13px] font-semibold text-[#121126] hover:text-[#4F46E5]">
-            Enterprise
-          </Link>
-          <Link href="/customers" className="inline-flex items-center gap-1 h-8 px-3.5 rounded-full text-[13px] font-semibold text-[#121126] hover:text-[#4F46E5]">
-            Customers
-          </Link>
-          <Link href="/resources" className="inline-flex items-center gap-1 h-8 px-3.5 rounded-full text-[13px] font-semibold text-[#121126] hover:text-[#4F46E5]">
-            Resources
-          </Link>
-          <Link href="/pricing" className="inline-flex items-center gap-1 h-8 px-3.5 rounded-full text-[13px] font-semibold text-[#121126] hover:text-[#4F46E5]">
-            Pricing
-          </Link>
-        </nav>
-
-        <div className="flex items-center gap-1.5 ml-auto">
-          <Link href="/login" className="hidden sm:inline-flex h-9 items-center px-3 text-[13.5px] font-semibold text-[#121126] hover:text-[#4F46E5] transition-colors">
-            Sign In
-          </Link>
-          <Link href="/signup" className="sn-btn-primary inline-flex h-9 items-center rounded-full px-4 text-[13.5px] font-semibold">
-            Start free <ArrowRight className="h-3.5 w-3.5 ml-1" />
-          </Link>
-        </div>
-      </div>
-    </header>
+    <div
+      aria-hidden
+      className="pointer-events-none absolute inset-0 -z-0 opacity-70"
+      style={{
+        backgroundImage: pattern,
+        backgroundSize: size[category],
+        maskImage: 'radial-gradient(ellipse 70% 60% at 80% 20%, black 30%, transparent 80%)',
+        WebkitMaskImage: 'radial-gradient(ellipse 70% 60% at 80% 20%, black 30%, transparent 80%)',
+      }}
+    />
   );
 }
 

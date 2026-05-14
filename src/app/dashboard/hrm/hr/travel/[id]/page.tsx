@@ -29,6 +29,12 @@ import {
     fmtShortId,
 } from '../../_components/hr-detail-loader';
 import { HrDetailGrid, HrDetailRow } from '../../_components/hr-detail-grid';
+import { HrActionButtons } from '../../_components/hr-action-buttons';
+import {
+    approveTravelRequest,
+    rejectTravelRequest,
+    markTravelComplete,
+} from '@/app/actions/hr-status-flow.actions';
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -67,22 +73,51 @@ export default async function TravelDetailPage({ params }: PageProps) {
                             <Pencil className="h-4 w-4" /> Edit
                         </ZoruButton>
                     </Link>
-                    {/* TODO 1D.2: wire Approve/Reject/Book to status mutations. */}
-                    <ZoruButton variant="outline" size="sm" disabled>
-                        <Check className="h-4 w-4" /> Approve
-                    </ZoruButton>
-                    <ZoruButton variant="outline" size="sm" disabled>
-                        <X className="h-4 w-4" /> Reject
-                    </ZoruButton>
-                    <ZoruButton variant="outline" size="sm" disabled>
-                        <Ticket className="h-4 w-4" /> Book travel
-                    </ZoruButton>
-                    <ZoruButton variant="outline" size="sm" disabled>
-                        <Printer className="h-4 w-4" /> Print
-                    </ZoruButton>
+                    <a href={`${BASE}/${id}?print=1`} target="_blank" rel="noopener noreferrer">
+                        <ZoruButton variant="outline" size="sm">
+                            <Printer className="h-4 w-4" /> Print
+                        </ZoruButton>
+                    </a>
+                    <HrActionButtons
+                        actions={[
+                            {
+                                key: 'approve',
+                                kind: 'action',
+                                label: 'Approve',
+                                icon: <Check className="h-4 w-4" />,
+                                onRun: () => approveTravelRequest(id),
+                            },
+                            {
+                                key: 'reject',
+                                kind: 'prompt',
+                                label: 'Reject',
+                                icon: <X className="h-4 w-4" />,
+                                variant: 'destructive',
+                                promptTitle: 'Reject travel request',
+                                promptDescription: 'Provide a reason for rejection.',
+                                submitLabel: 'Reject',
+                                fields: [
+                                    {
+                                        name: 'reason',
+                                        label: 'Reason',
+                                        type: 'textarea',
+                                        required: true,
+                                    },
+                                ],
+                                onRun: (v) => rejectTravelRequest(id, v.reason ?? ''),
+                            },
+                            {
+                                key: 'complete',
+                                kind: 'action',
+                                label: 'Mark complete',
+                                icon: <Ticket className="h-4 w-4" />,
+                                onRun: () => markTravelComplete(id),
+                            },
+                        ]}
+                    />
                 </>
             }
-            audit={{ entityKind: 'travel-request', entityId: id }}
+            audit={{ entityKind: 'travel', entityId: id }}
         >
             <HrDetailGrid title="Trip details">
                 <HrDetailRow label="Employee">{fmtText(employeeRef)}</HrDetailRow>

@@ -27,11 +27,17 @@ import {
   getCandidates,
 } from '@/app/actions/hr.actions';
 import {
+  publishJobPosting,
+  pauseJobPosting,
+  closeJobPosting,
+} from '@/app/actions/hr-status-flow.actions';
+import {
   RecruitmentDetailShell,
   DetailCard,
   RailCard,
   RailLink,
 } from '../../_components/recruitment-detail-shell';
+import { HrActionButtons } from '../../_components/hr-action-buttons';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 
 interface PageProps {
@@ -71,22 +77,6 @@ export default async function JobDetailPage({ params }: PageProps) {
           variant: 'outline',
         },
         {
-          key: 'publish',
-          label: 'Publish',
-          icon: <Power className="h-3.5 w-3.5" />,
-        },
-        {
-          key: 'pause',
-          label: 'Pause',
-          icon: <PowerOff className="h-3.5 w-3.5" />,
-        },
-        {
-          key: 'close',
-          label: 'Close',
-          icon: <XSquare className="h-3.5 w-3.5" />,
-          variant: 'destructive',
-        },
-        {
           key: 'duplicate',
           label: 'Duplicate',
           icon: <Copy className="h-3.5 w-3.5" />,
@@ -104,6 +94,39 @@ export default async function JobDetailPage({ params }: PageProps) {
           href: `/dashboard/hrm/hr/jobs/${id}/activity`,
         },
       ]}
+      actionsSlot={
+        <HrActionButtons
+          className="flex flex-wrap items-center gap-1"
+          actions={[
+            {
+              key: 'publish',
+              kind: 'action',
+              label: 'Publish',
+              icon: <Power className="h-3.5 w-3.5" />,
+              onRun: () => publishJobPosting(id),
+            },
+            {
+              key: 'pause',
+              kind: 'action',
+              label: 'Pause',
+              icon: <PowerOff className="h-3.5 w-3.5" />,
+              onRun: () => pauseJobPosting(id),
+            },
+            {
+              key: 'close',
+              kind: 'confirm',
+              label: 'Close',
+              icon: <XSquare className="h-3.5 w-3.5" />,
+              variant: 'destructive',
+              confirmTitle: 'Close this job posting?',
+              confirmDescription:
+                'Closing will stop accepting new candidate applications.',
+              confirmLabel: 'Close posting',
+              onRun: () => closeJobPosting(id),
+            },
+          ]}
+        />
+      }
       rightRail={
         <>
           <RailCard title="Pipeline">

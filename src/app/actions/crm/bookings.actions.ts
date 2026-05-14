@@ -14,9 +14,11 @@
  * by the Lead actions is intentionally skipped here.
  */
 
+import { ObjectId } from 'mongodb';
 import { revalidatePath } from 'next/cache';
 import { getSession } from '@/app/actions/user.actions';
 import { writeAuditEntry } from '@/lib/audit-log';
+import { connectToDatabase } from '@/lib/mongodb';
 import { requirePermission } from '@/lib/rbac-server';
 import { RustApiError } from '@/lib/rust-client';
 import {
@@ -286,4 +288,159 @@ export async function updateBooking(id: string, patch: CrmBookingUpdateInput) {
 
 export async function deleteBooking(id: string) {
   return crmBookingsApi.delete(id);
+}
+
+/* ─── Lifecycle (Mongo-direct, no Rust endpoint yet) ──────────── */
+
+/**
+ * Persist a status transition directly to Mongo. The Rust client does
+ * not expose dedicated /check-in /check-out /cancel /reschedule routes
+ * yet, so we update the document in-place and emit an audit row.
+ */
+async function transitionBookingStatus(
+  bookingId: string,
+  nextStatus: CrmBookingStatus,
+  patch: Record<string, unknown> = {},
+  auditReason?: string,
+): Promise<{ success: boolean; error?: string }> {
+  const session = await getSession();
+  if (!session?.user?._id) {
+    return { success: false, error: 'Unauthorized' };
+  }
+  if (!ObjectId.isValid(bookingId)) {
+    return { success: false, error: 'Invalid booking ID.' };
+  }
+  const guard = await requirePermission('crm_booking', 'edit');
+  if (!guard.ok) return { success: false, error: guard.error };
+
+  try {
+    const { db } = await connectToDatabase();
+    const res = await db.collection('crm_bookings').updateOne(
+      {
+        _id: new ObjectId(bookingId),
+        userId: new ObjectId(session.user._id as string),
+      },
+      {
+        $set: {
+          status: nextStatus,
+          ...patch,
+          updatedAt: new Date(),
+        },
+      } as any,
+    );
+    if (res.matchedCount === 0) {
+      return { success: false, error: 'Booking not found.' };
+    }
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action: 'status_change',
+        entityKind: 'booking',
+        entityId: bookingId,
+        reason: auditReason,
+        diff: { status: { after: nextStatus } },
+      });
+    } catch {
+      /* non-fatal */
+    }
+    revalidatePath(LIST_PATH);
+    revalidatePath(`${LIST_PATH}/${bookingId}`);
+    return { success: true };
+  } catch (e) {
+    return { success: false, error: rustErr(e) };
+  }
+}
+
+export async function checkInBooking(bookingId: string) {
+  return transitionBookingStatus(
+    bookingId,
+    'confirmed',
+    { checkedInAt: new Date() },
+    'checked in',
+  );
+}
+
+export async function checkOutBooking(bookingId: string) {
+  return transitionBookingStatus(
+    bookingId,
+    'completed',
+    { checkedOutAt: new Date() },
+    'checked out',
+  );
+}
+
+export async function cancelBooking(bookingId: string, reason: string) {
+  return transitionBookingStatus(
+    bookingId,
+    'cancelled',
+    { cancelledAt: new Date(), cancelReason: reason || '' },
+    reason || 'cancelled',
+  );
+}
+
+export async function rescheduleBooking(
+  bookingId: string,
+  newSlot: { slotStart: string; slotEnd: string },
+): Promise<{ success: boolean; error?: string }> {
+  const session = await getSession();
+  if (!session?.user?._id) {
+    return { success: false, error: 'Unauthorized' };
+  }
+  if (!ObjectId.isValid(bookingId)) {
+    return { success: false, error: 'Invalid booking ID.' };
+  }
+  const guard = await requirePermission('crm_booking', 'edit');
+  if (!guard.ok) return { success: false, error: guard.error };
+
+  const start = new Date(newSlot.slotStart);
+  const end = new Date(newSlot.slotEnd);
+  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+    return { success: false, error: 'Invalid slot.' };
+  }
+  if (end.getTime() <= start.getTime()) {
+    return { success: false, error: 'Slot end must be after slot start.' };
+  }
+
+  try {
+    const { db } = await connectToDatabase();
+    const res = await db.collection('crm_bookings').updateOne(
+      {
+        _id: new ObjectId(bookingId),
+        userId: new ObjectId(session.user._id as string),
+      },
+      {
+        $set: {
+          slotStart: start,
+          slotEnd: end,
+          rescheduledAt: new Date(),
+          updatedAt: new Date(),
+        },
+      } as any,
+    );
+    if (res.matchedCount === 0) {
+      return { success: false, error: 'Booking not found.' };
+    }
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action: 'update',
+        entityKind: 'booking',
+        entityId: bookingId,
+        reason: 'rescheduled',
+        diff: {
+          slotStart: { after: start.toISOString() },
+          slotEnd: { after: end.toISOString() },
+        },
+      });
+    } catch {
+      /* non-fatal */
+    }
+    revalidatePath(LIST_PATH);
+    revalidatePath(`${LIST_PATH}/${bookingId}`);
+    return { success: true };
+  } catch (e) {
+    return { success: false, error: rustErr(e) };
+  }
 }

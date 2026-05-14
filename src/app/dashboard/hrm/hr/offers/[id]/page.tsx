@@ -26,11 +26,17 @@ import {
   getCandidateById,
 } from '@/app/actions/hr.actions';
 import {
+  sendOfferLetter,
+  withdrawOfferLetter,
+  markOfferAccepted,
+} from '@/app/actions/hr-status-flow.actions';
+import {
   RecruitmentDetailShell,
   DetailCard,
   RailCard,
   RailLink,
 } from '../../_components/recruitment-detail-shell';
+import { HrActionButtons } from '../../_components/hr-action-buttons';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 
 interface PageProps {
@@ -70,22 +76,6 @@ export default async function OfferDetailPage({ params }: PageProps) {
           variant: 'outline',
         },
         {
-          key: 'send',
-          label: 'Send',
-          icon: <Send className="h-3.5 w-3.5" />,
-        },
-        {
-          key: 'withdraw',
-          label: 'Withdraw',
-          icon: <Undo2 className="h-3.5 w-3.5" />,
-          variant: 'destructive',
-        },
-        {
-          key: 'accepted',
-          label: 'Mark accepted',
-          icon: <CheckCircle2 className="h-3.5 w-3.5" />,
-        },
-        {
           key: 'print',
           label: 'Print',
           icon: <Printer className="h-3.5 w-3.5" />,
@@ -109,6 +99,48 @@ export default async function OfferDetailPage({ params }: PageProps) {
           href: `/dashboard/hrm/hr/offers/${id}/activity`,
         },
       ]}
+      actionsSlot={
+        <HrActionButtons
+          className="flex flex-wrap items-center gap-1"
+          actions={[
+            {
+              key: 'send',
+              kind: 'action',
+              label: 'Send',
+              icon: <Send className="h-3.5 w-3.5" />,
+              onRun: () => sendOfferLetter(id),
+            },
+            {
+              key: 'accepted',
+              kind: 'action',
+              label: 'Mark accepted',
+              icon: <CheckCircle2 className="h-3.5 w-3.5" />,
+              onRun: () => markOfferAccepted(id),
+            },
+            {
+              key: 'withdraw',
+              kind: 'prompt',
+              label: 'Withdraw',
+              icon: <Undo2 className="h-3.5 w-3.5" />,
+              variant: 'destructive',
+              promptTitle: 'Withdraw offer letter',
+              promptDescription:
+                'Provide a reason; this will be recorded in the audit log.',
+              submitLabel: 'Withdraw',
+              fields: [
+                {
+                  name: 'reason',
+                  label: 'Reason',
+                  type: 'textarea',
+                  placeholder: 'Reason for withdrawal',
+                  required: true,
+                },
+              ],
+              onRun: (v) => withdrawOfferLetter(id, v.reason ?? ''),
+            },
+          ]}
+        />
+      }
       rightRail={
         <>
           <RailCard title="Candidate">

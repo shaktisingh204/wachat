@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import Image from 'next/image';
+import { LandingHeader } from '@/components/landing/landing-header';
 
 const blogPosts = [
     { title: 'Mastering WhatsApp Campaigns: A 2024 Guide', date: 'June 15, 2024', description: 'Unlock the full potential of your WhatsApp marketing with these essential tips and strategies.', image: 'https://placehold.co/600x400.png', aiHint: 'marketing analytics' },
@@ -12,7 +13,9 @@ const blogPosts = [
 
 export default function BlogPage() {
   return (
-    <div className="min-h-screen bg-background py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-background">
+      <LandingHeader active="resources" />
+      <div className="py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-12">
             <h1 className="text-4xl md:text-5xl font-bold font-headline">The SabNode Blog</h1>
@@ -41,6 +44,7 @@ export default function BlogPage() {
                 </Card>
             ))}
         </div>
+      </div>
       </div>
     </div>
   );

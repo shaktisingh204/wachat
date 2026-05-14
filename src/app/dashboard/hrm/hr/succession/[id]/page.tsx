@@ -36,6 +36,11 @@ import {
     fmtShortId,
 } from '../../_components/hr-detail-loader';
 import { HrDetailGrid, HrDetailRow } from '../../_components/hr-detail-grid';
+import { HrActionButtons } from '../../_components/hr-action-buttons';
+import {
+    markSuccessionReviewed,
+    promoteSuccessor,
+} from '@/app/actions/hr-status.actions';
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -87,13 +92,36 @@ export default async function SuccessionDetailPage({ params }: PageProps) {
                             <Pencil className="h-4 w-4" /> Edit
                         </ZoruButton>
                     </Link>
-                    {/* TODO 1D.2: wire Mark reviewed / Promote successor. */}
-                    <ZoruButton variant="outline" size="sm" disabled>
-                        <CheckCircle2 className="h-4 w-4" /> Mark reviewed
-                    </ZoruButton>
-                    <ZoruButton variant="outline" size="sm" disabled>
-                        <ArrowUpCircle className="h-4 w-4" /> Promote successor
-                    </ZoruButton>
+                    <HrActionButtons
+                        actions={[
+                            {
+                                key: 'reviewed',
+                                kind: 'action',
+                                label: 'Mark reviewed',
+                                icon: <CheckCircle2 className="h-4 w-4" />,
+                                onRun: () => markSuccessionReviewed(id),
+                            },
+                            {
+                                key: 'promote',
+                                kind: 'prompt',
+                                label: 'Promote successor',
+                                icon: <ArrowUpCircle className="h-4 w-4" />,
+                                promptTitle: 'Promote successor',
+                                promptDescription:
+                                    'Enter the employee id or name of the successor to promote.',
+                                submitLabel: 'Promote',
+                                fields: [
+                                    {
+                                        name: 'successorRef',
+                                        label: 'Successor (employee id or name)',
+                                        required: true,
+                                    },
+                                ],
+                                onRun: (v) =>
+                                    promoteSuccessor(id, v.successorRef ?? ''),
+                            },
+                        ]}
+                    />
                 </>
             }
             audit={{ entityKind: 'succession', entityId: id }}

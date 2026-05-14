@@ -27,6 +27,12 @@ import {
     fmtText,
 } from '../../_components/hr-detail-loader';
 import { HrDetailGrid, HrDetailRow } from '../../_components/hr-detail-grid';
+import { HrActionButtons } from '../../_components/hr-action-buttons';
+import {
+    sendAnnouncementNow,
+    toggleAnnouncementPin,
+    archiveAnnouncement,
+} from '@/app/actions/hr-status.actions';
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -65,16 +71,36 @@ export default async function AnnouncementDetailPage({ params }: PageProps) {
                             <Pencil className="h-4 w-4" /> Edit
                         </ZoruButton>
                     </Link>
-                    {/* TODO 1D.2: wire Send now / Pin / Archive. */}
-                    <ZoruButton variant="outline" size="sm" disabled>
-                        <Send className="h-4 w-4" /> Send now
-                    </ZoruButton>
-                    <ZoruButton variant="outline" size="sm" disabled>
-                        <Pin className="h-4 w-4" /> {pinned ? 'Unpin' : 'Pin'}
-                    </ZoruButton>
-                    <ZoruButton variant="outline" size="sm" disabled>
-                        <Archive className="h-4 w-4" /> Archive
-                    </ZoruButton>
+                    <HrActionButtons
+                        actions={[
+                            {
+                                key: 'send',
+                                kind: 'action',
+                                label: 'Send now',
+                                icon: <Send className="h-4 w-4" />,
+                                onRun: () => sendAnnouncementNow(id),
+                            },
+                            {
+                                key: 'pin',
+                                kind: 'action',
+                                label: pinned ? 'Unpin' : 'Pin',
+                                icon: <Pin className="h-4 w-4" />,
+                                onRun: () => toggleAnnouncementPin(id, !pinned),
+                            },
+                            {
+                                key: 'archive',
+                                kind: 'confirm',
+                                label: 'Archive',
+                                icon: <Archive className="h-4 w-4" />,
+                                variant: 'destructive',
+                                confirmTitle: 'Archive this announcement?',
+                                confirmDescription:
+                                    'Archived announcements are hidden from the workspace feed.',
+                                confirmLabel: 'Archive',
+                                onRun: () => archiveAnnouncement(id),
+                            },
+                        ]}
+                    />
                 </>
             }
             audit={{ entityKind: 'announcement', entityId: id }}
