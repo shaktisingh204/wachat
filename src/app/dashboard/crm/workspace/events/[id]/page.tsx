@@ -23,6 +23,7 @@ import {
     fmtDateTime,
     statusTone,
 } from '../_components/events-shared';
+import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 
 export const dynamic = 'force-dynamic';
 
@@ -68,7 +69,7 @@ export default async function EventDetailPage({
                 actions={
                     <EventsDetailActions eventId={ev._id} onlineLink={ev.online_link} />
                 }
-                audit={{ entityKind: 'event', entityId: ev._id }}
+                audit={<EntityAuditTimeline entityKind="event" entityId={ev._id} />}
                 rightRail={
                     <ZoruCard>
                         <h3 className="mb-3 text-[13.5px] font-semibold text-zoru-ink">

@@ -13,6 +13,7 @@ import { Pencil } from 'lucide-react';
 
 import { ZoruButton, ZoruCard } from '@/components/zoruui';
 import { EntityDetailShell, type EntityStatusTone } from '@/components/crm/entity-detail-shell';
+import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { getCouponById } from '@/app/actions/crm-coupons.actions';
 
 export const dynamic = 'force-dynamic';
@@ -112,7 +113,7 @@ export default async function CouponDetailPage({
                     </Link>
                 </ZoruButton>
             }
-            audit={{ entityKind: 'coupon', entityId: id }}
+            audit={<EntityAuditTimeline entityKind="coupon" entityId={id} />}
         >
             <ZoruCard className="p-6">
                 <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">

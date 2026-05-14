@@ -8,6 +8,7 @@ import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { StatusPill } from '@/components/crm/status-pill';
 
 import { getCrmPaymentAccountById } from '@/app/actions/crm-payment-accounts.actions';
+import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 
 function fmtMoney(value: number, currency: string): string {
     try {
@@ -142,7 +143,7 @@ export default async function PaymentAccountDetailPage(props: {
                     ) : null}
                 </div>
             }
-            audit={{ entityKind: 'payment_account', entityId: accountId }}
+            audit={<EntityAuditTimeline entityKind="payment_account" entityId={accountId} />}
         >
             <div className="flex flex-col gap-4">
                 <ZoruCard>

@@ -43,6 +43,7 @@ import {
 } from '@/app/actions/crm-warehouses.actions';
 
 import { WarehouseDetailActions } from '../_components/warehouse-detail-actions';
+import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -159,7 +160,7 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
                     </ZoruCard>
                 </>
             }
-            audit={{ entityKind: 'warehouse', entityId: id }}
+            audit={<EntityAuditTimeline entityKind="warehouse" entityId={id} />}
         >
             <ZoruCard>
                 <ZoruCardHeader>

@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { ObjectId } from 'mongodb';
+import crypto from 'node:crypto';
 import { connectToDatabase } from '@/lib/mongodb';
 import {
   hrList,
@@ -25,6 +26,7 @@ import { isDateBefore } from '@/lib/form-validation';
 import { requirePermission } from '@/lib/rbac-server';
 import { crmTicketsApi } from '@/lib/rust-client/crm-tickets';
 import { RustApiError } from '@/lib/rust-client/fetcher';
+import { buildMagicLink, getProvider } from '@/lib/contracts/esign-providers';
 
 function useRustCrm(): boolean {
   return process.env.USE_RUST_CRM === 'true';
@@ -194,32 +196,87 @@ export async function signContract(
 /** Mark a contract `sent` and record the signers list in `signers[]`. */
 export async function sendContractForSignature(
   contractId: string,
-  signers: Array<{ name: string; email: string }>,
-): Promise<{ success: boolean; error?: string }> {
+  signers: Array<{ name: string; email: string; role?: string }>,
+): Promise<{
+  success: boolean;
+  error?: string;
+  delivered?: number;
+  failed?: Array<{ email: string; error: string }>;
+}> {
   const user = await requireSession();
   if (!user) return { success: false, error: 'Access denied' };
   if (!ObjectId.isValid(contractId)) return { success: false, error: 'Invalid contract' };
   if (!signers.length) return { success: false, error: 'At least one signer is required.' };
   const clean = signers
-    .map((s) => ({ name: (s.name || '').trim(), email: (s.email || '').trim() }))
+    .map((s, i) => ({
+      name: (s.name || '').trim(),
+      email: (s.email || '').trim().toLowerCase(),
+      role: (s.role || '').trim() || undefined,
+      order: i,
+    }))
     .filter((s) => s.email && s.email.includes('@'));
   if (!clean.length) return { success: false, error: 'No valid signers provided.' };
 
   const { db } = await connectToDatabase();
-  const res = await db.collection('crm_contracts').updateOne(
+
+  // Load the contract once so we can read its title + provider choice
+  // before generating tokens.
+  const contract = await db.collection('crm_contracts').findOne({
+    _id: new ObjectId(contractId),
+    userId: new ObjectId(user._id),
+  });
+  if (!contract) return { success: false, error: 'Contract not found.' };
+
+  // Issue a fresh, single-use, cryptographically-strong token per signer.
+  const now = new Date();
+  const signersWithTokens = clean.map((s) => ({
+    ...s,
+    token: crypto.randomBytes(32).toString('hex'),
+    tokenIssuedAt: now,
+  }));
+
+  // Persist signers + status before kicking off email — that way a
+  // delivery failure still leaves a `sent` contract the operator can
+  // re-send from.
+  const update = await db.collection('crm_contracts').updateOne(
     { _id: new ObjectId(contractId), userId: new ObjectId(user._id) },
     {
       $set: {
         status: 'sent',
-        signers: clean,
-        sentAt: new Date(),
-        updatedAt: new Date(),
+        signers: signersWithTokens,
+        sentAt: now,
+        updatedAt: now,
       },
     },
   );
-  if (res.matchedCount === 0) {
+  if (update.matchedCount === 0) {
     return { success: false, error: 'Contract not found.' };
   }
+
+  // Send via the configured e-sign provider. Internal = email magic
+  // link to /sign/...; other providers are stubbed.
+  const provider = getProvider((contract.esignProvider as string | undefined) ?? 'internal');
+  const title = (contract.title as string | undefined) || 'Contract';
+  const failed: Array<{ email: string; error: string }> = [];
+  let delivered = 0;
+  for (const s of signersWithTokens) {
+    const link = buildMagicLink(contractId, s.token);
+    try {
+      const r = await provider.sendForSignature({
+        contractId,
+        contractTitle: title,
+        signerEmail: s.email,
+        signerName: s.name || s.email,
+        magicLinkUrl: link,
+        tenantUserId: String(user._id),
+      });
+      if (r.ok) delivered += 1;
+      else failed.push({ email: s.email, error: r.error || 'Send failed' });
+    } catch (e: any) {
+      failed.push({ email: s.email, error: e?.message || 'Send failed' });
+    }
+  }
+
   try {
     await writeAuditEntry({
       tenantUserId: String(user._id),
@@ -227,11 +284,84 @@ export async function sendContractForSignature(
       action: 'send',
       entityKind: 'contract',
       entityId: contractId,
-      reason: `Sent to ${clean.length} signer${clean.length === 1 ? '' : 's'}`,
+      reason: `Sent to ${signersWithTokens.length} signer${signersWithTokens.length === 1 ? '' : 's'} via ${provider.id} (delivered: ${delivered}${failed.length ? `, failed: ${failed.length}` : ''})`,
     });
   } catch { /* non-fatal */ }
   revalidatePath(`/dashboard/crm/contracts/${contractId}`);
   revalidatePath('/dashboard/crm/contracts');
+  return { success: true, delivered, failed };
+}
+
+/**
+ * Re-issue a fresh token and resend the magic-link email to a single
+ * signer (identified by email). Used by the "Resend invite" sub-action
+ * on the contract detail page.
+ */
+export async function resendContractToSigner(
+  contractId: string,
+  signerEmail: string,
+): Promise<{ success: boolean; error?: string }> {
+  const user = await requireSession();
+  if (!user) return { success: false, error: 'Access denied' };
+  if (!ObjectId.isValid(contractId)) return { success: false, error: 'Invalid contract' };
+  const targetEmail = (signerEmail || '').trim().toLowerCase();
+  if (!targetEmail || !targetEmail.includes('@')) {
+    return { success: false, error: 'Invalid signer email.' };
+  }
+
+  const { db } = await connectToDatabase();
+  const contract = await db.collection('crm_contracts').findOne({
+    _id: new ObjectId(contractId),
+    userId: new ObjectId(user._id),
+  });
+  if (!contract) return { success: false, error: 'Contract not found.' };
+
+  const signers: Array<Record<string, any>> = Array.isArray(contract.signers)
+    ? (contract.signers as Array<Record<string, any>>)
+    : [];
+  const idx = signers.findIndex((s) => (s?.email || '').toLowerCase() === targetEmail);
+  if (idx === -1) return { success: false, error: 'Signer not found on this contract.' };
+  if (signers[idx].signedAt) {
+    return { success: false, error: 'This signer has already signed.' };
+  }
+
+  const now = new Date();
+  const token = crypto.randomBytes(32).toString('hex');
+  signers[idx] = {
+    ...signers[idx],
+    token,
+    tokenIssuedAt: now,
+    tokenUsedAt: null,
+  };
+
+  await db.collection('crm_contracts').updateOne(
+    { _id: new ObjectId(contractId), userId: new ObjectId(user._id) },
+    { $set: { signers, updatedAt: now } },
+  );
+
+  const provider = getProvider((contract.esignProvider as string | undefined) ?? 'internal');
+  const r = await provider.sendForSignature({
+    contractId,
+    contractTitle: (contract.title as string | undefined) || 'Contract',
+    signerEmail: targetEmail,
+    signerName: (signers[idx].name as string | undefined) || targetEmail,
+    magicLinkUrl: buildMagicLink(contractId, token),
+    tenantUserId: String(user._id),
+  });
+
+  try {
+    await writeAuditEntry({
+      tenantUserId: String(user._id),
+      actorId: String(user._id),
+      action: 'send',
+      entityKind: 'contract',
+      entityId: contractId,
+      reason: `Resent invite to ${targetEmail}${r.ok ? '' : ` (failed: ${r.error || 'unknown'})`}`,
+    });
+  } catch { /* non-fatal */ }
+
+  revalidatePath(`/dashboard/crm/contracts/${contractId}`);
+  if (!r.ok) return { success: false, error: r.error || 'Failed to send.' };
   return { success: true };
 }
 

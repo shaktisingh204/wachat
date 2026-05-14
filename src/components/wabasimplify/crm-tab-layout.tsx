@@ -19,7 +19,8 @@ import {
     LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Repeat, Inbox, Package, Compass, Search, Star, Video, Bot, ShieldCheck, Key, BookCopy, Rss, ChevronsUpDown, TrendingUp, PanelLeft, Sparkles, ChevronRight, Calendar, Database, User as UserIcon, Wrench, Newspaper, Clapperboard, Pencil, BarChart2, Globe, Landmark, Users as UsersIcon, LifeBuoy, HelpCircle, LayoutGrid
 } from 'lucide-react';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
-import { MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, InstagramIcon, SabChatIcon } from '@/components/wabasimplify/custom-sidebar-components';
+import { MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, InstagramIcon, SabChatIcon, TelegramIcon, CrmIcon } from '@/components/wabasimplify/custom-sidebar-components';
+import { Workflow, MessageSquareText, UsersRound, Target, LayoutTemplate } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getSession, getProjects } from '@/app/actions/index';
 import { getDiwaliThemeStatus } from '@/app/actions/admin.actions';
@@ -631,13 +632,16 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
         { id: 'whatsapp', icon: WhatsAppIcon, label: 'Wachat', href: '/wachat' },
         { id: 'sabchat', icon: SabChatIcon, label: 'sabChat', href: '/dashboard/sabchat' },
         { id: 'facebook', href: '/dashboard/facebook/all-projects', icon: MetaIcon, label: 'Meta Suite' },
+        { id: 'ad-manager', href: '/dashboard/ad-manager/ad-accounts', icon: Target, label: 'Ad Manager' },
+        { id: 'telegram', href: '/dashboard/telegram', icon: TelegramIcon, label: 'Telegram' },
         { id: 'instagram', href: '/dashboard/instagram/connections', icon: InstagramIcon, label: 'Instagram' },
-        { id: 'crm', href: '/dashboard/crm', icon: Handshake, label: 'CRM' },
-        { id: 'team', icon: Users, label: 'Team', href: '/dashboard/team' },
+        { id: 'crm', href: '/dashboard/crm', icon: CrmIcon, label: 'CRM' },
+        { id: 'sabflow', icon: Workflow, label: 'SabFlow', href: '/dashboard/sabflow' },
+        { id: 'team', icon: UsersRound, label: 'Team', href: '/dashboard/team' },
         { id: 'email', icon: Mail, label: 'Email', href: '/dashboard/email' },
-        { id: 'sms', icon: MessageSquare, label: 'SMS', href: '/dashboard/sms' },
+        { id: 'sms', icon: MessageSquareText, label: 'SMS', href: '/dashboard/sms' },
         { id: 'api', icon: Server, label: 'API & Dev', href: '/dashboard/api' },
-        { id: 'website-builder', icon: Brush, label: 'Website', href: '/dashboard/website-builder' },
+        { id: 'website-builder', icon: LayoutTemplate, label: 'Website', href: '/dashboard/website-builder' },
         { id: 'url-shortener', icon: LinkIcon, label: 'Links', href: '/dashboard/url-shortener' },
         { id: 'qr-code-maker', icon: QrCode, label: 'QR Codes', href: '/dashboard/qr-code-maker' },
         { id: 'seo-suite', icon: SeoIcon, label: 'SEO', href: '/dashboard/seo' },

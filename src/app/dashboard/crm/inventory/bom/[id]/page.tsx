@@ -23,6 +23,7 @@ import {
 
 import { BomDetailActions } from '../_components/bom-detail-actions';
 import { BomDetailRail } from '../_components/bom-detail-rail';
+import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 
 export const dynamic = 'force-dynamic';
 
@@ -100,7 +101,7 @@ export default async function BomDetailPage({ params }: PageProps) {
         />
       }
       rightRail={<BomDetailRail versions={versions} productionOrders={productionOrders} />}
-      audit={{ entityKind: 'bom', entityId: id }}
+      audit={<EntityAuditTimeline entityKind="bom" entityId={id} />}
     >
       <ZoruCard>
         <ZoruCardHeader>

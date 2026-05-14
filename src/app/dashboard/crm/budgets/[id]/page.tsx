@@ -20,6 +20,7 @@ import { EntityDetailShell, type EntityStatusTone } from '@/components/crm/entit
 import { getBudgetById } from '@/app/actions/crm-budgets.actions';
 
 import { BudgetDetailActions } from '../_components/budget-detail-actions';
+import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 
 type BudgetDoc = {
   _id: string;
@@ -126,7 +127,7 @@ export default async function BudgetDetailPage({ params }: PageProps) {
           scenario={budget.scenario}
         />
       }
-      audit={{ entityKind: 'budget', entityId: id }}
+      audit={<EntityAuditTimeline entityKind="budget" entityId={id} />}
       rightRail={
         <>
           <ZoruCard>

@@ -21,8 +21,16 @@ import type {
 import { getErrorMessage } from '@/lib/utils';
 import { writeAuditEntry } from '@/lib/audit-log';
 import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+import { saveCrmStockAdjustment as saveCrmStockAdjustmentImpl } from './crm-inventory-writes.actions';
 
-export { saveCrmStockAdjustment } from './crm-inventory-writes.actions';
+// `'use server'` modules may only export async functions, so we wrap the
+// re-export rather than using `export { saveCrmStockAdjustment } from ...`.
+export async function saveCrmStockAdjustment(
+    prevState: unknown,
+    formData: FormData,
+): Promise<{ message?: string; error?: string; adjustmentId?: string }> {
+    return saveCrmStockAdjustmentImpl(prevState, formData);
+}
 
 /* ─── Types ────────────────────────────────────────────────────────── */
 

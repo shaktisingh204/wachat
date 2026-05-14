@@ -15,6 +15,7 @@ import {
 import { DiscussionsDetailActions } from '../_components/discussions-detail-actions';
 import { DiscussionsRepliesPanel } from '../_components/discussions-replies-panel';
 import { fmtDate } from '../_components/discussions-shared';
+import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 
 export const dynamic = 'force-dynamic';
 
@@ -39,7 +40,7 @@ export default async function DiscussionDetailPage({
                 eyebrow="DISCUSSION"
                 back={{ href: '/dashboard/crm/workspace/discussions', label: 'Back to discussions' }}
                 actions={<DiscussionsDetailActions discussionId={String(d._id)} />}
-                audit={{ entityKind: 'discussion', entityId: String(d._id) }}
+                audit={<EntityAuditTimeline entityKind="discussion" entityId={String(d._id)} />}
                 rightRail={
                     <ZoruCard>
                         <h3 className="mb-2 text-[13.5px] font-semibold text-zoru-ink">

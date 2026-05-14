@@ -12,6 +12,7 @@ import { getNoticeById } from '@/app/actions/worksuite/knowledge.actions';
 
 import { NoticesDetailActions } from '../_components/notices-detail-actions';
 import { fmtDate } from '../_components/notices-shared';
+import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 
 export const dynamic = 'force-dynamic';
 
@@ -33,7 +34,7 @@ export default async function NoticeDetailPage({
                 eyebrow="NOTICE"
                 back={{ href: '/dashboard/crm/workspace/notices', label: 'Back to notices' }}
                 actions={<NoticesDetailActions noticeId={n._id} />}
-                audit={{ entityKind: 'notice', entityId: n._id }}
+                audit={<EntityAuditTimeline entityKind="notice" entityId={n._id} />}
                 rightRail={
                     <ZoruCard>
                         <h3 className="mb-3 text-[13.5px] font-semibold text-zoru-ink">

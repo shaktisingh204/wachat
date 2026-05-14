@@ -20,6 +20,7 @@ import { EntityDetailShell, type EntityStatusTone } from '@/components/crm/entit
 import { getLoanById } from '@/app/actions/crm-loans.actions';
 
 import { LoanDetailActions } from '../_components/loan-detail-actions';
+import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 
 type LoanDoc = {
   _id: string;
@@ -127,7 +128,7 @@ export default async function LoanDetailPage({ params }: PageProps) {
       status={{ label: status, tone: statusTone(status) }}
       back={{ href: '/dashboard/crm/loans', label: 'Back to loans' }}
       actions={<LoanDetailActions loanId={id} status={status} />}
-      audit={{ entityKind: 'loan', entityId: id }}
+      audit={<EntityAuditTimeline entityKind="loan" entityId={id} />}
       rightRail={
         <>
           <ZoruCard>

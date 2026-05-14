@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { ZoruButton, ZoruCard, ZoruCardContent } from '@/components/zoruui';
 import { getDashboardById } from '@/app/actions/crm-dashboards.actions';
+import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -24,7 +25,7 @@ export default async function DashboardDetailPage({ params }: PageProps) {
                     <ZoruButton size="sm">Edit</ZoruButton>
                 </Link>
             }
-            audit={{ entityKind: 'dashboard', entityId: id }}
+            audit={<EntityAuditTimeline entityKind="dashboard" entityId={id} />}
         >
             <ZoruCard>
                 <ZoruCardContent className="space-y-3 p-6 text-sm">

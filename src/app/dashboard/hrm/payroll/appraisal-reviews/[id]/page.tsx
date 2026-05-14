@@ -1,7 +1,3 @@
-'use client';
-
-import * as React from 'react';
-import { use } from 'react';
 import { Star } from 'lucide-react';
 
 import { HrDetailPage } from '../../../hr/_components/hr-detail-page';
@@ -9,7 +5,6 @@ import {
   getCrmAppraisalReviews,
   deleteCrmAppraisalReview,
 } from '@/app/actions/crm-hr-appraisals.actions';
-import { ZoruSkeleton } from '@/components/zoruui';
 
 type Row = {
   _id: string;
@@ -45,39 +40,15 @@ function StarRow({ label, value }: { label: string; value?: number }) {
   );
 }
 
-export default function AppraisalDetailPage({
+export default async function AppraisalDetailPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { id } = use(params);
-  const [row, setRow] = React.useState<Row | null>(null);
-  const [loading, setLoading] = React.useState(true);
+  const { id } = await params;
+  const list = (await getCrmAppraisalReviews()) as unknown as Row[];
+  const row = list.find((r) => String(r._id) === id) ?? null;
 
-  React.useEffect(() => {
-    let active = true;
-    (async () => {
-      try {
-        const list = (await getCrmAppraisalReviews()) as unknown as Row[];
-        if (!active) return;
-        setRow(list.find((r) => String(r._id) === id) ?? null);
-      } finally {
-        if (active) setLoading(false);
-      }
-    })();
-    return () => {
-      active = false;
-    };
-  }, [id]);
-
-  if (loading) {
-    return (
-      <div className="flex w-full flex-col gap-4">
-        <ZoruSkeleton className="h-12 w-full" />
-        <ZoruSkeleton className="h-64 w-full" />
-      </div>
-    );
-  }
   if (!row) return <div className="text-sm text-zoru-ink-muted">Review not found.</div>;
 
   const emp = row.employeeInfo

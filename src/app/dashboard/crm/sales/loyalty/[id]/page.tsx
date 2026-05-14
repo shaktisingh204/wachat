@@ -13,6 +13,7 @@ import { Pencil } from 'lucide-react';
 import { ZoruButton, ZoruCard } from '@/components/zoruui';
 import { EntityDetailShell, type EntityStatusTone } from '@/components/crm/entity-detail-shell';
 import { getLoyaltyProgramById } from '@/app/actions/crm-loyalty.actions';
+import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 
 export const dynamic = 'force-dynamic';
 
@@ -69,7 +70,7 @@ export default async function LoyaltyDetailPage({
                     </Link>
                 </ZoruButton>
             }
-            audit={{ entityKind: 'loyaltyProgram', entityId: id }}
+            audit={<EntityAuditTimeline entityKind="loyaltyProgram" entityId={id} />}
         >
             <ZoruCard className="p-6">
                 <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">

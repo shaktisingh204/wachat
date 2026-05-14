@@ -13,6 +13,7 @@ import { Pencil } from 'lucide-react';
 
 import { ZoruButton, ZoruCard } from '@/components/zoruui';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
+import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { getCrmHireById } from '@/app/actions/crm-hire.actions';
 
 export const dynamic = 'force-dynamic';
@@ -95,7 +96,7 @@ export default async function HireDetailPage({ params }: PageProps) {
           </Link>
         </ZoruButton>
       }
-      audit={{ entityKind: 'hire', entityId: id }}
+      audit={<EntityAuditTimeline entityKind="hire" entityId={id} />}
     >
       <ZoruCard className="p-6">
         <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">

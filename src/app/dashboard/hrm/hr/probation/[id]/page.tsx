@@ -35,6 +35,7 @@ import {
 } from '../../_components/recruitment-detail-shell';
 import { HrActionButtons } from '../../_components/hr-action-buttons';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
+import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -160,7 +161,7 @@ export default async function ProbationDetailPage({ params }: PageProps) {
           </RailCard>
         </>
       }
-      audit={{ entityKind: 'probation', entityId: id }}
+      audit={<EntityAuditTimeline entityKind="probation" entityId={id} />}
     >
       <DetailCard
         title="Probation"

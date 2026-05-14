@@ -20,6 +20,7 @@ import {
     getVoucherBookById,
     getVoucherEntriesByBook,
 } from '@/app/actions/crm-vouchers.actions';
+import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 
 export default async function VoucherBookDetailPage(props: {
     params: Promise<{ voucherBookId: string }>;
@@ -135,7 +136,7 @@ export default async function VoucherBookDetailPage(props: {
                     </ZoruCard>
                 </div>
             }
-            audit={{ entityKind: 'voucher_book', entityId: voucherBookId }}
+            audit={<EntityAuditTimeline entityKind="voucher_book" entityId={voucherBookId} />}
         >
             <div className="flex flex-col gap-4">
                 <ZoruCard>

@@ -35,6 +35,7 @@ import {
     rejectTravelRequest,
     markTravelComplete,
 } from '@/app/actions/hr-status-flow.actions';
+import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -117,7 +118,7 @@ export default async function TravelDetailPage({ params }: PageProps) {
                     />
                 </>
             }
-            audit={{ entityKind: 'travel', entityId: id }}
+            audit={<EntityAuditTimeline entityKind="travel" entityId={id} />}
         >
             <HrDetailGrid title="Trip details">
                 <HrDetailRow label="Employee">{fmtText(employeeRef)}</HrDetailRow>

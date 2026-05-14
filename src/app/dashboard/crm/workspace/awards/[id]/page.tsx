@@ -17,6 +17,7 @@ import {
     getAppreciations,
     getAwardById,
 } from '@/app/actions/worksuite/knowledge.actions';
+import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 
 export const dynamic = 'force-dynamic';
 
@@ -69,7 +70,7 @@ export default async function AwardDetailPage({
                         </ZoruButton>
                     </>
                 }
-                audit={{ entityKind: 'award', entityId: String(a._id) }}
+                audit={<EntityAuditTimeline entityKind="award" entityId={String(a._id)} />}
                 rightRail={
                     <ZoruCard>
                         <h3 className="mb-2 text-[13.5px] font-semibold text-zoru-ink">

@@ -73,6 +73,12 @@ export const InstagramIcon = (props: React.SVGProps<SVGSVGElement>) => (
     </svg>
 );
 
+export const TelegramIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" {...props}>
+        <path d="M21.94 4.34a1.5 1.5 0 0 0-1.55-.26L2.74 11.07a1.18 1.18 0 0 0 .08 2.22l4.18 1.36 2.27 6.93a1.18 1.18 0 0 0 2 .42l2.6-2.85 4.69 3.43a1.5 1.5 0 0 0 2.38-.92l2.4-15.06a1.5 1.5 0 0 0-.4-1.26ZM10.2 14.6l-.55 4.04-1.5-4.6 9.46-7.6Z"/>
+    </svg>
+);
+
 export const CustomEcommerceIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <ShoppingBag {...props} />
 );

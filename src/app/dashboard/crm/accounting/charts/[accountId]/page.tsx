@@ -20,6 +20,7 @@ import {
     getCrmChartOfAccountById,
     getVoucherEntriesForAccount,
 } from '@/app/actions/crm-accounting.actions';
+import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 
 function fmtMoney(value: number, currency = 'INR'): string {
     try {
@@ -179,7 +180,7 @@ export default async function ChartOfAccountDetailPage(props: {
                     </ZoruCard>
                 </div>
             }
-            audit={{ entityKind: 'chart_of_account', entityId: accountIdStr }}
+            audit={<EntityAuditTimeline entityKind="chart_of_account" entityId={accountIdStr} />}
         >
             <div className="flex flex-col gap-4">
                 {/* Balance summary */}

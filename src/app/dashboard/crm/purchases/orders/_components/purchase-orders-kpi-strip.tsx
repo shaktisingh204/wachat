@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 
 import { ZoruStatCard } from '@/components/zoruui';
-import type { PurchaseOrderKpiSummary } from '@/app/actions/crm/purchase-orders.actions';
+import type { PurchaseOrderKpiSummary } from '@/app/actions/crm/purchase-orders.kpis';
 
 import type { PurchaseOrderPresetKey } from './types';
 

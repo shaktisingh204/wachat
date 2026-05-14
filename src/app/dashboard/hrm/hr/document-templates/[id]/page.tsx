@@ -30,6 +30,7 @@ import {
     archiveDocumentTemplate,
     duplicateDocumentTemplate,
 } from '@/app/actions/hr-status.actions';
+import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -98,7 +99,7 @@ export default async function DocumentTemplateDetailPage({ params }: PageProps) 
                     />
                 </>
             }
-            audit={{ entityKind: 'document_template', entityId: id }}
+            audit={<EntityAuditTimeline entityKind="document_template" entityId={id} />}
         >
             <HrDetailGrid title="Overview">
                 <HrDetailRow label="Name">{name}</HrDetailRow>

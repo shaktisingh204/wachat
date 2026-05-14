@@ -32,6 +32,7 @@ import {
     markAssetReturned,
     retireAsset,
 } from '@/app/actions/hr-status.actions';
+import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -98,7 +99,7 @@ export default async function AssetDetailPage({ params }: PageProps) {
                     />
                 </>
             }
-            audit={{ entityKind: 'asset', entityId: id }}
+            audit={<EntityAuditTimeline entityKind="asset" entityId={id} />}
         >
             <HrDetailGrid
                 title="Overview"

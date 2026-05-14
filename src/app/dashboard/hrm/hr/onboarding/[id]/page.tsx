@@ -38,6 +38,7 @@ import {
 } from '../../_components/recruitment-detail-shell';
 import { HrActionButtons } from '../../_components/hr-action-buttons';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
+import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -141,7 +142,7 @@ export default async function OnboardingDetailPage({ params }: PageProps) {
           ) : null}
         </>
       }
-      audit={{ entityKind: 'onboarding', entityId: id }}
+      audit={<EntityAuditTimeline entityKind="onboarding" entityId={id} />}
     >
       <DetailCard
         title="Task"

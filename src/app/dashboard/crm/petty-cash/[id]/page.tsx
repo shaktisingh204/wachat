@@ -20,6 +20,7 @@ import { EntityDetailShell, type EntityStatusTone } from '@/components/crm/entit
 import { getPettyCashFloatById } from '@/app/actions/crm-petty-cash.actions';
 
 import { PettyCashDetailActions } from '../_components/petty-cash-detail-actions';
+import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 
 type PettyCashDoc = {
   _id: string;
@@ -132,7 +133,7 @@ export default async function PettyCashDetailPage({ params }: PageProps) {
       status={{ label: status, tone: statusTone(status) }}
       back={{ href: '/dashboard/crm/petty-cash', label: 'All floats' }}
       actions={<PettyCashDetailActions floatId={id} />}
-      audit={{ entityKind: 'petty_cash', entityId: id }}
+      audit={<EntityAuditTimeline entityKind="petty_cash" entityId={id} />}
       rightRail={
         <>
           <ZoruCard>

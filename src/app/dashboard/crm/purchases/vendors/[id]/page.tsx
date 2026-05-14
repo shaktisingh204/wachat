@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { ZoruButton, ZoruCard, ZoruCardContent } from '@/components/zoruui';
 import { getCrmVendorById } from '@/app/actions/crm-vendors.actions';
+import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -33,7 +34,7 @@ export default async function VendorDetailPage({ params }: PageProps) {
                     </Link>
                 </>
             }
-            audit={{ entityKind: 'vendor', entityId: id }}
+            audit={<EntityAuditTimeline entityKind="vendor" entityId={id} />}
         >
             <ZoruCard>
                 <ZoruCardContent className="space-y-3 p-6 text-sm">

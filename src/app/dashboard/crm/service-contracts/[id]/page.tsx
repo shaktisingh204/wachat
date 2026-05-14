@@ -21,6 +21,7 @@ import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { getServiceContractById } from '@/app/actions/crm-service-contracts.actions';
 
 import { ServiceContractDetailActions } from '../_components/service-contract-detail-actions';
+import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -144,7 +145,7 @@ export default async function ServiceContractDetailPage({ params }: PageProps) {
           periodEnd={periodEnd}
         />
       }
-      audit={{ entityKind: 'service_contract', entityId: id }}
+      audit={<EntityAuditTimeline entityKind="service_contract" entityId={id} />}
       rightRail={
         <>
           <ZoruCard>

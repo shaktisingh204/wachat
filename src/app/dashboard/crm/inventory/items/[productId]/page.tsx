@@ -23,6 +23,7 @@ import { ItemDetailActions } from '../_components/item-detail-actions';
 import { ItemDetailBody } from '../_components/item-detail-body';
 import { ItemRelatedRail } from '../_components/item-related-rail';
 import { ItemPrintView } from '../_components/item-print-view';
+import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 
 export const dynamic = 'force-dynamic';
 
@@ -108,7 +109,7 @@ export default async function InventoryItemDetailPage({
           }
         />
       }
-      audit={{ entityKind: 'item', entityId: productId }}
+      audit={<EntityAuditTimeline entityKind="item" entityId={productId} />}
     >
       <ItemDetailBody product={product} productId={productId} />
     </EntityDetailShell>

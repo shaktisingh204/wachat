@@ -41,6 +41,7 @@ import {
     markSuccessionReviewed,
     promoteSuccessor,
 } from '@/app/actions/hr-status.actions';
+import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -124,7 +125,7 @@ export default async function SuccessionDetailPage({ params }: PageProps) {
                     />
                 </>
             }
-            audit={{ entityKind: 'succession', entityId: id }}
+            audit={<EntityAuditTimeline entityKind="succession" entityId={id} />}
         >
             <HrDetailGrid title="Overview">
                 <HrDetailRow label="Role / Position">{role}</HrDetailRow>
