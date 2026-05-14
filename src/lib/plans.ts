@@ -1,5 +1,10 @@
 
 
+// TODO(sabwa): SabWa plan caps (sessions / daily send / scheduler / bulk / AI)
+// live in `src/lib/sabwa/plan-limits.ts` until the `Plan.appLimits` shape in
+// `src/lib/definitions.ts` is extended with a `sabwa?: { … }` discriminator.
+// See SABWA_PLAN.md §10 for the source-of-truth table.
+
 import type { PlanFeaturePermissions } from '@/lib/definitions';
 import {
     LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, FileText, Phone, Webhook,

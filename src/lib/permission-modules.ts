@@ -83,6 +83,14 @@ export const globalModules = [
     'sabchat_auto_reply', 'sabchat_quick_replies', 'sabchat_ai_replies', 'sabchat_faq',
     'sabchat_settings',
 
+    // SabWa (personal WhatsApp via Baileys; see SABWA_PLAN.md §10)
+    'sabwa_overview', 'sabwa_connect', 'sabwa_inbox', 'sabwa_chats', 'sabwa_groups',
+    'sabwa_group_manage', 'sabwa_broadcasts', 'sabwa_bulk_send', 'sabwa_scheduler',
+    'sabwa_contacts', 'sabwa_templates', 'sabwa_auto_reply', 'sabwa_flows', 'sabwa_ai',
+    'sabwa_media', 'sabwa_status', 'sabwa_calls', 'sabwa_labels', 'sabwa_starred',
+    'sabwa_analytics', 'sabwa_export', 'sabwa_webhooks', 'sabwa_api_keys',
+    'sabwa_audit', 'sabwa_settings',
+
     // Utilities
     'website_builder', 'url_shortener', 'qr_code_maker',
 
@@ -115,6 +123,7 @@ export const moduleCategories = {
     'Email': ['email_dashboard', 'email_inbox', 'email_campaigns', 'email_contacts', 'email_templates', 'email_analytics', 'email_verification', 'email_settings'],
     'SMS': ['sms_overview', 'sms_campaigns', 'sms_templates', 'sms_config', 'sms_developer'],
     'SabChat': ['sabchat_inbox', 'sabchat_visitors', 'sabchat_analytics', 'sabchat_widget', 'sabchat_auto_reply', 'sabchat_quick_replies', 'sabchat_ai_replies', 'sabchat_faq', 'sabchat_settings'],
+    'SabWa': ['sabwa_overview', 'sabwa_connect', 'sabwa_inbox', 'sabwa_chats', 'sabwa_groups', 'sabwa_group_manage', 'sabwa_broadcasts', 'sabwa_bulk_send', 'sabwa_scheduler', 'sabwa_contacts', 'sabwa_templates', 'sabwa_auto_reply', 'sabwa_flows', 'sabwa_ai', 'sabwa_media', 'sabwa_status', 'sabwa_calls', 'sabwa_labels', 'sabwa_starred', 'sabwa_analytics', 'sabwa_export', 'sabwa_webhooks', 'sabwa_api_keys', 'sabwa_audit', 'sabwa_settings'],
     'Utilities': ['website_builder', 'url_shortener', 'qr_code_maker'],
     'SEO': ['seo_dashboard', 'seo_brand_radar', 'seo_site_explorer'],
     'Dev': ['api_keys', 'api_docs']

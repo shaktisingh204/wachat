@@ -41,6 +41,39 @@ A module is ecosystem-ready when every entity in it passes (1)–(9).
 
 > Every completed batch lands here date-stamped. Future sessions read this section first to learn what's already done and avoid duplicate work. Cross-reference items by their phase code (e.g. P0.4, P1.1A.3).
 
+### 2026-05-15 — P0.4-fu verified + P1.1B W1 closure (accounts rebuild)
+
+**P0.4-fu — closed (verification only, no new code):**
+- ✅ All 12 canonical `/dashboard/hrm/payroll/**` pages flagged in P0.4-fu already exist on disk and resolve correctly:
+  - `attendance/new`, `attendance/[id]`, `attendance/[id]/edit`
+  - `departments/new`, `departments/[id]`, `departments/[id]/edit`
+  - `designations/new`, `designations/[id]`, `designations/[id]/edit`
+  - `employees/[employeeId]` detail + `employees/[employeeId]/edit`
+  - `leave/[id]/edit`, `payroll/new`
+- The legacy `/dashboard/crm/hr-payroll/**` redirect pages all target real canonical routes. No 404s from the redirect tree.
+
+**P1.1B Wave 1 — Sales-CRM core page rebuild closed: ACCOUNTS shipped.**
+
+The last entity in W1 (leads, deals, contacts, tasks were already done) was accounts. Rebuilt 4 pages + 6 new `_components/` files against the §1D bar, plus expanded the action contract so the form's wider field set actually persists.
+
+- ✅ **List `/dashboard/crm/accounts`** rebuilt per §1D.1 — `EntityListShell` + clickable `<AccountsKpiStrip>` (Total · Active · Strategic · Key · Archived) + `<AccountsFiltersRow>` (status · category · industry-picker · country-picker · currency-picker) + `<AccountsBulkBar>` (Set category · Export CSV · Archive) + dense `<AccountsTable>` (10 columns: checkbox · name+website · industry · country · category pill · phone · GSTIN · currency · status pill · created · row actions) + `<ConfirmDialog>` for archive/restore + pagination via `<PaginationBar>`. KPI cards derived client-side from a 500-row sample (TODO: dedicated `getCrmAccountKpis()` when tenants pass that ceiling). Bulk-category change stubbed with a `warning` toast — needs a `setCrmAccountCategory(ids[], category)` action.
+- ✅ **`/new`** shipped — server shell + shared `<AccountForm mode="create">` with prefill from `?name/industry/website/phone/country/state/city/currency/category` query params. Smart-default `fromKind/fromId` subtitle.
+- ✅ **Detail `/dashboard/crm/accounts/[accountId]`** rebuilt as a Server Component per §1D.2 — `EntityDetailShell` with status pill, `ACCOUNT` eyebrow, back link, and a 9-button action group (Edit · Add contact · Add deal · Email · Call · Print · Duplicate · Archive · Activity) hosted in client island `<AccountDetailInteractions>` (compose-email + archive-confirm dialogs). Main body: Profile card (industry · website · phone · location · 3 address blocks) · Contacts card (first 5 + counts + "+ Add contact") · `<CrmNotes recordType="account">` · Attachments list (read-only — inline-add deferred). Right rail: At-a-glance stats (category · currency · payment terms · annual revenue · employees · created) + Related card with live counts for contacts/deals/invoices/quotations/tickets/tasks (powered by new `getAccountRelatedCounts()` server action — one parallel Promise.all of countDocuments queries) + Identifiers card (GSTIN · PAN) when present. Footer: `<EntityAuditTimeline entityKind="account">`.
+- ✅ **`/edit`** rebuilt as a Server Component that hydrates via `getCrmAccountById` then renders `<AccountForm mode="edit" initial={...}>`. Replaces the old 159-line client form with the shared one.
+- ✅ **Shared `<AccountForm>`** — `_components/accounts-form.tsx`. 4 sectioned cards (Profile · Address · Commercial · Identifiers). Every reference field is `<EntityFormField>` (industry / country / state / city / currency) with cascade (country → state → city; state/city disabled until parent picked). `<SabFileUrlInput>` for logo (CLAUDE.md compliance — no free-text URL paste). Sticky action bar with `Save · Save & new · Save & add contact · Cancel`. `<DirtyFormPrompt>` wired on the form's `onChange`. Per §1D.3 keyboard contract pending follow-up; preview pane N/A for accounts (non-doc entity).
+- ✅ **Action contract widened** — `addCrmAccount` + `updateCrmAccount` (`src/app/actions/crm-accounts.actions.ts`) now accept and persist the full DTO: `name · industry · website · phone · address · country · state · city · gstin · pan · billingAddress · shippingAddress · annualRevenue · employeeCount · currency · paymentTerms · category · logoUrl`. Update path filters out `undefined` keys before `$set` so missing form fields don't clobber existing values. Both Rust and Mongo branches forward the wider field set; the existing Rust DTO already mirrors the schema, so no Rust crate change was needed.
+- ✅ **Pre-existing typecheck error fixed in `[accountId]/activity/page.tsx`** — `description` prop was passed to `<CrmPageHeader>` which only accepts `subtitle`. One-line fix, no behavioural change.
+- ✅ Typecheck (`tsc --noEmit`) for the rebuilt module is clean. Remaining 27 errors elsewhere (sabflow / telegram) are unchanged from the baseline.
+
+**Wave 1 (Sales-CRM core) is now done — leads · deals · contacts · tasks · accounts all on the §1D bar.**
+
+**Deferred follow-ups (tracked, not blocking):**
+- `setCrmAccountCategory(ids[], category)` action so the list bulk-bar can actually mutate.
+- `getCrmAccountKpis()` server action when tenants outgrow the 500-row client-side derivation.
+- Inline attachment add via `<SabFilePickerButton>` on the detail page — needs an `addAccountAttachment` mutator.
+- Tags right-rail card — `tags[]` field isn't in `CrmAccount` yet; lands when a tag taxonomy collection ships.
+- §1D.3 keyboard shortcut handlers on the form (`Cmd+S`, `Cmd+Enter`, `Esc`-with-dirty-prompt).
+
 ### 2026-05-13 — P3-fu + P4.1 prep
 
 **P3-fu — Permission module registry closure (RBAC unblock for non-owner roles):**
@@ -114,7 +147,7 @@ A module is ecosystem-ready when every entity in it passes (1)–(9).
 | Phase 1A shared shells | 100% (12/12) ✅ | EntityListShell, EntityFormShell, StatusPill, ConfirmDialog, DirtyFormPrompt, KeyboardShortcuts shipped; CrmPageHeader extended; toast conventions locked |
 | Duplicate route trees | 0 ✅ | `/dashboard/crm/hr/**` + `/dashboard/crm/hr-payroll/**` redirect to canonical `/dashboard/hrm/**` (72 pages) |
 
-**Gap to close:** ~21 entities still need Rust crates; ~54 server-action files still need dual-impl; ~30 mutation files still ungated; ~150 pages still need rebuild against the new 1A shells (P1.1B). 12 canonical HRM pages still missing (P0.4-fu) before the duplicate-tree cleanup is fully closed.
+**Gap to close:** ~21 entities still need Rust crates; ~54 server-action files still need dual-impl; ~30 mutation files still ungated; ~125 pages still need rebuild against the new 1A shells (P1.1B W2–W8 — W1 done 2026-05-15). P0.4-fu verified done — duplicate-tree cleanup is fully closed.
 
 ---
 
@@ -130,7 +163,7 @@ Block: bugs in foundation block all per-entity work.
 | P0.2 | `npm run typecheck` to baseline TS error count; document the residual list | 0.5d | ⏳ pending (run after node_modules install) |
 | P0.3 | Manual smoke test of every modified form — confirm save→detail flow works | 1d | ⏳ pending (user-driven) |
 | P0.4 | Delete the duplicate `/dashboard/crm/hr/**` and `/dashboard/crm/hr-payroll/**` route trees | 1d | ✅ **DONE 2026-05-13** — 72 redirects + 10 orphans deleted |
-| P0.4-fu | Build 12 missing canonical HRM pages (attendance/departments/designations new+[id]+edit, employees/[id] detail, leave/[id]/edit, payroll/new) | 1d | ⏳ pending (queued) |
+| P0.4-fu | Build 12 missing canonical HRM pages (attendance/departments/designations new+[id]+edit, employees/[id] detail, leave/[id]/edit, payroll/new) | 1d | ✅ **VERIFIED DONE 2026-05-15** — all 12 pages already on disk; redirect tree is clean |
 | P0.5 | Wire one consumer for `<EntityMultiFormField>` | 0.5d | ⏳ pending (no array entity field on disk yet) |
 | P0.6 | Add missing detail+edit pages flagged by the route audit | 1d | ✅ **DONE 2026-05-13** — closed via the 75+ pages shipped during the ecosystem sweep |
 
@@ -181,16 +214,16 @@ For each page, the rebuild emits:
 
 **Wave order (priority = how often the page is hit):**
 
-| Wave | Module | Pages |
-|---|---|---|
-| W1 | Sales-CRM core (leads, deals, contacts, tasks, accounts) | ~25 |
-| W2 | Sales transactions (invoices, quotes, SO, proforma, DC, CN, receipts, recurring, subscriptions, contracts, proposals) | ~30 |
-| W3 | Purchases (POs, bills, payouts, RFQs, vendor bids, debit-notes, vendors, hire) | ~20 |
-| W4 | Inventory (items, warehouses, adjustments, BOM, GRN, production-orders) | ~15 |
-| W5 | HR Payroll (employees, attendance, leave, shifts, holidays, salary structure, payroll-run, payslips, compliance) | ~25 |
-| W6 | HR People-Ops (candidates, jobs, interviews, offers, onboarding, performance, learning, docs, assets, time, exits, awards, disciplinary) | ~25 |
-| W7 | Workspace + Projects + Tickets + Accounting + Banking + Cross-cutting | ~30 |
-| W8 | Settings + Master data + Reports + Integrations | ~30 |
+| Wave | Module | Pages | Status |
+|---|---|---|---|
+| W1 | Sales-CRM core (leads, deals, contacts, tasks, accounts) | ~25 | ✅ **DONE 2026-05-15** (accounts closed the wave) |
+| W2 | Sales transactions (invoices, quotes, SO, proforma, DC, CN, receipts, recurring, subscriptions, contracts, proposals) | ~30 | ⏳ next |
+| W3 | Purchases (POs, bills, payouts, RFQs, vendor bids, debit-notes, vendors, hire) | ~20 | ⏳ |
+| W4 | Inventory (items, warehouses, adjustments, BOM, GRN, production-orders) | ~15 | ⏳ |
+| W5 | HR Payroll (employees, attendance, leave, shifts, holidays, salary structure, payroll-run, payslips, compliance) | ~25 | ⏳ |
+| W6 | HR People-Ops (candidates, jobs, interviews, offers, onboarding, performance, learning, docs, assets, time, exits, awards, disciplinary) | ~25 | ⏳ |
+| W7 | Workspace + Projects + Tickets + Accounting + Banking + Cross-cutting | ~30 | ⏳ |
+| W8 | Settings + Master data + Reports + Integrations | ~30 | ⏳ |
 
 #### 1C — UX quality bar (applied in every wave)
 
@@ -640,26 +673,31 @@ This is the experience the rebuild has to deliver. If a flow below feels clunky 
 
 **Already done (cross-reference §0.5 Status log for details):**
 - ✅ P0.4 — duplicate hr/ + hr-payroll/ trees redirected
+- ✅ P0.4-fu — verified DONE 2026-05-15; all 12 canonical HRM pages already on disk
 - ✅ FIX1 — picker click regression fixed
 - ✅ P1.1A — all 12 shared shells locked
+- ✅ **P1.1B Wave 1 — Sales-CRM core rebuild complete (leads + deals + contacts + tasks + accounts)**. Accounts closed the wave on 2026-05-15.
 - ✅ P3-fu — 32 per-entity CRM module keys registered in `permission-modules.ts` (non-owner roles can now grant/deny them)
 - ✅ P4.1 prep — `recordRustFallback()` shipped + wired into 52 fall-through sites across 13 dual-impl files. Cutover smoke-test gate is ready (see §0.5 entry for 2026-05-13 — P3-fu + P4.1 prep).
 
 **Next up, in priority order:**
 
-1. **P0.4-fu** — Build the 12 missing canonical `/dashboard/hrm/payroll/**` pages (attendance new+[id]+edit, departments new+[id]+edit, designations new+[id]+edit, employees/[id] detail, leave/[id]/edit, payroll/new). Unblocks the last 12 `/dashboard/crm/hr-payroll/**` redirects.
-2. **P0.1 + P0.2** — `cargo test --workspace` + `npm run typecheck` clean baseline. Now that node_modules is installed, both should run.
-3. **P1.1B Wave 1 — Sales-CRM core page rebuild** using the new shells: leads, deals, contacts, tasks, accounts (~25 pages). Per-entity template: list page → `<CrmPageHeader>` + `<EntityListShell>`; new/edit → `<EntityFormShell>`; detail → `<EntityDetailShell>` + `<LineageRail>` + `<EntityAuditTimeline>`. Dispatch ~5 agents per module sub-batch.
-4. **P3 continued (dual-impl sweep)** for the 13 Rust crates that ship but don't yet route TS actions: subscriptions, fixed-assets, bookings, attendance, leaves, payroll-runs, tickets, bills, RFQs, vendor-bids, GRNs, holidays, employees-deep. Can run in parallel with P1.1B. **Reminder:** every new fall-through catch added during this sweep MUST call `recordRustFallback({ entity, op, errorCode, status })` after the human-readable `console.error` — the cutover alert depends on it.
-5. **P4.1 + 4.2 — cutover** — observability scaffold is ready (`recordRustFallback`). Cutover smoke-test gate:
+1. **P1.1B Wave 2 — Sales transactions page rebuild** (~30 pages): invoices, quotations, sales-orders, proforma, delivery-challans, credit-notes, receipts, recurring, subscriptions, contracts, proposals. Heaviest wave because line-item docs (invoices/quotations/SO) need the `<LineageRail>`, line-item editor with inline picker, money summary breakout, tax auto-calc, and live preview pane per §1D.3/§1D.2. Dispatch ~5 agents per module sub-batch.
+2. **P3 continued (dual-impl sweep)** for the 13 Rust crates that ship but don't yet route TS actions: subscriptions, fixed-assets, bookings, attendance, leaves, payroll-runs, tickets, bills, RFQs, vendor-bids, GRNs, holidays, employees-deep. Can run in parallel with P1.1B W2. **Reminder:** every new fall-through catch added during this sweep MUST call `recordRustFallback({ entity, op, errorCode, status })` after the human-readable `console.error` — the cutover alert depends on it.
+3. **P4.1 + 4.2 — cutover** — observability scaffold is ready (`recordRustFallback`). Cutover smoke-test gate:
    1. Set `USE_RUST_CRM=true` in staging `.env`.
    2. Watch logs for `event: 'rust_fallback'` JSON lines.
    3. Alert if rate exceeds **0.5%** of total mutations over a rolling **10 min** window.
    Still TODO before flip: wire the actual alert in Vercel Observability (log-search rule keyed on `event:rust_fallback`), and run a 30-min canary in staging.
-6. After P1.1B W1 lands: start **P2 W1** (foundational Rust entities — brand, tag, label, branch) and **P1.1B W2** (Sales-tx page rebuild) in parallel.
+4. **P2 W1** (foundational Rust entities — brand, tag, label, branch) can run in parallel with P1.1B W2.
+5. **P0.1 + P0.2** — `cargo test --workspace` + `npm run typecheck` clean baseline. Quick sanity check; the 2026-05-15 accounts rebuild left the touched files clean but 27 pre-existing TS errors persist in unrelated modules (sabflow + telegram) — worth flagging before any P3/P4 cutover.
 
 **Quick wins worth picking up any time:**
 - Sweep the 205 files still on `@/hooks/use-toast` to the canonical `useZoruToast`.
 - Sweep the 1220 `variant: 'destructive'` toasts that should be `warning`.
 - Add visual styling for `variant: 'info'` in `toast.tsx` so the 5 callers stop falling back silently.
 - Wire `<EntityMultiFormField>` into the first form that gets an array entity field.
+- Ship `setCrmAccountCategory(ids[], category)` so the accounts list bulk-bar can actually mutate (currently stubbed with a warning toast).
+- Ship `getCrmAccountKpis()` server action — accounts list page derives KPIs from a 500-row client-side sample today.
+- Inline attachment add via `<SabFilePickerButton>` on the account detail page when an `addAccountAttachment` action lands.
+- §1D.3 keyboard shortcut handlers on `<AccountForm>` (`Cmd+S` save · `Cmd+Enter` save & new · `Esc` cancel-with-dirty-prompt). Once shipped, pattern-port to every other form via a shared hook.

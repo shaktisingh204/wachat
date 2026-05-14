@@ -9,7 +9,7 @@ import {
     Cable, Activity, UserCheck, Building2, DollarSign, ClipboardList, UserCog,
     Workflow, MessageSquareText, UsersRound, Target, LayoutTemplate, BriefcaseBusiness,
 } from 'lucide-react';
-import { MetaIcon, WhatsAppIcon, SeoIcon, InstagramIcon, SabChatIcon, TelegramIcon, CrmIcon } from '@/components/wabasimplify/custom-sidebar-components';
+import { MetaIcon, WhatsAppIcon, SeoIcon, InstagramIcon, SabChatIcon, TelegramIcon, CrmIcon, SabWaIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import React from 'react';
 
 export interface MenuItem {
@@ -32,6 +32,7 @@ export interface MenuGroup {
 
 export const appIcons = [
     { id: 'whatsapp', icon: WhatsAppIcon, label: 'Wachat', href: '/wachat' },
+    { id: 'sabwa', icon: SabWaIcon, label: 'SabWa', href: '/sabwa' },
     { id: 'sabchat', icon: SabChatIcon, label: 'sabChat', href: '/dashboard/sabchat' },
     { id: 'facebook', href: '/dashboard/facebook/all-projects', icon: MetaIcon, label: 'Meta Suite' },
     { id: 'ad-manager', href: '/dashboard/ad-manager/ad-accounts', icon: Target, label: 'Ad Manager' },

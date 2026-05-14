@@ -1,0 +1,623 @@
+'use client';
+
+/**
+ * <AccountForm> — shared client form for `/dashboard/crm/accounts/new`
+ * and `/dashboard/crm/accounts/[accountId]/edit` (§1D.3).
+ *
+ * Drives both `addCrmAccount` and `updateCrmAccount` server actions.
+ * The same component handles "Save", "Save & New", and "Save & Add
+ * contact" via a small `intent` parameter; routing happens here on the
+ * action's response.
+ *
+ * Field-name contract: every named input matches what the actions read
+ * via `formData.get(...)` (see `src/app/actions/crm-accounts.actions.ts`):
+ *   name · industry · website · phone · address · country · state · city ·
+ *   gstin · pan · billingAddress · shippingAddress · annualRevenue ·
+ *   employeeCount · currency · paymentTerms · category · logoUrl ·
+ *   accountId (edit only).
+ */
+
+import * as React from 'react';
+import { useRouter } from 'next/navigation';
+import { LoaderCircle, Save, UserPlus } from 'lucide-react';
+
+import {
+    ZoruButton,
+    ZoruCard,
+    ZoruCardContent,
+    ZoruCardDescription,
+    ZoruCardHeader,
+    ZoruCardTitle,
+    ZoruInput,
+    ZoruLabel,
+    ZoruSelect,
+    ZoruSelectContent,
+    ZoruSelectItem,
+    ZoruSelectTrigger,
+    ZoruSelectValue,
+    ZoruTextarea,
+    useZoruToast,
+} from '@/components/zoruui';
+import { EntityFormField } from '@/components/crm/entity-form-field';
+import { DirtyFormPrompt } from '@/components/crm/dirty-form-prompt';
+import { SabFileUrlInput } from '@/components/sabfiles';
+import {
+    addCrmAccount,
+    updateCrmAccount,
+} from '@/app/actions/crm-accounts.actions';
+import type { CrmAccount } from '@/lib/definitions';
+import type { WithId } from 'mongodb';
+
+const CATEGORIES = [
+    { value: 'new', label: 'New' },
+    { value: 'strategic', label: 'Strategic' },
+    { value: 'key', label: 'Key' },
+    { value: 'regular', label: 'Regular' },
+] as const;
+
+const PAYMENT_TERMS = [
+    { value: 'Immediate', label: 'Immediate' },
+    { value: 'Net 15', label: 'Net 15' },
+    { value: 'Net 30', label: 'Net 30' },
+    { value: 'Net 45', label: 'Net 45' },
+    { value: 'Net 60', label: 'Net 60' },
+] as const;
+
+export interface AccountFormPrefill {
+    name?: string;
+    industry?: string;
+    website?: string;
+    phone?: string;
+    country?: string;
+    state?: string;
+    city?: string;
+    currency?: string;
+    category?: string;
+}
+
+interface AccountFormProps {
+    mode: 'create' | 'edit';
+    initial?: WithId<CrmAccount> | null;
+    prefill?: AccountFormPrefill | null;
+}
+
+type ActionState = {
+    message?: string;
+    error?: string;
+    accountId?: string;
+    newClient?: { _id?: unknown };
+};
+
+export function AccountForm({ mode, initial, prefill }: AccountFormProps) {
+    const router = useRouter();
+    const { toast } = useZoruToast();
+    const formRef = React.useRef<HTMLFormElement>(null);
+    const [pending, startTransition] = React.useTransition();
+    const [dirty, setDirty] = React.useState(false);
+    const onDirty = React.useCallback(() => setDirty(true), []);
+
+    /* ─── Profile ──────────────────────────────────────────────── */
+    const [name, setName] = React.useState(initial?.name ?? prefill?.name ?? '');
+    const [industry, setIndustry] = React.useState(
+        initial?.industry ?? prefill?.industry ?? '',
+    );
+    const [website, setWebsite] = React.useState(
+        initial?.website ?? prefill?.website ?? '',
+    );
+    const [phone, setPhone] = React.useState(
+        initial?.phone ?? prefill?.phone ?? '',
+    );
+    const [category, setCategory] = React.useState<string>(
+        (initial?.category as string | undefined) ?? prefill?.category ?? '',
+    );
+    const [logoUrl, setLogoUrl] = React.useState(initial?.logoUrl ?? '');
+
+    /* ─── Address cascade ─────────────────────────────────────── */
+    const [country, setCountry] = React.useState(
+        initial?.country ?? prefill?.country ?? '',
+    );
+    const [stateVal, setStateVal] = React.useState(
+        initial?.state ?? prefill?.state ?? '',
+    );
+    const [city, setCity] = React.useState(
+        initial?.city ?? prefill?.city ?? '',
+    );
+    const [address, setAddress] = React.useState(initial?.address ?? '');
+    const [billingAddress, setBillingAddress] = React.useState(
+        initial?.billingAddress ?? '',
+    );
+    const [shippingAddress, setShippingAddress] = React.useState(
+        initial?.shippingAddress ?? '',
+    );
+
+    /* ─── Commercial ─────────────────────────────────────────── */
+    const [currency, setCurrency] = React.useState(
+        initial?.currency ?? prefill?.currency ?? '',
+    );
+    const [paymentTerms, setPaymentTerms] = React.useState<string>(
+        (initial?.paymentTerms as string | undefined) ?? '',
+    );
+    const [annualRevenue, setAnnualRevenue] = React.useState<string>(
+        initial?.annualRevenue !== undefined ? String(initial.annualRevenue) : '',
+    );
+    const [employeeCount, setEmployeeCount] = React.useState<string>(
+        initial?.employeeCount !== undefined ? String(initial.employeeCount) : '',
+    );
+
+    /* ─── Identifiers ────────────────────────────────────────── */
+    const [gstin, setGstin] = React.useState(initial?.gstin ?? '');
+    const [pan, setPan] = React.useState(initial?.pan ?? '');
+
+    const submit = React.useCallback(
+        async (intent: 'save' | 'save_new' | 'save_contact') => {
+            if (!name.trim()) {
+                toast({
+                    title: 'Company name is required',
+                    variant: 'destructive',
+                });
+                return;
+            }
+            if (!formRef.current) return;
+            const fd = new FormData(formRef.current);
+            // Ensure controlled state wins over any stray DOM values.
+            fd.set('name', name);
+
+            startTransition(async () => {
+                const state: ActionState =
+                    mode === 'edit'
+                        ? await updateCrmAccount({}, fd)
+                        : await addCrmAccount({}, fd);
+
+                if (state.error) {
+                    toast({
+                        title: 'Could not save',
+                        description: state.error,
+                        variant: 'destructive',
+                    });
+                    return;
+                }
+
+                setDirty(false);
+                toast({ title: state.message ?? 'Saved' });
+
+                const newId =
+                    state.accountId ??
+                    (state.newClient?._id ? String(state.newClient._id) : '') ??
+                    (initial?._id ? String(initial._id) : '');
+
+                if (intent === 'save_new') {
+                    router.push('/dashboard/crm/accounts/new');
+                    return;
+                }
+                if (intent === 'save_contact' && newId) {
+                    router.push(
+                        `/dashboard/crm/sales-crm/contacts/new?accountId=${newId}`,
+                    );
+                    return;
+                }
+                if (newId) {
+                    router.push(`/dashboard/crm/accounts/${newId}`);
+                } else {
+                    router.push('/dashboard/crm/accounts');
+                }
+            });
+        },
+        [mode, initial?._id, name, router, toast],
+    );
+
+    return (
+        <>
+            <DirtyFormPrompt dirty={dirty} />
+            <form
+                ref={formRef}
+                onChange={onDirty}
+                onSubmit={(e) => {
+                    e.preventDefault();
+                    void submit('save');
+                }}
+                className="flex w-full flex-col gap-4"
+            >
+                {mode === 'edit' && initial?._id ? (
+                    <input
+                        type="hidden"
+                        name="accountId"
+                        value={String(initial._id)}
+                    />
+                ) : null}
+
+                {/* ─── Profile ─────────────────────────────────── */}
+                <ZoruCard className="p-0">
+                    <ZoruCardHeader>
+                        <ZoruCardTitle>Profile</ZoruCardTitle>
+                        <ZoruCardDescription>
+                            Identity, industry, and how to reach the company.
+                            Required fields marked with *.
+                        </ZoruCardDescription>
+                    </ZoruCardHeader>
+                    <ZoruCardContent className="grid gap-4 md:grid-cols-2">
+                        <div className="space-y-2 md:col-span-2">
+                            <ZoruLabel htmlFor="name">Company name *</ZoruLabel>
+                            <ZoruInput
+                                id="name"
+                                name="name"
+                                value={name}
+                                onChange={(e) => {
+                                    setName(e.target.value);
+                                    onDirty();
+                                }}
+                                required
+                                placeholder="Acme Corp"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <ZoruLabel>Industry</ZoruLabel>
+                            <EntityFormField
+                                entity="industry"
+                                name="industry"
+                                initialId={industry || null}
+                                initialLabel={industry}
+                                onChange={(id) => {
+                                    setIndustry(id ?? '');
+                                    onDirty();
+                                }}
+                                placeholder="Select or create…"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <ZoruLabel htmlFor="website">Website</ZoruLabel>
+                            <ZoruInput
+                                id="website"
+                                name="website"
+                                type="url"
+                                value={website}
+                                onChange={(e) => {
+                                    setWebsite(e.target.value);
+                                    onDirty();
+                                }}
+                                placeholder="https://example.com"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <ZoruLabel htmlFor="phone">Phone</ZoruLabel>
+                            <ZoruInput
+                                id="phone"
+                                name="phone"
+                                value={phone}
+                                onChange={(e) => {
+                                    setPhone(e.target.value);
+                                    onDirty();
+                                }}
+                                placeholder="+91 22 1234 5678"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <ZoruLabel htmlFor="category">Category</ZoruLabel>
+                            <input type="hidden" name="category" value={category} />
+                            <ZoruSelect
+                                value={category}
+                                onValueChange={(v) => {
+                                    setCategory(v);
+                                    onDirty();
+                                }}
+                            >
+                                <ZoruSelectTrigger>
+                                    <ZoruSelectValue placeholder="Pick a category…" />
+                                </ZoruSelectTrigger>
+                                <ZoruSelectContent>
+                                    {CATEGORIES.map((c) => (
+                                        <ZoruSelectItem
+                                            key={c.value}
+                                            value={c.value}
+                                        >
+                                            {c.label}
+                                        </ZoruSelectItem>
+                                    ))}
+                                </ZoruSelectContent>
+                            </ZoruSelect>
+                        </div>
+                        <div className="space-y-2">
+                            <ZoruLabel>Logo</ZoruLabel>
+                            <SabFileUrlInput
+                                name="logoUrl"
+                                accept="image"
+                                value={logoUrl}
+                                onChange={(v) => {
+                                    setLogoUrl(v);
+                                    onDirty();
+                                }}
+                                placeholder="Pick a logo from SabFiles"
+                                pickerTitle="Choose account logo"
+                            />
+                        </div>
+                    </ZoruCardContent>
+                </ZoruCard>
+
+                {/* ─── Address ─────────────────────────────────── */}
+                <ZoruCard className="p-0">
+                    <ZoruCardHeader>
+                        <ZoruCardTitle>Address</ZoruCardTitle>
+                        <ZoruCardDescription>
+                            Registered, billing, and shipping locations.
+                        </ZoruCardDescription>
+                    </ZoruCardHeader>
+                    <ZoruCardContent className="grid gap-4 md:grid-cols-3">
+                        <div className="space-y-2">
+                            <ZoruLabel>Country</ZoruLabel>
+                            <EntityFormField
+                                entity="country"
+                                name="country"
+                                initialId={country || null}
+                                initialLabel={country}
+                                onChange={(id) => {
+                                    setCountry(id ?? '');
+                                    setStateVal('');
+                                    setCity('');
+                                    onDirty();
+                                }}
+                                placeholder="Select a country…"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <ZoruLabel>State / Region</ZoruLabel>
+                            <EntityFormField
+                                entity="state"
+                                name="state"
+                                initialId={stateVal || null}
+                                initialLabel={stateVal}
+                                filter={country ? { country } : undefined}
+                                onChange={(id) => {
+                                    setStateVal(id ?? '');
+                                    setCity('');
+                                    onDirty();
+                                }}
+                                placeholder="Select a state…"
+                                disabled={!country}
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <ZoruLabel>City</ZoruLabel>
+                            <EntityFormField
+                                entity="city"
+                                name="city"
+                                initialId={city || null}
+                                initialLabel={city}
+                                filter={
+                                    country && stateVal
+                                        ? { country, state: stateVal }
+                                        : undefined
+                                }
+                                onChange={(id) => {
+                                    setCity(id ?? '');
+                                    onDirty();
+                                }}
+                                placeholder="Select a city…"
+                                disabled={!stateVal}
+                            />
+                        </div>
+                        <div className="space-y-2 md:col-span-3">
+                            <ZoruLabel htmlFor="address">
+                                Registered address
+                            </ZoruLabel>
+                            <ZoruTextarea
+                                id="address"
+                                name="address"
+                                rows={2}
+                                value={address}
+                                onChange={(e) => {
+                                    setAddress(e.target.value);
+                                    onDirty();
+                                }}
+                                placeholder="Street, locality, ZIP…"
+                            />
+                        </div>
+                        <div className="space-y-2 md:col-span-3 lg:col-span-3">
+                            <ZoruLabel htmlFor="billingAddress">
+                                Billing address
+                            </ZoruLabel>
+                            <ZoruTextarea
+                                id="billingAddress"
+                                name="billingAddress"
+                                rows={2}
+                                value={billingAddress}
+                                onChange={(e) => {
+                                    setBillingAddress(e.target.value);
+                                    onDirty();
+                                }}
+                                placeholder="If different from registered."
+                            />
+                        </div>
+                        <div className="space-y-2 md:col-span-3 lg:col-span-3">
+                            <ZoruLabel htmlFor="shippingAddress">
+                                Shipping address
+                            </ZoruLabel>
+                            <ZoruTextarea
+                                id="shippingAddress"
+                                name="shippingAddress"
+                                rows={2}
+                                value={shippingAddress}
+                                onChange={(e) => {
+                                    setShippingAddress(e.target.value);
+                                    onDirty();
+                                }}
+                                placeholder="If different from registered."
+                            />
+                        </div>
+                    </ZoruCardContent>
+                </ZoruCard>
+
+                {/* ─── Commercial ──────────────────────────────── */}
+                <ZoruCard className="p-0">
+                    <ZoruCardHeader>
+                        <ZoruCardTitle>Commercial</ZoruCardTitle>
+                        <ZoruCardDescription>
+                            Currency, terms, and rough firmographics.
+                        </ZoruCardDescription>
+                    </ZoruCardHeader>
+                    <ZoruCardContent className="grid gap-4 md:grid-cols-2">
+                        <div className="space-y-2">
+                            <ZoruLabel>Currency</ZoruLabel>
+                            <EntityFormField
+                                entity="currency"
+                                name="currency"
+                                initialId={currency || null}
+                                initialLabel={currency}
+                                onChange={(id) => {
+                                    setCurrency(id ?? '');
+                                    onDirty();
+                                }}
+                                placeholder="USD, INR, EUR…"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <ZoruLabel htmlFor="paymentTerms">
+                                Payment terms
+                            </ZoruLabel>
+                            <input
+                                type="hidden"
+                                name="paymentTerms"
+                                value={paymentTerms}
+                            />
+                            <ZoruSelect
+                                value={paymentTerms}
+                                onValueChange={(v) => {
+                                    setPaymentTerms(v);
+                                    onDirty();
+                                }}
+                            >
+                                <ZoruSelectTrigger>
+                                    <ZoruSelectValue placeholder="Pick terms…" />
+                                </ZoruSelectTrigger>
+                                <ZoruSelectContent>
+                                    {PAYMENT_TERMS.map((p) => (
+                                        <ZoruSelectItem
+                                            key={p.value}
+                                            value={p.value}
+                                        >
+                                            {p.label}
+                                        </ZoruSelectItem>
+                                    ))}
+                                </ZoruSelectContent>
+                            </ZoruSelect>
+                        </div>
+                        <div className="space-y-2">
+                            <ZoruLabel htmlFor="annualRevenue">
+                                Annual revenue
+                            </ZoruLabel>
+                            <ZoruInput
+                                id="annualRevenue"
+                                name="annualRevenue"
+                                type="number"
+                                step="0.01"
+                                value={annualRevenue}
+                                onChange={(e) => {
+                                    setAnnualRevenue(e.target.value);
+                                    onDirty();
+                                }}
+                                placeholder="0"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <ZoruLabel htmlFor="employeeCount">
+                                Employees
+                            </ZoruLabel>
+                            <ZoruInput
+                                id="employeeCount"
+                                name="employeeCount"
+                                type="number"
+                                step="1"
+                                value={employeeCount}
+                                onChange={(e) => {
+                                    setEmployeeCount(e.target.value);
+                                    onDirty();
+                                }}
+                                placeholder="0"
+                            />
+                        </div>
+                    </ZoruCardContent>
+                </ZoruCard>
+
+                {/* ─── Identifiers ─────────────────────────────── */}
+                <ZoruCard className="p-0">
+                    <ZoruCardHeader>
+                        <ZoruCardTitle>Identifiers</ZoruCardTitle>
+                        <ZoruCardDescription>
+                            Tax IDs and registration codes used on documents.
+                        </ZoruCardDescription>
+                    </ZoruCardHeader>
+                    <ZoruCardContent className="grid gap-4 md:grid-cols-2">
+                        <div className="space-y-2">
+                            <ZoruLabel htmlFor="gstin">GSTIN</ZoruLabel>
+                            <ZoruInput
+                                id="gstin"
+                                name="gstin"
+                                value={gstin}
+                                onChange={(e) => {
+                                    setGstin(e.target.value.toUpperCase());
+                                    onDirty();
+                                }}
+                                placeholder="29AAAAA0000A1Z5"
+                                className="font-mono"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <ZoruLabel htmlFor="pan">PAN</ZoruLabel>
+                            <ZoruInput
+                                id="pan"
+                                name="pan"
+                                value={pan}
+                                onChange={(e) => {
+                                    setPan(e.target.value.toUpperCase());
+                                    onDirty();
+                                }}
+                                placeholder="AAAAA0000A"
+                                className="font-mono"
+                            />
+                        </div>
+                    </ZoruCardContent>
+                </ZoruCard>
+
+                {/* Sticky action bar */}
+                <div className="sticky bottom-0 z-10 -mx-1 border-t border-zoru-line bg-zoru-bg/95 px-1 py-3 backdrop-blur supports-[backdrop-filter]:bg-zoru-bg/75">
+                    <div className="flex flex-wrap items-center justify-end gap-2">
+                        <ZoruButton
+                            type="button"
+                            variant="ghost"
+                            onClick={() => router.back()}
+                        >
+                            Cancel
+                        </ZoruButton>
+                        {mode === 'create' ? (
+                            <ZoruButton
+                                type="button"
+                                variant="outline"
+                                disabled={pending}
+                                onClick={() => void submit('save_contact')}
+                            >
+                                <UserPlus className="h-4 w-4" /> Save & add
+                                contact
+                            </ZoruButton>
+                        ) : null}
+                        {mode === 'create' ? (
+                            <ZoruButton
+                                type="button"
+                                variant="outline"
+                                disabled={pending}
+                                onClick={() => void submit('save_new')}
+                            >
+                                Save & new
+                            </ZoruButton>
+                        ) : null}
+                        <ZoruButton type="submit" disabled={pending}>
+                            {pending ? (
+                                <LoaderCircle className="h-4 w-4 animate-spin" />
+                            ) : (
+                                <Save className="h-4 w-4" />
+                            )}
+                            {mode === 'edit' ? 'Save changes' : 'Save account'}
+                        </ZoruButton>
+                    </div>
+                </div>
+            </form>
+        </>
+    );
+}

@@ -304,6 +304,33 @@ export type GlobalRolePermissions = {
     sabchat_faq?: ModulePermission;
     sabchat_settings?: ModulePermission;
 
+    // SabWa (personal WhatsApp via Baileys; see SABWA_PLAN.md §10)
+    sabwa_overview?: ModulePermission;
+    sabwa_connect?: ModulePermission;
+    sabwa_inbox?: ModulePermission;
+    sabwa_chats?: ModulePermission;
+    sabwa_groups?: ModulePermission;
+    sabwa_group_manage?: ModulePermission;
+    sabwa_broadcasts?: ModulePermission;
+    sabwa_bulk_send?: ModulePermission;
+    sabwa_scheduler?: ModulePermission;
+    sabwa_contacts?: ModulePermission;
+    sabwa_templates?: ModulePermission;
+    sabwa_auto_reply?: ModulePermission;
+    sabwa_flows?: ModulePermission;
+    sabwa_ai?: ModulePermission;
+    sabwa_media?: ModulePermission;
+    sabwa_status?: ModulePermission;
+    sabwa_calls?: ModulePermission;
+    sabwa_labels?: ModulePermission;
+    sabwa_starred?: ModulePermission;
+    sabwa_analytics?: ModulePermission;
+    sabwa_export?: ModulePermission;
+    sabwa_webhooks?: ModulePermission;
+    sabwa_api_keys?: ModulePermission;
+    sabwa_audit?: ModulePermission;
+    sabwa_settings?: ModulePermission;
+
     // Utilities
     website_builder?: ModulePermission;
     url_shortener?: ModulePermission;
