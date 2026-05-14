@@ -11,21 +11,24 @@ import {
     Settings,
     LogOut,
     Mail,
-    Smartphone,
-    Users,
-    Instagram,
-    Briefcase,
-    Megaphone,
     Workflow,
-    Bot,
-    Search,
-    Globe,
     Link as LinkIcon,
     QrCode,
-    Send,
+    MessageSquareText,
+    UsersRound,
+    Target,
+    LayoutTemplate,
 } from 'lucide-react';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
-import { WhatsAppIcon, MetaIcon } from '@/components/wabasimplify/custom-sidebar-components';
+import {
+    WhatsAppIcon,
+    MetaIcon,
+    InstagramIcon,
+    TelegramIcon,
+    SabChatIcon,
+    CrmIcon,
+    SeoIcon,
+} from '@/components/wabasimplify/custom-sidebar-components';
 import { NotificationPopover } from '@/components/notifications/notification-popover';
 import { useProject } from '@/context/project-context';
 import { can } from '@/lib/rbac';
@@ -37,21 +40,21 @@ import { can } from '@/lib/rbac';
  * shown in the rail. null → always shown (core surfaces every user gets).
  */
 const ALL_APPS: { id: string; label: string; icon: any; href: string; permissionKey: string | null }[] = [
-    { id: 'sabflow',        label: 'SabFlow',        icon: Workflow,     href: '/dashboard/sabflow',                permissionKey: null },
-    { id: 'whatsapp',       label: 'WaChat',         icon: WhatsAppIcon, href: '/wachat',                        permissionKey: 'wachat_overview' },
-    { id: 'facebook',       label: 'Meta Suite',     icon: MetaIcon,     href: '/dashboard/facebook/all-projects',  permissionKey: 'facebook_dashboard' },
-    { id: 'ad-manager',     label: 'Ad Manager',     icon: Megaphone,    href: '/dashboard/ad-manager/ad-accounts', permissionKey: 'ad_manager_accounts' },
-    { id: 'telegram',       label: 'Telegram',       icon: Send,         href: '/dashboard/telegram',               permissionKey: null },
-    { id: 'instagram',      label: 'Instagram',      icon: Instagram,    href: '/dashboard/instagram/connections',  permissionKey: 'instagram_dashboard' },
-    { id: 'crm',            label: 'CRM',            icon: Briefcase,    href: '/dashboard/crm',                    permissionKey: 'crm_dashboard' },
-    { id: 'team',           label: 'Team',           icon: Users,        href: '/dashboard/team',                   permissionKey: 'team_users' },
-    { id: 'email',          label: 'Email',          icon: Mail,         href: '/dashboard/email',                  permissionKey: 'email_dashboard' },
-    { id: 'sms',            label: 'SMS',            icon: Smartphone,   href: '/dashboard/sms',                    permissionKey: 'sms_overview' },
-    { id: 'sabchat',        label: 'SabChat',        icon: Bot,          href: '/dashboard/sabchat',                permissionKey: 'sabchat_inbox' },
-    { id: 'seo-suite',      label: 'SEO Suite',      icon: Search,       href: '/dashboard/seo',                    permissionKey: 'seo_dashboard' },
-    { id: 'website-builder',label: 'Website Builder',icon: Globe,        href: '/dashboard/website-builder',        permissionKey: 'website_builder' },
-    { id: 'url-shortener',  label: 'URL Shortener',  icon: LinkIcon,     href: '/dashboard/url-shortener',          permissionKey: 'url_shortener' },
-    { id: 'qr-code-maker',  label: 'QR Code',        icon: QrCode,       href: '/dashboard/qr-code-maker',          permissionKey: 'qr_code_maker' },
+    { id: 'sabflow',        label: 'SabFlow',        icon: Workflow,         href: '/dashboard/sabflow',                permissionKey: null },
+    { id: 'whatsapp',       label: 'WaChat',         icon: WhatsAppIcon,     href: '/wachat',                           permissionKey: 'wachat_overview' },
+    { id: 'facebook',       label: 'Meta Suite',     icon: MetaIcon,         href: '/dashboard/facebook/all-projects',  permissionKey: 'facebook_dashboard' },
+    { id: 'ad-manager',     label: 'Ad Manager',     icon: Target,           href: '/dashboard/ad-manager/ad-accounts', permissionKey: 'ad_manager_accounts' },
+    { id: 'telegram',       label: 'Telegram',       icon: TelegramIcon,     href: '/dashboard/telegram',               permissionKey: null },
+    { id: 'instagram',      label: 'Instagram',      icon: InstagramIcon,    href: '/dashboard/instagram/connections',  permissionKey: 'instagram_dashboard' },
+    { id: 'crm',            label: 'CRM',            icon: CrmIcon,          href: '/dashboard/crm',                    permissionKey: 'crm_dashboard' },
+    { id: 'team',           label: 'Team',           icon: UsersRound,       href: '/dashboard/team',                   permissionKey: 'team_users' },
+    { id: 'email',          label: 'Email',          icon: Mail,             href: '/dashboard/email',                  permissionKey: 'email_dashboard' },
+    { id: 'sms',            label: 'SMS',            icon: MessageSquareText,href: '/dashboard/sms',                    permissionKey: 'sms_overview' },
+    { id: 'sabchat',        label: 'SabChat',        icon: SabChatIcon,      href: '/dashboard/sabchat',                permissionKey: 'sabchat_inbox' },
+    { id: 'seo-suite',      label: 'SEO Suite',      icon: SeoIcon,          href: '/dashboard/seo',                    permissionKey: 'seo_dashboard' },
+    { id: 'website-builder',label: 'Website Builder',icon: LayoutTemplate,   href: '/dashboard/website-builder',        permissionKey: 'website_builder' },
+    { id: 'url-shortener',  label: 'URL Shortener',  icon: LinkIcon,         href: '/dashboard/url-shortener',          permissionKey: 'url_shortener' },
+    { id: 'qr-code-maker',  label: 'QR Code',        icon: QrCode,           href: '/dashboard/qr-code-maker',          permissionKey: 'qr_code_maker' },
 ];
 
 /* ─── Types ──────────────────────────────────────────────────────────────────── */

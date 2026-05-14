@@ -14,8 +14,8 @@ import {
     TabsList,
     TabsTrigger,
 } from "@/components/ui/tabs";
-import { Bell, Check, Loader2, Briefcase, Globe, Cpu, Info, Megaphone, ChevronLeft, ChevronRight } from "lucide-react";
-import { WhatsAppIcon, MetaIcon } from '@/components/wabasimplify/custom-sidebar-components';
+import { Bell, Check, Loader2, Info, Target, ChevronLeft, ChevronRight } from "lucide-react";
+import { WhatsAppIcon, MetaIcon, CrmIcon, SabChatIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { getAllNotifications, markNotificationAsRead, markAllNotificationsAsRead } from '@/app/actions/notification.actions';
@@ -102,9 +102,9 @@ export function NotificationPopover({ className }: NotificationPopoverProps) {
         { id: 'all', label: 'All', icon: Bell },
         { id: 'wachat', label: 'WaChat', icon: WhatsAppIcon },
         { id: 'facebook', label: 'Meta Suite', icon: MetaIcon },
-        { id: 'ad-manager', label: 'Ads', icon: Megaphone },
-        { id: 'crm', label: 'CRM', icon: Briefcase },
-        { id: 'sabchat', label: 'SabChat', icon: Cpu },
+        { id: 'ad-manager', label: 'Ads', icon: Target },
+        { id: 'crm', label: 'CRM', icon: CrmIcon },
+        { id: 'sabchat', label: 'SabChat', icon: SabChatIcon },
         { id: 'system', label: 'System', icon: Info },
     ];
 

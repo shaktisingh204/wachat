@@ -1,7 +1,4 @@
-'use client';
-
-import * as React from 'react';
-import { use } from 'react';
+import type { WithId } from 'mongodb';
 
 import { HrDetailPage } from '../../../hr/_components/hr-detail-page';
 import {
@@ -9,42 +6,16 @@ import {
   deleteCrmKpi,
   type CrmKpi,
 } from '@/app/actions/crm-hr-appraisals.actions';
-import type { WithId } from 'mongodb';
-import { ZoruSkeleton } from '@/components/zoruui';
 
-export default function KpiDetailPage({
+export default async function KpiDetailPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { id } = use(params);
-  const [row, setRow] = React.useState<WithId<CrmKpi> | null>(null);
-  const [loading, setLoading] = React.useState(true);
+  const { id } = await params;
+  const list = (await getCrmKpis()) as WithId<CrmKpi>[];
+  const row = list.find((r) => String(r._id) === id) ?? null;
 
-  React.useEffect(() => {
-    let active = true;
-    (async () => {
-      try {
-        const list = (await getCrmKpis()) as WithId<CrmKpi>[];
-        if (!active) return;
-        setRow(list.find((r) => String(r._id) === id) ?? null);
-      } finally {
-        if (active) setLoading(false);
-      }
-    })();
-    return () => {
-      active = false;
-    };
-  }, [id]);
-
-  if (loading) {
-    return (
-      <div className="flex w-full flex-col gap-4">
-        <ZoruSkeleton className="h-12 w-full" />
-        <ZoruSkeleton className="h-64 w-full" />
-      </div>
-    );
-  }
   if (!row) return <div className="text-sm text-zoru-ink-muted">KPI not found.</div>;
 
   const achievement =

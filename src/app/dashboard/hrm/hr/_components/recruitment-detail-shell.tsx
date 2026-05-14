@@ -33,6 +33,7 @@ import {
   ZoruCardTitle,
 } from '@/components/zoruui';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
+import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 
 /* ─── Types ─────────────────────────────────────────────────────────── */
@@ -64,11 +65,15 @@ export interface RecruitmentDetailShellProps {
   /** Right rail — related entities + quick stats. */
   rightRail?: React.ReactNode;
   /**
-   * Footer activity slot — pass `<EntityAuditTimeline />` here from the
-   * server-side caller. Typed as ReactNode so this shell stays safe to
-   * reach through any client-component import chain.
+   * Footer activity slot. Either pass an object
+   * `{ entityKind, entityId }` (the shell renders
+   * `<EntityAuditTimeline>` for you — the common case) or pass any
+   * `ReactNode` (escape hatch when a custom footer is needed).
+   * Mirrors the union shape of `EntityDetailShell['audit']`.
    */
-  audit?: React.ReactNode;
+  audit?:
+    | { entityKind: string; entityId: string }
+    | React.ReactNode;
 }
 
 /* ─── Component ─────────────────────────────────────────────────────── */
@@ -85,13 +90,24 @@ export function RecruitmentDetailShell({
   audit,
 }: RecruitmentDetailShellProps) {
   const hasActions = (actions && actions.length > 0) || actionsSlot;
+  // Resolve the audit prop locally so the object form renders the
+  // shared `<EntityAuditTimeline>` and ReactNode forms pass through
+  // for back-compat. Mirrors `EntityDetailShell`'s own handling.
+  const auditNode: React.ReactNode = isAuditDescriptor(audit)
+    ? (
+        <EntityAuditTimeline
+          entityKind={audit.entityKind}
+          entityId={audit.entityId}
+        />
+      )
+    : (audit as React.ReactNode);
   return (
     <EntityDetailShell
       title={title}
       eyebrow={eyebrow}
       status={status}
       back={back}
-      audit={audit}
+      audit={auditNode}
       actions={
         hasActions ? (
           <div className="flex flex-wrap items-center gap-1">
@@ -143,6 +159,15 @@ export function RecruitmentDetailShell({
       {children}
     </EntityDetailShell>
   );
+}
+
+function isAuditDescriptor(
+  value: unknown,
+): value is { entityKind: string; entityId: string } {
+  if (!value || typeof value !== 'object') return false;
+  if (React.isValidElement(value)) return false;
+  const v = value as { entityKind?: unknown; entityId?: unknown };
+  return typeof v.entityKind === 'string' && typeof v.entityId === 'string';
 }
 
 /* ─── DetailCard — section card with title + 2-col grid of rows ───── */

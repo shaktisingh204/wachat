@@ -157,7 +157,7 @@ export async function EntityAuditTimeline({
     entityId,
     limit = 50,
     title = 'Activity',
-}: EntityAuditTimelineProps): Promise<JSX.Element> {
+}: EntityAuditTimelineProps) {
     const session = await getSession();
     if (!session?.user?._id) {
         return (

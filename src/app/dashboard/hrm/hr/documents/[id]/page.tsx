@@ -30,6 +30,7 @@ import {
     markDocumentVerified,
     renewDocument,
 } from '@/app/actions/hr-status.actions';
+import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -135,7 +136,7 @@ export default async function DocumentDetailPage({ params }: PageProps) {
                     />
                 </>
             }
-            audit={{ entityKind: 'document', entityId: id }}
+            audit={<EntityAuditTimeline entityKind="document" entityId={id} />}
         >
             <HrDetailGrid
                 title="Document details"

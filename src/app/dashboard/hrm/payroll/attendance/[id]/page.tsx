@@ -21,6 +21,7 @@ import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { getAttendance } from '@/app/actions/crm/attendance.actions';
 import type { CrmAttendanceStatus } from '@/lib/rust-client/crm-attendance';
+import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 
 export const dynamic = 'force-dynamic';
 
@@ -137,7 +138,7 @@ export default async function AttendanceDetailPage({
           </Link>
         </ZoruButton>
       }
-      audit={{ entityKind: 'attendance', entityId: id }}
+      audit={<EntityAuditTimeline entityKind="attendance" entityId={id} />}
       rightRail={
         <ZoruCard className="p-4">
           <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-wide text-zoru-ink-muted">

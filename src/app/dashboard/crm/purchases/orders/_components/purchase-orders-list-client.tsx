@@ -22,7 +22,7 @@ import * as React from 'react';
 import { ZoruCard, useZoruToast } from '@/components/zoruui';
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
-import type { PurchaseOrderKpiSummary } from '@/app/actions/crm/purchase-orders.actions';
+import type { PurchaseOrderKpiSummary } from '@/app/actions/crm/purchase-orders.kpis';
 
 import { PurchaseOrdersKpiStrip } from './purchase-orders-kpi-strip';
 import { PurchaseOrdersToolbar } from './purchase-orders-toolbar';

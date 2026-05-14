@@ -1,12 +1,6 @@
-'use client';
-
-import * as React from 'react';
-import { use } from 'react';
-
 import { HrDetailPage } from '../../_components/hr-detail-page';
 import { getSurveys, deleteSurvey } from '@/app/actions/hr.actions';
 import type { HrSurvey } from '@/lib/hr-types';
-import { ZoruSkeleton } from '@/components/zoruui';
 
 type Row = HrSurvey & {
   _id: string;
@@ -19,39 +13,15 @@ type Row = HrSurvey & {
   targetCount?: number;
 };
 
-export default function SurveyDetailPage({
+export default async function SurveyDetailPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { id } = use(params);
-  const [row, setRow] = React.useState<Row | null>(null);
-  const [loading, setLoading] = React.useState(true);
+  const { id } = await params;
+  const list = (await getSurveys()) as Row[];
+  const row = list.find((r) => String(r._id) === id) ?? null;
 
-  React.useEffect(() => {
-    let active = true;
-    (async () => {
-      try {
-        const list = (await getSurveys()) as Row[];
-        if (!active) return;
-        setRow(list.find((r) => String(r._id) === id) ?? null);
-      } finally {
-        if (active) setLoading(false);
-      }
-    })();
-    return () => {
-      active = false;
-    };
-  }, [id]);
-
-  if (loading) {
-    return (
-      <div className="flex w-full flex-col gap-4">
-        <ZoruSkeleton className="h-12 w-full" />
-        <ZoruSkeleton className="h-64 w-full" />
-      </div>
-    );
-  }
   if (!row) return <div className="text-sm text-zoru-ink-muted">Survey not found.</div>;
 
   const questions = (row.questions ?? []) as { prompt: string; type: string; required?: string }[];

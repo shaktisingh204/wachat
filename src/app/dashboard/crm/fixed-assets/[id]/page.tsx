@@ -28,6 +28,7 @@ import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { getFixedAsset } from '@/app/actions/crm/fixed-assets.actions';
 
 import { FixedAssetDetailActions } from '../_components/fixed-asset-detail-actions';
+import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 
 export const dynamic = 'force-dynamic';
 
@@ -139,7 +140,7 @@ export default async function FixedAssetDetailPage({
           custodianEmployeeId={asset.custodianEmployeeId}
         />
       }
-      audit={{ entityKind: 'fixed_asset', entityId: id }}
+      audit={<EntityAuditTimeline entityKind="fixed_asset" entityId={id} />}
       rightRail={
         <>
           <ZoruCard>

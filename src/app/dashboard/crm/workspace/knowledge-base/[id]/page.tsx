@@ -15,6 +15,7 @@ import {
 
 import { KbInternalDetailActions } from '../_components/kb-internal-detail-actions';
 import { fmtDate } from '../_components/kb-internal-shared';
+import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 
 export const dynamic = 'force-dynamic';
 
@@ -43,7 +44,7 @@ export default async function KnowledgeBaseDetailPage({
                 }}
                 back={{ href: '/dashboard/crm/workspace/knowledge-base', label: 'Back to KB' }}
                 actions={<KbInternalDetailActions id={String(a._id)} pinned={!!a.pinned} />}
-                audit={{ entityKind: 'knowledge_base', entityId: String(a._id) }}
+                audit={<EntityAuditTimeline entityKind="knowledge_base" entityId={String(a._id)} />}
                 rightRail={
                     <ZoruCard>
                         <h3 className="mb-2 text-[13.5px] font-semibold text-zoru-ink">

@@ -19,6 +19,7 @@ import {
   listDepartments,
 } from '@/app/actions/crm/departments.actions';
 import { listEmployees } from '@/app/actions/crm/employees.actions';
+import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 
 export const dynamic = 'force-dynamic';
 
@@ -91,7 +92,7 @@ export default async function DepartmentDetailPage({
           </Link>
         </ZoruButton>
       }
-      audit={{ entityKind: 'department', entityId: id }}
+      audit={<EntityAuditTimeline entityKind="department" entityId={id} />}
       rightRail={
         <>
           <ZoruCard className="p-4">

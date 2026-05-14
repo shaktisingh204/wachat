@@ -13,6 +13,7 @@ import { Pencil } from 'lucide-react';
 import { ZoruButton, ZoruCard } from '@/components/zoruui';
 import { EntityDetailShell, type EntityStatusTone } from '@/components/crm/entity-detail-shell';
 import { getProformaInvoiceById } from '@/app/actions/crm-proforma-invoices.actions';
+import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 
 export const dynamic = 'force-dynamic';
 
@@ -91,7 +92,7 @@ export default async function ProformaDetailPage({
                     </Link>
                 </ZoruButton>
             }
-            audit={{ entityKind: 'proforma', entityId: id }}
+            audit={<EntityAuditTimeline entityKind="proforma" entityId={id} />}
         >
             <ZoruCard className="p-6">
                 <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">

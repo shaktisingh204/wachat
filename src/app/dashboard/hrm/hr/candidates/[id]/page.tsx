@@ -33,6 +33,7 @@ import {
 } from '../../_components/recruitment-detail-shell';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import { ZoruButton } from '@/components/zoruui';
+import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -146,7 +147,7 @@ export default async function CandidateDetailPage({ params }: PageProps) {
           </RailCard>
         </>
       }
-      audit={{ entityKind: 'candidate', entityId: id }}
+      audit={<EntityAuditTimeline entityKind="candidate" entityId={id} />}
     >
       <DetailCard
         title="Contact"

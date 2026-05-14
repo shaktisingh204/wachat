@@ -342,6 +342,32 @@ export type HrProjectTask = Owned & {
   actualHours?: number;
 };
 
+/**
+ * Per-signer record inside `HrContract.signers[]`.
+ *
+ * Signed via the public `/sign/[contractId]/[signerToken]` flow.
+ * `token` is single-use — set to a 64-char hex on send and zeroed in
+ * `tokenUsedAt` after the signer completes.
+ */
+export type HrContractSigner = {
+  name?: string;
+  email: string;
+  role?: string;
+  /** Position in the signing order (0 = first). */
+  order?: number;
+  /** Single-use magic-link token. */
+  token?: string;
+  tokenIssuedAt?: Date;
+  tokenUsedAt?: Date | null;
+  signedAt?: Date;
+  signatureMethod?: 'typed' | 'drawn' | 'uploaded';
+  /** Typed name (typed) · data:URL (drawn) · SabFiles node id (uploaded). */
+  signatureData?: string;
+  signedFromIp?: string;
+  signedFromUserAgent?: string;
+  signedFromGeo?: { country?: string; city?: string };
+};
+
 export type HrContract = Owned & {
   title: string;
   clientId?: ObjectId;
@@ -350,12 +376,24 @@ export type HrContract = Owned & {
   currency?: string;
   startDate?: Date;
   endDate?: Date;
-  status: 'draft' | 'sent' | 'signed' | 'expired' | 'terminated';
+  status:
+    | 'draft'
+    | 'sent'
+    | 'partially_signed'
+    | 'signed'
+    | 'completed'
+    | 'expired'
+    | 'terminated'
+    | 'voided';
   body?: string;
   signedAt?: Date;
   signedByName?: string;
   signedByEmail?: string;
   signatureDataUrl?: string;
+  /** Counter-party recipients of the public sign flow. */
+  signers?: HrContractSigner[];
+  /** Choice of e-sign delivery; defaults to `internal`. */
+  esignProvider?: 'internal' | 'digio' | 'docusign' | 'aadhaar' | 'none';
 };
 
 export type HrTicket = Owned & {

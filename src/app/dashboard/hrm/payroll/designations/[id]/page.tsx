@@ -14,6 +14,7 @@ import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { getDesignation } from '@/app/actions/crm/departments.actions';
 import { listEmployees } from '@/app/actions/crm/employees.actions';
+import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 
 export const dynamic = 'force-dynamic';
 
@@ -84,7 +85,7 @@ export default async function DesignationDetailPage({
           </Link>
         </ZoruButton>
       }
-      audit={{ entityKind: 'designation', entityId: id }}
+      audit={<EntityAuditTimeline entityKind="designation" entityId={id} />}
       rightRail={
         <ZoruCard className="p-4">
           <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-wide text-zoru-ink-muted">

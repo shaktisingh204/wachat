@@ -25,6 +25,7 @@ import type { LineageKind, LineageRef } from '@/lib/definitions';
 import { ContractDetailActions } from '../_components/contract-detail-actions';
 import { ContractDetailBody } from '../_components/contract-detail-body';
 import { ContractRelatedRail } from '../_components/contract-related-rail';
+import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 
 export const dynamic = 'force-dynamic';
 
@@ -32,7 +33,14 @@ type ContractDoc = HrContract & {
   _id: string;
   lineage?: LineageRef[];
   notes?: string;
-  signers?: Array<{ name?: string; email?: string }>;
+  signers?: Array<{
+    name?: string;
+    email?: string;
+    role?: string;
+    order?: number;
+    signedAt?: string | Date;
+    signatureMethod?: string;
+  }>;
   sentAt?: string | Date;
   voidedAt?: string | Date;
   voidReason?: string;
@@ -81,9 +89,19 @@ export default async function ContractDetailPage({ params }: PageProps) {
           status={status}
           contactEmail={clientEmail}
           endDate={endDateStr}
+          pendingSigners={
+            Array.isArray(contract.signers)
+              ? contract.signers
+                  .filter((s) => s?.email && !s?.signedAt)
+                  .map((s) => ({
+                    email: String(s.email),
+                    name: s.name ?? null,
+                  }))
+              : []
+          }
         />
       }
-      audit={{ entityKind: 'contract', entityId: contractId }}
+      audit={<EntityAuditTimeline entityKind="contract" entityId={contractId} />}
       rightRail={
         <>
           {Array.isArray(contract.lineage) && contract.lineage.length > 0 ? (

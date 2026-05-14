@@ -37,6 +37,7 @@ import {
     markExitNoc,
 } from '@/app/actions/hr-status.actions';
 import { deleteExit } from '@/app/actions/hr.actions';
+import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -133,7 +134,7 @@ export default async function ExitDetailPage({ params }: PageProps) {
                     />
                 </>
             }
-            audit={{ entityKind: 'exit', entityId: id }}
+            audit={<EntityAuditTimeline entityKind="exit" entityId={id} />}
         >
             <HrDetailGrid
                 title="Exit details"

@@ -20,6 +20,7 @@ import { EntityDetailShell, type EntityStatusTone } from '@/components/crm/entit
 import { getPortalUserById } from '@/app/actions/crm-portal.actions';
 
 import { PortalDetailActions } from '../_components/portal-detail-actions';
+import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 
 type PortalUserDoc = {
   _id: string;
@@ -104,7 +105,7 @@ export default async function PortalDetailPage({ params }: PageProps) {
       status={{ label: status, tone: statusTone(status) }}
       back={{ href: '/dashboard/crm/portal', label: 'All portal users' }}
       actions={<PortalDetailActions portalUserId={id} status={status} />}
-      audit={{ entityKind: 'portal_user', entityId: id }}
+      audit={<EntityAuditTimeline entityKind="portal_user" entityId={id} />}
       rightRail={
         <>
           <ZoruCard>

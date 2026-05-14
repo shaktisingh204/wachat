@@ -28,6 +28,7 @@ import { EntityDetailShell, type EntityStatusTone } from '@/components/crm/entit
 import { getProductionOrderById } from '@/app/actions/crm-production-orders.actions';
 
 import { PoDetailActions } from '../_components/po-detail-actions';
+import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 
 export const dynamic = 'force-dynamic';
 
@@ -154,7 +155,7 @@ export default async function ProductionOrderDetailPage({ params }: PageProps) {
           </ZoruCard>
         </div>
       }
-      audit={{ entityKind: 'production_order', entityId: orderId }}
+      audit={<EntityAuditTimeline entityKind="production_order" entityId={orderId} />}
     >
       <ZoruCard>
         <ZoruCardHeader>

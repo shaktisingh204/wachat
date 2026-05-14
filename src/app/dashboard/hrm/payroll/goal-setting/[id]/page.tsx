@@ -1,14 +1,9 @@
-'use client';
-
-import * as React from 'react';
-import { use } from 'react';
 import type { WithId } from 'mongodb';
 
 import { HrDetailPage } from '../../../hr/_components/hr-detail-page';
 import { HrProgressCell } from '../../../hr/_components/hr-list-shell';
 import { getCrmGoals, deleteCrmGoal } from '@/app/actions/crm-hr.actions';
 import type { CrmGoal } from '@/lib/definitions';
-import { ZoruSkeleton } from '@/components/zoruui';
 
 type GoalRow = WithId<CrmGoal> & {
   assigneeInfo?: { firstName?: string; lastName?: string };
@@ -18,39 +13,14 @@ type GoalRow = WithId<CrmGoal> & {
   milestones?: { title: string; targetDate?: string; status?: string }[];
 };
 
-export default function GoalDetailPage({
+export default async function GoalDetailPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { id } = use(params);
-  const [goal, setGoal] = React.useState<GoalRow | null>(null);
-  const [loading, setLoading] = React.useState(true);
-
-  React.useEffect(() => {
-    let active = true;
-    (async () => {
-      try {
-        const list = (await getCrmGoals()) as GoalRow[];
-        if (!active) return;
-        setGoal(list.find((r) => String(r._id) === id) ?? null);
-      } finally {
-        if (active) setLoading(false);
-      }
-    })();
-    return () => {
-      active = false;
-    };
-  }, [id]);
-
-  if (loading) {
-    return (
-      <div className="flex w-full flex-col gap-4">
-        <ZoruSkeleton className="h-12 w-full" />
-        <ZoruSkeleton className="h-64 w-full" />
-      </div>
-    );
-  }
+  const { id } = await params;
+  const list = (await getCrmGoals()) as GoalRow[];
+  const goal = list.find((r) => String(r._id) === id) ?? null;
 
   if (!goal) {
     return (

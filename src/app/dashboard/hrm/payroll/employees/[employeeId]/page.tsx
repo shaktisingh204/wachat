@@ -41,6 +41,7 @@ import type { CrmEmployeeStatus } from '@/lib/rust-client/crm-employees';
 
 import { EmployeeDetailActions } from '../_components/employee-detail-actions';
 import { EmployeeDetailSections } from '../_components/employee-detail-sections';
+import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 
 export const dynamic = 'force-dynamic';
 
@@ -121,7 +122,7 @@ export default async function EmployeeDetailPage({
           status={status}
         />
       }
-      audit={{ entityKind: 'employee', entityId: employeeId }}
+      audit={<EntityAuditTimeline entityKind="employee" entityId={employeeId} />}
       rightRail={
         <>
           <ZoruCard className="p-4">

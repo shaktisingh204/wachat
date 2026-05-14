@@ -14,6 +14,7 @@ import Link from 'next/link';
 import { Pencil } from 'lucide-react';
 
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
+import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { statusToTone, type StatusTone } from '@/components/crm/status-pill';
 import {
   ZoruButton,
@@ -50,13 +51,15 @@ export interface HrDetailPageProps {
   /** Optional right-rail content. */
   rightRail?: React.ReactNode;
   /**
-   * Footer activity slot — pass `<EntityAuditTimeline />` here from a
-   * server-side caller. The previous `auditKind` string prop was
-   * removed because every existing caller is a `'use client'` page and
-   * cannot render an async server child; converting those pages to
-   * server is the proper place to wire audit back in.
+   * Footer activity slot. Either pass an object
+   * `{ entityKind, entityId }` (the shell renders
+   * `<EntityAuditTimeline>` for you — the common case) or pass any
+   * `ReactNode` (escape hatch when a custom footer is needed).
+   * Mirrors the union shape of `EntityDetailShell['audit']`.
    */
-  audit?: React.ReactNode;
+  audit?:
+    | { entityKind: string; entityId: string }
+    | React.ReactNode;
   /** Extra action buttons rendered before Edit/Delete. */
   extraActions?: React.ReactNode;
 }
@@ -96,6 +99,18 @@ export function HrDetailPage({
   // it through. Tone falls back to a statusToTone heuristic.
   const resolvedTone = status?.tone ?? (status ? statusToTone(status.label) : undefined);
 
+  // Resolve the audit prop locally so the object form renders the
+  // shared `<EntityAuditTimeline>` and ReactNode forms pass through
+  // for back-compat. Mirrors `EntityDetailShell`'s own handling.
+  const auditNode: React.ReactNode = isAuditDescriptor(audit)
+    ? (
+        <EntityAuditTimeline
+          entityKind={audit.entityKind}
+          entityId={audit.entityId}
+        />
+      )
+    : (audit as React.ReactNode);
+
   return (
     <EntityDetailShell
       title={title}
@@ -104,7 +119,7 @@ export function HrDetailPage({
       actions={actions}
       back={{ href: listHref, label: listLabel }}
       rightRail={rightRail}
-      audit={audit}
+      audit={auditNode}
     >
       {sections.map((sec) => (
         <ZoruCard key={sec.title}>
@@ -134,4 +149,13 @@ export function HrDetailPage({
       ))}
     </EntityDetailShell>
   );
+}
+
+function isAuditDescriptor(
+  value: unknown,
+): value is { entityKind: string; entityId: string } {
+  if (!value || typeof value !== 'object') return false;
+  if (React.isValidElement(value)) return false;
+  const v = value as { entityKind?: unknown; entityId?: unknown };
+  return typeof v.entityKind === 'string' && typeof v.entityId === 'string';
 }

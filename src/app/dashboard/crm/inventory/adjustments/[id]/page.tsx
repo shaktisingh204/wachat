@@ -32,6 +32,7 @@ import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { getCrmStockAdjustmentById } from '@/app/actions/crm-inventory.actions';
 
 import { AdjustmentDetailActions } from '../_components/adjustment-detail-actions';
+import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -129,7 +130,7 @@ export default async function StockAdjustmentDetailPage({ params }: PageProps) {
                     <AdjustmentDetailActions id={id} status={status} />
                 </>
             }
-            audit={{ entityKind: 'stock_adjustment', entityId: id }}
+            audit={<EntityAuditTimeline entityKind="stock_adjustment" entityId={id} />}
         >
             <ZoruCard>
                 <ZoruCardHeader>

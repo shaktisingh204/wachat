@@ -27,6 +27,7 @@ import {
 import { HrDetailGrid, HrDetailRow } from '../../_components/hr-detail-grid';
 import { HrActionButtons } from '../../_components/hr-action-buttons';
 import { publishPolicy, archivePolicy } from '@/app/actions/hr-status.actions';
+import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -93,7 +94,7 @@ export default async function PolicyDetailPage({ params }: PageProps) {
                     />
                 </>
             }
-            audit={{ entityKind: 'policy', entityId: id }}
+            audit={<EntityAuditTimeline entityKind="policy" entityId={id} />}
         >
             <HrDetailGrid title="Overview">
                 <HrDetailRow label="Title">{title}</HrDetailRow>

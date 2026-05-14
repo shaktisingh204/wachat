@@ -27,6 +27,7 @@ import {
   RailLink,
 } from '../../_components/recruitment-detail-shell';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
+import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -140,7 +141,7 @@ export default async function InterviewDetailPage({ params }: PageProps) {
           </RailCard>
         </>
       }
-      audit={{ entityKind: 'interview', entityId: id }}
+      audit={<EntityAuditTimeline entityKind="interview" entityId={id} />}
     >
       <DetailCard
         title="Interview"

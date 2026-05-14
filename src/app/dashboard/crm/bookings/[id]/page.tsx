@@ -28,6 +28,7 @@ import { getBooking } from '@/app/actions/crm/bookings.actions';
 import type { CrmBookingStatus } from '@/lib/rust-client/crm-bookings';
 
 import { BookingDetailActions } from '../_components/booking-detail-actions';
+import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 
 export const dynamic = 'force-dynamic';
 
@@ -132,7 +133,7 @@ export default async function BookingDetailPage({
           slotEnd={booking.slotEnd}
         />
       }
-      audit={{ entityKind: 'booking', entityId: id }}
+      audit={<EntityAuditTimeline entityKind="booking" entityId={id} />}
       rightRail={
         <>
           <ZoruCard>

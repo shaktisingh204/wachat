@@ -33,6 +33,7 @@ import {
     toggleAnnouncementPin,
     archiveAnnouncement,
 } from '@/app/actions/hr-status.actions';
+import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -103,7 +104,7 @@ export default async function AnnouncementDetailPage({ params }: PageProps) {
                     />
                 </>
             }
-            audit={{ entityKind: 'announcement', entityId: id }}
+            audit={<EntityAuditTimeline entityKind="announcement" entityId={id} />}
         >
             <HrDetailGrid
                 title="Overview"

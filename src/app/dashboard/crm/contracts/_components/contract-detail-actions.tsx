@@ -36,6 +36,7 @@ import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import {
   deleteContract,
+  resendContractToSigner,
   updateContractStatus,
 } from '@/app/actions/crm-services.actions';
 
@@ -60,6 +61,12 @@ interface ContractDetailActionsProps {
   status?: string;
   contactEmail?: string | null;
   endDate?: string | null;
+  /**
+   * Pending signers (not yet signed) — used for the "Resend invite"
+   * sub-action. Each entry should be `{ email, name? }`. Optional;
+   * when omitted the resend action is hidden.
+   */
+  pendingSigners?: Array<{ email: string; name?: string | null }>;
 }
 
 export function ContractDetailActions({
@@ -67,6 +74,7 @@ export function ContractDetailActions({
   status,
   contactEmail,
   endDate,
+  pendingSigners = [],
 }: ContractDetailActionsProps) {
   const router = useRouter();
   const { toast } = useZoruToast();
@@ -141,6 +149,43 @@ export function ContractDetailActions({
       <ZoruButton size="sm" variant="outline" onClick={() => setSendOpen(true)}>
         <Send className="h-3.5 w-3.5" /> Send for signature
       </ZoruButton>
+
+      {pendingSigners.length > 0 ? (
+        <ZoruDropdownMenu>
+          <ZoruDropdownMenuTrigger asChild>
+            <ZoruButton size="sm" variant="outline">
+              <Mail className="h-3.5 w-3.5" /> Resend invite
+            </ZoruButton>
+          </ZoruDropdownMenuTrigger>
+          <ZoruDropdownMenuContent>
+            {pendingSigners.map((s) => (
+              <ZoruDropdownMenuItem
+                key={s.email}
+                onSelect={() => {
+                  startTransition(async () => {
+                    const res = await resendContractToSigner(contractId, s.email);
+                    if (res.success) {
+                      toast({
+                        title: 'Invite resent',
+                        description: s.email,
+                      });
+                      router.refresh();
+                    } else {
+                      toast({
+                        title: 'Resend failed',
+                        description: res.error ?? 'Unknown error',
+                        variant: 'destructive',
+                      });
+                    }
+                  });
+                }}
+              >
+                {s.name ? `${s.name} (${s.email})` : s.email}
+              </ZoruDropdownMenuItem>
+            ))}
+          </ZoruDropdownMenuContent>
+        </ZoruDropdownMenu>
+      ) : null}
 
       <ZoruButton
         size="sm"

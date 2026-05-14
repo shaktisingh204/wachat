@@ -44,6 +44,7 @@ import {
     approveTimesheet,
     rejectTimesheet,
 } from '@/app/actions/hr-status-flow.actions';
+import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -133,7 +134,7 @@ export default async function TimesheetDetailPage({ params }: PageProps) {
                     />
                 </>
             }
-            audit={{ entityKind: 'timesheet', entityId: id }}
+            audit={<EntityAuditTimeline entityKind="timesheet" entityId={id} />}
         >
             <HrDetailGrid title="Overview">
                 <HrDetailRow label="Employee">{fmtText(employeeRef)}</HrDetailRow>

@@ -1,13 +1,7 @@
-'use client';
-
-import * as React from 'react';
-import { use } from 'react';
-
 import { HrDetailPage } from '../../_components/hr-detail-page';
 import { HrProgressCell } from '../../_components/hr-list-shell';
 import { getOkrs, deleteOkr } from '@/app/actions/hr.actions';
 import type { HrOkr } from '@/lib/hr-types';
-import { ZoruSkeleton } from '@/components/zoruui';
 
 type Row = HrOkr & {
   _id: string;
@@ -17,39 +11,15 @@ type Row = HrOkr & {
   progress?: number;
 };
 
-export default function OkrDetailPage({
+export default async function OkrDetailPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { id } = use(params);
-  const [okr, setOkr] = React.useState<Row | null>(null);
-  const [loading, setLoading] = React.useState(true);
+  const { id } = await params;
+  const list = (await getOkrs()) as Row[];
+  const okr = list.find((r) => String(r._id) === id) ?? null;
 
-  React.useEffect(() => {
-    let active = true;
-    (async () => {
-      try {
-        const list = (await getOkrs()) as Row[];
-        if (!active) return;
-        setOkr(list.find((r) => String(r._id) === id) ?? null);
-      } finally {
-        if (active) setLoading(false);
-      }
-    })();
-    return () => {
-      active = false;
-    };
-  }, [id]);
-
-  if (loading) {
-    return (
-      <div className="flex w-full flex-col gap-4">
-        <ZoruSkeleton className="h-12 w-full" />
-        <ZoruSkeleton className="h-64 w-full" />
-      </div>
-    );
-  }
   if (!okr) {
     return <div className="text-sm text-zoru-ink-muted">OKR not found.</div>;
   }

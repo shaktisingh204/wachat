@@ -20,6 +20,7 @@ import {
 import { HrDetailGrid, HrDetailRow } from '../../_components/hr-detail-grid';
 import { HrActionButtons } from '../../_components/hr-action-buttons';
 import { archiveCompensationBand } from '@/app/actions/hr-status.actions';
+import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -85,7 +86,7 @@ export default async function CompensationBandDetailPage({ params }: PageProps) 
                     />
                 </>
             }
-            audit={{ entityKind: 'compensation_band', entityId: id }}
+            audit={<EntityAuditTimeline entityKind="compensation_band" entityId={id} />}
         >
             <HrDetailGrid title="Band">
                 <HrDetailRow label="Role / Designation">{title}</HrDetailRow>
