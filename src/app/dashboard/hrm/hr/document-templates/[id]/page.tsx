@@ -25,6 +25,11 @@ import {
     fmtText,
 } from '../../_components/hr-detail-loader';
 import { HrDetailGrid, HrDetailRow } from '../../_components/hr-detail-grid';
+import { HrActionButtons } from '../../_components/hr-action-buttons';
+import {
+    archiveDocumentTemplate,
+    duplicateDocumentTemplate,
+} from '@/app/actions/hr-status.actions';
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -63,20 +68,37 @@ export default async function DocumentTemplateDetailPage({ params }: PageProps) 
                             <Pencil className="h-4 w-4" /> Edit
                         </ZoruButton>
                     </Link>
-                    {/* TODO 1D.2: wire Use template (open new document prefill). */}
-                    <ZoruButton variant="outline" size="sm" disabled>
-                        <FilePlus className="h-4 w-4" /> Use template
-                    </ZoruButton>
-                    {/* TODO 1D.2: wire Duplicate / Archive. */}
-                    <ZoruButton variant="outline" size="sm" disabled>
-                        <Copy className="h-4 w-4" /> Duplicate
-                    </ZoruButton>
-                    <ZoruButton variant="outline" size="sm" disabled>
-                        <Archive className="h-4 w-4" /> Archive
-                    </ZoruButton>
+                    <Link href={`/dashboard/hrm/hr/documents/new?templateId=${id}`}>
+                        <ZoruButton variant="outline" size="sm">
+                            <FilePlus className="h-4 w-4" /> Use template
+                        </ZoruButton>
+                    </Link>
+                    <HrActionButtons
+                        actions={[
+                            {
+                                key: 'duplicate',
+                                kind: 'action',
+                                label: 'Duplicate',
+                                icon: <Copy className="h-4 w-4" />,
+                                onRun: () => duplicateDocumentTemplate(id),
+                            },
+                            {
+                                key: 'archive',
+                                kind: 'confirm',
+                                label: 'Archive',
+                                icon: <Archive className="h-4 w-4" />,
+                                variant: 'destructive',
+                                confirmTitle: 'Archive this template?',
+                                confirmDescription:
+                                    'Archived templates are hidden from the active template list but can be restored.',
+                                confirmLabel: 'Archive',
+                                onRun: () => archiveDocumentTemplate(id),
+                            },
+                        ]}
+                    />
                 </>
             }
-            audit={{ entityKind: 'document-template', entityId: id }}
+            audit={{ entityKind: 'document_template', entityId: id }}
         >
             <HrDetailGrid title="Overview">
                 <HrDetailRow label="Name">{name}</HrDetailRow>

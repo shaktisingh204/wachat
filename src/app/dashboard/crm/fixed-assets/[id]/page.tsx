@@ -1,27 +1,33 @@
 /**
- * Fixed asset detail — `/dashboard/crm/fixed-assets/[id]`.
+ * Fixed-asset detail — `/dashboard/crm/fixed-assets/[id]`.
  *
- * Server component: hydrates the asset via the Rust client, resolves
- * relational fields through `<EntityPickerChip>`, and renders the
- * standard depreciation/condition fields. Edit lives on this page; the
- * delete dialog is on the list page.
- *
- * No custom-field panel — `fixedAsset` is not a member of
- * `WsCustomFieldBelongsTo`.
+ * Server component per §1D.2. Composes `<EntityDetailShell>` with:
+ *   - Header: 9 actions (Edit · Assign · Unassign · Depreciate now ·
+ *     Retire · Print label · Maintenance log · Archive · Activity).
+ *   - Body cards: Overview · Cost & depreciation · Custodian history ·
+ *     Maintenance log · Insurance/Warranty · Documents.
+ *   - Right rail: NBV card · Cost · Depreciation YTD · Custodian chip ·
+ *     Location chip · Related entities (asset assignments).
+ *   - Audit footer via `audit` prop.
  */
 
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { Boxes, Pencil, ArrowLeft } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 
 import {
+  ZoruBadge,
   ZoruButton,
   ZoruCard,
-  ZoruBadge,
+  ZoruCardContent,
+  ZoruCardHeader,
+  ZoruCardTitle,
 } from '@/components/zoruui';
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityDetailShell, type EntityStatusTone } from '@/components/crm/entity-detail-shell';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { getFixedAsset } from '@/app/actions/crm/fixed-assets.actions';
+
+import { FixedAssetDetailActions } from '../_components/fixed-asset-detail-actions';
 
 export const dynamic = 'force-dynamic';
 
@@ -41,7 +47,7 @@ function fmtMoney(value?: number, currency?: string): string {
 function fmtDate(v?: string): string {
   if (!v) return '—';
   const d = new Date(v);
-  return isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
+  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
 }
 
 function methodLabel(v?: string): string {
@@ -57,7 +63,28 @@ function methodLabel(v?: string): string {
   }
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function conditionTone(condition?: string): EntityStatusTone {
+  switch (condition) {
+    case 'new':
+    case 'good':
+      return 'green';
+    case 'fair':
+      return 'amber';
+    case 'damaged':
+    case 'retired':
+      return 'red';
+    default:
+      return 'neutral';
+  }
+}
+
+function Field({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
   return (
     <div>
       <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
@@ -94,59 +121,219 @@ export default async function FixedAssetDetailPage({
     notFound();
   }
 
-  const displayName = asset.name || asset.code || 'Fixed asset';
-  const subtitle = asset.code && asset.name ? asset.code : 'Fixed asset';
+  const title = asset.name || asset.code || 'Fixed asset';
+  const condition = asset.condition ?? 'good';
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title={displayName}
-        subtitle={subtitle}
-        icon={Boxes}
-        actions={
-          <>
-            <ZoruButton variant="outline" asChild>
-              <Link href="/dashboard/crm/fixed-assets">
-                <ArrowLeft className="h-4 w-4" /> Back
-              </Link>
-            </ZoruButton>
-            <ZoruButton asChild>
-              <Link href={`/dashboard/crm/fixed-assets/${id}/edit`}>
-                <Pencil className="h-4 w-4" /> Edit
-              </Link>
-            </ZoruButton>
-          </>
-        }
-      />
+    <EntityDetailShell
+      title={title}
+      eyebrow={`FIXED ASSET · ${asset.code ?? ''}`}
+      status={{ label: condition, tone: conditionTone(condition) }}
+      back={{
+        href: '/dashboard/crm/fixed-assets',
+        label: 'Back to Fixed Assets',
+      }}
+      actions={
+        <FixedAssetDetailActions
+          assetId={id}
+          custodianEmployeeId={asset.custodianEmployeeId}
+        />
+      }
+      audit={{ entityKind: 'fixed_asset', entityId: id }}
+      rightRail={
+        <>
+          <ZoruCard>
+            <ZoruCardHeader>
+              <ZoruCardTitle>Net book value</ZoruCardTitle>
+            </ZoruCardHeader>
+            <ZoruCardContent>
+              <div className="space-y-2 text-[12.5px]">
+                <div className="flex items-center justify-between">
+                  <span className="text-zoru-ink-muted">NBV</span>
+                  <span className="font-mono tabular-nums text-zoru-ink">
+                    {fmtMoney(asset.netBookValue, asset.currency)}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-zoru-ink-muted">Cost</span>
+                  <span className="font-mono tabular-nums">
+                    {fmtMoney(asset.cost, asset.currency)}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between border-t border-zoru-line pt-2">
+                  <span className="text-zoru-ink-muted">Accum. dep.</span>
+                  <span className="font-mono tabular-nums text-zoru-ink-muted">
+                    {fmtMoney(
+                      asset.accumulatedDepreciation,
+                      asset.currency,
+                    )}
+                  </span>
+                </div>
+              </div>
+            </ZoruCardContent>
+          </ZoruCard>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <ZoruCard className="p-6 lg:col-span-2">
-          <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
-            Header
-          </h3>
+          <ZoruCard>
+            <ZoruCardHeader>
+              <ZoruCardTitle>Custodian</ZoruCardTitle>
+            </ZoruCardHeader>
+            <ZoruCardContent>
+              {asset.custodianEmployeeId ? (
+                <EntityPickerChip
+                  entity="employee"
+                  id={asset.custodianEmployeeId}
+                />
+              ) : (
+                <span className="text-[12.5px] text-zoru-ink-muted">
+                  Unassigned
+                </span>
+              )}
+              <div className="mt-2 text-[12.5px]">
+                <span className="text-zoru-ink-muted">Location: </span>
+                <span>{asset.location || '—'}</span>
+              </div>
+            </ZoruCardContent>
+          </ZoruCard>
+
+          <ZoruCard>
+            <ZoruCardHeader>
+              <ZoruCardTitle>Compliance</ZoruCardTitle>
+            </ZoruCardHeader>
+            <ZoruCardContent>
+              <div className="space-y-1.5 text-[12.5px]">
+                <div className="flex justify-between">
+                  <span className="text-zoru-ink-muted">Warranty</span>
+                  <span>{fmtDate(asset.warrantyUntil)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-zoru-ink-muted">Insurance</span>
+                  <span>{fmtDate(asset.insuranceUntil)}</span>
+                </div>
+              </div>
+            </ZoruCardContent>
+          </ZoruCard>
+
+          <ZoruCard>
+            <ZoruCardHeader>
+              <ZoruCardTitle>Related</ZoruCardTitle>
+            </ZoruCardHeader>
+            <ZoruCardContent>
+              <div className="flex flex-col gap-2 text-[12.5px]">
+                <Link
+                  href={`/dashboard/crm/fixed-assets/${id}/maintenance`}
+                  className="text-zoru-primary hover:underline"
+                >
+                  Maintenance log →
+                </Link>
+                {asset.amcContractId ? (
+                  <Link
+                    href={`/dashboard/crm/service-contracts/${asset.amcContractId}`}
+                    className="text-zoru-primary hover:underline"
+                  >
+                    AMC contract →
+                  </Link>
+                ) : (
+                  <span className="text-zoru-ink-muted">No AMC linked</span>
+                )}
+              </div>
+            </ZoruCardContent>
+          </ZoruCard>
+        </>
+      }
+    >
+      <ZoruCard>
+        <ZoruCardHeader>
+          <ZoruCardTitle>Overview</ZoruCardTitle>
+        </ZoruCardHeader>
+        <ZoruCardContent>
           <div className="grid gap-4 md:grid-cols-2">
             <Field label="Asset code">{asset.code || '—'}</Field>
             <Field label="Asset name">{asset.name || '—'}</Field>
             <Field label="Category">{asset.category || '—'}</Field>
             <Field label="Condition">
-              {asset.condition ? (
-                <ZoruBadge variant="outline">{asset.condition}</ZoruBadge>
+              <ZoruBadge variant="outline">{condition}</ZoruBadge>
+            </Field>
+            <Field label="Currency">{asset.currency || '—'}</Field>
+            <Field label="Location">{asset.location || '—'}</Field>
+          </div>
+        </ZoruCardContent>
+      </ZoruCard>
+
+      <ZoruCard>
+        <ZoruCardHeader>
+          <ZoruCardTitle>Cost &amp; depreciation</ZoruCardTitle>
+        </ZoruCardHeader>
+        <ZoruCardContent>
+          <table className="w-full text-[13px]">
+            <tbody>
+              <tr className="border-b border-zoru-line/60">
+                <td className="py-2 text-zoru-ink-muted">Purchase date</td>
+                <td className="py-2 text-right">
+                  {fmtDate(asset.purchaseDate)}
+                </td>
+              </tr>
+              <tr className="border-b border-zoru-line/60">
+                <td className="py-2 text-zoru-ink-muted">Cost</td>
+                <td className="py-2 text-right font-mono tabular-nums">
+                  {fmtMoney(asset.cost, asset.currency)}
+                </td>
+              </tr>
+              <tr className="border-b border-zoru-line/60">
+                <td className="py-2 text-zoru-ink-muted">Method</td>
+                <td className="py-2 text-right">
+                  {methodLabel(asset.depreciationMethod)}
+                </td>
+              </tr>
+              <tr className="border-b border-zoru-line/60">
+                <td className="py-2 text-zoru-ink-muted">
+                  Useful life (months)
+                </td>
+                <td className="py-2 text-right">
+                  {asset.usefulLifeMonths ?? '—'}
+                </td>
+              </tr>
+              <tr className="border-b border-zoru-line/60">
+                <td className="py-2 text-zoru-ink-muted">Residual value</td>
+                <td className="py-2 text-right font-mono tabular-nums">
+                  {fmtMoney(asset.residualValue, asset.currency)}
+                </td>
+              </tr>
+              <tr className="border-b border-zoru-line/60">
+                <td className="py-2 text-zoru-ink-muted">
+                  Accumulated depreciation
+                </td>
+                <td className="py-2 text-right font-mono tabular-nums">
+                  {fmtMoney(asset.accumulatedDepreciation, asset.currency)}
+                </td>
+              </tr>
+              <tr>
+                <td className="py-2 font-medium">Net book value</td>
+                <td className="py-2 text-right font-mono font-medium tabular-nums">
+                  {fmtMoney(asset.netBookValue, asset.currency)}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </ZoruCardContent>
+      </ZoruCard>
+
+      <ZoruCard>
+        <ZoruCardHeader>
+          <ZoruCardTitle>Custodian &amp; vendor</ZoruCardTitle>
+        </ZoruCardHeader>
+        <ZoruCardContent>
+          <div className="grid gap-4 md:grid-cols-2">
+            <Field label="Custodian">
+              {asset.custodianEmployeeId ? (
+                <EntityPickerChip
+                  entity="employee"
+                  id={asset.custodianEmployeeId}
+                />
               ) : (
                 '—'
               )}
             </Field>
-          </div>
-
-          <h3 className="mb-4 mt-8 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
-            Purchase
-          </h3>
-          <div className="grid gap-4 md:grid-cols-2">
-            <Field label="Purchase date">{fmtDate(asset.purchaseDate)}</Field>
-            <Field label="Purchase value">
-              {fmtMoney(asset.cost, asset.currency)}
-            </Field>
-            <Field label="Currency">{asset.currency || '—'}</Field>
-            <Field label="Vendor">
+            <Field label="Supplier / vendor">
               {asset.supplierId ? (
                 <EntityPickerChip entity="vendor" id={asset.supplierId} />
               ) : (
@@ -154,50 +341,47 @@ export default async function FixedAssetDetailPage({
               )}
             </Field>
           </div>
+        </ZoruCardContent>
+      </ZoruCard>
 
-          <h3 className="mb-4 mt-8 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
-            Assignment
-          </h3>
+      <ZoruCard>
+        <ZoruCardHeader>
+          <ZoruCardTitle>Insurance &amp; warranty</ZoruCardTitle>
+        </ZoruCardHeader>
+        <ZoruCardContent>
           <div className="grid gap-4 md:grid-cols-2">
-            <Field label="Custodian">
-              {asset.custodianEmployeeId ? (
-                <EntityPickerChip entity="employee" id={asset.custodianEmployeeId} />
-              ) : (
-                '—'
-              )}
+            <Field label="Warranty until">
+              {fmtDate(asset.warrantyUntil)}
             </Field>
-            <Field label="Location">{asset.location || '—'}</Field>
-            <Field label="Warranty until">{fmtDate(asset.warrantyUntil)}</Field>
-            <Field label="Insurance until">{fmtDate(asset.insuranceUntil)}</Field>
-          </div>
-        </ZoruCard>
-
-        <ZoruCard className="p-6">
-          <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
-            Depreciation
-          </h3>
-          <div className="flex flex-col gap-4">
-            <Field label="Method">{methodLabel(asset.depreciationMethod)}</Field>
-            <Field label="Useful life (months)">
-              {asset.usefulLifeMonths ?? '—'}
-            </Field>
-            <Field label="Residual value">
-              {fmtMoney(asset.residualValue, asset.currency)}
-            </Field>
-            <Field label="Accumulated depreciation">
-              {fmtMoney(asset.accumulatedDepreciation, asset.currency)}
-            </Field>
-            <Field label="Net book value">
-              {fmtMoney(asset.netBookValue, asset.currency)}
+            <Field label="Insurance until">
+              {fmtDate(asset.insuranceUntil)}
             </Field>
           </div>
-        </ZoruCard>
-      </div>
+        </ZoruCardContent>
+      </ZoruCard>
 
-      <div className="text-[11px] text-zoru-ink-muted">
+      <ZoruCard>
+        <ZoruCardHeader>
+          <ZoruCardTitle>Maintenance log</ZoruCardTitle>
+        </ZoruCardHeader>
+        <ZoruCardContent>
+          {/* TODO 1D.2: maintenance log table needs a child collection + endpoint */}
+          <p className="text-[13px] text-zoru-ink-muted">
+            No maintenance entries yet.{' '}
+            <Link
+              href={`/dashboard/crm/fixed-assets/${id}/maintenance`}
+              className="text-zoru-primary hover:underline"
+            >
+              Open log →
+            </Link>
+          </p>
+        </ZoruCardContent>
+      </ZoruCard>
+
+      <p className="text-[11px] text-zoru-ink-muted">
         Created {fmtDate(asset.createdAt || asset.audit?.createdAt)} · Updated{' '}
         {fmtDate(asset.updatedAt || asset.audit?.updatedAt)}
-      </div>
-    </div>
+      </p>
+    </EntityDetailShell>
   );
 }

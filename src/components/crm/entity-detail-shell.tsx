@@ -16,7 +16,7 @@
  */
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
-import type { ReactNode } from 'react';
+import { isValidElement, type ReactNode } from 'react';
 
 import {
     ZoruBadge,
@@ -41,8 +41,14 @@ export interface EntityDetailShellProps {
     children: ReactNode;
     /** Right rail — related entities, lineage rail, etc. */
     rightRail?: ReactNode;
-    /** If provided, render <EntityAuditTimeline> in the footer. */
-    audit?: { entityKind: string; entityId: string };
+    /**
+     * Footer activity slot. Either pass an object `{ entityKind, entityId }`
+     * (the shell renders `<EntityAuditTimeline>` for you — the common case)
+     * or pass any `ReactNode` (escape hatch when you need a custom footer).
+     */
+    audit?:
+        | { entityKind: string; entityId: string }
+        | ReactNode;
     /** Back link rendered above the title. */
     back?: { href: string; label: string };
 }
@@ -68,7 +74,7 @@ export function EntityDetailShell({
     rightRail,
     audit,
     back,
-}: EntityDetailShellProps): JSX.Element {
+}: EntityDetailShellProps) {
     const tone = status?.tone ?? 'neutral';
     const badgeVariant = TONE_TO_VARIANT[tone];
 
@@ -115,15 +121,29 @@ export function EntityDetailShell({
                 ) : null}
             </div>
 
-            {/* Footer: audit timeline */}
+            {/* Footer: audit timeline. Object form renders our own
+                <EntityAuditTimeline>; anything else is used verbatim. */}
             {audit ? (
                 <section aria-label="Activity">
-                    <EntityAuditTimeline
-                        entityKind={audit.entityKind}
-                        entityId={audit.entityId}
-                    />
+                    {isAuditDescriptor(audit) ? (
+                        <EntityAuditTimeline
+                            entityKind={audit.entityKind}
+                            entityId={audit.entityId}
+                        />
+                    ) : (
+                        (audit as ReactNode)
+                    )}
                 </section>
             ) : null}
         </div>
     );
+}
+
+function isAuditDescriptor(
+    value: unknown,
+): value is { entityKind: string; entityId: string } {
+    if (!value || typeof value !== 'object') return false;
+    if (isValidElement(value)) return false;
+    const v = value as { entityKind?: unknown; entityId?: unknown };
+    return typeof v.entityKind === 'string' && typeof v.entityId === 'string';
 }

@@ -80,6 +80,26 @@ export interface CrmSubscriptionDoc {
   items: CrmSubscriptionItem[];
   prorationEnabled?: boolean;
   dunningLadder?: CrmSubscriptionDunningStep[];
+  /** 1..5, set when the subscription is in dunning. */
+  dunningStep?: number;
+  /** ISO timestamp the dunning cadence began. */
+  dunningStartedAt?: string;
+  /** Per-tenant override of the default 1/3/5/7/14-day cadence. */
+  dunningConfig?: {
+    emailDay: number;
+    smsDay: number;
+    whatsappDay: number;
+    ticketDay: number;
+    suspendDay: number;
+  };
+  /** Most recent ladder run — used by the daily cron for idempotency. */
+  lastDunningRun?: {
+    step: number;
+    ranAt: string;
+    ok: boolean;
+    /** YYYY-MM-DD (UTC) the run happened on. */
+    day?: string;
+  };
   status: CrmSubStatus;
   startedAt: string;
   nextBillingAt?: string;

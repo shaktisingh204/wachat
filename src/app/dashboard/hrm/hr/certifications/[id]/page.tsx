@@ -85,7 +85,6 @@ export default function CertificationDetailPage({
       editHref={`/dashboard/hrm/hr/certifications/${id}/edit`}
       deleteAction={deleteCertification}
       entityId={id}
-      auditKind="hr_certifications"
       sections={[
         {
           title: 'Certificate',

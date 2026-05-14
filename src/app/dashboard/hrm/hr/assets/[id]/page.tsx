@@ -27,6 +27,11 @@ import {
     fmtText,
 } from '../../_components/hr-detail-loader';
 import { HrDetailGrid, HrDetailRow } from '../../_components/hr-detail-grid';
+import { HrActionButtons } from '../../_components/hr-action-buttons';
+import {
+    markAssetReturned,
+    retireAsset,
+} from '@/app/actions/hr-status.actions';
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -63,20 +68,34 @@ export default async function AssetDetailPage({ params }: PageProps) {
                             <Pencil className="h-4 w-4" /> Edit
                         </ZoruButton>
                     </Link>
-                    {/* TODO 1D.2: wire Assign to asset-assignment form prefill. */}
                     <Link href={`/dashboard/hrm/hr/asset-assignments/new?assetId=${id}`}>
                         <ZoruButton variant="outline" size="sm">
                             <UserPlus className="h-4 w-4" /> Assign
                         </ZoruButton>
                     </Link>
-                    {/* TODO 1D.2: wire Mark returned to a status mutation. */}
-                    <ZoruButton variant="outline" size="sm" disabled>
-                        <PackageCheck className="h-4 w-4" /> Mark returned
-                    </ZoruButton>
-                    {/* TODO 1D.2: wire Retire to a soft-delete / archive flow. */}
-                    <ZoruButton variant="outline" size="sm" disabled>
-                        <Archive className="h-4 w-4" /> Retire
-                    </ZoruButton>
+                    <HrActionButtons
+                        actions={[
+                            {
+                                key: 'mark-returned',
+                                kind: 'action',
+                                label: 'Mark returned',
+                                icon: <PackageCheck className="h-4 w-4" />,
+                                onRun: () => markAssetReturned(id),
+                            },
+                            {
+                                key: 'retire',
+                                kind: 'confirm',
+                                label: 'Retire',
+                                icon: <Archive className="h-4 w-4" />,
+                                variant: 'destructive',
+                                confirmTitle: 'Retire this asset?',
+                                confirmDescription:
+                                    'Retired assets are marked unavailable and archived from inventory.',
+                                confirmLabel: 'Retire asset',
+                                onRun: () => retireAsset(id),
+                            },
+                        ]}
+                    />
                 </>
             }
             audit={{ entityKind: 'asset', entityId: id }}

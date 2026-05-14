@@ -9,13 +9,25 @@
 
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { Gavel, PlusCircle } from 'lucide-react';
+import {
+    Gavel,
+    PlusCircle,
+    CheckCircle2,
+    AlertTriangle,
+    Scale,
+} from 'lucide-react';
 import { ArrowLeft } from 'lucide-react';
 
 import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
 import { CrmPageHeader } from '../../../../crm/_components/crm-page-header';
 import { getDisciplinaryCaseById } from '@/app/actions/crm-disciplinary.actions';
 import { getSession } from '@/app/actions/user.actions';
+import { HrActionButtons } from '../../_components/hr-action-buttons';
+import {
+    closeDisciplinaryCase,
+    escalateDisciplinaryCase,
+    appealDisciplinaryCase,
+} from '@/app/actions/hr-status-flow.actions';
 
 export const dynamic = 'force-dynamic';
 
@@ -104,6 +116,58 @@ export default async function DisciplinaryCaseDetailPage({
                             <PlusCircle className="h-4 w-4" />
                             Add Hearing
                         </ZoruButton>
+                        <HrActionButtons
+                            actions={[
+                                {
+                                    key: 'close',
+                                    kind: 'prompt',
+                                    label: 'Close case',
+                                    icon: <CheckCircle2 className="h-4 w-4" />,
+                                    promptTitle: 'Close disciplinary case',
+                                    promptDescription:
+                                        'Record the final decision; the case will be marked resolved.',
+                                    submitLabel: 'Close',
+                                    fields: [
+                                        {
+                                            name: 'decision',
+                                            label: 'Decision',
+                                            type: 'textarea',
+                                            required: true,
+                                        },
+                                    ],
+                                    onRun: (v) =>
+                                        closeDisciplinaryCase(caseId, v.decision ?? ''),
+                                },
+                                {
+                                    key: 'escalate',
+                                    kind: 'action',
+                                    label: 'Escalate',
+                                    icon: <AlertTriangle className="h-4 w-4" />,
+                                    onRun: () => escalateDisciplinaryCase(caseId),
+                                },
+                                {
+                                    key: 'appeal',
+                                    kind: 'prompt',
+                                    label: 'Appeal',
+                                    icon: <Scale className="h-4 w-4" />,
+                                    variant: 'destructive',
+                                    promptTitle: 'File an appeal',
+                                    promptDescription:
+                                        'Record the grounds for appeal. The case status changes to "appealed".',
+                                    submitLabel: 'Appeal',
+                                    fields: [
+                                        {
+                                            name: 'reason',
+                                            label: 'Reason',
+                                            type: 'textarea',
+                                            required: true,
+                                        },
+                                    ],
+                                    onRun: (v) =>
+                                        appealDisciplinaryCase(caseId, v.reason ?? ''),
+                                },
+                            ]}
+                        />
                     </div>
                 }
             />

@@ -68,7 +68,6 @@ export default function SurveyDetailPage({
       editHref={`/dashboard/hrm/hr/surveys/${id}/edit`}
       deleteAction={deleteSurvey}
       entityId={id}
-      auditKind="hr_surveys"
       sections={[
         {
           title: 'Survey',

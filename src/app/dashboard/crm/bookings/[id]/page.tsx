@@ -1,44 +1,53 @@
 /**
  * Booking detail — `/dashboard/crm/bookings/[id]`.
  *
- * Server component: hydrates the booking via the Rust client and
- * resolves the customer / resource / service references through
- * `<EntityPickerChip>`. Edit and Delete actions live on this page; the
- * delete dialog itself is on the list page.
- *
- * NOTE: There is no custom-fields panel — `'booking'` is intentionally
- * not part of `WsCustomFieldBelongsTo`.
+ * Server component per §1D.2. Uses `<EntityDetailShell>` with:
+ *   - Header: 8 actions (Edit · Check in · Check out · Cancel ·
+ *     Reschedule · Send confirmation · Print receipt · Activity).
+ *   - Body cards: Overview · Resource · Customer · Payment · Notes.
+ *   - Right rail: Status · Resource chip · Customer chip · Slot card ·
+ *     Related entities (recurring bookings, payments).
+ *   - Audit footer via EntityDetailShell `audit` prop.
  */
 
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { CalendarClock, Pencil, ArrowLeft } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 
-import { ZoruButton, ZoruCard, ZoruBadge } from '@/components/zoruui';
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardHeader,
+  ZoruCardTitle,
+} from '@/components/zoruui';
+import { EntityDetailShell, type EntityStatusTone } from '@/components/crm/entity-detail-shell';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { getBooking } from '@/app/actions/crm/bookings.actions';
 import type { CrmBookingStatus } from '@/lib/rust-client/crm-bookings';
+
+import { BookingDetailActions } from '../_components/booking-detail-actions';
 
 export const dynamic = 'force-dynamic';
 
 function fmtDateTime(v?: string): string {
   if (!v) return '—';
   const d = new Date(v);
-  return isNaN(d.getTime()) ? '—' : d.toLocaleString();
+  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleString();
 }
 
 function fmtDate(v?: string): string {
   if (!v) return '—';
   const d = new Date(v);
-  return isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
+  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
 }
 
 function computeDuration(start?: string, end?: string): string {
   if (!start || !end) return '—';
   const s = new Date(start);
   const e = new Date(end);
-  if (isNaN(s.getTime()) || isNaN(e.getTime())) return '—';
+  if (Number.isNaN(s.getTime()) || Number.isNaN(e.getTime())) return '—';
   const diffMs = e.getTime() - s.getTime();
   if (diffMs <= 0) return '—';
   const mins = Math.round(diffMs / 60_000);
@@ -48,20 +57,18 @@ function computeDuration(start?: string, end?: string): string {
   return m === 0 ? `${h} hr` : `${h} hr ${m} min`;
 }
 
-function statusBadgeVariant(
-  status?: CrmBookingStatus,
-): 'success' | 'warning' | 'danger' | 'ghost' | 'outline' {
+function statusTone(status?: CrmBookingStatus): EntityStatusTone {
   switch (status) {
     case 'confirmed':
     case 'completed':
-      return 'success';
+      return 'green';
     case 'cancelled':
     case 'no_show':
-      return 'danger';
+      return 'red';
     case 'pending':
-      return 'warning';
+      return 'amber';
     default:
-      return 'outline';
+      return 'neutral';
   }
 }
 
@@ -109,37 +116,163 @@ export default async function BookingDetailPage({
   }
 
   const title = booking.service || `Booking ${String(booking._id).slice(-6)}`;
-  const subtitle = `${fmtDateTime(booking.slotStart)}${
-    booking.slotEnd ? ' → ' + fmtDateTime(booking.slotEnd) : ''
-  }`;
+  const status = booking.status ?? 'pending';
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title={title}
-        subtitle={subtitle}
-        icon={CalendarClock}
-        actions={
-          <>
-            <ZoruButton variant="outline" asChild>
-              <Link href="/dashboard/crm/bookings">
-                <ArrowLeft className="h-4 w-4" /> Back
-              </Link>
-            </ZoruButton>
-            <ZoruButton asChild>
-              <Link href={`/dashboard/crm/bookings/${id}/edit`}>
-                <Pencil className="h-4 w-4" /> Edit
-              </Link>
-            </ZoruButton>
-          </>
-        }
-      />
+    <EntityDetailShell
+      title={title}
+      eyebrow="BOOKING"
+      status={{ label: status, tone: statusTone(status) }}
+      back={{ href: '/dashboard/crm/bookings', label: 'Back to Bookings' }}
+      actions={
+        <BookingDetailActions
+          bookingId={id}
+          status={status}
+          slotStart={booking.slotStart}
+          slotEnd={booking.slotEnd}
+        />
+      }
+      audit={{ entityKind: 'booking', entityId: id }}
+      rightRail={
+        <>
+          <ZoruCard>
+            <ZoruCardHeader>
+              <ZoruCardTitle>Status</ZoruCardTitle>
+            </ZoruCardHeader>
+            <ZoruCardContent>
+              <div className="space-y-2 text-[12.5px]">
+                <div className="flex items-center justify-between">
+                  <span className="text-zoru-ink-muted">Booking</span>
+                  <ZoruBadge variant="outline">{status}</ZoruBadge>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-zoru-ink-muted">Payment</span>
+                  <ZoruBadge variant="outline">
+                    {booking.paymentStatus ?? 'unpaid'}
+                  </ZoruBadge>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-zoru-ink-muted">No-show</span>
+                  <span className="text-zoru-ink">
+                    {booking.noShow ? 'Yes' : 'No'}
+                  </span>
+                </div>
+              </div>
+            </ZoruCardContent>
+          </ZoruCard>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <ZoruCard className="p-6 lg:col-span-2">
-          <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
-            Parties
-          </h3>
+          <ZoruCard>
+            <ZoruCardHeader>
+              <ZoruCardTitle>Resource</ZoruCardTitle>
+            </ZoruCardHeader>
+            <ZoruCardContent>
+              {booking.resourceId ? (
+                <EntityPickerChip entity="user" id={booking.resourceId} />
+              ) : (
+                <span className="text-[12.5px] text-zoru-ink-muted">
+                  No resource
+                </span>
+              )}
+            </ZoruCardContent>
+          </ZoruCard>
+
+          <ZoruCard>
+            <ZoruCardHeader>
+              <ZoruCardTitle>Customer</ZoruCardTitle>
+            </ZoruCardHeader>
+            <ZoruCardContent>
+              {booking.customerId ? (
+                <EntityPickerChip entity="client" id={booking.customerId} />
+              ) : (
+                <span className="text-[12.5px] text-zoru-ink-muted">
+                  No customer
+                </span>
+              )}
+            </ZoruCardContent>
+          </ZoruCard>
+
+          <ZoruCard>
+            <ZoruCardHeader>
+              <ZoruCardTitle>Slot</ZoruCardTitle>
+            </ZoruCardHeader>
+            <ZoruCardContent>
+              <div className="space-y-1.5 text-[12.5px]">
+                <div className="flex justify-between">
+                  <span className="text-zoru-ink-muted">Start</span>
+                  <span>{fmtDateTime(booking.slotStart)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-zoru-ink-muted">End</span>
+                  <span>{fmtDateTime(booking.slotEnd)}</span>
+                </div>
+                <div className="flex justify-between border-t border-zoru-line pt-1.5">
+                  <span className="text-zoru-ink-muted">Duration</span>
+                  <span>
+                    {computeDuration(booking.slotStart, booking.slotEnd)}
+                  </span>
+                </div>
+              </div>
+            </ZoruCardContent>
+          </ZoruCard>
+
+          <ZoruCard>
+            <ZoruCardHeader>
+              <ZoruCardTitle>Related</ZoruCardTitle>
+            </ZoruCardHeader>
+            <ZoruCardContent>
+              <div className="flex flex-col gap-2 text-[12.5px]">
+                {booking.recurringRule ? (
+                  <Link
+                    href={`/dashboard/crm/bookings?recurringFrom=${id}`}
+                    className="text-zoru-primary hover:underline"
+                  >
+                    Recurring series →
+                  </Link>
+                ) : (
+                  <span className="text-zoru-ink-muted">
+                    No recurring series
+                  </span>
+                )}
+                <Link
+                  href={`/dashboard/crm/sales/receipts?bookingId=${id}`}
+                  className="text-zoru-primary hover:underline"
+                >
+                  Payments →
+                </Link>
+              </div>
+            </ZoruCardContent>
+          </ZoruCard>
+        </>
+      }
+    >
+      <ZoruCard>
+        <ZoruCardHeader>
+          <ZoruCardTitle>Overview</ZoruCardTitle>
+        </ZoruCardHeader>
+        <ZoruCardContent>
+          <div className="grid gap-4 md:grid-cols-2">
+            <Field label="Service">{booking.service || '—'}</Field>
+            <Field label="Capacity used">{booking.capacityUsed ?? 1}</Field>
+            <Field label="Slot start">{fmtDateTime(booking.slotStart)}</Field>
+            <Field label="Slot end">{fmtDateTime(booking.slotEnd)}</Field>
+            <Field label="Duration">
+              {computeDuration(booking.slotStart, booking.slotEnd)}
+            </Field>
+            <Field label="Recurring rule">
+              {booking.recurringRule || '—'}
+            </Field>
+            <Field label="Cancellation policy">
+              {booking.cancellationPolicy || '—'}
+            </Field>
+          </div>
+        </ZoruCardContent>
+      </ZoruCard>
+
+      <ZoruCard>
+        <ZoruCardHeader>
+          <ZoruCardTitle>Resource &amp; customer</ZoruCardTitle>
+        </ZoruCardHeader>
+        <ZoruCardContent>
           <div className="grid gap-4 md:grid-cols-2">
             <Field label="Customer">
               {booking.customerId ? (
@@ -148,72 +281,50 @@ export default async function BookingDetailPage({
                 '—'
               )}
             </Field>
-            <Field label="Assigned staff / resource">
+            <Field label="Resource / staff">
               {booking.resourceId ? (
                 <EntityPickerChip entity="user" id={booking.resourceId} />
               ) : (
                 '—'
               )}
             </Field>
-            <Field label="Service">
-              {booking.service ? (
-                <EntityPickerChip entity="item" id={booking.service} />
-              ) : (
-                '—'
-              )}
-            </Field>
-            <Field label="Capacity used">{booking.capacityUsed ?? 1}</Field>
           </div>
+        </ZoruCardContent>
+      </ZoruCard>
 
-          <h3 className="mb-4 mt-8 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
-            Scheduling
-          </h3>
+      <ZoruCard>
+        <ZoruCardHeader>
+          <ZoruCardTitle>Payment</ZoruCardTitle>
+        </ZoruCardHeader>
+        <ZoruCardContent>
           <div className="grid gap-4 md:grid-cols-2">
-            <Field label="Slot start">{fmtDateTime(booking.slotStart)}</Field>
-            <Field label="Slot end">{fmtDateTime(booking.slotEnd)}</Field>
-            <Field label="Duration">
-              {computeDuration(booking.slotStart, booking.slotEnd)}
-            </Field>
-            <Field label="Recurring rule">{booking.recurringRule || '—'}</Field>
-            <Field label="Cancellation policy">
-              {booking.cancellationPolicy || '—'}
-            </Field>
-          </div>
-        </ZoruCard>
-
-        <ZoruCard className="p-6">
-          <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
-            Status
-          </h3>
-          <div className="flex flex-col gap-4">
-            <Field label="Booking status">
-              <ZoruBadge variant={statusBadgeVariant(booking.status)}>
-                {booking.status ?? 'pending'}
+            <Field label="Payment status">
+              <ZoruBadge variant="outline">
+                {booking.paymentStatus ?? 'unpaid'}
               </ZoruBadge>
             </Field>
-            <Field label="Payment status">
-              {booking.paymentStatus ?? 'unpaid'}
-            </Field>
-            <Field label="No show">{booking.noShow ? 'Yes' : 'No'}</Field>
+            <Field label="No-show">{booking.noShow ? 'Yes' : 'No'}</Field>
           </div>
-        </ZoruCard>
-      </div>
+        </ZoruCardContent>
+      </ZoruCard>
 
       {booking.notes ? (
-        <ZoruCard className="p-6">
-          <h3 className="mb-2 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
-            Notes
-          </h3>
-          <p className="whitespace-pre-wrap text-[13px] text-zoru-ink">
-            {booking.notes}
-          </p>
+        <ZoruCard>
+          <ZoruCardHeader>
+            <ZoruCardTitle>Notes</ZoruCardTitle>
+          </ZoruCardHeader>
+          <ZoruCardContent>
+            <p className="whitespace-pre-wrap text-[13px] text-zoru-ink">
+              {booking.notes}
+            </p>
+          </ZoruCardContent>
         </ZoruCard>
       ) : null}
 
-      <div className="text-[11px] text-zoru-ink-muted">
+      <p className="text-[11px] text-zoru-ink-muted">
         Created {fmtDate(booking.createdAt)} · Updated{' '}
         {fmtDate(booking.updatedAt)}
-      </div>
-    </div>
+      </p>
+    </EntityDetailShell>
   );
 }

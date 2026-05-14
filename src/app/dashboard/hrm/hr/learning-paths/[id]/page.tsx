@@ -123,7 +123,6 @@ export default function LearningPathDetailPage({
       editHref={`/dashboard/hrm/hr/learning-paths/${id}/edit`}
       deleteAction={deleteLearningPath}
       entityId={id}
-      auditKind="hr_learning_paths"
       sections={[
         {
           title: 'Overview',

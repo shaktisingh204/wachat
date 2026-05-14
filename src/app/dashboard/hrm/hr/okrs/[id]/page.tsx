@@ -66,7 +66,6 @@ export default function OkrDetailPage({
       editHref={`/dashboard/hrm/hr/okrs/${id}/edit`}
       deleteAction={deleteOkr}
       entityId={id}
-      auditKind="hr_okrs"
       sections={[
         {
           title: 'Overview',

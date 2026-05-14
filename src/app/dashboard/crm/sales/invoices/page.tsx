@@ -14,10 +14,8 @@ import { ObjectId } from 'mongodb';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 import { Receipt } from 'lucide-react';
 
-import {
-  computeInvoiceKpis,
-  listInvoices,
-} from '@/app/actions/crm/invoices.actions';
+import { listInvoices } from '@/app/actions/crm/invoices.actions';
+import { computeInvoiceKpis } from '@/app/actions/crm/invoices.kpis';
 import { getSession } from '@/app/actions/user.actions';
 import { connectToDatabase } from '@/lib/mongodb';
 import { crmInvoicesApi, type CrmInvoiceDoc } from '@/lib/rust-client/crm-invoices';

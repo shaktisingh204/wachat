@@ -72,7 +72,6 @@ export default function GoalDetailPage({
       editHref={`/dashboard/hrm/payroll/goal-setting/${id}/edit`}
       deleteAction={deleteCrmGoal}
       entityId={id}
-      auditKind="crm_goals"
       sections={[
         {
           title: 'Overview',

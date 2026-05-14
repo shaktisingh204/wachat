@@ -72,7 +72,6 @@ export default function TrainingDetailPage({
       editHref={`/dashboard/hrm/hr/training/${id}/edit`}
       deleteAction={deleteTrainingProgram}
       entityId={id}
-      auditKind="hr_training_programs"
       sections={[
         {
           title: 'Overview',

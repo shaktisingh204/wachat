@@ -23,11 +23,17 @@ import {
 
 import { getProbations } from '@/app/actions/hr.actions';
 import {
+  confirmProbation,
+  extendProbation,
+  terminateProbation,
+} from '@/app/actions/hr-status-flow.actions';
+import {
   RecruitmentDetailShell,
   DetailCard,
   RailCard,
   RailLink,
 } from '../../_components/recruitment-detail-shell';
+import { HrActionButtons } from '../../_components/hr-action-buttons';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 
 interface PageProps {
@@ -58,22 +64,6 @@ export default async function ProbationDetailPage({ params }: PageProps) {
           variant: 'outline',
         },
         {
-          key: 'confirm',
-          label: 'Confirm',
-          icon: <CheckCircle2 className="h-3.5 w-3.5" />,
-        },
-        {
-          key: 'extend',
-          label: 'Extend',
-          icon: <Clock className="h-3.5 w-3.5" />,
-        },
-        {
-          key: 'reject',
-          label: 'Reject',
-          icon: <XCircle className="h-3.5 w-3.5" />,
-          variant: 'destructive',
-        },
-        {
           key: 'print',
           label: 'Print',
           icon: <Printer className="h-3.5 w-3.5" />,
@@ -86,6 +76,59 @@ export default async function ProbationDetailPage({ params }: PageProps) {
           href: `/dashboard/hrm/hr/probation/${id}/activity`,
         },
       ]}
+      actionsSlot={
+        <HrActionButtons
+          className="flex flex-wrap items-center gap-1"
+          actions={[
+            {
+              key: 'confirm',
+              kind: 'action',
+              label: 'Confirm',
+              icon: <CheckCircle2 className="h-3.5 w-3.5" />,
+              onRun: () => confirmProbation(id),
+            },
+            {
+              key: 'extend',
+              kind: 'prompt',
+              label: 'Extend',
+              icon: <Clock className="h-3.5 w-3.5" />,
+              promptTitle: 'Extend probation',
+              promptDescription: 'Set the new end date for this probation.',
+              submitLabel: 'Extend',
+              fields: [
+                {
+                  name: 'newEndDate',
+                  label: 'New end date',
+                  type: 'date',
+                  required: true,
+                },
+              ],
+              onRun: (v) => extendProbation(id, v.newEndDate ?? ''),
+            },
+            {
+              key: 'reject',
+              kind: 'prompt',
+              label: 'Reject',
+              icon: <XCircle className="h-3.5 w-3.5" />,
+              variant: 'destructive',
+              promptTitle: 'Terminate probation',
+              promptDescription:
+                'Provide a reason; this will be recorded in the audit log.',
+              submitLabel: 'Terminate',
+              fields: [
+                {
+                  name: 'reason',
+                  label: 'Reason',
+                  type: 'textarea',
+                  placeholder: 'Reason for termination',
+                  required: true,
+                },
+              ],
+              onRun: (v) => terminateProbation(id, v.reason ?? ''),
+            },
+          ]}
+        />
+      }
       rightRail={
         <>
           <RailCard title="Employee">

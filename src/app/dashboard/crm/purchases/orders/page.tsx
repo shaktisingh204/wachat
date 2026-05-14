@@ -14,10 +14,8 @@ import { ObjectId } from 'mongodb';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 import { ShoppingBag } from 'lucide-react';
 
-import {
-  computePurchaseOrderKpis,
-  listPurchaseOrders,
-} from '@/app/actions/crm/purchase-orders.actions';
+import { listPurchaseOrders } from '@/app/actions/crm/purchase-orders.actions';
+import { computePurchaseOrderKpis } from '@/app/actions/crm/purchase-orders.kpis';
 import { getSession } from '@/app/actions/user.actions';
 import { connectToDatabase } from '@/lib/mongodb';
 import {

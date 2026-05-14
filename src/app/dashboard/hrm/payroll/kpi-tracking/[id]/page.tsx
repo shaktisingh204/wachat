@@ -62,7 +62,6 @@ export default function KpiDetailPage({
       editHref={`/dashboard/hrm/payroll/kpi-tracking/${id}/edit`}
       deleteAction={deleteCrmKpi}
       entityId={id}
-      auditKind="crm_kpis"
       sections={[
         {
           title: 'Definition',
