@@ -2769,13 +2769,3 @@ export async function getStreamToken(
   }
 }
 
-// ─── Re-exports kept so tooling can detect unused-but-typed entities ────────
-//
-// These types are imported above purely so callers using `typeof import(...)`
-// have a single entry point; eslint/tsc will flag any genuine misuse.
-export type {
-  SabwaAutoReply,
-  SabwaBroadcast,
-  SabwaSessionStatus,
-  SabwaTemplate,
-};
