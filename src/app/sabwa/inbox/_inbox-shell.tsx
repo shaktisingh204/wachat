@@ -197,7 +197,7 @@ export function InboxShell() {
   const showPanelOnDesktop = panelOpenLocal && activeChat;
 
   return (
-    <div className="flex h-[calc(100vh-3.5rem)] w-full flex-col bg-zoru-bg">
+    <div className="flex h-full min-h-0 w-full flex-col bg-zoru-bg">
       <div className="shrink-0 border-b border-zoru-line px-4 py-2">
         <ZoruBreadcrumb>
           <ZoruBreadcrumbList>

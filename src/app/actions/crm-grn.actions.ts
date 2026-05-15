@@ -21,6 +21,7 @@ import type { CrmGrn, CrmPurchaseOrder, LineageRef } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import { appendLineage, buildLineageFromParent } from '@/lib/lineage';
 import { writeAuditEntry } from '@/lib/audit-log';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
 import { requirePermission } from '@/lib/rbac-server';
 import {
     crmGrnsApi,
@@ -59,6 +60,7 @@ export async function getGrns(poId?: string): Promise<WithId<CrmGrn>[]> {
             return grns.map(rustDocToLegacy);
         } catch (e) {
             console.error('[getGrns] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'grn', op: 'list', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through
         }
     }
@@ -101,6 +103,7 @@ export async function getGrnById(grnId: string): Promise<WithId<CrmGrn> | null> 
         } catch (e) {
             if (e instanceof RustApiError && e.status === 404) return null;
             console.error('[getGrnById] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'grn', op: 'get', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through
         }
     }
@@ -230,11 +233,8 @@ export async function saveGrn(
             revalidatePath('/dashboard/crm/purchases/grn');
             return { message: 'GRN saved successfully.' };
         } catch (e) {
-            if (e instanceof RustApiError) {
-                console.error('[saveGrn] rust path failed; falling back:', e);
-            } else {
-                console.error('[saveGrn] rust path failed; falling back:', e);
-            }
+            console.error('[saveGrn] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'grn', op: 'create', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through to legacy
         }
     }
@@ -413,6 +413,7 @@ export async function updateGrnStatus(
             return { success: true };
         } catch (e) {
             console.error('[updateGrnStatus] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'grn', op: 'update', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through
         }
     }
@@ -478,6 +479,7 @@ export async function deleteGrn(grnId: string): Promise<{ success: boolean; erro
             return { success: true };
         } catch (e) {
             console.error('[deleteGrn] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'grn', op: 'delete', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through
         }
     }

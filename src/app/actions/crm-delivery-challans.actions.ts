@@ -67,12 +67,13 @@ export async function getDeliveryChallans(
     }
 }
 
-export async function saveDeliveryChallan(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+export async function saveDeliveryChallan(prevState: any, formData: FormData): Promise<{ message?: string; error?: string; id?: string }> {
     const session = await getSession();
     if (!session?.user) return { error: 'Access denied' };
 
     try {
         const lineItems = JSON.parse(formData.get('lineItems') as string || '[]');
+        const id = (formData.get('_id') as string | null) ?? '';
 
         const challanData: Omit<CrmDeliveryChallan, '_id' | 'createdAt' | 'updatedAt'> = {
             userId: new ObjectId(session.user._id),
@@ -95,6 +96,29 @@ export async function saveDeliveryChallan(prevState: any, formData: FormData): P
         }
 
         const { db } = await connectToDatabase();
+
+        // PATCH branch — when the form ships a hidden `_id`, update in place.
+        if (id && ObjectId.isValid(id)) {
+            const { userId: _u, ...patch } = challanData;
+            const result = await db.collection('crm_delivery_challans').updateOne(
+                {
+                    _id: new ObjectId(id),
+                    userId: new ObjectId(session.user._id),
+                },
+                {
+                    $set: {
+                        ...patch,
+                        updatedAt: new Date(),
+                    },
+                },
+            );
+            if (result.matchedCount === 0) {
+                return { error: 'Delivery challan not found.' };
+            }
+            revalidatePath('/dashboard/crm/sales/delivery');
+            revalidatePath(`/dashboard/crm/sales/delivery/${id}`);
+            return { message: 'Delivery Challan updated.', id };
+        }
 
         // Lineage seeding (crm_function_plan.md §13.5). The form may
         // optionally pass `fromKind` + `fromId` when a delivery challan
@@ -143,6 +167,8 @@ export async function saveDeliveryChallan(prevState: any, formData: FormData): P
             updatedAt: new Date()
         } as any);
 
+        const insertedId = insertResult.insertedId.toString();
+
         // Best-effort back-link onto the parent doc.
         if (lineage && fromKind && fromId) {
             try {
@@ -170,7 +196,7 @@ export async function saveDeliveryChallan(prevState: any, formData: FormData): P
         }
 
         revalidatePath('/dashboard/crm/sales/delivery');
-        return { message: 'Delivery Challan saved successfully.' };
+        return { message: 'Delivery Challan saved successfully.', id: insertedId };
     } catch (e) {
         return { error: getErrorMessage(e) };
     }

@@ -1,9 +1,123 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { ObjectId, type WithId } from 'mongodb';
+import { ObjectId, type Filter, type Document, type WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
+import { writeAuditEntry } from '@/lib/audit-log';
+import { requirePermission } from '@/lib/rbac-server';
+
+function revalidateContracts(id?: string) {
+  revalidatePath('/dashboard/crm/sales/contracts');
+  if (id) revalidatePath(`/dashboard/crm/sales/contracts/${id}`);
+}
+
+export interface ContractListResult {
+  contracts: WithId<Record<string, unknown>>[];
+  total: number;
+  page: number;
+  limit: number;
+  error?: string;
+}
+
+export async function listContracts(
+  page = 1,
+  limit = 25,
+  search?: string,
+  status?: string,
+): Promise<ContractListResult> {
+  const session = await getSession();
+  if (!session?.user) return { contracts: [], total: 0, page, limit, error: 'Unauthorized' };
+  const guard = await requirePermission('crm_contract', 'view');
+  if (!guard.ok) return { contracts: [], total: 0, page, limit, error: guard.error };
+
+  try {
+    const { db } = await connectToDatabase();
+    const userObjectId = new ObjectId(session.user._id as string);
+    const filter: Filter<Document> = { userId: userObjectId };
+    if (search) {
+      const re = new RegExp(search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+      filter.$or = [{ title: re }, { partyName: re }];
+    }
+    if (status === 'expiring30') {
+      const now = new Date();
+      const thirty = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+      filter.expiryDate = { $gte: now, $lte: thirty };
+      filter.status = { $nin: ['cancelled', 'archived'] };
+    } else if (status && status !== 'all') {
+      filter.status = status;
+    }
+
+    const skip = Math.max(0, (page - 1) * limit);
+    const [contracts, total] = await Promise.all([
+      db.collection('crm_contracts').find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).toArray(),
+      db.collection('crm_contracts').countDocuments(filter),
+    ]);
+    return {
+      contracts: contracts as WithId<Record<string, unknown>>[],
+      total,
+      page,
+      limit,
+    };
+  } catch (e: any) {
+    console.error('listContracts error:', e);
+    return { contracts: [], total: 0, page, limit, error: e?.message ?? 'Failed.' };
+  }
+}
+
+export interface ContractKpis {
+  active: number;
+  expiring30: number;
+  renewing: number;
+  cancelled: number;
+  avgDurationDays: number;
+}
+
+export async function getContractKpis(): Promise<ContractKpis> {
+  const zero: ContractKpis = { active: 0, expiring30: 0, renewing: 0, cancelled: 0, avgDurationDays: 0 };
+
+  const session = await getSession();
+  if (!session?.user) return zero;
+  const guard = await requirePermission('crm_contract', 'view');
+  if (!guard.ok) return zero;
+
+  try {
+    const { db } = await connectToDatabase();
+    const userObjectId = new ObjectId(session.user._id as string);
+    const base: Filter<Document> = { userId: userObjectId };
+    const now = new Date();
+    const thirty = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+
+    const [active, expiring30, renewing, cancelled, sample] = await Promise.all([
+      db.collection('crm_contracts').countDocuments({ ...base, status: { $nin: ['cancelled', 'archived'] } }),
+      db.collection('crm_contracts').countDocuments({ ...base, expiryDate: { $gte: now, $lte: thirty }, status: { $nin: ['cancelled', 'archived'] } }),
+      db.collection('crm_contracts').countDocuments({ ...base, autoRenew: true, status: { $nin: ['cancelled', 'archived'] } }),
+      db.collection('crm_contracts').countDocuments({ ...base, status: 'cancelled' }),
+      db
+        .collection('crm_contracts')
+        .find({ ...base, effectiveDate: { $exists: true }, expiryDate: { $exists: true } } as Filter<Document>)
+        .limit(500)
+        .toArray(),
+    ]);
+
+    let totalDays = 0;
+    let n = 0;
+    for (const row of sample) {
+      const start = row.effectiveDate instanceof Date ? row.effectiveDate : new Date(row.effectiveDate as string);
+      const end = row.expiryDate instanceof Date ? row.expiryDate : new Date(row.expiryDate as string);
+      if (!Number.isNaN(start.getTime()) && !Number.isNaN(end.getTime()) && end > start) {
+        totalDays += (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24);
+        n += 1;
+      }
+    }
+    const avgDurationDays = n > 0 ? Math.round(totalDays / n) : 0;
+
+    return { active, expiring30, renewing, cancelled, avgDurationDays };
+  } catch (e) {
+    console.error('getContractKpis error:', e);
+    return zero;
+  }
+}
 
 export async function getContractById(
   contractId: string,
@@ -26,6 +140,68 @@ export async function getContractById(
   }
 }
 
+function readContractFormFields(formData: FormData) {
+  const title = ((formData.get('title') as string | null) ?? '').trim();
+  const partyName = ((formData.get('partyName') as string | null) ?? '').trim();
+  const type = (formData.get('type') as string | null) ?? 'nda';
+  const partyEmail = ((formData.get('partyEmail') as string | null) ?? '').trim();
+  const partyPhone = ((formData.get('partyPhone') as string | null) ?? '').trim();
+  const signatoryName = ((formData.get('signatoryName') as string | null) ?? '').trim();
+  const signatoryEmail = ((formData.get('signatoryEmail') as string | null) ?? '').trim();
+  const scope = ((formData.get('scope') as string | null) ?? '').trim();
+  const deliverables = ((formData.get('deliverables') as string | null) ?? '').trim();
+  const currency = ((formData.get('currency') as string | null) ?? 'INR').trim();
+  const branch = ((formData.get('branch') as string | null) ?? '').trim();
+  const ownerId = ((formData.get('ownerId') as string | null) ?? '').trim();
+  const sourceProposalId = ((formData.get('sourceProposalId') as string | null) ?? '').trim();
+  const sourceProposalNumber = ((formData.get('sourceProposalNumber') as string | null) ?? '').trim();
+  const effectiveDateRaw = (formData.get('effectiveDate') as string | null) ?? '';
+  const expiryDateRaw = (formData.get('expiryDate') as string | null) ?? '';
+  const autoRenew = formData.get('autoRenew') === 'on';
+  const renewalNoticeDaysRaw = (formData.get('renewalNoticeDays') as string | null) ?? '';
+  const valueRaw = (formData.get('value') as string | null) ?? '';
+  const esignProvider = (formData.get('esignProvider') as string | null) ?? 'none';
+  const notes = ((formData.get('notes') as string | null) ?? '').trim();
+  const attachmentsRaw = ((formData.get('attachments') as string | null) ?? '').trim();
+  const status = (formData.get('status') as string | null) ?? undefined;
+
+  return {
+    title,
+    partyName,
+    type,
+    partyEmail,
+    partyPhone,
+    signatoryName,
+    signatoryEmail,
+    scope,
+    deliverables,
+    currency,
+    branch,
+    ownerId,
+    sourceProposalId,
+    sourceProposalNumber,
+    effectiveDateRaw,
+    expiryDateRaw,
+    autoRenew,
+    renewalNoticeDaysRaw,
+    valueRaw,
+    esignProvider,
+    notes,
+    attachmentsRaw,
+    status,
+  };
+}
+
+async function nextContractNumber(userObjectId: ObjectId): Promise<string> {
+  try {
+    const { db } = await connectToDatabase();
+    const count = await db.collection('crm_contracts').countDocuments({ userId: userObjectId });
+    return `CTR-${String(count + 1).padStart(5, '0')}`;
+  } catch {
+    return `CTR-${Date.now().toString().slice(-5)}`;
+  }
+}
+
 export async function updateContract(
   _prev: any,
   formData: FormData,
@@ -33,52 +209,52 @@ export async function updateContract(
   const session = await getSession();
   if (!session?.user) return { error: 'Access denied.' };
 
+  const guard = await requirePermission('crm_contract', 'edit');
+  if (!guard.ok) return { error: guard.error };
+
   const contractId = (formData.get('contractId') as string | null) || '';
   if (!contractId || !ObjectId.isValid(contractId)) {
     return { error: 'Invalid contract id.' };
   }
 
-  const title = (formData.get('title') as string | null)?.trim() || '';
-  const partyName = (formData.get('partyName') as string | null)?.trim() || '';
-
-  if (!title) return { error: 'Contract title is required.' };
-  if (!partyName) return { error: 'Counter-party name is required.' };
+  const f = readContractFormFields(formData);
+  if (!f.title) return { error: 'Contract title is required.' };
+  if (!f.partyName) return { error: 'Counter-party name is required.' };
 
   try {
     const { db } = await connectToDatabase();
-
-    const type = (formData.get('type') as string | null) || 'nda';
-    const partyEmail = (formData.get('partyEmail') as string | null)?.trim() || '';
-    const effectiveDateRaw = (formData.get('effectiveDate') as string | null) || '';
-    const expiryDateRaw = (formData.get('expiryDate') as string | null) || '';
-    const autoRenew = formData.get('autoRenew') === 'on';
-    const renewalNoticeDaysRaw = (formData.get('renewalNoticeDays') as string | null) || '';
-    const valueRaw = (formData.get('value') as string | null) || '';
-    const esignProvider = (formData.get('esignProvider') as string | null) || 'none';
-    const notes = (formData.get('notes') as string | null)?.trim() || '';
-    const status = (formData.get('status') as string | null) || undefined;
-
     const $set: Record<string, any> = {
-      title,
-      type,
-      partyName,
-      autoRenew,
-      esignProvider,
-      notes,
+      title: f.title,
+      type: f.type,
+      partyName: f.partyName,
+      autoRenew: f.autoRenew,
+      esignProvider: f.esignProvider,
+      notes: f.notes,
+      currency: f.currency,
       updatedAt: new Date(),
     };
-    if (partyEmail) $set.partyEmail = partyEmail;
-    if (effectiveDateRaw) $set.effectiveDate = new Date(effectiveDateRaw);
-    if (expiryDateRaw) $set.expiryDate = new Date(expiryDateRaw);
-    if (renewalNoticeDaysRaw) {
-      const days = parseInt(renewalNoticeDaysRaw, 10);
+    if (f.partyEmail) $set.partyEmail = f.partyEmail;
+    if (f.partyPhone) $set.partyPhone = f.partyPhone;
+    if (f.signatoryName) $set.signatoryName = f.signatoryName;
+    if (f.signatoryEmail) $set.signatoryEmail = f.signatoryEmail;
+    if (f.scope) $set.scope = f.scope;
+    if (f.deliverables) $set.deliverables = f.deliverables;
+    if (f.branch) $set.branch = f.branch;
+    if (f.ownerId && ObjectId.isValid(f.ownerId)) $set.ownerId = new ObjectId(f.ownerId);
+    if (f.effectiveDateRaw) $set.effectiveDate = new Date(f.effectiveDateRaw);
+    if (f.expiryDateRaw) $set.expiryDate = new Date(f.expiryDateRaw);
+    if (f.renewalNoticeDaysRaw) {
+      const days = parseInt(f.renewalNoticeDaysRaw, 10);
       if (!isNaN(days)) $set.renewalNoticeDays = days;
     }
-    if (valueRaw) {
-      const val = parseFloat(valueRaw);
+    if (f.valueRaw) {
+      const val = parseFloat(f.valueRaw);
       if (!isNaN(val)) $set.value = val;
     }
-    if (status) $set.status = status;
+    if (f.status) $set.status = f.status;
+    if (f.attachmentsRaw) {
+      $set.attachments = f.attachmentsRaw.split('|').map((s) => s.trim()).filter(Boolean);
+    }
 
     const result = await db.collection('crm_contracts').updateOne(
       {
@@ -92,8 +268,19 @@ export async function updateContract(
       return { error: 'Contract not found.' };
     }
 
-    revalidatePath('/dashboard/crm/sales/contracts');
-    revalidatePath(`/dashboard/crm/sales/contracts/${contractId}`);
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action: 'update',
+        entityKind: 'contract',
+        entityId: contractId,
+      });
+    } catch {
+      /* non-fatal */
+    }
+
+    revalidateContracts(contractId);
     return { message: 'Contract updated successfully.', id: contractId };
   } catch (e: any) {
     console.error('updateContract error:', e);
@@ -108,56 +295,157 @@ export async function saveContract(
   const session = await getSession();
   if (!session?.user) return { error: 'Access denied.' };
 
-  const title = (formData.get('title') as string | null)?.trim() || '';
-  const partyName = (formData.get('partyName') as string | null)?.trim() || '';
+  const guard = await requirePermission('crm_contract', 'create');
+  if (!guard.ok) return { error: guard.error };
 
-  if (!title) return { error: 'Contract title is required.' };
-  if (!partyName) return { error: 'Counter-party name is required.' };
+  const f = readContractFormFields(formData);
+  if (!f.title) return { error: 'Contract title is required.' };
+  if (!f.partyName) return { error: 'Counter-party name is required.' };
 
   try {
     const { db } = await connectToDatabase();
-
-    const type = (formData.get('type') as string | null) || 'nda';
-    const partyEmail = (formData.get('partyEmail') as string | null)?.trim() || '';
-    const effectiveDateRaw = (formData.get('effectiveDate') as string | null) || '';
-    const expiryDateRaw = (formData.get('expiryDate') as string | null) || '';
-    const autoRenew = formData.get('autoRenew') === 'on';
-    const renewalNoticeDaysRaw = (formData.get('renewalNoticeDays') as string | null) || '';
-    const valueRaw = (formData.get('value') as string | null) || '';
-    const esignProvider = (formData.get('esignProvider') as string | null) || 'none';
-    const notes = (formData.get('notes') as string | null)?.trim() || '';
+    const userObjectId = new ObjectId(session.user._id as string);
+    const contractNumber = await nextContractNumber(userObjectId);
 
     const doc: Record<string, any> = {
-      userId: new ObjectId(session.user._id as string),
-      title,
-      type,
-      partyName,
-      autoRenew,
-      esignProvider,
+      userId: userObjectId,
+      contractNumber,
+      title: f.title,
+      type: f.type,
+      partyName: f.partyName,
+      autoRenew: f.autoRenew,
+      esignProvider: f.esignProvider,
       status: 'draft',
-      notes,
+      currency: f.currency,
+      notes: f.notes,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
 
-    if (partyEmail) doc.partyEmail = partyEmail;
-    if (effectiveDateRaw) doc.effectiveDate = new Date(effectiveDateRaw);
-    if (expiryDateRaw) doc.expiryDate = new Date(expiryDateRaw);
-    if (renewalNoticeDaysRaw) {
-      const days = parseInt(renewalNoticeDaysRaw, 10);
+    if (f.partyEmail) doc.partyEmail = f.partyEmail;
+    if (f.partyPhone) doc.partyPhone = f.partyPhone;
+    if (f.signatoryName) doc.signatoryName = f.signatoryName;
+    if (f.signatoryEmail) doc.signatoryEmail = f.signatoryEmail;
+    if (f.scope) doc.scope = f.scope;
+    if (f.deliverables) doc.deliverables = f.deliverables;
+    if (f.branch) doc.branch = f.branch;
+    if (f.ownerId && ObjectId.isValid(f.ownerId)) doc.ownerId = new ObjectId(f.ownerId);
+    if (f.sourceProposalId && ObjectId.isValid(f.sourceProposalId)) {
+      doc.sourceProposalId = new ObjectId(f.sourceProposalId);
+    }
+    if (f.sourceProposalNumber) doc.sourceProposalNumber = f.sourceProposalNumber;
+    if (f.effectiveDateRaw) doc.effectiveDate = new Date(f.effectiveDateRaw);
+    if (f.expiryDateRaw) doc.expiryDate = new Date(f.expiryDateRaw);
+    if (f.renewalNoticeDaysRaw) {
+      const days = parseInt(f.renewalNoticeDaysRaw, 10);
       if (!isNaN(days)) doc.renewalNoticeDays = days;
     }
-    if (valueRaw) {
-      const val = parseFloat(valueRaw);
+    if (f.valueRaw) {
+      const val = parseFloat(f.valueRaw);
       if (!isNaN(val)) doc.value = val;
+    }
+    if (f.attachmentsRaw) {
+      doc.attachments = f.attachmentsRaw.split('|').map((s) => s.trim()).filter(Boolean);
     }
 
     const { insertedId } = await db.collection('crm_contracts').insertOne(doc);
 
-    revalidatePath('/dashboard/crm/sales/contracts');
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action: 'create',
+        entityKind: 'contract',
+        entityId: insertedId.toString(),
+      });
+    } catch {
+      /* non-fatal */
+    }
+
+    revalidateContracts();
     return { message: 'Contract saved successfully.', id: insertedId.toString() };
   } catch (e: any) {
     console.error('Failed to save CRM contract:', e);
     return { error: e?.message || 'Failed to save contract.' };
+  }
+}
+
+export async function setContractStatus(
+  contractId: string,
+  status: 'draft' | 'sent' | 'signed' | 'active' | 'expired' | 'renewed' | 'cancelled',
+): Promise<{ success: boolean; error?: string }> {
+  if (!contractId || !ObjectId.isValid(contractId)) return { success: false, error: 'Invalid id.' };
+
+  const session = await getSession();
+  if (!session?.user) return { success: false, error: 'Unauthorized' };
+
+  const guard = await requirePermission('crm_contract', 'edit');
+  if (!guard.ok) return { success: false, error: guard.error };
+
+  try {
+    const { db } = await connectToDatabase();
+    const result = await db.collection('crm_contracts').updateOne(
+      { _id: new ObjectId(contractId), userId: new ObjectId(session.user._id as string) },
+      { $set: { status, updatedAt: new Date() } },
+    );
+    if (result.matchedCount === 0) return { success: false, error: 'Contract not found.' };
+
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action: 'status_change',
+        entityKind: 'contract',
+        entityId: contractId,
+        diff: { status: { after: status } },
+      });
+    } catch {
+      /* non-fatal */
+    }
+    revalidateContracts(contractId);
+    return { success: true };
+  } catch (e: any) {
+    return { success: false, error: e?.message ?? 'Failed.' };
+  }
+}
+
+export async function archiveContract(contractId: string) {
+  return setContractStatus(contractId, 'cancelled');
+}
+
+export async function deleteContract(
+  contractId: string,
+): Promise<{ success: boolean; error?: string }> {
+  if (!contractId || !ObjectId.isValid(contractId)) return { success: false, error: 'Invalid id.' };
+
+  const session = await getSession();
+  if (!session?.user) return { success: false, error: 'Unauthorized' };
+
+  const guard = await requirePermission('crm_contract', 'delete');
+  if (!guard.ok) return { success: false, error: guard.error };
+
+  try {
+    const { db } = await connectToDatabase();
+    const result = await db.collection('crm_contracts').deleteOne({
+      _id: new ObjectId(contractId),
+      userId: new ObjectId(session.user._id as string),
+    });
+    if (result.deletedCount === 0) return { success: false, error: 'Contract not found.' };
+
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action: 'delete',
+        entityKind: 'contract',
+        entityId: contractId,
+      });
+    } catch {
+      /* non-fatal */
+    }
+    revalidateContracts(contractId);
+    return { success: true };
+  } catch (e: any) {
+    return { success: false, error: e?.message ?? 'Failed.' };
   }
 }

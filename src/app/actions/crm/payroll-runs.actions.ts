@@ -17,6 +17,10 @@
  */
 
 import { revalidatePath } from 'next/cache';
+import { getSession } from '@/app/actions/user.actions';
+import { writeAuditEntry } from '@/lib/audit-log';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+import { requirePermission } from '@/lib/rbac-server';
 import { RustApiError } from '@/lib/rust-client';
 import {
   crmPayrollRunsApi,
@@ -49,10 +53,16 @@ export async function listPayrollRuns(
 ): Promise<PayrollRunListResult> {
   const page = Math.max(1, params.page ?? 1);
   const limit = Math.min(Math.max(1, params.limit ?? 20), 100);
+  const session = await getSession();
+  if (!session?.user) return { runs: [], page, limit, hasMore: false, error: 'Unauthorized' };
+  const guard = await requirePermission('crm_payroll', 'view');
+  if (!guard.ok) return { runs: [], page, limit, hasMore: false, error: guard.error };
   try {
     const runs = await crmPayrollRunsApi.list({ ...params, page, limit });
     return { runs, page, limit, hasMore: runs.length === limit };
   } catch (e) {
+    console.error('[listPayrollRuns] rust path failed; falling back:', e);
+    recordRustFallback({ entity: 'payroll_run', op: 'list', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
     return { runs: [], page, limit, hasMore: false, error: rustErr(e) };
   }
 }
@@ -61,6 +71,10 @@ export async function getPayrollRun(
   id: string,
 ): Promise<{ run: CrmPayrollRunDoc | null; error?: string }> {
   if (!id) return { run: null, error: 'Missing payroll run id.' };
+  const session = await getSession();
+  if (!session?.user) return { run: null, error: 'Unauthorized' };
+  const guard = await requirePermission('crm_payroll', 'view');
+  if (!guard.ok) return { run: null, error: guard.error };
   try {
     const run = await crmPayrollRunsApi.getById(id);
     return { run };
@@ -68,6 +82,8 @@ export async function getPayrollRun(
     if (e instanceof RustApiError && e.status === 404) {
       return { run: null, error: 'Payroll run not found.' };
     }
+    console.error('[getPayrollRun] rust path failed; falling back:', e);
+    recordRustFallback({ entity: 'payroll_run', op: 'get', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
     return { run: null, error: rustErr(e) };
   }
 }
@@ -101,7 +117,13 @@ export async function savePayrollRunAction(
   _prev: unknown,
   formData: FormData,
 ): Promise<{ message?: string; error?: string; id?: string }> {
+  const session = await getSession();
+  if (!session?.user) return { error: 'Unauthorized' };
+
   const id = pickString(formData, '_id');
+  const guard = await requirePermission('crm_payroll', id ? 'edit' : 'create');
+  if (!guard.ok) return { error: guard.error };
+
   const periodFrom = pickDate(formData, 'periodFrom');
   const periodTo = pickDate(formData, 'periodTo');
 
@@ -137,6 +159,18 @@ export async function savePayrollRunAction(
       result = await crmPayrollRunsApi.create(draft);
     }
 
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action: id ? 'update' : 'create',
+        entityKind: 'payroll_run',
+        entityId: String(result._id),
+      });
+    } catch {
+      /* non-fatal */
+    }
+
     revalidatePath(LIST_PATH);
     revalidatePath(`${LIST_PATH}/${String(result._id)}`);
     return {
@@ -144,6 +178,8 @@ export async function savePayrollRunAction(
       id: String(result._id),
     };
   } catch (e) {
+    console.error('[savePayrollRunAction] rust path failed; falling back:', e);
+    recordRustFallback({ entity: 'payroll_run', op: id ? 'update' : 'create', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
     return { error: rustErr(e) };
   }
 }
@@ -156,14 +192,31 @@ export async function deletePayrollRunAction(
   id: string,
 ): Promise<{ success: boolean; error?: string }> {
   if (!id) return { success: false, error: 'Missing payroll run id.' };
+  const session = await getSession();
+  if (!session?.user) return { success: false, error: 'Unauthorized' };
+  const guard = await requirePermission('crm_payroll', 'delete');
+  if (!guard.ok) return { success: false, error: guard.error };
   try {
     await crmPayrollRunsApi.delete(id);
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action: 'delete',
+        entityKind: 'payroll_run',
+        entityId: id,
+      });
+    } catch {
+      /* non-fatal */
+    }
     revalidatePath(LIST_PATH);
     return { success: true };
   } catch (e) {
     if (e instanceof RustApiError && e.status === 404) {
       return { success: false, error: 'Payroll run not found.' };
     }
+    console.error('[deletePayrollRunAction] rust path failed; falling back:', e);
+    recordRustFallback({ entity: 'payroll_run', op: 'delete', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
     return { success: false, error: rustErr(e) };
   }
 }
@@ -174,12 +227,29 @@ export async function computePayrollRunAction(
   id: string,
 ): Promise<{ success: boolean; message?: string; error?: string }> {
   if (!id) return { success: false, error: 'Missing payroll run id.' };
+  const session = await getSession();
+  if (!session?.user) return { success: false, error: 'Unauthorized' };
+  const guard = await requirePermission('crm_payroll', 'edit');
+  if (!guard.ok) return { success: false, error: guard.error };
   try {
     const run = await crmPayrollRunsApi.compute(id);
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action: 'compute',
+        entityKind: 'payroll_run',
+        entityId: id,
+      });
+    } catch {
+      /* non-fatal */
+    }
     revalidatePath(LIST_PATH);
     revalidatePath(`${LIST_PATH}/${String(run._id)}`);
     return { success: true, message: 'Payroll computed.' };
   } catch (e) {
+    console.error('[computePayrollRunAction] rust path failed; falling back:', e);
+    recordRustFallback({ entity: 'payroll_run', op: 'other', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
     return { success: false, error: rustErr(e) };
   }
 }
@@ -192,15 +262,33 @@ export async function approvePayrollRunAction(
   if (!input?.approverId) {
     return { success: false, error: 'Approver is required.' };
   }
+  const session = await getSession();
+  if (!session?.user) return { success: false, error: 'Unauthorized' };
+  const guard = await requirePermission('crm_payroll', 'edit');
+  if (!guard.ok) return { success: false, error: guard.error };
   try {
     const run = await crmPayrollRunsApi.approve(id, {
       approverId: input.approverId,
       comment: input.comment,
     });
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action: 'approve',
+        entityKind: 'payroll_run',
+        entityId: id,
+        reason: input.comment,
+      });
+    } catch {
+      /* non-fatal */
+    }
     revalidatePath(LIST_PATH);
     revalidatePath(`${LIST_PATH}/${String(run._id)}`);
     return { success: true, message: 'Payroll approved.' };
   } catch (e) {
+    console.error('[approvePayrollRunAction] rust path failed; falling back:', e);
+    recordRustFallback({ entity: 'payroll_run', op: 'other', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
     return { success: false, error: rustErr(e) };
   }
 }
@@ -209,12 +297,29 @@ export async function disbursePayrollRunAction(
   id: string,
 ): Promise<{ success: boolean; message?: string; error?: string }> {
   if (!id) return { success: false, error: 'Missing payroll run id.' };
+  const session = await getSession();
+  if (!session?.user) return { success: false, error: 'Unauthorized' };
+  const guard = await requirePermission('crm_payroll', 'edit');
+  if (!guard.ok) return { success: false, error: guard.error };
   try {
     const run = await crmPayrollRunsApi.disburse(id);
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action: 'disburse',
+        entityKind: 'payroll_run',
+        entityId: id,
+      });
+    } catch {
+      /* non-fatal */
+    }
     revalidatePath(LIST_PATH);
     revalidatePath(`${LIST_PATH}/${String(run._id)}`);
     return { success: true, message: 'Payroll disbursed.' };
   } catch (e) {
+    console.error('[disbursePayrollRunAction] rust path failed; falling back:', e);
+    recordRustFallback({ entity: 'payroll_run', op: 'other', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
     return { success: false, error: rustErr(e) };
   }
 }

@@ -19,6 +19,7 @@ import { revalidatePath } from 'next/cache';
 import { getSession } from '@/app/actions/user.actions';
 import { writeAuditEntry } from '@/lib/audit-log';
 import { connectToDatabase } from '@/lib/mongodb';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
 import { requirePermission } from '@/lib/rbac-server';
 import { RustApiError } from '@/lib/rust-client';
 import {
@@ -60,10 +61,16 @@ export async function listBookings(
 ): Promise<BookingListResult> {
   const page = Math.max(1, params.page ?? 1);
   const limit = Math.min(Math.max(1, params.limit ?? 20), 100);
+  const session = await getSession();
+  if (!session?.user) return { bookings: [], page, limit, hasMore: false, error: 'Unauthorized' };
+  const guard = await requirePermission('crm_booking', 'view');
+  if (!guard.ok) return { bookings: [], page, limit, hasMore: false, error: guard.error };
   try {
     const bookings = await crmBookingsApi.list({ ...params, page, limit });
     return { bookings, page, limit, hasMore: bookings.length === limit };
   } catch (e) {
+    console.error('[listBookings] rust path failed; falling back:', e);
+    recordRustFallback({ entity: 'booking', op: 'list', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
     return { bookings: [], page, limit, hasMore: false, error: rustErr(e) };
   }
 }
@@ -72,6 +79,10 @@ export async function getBooking(
   id: string,
 ): Promise<{ booking: CrmBookingDoc | null; error?: string }> {
   if (!id) return { booking: null, error: 'Missing booking id.' };
+  const session = await getSession();
+  if (!session?.user) return { booking: null, error: 'Unauthorized' };
+  const guard = await requirePermission('crm_booking', 'view');
+  if (!guard.ok) return { booking: null, error: guard.error };
   try {
     const booking = await crmBookingsApi.getById(id);
     return { booking };
@@ -79,6 +90,8 @@ export async function getBooking(
     if (e instanceof RustApiError && e.status === 404) {
       return { booking: null, error: 'Booking not found.' };
     }
+    console.error('[getBooking] rust path failed; falling back:', e);
+    recordRustFallback({ entity: 'booking', op: 'get', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
     return { booking: null, error: rustErr(e) };
   }
 }
@@ -230,6 +243,8 @@ export async function saveBookingAction(
       id: String(result._id),
     };
   } catch (e) {
+    console.error('[saveBookingAction] rust path failed; falling back:', e);
+    recordRustFallback({ entity: 'booking', op: id ? 'update' : 'create', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
     return { error: rustErr(e) };
   }
 }
@@ -268,6 +283,8 @@ export async function deleteBookingAction(
     if (e instanceof RustApiError && e.status === 404) {
       return { success: false, error: 'Booking not found.' };
     }
+    console.error('[deleteBookingAction] rust path failed; falling back:', e);
+    recordRustFallback({ entity: 'booking', op: 'delete', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
     return { success: false, error: rustErr(e) };
   }
 }

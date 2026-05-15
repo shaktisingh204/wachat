@@ -15,6 +15,7 @@
 import { revalidatePath } from 'next/cache';
 import { getSession } from '@/app/actions/user.actions';
 import { writeAuditEntry } from '@/lib/audit-log';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
 import { requirePermission } from '@/lib/rbac-server';
 import { RustApiError } from '@/lib/rust-client';
 import {
@@ -67,6 +68,7 @@ export async function listHolidays(
     const holidays = await crmHolidaysApi.list({ ...params, page, limit });
     return { holidays, page, limit, hasMore: holidays.length === limit };
   } catch (e) {
+    recordRustFallback({ entity: 'holiday', op: 'list', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
     return { holidays: [], page, limit, hasMore: false, error: rustErr(e) };
   }
 }
@@ -82,6 +84,7 @@ export async function getHoliday(
     if (e instanceof RustApiError && e.status === 404) {
       return { holiday: null, error: 'Holiday not found.' };
     }
+    recordRustFallback({ entity: 'holiday', op: 'get', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
     return { holiday: null, error: rustErr(e) };
   }
 }
@@ -209,6 +212,7 @@ export async function saveHolidayAction(
       id: String(result._id),
     };
   } catch (e) {
+    recordRustFallback({ entity: 'holiday', op: id ? 'update' : 'create', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
     return { error: rustErr(e) };
   }
 }
@@ -247,6 +251,7 @@ export async function deleteHolidayAction(
     if (e instanceof RustApiError && e.status === 404) {
       return { success: false, error: 'Holiday not found.' };
     }
+    recordRustFallback({ entity: 'holiday', op: 'delete', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
     return { success: false, error: rustErr(e) };
   }
 }

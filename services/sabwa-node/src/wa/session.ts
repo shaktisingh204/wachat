@@ -661,19 +661,36 @@ export class BaileysSession {
 
   /**
    * Publish a single event onto the per-session Redis channel.
+   *
+   * Wire shape matches `realtime/pubsub.ts::SabwaEvent` — a `kind`-tagged
+   * object with the payload flattened to the top level so consumers can
+   * read `ev.qr` / `ev.code` / `ev.status` directly. (Earlier this method
+   * emitted `{event, sessionId, payload}` which the SSE bridge rejected
+   * with "dropping event with missing/non-string kind".)
+   *
    * Errors are logged but never thrown — pub/sub is best-effort.
    */
-  private async publishEvent(event: string, payload: unknown): Promise<void> {
-    const message = JSON.stringify({
-      event,
+  private async publishEvent(kind: string, payload: unknown): Promise<void> {
+    const base: Record<string, unknown> = {
+      kind,
       sessionId: this.sessionId,
-      payload,
-    });
+    };
+    if (payload && typeof payload === 'object' && !Array.isArray(payload)) {
+      // Flatten payload fields onto the envelope, but don't let them
+      // overwrite `kind` (the discriminator the bridge filters on).
+      for (const [k, v] of Object.entries(payload as Record<string, unknown>)) {
+        if (k === 'kind') continue;
+        base[k] = v;
+      }
+    } else if (payload !== undefined) {
+      base.payload = payload;
+    }
+    const message = JSON.stringify(base);
     try {
       await this.redis.pub.publish(eventChannel(this.sessionId), message);
     } catch (err) {
       this.log.warn(
-        { err, sessionId: this.sessionId, event },
+        { err, sessionId: this.sessionId, kind },
         'redis publish failed',
       );
     }

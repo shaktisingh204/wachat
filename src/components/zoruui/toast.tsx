@@ -44,6 +44,8 @@ const toastVariants = cva(
           "border-zoru-success/40 bg-zoru-success/5 text-zoru-ink [&_[data-zoru-toast-title]]:text-zoru-success",
         warning:
           "border-zoru-warning/40 bg-zoru-warning/5 text-zoru-ink",
+        info:
+          "border-zoru-info/40 bg-zoru-info/5 text-zoru-ink [&_[data-zoru-toast-title]]:text-zoru-info",
       },
     },
     defaultVariants: { variant: "default" },

@@ -31,7 +31,9 @@ import { ZoruButton, useZoruToast } from '@/components/zoruui';
 
 import {
     archiveCrmAccount,
+    getCrmAccountKpis,
     getCrmAccounts,
+    setCrmAccountCategory,
     unarchiveCrmAccount,
 } from '@/app/actions/crm-accounts.actions';
 import type { CrmAccount } from '@/lib/definitions';
@@ -104,11 +106,7 @@ export default function CrmAccountsPage() {
                     search || undefined,
                     apiStatus,
                 ),
-                // Lightweight KPI fetch — pull the first 500 rows in `all`
-                // mode and bucket client-side. TODO 1D.1: replace with
-                // dedicated `getCrmAccountKpis()` when tenants grow past
-                // ~500 accounts.
-                getCrmAccounts(1, 500, undefined, 'all'),
+                getCrmAccountKpis(),
             ]);
 
             let filtered = pageRes.accounts;
@@ -134,13 +132,12 @@ export default function CrmAccountsPage() {
             setAccounts(filtered);
             setTotal(hasActiveFilters ? filtered.length : pageRes.total);
 
-            const all = kpiRes.accounts;
             setKpis({
                 total: kpiRes.total,
-                active: all.filter((a) => a.status !== 'archived').length,
-                archived: all.filter((a) => a.status === 'archived').length,
-                strategic: all.filter((a) => a.category === 'strategic').length,
-                key: all.filter((a) => a.category === 'key').length,
+                active: kpiRes.active,
+                archived: kpiRes.archived,
+                strategic: kpiRes.strategic,
+                key: kpiRes.key,
             });
         });
     }, [
@@ -239,17 +236,24 @@ export default function CrmAccountsPage() {
     const runBulkCategory = React.useCallback(
         async (next: 'new' | 'strategic' | 'key' | 'regular') => {
             if (selected.size === 0) return;
-            // TODO 1D.1: per-row category PATCH needs a dedicated action.
-            // `updateCrmAccount` requires the full {name, ...} contract so
-            // bulk-setting just the category isn't safe yet. Surface a hint
-            // until a `setCrmAccountCategory(ids[], category)` lands.
-            toast({
-                title: 'Bulk category change not yet wired',
-                description: `Selected ${selected.size} → ${next}. Needs a dedicated action.`,
-                variant: 'warning',
-            });
+            const res = await setCrmAccountCategory(Array.from(selected), next);
+            if (res.success) {
+                toast({
+                    title: 'Category updated',
+                    description: `${res.modifiedCount ?? selected.size} account${(res.modifiedCount ?? selected.size) === 1 ? '' : 's'} → ${next}.`,
+                    variant: 'success',
+                });
+                setSelected(new Set());
+                fetchData();
+            } else {
+                toast({
+                    title: 'Bulk category change failed',
+                    description: res.error ?? 'Unknown error.',
+                    variant: 'destructive',
+                });
+            }
         },
-        [selected, toast],
+        [selected, toast, fetchData],
     );
 
     const exportCsv = React.useCallback(() => {

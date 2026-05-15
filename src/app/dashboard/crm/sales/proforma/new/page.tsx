@@ -16,7 +16,7 @@ import { PlusCircle, Trash2, ArrowLeft, Save, LoaderCircle } from 'lucide-react'
 import Link from 'next/link';
 import type { WithId, CrmAccount, InvoiceLineItem } from '@/lib/definitions';
 import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
-import { saveInvoice } from '@/app/actions/crm-invoices.actions';
+import { saveProformaInvoice } from '@/app/actions/crm-proforma-invoices.actions';
 import { useRouter, usePathname } from 'next/navigation';
 import { EntityPicker } from '@/components/crm/entity-picker';
 import { EntityFormField } from '@/components/crm/entity-form-field';
@@ -112,7 +112,7 @@ const LineItemsTable = ({ items, setItems, currency }: { items: InvoiceLineItem[
 };
 
 export default function NewProformaInvoicePage() {
-    const [state, formAction] = useActionState(saveInvoice, initialState);
+    const [state, formAction] = useActionState(saveProformaInvoice, initialState);
     const router = useRouter();
     const pathname = usePathname();
     const { toast } = useZoruToast();
@@ -133,8 +133,8 @@ export default function NewProformaInvoicePage() {
 
     useEffect(() => {
         if (state.message) {
-            toast({ title: "Success!", description: "Proforma Invoice saved. Note: This saved as a regular invoice for now." });
-            router.push('/dashboard/crm/sales/invoices');
+            toast({ title: 'Success!', description: state.message });
+            router.push('/dashboard/crm/sales/proforma');
         }
         if (state.error) {
             toast({ title: "Error", description: state.error, variant: 'destructive' });
@@ -146,8 +146,9 @@ export default function NewProformaInvoicePage() {
     return (
         <form action={formAction}>
             <input type="hidden" name="accountId" value={selectedClientId} />
-            <input type="hidden" name="invoiceDate" value={invoiceDate?.toISOString()} />
-            <input type="hidden" name="dueDate" value={dueDate?.toISOString()} />
+            <input type="hidden" name="proformaDate" value={invoiceDate?.toISOString()} />
+            <input type="hidden" name="validTillDate" value={dueDate?.toISOString()} />
+            <input type="hidden" name="currency" value={currency} />
             <input type="hidden" name="lineItems" value={JSON.stringify(lineItems)} />
             <input type="hidden" name="termsAndConditions" value={JSON.stringify(terms)} />
             <input type="hidden" name="notes" value={notes} />

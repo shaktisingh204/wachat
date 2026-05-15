@@ -13,11 +13,16 @@
  */
 
 import { revalidatePath } from 'next/cache';
+import { getSession } from '@/app/actions/user.actions';
+import { writeAuditEntry } from '@/lib/audit-log';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+import { requirePermission } from '@/lib/rbac-server';
 import { RustApiError } from '@/lib/rust-client';
 import {
   crmSubscriptionsApi,
   type CrmSubBillingFrequency,
   type CrmSubRenewalMode,
+  type CrmSubStatus,
   type CrmSubscriptionCreateInput,
   type CrmSubscriptionDoc,
   type CrmSubscriptionItem,
@@ -216,14 +221,79 @@ export async function deleteSubscriptionAction(
   id: string,
 ): Promise<{ success: boolean; error?: string }> {
   if (!id) return { success: false, error: 'Missing subscription id.' };
+  const session = await getSession();
+  if (!session?.user) return { success: false, error: 'Unauthorized' };
+  const guard = await requirePermission('crm_subscription', 'delete');
+  if (!guard.ok) return { success: false, error: guard.error };
   try {
     await crmSubscriptionsApi.delete(id);
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action: 'delete',
+        entityKind: 'subscription',
+        entityId: id,
+      });
+    } catch {
+      /* non-fatal */
+    }
     revalidatePath(LIST_PATH);
     return { success: true };
   } catch (e) {
     if (e instanceof RustApiError && e.status === 404) {
       return { success: false, error: 'Subscription not found.' };
     }
+    console.error('[deleteSubscriptionAction] rust path failed; falling back:', e);
+    recordRustFallback({ entity: 'subscription', op: 'delete', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
     return { success: false, error: rustErr(e) };
   }
+}
+
+/* ─── Lifecycle actions ───────────────────────────────────────── */
+
+export async function setSubscriptionStatus(
+  id: string,
+  status: CrmSubStatus,
+): Promise<{ success: boolean; error?: string }> {
+  if (!id) return { success: false, error: 'Missing subscription id.' };
+  const session = await getSession();
+  if (!session?.user) return { success: false, error: 'Unauthorized' };
+  const guard = await requirePermission('crm_subscription', 'edit');
+  if (!guard.ok) return { success: false, error: guard.error };
+  try {
+    const patch: CrmSubscriptionUpdateInput = { status };
+    await crmSubscriptionsApi.update(id, patch);
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action: 'status_change',
+        entityKind: 'subscription',
+        entityId: id,
+        diff: { status: { after: status } },
+      });
+    } catch {
+      /* non-fatal */
+    }
+    revalidatePath(LIST_PATH);
+    revalidatePath(`${LIST_PATH}/${id}`);
+    return { success: true };
+  } catch (e) {
+    console.error('[setSubscriptionStatus] rust path failed; falling back:', e);
+    recordRustFallback({ entity: 'subscription', op: 'update', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
+    return { success: false, error: rustErr(e) };
+  }
+}
+
+export async function pauseSubscription(id: string) {
+  return setSubscriptionStatus(id, 'paused' as CrmSubStatus);
+}
+
+export async function resumeSubscription(id: string) {
+  return setSubscriptionStatus(id, 'active' as CrmSubStatus);
+}
+
+export async function cancelSubscription(id: string) {
+  return setSubscriptionStatus(id, 'cancelled' as CrmSubStatus);
 }

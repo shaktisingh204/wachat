@@ -40,6 +40,7 @@ import {
 } from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { DirtyFormPrompt } from '@/components/crm/dirty-form-prompt';
+import { useFormKeyboardShortcuts } from '@/components/crm/use-form-keyboard-shortcuts';
 import { SabFileUrlInput } from '@/components/sabfiles';
 import {
     addCrmAccount,
@@ -204,6 +205,22 @@ export function AccountForm({ mode, initial, prefill }: AccountFormProps) {
         },
         [mode, initial?._id, name, router, toast],
     );
+
+    const handleCancel = React.useCallback(() => {
+        if (dirty && typeof window !== 'undefined') {
+            const ok = window.confirm(
+                'You have unsaved changes. Discard and leave?',
+            );
+            if (!ok) return;
+        }
+        router.back();
+    }, [dirty, router]);
+
+    useFormKeyboardShortcuts({
+        onSave: () => void submit('save'),
+        onSaveNew: () => void submit('save_new'),
+        onCancel: handleCancel,
+    });
 
     return (
         <>
@@ -582,7 +599,7 @@ export function AccountForm({ mode, initial, prefill }: AccountFormProps) {
                         <ZoruButton
                             type="button"
                             variant="ghost"
-                            onClick={() => router.back()}
+                            onClick={handleCancel}
                         >
                             Cancel
                         </ZoruButton>

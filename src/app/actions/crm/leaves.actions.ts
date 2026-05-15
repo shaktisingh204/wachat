@@ -18,6 +18,7 @@
 import { revalidatePath } from 'next/cache';
 import { getSession } from '@/app/actions/user.actions';
 import { writeAuditEntry } from '@/lib/audit-log';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
 import { requirePermission } from '@/lib/rbac-server';
 import { RustApiError } from '@/lib/rust-client';
 import {
@@ -63,6 +64,7 @@ export async function listLeaves(params: CrmLeaveListParams = {}): Promise<Leave
     const leaves = await crmLeavesApi.list({ ...params, page, limit });
     return { leaves, page, limit, hasMore: leaves.length === limit };
   } catch (e) {
+    recordRustFallback({ entity: 'leave', op: 'list', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
     return { leaves: [], page, limit, hasMore: false, error: rustErr(e) };
   }
 }
@@ -78,6 +80,7 @@ export async function getLeave(
     if (e instanceof RustApiError && e.status === 404) {
       return { leave: null, error: 'Leave not found.' };
     }
+    recordRustFallback({ entity: 'leave', op: 'get', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
     return { leave: null, error: rustErr(e) };
   }
 }
@@ -197,6 +200,7 @@ export async function saveLeaveAction(
       id: String(result._id),
     };
   } catch (e) {
+    recordRustFallback({ entity: 'leave', op: id ? 'update' : 'create', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
     return { error: rustErr(e) };
   }
 }
@@ -235,6 +239,7 @@ export async function deleteLeaveAction(
     if (e instanceof RustApiError && e.status === 404) {
       return { success: false, error: 'Leave not found.' };
     }
+    recordRustFallback({ entity: 'leave', op: 'delete', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
     return { success: false, error: rustErr(e) };
   }
 }

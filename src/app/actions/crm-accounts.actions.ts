@@ -618,3 +618,88 @@ export async function getAccountRelatedCounts(accountId: string): Promise<{
         return zero;
     }
 }
+
+/* ─── Bulk + KPI actions (referenced by the list page) ─────────── */
+
+export interface CrmAccountKpis {
+    total: number;
+    active: number;
+    strategic: number;
+    key: number;
+    archived: number;
+}
+
+export async function getCrmAccountKpis(): Promise<CrmAccountKpis> {
+    const zero: CrmAccountKpis = { total: 0, active: 0, strategic: 0, key: 0, archived: 0 };
+
+    const session = await getSession();
+    if (!session?.user) return zero;
+
+    const guard = await requirePermission('crm_account', 'view');
+    if (!guard.ok) return zero;
+
+    try {
+        const { db } = await connectToDatabase();
+        const userObjectId = new ObjectId(session.user._id);
+        const base: Filter<Document> = { userId: userObjectId };
+
+        const [total, active, strategic, key, archived] = await Promise.all([
+            db.collection('crm_accounts').countDocuments(base),
+            db.collection('crm_accounts').countDocuments({ ...base, archived: { $ne: true } }),
+            db.collection('crm_accounts').countDocuments({ ...base, category: 'strategic' }),
+            db.collection('crm_accounts').countDocuments({ ...base, category: 'key' }),
+            db.collection('crm_accounts').countDocuments({ ...base, archived: true }),
+        ]);
+
+        return { total, active, strategic, key, archived };
+    } catch (e) {
+        console.error('[getCrmAccountKpis] failed:', e);
+        return zero;
+    }
+}
+
+export async function setCrmAccountCategory(
+    ids: string[],
+    category: 'new' | 'strategic' | 'key' | 'regular',
+): Promise<{ success: boolean; modifiedCount?: number; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Unauthorized' };
+
+    const guard = await requirePermission('crm_account', 'edit');
+    if (!guard.ok) return { success: false, error: guard.error };
+
+    const validIds = (ids ?? []).filter((id) => typeof id === 'string' && ObjectId.isValid(id));
+    if (validIds.length === 0) {
+        return { success: false, error: 'No valid account ids.' };
+    }
+
+    // TODO P3: route through rustAccountsApi.setCategory once the Rust endpoint ships.
+
+    try {
+        const { db } = await connectToDatabase();
+        const userObjectId = new ObjectId(session.user._id);
+        const result = await db.collection('crm_accounts').updateMany(
+            { _id: { $in: validIds.map((id) => new ObjectId(id)) }, userId: userObjectId },
+            { $set: { category, updatedAt: new Date() } },
+        );
+
+        try {
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'bulk_set_category',
+                entityKind: 'account',
+                entityId: validIds[0],
+                reason: `bulk:${validIds.length} accounts → ${category}`,
+                diff: { category: { after: category } },
+            });
+        } catch {
+            /* non-fatal */
+        }
+
+        revalidatePath('/dashboard/crm/accounts');
+        return { success: true, modifiedCount: result.modifiedCount };
+    } catch (e) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}

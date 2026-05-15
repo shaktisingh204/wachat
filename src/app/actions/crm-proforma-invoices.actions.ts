@@ -1,9 +1,11 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
+import { type Db, ObjectId, type WithId, type Filter, type Document } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
+import { writeAuditEntry } from '@/lib/audit-log';
+import { requirePermission } from '@/lib/rbac-server';
 import type { CrmProformaInvoice, LineageKind, LineageRef } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import { appendLineage, buildLineageFromParent } from '@/lib/lineage';
@@ -36,7 +38,7 @@ async function getNextProformaNumber(db: Db, userId: ObjectId): Promise<string> 
 export async function getProformaInvoices(
     page: number = 1,
     limit: number = 20,
-    filters?: { month?: number, year?: number, query?: string }
+    filters?: { month?: number, year?: number, query?: string, status?: string, archived?: 'active' | 'archived' | 'all', accountId?: string }
 ): Promise<{ invoices: WithId<CrmProformaInvoice>[], total: number }> {
     const session = await getSession();
     if (!session?.user) return { invoices: [], total: 0 };
@@ -57,6 +59,20 @@ export async function getProformaInvoices(
             filter.$or = [
                 { proformaNumber: { $regex: filters.query, $options: 'i' } }
             ];
+        }
+
+        if (filters?.status && filters.status !== 'all') {
+            filter.status = filters.status;
+        }
+
+        if (filters?.archived === 'archived') {
+            filter.archived = true;
+        } else if (filters?.archived !== 'all') {
+            filter.archived = { $ne: true };
+        }
+
+        if (filters?.accountId && ObjectId.isValid(filters.accountId)) {
+            filter.accountId = new ObjectId(filters.accountId);
         }
 
         const skip = (page - 1) * limit;
@@ -109,6 +125,9 @@ export async function updateProformaInvoice(
     const session = await getSession();
     if (!session?.user) return { error: 'Access denied' };
 
+    const guard = await requirePermission('crm_proforma_invoice', 'edit');
+    if (!guard.ok) return { error: guard.error };
+
     const proformaId = (formData.get('proformaId') as string | null) || '';
     if (!proformaId || !ObjectId.isValid(proformaId)) {
         return { error: 'Invalid proforma id.' };
@@ -132,6 +151,36 @@ export async function updateProformaInvoice(
         const status = formData.get('status') as string | null;
         if (status) $set.status = status;
 
+        const lineItemsRaw = formData.get('lineItems') as string | null;
+        if (lineItemsRaw) {
+            try {
+                const lineItems = JSON.parse(lineItemsRaw);
+                if (Array.isArray(lineItems)) {
+                    $set.lineItems = lineItems;
+                    const subtotal = lineItems.reduce((sum: number, item: any) => sum + (item.quantity * item.rate), 0);
+                    $set.subtotal = subtotal;
+                    $set.total = subtotal;
+                }
+            } catch {
+                /* ignore malformed JSON */
+            }
+        }
+
+        const accountId = formData.get('accountId') as string | null;
+        if (accountId && ObjectId.isValid(accountId)) {
+            $set.accountId = new ObjectId(accountId);
+        }
+
+        const termsRaw = formData.get('termsAndConditions') as string | null;
+        if (termsRaw) {
+            try {
+                const terms = JSON.parse(termsRaw);
+                if (Array.isArray(terms)) $set.termsAndConditions = terms;
+            } catch {
+                /* ignore */
+            }
+        }
+
         const result = await db.collection('crm_proforma_invoices').updateOne(
             { _id: new ObjectId(proformaId), userId: userObjectId },
             { $set },
@@ -139,6 +188,18 @@ export async function updateProformaInvoice(
 
         if (result.matchedCount === 0) {
             return { error: 'Proforma invoice not found.' };
+        }
+
+        try {
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'update',
+                entityKind: 'proforma',
+                entityId: proformaId,
+            });
+        } catch {
+            /* non-fatal */
         }
 
         revalidatePath('/dashboard/crm/sales/proforma');
@@ -149,9 +210,12 @@ export async function updateProformaInvoice(
     }
 }
 
-export async function saveProformaInvoice(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+export async function saveProformaInvoice(prevState: any, formData: FormData): Promise<{ message?: string; error?: string; id?: string }> {
     const session = await getSession();
     if (!session?.user) return { error: 'Access denied' };
+
+    const guard = await requirePermission('crm_proforma_invoice', 'create');
+    if (!guard.ok) return { error: guard.error };
 
     try {
         const { db } = await connectToDatabase();
@@ -266,9 +330,232 @@ export async function saveProformaInvoice(prevState: any, formData: FormData): P
             }
         }
 
+        try {
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'create',
+                entityKind: 'proforma',
+                entityId: insertResult.insertedId.toString(),
+            });
+        } catch {
+            /* non-fatal */
+        }
+
         revalidatePath('/dashboard/crm/sales/proforma');
-        return { message: 'Proforma Invoice saved successfully.' };
+        return { message: 'Proforma Invoice saved successfully.', id: insertResult.insertedId.toString() };
     } catch (e) {
         return { error: getErrorMessage(e) };
+    }
+}
+
+/* ─── Status / archive / delete / convert ──────────────────────── */
+
+export interface ProformaKpis {
+    total: number;
+    issued: number;
+    converted: number;
+    expired: number;
+    pending: number;
+}
+
+export async function getProformaInvoiceKpis(): Promise<ProformaKpis> {
+    const zero: ProformaKpis = { total: 0, issued: 0, converted: 0, expired: 0, pending: 0 };
+
+    const session = await getSession();
+    if (!session?.user) return zero;
+    const guard = await requirePermission('crm_proforma_invoice', 'view');
+    if (!guard.ok) return zero;
+
+    try {
+        const { db } = await connectToDatabase();
+        const userObjectId = new ObjectId(session.user._id);
+        const base: Filter<Document> = { userId: userObjectId, archived: { $ne: true } };
+        const now = new Date();
+
+        const [total, issued, converted, expired, pending] = await Promise.all([
+            db.collection('crm_proforma_invoices').countDocuments(base),
+            db.collection('crm_proforma_invoices').countDocuments({ ...base, status: 'Issued' }),
+            db.collection('crm_proforma_invoices').countDocuments({ ...base, status: 'Converted' }),
+            db.collection('crm_proforma_invoices').countDocuments({ ...base, validTillDate: { $lt: now }, status: { $nin: ['Converted', 'Cancelled'] } }),
+            db.collection('crm_proforma_invoices').countDocuments({ ...base, status: { $in: ['Draft', 'Issued'] } }),
+        ]);
+        return { total, issued, converted, expired, pending };
+    } catch (e) {
+        console.error('getProformaInvoiceKpis error:', e);
+        return zero;
+    }
+}
+
+export async function setProformaStatus(
+    proformaId: string,
+    status: 'Draft' | 'Issued' | 'Converted' | 'Expired' | 'Cancelled',
+): Promise<{ success: boolean; error?: string }> {
+    if (!proformaId || !ObjectId.isValid(proformaId)) return { success: false, error: 'Invalid id.' };
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Unauthorized' };
+    const guard = await requirePermission('crm_proforma_invoice', 'edit');
+    if (!guard.ok) return { success: false, error: guard.error };
+
+    try {
+        const { db } = await connectToDatabase();
+        const result = await db.collection('crm_proforma_invoices').updateOne(
+            { _id: new ObjectId(proformaId), userId: new ObjectId(session.user._id) },
+            { $set: { status, updatedAt: new Date() } },
+        );
+        if (result.matchedCount === 0) return { success: false, error: 'Proforma not found.' };
+        try {
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'status_change',
+                entityKind: 'proforma',
+                entityId: proformaId,
+                diff: { status: { after: status } },
+            });
+        } catch {
+            /* non-fatal */
+        }
+        revalidatePath('/dashboard/crm/sales/proforma');
+        revalidatePath(`/dashboard/crm/sales/proforma/${proformaId}`);
+        return { success: true };
+    } catch (e) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function archiveProformaInvoice(proformaId: string): Promise<{ success: boolean; error?: string }> {
+    if (!proformaId || !ObjectId.isValid(proformaId)) return { success: false, error: 'Invalid id.' };
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Unauthorized' };
+    const guard = await requirePermission('crm_proforma_invoice', 'edit');
+    if (!guard.ok) return { success: false, error: guard.error };
+
+    try {
+        const { db } = await connectToDatabase();
+        const result = await db.collection('crm_proforma_invoices').updateOne(
+            { _id: new ObjectId(proformaId), userId: new ObjectId(session.user._id) },
+            { $set: { archived: true, updatedAt: new Date() } },
+        );
+        if (result.matchedCount === 0) return { success: false, error: 'Proforma not found.' };
+        try {
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'archive',
+                entityKind: 'proforma',
+                entityId: proformaId,
+            });
+        } catch {
+            /* non-fatal */
+        }
+        revalidatePath('/dashboard/crm/sales/proforma');
+        return { success: true };
+    } catch (e) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function unarchiveProformaInvoice(proformaId: string): Promise<{ success: boolean; error?: string }> {
+    if (!proformaId || !ObjectId.isValid(proformaId)) return { success: false, error: 'Invalid id.' };
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Unauthorized' };
+    const guard = await requirePermission('crm_proforma_invoice', 'edit');
+    if (!guard.ok) return { success: false, error: guard.error };
+
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('crm_proforma_invoices').updateOne(
+            { _id: new ObjectId(proformaId), userId: new ObjectId(session.user._id) },
+            { $set: { archived: false, updatedAt: new Date() } },
+        );
+        try {
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'restore',
+                entityKind: 'proforma',
+                entityId: proformaId,
+            });
+        } catch {
+            /* non-fatal */
+        }
+        revalidatePath('/dashboard/crm/sales/proforma');
+        return { success: true };
+    } catch (e) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function deleteProformaInvoice(proformaId: string): Promise<{ success: boolean; error?: string }> {
+    if (!proformaId || !ObjectId.isValid(proformaId)) return { success: false, error: 'Invalid id.' };
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Unauthorized' };
+    const guard = await requirePermission('crm_proforma_invoice', 'delete');
+    if (!guard.ok) return { success: false, error: guard.error };
+
+    try {
+        const { db } = await connectToDatabase();
+        const result = await db.collection('crm_proforma_invoices').deleteOne({
+            _id: new ObjectId(proformaId),
+            userId: new ObjectId(session.user._id),
+        });
+        if (result.deletedCount === 0) return { success: false, error: 'Proforma not found.' };
+        try {
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'delete',
+                entityKind: 'proforma',
+                entityId: proformaId,
+            });
+        } catch {
+            /* non-fatal */
+        }
+        revalidatePath('/dashboard/crm/sales/proforma');
+        return { success: true };
+    } catch (e) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function convertProformaToInvoice(
+    proformaId: string,
+    invoiceId?: string,
+): Promise<{ success: boolean; error?: string }> {
+    if (!proformaId || !ObjectId.isValid(proformaId)) return { success: false, error: 'Invalid id.' };
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Unauthorized' };
+    const guard = await requirePermission('crm_proforma_invoice', 'edit');
+    if (!guard.ok) return { success: false, error: guard.error };
+
+    try {
+        const { db } = await connectToDatabase();
+        const $set: Record<string, any> = { status: 'Converted', updatedAt: new Date() };
+        if (invoiceId && ObjectId.isValid(invoiceId)) {
+            $set.convertedInvoiceId = new ObjectId(invoiceId);
+        }
+        const result = await db.collection('crm_proforma_invoices').updateOne(
+            { _id: new ObjectId(proformaId), userId: new ObjectId(session.user._id) },
+            { $set },
+        );
+        if (result.matchedCount === 0) return { success: false, error: 'Proforma not found.' };
+        try {
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'convert',
+                entityKind: 'proforma',
+                entityId: proformaId,
+                reason: invoiceId ? `→ invoice ${invoiceId}` : 'converted to invoice',
+            });
+        } catch {
+            /* non-fatal */
+        }
+        revalidatePath('/dashboard/crm/sales/proforma');
+        revalidatePath(`/dashboard/crm/sales/proforma/${proformaId}`);
+        return { success: true };
+    } catch (e) {
+        return { success: false, error: getErrorMessage(e) };
     }
 }

@@ -22,6 +22,7 @@ import type { CrmVendorBid, CrmRfq, LineageRef } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import { appendLineage, buildLineageFromParent } from '@/lib/lineage';
 import { writeAuditEntry } from '@/lib/audit-log';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
 import { requirePermission } from '@/lib/rbac-server';
 import {
     crmVendorBidsApi,
@@ -73,6 +74,7 @@ export async function getVendorBids(rfqId?: string): Promise<WithId<CrmVendorBid
             return bids.map(rustDocToLegacy);
         } catch (e) {
             console.error('[getVendorBids] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'vendor_bid', op: 'list', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through
         }
     }
@@ -111,6 +113,7 @@ export async function getVendorBidById(bidId: string): Promise<WithId<CrmVendorB
         } catch (e) {
             if (e instanceof RustApiError && e.status === 404) return null;
             console.error('[getVendorBidById] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'vendor_bid', op: 'get', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through
         }
     }
@@ -243,11 +246,8 @@ export async function saveVendorBid(
             revalidatePath('/dashboard/crm/purchase/rfqs');
             return { message: 'Vendor bid saved successfully.' };
         } catch (e) {
-            if (e instanceof RustApiError) {
-                console.error('[saveVendorBid] rust path failed; falling back:', e);
-            } else {
-                console.error('[saveVendorBid] rust path failed; falling back:', e);
-            }
+            console.error('[saveVendorBid] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'vendor_bid', op: 'create', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through to legacy
         }
     }
@@ -424,6 +424,7 @@ export async function updateVendorBidStatus(
             return { message: 'Vendor bid status updated.' };
         } catch (e) {
             console.error('[updateVendorBidStatus] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'vendor_bid', op: 'update', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through
         }
     }
@@ -512,6 +513,7 @@ export async function deleteVendorBid(
             return { message: 'Vendor bid archived.' };
         } catch (e) {
             console.error('[deleteVendorBid] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'vendor_bid', op: 'delete', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through
         }
     }
