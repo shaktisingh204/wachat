@@ -7,11 +7,13 @@
 
 use axum::{
     extract::{Path, Query, State},
+    http::HeaderMap,
     routing::{delete, get, post},
     Json, Router,
 };
 use serde::{Deserialize, Serialize};
 
+use crate::audit::{self, AuditEntry};
 use crate::error::AppError;
 use crate::state::AppState;
 
@@ -156,6 +158,7 @@ pub struct InviteLinkResponse {
 
 async fn create_group(
     State(state): State<AppState>,
+    headers: HeaderMap,
     Json(body): Json<CreateGroupRequest>,
 ) -> Result<Json<CreateGroupResponse>, AppError> {
     tracing::info!(
@@ -164,6 +167,8 @@ async fn create_group(
         participant_count = body.participants.len(),
         "groups: create"
     );
+
+    let (actor_ip, user_agent) = audit::extract_context(&headers);
 
     let temp_request_id = format!("grp_{}", uuid::Uuid::new_v4());
     let queue_key = format!("sabwa:{}:outbound", body.session_id);
@@ -174,6 +179,26 @@ async fn create_group(
         "participants": body.participants,
     });
     crate::db::misc::redis_lpush(&state.redis, &queue_key, &payload.to_string()).await?;
+
+    let _ = audit::record(
+        &state,
+        AuditEntry {
+            project_id: String::new(),
+            user_id: None,
+            session_id: Some(body.session_id.clone()),
+            action: "group.create".into(),
+            target_kind: Some("group".into()),
+            target_id: Some(temp_request_id.clone()),
+            metadata: serde_json::json!({
+                "subject": body.subject,
+                "participantCount": body.participants.len(),
+            }),
+            actor_ip,
+            user_agent,
+            ts: chrono::Utc::now(),
+        },
+    )
+    .await;
 
     Ok(Json(CreateGroupResponse {
         queued: true,
@@ -235,10 +260,13 @@ async fn get_group(
 
 async fn update_group(
     State(state): State<AppState>,
+    headers: HeaderMap,
     Path(jid): Path<String>,
     Json(body): Json<UpdateGroupRequest>,
 ) -> Result<Json<UpdateGroupResponse>, AppError> {
     tracing::info!(session_id = %body.session_id, jid = %jid, "groups: update");
+
+    let (actor_ip, user_agent) = audit::extract_context(&headers);
 
     // Category is a SabWa-side concept and never hits WA — write it directly.
     if let Some(category) = body.category.as_deref() {
@@ -257,6 +285,30 @@ async fn update_group(
     });
     crate::db::misc::redis_lpush(&state.redis, &queue_key, &payload.to_string()).await?;
 
+    let _ = audit::record(
+        &state,
+        AuditEntry {
+            project_id: String::new(),
+            user_id: None,
+            session_id: Some(body.session_id.clone()),
+            action: "group.update".into(),
+            target_kind: Some("group".into()),
+            target_id: Some(jid.clone()),
+            metadata: serde_json::json!({
+                "subject": body.subject,
+                "description": body.description,
+                "iconUrl": body.icon_url,
+                "announcement": body.announcement,
+                "restrict": body.restrict,
+                "category": body.category,
+            }),
+            actor_ip,
+            user_agent,
+            ts: chrono::Utc::now(),
+        },
+    )
+    .await;
+
     Ok(Json(UpdateGroupResponse {
         jid,
         queued: true,
@@ -265,6 +317,7 @@ async fn update_group(
 
 async fn add_participants(
     State(state): State<AppState>,
+    headers: HeaderMap,
     Path(jid): Path<String>,
     Json(body): Json<ParticipantsRequest>,
 ) -> Result<Json<ParticipantsResponse>, AppError> {
@@ -275,6 +328,8 @@ async fn add_participants(
         "groups: add participants"
     );
 
+    let (actor_ip, user_agent) = audit::extract_context(&headers);
+
     let queue_key = format!("sabwa:{}:outbound", body.session_id);
     let payload = serde_json::json!({
         "op": "group_participants_add",
@@ -282,6 +337,23 @@ async fn add_participants(
         "jids": body.jids,
     });
     crate::db::misc::redis_lpush(&state.redis, &queue_key, &payload.to_string()).await?;
+
+    let _ = audit::record(
+        &state,
+        AuditEntry {
+            project_id: String::new(),
+            user_id: None,
+            session_id: Some(body.session_id.clone()),
+            action: "group.add_participants".into(),
+            target_kind: Some("group".into()),
+            target_id: Some(jid.clone()),
+            metadata: serde_json::json!({ "jids": body.jids }),
+            actor_ip,
+            user_agent,
+            ts: chrono::Utc::now(),
+        },
+    )
+    .await;
 
     Ok(Json(ParticipantsResponse {
         jid,
@@ -292,6 +364,7 @@ async fn add_participants(
 
 async fn remove_participants(
     State(state): State<AppState>,
+    headers: HeaderMap,
     Path(jid): Path<String>,
     Json(body): Json<ParticipantsRequest>,
 ) -> Result<Json<ParticipantsResponse>, AppError> {
@@ -302,6 +375,8 @@ async fn remove_participants(
         "groups: remove participants"
     );
 
+    let (actor_ip, user_agent) = audit::extract_context(&headers);
+
     let queue_key = format!("sabwa:{}:outbound", body.session_id);
     let payload = serde_json::json!({
         "op": "group_participants_remove",
@@ -309,6 +384,23 @@ async fn remove_participants(
         "jids": body.jids,
     });
     crate::db::misc::redis_lpush(&state.redis, &queue_key, &payload.to_string()).await?;
+
+    let _ = audit::record(
+        &state,
+        AuditEntry {
+            project_id: String::new(),
+            user_id: None,
+            session_id: Some(body.session_id.clone()),
+            action: "group.remove_participants".into(),
+            target_kind: Some("group".into()),
+            target_id: Some(jid.clone()),
+            metadata: serde_json::json!({ "jids": body.jids }),
+            actor_ip,
+            user_agent,
+            ts: chrono::Utc::now(),
+        },
+    )
+    .await;
 
     Ok(Json(ParticipantsResponse {
         jid,
@@ -319,6 +411,7 @@ async fn remove_participants(
 
 async fn promote_admin(
     State(state): State<AppState>,
+    headers: HeaderMap,
     Path(jid): Path<String>,
     Json(body): Json<ParticipantsRequest>,
 ) -> Result<Json<ParticipantsResponse>, AppError> {
@@ -329,6 +422,8 @@ async fn promote_admin(
         "groups: promote"
     );
 
+    let (actor_ip, user_agent) = audit::extract_context(&headers);
+
     let queue_key = format!("sabwa:{}:outbound", body.session_id);
     let payload = serde_json::json!({
         "op": "group_admin_promote",
@@ -336,6 +431,23 @@ async fn promote_admin(
         "jids": body.jids,
     });
     crate::db::misc::redis_lpush(&state.redis, &queue_key, &payload.to_string()).await?;
+
+    let _ = audit::record(
+        &state,
+        AuditEntry {
+            project_id: String::new(),
+            user_id: None,
+            session_id: Some(body.session_id.clone()),
+            action: "group.promote_admin".into(),
+            target_kind: Some("group".into()),
+            target_id: Some(jid.clone()),
+            metadata: serde_json::json!({ "jids": body.jids }),
+            actor_ip,
+            user_agent,
+            ts: chrono::Utc::now(),
+        },
+    )
+    .await;
 
     Ok(Json(ParticipantsResponse {
         jid,
@@ -346,6 +458,7 @@ async fn promote_admin(
 
 async fn demote_admin(
     State(state): State<AppState>,
+    headers: HeaderMap,
     Path((jid, participant_jid)): Path<(String, String)>,
     Query(q): Query<GroupSessionQuery>,
 ) -> Result<Json<ParticipantsResponse>, AppError> {
@@ -356,13 +469,32 @@ async fn demote_admin(
         "groups: demote"
     );
 
+    let (actor_ip, user_agent) = audit::extract_context(&headers);
+
     let queue_key = format!("sabwa:{}:outbound", q.session_id);
     let payload = serde_json::json!({
         "op": "group_admin_demote",
         "jid": jid,
-        "jids": [participant_jid],
+        "jids": [&participant_jid],
     });
     crate::db::misc::redis_lpush(&state.redis, &queue_key, &payload.to_string()).await?;
+
+    let _ = audit::record(
+        &state,
+        AuditEntry {
+            project_id: String::new(),
+            user_id: None,
+            session_id: Some(q.session_id.clone()),
+            action: "group.demote_admin".into(),
+            target_kind: Some("group".into()),
+            target_id: Some(jid.clone()),
+            metadata: serde_json::json!({ "participantJid": participant_jid }),
+            actor_ip,
+            user_agent,
+            ts: chrono::Utc::now(),
+        },
+    )
+    .await;
 
     Ok(Json(ParticipantsResponse {
         jid,
@@ -373,11 +505,14 @@ async fn demote_admin(
 
 async fn invite_link(
     State(state): State<AppState>,
+    headers: HeaderMap,
     Path(jid): Path<String>,
     Query(q): Query<InviteLinkQuery>,
 ) -> Result<Json<InviteLinkResponse>, AppError> {
     let revoke = q.revoke.unwrap_or(false);
     tracing::info!(session_id = %q.session_id, jid = %jid, revoke, "groups: invite link");
+
+    let (actor_ip, user_agent) = audit::extract_context(&headers);
 
     let queue_key = format!("sabwa:{}:outbound", q.session_id);
     let payload = serde_json::json!({
@@ -389,6 +524,26 @@ async fn invite_link(
     // Best-effort return of the cached invite code; worker will refresh.
     let cached = crate::db::groups::get_invite_code(&state.db, &q.session_id, &jid).await?;
     let invite_link = cached.map(|code| format!("https://chat.whatsapp.com/{}", code));
+
+    // Only audit the mutating branch (revoke); plain reads stay quiet.
+    if revoke {
+        let _ = audit::record(
+            &state,
+            AuditEntry {
+                project_id: String::new(),
+                user_id: None,
+                session_id: Some(q.session_id.clone()),
+                action: "group.revoke_invite".into(),
+                target_kind: Some("group".into()),
+                target_id: Some(jid.clone()),
+                metadata: serde_json::json!({}),
+                actor_ip,
+                user_agent,
+                ts: chrono::Utc::now(),
+            },
+        )
+        .await;
+    }
 
     Ok(Json(InviteLinkResponse {
         jid,

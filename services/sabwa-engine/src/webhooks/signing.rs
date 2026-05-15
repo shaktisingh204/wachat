@@ -4,15 +4,29 @@
 //! Receivers verify by recomputing `HMAC-SHA256(secret, "{t}.{body}")` and
 //! comparing in constant time against the `v1=` segment of the header.
 //!
-//! Wire format (header `X-Sabwa-Signature`):
+//! # Wire format
 //!
-//! ```text
-//! t=1700000000,v1=4f3a…hex…
-//! ```
+//! Outbound deliveries include two headers a receiver MUST validate:
 //!
-//! The `t` value is a Unix-seconds timestamp and is included in the signed
-//! string so replays past a receiver-defined tolerance window can be
-//! rejected.
+//! | header                | example value                                   |
+//! | --------------------- | ----------------------------------------------- |
+//! | `X-Sabwa-Event-Id`    | `c3a1f1e4-3d6c-4b1c-9d54-2b1b3d8d7a1f`           |
+//! | `X-Sabwa-Signature`   | `t=1700000000,v1=4f3a…hex…` (64-char hex)        |
+//!
+//! The `t` segment is a Unix-seconds timestamp; the `v1` segment is the
+//! lower-case hex HMAC-SHA256 over **`format!("{t}.{json_body}")`** — i.e.
+//! the timestamp, a literal ASCII dot, then the *exact bytes* of the JSON
+//! request body. Receivers MUST hash the raw request body before any
+//! whitespace normalisation, otherwise the comparison will fail.
+//!
+//! The Next.js receiver under `src/lib/sabwa/webhooks/verify.ts` parses
+//! this header by splitting on `,`, pulling `t=<ts>` and `v1=<hex>`,
+//! reconstructing `"{ts}.{body}"`, recomputing the HMAC and comparing in
+//! constant time. Any drift between this Rust signer and that JS verifier
+//! is a wire-protocol break — change them together.
+//!
+//! Including `t` in the signed string lets receivers reject replays whose
+//! timestamp drifts past a tolerance window (the Next.js side uses ±5 m).
 
 use chrono::Utc;
 use hmac::{Hmac, Mac};

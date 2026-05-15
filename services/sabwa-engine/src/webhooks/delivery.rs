@@ -81,6 +81,23 @@ impl DeliveryAttempt {
             sent_at: Utc::now(),
         }
     }
+
+    /// Insert this attempt record into `sabwa_webhook_deliveries`.
+    ///
+    /// Best-effort from the dispatcher's perspective: callers should log
+    /// the error rather than bubble it, because the underlying HTTP
+    /// delivery has already happened and losing the audit row is strictly
+    /// less bad than crashing the dispatcher.
+    pub async fn persist(
+        db: &mongodb::Database,
+        delivery: &DeliveryAttempt,
+    ) -> Result<(), anyhow::Error> {
+        let col = db.collection::<DeliveryAttempt>(COLLECTION);
+        col.insert_one(delivery)
+            .await
+            .with_context(|| format!("{COLLECTION}.insert"))?;
+        Ok(())
+    }
 }
 
 /// POST `body` to `url`, signed under `secret`, with the standard SabWa

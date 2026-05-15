@@ -24,6 +24,13 @@ import { redirect } from "next/navigation";
 import { getCachedSession, getCachedProjects } from "@/lib/server-cache";
 import { RBACGuard } from "@/components/wabasimplify/rbac-guard";
 import { ProjectProvider } from "@/context/project-context";
+import { listSessions } from "@/app/actions/sabwa.actions";
+import {
+  SabwaSessionProvider,
+  toSessionInfo,
+  type SabwaSessionInfo,
+} from "@/lib/sabwa/session-context";
+import type { SabwaSession } from "@/lib/sabwa/types";
 
 import { SabWaSubRail } from "./_components/sabwa-sub-rail";
 import { SessionSwitcher } from "./_components/session-switcher";
@@ -59,26 +66,48 @@ export default async function SabWaLayout({
     redirect("/onboarding");
   }
 
+  // Best-effort prefetch of the SabWa session list. `activeProjectId` is a
+  // client-only signal (lives in localStorage); on the server we fall back
+  // to the first available project so the provider has *something* to
+  // hydrate with. The provider will refresh on mount if the client's
+  // chosen project differs.
+  const defaultProjectId = projects[0]?._id?.toString();
+  let initialSessions: SabwaSessionInfo[] = [];
+  if (defaultProjectId) {
+    try {
+      const res = await listSessions(defaultProjectId);
+      if (res.ok) {
+        initialSessions = (res.sessions ?? []).map((s) =>
+          toSessionInfo(s as Partial<SabwaSession>),
+        );
+      }
+    } catch {
+      // Phase 1: `listSessions` throws NOT_IMPLEMENTED — degrade to empty.
+    }
+  }
+
   return (
     <RBACGuard>
       <ProjectProvider initialProjects={projects} user={user}>
-        <div className="flex min-h-screen w-full bg-background">
-          {/* Left: collapsible sub-rail (mobile drawer via Sheet inside) */}
-          <SabWaSubRail />
+        <SabwaSessionProvider initialSessions={initialSessions}>
+          <div className="flex min-h-screen w-full bg-background">
+            {/* Left: collapsible sub-rail (mobile drawer via Sheet inside) */}
+            <SabWaSubRail />
 
-          {/* Right: page content with a sticky session switcher header */}
-          <div className="flex min-w-0 flex-1 flex-col">
-            <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-3 border-b bg-background/80 px-3 backdrop-blur supports-[backdrop-filter]:bg-background/60 md:px-6">
-              <div className="md:hidden">
-                {/* Hamburger is rendered by SabWaSubRail itself */}
-              </div>
-              <div className="ml-auto">
-                <SessionSwitcher />
-              </div>
-            </header>
-            <main className="min-w-0 flex-1">{children}</main>
+            {/* Right: page content with a sticky session switcher header */}
+            <div className="flex min-w-0 flex-1 flex-col">
+              <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-3 border-b bg-background/80 px-3 backdrop-blur supports-[backdrop-filter]:bg-background/60 md:px-6">
+                <div className="md:hidden">
+                  {/* Hamburger is rendered by SabWaSubRail itself */}
+                </div>
+                <div className="ml-auto">
+                  <SessionSwitcher />
+                </div>
+              </header>
+              <main className="min-w-0 flex-1">{children}</main>
+            </div>
           </div>
-        </div>
+        </SabwaSessionProvider>
       </ProjectProvider>
     </RBACGuard>
   );

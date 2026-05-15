@@ -384,6 +384,7 @@ fn event_type_str(ev: &SabwaEvent) -> &'static str {
             "logged_out" | "disconnected" => "session.disconnected",
             _ => "session.status",
         },
+        SabwaEvent::Scheduled(_) => "scheduled.fired",
     }
 }
 
@@ -459,7 +460,7 @@ async fn dispatch_one(
     // Best-effort: never bubble a Mongo write error up past this point —
     // the delivery already happened (or failed), losing the audit row is
     // strictly less bad than crashing the dispatcher.
-    if let Err(err) = persist_attempt(state, &record).await {
+    if let Err(err) = DeliveryAttempt::persist(&state.db, &record).await {
         tracing::warn!(
             target: "sabwa::webhooks::dispatcher",
             error = %err,
@@ -497,16 +498,6 @@ async fn dispatch_one(
             "webhook exhausted retry policy; giving up"
         );
     }
-}
-
-async fn persist_attempt(state: &AppState, record: &DeliveryAttempt) -> anyhow::Result<()> {
-    let col = state
-        .db
-        .collection::<DeliveryAttempt>(delivery::COLLECTION);
-    col.insert_one(record)
-        .await
-        .context("sabwa_webhook_deliveries.insert")?;
-    Ok(())
 }
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -640,7 +631,7 @@ async fn redispatch(state: &AppState, http: &reqwest::Client, job: RetryJob, att
         }
     };
 
-    if let Err(err) = persist_attempt(state, &record).await {
+    if let Err(err) = DeliveryAttempt::persist(&state.db, &record).await {
         tracing::warn!(
             target: "sabwa::webhooks::dispatcher",
             error = %err,

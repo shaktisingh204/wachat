@@ -5,12 +5,14 @@
 
 use axum::{
     extract::{Path, Query, State},
+    http::HeaderMap,
     routing::get,
     Json, Router,
 };
 use serde::{Deserialize, Serialize};
 use serde_json::Value as JsonValue;
 
+use crate::audit::{self, AuditEntry};
 use crate::error::AppError;
 use crate::state::AppState;
 
@@ -115,6 +117,7 @@ pub struct CancelScheduledResponse {
 
 async fn create_scheduled(
     State(state): State<AppState>,
+    headers: HeaderMap,
     Json(body): Json<CreateScheduledRequest>,
 ) -> Result<Json<CreateScheduledResponse>, AppError> {
     tracing::info!(
@@ -125,6 +128,7 @@ async fn create_scheduled(
         "scheduled: create"
     );
 
+    let (actor_ip, user_agent) = audit::extract_context(&headers);
     let scheduled_id = format!("sch_{}", uuid::Uuid::new_v4());
 
     let targets_bson: Vec<JsonValue> = body
@@ -167,6 +171,29 @@ async fn create_scheduled(
     if let Some(ref job_id) = bull_job_id {
         crate::db::scheduled::set_bull_job_id(&state.db, &scheduled_id, job_id).await?;
     }
+
+    let _ = audit::record(
+        &state,
+        AuditEntry {
+            project_id: body.project_id.clone(),
+            user_id: None,
+            session_id: Some(body.session_id.clone()),
+            action: "scheduled.create".into(),
+            target_kind: Some("scheduled".into()),
+            target_id: Some(scheduled_id.clone()),
+            metadata: serde_json::json!({
+                "kind": body.kind,
+                "scheduledFor": body.scheduled_for,
+                "cron": body.cron,
+                "timezone": body.timezone,
+                "targetCount": body.targets.len(),
+            }),
+            actor_ip,
+            user_agent,
+            ts: chrono::Utc::now(),
+        },
+    )
+    .await;
 
     Ok(Json(CreateScheduledResponse {
         scheduled_id,
@@ -216,10 +243,13 @@ async fn list_scheduled(
 
 async fn update_scheduled(
     State(state): State<AppState>,
+    headers: HeaderMap,
     Path(id): Path<String>,
     Json(body): Json<UpdateScheduledRequest>,
 ) -> Result<Json<UpdateScheduledResponse>, AppError> {
     tracing::info!(scheduled_id = %id, "scheduled: update");
+
+    let (actor_ip, user_agent) = audit::extract_context(&headers);
 
     crate::db::scheduled::update(
         &state.db,
@@ -246,6 +276,28 @@ async fn update_scheduled(
         crate::db::scheduled::set_bull_job_id(&state.db, &id, job_id).await?;
     }
 
+    let _ = audit::record(
+        &state,
+        AuditEntry {
+            project_id: String::new(),
+            user_id: None,
+            session_id: None,
+            action: "scheduled.update".into(),
+            target_kind: Some("scheduled".into()),
+            target_id: Some(id.clone()),
+            metadata: serde_json::json!({
+                "scheduledFor": body.scheduled_for,
+                "cron": body.cron,
+                "timezone": body.timezone,
+                "hasPayload": body.payload.is_some(),
+            }),
+            actor_ip,
+            user_agent,
+            ts: chrono::Utc::now(),
+        },
+    )
+    .await;
+
     Ok(Json(UpdateScheduledResponse {
         scheduled_id: id,
         updated: true,
@@ -255,13 +307,33 @@ async fn update_scheduled(
 
 async fn cancel_scheduled(
     State(state): State<AppState>,
+    headers: HeaderMap,
     Path(id): Path<String>,
 ) -> Result<Json<CancelScheduledResponse>, AppError> {
     tracing::info!(scheduled_id = %id, "scheduled: cancel");
 
+    let (actor_ip, user_agent) = audit::extract_context(&headers);
+
     // Drop the delayed Redis job (best-effort) before flipping the doc status.
     let _ = crate::scheduler::queue::cancel(&state.redis, &id).await;
     crate::db::scheduled::cancel(&state.db, &id).await?;
+
+    let _ = audit::record(
+        &state,
+        AuditEntry {
+            project_id: String::new(),
+            user_id: None,
+            session_id: None,
+            action: "scheduled.cancel".into(),
+            target_kind: Some("scheduled".into()),
+            target_id: Some(id.clone()),
+            metadata: serde_json::json!({}),
+            actor_ip,
+            user_agent,
+            ts: chrono::Utc::now(),
+        },
+    )
+    .await;
 
     Ok(Json(CancelScheduledResponse {
         scheduled_id: id,

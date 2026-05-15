@@ -291,6 +291,8 @@ export interface SabwaQuickReply {
 export type SabwaAutoReplyTriggerKind =
   | 'keyword'
   | 'contains'
+  | 'contains_all'
+  | 'contains_any'
   | 'regex'
   | 'time_window'
   | 'contact_label'
@@ -299,9 +301,11 @@ export type SabwaAutoReplyTriggerKind =
 
 export type SabwaAutoReplyActionKind =
   | 'send_template'
+  | 'send_message'
   | 'forward_to_flow'
   | 'set_away_message'
-  | 'add_label';
+  | 'add_label'
+  | 'set_label';
 
 export interface SabwaAutoReplyTrigger {
   kind: SabwaAutoReplyTriggerKind;
@@ -313,9 +317,9 @@ export interface SabwaAutoReplyTrigger {
 
 export interface SabwaAutoReplyAction {
   kind: SabwaAutoReplyActionKind;
-  templateId?: ObjectId;
-  flowId?: ObjectId;
-  labelId?: ObjectId;
+  templateId?: ObjectId | string;
+  flowId?: ObjectId | string;
+  labelId?: ObjectId | string;
   message?: string;
 }
 

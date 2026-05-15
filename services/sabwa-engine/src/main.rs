@@ -16,7 +16,7 @@ use mongodb::{bson::doc, options::ClientOptions, Client as MongoClient};
 use tokio::signal;
 use tracing_subscriber::{fmt, prelude::*, EnvFilter};
 
-use sabwa_engine::{build_app, config::Config, state::AppState};
+use sabwa_engine::{build_app, config::Config, crypto::AuthStateCrypto, state::AppState};
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -70,8 +70,39 @@ async fn main() -> Result<()> {
 
     // 6. App state + router.
     let port = config.port;
-    let state = AppState::new(config, mongo, db, redis);
-    let app = build_app(state);
+    let crypto = AuthStateCrypto::from_key_string(&config.auth_encryption_key)
+        .context("failed to initialise auth-state crypto from SABWA_AUTH_ENCRYPTION_KEY")?;
+    let state = AppState::new(config.clone(), mongo, db, redis, crypto);
+
+    // 6a. Install the global WhatsApp session pool. Defaults to the real
+    //     Baileys-sidecar-backed factory; set `SABWA_USE_STUB=1` to fall
+    //     back to the in-process stub (used by integration tests and
+    //     anyone running without Node installed).
+    let use_stub = std::env::var("SABWA_USE_STUB")
+        .map(|v| v == "1" || v.eq_ignore_ascii_case("true"))
+        .unwrap_or(false);
+    if use_stub {
+        tracing::warn!("SABWA_USE_STUB=1 — wiring in-process stub WA factory");
+        let factory = std::sync::Arc::new(sabwa_engine::wa::stub::StubFactory::new(
+            state.redis.clone(),
+        ));
+        sabwa_engine::wa::pool::install(sabwa_engine::wa::pool::SessionPool::new(factory));
+    } else {
+        let supervisor =
+            sabwa_engine::wa::baileys::BaileysSupervisor::spawn(&config, state.clone())
+                .context("failed to spawn baileys sidecar supervisor")?;
+        let factory =
+            std::sync::Arc::new(sabwa_engine::wa::baileys::BaileysFactory::new(supervisor));
+        sabwa_engine::wa::pool::install(sabwa_engine::wa::pool::SessionPool::new(factory));
+        tracing::info!("baileys sidecar factory installed");
+    }
+
+    let app = build_app(state.clone());
+
+    // 6b. Background workers (outbound queue drainer, inbound event
+    //     persister, webhook dispatcher). Each runs on its own detached
+    //     task; the supervisor in `workers::mod` logs failures.
+    sabwa_engine::workers::spawn_all(state).await;
 
     // 7. Serve.
     let addr = SocketAddr::from(([0, 0, 0, 0], port));

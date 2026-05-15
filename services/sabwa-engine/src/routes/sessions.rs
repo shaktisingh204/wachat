@@ -6,11 +6,13 @@
 
 use axum::{
     extract::{Path, Query, State},
+    http::HeaderMap,
     routing::get,
     Json, Router,
 };
 use serde::{Deserialize, Serialize};
 
+use crate::audit::{self, AuditEntry};
 use crate::error::AppError;
 use crate::state::AppState;
 
@@ -114,6 +116,7 @@ pub struct UpdatedResponse {
 
 async fn create_session(
     State(state): State<AppState>,
+    headers: HeaderMap,
     Json(body): Json<CreateSessionRequest>,
 ) -> Result<Json<CreateSessionResponse>, AppError> {
     tracing::info!(
@@ -122,6 +125,8 @@ async fn create_session(
         pair_method = %body.pair_method,
         "sessions: create"
     );
+
+    let (actor_ip, user_agent) = audit::extract_context(&headers);
 
     // Phase 1: synthesize a session id; the WA pool only knows about session
     // ids today. Real persistence (sabwa_sessions insert) lands in Phase 2
@@ -133,9 +138,29 @@ async fn create_session(
     };
     let pair_req = crate::wa::session::PairRequest {
         method,
-        phone_e164: body.phone_e164,
+        phone_e164: body.phone_e164.clone(),
     };
     let pair = crate::wa::pool::request_pair(&state, &session_id, pair_req).await?;
+
+    let _ = audit::record(
+        &state,
+        AuditEntry {
+            project_id: body.project_id.clone(),
+            user_id: Some(body.user_id.clone()),
+            session_id: Some(session_id.clone()),
+            action: "session.pair".into(),
+            target_kind: Some("session".into()),
+            target_id: Some(session_id.clone()),
+            metadata: serde_json::json!({
+                "pairMethod": body.pair_method,
+                "phoneE164": body.phone_e164,
+            }),
+            actor_ip,
+            user_agent,
+            ts: chrono::Utc::now(),
+        },
+    )
+    .await;
 
     Ok(Json(CreateSessionResponse {
         session_id,
@@ -186,14 +211,34 @@ async fn get_session(
 
 async fn delete_session(
     State(state): State<AppState>,
+    headers: HeaderMap,
     Path(id): Path<String>,
 ) -> Result<Json<DeletedResponse>, AppError> {
     tracing::info!(session_id = %id, "sessions: delete");
+
+    let (actor_ip, user_agent) = audit::extract_context(&headers);
 
     // TODO: provided by agent Rx — logout closes the live Baileys socket
     // before we drop persisted state.
     crate::wa::pool::logout(&state, &id).await?;
     crate::db::sessions::delete(&state.db, &id).await?;
+
+    let _ = audit::record(
+        &state,
+        AuditEntry {
+            project_id: String::new(),
+            user_id: None,
+            session_id: Some(id.clone()),
+            action: "session.logout".into(),
+            target_kind: Some("session".into()),
+            target_id: Some(id.clone()),
+            metadata: serde_json::json!({}),
+            actor_ip,
+            user_agent,
+            ts: chrono::Utc::now(),
+        },
+    )
+    .await;
 
     Ok(Json(DeletedResponse {
         session_id: id,
@@ -203,12 +248,43 @@ async fn delete_session(
 
 async fn update_session(
     State(state): State<AppState>,
+    headers: HeaderMap,
     Path(id): Path<String>,
     Json(body): Json<UpdateSessionRequest>,
 ) -> Result<Json<UpdatedResponse>, AppError> {
     tracing::info!(session_id = %id, "sessions: update");
 
+    let (actor_ip, user_agent) = audit::extract_context(&headers);
+
     crate::db::sessions::update(&state.db, &id, body.label.as_deref(), body.rate_limit_profile.as_deref()).await?;
+
+    // Treat label-only changes as `session.rename` and anything else as a
+    // generic `session.update`, mirroring the Next.js server-action shape.
+    let action = if body.label.is_some() && body.rate_limit_profile.is_none() {
+        "session.rename"
+    } else {
+        "session.update"
+    };
+
+    let _ = audit::record(
+        &state,
+        AuditEntry {
+            project_id: String::new(),
+            user_id: None,
+            session_id: Some(id.clone()),
+            action: action.into(),
+            target_kind: Some("session".into()),
+            target_id: Some(id.clone()),
+            metadata: serde_json::json!({
+                "label": body.label,
+                "rateLimitProfile": body.rate_limit_profile,
+            }),
+            actor_ip,
+            user_agent,
+            ts: chrono::Utc::now(),
+        },
+    )
+    .await;
 
     Ok(Json(UpdatedResponse {
         session_id: id,

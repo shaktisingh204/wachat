@@ -7,12 +7,14 @@
 
 use axum::{
     extract::{Path, Query, State},
+    http::HeaderMap,
     routing::{get, post},
     Json, Router,
 };
 use serde::{Deserialize, Serialize};
 use serde_json::Value as JsonValue;
 
+use crate::audit::{self, AuditEntry};
 use crate::error::AppError;
 use crate::state::AppState;
 
@@ -105,6 +107,7 @@ pub struct ControlResponse {
 
 async fn start_campaign(
     State(state): State<AppState>,
+    headers: HeaderMap,
     Json(body): Json<StartCampaignRequest>,
 ) -> Result<Json<StartCampaignResponse>, AppError> {
     tracing::info!(
@@ -113,6 +116,8 @@ async fn start_campaign(
         recipient_count = body.recipients.len(),
         "bulk: start"
     );
+
+    let (actor_ip, user_agent) = audit::extract_context(&headers);
 
     let campaign_id = format!("camp_{}", uuid::Uuid::new_v4());
 
@@ -138,6 +143,28 @@ async fn start_campaign(
         "queueKey": queue_key,
     });
     crate::db::misc::redis_lpush(&state.redis, &control_key, &payload.to_string()).await?;
+
+    let _ = audit::record(
+        &state,
+        AuditEntry {
+            project_id: body.project_id.clone(),
+            user_id: None,
+            session_id: Some(body.session_id.clone()),
+            action: "bulk.start".into(),
+            target_kind: Some("campaign".into()),
+            target_id: Some(campaign_id.clone()),
+            metadata: serde_json::json!({
+                "name": body.name,
+                "recipientCount": body.recipients.len(),
+                "ratePerMinute": body.rate_per_minute,
+                "jitterSeconds": body.jitter_seconds,
+            }),
+            actor_ip,
+            user_agent,
+            ts: chrono::Utc::now(),
+        },
+    )
+    .await;
 
     Ok(Json(StartCampaignResponse {
         campaign_id,
@@ -196,10 +223,12 @@ async fn get_campaign(
 
 async fn pause_campaign(
     State(state): State<AppState>,
+    headers: HeaderMap,
     Path(id): Path<String>,
 ) -> Result<Json<ControlResponse>, AppError> {
     tracing::info!(campaign_id = %id, "bulk: pause");
     send_control(&state, &id, "campaign_pause").await?;
+    audit_control(&state, &headers, &id, "bulk.pause").await;
     Ok(Json(ControlResponse {
         campaign_id: id,
         op: "pause".into(),
@@ -209,10 +238,12 @@ async fn pause_campaign(
 
 async fn resume_campaign(
     State(state): State<AppState>,
+    headers: HeaderMap,
     Path(id): Path<String>,
 ) -> Result<Json<ControlResponse>, AppError> {
     tracing::info!(campaign_id = %id, "bulk: resume");
     send_control(&state, &id, "campaign_resume").await?;
+    audit_control(&state, &headers, &id, "bulk.resume").await;
     Ok(Json(ControlResponse {
         campaign_id: id,
         op: "resume".into(),
@@ -222,15 +253,37 @@ async fn resume_campaign(
 
 async fn abort_campaign(
     State(state): State<AppState>,
+    headers: HeaderMap,
     Path(id): Path<String>,
 ) -> Result<Json<ControlResponse>, AppError> {
     tracing::info!(campaign_id = %id, "bulk: abort");
     send_control(&state, &id, "campaign_abort").await?;
+    audit_control(&state, &headers, &id, "bulk.abort").await;
     Ok(Json(ControlResponse {
         campaign_id: id,
         op: "abort".into(),
         queued: true,
     }))
+}
+
+async fn audit_control(state: &AppState, headers: &HeaderMap, campaign_id: &str, action: &str) {
+    let (actor_ip, user_agent) = audit::extract_context(headers);
+    let _ = audit::record(
+        state,
+        AuditEntry {
+            project_id: String::new(),
+            user_id: None,
+            session_id: None,
+            action: action.into(),
+            target_kind: Some("campaign".into()),
+            target_id: Some(campaign_id.into()),
+            metadata: serde_json::json!({}),
+            actor_ip,
+            user_agent,
+            ts: chrono::Utc::now(),
+        },
+    )
+    .await;
 }
 
 async fn send_control(state: &AppState, campaign_id: &str, op: &str) -> Result<(), AppError> {

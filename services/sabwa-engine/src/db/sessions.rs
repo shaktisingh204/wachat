@@ -9,6 +9,8 @@ use futures::TryStreamExt;
 use mongodb::{Collection, Database};
 use serde::{Deserialize, Serialize};
 
+use crate::crypto::AuthStateCrypto;
+
 pub const COLLECTION: &str = "sabwa_sessions";
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
@@ -161,10 +163,21 @@ impl<'a> SessionsRepo<'a> {
         Ok(())
     }
 
-    pub async fn update_auth_state(&self, id: &ObjectId, auth_state: &[u8]) -> Result<()> {
+    /// Persist `auth_state`, encrypting it first with the provided crypto
+    /// helper. This is the only sanctioned write path — the raw blob from
+    /// Baileys must never hit Mongo unencrypted.
+    pub async fn update_auth_state(
+        &self,
+        id: &ObjectId,
+        plaintext: &[u8],
+        crypto: &AuthStateCrypto,
+    ) -> Result<()> {
+        let ciphertext = crypto
+            .encrypt(plaintext)
+            .context("encrypt auth_state for sabwa_sessions")?;
         let bin = Binary {
             subtype: bson::spec::BinarySubtype::Generic,
-            bytes: auth_state.to_vec(),
+            bytes: ciphertext,
         };
         self.col
             .update_one(
@@ -273,4 +286,51 @@ pub async fn update(
 ) -> Result<()> {
     // removed for Phase 1 cleanup — admin metadata mutators land later.
     Ok(())
+}
+
+// ---------------------------------------------------------------------------
+// Encrypted auth-state helpers.
+//
+// The Baileys credential blob is sensitive — it grants full control of the
+// linked WhatsApp number. We never persist it in the clear; instead, every
+// read/write path goes through the helpers below which wrap
+// [`AuthStateCrypto`] (AES-256-GCM with a fresh per-write nonce).
+// ---------------------------------------------------------------------------
+
+/// Encrypt `plaintext` with `crypto` and persist it onto
+/// `sabwa_sessions.authState` for the row identified by `session_id`
+/// (string form of the Mongo ObjectId).
+pub async fn update_auth_state_encrypted(
+    db: &Database,
+    session_id: &str,
+    plaintext: &[u8],
+    crypto: &AuthStateCrypto,
+) -> Result<()> {
+    let oid = ObjectId::parse_str(session_id)
+        .map_err(|_| anyhow::anyhow!("invalid session id: {session_id}"))?;
+    let repo = SessionsRepo::new(db);
+    repo.update_auth_state(&oid, plaintext, crypto).await
+}
+
+/// Read `sabwa_sessions.authState` for `session_id` and decrypt it with
+/// `crypto`. Returns `Ok(None)` if the row doesn't exist or has no auth
+/// state recorded.
+pub async fn load_auth_state_decrypted(
+    db: &Database,
+    session_id: &str,
+    crypto: &AuthStateCrypto,
+) -> Result<Option<Vec<u8>>> {
+    let oid = ObjectId::parse_str(session_id)
+        .map_err(|_| anyhow::anyhow!("invalid session id: {session_id}"))?;
+    let repo = SessionsRepo::new(db);
+    let Some(session) = repo.find_by_id(&oid).await? else {
+        return Ok(None);
+    };
+    if session.auth_state.bytes.is_empty() {
+        return Ok(None);
+    }
+    let plaintext = crypto
+        .decrypt(&session.auth_state.bytes)
+        .context("decrypt sabwa_sessions.authState")?;
+    Ok(Some(plaintext))
 }

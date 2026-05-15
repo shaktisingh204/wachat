@@ -11,6 +11,7 @@ pub mod groups;
 pub mod contacts;
 pub mod scheduled;
 pub mod misc;
+pub mod bulk;
 
 pub use sessions::{
     BanSignal, DeviceMeta, PairMethod, RateProfile, SabwaSession, SessionStatus, SessionsRepo,
@@ -26,4 +27,7 @@ pub use misc::{
     ApiKeysRepo, AuditLogRepo, AutoRepliesRepo, BroadcastsRepo, LabelsRepo, QuickRepliesRepo,
     SabwaApiKey, SabwaAuditLogEntry, SabwaAutoReply, SabwaBroadcast, SabwaLabel,
     SabwaQuickReply, SabwaTemplate, SabwaWebhook, TemplatesRepo, WebhooksRepo,
+};
+pub use bulk::{
+    BulkCampaign, BulkCampaignProgress, BulkCampaignStatus, BulkRecipient, BulkRecipientStatus,
 };

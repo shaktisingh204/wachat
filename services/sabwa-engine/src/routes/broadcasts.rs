@@ -5,12 +5,14 @@
 
 use axum::{
     extract::{Path, Query, State},
+    http::HeaderMap,
     routing::{get, post},
     Json, Router,
 };
 use serde::{Deserialize, Serialize};
 use serde_json::Value as JsonValue;
 
+use crate::audit::{self, AuditEntry};
 use crate::error::AppError;
 use crate::state::AppState;
 
@@ -130,6 +132,7 @@ async fn list_broadcasts(
 
 async fn create_broadcast(
     State(state): State<AppState>,
+    headers: HeaderMap,
     Json(body): Json<CreateBroadcastRequest>,
 ) -> Result<Json<CreateBroadcastResponse>, AppError> {
     tracing::info!(
@@ -138,6 +141,8 @@ async fn create_broadcast(
         recipient_count = body.recipients.len(),
         "broadcasts: create"
     );
+
+    let (actor_ip, user_agent) = audit::extract_context(&headers);
 
     let broadcast_id = format!("bc_{}", uuid::Uuid::new_v4());
     crate::db::misc::insert_broadcast(
@@ -149,6 +154,26 @@ async fn create_broadcast(
         &body.recipients,
     )
     .await?;
+
+    let _ = audit::record(
+        &state,
+        AuditEntry {
+            project_id: body.project_id.clone(),
+            user_id: None,
+            session_id: Some(body.session_id.clone()),
+            action: "broadcast.create".into(),
+            target_kind: Some("broadcast".into()),
+            target_id: Some(broadcast_id.clone()),
+            metadata: serde_json::json!({
+                "name": body.name,
+                "recipientCount": body.recipients.len(),
+            }),
+            actor_ip,
+            user_agent,
+            ts: chrono::Utc::now(),
+        },
+    )
+    .await;
 
     Ok(Json(CreateBroadcastResponse {
         broadcast_id,
@@ -175,10 +200,13 @@ async fn get_broadcast(
 
 async fn update_broadcast(
     State(state): State<AppState>,
+    headers: HeaderMap,
     Path(id): Path<String>,
     Json(body): Json<UpdateBroadcastRequest>,
 ) -> Result<Json<UpdateBroadcastResponse>, AppError> {
     tracing::info!(broadcast_id = %id, "broadcasts: update");
+
+    let (actor_ip, user_agent) = audit::extract_context(&headers);
 
     crate::db::misc::update_broadcast(
         &state.db,
@@ -188,6 +216,26 @@ async fn update_broadcast(
     )
     .await?;
 
+    let _ = audit::record(
+        &state,
+        AuditEntry {
+            project_id: String::new(),
+            user_id: None,
+            session_id: None,
+            action: "broadcast.update".into(),
+            target_kind: Some("broadcast".into()),
+            target_id: Some(id.clone()),
+            metadata: serde_json::json!({
+                "name": body.name,
+                "recipientCount": body.recipients.as_ref().map(|r| r.len()),
+            }),
+            actor_ip,
+            user_agent,
+            ts: chrono::Utc::now(),
+        },
+    )
+    .await;
+
     Ok(Json(UpdateBroadcastResponse {
         broadcast_id: id,
         updated: true,
@@ -196,11 +244,31 @@ async fn update_broadcast(
 
 async fn delete_broadcast(
     State(state): State<AppState>,
+    headers: HeaderMap,
     Path(id): Path<String>,
 ) -> Result<Json<DeleteBroadcastResponse>, AppError> {
     tracing::info!(broadcast_id = %id, "broadcasts: delete");
 
+    let (actor_ip, user_agent) = audit::extract_context(&headers);
+
     crate::db::misc::delete_broadcast(&state.db, &id).await?;
+
+    let _ = audit::record(
+        &state,
+        AuditEntry {
+            project_id: String::new(),
+            user_id: None,
+            session_id: None,
+            action: "broadcast.delete".into(),
+            target_kind: Some("broadcast".into()),
+            target_id: Some(id.clone()),
+            metadata: serde_json::json!({}),
+            actor_ip,
+            user_agent,
+            ts: chrono::Utc::now(),
+        },
+    )
+    .await;
 
     Ok(Json(DeleteBroadcastResponse {
         broadcast_id: id,
@@ -210,6 +278,7 @@ async fn delete_broadcast(
 
 async fn send_broadcast(
     State(state): State<AppState>,
+    headers: HeaderMap,
     Path(id): Path<String>,
     Json(body): Json<SendBroadcastRequest>,
 ) -> Result<Json<SendBroadcastResponse>, AppError> {
@@ -219,6 +288,8 @@ async fn send_broadcast(
         "broadcasts: send"
     );
 
+    let (actor_ip, user_agent) = audit::extract_context(&headers);
+
     let queue_key = format!("sabwa:{}:outbound", body.session_id);
     let payload = serde_json::json!({
         "op": "broadcast_send",
@@ -226,6 +297,23 @@ async fn send_broadcast(
         "payload": body.payload,
     });
     crate::db::misc::redis_lpush(&state.redis, &queue_key, &payload.to_string()).await?;
+
+    let _ = audit::record(
+        &state,
+        AuditEntry {
+            project_id: String::new(),
+            user_id: None,
+            session_id: Some(body.session_id.clone()),
+            action: "broadcast.send".into(),
+            target_kind: Some("broadcast".into()),
+            target_id: Some(id.clone()),
+            metadata: serde_json::json!({}),
+            actor_ip,
+            user_agent,
+            ts: chrono::Utc::now(),
+        },
+    )
+    .await;
 
     Ok(Json(SendBroadcastResponse {
         broadcast_id: id,

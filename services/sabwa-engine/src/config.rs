@@ -21,12 +21,25 @@ pub struct Config {
     pub service_token: String,
     /// HMAC secret used to sign outbound webhook payloads.
     pub webhook_signing_secret: String,
+    /// Raw key material (hex or base64 of 32 bytes) for AES-256-GCM
+    /// encryption of `sabwa_sessions.authState` blobs. Required.
+    pub auth_encryption_key: String,
+    /// Path to the Node.js Baileys sidecar entry script. Defaults to
+    /// `services/sabwa-engine/sidecar-node/src/index.js` (suitable when
+    /// running the binary from the repo root). Override with
+    /// `SABWA_SIDECAR_PATH`.
+    pub sidecar_node_path: String,
+    /// `node` executable invoked to spawn the sidecar. Override with
+    /// `SABWA_NODE_BIN` (e.g. for a pinned Node version).
+    pub node_binary: String,
 }
 
 impl Config {
     /// Build a [`Config`] from process environment variables.
     ///
-    /// Required vars: `MONGODB_URI`, `REDIS_URL`, `SABWA_ENGINE_TOKEN`.
+    /// Required vars: `MONGODB_URI`, `REDIS_URL`, `SABWA_ENGINE_TOKEN`,
+    /// `SABWA_AUTH_ENCRYPTION_KEY` (32 bytes encoded as 64 hex chars or
+    /// standard base64).
     /// Optional vars: `SABWA_ENGINE_PORT` (default 4001),
     /// `MONGODB_DB` (default `sabnode`),
     /// `SABWA_WEBHOOK_SIGNING_SECRET` (defaults to the service token).
@@ -52,6 +65,21 @@ impl Config {
         let webhook_signing_secret = std::env::var("SABWA_WEBHOOK_SIGNING_SECRET")
             .unwrap_or_else(|_| service_token.clone());
 
+        let auth_encryption_key = std::env::var("SABWA_AUTH_ENCRYPTION_KEY").context(
+            "SABWA_AUTH_ENCRYPTION_KEY env var is required (32 bytes as 64 hex chars or base64)",
+        )?;
+        if auth_encryption_key.trim().is_empty() {
+            anyhow::bail!("SABWA_AUTH_ENCRYPTION_KEY must not be empty");
+        }
+        // Validate the key shape eagerly so the process fails fast on boot
+        // rather than the first time we try to write a session.
+        crate::crypto::AuthStateCrypto::from_key_string(&auth_encryption_key)
+            .context("SABWA_AUTH_ENCRYPTION_KEY failed validation")?;
+
+        let sidecar_node_path = std::env::var("SABWA_SIDECAR_PATH")
+            .unwrap_or_else(|_| "services/sabwa-engine/sidecar-node/src/index.js".to_string());
+        let node_binary = std::env::var("SABWA_NODE_BIN").unwrap_or_else(|_| "node".to_string());
+
         Ok(Self {
             port,
             mongodb_uri,
@@ -59,6 +87,9 @@ impl Config {
             redis_url,
             service_token,
             webhook_signing_secret,
+            auth_encryption_key,
+            sidecar_node_path,
+            node_binary,
         })
     }
 }

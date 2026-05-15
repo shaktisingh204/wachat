@@ -5,7 +5,7 @@
 
 use std::sync::Arc;
 
-use crate::config::Config;
+use crate::{config::Config, crypto::AuthStateCrypto};
 
 /// Application-wide handles shared across HTTP handlers, middleware and
 /// background tasks (scheduler, webhook dispatcher, session pool, ...).
@@ -20,6 +20,8 @@ pub struct AppState {
     /// Redis client. Per redis-rs docs the `Client` is cheap to clone and is
     /// used to create individual async connections on demand.
     pub redis: redis::Client,
+    /// AES-256-GCM helper that encrypts `sabwa_sessions.authState` at rest.
+    pub crypto: Arc<AuthStateCrypto>,
 }
 
 impl AppState {
@@ -29,12 +31,14 @@ impl AppState {
         mongo: mongodb::Client,
         db: mongodb::Database,
         redis: redis::Client,
+        crypto: AuthStateCrypto,
     ) -> Self {
         Self {
             config: Arc::new(config),
             mongo,
             db,
             redis,
+            crypto: Arc::new(crypto),
         }
     }
 }

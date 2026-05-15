@@ -9,18 +9,26 @@
 use std::{convert::Infallible, time::Duration};
 
 use axum::{
-    extract::{Path, State},
+    extract::{Path, Query, State},
+    http::StatusCode,
     response::{
         sse::{Event, KeepAlive, Sse},
-        IntoResponse,
+        IntoResponse, Response,
     },
     routing::get,
     Router,
 };
 use futures::{stream, Stream, StreamExt};
+use serde::Deserialize;
 
 use super::{events::SabwaEvent, pubsub};
 use crate::state::AppState;
+
+/// `?token=<jwt>` query parameter — see [`crate::auth::issue_stream_token`].
+#[derive(Debug, Deserialize)]
+pub struct StreamTokenQuery {
+    pub token: Option<String>,
+}
 
 /// Build the router that mounts the SSE handler at `/sse/:session_id`.
 #[must_use]
@@ -36,11 +44,32 @@ pub fn router() -> Router<AppState> {
 /// can decide whether to retry.
 pub async fn sse_handler(
     Path(session_id): Path<String>,
+    Query(q): Query<StreamTokenQuery>,
     State(state): State<AppState>,
-) -> impl IntoResponse {
+) -> Response {
+    let Some(token) = q.token.as_deref().map(str::trim).filter(|t| !t.is_empty()) else {
+        return (StatusCode::UNAUTHORIZED, "missing token").into_response();
+    };
+
+    let claims = match crate::auth::verify_stream_token(&state, token) {
+        Ok(c) => c,
+        Err(_) => return (StatusCode::UNAUTHORIZED, "invalid token").into_response(),
+    };
+
+    if claims.sid != session_id {
+        tracing::warn!(
+            target: "sabwa::realtime::sse",
+            token_sid = %claims.sid,
+            path_sid = %session_id,
+            "stream token session_id mismatch"
+        );
+        return (StatusCode::UNAUTHORIZED, "session mismatch").into_response();
+    }
+
     tracing::info!(
         target: "sabwa::realtime::sse",
         session_id = %session_id,
+        project_id = %claims.pid,
         "sse client connected"
     );
 
@@ -73,11 +102,13 @@ pub async fn sse_handler(
         }
     };
 
-    Sse::new(stream).keep_alive(
-        KeepAlive::new()
-            .interval(Duration::from_secs(20))
-            .text("keep-alive"),
-    )
+    Sse::new(stream)
+        .keep_alive(
+            KeepAlive::new()
+                .interval(Duration::from_secs(20))
+                .text("keep-alive"),
+        )
+        .into_response()
 }
 
 /// Encode a [`SabwaEvent`] as an SSE `Event`.
@@ -114,5 +145,6 @@ fn event_kind(event: &SabwaEvent) -> &'static str {
         SabwaEvent::Qr(_) => "qr",
         SabwaEvent::PairCode(_) => "pair_code",
         SabwaEvent::Status(_) => "status",
+        SabwaEvent::Scheduled(_) => "scheduled",
     }
 }
