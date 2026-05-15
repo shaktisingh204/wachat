@@ -116,8 +116,8 @@ export function PairingFlow({
         <div className="flex flex-col items-center gap-3">
           <div
             aria-label="WhatsApp pairing QR code"
-            className="relative rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-white p-4 shadow-[var(--zoru-shadow-sm)]"
-            style={{ width: 296, height: 296 }}
+            className="relative max-w-full rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-white p-4 shadow-[var(--zoru-shadow-sm)]"
+            style={{ width: 296, height: 296, maxWidth: '100%' }}
           >
             {qr ? (
               <QRCode

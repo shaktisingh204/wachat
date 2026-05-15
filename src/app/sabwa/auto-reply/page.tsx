@@ -20,6 +20,7 @@
  */
 
 import * as React from 'react';
+import Link from 'next/link';
 import {
   Beaker,
   Clock,
@@ -29,6 +30,7 @@ import {
   MessageSquareDashed,
   Plus,
   Send,
+  Smartphone,
   Tag as TagIcon,
   Trash2,
   X,
@@ -56,6 +58,7 @@ import {
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
+  ZoruEmptyState,
   ZoruInput,
   ZoruLabel,
   ZoruSelect,
@@ -75,10 +78,8 @@ import {
   setAutoReplyEnabled,
   reorderAutoReplies,
 } from '@/app/actions/sabwa.actions';
+import { useSabwaSession } from '@/lib/sabwa/session-context';
 import type { SabwaAutoReply } from '@/lib/sabwa/types';
-
-// TODO (Phase 2): wire to live SessionSwitcher.
-const PLACEHOLDER_SESSION = 'stub-primary';
 
 // ─── Client-side rule model ────────────────────────────────────────────────
 
@@ -304,6 +305,8 @@ function evaluateRule(rule: RuleRow, ctx: SandboxContext): boolean {
 // ─── Page ──────────────────────────────────────────────────────────────────
 
 export default function Page() {
+  const { current: activeSession } = useSabwaSession();
+  const sessionId = activeSession?.id ?? null;
   const [rules, setRules] = React.useState<RuleRow[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [editorOpen, setEditorOpen] = React.useState(false);
@@ -311,11 +314,16 @@ export default function Page() {
   const [dragIndex, setDragIndex] = React.useState<number | null>(null);
 
   const refresh = React.useCallback(async () => {
+    if (!sessionId) {
+      setRules([]);
+      setLoading(false);
+      return;
+    }
     setLoading(true);
-    const res = await listAutoReplies(PLACEHOLDER_SESSION);
+    const res = await listAutoReplies(sessionId);
     setRules(res.ok ? res.autoReplies.map(toRuleRow) : []);
     setLoading(false);
-  }, []);
+  }, [sessionId]);
 
   React.useEffect(() => {
     void refresh();
@@ -343,9 +351,10 @@ export default function Page() {
   };
 
   const onDuplicate = async (r: RuleRow) => {
+    if (!sessionId) return;
     const next: RuleRow = { ...r, id: '', name: `${r.name} (copy)` };
     await upsertAutoReply({
-      sessionId: PLACEHOLDER_SESSION,
+      sessionId,
       name: next.name,
       enabled: r.enabled,
       triggers: r.triggers.map((t) => ({
@@ -378,11 +387,44 @@ export default function Page() {
     reordered.splice(i, 0, moved);
     setRules(reordered);
     setDragIndex(null);
+    if (!sessionId) return;
     await reorderAutoReplies(
-      PLACEHOLDER_SESSION,
+      sessionId,
       reordered.map((r) => r.id),
     );
   };
+
+  if (!sessionId) {
+    return (
+      <div className="mx-auto w-full max-w-[1180px] space-y-6 px-6 pt-6 pb-10">
+        <ZoruBreadcrumb>
+          <ZoruBreadcrumbList>
+            <ZoruBreadcrumbItem>
+              <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+            </ZoruBreadcrumbItem>
+            <ZoruBreadcrumbSeparator />
+            <ZoruBreadcrumbItem>
+              <ZoruBreadcrumbLink href="/sabwa">SabWa</ZoruBreadcrumbLink>
+            </ZoruBreadcrumbItem>
+            <ZoruBreadcrumbSeparator />
+            <ZoruBreadcrumbItem>
+              <ZoruBreadcrumbPage>Auto-reply</ZoruBreadcrumbPage>
+            </ZoruBreadcrumbItem>
+          </ZoruBreadcrumbList>
+        </ZoruBreadcrumb>
+        <ZoruEmptyState
+          icon={<Smartphone />}
+          title="No active WhatsApp account"
+          description="Pick a connected account on the SabWa overview to start using this page."
+          action={
+            <Link href="/sabwa/overview">
+              <ZoruButton size="md">Open accounts</ZoruButton>
+            </Link>
+          }
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto w-full max-w-[1180px] space-y-6 px-6 pt-6 pb-10">
@@ -435,10 +477,19 @@ export default function Page() {
             </p>
           )}
           {!loading && rules.length === 0 && (
-            <p className="px-6 py-10 text-center text-[13px] text-zoru-ink-muted">
-              No auto-reply rules yet. Click <strong>New rule</strong> to build
-              your first one.
-            </p>
+            <div className="p-6">
+              <ZoruEmptyState
+                icon={<MessageSquareDashed />}
+                title="No auto-reply rules yet"
+                description="Match inbound messages on keywords, regex, or sender — then reply, label, or forward automatically. First matching rule wins, so order matters."
+                action={
+                  <ZoruButton onClick={openNew}>
+                    <Plus className="mr-1.5 h-4 w-4" />
+                    Create first rule
+                  </ZoruButton>
+                }
+              />
+            </div>
           )}
           <ul className="divide-y divide-zoru-line">
             {rules.map((r, i) => (
@@ -517,6 +568,7 @@ export default function Page() {
       <TestSandbox rules={rules} />
 
       <RuleEditorDialog
+        sessionId={sessionId}
         open={editorOpen}
         onOpenChange={setEditorOpen}
         initial={editing}
@@ -690,6 +742,7 @@ function TestSandbox({ rules }: { rules: RuleRow[] }) {
 // ─── Rule editor ───────────────────────────────────────────────────────────
 
 interface RuleEditorDialogProps {
+  sessionId: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   initial: RuleRow | null;
@@ -697,6 +750,7 @@ interface RuleEditorDialogProps {
 }
 
 function RuleEditorDialog({
+  sessionId,
   open,
   onOpenChange,
   initial,
@@ -741,7 +795,7 @@ function RuleEditorDialog({
     setSaving(true);
     await upsertAutoReply({
       id: initial?.id,
-      sessionId: PLACEHOLDER_SESSION,
+      sessionId,
       name: name.trim(),
       enabled,
       triggers: triggers.map((t) => ({

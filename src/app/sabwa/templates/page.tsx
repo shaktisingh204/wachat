@@ -15,6 +15,7 @@
  */
 
 import * as React from 'react';
+import Link from 'next/link';
 import {
   BookCopy,
   Edit3,
@@ -25,6 +26,7 @@ import {
   Plus,
   Search,
   Send,
+  Smartphone,
   Trash2,
   CalendarClock,
   Paperclip,
@@ -51,6 +53,7 @@ import {
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
+  ZoruEmptyState,
   ZoruInput,
   ZoruLabel,
   ZoruPopover,
@@ -61,6 +64,7 @@ import {
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
+  ZoruSkeleton,
   ZoruTextarea,
   cn,
 } from '@/components/zoruui';
@@ -70,10 +74,8 @@ import {
   upsertTemplate,
   deleteTemplate,
 } from '@/app/actions/sabwa.actions';
+import { useSabwaSession } from '@/lib/sabwa/session-context';
 import type { SabwaTemplate } from '@/lib/sabwa/types';
-
-// TODO (Phase 2): swap to live session via SessionSwitcher.
-const PLACEHOLDER_SESSION = 'stub-primary';
 
 const KNOWN_VARIABLES = [
   'firstName',
@@ -121,6 +123,8 @@ function detectVariables(body: string): string[] {
 // ─── Page ──────────────────────────────────────────────────────────────────
 
 export default function Page() {
+  const { current: activeSession } = useSabwaSession();
+  const sessionId = activeSession?.id ?? null;
   const [templates, setTemplates] = React.useState<TemplateRow[]>([]);
   const [folders, setFolders] = React.useState<FolderRow[]>([
     { id: 'all', name: 'All templates' },
@@ -135,8 +139,13 @@ export default function Page() {
   );
 
   const refresh = React.useCallback(async () => {
+    if (!sessionId) {
+      setTemplates([]);
+      setLoading(false);
+      return;
+    }
     setLoading(true);
-    const res = await listTemplates(PLACEHOLDER_SESSION);
+    const res = await listTemplates(sessionId);
     if (res.ok) {
       const rows = res.templates.map(toTemplateRow);
       setTemplates(rows);
@@ -148,7 +157,7 @@ export default function Page() {
       setTemplates([]);
     }
     setLoading(false);
-  }, []);
+  }, [sessionId]);
 
   React.useEffect(() => {
     void refresh();
@@ -193,6 +202,38 @@ export default function Page() {
     setFolders((prev) => [...prev, { id, name: id }]);
     setActiveFolder(id);
   };
+
+  if (!sessionId) {
+    return (
+      <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10 space-y-6">
+        <ZoruBreadcrumb>
+          <ZoruBreadcrumbList>
+            <ZoruBreadcrumbItem>
+              <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+            </ZoruBreadcrumbItem>
+            <ZoruBreadcrumbSeparator />
+            <ZoruBreadcrumbItem>
+              <ZoruBreadcrumbLink href="/sabwa">SabWa</ZoruBreadcrumbLink>
+            </ZoruBreadcrumbItem>
+            <ZoruBreadcrumbSeparator />
+            <ZoruBreadcrumbItem>
+              <ZoruBreadcrumbPage>Templates</ZoruBreadcrumbPage>
+            </ZoruBreadcrumbItem>
+          </ZoruBreadcrumbList>
+        </ZoruBreadcrumb>
+        <ZoruEmptyState
+          icon={<Smartphone />}
+          title="No active WhatsApp account"
+          description="Pick a connected account on the SabWa overview to start using this page."
+          action={
+            <Link href="/sabwa/overview">
+              <ZoruButton size="md">Open accounts</ZoruButton>
+            </Link>
+          }
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10 space-y-6">
@@ -284,18 +325,37 @@ export default function Page() {
           </div>
 
           {loading && filtered.length === 0 && (
-            <ZoruCard>
-              <ZoruCardContent className="py-10 text-center text-sm text-zoru-ink-muted">
-                Loading templates…
-              </ZoruCardContent>
-            </ZoruCard>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <ZoruSkeleton
+                  key={`templates-skeleton-${i}`}
+                  className="h-[180px] rounded-[var(--zoru-radius-lg)]"
+                />
+              ))}
+            </div>
           )}
           {!loading && filtered.length === 0 && (
-            <ZoruCard>
-              <ZoruCardContent className="py-10 text-center text-sm text-zoru-ink-muted">
-                No templates yet. Click <strong>New template</strong> to start.
-              </ZoruCardContent>
-            </ZoruCard>
+            <ZoruEmptyState
+              icon={<MessageSquarePlus />}
+              title={search ? "No templates match your search" : "No templates yet"}
+              description={
+                search
+                  ? "Try a different keyword, or clear the search to see every template in this folder."
+                  : "Save reusable message blocks with variables and media — then pull them into the composer, scheduler, or broadcasts in one click."
+              }
+              action={
+                search ? (
+                  <ZoruButton variant="outline" onClick={() => setSearch("")}>
+                    Clear search
+                  </ZoruButton>
+                ) : (
+                  <ZoruButton onClick={openNew}>
+                    <Plus className="mr-1.5 h-4 w-4" />
+                    New template
+                  </ZoruButton>
+                )
+              }
+            />
           )}
 
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
@@ -312,6 +372,7 @@ export default function Page() {
       </div>
 
       <TemplateEditorDialog
+        sessionId={sessionId}
         open={editorOpen}
         onOpenChange={setEditorOpen}
         initial={editorTemplate}
@@ -470,6 +531,7 @@ function TemplateCard({ template, onEdit, onDelete }: TemplateCardProps) {
 // ─── Editor dialog ─────────────────────────────────────────────────────────
 
 interface TemplateEditorDialogProps {
+  sessionId: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   initial: TemplateRow | null;
@@ -478,6 +540,7 @@ interface TemplateEditorDialogProps {
 }
 
 function TemplateEditorDialog({
+  sessionId,
   open,
   onOpenChange,
   initial,
@@ -525,7 +588,7 @@ function TemplateEditorDialog({
     setSaving(true);
     await upsertTemplate({
       id: initial?.id,
-      sessionId: PLACEHOLDER_SESSION,
+      sessionId,
       name: name.trim(),
       category: category === 'Uncategorised' ? undefined : category,
       body,

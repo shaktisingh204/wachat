@@ -396,7 +396,31 @@ impl BaileysSupervisor {
             "connected" => {
                 // Persist auth_state, then emit a "connected" status event.
                 if let Some(auth_b64) = payload.get("authState").and_then(|v| v.as_str()) {
-                    self.persist_auth_state(session_id, auth_b64).await;
+                    // The sidecar enriches the `connected` event with the
+                    // freshly-learned WhatsApp identity (see
+                    // `sidecar-node/src/session-manager.js`):
+                    //   - `phoneE164`: raw digits prefix of `sock.user.id`
+                    //     (already stripped of the `:device@host` suffix).
+                    //   - `pushName`: `sock.user.name` (may be `null`).
+                    // We normalise the phone here so the DB row matches the
+                    // E.164 wire shape the UI expects.
+                    let phone_e164 = payload
+                        .get("phoneE164")
+                        .and_then(|v| v.as_str())
+                        .map(normalize_phone_e164)
+                        .filter(|s| !s.is_empty());
+                    let push_name = payload
+                        .get("pushName")
+                        .and_then(|v| v.as_str())
+                        .map(|s| s.trim().to_string())
+                        .filter(|s| !s.is_empty());
+                    self.persist_auth_state(
+                        session_id,
+                        auth_b64,
+                        phone_e164.as_deref(),
+                        push_name.as_deref(),
+                    )
+                    .await;
                 }
                 Some(SabwaEvent::Status(StatusEvent {
                     session_id: session_id.to_string(),
@@ -469,9 +493,16 @@ impl BaileysSupervisor {
         }
     }
 
-    /// Persist a base64 auth_state blob to Mongo. Best-effort — failures
+    /// Persist a base64 auth_state blob to Mongo and stamp the learned
+    /// identity (phone + push name) onto the row. Best-effort — failures
     /// are logged but do not block event dispatch.
-    async fn persist_auth_state(self: &Arc<Self>, session_id: &str, auth_b64: &str) {
+    async fn persist_auth_state(
+        self: &Arc<Self>,
+        session_id: &str,
+        auth_b64: &str,
+        phone_e164: Option<&str>,
+        push_name: Option<&str>,
+    ) {
         // The sidecar already emits a base64-encoded JSON snapshot of the
         // multi-file auth state. The repo call below transparently wraps
         // the bytes in AES-256-GCM via `AppState::crypto` (agent B6) — Mongo
@@ -503,6 +534,20 @@ impl BaileysSupervisor {
                             session_id = %session_id,
                             "failed to update session status post-pair"
                         );
+                    }
+                    // Stamp the WA identity onto the row so the UI stops
+                    // rendering "Unknown number". No-op if both are None.
+                    if phone_e164.is_some() || push_name.is_some() {
+                        if let Err(err) =
+                            repo.update_identity(&oid, phone_e164, push_name).await
+                        {
+                            tracing::warn!(
+                                target: "sabwa_engine::wa::baileys",
+                                error = %err,
+                                session_id = %session_id,
+                                "failed to persist session identity"
+                            );
+                        }
                     }
                 }
             }
@@ -587,6 +632,28 @@ impl BaileysSupervisor {
 // ---------------------------------------------------------------------------
 // Event payload mapping helpers
 // ---------------------------------------------------------------------------
+
+/// Normalise a WhatsApp `user.id`-derived string into an E.164 phone.
+///
+/// Baileys exposes the linked account as a JID like
+/// `91XXXXXXXXXX:7@s.whatsapp.net` (the `:N` segment is the device id).
+/// The sidecar already strips the `:device` segment before emitting, but
+/// we defensively strip both the `@host` suffix *and* any `:device` tail
+/// here, then keep only digits and prepend `+`. Returns an empty string
+/// only if the input had no digits at all — callers should treat that as
+/// "skip the field" rather than persisting a bare `+`.
+fn normalize_phone_e164(raw: &str) -> String {
+    let trimmed = raw.trim();
+    // Strip `@s.whatsapp.net` (or any `@host`) and `:device` tails.
+    let head = trimmed.split('@').next().unwrap_or("");
+    let head = head.split(':').next().unwrap_or("");
+    let digits: String = head.chars().filter(|c| c.is_ascii_digit()).collect();
+    if digits.is_empty() {
+        String::new()
+    } else {
+        format!("+{digits}")
+    }
+}
 
 fn map_message_event(session_id: &str, payload: &Value, ts_default: i64) -> Option<MessageEvent> {
     // Sidecar shape: { type, message: WAMessage } or a flat message object.

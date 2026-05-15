@@ -24,6 +24,8 @@ use futures::TryStreamExt;
 use mongodb::{Collection, Database};
 use serde::{Deserialize, Serialize};
 
+use crate::db::serde_dates::{chrono_dt, chrono_dt_opt};
+
 pub const CAMPAIGNS_COLLECTION: &str = "sabwa_bulk_campaigns";
 pub const RECIPIENTS_COLLECTION: &str = "sabwa_bulk_recipients";
 
@@ -127,12 +129,13 @@ pub struct BulkCampaign {
     /// next 00:00 boundary.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub paused_until_utc_day: Option<String>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none", with = "chrono_dt_opt")]
     pub started_at: Option<DateTime<Utc>>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none", with = "chrono_dt_opt")]
     pub finished_at: Option<DateTime<Utc>>,
+    #[serde(with = "chrono_dt")]
     pub created_at: DateTime<Utc>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none", with = "chrono_dt_opt")]
     pub updated_at: Option<DateTime<Utc>>,
 }
 
@@ -157,8 +160,9 @@ pub struct BulkRecipient {
     pub order: u32,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub error: Option<String>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none", with = "chrono_dt_opt")]
     pub sent_at: Option<DateTime<Utc>>,
+    #[serde(with = "chrono_dt")]
     pub updated_at: DateTime<Utc>,
 }
 

@@ -11,6 +11,8 @@ use futures::TryStreamExt;
 use mongodb::{Collection, Database};
 use serde::{Deserialize, Serialize};
 
+use crate::db::serde_dates::{chrono_dt, chrono_dt_opt};
+
 pub const COLLECTION: &str = "sabwa_messages";
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
@@ -45,6 +47,7 @@ pub enum MessageStatus {
 pub struct Reaction {
     pub jid: String,
     pub emoji: String,
+    #[serde(with = "chrono_dt")]
     pub ts: DateTime<Utc>,
 }
 
@@ -81,10 +84,11 @@ pub struct SabwaMessage {
     pub forwarded: bool,
     #[serde(default)]
     pub starred: bool,
+    #[serde(with = "chrono_dt")]
     pub ts: DateTime<Utc>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none", with = "chrono_dt_opt")]
     pub edited_at: Option<DateTime<Utc>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none", with = "chrono_dt_opt")]
     pub deleted_at: Option<DateTime<Utc>>,
 }
 

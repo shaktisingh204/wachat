@@ -26,6 +26,7 @@ import {
   ChevronRight,
   ListChecks,
   Plus,
+  Smartphone,
 } from "lucide-react";
 
 import {
@@ -37,6 +38,8 @@ import {
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
   ZoruButton,
+  ZoruEmptyState,
+  ZoruSkeleton,
   ZoruTooltip,
   ZoruTooltipContent,
   ZoruTooltipProvider,
@@ -48,6 +51,7 @@ import {
   listScheduledMessages,
   updateScheduledMessage,
 } from "@/app/actions/sabwa.actions";
+import { useSabwaSession } from "@/lib/sabwa/session-context";
 import type {
   SabwaScheduled,
   SabwaScheduledTargetType,
@@ -155,6 +159,9 @@ const HOURS = Array.from({ length: 24 }, (_, i) => i);
 // ─── Page ───────────────────────────────────────────────────────────────────
 
 export default function SchedulerCalendarPage() {
+  const { current: activeSession } = useSabwaSession();
+  const sessionId = activeSession?.id ?? "";
+
   const [view, setView] = React.useState<ViewMode>("month");
   const [cursor, setCursor] = React.useState<Date>(() => new Date());
   const [events, setEvents] = React.useState<CalendarEvent[]>([]);
@@ -172,11 +179,10 @@ export default function SchedulerCalendarPage() {
 
   // ─ Data fetch ──────────────────────────────────────────────────────────
   const refresh = React.useCallback(async () => {
+    if (!sessionId) return;
     setLoaded(false);
     try {
-      // Phase 1: no session id available yet — passing empty string surfaces
-      // the canonical "not implemented" error from the stub.
-      const res = await listScheduledMessages("");
+      const res = await listScheduledMessages(sessionId);
       if (res.ok && Array.isArray(res.items)) {
         const mapped: CalendarEvent[] = res.items.map(toCalendarEvent);
         setEvents(mapped);
@@ -191,7 +197,7 @@ export default function SchedulerCalendarPage() {
     } finally {
       setLoaded(true);
     }
-  }, []);
+  }, [sessionId]);
 
   React.useEffect(() => {
     void refresh();
@@ -302,6 +308,23 @@ export default function SchedulerCalendarPage() {
             year: "numeric",
           });
 
+  if (!sessionId) {
+    return (
+      <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10">
+        <ZoruEmptyState
+          icon={<Smartphone />}
+          title="No active WhatsApp account"
+          description="Pick a connected account on the SabWa overview before scheduling messages."
+          action={
+            <Link href="/sabwa/overview">
+              <ZoruButton size="md">Open accounts</ZoruButton>
+            </Link>
+          }
+        />
+      </div>
+    );
+  }
+
   return (
     <ZoruTooltipProvider delayDuration={150}>
       <div className="p-4 md:p-6 lg:p-8 space-y-4">
@@ -410,7 +433,17 @@ export default function SchedulerCalendarPage() {
         </p>
 
         {/* ─── Body ────────────────────────────────────────────────── */}
-        {view === "month" && (
+        {!loaded && events.length === 0 && (
+          <div className="space-y-2">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <ZoruSkeleton
+                key={`scheduler-skeleton-${i}`}
+                className="h-[64px] rounded-[var(--zoru-radius-lg)]"
+              />
+            ))}
+          </div>
+        )}
+        {loaded && view === "month" && (
           <MonthGrid
             gridStart={monthGridStart}
             cursor={cursor}
@@ -426,7 +459,7 @@ export default function SchedulerCalendarPage() {
             onAddInCell={(d) => openCreate(d)}
           />
         )}
-        {view === "week" && (
+        {loaded && view === "week" && (
           <WeekGrid
             weekStart={weekStart}
             events={events}
@@ -437,7 +470,7 @@ export default function SchedulerCalendarPage() {
             onSlotClick={(d) => openCreate(d)}
           />
         )}
-        {view === "day" && (
+        {loaded && view === "day" && (
           <DayGrid
             day={dayStart}
             events={events.filter((e) => sameDay(e.date, dayStart))}
@@ -456,6 +489,7 @@ export default function SchedulerCalendarPage() {
         mode={dialogMode}
         initial={dialogInitial}
         defaultDate={defaultDate}
+        sessionId={sessionId}
         onSaved={() => void refresh()}
       />
     </ZoruTooltipProvider>

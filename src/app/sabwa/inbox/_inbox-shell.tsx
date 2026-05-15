@@ -120,13 +120,13 @@ export function InboxShell() {
   }, [chatJid]);
 
   // ─── Session-offline handling ─────────────────────────────────────────
-  // No session at all → redirect to Connect. We use a client-side push so
-  // the user lands in the pairing flow without a layout flicker.
+  // No active session → bounce to the accounts hub where the user can
+  // pick one (or connect a new number if none exist yet).
   React.useEffect(() => {
     // Wait until the session context has finished its initial pull.
     if (sessionCtx.loading) return;
     if (!session) {
-      router.replace('/sabwa/connect');
+      router.replace('/sabwa/overview');
     }
   }, [router, session, sessionCtx.loading]);
 

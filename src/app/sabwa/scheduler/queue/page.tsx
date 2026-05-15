@@ -28,6 +28,7 @@ import {
   Plus,
   RefreshCw,
   Search,
+  Smartphone,
   Trash2,
 } from "lucide-react";
 
@@ -42,6 +43,7 @@ import {
   ZoruButton,
   ZoruCalendar,
   ZoruCheckbox,
+  ZoruEmptyState,
   ZoruInput,
   ZoruLabel,
   ZoruPopover,
@@ -52,6 +54,7 @@ import {
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
+  ZoruSkeleton,
   ZoruTable,
   ZoruTableBody,
   ZoruTableCell,
@@ -67,6 +70,7 @@ import {
   listScheduledMessages,
   updateScheduledMessage,
 } from "@/app/actions/sabwa.actions";
+import { useSabwaSession } from "@/lib/sabwa/session-context";
 import type {
   SabwaScheduled,
   SabwaScheduledStatus,
@@ -78,16 +82,6 @@ import {
   targetTypeMeta,
   type ScheduleDialogInitial,
 } from "../_components/schedule-dialog";
-
-// ─── Lightweight session hook ──────────────────────────────────────────────
-//
-// The plan asks for `useSabwaSession()`. The real provider lands later in
-// Phase 1; for now we expose a stable hook here that returns null. Once
-// the shared context is added under `_components/`, this can be swapped
-// out without touching the queue page.
-function useSabwaSession(): { sessionId: string | null } {
-  return { sessionId: null };
-}
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 
@@ -138,7 +132,7 @@ interface SampleScheduled {
   timezone: string;
 }
 
-function buildSampleRows(): SampleScheduled[] {
+function buildSampleRows(sessionId: string): SampleScheduled[] {
   const inDays = (n: number, h = 9): Date => {
     const d = new Date();
     d.setHours(h, 0, 0, 0);
@@ -148,7 +142,7 @@ function buildSampleRows(): SampleScheduled[] {
   return [
     {
       _id: "smp-1",
-      sessionId: "stub-primary",
+      sessionId,
       targets: [{ jid: "919812345678@s.whatsapp.net", type: "individual" }],
       payload: { type: "text", body: "Personal check-in" },
       scheduledFor: inDays(0, 18),
@@ -158,7 +152,7 @@ function buildSampleRows(): SampleScheduled[] {
     },
     {
       _id: "smp-2",
-      sessionId: "stub-primary",
+      sessionId,
       targets: [{ jid: "12345-67890@g.us", type: "group" }],
       payload: { type: "text", body: "Daily standup nudge" },
       scheduledFor: inDays(1, 9),
@@ -169,7 +163,7 @@ function buildSampleRows(): SampleScheduled[] {
     },
     {
       _id: "smp-3",
-      sessionId: "stub-primary",
+      sessionId,
       targets: [{ jid: "bcast-weekend@broadcast", type: "broadcast" }],
       payload: {
         type: "text",
@@ -183,7 +177,7 @@ function buildSampleRows(): SampleScheduled[] {
     },
     {
       _id: "smp-4",
-      sessionId: "stub-primary",
+      sessionId,
       targets: [{ jid: "919812340000@s.whatsapp.net", type: "individual" }],
       payload: { type: "text", body: "Follow-up missed" },
       scheduledFor: inDays(-2, 16),
@@ -237,7 +231,8 @@ function recurrenceLabel(row: QueueRow): string {
 
 export default function SchedulerQueuePage() {
   const toast = useZoruToast();
-  const { sessionId } = useSabwaSession();
+  const { current: activeSession } = useSabwaSession();
+  const sessionId = activeSession?.id ?? '';
 
   const [rows, setRows] = React.useState<QueueRow[]>([]);
   const [loaded, setLoaded] = React.useState(false);
@@ -266,16 +261,16 @@ export default function SchedulerQueuePage() {
   const refresh = React.useCallback(async () => {
     setRefreshing(true);
     try {
-      const res = await listScheduledMessages(sessionId ?? "");
+      const res = await listScheduledMessages(sessionId);
       if (res.ok && Array.isArray(res.items)) {
         setRows(res.items.map(toQueueRow));
         setUsingSample(false);
       } else {
-        setRows(buildSampleRows().map(toQueueRow));
+        setRows(buildSampleRows(sessionId).map(toQueueRow));
         setUsingSample(true);
       }
     } catch {
-      setRows(buildSampleRows().map(toQueueRow));
+      setRows(buildSampleRows(sessionId).map(toQueueRow));
       setUsingSample(true);
     } finally {
       setLoaded(true);
@@ -479,6 +474,23 @@ export default function SchedulerQueuePage() {
   };
 
   // ─ Render ─────────────────────────────────────────────────────────────
+  if (!sessionId) {
+    return (
+      <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10">
+        <ZoruEmptyState
+          icon={<Smartphone />}
+          title="No active WhatsApp account"
+          description="Pick a connected account on the SabWa overview to start using this page."
+          action={
+            <Link href="/sabwa/overview">
+              <ZoruButton size="md">Open accounts</ZoruButton>
+            </Link>
+          }
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="p-4 md:p-6 lg:p-8 space-y-4">
       {/* ─── Breadcrumb ──────────────────────────────────────────── */}
@@ -692,6 +704,14 @@ export default function SchedulerQueuePage() {
             </ZoruTableRow>
           </ZoruTableHeader>
           <ZoruTableBody>
+            {!loaded && rows.length === 0 &&
+              Array.from({ length: 6 }).map((_, i) => (
+                <ZoruTableRow key={`queue-skeleton-${i}`}>
+                  <ZoruTableCell colSpan={8} className="py-2">
+                    <ZoruSkeleton className="h-[56px] w-full rounded-[var(--zoru-radius-lg)]" />
+                  </ZoruTableCell>
+                </ZoruTableRow>
+              ))}
             {visibleRows.length === 0 && loaded && (
               <ZoruTableRow>
                 <ZoruTableCell
@@ -801,7 +821,7 @@ export default function SchedulerQueuePage() {
         onOpenChange={setDialogOpen}
         mode={dialogInitial?.scheduledId ? "edit" : "create"}
         initial={dialogInitial}
-        sessionId={sessionId ?? undefined}
+        sessionId={sessionId || undefined}
         onSaved={() => void refresh()}
       />
     </div>

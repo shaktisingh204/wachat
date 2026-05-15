@@ -25,7 +25,6 @@
 import * as React from "react";
 import Link from "next/link";
 import {
-  AlertTriangle,
   Bot,
   Check,
   CircleSlash,
@@ -37,6 +36,7 @@ import {
   Plus,
   ScrollText,
   Send,
+  Smartphone,
   Sparkles,
   Trash2,
   Wand2,
@@ -66,6 +66,7 @@ import {
   ZoruCommandInput,
   ZoruCommandItem,
   ZoruCommandList,
+  ZoruEmptyState,
   ZoruInput,
   ZoruLabel,
   ZoruPopover,
@@ -91,10 +92,9 @@ import {
   translateMessage,
 } from "@/app/actions/sabwa.actions";
 import { useChats } from "@/lib/sabwa/use-sabwa-data";
+import { useSabwaSession } from "@/lib/sabwa/session-context";
 import { getSabwaLimits } from "@/lib/sabwa/plan-limits";
 import type { SabwaChat } from "@/lib/sabwa/types";
-
-const PLACEHOLDER_SESSION_ID = "stub-primary";
 
 const LANGUAGES: { code: string; label: string }[] = [
   { code: "en", label: "English" },
@@ -150,11 +150,11 @@ function quotaLabel(q: number | "unlimited" | "custom"): string {
 
 export default function SabWaAIPage() {
   const toast = useZoruToast();
-  const { activeProject } = useProject();
-  const sessionId = PLACEHOLDER_SESSION_ID;
+  const { sessionUser } = useProject();
+  const { current: activeSession } = useSabwaSession();
+  const sessionId = activeSession?.id ?? '';
 
-  const plan =
-    ((activeProject as unknown as { plan?: string } | null)?.plan) ?? "free";
+  const plan = sessionUser?.plan?.name ?? "free";
   const limits = React.useMemo(() => getSabwaLimits(plan), [plan]);
   const aiEnabled = limits.aiReplies.enabled;
 
@@ -444,6 +444,40 @@ export default function SabWaAIPage() {
   }, []);
 
   // ── Render ─────────────────────────────────────────────────────────
+  if (!aiEnabled) {
+    return (
+      <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10">
+        <ZoruEmptyState
+          icon={<Sparkles />}
+          title="Upgrade required"
+          description="AI tools are a Pro feature. Upgrade to unlock suggested replies, summaries, translation, tone rewrites, and Auto-pilot."
+          action={
+            <Link href="/dashboard/plans">
+              <ZoruButton size="md">View plans</ZoruButton>
+            </Link>
+          }
+        />
+      </div>
+    );
+  }
+
+  if (!sessionId) {
+    return (
+      <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10">
+        <ZoruEmptyState
+          icon={<Smartphone />}
+          title="No active WhatsApp account"
+          description="Pick a connected account on the SabWa overview to start using this page."
+          action={
+            <Link href="/sabwa/overview">
+              <ZoruButton size="md">Open accounts</ZoruButton>
+            </Link>
+          }
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="mx-auto w-full max-w-[1180px] space-y-6 px-6 pt-6 pb-10">
       {/* Breadcrumb */}
@@ -476,9 +510,6 @@ export default function SabWaAIPage() {
             <h1 className="text-[24px] tracking-[-0.015em] text-zoru-ink leading-[1.2]">
               AI Assistant
             </h1>
-            {!aiEnabled && (
-              <ZoruBadge variant="danger">Not on your plan</ZoruBadge>
-            )}
           </div>
           <p className="mt-1 max-w-2xl text-[13px] text-zoru-ink-muted">
             Per-chat AI tools and an optional Auto-pilot mode that replies to
@@ -499,17 +530,6 @@ export default function SabWaAIPage() {
           </ZoruCardContent>
         </ZoruCard>
       </div>
-
-      {!aiEnabled && (
-        <ZoruAlert variant="warning">
-          <AlertTriangle className="h-4 w-4" />
-          <ZoruAlertTitle>AI tools require Pro or higher</ZoruAlertTitle>
-          <ZoruAlertDescription>
-            All controls below are visible for preview. Upgrade your plan to
-            actually run AI generation against your chats.
-          </ZoruAlertDescription>
-        </ZoruAlert>
-      )}
 
       <div className="grid gap-6 lg:grid-cols-3">
         {/* ── Per-chat AI tools panel ──────────────────────────────── */}

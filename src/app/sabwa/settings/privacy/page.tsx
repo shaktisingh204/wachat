@@ -1,7 +1,8 @@
 'use client';
 
 import * as React from 'react';
-import { ShieldCheck, KeyRound, Lock, UserX, Plus, Loader2 } from 'lucide-react';
+import Link from 'next/link';
+import { ShieldCheck, KeyRound, Lock, UserX, Plus, Loader2, Smartphone } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -34,6 +35,8 @@ import {
   TableRow,
 } from '@/components/ui/table';
 
+import { ZoruButton, ZoruEmptyState } from '@/components/zoruui';
+
 import { SettingsTabs } from '../_components/settings-tabs';
 import {
   getPrivacySettings,
@@ -42,8 +45,7 @@ import {
   type SabwaPrivacySettings,
   type SabwaVisibility,
 } from '@/app/actions/sabwa.actions';
-
-const CURRENT_SESSION_ID = 'stub-primary';
+import { useSabwaSession } from '@/lib/sabwa/session-context';
 
 const VISIBILITY_OPTIONS: { value: SabwaVisibility; label: string }[] = [
   { value: 'everyone', label: 'Everyone' },
@@ -62,6 +64,8 @@ const DEFAULT_SETTINGS: SabwaPrivacySettings = {
 };
 
 export default function PrivacySettingsPage() {
+  const { current: activeSession } = useSabwaSession();
+  const sessionId = activeSession?.id ?? '';
   const [settings, setSettings] = React.useState<SabwaPrivacySettings>(DEFAULT_SETTINGS);
   const [loading, setLoading] = React.useState(true);
   const [pending, startTransition] = React.useTransition();
@@ -74,9 +78,13 @@ export default function PrivacySettingsPage() {
   const [blockOpen, setBlockOpen] = React.useState(false);
 
   React.useEffect(() => {
+    if (!sessionId) {
+      setLoading(false);
+      return;
+    }
     let cancelled = false;
     setLoading(true);
-    getPrivacySettings(CURRENT_SESSION_ID)
+    getPrivacySettings(sessionId)
       .then((res) => {
         if (cancelled) return;
         if (res.ok) setSettings(res.settings);
@@ -90,12 +98,12 @@ export default function PrivacySettingsPage() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [sessionId]);
 
   const save = (patch: Partial<Omit<SabwaPrivacySettings, 'blocked'>> & { twoFactorPin?: string }, label: string) => {
     startTransition(async () => {
       try {
-        const res = await updatePrivacySettings({ sessionId: CURRENT_SESSION_ID, patch });
+        const res = await updatePrivacySettings({ sessionId, patch });
         if (res.ok) {
           toast.success(`${label} saved.`);
         } else {
@@ -152,7 +160,7 @@ export default function PrivacySettingsPage() {
   const onRotate = () => {
     startTransition(async () => {
       try {
-        const res = await rotateSessionKey(CURRENT_SESSION_ID);
+        const res = await rotateSessionKey(sessionId);
         if (res.ok) {
           toast.success('Session encryption key rotated.');
         } else {
@@ -200,6 +208,23 @@ export default function PrivacySettingsPage() {
       </CardContent>
     </Card>
   );
+
+  if (!sessionId) {
+    return (
+      <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10">
+        <ZoruEmptyState
+          icon={<Smartphone />}
+          title="No active WhatsApp account"
+          description="Pick a connected account on the SabWa overview to start using this page."
+          action={
+            <Link href="/sabwa/overview">
+              <ZoruButton size="md">Open accounts</ZoruButton>
+            </Link>
+          }
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 md:p-6 lg:p-8 space-y-6">

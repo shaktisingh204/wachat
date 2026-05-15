@@ -19,6 +19,7 @@
  */
 
 import * as React from "react";
+import Link from "next/link";
 import {
   CheckCheck,
   CheckSquare,
@@ -28,6 +29,7 @@ import {
   MessageSquare,
   Menu as MenuIcon,
   Search,
+  Smartphone,
   Tag as TagIcon,
   X,
 } from "lucide-react";
@@ -44,6 +46,7 @@ import {
   ZoruCard,
   ZoruCardContent,
   ZoruCheckbox,
+  ZoruEmptyState,
   ZoruInput,
   ZoruPopover,
   ZoruPopoverContent,
@@ -59,6 +62,7 @@ import {
 
 import { ChatListRow } from "@/app/sabwa/_components/chat-list-row";
 import { useChats, useLabels } from "@/lib/sabwa/use-sabwa-data";
+import { useSabwaSession } from "@/lib/sabwa/session-context";
 import { updateChatState } from "@/app/actions/sabwa.actions";
 import type { SabwaChat } from "@/lib/sabwa/types";
 
@@ -70,10 +74,6 @@ const MUTE_DURATIONS: { label: string; seconds: number | null }[] = [
   { label: "1 week", seconds: 7 * 24 * 60 * 60 },
   { label: "Always", seconds: null },
 ];
-
-// TODO: replace with real active-session id wired from SessionSwitcher
-// (Phase 2 — see comment in `_components/session-switcher.tsx`).
-const PLACEHOLDER_SESSION_ID = "stub-primary";
 
 function sortChats(chats: SabwaChat[], mode: SortMode): SabwaChat[] {
   const next = [...chats];
@@ -95,7 +95,8 @@ function sortChats(chats: SabwaChat[], mode: SortMode): SabwaChat[] {
 
 export default function SabWaChatsPage() {
   const toast = useZoruToast();
-  const sessionId = PLACEHOLDER_SESSION_ID;
+  const { current: activeSession } = useSabwaSession();
+  const sessionId = activeSession?.id ?? null;
 
   const { data: chats, loading, error, refetch } = useChats(sessionId, {
     type: "individual",
@@ -213,6 +214,40 @@ export default function SabWaChatsPage() {
       return next;
     });
   }, [filtered, allVisibleSelected]);
+
+  if (!sessionId) {
+    return (
+      <div className="mx-auto w-full max-w-[1180px] px-4 pt-6 pb-10 sm:px-6">
+        <ZoruBreadcrumb>
+          <ZoruBreadcrumbList>
+            <ZoruBreadcrumbItem>
+              <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+            </ZoruBreadcrumbItem>
+            <ZoruBreadcrumbSeparator />
+            <ZoruBreadcrumbItem>
+              <ZoruBreadcrumbLink href="/sabwa">SabWa</ZoruBreadcrumbLink>
+            </ZoruBreadcrumbItem>
+            <ZoruBreadcrumbSeparator />
+            <ZoruBreadcrumbItem>
+              <ZoruBreadcrumbPage>Chats</ZoruBreadcrumbPage>
+            </ZoruBreadcrumbItem>
+          </ZoruBreadcrumbList>
+        </ZoruBreadcrumb>
+        <div className="mt-6">
+          <ZoruEmptyState
+            icon={<Smartphone />}
+            title="No active WhatsApp account"
+            description="Pick a connected account on the SabWa overview to start using this page."
+            action={
+              <Link href="/sabwa/overview">
+                <ZoruButton size="md">Open accounts</ZoruButton>
+              </Link>
+            }
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-full min-h-[60vh] flex-col bg-zoru-bg">
@@ -682,24 +717,27 @@ function EmptyState({
 }) {
   const isFiltered = Boolean(query) || filter !== "all";
   return (
-    <ZoruCard className="m-4">
-      <ZoruCardContent className="flex flex-col items-center gap-2 py-12 text-center">
-        <div
-          aria-hidden
-          className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface text-zoru-ink"
-        >
-          <MessageSquare className="h-6 w-6" />
-        </div>
-        <h2 className="text-sm font-semibold text-zoru-ink">
-          {isFiltered ? "No matching chats" : "No individual chats yet"}
-        </h2>
-        <p className="max-w-sm text-xs text-zoru-ink-muted">
-          {isFiltered
-            ? "Try clearing the search or switching the filter."
-            : "Once you connect a WhatsApp session and exchange a few messages, your one-on-one chats will appear here."}
-        </p>
-      </ZoruCardContent>
-    </ZoruCard>
+    <div className="m-4">
+      <ZoruEmptyState
+        icon={<MessageSquare />}
+        title={isFiltered ? "No matching chats" : "No individual chats yet"}
+        description={
+          isFiltered
+            ? "Try clearing the search box or switching the filter back to All."
+            : "Once your WhatsApp session is connected and you exchange a few messages, every one-on-one conversation lands here."
+        }
+        action={
+          isFiltered ? null : (
+            <Link href="/sabwa/inbox">
+              <ZoruButton size="md">
+                <MessageSquare className="mr-1.5 h-4 w-4" />
+                Open inbox
+              </ZoruButton>
+            </Link>
+          )
+        }
+      />
+    </div>
   );
 }
 

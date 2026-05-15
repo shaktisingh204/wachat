@@ -15,6 +15,7 @@ use mongodb::{bson::doc, Collection};
 use serde::{Deserialize, Serialize};
 use serde_json::Value as JsonValue;
 
+use crate::db::serde_dates::chrono_dt;
 use crate::state::AppState;
 
 /// Logical row written to `sabwa_audit_log`.
@@ -42,6 +43,7 @@ pub struct AuditEntry {
     pub actor_ip: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub user_agent: Option<String>,
+    #[serde(with = "chrono_dt")]
     pub ts: DateTime<Utc>,
 }
 

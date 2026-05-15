@@ -19,11 +19,13 @@
  */
 
 import * as React from "react";
+import Link from "next/link";
 import {
   Check,
   MoreHorizontal,
   Pencil,
   Plus,
+  Smartphone,
   Tag as TagIcon,
   Trash2,
 } from "lucide-react";
@@ -56,6 +58,7 @@ import {
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
+  ZoruEmptyState,
   ZoruDropdownMenu,
   ZoruDropdownMenuContent,
   ZoruDropdownMenuItem,
@@ -68,6 +71,7 @@ import {
 } from "@/components/zoruui";
 
 import { useLabels } from "@/lib/sabwa/use-sabwa-data";
+import { useSabwaSession } from "@/lib/sabwa/session-context";
 import {
   deleteLabel,
   upsertLabel,
@@ -88,12 +92,10 @@ const PRESET_COLORS = [
   "#64748b", // slate
 ];
 
-// TODO: replace with real active-session id wired from SessionSwitcher.
-const PLACEHOLDER_SESSION_ID = "stub-primary";
-
 export default function SabWaLabelsPage() {
   const toast = useZoruToast();
-  const sessionId = PLACEHOLDER_SESSION_ID;
+  const { current: activeSession } = useSabwaSession();
+  const sessionId = activeSession?.id ?? '';
   const { data: labels, loading, error, refetch } = useLabels(sessionId);
 
   const [editor, setEditor] = React.useState<{
@@ -141,6 +143,23 @@ export default function SabWaLabelsPage() {
     },
     [toast, refetch],
   );
+
+  if (!sessionId) {
+    return (
+      <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10">
+        <ZoruEmptyState
+          icon={<Smartphone />}
+          title="No active WhatsApp account"
+          description="Pick a connected account on the SabWa overview to start using this page."
+          action={
+            <Link href="/sabwa/overview">
+              <ZoruButton size="md">Open accounts</ZoruButton>
+            </Link>
+          }
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 p-4 md:p-6 lg:p-8">

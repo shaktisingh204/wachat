@@ -1,7 +1,8 @@
 'use client';
 
 import * as React from 'react';
-import { Gauge, AlertTriangle, Flame, Leaf, Activity } from 'lucide-react';
+import Link from 'next/link';
+import { Gauge, AlertTriangle, Flame, Leaf, Activity, Smartphone } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -28,12 +29,12 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { cn } from '@/lib/utils';
+import { ZoruButton, ZoruEmptyState } from '@/components/zoruui';
 
 import { SettingsTabs } from '../_components/settings-tabs';
 import { setRateLimitProfile } from '@/app/actions/sabwa.actions';
 import type { SabwaRateLimitProfile } from '@/lib/sabwa/types';
-
-const CURRENT_SESSION_ID = 'stub-primary';
+import { useSabwaSession } from '@/lib/sabwa/session-context';
 
 interface ProfileCard {
   value: SabwaRateLimitProfile;
@@ -102,6 +103,8 @@ const TIMEZONES = [
 ];
 
 export default function RateLimitsPage() {
+  const { current: activeSession } = useSabwaSession();
+  const sessionId = activeSession?.id ?? '';
   const [profile, setProfile] = React.useState<SabwaRateLimitProfile>('normal');
   const [warmupEnabled, setWarmupEnabled] = React.useState(false);
   const [sessionAgeDays] = React.useState(2); // Placeholder until session metadata wires in.
@@ -120,7 +123,7 @@ export default function RateLimitsPage() {
     startTransition(async () => {
       try {
         const res = await setRateLimitProfile({
-          sessionId: CURRENT_SESSION_ID,
+          sessionId,
           profile,
           warmupEnabled,
           dailyResetTimezone: timezone,
@@ -136,6 +139,23 @@ export default function RateLimitsPage() {
       }
     });
   };
+
+  if (!sessionId) {
+    return (
+      <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10">
+        <ZoruEmptyState
+          icon={<Smartphone />}
+          title="No active WhatsApp account"
+          description="Pick a connected account on the SabWa overview to start using this page."
+          action={
+            <Link href="/sabwa/overview">
+              <ZoruButton size="md">Open accounts</ZoruButton>
+            </Link>
+          }
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 md:p-6 lg:p-8 space-y-6">

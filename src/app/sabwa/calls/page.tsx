@@ -27,6 +27,7 @@ import {
   PhoneOutgoing,
   RefreshCw,
   Search,
+  Smartphone,
   Video,
 } from "lucide-react";
 
@@ -44,6 +45,7 @@ import {
   ZoruButton,
   ZoruCard,
   ZoruCardContent,
+  ZoruEmptyState,
   ZoruInput,
   ZoruLabel,
   ZoruSelect,
@@ -61,8 +63,7 @@ import {
   useZoruToast,
 } from "@/components/zoruui";
 import { useChats } from "@/lib/sabwa/use-sabwa-data";
-
-const PLACEHOLDER_SESSION_ID = "stub-primary";
+import { useSabwaSession } from "@/lib/sabwa/session-context";
 
 type CallType = "incoming" | "outgoing" | "missed" | "video";
 
@@ -142,7 +143,8 @@ function formatTs(ts: Date): string {
 
 export default function SabWaCallsPage() {
   const toast = useZoruToast();
-  const sessionId = PLACEHOLDER_SESSION_ID;
+  const { current: activeSession } = useSabwaSession();
+  const sessionId = activeSession?.id ?? '';
 
   const { data: chats } = useChats(sessionId);
 
@@ -192,6 +194,23 @@ export default function SabWaCallsPage() {
       return true;
     });
   }, [calls, typeFilter, contactFilter, fromDate, toDate, query]);
+
+  if (!sessionId) {
+    return (
+      <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10">
+        <ZoruEmptyState
+          icon={<Smartphone />}
+          title="No active WhatsApp account"
+          description="Pick a connected account on the SabWa overview to start using this page."
+          action={
+            <Link href="/sabwa/overview">
+              <ZoruButton size="md">Open accounts</ZoruButton>
+            </Link>
+          }
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4 p-4 md:p-6 lg:p-8">

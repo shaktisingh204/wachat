@@ -101,8 +101,23 @@ function statusLabel(status?: string): string {
 }
 
 function formatPhone(phone?: string | null): string {
-  if (!phone) return 'Unknown number';
+  if (!phone) return '';
   return phone.startsWith('+') ? phone : `+${phone}`;
+}
+
+function defaultLabel(
+  session: { id: string; pushName?: string; label?: string; phoneE164?: string },
+): string {
+  if (session.label?.trim()) return session.label;
+  if (session.pushName?.trim()) return session.pushName;
+  const phone = formatPhone(session.phoneE164);
+  if (phone) return phone;
+  // Final fallback: short suffix of the session id so each row is
+  // visually distinct even before the phone is known. The engine
+  // populates `phoneE164` / `pushName` after Baileys' first
+  // `connection.update`.
+  const tail = session.id?.slice(-6) ?? '';
+  return tail ? `Linked WhatsApp · ${tail}` : 'Linked WhatsApp';
 }
 
 /* ── rename dialog ─────────────────────────────────────────────── */
@@ -198,11 +213,11 @@ function AccountRow({
   onLogout: () => void;
 }) {
   const phone = formatPhone(session.phoneE164);
-  const label = session.label ?? session.pushName ?? phone;
+  const label = defaultLabel(session);
   return (
     <div
       className={cn(
-        'flex items-start gap-4 rounded-[var(--zoru-radius-lg)] border p-4 transition',
+        'flex flex-wrap items-start gap-x-4 gap-y-2 rounded-[var(--zoru-radius-lg)] border p-4 transition',
         isActive
           ? 'border-zoru-ink bg-zoru-surface shadow-[var(--zoru-shadow-sm)]'
           : 'border-zoru-line bg-zoru-bg hover:border-zoru-line-strong',
@@ -223,7 +238,7 @@ function AccountRow({
         <Check className="h-3 w-3" />
       </button>
 
-      <div className="min-w-0 flex-1">
+      <div className="min-w-0 flex-1 basis-[200px]">
         <div className="flex flex-wrap items-center gap-2">
           <p className="truncate text-[14px] text-zoru-ink">{label}</p>
           <ZoruBadge
@@ -243,7 +258,7 @@ function AccountRow({
         </p>
       </div>
 
-      <div className="flex shrink-0 items-center gap-1">
+      <div className="ml-auto flex shrink-0 items-center gap-1">
         <ZoruButton
           type="button"
           variant="ghost"
@@ -277,7 +292,13 @@ export function OverviewAccountsClient() {
     useSabwaSession();
 
   const activeProject = React.useMemo(
-    () => projects.find((p) => p._id.toString() === activeProjectId) ?? null,
+    () =>
+      projects.find(
+        (p) =>
+          // Defensive: a partially-hydrated project row could be
+          // missing `_id`. Don't crash the render — just skip it.
+          p?._id?.toString?.() === activeProjectId,
+      ) ?? null,
     [projects, activeProjectId],
   );
 
@@ -309,12 +330,42 @@ export function OverviewAccountsClient() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeProjectId]);
 
-  // Auto-select the only account if exactly one exists and nothing's set.
+  // Auto-select a sensible default once sessions arrive:
+  //   - If nothing is active yet, prefer the first connected one.
+  //   - Otherwise leave it unselected so the user picks deliberately.
   React.useEffect(() => {
-    if (!current && sessions.length === 1) {
-      setCurrent(sessions[0]!.id);
+    if (current) return;
+    const connected = sessions.find(
+      (s) => s.id && s.status === 'connected',
+    );
+    if (connected) {
+      setCurrent(connected.id);
+      return;
+    }
+    if (sessions.length === 1 && sessions[0]?.id) {
+      setCurrent(sessions[0].id);
     }
   }, [current, sessions, setCurrent]);
+
+  // Auto-refresh while any session is in a transitional state. The engine
+  // flips `pending`/`pairing`/`syncing` → `connected` over SSE, but this
+  // hub doesn't subscribe to the per-session stream — instead we poll the
+  // sessions list every 4s while at least one row is still settling, so
+  // the user sees the row update without a manual reload. Stops as soon
+  // as every session is `connected` or in a terminal state.
+  React.useEffect(() => {
+    const hasPending = sessions.some(
+      (s) =>
+        s.status === 'pending' ||
+        s.status === 'pairing' ||
+        s.status === 'syncing',
+    );
+    if (!hasPending) return;
+    const id = setInterval(() => {
+      void refresh();
+    }, 4000);
+    return () => clearInterval(id);
+  }, [sessions, refresh]);
 
   const [renameTarget, setRenameTarget] =
     React.useState<SabwaSessionInfo | null>(null);
@@ -344,7 +395,7 @@ export function OverviewAccountsClient() {
   const showSkeleton = loading || reloading;
 
   return (
-    <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10">
+    <div className="mx-auto w-full max-w-[1180px] px-4 pt-6 pb-10 sm:px-6">
       <ZoruBreadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
@@ -377,7 +428,7 @@ export function OverviewAccountsClient() {
             Broadcasts, and AI all use whichever account is active.
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Link href="/sabwa">
             <ZoruButton variant="outline" size="md">
               Change project
@@ -456,12 +507,26 @@ export function OverviewAccountsClient() {
           />
         ) : (
           <div className="grid grid-cols-1 gap-2">
-            {sessions.map((s) => (
+            {sessions.map((s, idx) => (
               <AccountRow
-                key={s.id}
+                // Some upstreams have transiently produced empty ids; fall
+                // back to the index so React doesn't reuse rows by mistake.
+                key={s.id || `row-${idx}`}
                 session={s}
-                isActive={current?.id === s.id}
-                onActivate={() => setCurrent(s.id)}
+                // An empty session id should never match the active one —
+                // otherwise every row with `id === ''` would render as
+                // the active account.
+                isActive={!!s.id && current?.id === s.id}
+                onActivate={() => {
+                  if (!s.id) return;
+                  setCurrent(s.id);
+                  if (s.status !== 'connected') {
+                    toast.toast({
+                      title: "This account isn't connected yet",
+                      description: 'Finish pairing first to use it across SabWa.',
+                    });
+                  }
+                }}
                 onRename={() => setRenameTarget(s)}
                 onLogout={() => setLogoutTarget(s)}
               />

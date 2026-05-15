@@ -67,6 +67,7 @@ import {
 } from '@/components/zoruui';
 
 import { useProject } from '@/context/project-context';
+import { useSabwaSession } from '@/lib/sabwa/session-context';
 import { pairSession } from '@/app/actions/sabwa.actions';
 
 import { PairingFlow } from '../_components/pairing-flow';
@@ -171,6 +172,7 @@ export function ConnectClient() {
   const router = useRouter();
   const toast = useZoruToast();
   const { activeProjectId, sessionUser, projects } = useProject();
+  const sessionCtx = useSabwaSession();
 
   const activeProject = React.useMemo(
     () => projects.find((p) => p._id.toString() === activeProjectId) ?? null,
@@ -287,14 +289,18 @@ export function ConnectClient() {
       title: 'WhatsApp linked',
       description: 'Your session is ready. Taking you to the accounts page…',
     });
-    router.push('/sabwa/overview');
-  }, [router, toast]);
+    // Refresh the session list so the new account shows up in
+    // /sabwa/overview, then navigate.
+    void sessionCtx.refresh().finally(() => {
+      router.push('/sabwa/overview');
+    });
+  }, [router, toast, sessionCtx]);
 
   // Stepper progression — pure UI affordance.
   const activeStepIndex = active ? 3 : 0;
 
   return (
-    <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10 space-y-6">
+    <div className="mx-auto w-full max-w-[1180px] px-4 pt-6 pb-10 space-y-6 sm:px-6">
       {/* Breadcrumb */}
       <ZoruBreadcrumb>
         <ZoruBreadcrumbList>
@@ -337,10 +343,10 @@ export function ConnectClient() {
         </div>
 
         {activeProject && (
-          <div className="flex items-center gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-3 py-2 text-[12.5px]">
-            <Briefcase className="h-3.5 w-3.5 text-zoru-ink-muted" />
-            <span className="text-zoru-ink-muted">Project:</span>
-            <span className="text-zoru-ink">
+          <div className="flex max-w-full items-center gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-3 py-2 text-[12.5px]">
+            <Briefcase className="h-3.5 w-3.5 shrink-0 text-zoru-ink-muted" />
+            <span className="shrink-0 text-zoru-ink-muted">Project:</span>
+            <span className="min-w-0 truncate text-zoru-ink">
               {activeProject.name ?? 'Untitled'}
             </span>
             <Link
