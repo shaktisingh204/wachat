@@ -21,11 +21,12 @@
   # 2) Legacy wachat Rust workspace (sabnode-api + broadcast-worker)
   ( cd /var/www/sabnode/rust && cargo build --release )
 
-  # 3) SabWa: install Baileys sidecar deps (idempotent — no-ops if package-lock unchanged)
-  ( cd /var/www/sabnode/services/sabwa-engine/sidecar-node && npm i )
-
-  # 4) SabWa: build Rust engine binary
-  ( cd /var/www/sabnode/services/sabwa-engine && cargo build --release )
+  # 3) SabWa: build Node.js engine
+  echo "Building sabwa-node..."
+  cd services/sabwa-node
+  pnpm install --frozen-lockfile
+  pnpm build
+  cd ../..
 
   # 5) Graceful reload of every PM2 app with fresh env + new binaries
   pm2 reload ecosystem.config.js --update-env

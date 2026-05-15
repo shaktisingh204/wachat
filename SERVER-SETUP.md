@@ -202,9 +202,12 @@ pm2 start ecosystem.config.js
 pm2 save
 ```
 
-This starts 3 processes:
+This starts the following processes:
+- **sabnode-api** — Rust API on port 8080
 - **sabnode-web** — Next.js app on port 3002
-- **sabnode-broadcast-worker** — BullMQ workers (4 instances)
+- **sabwa-node** — Node.js personal-WhatsApp engine (Baileys) on port 4001
+- **sabnode-broadcast-worker** — BullMQ / Rust broadcast workers
+- **sabflow-worker** — SabFlow execution worker
 - **sabnode-worker** — Legacy broadcast poller
 
 Verify:
