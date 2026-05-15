@@ -9,6 +9,9 @@
  * - Edit dialog: name, colour picker, curated lucide-icon picker.
  * - Bulk-assign mode: pick uncategorised groups and assign them to a
  *   category in one call.
+ *
+ * ZoruUI migration — visual swap only; data flow, server actions and
+ * prop shapes are unchanged.
  */
 
 import * as React from 'react';
@@ -34,33 +37,39 @@ import {
 } from 'lucide-react';
 
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
-import { cn } from '@/lib/utils';
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruCheckbox,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruInput,
+  ZoruLabel,
+  ZoruScrollArea,
+  ZoruSkeleton,
+  cn,
+  useZoruToast,
+} from '@/components/zoruui';
 
 import {
   deleteGroupCategory,
@@ -95,16 +104,17 @@ const ICON_BY_NAME = new Map(
   CURATED_ICONS.map(({ name, Icon }) => [name, Icon] as const),
 );
 
+// Neutral, theme-aligned palette — drops the previous rainbow accents.
 const PRESET_COLORS: readonly string[] = [
-  '#ef4444',
-  '#f97316',
-  '#eab308',
-  '#22c55e',
-  '#06b6d4',
-  '#3b82f6',
-  '#8b5cf6',
-  '#ec4899',
+  '#0f172a',
+  '#334155',
+  '#475569',
   '#64748b',
+  '#94a3b8',
+  '#cbd5e1',
+  '#a3a3a3',
+  '#737373',
+  '#525252',
 ];
 
 // ─── Edit dialog ────────────────────────────────────────────────────────────
@@ -124,16 +134,16 @@ function EditCategoryDialog({
   category,
   onSaved,
 }: EditCategoryDialogProps) {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [name, setName] = React.useState('');
-  const [color, setColor] = React.useState(PRESET_COLORS[5]);
+  const [color, setColor] = React.useState(PRESET_COLORS[0]);
   const [icon, setIcon] = React.useState<string>('Tag');
   const [submitting, setSubmitting] = React.useState(false);
 
   React.useEffect(() => {
     if (!open) return;
     setName(category?.name ?? '');
-    setColor(category?.color ?? PRESET_COLORS[5]);
+    setColor(category?.color ?? PRESET_COLORS[0]);
     setIcon(category?.icon ?? 'Tag');
   }, [open, category]);
 
@@ -178,18 +188,18 @@ function EditCategoryDialog({
   }, [sessionId, name, color, icon, category, onSaved, onOpenChange, toast]);
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>{category ? 'Edit category' : 'New category'}</DialogTitle>
-          <DialogDescription>
+    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+      <ZoruDialogContent className="sm:max-w-md">
+        <ZoruDialogHeader>
+          <ZoruDialogTitle>{category ? 'Edit category' : 'New category'}</ZoruDialogTitle>
+          <ZoruDialogDescription>
             Categories group related WhatsApp groups for faster triage.
-          </DialogDescription>
-        </DialogHeader>
+          </ZoruDialogDescription>
+        </ZoruDialogHeader>
         <div className="space-y-4">
           <div className="space-y-1.5">
-            <Label htmlFor="cat-name">Name</Label>
-            <Input
+            <ZoruLabel htmlFor="cat-name">Name</ZoruLabel>
+            <ZoruInput
               id="cat-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -199,7 +209,7 @@ function EditCategoryDialog({
           </div>
 
           <div className="space-y-1.5">
-            <Label>Colour</Label>
+            <ZoruLabel>Colour</ZoruLabel>
             <div className="flex flex-wrap gap-2">
               {PRESET_COLORS.map((c) => (
                 <button
@@ -209,7 +219,7 @@ function EditCategoryDialog({
                   aria-label={`Use ${c}`}
                   className={cn(
                     'h-8 w-8 rounded-full border-2 transition',
-                    color === c ? 'border-foreground' : 'border-transparent',
+                    color === c ? 'border-zoru-ink' : 'border-transparent',
                   )}
                   style={{ backgroundColor: c }}
                 />
@@ -218,7 +228,7 @@ function EditCategoryDialog({
           </div>
 
           <div className="space-y-1.5">
-            <Label>Icon</Label>
+            <ZoruLabel>Icon</ZoruLabel>
             <div className="grid grid-cols-5 gap-2">
               {CURATED_ICONS.map(({ name: n, Icon }) => (
                 <button
@@ -227,10 +237,10 @@ function EditCategoryDialog({
                   onClick={() => setIcon(n)}
                   aria-label={n}
                   className={cn(
-                    'flex h-10 items-center justify-center rounded-md border transition',
+                    'flex h-10 items-center justify-center rounded-[var(--zoru-radius)] border transition',
                     icon === n
-                      ? 'border-primary bg-secondary'
-                      : 'border-border hover:bg-secondary',
+                      ? 'border-zoru-ink bg-zoru-surface text-zoru-ink'
+                      : 'border-zoru-line bg-zoru-bg text-zoru-ink hover:border-zoru-line-strong hover:bg-zoru-surface',
                   )}
                 >
                   <Icon className="h-4 w-4" />
@@ -239,16 +249,16 @@ function EditCategoryDialog({
             </div>
           </div>
         </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={submitting}>
+        <ZoruDialogFooter>
+          <ZoruButton variant="outline" onClick={() => onOpenChange(false)} disabled={submitting}>
             Cancel
-          </Button>
-          <Button onClick={onSave} disabled={submitting}>
+          </ZoruButton>
+          <ZoruButton onClick={onSave} disabled={submitting}>
             {submitting ? 'Saving…' : 'Save'}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+          </ZoruButton>
+        </ZoruDialogFooter>
+      </ZoruDialogContent>
+    </ZoruDialog>
   );
 }
 
@@ -273,62 +283,62 @@ const CategoryRow = React.memo(function CategoryRow({
 }: CategoryRowProps) {
   const Icon = ICON_BY_NAME.get(category.icon ?? 'Tag') ?? Tag;
   return (
-    <div className="flex items-center gap-3 rounded-md border p-3">
+    <div className="flex items-center gap-3 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-3">
       <div className="flex flex-col">
-        <Button
+        <ZoruButton
           variant="ghost"
-          size="icon"
+          size="icon-sm"
           className="h-6 w-6"
           onClick={() => onMove(-1)}
           disabled={isFirst}
           aria-label="Move up"
         >
           <ChevronUp className="h-3.5 w-3.5" />
-        </Button>
-        <Button
+        </ZoruButton>
+        <ZoruButton
           variant="ghost"
-          size="icon"
+          size="icon-sm"
           className="h-6 w-6"
           onClick={() => onMove(1)}
           disabled={isLast}
           aria-label="Move down"
         >
           <ChevronDown className="h-3.5 w-3.5" />
-        </Button>
+        </ZoruButton>
       </div>
       <span
-        className="inline-flex h-9 w-9 items-center justify-center rounded-full"
+        className="inline-flex h-9 w-9 items-center justify-center rounded-full text-zoru-ink"
         style={{ backgroundColor: category.color + '33' }}
       >
         <Icon className="h-4 w-4" />
       </span>
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2 truncate">
-          <span className="truncate font-medium">{category.name}</span>
+          <span className="truncate font-medium text-zoru-ink">{category.name}</span>
           <span
             className="inline-block h-2.5 w-2.5 rounded-full"
             style={{ backgroundColor: category.color }}
             aria-hidden
           />
         </div>
-        <div className="text-xs text-muted-foreground">
+        <div className="text-xs text-zoru-ink-muted">
           {typeof category.groupCount === 'number'
             ? `${category.groupCount} group${category.groupCount === 1 ? '' : 's'}`
             : '— groups'}
         </div>
       </div>
-      <Button variant="ghost" size="icon" onClick={onEdit} aria-label="Edit category">
+      <ZoruButton variant="ghost" size="icon" onClick={onEdit} aria-label="Edit category">
         <Edit className="h-4 w-4" />
-      </Button>
-      <Button
+      </ZoruButton>
+      <ZoruButton
         variant="ghost"
         size="icon"
         onClick={onDelete}
         aria-label="Delete category"
-        className="text-destructive hover:text-destructive"
+        className="text-zoru-danger hover:text-zoru-danger"
       >
         <Trash2 className="h-4 w-4" />
-      </Button>
+      </ZoruButton>
     </div>
   );
 });
@@ -350,7 +360,7 @@ function BulkAssignDialog({
   categories,
   onDone,
 }: BulkAssignDialogProps) {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [uncategorised, setUncategorised] = React.useState<SabwaGroupSummary[]>([]);
   const [selected, setSelected] = React.useState<Set<string>>(new Set());
   const [targetCategoryId, setTargetCategoryId] = React.useState<string | null>(null);
@@ -431,26 +441,26 @@ function BulkAssignDialog({
   }, [sessionId, targetCategoryId, selected, toast, onDone, onOpenChange]);
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
-        <DialogHeader>
-          <DialogTitle>Bulk-assign uncategorised groups</DialogTitle>
-          <DialogDescription>
+    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+      <ZoruDialogContent className="sm:max-w-lg">
+        <ZoruDialogHeader>
+          <ZoruDialogTitle>Bulk-assign uncategorised groups</ZoruDialogTitle>
+          <ZoruDialogDescription>
             Pick groups, then choose the category to assign them to.
-          </DialogDescription>
-        </DialogHeader>
+          </ZoruDialogDescription>
+        </ZoruDialogHeader>
 
         <div className="space-y-3">
           <div>
-            <Label>Target category</Label>
+            <ZoruLabel>Target category</ZoruLabel>
             <div className="mt-1 flex flex-wrap gap-2">
               {categories.length === 0 ? (
-                <span className="text-sm text-muted-foreground">
+                <span className="text-sm text-zoru-ink-muted">
                   Create a category first.
                 </span>
               ) : (
                 categories.map((c) => (
-                  <Button
+                  <ZoruButton
                     key={c.id}
                     variant={targetCategoryId === c.id ? 'default' : 'outline'}
                     size="sm"
@@ -461,37 +471,37 @@ function BulkAssignDialog({
                       style={{ backgroundColor: c.color }}
                     />
                     {c.name}
-                  </Button>
+                  </ZoruButton>
                 ))
               )}
             </div>
           </div>
 
           <div>
-            <Label>Uncategorised groups</Label>
-            <ScrollArea className="mt-1 h-64 rounded-md border">
-              <div className="divide-y">
+            <ZoruLabel>Uncategorised groups</ZoruLabel>
+            <ZoruScrollArea className="mt-1 h-64 rounded-[var(--zoru-radius)] border border-zoru-line">
+              <div className="divide-y divide-zoru-line">
                 {loading ? (
                   Array.from({ length: 4 }).map((_, i) => (
-                    <Skeleton key={i} className="m-2 h-10" />
+                    <ZoruSkeleton key={i} className="m-2 h-10" />
                   ))
                 ) : uncategorised.length === 0 ? (
-                  <p className="p-3 text-sm text-muted-foreground">
+                  <p className="p-3 text-sm text-zoru-ink-muted">
                     No uncategorised groups.
                   </p>
                 ) : (
                   uncategorised.map((g) => (
                     <label
                       key={g.jid}
-                      className="flex cursor-pointer items-center gap-3 p-2.5 hover:bg-secondary"
+                      className="flex cursor-pointer items-center gap-3 p-2.5 hover:bg-zoru-surface"
                     >
-                      <Checkbox
+                      <ZoruCheckbox
                         checked={selected.has(g.jid)}
                         onCheckedChange={() => toggle(g.jid)}
                       />
                       <div className="min-w-0 flex-1">
-                        <div className="truncate text-sm font-medium">{g.subject}</div>
-                        <div className="text-xs text-muted-foreground">
+                        <div className="truncate text-sm font-medium text-zoru-ink">{g.subject}</div>
+                        <div className="text-xs text-zoru-ink-muted">
                           {g.participantCount} members
                         </div>
                       </div>
@@ -499,30 +509,30 @@ function BulkAssignDialog({
                   ))
                 )}
               </div>
-            </ScrollArea>
+            </ZoruScrollArea>
           </div>
         </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={submitting}>
+        <ZoruDialogFooter>
+          <ZoruButton variant="outline" onClick={() => onOpenChange(false)} disabled={submitting}>
             Cancel
-          </Button>
-          <Button
+          </ZoruButton>
+          <ZoruButton
             onClick={onApply}
             disabled={submitting || !targetCategoryId || selected.size === 0}
           >
             {submitting ? 'Assigning…' : `Assign (${selected.size})`}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+          </ZoruButton>
+        </ZoruDialogFooter>
+      </ZoruDialogContent>
+    </ZoruDialog>
   );
 }
 
 // ─── Main client ────────────────────────────────────────────────────────────
 
 export function CategoriesPageClient() {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const { current } = useSabwaSession();
   const sessionId = current?.id ?? null;
 
@@ -620,58 +630,80 @@ export function CategoriesPageClient() {
   }, [pendingDelete, fetchAll, toast]);
 
   return (
-    <div className="space-y-4 p-4 md:p-6 lg:p-8">
-      <div className="flex flex-wrap items-center gap-3">
+    <div className="mx-auto w-full max-w-[1280px] px-4 pt-6 pb-10 md:px-6 lg:px-8">
+      <ZoruBreadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/sabwa">SabWa</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/sabwa/groups">Groups</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>Categories</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </ZoruBreadcrumb>
+
+      <div className="mt-5 flex flex-wrap items-center gap-3">
         <div className="flex items-center gap-3">
-          <div className="rounded-xl bg-secondary p-3">
+          <div className="rounded-[var(--zoru-radius)] bg-zoru-surface p-3 text-zoru-ink">
             <FolderTree className="h-6 w-6" />
           </div>
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight">Group categories</h1>
-            <p className="text-sm text-muted-foreground">
+            <h1 className="text-[26px] font-semibold leading-[1.15] tracking-[-0.015em] text-zoru-ink">
+              Group categories
+            </h1>
+            <p className="mt-0.5 text-[13px] text-zoru-ink-muted">
               Curate the buckets your groups live in.
             </p>
           </div>
         </div>
         <div className="ml-auto flex items-center gap-2">
-          <Button
+          <ZoruButton
             variant="outline"
             onClick={() => setBulkOpen(true)}
             disabled={!sessionId}
           >
-            <CheckSquare className="mr-1.5 h-4 w-4" />
+            <CheckSquare />
             Bulk assign
-          </Button>
-          <Button onClick={() => onEdit(null)} disabled={!sessionId}>
-            <Plus className="mr-1.5 h-4 w-4" />
+          </ZoruButton>
+          <ZoruButton onClick={() => onEdit(null)} disabled={!sessionId}>
+            <Plus />
             New category
-          </Button>
+          </ZoruButton>
         </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Categories</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2">
+      <ZoruCard className="mt-4">
+        <ZoruCardHeader>
+          <ZoruCardTitle className="text-base">Categories</ZoruCardTitle>
+        </ZoruCardHeader>
+        <ZoruCardContent className="space-y-2">
           {!sessionId ? (
-            <p className="py-6 text-center text-sm text-muted-foreground">
+            <p className="py-6 text-center text-sm text-zoru-ink-muted">
               Connect a SabWa session to manage categories.
             </p>
           ) : loading ? (
             Array.from({ length: 3 }).map((_, i) => (
-              <Skeleton key={i} className="h-14 w-full" />
+              <ZoruSkeleton key={i} className="h-14 w-full" />
             ))
           ) : categories.length === 0 ? (
             <div className="flex flex-col items-center gap-2 py-8 text-center">
-              <Tag className="h-8 w-8 text-muted-foreground" />
-              <p className="text-sm text-muted-foreground">
+              <Tag className="h-8 w-8 text-zoru-ink-muted" />
+              <p className="text-sm text-zoru-ink-muted">
                 No categories yet. Create one to get started.
               </p>
-              <Button onClick={() => onEdit(null)}>
-                <Plus className="mr-1.5 h-4 w-4" />
+              <ZoruButton onClick={() => onEdit(null)}>
+                <Plus />
                 New category
-              </Button>
+              </ZoruButton>
             </div>
           ) : (
             categories.map((cat, i) => (
@@ -686,8 +718,8 @@ export function CategoriesPageClient() {
               />
             ))
           )}
-        </CardContent>
-      </Card>
+        </ZoruCardContent>
+      </ZoruCard>
 
       <EditCategoryDialog
         open={editorOpen}
@@ -705,25 +737,25 @@ export function CategoriesPageClient() {
         onDone={fetchAll}
       />
 
-      <AlertDialog
+      <ZoruAlertDialog
         open={pendingDelete !== null}
         onOpenChange={(o) => !o && setPendingDelete(null)}
       >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete category?</AlertDialogTitle>
-            <AlertDialogDescription>
+        <ZoruAlertDialogContent>
+          <ZoruAlertDialogHeader>
+            <ZoruAlertDialogTitle>Delete category?</ZoruAlertDialogTitle>
+            <ZoruAlertDialogDescription>
               Groups tagged with{' '}
-              <span className="font-medium">{pendingDelete?.name}</span> will become
+              <span className="font-medium text-zoru-ink">{pendingDelete?.name}</span> will become
               uncategorised. This cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={onConfirmDelete}>Delete</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            </ZoruAlertDialogDescription>
+          </ZoruAlertDialogHeader>
+          <ZoruAlertDialogFooter>
+            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+            <ZoruAlertDialogAction onClick={onConfirmDelete}>Delete</ZoruAlertDialogAction>
+          </ZoruAlertDialogFooter>
+        </ZoruAlertDialogContent>
+      </ZoruAlertDialog>
     </div>
   );
 }

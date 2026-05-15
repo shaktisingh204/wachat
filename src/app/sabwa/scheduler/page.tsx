@@ -13,6 +13,9 @@
  * stub that throws "not implemented". We fall back to a small, clearly
  * marked sample set so the UI is meaningful in dev — the moment the
  * action lands, the sample disappears.
+ *
+ * Rebuilt on ZoruUI primitives. The month/week/day view picker is rendered
+ * as a segmented ZoruButton group (no tab UI per the ZoruUI design rules).
  */
 
 import * as React from "react";
@@ -25,15 +28,21 @@ import {
   Plus,
 } from "lucide-react";
 
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+  ZoruBadge,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruTooltip,
+  ZoruTooltipContent,
+  ZoruTooltipProvider,
+  ZoruTooltipTrigger,
+  cn,
+} from "@/components/zoruui";
 
 import {
   listScheduledMessages,
@@ -294,88 +303,108 @@ export default function SchedulerCalendarPage() {
           });
 
   return (
-    <TooltipProvider delayDuration={150}>
+    <ZoruTooltipProvider delayDuration={150}>
       <div className="p-4 md:p-6 lg:p-8 space-y-4">
+        {/* ─── Breadcrumb ──────────────────────────────────────────── */}
+        <ZoruBreadcrumb>
+          <ZoruBreadcrumbList>
+            <ZoruBreadcrumbItem>
+              <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+            </ZoruBreadcrumbItem>
+            <ZoruBreadcrumbSeparator />
+            <ZoruBreadcrumbItem>
+              <ZoruBreadcrumbLink href="/sabwa">SabWa</ZoruBreadcrumbLink>
+            </ZoruBreadcrumbItem>
+            <ZoruBreadcrumbSeparator />
+            <ZoruBreadcrumbItem>
+              <ZoruBreadcrumbPage>Scheduler</ZoruBreadcrumbPage>
+            </ZoruBreadcrumbItem>
+          </ZoruBreadcrumbList>
+        </ZoruBreadcrumb>
+
         {/* ─── Toolbar ─────────────────────────────────────────────── */}
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="flex items-start gap-3">
-            <div className="rounded-xl bg-secondary p-3">
-              <CalendarClock className="h-6 w-6" />
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface text-zoru-ink">
+              <CalendarClock className="h-5 w-5" />
             </div>
             <div>
               <div className="flex items-center gap-2 flex-wrap">
-                <h1 className="text-2xl font-semibold tracking-tight">
+                <h1 className="text-2xl font-semibold tracking-tight text-zoru-ink">
                   Scheduler — Calendar
                 </h1>
                 {usingSample && loaded && (
-                  <Badge variant="secondary">Sample data</Badge>
+                  <ZoruBadge variant="secondary">Sample data</ZoruBadge>
                 )}
               </div>
-              <p className="text-sm text-muted-foreground mt-1">
+              <p className="text-sm text-zoru-ink-muted mt-1">
                 Drag events to reschedule. Click an event to edit; click a
                 day to add.
               </p>
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <div className="inline-flex rounded-md border bg-muted/30 p-0.5">
+            {/* Segmented view picker — no tab UI per ZoruUI rules */}
+            <div
+              role="group"
+              aria-label="Calendar view"
+              className="inline-flex rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface p-0.5"
+            >
               {(["month", "week", "day"] as const).map((m) => (
-                <button
+                <ZoruButton
                   key={m}
                   type="button"
+                  size="sm"
+                  variant={view === m ? "default" : "ghost"}
                   onClick={() => setView(m)}
-                  className={cn(
-                    "rounded px-2.5 py-1 text-xs capitalize",
-                    view === m
-                      ? "bg-background shadow-sm font-medium"
-                      : "text-muted-foreground hover:text-foreground",
-                  )}
+                  className="h-7 px-3 text-xs capitalize"
+                  aria-pressed={view === m}
                 >
                   {m}
-                </button>
+                </ZoruButton>
               ))}
             </div>
             <div className="inline-flex items-center gap-1">
-              <Button
+              <ZoruButton
                 variant="outline"
                 size="icon"
                 onClick={onPrev}
                 aria-label="Previous"
               >
                 <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <Button
+              </ZoruButton>
+              <ZoruButton
                 variant="outline"
                 size="sm"
                 onClick={() => setCursor(new Date())}
               >
                 Today
-              </Button>
-              <Button
+              </ZoruButton>
+              <ZoruButton
                 variant="outline"
                 size="icon"
                 onClick={onNext}
                 aria-label="Next"
               >
                 <ChevronRight className="h-4 w-4" />
-              </Button>
+              </ZoruButton>
             </div>
-            <Button asChild variant="outline" size="sm">
+            <ZoruButton asChild variant="outline" size="sm">
               <Link href="/sabwa/scheduler/queue">
                 <ListChecks className="mr-1.5 h-4 w-4" />
                 Queue
               </Link>
-            </Button>
-            <Button size="sm" onClick={() => openCreate(cursor)}>
+            </ZoruButton>
+            <ZoruButton size="sm" onClick={() => openCreate(cursor)}>
               <Plus className="mr-1.5 h-4 w-4" />
               New schedule
-            </Button>
+            </ZoruButton>
           </div>
         </div>
 
         <p
           aria-live="polite"
-          className="text-sm font-medium text-muted-foreground"
+          className="text-sm font-medium text-zoru-ink-muted"
         >
           {headerLabel}
         </p>
@@ -429,7 +458,7 @@ export default function SchedulerCalendarPage() {
         defaultDate={defaultDate}
         onSaved={() => void refresh()}
       />
-    </TooltipProvider>
+    </ZoruTooltipProvider>
   );
 }
 
@@ -467,8 +496,8 @@ function MonthGrid({
   }, [gridStart]);
 
   return (
-    <div className="rounded-lg border bg-card overflow-hidden">
-      <div className="grid grid-cols-7 border-b bg-muted/40 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+    <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg overflow-hidden">
+      <div className="grid grid-cols-7 border-b border-zoru-line bg-zoru-surface text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
         {DAY_LABELS.map((d) => (
           <div key={d} className="px-2 py-1.5">
             {d}
@@ -482,15 +511,15 @@ function MonthGrid({
           const inMonth = d.getMonth() === cursor.getMonth();
           const today = sameDay(d, new Date());
           return (
-            <Tooltip key={key}>
-              <TooltipTrigger asChild>
+            <ZoruTooltip key={key}>
+              <ZoruTooltipTrigger asChild>
                 <div
                   onDragOver={onCellDragOver}
                   onDrop={onCellDrop(d)}
                   onClick={() => onCellClick(d)}
                   className={cn(
-                    "group relative min-h-[96px] cursor-pointer border-b border-r p-1.5 text-xs",
-                    !inMonth && "bg-muted/20 text-muted-foreground",
+                    "group relative min-h-[96px] cursor-pointer border-b border-r border-zoru-line p-1.5 text-xs",
+                    !inMonth && "bg-zoru-surface text-zoru-ink-subtle",
                   )}
                 >
                   <div className="mb-1 flex items-center justify-between">
@@ -498,7 +527,7 @@ function MonthGrid({
                       className={cn(
                         "inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-[11px] font-medium",
                         today &&
-                          "bg-primary text-primary-foreground",
+                          "bg-zoru-primary text-zoru-primary-foreground",
                       )}
                     >
                       {d.getDate()}
@@ -506,7 +535,7 @@ function MonthGrid({
                     <button
                       type="button"
                       aria-label={`Add schedule on ${d.toDateString()}`}
-                      className="rounded p-0.5 opacity-0 transition group-hover:opacity-100 hover:bg-foreground/10"
+                      className="rounded p-0.5 opacity-0 transition group-hover:opacity-100 hover:bg-zoru-surface-2"
                       onClick={(ev) => {
                         ev.stopPropagation();
                         onAddInCell(d);
@@ -528,20 +557,20 @@ function MonthGrid({
                       />
                     ))}
                     {dayEvents.length > 3 && (
-                      <div className="text-[10px] text-muted-foreground">
+                      <div className="text-[10px] text-zoru-ink-muted">
                         +{dayEvents.length - 3} more
                       </div>
                     )}
                   </div>
                 </div>
-              </TooltipTrigger>
+              </ZoruTooltipTrigger>
               {dayEvents.length > 0 && (
-                <TooltipContent side="top">
+                <ZoruTooltipContent side="top">
                   {dayEvents.length} scheduled item
                   {dayEvents.length === 1 ? "" : "s"}
-                </TooltipContent>
+                </ZoruTooltipContent>
               )}
-            </Tooltip>
+            </ZoruTooltip>
           );
         })}
       </div>
@@ -576,8 +605,8 @@ function WeekGrid({
 }: WeekGridProps) {
   const days = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
   return (
-    <div className="rounded-lg border bg-card overflow-hidden">
-      <div className="grid grid-cols-[60px_repeat(7,1fr)] border-b bg-muted/40 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+    <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg overflow-hidden">
+      <div className="grid grid-cols-[60px_repeat(7,1fr)] border-b border-zoru-line bg-zoru-surface text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
         <div />
         {days.map((d) => (
           <div key={d.toISOString()} className="px-2 py-1.5 text-center">
@@ -586,7 +615,7 @@ function WeekGrid({
               className={cn(
                 "mt-0.5 inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-[11px]",
                 sameDay(d, new Date()) &&
-                  "bg-primary text-primary-foreground",
+                  "bg-zoru-primary text-zoru-primary-foreground",
               )}
             >
               {d.getDate()}
@@ -598,7 +627,7 @@ function WeekGrid({
         <div className="grid grid-cols-[60px_repeat(7,1fr)]">
           {HOURS.map((h) => (
             <React.Fragment key={h}>
-              <div className="border-b border-r px-2 py-1 text-right text-[10px] text-muted-foreground">
+              <div className="border-b border-r border-zoru-line px-2 py-1 text-right text-[10px] text-zoru-ink-muted">
                 {h.toString().padStart(2, "0")}:00
               </div>
               {days.map((d) => {
@@ -614,7 +643,7 @@ function WeekGrid({
                     onDragOver={onCellDragOver}
                     onDrop={onCellDrop(slot)}
                     onClick={() => onSlotClick(slot)}
-                    className="relative min-h-[40px] cursor-pointer border-b border-r p-0.5"
+                    className="relative min-h-[40px] cursor-pointer border-b border-r border-zoru-line p-0.5"
                   >
                     {slotEvents.map((e) => (
                       <EventChip
@@ -664,7 +693,7 @@ function DayGrid({
   onSlotClick,
 }: DayGridProps) {
   return (
-    <div className="rounded-lg border bg-card overflow-hidden">
+    <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg overflow-hidden">
       <div className="max-h-[calc(100vh-260px)] overflow-y-auto">
         <div className="grid grid-cols-[80px_1fr]">
           {HOURS.map((h) => {
@@ -673,14 +702,14 @@ function DayGrid({
             const slotEvents = events.filter((e) => e.date.getHours() === h);
             return (
               <React.Fragment key={h}>
-                <div className="border-b border-r px-3 py-2 text-right text-[11px] text-muted-foreground">
+                <div className="border-b border-r border-zoru-line px-3 py-2 text-right text-[11px] text-zoru-ink-muted">
                   {h.toString().padStart(2, "0")}:00
                 </div>
                 <div
                   onDragOver={onCellDragOver}
                   onDrop={onCellDrop(slot)}
                   onClick={() => onSlotClick(slot)}
-                  className="relative min-h-[48px] cursor-pointer border-b p-1"
+                  className="relative min-h-[48px] cursor-pointer border-b border-zoru-line p-1"
                 >
                   {slotEvents.map((e) => (
                     <EventChip
@@ -736,11 +765,10 @@ function EventChip({
         }
       }}
       className={cn(
-        "cursor-grab rounded px-1.5 py-1 text-[11px] leading-tight active:cursor-grabbing",
-        meta.className,
+        "cursor-grab rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface px-1.5 py-1 text-[11px] leading-tight text-zoru-ink active:cursor-grabbing hover:bg-zoru-surface-2 transition-colors",
         expanded && "py-1.5",
       )}
-      title={`${time} — ${event.body}`}
+      title={`${time} — ${event.body} (${meta.label})`}
     >
       <div className="flex items-center gap-1 truncate">
         <span className="font-medium tabular-nums">{time}</span>

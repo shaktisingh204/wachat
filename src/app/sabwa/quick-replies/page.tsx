@@ -8,6 +8,9 @@
  * enable toggle. A "New quick reply" Dialog has a live preview showing
  * what gets sent when the user types the shortcut, plus optional media.
  *
+ * Migrated to ZoruUI primitives. No behaviour changes — same server
+ * actions, same prop shapes.
+ *
  * Source of truth: SABWA_PLAN.md § 6 — Page 16.
  */
 
@@ -23,38 +26,38 @@ import {
   X,
 } from 'lucide-react';
 
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import {
-  Card,
-  CardContent,
-  CardHeader,
-} from '@/components/ui/card';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { Textarea } from '@/components/ui/textarea';
+  ZoruBadge,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardHeader,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruInput,
+  ZoruLabel,
+  ZoruPopover,
+  ZoruPopoverContent,
+  ZoruPopoverTrigger,
+  ZoruSwitch,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  ZoruTextarea,
+} from '@/components/zoruui';
 import { SabFilePickerButton } from '@/components/sabfiles';
 import {
   listQuickReplies,
@@ -170,33 +173,50 @@ export default function Page() {
   };
 
   return (
-    <div className="space-y-6 p-4 md:p-6 lg:p-8">
+    <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10 space-y-6">
+      {/* Breadcrumb */}
+      <ZoruBreadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/sabwa">SabWa</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>Quick replies</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </ZoruBreadcrumb>
+
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-start gap-3">
-          <div className="rounded-xl bg-secondary p-3">
-            <MessageSquareReply className="h-6 w-6" />
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface text-zoru-ink">
+            <MessageSquareReply className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight">
+            <h1 className="text-[24px] tracking-[-0.015em] text-zoru-ink leading-[1.2]">
               Quick replies
             </h1>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <p className="mt-1 text-[13px] text-zoru-ink-muted max-w-2xl">
               Slash-command shortcuts that expand into saved blurbs inside the
               chat composer.
             </p>
           </div>
         </div>
-        <Button onClick={openNew}>
+        <ZoruButton onClick={openNew}>
           <Plus className="mr-2 h-4 w-4" /> New quick reply
-        </Button>
+        </ZoruButton>
       </div>
 
-      <Card>
-        <CardHeader>
+      <ZoruCard>
+        <ZoruCardHeader>
           <div className="relative">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
+            <ZoruInput
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search shortcuts or body…"
@@ -204,104 +224,104 @@ export default function Page() {
               aria-label="Search quick replies"
             />
           </div>
-        </CardHeader>
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-20">On</TableHead>
-                <TableHead>Shortcut</TableHead>
-                <TableHead>Body preview</TableHead>
-                <TableHead className="w-24">Usage</TableHead>
-                <TableHead className="w-32">Last used</TableHead>
-                <TableHead className="w-12" />
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+        </ZoruCardHeader>
+        <ZoruCardContent className="p-0">
+          <ZoruTable>
+            <ZoruTableHeader>
+              <ZoruTableRow>
+                <ZoruTableHead className="w-20">On</ZoruTableHead>
+                <ZoruTableHead>Shortcut</ZoruTableHead>
+                <ZoruTableHead>Body preview</ZoruTableHead>
+                <ZoruTableHead className="w-24">Usage</ZoruTableHead>
+                <ZoruTableHead className="w-32">Last used</ZoruTableHead>
+                <ZoruTableHead className="w-12" />
+              </ZoruTableRow>
+            </ZoruTableHeader>
+            <ZoruTableBody>
               {loading && filtered.length === 0 && (
-                <TableRow>
-                  <TableCell
+                <ZoruTableRow>
+                  <ZoruTableCell
                     colSpan={6}
-                    className="py-10 text-center text-muted-foreground"
+                    className="py-10 text-center text-zoru-ink-muted"
                   >
                     Loading quick replies…
-                  </TableCell>
-                </TableRow>
+                  </ZoruTableCell>
+                </ZoruTableRow>
               )}
               {!loading && filtered.length === 0 && (
-                <TableRow>
-                  <TableCell
+                <ZoruTableRow>
+                  <ZoruTableCell
                     colSpan={6}
-                    className="py-10 text-center text-muted-foreground"
+                    className="py-10 text-center text-zoru-ink-muted"
                   >
                     No quick replies yet — start with <code>/thanks</code> or{' '}
                     <code>/eta</code>.
-                  </TableCell>
-                </TableRow>
+                  </ZoruTableCell>
+                </ZoruTableRow>
               )}
               {filtered.map((r) => (
-                <TableRow key={r.id}>
-                  <TableCell>
-                    <Switch
+                <ZoruTableRow key={r.id}>
+                  <ZoruTableCell>
+                    <ZoruSwitch
                       checked={r.enabled}
                       onCheckedChange={(v) => void onToggleEnabled(r, v)}
                       aria-label={`Toggle ${r.shortcut}`}
                     />
-                  </TableCell>
-                  <TableCell>
-                    <code className="rounded bg-muted px-1.5 py-0.5 text-xs font-medium">
+                  </ZoruTableCell>
+                  <ZoruTableCell>
+                    <code className="rounded bg-zoru-surface px-1.5 py-0.5 text-xs font-medium text-zoru-ink">
                       {r.shortcut}
                     </code>
                     {r.mediaSabFileId && (
-                      <Badge variant="outline" className="ml-2 text-[10px]">
+                      <ZoruBadge variant="outline" className="ml-2 text-[10px]">
                         Media
-                      </Badge>
+                      </ZoruBadge>
                     )}
-                  </TableCell>
-                  <TableCell className="max-w-md">
-                    <span className="line-clamp-1 text-sm text-muted-foreground">
+                  </ZoruTableCell>
+                  <ZoruTableCell className="max-w-md">
+                    <span className="line-clamp-1 text-sm text-zoru-ink-muted">
                       {r.body || '—'}
                     </span>
-                  </TableCell>
-                  <TableCell className="text-sm">{r.usageCount}</TableCell>
-                  <TableCell className="text-sm text-muted-foreground">
+                  </ZoruTableCell>
+                  <ZoruTableCell className="text-sm">{r.usageCount}</ZoruTableCell>
+                  <ZoruTableCell className="text-sm text-zoru-ink-muted">
                     {formatRelative(r.lastUsedAt)}
-                  </TableCell>
-                  <TableCell>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
+                  </ZoruTableCell>
+                  <ZoruTableCell>
+                    <ZoruPopover>
+                      <ZoruPopoverTrigger asChild>
+                        <ZoruButton
                           size="icon"
                           variant="ghost"
                           aria-label={`Actions for ${r.shortcut}`}
                         >
                           <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent align="end" className="w-40 p-1">
+                        </ZoruButton>
+                      </ZoruPopoverTrigger>
+                      <ZoruPopoverContent align="end" className="w-40 p-1">
                         <button
                           type="button"
                           onClick={() => openEdit(r)}
-                          className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm hover:bg-muted"
+                          className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm text-zoru-ink hover:bg-zoru-surface"
                         >
                           <Edit3 className="h-3.5 w-3.5" /> Edit
                         </button>
                         <button
                           type="button"
                           onClick={() => void onDelete(r.id)}
-                          className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm text-destructive hover:bg-muted"
+                          className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm text-zoru-danger hover:bg-zoru-surface"
                         >
                           <Trash2 className="h-3.5 w-3.5" /> Delete
                         </button>
-                      </PopoverContent>
-                    </Popover>
-                  </TableCell>
-                </TableRow>
+                      </ZoruPopoverContent>
+                    </ZoruPopover>
+                  </ZoruTableCell>
+                </ZoruTableRow>
               ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+            </ZoruTableBody>
+          </ZoruTable>
+        </ZoruCardContent>
+      </ZoruCard>
 
       <QuickReplyDialog
         open={editorOpen}
@@ -372,22 +392,22 @@ function QuickReplyDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>
+    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+      <ZoruDialogContent className="max-w-2xl">
+        <ZoruDialogHeader>
+          <ZoruDialogTitle>
             {initial ? 'Edit quick reply' : 'New quick reply'}
-          </DialogTitle>
-          <DialogDescription>
+          </ZoruDialogTitle>
+          <ZoruDialogDescription>
             Type the shortcut in any chat composer to expand it into the body
             below.
-          </DialogDescription>
-        </DialogHeader>
+          </ZoruDialogDescription>
+        </ZoruDialogHeader>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div className="space-y-1.5">
-            <Label htmlFor="qr-shortcut">Shortcut</Label>
-            <Input
+            <ZoruLabel htmlFor="qr-shortcut">Shortcut</ZoruLabel>
+            <ZoruInput
               id="qr-shortcut"
               value={shortcut}
               onChange={(e) => setShortcut(e.target.value)}
@@ -395,18 +415,18 @@ function QuickReplyDialog({
               aria-invalid={dupShortcut || undefined}
             />
             {!shortcut.startsWith('/') && shortcut && (
-              <p className="text-[11px] text-muted-foreground">
+              <p className="text-[11px] text-zoru-ink-muted">
                 Will be saved as <code>{normalized}</code>.
               </p>
             )}
             {dupShortcut && (
-              <p className="text-[11px] text-destructive">
+              <p className="text-[11px] text-zoru-danger">
                 Another quick reply already uses this shortcut.
               </p>
             )}
           </div>
           <div className="space-y-1.5">
-            <Label>Attached media</Label>
+            <ZoruLabel>Attached media</ZoruLabel>
             <div className="flex items-center gap-2">
               <SabFilePickerButton
                 accept="all"
@@ -420,7 +440,7 @@ function QuickReplyDialog({
                 {mediaSabFileId ? 'Replace' : 'Attach'}
               </SabFilePickerButton>
               {mediaSabFileId && (
-                <Badge variant="secondary" className="gap-1">
+                <ZoruBadge variant="secondary" className="gap-1">
                   {mediaName || 'Media attached'}
                   <button
                     type="button"
@@ -432,15 +452,15 @@ function QuickReplyDialog({
                   >
                     <X className="h-3 w-3" />
                   </button>
-                </Badge>
+                </ZoruBadge>
               )}
             </div>
           </div>
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="qr-body">Body</Label>
-          <Textarea
+          <ZoruLabel htmlFor="qr-body">Body</ZoruLabel>
+          <ZoruTextarea
             id="qr-body"
             rows={5}
             value={body}
@@ -450,46 +470,46 @@ function QuickReplyDialog({
         </div>
 
         {/* Live preview */}
-        <div className="rounded-lg border bg-muted/30 p-3">
-          <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+        <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-3">
+          <p className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
             Live preview
           </p>
-          <p className="mt-1 text-xs text-muted-foreground">
+          <p className="mt-1 text-xs text-zoru-ink-muted">
             When user types{' '}
-            <code className="rounded bg-background px-1 py-0.5 text-xs">
+            <code className="rounded bg-zoru-surface px-1 py-0.5 text-xs text-zoru-ink">
               {normalized || '/shortcut'}
             </code>{' '}
             the chat composer expands to:
           </p>
-          <div className="mt-2 max-w-md rounded-lg bg-green-100 px-3 py-2 text-sm shadow-sm dark:bg-green-900/40">
+          <div className="mt-2 max-w-md rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface px-3 py-2 text-sm text-zoru-ink shadow-[var(--zoru-shadow-sm)]">
             <p className="whitespace-pre-wrap">
               {body || (
-                <span className="italic text-muted-foreground">
+                <span className="italic text-zoru-ink-muted">
                   (empty body)
                 </span>
               )}
             </p>
             {mediaSabFileId && (
-              <p className="mt-1 text-[11px] text-muted-foreground">
+              <p className="mt-1 text-[11px] text-zoru-ink-muted">
                 + media: {mediaName || mediaSabFileId}
               </p>
             )}
           </div>
         </div>
 
-        <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)}>
+        <ZoruDialogFooter>
+          <ZoruButton variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
-          </Button>
-          <Button onClick={() => void onSubmit()} disabled={!valid || saving}>
+          </ZoruButton>
+          <ZoruButton onClick={() => void onSubmit()} disabled={!valid || saving}>
             {saving
               ? 'Saving…'
               : initial
                 ? 'Save changes'
                 : 'Create quick reply'}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+          </ZoruButton>
+        </ZoruDialogFooter>
+      </ZoruDialogContent>
+    </ZoruDialog>
   );
 }

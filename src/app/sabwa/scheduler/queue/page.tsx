@@ -15,6 +15,8 @@
  *
  * Those server actions are still stubs; we surface the error and fall
  * back to a small sample dataset so the UI is usable in dev.
+ *
+ * Rebuilt on ZoruUI primitives.
  */
 
 import * as React from "react";
@@ -29,34 +31,36 @@ import {
   Trash2,
 } from "lucide-react";
 
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import { useToast } from "@/hooks/use-toast";
+  ZoruBadge,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCalendar,
+  ZoruCheckbox,
+  ZoruInput,
+  ZoruLabel,
+  ZoruPopover,
+  ZoruPopoverContent,
+  ZoruPopoverTrigger,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  cn,
+  useZoruToast,
+} from "@/components/zoruui";
 
 import {
   cancelScheduledMessage,
@@ -112,11 +116,11 @@ const STATUS_LABEL: Record<SabwaScheduledStatus, string> = {
 
 const STATUS_BADGE_CLASS: Record<SabwaScheduledStatus, string> = {
   pending:
-    "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300",
-  sent: "border-green-500/30 bg-green-500/10 text-green-700 dark:text-green-300",
-  failed: "border-red-500/30 bg-red-500/10 text-red-700 dark:text-red-300",
+    "border-zoru-line bg-zoru-surface text-zoru-ink",
+  sent: "border-zoru-line-strong bg-zoru-surface-2 text-zoru-ink",
+  failed: "border-zoru-line-strong bg-zoru-surface-2 text-zoru-ink",
   cancelled:
-    "border-zinc-400/30 bg-zinc-400/10 text-zinc-700 dark:text-zinc-300",
+    "border-zoru-line bg-zoru-surface text-zoru-ink-muted",
 };
 
 // ─── Sample fallback ───────────────────────────────────────────────────────
@@ -232,7 +236,7 @@ function recurrenceLabel(row: QueueRow): string {
 // ─── Page ───────────────────────────────────────────────────────────────────
 
 export default function SchedulerQueuePage() {
-  const { toast } = useToast();
+  const toast = useZoruToast();
   const { sessionId } = useSabwaSession();
 
   const [rows, setRows] = React.useState<QueueRow[]>([]);
@@ -330,7 +334,7 @@ export default function SchedulerQueuePage() {
 
   // ─ Mutations ──────────────────────────────────────────────────────────
   function reportError(action: string, message: string) {
-    toast({ title: action, description: message, variant: "destructive" });
+    toast.toast({ title: action, description: message, variant: "destructive" });
   }
 
   const handleCancel = React.useCallback(
@@ -354,6 +358,7 @@ export default function SchedulerQueuePage() {
         void refresh();
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [usingSample, refresh],
   );
 
@@ -365,7 +370,7 @@ export default function SchedulerQueuePage() {
     );
     setSelected(new Set());
     if (usingSample) {
-      toast({
+      toast.toast({
         title: `Cancelled ${ids.length} schedule${ids.length === 1 ? "" : "s"}`,
         description: "Sample data — no engine call was made.",
       });
@@ -384,10 +389,11 @@ export default function SchedulerQueuePage() {
       reportError("Bulk cancel — some rows failed", lastError);
       void refresh();
     } else {
-      toast({
+      toast.toast({
         title: `Cancelled ${ids.length} schedule${ids.length === 1 ? "" : "s"}`,
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected, usingSample, refresh, toast]);
 
   const handleBulkReschedule = React.useCallback(async () => {
@@ -409,7 +415,7 @@ export default function SchedulerQueuePage() {
       }),
     );
     if (usingSample) {
-      toast({
+      toast.toast({
         title: `Rescheduled ${ids.length} item${ids.length === 1 ? "" : "s"}`,
         description: targetDate.toLocaleDateString(),
       });
@@ -443,11 +449,12 @@ export default function SchedulerQueuePage() {
       reportError("Bulk reschedule — some rows failed", lastError);
       void refresh();
     } else {
-      toast({
+      toast.toast({
         title: `Rescheduled ${ids.length} item${ids.length === 1 ? "" : "s"}`,
         description: targetDate.toLocaleDateString(),
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     bulkRescheduleDate,
     selected,
@@ -474,34 +481,57 @@ export default function SchedulerQueuePage() {
   // ─ Render ─────────────────────────────────────────────────────────────
   return (
     <div className="p-4 md:p-6 lg:p-8 space-y-4">
+      {/* ─── Breadcrumb ──────────────────────────────────────────── */}
+      <ZoruBreadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/sabwa">SabWa</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/sabwa/scheduler">
+              Scheduler
+            </ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>Queue</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </ZoruBreadcrumb>
+
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-start gap-3">
-          <div className="rounded-xl bg-secondary p-3">
-            <ListChecks className="h-6 w-6" />
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface text-zoru-ink">
+            <ListChecks className="h-5 w-5" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-2xl font-semibold tracking-tight">
+              <h1 className="text-2xl font-semibold tracking-tight text-zoru-ink">
                 Scheduled Queue
               </h1>
               {usingSample && loaded && (
-                <Badge variant="secondary">Sample data</Badge>
+                <ZoruBadge variant="secondary">Sample data</ZoruBadge>
               )}
             </div>
-            <p className="text-sm text-muted-foreground mt-1">
+            <p className="text-sm text-zoru-ink-muted mt-1">
               Triage every pending, sent, failed, or cancelled scheduled
               message — with bulk reschedule and cancel.
             </p>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Button asChild variant="outline" size="sm">
+          <ZoruButton asChild variant="outline" size="sm">
             <Link href="/sabwa/scheduler">
               <CalendarClock className="mr-1.5 h-4 w-4" />
               Calendar
             </Link>
-          </Button>
-          <Button
+          </ZoruButton>
+          <ZoruButton
             variant="outline"
             size="sm"
             onClick={() => void refresh()}
@@ -514,8 +544,8 @@ export default function SchedulerQueuePage() {
               )}
             />
             Refresh
-          </Button>
-          <Button
+          </ZoruButton>
+          <ZoruButton
             size="sm"
             onClick={() => {
               setDialogInitial(undefined);
@@ -524,19 +554,19 @@ export default function SchedulerQueuePage() {
           >
             <Plus className="mr-1.5 h-4 w-4" />
             New schedule
-          </Button>
+          </ZoruButton>
         </div>
       </div>
 
       {/* ─── Filters ─────────────────────────────────────────────────── */}
-      <div className="flex flex-wrap items-end gap-2 rounded-lg border bg-card p-3">
+      <div className="flex flex-wrap items-end gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-3">
         <div className="flex flex-1 min-w-[180px] flex-col gap-1">
-          <Label htmlFor="queue-search" className="text-[11px]">
+          <ZoruLabel htmlFor="queue-search" className="text-[11px]">
             Search target or message
-          </Label>
+          </ZoruLabel>
           <div className="relative">
-            <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-            <Input
+            <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zoru-ink-muted" />
+            <ZoruInput
               id="queue-search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -546,27 +576,27 @@ export default function SchedulerQueuePage() {
           </div>
         </div>
         <div className="flex flex-col gap-1">
-          <Label className="text-[11px]">Status</Label>
-          <Select
+          <ZoruLabel className="text-[11px]">Status</ZoruLabel>
+          <ZoruSelect
             value={status}
             onValueChange={(v) => setStatus(v as StatusFilter)}
           >
-            <SelectTrigger className="w-[140px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All</SelectItem>
-              <SelectItem value="pending">Pending</SelectItem>
-              <SelectItem value="sent">Sent</SelectItem>
-              <SelectItem value="failed">Failed</SelectItem>
-              <SelectItem value="cancelled">Cancelled</SelectItem>
-            </SelectContent>
-          </Select>
+            <ZoruSelectTrigger className="w-[140px]">
+              <ZoruSelectValue />
+            </ZoruSelectTrigger>
+            <ZoruSelectContent>
+              <ZoruSelectItem value="all">All</ZoruSelectItem>
+              <ZoruSelectItem value="pending">Pending</ZoruSelectItem>
+              <ZoruSelectItem value="sent">Sent</ZoruSelectItem>
+              <ZoruSelectItem value="failed">Failed</ZoruSelectItem>
+              <ZoruSelectItem value="cancelled">Cancelled</ZoruSelectItem>
+            </ZoruSelectContent>
+          </ZoruSelect>
         </div>
         <DateRangeField label="From" value={from} onChange={setFrom} />
         <DateRangeField label="To" value={to} onChange={setTo} />
         {(from || to || status !== "all" || search) && (
-          <Button
+          <ZoruButton
             variant="ghost"
             size="sm"
             onClick={() => {
@@ -577,70 +607,70 @@ export default function SchedulerQueuePage() {
             }}
           >
             Clear
-          </Button>
+          </ZoruButton>
         )}
       </div>
 
       {/* ─── Bulk bar ────────────────────────────────────────────────── */}
       {selected.size > 0 && (
-        <div className="flex flex-wrap items-center gap-2 rounded-md border bg-secondary/50 px-3 py-2 text-sm">
+        <div className="flex flex-wrap items-center gap-2 rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface px-3 py-2 text-sm text-zoru-ink">
           <span>
             <strong>{selected.size}</strong> selected
           </span>
           <div className="ml-auto flex items-center gap-2">
-            <Popover
+            <ZoruPopover
               open={bulkRescheduleOpen}
               onOpenChange={setBulkRescheduleOpen}
             >
-              <PopoverTrigger asChild>
-                <Button variant="outline" size="sm">
+              <ZoruPopoverTrigger asChild>
+                <ZoruButton variant="outline" size="sm">
                   <CalendarIcon className="mr-1.5 h-4 w-4" />
                   Reschedule to…
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent align="end" className="w-auto p-0">
-                <Calendar
+                </ZoruButton>
+              </ZoruPopoverTrigger>
+              <ZoruPopoverContent align="end" className="w-auto p-0">
+                <ZoruCalendar
                   mode="single"
                   selected={bulkRescheduleDate}
                   onSelect={setBulkRescheduleDate}
                 />
-                <div className="flex justify-end gap-2 border-t p-2">
-                  <Button
+                <div className="flex justify-end gap-2 border-t border-zoru-line p-2">
+                  <ZoruButton
                     size="sm"
                     variant="ghost"
                     onClick={() => setBulkRescheduleOpen(false)}
                   >
                     Cancel
-                  </Button>
-                  <Button
+                  </ZoruButton>
+                  <ZoruButton
                     size="sm"
                     onClick={handleBulkReschedule}
                     disabled={!bulkRescheduleDate || bulkRescheduling}
                   >
                     Apply
-                  </Button>
+                  </ZoruButton>
                 </div>
-              </PopoverContent>
-            </Popover>
-            <Button
+              </ZoruPopoverContent>
+            </ZoruPopover>
+            <ZoruButton
               variant="destructive"
               size="sm"
               onClick={handleBulkCancel}
             >
               <Trash2 className="mr-1.5 h-4 w-4" />
               Cancel
-            </Button>
+            </ZoruButton>
           </div>
         </div>
       )}
 
       {/* ─── Table ──────────────────────────────────────────────────── */}
-      <div className="rounded-lg border bg-card overflow-x-auto">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-8">
-                <Checkbox
+      <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg overflow-x-auto">
+        <ZoruTable>
+          <ZoruTableHeader>
+            <ZoruTableRow>
+              <ZoruTableHead className="w-8">
+                <ZoruCheckbox
                   checked={
                     allVisibleSelected
                       ? true
@@ -651,82 +681,81 @@ export default function SchedulerQueuePage() {
                   onCheckedChange={toggleAll}
                   aria-label="Select all visible"
                 />
-              </TableHead>
-              <TableHead>Target</TableHead>
-              <TableHead>Message</TableHead>
-              <TableHead>Scheduled for</TableHead>
-              <TableHead>Recurrence</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Sent at</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
+              </ZoruTableHead>
+              <ZoruTableHead>Target</ZoruTableHead>
+              <ZoruTableHead>Message</ZoruTableHead>
+              <ZoruTableHead>Scheduled for</ZoruTableHead>
+              <ZoruTableHead>Recurrence</ZoruTableHead>
+              <ZoruTableHead>Status</ZoruTableHead>
+              <ZoruTableHead>Sent at</ZoruTableHead>
+              <ZoruTableHead className="text-right">Actions</ZoruTableHead>
+            </ZoruTableRow>
+          </ZoruTableHeader>
+          <ZoruTableBody>
             {visibleRows.length === 0 && loaded && (
-              <TableRow>
-                <TableCell
+              <ZoruTableRow>
+                <ZoruTableCell
                   colSpan={8}
-                  className="py-10 text-center text-sm text-muted-foreground"
+                  className="py-10 text-center text-sm text-zoru-ink-muted"
                 >
                   No scheduled messages match these filters.
-                </TableCell>
-              </TableRow>
+                </ZoruTableCell>
+              </ZoruTableRow>
             )}
             {visibleRows.map((row) => {
               const meta = targetTypeMeta(row.primaryTargetType);
               const Icon = meta.Icon;
               const isSelected = selected.has(row.id);
               return (
-                <TableRow
+                <ZoruTableRow
                   key={row.id}
                   data-state={isSelected ? "selected" : undefined}
                   className="cursor-pointer"
                   onClick={() => openEdit(row)}
                 >
-                  <TableCell
+                  <ZoruTableCell
                     onClick={(e) => e.stopPropagation()}
                     className="w-8"
                   >
-                    <Checkbox
+                    <ZoruCheckbox
                       checked={isSelected}
                       onCheckedChange={() => toggleRow(row.id)}
                       aria-label={`Select schedule ${row.id}`}
                     />
-                  </TableCell>
-                  <TableCell>
+                  </ZoruTableCell>
+                  <ZoruTableCell>
                     <div className="flex items-center gap-2">
                       <span
                         className={cn(
-                          "inline-flex h-6 w-6 items-center justify-center rounded-md",
-                          meta.className,
+                          "inline-flex h-6 w-6 items-center justify-center rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface text-zoru-ink",
                         )}
                       >
                         <Icon className="h-3.5 w-3.5" />
                       </span>
                       <div className="min-w-0">
-                        <div className="truncate text-xs font-medium">
+                        <div className="truncate text-xs font-medium text-zoru-ink">
                           {row.primaryTargetLabel}
                         </div>
-                        <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                        <div className="text-[10px] uppercase tracking-wide text-zoru-ink-muted">
                           {meta.label}
                           {row.targets.length > 1 &&
                             ` +${row.targets.length - 1}`}
                         </div>
                       </div>
                     </div>
-                  </TableCell>
-                  <TableCell className="max-w-[28ch]">
-                    <span className="block truncate text-xs">
+                  </ZoruTableCell>
+                  <ZoruTableCell className="max-w-[28ch]">
+                    <span className="block truncate text-xs text-zoru-ink">
                       {row.payloadPreview}
                     </span>
-                  </TableCell>
-                  <TableCell className="whitespace-nowrap text-xs">
+                  </ZoruTableCell>
+                  <ZoruTableCell className="whitespace-nowrap text-xs text-zoru-ink">
                     {row.scheduledFor.toLocaleString()}
-                  </TableCell>
-                  <TableCell className="text-xs">
+                  </ZoruTableCell>
+                  <ZoruTableCell className="text-xs text-zoru-ink">
                     {recurrenceLabel(row)}
-                  </TableCell>
-                  <TableCell>
+                  </ZoruTableCell>
+                  <ZoruTableCell>
                     <span
                       className={cn(
                         "inline-flex rounded-full border px-2 py-0.5 text-[10px] font-medium",
@@ -735,36 +764,36 @@ export default function SchedulerQueuePage() {
                     >
                       {STATUS_LABEL[row.status]}
                     </span>
-                  </TableCell>
-                  <TableCell className="whitespace-nowrap text-xs text-muted-foreground">
+                  </ZoruTableCell>
+                  <ZoruTableCell className="whitespace-nowrap text-xs text-zoru-ink-muted">
                     {row.sentAt ? row.sentAt.toLocaleString() : "—"}
-                  </TableCell>
-                  <TableCell
+                  </ZoruTableCell>
+                  <ZoruTableCell
                     className="text-right"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    <Button
+                    <ZoruButton
                       variant="ghost"
                       size="sm"
                       onClick={() => openEdit(row)}
                     >
                       Edit
-                    </Button>
+                    </ZoruButton>
                     {row.status === "pending" && (
-                      <Button
+                      <ZoruButton
                         variant="ghost"
                         size="sm"
                         onClick={() => handleCancel(row.id)}
                       >
                         Cancel
-                      </Button>
+                      </ZoruButton>
                     )}
-                  </TableCell>
-                </TableRow>
+                  </ZoruTableCell>
+                </ZoruTableRow>
               );
             })}
-          </TableBody>
-        </Table>
+          </ZoruTableBody>
+        </ZoruTable>
       </div>
 
       <ScheduleDialog
@@ -793,24 +822,24 @@ function DateRangeField({
   const [open, setOpen] = React.useState(false);
   return (
     <div className="flex flex-col gap-1">
-      <Label className="text-[11px]">{label}</Label>
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <Button
+      <ZoruLabel className="text-[11px]">{label}</ZoruLabel>
+      <ZoruPopover open={open} onOpenChange={setOpen}>
+        <ZoruPopoverTrigger asChild>
+          <ZoruButton
             type="button"
             variant="outline"
             size="sm"
             className={cn(
               "w-[140px] justify-start font-normal",
-              !value && "text-muted-foreground",
+              !value && "text-zoru-ink-muted",
             )}
           >
             <CalendarIcon className="mr-2 h-3.5 w-3.5" />
             {value ? value.toLocaleDateString() : "Any"}
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent align="start" className="w-auto p-0">
-          <Calendar
+          </ZoruButton>
+        </ZoruPopoverTrigger>
+        <ZoruPopoverContent align="start" className="w-auto p-0">
+          <ZoruCalendar
             mode="single"
             selected={value}
             onSelect={(d) => {
@@ -820,8 +849,8 @@ function DateRangeField({
             initialFocus
           />
           {value && (
-            <div className="border-t p-2">
-              <Button
+            <div className="border-t border-zoru-line p-2">
+              <ZoruButton
                 size="sm"
                 variant="ghost"
                 onClick={() => {
@@ -830,11 +859,11 @@ function DateRangeField({
                 }}
               >
                 Clear
-              </Button>
+              </ZoruButton>
             </div>
           )}
-        </PopoverContent>
-      </Popover>
+        </ZoruPopoverContent>
+      </ZoruPopover>
     </div>
   );
 }

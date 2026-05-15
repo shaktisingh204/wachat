@@ -1,21 +1,17 @@
 /**
- * /sabwa layout — Phase 0 of the SabWa (Personal WhatsApp) module.
+ * /sabwa layout — ZoruUI migration.
  *
- * Mirrors the auth/project guard used by `/wachat/layout.tsx` (session check,
- * onboarding redirect, project provider) but renders a SabWa-specific
- * two-column shell:
+ * Reuses `ZoruHomeShell` (via `SabwaShell`) so every `/sabwa/*` page
+ * renders inside the SAME sidebar + dock as `/dashboard`. No bespoke
+ * SabWa chrome. Auth/project guard mirrors `/wachat/layout.tsx`.
  *
- *   ┌────────────────────────────────────────────────┐
- *   │ <SabWaSubRail />  │  {children}                │
- *   │ (md+: collapsible │                            │
- *   │  icon rail;       │                            │
- *   │  <md: hamburger   │                            │
- *   │  → <Sheet> drawer)│                            │
- *   └────────────────────────────────────────────────┘
- *
- * Per-phase work (1–13) only touches the page content; this shell is the
- * constant.
+ * SabWa-specific session state (linked WhatsApp numbers) is provided
+ * via `SabwaSessionProvider`. The "active session" pill lives inside
+ * the relevant page bodies, not the global header (each page can pick
+ * the position that suits its layout).
  */
+
+import "@/styles/zoruui.css";
 
 import * as React from "react";
 import type { Metadata } from "next";
@@ -32,8 +28,7 @@ import {
 } from "@/lib/sabwa/session-context";
 import type { SabwaSession } from "@/lib/sabwa/types";
 
-import { SabWaSubRail } from "./_components/sabwa-sub-rail";
-import { SessionSwitcher } from "./_components/session-switcher";
+import { SabwaShell } from "./_components/sabwa-shell";
 
 export const metadata: Metadata = {
   title: "SabWa — Personal WhatsApp",
@@ -86,27 +81,34 @@ export default async function SabWaLayout({
     }
   }
 
+  const credits = user?.credits;
+  const totalCredits =
+    typeof credits === "number"
+      ? credits
+      : credits && typeof credits === "object"
+        ? Object.values(credits).reduce<number>(
+            (sum, v) => sum + (typeof v === "number" ? v : 0),
+            0,
+          )
+        : 0;
+
   return (
     <RBACGuard>
       <ProjectProvider initialProjects={projects} user={user}>
         <SabwaSessionProvider initialSessions={initialSessions}>
-          <div className="flex min-h-screen w-full bg-background">
-            {/* Left: collapsible sub-rail (mobile drawer via Sheet inside) */}
-            <SabWaSubRail />
-
-            {/* Right: page content with a sticky session switcher header */}
-            <div className="flex min-w-0 flex-1 flex-col">
-              <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-3 border-b bg-background/80 px-3 backdrop-blur supports-[backdrop-filter]:bg-background/60 md:px-6">
-                <div className="md:hidden">
-                  {/* Hamburger is rendered by SabWaSubRail itself */}
-                </div>
-                <div className="ml-auto">
-                  <SessionSwitcher />
-                </div>
-              </header>
-              <main className="min-w-0 flex-1">{children}</main>
-            </div>
-          </div>
+          <SabwaShell
+            user={{
+              name: user?.name,
+              email: user?.email,
+              avatar: user?.image,
+            }}
+            plan={{
+              name: user?.plan?.name,
+              credits: totalCredits,
+            }}
+          >
+            {children}
+          </SabwaShell>
         </SabwaSessionProvider>
       </ProjectProvider>
     </RBACGuard>

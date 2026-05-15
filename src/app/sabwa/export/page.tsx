@@ -5,6 +5,9 @@
  *
  * Configurator (left): scope, format, include-media, "Run export".
  * History (right): status, format, size, created, download link, expires.
+ *
+ * Visual layer migrated to ZoruUI. Scope picker uses a segmented
+ * ZoruButton group (no tab UI).
  */
 
 import * as React from 'react';
@@ -27,42 +30,46 @@ import {
   type SabwaExportStatus,
 } from '@/app/actions/sabwa.actions';
 
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
-import { DatePicker } from '@/components/ui/date-picker';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { useToast } from '@/hooks/use-toast';
+  ZoruBadge,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardDescription,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruCheckbox,
+  ZoruDatePicker,
+  ZoruInput,
+  ZoruLabel,
+  ZoruRadioGroup,
+  ZoruRadioGroupItem,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  useZoruToast,
+} from '@/components/zoruui';
 
 import { EmptyState } from '@/app/sabwa/_components/empty-state';
 
 const STUB_SESSION_ID = 'stub-primary';
 
 type ScopeKind = SabwaExportScope['kind'];
+
+const SCOPE_OPTIONS: { value: ScopeKind; label: string }[] = [
+  { value: 'all', label: 'All chats' },
+  { value: 'chats', label: 'Specific chats' },
+  { value: 'date_range', label: 'Date range' },
+];
 
 const FORMAT_LABELS: Record<SabwaExportFormat, string> = {
   json: 'JSON',
@@ -82,7 +89,7 @@ function formatBytes(bytes?: number): string {
 
 function statusVariant(
   status: SabwaExportStatus,
-): 'secondary' | 'success' | 'warning' | 'destructive' {
+): 'secondary' | 'success' | 'warning' | 'danger' {
   switch (status) {
     case 'ready':
       return 'success';
@@ -91,14 +98,14 @@ function statusVariant(
       return 'warning';
     case 'failed':
     case 'expired':
-      return 'destructive';
+      return 'danger';
     default:
       return 'secondary';
   }
 }
 
 export default function ExportPage() {
-  const { toast } = useToast();
+  const toast = useZoruToast();
 
   // Configurator state
   const [scopeKind, setScopeKind] = React.useState<ScopeKind>('all');
@@ -144,7 +151,10 @@ export default function ExportPage() {
   }, [scopeKind, jidsRaw, from, to]);
 
   const runExport = React.useCallback(
-    async (overrideScope?: SabwaExportScope, overrideFmt?: SabwaExportFormat) => {
+    async (
+      overrideScope?: SabwaExportScope,
+      overrideFmt?: SabwaExportFormat,
+    ) => {
       setSubmitting(true);
       try {
         const res = await createExport({
@@ -154,21 +164,21 @@ export default function ExportPage() {
           includeMedia,
         });
         if (!res.ok) {
-          toast({
+          toast.toast({
             title: 'Export failed',
             description: res.error,
             variant: 'destructive',
           });
           return;
         }
-        toast({
+        toast.toast({
           title: 'Export queued',
           description:
             'Your export is running in the background. You will see it appear in the history shortly.',
         });
         await loadHistory();
       } catch (err) {
-        toast({
+        toast.toast({
           title: 'Export queued',
           description:
             err instanceof Error
@@ -183,16 +193,32 @@ export default function ExportPage() {
   );
 
   return (
-    <div className="space-y-6 p-4 md:p-6 lg:p-8">
+    <div className="mx-auto w-full max-w-[1180px] space-y-6 px-6 pt-6 pb-10">
+      <ZoruBreadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/sabwa">SabWa</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>Export</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </ZoruBreadcrumb>
+
       <div className="flex items-start gap-3">
-        <div className="rounded-xl bg-secondary p-3">
-          <Download className="h-6 w-6" />
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface text-zoru-ink">
+          <Download className="h-5 w-5" />
         </div>
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">
+          <h1 className="text-[24px] leading-[1.2] tracking-[-0.015em] text-zoru-ink">
             Export / Backup
           </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="mt-1 text-[13px] text-zoru-ink-muted">
             Run background exports of selected chats and download from a signed
             R2 link when ready.
           </p>
@@ -201,39 +227,44 @@ export default function ExportPage() {
 
       <div className="grid gap-4 lg:grid-cols-5">
         {/* Configurator */}
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle className="text-base">New export</CardTitle>
-            <CardDescription>
+        <ZoruCard className="lg:col-span-2">
+          <ZoruCardHeader>
+            <ZoruCardTitle className="text-base">New export</ZoruCardTitle>
+            <ZoruCardDescription>
               Choose scope, format, and whether to bundle media.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-5">
+            </ZoruCardDescription>
+          </ZoruCardHeader>
+          <ZoruCardContent className="space-y-5">
             <div className="space-y-2">
-              <Label className="text-xs uppercase tracking-wide text-muted-foreground">
+              <ZoruLabel className="text-xs uppercase tracking-wide text-zoru-ink-muted">
                 Scope
-              </Label>
-              <Select
-                value={scopeKind}
-                onValueChange={(v) => setScopeKind(v as ScopeKind)}
+              </ZoruLabel>
+              <div
+                role="group"
+                aria-label="Export scope"
+                className="inline-flex flex-wrap gap-1 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-1"
               >
-                <SelectTrigger className="h-9">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All chats</SelectItem>
-                  <SelectItem value="chats">Specific chats</SelectItem>
-                  <SelectItem value="date_range">Date range</SelectItem>
-                </SelectContent>
-              </Select>
+                {SCOPE_OPTIONS.map((opt) => (
+                  <ZoruButton
+                    key={opt.value}
+                    type="button"
+                    size="sm"
+                    variant={scopeKind === opt.value ? 'default' : 'ghost'}
+                    onClick={() => setScopeKind(opt.value)}
+                    className="rounded-[calc(var(--zoru-radius)-2px)]"
+                  >
+                    {opt.label}
+                  </ZoruButton>
+                ))}
+              </div>
               {scopeKind === 'chats' ? (
                 <div className="space-y-1">
-                  <Input
+                  <ZoruInput
                     placeholder="Comma- or newline-separated JIDs"
                     value={jidsRaw}
                     onChange={(e) => setJidsRaw(e.target.value)}
                   />
-                  <p className="text-[11px] text-muted-foreground">
+                  <p className="text-[11px] text-zoru-ink-muted">
                     Phase 1: paste JIDs directly. Inbox-based picker coming
                     once chat list lands.
                   </p>
@@ -241,67 +272,66 @@ export default function ExportPage() {
               ) : null}
               {scopeKind === 'date_range' ? (
                 <div className="grid grid-cols-2 gap-2">
-                  <DatePicker
-                    date={from}
-                    setDate={setFrom}
+                  <ZoruDatePicker
+                    value={from}
+                    onChange={setFrom}
                     placeholder="From"
-                    className="h-9"
                   />
-                  <DatePicker
-                    date={to}
-                    setDate={setTo}
+                  <ZoruDatePicker
+                    value={to}
+                    onChange={setTo}
                     placeholder="To"
-                    className="h-9"
                   />
                 </div>
               ) : null}
             </div>
 
             <div className="space-y-2">
-              <Label className="text-xs uppercase tracking-wide text-muted-foreground">
+              <ZoruLabel className="text-xs uppercase tracking-wide text-zoru-ink-muted">
                 Format
-              </Label>
-              <RadioGroup
+              </ZoruLabel>
+              <ZoruRadioGroup
                 value={fmt}
                 onValueChange={(v) => setFmt(v as SabwaExportFormat)}
                 className="grid grid-cols-2 gap-2"
               >
                 {(Object.keys(FORMAT_LABELS) as SabwaExportFormat[]).map(
                   (key) => (
-                    <Label
+                    <ZoruLabel
                       key={key}
                       htmlFor={`fmt-${key}`}
-                      className="flex cursor-pointer items-center gap-2 rounded-md border bg-card px-3 py-2 text-sm hover:bg-accent"
+                      className="flex cursor-pointer items-center gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-3 py-2 text-sm text-zoru-ink hover:bg-zoru-surface"
                     >
-                      <RadioGroupItem id={`fmt-${key}`} value={key} />
+                      <ZoruRadioGroupItem id={`fmt-${key}`} value={key} />
                       <span>{FORMAT_LABELS[key]}</span>
-                    </Label>
+                    </ZoruLabel>
                   ),
                 )}
-              </RadioGroup>
+              </ZoruRadioGroup>
             </div>
 
             <div className="flex items-start gap-2">
-              <Checkbox
+              <ZoruCheckbox
                 id="include-media"
                 checked={includeMedia}
                 onCheckedChange={(v) => setIncludeMedia(v === true)}
               />
-              <Label
+              <ZoruLabel
                 htmlFor="include-media"
                 className="text-sm font-normal leading-tight"
               >
                 Include media attachments
-                <span className="mt-0.5 block text-[11px] text-muted-foreground">
+                <span className="mt-0.5 block text-[11px] text-zoru-ink-muted">
                   Bundled into the archive — file size can grow quickly.
                 </span>
-              </Label>
+              </ZoruLabel>
             </div>
 
-            <Button
+            <ZoruButton
               onClick={() => void runExport()}
               disabled={submitting}
-              className="w-full gap-2"
+              block
+              className="gap-2"
             >
               {submitting ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -309,25 +339,25 @@ export default function ExportPage() {
                 <Play className="h-4 w-4" />
               )}
               Run export
-            </Button>
-          </CardContent>
-        </Card>
+            </ZoruButton>
+          </ZoruCardContent>
+        </ZoruCard>
 
         {/* History */}
-        <Card className="lg:col-span-3">
-          <CardHeader className="flex flex-row items-start justify-between gap-3">
+        <ZoruCard className="lg:col-span-3">
+          <ZoruCardHeader className="flex flex-row items-start justify-between gap-3">
             <div>
-              <CardTitle className="text-base">Past exports</CardTitle>
-              <CardDescription>
+              <ZoruCardTitle className="text-base">Past exports</ZoruCardTitle>
+              <ZoruCardDescription>
                 R2 download links expire — re-run any row with one click.
-              </CardDescription>
+              </ZoruCardDescription>
             </div>
-            <Button
+            <ZoruButton
               variant="outline"
               size="sm"
               onClick={() => void loadHistory()}
               disabled={loading}
-              className="h-8 gap-1.5"
+              className="gap-1.5"
             >
               {loading ? (
                 <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -335,9 +365,9 @@ export default function ExportPage() {
                 <RefreshCw className="h-3.5 w-3.5" />
               )}
               Refresh
-            </Button>
-          </CardHeader>
-          <CardContent>
+            </ZoruButton>
+          </ZoruCardHeader>
+          <ZoruCardContent>
             {exports.length === 0 ? (
               <EmptyState
                 icon={FileArchive}
@@ -346,44 +376,46 @@ export default function ExportPage() {
               />
             ) : (
               <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Format</TableHead>
-                      <TableHead>Size</TableHead>
-                      <TableHead>Created</TableHead>
-                      <TableHead>Expires</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
+                <ZoruTable>
+                  <ZoruTableHeader>
+                    <ZoruTableRow>
+                      <ZoruTableHead>Status</ZoruTableHead>
+                      <ZoruTableHead>Format</ZoruTableHead>
+                      <ZoruTableHead>Size</ZoruTableHead>
+                      <ZoruTableHead>Created</ZoruTableHead>
+                      <ZoruTableHead>Expires</ZoruTableHead>
+                      <ZoruTableHead className="text-right">
+                        Actions
+                      </ZoruTableHead>
+                    </ZoruTableRow>
+                  </ZoruTableHeader>
+                  <ZoruTableBody>
                     {exports.map((row) => {
                       const created = new Date(row.createdAt);
                       const expires = row.expiresAt
                         ? new Date(row.expiresAt)
                         : null;
                       return (
-                        <TableRow key={row.id}>
-                          <TableCell>
-                            <Badge variant={statusVariant(row.status)}>
+                        <ZoruTableRow key={row.id}>
+                          <ZoruTableCell>
+                            <ZoruBadge variant={statusVariant(row.status)}>
                               {row.status}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="font-mono text-xs uppercase">
+                            </ZoruBadge>
+                          </ZoruTableCell>
+                          <ZoruTableCell className="font-mono text-xs uppercase">
                             {FORMAT_LABELS[row.format]}
-                          </TableCell>
-                          <TableCell className="tabular-nums">
+                          </ZoruTableCell>
+                          <ZoruTableCell className="tabular-nums">
                             {formatBytes(row.sizeBytes)}
-                          </TableCell>
-                          <TableCell>
+                          </ZoruTableCell>
+                          <ZoruTableCell>
                             <span title={format(created, 'PPpp')}>
                               {formatDistanceToNow(created, {
                                 addSuffix: true,
                               })}
                             </span>
-                          </TableCell>
-                          <TableCell>
+                          </ZoruTableCell>
+                          <ZoruTableCell>
                             {expires ? (
                               <span title={format(expires, 'PPpp')}>
                                 {formatDistanceToNow(expires, {
@@ -393,15 +425,15 @@ export default function ExportPage() {
                             ) : (
                               '—'
                             )}
-                          </TableCell>
-                          <TableCell className="text-right">
+                          </ZoruTableCell>
+                          <ZoruTableCell className="text-right">
                             <div className="flex items-center justify-end gap-2">
                               {row.status === 'ready' && row.downloadUrl ? (
-                                <Button
+                                <ZoruButton
                                   asChild
                                   size="sm"
                                   variant="outline"
-                                  className="h-8 gap-1.5"
+                                  className="gap-1.5"
                                 >
                                   <a
                                     href={row.downloadUrl}
@@ -411,12 +443,12 @@ export default function ExportPage() {
                                     <Download className="h-3.5 w-3.5" />
                                     Download
                                   </a>
-                                </Button>
+                                </ZoruButton>
                               ) : null}
-                              <Button
+                              <ZoruButton
                                 size="sm"
                                 variant="ghost"
-                                className="h-8 gap-1.5"
+                                className="gap-1.5"
                                 onClick={() =>
                                   void runExport(row.scope, row.format)
                                 }
@@ -424,18 +456,18 @@ export default function ExportPage() {
                               >
                                 <RotateCcw className="h-3.5 w-3.5" />
                                 Re-run
-                              </Button>
+                              </ZoruButton>
                             </div>
-                          </TableCell>
-                        </TableRow>
+                          </ZoruTableCell>
+                        </ZoruTableRow>
                       );
                     })}
-                  </TableBody>
-                </Table>
+                  </ZoruTableBody>
+                </ZoruTable>
               </div>
             )}
-          </CardContent>
-        </Card>
+          </ZoruCardContent>
+        </ZoruCard>
       </div>
     </div>
   );

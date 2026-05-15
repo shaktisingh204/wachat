@@ -17,6 +17,9 @@
  *
  * SabFiles policy: media attachments come from `<SabFilePickerButton>`.
  * There is intentionally no free-text URL field.
+ *
+ * Rebuilt on ZoruUI primitives. The recipient-type picker is rendered as
+ * a segmented ZoruButton group (no tab UI per ZoruUI design rules).
  */
 
 import * as React from "react";
@@ -32,40 +35,32 @@ import {
   X,
 } from "lucide-react";
 
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  RadioGroup,
-  RadioGroupItem,
-} from "@/components/ui/radio-group";
-import { Badge } from "@/components/ui/badge";
+  ZoruButton,
+  ZoruCalendar,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruInput,
+  ZoruLabel,
+  ZoruPopover,
+  ZoruPopoverContent,
+  ZoruPopoverTrigger,
+  ZoruRadioGroup,
+  ZoruRadioGroupItem,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruTextarea,
+  cn,
+  useZoruToast,
+} from "@/components/zoruui";
 import { SabFilePickerButton } from "@/components/sabfiles";
-import { useToast } from "@/hooks/use-toast";
 
 import {
   scheduleMessage,
@@ -157,14 +152,14 @@ function targetTypeMeta(type: SabwaScheduledTargetType): {
       return {
         label: "Group",
         badge: "secondary",
-        className: "bg-purple-500/10 text-purple-600 dark:text-purple-400",
+        className: "border border-zoru-line bg-zoru-surface text-zoru-ink",
         Icon: Users,
       };
     case "broadcast":
       return {
         label: "Broadcast",
         badge: "secondary",
-        className: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
+        className: "border border-zoru-line bg-zoru-surface text-zoru-ink",
         Icon: Megaphone,
       };
     case "individual":
@@ -172,7 +167,7 @@ function targetTypeMeta(type: SabwaScheduledTargetType): {
       return {
         label: "Chat",
         badge: "default",
-        className: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
+        className: "border border-zoru-line bg-zoru-surface text-zoru-ink",
         Icon: MessageSquare,
       };
   }
@@ -268,7 +263,7 @@ export function ScheduleDialog({
   sessionId,
   onSaved,
 }: ScheduleDialogProps) {
-  const { toast } = useToast();
+  const toast = useZoruToast();
 
   // ─ State ────────────────────────────────────────────────────────────────
   const initialDate = React.useMemo(
@@ -415,7 +410,7 @@ export function ScheduleDialog({
   function reportError(action: string, err: unknown) {
     const message =
       err instanceof Error ? err.message : "Something went wrong.";
-    toast({
+    toast.toast({
       title: action,
       description: message,
       variant: "destructive",
@@ -434,7 +429,7 @@ export function ScheduleDialog({
         result = await updateScheduledMessage(initial.scheduledId, draft);
       } else {
         if (!sessionId) {
-          toast({
+          toast.toast({
             title: "No active session",
             description:
               "Connect or select a SabWa session before scheduling.",
@@ -451,7 +446,7 @@ export function ScheduleDialog({
         );
         return;
       }
-      toast({
+      toast.toast({
         title:
           mode === "edit" ? "Schedule updated" : "Message scheduled",
         description:
@@ -472,6 +467,7 @@ export function ScheduleDialog({
     } finally {
       setSubmitting(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     canSubmit,
     buildDraft,
@@ -488,7 +484,7 @@ export function ScheduleDialog({
 
   const handleTestNow = React.useCallback(async () => {
     if (targets.length === 0 || (!body.trim() && !mediaId)) {
-      toast({
+      toast.toast({
         title: "Nothing to send",
         description: "Pick a recipient and add a message first.",
         variant: "destructive",
@@ -496,7 +492,7 @@ export function ScheduleDialog({
       return;
     }
     if (!sessionId) {
-      toast({
+      toast.toast({
         title: "No active session",
         description:
           "Connect or select a SabWa session before testing a send.",
@@ -519,7 +515,7 @@ export function ScheduleDialog({
       if (lastError) {
         reportError("Test send failed", new Error(lastError));
       } else {
-        toast({
+        toast.toast({
           title: "Test sent",
           description: `Delivered to ${targets.length} recipient${targets.length === 1 ? "" : "s"}.`,
         });
@@ -529,86 +525,92 @@ export function ScheduleDialog({
     } finally {
       setTesting(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [targets, body, mediaId, sessionId, toast]);
 
   // ─ Render ──────────────────────────────────────────────────────────────
   const calendarSelected = combined ?? undefined;
 
+  const TARGET_KINDS: { value: SabwaScheduledTargetType; label: string; Icon: React.ComponentType<{ className?: string }> }[] = [
+    { value: "individual", label: "Chat", Icon: MessageSquare },
+    { value: "group", label: "Group", Icon: Users },
+    { value: "broadcast", label: "Broadcast", Icon: Megaphone },
+  ];
+
+  const targetPlaceholder =
+    targetTab === "individual"
+      ? "Search contacts or paste a JID (e.g. 919812345678@s.whatsapp.net)"
+      : targetTab === "group"
+        ? "Search groups or paste a group JID (e.g. 12345-67890@g.us)"
+        : "Search broadcast lists or paste an ID";
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>
+    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+      <ZoruDialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <ZoruDialogHeader>
+          <ZoruDialogTitle>
             {mode === "edit" ? "Edit scheduled message" : "New schedule"}
-          </DialogTitle>
-          <DialogDescription>
+          </ZoruDialogTitle>
+          <ZoruDialogDescription>
             Pick recipients, compose your message, and choose when it sends.
-          </DialogDescription>
-        </DialogHeader>
+          </ZoruDialogDescription>
+        </ZoruDialogHeader>
 
         <div className="grid gap-5">
           {/* ─── Target ─────────────────────────────────────────────── */}
           <section className="space-y-2">
-            <Label className="text-sm font-medium">Recipients</Label>
-            <Tabs
-              value={targetTab}
-              onValueChange={(v) =>
-                setTargetTab(v as SabwaScheduledTargetType)
-              }
+            <ZoruLabel className="text-sm font-medium">Recipients</ZoruLabel>
+            {/* Segmented picker — no tab UI per ZoruUI rules */}
+            <div
+              role="group"
+              aria-label="Recipient type"
+              className="grid w-full grid-cols-3 rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface p-0.5"
             >
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="individual" className="gap-1.5">
-                  <MessageSquare className="h-3.5 w-3.5" /> Chat
-                </TabsTrigger>
-                <TabsTrigger value="group" className="gap-1.5">
-                  <Users className="h-3.5 w-3.5" /> Group
-                </TabsTrigger>
-                <TabsTrigger value="broadcast" className="gap-1.5">
-                  <Megaphone className="h-3.5 w-3.5" /> Broadcast
-                </TabsTrigger>
-              </TabsList>
-
-              {(
-                ["individual", "group", "broadcast"] as SabwaScheduledTargetType[]
-              ).map((kind) => (
-                <TabsContent key={kind} value={kind} className="mt-3 space-y-2">
-                  <div className="flex gap-2">
-                    <Input
-                      placeholder={
-                        kind === "individual"
-                          ? "Search contacts or paste a JID (e.g. 919812345678@s.whatsapp.net)"
-                          : kind === "group"
-                            ? "Search groups or paste a group JID (e.g. 12345-67890@g.us)"
-                            : "Search broadcast lists or paste an ID"
-                      }
-                      value={search}
-                      onChange={(e) => setSearch(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" && search.trim()) {
-                          e.preventDefault();
-                          addTarget(search.trim(), search.trim(), kind);
-                        }
-                      }}
-                    />
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      size="sm"
-                      disabled={!search.trim()}
-                      onClick={() =>
-                        addTarget(search.trim(), search.trim(), kind)
-                      }
-                    >
-                      Add
-                    </Button>
-                  </div>
-                  <p className="text-[11px] text-muted-foreground">
-                    Live contact / group search will land with Phase 2; for
-                    now you can paste a JID and press Enter.
-                  </p>
-                </TabsContent>
+              {TARGET_KINDS.map(({ value, label, Icon }) => (
+                <ZoruButton
+                  key={value}
+                  type="button"
+                  size="sm"
+                  variant={targetTab === value ? "default" : "ghost"}
+                  className="h-8 w-full gap-1.5 text-xs"
+                  onClick={() => setTargetTab(value)}
+                  aria-pressed={targetTab === value}
+                >
+                  <Icon className="h-3.5 w-3.5" />
+                  {label}
+                </ZoruButton>
               ))}
-            </Tabs>
+            </div>
+            <div className="mt-3 space-y-2">
+              <div className="flex gap-2">
+                <ZoruInput
+                  placeholder={targetPlaceholder}
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && search.trim()) {
+                      e.preventDefault();
+                      addTarget(search.trim(), search.trim(), targetTab);
+                    }
+                  }}
+                />
+                <ZoruButton
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  disabled={!search.trim()}
+                  onClick={() =>
+                    addTarget(search.trim(), search.trim(), targetTab)
+                  }
+                >
+                  Add
+                </ZoruButton>
+              </div>
+              <p className="text-[11px] text-zoru-ink-muted">
+                Live contact / group search will land with Phase 2; for now
+                you can paste a JID and press Enter.
+              </p>
+            </div>
 
             {targets.length > 0 && (
               <div className="flex flex-wrap gap-1.5 pt-1">
@@ -629,7 +631,7 @@ export function ScheduleDialog({
                         type="button"
                         aria-label={`Remove ${t.label}`}
                         onClick={() => removeTarget(t.jid)}
-                        className="ml-0.5 rounded-full p-0.5 hover:bg-foreground/10"
+                        className="ml-0.5 rounded-full p-0.5 hover:bg-zoru-surface-2"
                       >
                         <X className="h-3 w-3" />
                       </button>
@@ -642,10 +644,10 @@ export function ScheduleDialog({
 
           {/* ─── Message ────────────────────────────────────────────── */}
           <section className="space-y-2">
-            <Label htmlFor="schedule-body" className="text-sm font-medium">
+            <ZoruLabel htmlFor="schedule-body" className="text-sm font-medium">
               Message
-            </Label>
-            <Textarea
+            </ZoruLabel>
+            <ZoruTextarea
               id="schedule-body"
               value={body}
               onChange={(e) => setBody(e.target.value)}
@@ -666,7 +668,7 @@ export function ScheduleDialog({
                 {mediaId ? "Replace attachment" : "Add attachment"}
               </SabFilePickerButton>
               {mediaId && (
-                <div className="flex items-center gap-1.5 rounded-full bg-secondary px-2 py-0.5 text-xs">
+                <div className="flex items-center gap-1.5 rounded-full border border-zoru-line bg-zoru-surface px-2 py-0.5 text-xs text-zoru-ink">
                   <span className="max-w-[16ch] truncate">
                     {mediaName ?? "Attachment"}
                   </span>
@@ -677,7 +679,7 @@ export function ScheduleDialog({
                       setMediaId(undefined);
                       setMediaName(undefined);
                     }}
-                    className="rounded-full p-0.5 hover:bg-foreground/10"
+                    className="rounded-full p-0.5 hover:bg-zoru-surface-2"
                   >
                     <X className="h-3 w-3" />
                   </button>
@@ -689,18 +691,18 @@ export function ScheduleDialog({
           {/* ─── Schedule ───────────────────────────────────────────── */}
           <section className="grid gap-3 sm:grid-cols-3">
             <div className="space-y-1.5">
-              <Label className="text-sm font-medium">Date</Label>
-              <Popover
+              <ZoruLabel className="text-sm font-medium">Date</ZoruLabel>
+              <ZoruPopover
                 open={datePopoverOpen}
                 onOpenChange={setDatePopoverOpen}
               >
-                <PopoverTrigger asChild>
-                  <Button
+                <ZoruPopoverTrigger asChild>
+                  <ZoruButton
                     type="button"
                     variant="outline"
                     className={cn(
                       "w-full justify-start text-left font-normal",
-                      !dateStr && "text-muted-foreground",
+                      !dateStr && "text-zoru-ink-muted",
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
@@ -709,10 +711,10 @@ export function ScheduleDialog({
                     ) : (
                       <span>Pick a date</span>
                     )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
+                  </ZoruButton>
+                </ZoruPopoverTrigger>
+                <ZoruPopoverContent className="w-auto p-0" align="start">
+                  <ZoruCalendar
                     mode="single"
                     selected={calendarSelected}
                     onSelect={(d) => {
@@ -721,16 +723,16 @@ export function ScheduleDialog({
                     }}
                     initialFocus
                   />
-                </PopoverContent>
-              </Popover>
+                </ZoruPopoverContent>
+              </ZoruPopover>
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="schedule-time" className="text-sm font-medium">
+              <ZoruLabel htmlFor="schedule-time" className="text-sm font-medium">
                 Time
-              </Label>
+              </ZoruLabel>
               <div className="relative">
-                <Clock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
+                <Clock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
+                <ZoruInput
                   id="schedule-time"
                   type="time"
                   value={timeStr}
@@ -740,33 +742,33 @@ export function ScheduleDialog({
               </div>
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="schedule-tz" className="text-sm font-medium">
+              <ZoruLabel htmlFor="schedule-tz" className="text-sm font-medium">
                 Timezone
-              </Label>
-              <Select value={timezone} onValueChange={setTimezone}>
-                <SelectTrigger id="schedule-tz">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
+              </ZoruLabel>
+              <ZoruSelect value={timezone} onValueChange={setTimezone}>
+                <ZoruSelectTrigger id="schedule-tz">
+                  <ZoruSelectValue />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
                   {TIMEZONES.map((tz) => (
-                    <SelectItem key={tz} value={tz}>
+                    <ZoruSelectItem key={tz} value={tz}>
                       {tz}
-                    </SelectItem>
+                    </ZoruSelectItem>
                   ))}
                   {!TIMEZONES.includes(DEFAULT_TIMEZONE) && (
-                    <SelectItem value={DEFAULT_TIMEZONE}>
+                    <ZoruSelectItem value={DEFAULT_TIMEZONE}>
                       {DEFAULT_TIMEZONE}
-                    </SelectItem>
+                    </ZoruSelectItem>
                   )}
-                </SelectContent>
-              </Select>
+                </ZoruSelectContent>
+              </ZoruSelect>
             </div>
           </section>
 
           {/* ─── Recurrence ─────────────────────────────────────────── */}
           <section className="space-y-2">
-            <Label className="text-sm font-medium">Recurrence</Label>
-            <RadioGroup
+            <ZoruLabel className="text-sm font-medium">Recurrence</ZoruLabel>
+            <ZoruRadioGroup
               value={recurrence}
               onValueChange={(v) =>
                 setRecurrence(v as SchedulerRecurrence)
@@ -776,53 +778,54 @@ export function ScheduleDialog({
               {(
                 ["none", "daily", "weekly", "monthly", "custom"] as const
               ).map((opt) => (
-                <Label
+                <ZoruLabel
                   key={opt}
                   htmlFor={`rec-${opt}`}
                   className={cn(
-                    "flex cursor-pointer items-center gap-2 rounded-md border px-2.5 py-1.5 text-xs capitalize",
-                    recurrence === opt && "border-primary bg-primary/5",
+                    "flex cursor-pointer items-center gap-2 rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-bg px-2.5 py-1.5 text-xs capitalize text-zoru-ink",
+                    recurrence === opt &&
+                      "border-zoru-line-strong bg-zoru-surface",
                   )}
                 >
-                  <RadioGroupItem id={`rec-${opt}`} value={opt} />
+                  <ZoruRadioGroupItem id={`rec-${opt}`} value={opt} />
                   {opt === "none" ? "Once" : opt}
-                </Label>
+                </ZoruLabel>
               ))}
-            </RadioGroup>
+            </ZoruRadioGroup>
             {recurrence === "custom" && (
-              <Input
+              <ZoruInput
                 value={customCron}
                 onChange={(e) => setCustomCron(e.target.value)}
                 placeholder="Cron — e.g. 0 9 * * 1-5"
                 className="font-mono text-xs"
               />
             )}
-            <p className="text-[11px] text-muted-foreground">{cronPreview}</p>
+            <p className="text-[11px] text-zoru-ink-muted">{cronPreview}</p>
           </section>
 
           {/* ─── End condition ──────────────────────────────────────── */}
           {recurrence !== "none" && (
             <section className="space-y-2">
-              <Label className="text-sm font-medium">End condition</Label>
-              <RadioGroup
+              <ZoruLabel className="text-sm font-medium">End condition</ZoruLabel>
+              <ZoruRadioGroup
                 value={endKind}
                 onValueChange={(v) => setEndKind(v as SchedulerEndKind)}
                 className="flex flex-col gap-2 sm:flex-row sm:items-center"
               >
-                <Label
+                <ZoruLabel
                   htmlFor="end-never"
-                  className="flex cursor-pointer items-center gap-2 text-sm"
+                  className="flex cursor-pointer items-center gap-2 text-sm text-zoru-ink"
                 >
-                  <RadioGroupItem id="end-never" value="never" />
+                  <ZoruRadioGroupItem id="end-never" value="never" />
                   Never
-                </Label>
-                <Label
+                </ZoruLabel>
+                <ZoruLabel
                   htmlFor="end-count"
-                  className="flex cursor-pointer items-center gap-2 text-sm"
+                  className="flex cursor-pointer items-center gap-2 text-sm text-zoru-ink"
                 >
-                  <RadioGroupItem id="end-count" value="count" />
+                  <ZoruRadioGroupItem id="end-count" value="count" />
                   After
-                  <Input
+                  <ZoruInput
                     type="number"
                     min={1}
                     value={endCount}
@@ -833,29 +836,29 @@ export function ScheduleDialog({
                     className="h-7 w-20"
                   />
                   occurrences
-                </Label>
-                <Label
+                </ZoruLabel>
+                <ZoruLabel
                   htmlFor="end-date"
-                  className="flex cursor-pointer items-center gap-2 text-sm"
+                  className="flex cursor-pointer items-center gap-2 text-sm text-zoru-ink"
                 >
-                  <RadioGroupItem id="end-date" value="date" />
+                  <ZoruRadioGroupItem id="end-date" value="date" />
                   On
-                  <Input
+                  <ZoruInput
                     type="date"
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
                     disabled={endKind !== "date"}
                     className="h-7"
                   />
-                </Label>
-              </RadioGroup>
+                </ZoruLabel>
+              </ZoruRadioGroup>
             </section>
           )}
 
           {/* ─── Errors ─────────────────────────────────────────────── */}
           {errors.length > 0 && (
-            <div className="rounded-md border border-amber-500/30 bg-amber-500/5 p-2.5">
-              <ul className="space-y-0.5 text-xs text-amber-700 dark:text-amber-300">
+            <div className="rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface p-2.5">
+              <ul className="space-y-0.5 text-xs text-zoru-ink-muted">
                 {errors.map((e) => (
                   <li key={e}>• {e}</li>
                 ))}
@@ -864,8 +867,8 @@ export function ScheduleDialog({
           )}
         </div>
 
-        <DialogFooter className="gap-2 sm:gap-2">
-          <Button
+        <ZoruDialogFooter className="gap-2 sm:gap-2">
+          <ZoruButton
             type="button"
             variant="ghost"
             onClick={handleTestNow}
@@ -878,21 +881,21 @@ export function ScheduleDialog({
               <Send className="mr-1.5 h-4 w-4" />
             )}
             Test now
-          </Button>
-          <Button
+          </ZoruButton>
+          <ZoruButton
             type="button"
             variant="outline"
             onClick={() => onOpenChange(false)}
           >
             Cancel
-          </Button>
-          <Button type="button" onClick={handleSubmit} disabled={!canSubmit}>
+          </ZoruButton>
+          <ZoruButton type="button" onClick={handleSubmit} disabled={!canSubmit}>
             {submitting && <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />}
             {mode === "edit" ? "Save changes" : "Schedule"}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+          </ZoruButton>
+        </ZoruDialogFooter>
+      </ZoruDialogContent>
+    </ZoruDialog>
   );
 }
 

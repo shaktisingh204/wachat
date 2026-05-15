@@ -13,14 +13,15 @@
  * it, then renders this component). On the first transition to
  * 'connected' we fire `onPaired` exactly once so the page can navigate
  * away (typically to /sabwa/inbox).
+ *
+ * Rebuilt on ZoruUI primitives — neutral palette, no clay-* utilities.
  */
 
 import * as React from 'react';
 import QRCode from 'react-qr-code';
 import { Loader2, RefreshCw, Smartphone } from 'lucide-react';
 
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { ZoruButton, ZoruBadge, cn } from '@/components/zoruui';
 import { useSabwaStream } from '@/lib/sabwa/use-sabwa-stream';
 
 import { StatusBadge } from './status-badge';
@@ -58,9 +59,6 @@ export function PairingFlow({
   const qr = stream.qr ?? initialQr;
   const pairCode = stream.pairCode ?? initialPairCode;
 
-  // Derive the badge's status. The stream's `status` is the *connection*
-  // state (connecting / open / closed / idle); the session lifecycle
-  // comes through `lastEvent.kind === 'status'` payloads.
   const sessionStatus =
     stream.lastEvent?.kind === 'status' && typeof stream.lastEvent.status === 'string'
       ? stream.lastEvent.status
@@ -83,7 +81,6 @@ export function PairingFlow({
     Math.round(QR_LIFETIME_MS / 1000),
   );
 
-  // 30s countdown for QR refresh affordance.
   React.useEffect(() => {
     if (mode !== 'qr') return;
     setSecondsLeft(Math.round(QR_LIFETIME_MS / 1000));
@@ -98,7 +95,9 @@ export function PairingFlow({
       <div className="flex items-center gap-2">
         <StatusBadge status={badgeStatus} />
         {stream.error ? (
-          <span className="text-xs text-destructive">{stream.error}</span>
+          <ZoruBadge variant="danger" className="text-[10.5px]">
+            {stream.error}
+          </ZoruBadge>
         ) : null}
       </div>
 
@@ -106,7 +105,7 @@ export function PairingFlow({
         <div className="flex flex-col items-center gap-3">
           <div
             aria-label="WhatsApp pairing QR code"
-            className="relative rounded-2xl border bg-white p-4 shadow-sm"
+            className="relative rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-white p-4 shadow-[var(--zoru-shadow-sm)]"
             style={{ width: 296, height: 296 }}
           >
             {qr ? (
@@ -118,48 +117,48 @@ export function PairingFlow({
               />
             ) : (
               <div className="flex h-[264px] w-[264px] items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                <Loader2 className="h-8 w-8 animate-spin text-zoru-ink-muted" />
               </div>
             )}
             <div
               aria-hidden
-              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-md bg-white p-1 shadow"
+              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-md bg-white p-1 shadow-[var(--zoru-shadow-sm)]"
             >
-              <div className="flex h-6 w-6 items-center justify-center rounded-md bg-blue-600 text-white">
+              <div className="flex h-6 w-6 items-center justify-center rounded-md bg-zoru-ink text-zoru-on-primary">
                 <Smartphone className="h-3.5 w-3.5" />
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <div className="flex items-center gap-2 text-[12px] text-zoru-ink-muted">
             <span>QR refreshes in {secondsLeft}s</span>
             {onRefresh && (
-              <Button
+              <ZoruButton
                 type="button"
                 variant="ghost"
                 size="sm"
                 onClick={onRefresh}
                 className="h-7 gap-1.5 px-2"
               >
-                <RefreshCw className="h-3 w-3" />
+                <RefreshCw />
                 <span>Refresh now</span>
-              </Button>
+              </ZoruButton>
             )}
           </div>
         </div>
       ) : (
         <div className="flex flex-col items-center gap-3">
-          <div className="rounded-2xl border bg-card px-6 py-5 text-center">
-            <p className="text-xs uppercase tracking-wider text-muted-foreground">
+          <div className="rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg px-6 py-5 text-center">
+            <p className="text-[10.5px] uppercase tracking-[0.12em] text-zoru-ink-muted">
               Your pairing code
             </p>
-            <p className="mt-2 font-mono text-3xl font-bold tracking-[0.3em]">
+            <p className="mt-2 font-mono text-[28px] font-bold tracking-[0.3em] text-zoru-ink">
               {pairCode ? (
                 pairCode.replace(/(.{4})/, '$1-').replace(/-$/, '')
               ) : (
-                <Loader2 className="inline h-7 w-7 animate-spin text-muted-foreground" />
+                <Loader2 className="inline h-7 w-7 animate-spin text-zoru-ink-muted" />
               )}
             </p>
-            <p className="mt-3 max-w-xs text-xs text-muted-foreground">
+            <p className="mt-3 max-w-xs text-[12px] text-zoru-ink-muted">
               Enter this 8-character code on your phone under{' '}
               <strong>Linked devices → Link with phone number</strong>.
             </p>
@@ -168,17 +167,15 @@ export function PairingFlow({
       )}
 
       {onModeChange ? (
-        <Button
+        <ZoruButton
           type="button"
           variant="link"
           size="sm"
           className="h-7"
           onClick={() => onModeChange(mode === 'qr' ? 'code' : 'qr')}
         >
-          {mode === 'qr'
-            ? 'Use pair code instead'
-            : 'Use QR code instead'}
-        </Button>
+          {mode === 'qr' ? 'Use pair code instead' : 'Use QR code instead'}
+        </ZoruButton>
       ) : null}
     </div>
   );

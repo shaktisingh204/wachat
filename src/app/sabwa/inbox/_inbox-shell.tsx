@@ -20,7 +20,15 @@ import * as React from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { MessageSquare, PlugZap } from 'lucide-react';
 
-import { Button } from '@/components/ui/button';
+import {
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+} from '@/components/zoruui';
 import { EmptyState } from '@/app/sabwa/_components/empty-state';
 import { StatusBadge } from '@/app/sabwa/_components/status-badge';
 import { useChats } from '@/lib/sabwa/use-sabwa-data';
@@ -129,15 +137,32 @@ export function InboxShell() {
   const showPanelOnDesktop = panelOpenLocal && activeChat;
 
   return (
-    <div className="flex h-[calc(100vh-3.5rem)] w-full flex-col bg-background">
+    <div className="flex h-[calc(100vh-3.5rem)] w-full flex-col bg-zoru-bg">
+      <div className="shrink-0 border-b border-zoru-line px-4 py-2">
+        <ZoruBreadcrumb>
+          <ZoruBreadcrumbList>
+            <ZoruBreadcrumbItem>
+              <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+            </ZoruBreadcrumbItem>
+            <ZoruBreadcrumbSeparator />
+            <ZoruBreadcrumbItem>
+              <ZoruBreadcrumbLink href="/sabwa">SabWa</ZoruBreadcrumbLink>
+            </ZoruBreadcrumbItem>
+            <ZoruBreadcrumbSeparator />
+            <ZoruBreadcrumbItem>
+              <ZoruBreadcrumbPage>Inbox</ZoruBreadcrumbPage>
+            </ZoruBreadcrumbItem>
+          </ZoruBreadcrumbList>
+        </ZoruBreadcrumb>
+      </div>
       {showOfflineBanner ? (
-        <div className="flex shrink-0 items-center gap-3 border-b bg-amber-500/10 px-3 py-2 text-xs">
+        <div className="flex shrink-0 items-center gap-3 border-b border-zoru-line bg-zoru-warning/10 px-3 py-2 text-xs">
           <StatusBadge status={status} size="sm" />
-          <span className="text-amber-700 dark:text-amber-300">
+          <span className="text-zoru-warning-ink">
             This session isn&apos;t connected. New messages will queue until you
             reconnect.
           </span>
-          <Button
+          <ZoruButton
             type="button"
             variant="ghost"
             size="sm"
@@ -145,7 +170,7 @@ export function InboxShell() {
             onClick={() => router.push('/sabwa/connect')}
           >
             Reconnect
-          </Button>
+          </ZoruButton>
         </div>
       ) : null}
 
