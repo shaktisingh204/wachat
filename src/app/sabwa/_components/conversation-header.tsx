@@ -22,15 +22,17 @@ import {
   Video,
 } from 'lucide-react';
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+  ZoruAvatar,
+  ZoruAvatarFallback,
+  ZoruAvatarImage,
+  ZoruButton,
+  ZoruDropdownMenu,
+  ZoruDropdownMenuContent,
+  ZoruDropdownMenuItem,
+  ZoruDropdownMenuSeparator,
+  ZoruDropdownMenuTrigger,
+} from '@/components/zoruui';
 import { cn } from '@/lib/utils';
 import type { SabwaChat } from '@/lib/sabwa/types';
 
@@ -74,12 +76,12 @@ export function ConversationHeader({
   return (
     <div
       className={cn(
-        'flex h-14 shrink-0 items-center gap-2 border-b bg-background/95 px-2 backdrop-blur md:px-3',
+        'flex h-14 shrink-0 items-center gap-2 border-b border-zoru-line bg-zoru-bg/95 px-2 backdrop-blur md:px-3',
         className,
       )}
     >
       {onBack ? (
-        <Button
+        <ZoruButton
           type="button"
           variant="ghost"
           size="icon"
@@ -88,30 +90,30 @@ export function ConversationHeader({
           onClick={onBack}
         >
           <ArrowLeft className="h-5 w-5" />
-        </Button>
+        </ZoruButton>
       ) : null}
 
       <button
         type="button"
         onClick={onTogglePanel}
-        className="flex min-w-0 flex-1 items-center gap-3 rounded-md px-1 py-1 text-left hover:bg-accent/50"
+        className="flex min-w-0 flex-1 items-center gap-3 rounded-[var(--zoru-radius)] px-1 py-1 text-left hover:bg-zoru-surface-2"
       >
-        <Avatar className="h-9 w-9 shrink-0">
+        <ZoruAvatar className="h-9 w-9 shrink-0">
           {chat.profilePicUrl ? (
-            <AvatarImage src={chat.profilePicUrl} alt={name} />
+            <ZoruAvatarImage src={chat.profilePicUrl} alt={name} />
           ) : null}
-          <AvatarFallback className="text-xs">
+          <ZoruAvatarFallback className="text-xs">
             {isGroup ? <Users className="h-4 w-4" /> : initials}
-          </AvatarFallback>
-        </Avatar>
+          </ZoruAvatarFallback>
+        </ZoruAvatar>
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-medium">{name}</p>
-          <p className="truncate text-xs text-muted-foreground">{subtitle}</p>
+          <p className="truncate text-sm font-medium text-zoru-ink">{name}</p>
+          <p className="truncate text-xs text-zoru-ink-muted">{subtitle}</p>
         </div>
       </button>
 
       <div className="flex shrink-0 items-center gap-0.5">
-        <Button
+        <ZoruButton
           type="button"
           variant="ghost"
           size="icon"
@@ -119,8 +121,8 @@ export function ConversationHeader({
           className="hidden md:inline-flex"
         >
           <Phone className="h-4 w-4" />
-        </Button>
-        <Button
+        </ZoruButton>
+        <ZoruButton
           type="button"
           variant="ghost"
           size="icon"
@@ -128,8 +130,8 @@ export function ConversationHeader({
           className="hidden md:inline-flex"
         >
           <Video className="h-4 w-4" />
-        </Button>
-        <Button
+        </ZoruButton>
+        <ZoruButton
           type="button"
           variant="ghost"
           size="icon"
@@ -137,9 +139,9 @@ export function ConversationHeader({
           onClick={onSearch}
         >
           <Search className="h-4 w-4" />
-        </Button>
+        </ZoruButton>
         {onTogglePanel ? (
-          <Button
+          <ZoruButton
             type="button"
             variant="ghost"
             size="icon"
@@ -152,30 +154,30 @@ export function ConversationHeader({
             ) : (
               <PanelRightOpen className="h-4 w-4" />
             )}
-          </Button>
+          </ZoruButton>
         ) : null}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button type="button" variant="ghost" size="icon" aria-label="More">
+        <ZoruDropdownMenu>
+          <ZoruDropdownMenuTrigger asChild>
+            <ZoruButton type="button" variant="ghost" size="icon" aria-label="More">
               <MoreVertical className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onSelect={() => onMuteToggle?.()}>
+            </ZoruButton>
+          </ZoruDropdownMenuTrigger>
+          <ZoruDropdownMenuContent align="end">
+            <ZoruDropdownMenuItem onSelect={() => onMuteToggle?.()}>
               {chat.muted ? 'Unmute' : 'Mute notifications'}
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => onArchive?.()}>
+            </ZoruDropdownMenuItem>
+            <ZoruDropdownMenuItem onSelect={() => onArchive?.()}>
               {chat.archived ? 'Unarchive' : 'Archive chat'}
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
+            </ZoruDropdownMenuItem>
+            <ZoruDropdownMenuSeparator />
+            <ZoruDropdownMenuItem
               onSelect={() => onClearMessages?.()}
-              className="text-destructive"
+              className="text-zoru-danger"
             >
               Clear messages
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+            </ZoruDropdownMenuItem>
+          </ZoruDropdownMenuContent>
+        </ZoruDropdownMenu>
       </div>
     </div>
   );

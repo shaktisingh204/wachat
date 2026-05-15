@@ -1,25 +1,49 @@
 'use client';
 
-import * as React from 'react';
-import { UserCog, RefreshCw, Upload as UploadIcon, Phone, Clock } from 'lucide-react';
-import { toast } from 'sonner';
+/**
+ * /sabwa/settings — Profile sub-page (default route).
+ *
+ * Visual layer migrated to ZoruUI. Sub-section navigation rendered via
+ * `<SettingsTabs>` which is now a segmented ZoruButton-style nav (no
+ * tab UI per ZoruUI rules) linking to each settings sub-route.
+ */
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
+import * as React from 'react';
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Separator } from '@/components/ui/separator';
+  UserCog,
+  RefreshCw,
+  Upload as UploadIcon,
+  Phone,
+  Clock,
+} from 'lucide-react';
+
+import {
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardDescription,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSeparator,
+  ZoruTextarea,
+  zoruSonnerToast as toast,
+} from '@/components/zoruui';
 
 import { SabFilePickerButton } from '@/components/sabfiles/sab-file-picker';
 import { StatusBadge } from '../_components/status-badge';
@@ -42,15 +66,25 @@ export default function ProfileSettingsPage() {
 
   const [pushName, setPushName] = React.useState('');
   const [about, setAbout] = React.useState('');
-  const [profilePicSabFileId, setProfilePicSabFileId] = React.useState<string | undefined>(undefined);
-  const [profilePicUrl, setProfilePicUrl] = React.useState<string | undefined>(undefined);
-  const [phoneE164, setPhoneE164] = React.useState<string | undefined>(undefined);
+  const [profilePicSabFileId, setProfilePicSabFileId] = React.useState<
+    string | undefined
+  >(undefined);
+  const [profilePicUrl, setProfilePicUrl] = React.useState<string | undefined>(
+    undefined,
+  );
+  const [phoneE164, setPhoneE164] = React.useState<string | undefined>(
+    undefined,
+  );
   const [status, setStatus] = React.useState<SabwaProfile['status']>('pending');
-  const [lastConnectedAt, setLastConnectedAt] = React.useState<string | undefined>(undefined);
+  const [lastConnectedAt, setLastConnectedAt] = React.useState<
+    string | undefined
+  >(undefined);
 
   // Track the original pic id so we know when the "Push to WhatsApp" will
   // change the picture (and trigger the confirm dialog).
-  const [initialPicId, setInitialPicId] = React.useState<string | undefined>(undefined);
+  const [initialPicId, setInitialPicId] = React.useState<string | undefined>(
+    undefined,
+  );
   const [confirmPicOpen, setConfirmPicOpen] = React.useState(false);
 
   const hydrate = React.useCallback((p: SabwaProfile) => {
@@ -127,57 +161,88 @@ export default function ProfileSettingsPage() {
   };
 
   return (
-    <div className="p-4 md:p-6 lg:p-8 space-y-6">
+    <div className="mx-auto w-full max-w-[1180px] space-y-6 px-6 pt-6 pb-10">
+      <ZoruBreadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/sabwa">SabWa</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>Settings</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </ZoruBreadcrumb>
+
       <div className="flex items-start gap-3">
-        <div className="rounded-xl bg-secondary p-3">
-          <UserCog className="h-6 w-6" />
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface text-zoru-ink">
+          <UserCog className="h-5 w-5" />
         </div>
         <div className="min-w-0">
-          <h1 className="text-2xl font-semibold tracking-tight">Settings — Profile</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Manage the public face of your connected WhatsApp account — name, about, and profile picture.
+          <h1 className="text-[24px] leading-[1.2] tracking-[-0.015em] text-zoru-ink">
+            Settings — Profile
+          </h1>
+          <p className="mt-1 text-[13px] text-zoru-ink-muted">
+            Manage the public face of your connected WhatsApp account — name,
+            about, and profile picture.
           </p>
         </div>
       </div>
+
       <SettingsTabs />
 
-      <Card>
-        <CardHeader className="flex flex-row items-start justify-between gap-3 flex-wrap">
+      <ZoruCard>
+        <ZoruCardHeader className="flex flex-row flex-wrap items-start justify-between gap-3">
           <div>
-            <CardTitle>Connection</CardTitle>
-            <CardDescription>Read-only details about the active SabWa session.</CardDescription>
+            <ZoruCardTitle>Connection</ZoruCardTitle>
+            <ZoruCardDescription>
+              Read-only details about the active SabWa session.
+            </ZoruCardDescription>
           </div>
           <StatusBadge status={status ?? 'pending'} />
-        </CardHeader>
-        <CardContent className="grid gap-4 md:grid-cols-2">
+        </ZoruCardHeader>
+        <ZoruCardContent className="grid gap-4 md:grid-cols-2">
           <div className="space-y-1">
-            <Label className="text-xs uppercase tracking-wide text-muted-foreground">Phone number</Label>
-            <div className="flex items-center gap-2 text-sm">
-              <Phone className="h-4 w-4 text-muted-foreground" />
+            <ZoruLabel className="text-xs uppercase tracking-wide text-zoru-ink-muted">
+              Phone number
+            </ZoruLabel>
+            <div className="flex items-center gap-2 text-sm text-zoru-ink">
+              <Phone className="h-4 w-4 text-zoru-ink-muted" />
               <span className="font-mono">{phoneE164 ?? '—'}</span>
             </div>
           </div>
           <div className="space-y-1">
-            <Label className="text-xs uppercase tracking-wide text-muted-foreground">Last connected</Label>
-            <div className="flex items-center gap-2 text-sm">
-              <Clock className="h-4 w-4 text-muted-foreground" />
-              <span>{lastConnectedAt ? new Date(lastConnectedAt).toLocaleString() : '—'}</span>
+            <ZoruLabel className="text-xs uppercase tracking-wide text-zoru-ink-muted">
+              Last connected
+            </ZoruLabel>
+            <div className="flex items-center gap-2 text-sm text-zoru-ink">
+              <Clock className="h-4 w-4 text-zoru-ink-muted" />
+              <span>
+                {lastConnectedAt
+                  ? new Date(lastConnectedAt).toLocaleString()
+                  : '—'}
+              </span>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </ZoruCardContent>
+      </ZoruCard>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Profile</CardTitle>
-          <CardDescription>
-            Edit values locally, then choose whether to sync from WhatsApp or push your SabNode values up.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
+      <ZoruCard>
+        <ZoruCardHeader>
+          <ZoruCardTitle>Profile</ZoruCardTitle>
+          <ZoruCardDescription>
+            Edit values locally, then choose whether to sync from WhatsApp or
+            push your SabNode values up.
+          </ZoruCardDescription>
+        </ZoruCardHeader>
+        <ZoruCardContent className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="push-name">Push name</Label>
-            <Input
+            <ZoruLabel htmlFor="push-name">Push name</ZoruLabel>
+            <ZoruInput
               id="push-name"
               value={pushName}
               onChange={(e) => setPushName(e.target.value)}
@@ -185,12 +250,14 @@ export default function ProfileSettingsPage() {
               maxLength={25}
               disabled={loading || pending}
             />
-            <p className="text-xs text-muted-foreground">Up to 25 characters.</p>
+            <p className="text-xs text-zoru-ink-muted">
+              Up to 25 characters.
+            </p>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="about">About</Label>
-            <Textarea
+            <ZoruLabel htmlFor="about">About</ZoruLabel>
+            <ZoruTextarea
               id="about"
               value={about}
               onChange={(e) => setAbout(e.target.value)}
@@ -199,23 +266,29 @@ export default function ProfileSettingsPage() {
               rows={3}
               disabled={loading || pending}
             />
-            <p className="text-xs text-muted-foreground">Up to 139 characters.</p>
+            <p className="text-xs text-zoru-ink-muted">
+              Up to 139 characters.
+            </p>
           </div>
 
-          <Separator />
+          <ZoruSeparator />
 
           <div className="space-y-2">
-            <Label>Profile picture</Label>
-            <div className="flex items-center gap-4 flex-wrap">
-              <div className="h-20 w-20 rounded-full overflow-hidden bg-secondary flex items-center justify-center text-muted-foreground border">
+            <ZoruLabel>Profile picture</ZoruLabel>
+            <div className="flex flex-wrap items-center gap-4">
+              <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border border-zoru-line bg-zoru-surface text-zoru-ink-muted">
                 {profilePicUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={profilePicUrl} alt="Profile" className="h-full w-full object-cover" />
+                  <img
+                    src={profilePicUrl}
+                    alt="Profile"
+                    className="h-full w-full object-cover"
+                  />
                 ) : (
                   <UserCog className="h-8 w-8" />
                 )}
               </div>
-              <div className="flex gap-2 flex-wrap">
+              <div className="flex flex-wrap gap-2">
                 <SabFilePickerButton
                   accept="image"
                   onPick={(p) => {
@@ -226,63 +299,76 @@ export default function ProfileSettingsPage() {
                   <UploadIcon className="mr-2 h-4 w-4" />
                   {profilePicSabFileId ? 'Change picture' : 'Choose picture'}
                 </SabFilePickerButton>
-                {profilePicSabFileId && profilePicSabFileId !== initialPicId && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      setProfilePicSabFileId(initialPicId);
-                      // We don't have the previous URL cached — clear it so the
-                      // preview matches the saved value.
-                      setProfilePicUrl(undefined);
-                    }}
-                  >
-                    Revert
-                  </Button>
-                )}
+                {profilePicSabFileId &&
+                  profilePicSabFileId !== initialPicId && (
+                    <ZoruButton
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setProfilePicSabFileId(initialPicId);
+                        // We don't have the previous URL cached — clear it so
+                        // the preview matches the saved value.
+                        setProfilePicUrl(undefined);
+                      }}
+                    >
+                      Revert
+                    </ZoruButton>
+                  )}
               </div>
             </div>
-            <p className="text-xs text-muted-foreground">
-              Square images work best. SabFiles only — external URLs are not accepted.
+            <p className="text-xs text-zoru-ink-muted">
+              Square images work best. SabFiles only — external URLs are not
+              accepted.
             </p>
           </div>
-        </CardContent>
-      </Card>
+        </ZoruCardContent>
+      </ZoruCard>
 
-      <Card>
-        <CardContent className="flex flex-wrap items-center justify-end gap-2 pt-6">
-          <Button variant="outline" onClick={onSync} disabled={pending || loading}>
-            <RefreshCw className={`mr-2 h-4 w-4 ${pending ? 'animate-spin' : ''}`} />
+      <ZoruCard>
+        <ZoruCardContent className="flex flex-wrap items-center justify-end gap-2 pt-6">
+          <ZoruButton
+            variant="outline"
+            onClick={onSync}
+            disabled={pending || loading}
+          >
+            <RefreshCw
+              className={`mr-2 h-4 w-4 ${pending ? 'animate-spin' : ''}`}
+            />
             Sync from WhatsApp
-          </Button>
-          <Button onClick={onPush} disabled={pending || loading}>
+          </ZoruButton>
+          <ZoruButton onClick={onPush} disabled={pending || loading}>
             Push to WhatsApp
-          </Button>
-        </CardContent>
-      </Card>
+          </ZoruButton>
+        </ZoruCardContent>
+      </ZoruCard>
 
-      <AlertDialog open={confirmPicOpen} onOpenChange={setConfirmPicOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Change profile picture?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will replace the profile picture shown to everyone you message on WhatsApp.
-              Are you sure you want to push this change?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
+      <ZoruAlertDialog
+        open={confirmPicOpen}
+        onOpenChange={setConfirmPicOpen}
+      >
+        <ZoruAlertDialogContent>
+          <ZoruAlertDialogHeader>
+            <ZoruAlertDialogTitle>
+              Change profile picture?
+            </ZoruAlertDialogTitle>
+            <ZoruAlertDialogDescription>
+              This will replace the profile picture shown to everyone you
+              message on WhatsApp. Are you sure you want to push this change?
+            </ZoruAlertDialogDescription>
+          </ZoruAlertDialogHeader>
+          <ZoruAlertDialogFooter>
+            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+            <ZoruAlertDialogAction
               onClick={() => {
                 setConfirmPicOpen(false);
                 doPush();
               }}
             >
               Yes, push it
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            </ZoruAlertDialogAction>
+          </ZoruAlertDialogFooter>
+        </ZoruAlertDialogContent>
+      </ZoruAlertDialog>
     </div>
   );
 }

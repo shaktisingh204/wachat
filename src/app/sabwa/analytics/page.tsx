@@ -6,6 +6,9 @@
  * Wires up to `getAnalytics({ sessionId, range })`. While the Phase-1 stub
  * returns an empty payload, every chart renders an <EmptyState> instead of
  * a "Phase 1" error, so the page is usable end-to-end today.
+ *
+ * Visual layer migrated to ZoruUI. The range picker is rendered as a
+ * segmented ZoruButton group (no tab UI per ZoruUI design rules).
  */
 
 import * as React from 'react';
@@ -18,23 +21,23 @@ import {
   type SabwaAnalyticsRange,
 } from '@/app/actions/sabwa.actions';
 
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { DatePicker } from '@/components/ui/date-picker';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+  ZoruBadge,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardDescription,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruDatePicker,
+  cn,
+} from '@/components/zoruui';
 
 import { ChartAiUsage } from './_components/chart-ai-usage';
 import { ChartGroupHeatmap } from './_components/chart-group-heatmap';
@@ -68,10 +71,12 @@ function formatPct(ratio: number): string {
   return `${Math.round(ratio * 100)}%`;
 }
 
-function banRiskTone(score: number): 'success' | 'warning' | 'destructive' {
+type Tone = 'success' | 'warning' | 'danger';
+
+function banRiskTone(score: number): Tone {
   if (score < 30) return 'success';
   if (score < 70) return 'warning';
-  return 'destructive';
+  return 'danger';
 }
 
 export default function AnalyticsPage() {
@@ -116,15 +121,35 @@ export default function AnalyticsPage() {
   const kpis = analytics?.kpis;
 
   return (
-    <div className="space-y-6 p-4 md:p-6 lg:p-8">
+    <div className="mx-auto w-full max-w-[1180px] space-y-6 px-6 pt-6 pb-10">
+      {/* Breadcrumb */}
+      <ZoruBreadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/sabwa">SabWa</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>Analytics</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </ZoruBreadcrumb>
+
+      {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-start gap-3">
-          <div className="rounded-xl bg-secondary p-3">
-            <BarChart3 className="h-6 w-6" />
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface text-zoru-ink">
+            <BarChart3 className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight">Analytics</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <h1 className="text-[24px] leading-[1.2] tracking-[-0.015em] text-zoru-ink">
+              Analytics
+            </h1>
+            <p className="mt-1 text-[13px] text-zoru-ink-muted">
               Throughput, responsiveness, and anti-ban posture across this
               SabWa session.
             </p>
@@ -132,43 +157,47 @@ export default function AnalyticsPage() {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <Select
-            value={range}
-            onValueChange={(v) => setRange(v as SabwaAnalyticsRange)}
+          {/* Segmented range picker — replaces the previous Select */}
+          <div
+            role="group"
+            aria-label="Date range"
+            className="inline-flex rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-1"
           >
-            <SelectTrigger className="h-9 w-[150px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {RANGE_OPTIONS.map((opt) => (
-                <SelectItem key={opt.value} value={opt.value}>
-                  {opt.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            {RANGE_OPTIONS.map((opt) => (
+              <ZoruButton
+                key={opt.value}
+                type="button"
+                size="sm"
+                variant={range === opt.value ? 'default' : 'ghost'}
+                onClick={() => setRange(opt.value)}
+                className="rounded-[calc(var(--zoru-radius)-2px)]"
+              >
+                {opt.label}
+              </ZoruButton>
+            ))}
+          </div>
           {range === 'custom' ? (
             <>
-              <DatePicker
-                date={customFrom}
-                setDate={setCustomFrom}
+              <ZoruDatePicker
+                value={customFrom}
+                onChange={setCustomFrom}
                 placeholder="From"
-                className="h-9 w-[150px]"
+                className="w-[160px]"
               />
-              <DatePicker
-                date={customTo}
-                setDate={setCustomTo}
+              <ZoruDatePicker
+                value={customTo}
+                onChange={setCustomTo}
                 placeholder="To"
-                className="h-9 w-[150px]"
+                className="w-[160px]"
               />
             </>
           ) : null}
-          <Button
+          <ZoruButton
             variant="outline"
             size="sm"
             onClick={() => void load()}
             disabled={loading}
-            className="h-9 gap-1.5"
+            className="gap-1.5"
           >
             {loading ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -176,19 +205,19 @@ export default function AnalyticsPage() {
               <RefreshCw className="h-4 w-4" />
             )}
             Refresh
-          </Button>
+          </ZoruButton>
         </div>
       </div>
 
       {error ? (
-        <Card className="border-destructive/50 bg-destructive/5">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base text-destructive">
+        <ZoruCard className="border-zoru-danger/40 bg-zoru-danger/5">
+          <ZoruCardHeader className="pb-2">
+            <ZoruCardTitle className="text-base text-zoru-danger-ink">
               Couldn&apos;t load analytics
-            </CardTitle>
-            <CardDescription>{error}</CardDescription>
-          </CardHeader>
-        </Card>
+            </ZoruCardTitle>
+            <ZoruCardDescription>{error}</ZoruCardDescription>
+          </ZoruCardHeader>
+        </ZoruCard>
       ) : null}
 
       {/* KPI grid */}
@@ -225,7 +254,7 @@ export default function AnalyticsPage() {
           tone={kpis ? banRiskTone(kpis.banRiskScore) : undefined}
           hint={
             <Activity
-              className="h-3.5 w-3.5 text-muted-foreground"
+              className="h-3.5 w-3.5 text-zoru-ink-muted"
               aria-hidden
             />
           }
@@ -234,86 +263,94 @@ export default function AnalyticsPage() {
 
       {/* Charts */}
       <div className="grid gap-4 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Messages in/out by day</CardTitle>
-            <CardDescription>
+        <ZoruCard>
+          <ZoruCardHeader>
+            <ZoruCardTitle className="text-base">
+              Messages in/out by day
+            </ZoruCardTitle>
+            <ZoruCardDescription>
               Inbound vs outbound volume per day.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+            </ZoruCardDescription>
+          </ZoruCardHeader>
+          <ZoruCardContent>
             <ChartMessagesByDay data={analytics?.messagesByDay ?? []} />
-          </CardContent>
-        </Card>
+          </ZoruCardContent>
+        </ZoruCard>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Response time histogram</CardTitle>
-            <CardDescription>
+        <ZoruCard>
+          <ZoruCardHeader>
+            <ZoruCardTitle className="text-base">
+              Response time histogram
+            </ZoruCardTitle>
+            <ZoruCardDescription>
               Distribution of reply latency buckets.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+            </ZoruCardDescription>
+          </ZoruCardHeader>
+          <ZoruCardContent>
             <ChartResponseHistogram
               data={analytics?.responseHistogram ?? []}
             />
-          </CardContent>
-        </Card>
+          </ZoruCardContent>
+        </ZoruCard>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">
+        <ZoruCard>
+          <ZoruCardHeader>
+            <ZoruCardTitle className="text-base">
               Top 10 contacts by volume
-            </CardTitle>
-            <CardDescription>
+            </ZoruCardTitle>
+            <ZoruCardDescription>
               Highest-traffic contacts in the selected range.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+            </ZoruCardDescription>
+          </ZoruCardHeader>
+          <ZoruCardContent>
             <ChartTopContacts data={analytics?.topContacts ?? []} />
-          </CardContent>
-        </Card>
+          </ZoruCardContent>
+        </ZoruCard>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Group activity heatmap</CardTitle>
-            <CardDescription>
+        <ZoruCard>
+          <ZoruCardHeader>
+            <ZoruCardTitle className="text-base">
+              Group activity heatmap
+            </ZoruCardTitle>
+            <ZoruCardDescription>
               Hour × day grid coloured by group message intensity.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+            </ZoruCardDescription>
+          </ZoruCardHeader>
+          <ZoruCardContent>
             <ChartGroupHeatmap data={analytics?.groupHeatmap ?? []} />
-          </CardContent>
-        </Card>
+          </ZoruCardContent>
+        </ZoruCard>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Hourly send pattern</CardTitle>
-            <CardDescription>
+        <ZoruCard>
+          <ZoruCardHeader>
+            <ZoruCardTitle className="text-base">
+              Hourly send pattern
+            </ZoruCardTitle>
+            <ZoruCardDescription>
               Outbound throughput per hour with safe / elevated bands.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+            </ZoruCardDescription>
+          </ZoruCardHeader>
+          <ZoruCardContent>
             <ChartHourlySendPattern
               data={analytics?.hourlySendPattern ?? []}
             />
-          </CardContent>
-        </Card>
+          </ZoruCardContent>
+        </ZoruCard>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">AI usage by day</CardTitle>
-            <CardDescription>
+        <ZoruCard>
+          <ZoruCardHeader>
+            <ZoruCardTitle className="text-base">AI usage by day</ZoruCardTitle>
+            <ZoruCardDescription>
               Stacked breakdown of suggest, summarise, and translate calls.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+            </ZoruCardDescription>
+          </ZoruCardHeader>
+          <ZoruCardContent>
             <ChartAiUsage data={analytics?.aiUsageByDay ?? []} />
-          </CardContent>
-        </Card>
+          </ZoruCardContent>
+        </ZoruCard>
       </div>
 
-      <p className="text-[11px] text-muted-foreground">
+      <p className="text-[11px] text-zoru-ink-muted">
         Range:{' '}
         {range === 'custom' && customFrom && customTo
           ? `${format(customFrom, 'PP')} – ${format(customTo, 'PP')}`
@@ -328,35 +365,46 @@ interface KpiCardProps {
   label: string;
   value: React.ReactNode;
   loading?: boolean;
-  tone?: 'success' | 'warning' | 'destructive';
+  tone?: Tone;
   hint?: React.ReactNode;
 }
 
 function KpiCard({ label, value, loading, tone, hint }: KpiCardProps) {
   return (
-    <Card>
-      <CardHeader className="pb-1">
-        <CardDescription className="flex items-center justify-between text-[11px] uppercase tracking-wide">
+    <ZoruCard>
+      <ZoruCardHeader className="pb-1">
+        <ZoruCardDescription className="flex items-center justify-between text-[11px] uppercase tracking-wide">
           <span>{label}</span>
           {hint}
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="pt-0">
+        </ZoruCardDescription>
+      </ZoruCardHeader>
+      <ZoruCardContent className="pt-0">
         <div className="flex items-baseline justify-between gap-2">
-          <div className="text-2xl font-semibold tabular-nums">
-            {loading ? <span className="text-muted-foreground">…</span> : value}
+          <div
+            className={cn(
+              'text-2xl font-semibold tabular-nums text-zoru-ink',
+            )}
+          >
+            {loading ? (
+              <span className="text-zoru-ink-muted">…</span>
+            ) : (
+              value
+            )}
           </div>
           {tone ? (
-            <Badge variant={tone} className="px-1.5 py-0 text-[10px]">
+            <ZoruBadge
+              variant={tone}
+              className="px-1.5 py-0 text-[10px]"
+            >
               {tone === 'success'
                 ? 'Healthy'
                 : tone === 'warning'
                   ? 'Watch'
                   : 'High'}
-            </Badge>
+            </ZoruBadge>
           ) : null}
         </div>
-      </CardContent>
-    </Card>
+      </ZoruCardContent>
+    </ZoruCard>
   );
 }

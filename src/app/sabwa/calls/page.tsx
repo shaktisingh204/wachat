@@ -10,6 +10,8 @@
  * Phase 1: there's no call-log fetch action yet, so the table starts
  * empty and the empty state explains why. As soon as the engine ships
  * `listCalls`, the loader below will swap to it without UI changes.
+ *
+ * Rendered with ZoruUI primitives — no shadcn `/ui/*` imports.
  */
 
 import * as React from "react";
@@ -28,29 +30,36 @@ import {
   Video,
 } from "lucide-react";
 
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { useToast } from "@/hooks/use-toast";
+  ZoruAlert,
+  ZoruAlertDescription,
+  ZoruAlertTitle,
+  ZoruBadge,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruSkeleton,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  useZoruToast,
+} from "@/components/zoruui";
 import { useChats } from "@/lib/sabwa/use-sabwa-data";
 
 const PLACEHOLDER_SESSION_ID = "stub-primary";
@@ -94,17 +103,17 @@ function typeLabel(type: CallType): string {
 
 function typeBadgeVariant(
   type: CallType,
-): "default" | "secondary" | "outline" | "destructive" {
+): "default" | "secondary" | "outline" | "ghost" | "danger" {
   switch (type) {
     case "missed":
-      return "destructive";
+      return "danger";
     case "video":
       return "outline";
     case "outgoing":
       return "secondary";
     case "incoming":
     default:
-      return "default";
+      return "ghost";
   }
 }
 
@@ -132,7 +141,7 @@ function formatTs(ts: Date): string {
 }
 
 export default function SabWaCallsPage() {
-  const { toast } = useToast();
+  const toast = useZoruToast();
   const sessionId = PLACEHOLDER_SESSION_ID;
 
   const { data: chats } = useChats(sessionId);
@@ -186,59 +195,77 @@ export default function SabWaCallsPage() {
 
   return (
     <div className="space-y-4 p-4 md:p-6 lg:p-8">
+      <ZoruBreadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/sabwa">SabWa</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>Calls</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </ZoruBreadcrumb>
+
       {/* Roadmap banner */}
-      <Alert>
+      <ZoruAlert>
         <Phone className="h-4 w-4" />
-        <AlertTitle>Calls are read-only in SabWa V1</AlertTitle>
-        <AlertDescription className="flex flex-wrap items-center gap-2">
+        <ZoruAlertTitle>Calls are read-only in SabWa V1</ZoruAlertTitle>
+        <ZoruAlertDescription className="flex flex-wrap items-center gap-2">
           <span>
             Voice and video calls are surfaced from Baileys events for audit.
             Initiating calls is coming in a future release.
           </span>
-          <Button asChild type="button" size="sm" variant="outline">
+          <ZoruButton asChild type="button" size="sm" variant="outline">
             <Link href="/sabwa/settings">View roadmap</Link>
-          </Button>
-        </AlertDescription>
-      </Alert>
+          </ZoruButton>
+        </ZoruAlertDescription>
+      </ZoruAlert>
 
       {/* Header */}
       <div className="flex flex-wrap items-start gap-3">
         <div
           aria-hidden
-          className="rounded-xl bg-secondary p-3 text-secondary-foreground"
+          className="rounded-[var(--zoru-radius)] bg-zoru-surface p-3 text-zoru-ink"
         >
           <Phone className="h-6 w-6" />
         </div>
         <div className="min-w-0 flex-1">
-          <h1 className="text-2xl font-semibold tracking-tight">Calls</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <h1 className="text-[24px] tracking-[-0.015em] text-zoru-ink leading-[1.2]">
+            Calls
+          </h1>
+          <p className="mt-1 text-[13px] text-zoru-ink-muted">
             Read-only history of incoming, outgoing, missed, and video calls.
           </p>
         </div>
-        <Button
+        <ZoruButton
           type="button"
           variant="outline"
           size="sm"
           onClick={() => {
-            toast({ title: "Refreshing call log" });
+            toast.toast({ title: "Refreshing call log" });
             void reload();
           }}
           disabled={loading}
         >
           <RefreshCw className="mr-2 h-4 w-4" /> Refresh
-        </Button>
+        </ZoruButton>
       </div>
 
       {/* Filters */}
-      <Card>
-        <CardContent className="grid gap-3 p-3 sm:grid-cols-2 lg:grid-cols-5">
+      <ZoruCard>
+        <ZoruCardContent className="grid gap-3 p-3 sm:grid-cols-2 lg:grid-cols-5">
           <div className="space-y-1 lg:col-span-2">
-            <Label className="text-xs font-medium" htmlFor="calls-search">
+            <ZoruLabel className="text-xs font-medium" htmlFor="calls-search">
               Search
-            </Label>
+            </ZoruLabel>
             <div className="relative">
-              <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
+              <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
+              <ZoruInput
                 id="calls-search"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
@@ -248,46 +275,46 @@ export default function SabWaCallsPage() {
             </div>
           </div>
           <div className="space-y-1">
-            <Label className="text-xs font-medium">Type</Label>
-            <Select
+            <ZoruLabel className="text-xs font-medium">Type</ZoruLabel>
+            <ZoruSelect
               value={typeFilter}
               onValueChange={(v) => setTypeFilter(v as typeof typeFilter)}
             >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All types</SelectItem>
-                <SelectItem value="incoming">Incoming</SelectItem>
-                <SelectItem value="outgoing">Outgoing</SelectItem>
-                <SelectItem value="missed">Missed</SelectItem>
-                <SelectItem value="video">Video</SelectItem>
-              </SelectContent>
-            </Select>
+              <ZoruSelectTrigger>
+                <ZoruSelectValue />
+              </ZoruSelectTrigger>
+              <ZoruSelectContent>
+                <ZoruSelectItem value="all">All types</ZoruSelectItem>
+                <ZoruSelectItem value="incoming">Incoming</ZoruSelectItem>
+                <ZoruSelectItem value="outgoing">Outgoing</ZoruSelectItem>
+                <ZoruSelectItem value="missed">Missed</ZoruSelectItem>
+                <ZoruSelectItem value="video">Video</ZoruSelectItem>
+              </ZoruSelectContent>
+            </ZoruSelect>
           </div>
           <div className="space-y-1">
-            <Label className="text-xs font-medium">Contact</Label>
-            <Select value={contactFilter} onValueChange={setContactFilter}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All contacts</SelectItem>
+            <ZoruLabel className="text-xs font-medium">Contact</ZoruLabel>
+            <ZoruSelect value={contactFilter} onValueChange={setContactFilter}>
+              <ZoruSelectTrigger>
+                <ZoruSelectValue />
+              </ZoruSelectTrigger>
+              <ZoruSelectContent>
+                <ZoruSelectItem value="all">All contacts</ZoruSelectItem>
                 {(chats ?? [])
                   .filter((c) => c.type === "individual")
                   .map((c) => (
-                    <SelectItem key={c.jid} value={c.jid}>
+                    <ZoruSelectItem key={c.jid} value={c.jid}>
                       {c.name ?? c.jid}
-                    </SelectItem>
+                    </ZoruSelectItem>
                   ))}
-              </SelectContent>
-            </Select>
+              </ZoruSelectContent>
+            </ZoruSelect>
           </div>
           <div className="space-y-1">
-            <Label className="text-xs font-medium" htmlFor="from-date">
+            <ZoruLabel className="text-xs font-medium" htmlFor="from-date">
               From
-            </Label>
-            <Input
+            </ZoruLabel>
+            <ZoruInput
               id="from-date"
               type="date"
               value={fromDate}
@@ -295,10 +322,10 @@ export default function SabWaCallsPage() {
             />
           </div>
           <div className="space-y-1 lg:col-start-5">
-            <Label className="text-xs font-medium" htmlFor="to-date">
+            <ZoruLabel className="text-xs font-medium" htmlFor="to-date">
               To
-            </Label>
-            <Input
+            </ZoruLabel>
+            <ZoruInput
               id="to-date"
               type="date"
               value={toDate}
@@ -306,7 +333,7 @@ export default function SabWaCallsPage() {
             />
           </div>
           <div className="sm:col-span-2 lg:col-span-5">
-            <Button
+            <ZoruButton
               type="button"
               size="sm"
               variant="ghost"
@@ -319,75 +346,75 @@ export default function SabWaCallsPage() {
               }}
             >
               <Filter className="mr-2 h-3.5 w-3.5" /> Reset filters
-            </Button>
+            </ZoruButton>
           </div>
-        </CardContent>
-      </Card>
+        </ZoruCardContent>
+      </ZoruCard>
 
       {/* Table */}
-      <Card>
-        <CardContent className="p-0">
+      <ZoruCard>
+        <ZoruCardContent className="p-0">
           {loading ? (
             <div className="space-y-2 p-4">
               {Array.from({ length: 4 }).map((_, i) => (
-                <Skeleton key={i} className="h-10 w-full" />
+                <ZoruSkeleton key={i} className="h-10 w-full" />
               ))}
             </div>
           ) : filtered.length === 0 ? (
             <div className="flex flex-col items-center gap-2 p-10 text-center">
-              <CalendarDays className="h-7 w-7 text-muted-foreground" />
-              <h3 className="text-sm font-semibold">No calls to show</h3>
-              <p className="max-w-md text-xs text-muted-foreground">
+              <CalendarDays className="h-7 w-7 text-zoru-ink-muted" />
+              <h3 className="text-sm font-semibold text-zoru-ink">No calls to show</h3>
+              <p className="max-w-md text-[11.5px] text-zoru-ink-muted">
                 Once your SabWa session is connected and the engine starts
                 streaming call events, they&apos;ll appear here. Adjust
                 filters or refresh to refetch.
               </p>
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[110px]">Type</TableHead>
-                  <TableHead>Counterpart</TableHead>
-                  <TableHead className="w-[120px]">Duration</TableHead>
-                  <TableHead className="w-[180px]">When</TableHead>
-                  <TableHead className="w-[60px]" />
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+            <ZoruTable>
+              <ZoruTableHeader>
+                <ZoruTableRow>
+                  <ZoruTableHead className="w-[110px]">Type</ZoruTableHead>
+                  <ZoruTableHead>Counterpart</ZoruTableHead>
+                  <ZoruTableHead className="w-[120px]">Duration</ZoruTableHead>
+                  <ZoruTableHead className="w-[180px]">When</ZoruTableHead>
+                  <ZoruTableHead className="w-[60px]" />
+                </ZoruTableRow>
+              </ZoruTableHeader>
+              <ZoruTableBody>
                 {filtered.map((c) => {
                   const Icon = typeIcon(c.type);
                   return (
-                    <TableRow key={c.id}>
-                      <TableCell>
-                        <Badge
+                    <ZoruTableRow key={c.id}>
+                      <ZoruTableCell>
+                        <ZoruBadge
                           variant={typeBadgeVariant(c.type)}
                           className="gap-1"
                         >
                           <Icon className="h-3 w-3" />
                           {typeLabel(c.type)}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
+                        </ZoruBadge>
+                      </ZoruTableCell>
+                      <ZoruTableCell>
                         <div className="flex items-center gap-2">
-                          <span className="font-medium">
+                          <span className="font-medium text-zoru-ink">
                             {c.counterpartName ?? c.counterpartJid}
                           </span>
                           {c.type === "incoming" || c.type === "missed" ? (
-                            <ArrowDownLeft className="h-3.5 w-3.5 text-muted-foreground" />
+                            <ArrowDownLeft className="h-3.5 w-3.5 text-zoru-ink-muted" />
                           ) : (
-                            <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground" />
+                            <ArrowUpRight className="h-3.5 w-3.5 text-zoru-ink-muted" />
                           )}
                         </div>
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">
+                      </ZoruTableCell>
+                      <ZoruTableCell className="text-zoru-ink-muted">
                         {formatDuration(c.durationSec)}
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">
+                      </ZoruTableCell>
+                      <ZoruTableCell className="text-zoru-ink-muted">
                         {formatTs(c.ts)}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button asChild type="button" size="sm" variant="ghost">
+                      </ZoruTableCell>
+                      <ZoruTableCell className="text-right">
+                        <ZoruButton asChild type="button" size="sm" variant="ghost">
                           <Link
                             href={`/sabwa/inbox?jid=${encodeURIComponent(
                               c.counterpartJid,
@@ -396,16 +423,16 @@ export default function SabWaCallsPage() {
                           >
                             <ArrowUpRight className="h-3.5 w-3.5" />
                           </Link>
-                        </Button>
-                      </TableCell>
-                    </TableRow>
+                        </ZoruButton>
+                      </ZoruTableCell>
+                    </ZoruTableRow>
                   );
                 })}
-              </TableBody>
-            </Table>
+              </ZoruTableBody>
+            </ZoruTable>
           )}
-        </CardContent>
-      </Card>
+        </ZoruCardContent>
+      </ZoruCard>
     </div>
   );
 }

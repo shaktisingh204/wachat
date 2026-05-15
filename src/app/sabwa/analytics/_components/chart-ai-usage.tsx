@@ -2,25 +2,21 @@
 
 /**
  * ChartAiUsage — stacked bar chart for daily AI calls broken down by kind
- * (suggest, summarise, translate).
+ * (suggest, summarise, translate). Greyscale palette via ZoruChart.
  */
 
 import * as React from 'react';
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Legend,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts';
 import { Sparkles } from 'lucide-react';
 
 import type { SabwaAnalyticsAiDay } from '@/app/actions/sabwa.actions';
 
 import { EmptyState } from '@/app/sabwa/_components/empty-state';
+import {
+  ZORU_CHART_PALETTE,
+  ZoruChart,
+  ZoruChartContainer,
+  ZoruChartTooltip,
+} from '@/components/zoruui';
 
 export interface ChartAiUsageProps {
   data: SabwaAnalyticsAiDay[];
@@ -37,51 +33,44 @@ export function ChartAiUsage({ data }: ChartAiUsageProps) {
     );
   }
   return (
-    <div className="h-72 w-full">
-      <ResponsiveContainer width="100%" height="100%">
-        <BarChart
-          data={data}
-          margin={{ top: 8, right: 16, bottom: 0, left: -16 }}
-        >
-          <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-          <XAxis
-            dataKey="date"
-            fontSize={11}
-            tickLine={false}
-            axisLine={false}
-          />
-          <YAxis fontSize={11} tickLine={false} axisLine={false} />
-          <Tooltip
-            contentStyle={{
-              borderRadius: 8,
-              fontSize: 12,
-              border: '1px solid hsl(var(--border))',
-              background: 'hsl(var(--popover))',
-            }}
-          />
-          <Legend wrapperStyle={{ fontSize: 12 }} />
-          <Bar
-            dataKey="suggest"
-            stackId="ai"
-            name="Suggest"
-            fill="#8b5cf6"
-            radius={[0, 0, 0, 0]}
-          />
-          <Bar
-            dataKey="summarise"
-            stackId="ai"
-            name="Summarise"
-            fill="#06b6d4"
-          />
-          <Bar
-            dataKey="translate"
-            stackId="ai"
-            name="Translate"
-            fill="#f97316"
-            radius={[3, 3, 0, 0]}
-          />
-        </BarChart>
-      </ResponsiveContainer>
-    </div>
+    <ZoruChartContainer height={288}>
+      <ZoruChart.BarChart
+        data={data}
+        margin={{ top: 8, right: 16, bottom: 0, left: -16 }}
+      >
+        <ZoruChart.CartesianGrid
+          strokeDasharray="3 3"
+          className="stroke-zoru-line"
+        />
+        <ZoruChart.XAxis
+          dataKey="date"
+          fontSize={11}
+          tickLine={false}
+          axisLine={false}
+        />
+        <ZoruChart.YAxis fontSize={11} tickLine={false} axisLine={false} />
+        <ZoruChart.Tooltip content={<ZoruChartTooltip />} />
+        <ZoruChart.Legend wrapperStyle={{ fontSize: 12 }} />
+        <ZoruChart.Bar
+          dataKey="suggest"
+          stackId="ai"
+          name="Suggest"
+          fill={ZORU_CHART_PALETTE[0]}
+        />
+        <ZoruChart.Bar
+          dataKey="summarise"
+          stackId="ai"
+          name="Summarise"
+          fill={ZORU_CHART_PALETTE[1]}
+        />
+        <ZoruChart.Bar
+          dataKey="translate"
+          stackId="ai"
+          name="Translate"
+          fill={ZORU_CHART_PALETTE[2]}
+          radius={[3, 3, 0, 0]}
+        />
+      </ZoruChart.BarChart>
+    </ZoruChartContainer>
   );
 }

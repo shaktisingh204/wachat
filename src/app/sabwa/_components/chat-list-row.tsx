@@ -14,7 +14,11 @@
 import * as React from "react";
 import { Pin, UsersRound, VolumeX } from "lucide-react";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  ZoruAvatar,
+  ZoruAvatarFallback,
+  ZoruAvatarImage,
+} from "@/components/zoruui";
 import { cn } from "@/lib/utils";
 import type { SabwaChat } from "@/lib/sabwa/types";
 
@@ -68,23 +72,23 @@ export function ChatListRow({
       onClick={onClick}
       aria-pressed={selected}
       className={cn(
-        "group flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition-colors",
-        "hover:bg-accent hover:text-accent-foreground",
-        selected && "bg-accent text-accent-foreground",
+        "group flex w-full items-center gap-3 rounded-[var(--zoru-radius)] px-3 py-2 text-left transition-colors",
+        "hover:bg-zoru-surface-2 hover:text-zoru-ink",
+        selected && "bg-zoru-surface text-zoru-ink",
         className,
       )}
     >
       <div className="relative shrink-0">
-        <Avatar className="h-10 w-10">
+        <ZoruAvatar className="h-10 w-10">
           {chat.profilePicUrl ? (
-            <AvatarImage src={chat.profilePicUrl} alt={name} />
+            <ZoruAvatarImage src={chat.profilePicUrl} alt={name} />
           ) : null}
-          <AvatarFallback>{initialsFor(name)}</AvatarFallback>
-        </Avatar>
+          <ZoruAvatarFallback>{initialsFor(name)}</ZoruAvatarFallback>
+        </ZoruAvatar>
         {isGroup ? (
           <span
             aria-hidden
-            className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full border border-background bg-secondary text-secondary-foreground"
+            className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full border border-zoru-bg bg-zoru-surface text-zoru-ink"
           >
             <UsersRound className="h-3 w-3" />
           </span>
@@ -93,15 +97,15 @@ export function ChatListRow({
 
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <span className="truncate text-sm font-medium">{name}</span>
+          <span className="truncate text-sm font-medium text-zoru-ink">{name}</span>
           {chat.muted ? (
             <VolumeX
-              className="h-3.5 w-3.5 shrink-0 text-muted-foreground"
+              className="h-3.5 w-3.5 shrink-0 text-zoru-ink-muted"
               aria-label="Muted"
             />
           ) : null}
         </div>
-        <p className="truncate text-xs text-muted-foreground">
+        <p className="truncate text-xs text-zoru-ink-muted">
           {previewPrefix}
           {previewBody}
         </p>
@@ -111,9 +115,7 @@ export function ChatListRow({
         <span
           className={cn(
             "text-[10px] tabular-nums",
-            unread > 0
-              ? "text-green-600 dark:text-green-400"
-              : "text-muted-foreground",
+            unread > 0 ? "text-zoru-ink" : "text-zoru-ink-muted",
           )}
         >
           {tsLabel}
@@ -121,13 +123,13 @@ export function ChatListRow({
         <div className="flex items-center gap-1">
           {chat.pinned ? (
             <Pin
-              className="h-3 w-3 text-muted-foreground"
+              className="h-3 w-3 text-zoru-ink-muted"
               aria-label="Pinned"
             />
           ) : null}
           {unread > 0 ? (
             <span
-              className="inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-green-500 px-1.5 text-[10px] font-semibold text-white"
+              className="inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-zoru-primary px-1.5 text-[10px] font-semibold text-zoru-primary-foreground"
               aria-label={`${unread} unread`}
             >
               {unread > 99 ? "99+" : unread}

@@ -6,6 +6,8 @@
  * Table of webhooks + "New webhook" Dialog. After create, a one-time
  * signing secret is displayed in a copy-able card. Clicking a row opens
  * a Sheet drawer with recent deliveries (resend + test actions).
+ *
+ * Visual layer migrated to ZoruUI.
  */
 
 import * as React from 'react';
@@ -35,58 +37,54 @@ import {
 import type { SabwaWebhookEvent } from '@/lib/sabwa/types';
 
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from '@/components/ui/sheet';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
-import { useToast } from '@/hooks/use-toast';
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruBadge,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardDescription,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruCheckbox,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruDialogTrigger,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSheet,
+  ZoruSheetContent,
+  ZoruSheetDescription,
+  ZoruSheetHeader,
+  ZoruSheetTitle,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  ZoruTooltip,
+  ZoruTooltipContent,
+  ZoruTooltipProvider,
+  ZoruTooltipTrigger,
+  useZoruToast,
+} from '@/components/zoruui';
 
 import { EmptyState } from '@/app/sabwa/_components/empty-state';
 
@@ -116,15 +114,15 @@ function maskUrl(url: string): string {
 
 function successRateTone(
   rate?: number,
-): 'success' | 'warning' | 'destructive' | 'secondary' {
+): 'success' | 'warning' | 'danger' | 'secondary' {
   if (rate === undefined) return 'secondary';
   if (rate >= 0.95) return 'success';
   if (rate >= 0.7) return 'warning';
-  return 'destructive';
+  return 'danger';
 }
 
 export default function WebhooksPage() {
-  const { toast } = useToast();
+  const toast = useZoruToast();
   const [rows, setRows] = React.useState<SabwaWebhookRow[]>([]);
   const [loading, setLoading] = React.useState(false);
   const [selected, setSelected] = React.useState<SabwaWebhookRow | null>(null);
@@ -154,19 +152,19 @@ export default function WebhooksPage() {
       try {
         const res = await testWebhook(row.id);
         if (!res.ok) {
-          toast({
+          toast.toast({
             title: 'Test failed',
             description: res.error,
             variant: 'destructive',
           });
           return;
         }
-        toast({
+        toast.toast({
           title: 'Test event sent',
           description: `Endpoint responded ${res.statusCode} in ${res.latencyMs}ms.`,
         });
       } catch (err) {
-        toast({
+        toast.toast({
           title: 'Could not reach engine',
           description:
             err instanceof Error ? err.message : 'Try again once it is online.',
@@ -181,18 +179,18 @@ export default function WebhooksPage() {
     try {
       const res = await deleteWebhook(pendingDelete.id);
       if (!res.ok) {
-        toast({
+        toast.toast({
           title: 'Could not delete',
           description: res.error,
           variant: 'destructive',
         });
         return;
       }
-      toast({ title: 'Webhook deleted' });
+      toast.toast({ title: 'Webhook deleted' });
       setPendingDelete(null);
       await load();
     } catch (err) {
-      toast({
+      toast.toast({
         title: 'Could not reach engine',
         description: err instanceof Error ? err.message : 'Try again later.',
       });
@@ -201,30 +199,48 @@ export default function WebhooksPage() {
   }, [pendingDelete, toast, load]);
 
   return (
-    <TooltipProvider delayDuration={150}>
-      <div className="space-y-6 p-4 md:p-6 lg:p-8">
+    <ZoruTooltipProvider delayDuration={150}>
+      <div className="mx-auto w-full max-w-[1180px] space-y-6 px-6 pt-6 pb-10">
+        <ZoruBreadcrumb>
+          <ZoruBreadcrumbList>
+            <ZoruBreadcrumbItem>
+              <ZoruBreadcrumbLink href="/dashboard">
+                SabNode
+              </ZoruBreadcrumbLink>
+            </ZoruBreadcrumbItem>
+            <ZoruBreadcrumbSeparator />
+            <ZoruBreadcrumbItem>
+              <ZoruBreadcrumbLink href="/sabwa">SabWa</ZoruBreadcrumbLink>
+            </ZoruBreadcrumbItem>
+            <ZoruBreadcrumbSeparator />
+            <ZoruBreadcrumbItem>
+              <ZoruBreadcrumbPage>Webhooks</ZoruBreadcrumbPage>
+            </ZoruBreadcrumbItem>
+          </ZoruBreadcrumbList>
+        </ZoruBreadcrumb>
+
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="flex items-start gap-3">
-            <div className="rounded-xl bg-secondary p-3">
-              <WebhookIcon className="h-6 w-6" />
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface text-zoru-ink">
+              <WebhookIcon className="h-5 w-5" />
             </div>
             <div>
-              <h1 className="text-2xl font-semibold tracking-tight">
+              <h1 className="text-[24px] leading-[1.2] tracking-[-0.015em] text-zoru-ink">
                 Webhooks
               </h1>
-              <p className="mt-1 text-sm text-muted-foreground">
+              <p className="mt-1 text-[13px] text-zoru-ink-muted">
                 Stream SabWa events to your own systems over HTTPS with HMAC
                 signing.
               </p>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Button
+            <ZoruButton
               variant="outline"
               size="sm"
               onClick={() => void load()}
               disabled={loading}
-              className="h-9 gap-1.5"
+              className="gap-1.5"
             >
               {loading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -232,14 +248,14 @@ export default function WebhooksPage() {
                 <RefreshCw className="h-4 w-4" />
               )}
               Refresh
-            </Button>
-            <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-              <DialogTrigger asChild>
-                <Button size="sm" className="h-9 gap-1.5">
+            </ZoruButton>
+            <ZoruDialog open={createOpen} onOpenChange={setCreateOpen}>
+              <ZoruDialogTrigger asChild>
+                <ZoruButton size="sm" className="gap-1.5">
                   <Plus className="h-4 w-4" />
                   New webhook
-                </Button>
-              </DialogTrigger>
+                </ZoruButton>
+              </ZoruDialogTrigger>
               <CreateWebhookDialogContent
                 onCreated={async (secret) => {
                   setCreateOpen(false);
@@ -247,7 +263,7 @@ export default function WebhooksPage() {
                   await load();
                 }}
               />
-            </Dialog>
+            </ZoruDialog>
           </div>
         </div>
 
@@ -258,82 +274,86 @@ export default function WebhooksPage() {
           />
         ) : null}
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Registered endpoints</CardTitle>
-            <CardDescription>
+        <ZoruCard>
+          <ZoruCardHeader>
+            <ZoruCardTitle className="text-base">
+              Registered endpoints
+            </ZoruCardTitle>
+            <ZoruCardDescription>
               Click a row to inspect recent deliveries.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+            </ZoruCardDescription>
+          </ZoruCardHeader>
+          <ZoruCardContent>
             {rows.length === 0 ? (
               <EmptyState
                 icon={WebhookIcon}
                 title="No webhooks yet"
                 description="Register an HTTPS endpoint to start receiving SabWa events."
                 action={
-                  <Button
+                  <ZoruButton
                     size="sm"
                     onClick={() => setCreateOpen(true)}
                     className="gap-1.5"
                   >
                     <Plus className="h-4 w-4" />
                     New webhook
-                  </Button>
+                  </ZoruButton>
                 }
               />
             ) : (
               <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>URL</TableHead>
-                      <TableHead>Events</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Last delivery</TableHead>
-                      <TableHead>Success rate</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
+                <ZoruTable>
+                  <ZoruTableHeader>
+                    <ZoruTableRow>
+                      <ZoruTableHead>URL</ZoruTableHead>
+                      <ZoruTableHead>Events</ZoruTableHead>
+                      <ZoruTableHead>Status</ZoruTableHead>
+                      <ZoruTableHead>Last delivery</ZoruTableHead>
+                      <ZoruTableHead>Success rate</ZoruTableHead>
+                      <ZoruTableHead className="text-right">
+                        Actions
+                      </ZoruTableHead>
+                    </ZoruTableRow>
+                  </ZoruTableHeader>
+                  <ZoruTableBody>
                     {rows.map((row) => (
-                      <TableRow
+                      <ZoruTableRow
                         key={row.id}
                         className="cursor-pointer"
                         onClick={() => setSelected(row)}
                       >
-                        <TableCell className="max-w-[280px] truncate font-mono text-xs">
+                        <ZoruTableCell className="max-w-[280px] truncate font-mono text-xs">
                           {maskUrl(row.url)}
-                        </TableCell>
-                        <TableCell>
+                        </ZoruTableCell>
+                        <ZoruTableCell>
                           <div className="flex max-w-[260px] flex-wrap gap-1">
                             {row.events.slice(0, 3).map((ev) => (
-                              <Badge
+                              <ZoruBadge
                                 key={ev}
                                 variant="secondary"
                                 className="text-[10px]"
                               >
                                 {ev}
-                              </Badge>
+                              </ZoruBadge>
                             ))}
                             {row.events.length > 3 ? (
-                              <Badge
+                              <ZoruBadge
                                 variant="outline"
                                 className="text-[10px]"
                               >
                                 +{row.events.length - 3}
-                              </Badge>
+                              </ZoruBadge>
                             ) : null}
                           </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge
+                        </ZoruTableCell>
+                        <ZoruTableCell>
+                          <ZoruBadge
                             variant={row.enabled ? 'success' : 'secondary'}
                           >
                             {row.enabled ? 'Enabled' : 'Disabled'}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
+                          </ZoruBadge>
+                        </ZoruTableCell>
+                        <ZoruTableCell>
                           {row.lastDeliveryAt ? (
                             <span
                               title={format(
@@ -350,88 +370,91 @@ export default function WebhooksPage() {
                                 : ''}
                             </span>
                           ) : (
-                            <span className="text-muted-foreground">—</span>
+                            <span className="text-zoru-ink-muted">—</span>
                           )}
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant={successRateTone(row.successRate)}>
+                        </ZoruTableCell>
+                        <ZoruTableCell>
+                          <ZoruBadge variant={successRateTone(row.successRate)}>
                             {row.successRate === undefined
                               ? '—'
                               : `${Math.round(row.successRate * 100)}%`}
-                          </Badge>
-                        </TableCell>
-                        <TableCell
+                          </ZoruBadge>
+                        </ZoruTableCell>
+                        <ZoruTableCell
                           className="text-right"
                           onClick={(e) => e.stopPropagation()}
                         >
                           <div className="flex items-center justify-end gap-1">
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button
-                                  size="icon"
+                            <ZoruTooltip>
+                              <ZoruTooltipTrigger asChild>
+                                <ZoruButton
+                                  size="icon-sm"
                                   variant="ghost"
-                                  className="h-8 w-8"
                                   onClick={() => void handleTest(row)}
                                 >
                                   <Send className="h-3.5 w-3.5" />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>Send test event</TooltipContent>
-                            </Tooltip>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button
-                                  size="icon"
+                                </ZoruButton>
+                              </ZoruTooltipTrigger>
+                              <ZoruTooltipContent>
+                                Send test event
+                              </ZoruTooltipContent>
+                            </ZoruTooltip>
+                            <ZoruTooltip>
+                              <ZoruTooltipTrigger asChild>
+                                <ZoruButton
+                                  size="icon-sm"
                                   variant="ghost"
-                                  className="h-8 w-8 text-destructive hover:text-destructive"
+                                  className="text-zoru-danger hover:text-zoru-danger"
                                   onClick={() => setPendingDelete(row)}
                                 >
                                   <Trash2 className="h-3.5 w-3.5" />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>Delete</TooltipContent>
-                            </Tooltip>
+                                </ZoruButton>
+                              </ZoruTooltipTrigger>
+                              <ZoruTooltipContent>Delete</ZoruTooltipContent>
+                            </ZoruTooltip>
                           </div>
-                        </TableCell>
-                      </TableRow>
+                        </ZoruTableCell>
+                      </ZoruTableRow>
                     ))}
-                  </TableBody>
-                </Table>
+                  </ZoruTableBody>
+                </ZoruTable>
               </div>
             )}
-          </CardContent>
-        </Card>
+          </ZoruCardContent>
+        </ZoruCard>
 
         <DeliveriesSheet
           webhook={selected}
           onClose={() => setSelected(null)}
         />
 
-        <AlertDialog
+        <ZoruAlertDialog
           open={pendingDelete !== null}
           onOpenChange={(o) => !o && setPendingDelete(null)}
         >
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Delete this webhook?</AlertDialogTitle>
-              <AlertDialogDescription>
+          <ZoruAlertDialogContent>
+            <ZoruAlertDialogHeader>
+              <ZoruAlertDialogTitle>
+                Delete this webhook?
+              </ZoruAlertDialogTitle>
+              <ZoruAlertDialogDescription>
                 Pending deliveries will be dropped. This action cannot be
                 undone.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction
+              </ZoruAlertDialogDescription>
+            </ZoruAlertDialogHeader>
+            <ZoruAlertDialogFooter>
+              <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+              <ZoruAlertDialogAction
                 onClick={() => void handleDelete()}
-                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                className="bg-zoru-danger text-zoru-danger-foreground hover:bg-zoru-danger/90"
               >
                 Delete
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+              </ZoruAlertDialogAction>
+            </ZoruAlertDialogFooter>
+          </ZoruAlertDialogContent>
+        </ZoruAlertDialog>
       </div>
-    </TooltipProvider>
+    </ZoruTooltipProvider>
   );
 }
 
@@ -442,7 +465,7 @@ function CreateWebhookDialogContent({
 }: {
   onCreated: (signingSecret: string) => void | Promise<void>;
 }) {
-  const { toast } = useToast();
+  const toast = useZoruToast();
   const [url, setUrl] = React.useState('');
   const [sessionScope, setSessionScope] = React.useState('');
   const [events, setEvents] = React.useState<SabwaWebhookEvent[]>([
@@ -458,7 +481,7 @@ function CreateWebhookDialogContent({
 
   const submit = async () => {
     if (!url.trim() || events.length === 0) {
-      toast({
+      toast.toast({
         title: 'Missing fields',
         description: 'Provide an HTTPS URL and at least one event.',
         variant: 'destructive',
@@ -474,7 +497,7 @@ function CreateWebhookDialogContent({
         sessionId: sessionScope.trim() || undefined,
       });
       if (!res.ok) {
-        toast({
+        toast.toast({
           title: 'Could not create webhook',
           description: res.error,
           variant: 'destructive',
@@ -485,7 +508,7 @@ function CreateWebhookDialogContent({
         res.signingSecret ?? '(secret will appear once the engine is online)',
       );
     } catch (err) {
-      toast({
+      toast.toast({
         title: 'Could not reach engine',
         description: err instanceof Error ? err.message : 'Try again later.',
       });
@@ -495,17 +518,17 @@ function CreateWebhookDialogContent({
   };
 
   return (
-    <DialogContent className="sm:max-w-[520px]">
-      <DialogHeader>
-        <DialogTitle>New webhook</DialogTitle>
-        <DialogDescription>
+    <ZoruDialogContent className="sm:max-w-[520px]">
+      <ZoruDialogHeader>
+        <ZoruDialogTitle>New webhook</ZoruDialogTitle>
+        <ZoruDialogDescription>
           Register an HTTPS endpoint and choose which events to fan out.
-        </DialogDescription>
-      </DialogHeader>
+        </ZoruDialogDescription>
+      </ZoruDialogHeader>
       <div className="space-y-4">
         <div className="space-y-1.5">
-          <Label htmlFor="wh-url">Endpoint URL</Label>
-          <Input
+          <ZoruLabel htmlFor="wh-url">Endpoint URL</ZoruLabel>
+          <ZoruInput
             id="wh-url"
             placeholder="https://example.com/sabwa/webhook"
             value={url}
@@ -513,8 +536,8 @@ function CreateWebhookDialogContent({
           />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="wh-scope">Session scope (optional)</Label>
-          <Input
+          <ZoruLabel htmlFor="wh-scope">Session scope (optional)</ZoruLabel>
+          <ZoruInput
             id="wh-scope"
             placeholder="Leave blank for all sessions"
             value={sessionScope}
@@ -522,34 +545,34 @@ function CreateWebhookDialogContent({
           />
         </div>
         <div className="space-y-2">
-          <Label>Events</Label>
+          <ZoruLabel>Events</ZoruLabel>
           <div className="grid grid-cols-2 gap-1.5">
             {ALL_EVENTS.map((ev) => (
-              <Label
+              <ZoruLabel
                 key={ev.value}
                 htmlFor={`wh-ev-${ev.value}`}
-                className="flex cursor-pointer items-center gap-2 rounded-md border bg-card px-2.5 py-1.5 text-sm hover:bg-accent"
+                className="flex cursor-pointer items-center gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-2.5 py-1.5 text-sm text-zoru-ink hover:bg-zoru-surface"
               >
-                <Checkbox
+                <ZoruCheckbox
                   id={`wh-ev-${ev.value}`}
                   checked={events.includes(ev.value)}
                   onCheckedChange={() => toggle(ev.value)}
                 />
                 <span className="text-xs">{ev.label}</span>
-              </Label>
+              </ZoruLabel>
             ))}
           </div>
         </div>
       </div>
-      <DialogFooter>
-        <Button onClick={() => void submit()} disabled={submitting}>
+      <ZoruDialogFooter>
+        <ZoruButton onClick={() => void submit()} disabled={submitting}>
           {submitting ? (
             <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
           ) : null}
           Create webhook
-        </Button>
-      </DialogFooter>
-    </DialogContent>
+        </ZoruButton>
+      </ZoruDialogFooter>
+    </ZoruDialogContent>
   );
 }
 
@@ -562,41 +585,41 @@ function SecretRevealCard({
   secret: string;
   onDismiss: () => void;
 }) {
-  const { toast } = useToast();
+  const toast = useZoruToast();
   return (
-    <Card className="border-amber-500/40 bg-amber-500/5">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-base">
-          <AlertTriangle className="h-4 w-4 text-amber-600" />
+    <ZoruCard className="border-zoru-warning/40 bg-zoru-warning/5">
+      <ZoruCardHeader>
+        <ZoruCardTitle className="flex items-center gap-2 text-base text-zoru-ink">
+          <AlertTriangle className="h-4 w-4 text-zoru-warning-ink" />
           Signing secret — copy now
-        </CardTitle>
-        <CardDescription>
+        </ZoruCardTitle>
+        <ZoruCardDescription>
           This secret is shown <strong>once</strong>. Use it to verify the HMAC
           signature on incoming requests. You won&apos;t be able to see it
           again.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="flex items-center gap-2">
-        <code className="flex-1 truncate rounded-md border bg-background px-2.5 py-1.5 text-xs">
+        </ZoruCardDescription>
+      </ZoruCardHeader>
+      <ZoruCardContent className="flex items-center gap-2">
+        <code className="flex-1 truncate rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-2.5 py-1.5 text-xs text-zoru-ink">
           {secret}
         </code>
-        <Button
+        <ZoruButton
           size="sm"
           variant="outline"
           onClick={() => {
             void navigator.clipboard.writeText(secret);
-            toast({ title: 'Copied secret to clipboard' });
+            toast.toast({ title: 'Copied secret to clipboard' });
           }}
           className="gap-1.5"
         >
           <Copy className="h-3.5 w-3.5" />
           Copy
-        </Button>
-        <Button size="sm" variant="ghost" onClick={onDismiss}>
+        </ZoruButton>
+        <ZoruButton size="sm" variant="ghost" onClick={onDismiss}>
           Dismiss
-        </Button>
-      </CardContent>
-    </Card>
+        </ZoruButton>
+      </ZoruCardContent>
+    </ZoruCard>
   );
 }
 
@@ -609,7 +632,7 @@ function DeliveriesSheet({
   webhook: SabwaWebhookRow | null;
   onClose: () => void;
 }) {
-  const { toast } = useToast();
+  const toast = useZoruToast();
   const [deliveries, setDeliveries] = React.useState<SabwaWebhookDelivery[]>(
     [],
   );
@@ -637,9 +660,9 @@ function DeliveriesSheet({
   const resend = async (id: string) => {
     try {
       await testWebhook(webhook!.id);
-      toast({ title: 'Resend queued', description: `Delivery ${id}` });
+      toast.toast({ title: 'Resend queued', description: `Delivery ${id}` });
     } catch (err) {
-      toast({
+      toast.toast({
         title: 'Could not resend',
         description: err instanceof Error ? err.message : 'Try again later.',
         variant: 'destructive',
@@ -648,18 +671,18 @@ function DeliveriesSheet({
   };
 
   return (
-    <Sheet open={webhook !== null} onOpenChange={(o) => !o && onClose()}>
-      <SheetContent className="w-full sm:max-w-xl">
-        <SheetHeader>
-          <SheetTitle>Recent deliveries</SheetTitle>
-          <SheetDescription className="truncate font-mono text-xs">
+    <ZoruSheet open={webhook !== null} onOpenChange={(o) => !o && onClose()}>
+      <ZoruSheetContent className="w-full sm:max-w-xl">
+        <ZoruSheetHeader>
+          <ZoruSheetTitle>Recent deliveries</ZoruSheetTitle>
+          <ZoruSheetDescription className="truncate font-mono text-xs">
             {webhook ? maskUrl(webhook.url) : ''}
-          </SheetDescription>
-        </SheetHeader>
+          </ZoruSheetDescription>
+        </ZoruSheetHeader>
         <div className="mt-4">
           {loading ? (
             <div className="flex items-center justify-center py-8">
-              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+              <Loader2 className="h-5 w-5 animate-spin text-zoru-ink-muted" />
             </div>
           ) : deliveries.length === 0 ? (
             <EmptyState
@@ -672,49 +695,50 @@ function DeliveriesSheet({
               {deliveries.map((d) => (
                 <li
                   key={d.id}
-                  className="rounded-md border bg-card p-3 text-xs"
+                  className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-3 text-xs text-zoru-ink"
                 >
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
-                      {d.statusCode && d.statusCode >= 200 && d.statusCode < 300 ? (
-                        <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                      {d.statusCode &&
+                      d.statusCode >= 200 &&
+                      d.statusCode < 300 ? (
+                        <CheckCircle2 className="h-4 w-4 text-zoru-success-ink" />
                       ) : (
-                        <XCircle className="h-4 w-4 text-destructive" />
+                        <XCircle className="h-4 w-4 text-zoru-danger-ink" />
                       )}
                       <span className="font-mono">
                         {d.statusCode ?? '—'} · {d.latencyMs ?? '—'}ms
                       </span>
-                      <Badge variant="outline" className="text-[10px]">
+                      <ZoruBadge variant="outline" className="text-[10px]">
                         attempt {d.attempt}
-                      </Badge>
+                      </ZoruBadge>
                     </div>
-                    <Button
+                    <ZoruButton
                       size="sm"
                       variant="ghost"
-                      className="h-7 text-[11px]"
                       onClick={() => void resend(d.id)}
                     >
                       Resend
-                    </Button>
+                    </ZoruButton>
                   </div>
-                  <div className="mt-1 text-muted-foreground">
+                  <div className="mt-1 text-zoru-ink-muted">
                     {d.event} ·{' '}
                     {formatDistanceToNow(new Date(d.ts), { addSuffix: true })}
                   </div>
                   {d.responseExcerpt ? (
-                    <pre className="mt-2 max-h-24 overflow-auto rounded bg-muted/40 p-2 text-[11px]">
+                    <pre className="mt-2 max-h-24 overflow-auto rounded-[var(--zoru-radius-sm)] bg-zoru-surface p-2 text-[11px]">
                       {d.responseExcerpt}
                     </pre>
                   ) : null}
                   {d.error ? (
-                    <p className="mt-1 text-destructive">{d.error}</p>
+                    <p className="mt-1 text-zoru-danger-ink">{d.error}</p>
                   ) : null}
                 </li>
               ))}
             </ul>
           )}
         </div>
-      </SheetContent>
-    </Sheet>
+      </ZoruSheetContent>
+    </ZoruSheet>
   );
 }

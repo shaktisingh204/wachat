@@ -6,6 +6,8 @@
  * Table of keys with prefix, scopes, status. Generate dialog with scope
  * multi-select. After generate, full key is shown once with copy button
  * and explicit warning.
+ *
+ * Visual layer migrated to ZoruUI.
  */
 
 import * as React from 'react';
@@ -31,45 +33,45 @@ import {
 } from '@/app/actions/sabwa.actions';
 
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
-import { DatePicker } from '@/components/ui/date-picker';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { useToast } from '@/hooks/use-toast';
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruBadge,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardDescription,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruCheckbox,
+  ZoruDatePicker,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruDialogTrigger,
+  ZoruLabel,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  useZoruToast,
+} from '@/components/zoruui';
 
 import { EmptyState } from '@/app/sabwa/_components/empty-state';
 
@@ -100,12 +102,12 @@ const ALL_SCOPES: { value: string; label: string; description: string }[] = [
 
 function statusVariant(
   status: SabwaApiKeyStatus,
-): 'secondary' | 'success' | 'warning' | 'destructive' {
+): 'secondary' | 'success' | 'warning' | 'danger' {
   switch (status) {
     case 'active':
       return 'success';
     case 'revoked':
-      return 'destructive';
+      return 'danger';
     case 'expired':
       return 'warning';
     default:
@@ -114,7 +116,7 @@ function statusVariant(
 }
 
 export default function ApiKeysPage() {
-  const { toast } = useToast();
+  const toast = useZoruToast();
   const [rows, setRows] = React.useState<SabwaApiKeyRow[]>([]);
   const [loading, setLoading] = React.useState(false);
   const [createOpen, setCreateOpen] = React.useState(false);
@@ -143,18 +145,18 @@ export default function ApiKeysPage() {
     try {
       const res = await revokeApiKey(pendingRevoke.id);
       if (!res.ok) {
-        toast({
+        toast.toast({
           title: 'Could not revoke',
           description: res.error,
           variant: 'destructive',
         });
         return;
       }
-      toast({ title: 'Key revoked' });
+      toast.toast({ title: 'Key revoked' });
       setPendingRevoke(null);
       await load();
     } catch (err) {
-      toast({
+      toast.toast({
         title: 'Could not reach engine',
         description: err instanceof Error ? err.message : 'Try again later.',
       });
@@ -163,38 +165,56 @@ export default function ApiKeysPage() {
   }, [pendingRevoke, toast, load]);
 
   return (
-    <div className="space-y-6 p-4 md:p-6 lg:p-8">
+    <div className="mx-auto w-full max-w-[1180px] space-y-6 px-6 pt-6 pb-10">
+      <ZoruBreadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/sabwa">SabWa</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>API keys</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </ZoruBreadcrumb>
+
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-start gap-3">
-          <div className="rounded-xl bg-secondary p-3">
-            <KeyRound className="h-6 w-6" />
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface text-zoru-ink">
+            <KeyRound className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight">API Keys</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <h1 className="text-[24px] leading-[1.2] tracking-[-0.015em] text-zoru-ink">
+              API Keys
+            </h1>
+            <p className="mt-1 text-[13px] text-zoru-ink-muted">
               REST tokens scoped to the SabWa module. Reuses the dashboard API
               pattern.
             </p>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Button
+          <ZoruButton
             asChild
             size="sm"
             variant="ghost"
-            className="h-9 gap-1.5 text-muted-foreground"
+            className="gap-1.5 text-zoru-ink-muted"
           >
             <Link href="/dashboard/api/docs#sabwa">
               <Book className="h-4 w-4" />
               API docs
             </Link>
-          </Button>
-          <Button
+          </ZoruButton>
+          <ZoruButton
             variant="outline"
             size="sm"
             onClick={() => void load()}
             disabled={loading}
-            className="h-9 gap-1.5"
+            className="gap-1.5"
           >
             {loading ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -202,14 +222,14 @@ export default function ApiKeysPage() {
               <RefreshCw className="h-4 w-4" />
             )}
             Refresh
-          </Button>
-          <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-            <DialogTrigger asChild>
-              <Button size="sm" className="h-9 gap-1.5">
+          </ZoruButton>
+          <ZoruDialog open={createOpen} onOpenChange={setCreateOpen}>
+            <ZoruDialogTrigger asChild>
+              <ZoruButton size="sm" className="gap-1.5">
                 <Plus className="h-4 w-4" />
                 Generate new key
-              </Button>
-            </DialogTrigger>
+              </ZoruButton>
+            </ZoruDialogTrigger>
             <CreateApiKeyDialogContent
               onCreated={async (key) => {
                 setCreateOpen(false);
@@ -217,7 +237,7 @@ export default function ApiKeysPage() {
                 await load();
               }}
             />
-          </Dialog>
+          </ZoruDialog>
         </div>
       </div>
 
@@ -225,77 +245,79 @@ export default function ApiKeysPage() {
         <KeyRevealCard apiKey={reveal} onDismiss={() => setReveal(null)} />
       ) : null}
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Active keys</CardTitle>
-          <CardDescription>
+      <ZoruCard>
+        <ZoruCardHeader>
+          <ZoruCardTitle className="text-base">Active keys</ZoruCardTitle>
+          <ZoruCardDescription>
             Scopes restrict what an API key can do. Revoke any key with one
             click.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+          </ZoruCardDescription>
+        </ZoruCardHeader>
+        <ZoruCardContent>
           {rows.length === 0 ? (
             <EmptyState
               icon={KeyRound}
               title="No API keys yet"
               description="Generate a key to call the SabWa REST API from outside the dashboard."
               action={
-                <Button
+                <ZoruButton
                   size="sm"
                   onClick={() => setCreateOpen(true)}
                   className="gap-1.5"
                 >
                   <Plus className="h-4 w-4" />
                   Generate new key
-                </Button>
+                </ZoruButton>
               }
             />
           ) : (
             <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Prefix</TableHead>
-                    <TableHead>Scopes</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Created</TableHead>
-                    <TableHead>Last used</TableHead>
-                    <TableHead>Expires</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
+              <ZoruTable>
+                <ZoruTableHeader>
+                  <ZoruTableRow>
+                    <ZoruTableHead>Prefix</ZoruTableHead>
+                    <ZoruTableHead>Scopes</ZoruTableHead>
+                    <ZoruTableHead>Status</ZoruTableHead>
+                    <ZoruTableHead>Created</ZoruTableHead>
+                    <ZoruTableHead>Last used</ZoruTableHead>
+                    <ZoruTableHead>Expires</ZoruTableHead>
+                    <ZoruTableHead className="text-right">
+                      Actions
+                    </ZoruTableHead>
+                  </ZoruTableRow>
+                </ZoruTableHeader>
+                <ZoruTableBody>
                   {rows.map((row) => (
-                    <TableRow key={row.id}>
-                      <TableCell className="font-mono text-xs">
+                    <ZoruTableRow key={row.id}>
+                      <ZoruTableCell className="font-mono text-xs">
                         {row.prefix}
-                      </TableCell>
-                      <TableCell>
+                      </ZoruTableCell>
+                      <ZoruTableCell>
                         <div className="flex max-w-[260px] flex-wrap gap-1">
                           {row.scopes.map((s) => (
-                            <Badge
+                            <ZoruBadge
                               key={s}
                               variant="secondary"
                               className="text-[10px]"
                             >
                               {s}
-                            </Badge>
+                            </ZoruBadge>
                           ))}
                         </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={statusVariant(row.status)}>
+                      </ZoruTableCell>
+                      <ZoruTableCell>
+                        <ZoruBadge variant={statusVariant(row.status)}>
                           {row.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
+                        </ZoruBadge>
+                      </ZoruTableCell>
+                      <ZoruTableCell>
                         <span title={format(new Date(row.createdAt), 'PPpp')}>
                           {formatDistanceToNow(new Date(row.createdAt), {
                             addSuffix: true,
                           })}
                         </span>
-                      </TableCell>
-                      <TableCell>
+                      </ZoruTableCell>
+                      <ZoruTableCell>
                         {row.lastUsedAt ? (
                           <span
                             title={format(new Date(row.lastUsedAt), 'PPpp')}
@@ -305,10 +327,10 @@ export default function ApiKeysPage() {
                             })}
                           </span>
                         ) : (
-                          <span className="text-muted-foreground">Never</span>
+                          <span className="text-zoru-ink-muted">Never</span>
                         )}
-                      </TableCell>
-                      <TableCell>
+                      </ZoruTableCell>
+                      <ZoruTableCell>
                         {row.expiresAt ? (
                           <span title={format(new Date(row.expiresAt), 'PPpp')}>
                             {formatDistanceToNow(new Date(row.expiresAt), {
@@ -316,53 +338,53 @@ export default function ApiKeysPage() {
                             })}
                           </span>
                         ) : (
-                          <span className="text-muted-foreground">No expiry</span>
+                          <span className="text-zoru-ink-muted">No expiry</span>
                         )}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button
+                      </ZoruTableCell>
+                      <ZoruTableCell className="text-right">
+                        <ZoruButton
                           size="sm"
                           variant="ghost"
-                          className="h-8 gap-1.5 text-destructive hover:text-destructive"
+                          className="gap-1.5 text-zoru-danger hover:text-zoru-danger"
                           disabled={row.status !== 'active'}
                           onClick={() => setPendingRevoke(row)}
                         >
                           <ShieldOff className="h-3.5 w-3.5" />
                           Revoke
-                        </Button>
-                      </TableCell>
-                    </TableRow>
+                        </ZoruButton>
+                      </ZoruTableCell>
+                    </ZoruTableRow>
                   ))}
-                </TableBody>
-              </Table>
+                </ZoruTableBody>
+              </ZoruTable>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </ZoruCardContent>
+      </ZoruCard>
 
-      <AlertDialog
+      <ZoruAlertDialog
         open={pendingRevoke !== null}
         onOpenChange={(o) => !o && setPendingRevoke(null)}
       >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Revoke this API key?</AlertDialogTitle>
-            <AlertDialogDescription>
+        <ZoruAlertDialogContent>
+          <ZoruAlertDialogHeader>
+            <ZoruAlertDialogTitle>Revoke this API key?</ZoruAlertDialogTitle>
+            <ZoruAlertDialogDescription>
               Any service using <code>{pendingRevoke?.prefix}</code> will stop
               working immediately. This cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
+            </ZoruAlertDialogDescription>
+          </ZoruAlertDialogHeader>
+          <ZoruAlertDialogFooter>
+            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+            <ZoruAlertDialogAction
               onClick={() => void handleRevoke()}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="bg-zoru-danger text-zoru-danger-foreground hover:bg-zoru-danger/90"
             >
               Revoke
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            </ZoruAlertDialogAction>
+          </ZoruAlertDialogFooter>
+        </ZoruAlertDialogContent>
+      </ZoruAlertDialog>
     </div>
   );
 }
@@ -374,7 +396,7 @@ function CreateApiKeyDialogContent({
 }: {
   onCreated: (apiKey: string) => void | Promise<void>;
 }) {
-  const { toast } = useToast();
+  const toast = useZoruToast();
   const [scopes, setScopes] = React.useState<string[]>(['messages.send']);
   const [expiresAt, setExpiresAt] = React.useState<Date | undefined>();
   const [submitting, setSubmitting] = React.useState(false);
@@ -386,7 +408,7 @@ function CreateApiKeyDialogContent({
 
   const submit = async () => {
     if (scopes.length === 0) {
-      toast({
+      toast.toast({
         title: 'Pick at least one scope',
         variant: 'destructive',
       });
@@ -400,7 +422,7 @@ function CreateApiKeyDialogContent({
         expiresAt,
       });
       if (!res.ok) {
-        toast({
+        toast.toast({
           title: 'Could not generate key',
           description: res.error,
           variant: 'destructive',
@@ -409,7 +431,7 @@ function CreateApiKeyDialogContent({
       }
       await onCreated(res.apiKey);
     } catch (err) {
-      toast({
+      toast.toast({
         title: 'Could not reach engine',
         description: err instanceof Error ? err.message : 'Try again later.',
       });
@@ -419,24 +441,24 @@ function CreateApiKeyDialogContent({
   };
 
   return (
-    <DialogContent className="sm:max-w-[480px]">
-      <DialogHeader>
-        <DialogTitle>Generate new API key</DialogTitle>
-        <DialogDescription>
+    <ZoruDialogContent className="sm:max-w-[480px]">
+      <ZoruDialogHeader>
+        <ZoruDialogTitle>Generate new API key</ZoruDialogTitle>
+        <ZoruDialogDescription>
           Choose scopes and an optional expiry. The full key is shown once.
-        </DialogDescription>
-      </DialogHeader>
+        </ZoruDialogDescription>
+      </ZoruDialogHeader>
       <div className="space-y-4">
         <div className="space-y-2">
-          <Label>Scopes</Label>
+          <ZoruLabel>Scopes</ZoruLabel>
           <div className="space-y-1.5">
             {ALL_SCOPES.map((s) => (
-              <Label
+              <ZoruLabel
                 key={s.value}
                 htmlFor={`scope-${s.value}`}
-                className="flex cursor-pointer items-start gap-2 rounded-md border bg-card px-3 py-2 text-sm hover:bg-accent"
+                className="flex cursor-pointer items-start gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-3 py-2 text-sm text-zoru-ink hover:bg-zoru-surface"
               >
-                <Checkbox
+                <ZoruCheckbox
                   id={`scope-${s.value}`}
                   checked={scopes.includes(s.value)}
                   onCheckedChange={() => toggle(s.value)}
@@ -444,33 +466,32 @@ function CreateApiKeyDialogContent({
                 />
                 <div className="flex flex-col">
                   <span className="font-mono text-xs">{s.label}</span>
-                  <span className="text-[11px] text-muted-foreground">
+                  <span className="text-[11px] text-zoru-ink-muted">
                     {s.description}
                   </span>
                 </div>
-              </Label>
+              </ZoruLabel>
             ))}
           </div>
         </div>
         <div className="space-y-1.5">
-          <Label>Expires at (optional)</Label>
-          <DatePicker
-            date={expiresAt}
-            setDate={setExpiresAt}
+          <ZoruLabel>Expires at (optional)</ZoruLabel>
+          <ZoruDatePicker
+            value={expiresAt}
+            onChange={setExpiresAt}
             placeholder="No expiry"
-            className="h-9"
           />
         </div>
       </div>
-      <DialogFooter>
-        <Button onClick={() => void submit()} disabled={submitting}>
+      <ZoruDialogFooter>
+        <ZoruButton onClick={() => void submit()} disabled={submitting}>
           {submitting ? (
             <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
           ) : null}
           Generate key
-        </Button>
-      </DialogFooter>
-    </DialogContent>
+        </ZoruButton>
+      </ZoruDialogFooter>
+    </ZoruDialogContent>
   );
 }
 
@@ -483,39 +504,39 @@ function KeyRevealCard({
   apiKey: string;
   onDismiss: () => void;
 }) {
-  const { toast } = useToast();
+  const toast = useZoruToast();
   return (
-    <Card className="border-amber-500/40 bg-amber-500/5">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-base">
-          <AlertTriangle className="h-4 w-4 text-amber-600" />
+    <ZoruCard className="border-zoru-warning/40 bg-zoru-warning/5">
+      <ZoruCardHeader>
+        <ZoruCardTitle className="flex items-center gap-2 text-base text-zoru-ink">
+          <AlertTriangle className="h-4 w-4 text-zoru-warning-ink" />
           New API key — copy now
-        </CardTitle>
-        <CardDescription>
+        </ZoruCardTitle>
+        <ZoruCardDescription>
           This is the only time you&apos;ll see the full key. Store it in your
           secrets manager before dismissing.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="flex items-center gap-2">
-        <code className="flex-1 truncate rounded-md border bg-background px-2.5 py-1.5 text-xs">
+        </ZoruCardDescription>
+      </ZoruCardHeader>
+      <ZoruCardContent className="flex items-center gap-2">
+        <code className="flex-1 truncate rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-2.5 py-1.5 text-xs text-zoru-ink">
           {apiKey}
         </code>
-        <Button
+        <ZoruButton
           size="sm"
           variant="outline"
           onClick={() => {
             void navigator.clipboard.writeText(apiKey);
-            toast({ title: 'Copied key to clipboard' });
+            toast.toast({ title: 'Copied key to clipboard' });
           }}
           className="gap-1.5"
         >
           <Copy className="h-3.5 w-3.5" />
           Copy
-        </Button>
-        <Button size="sm" variant="ghost" onClick={onDismiss}>
+        </ZoruButton>
+        <ZoruButton size="sm" variant="ghost" onClick={onDismiss}>
           Dismiss
-        </Button>
-      </CardContent>
-    </Card>
+        </ZoruButton>
+      </ZoruCardContent>
+    </ZoruCard>
   );
 }

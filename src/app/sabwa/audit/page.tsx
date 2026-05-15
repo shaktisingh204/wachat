@@ -5,6 +5,8 @@
  *
  * Click a row to expand the full metadata JSON. Filters: session, date
  * range, action prefix (e.g. `message.*`), free-text search.
+ *
+ * Visual layer migrated to ZoruUI.
  */
 
 import * as React from 'react';
@@ -24,35 +26,38 @@ import {
   type SabwaAuditEntryRow,
 } from '@/app/actions/sabwa.actions';
 
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { DatePicker } from '@/components/ui/date-picker';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { useToast } from '@/hooks/use-toast';
-import { cn } from '@/lib/utils';
+  ZoruBadge,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardDescription,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruDatePicker,
+  ZoruInput,
+  ZoruLabel,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  cn,
+  useZoruToast,
+} from '@/components/zoruui';
 
 import { EmptyState } from '@/app/sabwa/_components/empty-state';
 
 function csvEscape(value: unknown): string {
   if (value === null || value === undefined) return '';
-  const str =
-    typeof value === 'string' ? value : JSON.stringify(value);
+  const str = typeof value === 'string' ? value : JSON.stringify(value);
   if (str.includes(',') || str.includes('"') || str.includes('\n')) {
     return `"${str.replace(/"/g, '""')}"`;
   }
@@ -88,7 +93,7 @@ function entriesToCsv(rows: SabwaAuditEntryRow[]): string {
 }
 
 export default function AuditPage() {
-  const { toast } = useToast();
+  const toast = useZoruToast();
   const [rows, setRows] = React.useState<SabwaAuditEntryRow[]>([]);
   const [loading, setLoading] = React.useState(false);
 
@@ -127,7 +132,10 @@ export default function AuditPage() {
 
   const exportCsv = React.useCallback(() => {
     if (rows.length === 0) {
-      toast({ title: 'Nothing to export', description: 'No rows match.' });
+      toast.toast({
+        title: 'Nothing to export',
+        description: 'No rows match.',
+      });
       return;
     }
     const csv = entriesToCsv(rows);
@@ -138,7 +146,7 @@ export default function AuditPage() {
     a.download = `sabwa-audit-${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
-    toast({ title: 'CSV exported', description: `${rows.length} rows` });
+    toast.toast({ title: 'CSV exported', description: `${rows.length} rows` });
   }, [rows, toast]);
 
   const reset = React.useCallback(() => {
@@ -150,39 +158,55 @@ export default function AuditPage() {
   }, []);
 
   return (
-    <div className="space-y-6 p-4 md:p-6 lg:p-8">
+    <div className="mx-auto w-full max-w-[1180px] space-y-6 px-6 pt-6 pb-10">
+      <ZoruBreadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/sabwa">SabWa</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>Audit log</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </ZoruBreadcrumb>
+
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-start gap-3">
-          <div className="rounded-xl bg-secondary p-3">
-            <ScrollText className="h-6 w-6" />
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface text-zoru-ink">
+            <ScrollText className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight">
+            <h1 className="text-[24px] leading-[1.2] tracking-[-0.015em] text-zoru-ink">
               Audit Log
             </h1>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <p className="mt-1 text-[13px] text-zoru-ink-muted">
               Append-only record of every actor / action / target for
               compliance.
             </p>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Button
+          <ZoruButton
             variant="outline"
             size="sm"
             onClick={exportCsv}
             disabled={rows.length === 0}
-            className="h-9 gap-1.5"
+            className="gap-1.5"
           >
             <Download className="h-4 w-4" />
             Export CSV
-          </Button>
-          <Button
+          </ZoruButton>
+          <ZoruButton
             variant="outline"
             size="sm"
             onClick={() => void load()}
             disabled={loading}
-            className="h-9 gap-1.5"
+            className="gap-1.5"
           >
             {loading ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -190,97 +214,96 @@ export default function AuditPage() {
               <RefreshCw className="h-4 w-4" />
             )}
             Refresh
-          </Button>
+          </ZoruButton>
         </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Filters</CardTitle>
-          <CardDescription>
+      <ZoruCard>
+        <ZoruCardHeader>
+          <ZoruCardTitle className="text-base">Filters</ZoruCardTitle>
+          <ZoruCardDescription>
             Narrow the log by session, date range, action prefix, or text.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+          </ZoruCardDescription>
+        </ZoruCardHeader>
+        <ZoruCardContent>
           <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-5">
             <div className="space-y-1.5">
-              <Label className="text-[11px] uppercase tracking-wide text-muted-foreground">
+              <ZoruLabel className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
                 Session
-              </Label>
-              <Input
+              </ZoruLabel>
+              <ZoruInput
                 placeholder="sessionId or blank for all"
                 value={sessionId}
                 onChange={(e) => setSessionId(e.target.value)}
-                className="h-9"
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-[11px] uppercase tracking-wide text-muted-foreground">
+              <ZoruLabel className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
                 From
-              </Label>
-              <DatePicker
-                date={from}
-                setDate={setFrom}
+              </ZoruLabel>
+              <ZoruDatePicker
+                value={from}
+                onChange={setFrom}
                 placeholder="From"
-                className="h-9"
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-[11px] uppercase tracking-wide text-muted-foreground">
+              <ZoruLabel className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
                 To
-              </Label>
-              <DatePicker
-                date={to}
-                setDate={setTo}
+              </ZoruLabel>
+              <ZoruDatePicker
+                value={to}
+                onChange={setTo}
                 placeholder="To"
-                className="h-9"
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-[11px] uppercase tracking-wide text-muted-foreground">
+              <ZoruLabel className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
                 Action prefix
-              </Label>
-              <Input
+              </ZoruLabel>
+              <ZoruInput
                 placeholder="e.g. message.*"
                 value={actionPrefix}
                 onChange={(e) => setActionPrefix(e.target.value)}
-                className="h-9"
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-[11px] uppercase tracking-wide text-muted-foreground">
+              <ZoruLabel className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
                 Search
-              </Label>
+              </ZoruLabel>
               <div className="relative">
-                <Search className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-                <Input
+                <Search
+                  className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zoru-ink-muted"
+                  aria-hidden
+                />
+                <ZoruInput
                   placeholder="target or metadata text"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="h-9 pl-7"
+                  className="pl-7"
                 />
               </div>
             </div>
           </div>
           <div className="mt-3 flex items-center justify-end gap-2">
-            <Button variant="ghost" size="sm" onClick={reset}>
+            <ZoruButton variant="ghost" size="sm" onClick={reset}>
               Clear
-            </Button>
-            <Button size="sm" onClick={() => void load()} disabled={loading}>
+            </ZoruButton>
+            <ZoruButton size="sm" onClick={() => void load()} disabled={loading}>
               Apply filters
-            </Button>
+            </ZoruButton>
           </div>
-        </CardContent>
-      </Card>
+        </ZoruCardContent>
+      </ZoruCard>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Entries</CardTitle>
-          <CardDescription>
+      <ZoruCard>
+        <ZoruCardHeader>
+          <ZoruCardTitle className="text-base">Entries</ZoruCardTitle>
+          <ZoruCardDescription>
             Click a row to expand its full metadata JSON.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+          </ZoruCardDescription>
+        </ZoruCardHeader>
+        <ZoruCardContent>
           {rows.length === 0 ? (
             <EmptyState
               icon={ScrollText}
@@ -289,24 +312,24 @@ export default function AuditPage() {
             />
           ) : (
             <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-6" />
-                    <TableHead>Timestamp</TableHead>
-                    <TableHead>Actor</TableHead>
-                    <TableHead>Action</TableHead>
-                    <TableHead>Target</TableHead>
-                    <TableHead>IP</TableHead>
-                    <TableHead>User agent</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
+              <ZoruTable>
+                <ZoruTableHeader>
+                  <ZoruTableRow>
+                    <ZoruTableHead className="w-6" />
+                    <ZoruTableHead>Timestamp</ZoruTableHead>
+                    <ZoruTableHead>Actor</ZoruTableHead>
+                    <ZoruTableHead>Action</ZoruTableHead>
+                    <ZoruTableHead>Target</ZoruTableHead>
+                    <ZoruTableHead>IP</ZoruTableHead>
+                    <ZoruTableHead>User agent</ZoruTableHead>
+                  </ZoruTableRow>
+                </ZoruTableHeader>
+                <ZoruTableBody>
                   {rows.map((row) => {
                     const isOpen = expanded[row.id] === true;
                     return (
                       <React.Fragment key={row.id}>
-                        <TableRow
+                        <ZoruTableRow
                           className="cursor-pointer"
                           onClick={() =>
                             setExpanded((prev) => ({
@@ -315,61 +338,64 @@ export default function AuditPage() {
                             }))
                           }
                         >
-                          <TableCell className="pr-0 align-top">
+                          <ZoruTableCell className="pr-0 align-top">
                             {isOpen ? (
-                              <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+                              <ChevronDown className="h-3.5 w-3.5 text-zoru-ink-muted" />
                             ) : (
-                              <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
+                              <ChevronRight className="h-3.5 w-3.5 text-zoru-ink-muted" />
                             )}
-                          </TableCell>
-                          <TableCell className="font-mono text-xs">
+                          </ZoruTableCell>
+                          <ZoruTableCell className="font-mono text-xs">
                             {format(new Date(row.ts), 'yyyy-MM-dd HH:mm:ss')}
-                          </TableCell>
-                          <TableCell className="text-xs">
+                          </ZoruTableCell>
+                          <ZoruTableCell className="text-xs">
                             {row.actorEmail ?? row.actorId ?? '—'}
-                          </TableCell>
-                          <TableCell>
-                            <Badge
+                          </ZoruTableCell>
+                          <ZoruTableCell>
+                            <ZoruBadge
                               variant="secondary"
                               className="font-mono text-[10px]"
                             >
                               {row.action}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="max-w-[200px] truncate font-mono text-xs">
+                            </ZoruBadge>
+                          </ZoruTableCell>
+                          <ZoruTableCell className="max-w-[200px] truncate font-mono text-xs">
                             {row.target ?? '—'}
-                          </TableCell>
-                          <TableCell className="font-mono text-xs">
+                          </ZoruTableCell>
+                          <ZoruTableCell className="font-mono text-xs">
                             {row.ip ?? '—'}
-                          </TableCell>
-                          <TableCell
+                          </ZoruTableCell>
+                          <ZoruTableCell
                             className={cn(
-                              'max-w-[180px] truncate text-xs text-muted-foreground',
+                              'max-w-[180px] truncate text-xs text-zoru-ink-muted',
                             )}
                             title={row.userAgent}
                           >
                             {row.userAgent ?? '—'}
-                          </TableCell>
-                        </TableRow>
+                          </ZoruTableCell>
+                        </ZoruTableRow>
                         {isOpen ? (
-                          <TableRow>
-                            <TableCell />
-                            <TableCell colSpan={6} className="bg-muted/30">
-                              <pre className="overflow-auto rounded-md border bg-background p-3 text-[11px] leading-relaxed">
+                          <ZoruTableRow>
+                            <ZoruTableCell />
+                            <ZoruTableCell
+                              colSpan={6}
+                              className="bg-zoru-surface"
+                            >
+                              <pre className="overflow-auto rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-3 text-[11px] leading-relaxed text-zoru-ink">
                                 {JSON.stringify(row, null, 2)}
                               </pre>
-                            </TableCell>
-                          </TableRow>
+                            </ZoruTableCell>
+                          </ZoruTableRow>
                         ) : null}
                       </React.Fragment>
                     );
                   })}
-                </TableBody>
-              </Table>
+                </ZoruTableBody>
+              </ZoruTable>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </ZoruCardContent>
+      </ZoruCard>
     </div>
   );
 }

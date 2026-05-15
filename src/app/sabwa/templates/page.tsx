@@ -8,6 +8,9 @@
  * Dialog. Each card exposes a "Use template" menu for insert / broadcast
  * / schedule, and search filters across name + body.
  *
+ * Migrated to ZoruUI primitives. No behaviour changes — same server
+ * actions, same prop shapes.
+ *
  * Source of truth: SABWA_PLAN.md § 6 — Page 15.
  */
 
@@ -28,38 +31,39 @@ import {
   X,
 } from 'lucide-react';
 
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-import { Textarea } from '@/components/ui/textarea';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+  ZoruBadge,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardDescription,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruInput,
+  ZoruLabel,
+  ZoruPopover,
+  ZoruPopoverContent,
+  ZoruPopoverTrigger,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruTextarea,
+  cn,
+} from '@/components/zoruui';
 import { SabFilePickerButton } from '@/components/sabfiles';
 import {
   listTemplates,
@@ -67,7 +71,6 @@ import {
   deleteTemplate,
 } from '@/app/actions/sabwa.actions';
 import type { SabwaTemplate } from '@/lib/sabwa/types';
-import { cn } from '@/lib/utils';
 
 // TODO (Phase 2): swap to live session via SessionSwitcher.
 const PLACEHOLDER_SESSION = 'stub-primary';
@@ -192,36 +195,55 @@ export default function Page() {
   };
 
   return (
-    <div className="space-y-6 p-4 md:p-6 lg:p-8">
+    <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10 space-y-6">
+      {/* Breadcrumb */}
+      <ZoruBreadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/sabwa">SabWa</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>Templates</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </ZoruBreadcrumb>
+
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-start gap-3">
-          <div className="rounded-xl bg-secondary p-3">
-            <BookCopy className="h-6 w-6" />
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface text-zoru-ink">
+            <BookCopy className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight">Templates</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <h1 className="text-[24px] tracking-[-0.015em] text-zoru-ink leading-[1.2]">
+              Templates
+            </h1>
+            <p className="mt-1 text-[13px] text-zoru-ink-muted max-w-2xl">
               Reusable message templates with variables and media. Pull them
               into any composer, scheduler, or broadcast.
             </p>
           </div>
         </div>
         <div className="flex gap-2">
-          <Button onClick={openNew}>
+          <ZoruButton onClick={openNew}>
             <Plus className="mr-2 h-4 w-4" /> New template
-          </Button>
+          </ZoruButton>
         </div>
       </div>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-[220px_1fr]">
         {/* Folder sidebar */}
-        <Card className="h-fit">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm">Folders</CardTitle>
+        <ZoruCard className="h-fit">
+          <ZoruCardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <ZoruCardTitle className="text-sm">Folders</ZoruCardTitle>
             <NewFolderButton onCreate={addFolder} />
-          </CardHeader>
-          <CardContent className="p-2">
+          </ZoruCardHeader>
+          <ZoruCardContent className="p-2">
             <ul className="flex flex-col gap-0.5">
               {folders.map((f) => (
                 <li key={f.id}>
@@ -229,13 +251,14 @@ export default function Page() {
                     type="button"
                     onClick={() => setActiveFolder(f.id)}
                     className={cn(
-                      'flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm hover:bg-muted',
-                      activeFolder === f.id && 'bg-muted font-medium',
+                      'flex w-full items-center gap-2 rounded-[var(--zoru-radius)] px-2 py-1.5 text-left text-sm text-zoru-ink hover:bg-zoru-surface',
+                      activeFolder === f.id &&
+                        'bg-zoru-surface font-medium',
                     )}
                   >
-                    <Folder className="h-3.5 w-3.5 text-muted-foreground" />
+                    <Folder className="h-3.5 w-3.5 text-zoru-ink-muted" />
                     <span className="truncate">{f.name}</span>
-                    <span className="ml-auto text-xs text-muted-foreground">
+                    <span className="ml-auto text-xs text-zoru-ink-muted">
                       {f.id === 'all'
                         ? templates.length
                         : templates.filter((t) => t.folder === f.id).length}
@@ -244,14 +267,14 @@ export default function Page() {
                 </li>
               ))}
             </ul>
-          </CardContent>
-        </Card>
+          </ZoruCardContent>
+        </ZoruCard>
 
         {/* Right pane: search + grid */}
         <div className="space-y-4">
           <div className="relative">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
+            <ZoruInput
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search templates by name or body…"
@@ -261,18 +284,18 @@ export default function Page() {
           </div>
 
           {loading && filtered.length === 0 && (
-            <Card>
-              <CardContent className="py-10 text-center text-sm text-muted-foreground">
+            <ZoruCard>
+              <ZoruCardContent className="py-10 text-center text-sm text-zoru-ink-muted">
                 Loading templates…
-              </CardContent>
-            </Card>
+              </ZoruCardContent>
+            </ZoruCard>
           )}
           {!loading && filtered.length === 0 && (
-            <Card>
-              <CardContent className="py-10 text-center text-sm text-muted-foreground">
+            <ZoruCard>
+              <ZoruCardContent className="py-10 text-center text-sm text-zoru-ink-muted">
                 No templates yet. Click <strong>New template</strong> to start.
-              </CardContent>
-            </Card>
+              </ZoruCardContent>
+            </ZoruCard>
           )}
 
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
@@ -305,25 +328,25 @@ function NewFolderButton({ onCreate }: { onCreate: (name: string) => void }) {
   const [open, setOpen] = React.useState(false);
   const [name, setName] = React.useState('');
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button size="icon" variant="ghost" aria-label="New folder">
+    <ZoruPopover open={open} onOpenChange={setOpen}>
+      <ZoruPopoverTrigger asChild>
+        <ZoruButton size="icon" variant="ghost" aria-label="New folder">
           <FolderPlus className="h-4 w-4" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-56" align="end">
+        </ZoruButton>
+      </ZoruPopoverTrigger>
+      <ZoruPopoverContent className="w-56" align="end">
         <div className="space-y-2">
-          <Label htmlFor="folder-name" className="text-xs">
+          <ZoruLabel htmlFor="folder-name" className="text-xs">
             Folder name
-          </Label>
-          <Input
+          </ZoruLabel>
+          <ZoruInput
             id="folder-name"
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Onboarding"
             className="h-8 text-sm"
           />
-          <Button
+          <ZoruButton
             size="sm"
             className="w-full"
             onClick={() => {
@@ -335,10 +358,10 @@ function NewFolderButton({ onCreate }: { onCreate: (name: string) => void }) {
             }}
           >
             Create
-          </Button>
+          </ZoruButton>
         </div>
-      </PopoverContent>
-    </Popover>
+      </ZoruPopoverContent>
+    </ZoruPopover>
   );
 }
 
@@ -353,94 +376,94 @@ interface TemplateCardProps {
 function TemplateCard({ template, onEdit, onDelete }: TemplateCardProps) {
   const [actionsOpen, setActionsOpen] = React.useState(false);
   return (
-    <Card className="flex h-full flex-col">
-      <CardHeader className="space-y-1 pb-2">
+    <ZoruCard className="flex h-full flex-col">
+      <ZoruCardHeader className="space-y-1 pb-2">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
-            <CardTitle className="truncate text-base">
+            <ZoruCardTitle className="truncate text-base">
               {template.name}
-            </CardTitle>
+            </ZoruCardTitle>
             {template.category && (
-              <CardDescription>
-                <Badge variant="outline" className="text-[10px]">
+              <ZoruCardDescription>
+                <ZoruBadge variant="outline" className="text-[10px]">
                   {template.category}
-                </Badge>
-              </CardDescription>
+                </ZoruBadge>
+              </ZoruCardDescription>
             )}
           </div>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button size="icon" variant="ghost" aria-label="More actions">
+          <ZoruPopover>
+            <ZoruPopoverTrigger asChild>
+              <ZoruButton size="icon" variant="ghost" aria-label="More actions">
                 <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent align="end" className="w-44 p-1">
+              </ZoruButton>
+            </ZoruPopoverTrigger>
+            <ZoruPopoverContent align="end" className="w-44 p-1">
               <button
                 type="button"
                 onClick={onEdit}
-                className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm hover:bg-muted"
+                className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm text-zoru-ink hover:bg-zoru-surface"
               >
                 <Edit3 className="h-3.5 w-3.5" /> Edit
               </button>
               <button
                 type="button"
                 onClick={onDelete}
-                className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm text-destructive hover:bg-muted"
+                className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm text-zoru-danger hover:bg-zoru-surface"
               >
                 <Trash2 className="h-3.5 w-3.5" /> Delete
               </button>
-            </PopoverContent>
-          </Popover>
+            </ZoruPopoverContent>
+          </ZoruPopover>
         </div>
-      </CardHeader>
-      <CardContent className="flex flex-1 flex-col gap-3 pb-3">
-        <p className="line-clamp-3 whitespace-pre-wrap text-sm text-muted-foreground">
+      </ZoruCardHeader>
+      <ZoruCardContent className="flex flex-1 flex-col gap-3 pb-3">
+        <p className="line-clamp-3 whitespace-pre-wrap text-sm text-zoru-ink-muted">
           {template.body}
         </p>
         {template.variables.length > 0 && (
           <div className="flex flex-wrap gap-1">
             {template.variables.map((v) => (
-              <Badge key={v} variant="secondary" className="text-[10px]">
+              <ZoruBadge key={v} variant="secondary" className="text-[10px]">
                 {`{{${v}}}`}
-              </Badge>
+              </ZoruBadge>
             ))}
           </div>
         )}
-        <div className="mt-auto flex items-center justify-between text-xs text-muted-foreground">
+        <div className="mt-auto flex items-center justify-between text-xs text-zoru-ink-muted">
           <span>Used {template.usageCount}×</span>
-          <Popover open={actionsOpen} onOpenChange={setActionsOpen}>
-            <PopoverTrigger asChild>
-              <Button size="sm" variant="outline">
+          <ZoruPopover open={actionsOpen} onOpenChange={setActionsOpen}>
+            <ZoruPopoverTrigger asChild>
+              <ZoruButton size="sm" variant="outline">
                 Use template
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-52 p-1" align="end">
+              </ZoruButton>
+            </ZoruPopoverTrigger>
+            <ZoruPopoverContent className="w-52 p-1" align="end">
               <button
                 type="button"
-                className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm hover:bg-muted"
+                className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm text-zoru-ink hover:bg-zoru-surface"
                 onClick={() => setActionsOpen(false)}
               >
                 <MessageSquarePlus className="h-3.5 w-3.5" /> Insert into chat
               </button>
               <button
                 type="button"
-                className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm hover:bg-muted"
+                className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm text-zoru-ink hover:bg-zoru-surface"
                 onClick={() => setActionsOpen(false)}
               >
                 <Send className="h-3.5 w-3.5" /> Send to broadcast
               </button>
               <button
                 type="button"
-                className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm hover:bg-muted"
+                className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm text-zoru-ink hover:bg-zoru-surface"
                 onClick={() => setActionsOpen(false)}
               >
                 <CalendarClock className="h-3.5 w-3.5" /> Schedule
               </button>
-            </PopoverContent>
-          </Popover>
+            </ZoruPopoverContent>
+          </ZoruPopover>
         </div>
-      </CardContent>
-    </Card>
+      </ZoruCardContent>
+    </ZoruCard>
   );
 }
 
@@ -514,23 +537,23 @@ function TemplateEditorDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>{initial ? 'Edit template' : 'New template'}</DialogTitle>
-          <DialogDescription>
+    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+      <ZoruDialogContent className="max-w-2xl">
+        <ZoruDialogHeader>
+          <ZoruDialogTitle>{initial ? 'Edit template' : 'New template'}</ZoruDialogTitle>
+          <ZoruDialogDescription>
             Compose a reusable message. Use{' '}
-            <code className="rounded bg-muted px-1 py-0.5 text-xs">
+            <code className="rounded bg-zoru-surface px-1 py-0.5 text-xs text-zoru-ink">
               {'{{variable}}'}
             </code>{' '}
             for dynamic fields.
-          </DialogDescription>
-        </DialogHeader>
+          </ZoruDialogDescription>
+        </ZoruDialogHeader>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div className="space-y-1.5">
-            <Label htmlFor="tpl-name">Name</Label>
-            <Input
+            <ZoruLabel htmlFor="tpl-name">Name</ZoruLabel>
+            <ZoruInput
               id="tpl-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -538,28 +561,28 @@ function TemplateEditorDialog({
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="tpl-folder">Folder</Label>
-            <Select value={category} onValueChange={setCategory}>
-              <SelectTrigger id="tpl-folder">
-                <SelectValue placeholder="Uncategorised" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Uncategorised">Uncategorised</SelectItem>
+            <ZoruLabel htmlFor="tpl-folder">Folder</ZoruLabel>
+            <ZoruSelect value={category} onValueChange={setCategory}>
+              <ZoruSelectTrigger id="tpl-folder">
+                <ZoruSelectValue placeholder="Uncategorised" />
+              </ZoruSelectTrigger>
+              <ZoruSelectContent>
+                <ZoruSelectItem value="Uncategorised">Uncategorised</ZoruSelectItem>
                 {folders
                   .filter((f) => f !== 'Uncategorised')
                   .map((f) => (
-                    <SelectItem key={f} value={f}>
+                    <ZoruSelectItem key={f} value={f}>
                       {f}
-                    </SelectItem>
+                    </ZoruSelectItem>
                   ))}
-              </SelectContent>
-            </Select>
+              </ZoruSelectContent>
+            </ZoruSelect>
           </div>
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="tpl-body">Body</Label>
-          <Textarea
+          <ZoruLabel htmlFor="tpl-body">Body</ZoruLabel>
+          <ZoruTextarea
             id="tpl-body"
             ref={bodyRef}
             rows={8}
@@ -570,9 +593,9 @@ function TemplateEditorDialog({
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs text-muted-foreground">Insert variable:</span>
+          <span className="text-xs text-zoru-ink-muted">Insert variable:</span>
           {KNOWN_VARIABLES.map((v) => (
-            <Button
+            <ZoruButton
               key={v}
               size="sm"
               variant="outline"
@@ -581,7 +604,7 @@ function TemplateEditorDialog({
               className="h-7 text-[11px]"
             >
               {`{{${v}}}`}
-            </Button>
+            </ZoruButton>
           ))}
         </div>
 
@@ -598,7 +621,7 @@ function TemplateEditorDialog({
             {mediaSabFileId ? 'Replace media' : 'Attach media'}
           </SabFilePickerButton>
           {mediaSabFileId && (
-            <Badge variant="secondary" className="gap-1">
+            <ZoruBadge variant="secondary" className="gap-1">
               {mediaName || mediaSabFileId}
               <button
                 type="button"
@@ -610,27 +633,27 @@ function TemplateEditorDialog({
               >
                 <X className="h-3 w-3" />
               </button>
-            </Badge>
+            </ZoruBadge>
           )}
           {detected.length > 0 && (
-            <span className="ml-auto text-xs text-muted-foreground">
+            <span className="ml-auto text-xs text-zoru-ink-muted">
               Variables: {detected.map((v) => `{{${v}}}`).join(', ')}
             </span>
           )}
         </div>
 
-        <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)}>
+        <ZoruDialogFooter>
+          <ZoruButton variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
-          </Button>
-          <Button
+          </ZoruButton>
+          <ZoruButton
             onClick={() => void onSubmit()}
             disabled={saving || !name.trim() || !body.trim()}
           >
             {saving ? 'Saving…' : initial ? 'Save changes' : 'Create template'}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+          </ZoruButton>
+        </ZoruDialogFooter>
+      </ZoruDialogContent>
+    </ZoruDialog>
   );
 }

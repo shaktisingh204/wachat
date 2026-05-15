@@ -12,15 +12,15 @@
 import * as React from 'react';
 import { MessageSquare, Search } from 'lucide-react';
 
-import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+  ZoruInput,
+  ZoruScrollArea,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+} from '@/components/zoruui';
 import { ChatListRow } from '@/app/sabwa/_components/chat-list-row';
 import { EmptyState } from '@/app/sabwa/_components/empty-state';
 import { cn } from '@/lib/utils';
@@ -82,16 +82,16 @@ export function LeftPane({
 
   return (
     <aside
-      className={cn('flex h-full w-full flex-col bg-background', className)}
+      className={cn('flex h-full w-full flex-col bg-zoru-bg', className)}
       aria-label="Chats"
     >
-      <div className="flex shrink-0 flex-col gap-2 border-b p-2">
+      <div className="flex shrink-0 flex-col gap-2 border-b border-zoru-line p-2">
         <div className="relative">
           <Search
-            className="pointer-events-none absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+            className="pointer-events-none absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted"
             aria-hidden
           />
-          <Input
+          <ZoruInput
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search chats"
@@ -99,24 +99,24 @@ export function LeftPane({
             aria-label="Search chats"
           />
         </div>
-        <Select
+        <ZoruSelect
           value={filter}
           onValueChange={(v) => setFilter(v as ChatFilter)}
         >
-          <SelectTrigger className="h-8 w-full text-xs">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All chats</SelectItem>
-            <SelectItem value="unread">Unread</SelectItem>
-            <SelectItem value="personal">Personal</SelectItem>
-            <SelectItem value="groups">Groups</SelectItem>
-            <SelectItem value="broadcasts">Broadcasts</SelectItem>
-          </SelectContent>
-        </Select>
+          <ZoruSelectTrigger className="h-8 w-full text-xs">
+            <ZoruSelectValue />
+          </ZoruSelectTrigger>
+          <ZoruSelectContent>
+            <ZoruSelectItem value="all">All chats</ZoruSelectItem>
+            <ZoruSelectItem value="unread">Unread</ZoruSelectItem>
+            <ZoruSelectItem value="personal">Personal</ZoruSelectItem>
+            <ZoruSelectItem value="groups">Groups</ZoruSelectItem>
+            <ZoruSelectItem value="broadcasts">Broadcasts</ZoruSelectItem>
+          </ZoruSelectContent>
+        </ZoruSelect>
       </div>
 
-      <ScrollArea className="flex-1">
+      <ZoruScrollArea className="flex-1">
         {loading ? (
           <div className="space-y-2 p-2">
             {Array.from({ length: 8 }).map((_, i) => (
@@ -125,10 +125,10 @@ export function LeftPane({
                 className="flex items-center gap-3 rounded-md p-2"
                 aria-hidden
               >
-                <div className="h-10 w-10 shrink-0 animate-pulse rounded-full bg-muted" />
+                <div className="h-10 w-10 shrink-0 animate-pulse rounded-full bg-zoru-surface" />
                 <div className="flex-1 space-y-1.5">
-                  <div className="h-3 w-2/3 animate-pulse rounded bg-muted" />
-                  <div className="h-2 w-4/5 animate-pulse rounded bg-muted" />
+                  <div className="h-3 w-2/3 animate-pulse rounded bg-zoru-surface" />
+                  <div className="h-2 w-4/5 animate-pulse rounded bg-zoru-surface" />
                 </div>
               </div>
             ))}
@@ -156,7 +156,7 @@ export function LeftPane({
             ))}
           </ul>
         )}
-      </ScrollArea>
+      </ZoruScrollArea>
     </aside>
   );
 }

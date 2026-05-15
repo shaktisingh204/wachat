@@ -70,7 +70,7 @@ export function ProjectProvider({
         const storedId = localStorage.getItem('activeProjectId');
         const storedName = localStorage.getItem('activeProjectName');
 
-        if (pathname === '/wachat' || pathname === '/dashboard/facebook/all-projects') {
+        if (pathname === '/wachat' || pathname === '/sabwa' || pathname === '/dashboard/facebook/all-projects') {
             localStorage.removeItem('activeProjectId');
             localStorage.removeItem('activeProjectName');
             setActiveProjectId(null);

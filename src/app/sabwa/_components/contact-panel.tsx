@@ -24,9 +24,13 @@ import {
   X,
 } from 'lucide-react';
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import {
+  ZoruAvatar,
+  ZoruAvatarFallback,
+  ZoruAvatarImage,
+  ZoruButton,
+  ZoruScrollArea,
+} from '@/components/zoruui';
 import { cn } from '@/lib/utils';
 import type { SabwaChat, SabwaMessage } from '@/lib/sabwa/types';
 
@@ -79,15 +83,15 @@ export function ContactPanel({
   return (
     <aside
       className={cn(
-        'flex h-full w-full flex-col border-l bg-background',
+        'flex h-full w-full flex-col border-l border-zoru-line bg-zoru-bg',
         className,
       )}
       aria-label="Contact panel"
     >
-      <div className="flex h-14 shrink-0 items-center justify-between border-b px-3">
-        <p className="text-sm font-semibold">Contact info</p>
+      <div className="flex h-14 shrink-0 items-center justify-between border-b border-zoru-line px-3">
+        <p className="text-sm font-semibold text-zoru-ink">Contact info</p>
         {onClose ? (
-          <Button
+          <ZoruButton
             type="button"
             variant="ghost"
             size="icon"
@@ -95,31 +99,31 @@ export function ContactPanel({
             onClick={onClose}
           >
             <X className="h-4 w-4" />
-          </Button>
+          </ZoruButton>
         ) : null}
       </div>
 
-      <ScrollArea className="flex-1">
-        <div className="flex flex-col items-center gap-2 border-b px-4 py-6">
-          <Avatar className="h-24 w-24">
+      <ZoruScrollArea className="flex-1">
+        <div className="flex flex-col items-center gap-2 border-b border-zoru-line px-4 py-6">
+          <ZoruAvatar className="h-24 w-24">
             {chat.profilePicUrl ? (
-              <AvatarImage src={chat.profilePicUrl} alt={name} />
+              <ZoruAvatarImage src={chat.profilePicUrl} alt={name} />
             ) : null}
-            <AvatarFallback className="text-xl">
+            <ZoruAvatarFallback className="text-xl">
               {isGroup ? <Users className="h-8 w-8" /> : initials}
-            </AvatarFallback>
-          </Avatar>
-          <p className="text-base font-semibold">{name}</p>
-          <p className="text-xs text-muted-foreground">{chat.jid}</p>
+            </ZoruAvatarFallback>
+          </ZoruAvatar>
+          <p className="text-base font-semibold text-zoru-ink">{name}</p>
+          <p className="text-xs text-zoru-ink-muted">{chat.jid}</p>
           {isGroup ? (
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-zoru-ink-muted">
               {chat.participants ?? 0} participants
             </p>
           ) : null}
         </div>
 
-        <div className="grid grid-cols-3 gap-1 border-b p-2 text-xs">
-          <Button
+        <div className="grid grid-cols-3 gap-1 border-b border-zoru-line p-2 text-xs">
+          <ZoruButton
             type="button"
             variant="ghost"
             className="flex-col gap-1 py-3 text-[11px]"
@@ -127,8 +131,8 @@ export function ContactPanel({
           >
             <BellOff className="h-4 w-4" />
             {chat.muted ? 'Unmute' : 'Mute'}
-          </Button>
-          <Button
+          </ZoruButton>
+          <ZoruButton
             type="button"
             variant="ghost"
             className="flex-col gap-1 py-3 text-[11px]"
@@ -136,27 +140,30 @@ export function ContactPanel({
           >
             <Archive className="h-4 w-4" />
             {chat.archived ? 'Unarchive' : 'Archive'}
-          </Button>
-          <Button
+          </ZoruButton>
+          <ZoruButton
             type="button"
             variant="ghost"
-            className="flex-col gap-1 py-3 text-[11px] text-destructive hover:text-destructive"
+            className="flex-col gap-1 py-3 text-[11px] text-zoru-danger hover:text-zoru-danger"
             onClick={onBlock}
           >
             <Ban className="h-4 w-4" />
             Block
-          </Button>
+          </ZoruButton>
         </div>
 
         <div className="p-3">
-          <div className="mb-3 grid grid-cols-3 rounded-md bg-muted p-0.5 text-xs">
-            <button
+          <div
+            role="group"
+            aria-label="Media filter"
+            className="mb-3 grid grid-cols-3 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-0.5 text-xs"
+          >
+            <ZoruButton
               type="button"
+              variant={tab === 'photos' ? 'default' : 'ghost'}
+              size="sm"
               onClick={() => setTab('photos')}
-              className={cn(
-                'rounded px-2 py-1.5 transition-colors',
-                tab === 'photos' ? 'bg-background shadow-sm' : 'text-muted-foreground',
-              )}
+              className="rounded-[calc(var(--zoru-radius)-2px)]"
             >
               Photos
               {buckets.photos.length ? (
@@ -164,14 +171,13 @@ export function ContactPanel({
                   {buckets.photos.length}
                 </span>
               ) : null}
-            </button>
-            <button
+            </ZoruButton>
+            <ZoruButton
               type="button"
+              variant={tab === 'videos' ? 'default' : 'ghost'}
+              size="sm"
               onClick={() => setTab('videos')}
-              className={cn(
-                'rounded px-2 py-1.5 transition-colors',
-                tab === 'videos' ? 'bg-background shadow-sm' : 'text-muted-foreground',
-              )}
+              className="rounded-[calc(var(--zoru-radius)-2px)]"
             >
               Videos
               {buckets.videos.length ? (
@@ -179,14 +185,13 @@ export function ContactPanel({
                   {buckets.videos.length}
                 </span>
               ) : null}
-            </button>
-            <button
+            </ZoruButton>
+            <ZoruButton
               type="button"
+              variant={tab === 'docs' ? 'default' : 'ghost'}
+              size="sm"
               onClick={() => setTab('docs')}
-              className={cn(
-                'rounded px-2 py-1.5 transition-colors',
-                tab === 'docs' ? 'bg-background shadow-sm' : 'text-muted-foreground',
-              )}
+              className="rounded-[calc(var(--zoru-radius)-2px)]"
             >
               Docs
               {buckets.docs.length ? (
@@ -194,11 +199,11 @@ export function ContactPanel({
                   {buckets.docs.length}
                 </span>
               ) : null}
-            </button>
+            </ZoruButton>
           </div>
 
           {active.length === 0 ? (
-            <div className="flex flex-col items-center gap-2 py-8 text-center text-xs text-muted-foreground">
+            <div className="flex flex-col items-center gap-2 py-8 text-center text-xs text-zoru-ink-muted">
               {tab === 'photos' ? (
                 <ImageIcon className="h-6 w-6" aria-hidden />
               ) : tab === 'videos' ? (
@@ -213,10 +218,10 @@ export function ContactPanel({
               {active.map((m) => (
                 <li
                   key={m.messageId}
-                  className="flex items-center gap-2 rounded-md p-2 hover:bg-accent"
+                  className="flex items-center gap-2 rounded-[var(--zoru-radius)] p-2 hover:bg-zoru-surface-2"
                 >
-                  <FileText className="h-4 w-4 shrink-0 text-muted-foreground" />
-                  <span className="truncate text-xs">
+                  <FileText className="h-4 w-4 shrink-0 text-zoru-ink-muted" />
+                  <span className="truncate text-xs text-zoru-ink">
                     {m.body ?? m.caption ?? 'Document'}
                   </span>
                 </li>
@@ -232,7 +237,7 @@ export function ContactPanel({
                 // eslint-disable-next-line @next/next/no-img-element
                 <div
                   key={m.messageId}
-                  className="aspect-square overflow-hidden rounded-md bg-muted"
+                  className="aspect-square overflow-hidden rounded-[var(--zoru-radius)] bg-zoru-surface"
                 >
                   {tab === 'photos' ? (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -253,7 +258,7 @@ export function ContactPanel({
             </div>
           )}
         </div>
-      </ScrollArea>
+      </ZoruScrollArea>
     </aside>
   );
 }
