@@ -69,12 +69,27 @@ impl IntoResponse for AppError {
         let status = self.status();
         let code = self.code();
         let message = self.to_string();
+        // Walk the source chain so logs include the underlying cause
+        // (e.g. the bson deserialize error behind an anyhow context).
+        let detail = full_error_chain(&self);
 
         // Log 5xx errors so operators can correlate them with traces.
         if status.is_server_error() {
-            tracing::error!(target: "sabwa_engine::error", code = %code, error = %message, "request failed");
+            tracing::error!(
+                target: "sabwa_engine::error",
+                code = %code,
+                error = %message,
+                detail = %detail,
+                "request failed"
+            );
         } else {
-            tracing::debug!(target: "sabwa_engine::error", code = %code, error = %message, "request rejected");
+            tracing::debug!(
+                target: "sabwa_engine::error",
+                code = %code,
+                error = %message,
+                detail = %detail,
+                "request rejected"
+            );
         }
 
         let body = Json(json!({
@@ -84,4 +99,18 @@ impl IntoResponse for AppError {
 
         (status, body).into_response()
     }
+}
+
+/// Render an error and every link in its `source()` chain, joined by `: `.
+/// For `AppError::Internal(anyhow::Error)` this surfaces the original bson /
+/// mongo / driver error that an outer context message would otherwise hide.
+fn full_error_chain(err: &dyn std::error::Error) -> String {
+    let mut out = err.to_string();
+    let mut src = err.source();
+    while let Some(next) = src {
+        out.push_str(": ");
+        out.push_str(&next.to_string());
+        src = next.source();
+    }
+    out
 }

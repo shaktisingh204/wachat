@@ -534,13 +534,20 @@ async fn upsert_chat_with_last_message(
     if let Ok(Some(project_oid)) = lookup_project_id(state, session_oid).await {
         set_on_insert.insert("projectId", Bson::ObjectId(project_oid));
     }
-    // On insert we want unreadCount to start at 0 — $setOnInsert wins on
-    // insert; subsequent updates use $inc instead (so the field never
-    // overlaps between operators on the same write).
-    set_on_insert.insert("unreadCount", 0i64);
     set_on_insert.insert("pinned", false);
     set_on_insert.insert("archived", false);
     set_on_insert.insert("muted", false);
+
+    // MongoDB rejects an update that touches the same path in both `$inc`
+    // and `$setOnInsert` (error 40, "would create a conflict at
+    // 'unreadCount'"). We only seed `unreadCount: 0` on insert when there's
+    // no `$inc` (i.e. the message is from us). When the message is inbound
+    // the `$inc: { unreadCount: 1 }` initializes the field on insert too —
+    // Mongo treats a missing path as 0 and applies the increment, so a
+    // brand-new chat ends up with unreadCount=1 without any conflict.
+    if from_me {
+        set_on_insert.insert("unreadCount", 0i64);
+    }
 
     let mut update = doc! {
         "$set": set,

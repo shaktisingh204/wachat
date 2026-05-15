@@ -5,7 +5,7 @@
 use anyhow::{Context, Result};
 use bson::{doc, oid::ObjectId, Binary, Bson};
 use chrono::{DateTime, Utc};
-use futures::TryStreamExt;
+use futures::StreamExt;
 use mongodb::{Collection, Database};
 use serde::{Deserialize, Serialize};
 
@@ -65,23 +65,26 @@ pub struct SabwaSession {
     pub id: Option<ObjectId>,
     pub project_id: ObjectId,
     pub user_id: ObjectId,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub phone_e164: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub push_name: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub profile_pic_url: Option<String>,
     pub status: SessionStatus,
     pub pair_method: PairMethod,
-    /// Encrypted Baileys creds blob — persisted as a BSON Binary blob.
-    pub auth_state: Binary,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// Encrypted Baileys creds blob — persisted as a BSON Binary. Absent
+    /// while the session is `pending` (we haven't completed pairing yet);
+    /// populated by `update_auth_state` once the WA pool emits creds.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub auth_state: Option<Binary>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub device_meta: Option<DeviceMeta>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub last_connected_at: Option<DateTime<Utc>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub last_seen_at: Option<DateTime<Utc>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub worker_node_id: Option<String>,
     #[serde(default)]
     pub ban_signals: Vec<BanSignal>,
@@ -126,12 +129,43 @@ impl<'a> SessionsRepo<'a> {
     }
 
     pub async fn find_by_project(&self, project_id: &ObjectId) -> Result<Vec<SabwaSession>> {
-        let cursor = self
+        // We deserialize each document independently so a single malformed
+        // row (e.g. left over from a schema migration, or partially-written
+        // by a previous engine version) doesn't bring down the whole list.
+        // The bad row is logged with its `_id` so it can be investigated.
+        let mut cursor = self
             .col
+            .clone_with_type::<bson::Document>()
             .find(doc! { "projectId": project_id })
             .await
             .context("sabwa_sessions.find_by_project")?;
-        let out: Vec<SabwaSession> = cursor.try_collect().await.context("collect sessions")?;
+        let mut out: Vec<SabwaSession> = Vec::new();
+        while let Some(item) = cursor.next().await {
+            match item {
+                Ok(doc) => match bson::from_document::<SabwaSession>(doc.clone()) {
+                    Ok(s) => out.push(s),
+                    Err(err) => {
+                        let id = doc
+                            .get_object_id("_id")
+                            .map(|o| o.to_hex())
+                            .unwrap_or_else(|_| "<no _id>".into());
+                        tracing::warn!(
+                            target: "sabwa_engine::db::sessions",
+                            session_id = %id,
+                            error = format!("{err:#}"),
+                            "skipping malformed sabwa_sessions row"
+                        );
+                    }
+                },
+                Err(err) => {
+                    tracing::warn!(
+                        target: "sabwa_engine::db::sessions",
+                        error = format!("{err:#}"),
+                        "cursor error while reading sabwa_sessions"
+                    );
+                }
+            }
+        }
         Ok(out)
     }
 
@@ -326,11 +360,14 @@ pub async fn load_auth_state_decrypted(
     let Some(session) = repo.find_by_id(&oid).await? else {
         return Ok(None);
     };
-    if session.auth_state.bytes.is_empty() {
+    let Some(auth) = session.auth_state else {
+        return Ok(None);
+    };
+    if auth.bytes.is_empty() {
         return Ok(None);
     }
     let plaintext = crypto
-        .decrypt(&session.auth_state.bytes)
+        .decrypt(&auth.bytes)
         .context("decrypt sabwa_sessions.authState")?;
     Ok(Some(plaintext))
 }
