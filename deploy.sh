@@ -22,7 +22,7 @@
   ( cd /var/www/sabnode/rust && cargo build --release )
 
   # 3) SabWa: install Baileys sidecar deps (idempotent — no-ops if package-lock unchanged)
-  ( cd /var/www/sabnode/services/sabwa-engine/sidecar-node && pnpm install --prod --frozen-lockfile )
+  ( cd /var/www/sabnode/services/sabwa-engine/sidecar-node && npm i )
 
   # 4) SabWa: build Rust engine binary
   ( cd /var/www/sabnode/services/sabwa-engine && cargo build --release )
