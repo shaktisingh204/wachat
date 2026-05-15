@@ -28,11 +28,13 @@ import {
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
   ZoruButton,
+  ZoruEmptyState,
 } from '@/components/zoruui';
-import { EmptyState } from '@/app/sabwa/_components/empty-state';
 import { StatusBadge } from '@/app/sabwa/_components/status-badge';
 import { useChats } from '@/lib/sabwa/use-sabwa-data';
 import { useSabwaSession } from '@/lib/sabwa/session-context';
+import { useSabwaStream } from '@/lib/sabwa/use-sabwa-stream';
+import { useProject } from '@/context/project-context';
 import { cn } from '@/lib/utils';
 import type { SabwaMessage, SabwaSessionStatus } from '@/lib/sabwa/types';
 
@@ -103,7 +105,65 @@ export function InboxShell() {
   }, [panelOpenLocal, updateQuery]);
 
   // ─── Chats list ───────────────────────────────────────────────────────
-  const { data: chats, loading: chatsLoading } = useChats(sessionId);
+  const { data: chats, loading: chatsLoading, refetch: refetchChats } =
+    useChats(sessionId);
+
+  // ─── Realtime refresh ────────────────────────────────────────────────
+  // Subscribe to the session SSE stream and refetch the chat list whenever
+  // a chat/message/message_status frame arrives. Bursts of history-sync
+  // frames are debounced to one call per ~800ms. When the session first
+  // transitions to `isConnected` (e.g. just after a pair completes), we
+  // fire one immediate refetch so the user sees history within 1–2s
+  // without an F5.
+  const { activeProjectId } = useProject();
+  const stream = useSabwaStream(sessionId, {
+    projectId: activeProjectId ?? undefined,
+  });
+
+  // Keep latest refetch in a ref so the scheduler closure doesn't capture stale.
+  const refetchRef = React.useRef(refetchChats);
+  React.useEffect(() => {
+    refetchRef.current = refetchChats;
+  }, [refetchChats]);
+
+  const timerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const scheduleRefetch = React.useCallback(() => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => {
+      timerRef.current = null;
+      void refetchRef.current?.();
+    }, 800);
+  }, []);
+  React.useEffect(() => {
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
+    };
+  }, []);
+
+  React.useEffect(() => {
+    if (!stream.lastEvent) return;
+    const k = stream.lastEvent.kind;
+    if (k === 'chat' || k === 'message' || k === 'message_status') {
+      scheduleRefetch();
+    }
+  }, [stream.lastEvent, scheduleRefetch]);
+
+  // Immediate refetch when the session first becomes connected.
+  const prevConnectedRef = React.useRef(false);
+  React.useEffect(() => {
+    if (stream.isConnected && !prevConnectedRef.current) {
+      // Cancel any pending debounced refetch — we're firing immediately.
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
+      void refetchRef.current?.();
+    }
+    prevConnectedRef.current = stream.isConnected;
+  }, [stream.isConnected]);
 
   const activeChat = React.useMemo(() => {
     if (!chats || !chatJid) return null;
@@ -210,11 +270,11 @@ export function InboxShell() {
               className="min-w-0 flex-1"
             />
           ) : (
-            <div className="hidden flex-1 items-center justify-center md:flex">
-              <EmptyState
-                icon={MessageSquare}
+            <div className="hidden flex-1 items-center justify-center p-6 md:flex">
+              <ZoruEmptyState
+                icon={<MessageSquare />}
                 title="Pick a chat"
-                description="Select a conversation from the list to start messaging."
+                description="Choose a conversation from the list to start messaging."
               />
             </div>
           )}

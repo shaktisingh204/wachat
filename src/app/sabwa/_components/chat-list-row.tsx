@@ -20,6 +20,7 @@ import {
   ZoruAvatarImage,
 } from "@/components/zoruui";
 import { cn } from "@/lib/utils";
+import { formatJid } from "@/lib/sabwa/format-jid";
 import type { SabwaChat } from "@/lib/sabwa/types";
 
 export interface ChatListRowProps {
@@ -60,7 +61,7 @@ export function ChatListRow({
   className,
 }: ChatListRowProps) {
   const isGroup = chat.type === "group";
-  const name = chat.name ?? chat.jid;
+  const name = formatJid(chat.jid, chat.name);
   const previewBody = chat.lastMessage?.body ?? "";
   const previewPrefix = chat.lastMessage?.fromMe ? "You: " : "";
   const tsLabel = formatRelative(chat.lastMessage?.ts);

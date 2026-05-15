@@ -114,6 +114,35 @@ impl<'a> MessagesRepo<'a> {
         }
     }
 
+    /// Idempotent insert keyed by `(sessionId, messageId)`. Uses
+    /// `$setOnInsert` so an existing row is left untouched — Baileys can
+    /// replay the same message several times during a history sync or after
+    /// a reconnect and we don't want to clobber any updates (read receipts,
+    /// reactions, …) the receipt pipeline may have already applied.
+    ///
+    /// Returns `true` if a new row was inserted, `false` if the message was
+    /// already known.
+    pub async fn upsert_by_message_id(&self, msg: &SabwaMessage) -> Result<bool> {
+        // We can't reuse the typed `Collection<SabwaMessage>` for an
+        // `$setOnInsert` payload that's a `bson::Document` — switch to the
+        // raw `Collection<Document>` view of the same collection.
+        let raw: Collection<bson::Document> = self.col.clone_with_type::<bson::Document>();
+        let mut doc = bson::to_document(msg).context("encode SabwaMessage")?;
+        // `_id` is `None` on a fresh upsert payload; strip it so Mongo can
+        // generate one on insert (and so a `null` `_id` doesn't sneak into
+        // `$setOnInsert`, which Mongo rejects).
+        doc.remove("_id");
+        let res = raw
+            .update_one(
+                doc! { "sessionId": &msg.session_id, "messageId": &msg.message_id },
+                doc! { "$setOnInsert": doc },
+            )
+            .upsert(true)
+            .await
+            .context("sabwa_messages.upsert_by_message_id")?;
+        Ok(res.upserted_id.is_some())
+    }
+
     /// Bulk insert. `ordered=false` so a single duplicate `messageId` doesn't
     /// abort the whole batch (relies on the unique index on
     /// `(sessionId, messageId)`).

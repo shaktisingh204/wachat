@@ -67,7 +67,6 @@ import {
 } from '@/components/zoruui';
 
 import { useProject } from '@/context/project-context';
-import { useSabwaSession } from '@/lib/sabwa/session-context';
 import { pairSession } from '@/app/actions/sabwa.actions';
 
 import { PairingFlow } from '../_components/pairing-flow';
@@ -172,7 +171,6 @@ export function ConnectClient() {
   const router = useRouter();
   const toast = useZoruToast();
   const { activeProjectId, sessionUser, projects } = useProject();
-  const sessionCtx = useSabwaSession();
 
   const activeProject = React.useMemo(
     () => projects.find((p) => p._id.toString() === activeProjectId) ?? null,
@@ -289,12 +287,12 @@ export function ConnectClient() {
       title: 'WhatsApp linked',
       description: 'Your session is ready. Taking you to the accounts page…',
     });
-    // Refresh the session list so the new account shows up in
-    // /sabwa/overview, then navigate.
-    void sessionCtx.refresh().finally(() => {
-      router.push('/sabwa/overview');
-    });
-  }, [router, toast, sessionCtx]);
+    // `/sabwa/overview` re-fetches the session list on mount, so we don't
+    // need to refresh here. Keeping this callback dependency-light also
+    // stops the SSE `onConnected` ref churn that triggered a production
+    // hooks-order divergence on the connect screen.
+    router.push('/sabwa/overview');
+  }, [router, toast]);
 
   // Stepper progression — pure UI affordance.
   const activeStepIndex = active ? 3 : 0;

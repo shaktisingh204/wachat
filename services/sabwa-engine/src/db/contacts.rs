@@ -58,6 +58,19 @@ impl<'a> ContactsRepo<'a> {
         }
     }
 
+    /// Upsert a single contact by `(sessionId, jid)`.
+    pub async fn upsert(&self, contact: &SabwaContact) -> Result<()> {
+        self.col
+            .replace_one(
+                doc! { "sessionId": &contact.session_id, "jid": &contact.jid },
+                contact,
+            )
+            .upsert(true)
+            .await
+            .context("sabwa_contacts.upsert")?;
+        Ok(())
+    }
+
     pub async fn upsert_many(&self, contacts: &[SabwaContact]) -> Result<u64> {
         let mut total = 0u64;
         for c in contacts {

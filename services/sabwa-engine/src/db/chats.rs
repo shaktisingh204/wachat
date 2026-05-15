@@ -103,6 +103,20 @@ impl<'a> ChatsRepo<'a> {
             .context("sabwa_chats.find_by_jid")
     }
 
+    /// Upsert a single chat by `(sessionId, jid)`. Replaces the matching doc
+    /// or inserts a fresh one.
+    pub async fn upsert(&self, chat: &SabwaChat) -> Result<()> {
+        self.col
+            .replace_one(
+                doc! { "sessionId": &chat.session_id, "jid": &chat.jid },
+                chat,
+            )
+            .upsert(true)
+            .await
+            .context("sabwa_chats.upsert")?;
+        Ok(())
+    }
+
     /// Bulk-upsert chats by `(sessionId, jid)`. Replaces matching docs;
     /// inserts if absent.
     pub async fn upsert_many(&self, chats: &[SabwaChat]) -> Result<u64> {

@@ -10,9 +10,10 @@
 'use client';
 
 import * as React from 'react';
-import { MessageSquare, Search } from 'lucide-react';
+import { Inbox, MessageSquare, Search } from 'lucide-react';
 
 import {
+  ZoruEmptyState,
   ZoruInput,
   ZoruScrollArea,
   ZoruSelect,
@@ -132,6 +133,14 @@ export function LeftPane({
                 </div>
               </div>
             ))}
+          </div>
+        ) : chats.length === 0 ? (
+          <div className="p-3">
+            <ZoruEmptyState
+              icon={<Inbox />}
+              title="No chats yet"
+              description="Your WhatsApp history will sync here within a minute of pairing. If it doesn't, try refreshing."
+            />
           </div>
         ) : ordered.length === 0 ? (
           <EmptyState

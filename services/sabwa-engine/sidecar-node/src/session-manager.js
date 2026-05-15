@@ -193,6 +193,14 @@ export class SessionManager {
       printQRInTerminal: false,
       version,
       logger: silentBaileysLogger(),
+      // Pull the full chat/contact/message history on first connect so
+      // the parent can hydrate its mirrors immediately. Without this,
+      // Baileys only delivers recent messages.
+      syncFullHistory: true,
+      shouldSyncHistoryMessage: () => true,
+      // Stay invisible while the sidecar is connected — we don't want
+      // the linked device to flip the user's presence to "online".
+      markOnlineOnConnect: false,
     });
 
     /** @type {SessionEntry} */
@@ -315,6 +323,24 @@ export class SessionManager {
           this._scheduleReconnect(sessionId, entry);
         }
       }
+    });
+
+    // First-connect history sync. Baileys streams the user's existing
+    // chats/contacts/messages here in one or more batches; forward the
+    // whole bundle to the parent so it can backfill its mirrors.
+    sock.ev.on('messaging-history.set', (payload) => {
+      const { chats, contacts, messages, syncType, isLatest } = payload ?? {};
+      writeEvent({
+        event: 'messaging-history.set',
+        sessionId,
+        payload: {
+          chats: chats ?? [],
+          contacts: contacts ?? [],
+          messages: messages ?? [],
+          syncType: syncType ?? null,
+          isLatest: isLatest ?? null,
+        },
+      });
     });
 
     sock.ev.on('messages.upsert', (u) => {
