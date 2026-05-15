@@ -25,6 +25,7 @@ import {
   type RateProfile,
   type SessionSummary,
 } from '../db/sessions.js';
+import { asString } from './_helpers.js';
 
 /** Pull the request-scoped `AppState`. */
 function getState(req: Request): AppState {
@@ -172,8 +173,7 @@ async function createSession(req: Request, res: Response): Promise<void> {
 
 async function listSessions(req: Request, res: Response): Promise<void> {
   const state = getState(req);
-  const projectId =
-    typeof req.query.projectId === 'string' ? req.query.projectId : '';
+  const projectId = asString(req.query.projectId);
   if (!projectId) {
     res
       .status(400)
@@ -186,7 +186,7 @@ async function listSessions(req: Request, res: Response): Promise<void> {
 
 async function getSession(req: Request, res: Response): Promise<void> {
   const state = getState(req);
-  const id = req.params.id ?? '';
+  const id = asString(req.params.id);
   const row = await findById(state.db, id);
   if (!row) {
     res.status(404).json({ error: 'session not found', code: 'not_found' });
@@ -197,7 +197,7 @@ async function getSession(req: Request, res: Response): Promise<void> {
 
 async function patchSession(req: Request, res: Response): Promise<void> {
   const state = getState(req);
-  const id = req.params.id ?? '';
+  const id = asString(req.params.id);
   const body = (req.body ?? {}) as Record<string, unknown>;
 
   const label =
@@ -220,7 +220,7 @@ async function deleteSessionHandler(
   res: Response,
 ): Promise<void> {
   const state = getState(req);
-  const id = req.params.id ?? '';
+  const id = asString(req.params.id);
 
   // Logout the live socket (best-effort), then evict from the pool, then
   // wipe the row + auth_state. The pool eviction must happen before the

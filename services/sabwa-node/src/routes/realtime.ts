@@ -33,6 +33,7 @@ import { z } from 'zod';
 
 import type { AppState } from '../state.js';
 import { subscribe, type SabwaEvent } from '../realtime/pubsub.js';
+import { asString } from './_helpers.js';
 
 /** Default TTL applied when the caller doesn't pass `ttlSecs`. */
 const DEFAULT_TTL_SECS = 60;
@@ -176,7 +177,7 @@ export function buildRealtimeStreamRouter(state: AppState): Router {
   const router = Router();
 
   router.get('/sse/:sessionId', async (req: Request, res: Response): Promise<void> => {
-    const sessionId = req.params.sessionId?.trim();
+    const sessionId = asString(req.params.sessionId);
     if (!sessionId) {
       res.status(400).type('text/plain').send('missing sessionId');
       return;

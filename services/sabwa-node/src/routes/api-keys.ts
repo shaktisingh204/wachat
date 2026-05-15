@@ -20,7 +20,7 @@ import {
   findApiKey,
   listApiKeys,
 } from '../db/api-keys.js';
-import { actorContext, badRequest, notFound, stateOf } from './_helpers.js';
+import { actorContext, asString, badRequest, notFound, stateOf } from './_helpers.js';
 
 const createSchema = z.object({
   projectId: z.string().min(1),
@@ -29,8 +29,8 @@ const createSchema = z.object({
 });
 
 async function handleList(req: Request, res: Response): Promise<void> {
-  const projectId = req.query.projectId;
-  if (typeof projectId !== 'string' || projectId.length === 0) {
+  const projectId = asString(req.query.projectId);
+  if (!projectId) {
     badRequest(res, 'projectId query parameter is required');
     return;
   }
@@ -72,7 +72,7 @@ async function handleCreate(req: Request, res: Response): Promise<void> {
 }
 
 async function handleDelete(req: Request, res: Response): Promise<void> {
-  const id = req.params.id;
+  const id = asString(req.params.id);
   if (!id) {
     badRequest(res, 'id is required');
     return;

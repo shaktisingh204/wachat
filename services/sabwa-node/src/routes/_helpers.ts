@@ -47,3 +47,22 @@ export function badRequest(res: Response, message: string, details?: unknown): v
 export function notFound(res: Response, resource: string): void {
   res.status(404).json({ error: `${resource} not found`, code: 'not_found' });
 }
+
+/**
+ * Coerce an Express `req.params.X` / `req.query.X` / `req.body.X` value to a
+ * trimmed string. Some installed @types/express versions widen
+ * `req.params[k]` to `string | string[] | undefined` because they share the
+ * qs/ParsedQs index signature with `req.query`. Pass the value through this
+ * helper to get a clean, narrowed `string` (empty string if missing/array).
+ *
+ * Callers should still guard with `if (!s) badRequest(...)` after — the
+ * empty-string sentinel keeps existing branch logic intact.
+ */
+export function asString(v: unknown): string {
+  if (typeof v === 'string') return v.trim();
+  if (Array.isArray(v)) {
+    const first = v[0];
+    if (typeof first === 'string') return first.trim();
+  }
+  return '';
+}
