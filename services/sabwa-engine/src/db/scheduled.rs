@@ -9,6 +9,8 @@ use futures::TryStreamExt;
 use mongodb::{Collection, Database};
 use serde::{Deserialize, Serialize};
 
+use crate::db::serde_dates::{chrono_dt, chrono_dt_opt};
+
 pub const COLLECTION: &str = "sabwa_scheduled";
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
@@ -66,6 +68,7 @@ pub struct SabwaScheduled {
     pub project_id: ObjectId,
     pub session_id: ObjectId,
     pub kind: ScheduledKind,
+    #[serde(with = "chrono_dt")]
     pub scheduled_for: DateTime<Utc>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub cron: Option<String>,
@@ -77,7 +80,7 @@ pub struct SabwaScheduled {
     pub attempt_count: i32,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub last_error: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none", with = "chrono_dt_opt")]
     pub sent_at: Option<DateTime<Utc>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub bull_job_id: Option<String>,
@@ -197,12 +200,14 @@ pub struct ScheduledRow {
     pub id: String,
     pub session_id: String,
     pub kind: String,
+    #[serde(with = "chrono_dt")]
     pub scheduled_for: DateTime<Utc>,
     pub cron: Option<String>,
     pub timezone: Option<String>,
     pub status: String,
     pub attempt_count: u32,
     pub last_error: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none", with = "chrono_dt_opt")]
     pub sent_at: Option<DateTime<Utc>>,
     pub targets: Vec<ScheduledTargetRow>,
     pub payload: serde_json::Value,

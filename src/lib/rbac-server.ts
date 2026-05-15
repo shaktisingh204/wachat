@@ -1,5 +1,5 @@
 import {
-    wachatMenuItems, crmMenuGroups, teamMenuItems, sabChatMenuItems,
+    wachatMenuItems, sabwaMenuItems, crmMenuGroups, teamMenuItems, sabChatMenuItems,
     facebookMenuGroups, instagramMenuGroups, adManagerMenuItems,
     emailMenuItems, smsMenuItems, apiMenuItems, sabflowMenuItems,
     urlShortenerMenuItems, qrCodeMakerMenuItems, portfolioMenuItems, seoMenuItems,
@@ -20,6 +20,7 @@ import {
 // Flatten all menu items into a single array for searching
 const allMenuItems = [
     ...wachatMenuItems,
+    ...sabwaMenuItems,
     ...crmMenuGroups.flatMap(group => group.items),
     ...teamMenuItems,
     ...sabChatMenuItems,

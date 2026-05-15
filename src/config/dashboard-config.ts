@@ -82,6 +82,50 @@ export const wachatMenuItems: MenuItem[] = [
     { href: '/wachat/settings/canned', label: 'Canned Messages', icon: BookCopy, roles: ['owner', 'admin'], permissionKey: 'wachat_settings' },
 ];
 
+// SabWa menu items — used by `getRequiredPermissionForPath` in `rbac-server.ts`
+// to map each `/sabwa/*` route to its permission key for the layout-level
+// `<RBACGuard>`. Keep hrefs aligned with `src/app/sabwa/**/page.tsx` and keys
+// with `SABWA_PERMISSION_KEYS` in `src/lib/sabwa/rbac-keys.ts`.
+//
+// Order matters: the longest-prefix match wins inside `rbac-server.ts`, so
+// specific sub-routes (e.g. `/sabwa/groups/categories`) are listed before
+// their parents (e.g. `/sabwa/groups`).
+export const sabwaMenuItems: MenuItem[] = [
+    { href: '/sabwa', label: 'SabWa', icon: SabWaIcon, exact: true, permissionKey: 'sabwa_overview' },
+    { href: '/sabwa/overview', label: 'Overview', icon: LayoutDashboard, permissionKey: 'sabwa_overview' },
+    { href: '/sabwa/connect', label: 'Connect', icon: Cable, permissionKey: 'sabwa_connect' },
+    { href: '/sabwa/devices', label: 'Devices', icon: Cable, permissionKey: 'sabwa_connect' },
+    { href: '/sabwa/inbox', label: 'Inbox', icon: Inbox, permissionKey: 'sabwa_inbox' },
+    { href: '/sabwa/chats', label: 'Chats', icon: MessageSquare, permissionKey: 'sabwa_chats' },
+    // Sub-routes first so prefix matching resolves them before `/sabwa/groups`.
+    { href: '/sabwa/groups/categories', label: 'Group Categories', icon: Layers, permissionKey: 'sabwa_groups' },
+    { href: '/sabwa/groups/manage', label: 'Group Manage', icon: UsersRound, permissionKey: 'sabwa_group_manage' },
+    { href: '/sabwa/groups', label: 'Groups', icon: UsersRound, permissionKey: 'sabwa_groups' },
+    { href: '/sabwa/broadcasts', label: 'Broadcasts', icon: Send, permissionKey: 'sabwa_broadcasts' },
+    { href: '/sabwa/bulk', label: 'Bulk Send', icon: Send, permissionKey: 'sabwa_bulk_send' },
+    { href: '/sabwa/scheduler/queue', label: 'Scheduler Queue', icon: Calendar, permissionKey: 'sabwa_scheduler' },
+    { href: '/sabwa/scheduler', label: 'Scheduler', icon: Calendar, permissionKey: 'sabwa_scheduler' },
+    { href: '/sabwa/contacts', label: 'Contacts', icon: Users, permissionKey: 'sabwa_contacts' },
+    { href: '/sabwa/templates', label: 'Templates', icon: BookCopy, permissionKey: 'sabwa_templates' },
+    { href: '/sabwa/quick-replies', label: 'Quick Replies', icon: BookCopy, permissionKey: 'sabwa_templates' },
+    { href: '/sabwa/auto-reply', label: 'Auto Reply', icon: MessageSquare, permissionKey: 'sabwa_auto_reply' },
+    { href: '/sabwa/flows', label: 'Flows', icon: GitFork, permissionKey: 'sabwa_flows' },
+    { href: '/sabwa/ai', label: 'AI', icon: Bot, permissionKey: 'sabwa_ai' },
+    { href: '/sabwa/media', label: 'Media', icon: FolderKanban, permissionKey: 'sabwa_media' },
+    { href: '/sabwa/status', label: 'Status', icon: Activity, permissionKey: 'sabwa_status' },
+    { href: '/sabwa/calls', label: 'Calls', icon: Phone, permissionKey: 'sabwa_calls' },
+    { href: '/sabwa/labels', label: 'Labels', icon: BookCopy, permissionKey: 'sabwa_labels' },
+    { href: '/sabwa/starred', label: 'Starred', icon: BookCopy, permissionKey: 'sabwa_starred' },
+    { href: '/sabwa/analytics', label: 'Analytics', icon: BarChart, permissionKey: 'sabwa_analytics' },
+    { href: '/sabwa/export', label: 'Export', icon: Database, permissionKey: 'sabwa_export' },
+    { href: '/sabwa/webhooks', label: 'Webhooks', icon: Webhook, permissionKey: 'sabwa_webhooks' },
+    { href: '/sabwa/api-keys', label: 'API Keys', icon: Key, permissionKey: 'sabwa_api_keys' },
+    { href: '/sabwa/audit', label: 'Audit', icon: ClipboardList, permissionKey: 'sabwa_audit' },
+    // `/sabwa/settings` covers all sub-routes (notifications/privacy/etc.) via
+    // the prefix match in `getRequiredPermissionForPath`.
+    { href: '/sabwa/settings', label: 'Settings', icon: Settings, permissionKey: 'sabwa_settings' },
+];
+
 export const crmMenuGroups: MenuGroup[] = [
     {
         title: "Overview",

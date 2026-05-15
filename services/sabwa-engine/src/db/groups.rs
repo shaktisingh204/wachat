@@ -9,6 +9,8 @@ use futures::TryStreamExt;
 use mongodb::{Collection, Database};
 use serde::{Deserialize, Serialize};
 
+use crate::db::serde_dates::chrono_dt;
+
 pub const COLLECTION: &str = "sabwa_groups";
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -19,6 +21,7 @@ pub struct Participant {
     pub is_admin: bool,
     #[serde(default)]
     pub is_super_admin: bool,
+    #[serde(with = "chrono_dt")]
     pub joined_at: DateTime<Utc>,
 }
 
@@ -36,6 +39,7 @@ pub struct SabwaGroup {
     pub description: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub creator: Option<String>,
+    #[serde(with = "chrono_dt")]
     pub created_at: DateTime<Utc>,
     #[serde(default)]
     pub participants: Vec<Participant>,

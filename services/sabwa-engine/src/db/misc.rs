@@ -13,6 +13,8 @@ use futures::TryStreamExt;
 use mongodb::{Collection, Database};
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 
+use crate::db::serde_dates::{chrono_dt, chrono_dt_opt};
+
 // ---------------------------------------------------------------------------
 // Document structs
 // ---------------------------------------------------------------------------
@@ -30,7 +32,9 @@ pub struct SabwaTemplate {
     pub variables: Vec<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub category: Option<String>,
+    #[serde(with = "chrono_dt")]
     pub created_at: DateTime<Utc>,
+    #[serde(with = "chrono_dt")]
     pub updated_at: DateTime<Utc>,
 }
 
@@ -44,7 +48,9 @@ pub struct SabwaQuickReply {
     /// e.g. `/thanks`
     pub shortcut: String,
     pub body: String,
+    #[serde(with = "chrono_dt")]
     pub created_at: DateTime<Utc>,
+    #[serde(with = "chrono_dt")]
     pub updated_at: DateTime<Utc>,
 }
 
@@ -61,7 +67,9 @@ pub struct SabwaAutoReply {
     pub action: bson::Document,
     #[serde(default = "default_true")]
     pub enabled: bool,
+    #[serde(with = "chrono_dt")]
     pub created_at: DateTime<Utc>,
+    #[serde(with = "chrono_dt")]
     pub updated_at: DateTime<Utc>,
 }
 
@@ -75,9 +83,11 @@ pub struct SabwaBroadcast {
     pub name: String,
     #[serde(default)]
     pub recipient_jids: Vec<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none", with = "chrono_dt_opt")]
     pub last_sent_at: Option<DateTime<Utc>>,
+    #[serde(with = "chrono_dt")]
     pub created_at: DateTime<Utc>,
+    #[serde(with = "chrono_dt")]
     pub updated_at: DateTime<Utc>,
 }
 
@@ -91,6 +101,7 @@ pub struct SabwaLabel {
     pub name: String,
     /// Hex colour, e.g. `#2563eb`.
     pub color: String,
+    #[serde(with = "chrono_dt")]
     pub created_at: DateTime<Utc>,
 }
 
@@ -107,7 +118,9 @@ pub struct SabwaWebhook {
     pub events: Vec<String>,
     #[serde(default = "default_true")]
     pub enabled: bool,
+    #[serde(with = "chrono_dt")]
     pub created_at: DateTime<Utc>,
+    #[serde(with = "chrono_dt")]
     pub updated_at: DateTime<Utc>,
 }
 
@@ -126,6 +139,7 @@ pub struct SabwaAuditLogEntry {
     pub ip: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata: Option<bson::Document>,
+    #[serde(with = "chrono_dt")]
     pub ts: DateTime<Utc>,
 }
 
@@ -150,12 +164,13 @@ pub struct SabwaApiKey {
     pub scopes: Vec<String>,
     #[serde(default)]
     pub revoked: bool,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none", with = "chrono_dt_opt")]
     pub last_used_at: Option<DateTime<Utc>>,
     #[serde(default)]
     pub usage_count: u64,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none", with = "chrono_dt_opt")]
     pub expires_at: Option<DateTime<Utc>>,
+    #[serde(with = "chrono_dt")]
     pub created_at: DateTime<Utc>,
 }
 
@@ -249,7 +264,9 @@ pub struct BroadcastRow {
     pub session_id: String,
     pub name: String,
     pub recipient_count: u32,
+    #[serde(with = "chrono_dt")]
     pub created_at: DateTime<Utc>,
+    #[serde(default, skip_serializing_if = "Option::is_none", with = "chrono_dt_opt")]
     pub updated_at: Option<DateTime<Utc>>,
 }
 
@@ -265,7 +282,9 @@ pub struct CampaignRow {
     pub failed: u32,
     pub rate_per_minute: Option<u32>,
     pub jitter_seconds: Option<u32>,
+    #[serde(default, skip_serializing_if = "Option::is_none", with = "chrono_dt_opt")]
     pub started_at: Option<DateTime<Utc>>,
+    #[serde(default, skip_serializing_if = "Option::is_none", with = "chrono_dt_opt")]
     pub finished_at: Option<DateTime<Utc>>,
     pub payload: serde_json::Value,
 }

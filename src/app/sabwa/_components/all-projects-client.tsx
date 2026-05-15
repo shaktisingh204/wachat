@@ -205,7 +205,7 @@ export function AllProjectsClient({ bootstrap }: AllProjectsClientProps) {
   };
 
   return (
-    <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10">
+    <div className="mx-auto w-full max-w-[1180px] px-4 pt-6 pb-10 sm:px-6">
       <ZoruBreadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>

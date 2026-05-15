@@ -36,6 +36,7 @@ import {
   Loader2,
   Mic,
   RefreshCw,
+  Smartphone,
   Upload,
   X,
 } from "lucide-react";
@@ -57,6 +58,7 @@ import {
   ZoruDialogDescription,
   ZoruDialogHeader,
   ZoruDialogTitle,
+  ZoruEmptyState,
   ZoruInput,
   ZoruLabel,
   ZoruSelect,
@@ -70,9 +72,8 @@ import {
 } from "@/components/zoruui";
 import { getChatMessages } from "@/app/actions/sabwa.actions";
 import { useChats } from "@/lib/sabwa/use-sabwa-data";
+import { useSabwaSession } from "@/lib/sabwa/session-context";
 import type { SabwaMessage, SabwaMessageType } from "@/lib/sabwa/types";
-
-const PLACEHOLDER_SESSION_ID = "stub-primary";
 
 type MediaTab = "photos" | "videos" | "audio" | "docs" | "voice";
 
@@ -141,7 +142,8 @@ function formatTs(ts?: Date | string): string {
 
 export default function SabWaMediaPage() {
   const toast = useZoruToast();
-  const sessionId = PLACEHOLDER_SESSION_ID;
+  const { current: activeSession } = useSabwaSession();
+  const sessionId = activeSession?.id ?? '';
 
   const { data: chats, loading: chatsLoading } = useChats(sessionId);
 
@@ -271,6 +273,23 @@ export default function SabWaMediaPage() {
     lightboxIndex !== null ? items[lightboxIndex] ?? null : null;
 
   const TabIcon = tabIcon(tab);
+
+  if (!sessionId) {
+    return (
+      <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10">
+        <ZoruEmptyState
+          icon={<Smartphone />}
+          title="No active WhatsApp account"
+          description="Pick a connected account on the SabWa overview to start using this page."
+          action={
+            <Link href="/sabwa/overview">
+              <ZoruButton size="md">Open accounts</ZoruButton>
+            </Link>
+          }
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4 p-4 md:p-6 lg:p-8">

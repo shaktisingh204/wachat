@@ -20,6 +20,7 @@
  */
 
 import * as React from "react";
+import Link from "next/link";
 import {
   ArrowLeft,
   ArrowRight,
@@ -31,6 +32,7 @@ import {
   Plus,
   Repeat2,
   Send,
+  Smartphone,
   Type as TypeIcon,
   Users,
   X,
@@ -54,6 +56,7 @@ import {
   ZoruDialogHeader,
   ZoruDialogTitle,
   ZoruDialogTrigger,
+  ZoruEmptyState,
   ZoruLabel,
   ZoruSelect,
   ZoruSelectContent,
@@ -66,8 +69,7 @@ import {
 import { SabFilePickerButton } from "@/components/sabfiles";
 import type { SabFilePick } from "@/components/sabfiles";
 import { useChats } from "@/lib/sabwa/use-sabwa-data";
-
-const PLACEHOLDER_SESSION_ID = "stub-primary";
+import { useSabwaSession } from "@/lib/sabwa/session-context";
 
 type Audience = "everyone" | "except" | "only";
 type StatusView = "my" | "friends";
@@ -117,7 +119,8 @@ function timeAgo(ts: Date): string {
 
 export default function SabWaStatusPage() {
   const toast = useZoruToast();
-  const sessionId = PLACEHOLDER_SESSION_ID;
+  const { current: activeSession } = useSabwaSession();
+  const sessionId = activeSession?.id ?? '';
   const { data: chats } = useChats(sessionId);
 
   // ── Posted (in-memory) ─────────────────────────────────────────────
@@ -215,6 +218,23 @@ export default function SabWaStatusPage() {
       i === null ? null : Math.min(friendStatuses.length - 1, i + 1),
     );
   }, [friendStatuses.length]);
+
+  if (!sessionId) {
+    return (
+      <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10">
+        <ZoruEmptyState
+          icon={<Smartphone />}
+          title="No active WhatsApp account"
+          description="Pick a connected account on the SabWa overview to start using this page."
+          action={
+            <Link href="/sabwa/overview">
+              <ZoruButton size="md">Open accounts</ZoruButton>
+            </Link>
+          }
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 p-4 md:p-6 lg:p-8">

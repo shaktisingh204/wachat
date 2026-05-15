@@ -47,6 +47,7 @@ import {
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
+  ZoruEmptyState,
   ZoruInput,
   ZoruLabel,
   ZoruSeparator,
@@ -163,8 +164,18 @@ function BroadcastListPane({
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto">
         {broadcasts.length === 0 ? (
-          <div className="p-6 text-center text-sm text-zoru-ink-muted">
-            No broadcast lists yet. Create one to start fanning out 1:1 messages.
+          <div className="p-6">
+            <ZoruEmptyState
+              icon={<Users />}
+              title="No broadcast lists yet"
+              description="Create a list to fan out a single message to many contacts as 1:1 sends — recipients can't see each other."
+              action={
+                <ZoruButton size="md" onClick={onNew}>
+                  <Plus className="mr-1.5 h-4 w-4" />
+                  Compose first broadcast
+                </ZoruButton>
+              }
+            />
           </div>
         ) : (
           <ul className="divide-y divide-zoru-line">

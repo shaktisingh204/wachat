@@ -9,6 +9,8 @@ use futures::TryStreamExt;
 use mongodb::{Collection, Database};
 use serde::{Deserialize, Serialize};
 
+use crate::db::serde_dates::{chrono_dt, chrono_dt_opt};
+
 pub const COLLECTION: &str = "sabwa_chats";
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
@@ -26,6 +28,7 @@ pub struct LastMessage {
     pub id: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub body: Option<String>,
+    #[serde(with = "chrono_dt")]
     pub ts: DateTime<Utc>,
     pub from_me: bool,
 }
@@ -54,7 +57,7 @@ pub struct SabwaChat {
     pub archived: bool,
     #[serde(default)]
     pub muted: bool,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none", with = "chrono_dt_opt")]
     pub mute_end_at: Option<DateTime<Utc>>,
     #[serde(default)]
     pub labels: Vec<ObjectId>,
@@ -62,6 +65,7 @@ pub struct SabwaChat {
     pub is_read_only: bool,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub participants: Option<i64>,
+    #[serde(with = "chrono_dt")]
     pub updated_at: DateTime<Utc>,
 }
 
@@ -218,6 +222,7 @@ pub struct ChatRow {
     pub pinned: bool,
     pub archived: bool,
     pub muted: bool,
+    #[serde(default, skip_serializing_if = "Option::is_none", with = "chrono_dt_opt")]
     pub last_message_ts: Option<DateTime<Utc>>,
     pub last_message_body: Option<String>,
 }

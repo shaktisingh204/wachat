@@ -44,8 +44,21 @@ import {
 
 import type { ZoruSidebarGroup } from "@/components/zoruui";
 
+/** Groups whose leaves are gated on having an active SabWa session. */
+const SESSION_GATED_GROUPS = new Set<string>([
+  "inbox",
+  "groups",
+  "outbound",
+  "library",
+  "automation",
+  "media",
+  "reports",
+  "developer",
+]);
+
 export function buildSabwaSidebarGroups(
   pathname: string | null,
+  hasActiveSession: boolean = true,
 ): ZoruSidebarGroup[] {
   const isActive = (href: string, exact = false) => {
     if (!pathname) return false;
@@ -53,7 +66,7 @@ export function buildSabwaSidebarGroups(
     return pathname === href || pathname.startsWith(`${href}/`);
   };
 
-  return [
+  const groups: ZoruSidebarGroup[] = [
     {
       id: "setup",
       label: "Get started",
@@ -320,4 +333,25 @@ export function buildSabwaSidebarGroups(
       ],
     },
   ];
+
+  if (hasActiveSession) {
+    return groups;
+  }
+
+  // No active session — annotate gated groups so users see at a glance
+  // that the destination needs a connected WhatsApp account. Routing
+  // still works; the label suffix is purely a visual hint.
+  return groups.map((group) => {
+    if (!SESSION_GATED_GROUPS.has(group.id)) {
+      return group;
+    }
+    return {
+      ...group,
+      items: group.items.map((item) =>
+        item.label.includes("· no account")
+          ? item
+          : { ...item, label: `${item.label} · no account` },
+      ),
+    };
+  });
 }

@@ -12,14 +12,16 @@
  */
 
 import * as React from 'react';
+import Link from 'next/link';
 import { format, subDays } from 'date-fns';
-import { Activity, BarChart3, Loader2, RefreshCw } from 'lucide-react';
+import { Activity, BarChart3, Loader2, RefreshCw, Smartphone } from 'lucide-react';
 
 import {
   getAnalytics,
   type SabwaAnalyticsPayload,
   type SabwaAnalyticsRange,
 } from '@/app/actions/sabwa.actions';
+import { useSabwaSession } from '@/lib/sabwa/session-context';
 
 import {
   ZoruBadge,
@@ -36,6 +38,7 @@ import {
   ZoruCardHeader,
   ZoruCardTitle,
   ZoruDatePicker,
+  ZoruEmptyState,
   cn,
 } from '@/components/zoruui';
 
@@ -45,11 +48,6 @@ import { ChartHourlySendPattern } from './_components/chart-hourly-send-pattern'
 import { ChartMessagesByDay } from './_components/chart-messages-by-day';
 import { ChartResponseHistogram } from './_components/chart-response-histogram';
 import { ChartTopContacts } from './_components/chart-top-contacts';
-
-// Phase 1: client doesn't yet have a real session picker — use a stub id
-// so server actions can be invoked. Replace once `SessionSwitcher` exposes
-// the active session id.
-const STUB_SESSION_ID = 'stub-primary';
 
 const RANGE_OPTIONS: { value: SabwaAnalyticsRange; label: string }[] = [
   { value: '7d', label: 'Last 7 days' },
@@ -80,6 +78,9 @@ function banRiskTone(score: number): Tone {
 }
 
 export default function AnalyticsPage() {
+  const { current: activeSession } = useSabwaSession();
+  const sessionId = activeSession?.id ?? '';
+
   const [range, setRange] = React.useState<SabwaAnalyticsRange>('7d');
   const [customFrom, setCustomFrom] = React.useState<Date | undefined>(
     subDays(new Date(), 14),
@@ -91,11 +92,12 @@ export default function AnalyticsPage() {
   const [error, setError] = React.useState<string | null>(null);
 
   const load = React.useCallback(async () => {
+    if (!sessionId) return;
     setLoading(true);
     setError(null);
     try {
       const res = await getAnalytics({
-        sessionId: STUB_SESSION_ID,
+        sessionId,
         range,
         from: range === 'custom' ? customFrom : undefined,
         to: range === 'custom' ? customTo : undefined,
@@ -112,13 +114,30 @@ export default function AnalyticsPage() {
     } finally {
       setLoading(false);
     }
-  }, [range, customFrom, customTo]);
+  }, [sessionId, range, customFrom, customTo]);
 
   React.useEffect(() => {
     void load();
   }, [load]);
 
   const kpis = analytics?.kpis;
+
+  if (!sessionId) {
+    return (
+      <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10">
+        <ZoruEmptyState
+          icon={<Smartphone />}
+          title="No active WhatsApp account"
+          description="Pick a connected account on the SabWa overview to start using this page."
+          action={
+            <Link href="/sabwa/overview">
+              <ZoruButton size="md">Open accounts</ZoruButton>
+            </Link>
+          }
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto w-full max-w-[1180px] space-y-6 px-6 pt-6 pb-10">

@@ -18,6 +18,7 @@
  */
 
 import * as React from 'react';
+import Link from 'next/link';
 import {
   AlertTriangle,
   ArrowLeft,
@@ -28,6 +29,7 @@ import {
   Play,
   Plus,
   Send,
+  Sparkles,
   Square,
   Upload,
   X,
@@ -51,6 +53,7 @@ import {
   ZoruCardHeader,
   ZoruCardTitle,
   ZoruCheckbox,
+  ZoruEmptyState,
   ZoruInput,
   ZoruLabel,
   ZoruProgress,
@@ -79,6 +82,7 @@ import {
   SabFilePickerButton,
   type SabFilePick,
 } from '@/components/sabfiles';
+import { useProject } from '@/context/project-context';
 import { getSabwaLimits, type SabwaQuota } from '@/lib/sabwa/plan-limits';
 
 // ─── Anti-ban dismissed flag ───────────────────────────────────────────────
@@ -1350,10 +1354,11 @@ function PastCampaignsTable({ items }: { items: PastCampaign[] }) {
 
 export default function BulkSenderPage() {
   const toaster = useZoruToast();
-  // TODO (Phase 1): pull active plan from context. For now we assume `pro`
-  // so the page's caps + bulk-enabled gate behave as designed.
-  const limits = getSabwaLimits('pro');
+  const { sessionUser } = useProject();
+  const planName = sessionUser?.plan?.name ?? 'free';
+  const limits = React.useMemo(() => getSabwaLimits(planName), [planName]);
   const maxRecipients = quotaCap(limits.dailySend, 10_000);
+  const bulkEnabled = limits.bulkSend.enabled;
 
   const [stepIdx, setStepIdx] = React.useState(0);
   const [furthest, setFurthest] = React.useState(0);
@@ -1575,6 +1580,23 @@ export default function BulkSenderPage() {
     }
   };
 
+  if (!bulkEnabled) {
+    return (
+      <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10">
+        <ZoruEmptyState
+          icon={<Sparkles />}
+          title="Upgrade required"
+          description="Bulk sender is a Pro feature. Upgrade to unlock 2,000+ daily sends with anti-ban controls."
+          action={
+            <Link href="/dashboard/plans">
+              <ZoruButton size="md">View plans</ZoruButton>
+            </Link>
+          }
+        />
+      </div>
+    );
+  }
+
   return (
     <ZoruTooltipProvider>
       <div className="space-y-4 bg-zoru-bg p-3 md:p-6">
@@ -1608,9 +1630,6 @@ export default function BulkSenderPage() {
               </p>
             </div>
           </div>
-          {!limits.bulkSend.enabled && (
-            <ZoruBadge variant="danger">Upgrade required</ZoruBadge>
-          )}
         </div>
 
         {bannerOpen && (

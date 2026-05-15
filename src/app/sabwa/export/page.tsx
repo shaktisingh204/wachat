@@ -11,6 +11,7 @@
  */
 
 import * as React from 'react';
+import Link from 'next/link';
 import { format, formatDistanceToNow } from 'date-fns';
 import {
   Download,
@@ -19,6 +20,7 @@ import {
   Play,
   RefreshCw,
   RotateCcw,
+  Smartphone,
 } from 'lucide-react';
 
 import {
@@ -29,6 +31,7 @@ import {
   type SabwaExportScope,
   type SabwaExportStatus,
 } from '@/app/actions/sabwa.actions';
+import { useSabwaSession } from '@/lib/sabwa/session-context';
 
 import {
   ZoruBadge,
@@ -46,6 +49,7 @@ import {
   ZoruCardTitle,
   ZoruCheckbox,
   ZoruDatePicker,
+  ZoruEmptyState,
   ZoruInput,
   ZoruLabel,
   ZoruRadioGroup,
@@ -60,8 +64,6 @@ import {
 } from '@/components/zoruui';
 
 import { EmptyState } from '@/app/sabwa/_components/empty-state';
-
-const STUB_SESSION_ID = 'stub-primary';
 
 type ScopeKind = SabwaExportScope['kind'];
 
@@ -106,6 +108,8 @@ function statusVariant(
 
 export default function ExportPage() {
   const toast = useZoruToast();
+  const { current: activeSession } = useSabwaSession();
+  const sessionId = activeSession?.id ?? '';
 
   // Configurator state
   const [scopeKind, setScopeKind] = React.useState<ScopeKind>('all');
@@ -121,16 +125,17 @@ export default function ExportPage() {
   const [loading, setLoading] = React.useState(false);
 
   const loadHistory = React.useCallback(async () => {
+    if (!sessionId) return;
     setLoading(true);
     try {
-      const res = await listExports(STUB_SESSION_ID);
+      const res = await listExports(sessionId);
       if (res.ok) setExports(res.exports);
     } catch {
       // ignore — engine offline; keep current list
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [sessionId]);
 
   React.useEffect(() => {
     void loadHistory();
@@ -158,7 +163,7 @@ export default function ExportPage() {
       setSubmitting(true);
       try {
         const res = await createExport({
-          sessionId: STUB_SESSION_ID,
+          sessionId,
           scope: overrideScope ?? buildScope(),
           format: overrideFmt ?? fmt,
           includeMedia,
@@ -189,8 +194,25 @@ export default function ExportPage() {
         setSubmitting(false);
       }
     },
-    [buildScope, fmt, includeMedia, toast, loadHistory],
+    [sessionId, buildScope, fmt, includeMedia, toast, loadHistory],
   );
+
+  if (!sessionId) {
+    return (
+      <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10">
+        <ZoruEmptyState
+          icon={<Smartphone />}
+          title="No active WhatsApp account"
+          description="Pick a connected account on the SabWa overview to start using this page."
+          action={
+            <Link href="/sabwa/overview">
+              <ZoruButton size="md">Open accounts</ZoruButton>
+            </Link>
+          }
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto w-full max-w-[1180px] space-y-6 px-6 pt-6 pb-10">

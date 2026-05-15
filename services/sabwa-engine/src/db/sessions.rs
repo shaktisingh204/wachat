@@ -271,6 +271,33 @@ impl<'a> SessionsRepo<'a> {
             .context("inserted_id was not ObjectId")
     }
 
+    /// Persist the identity we learn from Baileys post-pair: the user's
+    /// phone (E.164) and their WhatsApp display name. Either field is
+    /// optional — pass `None` to leave a column untouched. If both are
+    /// `None`, this is a no-op (no Mongo write).
+    pub async fn update_identity(
+        &self,
+        id: &ObjectId,
+        phone_e164: Option<&str>,
+        push_name: Option<&str>,
+    ) -> Result<()> {
+        let mut set = doc! { "updatedAt": Bson::DateTime(bson::DateTime::now()) };
+        if let Some(p) = phone_e164 {
+            set.insert("phoneE164", p);
+        }
+        if let Some(n) = push_name {
+            set.insert("pushName", n);
+        }
+        if set.len() <= 1 {
+            return Ok(());
+        }
+        self.col
+            .update_one(doc! { "_id": id }, doc! { "$set": set })
+            .await
+            .context("sabwa_sessions.update_identity")?;
+        Ok(())
+    }
+
     pub async fn update_status(&self, id: &ObjectId, status: SessionStatus) -> Result<()> {
         let status_bson = bson::to_bson(&status).context("encode SessionStatus")?;
         self.col
@@ -352,6 +379,8 @@ pub struct SessionRow {
     pub phone_e164: Option<String>,
     pub push_name: Option<String>,
     pub status: String,
+    pub profile_pic_url: Option<String>,
+    pub last_connected_at: Option<chrono::DateTime<chrono::Utc>>,
 }
 
 fn to_row(s: SabwaSession) -> SessionRow {
@@ -369,6 +398,8 @@ fn to_row(s: SabwaSession) -> SessionRow {
             SessionStatus::Error => "error",
         }
         .to_string(),
+        profile_pic_url: s.profile_pic_url,
+        last_connected_at: s.last_connected_at,
     }
 }
 

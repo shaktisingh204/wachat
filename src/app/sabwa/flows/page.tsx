@@ -24,6 +24,7 @@ import {
   Play,
   Plus,
   RefreshCw,
+  Smartphone,
   Workflow,
 } from "lucide-react";
 
@@ -44,14 +45,13 @@ import {
   ZoruCollapsible,
   ZoruCollapsibleContent,
   ZoruCollapsibleTrigger,
+  ZoruEmptyState,
   ZoruSkeleton,
   useZoruToast,
 } from "@/components/zoruui";
 import { useProject } from "@/context/project-context";
 import { listSabFlows } from "@/app/actions/sabflow";
-
-// Same placeholder session id used elsewhere until SessionSwitcher is wired.
-const PLACEHOLDER_SESSION_ID = "stub-primary";
+import { useSabwaSession } from "@/lib/sabwa/session-context";
 
 interface FlowRow {
   _id: string;
@@ -145,6 +145,8 @@ function timeAgo(iso?: string): string {
 export default function SabWaFlowsPage() {
   const toast = useZoruToast();
   const { activeProjectId } = useProject();
+  const { current: activeSession } = useSabwaSession();
+  const sessionId = activeSession?.id ?? '';
 
   const sabwaProjectScope = activeProjectId
     ? `sabwa-${activeProjectId}`
@@ -180,8 +182,25 @@ export default function SabWaFlowsPage() {
   }, [load]);
 
   const newFlowHref = `/dashboard/sabflow/flow-builder?context=sabwa&sessionId=${encodeURIComponent(
-    PLACEHOLDER_SESSION_ID,
+    sessionId,
   )}&projectId=${encodeURIComponent(sabwaProjectScope)}`;
+
+  if (!sessionId) {
+    return (
+      <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10">
+        <ZoruEmptyState
+          icon={<Smartphone />}
+          title="No active WhatsApp account"
+          description="Pick a connected account on the SabWa overview to start using this page."
+          action={
+            <Link href="/sabwa/overview">
+              <ZoruButton size="md">Open accounts</ZoruButton>
+            </Link>
+          }
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto w-full max-w-[1180px] space-y-6 px-6 pt-6 pb-10">

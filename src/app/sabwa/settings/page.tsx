@@ -9,12 +9,14 @@
  */
 
 import * as React from 'react';
+import Link from 'next/link';
 import {
   UserCog,
   RefreshCw,
   Upload as UploadIcon,
   Phone,
   Clock,
+  Smartphone,
 } from 'lucide-react';
 
 import {
@@ -38,6 +40,7 @@ import {
   ZoruCardDescription,
   ZoruCardHeader,
   ZoruCardTitle,
+  ZoruEmptyState,
   ZoruInput,
   ZoruLabel,
   ZoruSeparator,
@@ -54,13 +57,11 @@ import {
   syncProfileFromDevice,
   type SabwaProfile,
 } from '@/app/actions/sabwa.actions';
-
-// Phase 0: the active session id is selected at the layout level (see
-// SessionSwitcher). Until a real provider lands, we use a stub id so
-// the actions can be exercised end-to-end; the engine ignores it.
-const CURRENT_SESSION_ID = 'stub-primary';
+import { useSabwaSession } from '@/lib/sabwa/session-context';
 
 export default function ProfileSettingsPage() {
+  const { current: activeSession } = useSabwaSession();
+  const sessionId = activeSession?.id ?? '';
   const [loading, setLoading] = React.useState(true);
   const [pending, startTransition] = React.useTransition();
 
@@ -99,9 +100,13 @@ export default function ProfileSettingsPage() {
   }, []);
 
   React.useEffect(() => {
+    if (!sessionId) {
+      setLoading(false);
+      return;
+    }
     let cancelled = false;
     setLoading(true);
-    getProfile(CURRENT_SESSION_ID)
+    getProfile(sessionId)
       .then((res) => {
         if (cancelled) return;
         if (res.ok) hydrate(res.profile);
@@ -115,12 +120,12 @@ export default function ProfileSettingsPage() {
     return () => {
       cancelled = true;
     };
-  }, [hydrate]);
+  }, [hydrate, sessionId]);
 
   const onSync = () => {
     startTransition(async () => {
       try {
-        const res = await syncProfileFromDevice(CURRENT_SESSION_ID);
+        const res = await syncProfileFromDevice(sessionId);
         if (res.ok) {
           hydrate(res.profile);
           toast.success('Profile synced from WhatsApp.');
@@ -137,7 +142,7 @@ export default function ProfileSettingsPage() {
     startTransition(async () => {
       try {
         const res = await updateProfile({
-          sessionId: CURRENT_SESSION_ID,
+          sessionId: sessionId,
           patch: { pushName, about, profilePicSabFileId },
         });
         if (res.ok) {
@@ -159,6 +164,23 @@ export default function ProfileSettingsPage() {
     }
     doPush();
   };
+
+  if (!sessionId) {
+    return (
+      <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10">
+        <ZoruEmptyState
+          icon={<Smartphone />}
+          title="No active WhatsApp account"
+          description="Pick a connected account on the SabWa overview to start using this page."
+          action={
+            <Link href="/sabwa/overview">
+              <ZoruButton size="md">Open accounts</ZoruButton>
+            </Link>
+          }
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto w-full max-w-[1180px] space-y-6 px-6 pt-6 pb-10">

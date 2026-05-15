@@ -15,6 +15,7 @@
  */
 
 import * as React from 'react';
+import Link from 'next/link';
 import {
   Edit3,
   MessageSquareReply,
@@ -22,6 +23,7 @@ import {
   Paperclip,
   Plus,
   Search,
+  Smartphone,
   Trash2,
   X,
 } from 'lucide-react';
@@ -44,11 +46,13 @@ import {
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
+  ZoruEmptyState,
   ZoruInput,
   ZoruLabel,
   ZoruPopover,
   ZoruPopoverContent,
   ZoruPopoverTrigger,
+  ZoruSkeleton,
   ZoruSwitch,
   ZoruTable,
   ZoruTableBody,
@@ -64,10 +68,8 @@ import {
   upsertQuickReply,
   deleteQuickReply,
 } from '@/app/actions/sabwa.actions';
+import { useSabwaSession } from '@/lib/sabwa/session-context';
 import type { SabwaQuickReply } from '@/lib/sabwa/types';
-
-// TODO (Phase 2): replace placeholder with active session id from SessionSwitcher.
-const PLACEHOLDER_SESSION = 'stub-primary';
 
 interface QuickReplyRow
   extends Omit<SabwaQuickReply, '_id' | 'projectId' | 'sessionId'> {
@@ -116,6 +118,8 @@ function normalizeShortcut(value: string): string {
 }
 
 export default function Page() {
+  const { current: activeSession } = useSabwaSession();
+  const sessionId = activeSession?.id ?? null;
   const [rows, setRows] = React.useState<QuickReplyRow[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [search, setSearch] = React.useState('');
@@ -123,11 +127,16 @@ export default function Page() {
   const [editing, setEditing] = React.useState<QuickReplyRow | null>(null);
 
   const refresh = React.useCallback(async () => {
+    if (!sessionId) {
+      setRows([]);
+      setLoading(false);
+      return;
+    }
     setLoading(true);
-    const res = await listQuickReplies(PLACEHOLDER_SESSION);
+    const res = await listQuickReplies(sessionId);
     setRows(res.ok ? res.quickReplies.map(toRow) : []);
     setLoading(false);
-  }, []);
+  }, [sessionId]);
 
   React.useEffect(() => {
     void refresh();
@@ -159,18 +168,51 @@ export default function Page() {
   };
 
   const onToggleEnabled = async (r: QuickReplyRow, enabled: boolean) => {
+    if (!sessionId) return;
     setRows((prev) =>
       prev.map((x) => (x.id === r.id ? { ...x, enabled } : x)),
     );
     await upsertQuickReply({
       id: r.id,
-      sessionId: PLACEHOLDER_SESSION,
+      sessionId,
       shortcut: r.shortcut,
       body: r.body,
       mediaSabFileId: r.mediaSabFileId,
       enabled,
     });
   };
+
+  if (!sessionId) {
+    return (
+      <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10 space-y-6">
+        <ZoruBreadcrumb>
+          <ZoruBreadcrumbList>
+            <ZoruBreadcrumbItem>
+              <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+            </ZoruBreadcrumbItem>
+            <ZoruBreadcrumbSeparator />
+            <ZoruBreadcrumbItem>
+              <ZoruBreadcrumbLink href="/sabwa">SabWa</ZoruBreadcrumbLink>
+            </ZoruBreadcrumbItem>
+            <ZoruBreadcrumbSeparator />
+            <ZoruBreadcrumbItem>
+              <ZoruBreadcrumbPage>Quick replies</ZoruBreadcrumbPage>
+            </ZoruBreadcrumbItem>
+          </ZoruBreadcrumbList>
+        </ZoruBreadcrumb>
+        <ZoruEmptyState
+          icon={<Smartphone />}
+          title="No active WhatsApp account"
+          description="Pick a connected account on the SabWa overview to start using this page."
+          action={
+            <Link href="/sabwa/overview">
+              <ZoruButton size="md">Open accounts</ZoruButton>
+            </Link>
+          }
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10 space-y-6">
@@ -238,24 +280,45 @@ export default function Page() {
               </ZoruTableRow>
             </ZoruTableHeader>
             <ZoruTableBody>
-              {loading && filtered.length === 0 && (
-                <ZoruTableRow>
-                  <ZoruTableCell
-                    colSpan={6}
-                    className="py-10 text-center text-zoru-ink-muted"
-                  >
-                    Loading quick replies…
-                  </ZoruTableCell>
-                </ZoruTableRow>
-              )}
+              {loading && filtered.length === 0 &&
+                Array.from({ length: 6 }).map((_, i) => (
+                  <ZoruTableRow key={`qr-skeleton-${i}`}>
+                    <ZoruTableCell colSpan={6} className="py-2">
+                      <ZoruSkeleton className="h-[56px] w-full rounded-[var(--zoru-radius-lg)]" />
+                    </ZoruTableCell>
+                  </ZoruTableRow>
+                ))}
               {!loading && filtered.length === 0 && (
                 <ZoruTableRow>
-                  <ZoruTableCell
-                    colSpan={6}
-                    className="py-10 text-center text-zoru-ink-muted"
-                  >
-                    No quick replies yet — start with <code>/thanks</code> or{' '}
-                    <code>/eta</code>.
+                  <ZoruTableCell colSpan={6} className="py-8">
+                    <ZoruEmptyState
+                      icon={<MessageSquareReply />}
+                      title={
+                        search
+                          ? 'No quick replies match your search'
+                          : 'No quick replies yet'
+                      }
+                      description={
+                        search
+                          ? 'Try a different shortcut or body keyword, or clear the search.'
+                          : 'Save short blurbs as slash-commands like /thanks or /eta — type the shortcut in any composer to expand it instantly.'
+                      }
+                      action={
+                        search ? (
+                          <ZoruButton
+                            variant="outline"
+                            onClick={() => setSearch('')}
+                          >
+                            Clear search
+                          </ZoruButton>
+                        ) : (
+                          <ZoruButton onClick={openNew}>
+                            <Plus className="mr-1.5 h-4 w-4" />
+                            New quick reply
+                          </ZoruButton>
+                        )
+                      }
+                    />
                   </ZoruTableCell>
                 </ZoruTableRow>
               )}
@@ -324,6 +387,7 @@ export default function Page() {
       </ZoruCard>
 
       <QuickReplyDialog
+        sessionId={sessionId}
         open={editorOpen}
         onOpenChange={setEditorOpen}
         initial={editing}
@@ -340,6 +404,7 @@ export default function Page() {
 // ─── Editor dialog ─────────────────────────────────────────────────────────
 
 interface QuickReplyDialogProps {
+  sessionId: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   initial: QuickReplyRow | null;
@@ -348,6 +413,7 @@ interface QuickReplyDialogProps {
 }
 
 function QuickReplyDialog({
+  sessionId,
   open,
   onOpenChange,
   initial,
@@ -381,7 +447,7 @@ function QuickReplyDialog({
     setSaving(true);
     await upsertQuickReply({
       id: initial?.id,
-      sessionId: PLACEHOLDER_SESSION,
+      sessionId,
       shortcut: normalized,
       body,
       mediaSabFileId,

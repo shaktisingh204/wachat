@@ -67,6 +67,10 @@ pub struct SessionSummary {
     pub status: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub push_name: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub profile_pic_url: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub last_connected_at: Option<chrono::DateTime<chrono::Utc>>,
 }
 
 #[derive(Debug, Serialize)]
@@ -228,6 +232,8 @@ async fn list_sessions(
             phone_e164: s.phone_e164,
             status: s.status,
             push_name: s.push_name,
+            profile_pic_url: s.profile_pic_url,
+            last_connected_at: s.last_connected_at,
         })
         .collect();
 
@@ -248,6 +254,8 @@ async fn get_session(
         phone_e164: s.phone_e164,
         status: s.status,
         push_name: s.push_name,
+        profile_pic_url: s.profile_pic_url,
+        last_connected_at: s.last_connected_at,
     }))
 }
 

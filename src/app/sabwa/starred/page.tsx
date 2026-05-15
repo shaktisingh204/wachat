@@ -18,7 +18,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { ChevronDown, ChevronUp, ExternalLink, Search, Star } from "lucide-react";
+import { ChevronDown, ChevronUp, ExternalLink, Search, Smartphone, Star } from "lucide-react";
 
 import {
   ZoruBadge,
@@ -33,6 +33,7 @@ import {
   ZoruCardContent,
   ZoruCardHeader,
   ZoruCardTitle,
+  ZoruEmptyState,
   ZoruInput,
   ZoruSkeleton,
   cn,
@@ -40,12 +41,10 @@ import {
 
 import { MessageBubble } from "@/app/sabwa/_components/message-bubble";
 import { useStarred } from "@/lib/sabwa/use-sabwa-data";
+import { useSabwaSession } from "@/lib/sabwa/session-context";
 import type { SabwaStarredEntry } from "@/app/actions/sabwa.actions";
 
 const PREVIEW_LIMIT = 3;
-
-// TODO: replace with real active-session id wired from SessionSwitcher.
-const PLACEHOLDER_SESSION_ID = "stub-primary";
 
 interface StarredGroup {
   chatJid: string;
@@ -88,7 +87,8 @@ function groupByChat(items: SabwaStarredEntry[]): StarredGroup[] {
 }
 
 export default function SabWaStarredPage() {
-  const sessionId = PLACEHOLDER_SESSION_ID;
+  const { current: activeSession } = useSabwaSession();
+  const sessionId = activeSession?.id ?? '';
   const { data: items, loading, error, refetch } = useStarred(sessionId);
   const [query, setQuery] = React.useState("");
   const [expanded, setExpanded] = React.useState<Record<string, boolean>>({});
@@ -113,6 +113,23 @@ export default function SabWaStarredPage() {
   }, [items, query]);
 
   const totalCount = items.length;
+
+  if (!sessionId) {
+    return (
+      <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10">
+        <ZoruEmptyState
+          icon={<Smartphone />}
+          title="No active WhatsApp account"
+          description="Pick a connected account on the SabWa overview to start using this page."
+          action={
+            <Link href="/sabwa/overview">
+              <ZoruButton size="md">Open accounts</ZoruButton>
+            </Link>
+          }
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 p-4 md:p-6 lg:p-8">

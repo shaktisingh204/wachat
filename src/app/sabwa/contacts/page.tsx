@@ -16,6 +16,7 @@
  */
 
 import * as React from 'react';
+import Link from 'next/link';
 import {
   BookUser,
   Ban,
@@ -24,6 +25,7 @@ import {
   MessageSquare,
   Plus,
   Search,
+  Smartphone,
   Square,
   Tag as TagIcon,
   Upload,
@@ -52,6 +54,7 @@ import {
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
+  ZoruEmptyState,
   ZoruInput,
   ZoruLabel,
   ZoruSelect,
@@ -65,6 +68,7 @@ import {
   ZoruSheetDescription,
   ZoruSheetHeader,
   ZoruSheetTitle,
+  ZoruSkeleton,
   ZoruTable,
   ZoruTableBody,
   ZoruTableCell,
@@ -79,6 +83,7 @@ import {
   getContact,
   updateContact,
 } from '@/app/actions/sabwa.actions';
+import { useSabwaSession } from '@/lib/sabwa/session-context';
 import type { SabwaContact } from '@/lib/sabwa/types';
 
 // ─── Local view model ──────────────────────────────────────────────────────
@@ -108,9 +113,6 @@ const DRAWER_SECTIONS: { value: DrawerSection; label: string }[] = [
   { value: 'groups', label: 'Groups' },
   { value: 'scheduled', label: 'Scheduled' },
 ];
-
-// TODO (Phase 2): wire to real session via SessionSwitcher.
-const PLACEHOLDER_SESSION = 'stub-primary';
 
 function initialsFromName(name?: string): string {
   if (!name) return '?';
@@ -154,6 +156,8 @@ function toContactRow(c: SabwaContact): ContactRow {
 // ─── Page ──────────────────────────────────────────────────────────────────
 
 export default function Page() {
+  const { current: activeSession } = useSabwaSession();
+  const sessionId = activeSession?.id ?? null;
   const [search, setSearch] = React.useState('');
   const [tagFilter, setTagFilter] = React.useState<string>('all');
   const [sourceFilter, setSourceFilter] = React.useState<ContactSource | 'all'>(
@@ -173,10 +177,15 @@ export default function Page() {
 
   // Initial + filtered load.
   React.useEffect(() => {
+    if (!sessionId) {
+      setContacts([]);
+      setLoading(false);
+      return;
+    }
     let cancelled = false;
     setLoading(true);
     listContacts({
-      sessionId: PLACEHOLDER_SESSION,
+      sessionId,
       search: search || undefined,
       tag: tagFilter !== 'all' ? tagFilter : undefined,
       source: sourceFilter !== 'all' ? sourceFilter : undefined,
@@ -192,7 +201,7 @@ export default function Page() {
     return () => {
       cancelled = true;
     };
-  }, [search, tagFilter, sourceFilter]);
+  }, [sessionId, search, tagFilter, sourceFilter]);
 
   // All unique tags across the loaded set, for the tag-filter dropdown.
   const allTags = React.useMemo(() => {
@@ -221,9 +230,10 @@ export default function Page() {
   const openContact = React.useCallback(async (row: ContactRow) => {
     setActiveContact(row);
     setDrawerOpen(true);
+    if (!sessionId) return;
     // Hydrate full contact details from server.
     const res = await getContact({
-      sessionId: PLACEHOLDER_SESSION,
+      sessionId,
       jid: row.jid,
     });
     if (res.ok && res.contact) {
@@ -231,7 +241,7 @@ export default function Page() {
         prev && prev.jid === row.jid ? { ...prev, ...toContactRow(res.contact!) } : prev,
       );
     }
-  }, []);
+  }, [sessionId]);
 
   const exportSelectedCsv = React.useCallback(() => {
     const rows = contacts.filter((c) => selected.has(c.id));
@@ -258,6 +268,38 @@ export default function Page() {
     a.click();
     URL.revokeObjectURL(url);
   }, [contacts, selected]);
+
+  if (!sessionId) {
+    return (
+      <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10 space-y-6">
+        <ZoruBreadcrumb>
+          <ZoruBreadcrumbList>
+            <ZoruBreadcrumbItem>
+              <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+            </ZoruBreadcrumbItem>
+            <ZoruBreadcrumbSeparator />
+            <ZoruBreadcrumbItem>
+              <ZoruBreadcrumbLink href="/sabwa">SabWa</ZoruBreadcrumbLink>
+            </ZoruBreadcrumbItem>
+            <ZoruBreadcrumbSeparator />
+            <ZoruBreadcrumbItem>
+              <ZoruBreadcrumbPage>Contacts</ZoruBreadcrumbPage>
+            </ZoruBreadcrumbItem>
+          </ZoruBreadcrumbList>
+        </ZoruBreadcrumb>
+        <ZoruEmptyState
+          icon={<Smartphone />}
+          title="No active WhatsApp account"
+          description="Pick a connected account on the SabWa overview to start using this page."
+          action={
+            <Link href="/sabwa/overview">
+              <ZoruButton size="md">Open accounts</ZoruButton>
+            </Link>
+          }
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10 space-y-6">
@@ -402,18 +444,37 @@ export default function Page() {
               </ZoruTableRow>
             </ZoruTableHeader>
             <ZoruTableBody>
-              {loading && contacts.length === 0 && (
-                <ZoruTableRow>
-                  <ZoruTableCell colSpan={6} className="py-10 text-center text-zoru-ink-muted">
-                    Loading contacts…
-                  </ZoruTableCell>
-                </ZoruTableRow>
-              )}
+              {loading && contacts.length === 0 &&
+                Array.from({ length: 6 }).map((_, i) => (
+                  <ZoruTableRow key={`contacts-skeleton-${i}`}>
+                    <ZoruTableCell colSpan={6} className="py-2">
+                      <ZoruSkeleton className="h-[56px] w-full rounded-[var(--zoru-radius-lg)]" />
+                    </ZoruTableCell>
+                  </ZoruTableRow>
+                ))}
               {!loading && contacts.length === 0 && (
                 <ZoruTableRow>
-                  <ZoruTableCell colSpan={6} className="py-10 text-center text-zoru-ink-muted">
-                    No contacts yet. Sync your account, add one manually, or
-                    import a CSV.
+                  <ZoruTableCell colSpan={6} className="py-8">
+                    <ZoruEmptyState
+                      icon={<Users />}
+                      title="No contacts yet"
+                      description="Import a CSV in seconds, or add one manually. Once your WhatsApp session syncs, address-book contacts will appear here automatically."
+                      action={
+                        <div className="flex flex-wrap items-center justify-center gap-2">
+                          <ZoruButton onClick={() => setAddOpen(true)}>
+                            <Plus className="mr-1.5 h-4 w-4" />
+                            Add contact
+                          </ZoruButton>
+                          <ZoruButton
+                            variant="outline"
+                            onClick={() => setImportOpen(true)}
+                          >
+                            <Upload className="mr-1.5 h-4 w-4" />
+                            Import CSV
+                          </ZoruButton>
+                        </div>
+                      }
+                    />
                   </ZoruTableCell>
                 </ZoruTableRow>
               )}
@@ -510,6 +571,7 @@ export default function Page() {
 
       {/* Detail drawer */}
       <ContactDrawer
+        sessionId={sessionId}
         open={drawerOpen}
         onOpenChange={setDrawerOpen}
         contact={activeContact}
@@ -594,6 +656,7 @@ export default function Page() {
 // ─── Contact drawer ────────────────────────────────────────────────────────
 
 interface ContactDrawerProps {
+  sessionId: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   contact: ContactRow | null;
@@ -601,6 +664,7 @@ interface ContactDrawerProps {
 }
 
 function ContactDrawer({
+  sessionId,
   open,
   onOpenChange,
   contact,
@@ -627,7 +691,7 @@ function ContactDrawer({
     onContactPatched(next);
     setTagInput('');
     await updateContact({
-      sessionId: PLACEHOLDER_SESSION,
+      sessionId,
       jid: contact.jid,
       patch: { tags: nextTags },
     });
@@ -638,7 +702,7 @@ function ContactDrawer({
     const next: ContactRow = { ...contact, tags: nextTags };
     onContactPatched(next);
     await updateContact({
-      sessionId: PLACEHOLDER_SESSION,
+      sessionId,
       jid: contact.jid,
       patch: { tags: nextTags },
     });
@@ -649,7 +713,7 @@ function ContactDrawer({
     const next: ContactRow = { ...contact, notes: notesDraft };
     onContactPatched(next);
     await updateContact({
-      sessionId: PLACEHOLDER_SESSION,
+      sessionId,
       jid: contact.jid,
       patch: { notes: notesDraft },
     });
@@ -790,7 +854,7 @@ function ContactDrawer({
                   };
                   onContactPatched(patched);
                   void updateContact({
-                    sessionId: PLACEHOLDER_SESSION,
+                    sessionId,
                     jid: contact.jid,
                     patch: { customFields: next },
                   });

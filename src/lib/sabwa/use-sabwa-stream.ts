@@ -194,7 +194,7 @@ export function useSabwaStream(
       ) {
         const next =
           typeof (ev as { code?: unknown }).code === 'string'
-            ? ((ev as { code: string }).code)
+            ? ((ev as unknown as { code: string }).code)
             : (ev.pairCode as string);
         setLastPairCode(next);
       } else if (ev.kind === 'status' && ev.status === 'connected') {

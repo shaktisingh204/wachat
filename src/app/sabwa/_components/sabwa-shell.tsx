@@ -13,6 +13,7 @@ import * as React from "react";
 import { usePathname } from "next/navigation";
 
 import { ZoruHomeShell } from "@/components/zoruui";
+import { useSabwaSession } from "@/lib/sabwa/session-context";
 
 import { buildSabwaSidebarGroups } from "./sabwa-sidebar-config";
 
@@ -31,17 +32,53 @@ export interface SabwaShellProps {
 
 export function SabwaShell({ user, plan, children }: SabwaShellProps) {
   const pathname = usePathname();
+  const { current } = useSabwaSession();
+  const hasActive = !!current;
   const groups = React.useMemo(
-    () => buildSabwaSidebarGroups(pathname),
-    [pathname],
+    () => buildSabwaSidebarGroups(pathname, hasActive),
+    [pathname, hasActive],
   );
+
+  const caption = React.useMemo(() => {
+    if (!current)
+      return <span className="text-zoru-ink-muted">No account active</span>;
+    const statusColor =
+      current.status === "connected"
+        ? "bg-zoru-success"
+        : current.status === "pending" ||
+            current.status === "pairing" ||
+            current.status === "syncing"
+          ? "bg-zoru-warning"
+          : current.status === "banned" || current.status === "error"
+            ? "bg-zoru-danger"
+            : "bg-zoru-ink-muted";
+    const label =
+      current.label?.trim() ||
+      current.pushName?.trim() ||
+      (current.phoneE164
+        ? current.phoneE164.startsWith("+")
+          ? current.phoneE164
+          : `+${current.phoneE164}`
+        : current.id?.slice(-6)
+          ? `Linked WhatsApp · ${current.id.slice(-6)}`
+          : "Linked WhatsApp");
+    return (
+      <span className="flex items-center gap-1.5">
+        <span
+          aria-hidden
+          className={`inline-block h-1.5 w-1.5 rounded-full ${statusColor}`}
+        />
+        <span className="truncate">{label}</span>
+      </span>
+    );
+  }, [current]);
 
   return (
     <ZoruHomeShell
       user={user}
       plan={plan}
       sidebarHeading="SabWa"
-      sidebarCaption="Personal WhatsApp"
+      sidebarCaption={caption}
       sidebarGroups={groups}
     >
       {children}

@@ -35,6 +35,7 @@ export interface SabwaSessionInfo {
   status: string;
   profilePicUrl?: string;
   label?: string;
+  lastConnectedAt?: string;
 }
 
 export interface SabwaSessionContextValue {
@@ -51,14 +52,35 @@ export interface SabwaSessionContextValue {
  *  the structural subset the UI needs. Accepts either flavour so the server
  *  layout can pass through `listSessions` results directly. */
 export function toSessionInfo(
-  raw: Partial<SabwaSession> & { _id?: unknown; id?: string },
+  raw: Partial<SabwaSession> & {
+    _id?: unknown;
+    id?: string;
+    sessionId?: string;
+    lastConnectedAt?: string | Date;
+  },
 ): SabwaSessionInfo {
+  // The Rust engine's `listSessions` returns `sessionId` (camelCase
+  // from `session_id`). Earlier shapes used `id` / `_id`. Accept all
+  // three — without this, every session got `id = ''` and the UI
+  // tagged every row as the active one because empty string equals
+  // empty string.
   const id =
-    typeof raw.id === 'string'
-      ? raw.id
-      : raw._id != null
-        ? String(raw._id)
-        : '';
+    typeof raw.sessionId === 'string' && raw.sessionId
+      ? raw.sessionId
+      : typeof raw.id === 'string' && raw.id
+        ? raw.id
+        : raw._id != null
+          ? String(raw._id)
+          : '';
+  // `lastConnectedAt` arrives as an ISO string from the Rust engine
+  // (chrono serialises DateTime<Utc> as RFC 3339) but Mongo-shaped
+  // payloads carry a `Date` instance. Normalise to ISO string for the UI.
+  const lastConnectedAt =
+    raw.lastConnectedAt instanceof Date
+      ? raw.lastConnectedAt.toISOString()
+      : typeof raw.lastConnectedAt === 'string'
+        ? raw.lastConnectedAt
+        : undefined;
   return {
     id,
     phoneE164: raw.phoneE164,
@@ -66,6 +88,7 @@ export function toSessionInfo(
     status: typeof raw.status === 'string' ? raw.status : 'pending',
     profilePicUrl: raw.profilePicUrl,
     label: raw.label,
+    lastConnectedAt,
   };
 }
 

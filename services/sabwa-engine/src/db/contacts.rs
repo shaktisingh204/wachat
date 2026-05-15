@@ -9,6 +9,8 @@ use futures::TryStreamExt;
 use mongodb::{Collection, Database};
 use serde::{Deserialize, Serialize};
 
+use crate::db::serde_dates::chrono_dt_opt;
+
 pub const COLLECTION: &str = "sabwa_contacts";
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -39,7 +41,7 @@ pub struct SabwaContact {
     pub custom_fields: Option<bson::Document>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub notes: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none", with = "chrono_dt_opt")]
     pub last_interaction_at: Option<DateTime<Utc>>,
 }
 
@@ -147,6 +149,7 @@ pub struct ContactRow {
     pub is_my_contact: bool,
     pub tags: Vec<String>,
     pub notes: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none", with = "chrono_dt_opt")]
     pub last_interaction_at: Option<DateTime<Utc>>,
 }
 

@@ -4,6 +4,7 @@
 //! section 3. Repos are thin wrappers around `mongodb::Collection<T>` and
 //! return `anyhow::Result<...>` so call-sites can use `?` freely.
 
+pub mod serde_dates;
 pub mod sessions;
 pub mod chats;
 pub mod messages;
