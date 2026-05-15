@@ -72,31 +72,33 @@ function forbidden(message = 'Forbidden'): Response {
 }
 
 /**
- * Resolve the caller's active project id from their session, matching the
- * shape used elsewhere in this repo (`session.user.activeProjectId`).
+ * Resolve the authenticated user's id (string) from the session payload.
+ * `activeProjectId` is client-only state (localStorage) — never trust the
+ * session for that. We instead verify ownership by walking
+ * session → project.userId at the SabWa-session row.
  */
-function resolveActiveProjectId(
+function resolveUserId(
   user: Record<string, unknown> | undefined,
 ): string | null {
   if (!user) return null;
-  const direct = user['activeProjectId'];
-  if (typeof direct === 'string' && direct.trim()) return direct;
-
-  // Fall back to the user's own id (single-project users / pre-project repos).
-  const id =
+  const raw =
     user['_id'] ??
     user['id'] ??
     (typeof (user as { _id?: { toString(): string } })._id?.toString === 'function'
       ? (user as { _id: { toString(): string } })._id.toString()
       : undefined);
-  return typeof id === 'string' && id.trim() ? id : null;
+  return typeof raw === 'string' && raw.trim() ? raw : null;
 }
 
 /**
- * Look up `sabwa_sessions` by `_id` (or by `sessionId` string) and return
- * the row's `projectId` as a string, or `null` if missing.
+ * Look up a SabWa session and return both its projectId and the project's
+ * owning userId. The caller is allowed to stream iff `project.userId`
+ * matches their authenticated user id.
  */
-async function loadSessionProjectId(sessionId: string): Promise<string | null> {
+async function loadSessionOwnership(sessionId: string): Promise<{
+  projectId: string;
+  ownerUserId: string | null;
+} | null> {
   const { db } = await connectToDatabase();
   const sessions = db.collection(SABWA_COLLECTIONS.sessions);
 
@@ -111,11 +113,37 @@ async function loadSessionProjectId(sessionId: string): Promise<string | null> {
   if (!row) return null;
 
   const pid = (row as { projectId?: unknown }).projectId;
-  if (typeof pid === 'string') return pid;
-  if (pid && typeof (pid as { toString?: () => string }).toString === 'function') {
-    return (pid as { toString(): string }).toString();
+  const projectId =
+    typeof pid === 'string'
+      ? pid
+      : pid && typeof (pid as { toString?: () => string }).toString === 'function'
+        ? (pid as { toString(): string }).toString()
+        : null;
+  if (!projectId) return null;
+
+  // Resolve the project's owning userId.
+  let project: Record<string, unknown> | null = null;
+  try {
+    if (ObjectId.isValid(projectId) && projectId.length === 24) {
+      project = (await db
+        .collection('projects')
+        .findOne(
+          { _id: new ObjectId(projectId) },
+          { projection: { userId: 1 } },
+        )) as Record<string, unknown> | null;
+    }
+  } catch {
+    project = null;
   }
-  return null;
+  const uid = project?.['userId'];
+  const ownerUserId =
+    typeof uid === 'string'
+      ? uid
+      : uid && typeof (uid as { toString?: () => string }).toString === 'function'
+        ? (uid as { toString(): string }).toString()
+        : null;
+
+  return { projectId, ownerUserId };
 }
 
 export async function GET(req: NextRequest): Promise<Response> {
@@ -125,11 +153,11 @@ export async function GET(req: NextRequest): Promise<Response> {
     return unauthorized();
   }
 
-  const activeProjectId = resolveActiveProjectId(
+  const authedUserId = resolveUserId(
     session.user as unknown as Record<string, unknown>,
   );
-  if (!activeProjectId) {
-    return forbidden('No active project');
+  if (!authedUserId) {
+    return unauthorized('Missing user id on session');
   }
 
   // ── 2. Resolve & authorize the SabWa session ─────────────────────────
@@ -138,17 +166,22 @@ export async function GET(req: NextRequest): Promise<Response> {
     return badRequest('sessionId is required');
   }
 
-  const ownerProjectId = await loadSessionProjectId(sessionId);
-  if (!ownerProjectId) {
+  const ownership = await loadSessionOwnership(sessionId);
+  if (!ownership) {
     return new Response(JSON.stringify({ error: 'Session not found' }), {
       status: 404,
       headers: { 'Content-Type': 'application/json' },
     });
   }
 
-  if (ownerProjectId !== activeProjectId) {
-    return forbidden('Session does not belong to active project');
+  // Authorize by project ownership — the caller must own the project the
+  // SabWa session is bound to. `activeProjectId` is client-side state
+  // (localStorage) and intentionally NOT trusted here.
+  if (!ownership.ownerUserId || ownership.ownerUserId !== authedUserId) {
+    return forbidden('Session does not belong to you');
   }
+
+  const activeProjectId = ownership.projectId;
 
   // ── 3. Mint a short-lived stream JWT via the Rust engine ─────────────
   let issued: IssueTokenResponse;

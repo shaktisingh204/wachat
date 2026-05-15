@@ -1,0 +1,535 @@
+'use client';
+
+/**
+ * OverviewAccountsClient — `/sabwa/overview` accounts hub.
+ *
+ * Once a project is opened, this becomes the home for that project:
+ *   - Active project name + "Change project" link back to /sabwa
+ *   - List of linked WhatsApp accounts (sessions) for the project
+ *   - Radio-select an account → activates it for Inbox / Chats / etc.
+ *   - "Connect another WhatsApp" CTA → /sabwa/connect
+ *
+ * When no accounts are linked, renders an empty state with a primary
+ * "Connect WhatsApp" CTA. When one is selected, the rest of SabWa
+ * (sidebar links: Inbox, Chats, Groups, etc.) operates against that
+ * session via `useSabwaSession()`.
+ */
+
+import * as React from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import {
+  ArrowRight,
+  Briefcase,
+  Check,
+  CheckCircle2,
+  ChevronRight,
+  LogOut,
+  Pencil,
+  Plus,
+  QrCode,
+  Smartphone,
+  Sparkles,
+} from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import {
+  useSabwaSession,
+  toSessionInfo,
+  type SabwaSessionInfo,
+} from '@/lib/sabwa/session-context';
+import {
+  listSessions,
+  logoutSession,
+  renameSession,
+} from '@/app/actions/sabwa.actions';
+import type { SabwaSession } from '@/lib/sabwa/types';
+import {
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruBadge,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruEmptyState,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSkeleton,
+  cn,
+  useZoruToast,
+} from '@/components/zoruui';
+
+/* ── status pill helpers ───────────────────────────────────────── */
+
+function statusVariant(
+  status?: string,
+): 'success' | 'warning' | 'danger' | 'ghost' {
+  switch (status) {
+    case 'connected':
+      return 'success';
+    case 'pairing':
+    case 'syncing':
+    case 'pending':
+      return 'warning';
+    case 'banned':
+    case 'error':
+      return 'danger';
+    case 'logged_out':
+    default:
+      return 'ghost';
+  }
+}
+
+function statusLabel(status?: string): string {
+  if (!status) return 'Pending';
+  return status.charAt(0).toUpperCase() + status.slice(1).replace(/_/g, ' ');
+}
+
+function formatPhone(phone?: string | null): string {
+  if (!phone) return 'Unknown number';
+  return phone.startsWith('+') ? phone : `+${phone}`;
+}
+
+/* ── rename dialog ─────────────────────────────────────────────── */
+
+function RenameDialog({
+  session,
+  onOpenChange,
+  onRenamed,
+}: {
+  session: SabwaSessionInfo | null;
+  onOpenChange: (open: boolean) => void;
+  onRenamed: () => void;
+}) {
+  const toast = useZoruToast();
+  const [value, setValue] = React.useState('');
+  const [pending, startTransition] = React.useTransition();
+
+  React.useEffect(() => {
+    if (session) setValue(session.label ?? session.pushName ?? '');
+  }, [session]);
+
+  const submit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!session) return;
+    const label = value.trim();
+    if (!label) return;
+    startTransition(async () => {
+      const res = await renameSession(session.id, label);
+      if (!res.ok) {
+        toast.toast({
+          title: 'Rename failed',
+          description: res.error,
+          variant: 'destructive',
+        });
+        return;
+      }
+      toast.toast({ title: 'Renamed' });
+      onRenamed();
+      onOpenChange(false);
+    });
+  };
+
+  return (
+    <ZoruDialog open={!!session} onOpenChange={onOpenChange}>
+      <ZoruDialogContent>
+        <ZoruDialogHeader>
+          <ZoruDialogTitle>Rename account</ZoruDialogTitle>
+        </ZoruDialogHeader>
+        <form onSubmit={submit} className="space-y-3">
+          <div className="space-y-1.5">
+            <ZoruLabel htmlFor="sabwa-rename-label">Label</ZoruLabel>
+            <ZoruInput
+              id="sabwa-rename-label"
+              autoFocus
+              maxLength={80}
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+              placeholder="e.g. Primary number"
+            />
+          </div>
+          <ZoruDialogFooter>
+            <ZoruButton
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              disabled={pending}
+            >
+              Cancel
+            </ZoruButton>
+            <ZoruButton type="submit" disabled={pending || !value.trim()}>
+              Save
+            </ZoruButton>
+          </ZoruDialogFooter>
+        </form>
+      </ZoruDialogContent>
+    </ZoruDialog>
+  );
+}
+
+/* ── account row ───────────────────────────────────────────────── */
+
+function AccountRow({
+  session,
+  isActive,
+  onActivate,
+  onRename,
+  onLogout,
+}: {
+  session: SabwaSessionInfo;
+  isActive: boolean;
+  onActivate: () => void;
+  onRename: () => void;
+  onLogout: () => void;
+}) {
+  const phone = formatPhone(session.phoneE164);
+  const label = session.label ?? session.pushName ?? phone;
+  return (
+    <div
+      className={cn(
+        'flex items-start gap-4 rounded-[var(--zoru-radius-lg)] border p-4 transition',
+        isActive
+          ? 'border-zoru-ink bg-zoru-surface shadow-[var(--zoru-shadow-sm)]'
+          : 'border-zoru-line bg-zoru-bg hover:border-zoru-line-strong',
+      )}
+    >
+      <button
+        type="button"
+        onClick={onActivate}
+        className={cn(
+          'mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition',
+          isActive
+            ? 'border-zoru-ink bg-zoru-ink text-zoru-on-primary'
+            : 'border-zoru-line-strong bg-zoru-bg text-transparent hover:border-zoru-ink',
+        )}
+        aria-pressed={isActive}
+        aria-label={isActive ? 'Active account' : 'Set as active account'}
+      >
+        <Check className="h-3 w-3" />
+      </button>
+
+      <div className="min-w-0 flex-1">
+        <div className="flex flex-wrap items-center gap-2">
+          <p className="truncate text-[14px] text-zoru-ink">{label}</p>
+          <ZoruBadge
+            variant={statusVariant(session.status)}
+            className="text-[10px]"
+          >
+            {statusLabel(session.status)}
+          </ZoruBadge>
+          {isActive && (
+            <ZoruBadge variant="default" className="text-[10px]">
+              Active
+            </ZoruBadge>
+          )}
+        </div>
+        <p className="mt-0.5 truncate text-[12px] text-zoru-ink-muted">
+          {phone}
+        </p>
+      </div>
+
+      <div className="flex shrink-0 items-center gap-1">
+        <ZoruButton
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          aria-label="Rename"
+          onClick={onRename}
+        >
+          <Pencil />
+        </ZoruButton>
+        <ZoruButton
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          aria-label="Log out"
+          onClick={onLogout}
+        >
+          <LogOut />
+        </ZoruButton>
+      </div>
+    </div>
+  );
+}
+
+/* ── page ──────────────────────────────────────────────────────── */
+
+export function OverviewAccountsClient() {
+  const router = useRouter();
+  const toast = useZoruToast();
+  const { activeProjectId, projects } = useProject();
+  const { current, sessions, setCurrent, refresh, loading } =
+    useSabwaSession();
+
+  const activeProject = React.useMemo(
+    () => projects.find((p) => p._id.toString() === activeProjectId) ?? null,
+    [projects, activeProjectId],
+  );
+
+  // If no project is active (e.g. direct nav to /sabwa/overview), bounce
+  // back to /sabwa where the user can pick one.
+  React.useEffect(() => {
+    if (!activeProjectId) router.replace('/sabwa');
+  }, [activeProjectId, router]);
+
+  // Pull the latest sessions list when this page opens. The provider's
+  // `refresh()` re-runs `listSessions` against the active project.
+  const [reloading, setReloading] = React.useState(false);
+  React.useEffect(() => {
+    if (!activeProjectId) return;
+    setReloading(true);
+    (async () => {
+      try {
+        const res = await listSessions(activeProjectId);
+        if (res.ok) {
+          // Push freshest into context via refresh() — the provider
+          // re-derives `current` from `setCurrent` storage.
+          await refresh();
+        }
+      } finally {
+        setReloading(false);
+      }
+    })();
+    // refresh is stable from the provider
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeProjectId]);
+
+  // Auto-select the only account if exactly one exists and nothing's set.
+  React.useEffect(() => {
+    if (!current && sessions.length === 1) {
+      setCurrent(sessions[0]!.id);
+    }
+  }, [current, sessions, setCurrent]);
+
+  const [renameTarget, setRenameTarget] =
+    React.useState<SabwaSessionInfo | null>(null);
+  const [logoutTarget, setLogoutTarget] =
+    React.useState<SabwaSessionInfo | null>(null);
+  const [logoutPending, startLogoutTransition] = React.useTransition();
+
+  const handleLogout = () => {
+    if (!logoutTarget) return;
+    startLogoutTransition(async () => {
+      const res = await logoutSession(logoutTarget.id);
+      if (!res.ok) {
+        toast.toast({
+          title: 'Logout failed',
+          description: res.error,
+          variant: 'destructive',
+        });
+        return;
+      }
+      toast.toast({ title: 'Account logged out' });
+      setLogoutTarget(null);
+      await refresh();
+      router.refresh();
+    });
+  };
+
+  const showSkeleton = loading || reloading;
+
+  return (
+    <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10">
+      <ZoruBreadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/sabwa">SabWa</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>
+              {activeProject?.name ?? 'Project'}
+            </ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </ZoruBreadcrumb>
+
+      <div className="mt-5 flex flex-wrap items-start justify-between gap-4">
+        <div className="min-w-0">
+          <p className="text-[11px] uppercase tracking-[0.12em] text-zoru-ink-muted">
+            <Briefcase className="-mt-0.5 mr-1 inline h-3 w-3" />
+            {activeProject?.name ?? 'Project'}
+          </p>
+          <h1 className="mt-1 text-[26px] leading-[1.15] tracking-[-0.015em] text-zoru-ink">
+            WhatsApp accounts
+          </h1>
+          <p className="mt-1 text-[13px] text-zoru-ink-muted">
+            Pick one account to activate it across SabWa. Inbox, Chats,
+            Broadcasts, and AI all use whichever account is active.
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Link href="/sabwa">
+            <ZoruButton variant="outline" size="md">
+              Change project
+            </ZoruButton>
+          </Link>
+          <Link href="/sabwa/connect">
+            <ZoruButton size="md">
+              <Plus />
+              Connect WhatsApp
+            </ZoruButton>
+          </Link>
+        </div>
+      </div>
+
+      {/* Active-account ready banner — confirms the rest of SabWa works */}
+      {current && current.status === 'connected' && (
+        <div className="mt-5 flex items-start gap-3 rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-surface p-4">
+          <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-zoru-success" />
+          <div className="min-w-0 flex-1">
+            <p className="text-[13px] text-zoru-ink">
+              <strong>{current.label ?? current.pushName ?? 'This account'}</strong>{' '}
+              is active. Inbox, Chats, Groups, Broadcasts and AI assistant
+              now operate on this number.
+            </p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              <Link href="/sabwa/inbox">
+                <ZoruButton variant="outline" size="sm">
+                  Open inbox
+                  <ArrowRight />
+                </ZoruButton>
+              </Link>
+              <Link href="/sabwa/chats">
+                <ZoruButton variant="ghost" size="sm">
+                  Chats
+                </ZoruButton>
+              </Link>
+              <Link href="/sabwa/broadcasts">
+                <ZoruButton variant="ghost" size="sm">
+                  Broadcasts
+                </ZoruButton>
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Accounts list */}
+      <div className="mt-6">
+        <div className="mb-3 flex items-end justify-between">
+          <h2 className="text-[16px] text-zoru-ink">Linked accounts</h2>
+          <p className="text-[12px] text-zoru-ink-muted">
+            {sessions.length}{' '}
+            {sessions.length === 1 ? 'account' : 'accounts'}
+          </p>
+        </div>
+
+        {showSkeleton ? (
+          <div className="space-y-2">
+            {Array.from({ length: 2 }).map((_, i) => (
+              <ZoruSkeleton key={i} className="h-[72px]" />
+            ))}
+          </div>
+        ) : sessions.length === 0 ? (
+          <ZoruEmptyState
+            icon={<Sparkles />}
+            title="No WhatsApp accounts linked yet"
+            description="Connect a personal WhatsApp number to start using Inbox, Chats, Broadcasts, and AI for this project."
+            action={
+              <Link href="/sabwa/connect">
+                <ZoruButton size="md">
+                  <QrCode />
+                  Connect WhatsApp
+                </ZoruButton>
+              </Link>
+            }
+          />
+        ) : (
+          <div className="grid grid-cols-1 gap-2">
+            {sessions.map((s) => (
+              <AccountRow
+                key={s.id}
+                session={s}
+                isActive={current?.id === s.id}
+                onActivate={() => setCurrent(s.id)}
+                onRename={() => setRenameTarget(s)}
+                onLogout={() => setLogoutTarget(s)}
+              />
+            ))}
+            <Link href="/sabwa/connect" className="mt-1">
+              <button
+                type="button"
+                className="flex w-full items-center justify-center gap-2 rounded-[var(--zoru-radius-lg)] border border-dashed border-zoru-line p-4 text-[13px] text-zoru-ink-muted transition hover:border-zoru-ink hover:text-zoru-ink"
+              >
+                <Plus className="h-4 w-4" />
+                Connect another WhatsApp account
+              </button>
+            </Link>
+          </div>
+        )}
+      </div>
+
+      {/* Hint when accounts exist but none active */}
+      {sessions.length > 0 && !current && (
+        <div className="mt-5 flex items-start gap-3 rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg p-4">
+          <Smartphone className="mt-0.5 h-4 w-4 shrink-0 text-zoru-ink-muted" />
+          <p className="text-[13px] text-zoru-ink-muted">
+            Pick an account above to activate it. Other SabWa features
+            (Inbox, Chats, Broadcasts) need an active account to work.
+          </p>
+        </div>
+      )}
+
+      <RenameDialog
+        session={renameTarget}
+        onOpenChange={(o) => !o && setRenameTarget(null)}
+        onRenamed={() => {
+          void refresh();
+          router.refresh();
+        }}
+      />
+
+      <ZoruAlertDialog
+        open={!!logoutTarget}
+        onOpenChange={(o) => !o && setLogoutTarget(null)}
+      >
+        <ZoruAlertDialogContent>
+          <ZoruAlertDialogHeader>
+            <ZoruAlertDialogTitle>Log out this account?</ZoruAlertDialogTitle>
+            <ZoruAlertDialogDescription>
+              This unlinks the WhatsApp session from SabWa. Chats stored
+              in your workspace are kept; you can re-link the number at
+              any time.
+            </ZoruAlertDialogDescription>
+          </ZoruAlertDialogHeader>
+          <ZoruAlertDialogFooter>
+            <ZoruAlertDialogCancel disabled={logoutPending}>
+              Cancel
+            </ZoruAlertDialogCancel>
+            <ZoruAlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                handleLogout();
+              }}
+              disabled={logoutPending}
+            >
+              Log out
+            </ZoruAlertDialogAction>
+          </ZoruAlertDialogFooter>
+        </ZoruAlertDialogContent>
+      </ZoruAlertDialog>
+    </div>
+  );
+}
+
+export default OverviewAccountsClient;
