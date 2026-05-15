@@ -34,6 +34,7 @@ import {
   ZoruDropdownMenuTrigger,
 } from '@/components/zoruui';
 import { cn } from '@/lib/utils';
+import { formatJid } from '@/lib/sabwa/format-jid';
 import type { SabwaChat } from '@/lib/sabwa/types';
 
 export interface ConversationHeaderProps {
@@ -64,14 +65,19 @@ export function ConversationHeader({
   onClearMessages,
   className,
 }: ConversationHeaderProps) {
-  const name = chat.name || chat.jid.split('@')[0];
-  const initials = name.slice(0, 2).toUpperCase();
+  const name = formatJid(chat.jid, chat.name);
+  const initials = name.replace(/[^A-Za-z0-9]/g, '').slice(0, 2).toUpperCase() || '?';
   const isGroup = chat.type === 'group';
+  // If the title was derived from the JID (no friendly name), avoid echoing the
+  // same string in the subtitle. Otherwise show the formatted phone/JID below.
+  const hasFriendlyName = Boolean(chat.name?.trim());
   const subtitle = presence
     ? presence
     : isGroup
       ? `${chat.participants ?? 0} participants`
-      : 'tap to view contact';
+      : hasFriendlyName
+        ? formatJid(chat.jid)
+        : 'tap to view contact';
 
   return (
     <div
@@ -96,7 +102,9 @@ export function ConversationHeader({
       <button
         type="button"
         onClick={onTogglePanel}
-        className="flex min-w-0 flex-1 items-center gap-3 rounded-[var(--zoru-radius)] px-1 py-1 text-left hover:bg-zoru-surface-2"
+        role="button"
+        aria-label={panelOpen ? 'Close contact panel' : 'Open contact panel'}
+        className="flex min-w-0 flex-1 cursor-pointer items-center gap-3 rounded-[var(--zoru-radius)] px-1 py-1 text-left hover:bg-zoru-surface-2"
       >
         <ZoruAvatar className="h-9 w-9 shrink-0">
           {chat.profilePicUrl ? (
@@ -108,7 +116,12 @@ export function ConversationHeader({
         </ZoruAvatar>
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-medium text-zoru-ink">{name}</p>
-          <p className="truncate text-xs text-zoru-ink-muted">{subtitle}</p>
+          <p
+            className="truncate text-xs text-zoru-ink-muted"
+            aria-label="Open contact panel"
+          >
+            {subtitle}
+          </p>
         </div>
       </button>
 

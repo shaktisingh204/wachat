@@ -47,6 +47,13 @@ use tokio::process::{ChildStdin, Command};
 use tokio::sync::{oneshot, Mutex};
 
 use crate::config::Config;
+use crate::db::chats::{ChatType, ChatsRepo, LastMessage, SabwaChat};
+use crate::db::contacts::{ContactsRepo, SabwaContact};
+use crate::db::groups::{GroupsRepo, Participant as GroupParticipant, SabwaGroup};
+use crate::db::messages::{
+    MessageStatus as DbMessageStatus, MessageType as DbMessageType, MessagesRepo, SabwaMessage,
+};
+use crate::db::sessions::SessionsRepo;
 use crate::realtime::events::{
     self, ChatEvent, ChatPayload, MessageEvent, MessagePayload, MessageStatusEvent, PairCodeEvent,
     PresenceEvent, QrEvent, SabwaEvent, StatusEvent, TypingEvent,
@@ -111,6 +118,11 @@ pub struct BaileysSupervisor {
     state: AppState,
     seq: AtomicU64,
     inner: Arc<Mutex<Inner>>,
+    /// `sessionId` → `projectId` lookup cache so we don't re-query Mongo
+    /// for the parent project on every Baileys event during a history
+    /// sync (a fresh link can fire thousands of `messages.upsert` events
+    /// back-to-back). Populated lazily on first miss.
+    project_id_cache: Arc<Mutex<HashMap<String, bson::oid::ObjectId>>>,
 }
 
 impl BaileysSupervisor {
@@ -126,6 +138,7 @@ impl BaileysSupervisor {
                 stdin: None,
                 pending: HashMap::new(),
             })),
+            project_id_cache: Arc::new(Mutex::new(HashMap::new())),
         });
 
         // Kick off the first child + the respawn loop.
@@ -329,6 +342,193 @@ impl BaileysSupervisor {
         let _ = tx.send(result);
     }
 
+    /// Resolve the parent `projectId` and `_id` (as ObjectIds) for a
+    /// `sessionId` string, caching the lookup so high-volume events
+    /// (history sync, message bursts) don't hammer Mongo. Returns
+    /// `None` if the `sessionId` isn't a valid ObjectId, the row no
+    /// longer exists, or the Mongo lookup itself errored — callers
+    /// should treat that as "skip persistence" and continue.
+    async fn resolve_session_ids(
+        self: &Arc<Self>,
+        session_id: &str,
+    ) -> Option<(bson::oid::ObjectId, bson::oid::ObjectId)> {
+        let session_oid = bson::oid::ObjectId::parse_str(session_id).ok()?;
+
+        if let Some(pid) = self.project_id_cache.lock().await.get(session_id).copied() {
+            return Some((session_oid, pid));
+        }
+
+        let repo = SessionsRepo::new(&self.state.db);
+        match repo.find_by_id(&session_oid).await {
+            Ok(Some(session)) => {
+                let pid = session.project_id;
+                self.project_id_cache
+                    .lock()
+                    .await
+                    .insert(session_id.to_string(), pid);
+                Some((session_oid, pid))
+            }
+            Ok(None) => {
+                tracing::warn!(
+                    target: "sabwa_engine::wa::baileys",
+                    session_id = %session_id,
+                    "sabwa_sessions row missing — cannot persist event"
+                );
+                None
+            }
+            Err(err) => {
+                tracing::warn!(
+                    target: "sabwa_engine::wa::baileys",
+                    error = %err,
+                    session_id = %session_id,
+                    "lookup of sabwa_sessions row failed — skipping persistence"
+                );
+                None
+            }
+        }
+    }
+
+    /// Best-effort persistence of the just-dispatched event into the
+    /// matching `sabwa_*` collection. Every failure is logged but never
+    /// propagated — pubsub delivery has already succeeded and we don't
+    /// want a transient Mongo hiccup to wedge the event loop.
+    async fn persist_event(
+        self: &Arc<Self>,
+        name: &str,
+        session_id: &str,
+        payload: &Value,
+        mapped: Option<&SabwaEvent>,
+    ) {
+        let Some((session_oid, project_oid)) = self.resolve_session_ids(session_id).await
+        else {
+            return;
+        };
+
+        match (name, mapped) {
+            ("chats.upsert" | "chats.update" | "chat_update", Some(SabwaEvent::Chat(ev))) => {
+                let chat = build_chat_row(project_oid, session_oid, payload, ev);
+                let repo = ChatsRepo::new(&self.state.db);
+                if let Err(err) = repo.upsert(&chat).await {
+                    tracing::warn!(
+                        target: "sabwa_engine::wa::baileys",
+                        error = %err,
+                        jid = %ev.chat.jid,
+                        "persist sabwa_chats failed"
+                    );
+                }
+            }
+            ("messages.upsert" | "message", Some(SabwaEvent::Message(ev))) => {
+                let message_doc = payload.get("message").unwrap_or(payload);
+                let msg = build_message_row(project_oid, session_oid, message_doc, ev);
+                let repo = MessagesRepo::new(&self.state.db);
+                if let Err(err) = repo.upsert_by_message_id(&msg).await {
+                    tracing::warn!(
+                        target: "sabwa_engine::wa::baileys",
+                        error = %err,
+                        message_id = %ev.message.message_id,
+                        "persist sabwa_messages failed"
+                    );
+                }
+            }
+            ("contacts.upsert" | "contacts.update", _) => {
+                if let Some(contact) = build_contact_row(project_oid, session_oid, payload) {
+                    let repo = ContactsRepo::new(&self.state.db);
+                    if let Err(err) = repo.upsert(&contact).await {
+                        tracing::warn!(
+                            target: "sabwa_engine::wa::baileys",
+                            error = %err,
+                            jid = %contact.jid,
+                            "persist sabwa_contacts failed"
+                        );
+                    }
+                }
+            }
+            ("groups.upsert" | "groups.update", _) => {
+                if let Some(group) = build_group_row(project_oid, session_oid, payload) {
+                    let repo = GroupsRepo::new(&self.state.db);
+                    if let Err(err) = repo.upsert(&group).await {
+                        tracing::warn!(
+                            target: "sabwa_engine::wa::baileys",
+                            error = %err,
+                            jid = %group.jid,
+                            "persist sabwa_groups failed"
+                        );
+                    }
+                }
+            }
+            ("messaging-history.set", _) => {
+                self.persist_history_snapshot(project_oid, session_oid, payload)
+                    .await;
+            }
+            _ => {}
+        }
+    }
+
+    /// Persist a `messaging-history.set` snapshot: iterate `chats`,
+    /// `contacts`, and `messages` arrays and upsert each row. Best-effort
+    /// per row so one bad payload can't abort the whole sync.
+    async fn persist_history_snapshot(
+        self: &Arc<Self>,
+        project_oid: bson::oid::ObjectId,
+        session_oid: bson::oid::ObjectId,
+        payload: &Value,
+    ) {
+        let chats_repo = ChatsRepo::new(&self.state.db);
+        let contacts_repo = ContactsRepo::new(&self.state.db);
+        let messages_repo = MessagesRepo::new(&self.state.db);
+
+        let now_ms = chrono::Utc::now().timestamp_millis();
+
+        if let Some(chats) = payload.get("chats").and_then(|v| v.as_array()) {
+            for c in chats {
+                let Some(ev) = map_chat_event("", c, now_ms) else {
+                    continue;
+                };
+                let chat = build_chat_row(project_oid, session_oid, c, &ev);
+                if let Err(err) = chats_repo.upsert(&chat).await {
+                    tracing::warn!(
+                        target: "sabwa_engine::wa::baileys",
+                        error = %err,
+                        jid = %chat.jid,
+                        "history-sync sabwa_chats upsert failed"
+                    );
+                }
+            }
+        }
+
+        if let Some(contacts) = payload.get("contacts").and_then(|v| v.as_array()) {
+            for c in contacts {
+                if let Some(contact) = build_contact_row(project_oid, session_oid, c) {
+                    if let Err(err) = contacts_repo.upsert(&contact).await {
+                        tracing::warn!(
+                            target: "sabwa_engine::wa::baileys",
+                            error = %err,
+                            jid = %contact.jid,
+                            "history-sync sabwa_contacts upsert failed"
+                        );
+                    }
+                }
+            }
+        }
+
+        if let Some(messages) = payload.get("messages").and_then(|v| v.as_array()) {
+            for m in messages {
+                let Some(ev) = map_message_event("", m, now_ms) else {
+                    continue;
+                };
+                let msg = build_message_row(project_oid, session_oid, m, &ev);
+                if let Err(err) = messages_repo.upsert_by_message_id(&msg).await {
+                    tracing::warn!(
+                        target: "sabwa_engine::wa::baileys",
+                        error = %err,
+                        message_id = %ev.message.message_id,
+                        "history-sync sabwa_messages upsert failed"
+                    );
+                }
+            }
+        }
+    }
+
     /// Translate a sidecar event into a [`SabwaEvent`] and publish to Redis.
     async fn dispatch_event(
         self: &Arc<Self>,
@@ -480,9 +680,9 @@ impl BaileysSupervisor {
             }
         };
 
-        if let Some(ev) = mapped {
+        if let Some(ev) = &mapped {
             let channel = events::channel(session_id);
-            if let Err(err) = pubsub::publish(&self.state.redis, session_id, &ev).await {
+            if let Err(err) = pubsub::publish(&self.state.redis, session_id, ev).await {
                 tracing::warn!(
                     target: "sabwa_engine::wa::baileys",
                     error = %err,
@@ -491,6 +691,12 @@ impl BaileysSupervisor {
                 );
             }
         }
+
+        // Best-effort Mongo mirror. Runs for every event we care about
+        // persisting, including the ones we don't (yet) republish over
+        // pubsub (contacts, groups, history snapshots).
+        self.persist_event(name, session_id, &payload, mapped.as_ref())
+            .await;
     }
 
     /// Persist a base64 auth_state blob to Mongo and stamp the learned
@@ -897,6 +1103,321 @@ fn map_presence_event(
         presence,
         ts,
     })
+}
+
+// ---------------------------------------------------------------------------
+// Mongo row builders — translate sidecar payloads + mapped events into
+// `sabwa_*` documents so the inbox survives across page loads.
+// ---------------------------------------------------------------------------
+
+fn ms_to_chrono(ms: i64) -> chrono::DateTime<chrono::Utc> {
+    chrono::DateTime::<chrono::Utc>::from_timestamp_millis(ms)
+        .unwrap_or_else(chrono::Utc::now)
+}
+
+fn parse_chat_type(s: &str, jid: &str) -> ChatType {
+    match s {
+        "group" => ChatType::Group,
+        "broadcast" => ChatType::Broadcast,
+        "status" => ChatType::Status,
+        "individual" => ChatType::Individual,
+        _ => {
+            if jid.ends_with("@g.us") {
+                ChatType::Group
+            } else if jid.contains("broadcast") {
+                ChatType::Broadcast
+            } else {
+                ChatType::Individual
+            }
+        }
+    }
+}
+
+fn last_message_from_payload(payload: &Value) -> Option<LastMessage> {
+    // Baileys can include a `lastMessage` / `conversationTimestamp` blob on
+    // a chat upsert during history sync — surface whatever we can read.
+    let lm = payload.get("lastMessage")?;
+    let key = lm.get("key")?;
+    let id = key.get("id").and_then(|v| v.as_str())?.to_string();
+    let from_me = key.get("fromMe").and_then(|v| v.as_bool()).unwrap_or(false);
+    let ts_secs = lm
+        .get("messageTimestamp")
+        .and_then(|v| v.as_i64())
+        .or_else(|| {
+            payload
+                .get("conversationTimestamp")
+                .and_then(|v| v.as_i64())
+        })
+        .unwrap_or_else(|| chrono::Utc::now().timestamp());
+    let body = lm
+        .get("message")
+        .and_then(|m| m.get("conversation"))
+        .and_then(|v| v.as_str())
+        .or_else(|| {
+            lm.get("message")
+                .and_then(|m| m.get("extendedTextMessage"))
+                .and_then(|m| m.get("text"))
+                .and_then(|v| v.as_str())
+        })
+        .map(|s| s.to_string());
+    Some(LastMessage {
+        id,
+        body,
+        ts: ms_to_chrono(ts_secs.saturating_mul(1000)),
+        from_me,
+    })
+}
+
+fn build_chat_row(
+    project_id: bson::oid::ObjectId,
+    session_id: bson::oid::ObjectId,
+    payload: &Value,
+    ev: &ChatEvent,
+) -> SabwaChat {
+    let participants = payload
+        .get("participants")
+        .and_then(|v| v.as_array())
+        .map(|a| a.len() as i64);
+    let mute_end_at = payload
+        .get("muteEndTime")
+        .and_then(|v| v.as_i64())
+        .filter(|t| *t > 0)
+        .map(|ms| ms_to_chrono(ms));
+    SabwaChat {
+        id: None,
+        project_id,
+        session_id,
+        jid: ev.chat.jid.clone(),
+        chat_type: parse_chat_type(&ev.chat.kind, &ev.chat.jid),
+        name: ev.chat.name.clone(),
+        profile_pic_url: None,
+        last_message: last_message_from_payload(payload),
+        unread_count: ev.chat.unread_count as i64,
+        pinned: ev.chat.pinned,
+        archived: ev.chat.archived,
+        muted: ev.chat.muted,
+        mute_end_at,
+        labels: Vec::new(),
+        is_read_only: false,
+        participants,
+        updated_at: ms_to_chrono(ev.chat.updated_at),
+    }
+}
+
+fn build_contact_row(
+    project_id: bson::oid::ObjectId,
+    session_id: bson::oid::ObjectId,
+    payload: &Value,
+) -> Option<SabwaContact> {
+    // Baileys shape: `{ id: "<jid>", name?: "...", notify?: "...", verifiedName?: ... }`.
+    let jid = payload
+        .get("id")
+        .or_else(|| payload.get("jid"))
+        .and_then(|v| v.as_str())
+        .unwrap_or("")
+        .trim()
+        .to_string();
+    if jid.is_empty() {
+        return None;
+    }
+    // Only individual contacts get a phone — group/broadcast jids skip it.
+    let phone_e164 = if jid.ends_with("@s.whatsapp.net") || jid.ends_with("@c.us") {
+        let p = normalize_phone_e164(&jid);
+        if p.is_empty() { None } else { Some(p) }
+    } else {
+        None
+    };
+    let name = payload
+        .get("name")
+        .or_else(|| payload.get("verifiedName"))
+        .and_then(|v| v.as_str())
+        .map(|s| s.trim().to_string())
+        .filter(|s| !s.is_empty());
+    let push_name = payload
+        .get("notify")
+        .or_else(|| payload.get("pushName"))
+        .and_then(|v| v.as_str())
+        .map(|s| s.trim().to_string())
+        .filter(|s| !s.is_empty())
+        .or_else(|| name.clone());
+    Some(SabwaContact {
+        id: None,
+        project_id,
+        session_id,
+        jid,
+        phone_e164,
+        name,
+        push_name,
+        profile_pic_url: None,
+        is_business: payload
+            .get("verifiedName")
+            .map(|v| !v.is_null())
+            .unwrap_or(false),
+        is_blocked: false,
+        is_my_contact: false,
+        tags: Vec::new(),
+        custom_fields: None,
+        notes: None,
+        last_interaction_at: None,
+    })
+}
+
+fn build_group_row(
+    project_id: bson::oid::ObjectId,
+    session_id: bson::oid::ObjectId,
+    payload: &Value,
+) -> Option<SabwaGroup> {
+    let jid = payload
+        .get("id")
+        .or_else(|| payload.get("jid"))
+        .and_then(|v| v.as_str())
+        .unwrap_or("")
+        .trim()
+        .to_string();
+    if jid.is_empty() {
+        return None;
+    }
+    let subject = payload
+        .get("subject")
+        .and_then(|v| v.as_str())
+        .unwrap_or("")
+        .to_string();
+    let description = payload
+        .get("desc")
+        .or_else(|| payload.get("description"))
+        .and_then(|v| v.as_str())
+        .map(|s| s.to_string());
+    let creator = payload
+        .get("owner")
+        .or_else(|| payload.get("creator"))
+        .and_then(|v| v.as_str())
+        .map(|s| s.to_string());
+    let created_at = payload
+        .get("creation")
+        .or_else(|| payload.get("createdAt"))
+        .and_then(|v| v.as_i64())
+        .map(|secs| ms_to_chrono(secs.saturating_mul(1000)))
+        .unwrap_or_else(chrono::Utc::now);
+
+    let participants = payload
+        .get("participants")
+        .and_then(|v| v.as_array())
+        .map(|arr| {
+            arr.iter()
+                .filter_map(|p| {
+                    let pid = p
+                        .get("id")
+                        .or_else(|| p.get("jid"))
+                        .and_then(|v| v.as_str())?
+                        .to_string();
+                    let admin_str = p.get("admin").and_then(|v| v.as_str()).unwrap_or("");
+                    Some(GroupParticipant {
+                        jid: pid,
+                        is_admin: admin_str == "admin" || admin_str == "superadmin",
+                        is_super_admin: admin_str == "superadmin",
+                        joined_at: created_at,
+                    })
+                })
+                .collect::<Vec<_>>()
+        })
+        .unwrap_or_default();
+
+    Some(SabwaGroup {
+        id: None,
+        project_id,
+        session_id,
+        jid,
+        subject,
+        description,
+        creator,
+        created_at,
+        participants,
+        invite_code: None,
+        announcement: payload
+            .get("announce")
+            .and_then(|v| v.as_bool())
+            .unwrap_or(false),
+        restrict: payload
+            .get("restrict")
+            .and_then(|v| v.as_bool())
+            .unwrap_or(false),
+        ephemeral_duration: payload
+            .get("ephemeralDuration")
+            .and_then(|v| v.as_i64()),
+        category: None,
+    })
+}
+
+fn build_message_row(
+    project_id: bson::oid::ObjectId,
+    session_id: bson::oid::ObjectId,
+    message_doc: &Value,
+    ev: &MessageEvent,
+) -> SabwaMessage {
+    let (kind, body, media_url) = extract_message_content(message_doc);
+    let message_type = match kind.as_str() {
+        "image" => DbMessageType::Image,
+        "video" => DbMessageType::Video,
+        "audio" => DbMessageType::Audio,
+        "voice" => DbMessageType::Voice,
+        "document" => DbMessageType::Document,
+        "sticker" => DbMessageType::Sticker,
+        "location" => DbMessageType::Location,
+        "contact" => DbMessageType::Contact,
+        "reaction" => DbMessageType::Reaction,
+        _ => DbMessageType::Text,
+    };
+    // Baileys exposes per-message `status` on outbound rows (1..5). Inbound
+    // history-sync messages don't carry one — default them to `delivered`
+    // so the inbox doesn't flag everything as "sending".
+    let status_num = message_doc.get("status").and_then(|v| v.as_i64());
+    let status = match status_num {
+        Some(0) => DbMessageStatus::Failed,
+        Some(1) => DbMessageStatus::Sending,
+        Some(2) => DbMessageStatus::Sent,
+        Some(3) => DbMessageStatus::Delivered,
+        Some(4) | Some(5) => DbMessageStatus::Read,
+        _ => {
+            if ev.message.from_me {
+                DbMessageStatus::Sent
+            } else {
+                DbMessageStatus::Delivered
+            }
+        }
+    };
+    let caption = message_doc
+        .get("message")
+        .and_then(|m| {
+            m.get("imageMessage")
+                .or_else(|| m.get("videoMessage"))
+                .or_else(|| m.get("documentMessage"))
+        })
+        .and_then(|m| m.get("caption"))
+        .and_then(|v| v.as_str())
+        .map(|s| s.to_string());
+    SabwaMessage {
+        id: None,
+        project_id,
+        session_id,
+        chat_jid: ev.chat_jid.clone(),
+        message_id: ev.message.message_id.clone(),
+        from_jid: ev.message.from_jid.clone(),
+        from_me: ev.message.from_me,
+        message_type,
+        body: body.or_else(|| ev.message.body.clone()),
+        media_url: media_url.or_else(|| ev.message.media_url.clone()),
+        media_mime: None,
+        media_size: None,
+        caption,
+        quoted_message_id: None,
+        reactions: Vec::new(),
+        status,
+        forwarded: false,
+        starred: false,
+        ts: ms_to_chrono(ev.message.ts),
+        edited_at: None,
+        deleted_at: None,
+    }
 }
 
 // ---------------------------------------------------------------------------

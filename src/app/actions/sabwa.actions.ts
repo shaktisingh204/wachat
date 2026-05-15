@@ -87,13 +87,25 @@ async function requireProject(
   return auth;
 }
 
+/** Paths we've already logged a 404 for this session, to avoid log spam. */
+const warned404Scopes = new Set<string>();
+
 /** Convert any error coming back from the engine into a `{ ok: false }` result. */
 function engineFailure(scope: string, err: unknown): { ok: false; error: string } {
   if (err instanceof SabwaEngineError) {
-    console.error(`[sabwa.${scope}] engine error`, {
-      status: err.status,
-      path: err.path,
-    });
+    // 404 = endpoint not implemented yet; warn once per (scope,path) and stay quiet on polling refreshes.
+    if (err.status === 404) {
+      const key = `${scope}:${err.path.split('?')[0]}`;
+      if (!warned404Scopes.has(key)) {
+        warned404Scopes.add(key);
+        console.warn(`[sabwa.${scope}] engine 404`, { path: err.path });
+      }
+    } else {
+      console.error(`[sabwa.${scope}] engine error`, {
+        status: err.status,
+        path: err.path,
+      });
+    }
     return { ok: false, error: err.message };
   }
   console.error(`[sabwa.${scope}] unexpected error`, err);
@@ -117,7 +129,18 @@ function buildQs(params: Record<string, unknown>): string {
 }
 
 /** Typed GET against the engine. */
-function engineGet<T>(path: string): Promise<T> {
+function engineGet<T>(
+  path: string,
+  opts: { treatNotFoundAsEmpty: true },
+): Promise<T | null>;
+function engineGet<T>(path: string, opts?: { treatNotFoundAsEmpty?: boolean }): Promise<T>;
+function engineGet<T>(
+  path: string,
+  opts: { treatNotFoundAsEmpty?: boolean } = {},
+): Promise<T | null> {
+  if (opts.treatNotFoundAsEmpty) {
+    return engineFetch<T>(path, { method: 'GET', treatNotFoundAsEmpty: true });
+  }
   return engineFetch<T>(path, { method: 'GET' });
 }
 
@@ -1036,7 +1059,9 @@ export async function listGroupCategories(
   try {
     const res = await engineGet<{ categories: SabwaGroupCategory[] }>(
       `/v1/group-categories${buildQs({ sessionId: sid })}`,
+      { treatNotFoundAsEmpty: true },
     );
+    if (!res) return { ok: true, categories: [] };
     return { ok: true, categories: res.categories ?? [] };
   } catch (err) {
     return engineFailure('listGroupCategories', err);
@@ -1306,7 +1331,9 @@ export async function listScheduledMessages(
         limit: filter.limit,
         cursor: filter.cursor,
       })}`,
+      { treatNotFoundAsEmpty: true },
     );
+    if (!res) return { ok: true, items: [] };
     return { ok: true, items: res.items ?? [], nextCursor: res.nextCursor };
   } catch (err) {
     return engineFailure('listScheduledMessages', err);
@@ -1495,7 +1522,9 @@ export async function listTemplates(
     const qs = new URLSearchParams({ sessionId: String(sessionId) });
     const data = await engineFetch<{ templates: SabwaTemplate[] }>(
       `/v1/templates?${qs.toString()}`,
+      { treatNotFoundAsEmpty: true },
     );
+    if (!data) return { ok: true, templates: [] };
     return { ok: true, templates: data.templates ?? [] };
   } catch (err) {
     if (err instanceof SabwaEngineError) return { ok: false, error: err.message };
@@ -1559,7 +1588,9 @@ export async function listQuickReplies(
     const qs = new URLSearchParams({ sessionId: String(sessionId) });
     const data = await engineFetch<{ quickReplies: SabwaQuickReply[] }>(
       `/v1/quick-replies?${qs.toString()}`,
+      { treatNotFoundAsEmpty: true },
     );
+    if (!data) return { ok: true, quickReplies: [] };
     return { ok: true, quickReplies: data.quickReplies ?? [] };
   } catch (err) {
     if (err instanceof SabwaEngineError) return { ok: false, error: err.message };
@@ -1627,7 +1658,9 @@ export async function listAutoReplies(
     const qs = new URLSearchParams({ sessionId: String(sessionId) });
     const data = await engineFetch<{ autoReplies: SabwaAutoReply[] }>(
       `/v1/auto-replies?${qs.toString()}`,
+      { treatNotFoundAsEmpty: true },
     );
+    if (!data) return { ok: true, autoReplies: [] };
     return { ok: true, autoReplies: data.autoReplies ?? [] };
   } catch (err) {
     if (err instanceof SabwaEngineError) return { ok: false, error: err.message };
@@ -1740,7 +1773,9 @@ export async function listLabels(
   try {
     const res = await engineGet<{ labels: SabwaLabelRow[] }>(
       `/v1/labels${buildQs({ sessionId: sid })}`,
+      { treatNotFoundAsEmpty: true },
     );
+    if (!res) return { ok: true, labels: [] };
     return { ok: true, labels: res.labels ?? [] };
   } catch (err) {
     return engineFailure('listLabels', err);
@@ -1917,9 +1952,8 @@ export interface SabwaAnalyticsPayload {
 
 /** Aggregated analytics for the dashboard. */
 export async function getAnalytics(
-  _input: SabwaAnalyticsInput,
+  input: SabwaAnalyticsInput,
 ): Promise<SabwaActionResult<{ analytics: SabwaAnalyticsPayload }>> {
-  // TODO (Phase 3): engineFetch('/v1/analytics', { json: _input })
   const emptyAnalytics: SabwaAnalyticsPayload = {
     kpis: {
       todayIn: 0,
@@ -1936,7 +1970,27 @@ export async function getAnalytics(
     hourlySendPattern: [],
     aiUsageByDay: [],
   };
-  return { ok: true, analytics: emptyAnalytics };
+  const sid = idStr(input?.sessionId);
+  if (!sid) return { ok: true, analytics: emptyAnalytics };
+  try {
+    const res = await engineGet<{ analytics: SabwaAnalyticsPayload }>(
+      `/v1/analytics${buildQs({
+        sessionId: sid,
+        range: input.range,
+        from: input.from instanceof Date ? input.from : input.from,
+        to: input.to instanceof Date ? input.to : input.to,
+      })}`,
+      { treatNotFoundAsEmpty: true },
+    );
+    if (!res) return { ok: true, analytics: emptyAnalytics };
+    return { ok: true, analytics: res.analytics ?? emptyAnalytics };
+  } catch (err) {
+    if (err instanceof SabwaEngineError) {
+      // Soft-fall back to empty payload so the dashboard still renders.
+      return { ok: true, analytics: emptyAnalytics };
+    }
+    return engineFailure('getAnalytics', err);
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -2141,7 +2195,9 @@ export async function listWebhooks(
   try {
     const res = await engineGet<{ webhooks: SabwaWebhookRow[] }>(
       `/v1/webhooks${buildQs({ projectId: pid })}`,
+      { treatNotFoundAsEmpty: true },
     );
+    if (!res) return { ok: true, webhooks: [] };
     return { ok: true, webhooks: res.webhooks ?? [] };
   } catch (err) {
     return engineFailure('listWebhooks', err);
@@ -2277,7 +2333,9 @@ export async function listApiKeys(
   try {
     const res = await engineGet<{ apiKeys: SabwaApiKeyRow[] }>(
       `/v1/api-keys${buildQs({ projectId: pid })}`,
+      { treatNotFoundAsEmpty: true },
     );
+    if (!res) return { ok: true, apiKeys: [] };
     return { ok: true, apiKeys: res.apiKeys ?? [] };
   } catch (err) {
     return engineFailure('listApiKeys', err);

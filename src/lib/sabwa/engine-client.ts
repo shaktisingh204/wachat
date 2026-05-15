@@ -50,18 +50,46 @@ export interface EngineFetchInit extends Omit<RequestInit, 'body' | 'headers'> {
   headers?: Record<string, string>;
   /** Per-request timeout in ms (default 15s). */
   timeoutMs?: number;
+  /**
+   * When true, a 404 response resolves to `null` instead of throwing.
+   * Use this on list endpoints that may not yet be implemented in the
+   * Rust engine — callers can fall back to an empty result.
+   */
+  treatNotFoundAsEmpty?: boolean;
+}
+
+/**
+ * Module-level set tracking 404 paths we've already warned about, so a
+ * not-yet-implemented endpoint doesn't spam the logs on every refresh poll.
+ */
+const warned404Paths = new Set<string>();
+
+/** Strip the query string so polling with different cursors only warns once. */
+function pathKey(path: string): string {
+  const q = path.indexOf('?');
+  return q === -1 ? path : path.slice(0, q);
 }
 
 /**
  * Perform an authenticated request against the SabWa engine and return
  * the parsed JSON response typed as `T`.
  *
- * Throws `SabwaEngineError` on any non-2xx response.
+ * Throws `SabwaEngineError` on any non-2xx response, except when
+ * `treatNotFoundAsEmpty` is `true` and the engine returns 404 — in that
+ * case the call resolves to `null` (logged as a one-shot `console.warn`).
  */
 export async function engineFetch<T = unknown>(
   path: string,
+  init: EngineFetchInit & { treatNotFoundAsEmpty: true },
+): Promise<T | null>;
+export async function engineFetch<T = unknown>(
+  path: string,
+  init?: EngineFetchInit,
+): Promise<T>;
+export async function engineFetch<T = unknown>(
+  path: string,
   init: EngineFetchInit = {},
-): Promise<T> {
+): Promise<T | null> {
   const baseUrl = getEngineBaseUrl();
   const token = getEngineToken();
   const url = `${baseUrl}${path.startsWith('/') ? path : `/${path}`}`;
@@ -117,6 +145,17 @@ export async function engineFetch<T = unknown>(
     : await res.text().catch(() => null);
 
   if (!res.ok) {
+    // Soft-handle 404 for endpoints that may not be wired up yet.
+    if (res.status === 404 && init.treatNotFoundAsEmpty) {
+      const key = pathKey(path);
+      if (!warned404Paths.has(key)) {
+        warned404Paths.add(key);
+        console.warn(
+          `[sabwa.engine] 404 ${key} — treating as empty (endpoint not implemented?)`,
+        );
+      }
+      return null;
+    }
     let message = `SabWa engine ${res.status} ${res.statusText}`;
     if (
       isJson &&

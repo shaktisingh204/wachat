@@ -23,6 +23,7 @@ pub mod broadcasts;
 pub mod bulk;
 pub mod chats;
 pub mod contacts;
+pub mod group_categories;
 pub mod groups;
 pub mod messages;
 pub mod public;
@@ -48,6 +49,7 @@ pub fn router(state: AppState) -> Router {
         .nest("/chats", chats::router())
         .nest("/messages", messages::router())
         .nest("/groups", groups::router())
+        .nest("/group-categories", group_categories::router())
         .nest("/contacts", contacts::router())
         .nest("/scheduled", scheduled::router())
         .nest("/broadcasts", broadcasts::router())
