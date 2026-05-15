@@ -43,7 +43,7 @@ import { can } from '@/lib/rbac';
 const ALL_APPS: { id: string; label: string; icon: any; href: string; permissionKey: string | null }[] = [
     { id: 'sabflow',        label: 'SabFlow',        icon: Workflow,         href: '/dashboard/sabflow',                permissionKey: null },
     { id: 'whatsapp',       label: 'WaChat',         icon: WhatsAppIcon,     href: '/wachat',                           permissionKey: 'wachat_overview' },
-    { id: 'sabwa',          label: 'SabWa',          icon: SabWaIcon,        href: '/sabwa',                            permissionKey: 'sabwa_overview' },
+    { id: 'sabwa',          label: 'SabWa',          icon: SabWaIcon,        href: '/sabwa',                            permissionKey: null },
     { id: 'facebook',       label: 'Meta Suite',     icon: MetaIcon,         href: '/dashboard/facebook/all-projects',  permissionKey: 'facebook_dashboard' },
     { id: 'ad-manager',     label: 'Ad Manager',     icon: Target,           href: '/dashboard/ad-manager/ad-accounts', permissionKey: 'ad_manager_accounts' },
     { id: 'telegram',       label: 'Telegram',       icon: TelegramIcon,     href: '/dashboard/telegram',               permissionKey: null },
