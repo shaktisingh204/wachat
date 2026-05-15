@@ -14,6 +14,7 @@
 
 import type { AppState } from '../state.js';
 import { startScheduler } from './scheduler.js';
+import { startOutboundDispatcher } from './outbound.js';
 
 export interface WorkerHandles {
   /** Stop every worker started by `startWorkers`. Safe to call once. */
@@ -26,7 +27,13 @@ export function startWorkers(state: AppState): WorkerHandles {
   // ── scheduler ──────────────────────────────────────────────────────────
   stops.push(startScheduler(state));
 
-  // (future: outbound dispatcher, antiban resampler, etc.)
+  // ── outbound dispatcher ────────────────────────────────────────────────
+  // Drains `sabwa:<sessionId>:outbound` for each live session and sends
+  // via Baileys. Producers: routes/broadcasts.ts, workers/bulk-sender.ts,
+  // routes/contacts.ts (block/unblock).
+  stops.push(startOutboundDispatcher(state));
+
+  // (future: antiban resampler, etc.)
 
   return {
     async stopAll(): Promise<void> {
