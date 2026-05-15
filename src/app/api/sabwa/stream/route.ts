@@ -91,9 +91,44 @@ function resolveUserId(
 }
 
 /**
- * Look up a SabWa session and return both its projectId and the project's
- * owning userId. The caller is allowed to stream iff `project.userId`
- * matches their authenticated user id.
+ * Verify the authenticated user owns the given project.
+ *
+ * `sabwa_sessions` rows aren't written at pair time (the Rust engine
+ * keeps sessions in an in-memory pool), so authorization has to happen
+ * one level up — on the project. The client passes the projectId it
+ * just paired against; we verify ownership here.
+ */
+async function verifyProjectOwnership(
+  projectId: string,
+  authedUserId: string,
+): Promise<boolean> {
+  if (!ObjectId.isValid(projectId) || projectId.length !== 24) return false;
+  try {
+    const { db } = await connectToDatabase();
+    const project = (await db
+      .collection('projects')
+      .findOne(
+        { _id: new ObjectId(projectId) },
+        { projection: { userId: 1 } },
+      )) as { userId?: unknown } | null;
+    const uid = project?.userId;
+    const ownerUserId =
+      typeof uid === 'string'
+        ? uid
+        : uid && typeof (uid as { toString?: () => string }).toString === 'function'
+          ? (uid as { toString(): string }).toString()
+          : null;
+    return !!ownerUserId && ownerUserId === authedUserId;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Optional fallback: look up a persisted SabWa session row (for the
+ * post-engine-v2 world where sessions ARE persisted at pair time).
+ * Returns `null` for the current Phase-1 engine which doesn't write
+ * to `sabwa_sessions` on create.
  */
 async function loadSessionOwnership(sessionId: string): Promise<{
   projectId: string;
@@ -166,22 +201,36 @@ export async function GET(req: NextRequest): Promise<Response> {
     return badRequest('sessionId is required');
   }
 
-  const ownership = await loadSessionOwnership(sessionId);
-  if (!ownership) {
-    return new Response(JSON.stringify({ error: 'Session not found' }), {
-      status: 404,
-      headers: { 'Content-Type': 'application/json' },
-    });
-  }
+  // The client passes the project id it just paired against. Until the
+  // engine persists session rows at pair time we can't recover the
+  // project id from `sessionId` alone, so the client tells us — and we
+  // verify they actually own that project.
+  const clientProjectId = req.nextUrl.searchParams
+    .get('projectId')
+    ?.trim();
 
-  // Authorize by project ownership — the caller must own the project the
-  // SabWa session is bound to. `activeProjectId` is client-side state
-  // (localStorage) and intentionally NOT trusted here.
-  if (!ownership.ownerUserId || ownership.ownerUserId !== authedUserId) {
-    return forbidden('Session does not belong to you');
-  }
+  let activeProjectId: string | null = null;
 
-  const activeProjectId = ownership.projectId;
+  if (clientProjectId) {
+    const owns = await verifyProjectOwnership(clientProjectId, authedUserId);
+    if (!owns) {
+      return forbidden('You do not own that project');
+    }
+    activeProjectId = clientProjectId;
+  } else {
+    // Fallback for callers that persist sessions in Mongo: derive the
+    // project from the session row and check the user owns its project.
+    const ownership = await loadSessionOwnership(sessionId);
+    if (!ownership) {
+      return badRequest(
+        'projectId is required (session is not persisted in Mongo)',
+      );
+    }
+    if (!ownership.ownerUserId || ownership.ownerUserId !== authedUserId) {
+      return forbidden('Session does not belong to you');
+    }
+    activeProjectId = ownership.projectId;
+  }
 
   // ── 3. Mint a short-lived stream JWT via the Rust engine ─────────────
   let issued: IssueTokenResponse;

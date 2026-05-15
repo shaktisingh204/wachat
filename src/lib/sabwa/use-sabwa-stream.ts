@@ -77,6 +77,14 @@ interface UseSabwaStreamOptions {
   enabled?: boolean;
   /** Fired exactly once when the session first reaches connected. */
   onConnected?: (ev: SabwaEvent) => void;
+  /**
+   * Active project id (client-side localStorage state). Forwarded to
+   * `/api/sabwa/stream` so the server route can authorize the request
+   * by project ownership instead of relying on a Mongo session row
+   * (the Rust engine keeps sessions in an in-memory pool and doesn't
+   * persist them at pair time).
+   */
+  projectId?: string | null;
 }
 
 export interface UseSabwaStreamResult {
@@ -110,7 +118,7 @@ export function useSabwaStream(
   sessionId: string | null | undefined,
   options: UseSabwaStreamOptions = {},
 ): UseSabwaStreamResult {
-  const { enabled = true, onConnected } = options;
+  const { enabled = true, onConnected, projectId } = options;
 
   const [status, setStatus] =
     React.useState<SabwaStreamConnectionStatus>('idle');
@@ -176,8 +184,19 @@ export function useSabwaStream(
       setLastEvent(ev);
       if (ev.kind === 'qr' && typeof ev.qr === 'string') {
         setLastQr(ev.qr);
-      } else if (ev.kind === 'pair_code' && typeof ev.pairCode === 'string') {
-        setLastPairCode(ev.pairCode);
+      } else if (
+        ev.kind === 'pair_code' &&
+        // Engine wire shape uses snake_case `code`; older callers used
+        // `pairCode`. Accept either so we render whatever the engine
+        // emits.
+        (typeof (ev as { code?: unknown }).code === 'string' ||
+          typeof ev.pairCode === 'string')
+      ) {
+        const next =
+          typeof (ev as { code?: unknown }).code === 'string'
+            ? ((ev as { code: string }).code)
+            : (ev.pairCode as string);
+        setLastPairCode(next);
       } else if (ev.kind === 'status' && ev.status === 'connected') {
         setIsConnected(true);
         if (!firedConnected) {
@@ -204,10 +223,11 @@ export function useSabwaStream(
       if (cancelled) return;
       setStatus('connecting');
       try {
-        es = new EventSource(
-          `/api/sabwa/stream?sessionId=${encodeURIComponent(sessionId)}`,
-          { withCredentials: true },
-        );
+        const qs = new URLSearchParams({ sessionId });
+        if (projectId) qs.set('projectId', projectId);
+        es = new EventSource(`/api/sabwa/stream?${qs.toString()}`, {
+          withCredentials: true,
+        });
       } catch {
         // Construction failed — schedule a reconnect.
         scheduleReconnect();
@@ -220,7 +240,13 @@ export function useSabwaStream(
         setStatus('open');
       };
 
-      es.onmessage = (e: MessageEvent) => {
+      // The engine emits SSE frames with NAMED event types
+      // (`event: qr`, `event: pair_code`, `event: status`, ...) so each
+      // kind must be subscribed via `addEventListener`. `onmessage`
+      // alone only fires for unnamed frames and would silently drop
+      // every QR / pair_code / status update — which is exactly what
+      // was happening (no QR ever rendered).
+      const handleNamed = (e: MessageEvent) => {
         if (cancelled) return;
         let parsed: unknown;
         try {
@@ -228,14 +254,37 @@ export function useSabwaStream(
         } catch {
           return;
         }
-        if (
-          parsed &&
-          typeof parsed === 'object' &&
-          'kind' in (parsed as Record<string, unknown>)
-        ) {
-          dispatch(parsed as SabwaEvent);
+        if (!parsed || typeof parsed !== 'object') return;
+        const obj = parsed as Record<string, unknown>;
+        // Engine may not echo `kind` inside `data` — derive from the
+        // event name when missing.
+        if (!('kind' in obj) && e.type && e.type !== 'message') {
+          obj.kind = e.type;
+        }
+        if ('kind' in obj) {
+          dispatch(obj as SabwaEvent);
         }
       };
+
+      // Unnamed frames (back-compat with `event: message`).
+      es.onmessage = handleNamed;
+
+      // Every kind we care about — see SabwaEventKind in this file.
+      const NAMED_KINDS: SabwaEventKind[] = [
+        'qr',
+        'pair_code',
+        'status',
+        'message',
+        'message_status',
+        'chat',
+        'presence',
+        'typing',
+        'scheduled',
+        'campaign_paused',
+      ];
+      for (const kind of NAMED_KINDS) {
+        es.addEventListener(kind, handleNamed as EventListener);
+      }
 
       es.onerror = () => {
         if (cancelled) return;
@@ -276,7 +325,7 @@ export function useSabwaStream(
       es = null;
       setStatus('idle');
     };
-  }, [enabled, sessionId]);
+  }, [enabled, sessionId, projectId]);
 
   return {
     status,

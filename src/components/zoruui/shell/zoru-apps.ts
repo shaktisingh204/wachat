@@ -13,14 +13,12 @@ import {
   SabFilesIcon,
   SabFlowIcon,
   SabWaIcon,
-  SeoIcon,
   SettingsIcon,
   SmsIcon,
   TeamIcon,
   TelegramIcon,
   UrlShortenerIcon,
   WaChatIcon,
-  WebsiteBuilderIcon,
 } from "./zoru-app-icons";
 
 export type ZoruAppMigrationStatus = "done" | "partial" | "pending";
@@ -163,22 +161,6 @@ export const ZORU_APPS: ZoruAppDescriptor[] = [
     Icon: ApiDevIcon,
     migration: "done",
     isActive: (p) => !!p?.startsWith("/dashboard/api"),
-  },
-  {
-    id: "website-builder",
-    name: "Website",
-    href: "/dashboard/website-builder",
-    Icon: WebsiteBuilderIcon,
-    migration: "done",
-    isActive: (p) => !!p?.startsWith("/dashboard/website-builder"),
-  },
-  {
-    id: "seo",
-    name: "SEO Suite",
-    href: "/dashboard/seo",
-    Icon: SeoIcon,
-    migration: "done",
-    isActive: (p) => !!p?.startsWith("/dashboard/seo"),
   },
   {
     id: "url",
