@@ -54,6 +54,7 @@ import {
 } from '@/components/zoruui';
 
 import { EmptyState } from '@/app/sabwa/_components/empty-state';
+import { formatJid, useResolveJid } from '@/lib/sabwa/format-jid';
 
 function csvEscape(value: unknown): string {
   if (value === null || value === undefined) return '';
@@ -99,6 +100,7 @@ export default function AuditPage() {
 
   // Filters
   const [sessionId, setSessionId] = React.useState('');
+  const resolve = useResolveJid(sessionId.trim());
   const [from, setFrom] = React.useState<Date | undefined>();
   const [to, setTo] = React.useState<Date | undefined>();
   const [actionPrefix, setActionPrefix] = React.useState('');
@@ -359,8 +361,34 @@ export default function AuditPage() {
                               {row.action}
                             </ZoruBadge>
                           </ZoruTableCell>
-                          <ZoruTableCell className="max-w-[200px] truncate font-mono text-xs">
-                            {row.target ?? '—'}
+                          <ZoruTableCell className="max-w-[220px] truncate text-xs">
+                            {(() => {
+                              const t = row.target;
+                              if (!t) return '—';
+                              const looksLikeJid = t.includes('@');
+                              if (!looksLikeJid) {
+                                return (
+                                  <span className="font-mono">{t}</span>
+                                );
+                              }
+                              const resolved =
+                                sessionId.trim() && resolve
+                                  ? resolve(t)
+                                  : formatJid(t);
+                              const pretty = formatJid(t);
+                              return (
+                                <div className="flex flex-col">
+                                  <span className="truncate text-zoru-ink">
+                                    {resolved}
+                                  </span>
+                                  {resolved !== pretty && (
+                                    <span className="truncate font-mono text-[10px] text-zoru-ink-muted">
+                                      {pretty}
+                                    </span>
+                                  )}
+                                </div>
+                              );
+                            })()}
                           </ZoruTableCell>
                           <ZoruTableCell className="font-mono text-xs">
                             {row.ip ?? '—'}

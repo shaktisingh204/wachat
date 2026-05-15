@@ -40,7 +40,6 @@ import {
   Sparkles,
   Trash2,
   Wand2,
-  X,
 } from "lucide-react";
 
 import {
@@ -91,7 +90,7 @@ import {
   summariseChat,
   translateMessage,
 } from "@/app/actions/sabwa.actions";
-import { useChats } from "@/lib/sabwa/use-sabwa-data";
+import { useChats, useResolveJid } from "@/lib/sabwa/use-sabwa-data";
 import { useSabwaSession } from "@/lib/sabwa/session-context";
 import { getSabwaLimits } from "@/lib/sabwa/plan-limits";
 import type { SabwaChat } from "@/lib/sabwa/types";
@@ -139,8 +138,16 @@ interface WhitelistEntry {
 
 function isNotImplementedError(err: unknown): boolean {
   const msg = err instanceof Error ? err.message : String(err ?? "");
-  return /not implemented yet/i.test(msg);
+  return (
+    /not implemented yet/i.test(msg) ||
+    /not available yet/i.test(msg) ||
+    /404/i.test(msg)
+  );
 }
+
+// Module-level set so the "Coming soon" toast only fires once per tool per
+// page session. Matches the engine-client 404 dedupe pattern in spirit.
+const warnedTools = new Set<ToolKey | "autopilot">();
 
 function quotaLabel(q: number | "unlimited" | "custom"): string {
   if (q === "unlimited") return "Unlimited";
@@ -163,6 +170,7 @@ export default function SabWaAIPage() {
 
   // ── Chat picker ────────────────────────────────────────────────────
   const { data: chats, loading: chatsLoading } = useChats(sessionId);
+  const resolveJid = useResolveJid(sessionId);
   const [chatPickerOpen, setChatPickerOpen] = React.useState(false);
   const [selectedJid, setSelectedJid] = React.useState<string | null>(null);
 
@@ -175,6 +183,18 @@ export default function SabWaAIPage() {
   const [suggestLoading, setSuggestLoading] = React.useState(false);
   const [suggestions, setSuggestions] = React.useState<string[]>([]);
   const [suggestPhase2, setSuggestPhase2] = React.useState(false);
+
+  const notifyComingSoon = React.useCallback(
+    (key: ToolKey | "autopilot", label: string) => {
+      if (warnedTools.has(key)) return;
+      warnedTools.add(key);
+      toast.toast({
+        title: `${label} — coming soon`,
+        description: "Engine endpoint not available yet. We'll enable it soon.",
+      });
+    },
+    [toast],
+  );
 
   const handleSuggest = React.useCallback(async () => {
     if (!selectedJid) {
@@ -190,6 +210,10 @@ export default function SabWaAIPage() {
       const result = await suggestReply(sessionId, selectedJid, 3);
       if (result.ok) {
         setSuggestions(result.suggestions ?? []);
+      } else if (isNotImplementedError(new Error(result.error))) {
+        setSuggestPhase2(true);
+        setSuggestions([]);
+        notifyComingSoon("suggest", "Suggest reply");
       } else {
         toast.toast({
           title: "Couldn't generate replies",
@@ -201,6 +225,7 @@ export default function SabWaAIPage() {
       if (isNotImplementedError(err)) {
         setSuggestPhase2(true);
         setSuggestions([]);
+        notifyComingSoon("suggest", "Suggest reply");
       } else {
         toast.toast({
           title: "Suggest reply failed",
@@ -211,7 +236,7 @@ export default function SabWaAIPage() {
     } finally {
       setSuggestLoading(false);
     }
-  }, [sessionId, selectedJid, toast]);
+  }, [sessionId, selectedJid, toast, notifyComingSoon]);
 
   const handleSendToComposer = React.useCallback(
     (text: string) => {
@@ -257,6 +282,9 @@ export default function SabWaAIPage() {
       const result = await summariseChat(sessionId, selectedJid, summaryWindow);
       if (result.ok) {
         setSummary(result.summary);
+      } else if (isNotImplementedError(new Error(result.error))) {
+        setSummaryPhase2(true);
+        notifyComingSoon("summary", "Summarise chat");
       } else {
         toast.toast({
           title: "Couldn't summarise",
@@ -267,6 +295,7 @@ export default function SabWaAIPage() {
     } catch (err) {
       if (isNotImplementedError(err)) {
         setSummaryPhase2(true);
+        notifyComingSoon("summary", "Summarise chat");
       } else {
         toast.toast({
           title: "Summarise failed",
@@ -277,7 +306,7 @@ export default function SabWaAIPage() {
     } finally {
       setSummaryLoading(false);
     }
-  }, [sessionId, selectedJid, summaryWindow, toast]);
+  }, [sessionId, selectedJid, summaryWindow, toast, notifyComingSoon]);
 
   // ── Tool: Translate ────────────────────────────────────────────────
   const [translateSource, setTranslateSource] = React.useState("");
@@ -304,6 +333,9 @@ export default function SabWaAIPage() {
       if (result.ok) {
         setTranslation(result.translation);
         setDetectedLang(result.detectedLang);
+      } else if (isNotImplementedError(new Error(result.error))) {
+        setTranslatePhase2(true);
+        notifyComingSoon("translate", "Translate");
       } else {
         toast.toast({
           title: "Translation failed",
@@ -314,6 +346,7 @@ export default function SabWaAIPage() {
     } catch (err) {
       if (isNotImplementedError(err)) {
         setTranslatePhase2(true);
+        notifyComingSoon("translate", "Translate");
       } else {
         toast.toast({
           title: "Translation failed",
@@ -324,7 +357,7 @@ export default function SabWaAIPage() {
     } finally {
       setTranslateLoading(false);
     }
-  }, [translateSource, translateTarget, toast]);
+  }, [translateSource, translateTarget, toast, notifyComingSoon]);
 
   // ── Tool: Tone rewrite ─────────────────────────────────────────────
   const [toneDraft, setToneDraft] = React.useState("");
@@ -353,6 +386,9 @@ export default function SabWaAIPage() {
         setToneOutput(result.suggestions[0]);
       } else if (result.ok) {
         setToneOutput(toneDraft);
+      } else if (isNotImplementedError(new Error(result.error))) {
+        setTonePhase2(true);
+        notifyComingSoon("tone", "Tone rewrite");
       } else {
         toast.toast({
           title: "Tone rewrite failed",
@@ -363,6 +399,7 @@ export default function SabWaAIPage() {
     } catch (err) {
       if (isNotImplementedError(err)) {
         setTonePhase2(true);
+        notifyComingSoon("tone", "Tone rewrite");
       } else {
         toast.toast({
           title: "Tone rewrite failed",
@@ -373,7 +410,7 @@ export default function SabWaAIPage() {
     } finally {
       setToneLoading(false);
     }
-  }, [sessionId, tone, toneDraft, toast]);
+  }, [sessionId, tone, toneDraft, toast, notifyComingSoon]);
 
   // ── Auto-pilot ─────────────────────────────────────────────────────
   const [autopilot, setAutopilot] = React.useState(false);
@@ -391,40 +428,13 @@ export default function SabWaAIPage() {
         });
         return;
       }
-      setAutopilot(next);
-      if (next) {
-        toast.toast({
-          title: "Auto-pilot on",
-          description:
-            "AI will reply to whitelisted contacts. Each reply consumes 1 AI credit.",
-          variant: "destructive",
-        });
-        setAuditLog((prev) => [
-          {
-            id: `audit-${Date.now()}`,
-            ts: new Date(),
-            jid: "system",
-            action: "Auto-pilot enabled",
-          },
-          ...prev,
-        ]);
-      } else {
-        toast.toast({
-          title: "Auto-pilot off",
-          description: "AI will no longer reply on your behalf.",
-        });
-        setAuditLog((prev) => [
-          {
-            id: `audit-${Date.now()}`,
-            ts: new Date(),
-            jid: "system",
-            action: "Auto-pilot disabled",
-          },
-          ...prev,
-        ]);
-      }
+      // No `setAutoPilotMode` server action exists yet — gate the toggle
+      // behind a one-time "coming soon" toast and keep the switch off.
+      notifyComingSoon("autopilot", "Auto-pilot");
+      setAutopilot(false);
+      void next;
     },
-    [aiEnabled, toast],
+    [aiEnabled, toast, notifyComingSoon],
   );
 
   const handleAddWhitelist = React.useCallback(() => {
@@ -559,8 +569,8 @@ export default function SabWaAIPage() {
                     className="w-full justify-between"
                   >
                     <span className="truncate">
-                      {selectedChat
-                        ? selectedChat.name ?? selectedChat.jid
+                      {selectedJid
+                        ? resolveJid(selectedJid)
                         : "Select a chat..."}
                     </span>
                     <MessageCirclePlus className="ml-2 h-4 w-4 shrink-0 opacity-60" />
@@ -580,10 +590,12 @@ export default function SabWaAIPage() {
                         {chatsLoading ? "Loading..." : "No chats found."}
                       </ZoruCommandEmpty>
                       <ZoruCommandGroup>
-                        {(chats ?? []).map((c) => (
+                        {(chats ?? []).map((c) => {
+                          const label = resolveJid(c.jid);
+                          return (
                           <ZoruCommandItem
                             key={c.jid}
-                            value={`${c.name ?? ""} ${c.jid}`}
+                            value={`${label} ${c.jid}`}
                             onSelect={() => {
                               setSelectedJid(c.jid);
                               setChatPickerOpen(false);
@@ -591,7 +603,7 @@ export default function SabWaAIPage() {
                           >
                             <div className="flex w-full items-center justify-between gap-2">
                               <span className="truncate text-[13px]">
-                                {c.name ?? c.jid}
+                                {label}
                               </span>
                               {c.unreadCount > 0 && (
                                 <ZoruBadge
@@ -603,7 +615,8 @@ export default function SabWaAIPage() {
                               )}
                             </div>
                           </ZoruCommandItem>
-                        ))}
+                          );
+                        })}
                       </ZoruCommandGroup>
                     </ZoruCommandList>
                   </ZoruCommand>
@@ -1007,32 +1020,16 @@ export default function SabWaAIPage() {
 // ── Helpers ───────────────────────────────────────────────────────────
 
 function Phase2Banner({ topic }: { topic: string }) {
-  const toast = useZoruToast();
   return (
-    <ZoruAlert>
-      <CircleSlash className="h-4 w-4" />
-      <ZoruAlertTitle>{topic} — Phase 2</ZoruAlertTitle>
-      <ZoruAlertDescription className="flex flex-wrap items-center gap-2">
-        <span>The engine isn&apos;t wired for this yet.</span>
-        <ZoruButton
-          type="button"
-          size="sm"
-          variant="outline"
-          onClick={() =>
-            toast.toast({
-              title: "Added to waitlist",
-              description: `We'll email you when ${topic} ships.`,
-            })
-          }
-        >
-          Join waitlist
-        </ZoruButton>
-        <ZoruButton asChild type="button" size="sm" variant="ghost">
-          <Link href="/sabwa/settings">
-            <X className="mr-1 h-3.5 w-3.5" /> Dismiss
-          </Link>
-        </ZoruButton>
-      </ZoruAlertDescription>
-    </ZoruAlert>
+    <div
+      className="flex items-center gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-3 py-2 text-[11.5px] text-zoru-ink-muted"
+      role="status"
+    >
+      <CircleSlash className="h-3.5 w-3.5 shrink-0" />
+      <span>
+        <span className="font-medium text-zoru-ink">{topic}</span> — engine
+        endpoint not available yet.
+      </span>
+    </div>
   );
 }

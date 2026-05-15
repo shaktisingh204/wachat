@@ -32,6 +32,8 @@ import {
   ZoruScrollArea,
 } from '@/components/zoruui';
 import { cn } from '@/lib/utils';
+import { formatJid, useResolveJid } from '@/lib/sabwa/format-jid';
+import { useSabwaSession } from '@/lib/sabwa/session-context';
 import type { SabwaChat, SabwaMessage } from '@/lib/sabwa/types';
 
 export interface ContactPanelProps {
@@ -57,7 +59,12 @@ export function ContactPanel({
   className,
 }: ContactPanelProps) {
   const [tab, setTab] = React.useState<MediaTab>('photos');
-  const name = chat.name || chat.jid.split('@')[0];
+  const { current } = useSabwaSession();
+  const resolve = useResolveJid(current?.id);
+  const name = chat.name?.trim() || resolve(chat.jid);
+  // Secondary line under the big name — show the formatted phone/JID even
+  // when we have a friendly `name`, so the panel still surfaces an identifier.
+  const subtitle = formatJid(chat.jid);
   const initials = name.slice(0, 2).toUpperCase();
   const isGroup = chat.type === 'group';
 
@@ -114,7 +121,7 @@ export function ContactPanel({
             </ZoruAvatarFallback>
           </ZoruAvatar>
           <p className="text-base font-semibold text-zoru-ink">{name}</p>
-          <p className="text-xs text-zoru-ink-muted">{chat.jid}</p>
+          <p className="text-xs text-zoru-ink-muted">{subtitle}</p>
           {isGroup ? (
             <p className="text-xs text-zoru-ink-muted">
               {chat.participants ?? 0} participants

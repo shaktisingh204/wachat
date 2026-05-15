@@ -20,7 +20,8 @@ import {
   ZoruAvatarImage,
 } from "@/components/zoruui";
 import { cn } from "@/lib/utils";
-import { formatJid } from "@/lib/sabwa/format-jid";
+import { useResolveJid, type JidResolver } from "@/lib/sabwa/format-jid";
+import { useSabwaSession } from "@/lib/sabwa/session-context";
 import type { SabwaChat } from "@/lib/sabwa/types";
 
 export interface ChatListRowProps {
@@ -28,6 +29,12 @@ export interface ChatListRowProps {
   onClick?: () => void;
   selected?: boolean;
   className?: string;
+  /**
+   * Optional pre-built resolver from the parent. Lets list pages share a
+   * single `useResolveJid` instance across many rows instead of each row
+   * spinning up its own SWR triple.
+   */
+  resolve?: JidResolver;
 }
 
 // Shared formatter instance — avoid allocating on every render.
@@ -59,9 +66,15 @@ export function ChatListRow({
   onClick,
   selected = false,
   className,
+  resolve,
 }: ChatListRowProps) {
+  const { current } = useSabwaSession();
+  // Always call the hook so React's hook rules stay satisfied — the inner
+  // SWR triple is cheap when the parent already pulled the same data.
+  const ownResolver = useResolveJid(current?.id);
+  const resolver = resolve ?? ownResolver;
   const isGroup = chat.type === "group";
-  const name = formatJid(chat.jid, chat.name);
+  const name = chat.name?.trim() || resolver(chat.jid);
   const previewBody = chat.lastMessage?.body ?? "";
   const previewPrefix = chat.lastMessage?.fromMe ? "You: " : "";
   const tsLabel = formatRelative(chat.lastMessage?.ts);

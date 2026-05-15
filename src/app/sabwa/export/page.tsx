@@ -32,6 +32,7 @@ import {
   type SabwaExportStatus,
 } from '@/app/actions/sabwa.actions';
 import { useSabwaSession } from '@/lib/sabwa/session-context';
+import { formatJid, useResolveJid } from '@/lib/sabwa/format-jid';
 
 import {
   ZoruBadge,
@@ -110,6 +111,7 @@ export default function ExportPage() {
   const toast = useZoruToast();
   const { current: activeSession } = useSabwaSession();
   const sessionId = activeSession?.id ?? '';
+  const resolve = useResolveJid(sessionId);
 
   // Configurator state
   const [scopeKind, setScopeKind] = React.useState<ScopeKind>('all');
@@ -287,9 +289,38 @@ export default function ExportPage() {
                     onChange={(e) => setJidsRaw(e.target.value)}
                   />
                   <p className="text-[11px] text-zoru-ink-muted">
-                    Phase 1: paste JIDs directly. Inbox-based picker coming
-                    once chat list lands.
+                    Paste JIDs directly to include them in this export.
                   </p>
+                  {(() => {
+                    const pasted = jidsRaw
+                      .split(/[\n,]/)
+                      .map((s) => s.trim())
+                      .filter(Boolean);
+                    if (pasted.length === 0) return null;
+                    return (
+                      <ul className="mt-1 max-h-32 overflow-y-auto rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-2 text-[11px]">
+                        {pasted.map((jid) => {
+                          const resolved = resolve(jid);
+                          const pretty = formatJid(jid);
+                          return (
+                            <li
+                              key={jid}
+                              className="flex items-center gap-2 py-0.5"
+                            >
+                              <span className="truncate text-zoru-ink">
+                                {resolved}
+                              </span>
+                              {resolved !== pretty && (
+                                <span className="truncate font-mono text-[10px] text-zoru-ink-muted">
+                                  · {pretty}
+                                </span>
+                              )}
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    );
+                  })()}
                 </div>
               ) : null}
               {scopeKind === 'date_range' ? (

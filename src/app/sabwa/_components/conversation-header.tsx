@@ -34,7 +34,8 @@ import {
   ZoruDropdownMenuTrigger,
 } from '@/components/zoruui';
 import { cn } from '@/lib/utils';
-import { formatJid } from '@/lib/sabwa/format-jid';
+import { formatJid, useResolveJid } from '@/lib/sabwa/format-jid';
+import { useSabwaSession } from '@/lib/sabwa/session-context';
 import type { SabwaChat } from '@/lib/sabwa/types';
 
 export interface ConversationHeaderProps {
@@ -65,12 +66,16 @@ export function ConversationHeader({
   onClearMessages,
   className,
 }: ConversationHeaderProps) {
-  const name = formatJid(chat.jid, chat.name);
+  const { current } = useSabwaSession();
+  const resolve = useResolveJid(current?.id);
+  const name = chat.name?.trim() || resolve(chat.jid);
   const initials = name.replace(/[^A-Za-z0-9]/g, '').slice(0, 2).toUpperCase() || '?';
   const isGroup = chat.type === 'group';
   // If the title was derived from the JID (no friendly name), avoid echoing the
   // same string in the subtitle. Otherwise show the formatted phone/JID below.
-  const hasFriendlyName = Boolean(chat.name?.trim());
+  // `formatJid(jid)` (no displayName) gives us the basic phone-ish formatter
+  // so the secondary line reads as `+91 12345 67890`, not the resolved name.
+  const hasFriendlyName = name !== formatJid(chat.jid);
   const subtitle = presence
     ? presence
     : isGroup

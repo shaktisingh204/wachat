@@ -42,6 +42,8 @@ import {
   getPrivacySettings,
   updatePrivacySettings,
   rotateSessionKey,
+  blockContact,
+  unblockContact,
   type SabwaPrivacySettings,
   type SabwaVisibility,
 } from '@/app/actions/sabwa.actions';
@@ -137,24 +139,47 @@ export default function PrivacySettingsPage() {
   };
 
   const onUnblock = (jid: string) => {
-    const next = settings.blocked.filter((b) => b.jid !== jid);
+    const prev = settings.blocked;
+    const next = prev.filter((b) => b.jid !== jid);
     setSettings((s) => ({ ...s, blocked: next }));
-    toast.success('Contact unblocked.');
-    // Persistence for blocked list goes through dedicated block/unblock
-    // actions; for now the local-state update keeps the UI honest until
-    // engine wiring lands.
+    startTransition(async () => {
+      try {
+        const res = await unblockContact(sessionId, jid);
+        if (res.ok) {
+          toast.success('Contact unblocked.');
+        } else {
+          setSettings((s) => ({ ...s, blocked: prev }));
+          toast.error(res.error || 'Unblock failed');
+        }
+      } catch (e) {
+        setSettings((s) => ({ ...s, blocked: prev }));
+        toast.error((e as Error).message);
+      }
+    });
   };
 
   const onBlockSubmit = () => {
     const v = blockJid.trim();
     if (!v) return;
-    setSettings((s) => ({
-      ...s,
-      blocked: [...s.blocked, { jid: v, blockedAt: new Date().toISOString() }],
-    }));
-    toast.success('Contact blocked.');
+    const prev = settings.blocked;
+    const entry = { jid: v, blockedAt: new Date().toISOString() };
+    setSettings((s) => ({ ...s, blocked: [...s.blocked, entry] }));
     setBlockJid('');
     setBlockOpen(false);
+    startTransition(async () => {
+      try {
+        const res = await blockContact(sessionId, v);
+        if (res.ok) {
+          toast.success('Contact blocked.');
+        } else {
+          setSettings((s) => ({ ...s, blocked: prev }));
+          toast.error(res.error || 'Block failed');
+        }
+      } catch (e) {
+        setSettings((s) => ({ ...s, blocked: prev }));
+        toast.error((e as Error).message);
+      }
+    });
   };
 
   const onRotate = () => {
@@ -315,7 +340,12 @@ export default function PrivacySettingsPage() {
                       {b.blockedAt ? new Date(b.blockedAt).toLocaleDateString() : '—'}
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button variant="outline" size="sm" onClick={() => onUnblock(b.jid)}>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => onUnblock(b.jid)}
+                        disabled={pending}
+                      >
                         Unblock
                       </Button>
                     </TableCell>
@@ -466,7 +496,9 @@ export default function PrivacySettingsPage() {
             <Button variant="ghost" onClick={() => setBlockOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={onBlockSubmit}>Block</Button>
+            <Button onClick={onBlockSubmit} disabled={pending}>
+              Block
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

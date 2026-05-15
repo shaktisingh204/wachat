@@ -87,8 +87,7 @@ import {
 } from '@/components/zoruui';
 
 import { EmptyState } from '@/app/sabwa/_components/empty-state';
-
-const STUB_PROJECT_ID = 'stub-project';
+import { useProject } from '@/context/project-context';
 
 const ALL_EVENTS: { value: SabwaWebhookEvent; label: string }[] = [
   { value: 'message.received', label: 'Message received' },
@@ -123,6 +122,7 @@ function successRateTone(
 
 export default function WebhooksPage() {
   const toast = useZoruToast();
+  const { activeProjectId } = useProject();
   const [rows, setRows] = React.useState<SabwaWebhookRow[]>([]);
   const [loading, setLoading] = React.useState(false);
   const [selected, setSelected] = React.useState<SabwaWebhookRow | null>(null);
@@ -132,16 +132,20 @@ export default function WebhooksPage() {
   const [secretReveal, setSecretReveal] = React.useState<string | null>(null);
 
   const load = React.useCallback(async () => {
+    if (!activeProjectId) {
+      setRows([]);
+      return;
+    }
     setLoading(true);
     try {
-      const res = await listWebhooks(STUB_PROJECT_ID);
+      const res = await listWebhooks(activeProjectId);
       if (res.ok) setRows(res.webhooks);
     } catch {
       // engine offline
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [activeProjectId]);
 
   React.useEffect(() => {
     void load();
@@ -257,6 +261,7 @@ export default function WebhooksPage() {
                 </ZoruButton>
               </ZoruDialogTrigger>
               <CreateWebhookDialogContent
+                projectId={activeProjectId}
                 onCreated={async (secret) => {
                   setCreateOpen(false);
                   setSecretReveal(secret);
@@ -461,8 +466,10 @@ export default function WebhooksPage() {
 // ─── New webhook dialog ────────────────────────────────────────────────────
 
 function CreateWebhookDialogContent({
+  projectId,
   onCreated,
 }: {
+  projectId: string | null;
   onCreated: (signingSecret: string) => void | Promise<void>;
 }) {
   const toast = useZoruToast();
@@ -488,10 +495,18 @@ function CreateWebhookDialogContent({
       });
       return;
     }
+    if (!projectId) {
+      toast.toast({
+        title: 'No active project',
+        description: 'Select a project before creating a webhook.',
+        variant: 'destructive',
+      });
+      return;
+    }
     setSubmitting(true);
     try {
       const res = await upsertWebhook({
-        projectId: STUB_PROJECT_ID,
+        projectId,
         url: url.trim(),
         events,
         sessionId: sessionScope.trim() || undefined,

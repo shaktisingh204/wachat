@@ -85,6 +85,7 @@ import {
   type SabwaGroupSummary,
 } from '@/app/actions/sabwa.actions';
 import { useSabwaSession } from '@/lib/sabwa/session-context';
+import { useResolveJid, type JidResolver } from '@/lib/sabwa/format-jid';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -282,6 +283,7 @@ interface GroupCardProps {
   group: SabwaGroupSummary;
   onDragStart: (jid: string) => void;
   onContextAction: (action: ContextAction, jid: string) => void;
+  resolve: JidResolver;
 }
 
 type ContextAction = 'open' | 'manage' | 'mute' | 'leave';
@@ -290,6 +292,7 @@ const GroupCard = React.memo(function GroupCard({
   group,
   onDragStart,
   onContextAction,
+  resolve,
 }: GroupCardProps) {
   const router = useRouter();
   const [menuOpen, setMenuOpen] = React.useState(false);
@@ -324,6 +327,8 @@ const GroupCard = React.memo(function GroupCard({
     [group.jid, onDragStart],
   );
 
+  const displayName = group.subject?.trim() || resolve(group.jid);
+
   return (
     <ZoruDropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
       <div
@@ -341,7 +346,7 @@ const GroupCard = React.memo(function GroupCard({
                 {group.profilePicUrl ? (
                   <ZoruAvatarImage src={group.profilePicUrl} alt="" />
                 ) : null}
-                <ZoruAvatarFallback>{initials(group.subject || '#')}</ZoruAvatarFallback>
+                <ZoruAvatarFallback>{initials(displayName || '#')}</ZoruAvatarFallback>
               </ZoruAvatar>
               <div className="min-w-0 flex-1">
                 <div className="flex items-start justify-between gap-2">
@@ -349,9 +354,9 @@ const GroupCard = React.memo(function GroupCard({
                     type="button"
                     className="min-w-0 truncate text-left text-base font-semibold text-zoru-ink hover:underline"
                     onClick={onOpenChat}
-                    title={group.subject}
+                    title={displayName}
                   >
-                    {group.subject || 'Untitled group'}
+                    {displayName}
                   </button>
                   <ZoruDropdownMenuTrigger asChild>
                     <ZoruButton
@@ -515,6 +520,7 @@ export function GroupsPageClient() {
   const { toast } = useZoruToast();
   const { current } = useSabwaSession();
   const sessionId = current?.id ?? null;
+  const resolve = useResolveJid(sessionId);
 
   const activeCategory = searchParams.get('category');
 
@@ -782,6 +788,7 @@ export function GroupsPageClient() {
               group={g}
               onDragStart={onCardDragStart}
               onContextAction={handleContextAction}
+              resolve={resolve}
             />
           ))}
         </div>

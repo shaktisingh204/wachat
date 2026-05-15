@@ -212,19 +212,10 @@ export default function SabWaLabelsPage() {
       </header>
 
       {error ? (
-        <ZoruCard className="border-zoru-danger/50">
-          <ZoruCardHeader>
-            <ZoruCardTitle className="text-zoru-danger">
-              Couldn’t load labels
-            </ZoruCardTitle>
-            <ZoruCardDescription>{error}</ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent>
-            <ZoruButton type="button" size="sm" variant="outline" onClick={refetch}>
-              Retry
-            </ZoruButton>
-          </ZoruCardContent>
-        </ZoruCard>
+        // We treat any load failure as "no labels yet" — the engine's
+        // 404/empty path is the common case. Show a friendly empty
+        // state with a retry, not a scary red card.
+        <LabelsEmptyState onCreate={() => setEditor({ open: true })} onRetry={refetch} />
       ) : loading ? (
         <LabelGridSkeleton />
       ) : labels.length === 0 ? (
@@ -505,7 +496,13 @@ function LabelGridSkeleton() {
   );
 }
 
-function LabelsEmptyState({ onCreate }: { onCreate: () => void }) {
+function LabelsEmptyState({
+  onCreate,
+  onRetry,
+}: {
+  onCreate: () => void;
+  onRetry?: () => void;
+}) {
   return (
     <ZoruCard>
       <ZoruCardContent className="flex flex-col items-center gap-3 py-12 text-center">
@@ -520,9 +517,16 @@ function LabelsEmptyState({ onCreate }: { onCreate: () => void }) {
           Create your first label to start grouping chats — pick a name and a
           colour swatch.
         </p>
-        <ZoruButton type="button" onClick={onCreate}>
-          <Plus className="mr-1.5 h-4 w-4" /> New label
-        </ZoruButton>
+        <div className="flex items-center gap-2">
+          <ZoruButton type="button" onClick={onCreate}>
+            <Plus className="mr-1.5 h-4 w-4" /> New label
+          </ZoruButton>
+          {onRetry && (
+            <ZoruButton type="button" variant="outline" onClick={onRetry}>
+              Reload
+            </ZoruButton>
+          )}
+        </div>
       </ZoruCardContent>
     </ZoruCard>
   );

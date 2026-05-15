@@ -51,6 +51,7 @@ import {
   ZoruInput,
   ZoruLabel,
   ZoruSeparator,
+  ZoruSkeleton,
   ZoruTable,
   ZoruTableBody,
   ZoruTableCell,
@@ -62,6 +63,19 @@ import {
   useZoruToast,
 } from '@/components/zoruui';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
+import {
+  deleteBroadcast,
+  listBroadcasts,
+  sendBroadcast,
+  upsertBroadcast,
+} from '@/app/actions/sabwa.actions';
+import { useSabwaSession } from '@/lib/sabwa/session-context';
+import { formatJid, useResolveJid } from '@/lib/sabwa/format-jid';
+import type {
+  SabwaBroadcast,
+  SabwaBroadcastRecipientStatus,
+  SabwaScheduledPayload,
+} from '@/lib/sabwa/types';
 
 // ─── Local model ────────────────────────────────────────────────────────────
 // Shape mirrors `SabwaBroadcast` from `@/lib/sabwa/types`, but uses string ids
@@ -92,37 +106,59 @@ interface Broadcast {
   lastSentAt?: Date;
 }
 
-const SAMPLE_BROADCASTS: Broadcast[] = [
-  {
-    id: 'b_welcome',
-    name: 'Welcome list',
-    recipients: [
-      { jid: '919876543210@s.whatsapp.net', displayName: 'Asha Khan' },
-      { jid: '919812341234@s.whatsapp.net', displayName: 'Ravi Patel' },
-      { jid: '919900112233@s.whatsapp.net', displayName: 'Sneha Rao' },
-    ],
-    history: [
-      {
-        id: 'h1',
-        sentAt: new Date(Date.now() - 1000 * 60 * 60 * 26),
-        totalCount: 3,
-        sentCount: 3,
-        failedCount: 0,
-        body: 'Welcome to SabNode — reply STOP to opt out.',
-      },
-    ],
-    lastSentAt: new Date(Date.now() - 1000 * 60 * 60 * 26),
-  },
-  {
-    id: 'b_offers',
-    name: 'Monthly offers',
-    recipients: [
-      { jid: '919811111111@s.whatsapp.net', displayName: 'Customer 1' },
-      { jid: '919822222222@s.whatsapp.net', displayName: 'Customer 2' },
-    ],
-    history: [],
-  },
-];
+// ─── Wire mapping ───────────────────────────────────────────────────────────
+// The engine row carries `_id`/`projectId`/`sessionId` as `ObjectId` typed
+// fields but serialises them as strings across the server-action boundary, and
+// returns `recipients` as `SabwaBroadcastRecipientStatus[]` (no `displayName`).
+// We map down to the leaner `Broadcast`/`Recipient` shape the UI renders.
+
+type BroadcastWire = SabwaBroadcast | (Omit<SabwaBroadcast, '_id' | 'projectId' | 'sessionId'> & {
+  _id: string;
+  projectId: string;
+  sessionId: string;
+});
+
+function recipientStatusToUi(
+  s: SabwaBroadcastRecipientStatus['status'],
+): RecipientStatus | undefined {
+  if (s === 'queued' || s === 'sent' || s === 'failed' || s === 'skipped') return s;
+  // map SabwaMessageStatus → UI status
+  if (s === 'delivered' || s === 'read' || s === 'sending') return 'sent';
+  return undefined;
+}
+
+function mapWireToBroadcast(b: BroadcastWire): Broadcast {
+  const id = String((b as { _id: unknown })._id ?? '');
+  const recipients: Recipient[] = (b.recipients ?? []).map((r) => ({
+    jid: r.jid,
+    status: recipientStatusToUi(r.status),
+  }));
+  // We don't get per-send history rows on the list endpoint yet, but the
+  // aggregate counts let us synthesise a single "latest send" row when
+  // anything has been sent.
+  const lastSentRaw = b.completedAt ?? b.startedAt ?? null;
+  const lastSentAt = lastSentRaw ? new Date(lastSentRaw as string | Date) : undefined;
+  const history: HistoryEntry[] =
+    b.sentCount > 0 || b.failedCount > 0
+      ? [
+          {
+            id: `${id}:latest`,
+            sentAt: lastSentAt ?? new Date(b.updatedAt as string | Date),
+            totalCount: b.totalCount ?? recipients.length,
+            sentCount: b.sentCount ?? 0,
+            failedCount: b.failedCount ?? 0,
+            body: b.payload?.body ?? (b.payload?.caption ?? ''),
+          },
+        ]
+      : [];
+  return {
+    id,
+    name: b.name,
+    recipients,
+    history,
+    lastSentAt,
+  };
+}
 
 function fmtTimeAgo(d?: Date): string {
   if (!d) return '—';
@@ -243,6 +279,7 @@ interface BroadcastDetailPaneProps {
   onRemoveRecipients: (id: string, jids: string[]) => void;
   onAddRecipient: (id: string, recipient: Recipient) => void;
   onSend: (id: string, body: string, media: SabFilePick | null) => Promise<void>;
+  resolve: (jid: string | undefined) => string;
 }
 
 function BroadcastDetailPane({
@@ -252,6 +289,7 @@ function BroadcastDetailPane({
   onRemoveRecipients,
   onAddRecipient,
   onSend,
+  resolve,
 }: BroadcastDetailPaneProps) {
   const [nameDraft, setNameDraft] = React.useState(broadcast.name);
   const [editingName, setEditingName] = React.useState(false);
@@ -426,35 +464,38 @@ function BroadcastDetailPane({
                   </ZoruTableRow>
                 </ZoruTableHeader>
                 <ZoruTableBody>
-                  {broadcast.recipients.map((r) => (
-                    <ZoruTableRow key={r.jid}>
-                      <ZoruTableCell>
-                        <ZoruCheckbox
-                          aria-label={`Select ${r.displayName ?? r.jid}`}
-                          checked={selected.has(r.jid)}
-                          onCheckedChange={() => toggleOne(r.jid)}
-                        />
-                      </ZoruTableCell>
-                      <ZoruTableCell className="font-medium text-zoru-ink">
-                        {r.displayName ?? '—'}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="font-mono text-xs text-zoru-ink-muted">
-                        {r.jid}
-                      </ZoruTableCell>
-                      <ZoruTableCell>
-                        <button
-                          type="button"
-                          aria-label={`Remove ${r.displayName ?? r.jid}`}
-                          onClick={() =>
-                            onRemoveRecipients(broadcast.id, [r.jid])
-                          }
-                          className="rounded-[var(--zoru-radius)] p-1 text-zoru-ink-muted hover:bg-zoru-danger/10 hover:text-zoru-danger"
-                        >
-                          <X className="h-3.5 w-3.5" />
-                        </button>
-                      </ZoruTableCell>
-                    </ZoruTableRow>
-                  ))}
+                  {broadcast.recipients.map((r) => {
+                    const resolvedName = r.displayName ?? resolve(r.jid);
+                    return (
+                      <ZoruTableRow key={r.jid}>
+                        <ZoruTableCell>
+                          <ZoruCheckbox
+                            aria-label={`Select ${resolvedName}`}
+                            checked={selected.has(r.jid)}
+                            onCheckedChange={() => toggleOne(r.jid)}
+                          />
+                        </ZoruTableCell>
+                        <ZoruTableCell className="font-medium text-zoru-ink">
+                          {resolvedName}
+                        </ZoruTableCell>
+                        <ZoruTableCell className="font-mono text-xs text-zoru-ink-muted">
+                          {formatJid(r.jid)}
+                        </ZoruTableCell>
+                        <ZoruTableCell>
+                          <button
+                            type="button"
+                            aria-label={`Remove ${resolvedName}`}
+                            onClick={() =>
+                              onRemoveRecipients(broadcast.id, [r.jid])
+                            }
+                            className="rounded-[var(--zoru-radius)] p-1 text-zoru-ink-muted hover:bg-zoru-danger/10 hover:text-zoru-danger"
+                          >
+                            <X className="h-3.5 w-3.5" />
+                          </button>
+                        </ZoruTableCell>
+                      </ZoruTableRow>
+                    );
+                  })}
                 </ZoruTableBody>
               </ZoruTable>
             )}
@@ -623,66 +664,176 @@ function BroadcastDetailPane({
 
 export default function BroadcastsPage() {
   const toaster = useZoruToast();
-  const [broadcasts, setBroadcasts] =
-    React.useState<Broadcast[]>(SAMPLE_BROADCASTS);
-  const [selectedId, setSelectedId] = React.useState<string | null>(
-    SAMPLE_BROADCASTS[0]?.id ?? null,
-  );
+  const { current: currentSession } = useSabwaSession();
+  const sessionId = currentSession?.id;
+  const resolve = useResolveJid(sessionId ?? '');
+
+  const [broadcasts, setBroadcasts] = React.useState<Broadcast[]>([]);
+  const [selectedId, setSelectedId] = React.useState<string | null>(null);
   const [newOpen, setNewOpen] = React.useState(false);
   const [newName, setNewName] = React.useState('');
+  const [loading, setLoading] = React.useState(true);
+  const [loadError, setLoadError] = React.useState<string | null>(null);
+
+  const reload = React.useCallback(async () => {
+    if (!sessionId) {
+      setBroadcasts([]);
+      setSelectedId(null);
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    setLoadError(null);
+    try {
+      const res = await listBroadcasts(sessionId);
+      if (!res.ok) {
+        setLoadError(res.error ?? 'Failed to load broadcasts.');
+        setBroadcasts([]);
+        setSelectedId(null);
+        return;
+      }
+      const mapped = (res.broadcasts ?? []).map((b) =>
+        mapWireToBroadcast(b as unknown as BroadcastWire),
+      );
+      setBroadcasts(mapped);
+      setSelectedId((prev) =>
+        prev && mapped.some((b) => b.id === prev) ? prev : mapped[0]?.id ?? null,
+      );
+    } catch (err) {
+      setLoadError(
+        err instanceof Error ? err.message : 'Failed to load broadcasts.',
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, [sessionId]);
+
+  React.useEffect(() => {
+    void reload();
+  }, [reload]);
 
   const selected = React.useMemo(
     () => broadcasts.find((b) => b.id === selectedId) ?? null,
     [broadcasts, selectedId],
   );
 
-  const handleCreate = () => {
+  const handleCreate = async () => {
     const name = newName.trim();
     if (!name) return;
-    const id = `b_${Date.now().toString(36)}`;
-    setBroadcasts((prev) => [
-      { id, name, recipients: [], history: [] },
-      ...prev,
-    ]);
-    setSelectedId(id);
+    if (!sessionId) {
+      toaster.toast({
+        title: 'Pick a session first',
+        description: 'Connect or select a SabWa session to create broadcasts.',
+        variant: 'destructive',
+      });
+      return;
+    }
     setNewName('');
     setNewOpen(false);
+    const res = await upsertBroadcast({ sessionId, name, recipients: [] });
+    if (!res.ok) {
+      toaster.toast({
+        title: 'Could not create broadcast list',
+        description: res.error ?? 'Engine returned an error.',
+        variant: 'destructive',
+      });
+      return;
+    }
     toaster.toast({ title: 'Broadcast list created', description: name });
+    await reload();
+    setSelectedId(res.broadcastId);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
+    // Optimistic remove — drop from local state before the engine round-trip.
+    const snapshot = broadcasts;
     setBroadcasts((prev) => prev.filter((b) => b.id !== id));
     setSelectedId((curr) => (curr === id ? null : curr));
+    const res = await deleteBroadcast(id);
+    if (!res.ok) {
+      // Revert and surface the error.
+      setBroadcasts(snapshot);
+      toaster.toast({
+        title: 'Failed to delete broadcast',
+        description: res.error ?? 'Engine returned an error.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    toaster.toast({ title: 'Broadcast deleted' });
   };
 
-  const handleRename = (id: string, name: string) => {
+  const handleRename = async (id: string, name: string) => {
+    if (!sessionId) return;
+    const target = broadcasts.find((b) => b.id === id);
+    if (!target) return;
     setBroadcasts((prev) =>
       prev.map((b) => (b.id === id ? { ...b, name } : b)),
     );
+    const res = await upsertBroadcast({
+      sessionId,
+      id,
+      name,
+      recipients: target.recipients.map((r) => r.jid),
+    });
+    if (!res.ok) {
+      toaster.toast({
+        title: 'Rename failed',
+        description: res.error ?? 'Engine returned an error.',
+        variant: 'destructive',
+      });
+      await reload();
+    }
   };
 
-  const handleRemoveRecipients = (id: string, jids: string[]) => {
+  const handleRemoveRecipients = async (id: string, jids: string[]) => {
+    if (!sessionId) return;
+    const target = broadcasts.find((b) => b.id === id);
+    if (!target) return;
     const toDrop = new Set(jids);
+    const nextRecipients = target.recipients.filter((r) => !toDrop.has(r.jid));
     setBroadcasts((prev) =>
-      prev.map((b) =>
-        b.id === id
-          ? {
-              ...b,
-              recipients: b.recipients.filter((r) => !toDrop.has(r.jid)),
-            }
-          : b,
-      ),
+      prev.map((b) => (b.id === id ? { ...b, recipients: nextRecipients } : b)),
     );
+    const res = await upsertBroadcast({
+      sessionId,
+      id,
+      name: target.name,
+      recipients: nextRecipients.map((r) => r.jid),
+    });
+    if (!res.ok) {
+      toaster.toast({
+        title: 'Could not update recipients',
+        description: res.error ?? 'Engine returned an error.',
+        variant: 'destructive',
+      });
+      await reload();
+    }
   };
 
-  const handleAddRecipient = (id: string, recipient: Recipient) => {
+  const handleAddRecipient = async (id: string, recipient: Recipient) => {
+    if (!sessionId) return;
+    const target = broadcasts.find((b) => b.id === id);
+    if (!target) return;
+    if (target.recipients.some((r) => r.jid === recipient.jid)) return;
+    const nextRecipients = [...target.recipients, recipient];
     setBroadcasts((prev) =>
-      prev.map((b) => {
-        if (b.id !== id) return b;
-        if (b.recipients.some((r) => r.jid === recipient.jid)) return b;
-        return { ...b, recipients: [...b.recipients, recipient] };
-      }),
+      prev.map((b) => (b.id === id ? { ...b, recipients: nextRecipients } : b)),
     );
+    const res = await upsertBroadcast({
+      sessionId,
+      id,
+      name: target.name,
+      recipients: nextRecipients.map((r) => r.jid),
+    });
+    if (!res.ok) {
+      toaster.toast({
+        title: 'Could not add recipient',
+        description: res.error ?? 'Engine returned an error.',
+        variant: 'destructive',
+      });
+      await reload();
+    }
   };
 
   const handleSend = async (
@@ -690,37 +841,48 @@ export default function BroadcastsPage() {
     body: string,
     media: SabFilePick | null,
   ) => {
-    // Optimistic local history. Wire to `sendBroadcast` once the Rust engine
-    // bridge ships (SABWA_PLAN.md §13).
+    if (!sessionId) {
+      toaster.toast({
+        title: 'Pick a session first',
+        variant: 'destructive',
+      });
+      return;
+    }
     const target = broadcasts.find((b) => b.id === id);
     if (!target) return;
-    const now = new Date();
-    const previewBody = body || (media ? `[media] ${media.name}` : '');
-    const entry: HistoryEntry = {
-      id: `h_${Date.now().toString(36)}`,
-      sentAt: now,
-      totalCount: target.recipients.length,
-      sentCount: target.recipients.length,
-      failedCount: 0,
-      body: previewBody,
-    };
-    setBroadcasts((prev) =>
-      prev.map((b) =>
-        b.id === id
-          ? {
-              ...b,
-              history: [entry, ...b.history],
-              lastSentAt: now,
-            }
-          : b,
-      ),
-    );
+
+    const payload: SabwaScheduledPayload = media
+      ? {
+          // Best-effort message type — engine inspects the file MIME to refine.
+          type: media.mime?.startsWith('image/')
+            ? 'image'
+            : media.mime?.startsWith('video/')
+              ? 'video'
+              : media.mime?.startsWith('audio/')
+                ? 'audio'
+                : 'document',
+          mediaSabFileId: media.id,
+          caption: body || undefined,
+        }
+      : { type: 'text', body };
+
+    const res = await sendBroadcast(sessionId, id, payload);
+    if (!res.ok) {
+      toaster.toast({
+        title: 'Send failed',
+        description: res.error ?? 'Engine returned an error.',
+        variant: 'destructive',
+      });
+      return;
+    }
     toaster.toast({
       title: 'Broadcast queued',
       description: `${target.recipients.length} recipient${
         target.recipients.length === 1 ? '' : 's'
       }`,
     });
+    // Refresh so updated counts / lastSentAt land in the UI.
+    await reload();
   };
 
   return (
@@ -766,61 +928,90 @@ export default function BroadcastsPage() {
         </div>
       </div>
 
+      {loadError && (
+        <div
+          role="alert"
+          className="border-b border-zoru-danger/30 bg-zoru-danger/5 px-3 py-2 text-xs text-zoru-danger md:px-4"
+        >
+          Couldn&apos;t load broadcasts: {loadError}
+        </div>
+      )}
+
       <div className="min-h-0 flex-1">
-        {/* md+: two-pane */}
-        <div className="hidden h-full md:grid md:grid-cols-[320px_1fr] md:divide-x md:divide-zoru-line">
-          <BroadcastListPane
-            broadcasts={broadcasts}
-            selectedId={selectedId}
-            onSelect={setSelectedId}
-            onNew={() => setNewOpen(true)}
-            onDelete={handleDelete}
-          />
-          {selected ? (
-            <BroadcastDetailPane
-              broadcast={selected}
-              onBack={() => setSelectedId(null)}
-              onRename={handleRename}
-              onRemoveRecipients={handleRemoveRecipients}
-              onAddRecipient={handleAddRecipient}
-              onSend={handleSend}
-            />
-          ) : (
-            <div className="flex h-full items-center justify-center p-6">
-              <div className="max-w-sm text-center">
-                <Users className="mx-auto h-8 w-8 text-zoru-ink-muted" />
-                <p className="mt-3 text-sm font-medium text-zoru-ink">
-                  Select or create a broadcast list
-                </p>
-                <p className="mt-1 text-xs text-zoru-ink-muted">
-                  Broadcast lists let you fan out a message to many contacts,
-                  while keeping each thread 1:1.
-                </p>
-              </div>
+        {loading ? (
+          <div className="grid h-full md:grid-cols-[320px_1fr] md:divide-x md:divide-zoru-line">
+            <div className="space-y-2 p-3">
+              <ZoruSkeleton className="h-8 w-full" />
+              <ZoruSkeleton className="h-14 w-full" />
+              <ZoruSkeleton className="h-14 w-full" />
+              <ZoruSkeleton className="h-14 w-full" />
             </div>
-          )}
-        </div>
-        {/* Mobile: list ⇄ detail navigation */}
-        <div className="h-full md:hidden">
-          {selected ? (
-            <BroadcastDetailPane
-              broadcast={selected}
-              onBack={() => setSelectedId(null)}
-              onRename={handleRename}
-              onRemoveRecipients={handleRemoveRecipients}
-              onAddRecipient={handleAddRecipient}
-              onSend={handleSend}
-            />
-          ) : (
-            <BroadcastListPane
-              broadcasts={broadcasts}
-              selectedId={selectedId}
-              onSelect={setSelectedId}
-              onNew={() => setNewOpen(true)}
-              onDelete={handleDelete}
-            />
-          )}
-        </div>
+            <div className="hidden space-y-3 p-4 md:block">
+              <ZoruSkeleton className="h-8 w-1/3" />
+              <ZoruSkeleton className="h-40 w-full" />
+              <ZoruSkeleton className="h-32 w-full" />
+            </div>
+          </div>
+        ) : (
+          <>
+            {/* md+: two-pane */}
+            <div className="hidden h-full md:grid md:grid-cols-[320px_1fr] md:divide-x md:divide-zoru-line">
+              <BroadcastListPane
+                broadcasts={broadcasts}
+                selectedId={selectedId}
+                onSelect={setSelectedId}
+                onNew={() => setNewOpen(true)}
+                onDelete={handleDelete}
+              />
+              {selected ? (
+                <BroadcastDetailPane
+                  broadcast={selected}
+                  onBack={() => setSelectedId(null)}
+                  onRename={handleRename}
+                  onRemoveRecipients={handleRemoveRecipients}
+                  onAddRecipient={handleAddRecipient}
+                  onSend={handleSend}
+                  resolve={resolve}
+                />
+              ) : (
+                <div className="flex h-full items-center justify-center p-6">
+                  <div className="max-w-sm text-center">
+                    <Users className="mx-auto h-8 w-8 text-zoru-ink-muted" />
+                    <p className="mt-3 text-sm font-medium text-zoru-ink">
+                      Select or create a broadcast list
+                    </p>
+                    <p className="mt-1 text-xs text-zoru-ink-muted">
+                      Broadcast lists let you fan out a message to many contacts,
+                      while keeping each thread 1:1.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+            {/* Mobile: list ⇄ detail navigation */}
+            <div className="h-full md:hidden">
+              {selected ? (
+                <BroadcastDetailPane
+                  broadcast={selected}
+                  onBack={() => setSelectedId(null)}
+                  onRename={handleRename}
+                  onRemoveRecipients={handleRemoveRecipients}
+                  onAddRecipient={handleAddRecipient}
+                  onSend={handleSend}
+                  resolve={resolve}
+                />
+              ) : (
+                <BroadcastListPane
+                  broadcasts={broadcasts}
+                  selectedId={selectedId}
+                  onSelect={setSelectedId}
+                  onNew={() => setNewOpen(true)}
+                  onDelete={handleDelete}
+                />
+              )}
+            </div>
+          </>
+        )}
       </div>
 
       <ZoruDialog open={newOpen} onOpenChange={setNewOpen}>
@@ -841,7 +1032,7 @@ export default function BroadcastsPage() {
               onChange={(e) => setNewName(e.target.value)}
               placeholder="e.g. Premium customers"
               onKeyDown={(e) => {
-                if (e.key === 'Enter') handleCreate();
+                if (e.key === 'Enter') void handleCreate();
               }}
             />
           </div>
@@ -850,7 +1041,10 @@ export default function BroadcastsPage() {
             <ZoruButton variant="outline" onClick={() => setNewOpen(false)}>
               Cancel
             </ZoruButton>
-            <ZoruButton onClick={handleCreate} disabled={!newName.trim()}>
+            <ZoruButton
+              onClick={() => void handleCreate()}
+              disabled={!newName.trim() || !sessionId}
+            >
               Create
             </ZoruButton>
           </ZoruDialogFooter>

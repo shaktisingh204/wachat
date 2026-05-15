@@ -37,6 +37,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { formatJid, type JidResolver } from "@/lib/sabwa/format-jid";
 import type { SabwaMessage, SabwaMessageStatus } from "@/lib/sabwa/types";
 
 export interface MessageBubbleAction {
@@ -63,6 +64,11 @@ export interface MessageBubbleProps {
   messages?: SabwaMessage[];
   /** Triggered by the context menu (or React/Star/Copy items). */
   onAction?: (action: MessageBubbleAction) => void;
+  /**
+   * Optional JID-to-name resolver — used for the "quoted author" label
+   * and reaction-author labels. Falls back to `formatJid` when omitted.
+   */
+  resolveJid?: JidResolver;
 }
 
 // 15-minute "delete for everyone" cut-off per WA spec.
@@ -182,10 +188,17 @@ function StatusTicks({ status }: { status: SabwaMessageStatus }) {
 function QuotedPreview({
   quoted,
   showAvatar,
+  resolveJid,
 }: {
   quoted: SabwaMessage;
   showAvatar?: boolean;
+  resolveJid?: JidResolver;
 }) {
+  const authorLabel = quoted.fromMe
+    ? "You"
+    : resolveJid
+      ? resolveJid(quoted.fromJid)
+      : formatJid(quoted.fromJid);
   return (
     <div className="mb-1 flex items-stretch gap-2 rounded-md border-l-2 border-green-500 bg-black/5 p-1.5 dark:bg-white/5">
       {showAvatar ? (
@@ -196,7 +209,7 @@ function QuotedPreview({
       ) : null}
       <div className="min-w-0 flex-1">
         <p className="truncate text-[11px] font-medium text-green-700 dark:text-green-300">
-          {quoted.fromMe ? "You" : quoted.fromJid.split("@")[0]}
+          {authorLabel}
         </p>
         <p className="line-clamp-1 text-[11px] text-muted-foreground">
           {quoted.body ?? quoted.caption ?? `[${quoted.type}]`}
@@ -308,6 +321,7 @@ export function MessageBubble({
   showAvatar = false,
   messages,
   onAction,
+  resolveJid,
 }: MessageBubbleProps) {
   const quoted = React.useMemo(() => {
     if (!message.quotedMessageId || !messages?.length) return null;
@@ -370,7 +384,11 @@ export function MessageBubble({
             )}
           >
             {quoted ? (
-              <QuotedPreview quoted={quoted} showAvatar={showAvatar} />
+              <QuotedPreview
+                quoted={quoted}
+                showAvatar={showAvatar}
+                resolveJid={resolveJid}
+              />
             ) : null}
 
             <MediaContent message={message} />
