@@ -29,6 +29,13 @@ import { StatusBadge } from './status-badge';
 export interface PairingFlowProps {
   sessionId: string;
   mode: 'qr' | 'code';
+  /**
+   * Active project id. Forwarded to the SSE route so the server can
+   * authorize the stream by project ownership (the engine doesn't
+   * persist session rows at pair time, so the route can't look the
+   * session up in Mongo).
+   */
+  projectId?: string | null;
   /** Initial QR payload returned by `pairSession({ method: 'qr' })`. */
   initialQr?: string;
   /** Initial 8-character pair code (e.g. `JKLM-NPQR`). */
@@ -47,6 +54,7 @@ const QR_LIFETIME_MS = 30_000;
 export function PairingFlow({
   sessionId,
   mode,
+  projectId,
   initialQr,
   initialPairCode,
   onPaired,
@@ -54,7 +62,10 @@ export function PairingFlow({
   onModeChange,
   className,
 }: PairingFlowProps) {
-  const stream = useSabwaStream(sessionId, { onConnected: onPaired });
+  const stream = useSabwaStream(sessionId, {
+    onConnected: onPaired,
+    projectId: projectId ?? undefined,
+  });
 
   const qr = stream.qr ?? initialQr;
   const pairCode = stream.pairCode ?? initialPairCode;

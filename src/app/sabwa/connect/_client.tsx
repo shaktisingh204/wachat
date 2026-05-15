@@ -397,6 +397,7 @@ export function ConnectClient() {
               <PairingFlow
                 mode={active.mode}
                 sessionId={active.sessionId}
+                projectId={activeProjectId}
                 initialQr={active.qr}
                 initialPairCode={active.pairCode}
                 onPaired={handlePaired}
