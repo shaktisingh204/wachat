@@ -13,6 +13,86 @@ use crate::crypto::AuthStateCrypto;
 
 pub const COLLECTION: &str = "sabwa_sessions";
 
+/// Serde helpers for `chrono::DateTime<Utc>` ↔ BSON `DateTime`.
+///
+/// Without these, serde falls back to chrono's default which expects
+/// **RFC 3339 strings** — but `sabwa_sessions` rows are written with
+/// BSON Date values (via `Bson::DateTime(bson::DateTime::now())` in
+/// `$set` ops and from `.into()` conversions on insert). When the
+/// reader hit a row with a Date map it failed with
+/// `"invalid type: map, expected an RFC 3339 formatted date and time
+/// string"` and silently skipped every connected session — leading to
+/// the "0 accounts" UI bug.
+///
+/// Writers normalise to BSON DateTime. Readers are **tolerant** of
+/// either BSON DateTime or an RFC 3339 string so legacy rows written
+/// by an older engine version still load.
+mod chrono_dt {
+    use chrono::{DateTime, Utc};
+    use serde::{Deserialize, Deserializer, Serialize, Serializer};
+
+    pub fn serialize<S: Serializer>(
+        value: &DateTime<Utc>,
+        s: S,
+    ) -> Result<S::Ok, S::Error> {
+        bson::DateTime::from_chrono(*value).serialize(s)
+    }
+
+    pub fn deserialize<'de, D: Deserializer<'de>>(
+        d: D,
+    ) -> Result<DateTime<Utc>, D::Error> {
+        // Accept either a BSON DateTime (the canonical shape) or a
+        // legacy RFC 3339 string. `bson::Bson` deserialises whatever
+        // shape the document actually carries.
+        let raw = bson::Bson::deserialize(d)?;
+        super::bson_to_chrono(raw).map_err(serde::de::Error::custom)
+    }
+}
+
+mod chrono_dt_opt {
+    use chrono::{DateTime, Utc};
+    use serde::{Deserialize, Deserializer, Serialize, Serializer};
+
+    pub fn serialize<S: Serializer>(
+        value: &Option<DateTime<Utc>>,
+        s: S,
+    ) -> Result<S::Ok, S::Error> {
+        match value {
+            Some(v) => bson::DateTime::from_chrono(*v).serialize(s),
+            None => s.serialize_none(),
+        }
+    }
+
+    pub fn deserialize<'de, D: Deserializer<'de>>(
+        d: D,
+    ) -> Result<Option<DateTime<Utc>>, D::Error> {
+        let opt: Option<bson::Bson> = Option::deserialize(d)?;
+        match opt {
+            None | Some(bson::Bson::Null) => Ok(None),
+            Some(b) => super::bson_to_chrono(b)
+                .map(Some)
+                .map_err(serde::de::Error::custom),
+        }
+    }
+}
+
+/// Coerce a BSON value into `chrono::DateTime<Utc>`. Accepts the
+/// canonical BSON DateTime as well as the legacy RFC 3339 string form
+/// that earlier engine versions emitted via chrono's default serde.
+fn bson_to_chrono(b: bson::Bson) -> Result<chrono::DateTime<chrono::Utc>, String> {
+    match b {
+        bson::Bson::DateTime(d) => Ok(d.to_chrono()),
+        bson::Bson::String(s) => chrono::DateTime::parse_from_rfc3339(&s)
+            .map(|dt| dt.with_timezone(&chrono::Utc))
+            .map_err(|e| format!("invalid RFC 3339 datetime string: {e}")),
+        bson::Bson::Int64(ms) => Ok(bson::DateTime::from_millis(ms).to_chrono()),
+        other => Err(format!(
+            "expected BSON DateTime or RFC 3339 string, got {:?}",
+            other.element_type()
+        )),
+    }
+}
+
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum SessionStatus {
@@ -52,6 +132,7 @@ pub struct DeviceMeta {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct BanSignal {
+    #[serde(with = "chrono_dt")]
     pub ts: DateTime<Utc>,
     pub kind: String,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -80,16 +161,26 @@ pub struct SabwaSession {
     pub auth_state: Option<Binary>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub device_meta: Option<DeviceMeta>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        skip_serializing_if = "Option::is_none",
+        with = "chrono_dt_opt"
+    )]
     pub last_connected_at: Option<DateTime<Utc>>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        skip_serializing_if = "Option::is_none",
+        with = "chrono_dt_opt"
+    )]
     pub last_seen_at: Option<DateTime<Utc>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub worker_node_id: Option<String>,
     #[serde(default)]
     pub ban_signals: Vec<BanSignal>,
     pub rate_limit_profile: RateProfile,
+    #[serde(with = "chrono_dt")]
     pub created_at: DateTime<Utc>,
+    #[serde(with = "chrono_dt")]
     pub updated_at: DateTime<Utc>,
 }
 
