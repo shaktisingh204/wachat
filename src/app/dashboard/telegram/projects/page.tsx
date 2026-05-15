@@ -150,7 +150,8 @@ export default function TelegramProjectPickerPage() {
             const isWachat = !!p.wabaId;
             const isFacebook = !!p.facebookPageId;
             const isCrm = p.kind === 'crm';
-            if (isWachat || isFacebook || isCrm) return false;
+            const isSabwa = p.kind === 'sabwa';
+            if (isWachat || isFacebook || isCrm || isSabwa) return false;
             const isExplicitTelegram = p.kind === 'telegram';
             const hasBot = (counts[p._id.toString()] ?? 0) > 0;
             if (countsLoading) return true;

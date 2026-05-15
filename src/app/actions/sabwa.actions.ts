@@ -42,6 +42,9 @@ import type {
 import { engineFetch, SabwaEngineError } from '@/lib/sabwa/engine-client';
 import { getSession } from '@/app/actions/user.actions';
 import { getProjects } from '@/app/actions/project.actions';
+import { ObjectId as MongoObjectId } from 'mongodb';
+import { connectToDatabase } from '@/lib/mongodb';
+import { getErrorMessage } from '@/lib/utils';
 
 // ─── Common result shape ────────────────────────────────────────────────────
 
@@ -2746,6 +2749,79 @@ export async function deleteBroadcast(id: IdLike): Promise<SabwaActionResult> {
     return { ok: true };
   } catch (err) {
     return engineFailure('deleteBroadcast', err);
+  }
+}
+
+// ─── SabWa-only projects ────────────────────────────────────────────────────
+//
+// Every SabWa-linked WhatsApp number is bound to a SabNode project, but
+// SabWa workspaces are kept **distinct** from WaChat / Meta / CRM /
+// Telegram projects (no cross-module spillover in the picker). A project
+// created from /sabwa carries `kind: 'sabwa'` so:
+//   - the SabWa picker (/sabwa) only shows projects with `kind === 'sabwa'`
+//     OR already linked SabWa sessions (legacy migration safety),
+//   - other modules' pickers exclude it (mirrors the Telegram pattern).
+//
+// See `addTelegramProject` for the analogous flow.
+
+export interface AddSabwaProjectResult {
+  projectId: string;
+  name: string;
+}
+
+export async function addSabwaProject(input: {
+  name: string;
+}): Promise<SabwaActionResult<AddSabwaProjectResult>> {
+  try {
+    const name = input.name?.trim();
+    if (!name) return { ok: false, error: 'Project name is required.' };
+    if (name.length > 120) {
+      return {
+        ok: false,
+        error: 'Project name is too long (max 120 chars).',
+      };
+    }
+
+    const session = await getSession();
+    if (!session?.user) {
+      return { ok: false, error: 'Not authenticated.' };
+    }
+
+    const { db } = await connectToDatabase();
+    const userId = new MongoObjectId(session.user._id as string);
+    const now = new Date();
+
+    // Soft duplicate guard — same owner + same name.
+    const existing = await db
+      .collection('projects')
+      .findOne({ userId, name }, { projection: { _id: 1 } });
+    if (existing) {
+      return {
+        ok: false,
+        error: 'You already have a project with that name.',
+      };
+    }
+
+    const ins = await db.collection('projects').insertOne({
+      userId,
+      name,
+      accessToken: '',
+      phoneNumbers: [],
+      // Discriminator — other modules' pickers (Wachat, Facebook, CRM,
+      // Telegram) skip this workspace, and the SabWa picker shows it
+      // even before any session is paired.
+      kind: 'sabwa',
+      createdAt: now,
+    } as never);
+
+    revalidatePath('/sabwa');
+    return {
+      ok: true,
+      projectId: ins.insertedId.toString(),
+      name,
+    };
+  } catch (err) {
+    return { ok: false, error: getErrorMessage(err) };
   }
 }
 

@@ -43,6 +43,8 @@ export default async function SabwaAllProjectsPage() {
       name: p.name ?? 'Untitled project',
       groupName: (p as any).groupName ?? null,
       wabaId: (p as any).wabaId ?? null,
+      facebookPageId: (p as any).facebookPageId ?? null,
+      kind: (p as any).kind ?? null,
       phoneNumber:
         ((p as any).phoneNumbers?.[0]?.display_phone_number as
           | string
