@@ -105,8 +105,12 @@ export function InboxShell() {
   }, [panelOpenLocal, updateQuery]);
 
   // ─── Chats list ───────────────────────────────────────────────────────
+  // Pull the engine's per-page cap. The default (50) made the inbox feel
+  // truncated; this gives us the full sorted window in one fetch. True
+  // infinite-scroll on the chats column is a follow-up.
+  const chatsFilter = React.useMemo(() => ({ limit: 200 }), []);
   const { data: chats, loading: chatsLoading, refetch: refetchChats } =
-    useChats(sessionId);
+    useChats(sessionId, chatsFilter);
 
   // ─── Realtime refresh ────────────────────────────────────────────────
   // Subscribe to the session SSE stream and refetch the chat list whenever
