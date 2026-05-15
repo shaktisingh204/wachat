@@ -285,9 +285,9 @@ export function ConnectClient() {
   const handlePaired = React.useCallback(() => {
     toast.toast({
       title: 'WhatsApp linked',
-      description: 'Your session is ready. Redirecting to the inbox…',
+      description: 'Your session is ready. Taking you to the accounts page…',
     });
-    router.push('/sabwa/inbox');
+    router.push('/sabwa/overview');
   }, [router, toast]);
 
   // Stepper progression — pure UI affordance.

@@ -50,7 +50,6 @@ use std::time::Duration;
 
 use anyhow::Context;
 use chrono::Utc;
-use futures::TryStreamExt;
 use mongodb::bson::{self, doc};
 use redis::AsyncCommands;
 use tokio::time::sleep;
@@ -656,15 +655,47 @@ fn preview(payload: &str) -> String {
 /// dozens of paying tenants. Once we cross that line, swap to a paged
 /// cursor or maintain a Redis SET of connected ids.
 async fn load_connected_sessions(state: &AppState) -> anyhow::Result<Vec<SabwaSession>> {
+    use futures::StreamExt;
+
     let connected = bson::to_bson(&SessionStatus::Connected)
         .context("encode SessionStatus::Connected for query")?;
-    let col = sessions_db::collection(&state.db);
-    let cursor = col
+    // Read as `Document` so one malformed row doesn't poison the entire
+    // worker iteration — we attempt typed deserialize per doc and skip
+    // any that fail (with a warning carrying the offending `_id`).
+    let col = state
+        .db
+        .collection::<bson::Document>(sessions_db::COLLECTION);
+    let mut cursor = col
         .find(doc! { "status": connected })
         .await
         .context("sabwa_sessions.find(status=connected)")?;
-    let sessions: Vec<SabwaSession> =
-        cursor.try_collect().await.context("collect connected sessions")?;
+    let mut sessions: Vec<SabwaSession> = Vec::new();
+    while let Some(item) = cursor.next().await {
+        match item {
+            Ok(doc) => match bson::from_document::<SabwaSession>(doc.clone()) {
+                Ok(s) => sessions.push(s),
+                Err(err) => {
+                    let id = doc
+                        .get_object_id("_id")
+                        .map(|o| o.to_hex())
+                        .unwrap_or_else(|_| "<no _id>".into());
+                    tracing::warn!(
+                        target: "sabwa::workers::outbound",
+                        session_id = %id,
+                        error = format!("{err:#}"),
+                        "skipping malformed connected sabwa_sessions row"
+                    );
+                }
+            },
+            Err(err) => {
+                tracing::warn!(
+                    target: "sabwa::workers::outbound",
+                    error = format!("{err:#}"),
+                    "cursor error while loading connected sessions"
+                );
+            }
+        }
+    }
     Ok(sessions)
 }
 

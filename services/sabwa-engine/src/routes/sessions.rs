@@ -159,7 +159,7 @@ async fn create_session(
         profile_pic_url: None,
         status: crate::db::sessions::SessionStatus::Pending,
         pair_method: pair_method_db,
-        auth_state: crate::db::sessions::SabwaSession::auth_state_from_bytes(Vec::new()),
+        auth_state: None,
         device_meta: None,
         last_connected_at: None,
         last_seen_at: None,
