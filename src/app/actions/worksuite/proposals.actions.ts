@@ -13,6 +13,8 @@ import { headers } from 'next/headers';
 import { ObjectId, type Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
+import { writeAuditEntry } from '@/lib/audit-log';
+import { requirePermission } from '@/lib/rbac-server';
 import type {
   WsProposal,
   WsProposalItem,
@@ -211,6 +213,8 @@ export async function saveProposal(
 ): Promise<Result<{ id: string }>> {
   const userId = await requireUser();
   if (!userId) return { success: false, error: 'Access denied' };
+  const guard = await requirePermission('crm_proposal', input._id ? 'edit' : 'create');
+  if (!guard.ok) return { success: false, error: guard.error };
   if (!input.title?.trim()) return { success: false, error: 'Title required' };
   if (!input.lines?.length) {
     return { success: false, error: 'At least one line item required' };
@@ -283,6 +287,18 @@ export async function saveProposal(
     await db.collection(COL.proposalItems).insertMany(items as any);
   }
 
+  try {
+    await writeAuditEntry({
+      tenantUserId: String(userId),
+      actorId: String(userId),
+      action: input._id ? 'update' : 'create',
+      entityKind: 'proposal',
+      entityId: proposalId.toString(),
+    });
+  } catch {
+    /* non-fatal */
+  }
+
   revalidatePath('/dashboard/crm/sales/proposals');
   revalidatePath(`/dashboard/crm/sales/proposals/${proposalId.toString()}`);
   return { success: true, id: proposalId.toString() };
@@ -291,12 +307,25 @@ export async function saveProposal(
 export async function deleteProposal(id: string): Promise<Result> {
   const userId = await requireUser();
   if (!userId) return { success: false, error: 'Access denied' };
+  const guard = await requirePermission('crm_proposal', 'delete');
+  if (!guard.ok) return { success: false, error: guard.error };
   if (!ObjectId.isValid(id)) return { success: false, error: 'Invalid id' };
   const { db } = await connectToDatabase();
   const _id = new ObjectId(id);
   await db.collection(COL.proposals).deleteOne({ _id, userId });
   await db.collection(COL.proposalItems).deleteMany({ proposal_id: _id, userId });
   await db.collection(COL.proposalSigns).deleteMany({ proposal_id: _id, userId });
+  try {
+    await writeAuditEntry({
+      tenantUserId: String(userId),
+      actorId: String(userId),
+      action: 'delete',
+      entityKind: 'proposal',
+      entityId: id,
+    });
+  } catch {
+    /* non-fatal */
+  }
   revalidatePath('/dashboard/crm/sales/proposals');
   return { success: true };
 }
@@ -307,11 +336,25 @@ export async function updateProposalStatus(
 ): Promise<Result> {
   const userId = await requireUser();
   if (!userId) return { success: false, error: 'Access denied' };
+  const guard = await requirePermission('crm_proposal', 'edit');
+  if (!guard.ok) return { success: false, error: guard.error };
   if (!ObjectId.isValid(id)) return { success: false, error: 'Invalid id' };
   const { db } = await connectToDatabase();
   await db
     .collection(COL.proposals)
     .updateOne({ _id: new ObjectId(id), userId }, { $set: { status, updatedAt: new Date() } });
+  try {
+    await writeAuditEntry({
+      tenantUserId: String(userId),
+      actorId: String(userId),
+      action: 'status_change',
+      entityKind: 'proposal',
+      entityId: id,
+      diff: { status: { after: status } },
+    });
+  } catch {
+    /* non-fatal */
+  }
   revalidatePath('/dashboard/crm/sales/proposals');
   revalidatePath(`/dashboard/crm/sales/proposals/${id}`);
   return { success: true };

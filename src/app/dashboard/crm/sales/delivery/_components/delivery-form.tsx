@@ -71,6 +71,8 @@ export interface DeliveryFormProps {
   fromKind?: string;
   /** Lineage parent id. */
   fromId?: string;
+  /** Edit-mode: existing challan id. Triggers the PATCH branch on save. */
+  editId?: string;
 }
 
 const TRANSPORT_MODES = [
@@ -120,7 +122,7 @@ function fromSeedItems(seed?: DeliveryFormSeed): DcLineRow[] {
   }));
 }
 
-export function DeliveryForm({ seed, fromKind, fromId }: DeliveryFormProps) {
+export function DeliveryForm({ seed, fromKind, fromId, editId }: DeliveryFormProps) {
   const router = useRouter();
   const { toast } = useZoruToast();
   const [state, formAction] = useActionState(saveDeliveryChallan, INITIAL_STATE);
@@ -191,6 +193,7 @@ export function DeliveryForm({ seed, fromKind, fromId }: DeliveryFormProps) {
 
   return (
     <form action={formAction} className="space-y-6">
+      {editId ? <input type="hidden" name="_id" value={editId} /> : null}
       <input type="hidden" name="accountId" value={clientId} />
       <input type="hidden" name="challanDate" value={new Date(challanDate).toISOString()} />
       <input type="hidden" name="lineItems" value={itemsPayload} />

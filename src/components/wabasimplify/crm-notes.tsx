@@ -29,7 +29,18 @@ function SubmitButton() {
 
 interface CrmNotesProps {
     recordId: string;
-    recordType: 'contact' | 'account' | 'deal' | 'lead';
+    recordType:
+        | 'contact'
+        | 'account'
+        | 'deal'
+        | 'lead'
+        | 'invoice'
+        | 'quotation'
+        | 'paymentReceipt'
+        | 'creditNote'
+        | 'proforma'
+        | 'contract'
+        | 'subscription';
     notes: { content: string; createdAt: Date; author: string }[];
 }
 

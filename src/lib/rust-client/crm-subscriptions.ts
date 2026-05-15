@@ -137,7 +137,9 @@ export interface CrmSubscriptionCreateInput {
 
 export type CrmSubscriptionUpdateInput = Partial<
   Omit<CrmSubscriptionCreateInput, 'projectId' | 'customerId' | 'startedAt'>
->;
+> & {
+  status?: CrmSubStatus;
+};
 
 /* ─── Client ──────────────────────────────────────────────────── */
 

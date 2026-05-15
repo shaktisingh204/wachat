@@ -507,18 +507,37 @@ export async function addCrmNote(prevState: any, formData: FormData): Promise<{ 
     if (!session?.user) return { error: "Access denied" };
 
     const recordId = formData.get('recordId') as string;
-    const recordType = formData.get('recordType') as 'contact' | 'account' | 'deal' | 'lead';
+    type SupportedRecordType =
+        | 'contact'
+        | 'account'
+        | 'deal'
+        | 'lead'
+        | 'invoice'
+        | 'quotation'
+        | 'paymentReceipt'
+        | 'creditNote'
+        | 'proforma'
+        | 'contract'
+        | 'subscription';
+    const recordType = formData.get('recordType') as SupportedRecordType;
     const content = formData.get('noteContent') as string;
 
     if (!recordId || !ObjectId.isValid(recordId) || !recordType || !content) {
         return { error: "Missing required information for note." };
     }
 
-    const collectionMap = {
+    const collectionMap: Record<SupportedRecordType, string> = {
         contact: 'crm_contacts',
         account: 'crm_accounts',
         deal: 'crm_deals',
         lead: 'crm_leads',
+        invoice: 'crm_invoices',
+        quotation: 'crm_quotations',
+        paymentReceipt: 'crm_payment_receipts',
+        creditNote: 'crm_credit_notes',
+        proforma: 'crm_proforma_invoices',
+        contract: 'crm_contracts',
+        subscription: 'crm_subscriptions',
     };
     const collectionName = collectionMap[recordType];
     if (!collectionName) {
@@ -536,11 +555,20 @@ export async function addCrmNote(prevState: any, formData: FormData): Promise<{ 
             { _id: new ObjectId(recordId), userId: new ObjectId(session.user._id) },
             { $push: { notes: { $each: [newNote], $position: 0 } } } as any
         );
-        if (recordType === 'lead') {
-            revalidatePath(`/dashboard/crm/sales-crm/all-leads/${recordId}`);
-        } else {
-            revalidatePath(`/dashboard/crm/${recordType}s/${recordId}`);
-        }
+        const revalPath: Record<SupportedRecordType, string> = {
+            contact: `/dashboard/crm/contacts/${recordId}`,
+            account: `/dashboard/crm/accounts/${recordId}`,
+            deal: `/dashboard/crm/sales-crm/deals/${recordId}`,
+            lead: `/dashboard/crm/sales-crm/all-leads/${recordId}`,
+            invoice: `/dashboard/crm/sales/invoices/${recordId}`,
+            quotation: `/dashboard/crm/sales/quotations/${recordId}`,
+            paymentReceipt: `/dashboard/crm/sales/receipts/${recordId}`,
+            creditNote: `/dashboard/crm/sales/credit-notes/${recordId}`,
+            proforma: `/dashboard/crm/sales/proforma/${recordId}`,
+            contract: `/dashboard/crm/sales/contracts/${recordId}`,
+            subscription: `/dashboard/crm/sales/subscriptions/${recordId}`,
+        };
+        revalidatePath(revalPath[recordType] ?? `/dashboard/crm/${recordType}s/${recordId}`);
         return {
             message: "Note added.",
             note: {

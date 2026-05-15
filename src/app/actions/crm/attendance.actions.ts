@@ -17,6 +17,7 @@
 import { revalidatePath } from 'next/cache';
 import { getSession } from '@/app/actions/user.actions';
 import { writeAuditEntry } from '@/lib/audit-log';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
 import { requirePermission } from '@/lib/rbac-server';
 import { RustApiError } from '@/lib/rust-client';
 import {
@@ -79,6 +80,7 @@ export async function listAttendance(
     const records = await crmAttendanceApi.list({ ...params, page, limit });
     return { records, page, limit, hasMore: records.length === limit };
   } catch (e) {
+    recordRustFallback({ entity: 'attendance', op: 'list', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
     return { records: [], page, limit, hasMore: false, error: rustErr(e) };
   }
 }
@@ -94,6 +96,7 @@ export async function getAttendance(
     if (e instanceof RustApiError && e.status === 404) {
       return { record: null, error: 'Attendance record not found.' };
     }
+    recordRustFallback({ entity: 'attendance', op: 'get', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
     return { record: null, error: rustErr(e) };
   }
 }
@@ -258,6 +261,7 @@ export async function saveAttendanceAction(
       id: String(result._id),
     };
   } catch (e) {
+    recordRustFallback({ entity: 'attendance', op: id ? 'update' : 'create', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
     return { error: rustErr(e) };
   }
 }
@@ -296,6 +300,7 @@ export async function deleteAttendanceAction(
     if (e instanceof RustApiError && e.status === 404) {
       return { success: false, error: 'Attendance record not found.' };
     }
+    recordRustFallback({ entity: 'attendance', op: 'delete', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
     return { success: false, error: rustErr(e) };
   }
 }
@@ -353,6 +358,7 @@ export async function punchInAction(
     revalidatePath(LIST_PATH);
     return { record };
   } catch (e) {
+    recordRustFallback({ entity: 'attendance', op: 'other', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
     return { error: rustErr(e) };
   }
 }
@@ -385,6 +391,7 @@ export async function punchOutAction(
     revalidatePath(LIST_PATH);
     return { record };
   } catch (e) {
+    recordRustFallback({ entity: 'attendance', op: 'other', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
     return { error: rustErr(e) };
   }
 }

@@ -22,6 +22,7 @@ import type { CrmRfq, LineageKind, LineageRef } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import { appendLineage, buildLineageFromParent } from '@/lib/lineage';
 import { writeAuditEntry } from '@/lib/audit-log';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
 import { requirePermission } from '@/lib/rbac-server';
 import { crmRfqsApi, type CrmRfqDoc, type CrmRfqLineItem } from '@/lib/rust-client/crm-rfqs';
 import { RustApiError } from '@/lib/rust-client/fetcher';
@@ -50,6 +51,7 @@ export async function getRfqs(): Promise<WithId<CrmRfq>[]> {
             return rfqs.map(rustDocToLegacy);
         } catch (e) {
             console.error('[getRfqs] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'rfq', op: 'list', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through
         }
     }
@@ -87,6 +89,7 @@ export async function getRfqById(rfqId: string): Promise<WithId<CrmRfq> | null> 
         } catch (e) {
             if (e instanceof RustApiError && e.status === 404) return null;
             console.error('[getRfqById] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'rfq', op: 'get', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through
         }
     }
@@ -226,11 +229,8 @@ export async function saveRfq(
             revalidatePath('/dashboard/crm/rfqs');
             return { message: 'RFQ saved successfully.' };
         } catch (e) {
-            if (e instanceof RustApiError) {
-                console.error('[saveRfq] rust path failed; falling back:', e);
-            } else {
-                console.error('[saveRfq] rust path failed; falling back:', e);
-            }
+            console.error('[saveRfq] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'rfq', op: 'create', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through to legacy
         }
     }
@@ -461,6 +461,7 @@ export async function updateRfqStatus(
             return { message: 'RFQ status updated.' };
         } catch (e) {
             console.error('[updateRfqStatus] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'rfq', op: 'update', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through
         }
     }
@@ -533,6 +534,7 @@ export async function deleteRfq(
             return { message: 'RFQ deleted.' };
         } catch (e) {
             console.error('[deleteRfq] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'rfq', op: 'delete', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through
         }
     }

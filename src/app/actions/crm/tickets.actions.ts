@@ -11,6 +11,10 @@
  */
 
 import { revalidatePath } from 'next/cache';
+import { getSession } from '@/app/actions/user.actions';
+import { writeAuditEntry } from '@/lib/audit-log';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+import { requirePermission } from '@/lib/rbac-server';
 import { RustApiError } from '@/lib/rust-client';
 import {
   crmTicketsApi,
@@ -44,10 +48,16 @@ export interface TicketListResult {
 export async function listTickets(params: CrmTicketListParams = {}): Promise<TicketListResult> {
   const page = Math.max(1, params.page ?? 1);
   const limit = Math.min(Math.max(1, params.limit ?? 20), 100);
+  const session = await getSession();
+  if (!session?.user) return { tickets: [], page, limit, hasMore: false, error: 'Unauthorized' };
+  const guard = await requirePermission('crm_ticket', 'view');
+  if (!guard.ok) return { tickets: [], page, limit, hasMore: false, error: guard.error };
   try {
     const tickets = await crmTicketsApi.list({ ...params, page, limit });
     return { tickets, page, limit, hasMore: tickets.length === limit };
   } catch (e) {
+    console.error('[listTickets] rust path failed; falling back:', e);
+    recordRustFallback({ entity: 'ticket', op: 'list', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
     return { tickets: [], page, limit, hasMore: false, error: rustErr(e) };
   }
 }
@@ -56,6 +66,10 @@ export async function getTicket(
   id: string,
 ): Promise<{ ticket: CrmTicketDoc | null; error?: string }> {
   if (!id) return { ticket: null, error: 'Missing ticket id.' };
+  const session = await getSession();
+  if (!session?.user) return { ticket: null, error: 'Unauthorized' };
+  const guard = await requirePermission('crm_ticket', 'view');
+  if (!guard.ok) return { ticket: null, error: guard.error };
   try {
     const ticket = await crmTicketsApi.getById(id);
     return { ticket };
@@ -63,6 +77,8 @@ export async function getTicket(
     if (e instanceof RustApiError && e.status === 404) {
       return { ticket: null, error: 'Ticket not found.' };
     }
+    console.error('[getTicket] rust path failed; falling back:', e);
+    recordRustFallback({ entity: 'ticket', op: 'get', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
     return { ticket: null, error: rustErr(e) };
   }
 }
@@ -100,7 +116,13 @@ export async function saveTicketAction(
   _prev: unknown,
   formData: FormData,
 ): Promise<{ message?: string; error?: string; id?: string }> {
+  const session = await getSession();
+  if (!session?.user) return { error: 'Unauthorized' };
+
   const id = pickString(formData, '_id');
+  const guard = await requirePermission('crm_ticket', id ? 'edit' : 'create');
+  if (!guard.ok) return { error: guard.error };
+
   const subject = pickString(formData, 'subject');
   const requesterId = pickString(formData, 'requesterId');
   const channel = pickString(formData, 'channel');
@@ -158,6 +180,18 @@ export async function saveTicketAction(
       }
     }
 
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action: id ? 'update' : 'create',
+        entityKind: 'ticket',
+        entityId: String(result._id),
+      });
+    } catch {
+      /* non-fatal */
+    }
+
     revalidatePath(LIST_PATH);
     revalidatePath(`${LIST_PATH}/${String(result._id)}`);
     return {
@@ -165,6 +199,8 @@ export async function saveTicketAction(
       id: String(result._id),
     };
   } catch (e) {
+    console.error('[saveTicketAction] rust path failed; falling back:', e);
+    recordRustFallback({ entity: 'ticket', op: id ? 'update' : 'create', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
     return { error: rustErr(e) };
   }
 }
@@ -177,14 +213,31 @@ export async function deleteTicketAction(
   id: string,
 ): Promise<{ success: boolean; error?: string }> {
   if (!id) return { success: false, error: 'Missing ticket id.' };
+  const session = await getSession();
+  if (!session?.user) return { success: false, error: 'Unauthorized' };
+  const guard = await requirePermission('crm_ticket', 'delete');
+  if (!guard.ok) return { success: false, error: guard.error };
   try {
     await crmTicketsApi.delete(id);
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action: 'delete',
+        entityKind: 'ticket',
+        entityId: id,
+      });
+    } catch {
+      /* non-fatal */
+    }
     revalidatePath(LIST_PATH);
     return { success: true };
   } catch (e) {
     if (e instanceof RustApiError && e.status === 404) {
       return { success: false, error: 'Ticket not found.' };
     }
+    console.error('[deleteTicketAction] rust path failed; falling back:', e);
+    recordRustFallback({ entity: 'ticket', op: 'delete', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
     return { success: false, error: rustErr(e) };
   }
 }

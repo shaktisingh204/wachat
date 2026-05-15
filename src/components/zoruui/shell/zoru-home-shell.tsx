@@ -71,6 +71,10 @@ function isFullBleedRoute(pathname: string | null): boolean {
   // /dashboard/sabflow/flow-builder/<flowId>(/subroute)? but NOT the
   // index list page `/dashboard/sabflow/flow-builder`.
   if (/^\/dashboard\/sabflow\/flow-builder\/[^/]+/.test(pathname)) return true;
+  // SabWa inbox is a 3-pane WhatsApp-Web layout that needs to fill the
+  // viewport edge-to-edge; the default padded <main> leaves a visible
+  // gutter and forces a second scroll container.
+  if (pathname === '/sabwa/inbox' || pathname.startsWith('/sabwa/inbox/')) return true;
   return false;
 }
 

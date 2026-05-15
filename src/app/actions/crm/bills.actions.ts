@@ -41,6 +41,7 @@ import { getSession } from '@/app/actions/user.actions';
 import { connectToDatabase } from '@/lib/mongodb';
 import { writeAuditEntry } from '@/lib/audit-log';
 import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+import { requirePermission } from '@/lib/rbac-server';
 
 const LIST_PATH = '/dashboard/crm/purchases/expenses';
 
@@ -243,6 +244,8 @@ export async function saveBillAction(
   if (!session?.user) return { error: 'Access denied.' };
 
   const id = pickString(formData, '_id');
+  const guard = await requirePermission('crm_bill', id ? 'edit' : 'create');
+  if (!guard.ok) return { error: guard.error };
   const vendorId = pickString(formData, 'vendorId');
   const currency = pickString(formData, 'currency') ?? 'INR';
   const billDateStr = pickString(formData, 'billDate');
@@ -368,6 +371,8 @@ export async function deleteBillAction(
   if (!id) return { success: false, error: 'Missing bill id.' };
   const session = await getSession();
   if (!session?.user) return { success: false, error: 'Access denied.' };
+  const guard = await requirePermission('crm_bill', 'delete');
+  if (!guard.ok) return { success: false, error: guard.error };
   try {
     await crmBillsApi.delete(id);
     try {
@@ -520,6 +525,8 @@ export async function bulkDeleteBills(
   if (!session?.user) {
     return { success: false, processed: 0, error: 'Access denied.' };
   }
+  const guard = await requirePermission('crm_bill', 'delete');
+  if (!guard.ok) return { success: false, processed: 0, error: guard.error };
   const valid = (ids ?? []).filter(
     (id) => typeof id === 'string' && id.length > 0,
   );
@@ -557,6 +564,8 @@ export async function bulkArchiveBills(
   if (!session?.user) {
     return { success: false, processed: 0, error: 'Access denied.' };
   }
+  const guard = await requirePermission('crm_bill', 'edit');
+  if (!guard.ok) return { success: false, processed: 0, error: guard.error };
   const valid = (ids ?? []).filter(
     (id) => typeof id === 'string' && id.length > 0,
   );
@@ -595,6 +604,8 @@ export async function bulkChangeBillStatus(
   if (!session?.user) {
     return { success: false, processed: 0, error: 'Access denied.' };
   }
+  const guard = await requirePermission('crm_bill', 'edit');
+  if (!guard.ok) return { success: false, processed: 0, error: guard.error };
   const valid = (ids ?? []).filter(
     (id) => typeof id === 'string' && id.length > 0,
   );
@@ -634,6 +645,8 @@ export async function updateBillStatus(
   if (!id) return { success: false, error: 'Missing bill id.' };
   const session = await getSession();
   if (!session?.user) return { success: false, error: 'Access denied.' };
+  const guard = await requirePermission('crm_bill', 'edit');
+  if (!guard.ok) return { success: false, error: guard.error };
   try {
     await crmBillsApi.update(id, { status });
     try {
@@ -673,6 +686,8 @@ export async function patchBill(
   if (!id) return { success: false, error: 'Missing bill id.' };
   const session = await getSession();
   if (!session?.user) return { success: false, error: 'Access denied.' };
+  const guard = await requirePermission('crm_bill', 'edit');
+  if (!guard.ok) return { success: false, error: guard.error };
   try {
     await crmBillsApi.update(id, patch);
     try {
