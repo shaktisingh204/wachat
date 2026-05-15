@@ -32,10 +32,17 @@ export interface EmptyStateProps {
   className?: string;
 }
 
-function isLucide(
-  icon: EmptyStateProps["icon"],
-): icon is LucideIcon {
-  return typeof icon === "function" || typeof icon === "object" && icon !== null && "displayName" in (icon as object);
+function isRenderableComponent(
+  icon: unknown,
+): icon is React.ComponentType<{ className?: string; "aria-hidden"?: boolean }> {
+  if (typeof icon === "function") return true;
+  // Lucide icons are React.forwardRef(...) — objects carrying $$typeof.
+  return (
+    typeof icon === "object" &&
+    icon !== null &&
+    "$$typeof" in (icon as object) &&
+    "render" in (icon as object)
+  );
 }
 
 export function EmptyState({
@@ -47,13 +54,13 @@ export function EmptyState({
 }: EmptyStateProps) {
   let iconNode: React.ReactNode = null;
   if (icon) {
-    if (typeof icon === "function") {
-      const Icon = icon as LucideIcon;
+    if (React.isValidElement(icon)) {
+      iconNode = icon;
+    } else if (isRenderableComponent(icon)) {
+      const Icon = icon;
       iconNode = <Icon className="h-6 w-6" aria-hidden />;
-    } else if (React.isValidElement(icon)) {
-      iconNode = icon;
     } else {
-      iconNode = icon;
+      iconNode = icon as React.ReactNode;
     }
   }
 
@@ -85,8 +92,5 @@ export function EmptyState({
     </div>
   );
 }
-
-// Silence unused-warning for the isLucide helper kept for future expansion.
-void isLucide;
 
 export default EmptyState;
