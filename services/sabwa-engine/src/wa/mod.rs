@@ -26,11 +26,13 @@
 //! Either way, only [`stub::StubFactory`] gets replaced — every consumer
 //! talks to [`session::WaSession`] through `Arc<dyn WaSession>`.
 
+pub mod baileys;
+pub mod errors;
+pub mod pool;
 pub mod session;
 pub mod stub;
-pub mod pool;
-pub mod errors;
 
+pub use baileys::{BaileysFactory, BaileysSession, BaileysSupervisor};
 pub use session::{
     PairRequest, PairResponse, SendRequest, SendResponse, WaSession, WaSessionFactory,
 };

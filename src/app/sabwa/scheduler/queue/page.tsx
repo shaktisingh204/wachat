@@ -1,45 +1,840 @@
-import * as React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { ListChecks } from 'lucide-react';
+"use client";
 
-export const metadata = { title: 'Scheduled Queue — SabWa' };
+/**
+ * SabWa — Scheduler Queue (`/sabwa/scheduler/queue`).
+ *
+ * Power-user table for the schedule pipeline. Filters by session,
+ * status, and date range; bulk-cancel or bulk-reschedule selected
+ * rows; click a row to open the shared `ScheduleDialog` in edit
+ * mode.
+ *
+ * Phase 1 wiring goes through:
+ *   - `listScheduledMessages` (read)
+ *   - `updateScheduledMessage` (single reschedule + bulk reschedule)
+ *   - `cancelScheduledMessage`  (single + bulk cancel)
+ *
+ * Those server actions are still stubs; we surface the error and fall
+ * back to a small sample dataset so the UI is usable in dev.
+ */
 
-export default function Page() {
+import * as React from "react";
+import Link from "next/link";
+import {
+  CalendarClock,
+  CalendarIcon,
+  ListChecks,
+  Plus,
+  RefreshCw,
+  Search,
+  Trash2,
+} from "lucide-react";
+
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { useToast } from "@/hooks/use-toast";
+
+import {
+  cancelScheduledMessage,
+  listScheduledMessages,
+  updateScheduledMessage,
+} from "@/app/actions/sabwa.actions";
+import type {
+  SabwaScheduled,
+  SabwaScheduledStatus,
+  SabwaScheduledTargetType,
+} from "@/lib/sabwa/types";
+
+import {
+  ScheduleDialog,
+  targetTypeMeta,
+  type ScheduleDialogInitial,
+} from "../_components/schedule-dialog";
+
+// ─── Lightweight session hook ──────────────────────────────────────────────
+//
+// The plan asks for `useSabwaSession()`. The real provider lands later in
+// Phase 1; for now we expose a stable hook here that returns null. Once
+// the shared context is added under `_components/`, this can be swapped
+// out without touching the queue page.
+function useSabwaSession(): { sessionId: string | null } {
+  return { sessionId: null };
+}
+
+// ─── Types ─────────────────────────────────────────────────────────────────
+
+interface QueueRow {
+  id: string;
+  sessionId: string;
+  targets: SabwaScheduled["targets"];
+  primaryTargetLabel: string;
+  primaryTargetType: SabwaScheduledTargetType;
+  payloadPreview: string;
+  scheduledFor: Date;
+  cron?: string;
+  status: SabwaScheduledStatus;
+  sentAt?: Date;
+  raw: SabwaScheduled | SampleScheduled;
+}
+
+type StatusFilter = "all" | SabwaScheduledStatus;
+
+const STATUS_LABEL: Record<SabwaScheduledStatus, string> = {
+  pending: "Pending",
+  sent: "Sent",
+  failed: "Failed",
+  cancelled: "Cancelled",
+};
+
+const STATUS_BADGE_CLASS: Record<SabwaScheduledStatus, string> = {
+  pending:
+    "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300",
+  sent: "border-green-500/30 bg-green-500/10 text-green-700 dark:text-green-300",
+  failed: "border-red-500/30 bg-red-500/10 text-red-700 dark:text-red-300",
+  cancelled:
+    "border-zinc-400/30 bg-zinc-400/10 text-zinc-700 dark:text-zinc-300",
+};
+
+// ─── Sample fallback ───────────────────────────────────────────────────────
+
+interface SampleScheduled {
+  _id: string;
+  sessionId: string;
+  targets: SabwaScheduled["targets"];
+  payload: SabwaScheduled["payload"];
+  scheduledFor: Date;
+  cron?: string;
+  kind: SabwaScheduled["kind"];
+  status: SabwaScheduledStatus;
+  sentAt?: Date;
+  timezone: string;
+}
+
+function buildSampleRows(): SampleScheduled[] {
+  const inDays = (n: number, h = 9): Date => {
+    const d = new Date();
+    d.setHours(h, 0, 0, 0);
+    d.setDate(d.getDate() + n);
+    return d;
+  };
+  return [
+    {
+      _id: "smp-1",
+      sessionId: "stub-primary",
+      targets: [{ jid: "919812345678@s.whatsapp.net", type: "individual" }],
+      payload: { type: "text", body: "Personal check-in" },
+      scheduledFor: inDays(0, 18),
+      kind: "one_off",
+      status: "pending",
+      timezone: "Asia/Kolkata",
+    },
+    {
+      _id: "smp-2",
+      sessionId: "stub-primary",
+      targets: [{ jid: "12345-67890@g.us", type: "group" }],
+      payload: { type: "text", body: "Daily standup nudge" },
+      scheduledFor: inDays(1, 9),
+      cron: "0 9 * * 1-5",
+      kind: "recurring",
+      status: "pending",
+      timezone: "Asia/Kolkata",
+    },
+    {
+      _id: "smp-3",
+      sessionId: "stub-primary",
+      targets: [{ jid: "bcast-weekend@broadcast", type: "broadcast" }],
+      payload: {
+        type: "text",
+        body: "Promo blast — weekend sale (50% off select items)",
+      },
+      scheduledFor: inDays(-1, 11),
+      kind: "one_off",
+      status: "sent",
+      sentAt: inDays(-1, 11),
+      timezone: "Asia/Kolkata",
+    },
+    {
+      _id: "smp-4",
+      sessionId: "stub-primary",
+      targets: [{ jid: "919812340000@s.whatsapp.net", type: "individual" }],
+      payload: { type: "text", body: "Follow-up missed" },
+      scheduledFor: inDays(-2, 16),
+      kind: "one_off",
+      status: "failed",
+      timezone: "Asia/Kolkata",
+    },
+  ];
+}
+
+// ─── Mapping ────────────────────────────────────────────────────────────────
+
+function toQueueRow(item: SabwaScheduled | SampleScheduled): QueueRow {
+  const firstTarget = item.targets?.[0];
+  const date = new Date(item.scheduledFor);
+  return {
+    id: String(item._id),
+    sessionId: String(item.sessionId),
+    targets: item.targets,
+    primaryTargetLabel: firstTarget?.jid ?? "—",
+    primaryTargetType: firstTarget?.type ?? "individual",
+    payloadPreview:
+      item.payload?.body || item.payload?.caption || "(no preview)",
+    scheduledFor: date,
+    cron: item.cron,
+    status: item.status,
+    sentAt: item.sentAt ? new Date(item.sentAt) : undefined,
+    raw: item,
+  };
+}
+
+function describeCron(cron: string): string {
+  const parts = cron.trim().split(/\s+/);
+  if (parts.length !== 5) return cron;
+  const [min, hour, , , dow] = parts;
+  const hh = Number(hour);
+  const mm = Number(min);
+  if (Number.isNaN(hh) || Number.isNaN(mm)) return cron;
+  const time = `${String(hh % 12 === 0 ? 12 : hh % 12)}:${String(mm).padStart(2, "0")} ${hh < 12 ? "AM" : "PM"}`;
+  if (dow === "1-5") return `Every weekday at ${time}`;
+  if (dow === "*") return `Daily at ${time}`;
+  return cron;
+}
+
+function recurrenceLabel(row: QueueRow): string {
+  if (!row.cron) return "Once";
+  return describeCron(row.cron);
+}
+
+// ─── Page ───────────────────────────────────────────────────────────────────
+
+export default function SchedulerQueuePage() {
+  const { toast } = useToast();
+  const { sessionId } = useSabwaSession();
+
+  const [rows, setRows] = React.useState<QueueRow[]>([]);
+  const [loaded, setLoaded] = React.useState(false);
+  const [usingSample, setUsingSample] = React.useState(false);
+  const [refreshing, setRefreshing] = React.useState(false);
+
+  const [status, setStatus] = React.useState<StatusFilter>("all");
+  const [search, setSearch] = React.useState("");
+  const [from, setFrom] = React.useState<Date | undefined>();
+  const [to, setTo] = React.useState<Date | undefined>();
+
+  const [selected, setSelected] = React.useState<Set<string>>(new Set());
+
+  const [dialogOpen, setDialogOpen] = React.useState(false);
+  const [dialogInitial, setDialogInitial] = React.useState<
+    ScheduleDialogInitial | undefined
+  >();
+
+  const [bulkRescheduleOpen, setBulkRescheduleOpen] = React.useState(false);
+  const [bulkRescheduleDate, setBulkRescheduleDate] = React.useState<
+    Date | undefined
+  >();
+  const [bulkRescheduling, setBulkRescheduling] = React.useState(false);
+
+  // ─ Load ───────────────────────────────────────────────────────────────
+  const refresh = React.useCallback(async () => {
+    setRefreshing(true);
+    try {
+      const res = await listScheduledMessages(sessionId ?? "");
+      if (res.ok && Array.isArray(res.items)) {
+        setRows(res.items.map(toQueueRow));
+        setUsingSample(false);
+      } else {
+        setRows(buildSampleRows().map(toQueueRow));
+        setUsingSample(true);
+      }
+    } catch {
+      setRows(buildSampleRows().map(toQueueRow));
+      setUsingSample(true);
+    } finally {
+      setLoaded(true);
+      setRefreshing(false);
+    }
+  }, [sessionId]);
+
+  React.useEffect(() => {
+    void refresh();
+  }, [refresh]);
+
+  // ─ Filtering ──────────────────────────────────────────────────────────
+  const visibleRows = React.useMemo(() => {
+    return rows.filter((row) => {
+      if (status !== "all" && row.status !== status) return false;
+      if (from && row.scheduledFor < from) return false;
+      if (to && row.scheduledFor > to) return false;
+      if (search.trim()) {
+        const q = search.toLowerCase();
+        if (
+          !row.primaryTargetLabel.toLowerCase().includes(q) &&
+          !row.payloadPreview.toLowerCase().includes(q)
+        ) {
+          return false;
+        }
+      }
+      return true;
+    });
+  }, [rows, status, from, to, search]);
+
+  const allVisibleSelected =
+    visibleRows.length > 0 && visibleRows.every((r) => selected.has(r.id));
+  const partiallySelected =
+    !allVisibleSelected && visibleRows.some((r) => selected.has(r.id));
+
+  const toggleAll = () => {
+    setSelected((curr) => {
+      const next = new Set(curr);
+      if (allVisibleSelected) {
+        for (const r of visibleRows) next.delete(r.id);
+      } else {
+        for (const r of visibleRows) next.add(r.id);
+      }
+      return next;
+    });
+  };
+
+  const toggleRow = (id: string) => {
+    setSelected((curr) => {
+      const next = new Set(curr);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  // ─ Mutations ──────────────────────────────────────────────────────────
+  function reportError(action: string, message: string) {
+    toast({ title: action, description: message, variant: "destructive" });
+  }
+
+  const handleCancel = React.useCallback(
+    async (id: string) => {
+      // Optimistic
+      setRows((curr) =>
+        curr.map((r) => (r.id === id ? { ...r, status: "cancelled" } : r)),
+      );
+      if (usingSample) return;
+      try {
+        const res = await cancelScheduledMessage(id);
+        if (!res.ok) {
+          reportError("Couldn't cancel", res.error);
+          void refresh();
+        }
+      } catch (err) {
+        reportError(
+          "Couldn't cancel",
+          err instanceof Error ? err.message : "Unknown error",
+        );
+        void refresh();
+      }
+    },
+    [usingSample, refresh],
+  );
+
+  const handleBulkCancel = React.useCallback(async () => {
+    const ids = [...selected];
+    if (ids.length === 0) return;
+    setRows((curr) =>
+      curr.map((r) => (selected.has(r.id) ? { ...r, status: "cancelled" } : r)),
+    );
+    setSelected(new Set());
+    if (usingSample) {
+      toast({
+        title: `Cancelled ${ids.length} schedule${ids.length === 1 ? "" : "s"}`,
+        description: "Sample data — no engine call was made.",
+      });
+      return;
+    }
+    let lastError: string | null = null;
+    for (const id of ids) {
+      try {
+        const res = await cancelScheduledMessage(id);
+        if (!res.ok) lastError = res.error;
+      } catch (err) {
+        lastError = err instanceof Error ? err.message : "Unknown error";
+      }
+    }
+    if (lastError) {
+      reportError("Bulk cancel — some rows failed", lastError);
+      void refresh();
+    } else {
+      toast({
+        title: `Cancelled ${ids.length} schedule${ids.length === 1 ? "" : "s"}`,
+      });
+    }
+  }, [selected, usingSample, refresh, toast]);
+
+  const handleBulkReschedule = React.useCallback(async () => {
+    if (!bulkRescheduleDate) return;
+    const ids = [...selected];
+    if (ids.length === 0) return;
+    setBulkRescheduling(true);
+    const targetDate = bulkRescheduleDate;
+    setRows((curr) =>
+      curr.map((r) => {
+        if (!selected.has(r.id)) return r;
+        const next = new Date(r.scheduledFor);
+        next.setFullYear(
+          targetDate.getFullYear(),
+          targetDate.getMonth(),
+          targetDate.getDate(),
+        );
+        return { ...r, scheduledFor: next };
+      }),
+    );
+    if (usingSample) {
+      toast({
+        title: `Rescheduled ${ids.length} item${ids.length === 1 ? "" : "s"}`,
+        description: targetDate.toLocaleDateString(),
+      });
+      setBulkRescheduling(false);
+      setBulkRescheduleOpen(false);
+      setSelected(new Set());
+      return;
+    }
+    let lastError: string | null = null;
+    for (const id of ids) {
+      const row = rows.find((r) => r.id === id);
+      const next = new Date(row?.scheduledFor ?? new Date());
+      next.setFullYear(
+        targetDate.getFullYear(),
+        targetDate.getMonth(),
+        targetDate.getDate(),
+      );
+      try {
+        const res = await updateScheduledMessage(id, {
+          scheduledFor: next,
+        });
+        if (!res.ok) lastError = res.error;
+      } catch (err) {
+        lastError = err instanceof Error ? err.message : "Unknown error";
+      }
+    }
+    setBulkRescheduling(false);
+    setBulkRescheduleOpen(false);
+    setSelected(new Set());
+    if (lastError) {
+      reportError("Bulk reschedule — some rows failed", lastError);
+      void refresh();
+    } else {
+      toast({
+        title: `Rescheduled ${ids.length} item${ids.length === 1 ? "" : "s"}`,
+        description: targetDate.toLocaleDateString(),
+      });
+    }
+  }, [
+    bulkRescheduleDate,
+    selected,
+    rows,
+    usingSample,
+    refresh,
+    toast,
+  ]);
+
+  // ─ Row actions ────────────────────────────────────────────────────────
+  const openEdit = (row: QueueRow) => {
+    setDialogInitial({
+      scheduledId: row.id,
+      sessionId: row.sessionId,
+      targets: row.targets,
+      body: row.payloadPreview,
+      scheduledFor: row.scheduledFor,
+      cron: row.cron,
+      recurrence: row.cron ? "custom" : "none",
+    });
+    setDialogOpen(true);
+  };
+
+  // ─ Render ─────────────────────────────────────────────────────────────
   return (
-    <div className="p-4 md:p-6 lg:p-8 space-y-6">
-      <div className="flex items-start gap-3">
-        <div className="rounded-xl bg-secondary p-3">
-          <ListChecks className="h-6 w-6" />
-        </div>
-        <div>
-          <div className="flex items-center gap-2 flex-wrap">
-            <h1 className="text-2xl font-semibold tracking-tight">Scheduled Queue</h1>
-            <Badge variant="secondary">Coming soon</Badge>
+    <div className="p-4 md:p-6 lg:p-8 space-y-4">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="flex items-start gap-3">
+          <div className="rounded-xl bg-secondary p-3">
+            <ListChecks className="h-6 w-6" />
           </div>
-          <p className="text-sm text-muted-foreground mt-1">
-            Table view of every pending, sent, and failed scheduled message — with bulk reschedule and cancel.
-          </p>
+          <div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-2xl font-semibold tracking-tight">
+                Scheduled Queue
+              </h1>
+              {usingSample && loaded && (
+                <Badge variant="secondary">Sample data</Badge>
+              )}
+            </div>
+            <p className="text-sm text-muted-foreground mt-1">
+              Triage every pending, sent, failed, or cancelled scheduled
+              message — with bulk reschedule and cancel.
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button asChild variant="outline" size="sm">
+            <Link href="/sabwa/scheduler">
+              <CalendarClock className="mr-1.5 h-4 w-4" />
+              Calendar
+            </Link>
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => void refresh()}
+            disabled={refreshing}
+          >
+            <RefreshCw
+              className={cn(
+                "mr-1.5 h-4 w-4",
+                refreshing && "animate-spin",
+              )}
+            />
+            Refresh
+          </Button>
+          <Button
+            size="sm"
+            onClick={() => {
+              setDialogInitial(undefined);
+              setDialogOpen(true);
+            }}
+          >
+            <Plus className="mr-1.5 h-4 w-4" />
+            New schedule
+          </Button>
         </div>
       </div>
-      <Card>
-        <CardHeader>
-          <CardTitle>What&apos;s coming</CardTitle>
-          <CardDescription>
-            A power-user table to triage the scheduling pipeline at scale.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ul className="space-y-2 text-sm list-disc pl-5">
-            <li>Unified table of pending, sent, and failed scheduled messages.</li>
-            <li>Filter by chat, group, or broadcast target.</li>
-            <li>Bulk reschedule selected rows in one action.</li>
-            <li>Bulk cancel pending sends safely.</li>
-            <li>Drill into recurring parents and their child instances.</li>
-            <li>Inspect failure reasons for retry decisions.</li>
-          </ul>
-        </CardContent>
-      </Card>
+
+      {/* ─── Filters ─────────────────────────────────────────────────── */}
+      <div className="flex flex-wrap items-end gap-2 rounded-lg border bg-card p-3">
+        <div className="flex flex-1 min-w-[180px] flex-col gap-1">
+          <Label htmlFor="queue-search" className="text-[11px]">
+            Search target or message
+          </Label>
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              id="queue-search"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Filter…"
+              className="pl-7"
+            />
+          </div>
+        </div>
+        <div className="flex flex-col gap-1">
+          <Label className="text-[11px]">Status</Label>
+          <Select
+            value={status}
+            onValueChange={(v) => setStatus(v as StatusFilter)}
+          >
+            <SelectTrigger className="w-[140px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All</SelectItem>
+              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="sent">Sent</SelectItem>
+              <SelectItem value="failed">Failed</SelectItem>
+              <SelectItem value="cancelled">Cancelled</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <DateRangeField label="From" value={from} onChange={setFrom} />
+        <DateRangeField label="To" value={to} onChange={setTo} />
+        {(from || to || status !== "all" || search) && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              setFrom(undefined);
+              setTo(undefined);
+              setStatus("all");
+              setSearch("");
+            }}
+          >
+            Clear
+          </Button>
+        )}
+      </div>
+
+      {/* ─── Bulk bar ────────────────────────────────────────────────── */}
+      {selected.size > 0 && (
+        <div className="flex flex-wrap items-center gap-2 rounded-md border bg-secondary/50 px-3 py-2 text-sm">
+          <span>
+            <strong>{selected.size}</strong> selected
+          </span>
+          <div className="ml-auto flex items-center gap-2">
+            <Popover
+              open={bulkRescheduleOpen}
+              onOpenChange={setBulkRescheduleOpen}
+            >
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <CalendarIcon className="mr-1.5 h-4 w-4" />
+                  Reschedule to…
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent align="end" className="w-auto p-0">
+                <Calendar
+                  mode="single"
+                  selected={bulkRescheduleDate}
+                  onSelect={setBulkRescheduleDate}
+                />
+                <div className="flex justify-end gap-2 border-t p-2">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => setBulkRescheduleOpen(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={handleBulkReschedule}
+                    disabled={!bulkRescheduleDate || bulkRescheduling}
+                  >
+                    Apply
+                  </Button>
+                </div>
+              </PopoverContent>
+            </Popover>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={handleBulkCancel}
+            >
+              <Trash2 className="mr-1.5 h-4 w-4" />
+              Cancel
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* ─── Table ──────────────────────────────────────────────────── */}
+      <div className="rounded-lg border bg-card overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-8">
+                <Checkbox
+                  checked={
+                    allVisibleSelected
+                      ? true
+                      : partiallySelected
+                        ? "indeterminate"
+                        : false
+                  }
+                  onCheckedChange={toggleAll}
+                  aria-label="Select all visible"
+                />
+              </TableHead>
+              <TableHead>Target</TableHead>
+              <TableHead>Message</TableHead>
+              <TableHead>Scheduled for</TableHead>
+              <TableHead>Recurrence</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Sent at</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {visibleRows.length === 0 && loaded && (
+              <TableRow>
+                <TableCell
+                  colSpan={8}
+                  className="py-10 text-center text-sm text-muted-foreground"
+                >
+                  No scheduled messages match these filters.
+                </TableCell>
+              </TableRow>
+            )}
+            {visibleRows.map((row) => {
+              const meta = targetTypeMeta(row.primaryTargetType);
+              const Icon = meta.Icon;
+              const isSelected = selected.has(row.id);
+              return (
+                <TableRow
+                  key={row.id}
+                  data-state={isSelected ? "selected" : undefined}
+                  className="cursor-pointer"
+                  onClick={() => openEdit(row)}
+                >
+                  <TableCell
+                    onClick={(e) => e.stopPropagation()}
+                    className="w-8"
+                  >
+                    <Checkbox
+                      checked={isSelected}
+                      onCheckedChange={() => toggleRow(row.id)}
+                      aria-label={`Select schedule ${row.id}`}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={cn(
+                          "inline-flex h-6 w-6 items-center justify-center rounded-md",
+                          meta.className,
+                        )}
+                      >
+                        <Icon className="h-3.5 w-3.5" />
+                      </span>
+                      <div className="min-w-0">
+                        <div className="truncate text-xs font-medium">
+                          {row.primaryTargetLabel}
+                        </div>
+                        <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                          {meta.label}
+                          {row.targets.length > 1 &&
+                            ` +${row.targets.length - 1}`}
+                        </div>
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell className="max-w-[28ch]">
+                    <span className="block truncate text-xs">
+                      {row.payloadPreview}
+                    </span>
+                  </TableCell>
+                  <TableCell className="whitespace-nowrap text-xs">
+                    {row.scheduledFor.toLocaleString()}
+                  </TableCell>
+                  <TableCell className="text-xs">
+                    {recurrenceLabel(row)}
+                  </TableCell>
+                  <TableCell>
+                    <span
+                      className={cn(
+                        "inline-flex rounded-full border px-2 py-0.5 text-[10px] font-medium",
+                        STATUS_BADGE_CLASS[row.status],
+                      )}
+                    >
+                      {STATUS_LABEL[row.status]}
+                    </span>
+                  </TableCell>
+                  <TableCell className="whitespace-nowrap text-xs text-muted-foreground">
+                    {row.sentAt ? row.sentAt.toLocaleString() : "—"}
+                  </TableCell>
+                  <TableCell
+                    className="text-right"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => openEdit(row)}
+                    >
+                      Edit
+                    </Button>
+                    {row.status === "pending" && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleCancel(row.id)}
+                      >
+                        Cancel
+                      </Button>
+                    )}
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </div>
+
+      <ScheduleDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        mode={dialogInitial?.scheduledId ? "edit" : "create"}
+        initial={dialogInitial}
+        sessionId={sessionId ?? undefined}
+        onSaved={() => void refresh()}
+      />
+    </div>
+  );
+}
+
+// ─── Filter helpers ─────────────────────────────────────────────────────────
+
+function DateRangeField({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value?: Date;
+  onChange: (d: Date | undefined) => void;
+}) {
+  const [open, setOpen] = React.useState(false);
+  return (
+    <div className="flex flex-col gap-1">
+      <Label className="text-[11px]">{label}</Label>
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className={cn(
+              "w-[140px] justify-start font-normal",
+              !value && "text-muted-foreground",
+            )}
+          >
+            <CalendarIcon className="mr-2 h-3.5 w-3.5" />
+            {value ? value.toLocaleDateString() : "Any"}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent align="start" className="w-auto p-0">
+          <Calendar
+            mode="single"
+            selected={value}
+            onSelect={(d) => {
+              onChange(d ?? undefined);
+              setOpen(false);
+            }}
+            initialFocus
+          />
+          {value && (
+            <div className="border-t p-2">
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => {
+                  onChange(undefined);
+                  setOpen(false);
+                }}
+              >
+                Clear
+              </Button>
+            </div>
+          )}
+        </PopoverContent>
+      </Popover>
     </div>
   );
 }

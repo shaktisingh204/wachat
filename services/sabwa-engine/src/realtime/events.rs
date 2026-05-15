@@ -45,6 +45,13 @@ pub enum SabwaEvent {
     PairCode(PairCodeEvent),
     /// Session-level lifecycle status (`pending → connected → …`).
     Status(StatusEvent),
+    /// A scheduled job fired and was dispatched onto the outbound queue.
+    ///
+    /// Emitted by the scheduler tick loop (see `scheduler::tick`) whenever a
+    /// due `sabwa_scheduled` entry transitions to `sent` / `queued`. The UI's
+    /// scheduler queue page subscribes to this so the row updates in real time
+    /// without polling.
+    Scheduled(ScheduledEvent),
 }
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -171,6 +178,16 @@ pub struct StatusEvent {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub detail: Option<String>,
     pub ts: i64,
+}
+
+/// Payload carried by [`SabwaEvent::Scheduled`].
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct ScheduledEvent {
+    pub session_id: String,
+    /// `sabwa_scheduled._id` — string form (stringified ObjectId or "sch_<uuid>").
+    pub scheduled_id: String,
+    /// New status of the scheduled doc (`sent` | `queued` | `failed`).
+    pub status: String,
 }
 
 #[cfg(test)]

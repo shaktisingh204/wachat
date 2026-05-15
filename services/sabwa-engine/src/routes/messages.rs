@@ -6,12 +6,14 @@
 
 use axum::{
     extract::{Path, Query, State},
+    http::HeaderMap,
     routing::{get, post},
     Json, Router,
 };
 use serde::{Deserialize, Serialize};
 use serde_json::Value as JsonValue;
 
+use crate::audit::{self, AuditEntry};
 use crate::error::AppError;
 use crate::state::AppState;
 
@@ -183,6 +185,7 @@ async fn list_messages(
 
 async fn send_message(
     State(state): State<AppState>,
+    headers: HeaderMap,
     Json(body): Json<SendMessageRequest>,
 ) -> Result<Json<SendMessageResponse>, AppError> {
     tracing::info!(
@@ -191,6 +194,8 @@ async fn send_message(
         r#type = %body.r#type,
         "messages: send"
     );
+
+    let (actor_ip, user_agent) = audit::extract_context(&headers);
 
     let temp_message_id = format!("tmp_{}", uuid::Uuid::new_v4());
     let queue_key = format!("sabwa:{}:outbound", body.session_id);
@@ -209,6 +214,27 @@ async fn send_message(
 
     crate::db::misc::redis_lpush(&state.redis, &queue_key, &payload.to_string()).await?;
 
+    let _ = audit::record(
+        &state,
+        AuditEntry {
+            project_id: String::new(),
+            user_id: None,
+            session_id: Some(body.session_id.clone()),
+            action: "message.send".into(),
+            target_kind: Some("chat".into()),
+            target_id: Some(body.chat_jid.clone()),
+            metadata: serde_json::json!({
+                "type": body.r#type,
+                "tempMessageId": temp_message_id,
+                "hasMedia": body.media_url.is_some(),
+            }),
+            actor_ip,
+            user_agent,
+            ts: chrono::Utc::now(),
+        },
+    )
+    .await;
+
     Ok(Json(SendMessageResponse {
         queued: true,
         queue_key,
@@ -218,6 +244,7 @@ async fn send_message(
 
 async fn patch_message(
     State(state): State<AppState>,
+    headers: HeaderMap,
     Path(id): Path<String>,
     Json(body): Json<PatchMessageRequest>,
 ) -> Result<Json<PatchMessageResponse>, AppError> {
@@ -227,6 +254,9 @@ async fn patch_message(
         op = %body.op,
         "messages: patch"
     );
+
+    let (actor_ip, user_agent) = audit::extract_context(&headers);
+    let audit_action = format!("message.{}", body.op);
 
     // Star / unstar are pure DB ops. The rest must go through the WA socket.
     match body.op.as_str() {
@@ -238,6 +268,22 @@ async fn patch_message(
                 body.op == "star",
             )
             .await?;
+            let _ = audit::record(
+                &state,
+                AuditEntry {
+                    project_id: String::new(),
+                    user_id: None,
+                    session_id: Some(body.session_id.clone()),
+                    action: audit_action,
+                    target_kind: Some("message".into()),
+                    target_id: Some(id.clone()),
+                    metadata: serde_json::json!({ "chatJid": body.chat_jid }),
+                    actor_ip,
+                    user_agent,
+                    ts: chrono::Utc::now(),
+                },
+            )
+            .await;
             return Ok(Json(PatchMessageResponse {
                 message_id: id,
                 op: body.op,
@@ -257,6 +303,27 @@ async fn patch_message(
     });
     crate::db::misc::redis_lpush(&state.redis, &queue_key, &payload.to_string()).await?;
 
+    let _ = audit::record(
+        &state,
+        AuditEntry {
+            project_id: String::new(),
+            user_id: None,
+            session_id: Some(body.session_id.clone()),
+            action: audit_action,
+            target_kind: Some("message".into()),
+            target_id: Some(id.clone()),
+            metadata: serde_json::json!({
+                "chatJid": body.chat_jid,
+                "hasBody": body.body.is_some(),
+                "hasEmoji": body.emoji.is_some(),
+            }),
+            actor_ip,
+            user_agent,
+            ts: chrono::Utc::now(),
+        },
+    )
+    .await;
+
     Ok(Json(PatchMessageResponse {
         message_id: id,
         op: body.op,
@@ -266,6 +333,7 @@ async fn patch_message(
 
 async fn mark_read(
     State(state): State<AppState>,
+    headers: HeaderMap,
     Json(body): Json<MarkReadRequest>,
 ) -> Result<Json<MarkReadResponse>, AppError> {
     tracing::info!(
@@ -273,6 +341,8 @@ async fn mark_read(
         chat_jid = %body.chat_jid,
         "messages: mark-read"
     );
+
+    let (actor_ip, user_agent) = audit::extract_context(&headers);
 
     let queue_key = format!("sabwa:{}:outbound", body.session_id);
     let payload = serde_json::json!({
@@ -284,6 +354,23 @@ async fn mark_read(
     // Optimistically clear unread counter so the UI flips immediately even
     // before the worker confirms the WA-side read receipt.
     crate::db::chats::clear_unread(&state.db, &body.session_id, &body.chat_jid).await?;
+
+    let _ = audit::record(
+        &state,
+        AuditEntry {
+            project_id: String::new(),
+            user_id: None,
+            session_id: Some(body.session_id.clone()),
+            action: "message.mark_read".into(),
+            target_kind: Some("chat".into()),
+            target_id: Some(body.chat_jid.clone()),
+            metadata: serde_json::json!({}),
+            actor_ip,
+            user_agent,
+            ts: chrono::Utc::now(),
+        },
+    )
+    .await;
 
     Ok(Json(MarkReadResponse {
         session_id: body.session_id,

@@ -26,6 +26,7 @@
 use anyhow::{anyhow, Context, Result};
 use bson::oid::ObjectId;
 use chrono::{DateTime, Datelike, Duration, FixedOffset, Timelike, Utc};
+use futures::TryStreamExt;
 use mongodb::bson;
 
 use crate::state::AppState;
@@ -269,6 +270,125 @@ pub async fn materialise(state: &AppState, parent_id: &str) -> Result<usize> {
         enqueued += 1;
     }
     tracing::info!(parent_id, enqueued, "scheduler.recurring.materialise");
+    Ok(enqueued)
+}
+
+/// Sweep every recurring parent in `sabwa_scheduled` and materialise child
+/// instances out to 30 days. Intended to be called periodically (≈1 h) from
+/// the scheduler tick loop.
+///
+/// Selection rule: any doc with `kind = "recurring"` whose `cron` is set and
+/// whose latest materialised child is < `now + 30d`. We approximate "latest
+/// materialised child" by stamping `lastMaterialisedThrough` on the parent
+/// after each pass — if absent we treat the window as starting at `now`.
+///
+/// Returns the total number of child jobs enqueued across all parents.
+pub async fn materialise_due(state: &AppState) -> Result<usize> {
+    let col = state
+        .db
+        .collection::<bson::Document>(crate::db::scheduled::COLLECTION);
+
+    let now = Utc::now();
+    let horizon = now + Duration::days(MATERIALISE_WINDOW_DAYS);
+
+    // Find recurring parents whose materialised window doesn't yet reach `horizon`.
+    // We tolerate missing `lastMaterialisedThrough` by also matching `$exists:false`.
+    let filter = bson::doc! {
+        "kind": "recurring",
+        "cron": { "$exists": true, "$ne": bson::Bson::Null },
+        "$or": [
+            { "lastMaterialisedThrough": { "$exists": false } },
+            { "lastMaterialisedThrough": { "$lt": bson::Bson::DateTime(horizon.into()) } },
+        ],
+    };
+
+    let cursor = col
+        .find(filter)
+        .await
+        .context("materialise_due: find recurring parents")?;
+    let parents: Vec<bson::Document> = cursor
+        .try_collect()
+        .await
+        .context("materialise_due: collect parents")?;
+
+    let mut total = 0usize;
+    for parent in parents {
+        let parent_id = match parent.get("_id") {
+            Some(bson::Bson::ObjectId(o)) => o.to_hex(),
+            Some(bson::Bson::String(s)) => s.clone(),
+            _ => continue,
+        };
+        match materialise_parent_doc(state, &parent).await {
+            Ok(n) => {
+                total += n;
+                // Stamp the parent so we don't re-do this work next pass.
+                let filter = match ObjectId::parse_str(&parent_id) {
+                    Ok(oid) => bson::doc! { "_id": oid },
+                    Err(_) => bson::doc! { "_id": &parent_id },
+                };
+                let _ = col
+                    .update_one(
+                        filter,
+                        bson::doc! { "$set": {
+                            "lastMaterialisedThrough": bson::Bson::DateTime(horizon.into()),
+                            "updatedAt": bson::DateTime::now(),
+                        }},
+                    )
+                    .await;
+            }
+            Err(e) => {
+                tracing::error!(
+                    error = %e,
+                    parent_id = %parent_id,
+                    "scheduler.recurring.materialise_due: parent failed"
+                );
+            }
+        }
+    }
+
+    Ok(total)
+}
+
+/// Materialise children for a parent doc already loaded from Mongo.
+/// Factored out of [`materialise`] so [`materialise_due`] can avoid a second
+/// round-trip per parent.
+async fn materialise_parent_doc(state: &AppState, parent: &bson::Document) -> Result<usize> {
+    let cron = parent
+        .get_str("cron")
+        .map_err(|_| anyhow!("parent missing `cron`"))?
+        .to_string();
+
+    let tz_raw = parent.get_str("timezone").unwrap_or("+00:00").to_string();
+    let tz = parse_offset(&tz_raw).unwrap_or_else(|| FixedOffset::east_opt(0).unwrap());
+
+    let session_id =
+        oid_or_string(parent, "sessionId").ok_or_else(|| anyhow!("parent missing sessionId"))?;
+    let project_id =
+        oid_or_string(parent, "projectId").ok_or_else(|| anyhow!("parent missing projectId"))?;
+
+    let payload_json = match parent.get("payload") {
+        Some(bson::Bson::Document(d)) => bson::Bson::Document(d.clone()).into_relaxed_extjson(),
+        Some(other) => other.clone().into_relaxed_extjson(),
+        None => serde_json::Value::Null,
+    };
+
+    let now = Utc::now();
+    let raw_count = MATERIALISE_WINDOW_DAYS as usize * 24 * 60;
+    let fire_times = next_instances(&cron, tz, now, raw_count);
+    let window_end = now + Duration::days(MATERIALISE_WINDOW_DAYS);
+
+    let mut enqueued = 0usize;
+    for at in fire_times.into_iter().filter(|t| *t <= window_end) {
+        let job = ScheduledJob::new(
+            session_id.clone(),
+            project_id.clone(),
+            at.timestamp(),
+            ScheduledJobKind::SendMessage,
+            payload_json.clone(),
+        );
+        queue::enqueue(&state.redis, job).await?;
+        enqueued += 1;
+    }
     Ok(enqueued)
 }
 

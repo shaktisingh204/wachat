@@ -1,0 +1,1286 @@
+"use client";
+
+/**
+ * Overview (Phase 1) — client surface for `/sabwa`.
+ *
+ * The server component (`page.tsx`) pre-fetches everything that's safe to
+ * fetch with what we know server-side (sessions, plan limits). Everything
+ * that depends on which session the user has *selected* in the
+ * SessionSwitcher (analytics, scheduled queue, audit feed) is the
+ * client's job — it knows the active sessionId via `useSabwaSession()` and
+ * subscribes to live status changes through `useSabwaStream`.
+ *
+ * Source of truth: SABWA_PLAN.md § 6 page 1.
+ */
+
+import * as React from "react";
+import Link from "next/link";
+import {
+  Activity,
+  AlertTriangle,
+  ArrowRight,
+  CalendarClock,
+  CheckCircle2,
+  Circle,
+  ListChecks,
+  MessageSquarePlus,
+  Megaphone,
+  Phone,
+  PlusCircle,
+  QrCode,
+  Send,
+  ShieldAlert,
+  Smartphone,
+  TimerReset,
+  Users,
+  Zap,
+} from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
+
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
+
+import {
+  getAnalytics,
+  getSessionStatus,
+  listAuditEntries,
+  listScheduled,
+  type SabwaAnalyticsPayload,
+  type SabwaAuditEntryRow,
+  type SabwaSessionStatusInfo,
+} from "@/app/actions/sabwa.actions";
+import type {
+  SabwaScheduled,
+  SabwaSessionStatus,
+} from "@/lib/sabwa/types";
+import { useSabwaStream } from "@/lib/sabwa/use-sabwa-stream";
+import type { SabwaPlanLimits } from "@/lib/sabwa/plan-limits";
+
+import { StatusBadge } from "./status-badge";
+
+// ─── Types passed from the server shell ────────────────────────────────────
+
+export interface OverviewSessionSummary {
+  sessionId: string;
+  projectId: string;
+  phoneE164?: string;
+  pushName?: string;
+  profilePicUrl?: string;
+  label?: string;
+  status: SabwaSessionStatus;
+  rateLimitProfile?: string;
+  warmupEnabled?: boolean;
+  hasTemplates?: boolean;
+  hasAutoReply?: boolean;
+  hasSentScheduled?: boolean;
+}
+
+export interface OverviewBootstrap {
+  projectId: string | null;
+  /** All paired sessions for the project (may be empty). */
+  sessions: OverviewSessionSummary[];
+  /** The session whose KPIs we render on first paint. */
+  initialSessionId: string | null;
+  /** Plan caps for the usage card. */
+  planLimits: SabwaPlanLimits;
+  planName: string;
+}
+
+interface AsyncShape<T> {
+  data: T | null;
+  loading: boolean;
+}
+
+// ─── Helpers ───────────────────────────────────────────────────────────────
+
+function formatQuota(value: number | "unlimited" | "custom"): string {
+  if (value === "unlimited") return "Unlimited";
+  if (value === "custom") return "Custom";
+  return value.toLocaleString();
+}
+
+function quotaToNumber(value: number | "unlimited" | "custom"): number | null {
+  if (typeof value === "number") return value;
+  return null;
+}
+
+function maskedPhone(phoneE164?: string): string {
+  if (!phoneE164) return "—";
+  // Show first 3 + last 2 digits, mask middle.
+  const trimmed = phoneE164.replace(/\s+/g, "");
+  if (trimmed.length <= 5) return trimmed;
+  return `${trimmed.slice(0, 3)} •••• ${trimmed.slice(-2)}`;
+}
+
+function safeDate(value: string | Date | undefined | null): Date | null {
+  if (!value) return null;
+  const d = value instanceof Date ? value : new Date(value);
+  return Number.isFinite(d.getTime()) ? d : null;
+}
+
+function bandFromScore(score: number): {
+  label: string;
+  tone: "healthy" | "caution" | "elevated" | "critical";
+  className: string;
+} {
+  if (score < 25)
+    return {
+      label: "Healthy",
+      tone: "healthy",
+      className: "text-green-600 dark:text-green-400",
+    };
+  if (score < 50)
+    return {
+      label: "Caution",
+      tone: "caution",
+      className: "text-amber-600 dark:text-amber-400",
+    };
+  if (score < 75)
+    return {
+      label: "Elevated",
+      tone: "elevated",
+      className: "text-orange-600 dark:text-orange-400",
+    };
+  return {
+    label: "Critical",
+    tone: "critical",
+    className: "text-red-600 dark:text-red-400",
+  };
+}
+
+// ─── Disconnected hero (no sessions at all) ────────────────────────────────
+
+function DisconnectedHero() {
+  return (
+    <Card className="overflow-hidden border-blue-500/30 bg-gradient-to-br from-blue-500/10 via-violet-500/5 to-transparent">
+      <CardContent className="flex flex-col gap-6 p-6 md:flex-row md:items-center md:gap-8 md:p-8">
+        <div
+          aria-hidden
+          className="flex h-20 w-20 flex-none items-center justify-center rounded-2xl bg-blue-600/15 text-blue-600 ring-1 ring-blue-500/30 dark:text-blue-300"
+        >
+          <QrCode className="h-10 w-10" />
+        </div>
+        <div className="min-w-0 flex-1 space-y-2">
+          <h1 className="text-xl font-semibold tracking-tight md:text-2xl">
+            Connect your personal WhatsApp in 30 seconds
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Scan a QR with the WhatsApp app on your phone and SabNode will
+            mirror your chats, groups and broadcasts here. By connecting, you
+            agree to follow WhatsApp&apos;s terms of service — unsolicited bulk
+            messaging is the leading cause of account bans, so SabWa
+            ships with anti-ban defaults you can tune later.
+          </p>
+        </div>
+        <div className="flex flex-col gap-2 md:flex-none">
+          <Button asChild size="lg" className="gap-2">
+            <Link href="/sabwa/connect">
+              <QrCode className="h-4 w-4" />
+              Connect WhatsApp
+            </Link>
+          </Button>
+          <Button asChild variant="outline" size="sm">
+            <Link href="/sabwa/settings/rate-limits">Read ban-risk guide</Link>
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+// ─── Active session header card ────────────────────────────────────────────
+
+function SessionHeaderCard({
+  active,
+  sessions,
+  liveStatus,
+  onSwitch,
+}: {
+  active: OverviewSessionSummary;
+  sessions: OverviewSessionSummary[];
+  liveStatus: SabwaSessionStatus | "pairing" | "syncing" | "ready" | null;
+  onSwitch: (sessionId: string) => void;
+}) {
+  const [open, setOpen] = React.useState(false);
+  const displayStatus = liveStatus ?? active.status;
+
+  const initials = (active.pushName ?? active.label ?? "?")
+    .split(/\s+/)
+    .map((part) => part[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+
+  return (
+    <Card>
+      <CardContent className="flex flex-col gap-4 p-4 md:flex-row md:items-center md:gap-6 md:p-6">
+        <div className="flex min-w-0 flex-1 items-center gap-4">
+          <div
+            aria-hidden
+            className="relative h-14 w-14 flex-none overflow-hidden rounded-full bg-secondary text-secondary-foreground"
+          >
+            {active.profilePicUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={active.profilePicUrl}
+                alt=""
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <span className="flex h-full w-full items-center justify-center text-base font-semibold">
+                {initials || <Smartphone className="h-6 w-6" />}
+              </span>
+            )}
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="truncate text-lg font-semibold tracking-tight md:text-xl">
+                {active.pushName || active.label || "Linked WhatsApp"}
+              </h1>
+              <StatusBadge status={displayStatus} size="sm" />
+            </div>
+            <p className="mt-0.5 truncate text-sm text-muted-foreground">
+              {active.phoneE164 ?? maskedPhone(active.phoneE164)}
+            </p>
+          </div>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <Popover open={open} onOpenChange={setOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={sessions.length < 2}
+                className="gap-2"
+              >
+                <Smartphone className="h-4 w-4" />
+                Switch session
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent align="end" className="w-72 p-2">
+              <p className="px-2 pb-1 pt-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                Paired sessions
+              </p>
+              <ul className="flex flex-col gap-0.5">
+                {sessions.map((s) => {
+                  const isActive = s.sessionId === active.sessionId;
+                  return (
+                    <li key={s.sessionId}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          onSwitch(s.sessionId);
+                          setOpen(false);
+                        }}
+                        className={cn(
+                          "flex w-full items-center justify-between gap-2 rounded-md px-2 py-2 text-left text-sm hover:bg-accent hover:text-accent-foreground",
+                          isActive && "bg-accent text-accent-foreground",
+                        )}
+                      >
+                        <span className="flex min-w-0 flex-col leading-tight">
+                          <span className="truncate text-xs font-medium">
+                            {s.pushName || s.label || "Linked WhatsApp"}
+                          </span>
+                          <span className="truncate text-[11px] text-muted-foreground">
+                            {s.phoneE164 ?? maskedPhone(s.phoneE164)}
+                          </span>
+                        </span>
+                        <StatusBadge status={s.status} size="sm" />
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+              <div className="my-2 h-px bg-border" aria-hidden />
+              <Button
+                asChild
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start gap-2"
+              >
+                <Link href="/sabwa/connect">
+                  <PlusCircle className="h-4 w-4" />
+                  <span className="text-sm">Connect another number</span>
+                </Link>
+              </Button>
+            </PopoverContent>
+          </Popover>
+          <Button asChild variant="ghost" size="sm" className="gap-2">
+            <Link href="/sabwa/devices">
+              Manage devices
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+// ─── KPI cards ─────────────────────────────────────────────────────────────
+
+function Sparkline({
+  series,
+  className,
+}: {
+  series: ReadonlyArray<{ in: number; out: number; date?: string }>;
+  className?: string;
+}) {
+  // Combined in+out series, normalised to a 60×20 viewBox.
+  const points = series.length
+    ? series.map((d) => d.in + d.out)
+    : [0, 0, 0, 0, 0, 0, 0];
+  const max = Math.max(1, ...points);
+  const step = points.length > 1 ? 60 / (points.length - 1) : 0;
+  const path = points
+    .map((v, i) => {
+      const x = i * step;
+      const y = 20 - (v / max) * 18 - 1;
+      return `${i === 0 ? "M" : "L"}${x.toFixed(2)},${y.toFixed(2)}`;
+    })
+    .join(" ");
+
+  return (
+    <svg
+      viewBox="0 0 60 20"
+      preserveAspectRatio="none"
+      className={cn("h-6 w-20", className)}
+      aria-hidden
+    >
+      <path
+        d={path}
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.5}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function KpiCardShell({
+  icon: Icon,
+  label,
+  href,
+  children,
+  className,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  href?: string;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  const body = (
+    <Card
+      className={cn(
+        "h-full transition-shadow",
+        href && "cursor-pointer hover:shadow-md",
+        className,
+      )}
+    >
+      <CardContent className="flex h-full flex-col gap-3 p-4">
+        <div className="flex items-center justify-between gap-2">
+          <span className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+            <Icon className="h-3.5 w-3.5" />
+            {label}
+          </span>
+          {href ? (
+            <ArrowRight
+              className="h-3.5 w-3.5 text-muted-foreground"
+              aria-hidden
+            />
+          ) : null}
+        </div>
+        {children}
+      </CardContent>
+    </Card>
+  );
+
+  if (href) {
+    return (
+      <Link
+        href={href}
+        aria-label={label}
+        className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-lg"
+      >
+        {body}
+      </Link>
+    );
+  }
+  return body;
+}
+
+function KpiRow({
+  analytics,
+  scheduled,
+  activeGroups,
+  loading,
+}: {
+  analytics: SabwaAnalyticsPayload | null;
+  scheduled: { pendingCount: number; nextFireAt: Date | null } | null;
+  activeGroups: { total: number; last24h: number } | null;
+  loading: boolean;
+}) {
+  const todayIn = analytics?.kpis.todayIn ?? 0;
+  const todayOut = analytics?.kpis.todayOut ?? 0;
+  const responseSec = analytics
+    ? Math.round(analytics.kpis.medianResponseMs / 1000)
+    : 0;
+
+  return (
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <KpiCardShell icon={Send} label="Today's messages" href="/sabwa/analytics">
+        {loading ? (
+          <Skeleton className="h-8 w-24" />
+        ) : (
+          <div className="flex items-end justify-between gap-3">
+            <div>
+              <p className="text-2xl font-semibold tabular-nums leading-none">
+                {todayOut.toLocaleString()}
+                <span className="ml-1 text-sm font-normal text-muted-foreground">
+                  out
+                </span>
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground tabular-nums">
+                {todayIn.toLocaleString()} in
+              </p>
+            </div>
+            <Sparkline
+              series={analytics?.messagesByDay ?? []}
+              className="text-blue-500"
+            />
+          </div>
+        )}
+      </KpiCardShell>
+
+      <KpiCardShell
+        icon={CalendarClock}
+        label="Scheduled queue"
+        href="/sabwa/scheduler/queue"
+      >
+        {loading ? (
+          <Skeleton className="h-8 w-20" />
+        ) : (
+          <div>
+            <p className="text-2xl font-semibold tabular-nums leading-none">
+              {scheduled?.pendingCount.toLocaleString() ?? 0}
+            </p>
+            <p className="mt-1 truncate text-xs text-muted-foreground">
+              {scheduled?.nextFireAt
+                ? `Next: ${formatDistanceToNow(scheduled.nextFireAt, {
+                    addSuffix: true,
+                  })}`
+                : "Nothing pending"}
+            </p>
+          </div>
+        )}
+      </KpiCardShell>
+
+      <KpiCardShell icon={Users} label="Active groups" href="/sabwa/groups">
+        {loading ? (
+          <Skeleton className="h-8 w-20" />
+        ) : (
+          <div>
+            <p className="text-2xl font-semibold tabular-nums leading-none">
+              {(activeGroups?.total ?? 0).toLocaleString()}
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground tabular-nums">
+              {(activeGroups?.last24h ?? 0).toLocaleString()} active in 24h
+            </p>
+          </div>
+        )}
+      </KpiCardShell>
+
+      <KpiCardShell
+        icon={TimerReset}
+        label="Response time"
+        href="/sabwa/analytics"
+      >
+        {loading ? (
+          <Skeleton className="h-8 w-20" />
+        ) : (
+          <div>
+            <p className="text-2xl font-semibold tabular-nums leading-none">
+              {responseSec ? `${responseSec}s` : "—"}
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Median, last 7 days
+            </p>
+          </div>
+        )}
+      </KpiCardShell>
+    </div>
+  );
+}
+
+// ─── Ban-risk gauge ────────────────────────────────────────────────────────
+
+function BanRiskGauge({
+  score,
+  reasons,
+  loading,
+}: {
+  score: number;
+  reasons: string[];
+  loading: boolean;
+}) {
+  const clamped = Math.max(0, Math.min(100, Math.round(score)));
+  const band = bandFromScore(clamped);
+
+  // Semicircular gauge — half-circle path with stroke-dasharray.
+  // Arc length ~157 for r=50 → πr.
+  const r = 50;
+  const circumference = Math.PI * r;
+  const fraction = clamped / 100;
+  const dashOffset = circumference * (1 - fraction);
+
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <CardTitle className="text-base font-semibold">
+            Ban-risk score
+          </CardTitle>
+          <Badge variant="outline" className={cn("text-[10px]", band.className)}>
+            <ShieldAlert className="mr-1 h-3 w-3" />
+            {band.label}
+          </Badge>
+        </div>
+        <CardDescription>
+          Computed from velocity, delivery failures, and recipient signals.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-1 items-center gap-4 sm:grid-cols-[auto_1fr]">
+          {loading ? (
+            <Skeleton className="h-[80px] w-[160px]" />
+          ) : (
+            <div className="relative h-[80px] w-[160px]" aria-hidden>
+              <svg viewBox="0 0 120 70" className="h-full w-full">
+                {/* Track */}
+                <path
+                  d="M10,60 A50,50 0 0 1 110,60"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeOpacity={0.12}
+                  strokeWidth={10}
+                  strokeLinecap="round"
+                />
+                {/* Filled arc */}
+                <path
+                  d="M10,60 A50,50 0 0 1 110,60"
+                  fill="none"
+                  className={band.className}
+                  stroke="currentColor"
+                  strokeWidth={10}
+                  strokeLinecap="round"
+                  strokeDasharray={circumference}
+                  strokeDashoffset={dashOffset}
+                />
+              </svg>
+              <div className="absolute inset-x-0 bottom-1 flex flex-col items-center">
+                <span
+                  className={cn(
+                    "text-2xl font-semibold tabular-nums leading-none",
+                    band.className,
+                  )}
+                >
+                  {clamped}
+                </span>
+                <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                  / 100
+                </span>
+              </div>
+            </div>
+          )}
+          <div className="min-w-0 space-y-2">
+            <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              Top risk reasons
+            </p>
+            {loading ? (
+              <div className="space-y-1.5">
+                <Skeleton className="h-3 w-3/4" />
+                <Skeleton className="h-3 w-2/3" />
+                <Skeleton className="h-3 w-1/2" />
+              </div>
+            ) : reasons.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                No risk signals in the last 24 hours.
+              </p>
+            ) : (
+              <ul className="space-y-1 text-sm">
+                {reasons.slice(0, 3).map((r) => (
+                  <li
+                    key={r}
+                    className="flex items-start gap-2 text-muted-foreground"
+                  >
+                    <Circle
+                      className="mt-1.5 h-1.5 w-1.5 flex-none fill-current"
+                      aria-hidden
+                    />
+                    <span>{r}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <Button asChild variant="link" size="sm" className="h-auto px-0">
+              <Link href="/sabwa/settings/rate-limits">Review settings</Link>
+            </Button>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+// ─── Quick actions ─────────────────────────────────────────────────────────
+
+function QuickActions({
+  onSchedule,
+}: {
+  onSchedule: () => void;
+}) {
+  const items: Array<{
+    label: string;
+    href?: string;
+    onClick?: () => void;
+    icon: React.ComponentType<{ className?: string }>;
+  }> = [
+    { label: "New chat", href: "/sabwa/inbox", icon: MessageSquarePlus },
+    { label: "Schedule message", onClick: onSchedule, icon: CalendarClock },
+    { label: "Send broadcast", href: "/sabwa/broadcasts", icon: Megaphone },
+    { label: "Start bulk campaign", href: "/sabwa/bulk", icon: Zap },
+    { label: "Connect another number", href: "/sabwa/connect", icon: PlusCircle },
+  ];
+
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-base font-semibold">Quick actions</CardTitle>
+        <CardDescription>
+          The five things you&apos;ll do most often, one tap away.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
+          {items.map(({ label, href, onClick, icon: Icon }) => {
+            const inner = (
+              <>
+                <Icon className="h-5 w-5" />
+                <span className="text-xs font-medium leading-tight">
+                  {label}
+                </span>
+              </>
+            );
+            const className =
+              "flex h-auto flex-col items-center justify-center gap-2 rounded-lg border bg-card p-3 text-center transition-colors hover:border-blue-500/40 hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2";
+            if (href) {
+              return (
+                <Link key={label} href={href} className={className}>
+                  {inner}
+                </Link>
+              );
+            }
+            return (
+              <button
+                key={label}
+                type="button"
+                onClick={onClick}
+                className={className}
+              >
+                {inner}
+              </button>
+            );
+          })}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+// ─── Recent activity feed ──────────────────────────────────────────────────
+
+function targetHrefForAction(action: string): string {
+  if (action.startsWith("session.")) return "/sabwa/devices";
+  if (action.startsWith("scheduled.")) return "/sabwa/scheduler/queue";
+  if (action.startsWith("broadcast.")) return "/sabwa/broadcasts";
+  if (action.startsWith("template.")) return "/sabwa/templates";
+  if (action.startsWith("auto_reply.")) return "/sabwa/auto-reply";
+  if (action.startsWith("contact.")) return "/sabwa/contacts";
+  if (action.startsWith("group.")) return "/sabwa/groups";
+  if (action.startsWith("message.")) return "/sabwa/inbox";
+  return "/sabwa/audit";
+}
+
+function RecentActivity({
+  entries,
+  loading,
+}: {
+  entries: SabwaAuditEntryRow[];
+  loading: boolean;
+}) {
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
+        <div>
+          <CardTitle className="text-base font-semibold">
+            Recent activity
+          </CardTitle>
+          <CardDescription>
+            Latest 10 events touching this session.
+          </CardDescription>
+        </div>
+        <Button asChild variant="ghost" size="sm" className="gap-1">
+          <Link href="/sabwa/audit">
+            See all
+            <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+        </Button>
+      </CardHeader>
+      <CardContent>
+        {loading ? (
+          <ul className="space-y-2">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <li key={i} className="flex items-center gap-3">
+                <Skeleton className="h-2 w-2 rounded-full" />
+                <Skeleton className="h-3 flex-1" />
+                <Skeleton className="h-3 w-16" />
+              </li>
+            ))}
+          </ul>
+        ) : entries.length === 0 ? (
+          <div className="flex flex-col items-center gap-2 py-8 text-center">
+            <Activity
+              className="h-8 w-8 text-muted-foreground"
+              aria-hidden
+            />
+            <p className="text-sm font-medium">No activity yet</p>
+            <p className="text-xs text-muted-foreground">
+              Send a message or schedule something — it&apos;ll show up here.
+            </p>
+          </div>
+        ) : (
+          <ul className="divide-y divide-border">
+            {entries.slice(0, 10).map((e) => {
+              const id = e.id ?? `${e.action}-${String(e.ts)}`;
+              const when = safeDate(e.ts);
+              const actor = e.actorEmail ?? "Someone";
+              const href = targetHrefForAction(e.action);
+              return (
+                <li key={id}>
+                  <Link
+                    href={href}
+                    className="-mx-2 flex items-center gap-3 rounded-md px-2 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
+                  >
+                    <span
+                      aria-hidden
+                      className="h-2 w-2 flex-none rounded-full bg-blue-500"
+                    />
+                    <span className="min-w-0 flex-1 truncate">
+                      <span className="font-medium">{actor}</span>{" "}
+                      <span className="text-muted-foreground">{e.action}</span>
+                      {e.target ? (
+                        <span className="text-muted-foreground">
+                          {" "}
+                          · {e.target}
+                        </span>
+                      ) : null}
+                    </span>
+                    <time
+                      dateTime={when?.toISOString() ?? ""}
+                      className="flex-none text-xs text-muted-foreground tabular-nums"
+                    >
+                      {when
+                        ? formatDistanceToNow(when, { addSuffix: true })
+                        : ""}
+                    </time>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+// ─── Onboarding checklist ──────────────────────────────────────────────────
+
+interface ChecklistItem {
+  label: string;
+  done: boolean;
+  href: string;
+}
+
+function OnboardingChecklist({ items }: { items: ChecklistItem[] }) {
+  const allDone = items.every((i) => i.done);
+  if (allDone) return null;
+  const completed = items.filter((i) => i.done).length;
+
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <div className="flex items-center justify-between gap-2">
+          <div>
+            <CardTitle className="text-base font-semibold">
+              Get the most out of SabWa
+            </CardTitle>
+            <CardDescription>
+              {completed} of {items.length} steps complete.
+            </CardDescription>
+          </div>
+          <ListChecks className="h-5 w-5 text-muted-foreground" aria-hidden />
+        </div>
+      </CardHeader>
+      <CardContent>
+        <ul className="space-y-1">
+          {items.map(({ label, done, href }) => (
+            <li key={label}>
+              <Link
+                href={href}
+                className={cn(
+                  "-mx-2 flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground",
+                  done && "text-muted-foreground",
+                )}
+              >
+                {done ? (
+                  <CheckCircle2
+                    className="h-4 w-4 flex-none text-green-500"
+                    aria-hidden
+                  />
+                ) : (
+                  <Circle
+                    className="h-4 w-4 flex-none text-muted-foreground"
+                    aria-hidden
+                  />
+                )}
+                <span className={cn(done && "line-through")}>{label}</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </CardContent>
+    </Card>
+  );
+}
+
+// ─── Plan usage card ───────────────────────────────────────────────────────
+
+function PlanUsageCard({
+  planName,
+  limits,
+  sessionsUsed,
+  todaySends,
+  scheduledPending,
+}: {
+  planName: string;
+  limits: SabwaPlanLimits;
+  sessionsUsed: number;
+  todaySends: number;
+  scheduledPending: number;
+}) {
+  const rows: Array<{
+    label: string;
+    used: number;
+    cap: number | "unlimited" | "custom";
+  }> = [
+    { label: "Sessions paired", used: sessionsUsed, cap: limits.sessions },
+    { label: "Sends today", used: todaySends, cap: limits.dailySend },
+    {
+      label: "Scheduled pending",
+      used: scheduledPending,
+      cap: limits.scheduler.maxPending,
+    },
+  ];
+
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <div className="flex items-center justify-between gap-2">
+          <div>
+            <CardTitle className="text-base font-semibold">
+              Plan usage
+            </CardTitle>
+            <CardDescription>
+              Current period under the{" "}
+              <span className="capitalize">{planName || "free"}</span> plan.
+            </CardDescription>
+          </div>
+          <Button asChild variant="outline" size="sm">
+            <Link href="/dashboard/billing">Upgrade</Link>
+          </Button>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <TooltipProvider delayDuration={200}>
+          <ul className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            {rows.map(({ label, used, cap }) => {
+              const capNum = quotaToNumber(cap);
+              const percent =
+                capNum && capNum > 0
+                  ? Math.min(100, Math.round((used / capNum) * 100))
+                  : 0;
+              const danger = percent >= 85;
+              const warn = percent >= 60 && percent < 85;
+              return (
+                <li key={label} className="space-y-1.5">
+                  <div className="flex items-baseline justify-between gap-2">
+                    <span className="text-xs font-medium text-muted-foreground">
+                      {label}
+                    </span>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="text-xs tabular-nums">
+                          {used.toLocaleString()}{" "}
+                          <span className="text-muted-foreground">
+                            / {formatQuota(cap)}
+                          </span>
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent side="top">
+                        {capNum
+                          ? `${percent}% of cap`
+                          : "No static cap on your plan"}
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                  <div
+                    role="progressbar"
+                    aria-valuemin={0}
+                    aria-valuemax={capNum ?? 0}
+                    aria-valuenow={used}
+                    className="h-1.5 w-full overflow-hidden rounded-full bg-muted"
+                  >
+                    {capNum ? (
+                      <div
+                        className={cn(
+                          "h-full rounded-full transition-all",
+                          danger
+                            ? "bg-red-500"
+                            : warn
+                              ? "bg-amber-500"
+                              : "bg-blue-500",
+                        )}
+                        style={{ width: `${percent}%` }}
+                      />
+                    ) : (
+                      <div className="h-full w-full bg-gradient-to-r from-blue-500/40 via-violet-500/40 to-blue-500/40" />
+                    )}
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </TooltipProvider>
+      </CardContent>
+    </Card>
+  );
+}
+
+// ─── Schedule dialog stub (placeholder until real one is wired) ────────────
+
+function ScheduleDialog({
+  open,
+  onOpenChange,
+}: {
+  open: boolean;
+  onOpenChange: (next: boolean) => void;
+}) {
+  // The full schedule editor lives at `/sabwa/scheduler` (see SABWA_PLAN.md
+  // § 6 page 13). The Overview's "Schedule message" CTA just navigates
+  // there for now — once the modal component lands at
+  // `/sabwa/scheduler/_components/schedule-dialog` this stub will be
+  // swapped for the real one.
+  React.useEffect(() => {
+    if (!open) return;
+    onOpenChange(false);
+    if (typeof window !== "undefined") {
+      window.location.href = "/sabwa/scheduler";
+    }
+  }, [open, onOpenChange]);
+  return null;
+}
+
+// ─── Main client component ─────────────────────────────────────────────────
+
+export function OverviewClient({ bootstrap }: { bootstrap: OverviewBootstrap }) {
+  const { sessions, initialSessionId, planLimits, planName } = bootstrap;
+
+  // Hooks must run unconditionally — even when there are no sessions we still
+  // declare them so the hook order stays stable across renders.
+  const [activeId, setActiveId] = React.useState<string>(
+    initialSessionId ?? sessions[0]?.sessionId ?? "",
+  );
+  const [scheduleOpen, setScheduleOpen] = React.useState(false);
+
+  const active = React.useMemo(
+    () => sessions.find((s) => s.sessionId === activeId) ?? sessions[0] ?? null,
+    [sessions, activeId],
+  );
+
+  // Live status stream for the currently selected session.
+  // The stream connection status (`open`/`closed`/...) is wire-level; the
+  // *session* status lives on each `lastEvent` of kind `status`. We
+  // capture it via a refining cast so the StatusBadge gets a typed value.
+  const stream = useSabwaStream(activeId || null, {
+    enabled: Boolean(activeId),
+  });
+  const liveStatus: SabwaSessionStatus | "pairing" | "syncing" | "ready" | null =
+    (() => {
+      if (stream.lastEvent?.kind !== "status") return null;
+      const raw = String(stream.lastEvent.status ?? "");
+      const known: ReadonlyArray<
+        SabwaSessionStatus | "pairing" | "syncing" | "ready"
+      > = [
+        "pending",
+        "connected",
+        "logged_out",
+        "banned",
+        "error",
+        "pairing",
+        "syncing",
+        "ready",
+      ];
+      return (known as readonly string[]).includes(raw)
+        ? (raw as SabwaSessionStatus | "pairing" | "syncing" | "ready")
+        : null;
+    })();
+
+  // Async client data — analytics, scheduled queue, audit feed, session status.
+  const [analytics, setAnalytics] = React.useState<AsyncShape<SabwaAnalyticsPayload>>(
+    { data: null, loading: true },
+  );
+  const [scheduled, setScheduled] = React.useState<
+    AsyncShape<{ pendingCount: number; nextFireAt: Date | null }>
+  >({ data: null, loading: true });
+  const [audit, setAudit] = React.useState<AsyncShape<SabwaAuditEntryRow[]>>({
+    data: null,
+    loading: true,
+  });
+  const [statusInfo, setStatusInfo] = React.useState<AsyncShape<SabwaSessionStatusInfo>>(
+    { data: null, loading: true },
+  );
+
+  React.useEffect(() => {
+    if (!activeId) {
+      setAnalytics({ data: null, loading: false });
+      setScheduled({ data: null, loading: false });
+      setAudit({ data: [], loading: false });
+      setStatusInfo({ data: null, loading: false });
+      return;
+    }
+    let cancelled = false;
+    setAnalytics({ data: null, loading: true });
+    setScheduled({ data: null, loading: true });
+    setAudit({ data: null, loading: true });
+    setStatusInfo({ data: null, loading: true });
+
+    // Independent fetches — kick off in parallel so the dashboard renders as
+    // each card resolves rather than waiting for the slowest.
+    void (async () => {
+      try {
+        const result = await getAnalytics({ sessionId: activeId, range: "7d" });
+        if (cancelled) return;
+        if (result.ok) {
+          setAnalytics({ data: result.analytics, loading: false });
+        } else {
+          setAnalytics({ data: null, loading: false });
+        }
+      } catch {
+        if (!cancelled) setAnalytics({ data: null, loading: false });
+      }
+    })();
+
+    void (async () => {
+      try {
+        const result = await listScheduled({
+          sessionId: activeId,
+          status: "pending",
+          limit: 50,
+        });
+        if (cancelled) return;
+        if (result.ok) {
+          const items = (result.items ?? []) as SabwaScheduled[];
+          const nextFireAt = items
+            .map((s) =>
+              s.scheduledFor instanceof Date
+                ? s.scheduledFor
+                : new Date(s.scheduledFor),
+            )
+            .filter((d) => Number.isFinite(d.getTime()))
+            .sort((a, b) => a.getTime() - b.getTime())[0] ?? null;
+          setScheduled({
+            data: { pendingCount: items.length, nextFireAt },
+            loading: false,
+          });
+        } else {
+          setScheduled({ data: null, loading: false });
+        }
+      } catch {
+        if (!cancelled) setScheduled({ data: null, loading: false });
+      }
+    })();
+
+    void (async () => {
+      try {
+        const result = await listAuditEntries({
+          sessionId: activeId,
+          limit: 10,
+        });
+        if (cancelled) return;
+        if (result.ok) {
+          setAudit({
+            data: result.entries ?? [],
+            loading: false,
+          });
+        } else {
+          setAudit({ data: null, loading: false });
+        }
+      } catch {
+        if (!cancelled) setAudit({ data: [], loading: false });
+      }
+    })();
+
+    void (async () => {
+      try {
+        const result = await getSessionStatus(activeId);
+        if (cancelled) return;
+        if (result.ok) {
+          setStatusInfo({ data: result.session, loading: false });
+        } else {
+          setStatusInfo({ data: null, loading: false });
+        }
+      } catch {
+        if (!cancelled) setStatusInfo({ data: null, loading: false });
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [activeId]);
+
+  // Onboarding checklist — purely client-side derivation.
+  const checklist: ChecklistItem[] = React.useMemo(
+    () => [
+      {
+        label: "Connect first WhatsApp account",
+        done: sessions.some((s) => s.status === "connected"),
+        href: "/sabwa/connect",
+      },
+      {
+        label: "Set a rate-limit profile",
+        done: Boolean(active?.rateLimitProfile),
+        href: "/sabwa/settings/rate-limits",
+      },
+      {
+        label: "Configure auto-reply for off-hours",
+        done: Boolean(active?.hasAutoReply),
+        href: "/sabwa/auto-reply",
+      },
+      {
+        label: "Send your first scheduled message",
+        done: Boolean(active?.hasSentScheduled),
+        href: "/sabwa/scheduler",
+      },
+      {
+        label: "Create your first template",
+        done: Boolean(active?.hasTemplates),
+        href: "/sabwa/templates",
+      },
+    ],
+    [sessions, active],
+  );
+
+  const todaySends = analytics.data?.kpis.todayOut ?? 0;
+  const banScore =
+    statusInfo.data?.banRiskScore ?? analytics.data?.kpis.banRiskScore ?? 0;
+  const banReasons = statusInfo.data?.banRiskReasons ?? [];
+
+  // Empty state — no sessions paired yet. Rendered after hooks so the hook
+  // call order stays stable across renders.
+  if (sessions.length === 0 || !active) {
+    return (
+      <div className="space-y-6 p-4 md:p-6 lg:p-8">
+        <DisconnectedHero />
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6 p-4 md:p-6 lg:p-8">
+      <SessionHeaderCard
+        active={active}
+        sessions={sessions}
+        liveStatus={liveStatus}
+        onSwitch={setActiveId}
+      />
+
+      <KpiRow
+        analytics={analytics.data}
+        scheduled={scheduled.data}
+        activeGroups={null}
+        loading={analytics.loading || scheduled.loading}
+      />
+
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <BanRiskGauge
+          score={banScore}
+          reasons={banReasons}
+          loading={statusInfo.loading}
+        />
+        <QuickActions onSchedule={() => setScheduleOpen(true)} />
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <RecentActivity entries={audit.data ?? []} loading={audit.loading} />
+        </div>
+        <OnboardingChecklist items={checklist} />
+      </div>
+
+      <PlanUsageCard
+        planName={planName}
+        limits={planLimits}
+        sessionsUsed={sessions.length}
+        todaySends={todaySends}
+        scheduledPending={scheduled.data?.pendingCount ?? 0}
+      />
+
+      <ScheduleDialog open={scheduleOpen} onOpenChange={setScheduleOpen} />
+
+      {/* Hidden marker so unused-import linters don't complain about Phone — */}
+      {/* it's reserved for the Calls quick-action when that page lands. */}
+      <span className="hidden" aria-hidden>
+        <Phone className="h-0 w-0" />
+        <AlertTriangle className="h-0 w-0" />
+      </span>
+    </div>
+  );
+}
+
+export default OverviewClient;

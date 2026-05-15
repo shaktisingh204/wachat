@@ -135,16 +135,27 @@ pub struct SabwaApiKey {
     #[serde(rename = "_id", skip_serializing_if = "Option::is_none")]
     pub id: Option<ObjectId>,
     pub project_id: ObjectId,
-    pub session_id: ObjectId,
+    /// Optional bound session — left as None for project-wide keys, kept for
+    /// backwards compatibility with the earlier session-scoped schema.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub session_id: Option<ObjectId>,
+    #[serde(default)]
     pub name: String,
-    /// SHA-256 of the raw token — never store the raw key.
-    pub token_hash: String,
+    /// SHA-256 (hex) of the raw token — never store the raw key.
+    pub key_hash: String,
+    /// First 6 chars of the raw key (e.g. `sk_AB`) for safe UI display.
+    #[serde(default)]
+    pub prefix: String,
     #[serde(default)]
     pub scopes: Vec<String>,
+    #[serde(default)]
+    pub revoked: bool,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub last_used_at: Option<DateTime<Utc>>,
-    #[serde(default = "default_true")]
-    pub enabled: bool,
+    #[serde(default)]
+    pub usage_count: u64,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub expires_at: Option<DateTime<Utc>>,
     pub created_at: DateTime<Utc>,
 }
 
@@ -512,3 +523,69 @@ define_misc_repo!(LabelsRepo, SabwaLabel, "sabwa_labels");
 define_misc_repo!(WebhooksRepo, SabwaWebhook, "sabwa_webhooks");
 define_misc_repo!(AuditLogRepo, SabwaAuditLogEntry, "sabwa_audit_log");
 define_misc_repo!(ApiKeysRepo, SabwaApiKey, "sabwa_api_keys");
+
+impl<'a> ApiKeysRepo<'a> {
+    /// Find a non-deleted key by its SHA-256 hash. Returns `None` on miss so
+    /// callers can map that to a 401 without surfacing a not-found error.
+    pub async fn find_by_hash(&self, key_hash: &str) -> Result<Option<SabwaApiKey>> {
+        let col = self.col.clone();
+        col.find_one(doc! { "keyHash": key_hash })
+            .await
+            .context("sabwa_api_keys.find_by_hash")
+    }
+
+    /// Best-effort usage stamp: bumps `lastUsedAt` to now and increments
+    /// `usageCount` by 1.
+    pub async fn mark_used(&self, id: &ObjectId) -> Result<()> {
+        let col = self.col.clone();
+        col.update_one(
+            doc! { "_id": id },
+            doc! {
+                "$set": { "lastUsedAt": Bson::DateTime(BsonDateTime::now()) },
+                "$inc": { "usageCount": 1i64 },
+            },
+        )
+        .await
+        .context("sabwa_api_keys.mark_used")?;
+        Ok(())
+    }
+
+    /// Soft-revoke — flips `revoked: true` so the row is preserved for audit.
+    pub async fn revoke(&self, id: &ObjectId) -> Result<()> {
+        let col = self.col.clone();
+        col.update_one(
+            doc! { "_id": id },
+            doc! { "$set": { "revoked": true } },
+        )
+        .await
+        .context("sabwa_api_keys.revoke")?;
+        Ok(())
+    }
+
+    /// Persist a freshly minted key. The caller is responsible for hashing
+    /// the raw token before calling this; we only ever see `key_hash`.
+    pub async fn create(&self, key: &SabwaApiKey) -> Result<ObjectId> {
+        let col = self.col.clone();
+        let res = col
+            .insert_one(key)
+            .await
+            .context("sabwa_api_keys.create")?;
+        res.inserted_id
+            .as_object_id()
+            .context("sabwa_api_keys.create: inserted_id was not ObjectId")
+    }
+
+    /// List every key (revoked included) belonging to `project_id`.
+    pub async fn list_by_project(&self, project_id: &ObjectId) -> Result<Vec<SabwaApiKey>> {
+        let col = self.col.clone();
+        let cursor = col
+            .find(doc! { "projectId": project_id })
+            .await
+            .context("sabwa_api_keys.list_by_project")?;
+        let out: Vec<SabwaApiKey> = cursor
+            .try_collect()
+            .await
+            .context("collect sabwa_api_keys")?;
+        Ok(out)
+    }
+}

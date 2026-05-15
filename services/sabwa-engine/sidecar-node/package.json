@@ -1,0 +1,20 @@
+{
+  "name": "sabwa-baileys-sidecar",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Node.js sidecar process that runs Baileys for the Rust sabwa-engine. Communicates with the parent via line-delimited JSON-RPC over stdin/stdout.",
+  "type": "module",
+  "main": "src/index.js",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "dependencies": {
+    "@whiskeysockets/baileys": "latest",
+    "pino": "^9.5.0",
+    "qrcode-terminal": "^0.12.0"
+  }
+}

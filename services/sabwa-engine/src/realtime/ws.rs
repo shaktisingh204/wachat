@@ -16,16 +16,24 @@ use std::convert::Infallible;
 use axum::{
     extract::{
         ws::{Message, WebSocket, WebSocketUpgrade},
-        Path, State,
+        Path, Query, State,
     },
-    response::IntoResponse,
+    http::StatusCode,
+    response::{IntoResponse, Response},
     routing::get,
     Router,
 };
 use futures::{SinkExt, StreamExt};
+use serde::Deserialize;
 
 use super::{events::SabwaEvent, pubsub};
 use crate::state::AppState;
+
+/// `?token=<jwt>` query parameter — see [`crate::auth::issue_stream_token`].
+#[derive(Debug, Deserialize)]
+pub struct StreamTokenQuery {
+    pub token: Option<String>,
+}
 
 /// Build the router that mounts the WebSocket handler at `/ws/:session_id`.
 ///
@@ -36,19 +44,42 @@ pub fn router() -> Router<AppState> {
     Router::new().route("/ws/:session_id", get(ws_handler))
 }
 
-/// Axum upgrade handler — accepts the WebSocket and hands the open socket
-/// off to [`handle_socket`].
+/// Axum upgrade handler — verifies the `?token=` JWT, scopes it to the
+/// `session_id` from the path, then hands the open socket off to
+/// [`handle_socket`].
 pub async fn ws_handler(
     ws: WebSocketUpgrade,
     Path(session_id): Path<String>,
+    Query(q): Query<StreamTokenQuery>,
     State(state): State<AppState>,
-) -> impl IntoResponse {
+) -> Response {
+    let Some(token) = q.token.as_deref().map(str::trim).filter(|t| !t.is_empty()) else {
+        return (StatusCode::UNAUTHORIZED, "missing token").into_response();
+    };
+
+    let claims = match crate::auth::verify_stream_token(&state, token) {
+        Ok(c) => c,
+        Err(_) => return (StatusCode::UNAUTHORIZED, "invalid token").into_response(),
+    };
+
+    if claims.sid != session_id {
+        tracing::warn!(
+            target: "sabwa::realtime::ws",
+            token_sid = %claims.sid,
+            path_sid = %session_id,
+            "stream token session_id mismatch"
+        );
+        return (StatusCode::UNAUTHORIZED, "session mismatch").into_response();
+    }
+
     tracing::info!(
         target: "sabwa::realtime::ws",
         session_id = %session_id,
+        project_id = %claims.pid,
         "accepting websocket upgrade"
     );
     ws.on_upgrade(move |socket| handle_socket(socket, session_id, state))
+        .into_response()
 }
 
 /// Bidirectional pump that bridges Redis pub/sub ⇄ a single WebSocket.
@@ -213,5 +244,6 @@ fn event_kind(event: &SabwaEvent) -> &'static str {
         SabwaEvent::Qr(_) => "qr",
         SabwaEvent::PairCode(_) => "pair_code",
         SabwaEvent::Status(_) => "status",
+        SabwaEvent::Scheduled(_) => "scheduled",
     }
 }
