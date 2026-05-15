@@ -128,10 +128,52 @@ async fn create_session(
 
     let (actor_ip, user_agent) = audit::extract_context(&headers);
 
-    // Phase 1: synthesize a session id; the WA pool only knows about session
-    // ids today. Real persistence (sabwa_sessions insert) lands in Phase 2
-    // alongside the proper request_pair signature wiring through `AppState`.
-    let session_id = format!("sess_{}", uuid::Uuid::new_v4());
+    // Persist a `pending` row up front so:
+    //   1. `listSessions` reflects the new account immediately.
+    //   2. The connected-event persister in `wa::baileys::persist_auth_state`
+    //      can resolve the session by ObjectId and flip status → connected.
+    // Previously this route synthesized a `sess_<uuid>` id and skipped the
+    // insert entirely, which left the auth-state persister logging
+    // "session_id is not a valid ObjectId — skipping" and the overview UI
+    // permanently stuck at "0 accounts".
+    let project_oid = bson::oid::ObjectId::parse_str(&body.project_id)
+        .map_err(|_| AppError::BadRequest(format!("invalid projectId: {}", body.project_id)))?;
+    let user_oid = bson::oid::ObjectId::parse_str(&body.user_id)
+        .map_err(|_| AppError::BadRequest(format!("invalid userId: {}", body.user_id)))?;
+    let pair_method_db = match body.pair_method.as_str() {
+        "code" => crate::db::sessions::PairMethod::Code,
+        "qr" => crate::db::sessions::PairMethod::Qr,
+        other => {
+            return Err(AppError::BadRequest(format!(
+                "pairMethod must be 'qr' or 'code', got '{other}'"
+            )))
+        }
+    };
+    let now = chrono::Utc::now();
+    let pending_row = crate::db::sessions::SabwaSession {
+        id: None,
+        project_id: project_oid,
+        user_id: user_oid,
+        phone_e164: body.phone_e164.clone(),
+        push_name: None,
+        profile_pic_url: None,
+        status: crate::db::sessions::SessionStatus::Pending,
+        pair_method: pair_method_db,
+        auth_state: crate::db::sessions::SabwaSession::auth_state_from_bytes(Vec::new()),
+        device_meta: None,
+        last_connected_at: None,
+        last_seen_at: None,
+        worker_node_id: None,
+        ban_signals: Vec::new(),
+        rate_limit_profile: crate::db::sessions::RateProfile::Normal,
+        created_at: now,
+        updated_at: now,
+    };
+    let inserted_id = crate::db::sessions::SessionsRepo::new(&state.db)
+        .insert(&pending_row)
+        .await?;
+    let session_id = inserted_id.to_hex();
+
     let method = match body.pair_method.as_str() {
         "code" => crate::wa::session::PairMethod::Code,
         _ => crate::wa::session::PairMethod::Qr,
