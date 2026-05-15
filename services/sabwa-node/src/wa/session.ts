@@ -48,7 +48,7 @@ import {
   type WASocket,
 } from '@whiskeysockets/baileys';
 import type { Boom } from '@hapi/boom';
-import type { Db } from 'mongodb';
+import { ObjectId, type Db } from 'mongodb';
 import type { Logger } from '../log.js';
 import type { RedisHandles } from '../db/redis.js';
 import { useMongoAuthState, encryptAuthState } from './auth-state.js';
@@ -206,6 +206,9 @@ export class BaileysSession {
   private reconnectTimer: NodeJS.Timeout | null = null;
   private pairCodeRequested = false;
   private stopped = false;
+
+  /** Per-jid last profile-pic fetch timestamp (ms). Throttles refetches. */
+  private readonly profilePicFetchedAt = new Map<string, number>();
 
   constructor(opts: BaileysSessionOptions) {
     this.sessionId = opts.sessionId;
@@ -582,6 +585,16 @@ export class BaileysSession {
         status: 'connected',
         ts: Date.now(),
       });
+
+      // Background bootstrap so the inbox isn't empty for groups and so DPs
+      // appear without waiting for the user to open each chat. Both are
+      // fire-and-forget — failures only impact cosmetic fields.
+      this.syncGroups().catch((err) =>
+        this.log.warn({ err, sessionId: this.sessionId }, 'syncGroups failed'),
+      );
+      this.fillMissingProfilePics().catch((err) =>
+        this.log.warn({ err, sessionId: this.sessionId }, 'fillMissingProfilePics failed'),
+      );
     }
 
     if (connection === 'close') {
@@ -755,6 +768,9 @@ export class BaileysSession {
     if (name) input.name = name;
     if (unreadCount !== undefined && unreadCount > 0) input.unreadCount = unreadCount;
     await new ChatsRepo(this.db).upsert(input);
+
+    // Lazily fetch DP — throttled per-jid via `profilePicFetchedAt`.
+    this.fetchProfilePic(jid).catch(() => {});
   }
 
   /**
@@ -815,10 +831,39 @@ export class BaileysSession {
         },
       };
       if (!fromMe) upsertInput.unreadCount = 1;
+
+      // For 1:1 chats, the inbound message's pushName is the counterpart's
+      // display name — propagate to the chat row so the inbox shows a name
+      // even when no chats.upsert event ever fired with metadata. Skip for
+      // groups: pushName there is a participant, not the group subject.
+      const inboundPushName =
+        typeof msg.pushName === 'string' ? msg.pushName.trim() : '';
+      if (
+        !fromMe &&
+        inboundPushName &&
+        chatJid.endsWith('@s.whatsapp.net')
+      ) {
+        upsertInput.name = inboundPushName;
+      }
+
       await chats.upsert(upsertInput);
+
+      // Mirror pushName onto the sender's contact row regardless of chat
+      // type so the contact list (and the 1:1 chat list fallback via the
+      // $lookup in ChatsRepo.list) stays current.
+      if (!fromMe && inboundPushName) {
+        const contactJid = fromJid || chatJid;
+        await this.upsertContact({ id: contactJid, notify: inboundPushName }).catch(
+          () => {},
+        );
+      }
     } catch (err) {
       this.log.warn({ err, sessionId: this.sessionId, chatJid }, 'chat preview bump failed');
     }
+
+    // Lazily ensure we have a DP for the chat. Throttled per-jid so a
+    // history flood doesn't hammer WhatsApp's profile-pic endpoint.
+    this.fetchProfilePic(chatJid).catch(() => {});
   }
 
   private async upsertContact(payload: Record<string, unknown>): Promise<void> {
@@ -840,19 +885,25 @@ export class BaileysSession {
         ? normalizePhoneE164(jid)
         : undefined;
 
+    // sabwa_contacts.sessionId / projectId are ObjectId in the schema —
+    // passing strings makes Mongo store / match against the wrong BSON type,
+    // so the row never matches the chat-list $lookup. Always coerce.
+    const projectOid = this.toOid(this.projectId);
+    const sessionOid = this.toOid(this.sessionId);
+
+    const setFields: Record<string, unknown> = {
+      projectId: projectOid,
+      sessionId: sessionOid,
+      jid,
+      updatedAt: new Date(),
+    };
+    if (phone !== undefined) setFields.phoneE164 = phone;
+    if (name !== undefined) setFields.name = name;
+    if (pushName !== undefined) setFields.pushName = pushName;
+
     await this.db.collection('sabwa_contacts').updateOne(
-      { projectId: this.projectId, sessionId: this.sessionId, jid },
-      {
-        $set: {
-          projectId: this.projectId,
-          sessionId: this.sessionId,
-          jid,
-          phoneE164: phone,
-          name,
-          pushName,
-          updatedAt: new Date(),
-        },
-      },
+      { projectId: projectOid, sessionId: sessionOid, jid },
+      { $set: setFields },
       { upsert: true },
     );
   }
@@ -868,12 +919,15 @@ export class BaileysSession {
     if (!jid) return;
     const subject = typeof payload.subject === 'string' ? payload.subject : '';
 
+    const projectOid = this.toOid(this.projectId);
+    const sessionOid = this.toOid(this.sessionId);
+
     await this.db.collection('sabwa_groups').updateOne(
-      { projectId: this.projectId, sessionId: this.sessionId, jid },
+      { projectId: projectOid, sessionId: sessionOid, jid },
       {
         $set: {
-          projectId: this.projectId,
-          sessionId: this.sessionId,
+          projectId: projectOid,
+          sessionId: sessionOid,
           jid,
           subject,
           updatedAt: now,
@@ -885,5 +939,124 @@ export class BaileysSession {
       },
       { upsert: true },
     );
+  }
+
+  /** Coerce a `string | ObjectId` into `ObjectId`; invalid strings throw. */
+  private toOid(value: string | ObjectId): ObjectId {
+    return typeof value === 'string' ? new ObjectId(value) : value;
+  }
+
+  /**
+   * Pull the full group list from Baileys and upsert each as both a
+   * `sabwa_chats` row (so the inbox's Groups tab is populated) and a
+   * `sabwa_groups` row (so participant metadata stays available).
+   *
+   * Called on every successful connect — Baileys' `groups.upsert` event
+   * only fires for groups created during a live session, so without this
+   * the inbox stays empty for pre-existing groups.
+   */
+  private async syncGroups(): Promise<void> {
+    if (!this.sock) return;
+    let metas: Record<string, unknown>;
+    try {
+      metas = (await this.sock.groupFetchAllParticipating()) as Record<string, unknown>;
+    } catch (err) {
+      this.log.warn({ err, sessionId: this.sessionId }, 'groupFetchAllParticipating failed');
+      return;
+    }
+    const chats = new ChatsRepo(this.db);
+    const now = new Date();
+    const entries = Object.entries(metas);
+    this.log.info(
+      { sessionId: this.sessionId, count: entries.length },
+      'syncGroups fetched',
+    );
+    for (const [jid, raw] of entries) {
+      if (!jid || !jid.endsWith('@g.us')) continue;
+      const meta = (raw ?? {}) as Record<string, unknown>;
+      const subject = typeof meta.subject === 'string' && meta.subject ? meta.subject : jid;
+      const participants = Array.isArray(meta.participants)
+        ? meta.participants.length
+        : undefined;
+      const input: Parameters<ChatsRepo['upsert']>[0] = {
+        projectId: this.projectId,
+        sessionId: this.sessionId,
+        jid,
+        type: 'group',
+        name: subject,
+      };
+      if (participants !== undefined) input.participants = participants;
+      await chats.upsert(input).catch((err) => {
+        this.log.warn({ err, sessionId: this.sessionId, jid }, 'syncGroups upsert failed');
+      });
+      await this.upsertGroup({ id: jid, subject, ...meta }, now).catch(() => {});
+      this.fetchProfilePic(jid).catch(() => {});
+    }
+  }
+
+  /**
+   * Fetch the profile picture for a jid and persist it to both
+   * `sabwa_chats.profilePicUrl` and `sabwa_contacts.profilePicUrl`.
+   *
+   * Throttled per-jid (24h) so the history flood that fires `chats.upsert`
+   * for hundreds of jids on first sync doesn't hammer WhatsApp's CDN.
+   */
+  private async fetchProfilePic(jid: string): Promise<void> {
+    if (!this.sock || !jid) return;
+    if (jid === 'status@broadcast' || jid.endsWith('@broadcast')) return;
+    const last = this.profilePicFetchedAt.get(jid);
+    const now = Date.now();
+    if (last && now - last < 24 * 60 * 60 * 1000) return;
+    this.profilePicFetchedAt.set(jid, now);
+
+    let url: string | undefined;
+    try {
+      url = await this.sock.profilePictureUrl(jid, 'image');
+    } catch {
+      // 404 (no DP) / forbidden (privacy) — both are normal, ignore.
+      return;
+    }
+    if (!url) return;
+
+    const sessionOid = this.toOid(this.sessionId);
+    await Promise.all([
+      this.db
+        .collection('sabwa_chats')
+        .updateOne(
+          { sessionId: sessionOid, jid },
+          { $set: { profilePicUrl: url, updatedAt: new Date() } },
+        )
+        .catch(() => {}),
+      this.db
+        .collection('sabwa_contacts')
+        .updateOne(
+          { sessionId: sessionOid, jid },
+          { $set: { profilePicUrl: url, updatedAt: new Date() } },
+        )
+        .catch(() => {}),
+    ]);
+  }
+
+  /**
+   * Backfill DPs for chats that don't yet have one. Walks up to 200 chats
+   * spaced 200ms apart so a freshly-paired session catches up without
+   * triggering WhatsApp's rate limit. Runs once per connect.
+   */
+  private async fillMissingProfilePics(): Promise<void> {
+    if (!this.sock) return;
+    const sessionOid = this.toOid(this.sessionId);
+    const cursor = this.db
+      .collection<{ jid: string }>('sabwa_chats')
+      .find(
+        { sessionId: sessionOid, profilePicUrl: { $exists: false } },
+        { projection: { jid: 1, _id: 0 } },
+      )
+      .limit(200);
+    for await (const doc of cursor) {
+      if (!this.sock || this.stopped) break;
+      if (typeof doc.jid !== 'string') continue;
+      await this.fetchProfilePic(doc.jid).catch(() => {});
+      await new Promise((r) => setTimeout(r, 200));
+    }
   }
 }
