@@ -2,8 +2,10 @@
 
 > **Module ID:** `sabwa`
 > **Route root:** `/sabwa`
-> **Engine:** Baileys (multi-device, pure TS — no Chromium)
+> **Engine:** Node.js + Baileys (in-process) — `services/sabwa-node/` (Express HTTP server on :4001)
 > **Goal:** Let each project owner link their personal WhatsApp number (via "Linked Devices") and operate it as a first-class SabNode module — chats, groups, broadcasts, scheduling, automation, AI — fully responsive (mobile / tablet / desktop).
+
+> **Stack migration (2026-05-15):** The original plan called for a Rust `sabwa-engine` with a Node sidecar for Baileys. That has been replaced by a single pure-Node service (`services/sabwa-node/`) that runs Baileys in-process. Same HTTP contract, same Mongo collections, same port (4001). The Rust crate at `services/sabwa-engine/` is deprecated and will be removed. See `CHANGELOG-sabwa-rust-to-node.md` for the cutover details.
 
 ---
 
@@ -82,9 +84,9 @@
 └──────────────┘      └──────────────────┘
 ```
 
-**Why Baileys:** No Chromium → ~80MB RAM per session vs ~400MB for whatsapp-web.js. Multi-device API. Pure TS — drops into existing Node workers.
+**Why Baileys:** No Chromium → ~80MB RAM per session vs ~400MB for whatsapp-web.js. Multi-device API. Pure TS — drops directly into the `sabwa-node` Express server (no sidecar, no IPC).
 
-**Why a separate PM2 worker:** Baileys sockets are long-lived and stateful. We can't hold them in Next.js serverless functions. The worker reuses the existing PM2 pattern in this repo (broadcast worker, cron worker).
+**Why a separate PM2 process:** Baileys sockets are long-lived and stateful. We can't hold them in Next.js serverless functions. `sabwa-node` runs as its own PM2 app (`name: 'sabwa-node'`, `cwd: ./services/sabwa-node`) on port 4001 — the Next.js layer calls it over HTTP using `SABWA_ENGINE_URL` + `SABWA_ENGINE_TOKEN`.
 
 ---
 
@@ -498,7 +500,7 @@ Tabbed sub-pages:
 
 ## 8. Worker & queue design
 
-**New PM2 process:** `sabwa-worker` (mirrors `broadcast-worker`).
+**PM2 process:** `sabwa-node` (Node.js + Express + Baileys, in `services/sabwa-node/`). Listens on :4001 and also owns the Baileys socket pool and BullMQ consumers — no separate worker process.
 
 Responsibilities:
 1. Maintain Baileys socket pool (one per `sabwa_sessions` doc with `status=connected`).
@@ -779,8 +781,8 @@ ecosystem.config.js → add sabwa-worker process
 1. **Meta ToS** — Personal-WA automation violates WA ToS for "unauthorized use of automated/bulk messaging". We must surface this in onboarding, audit log, and plan T&Cs. **Decision needed:** are we OK shipping it with disclaimers, or restrict to "self-help" only (no bulk / no auto-reply)?
 2. **Ban liability** — Users will be banned despite rate limits. Need clear support policy: not refundable, not our fault.
 3. **Storage growth** — A user with 50 groups × 1k messages/day = 50k inserts/day per session. Need TTL or cold-storage strategy (default: retain 90 days hot, archive to R2 JSONL beyond).
-4. **PM2 → Vercel** — Baileys is long-lived, can't run on Fluid Compute serverless. Worker must remain on PM2 self-hosted node. UI runs fine on Vercel.
-5. **Encryption of `authState`** — Stored in Mongo. Encrypt with `SABWA_AUTH_KEY` env (AES-256-GCM) before persisting.
+4. **PM2 → Vercel** — Baileys is long-lived, can't run on Fluid Compute serverless. `sabwa-node` must remain on a PM2 self-hosted node. UI runs fine on Vercel.
+5. **Encryption of `authState`** — Stored in Mongo. Encrypted with `AUTH_STATE_KEY` (base64 32-byte) using AES-256-GCM before persisting. `SABWA_JWT_SECRET` signs the realtime/SSE tokens minted by Next.js.
 6. **Multi-region** — Initially single region. WA presence-anchor concept means session must connect from a stable IP — frequent IP changes trigger re-verification.
 7. **Mobile push** — Phase 12 or later. Requires SabNode mobile app (separate roadmap).
 8. **Voice / video calls** — Baileys can detect calls but cannot bridge audio. Out of scope for V1; revisit when Baileys gains call support.

@@ -47,6 +47,11 @@ import type {
   SabwaTemplate,
 } from './types';
 import { resolveDisplayName } from './format-jid';
+import {
+  useSabwaStream,
+  type SabwaEvent,
+  type SabwaEventKind,
+} from './use-sabwa-stream';
 
 // ─── Shared async-state shape ──────────────────────────────────────────────
 
@@ -147,6 +152,97 @@ function useFetched<T>(
   };
 }
 
+// ─── Realtime refetch wiring ───────────────────────────────────────────────
+
+/**
+ * Shared shape for hooks that opt into SSE-driven auto-refresh. Every hook
+ * defaults `realtime` to `true`; pass `false` for offscreen / hidden panels
+ * where you don't want a refetch to fire when new events arrive.
+ *
+ * `projectId` is forwarded to the SSE route for project-level auth. It's
+ * always optional — the server route can also resolve project ownership
+ * via the session cookie + the `sabwa_sessions` collection — but supplying
+ * it short-circuits a Mongo lookup per request.
+ */
+export interface SabwaRealtimeOptions {
+  realtime?: boolean;
+  projectId?: string | null;
+}
+
+const REFETCH_DEBOUNCE_MS = 600;
+
+/**
+ * Internal helper: subscribe to a set of `useSabwaStream` event kinds and
+ * call `refetch` on a trailing 600ms debounce whenever any of them fires.
+ *
+ * `filter` lets a caller (currently `useChatMessages`) drop events that
+ * don't pertain to its own scope — e.g. messages in other chats.
+ *
+ * The hook always calls `useSabwaStream`. When `enabled` is false (i.e.
+ * `realtime: false` or no `sessionId`), we still call it with `enabled:
+ * false` so React's hook order stays stable.
+ */
+function useStreamRefetch(
+  sessionId: string | undefined | null,
+  kinds: readonly SabwaEventKind[],
+  refetch: () => Promise<void>,
+  options: { enabled?: boolean; projectId?: string | null;
+    filter?: (ev: SabwaEvent) => boolean } = {},
+): void {
+  const { enabled = true, projectId, filter } = options;
+
+  // Latest refetch + filter through refs so we don't tear down the
+  // subscription each render.
+  const refetchRef = React.useRef(refetch);
+  React.useEffect(() => {
+    refetchRef.current = refetch;
+  }, [refetch]);
+  const filterRef = React.useRef(filter);
+  React.useEffect(() => {
+    filterRef.current = filter;
+  }, [filter]);
+
+  const stream = useSabwaStream(sessionId ?? undefined, {
+    enabled: Boolean(enabled && sessionId),
+    projectId: projectId ?? undefined,
+  });
+
+  // Stable kinds key so the subscription effect doesn't reattach
+  // when callers spread a fresh array each render.
+  const kindsKey = React.useMemo(() => kinds.slice().sort().join('|'), [kinds]);
+
+  React.useEffect(() => {
+    if (!enabled || !sessionId) return;
+    const offs: Array<() => void> = [];
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    const fire = () => {
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(() => {
+        timer = null;
+        void refetchRef.current().catch(() => {
+          /* swallow — UI keeps last-good data */
+        });
+      }, REFETCH_DEBOUNCE_MS);
+    };
+    const onEvent = (ev: SabwaEvent) => {
+      const f = filterRef.current;
+      if (f && !f(ev)) return;
+      fire();
+    };
+    const kindList = kindsKey.split('|').filter(Boolean) as SabwaEventKind[];
+    for (const k of kindList) {
+      offs.push(stream.subscribe(k, onEvent));
+    }
+    return () => {
+      if (timer) {
+        clearTimeout(timer);
+        timer = null;
+      }
+      for (const off of offs) off();
+    };
+  }, [stream, enabled, sessionId, kindsKey]);
+}
+
 // ─── Empty-result constants (stable identities) ────────────────────────────
 
 const EMPTY_CHATS: SabwaChat[] = [];
@@ -191,10 +287,17 @@ const EMPTY_RAW_CAMPAIGNS: SabwaBroadcast[] = [];
 
 // ─── Hooks ─────────────────────────────────────────────────────────────────
 
-/** Chats list for a session. */
+/**
+ * Chats list for a session.
+ *
+ * Auto-refreshes (debounced 600ms) on `chat`, `message`, `message_status`,
+ * and `presence` SSE events for the session. Disable via `realtime: false`
+ * for offscreen panels.
+ */
 export function useChats(
   sessionId: string | undefined | null,
   filter: SabwaChatListFilter = {},
+  options: SabwaRealtimeOptions = {},
 ): UseSabwaDataResult<SabwaChat[]> {
   const fetcher = React.useCallback(async () => {
     if (!sessionId) return EMPTY_CHATS;
@@ -203,8 +306,24 @@ export function useChats(
     return (res.chats as SabwaChat[]) ?? EMPTY_CHATS;
   }, [sessionId, filter]);
 
-  return useFetched(['chats', sessionId, filter], fetcher, EMPTY_CHATS);
+  const result = useFetched(['chats', sessionId, filter], fetcher, EMPTY_CHATS);
+
+  useStreamRefetch(
+    sessionId,
+    CHATS_REFETCH_KINDS,
+    result.refetch,
+    { enabled: options.realtime ?? true, projectId: options.projectId },
+  );
+
+  return result;
 }
+
+const CHATS_REFETCH_KINDS = [
+  'chat',
+  'message',
+  'message_status',
+  'presence',
+] as const satisfies readonly SabwaEventKind[];
 
 /**
  * Extended result returned by `useChatMessages`. Beyond the standard
@@ -226,12 +345,17 @@ export interface UseChatMessagesResult
  * Messages for a single chat. First page is cursor-paginated via the
  * `before` / `limit` args; older pages are fetched imperatively through
  * `loadOlder()` so the scroll position stays anchored.
+ *
+ * Auto-refreshes (debounced 600ms) on `message` / `message_status` SSE
+ * events that match this chat's `chatJid`. Events for other chats are
+ * ignored. Disable with `realtime: false`.
  */
 export function useChatMessages(
   sessionId: string | undefined | null,
   chatJid: string | undefined | null,
   before?: Date | string | number,
   limit?: number,
+  options: SabwaRealtimeOptions = {},
 ): UseChatMessagesResult {
   const fetcher = React.useCallback(async () => {
     if (!sessionId || !chatJid) return EMPTY_MESSAGES;
@@ -323,6 +447,29 @@ export function useChatMessages(
     }
   }, [sessionId, chatJid, hasMore, loadingMore, messages, base.data, limit]);
 
+  // Only refetch when an event pertains to *this* chat. Events carry
+  // `chatJid`; if absent we play it safe and refetch.
+  const chatFilter = React.useCallback(
+    (ev: SabwaEvent) => {
+      if (!chatJid) return false;
+      const evJid = (ev as { chatJid?: unknown }).chatJid;
+      if (typeof evJid !== 'string') return true;
+      return evJid === chatJid;
+    },
+    [chatJid],
+  );
+
+  useStreamRefetch(
+    sessionId,
+    MESSAGES_REFETCH_KINDS,
+    base.refetch,
+    {
+      enabled: options.realtime ?? true,
+      projectId: options.projectId,
+      filter: chatFilter,
+    },
+  );
+
   return {
     ...base,
     data: messages,
@@ -335,10 +482,21 @@ export function useChatMessages(
   };
 }
 
-/** Groups list, optionally filtered by category. */
+const MESSAGES_REFETCH_KINDS = [
+  'message',
+  'message_status',
+] as const satisfies readonly SabwaEventKind[];
+
+/**
+ * Groups list, optionally filtered by category.
+ *
+ * Auto-refreshes (debounced 600ms) on `chat` SSE events — the engine emits
+ * `chats.upsert` as `chat` and group metadata updates flow through there.
+ */
 export function useGroups(
   sessionId: string | undefined | null,
   category?: string | null,
+  options: SabwaRealtimeOptions = {},
 ): UseSabwaDataResult<SabwaGroupSummary[]> {
   const fetcher = React.useCallback(async () => {
     if (!sessionId) return EMPTY_GROUPS;
@@ -350,14 +508,38 @@ export function useGroups(
     );
   }, [sessionId, category]);
 
-  return useFetched(['groups', sessionId, category], fetcher, EMPTY_GROUPS);
+  const result = useFetched(
+    ['groups', sessionId, category],
+    fetcher,
+    EMPTY_GROUPS,
+  );
+
+  useStreamRefetch(
+    sessionId,
+    GROUPS_REFETCH_KINDS,
+    result.refetch,
+    { enabled: options.realtime ?? true, projectId: options.projectId },
+  );
+
+  return result;
 }
 
-/** Contacts list (with optional search + tag filters). */
+const GROUPS_REFETCH_KINDS = [
+  'chat',
+] as const satisfies readonly SabwaEventKind[];
+
+/**
+ * Contacts list (with optional search + tag filters).
+ *
+ * Auto-refreshes (debounced 600ms) on `chat` events — the engine writes
+ * new contacts to Mongo as part of chat upserts when an unknown JID
+ * messages in.
+ */
 export function useContacts(
   sessionId: string | undefined | null,
   search?: string,
   tag?: string,
+  options: SabwaRealtimeOptions = {},
 ): UseSabwaDataResult<SabwaContact[]> {
   const fetcher = React.useCallback(async () => {
     if (!sessionId) return EMPTY_CONTACTS;
@@ -369,12 +551,25 @@ export function useContacts(
     return res.contacts ?? EMPTY_CONTACTS;
   }, [sessionId, search, tag]);
 
-  return useFetched(
+  const result = useFetched(
     ['contacts', sessionId, search, tag],
     fetcher,
     EMPTY_CONTACTS,
   );
+
+  useStreamRefetch(
+    sessionId,
+    CONTACTS_REFETCH_KINDS,
+    result.refetch,
+    { enabled: options.realtime ?? true, projectId: options.projectId },
+  );
+
+  return result;
 }
+
+const CONTACTS_REFETCH_KINDS = [
+  'chat',
+] as const satisfies readonly SabwaEventKind[];
 
 /** Scheduled messages for a session. */
 export function useScheduled(

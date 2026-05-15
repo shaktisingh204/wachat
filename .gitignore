@@ -2,6 +2,9 @@
 
 # dependencies
 /node_modules
+# nested node_modules in services/ workspaces (each sub-package owns its install)
+services/*/node_modules
+services/*/dist
 /.pnp
 .pnp.*
 .yarn/*
