@@ -144,18 +144,26 @@ export class ChatsRepo {
     const sessionId = toObjectId(input.sessionId);
     const type = input.type ?? inferChatType(input.jid);
 
-    const setOnInsert = {
+    const inc: Partial<Record<keyof SabwaChat, number>> = {};
+    if (input.unreadCount && input.unreadCount > 0) {
+      inc.unreadCount = input.unreadCount;
+    }
+
+    // Mongo rejects ($setOnInsert + $inc) on the same path with code 40, even
+    // though they can't logically collide. When we're incrementing unreadCount,
+    // let $inc seed the field on insert; otherwise default it to 0 here.
+    const setOnInsert: Partial<SabwaChat> & { _id: ObjectId } = {
       _id: new ObjectId(),
       projectId,
       sessionId,
       jid: input.jid,
       type,
-      unreadCount: 0,
       pinned: false,
       archived: false,
       muted: false,
       labels: [],
-    } satisfies Partial<SabwaChat> & { _id: ObjectId };
+    };
+    if (inc.unreadCount === undefined) setOnInsert.unreadCount = 0;
 
     const set: Partial<SabwaChat> = { updatedAt: now };
     if (input.name !== undefined) set.name = input.name;
@@ -163,11 +171,6 @@ export class ChatsRepo {
     if (input.isReadOnly !== undefined) set.isReadOnly = input.isReadOnly;
     if (input.participants !== undefined) set.participants = input.participants;
     if (input.lastMessage !== undefined) set.lastMessage = input.lastMessage;
-
-    const inc: Partial<Record<keyof SabwaChat, number>> = {};
-    if (input.unreadCount && input.unreadCount > 0) {
-      inc.unreadCount = input.unreadCount;
-    }
 
     const updateOps: Record<string, unknown> = { $set: set, $setOnInsert: setOnInsert };
     if (Object.keys(inc).length > 0) updateOps.$inc = inc;
@@ -192,7 +195,14 @@ export class ChatsRepo {
     return toRow(doc);
   }
 
-  /** List chats for a session, optionally filtered/paginated. */
+  /**
+   * List chats for a session, optionally filtered/paginated.
+   *
+   * Coalesces `name` / `profilePicUrl` against `sabwa_contacts` via $lookup
+   * so chats with no metadata of their own still show a display name and
+   * avatar once the contact has been learned (history sync, contacts.upsert
+   * event, or a manual contact upsert from the route).
+   */
   async list(sessionId: ObjectId | string, filter: ChatListFilter = {}): Promise<{
     chats: ChatRow[];
     nextCursor?: string;
@@ -210,10 +220,6 @@ export class ChatsRepo {
         return { chats: [] };
       }
     }
-    if (filter.query) {
-      const rx = new RegExp(filter.query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
-      q.$or = [{ name: rx }, { jid: rx }];
-    }
 
     const limit = Math.min(Math.max(filter.limit ?? 50, 1), 200);
 
@@ -229,11 +235,62 @@ export class ChatsRepo {
     }
     if (cursorTs) q.updatedAt = { $lt: cursorTs };
 
-    const docs = await this.col
-      .find(q)
-      .sort({ pinned: -1, updatedAt: -1 })
-      .limit(limit + 1)
-      .toArray();
+    const textRx = filter.query
+      ? new RegExp(filter.query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i')
+      : undefined;
+
+    const pipeline: Record<string, unknown>[] = [
+      { $match: q },
+      {
+        $lookup: {
+          from: 'sabwa_contacts',
+          let: { sid: '$sessionId', j: '$jid' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ['$sessionId', '$$sid'] },
+                    { $eq: ['$jid', '$$j'] },
+                  ],
+                },
+              },
+            },
+            { $limit: 1 },
+            { $project: { _id: 0, name: 1, pushName: 1, profilePicUrl: 1 } },
+          ],
+          as: '_contact',
+        },
+      },
+      {
+        $addFields: {
+          name: {
+            $ifNull: [
+              '$name',
+              {
+                $ifNull: [
+                  { $arrayElemAt: ['$_contact.name', 0] },
+                  { $arrayElemAt: ['$_contact.pushName', 0] },
+                ],
+              },
+            ],
+          },
+          profilePicUrl: {
+            $ifNull: ['$profilePicUrl', { $arrayElemAt: ['$_contact.profilePicUrl', 0] }],
+          },
+        },
+      },
+    ];
+
+    if (textRx) {
+      pipeline.push({ $match: { $or: [{ name: textRx }, { jid: textRx }] } });
+    }
+
+    pipeline.push({ $sort: { pinned: -1, updatedAt: -1 } });
+    pipeline.push({ $limit: limit + 1 });
+    pipeline.push({ $project: { _contact: 0 } });
+
+    const docs = (await this.col.aggregate(pipeline).toArray()) as WithId<SabwaChat>[];
 
     let nextCursor: string | undefined;
     if (docs.length > limit) {
@@ -245,6 +302,18 @@ export class ChatsRepo {
     }
 
     return { chats: docs.map(toRow), nextCursor };
+  }
+
+  /** Patch a chat's profilePicUrl. No-op if the chat row doesn't exist. */
+  async setProfilePic(
+    sessionId: ObjectId | string,
+    jid: string,
+    profilePicUrl: string,
+  ): Promise<void> {
+    await this.col.updateOne(
+      { sessionId: toObjectId(sessionId), jid },
+      { $set: { profilePicUrl, updatedAt: new Date() } },
+    );
   }
 
   async setPinned(

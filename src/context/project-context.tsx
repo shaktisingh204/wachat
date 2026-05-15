@@ -37,7 +37,7 @@ export function ProjectProvider({
     user: (Omit<User, 'password'> & { _id: string, plan?: WithId<Plan> | null }) | null
 }) {
     const [projects, setProjects] = useState<WithId<Project>[]>(initialProjects || []);
-    const [activeProjectId, setActiveProjectId] = useState<string | null>(() => {
+    const [activeProjectId, setActiveProjectIdState] = useState<string | null>(() => {
         if (typeof window === 'undefined') return null;
         try { return localStorage.getItem('activeProjectId'); } catch { return null; }
     });
@@ -45,6 +45,46 @@ export function ProjectProvider({
         if (typeof window === 'undefined') return null;
         try { return localStorage.getItem('activeProjectName'); } catch { return null; }
     });
+
+    /**
+     * Wrap the active-project setter so every caller persists to
+     * localStorage. Historically each callsite (picker, sidebar, dashboard,
+     * project card, project switcher) wrote to localStorage by hand — the
+     * SabWa picker forgot to, which is why `/sabwa` → pick → refresh used
+     * to drop the selection.
+     */
+    const setActiveProjectId = useCallback<React.Dispatch<React.SetStateAction<string | null>>>(
+        (value) => {
+            setActiveProjectIdState((prev) => {
+                const next = typeof value === 'function'
+                    ? (value as (p: string | null) => string | null)(prev)
+                    : value;
+                try {
+                    if (next) {
+                        localStorage.setItem('activeProjectId', next);
+                        // Best-effort: lookup the matching name from the
+                        // current projects list and persist that too so the
+                        // shell header doesn't flash "Untitled" on refresh.
+                        const match = projects.find(
+                            (p) => p._id.toString() === next,
+                        );
+                        if (match?.name) {
+                            localStorage.setItem('activeProjectName', match.name);
+                            setActiveProjectName(match.name);
+                        }
+                    } else {
+                        localStorage.removeItem('activeProjectId');
+                        localStorage.removeItem('activeProjectName');
+                        setActiveProjectName(null);
+                    }
+                } catch {
+                    /* localStorage unavailable (SSR / private mode) — fall through */
+                }
+                return next;
+            });
+        },
+        [projects],
+    );
     const [isLoadingProject, startProjectLoad] = useTransition();
     const [effectivePermissions, setEffectivePermissions] = useState<EffectivePermissions | null>(null);
     const router = useRouter();
