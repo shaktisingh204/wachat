@@ -62,6 +62,46 @@ module.exports = {
     },
 
     // ---------------------------------------------------------------------
+    // SabWa Engine (personal WhatsApp — Rust HTTP server + Baileys sidecar)
+    // ---------------------------------------------------------------------
+    {
+      name: 'sabwa-engine',
+      cwd: './services/sabwa-engine',
+
+      script: './target/release/sabwa-engine',
+      interpreter: 'none',
+
+      instances: 1,
+      exec_mode: 'fork',
+      watch: false,
+      autorestart: true,
+      restart_delay: 5000,
+      max_restarts: 20,
+      kill_timeout: 15000,
+      max_memory_restart: '2G',
+
+      env: {
+        SABWA_ENGINE_PORT: process.env.SABWA_ENGINE_PORT || '4001',
+
+        SABWA_ENGINE_TOKEN: process.env.SABWA_ENGINE_TOKEN,
+        SABWA_AUTH_ENCRYPTION_KEY: process.env.SABWA_AUTH_ENCRYPTION_KEY,
+        SABWA_STREAM_JWT_SECRET: process.env.SABWA_STREAM_JWT_SECRET,
+        SABWA_WEBHOOK_SIGNING_SECRET: process.env.SABWA_WEBHOOK_SIGNING_SECRET,
+
+        MONGODB_URI: process.env.MONGODB_URI,
+        MONGODB_DB: process.env.MONGODB_DB,
+        REDIS_URL: process.env.REDIS_URL,
+
+        SABWA_SIDECAR_PATH:
+          process.env.SABWA_SIDECAR_PATH ||
+          '/var/www/sabnode/services/sabwa-engine/sidecar-node/src/index.js',
+        SABWA_NODE_BIN: process.env.SABWA_NODE_BIN || 'node',
+
+        RUST_LOG: process.env.RUST_LOG || 'info,sabwa_engine=info',
+      },
+    },
+
+    // ---------------------------------------------------------------------
     // Next.js Frontend
     // ---------------------------------------------------------------------
     {
@@ -85,6 +125,11 @@ module.exports = {
           process.env.RUST_API_URL || 'http://127.0.0.1:8080',
 
         RUST_JWT_SECRET: process.env.RUST_JWT_SECRET,
+
+        // SabWa engine
+        SABWA_ENGINE_URL:
+          process.env.SABWA_ENGINE_URL || 'http://127.0.0.1:4001',
+        SABWA_ENGINE_TOKEN: process.env.SABWA_ENGINE_TOKEN,
       },
     },
 
