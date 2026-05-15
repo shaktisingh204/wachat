@@ -1,65 +1,42 @@
 # SabWa → ZoruUI Migration
 
-Mirrors the WaChat / Meta Suite migration plans. Every `/sabwa/*` page
-moves to ZoruUI primitives; the bespoke `SabWaSubRail` is removed and
-replaced by `ZoruHomeShell` (same chrome as `/dashboard` and `/wachat`).
+Every `/sabwa/*` page is now on ZoruUI primitives. The bespoke
+`SabWaSubRail` has been replaced by `ZoruHomeShell` (same chrome as
+`/dashboard` and `/wachat`).
 
-## Status
+## Status — All phases complete (2026-05-15)
 
 | Phase | Area | State |
 |-------|------|-------|
 | 0 | Shell migration (`SabwaShell` + `ZORU_APPS` entry + sidebar config) | ✅ done |
 | 1 | `/sabwa` (All Projects landing with 3-step flow pill) | ✅ done |
-| 2 | `/sabwa/overview` (moved from `/sabwa`) | ⏳ pending — uses `/ui/*`, needs per-component swap |
+| 2 | `/sabwa/overview` (zoruui tokens, breadcrumb, neutral palette) | ✅ done |
 | 3 | `/sabwa/connect` (5-step stepper + segmented QR/Phone picker) | ✅ done |
-| 4 | `/sabwa/devices` | ⏳ pending |
-| 5 | `/sabwa/inbox`, `/sabwa/chats` | ⏳ pending |
-| 6 | `/sabwa/groups/*` | ⏳ pending |
-| 7 | `/sabwa/broadcasts`, `/sabwa/bulk` | ⏳ pending |
-| 8 | `/sabwa/scheduler/*` | ⏳ pending |
-| 9 | `/sabwa/contacts`, `/sabwa/templates`, `/sabwa/quick-replies` | ⏳ pending |
-| 10 | `/sabwa/auto-reply`, `/sabwa/flows`, `/sabwa/ai` | ⏳ pending |
-| 11 | `/sabwa/media`, `/sabwa/status`, `/sabwa/calls`, `/sabwa/labels`, `/sabwa/starred` | ⏳ pending |
-| 12 | `/sabwa/analytics`, `/sabwa/export`, `/sabwa/audit` | ⏳ pending |
-| 13 | `/sabwa/webhooks`, `/sabwa/api-keys`, `/sabwa/settings` | ⏳ pending |
+| 4 | `/sabwa/devices` (segmented grid/table switch) | ✅ done |
+| 5 | `/sabwa/inbox`, `/sabwa/chats` (composer, chat list row, conversation header, contact panel) | ✅ done |
+| 6 | `/sabwa/groups/*` (all groups + categories + per-group manager) | ✅ done |
+| 7 | `/sabwa/broadcasts`, `/sabwa/bulk` (4-step wizard on FlowStepper) | ✅ done |
+| 8 | `/sabwa/scheduler/*` (calendar + queue) | ✅ done |
+| 9 | `/sabwa/contacts`, `/sabwa/templates`, `/sabwa/quick-replies` | ✅ done |
+| 10 | `/sabwa/auto-reply`, `/sabwa/flows`, `/sabwa/ai` | ✅ done |
+| 11 | `/sabwa/media`, `/sabwa/status`, `/sabwa/calls`, `/sabwa/labels`, `/sabwa/starred` | ✅ done |
+| 12 | `/sabwa/analytics`, `/sabwa/export`, `/sabwa/audit` (charts on `ZORU_CHART_PALETTE`) | ✅ done |
+| 13 | `/sabwa/webhooks`, `/sabwa/api-keys`, `/sabwa/settings` | ✅ done |
 
-## Hard rules (apply to every phase)
+## Known leftovers (intentional)
 
-1. **Shell:** every `/sabwa/*` page already renders inside `SabwaShell`
-   (which wraps `ZoruHomeShell`). Don't add a bespoke sidebar/topbar.
-   Module navigation lives in the sidebar groups; page-level actions
-   live in `ZoruPageHeader` actions / `ZoruBreadcrumb`.
-2. **Tokens:** every page renders inside `.zoruui` scope. No `clay-*`
-   classes, no rainbow accents — only `--zoru-*` tokens.
-3. **No tab UI** — for step flows use the numbered stepper (see
-   `/sabwa/connect` `FlowStepper`), for binary toggles use segmented
-   `ZoruButton`s, for sub-pages use distinct routes.
-4. **No `@/components/clay`, no `@/components/ui/*` visual imports**
-   in `/sabwa/*`. `RBACGuard` and other logic guards are OK. Build
-   sabwa-local replacements at `src/app/sabwa/_components/`.
+- `Slider` (`@/components/ui/slider`) — kept in `/sabwa/bulk` for the send-rate & jitter controls. No `ZoruSlider` is exported from `@/components/zoruui/index.ts`. Single explicit shadcn import; flagged inline.
+- `SabFilePickerButton` — left as-is wherever it appears (per the SabFiles policy in `CLAUDE.md` — file inputs must source from the SabFiles picker, never from a free-text URL).
+- `_components/empty-state.tsx` and `_components/status-badge.tsx` — shared local SabWa subcomponents, not shadcn — left untouched, render correctly inside the ZoruUI scope.
+
+## Hard rules (apply going forward)
+
+1. **Shell:** every `/sabwa/*` page renders inside `SabwaShell` (which wraps `ZoruHomeShell`). Don't add bespoke chrome. Module nav lives in the sidebar groups; page actions live in `ZoruPageHeader` / `ZoruBreadcrumb`.
+2. **Tokens:** every page renders inside `.zoruui` scope. No `clay-*` classes, no rainbow accents — only `--zoru-*` tokens.
+3. **No tab UI** — step flows use a numbered stepper, binary/N-way toggles use segmented `ZoruButton`s.
+4. **No `@/components/clay`, no `@/components/ui/*` visual imports** in `/sabwa/*` (logic-only guards like `RBACGuard` are OK). Slider is the only documented exception until a `ZoruSlider` ships.
 5. **No `@/hooks/use-toast`** — use `useZoruToast` everywhere.
-6. **Same data, same handlers, same server-action calls** — only the
-   visual layer changes.
-7. **Per-phase commit prefix:** `feat(sabwa-zoru): phase N — <area>`.
-
-## Per-page checklist
-
-- [ ] Replace `@/components/ui/*` imports with `@/components/zoruui/*`
-- [ ] Add `ZoruBreadcrumb` (SabNode › SabWa › <section>)
-- [ ] Wrap top of page in `ZoruPageHeader` (eyebrow + title + description + actions)
-- [ ] Replace primary content:
-  - Tables → `ZoruDataTable` / `ZoruTable` / `ZoruTableWithDialog`
-  - Card grids → `ZoruCard`
-  - Stat cards → `ZoruStatCard` / `ZoruStatisticsCard1`
-  - Charts → `ZoruChart` family + `ZORU_CHART_PALETTE` (greyscale)
-  - Empty states → `ZoruEmptyState`
-  - Skeletons → `ZoruSkeleton`
-- [ ] Forms → `ZoruInput` / `ZoruTextarea` / `ZoruLabel` / `ZoruSelect`
-      / `ZoruCheckbox` / `ZoruSwitch` / `ZoruRadioGroup`
-- [ ] Dialogs/sheets/drawers → `ZoruDialog` / `ZoruAlertDialog`
-      / `ZoruSheet` / `ZoruDrawer`
-- [ ] Toasts → `useZoruToast`
-- [ ] Page renders inside the sidebar shell; dock shows SabWa as active.
+6. **Same data, same handlers, same server-action calls** — visual layer only.
 
 ## Clear flow (delivered)
 

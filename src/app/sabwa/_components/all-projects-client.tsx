@@ -6,21 +6,23 @@
  * Built on ZoruUI primitives. Drives the three-step SabWa onboarding
  * flow visible at the top of the page:
  *
- *   1. Create a project   (➜ /onboarding or inline create)
- *   2. Select a project   (current selection in the picker below)
+ *   1. Create a project   (inline dialog — dedicated SabWa workspace)
+ *   2. Select a project   (filtered to `kind === 'sabwa'`)
  *   3. Connect WhatsApp   (➜ /sabwa/connect once a project is active)
  *
- * Once a session is paired the user lands on `/sabwa/overview`.
+ * SabWa projects are kept **distinct** from WaChat / Meta / CRM /
+ * Telegram workspaces — the picker only shows projects flagged
+ * `kind: 'sabwa'`, mirroring the Telegram pattern.
  */
 
 import * as React from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
   ArrowRight,
   Briefcase,
   Check,
   ChevronRight,
+  Loader2,
   MessageSquare,
   Plus,
   QrCode,
@@ -32,6 +34,7 @@ import {
 } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
+import { addSabwaProject } from '@/app/actions/sabwa.actions';
 import {
   ZoruBadge,
   ZoruBreadcrumb,
@@ -42,9 +45,17 @@ import {
   ZoruBreadcrumbSeparator,
   ZoruButton,
   ZoruCard,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
   ZoruEmptyState,
   ZoruInput,
+  ZoruLabel,
   cn,
+  useZoruToast,
 } from '@/components/zoruui';
 
 export interface AllProjectsBootstrap {
@@ -53,6 +64,8 @@ export interface AllProjectsBootstrap {
     name: string;
     groupName: string | null;
     wabaId: string | null;
+    facebookPageId: string | null;
+    kind: string | null;
     phoneNumber: string | null;
   }>;
 }
@@ -90,7 +103,8 @@ function StepPill({
           'inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10.5px] font-semibold',
           state === 'done' && 'bg-zoru-ink text-zoru-on-primary',
           state === 'active' && 'bg-zoru-on-primary text-zoru-ink',
-          state === 'idle' && 'border border-zoru-line-strong text-zoru-ink-muted',
+          state === 'idle' &&
+            'border border-zoru-line-strong text-zoru-ink-muted',
         )}
       >
         {state === 'done' ? <Check className="h-3 w-3" /> : index}
@@ -137,7 +151,6 @@ function ProjectRow({
   active: boolean;
   onSelect: (id: string) => void;
 }) {
-  const connected = !!project.wabaId;
   return (
     <button
       type="button"
@@ -149,14 +162,7 @@ function ProjectRow({
           : 'border-zoru-line bg-zoru-bg hover:border-zoru-line-strong hover:shadow-[var(--zoru-shadow-sm)]',
       )}
     >
-      <div
-        className={cn(
-          'flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--zoru-radius)]',
-          connected
-            ? 'bg-zoru-surface-2 text-zoru-ink'
-            : 'bg-zoru-surface text-zoru-ink-muted',
-        )}
-      >
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface text-zoru-ink">
         <MessageSquare className="h-4 w-4" />
       </div>
 
@@ -168,17 +174,15 @@ function ProjectRow({
               Active
             </ZoruBadge>
           )}
-          {connected && (
-            <ZoruBadge variant="success" className="text-[10px]">
-              WaChat linked
-            </ZoruBadge>
-          )}
+          <ZoruBadge variant="ghost" className="text-[10px]">
+            SabWa workspace
+          </ZoruBadge>
         </div>
         <div className="mt-0.5 flex items-center gap-2 text-[12px] text-zoru-ink-muted">
-          {connected ? (
+          {project.phoneNumber ? (
             <>
               <Wifi className="h-3 w-3 text-zoru-success" />
-              <span>{project.phoneNumber ?? project.wabaId}</span>
+              <span>{project.phoneNumber}</span>
             </>
           ) : (
             <>
@@ -200,29 +204,139 @@ function ProjectRow({
   );
 }
 
+/* ── create-project dialog ─────────────────────────────────────── */
+
+function CreateSabwaProjectDialog({
+  open,
+  onOpenChange,
+  onCreated,
+}: {
+  open: boolean;
+  onOpenChange: (next: boolean) => void;
+  onCreated: (projectId: string, name: string) => void;
+}) {
+  const toast = useZoruToast();
+  const [name, setName] = React.useState('');
+  const [pending, startTransition] = React.useTransition();
+
+  React.useEffect(() => {
+    if (!open) setName('');
+  }, [open]);
+
+  const submit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmed = name.trim();
+    if (!trimmed) {
+      toast.toast({
+        title: 'Name your SabWa project',
+        description: 'Give this workspace a short identifier.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    startTransition(async () => {
+      const res = await addSabwaProject({ name: trimmed });
+      if (!res.ok) {
+        toast.toast({
+          title: 'Could not create project',
+          description: res.error,
+          variant: 'destructive',
+        });
+        return;
+      }
+      toast.toast({
+        title: 'SabWa project created',
+        description: `“${res.name}” is ready to link.`,
+      });
+      onCreated(res.projectId, res.name);
+      onOpenChange(false);
+    });
+  };
+
+  return (
+    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+      <ZoruDialogContent>
+        <ZoruDialogHeader>
+          <ZoruDialogTitle>Create a SabWa project</ZoruDialogTitle>
+          <ZoruDialogDescription>
+            SabWa workspaces are kept separate from WaChat, Meta, and CRM
+            projects. This one will only show up under SabWa.
+          </ZoruDialogDescription>
+        </ZoruDialogHeader>
+        <form onSubmit={submit} className="space-y-3">
+          <div className="space-y-1.5">
+            <ZoruLabel htmlFor="sabwa-new-project-name">
+              Project name
+            </ZoruLabel>
+            <ZoruInput
+              id="sabwa-new-project-name"
+              autoFocus
+              maxLength={120}
+              placeholder="e.g. Personal — Family group, Outreach, Field team"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+            <p className="text-[11.5px] text-zoru-ink-muted">
+              You can rename or delete this later from the workspace settings.
+            </p>
+          </div>
+          <ZoruDialogFooter>
+            <ZoruButton
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              disabled={pending}
+            >
+              Cancel
+            </ZoruButton>
+            <ZoruButton type="submit" disabled={pending || !name.trim()}>
+              {pending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Plus />
+              )}
+              Create project
+            </ZoruButton>
+          </ZoruDialogFooter>
+        </form>
+      </ZoruDialogContent>
+    </ZoruDialog>
+  );
+}
+
+/* ── page ──────────────────────────────────────────────────────── */
+
 export function AllProjectsClient({ bootstrap }: AllProjectsClientProps) {
   const router = useRouter();
-  const { activeProjectId, setActiveProjectId } = useProject();
+  const { activeProjectId, setActiveProjectId, reloadProjects } = useProject();
+
+  // Filter to SabWa-only workspaces. A project is a SabWa workspace if:
+  //   - its `kind === 'sabwa'` (created from /sabwa), OR
+  //   - it has no other module signature (no wabaId, no facebookPageId,
+  //     no other `kind`) AND is otherwise empty — covers legacy projects
+  //     that haven't picked up the flag yet. Strict by default.
+  const sabwaProjects = React.useMemo(() => {
+    return bootstrap.projects.filter((p) => p.kind === 'sabwa');
+  }, [bootstrap.projects]);
 
   const [search, setSearch] = React.useState('');
-
-  const projects = bootstrap.projects;
+  const [createOpen, setCreateOpen] = React.useState(false);
 
   const filtered = React.useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return projects;
-    return projects.filter(
+    if (!q) return sabwaProjects;
+    return sabwaProjects.filter(
       (p) =>
         p.name.toLowerCase().includes(q) ||
-        (p.phoneNumber ?? '').toLowerCase().includes(q) ||
-        (p.wabaId ?? '').toLowerCase().includes(q),
+        (p.phoneNumber ?? '').toLowerCase().includes(q),
     );
-  }, [projects, search]);
+  }, [sabwaProjects, search]);
 
   const flowStep: FlowStep =
-    projects.length === 0
+    sabwaProjects.length === 0
       ? 'create'
-      : !activeProjectId
+      : !activeProjectId ||
+          !sabwaProjects.some((p) => p.id === activeProjectId)
         ? 'select'
         : 'connect';
 
@@ -233,6 +347,14 @@ export function AllProjectsClient({ bootstrap }: AllProjectsClientProps) {
   const handleContinue = () => {
     if (!activeProjectId) return;
     router.push('/sabwa/connect');
+  };
+
+  const handleCreated = async (projectId: string, _name: string) => {
+    await reloadProjects();
+    setActiveProjectId(projectId);
+    // Don't auto-redirect — let the user see their new project in the
+    // picker, then click Continue. (Matches the 3-step flow narrative.)
+    router.refresh();
   };
 
   return (
@@ -255,25 +377,28 @@ export function AllProjectsClient({ bootstrap }: AllProjectsClientProps) {
             SabWa — Personal WhatsApp
           </p>
           <h1 className="mt-1 text-[26px] leading-[1.15] tracking-[-0.015em] text-zoru-ink">
-            Pick a project to link
+            Pick a SabWa workspace
           </h1>
           <p className="mt-1 text-[13px] text-zoru-ink-muted">
-            SabWa attaches a personal WhatsApp number to a SabNode project. Pick
-            an existing project below, or create a new one to keep this account
-            separate.
+            SabWa workspaces are <strong>separate</strong> from WaChat,
+            Meta, CRM, and Telegram projects — they only show up here.
+            Create a dedicated workspace for each WhatsApp account you want
+            to link.
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Link href="/onboarding">
-            <ZoruButton variant="outline" size="md">
-              <Plus />
-              New project
-            </ZoruButton>
-          </Link>
+          <ZoruButton
+            variant="outline"
+            size="md"
+            onClick={() => setCreateOpen(true)}
+          >
+            <Plus />
+            New SabWa project
+          </ZoruButton>
           <ZoruButton
             size="md"
             onClick={handleContinue}
-            disabled={!activeProjectId}
+            disabled={!activeProjectId || flowStep !== 'connect'}
           >
             Continue to connect
             <ArrowRight />
@@ -294,17 +419,23 @@ export function AllProjectsClient({ bootstrap }: AllProjectsClientProps) {
               <Briefcase className="h-4 w-4" />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-[14px] text-zoru-ink">Create a project</p>
-              <p className="mt-1 text-[12.5px] text-zoru-ink-muted">
-                Use a dedicated workspace for this WhatsApp account. Helps keep
-                contacts, broadcasts, and audit trails isolated.
+              <p className="text-[14px] text-zoru-ink">
+                Create a SabWa workspace
               </p>
-              <Link href="/onboarding" className="mt-3 inline-flex">
-                <ZoruButton variant="outline" size="sm">
-                  Start onboarding
-                  <ChevronRight />
-                </ZoruButton>
-              </Link>
+              <p className="mt-1 text-[12.5px] text-zoru-ink-muted">
+                Each SabWa workspace owns one WhatsApp number and its
+                contacts / broadcasts / audit trail. Kept independent from
+                your WaChat and Meta projects.
+              </p>
+              <ZoruButton
+                variant="outline"
+                size="sm"
+                className="mt-3"
+                onClick={() => setCreateOpen(true)}
+              >
+                Create project
+                <ChevronRight />
+              </ZoruButton>
             </div>
           </div>
         </ZoruCard>
@@ -317,23 +448,23 @@ export function AllProjectsClient({ bootstrap }: AllProjectsClientProps) {
             <div className="min-w-0 flex-1">
               <p className="text-[14px] text-zoru-ink">Connect WhatsApp</p>
               <p className="mt-1 text-[12.5px] text-zoru-ink-muted">
-                Once a project is selected, link your number with a refreshing
-                QR code or an 8-character pair code.
+                Once a SabWa workspace is selected, link your number with a
+                refreshing QR code or an 8-character pair code.
               </p>
-              <Link
-                href={activeProjectId ? '/sabwa/connect' : '#'}
-                aria-disabled={!activeProjectId}
-                className={cn('mt-3 inline-flex', !activeProjectId && 'pointer-events-none')}
+              <ZoruButton
+                size="sm"
+                className="mt-3"
+                disabled={!activeProjectId || flowStep !== 'connect'}
+                onClick={handleContinue}
+                variant={
+                  activeProjectId && flowStep === 'connect'
+                    ? 'default'
+                    : 'outline'
+                }
               >
-                <ZoruButton
-                  size="sm"
-                  disabled={!activeProjectId}
-                  variant={activeProjectId ? 'default' : 'outline'}
-                >
-                  <Smartphone />
-                  Link a number
-                </ZoruButton>
-              </Link>
+                <Smartphone />
+                Link a number
+              </ZoruButton>
             </div>
           </div>
         </ZoruCard>
@@ -344,15 +475,17 @@ export function AllProjectsClient({ bootstrap }: AllProjectsClientProps) {
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <p className="text-[11px] uppercase tracking-[0.12em] text-zoru-ink-muted">
-              Step 2 — Select a project
+              Step 2 — Select a SabWa workspace
             </p>
-            <h2 className="mt-1 text-[18px] text-zoru-ink">Your projects</h2>
+            <h2 className="mt-1 text-[18px] text-zoru-ink">
+              Your SabWa workspaces
+            </h2>
           </div>
-          {projects.length > 0 && (
+          {sabwaProjects.length > 0 && (
             <div className="w-full max-w-xs">
               <ZoruInput
                 leadingSlot={<Search />}
-                placeholder="Search projects..."
+                placeholder="Search SabWa workspaces..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
@@ -361,24 +494,22 @@ export function AllProjectsClient({ bootstrap }: AllProjectsClientProps) {
         </div>
 
         <div className="mt-4">
-          {projects.length === 0 ? (
+          {sabwaProjects.length === 0 ? (
             <ZoruEmptyState
               icon={<Sparkles />}
-              title="No projects yet"
-              description="Create a SabNode project first — it owns the contacts, broadcasts, and audit log for this WhatsApp account."
+              title="No SabWa workspaces yet"
+              description="SabWa keeps its workspaces separate from your WaChat and Meta projects. Create the first one to link a personal WhatsApp number."
               action={
-                <Link href="/onboarding">
-                  <ZoruButton size="md">
-                    <Plus />
-                    Start onboarding
-                  </ZoruButton>
-                </Link>
+                <ZoruButton size="md" onClick={() => setCreateOpen(true)}>
+                  <Plus />
+                  Create SabWa workspace
+                </ZoruButton>
               }
             />
           ) : filtered.length === 0 ? (
             <ZoruEmptyState
               icon={<Search />}
-              title="No projects matched"
+              title="No workspaces matched"
               description="Try a different search term or clear the filter."
             />
           ) : (
@@ -395,6 +526,12 @@ export function AllProjectsClient({ bootstrap }: AllProjectsClientProps) {
           )}
         </div>
       </div>
+
+      <CreateSabwaProjectDialog
+        open={createOpen}
+        onOpenChange={setCreateOpen}
+        onCreated={handleCreated}
+      />
     </div>
   );
 }
