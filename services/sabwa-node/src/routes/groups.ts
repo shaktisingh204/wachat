@@ -26,7 +26,7 @@ import {
 } from '../db/groups.js';
 import { recordAudit } from '../db/audit.js';
 import type { BaileysSession } from '../wa/session.js';
-import { actorContext, badRequest, notFound, stateOf } from './_helpers.js';
+import { actorContext, asString, badRequest, notFound, stateOf } from './_helpers.js';
 
 
 
@@ -59,16 +59,13 @@ export function buildGroupsRouter(): Router {
 
   // ── GET /v1/groups ─────────────────────────────────────────────────────
   router.get('/', async (req: Request, res: Response): Promise<void> => {
-    const sessionId =
-      typeof req.query.sessionId === 'string' ? req.query.sessionId.trim() : '';
+    const sessionId = asString(req.query.sessionId);
     if (!sessionId) {
       badRequest(res, 'sessionId is required');
       return;
     }
-    const category =
-      typeof req.query.category === 'string' && req.query.category.trim().length > 0
-        ? req.query.category.trim()
-        : null;
+    const categoryRaw = asString(req.query.category);
+    const category = categoryRaw.length > 0 ? categoryRaw : null;
     try {
       const groups = await listGroups(stateOf(req).db, sessionId, category);
       res.json({ groups });
@@ -80,9 +77,8 @@ export function buildGroupsRouter(): Router {
 
   // ── GET /v1/groups/:jid ─────────────────────────────────────────────────
   router.get('/:jid', async (req: Request, res: Response): Promise<void> => {
-    const jid = req.params.jid;
-    const sessionId =
-      typeof req.query.sessionId === 'string' ? req.query.sessionId.trim() : '';
+    const jid = asString(req.params.jid);
+    const sessionId = asString(req.query.sessionId);
     if (!jid) {
       badRequest(res, 'jid is required');
       return;
@@ -191,7 +187,7 @@ export function buildGroupsRouter(): Router {
 
   // ── PATCH /v1/groups/:jid — subject / description / icon ────────────────
   router.patch('/:jid', async (req: Request, res: Response): Promise<void> => {
-    const jid = req.params.jid;
+    const jid = asString(req.params.jid);
     if (!jid) return badRequest(res, 'jid is required');
     const body = (req.body ?? {}) as Record<string, unknown>;
     const sessionId = typeof body.sessionId === 'string' ? body.sessionId.trim() : '';
@@ -263,7 +259,7 @@ export function buildGroupsRouter(): Router {
 
   // ── POST /v1/groups/:jid/participants ───────────────────────────────────
   router.post('/:jid/participants', async (req: Request, res: Response): Promise<void> => {
-    const jid = req.params.jid;
+    const jid = asString(req.params.jid);
     if (!jid) return badRequest(res, 'jid is required');
     const body = (req.body ?? {}) as Record<string, unknown>;
     const sessionId = typeof body.sessionId === 'string' ? body.sessionId.trim() : '';
@@ -328,10 +324,9 @@ export function buildGroupsRouter(): Router {
 
   // ── GET /v1/groups/:jid/invite-code ────────────────────────────────────
   router.get('/:jid/invite-code', async (req: Request, res: Response): Promise<void> => {
-    const jid = req.params.jid;
+    const jid = asString(req.params.jid);
     if (!jid) return badRequest(res, 'jid is required');
-    const sessionId =
-      typeof req.query.sessionId === 'string' ? req.query.sessionId.trim() : '';
+    const sessionId = asString(req.query.sessionId);
     if (!sessionId) return badRequest(res, 'sessionId is required');
 
     const session = stateOf(req).pool.get(sessionId);
@@ -385,7 +380,7 @@ export function buildGroupsRouter(): Router {
 
   // ── POST /v1/groups/:jid/leave ─────────────────────────────────────────
   router.post('/:jid/leave', async (req: Request, res: Response): Promise<void> => {
-    const jid = req.params.jid;
+    const jid = asString(req.params.jid);
     if (!jid) return badRequest(res, 'jid is required');
     const body = (req.body ?? {}) as Record<string, unknown>;
     const sessionId = typeof body.sessionId === 'string' ? body.sessionId.trim() : '';

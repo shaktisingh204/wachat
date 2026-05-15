@@ -22,6 +22,7 @@ import { z } from 'zod';
 import type { AppState } from '../state.js';
 import * as scheduled from '../db/scheduled.js';
 import { validateCron } from '../workers/scheduler.js';
+import { asString } from './_helpers.js';
 
 // ── Zod schemas ─────────────────────────────────────────────────────────────
 
@@ -135,7 +136,7 @@ export function buildScheduledRouter(state: AppState): Router {
 
   // ── PATCH /v1/scheduled/:id ───────────────────────────────────────────────
   router.patch('/:id', async (req: Request, res: Response) => {
-    const id = req.params.id;
+    const id = asString(req.params.id);
     if (!id) {
       res.status(400).json({ error: 'id is required', code: 'bad_request' });
       return;
@@ -182,7 +183,7 @@ export function buildScheduledRouter(state: AppState): Router {
 
   // ── DELETE /v1/scheduled/:id ──────────────────────────────────────────────
   router.delete('/:id', async (req: Request, res: Response) => {
-    const id = req.params.id;
+    const id = asString(req.params.id);
     if (!id) {
       res.status(400).json({ error: 'id is required', code: 'bad_request' });
       return;

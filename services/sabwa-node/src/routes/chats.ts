@@ -78,7 +78,7 @@ export function buildChatsRouter(_state: AppState): Router {
 
   // ── POST /v1/chats/:jid/read ────────────────────────────────────────────
   router.post('/:jid/read', async (req: Request, res: Response): Promise<void> => {
-    const jid = req.params.jid;
+    const jid = asString(req.params.jid);
     const sessionId = asString(req.query.sessionId) ?? asString((req.body ?? {}).sessionId);
     if (!jid) return badRequest(res, 'chatJid is required');
     if (!sessionId) return badRequest(res, 'sessionId is required');
@@ -106,7 +106,7 @@ export function buildChatsRouter(_state: AppState): Router {
 
   // ── POST /v1/chats/:jid/pin ─────────────────────────────────────────────
   router.post('/:jid/pin', async (req: Request, res: Response): Promise<void> => {
-    const jid = req.params.jid;
+    const jid = asString(req.params.jid);
     const body = (req.body ?? {}) as { sessionId?: string; pinned?: boolean };
     const sessionId = asString(body.sessionId) ?? asString(req.query.sessionId);
     if (!jid) return badRequest(res, 'chatJid is required');
@@ -123,7 +123,7 @@ export function buildChatsRouter(_state: AppState): Router {
 
   // ── POST /v1/chats/:jid/mute ────────────────────────────────────────────
   router.post('/:jid/mute', async (req: Request, res: Response): Promise<void> => {
-    const jid = req.params.jid;
+    const jid = asString(req.params.jid);
     const body = (req.body ?? {}) as {
       sessionId?: string;
       muted?: boolean;
@@ -145,7 +145,7 @@ export function buildChatsRouter(_state: AppState): Router {
 
   // ── POST /v1/chats/:jid/archive ─────────────────────────────────────────
   router.post('/:jid/archive', async (req: Request, res: Response): Promise<void> => {
-    const jid = req.params.jid;
+    const jid = asString(req.params.jid);
     const body = (req.body ?? {}) as { sessionId?: string; archived?: boolean };
     const sessionId = asString(body.sessionId) ?? asString(req.query.sessionId);
     if (!jid) return badRequest(res, 'chatJid is required');
@@ -162,7 +162,7 @@ export function buildChatsRouter(_state: AppState): Router {
 
   // ── POST /v1/chats/:jid/labels ──────────────────────────────────────────
   router.post('/:jid/labels', async (req: Request, res: Response): Promise<void> => {
-    const jid = req.params.jid;
+    const jid = asString(req.params.jid);
     const body = (req.body ?? {}) as { sessionId?: string; labels?: unknown };
     const sessionId = asString(body.sessionId) ?? asString(req.query.sessionId);
     if (!jid) return badRequest(res, 'chatJid is required');
@@ -181,7 +181,7 @@ export function buildChatsRouter(_state: AppState): Router {
   // ── PATCH /v1/chats/:jid ────────────────────────────────────────────────
   // Multi-field bag used by `updateChatState` in `sabwa.actions.ts`.
   router.patch('/:jid', async (req: Request, res: Response): Promise<void> => {
-    const jid = req.params.jid;
+    const jid = asString(req.params.jid);
     const body = (req.body ?? {}) as {
       sessionId?: string;
       pinned?: boolean;

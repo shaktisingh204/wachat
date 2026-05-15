@@ -21,6 +21,7 @@ import { z } from 'zod';
 
 import type { AppState } from '../state.js';
 import * as bulk from '../db/bulk.js';
+import { asString } from './_helpers.js';
 
 const ListQuery = z.object({
   sessionId: z.string().min(1),
@@ -127,7 +128,7 @@ export function buildBulkRouter(state: AppState): Router {
 
   // ── GET /v1/bulk/:id ────────────────────────────────────────────────────
   router.get('/:id', async (req: Request, res: Response) => {
-    const id = req.params.id;
+    const id = asString(req.params.id);
     if (!id) {
       res.status(400).json({ error: 'id is required', code: 'bad_request' });
       return;
@@ -149,7 +150,7 @@ export function buildBulkRouter(state: AppState): Router {
   // ── Control endpoints (pause / resume / abort) ──────────────────────────
   for (const op of ['pause', 'resume', 'abort'] as const) {
     router.post(`/:id/${op}`, async (req: Request, res: Response) => {
-      const id = req.params.id;
+      const id = asString(req.params.id);
       if (!id) {
         res.status(400).json({ error: 'id is required', code: 'bad_request' });
         return;

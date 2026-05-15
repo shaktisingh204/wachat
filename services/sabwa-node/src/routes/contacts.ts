@@ -21,7 +21,7 @@ import {
   setBlocked as setBlockedDb,
   update as updateContact,
 } from '../db/contacts.js';
-import { actorContext, badRequest, notFound, stateOf } from './_helpers.js';
+import { actorContext, asString, badRequest, notFound, stateOf } from './_helpers.js';
 import { recordAudit } from '../db/audit.js';
 
 /**
@@ -33,20 +33,15 @@ export function buildContactsRouter(): Router {
   const router = Router();
 
   router.get('/', async (req: Request, res: Response): Promise<void> => {
-    const sessionId =
-      typeof req.query.sessionId === 'string' ? req.query.sessionId.trim() : '';
+    const sessionId = asString(req.query.sessionId);
     if (!sessionId) {
       badRequest(res, 'sessionId is required');
       return;
     }
-    const search =
-      typeof req.query.search === 'string' && req.query.search.trim().length > 0
-        ? req.query.search.trim()
-        : null;
-    const tag =
-      typeof req.query.tag === 'string' && req.query.tag.trim().length > 0
-        ? req.query.tag.trim()
-        : null;
+    const searchRaw = asString(req.query.search);
+    const search = searchRaw.length > 0 ? searchRaw : null;
+    const tagRaw = asString(req.query.tag);
+    const tag = tagRaw.length > 0 ? tagRaw : null;
     try {
       const contacts = await listContacts(stateOf(req).db, sessionId, search, tag);
       res.json({ contacts });
@@ -57,9 +52,8 @@ export function buildContactsRouter(): Router {
   });
 
   router.get('/:jid', async (req: Request, res: Response): Promise<void> => {
-    const jid = req.params.jid;
-    const sessionId =
-      typeof req.query.sessionId === 'string' ? req.query.sessionId.trim() : '';
+    const jid = asString(req.params.jid);
+    const sessionId = asString(req.query.sessionId);
     if (!jid) {
       badRequest(res, 'jid is required');
       return;
@@ -82,7 +76,7 @@ export function buildContactsRouter(): Router {
   });
 
   router.patch('/:jid', async (req: Request, res: Response): Promise<void> => {
-    const jid = req.params.jid;
+    const jid = asString(req.params.jid);
     if (!jid) {
       badRequest(res, 'jid is required');
       return;
@@ -144,7 +138,7 @@ export function buildContactsRouter(): Router {
  * socket can call `sock.updateBlockStatus(jid, 'block' | 'unblock')`.
  */
 async function blockUnblock(req: Request, res: Response, block: boolean): Promise<void> {
-  const jid = req.params.jid;
+  const jid = asString(req.params.jid);
   if (!jid) {
     badRequest(res, 'jid is required');
     return;

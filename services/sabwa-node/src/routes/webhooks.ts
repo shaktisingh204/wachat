@@ -25,7 +25,7 @@ import {
   patchWebhook,
   recordDelivery,
 } from '../db/webhooks.js';
-import { actorContext, badRequest, notFound, stateOf } from './_helpers.js';
+import { actorContext, asString, badRequest, notFound, stateOf } from './_helpers.js';
 
 const WEBHOOK_EVENTS = z.union([
   z.enum([
@@ -60,8 +60,8 @@ const patchSchema = z.object({
 const TEST_TIMEOUT_MS = 10_000;
 
 async function handleList(req: Request, res: Response): Promise<void> {
-  const projectId = req.query.projectId;
-  if (typeof projectId !== 'string' || projectId.length === 0) {
+  const projectId = asString(req.query.projectId);
+  if (!projectId) {
     badRequest(res, 'projectId query parameter is required');
     return;
   }
@@ -93,7 +93,7 @@ async function handleCreate(req: Request, res: Response): Promise<void> {
 }
 
 async function handlePatch(req: Request, res: Response): Promise<void> {
-  const id = req.params.id;
+  const id = asString(req.params.id);
   if (!id) {
     badRequest(res, 'id is required');
     return;
@@ -121,7 +121,7 @@ async function handlePatch(req: Request, res: Response): Promise<void> {
 }
 
 async function handleDelete(req: Request, res: Response): Promise<void> {
-  const id = req.params.id;
+  const id = asString(req.params.id);
   if (!id) {
     badRequest(res, 'id is required');
     return;
@@ -149,7 +149,7 @@ async function handleDelete(req: Request, res: Response): Promise<void> {
 }
 
 async function handleTest(req: Request, res: Response): Promise<void> {
-  const id = req.params.id;
+  const id = asString(req.params.id);
   if (!id) {
     badRequest(res, 'id is required');
     return;

@@ -27,7 +27,7 @@ import {
   type AutoReplyAction,
   type AutoReplyTrigger,
 } from '../db/auto-replies.js';
-import { actorContext, badRequest, notFound, stateOf } from './_helpers.js';
+import { actorContext, asString, badRequest, notFound, stateOf } from './_helpers.js';
 
 // ── Zod schemas ────────────────────────────────────────────────────────────
 
@@ -109,8 +109,8 @@ const reorderSchema = z.object({
 // ── Handlers ───────────────────────────────────────────────────────────────
 
 async function handleList(req: Request, res: Response): Promise<void> {
-  const sessionId = req.query.sessionId;
-  if (typeof sessionId !== 'string' || sessionId.length === 0) {
+  const sessionId = asString(req.query.sessionId);
+  if (!sessionId) {
     badRequest(res, 'sessionId query parameter is required');
     return;
   }
@@ -167,7 +167,7 @@ async function handleCreate(req: Request, res: Response): Promise<void> {
 }
 
 async function handlePatch(req: Request, res: Response): Promise<void> {
-  const id = req.params.id;
+  const id = asString(req.params.id);
   if (!id) {
     badRequest(res, 'id is required');
     return;
@@ -211,7 +211,7 @@ async function handlePatch(req: Request, res: Response): Promise<void> {
 }
 
 async function handleDelete(req: Request, res: Response): Promise<void> {
-  const id = req.params.id;
+  const id = asString(req.params.id);
   if (!id) {
     badRequest(res, 'id is required');
     return;

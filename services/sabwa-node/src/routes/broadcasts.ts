@@ -25,6 +25,7 @@ import { z } from 'zod';
 
 import type { AppState } from '../state.js';
 import * as broadcasts from '../db/broadcasts.js';
+import { asString } from './_helpers.js';
 
 const ListQuery = z.object({
   sessionId: z.string().min(1),
@@ -80,7 +81,7 @@ export function buildBroadcastsRouter(state: AppState): Router {
 
   // ── PATCH /v1/broadcasts/:id (alias of upsert with explicit id) ─────────
   router.patch('/:id', async (req: Request, res: Response) => {
-    const id = req.params.id;
+    const id = asString(req.params.id);
     if (!id) {
       res.status(400).json({ error: 'id is required', code: 'bad_request' });
       return;
@@ -101,7 +102,7 @@ export function buildBroadcastsRouter(state: AppState): Router {
 
   // ── DELETE /v1/broadcasts/:id ───────────────────────────────────────────
   router.delete('/:id', async (req: Request, res: Response) => {
-    const id = req.params.id;
+    const id = asString(req.params.id);
     if (!id) {
       res.status(400).json({ error: 'id is required', code: 'bad_request' });
       return;
@@ -117,7 +118,7 @@ export function buildBroadcastsRouter(state: AppState): Router {
 
   // ── POST /v1/broadcasts/:id/send ────────────────────────────────────────
   router.post('/:id/send', async (req: Request, res: Response) => {
-    const id = req.params.id;
+    const id = asString(req.params.id);
     if (!id) {
       res.status(400).json({ error: 'id is required', code: 'bad_request' });
       return;

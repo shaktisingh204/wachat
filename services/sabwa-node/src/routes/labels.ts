@@ -20,6 +20,7 @@ import {
   updateLabel,
 } from '../db/labels.js';
 import type { AppState } from '../state.js';
+import { asString } from './_helpers.js';
 
 function stateFrom(req: Request): AppState {
   return req.app.locals.state as AppState;
@@ -29,8 +30,7 @@ export function buildLabelsRouter(): Router {
   const router = Router();
 
   router.get('/', async (req: Request, res: Response): Promise<void> => {
-    const sessionId =
-      typeof req.query.sessionId === 'string' ? req.query.sessionId.trim() : '';
+    const sessionId = asString(req.query.sessionId);
     if (!sessionId) {
       res.status(400).json({ error: 'sessionId is required', code: 'bad_request' });
       return;
@@ -77,7 +77,7 @@ export function buildLabelsRouter(): Router {
   });
 
   router.patch('/:id', async (req: Request, res: Response): Promise<void> => {
-    const id = req.params.id;
+    const id = asString(req.params.id);
     if (!id) {
       res.status(400).json({ error: 'id is required', code: 'bad_request' });
       return;
@@ -105,7 +105,7 @@ export function buildLabelsRouter(): Router {
   });
 
   router.delete('/:id', async (req: Request, res: Response): Promise<void> => {
-    const id = req.params.id;
+    const id = asString(req.params.id);
     if (!id) {
       res.status(400).json({ error: 'id is required', code: 'bad_request' });
       return;

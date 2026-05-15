@@ -21,6 +21,7 @@ import { z } from 'zod';
 
 import type { AppState } from '../state.js';
 import * as exports from '../db/exports.js';
+import { asString } from './_helpers.js';
 
 const ScopeSchema = z.object({
   kind: z.enum(['all', 'chats', 'date_range']),
@@ -105,7 +106,7 @@ export function buildExportRouter(state: AppState): Router {
 
   // ── GET /v1/export/:id ──────────────────────────────────────────────────
   router.get('/:id', async (req: Request, res: Response) => {
-    const id = req.params.id;
+    const id = asString(req.params.id);
     if (!id) {
       res.status(400).json({ error: 'id is required', code: 'bad_request' });
       return;
