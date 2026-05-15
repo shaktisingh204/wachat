@@ -38,6 +38,12 @@ import {
 import {
   ZoruButton,
   ZoruCalendar,
+  ZoruCommand,
+  ZoruCommandEmpty,
+  ZoruCommandGroup,
+  ZoruCommandInput,
+  ZoruCommandItem,
+  ZoruCommandList,
   ZoruDialog,
   ZoruDialogContent,
   ZoruDialogDescription,
@@ -71,9 +77,13 @@ import {
   type SabwaSendMessagePayload,
 } from "@/app/actions/sabwa.actions";
 
+import { useChats, useResolveJid } from "@/lib/sabwa/use-sabwa-data";
+import { formatJid } from "@/lib/sabwa/format-jid";
+
 import type {
   SabwaScheduledTarget,
   SabwaScheduledTargetType,
+  SabwaChat,
 } from "@/lib/sabwa/types";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
@@ -281,6 +291,7 @@ export function ScheduleDialog({
   const [targetTab, setTargetTab] =
     React.useState<SabwaScheduledTargetType>("individual");
   const [search, setSearch] = React.useState("");
+  const [jidInput, setJidInput] = React.useState("");
   const [body, setBody] = React.useState<string>(initial?.body ?? "");
   const [mediaId, setMediaId] = React.useState<string | undefined>(
     initial?.mediaSabFileId,
@@ -320,6 +331,39 @@ export function ScheduleDialog({
   const [submitting, setSubmitting] = React.useState(false);
   const [testing, setTesting] = React.useState(false);
 
+  // ─ Live chat picker data ────────────────────────────────────────────────
+  const { data: chatsData, loading: chatsLoading } = useChats(sessionId);
+  const resolveJid = useResolveJid(sessionId);
+
+  // Filter chats by selected recipient-kind tab. SabWa types use
+  // `'individual' | 'group' | 'broadcast' | 'status'`; we map "broadcast"
+  // to status-typed chats (closest live representation) and individual
+  // covers both contacts and linked-id one-to-one chats.
+  const visibleChats = React.useMemo<SabwaChat[]>(() => {
+    const all = chatsData ?? [];
+    return all.filter((c) => {
+      if (targetTab === "group") return c.type === "group";
+      if (targetTab === "broadcast")
+        return c.type === "broadcast" || c.type === "status";
+      // "individual"
+      return c.type === "individual" || c.type == null;
+    });
+  }, [chatsData, targetTab]);
+
+  // Apply the search-string filter locally — cmdk's built-in fuzzy filter
+  // also runs via `value=` on each item, but we pre-narrow so the empty
+  // state message stays meaningful.
+  const filteredChats = React.useMemo<SabwaChat[]>(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return visibleChats;
+    return visibleChats.filter((c) => {
+      const name = (c.name ?? "").toLowerCase();
+      const jid = c.jid.toLowerCase();
+      const phone = formatJid(c.jid).toLowerCase();
+      return name.includes(q) || jid.includes(q) || phone.includes(q);
+    });
+  }, [visibleChats, search]);
+
   // Reset whenever the dialog re-opens with fresh initial values.
   React.useEffect(() => {
     if (!open) return;
@@ -338,6 +382,8 @@ export function ScheduleDialog({
     setEndKind(initial?.endKind ?? "never");
     setEndCount(initial?.endCount ?? 10);
     setEndDate(initial?.endDate ? formatDateInput(initial.endDate) : "");
+    setSearch("");
+    setJidInput("");
   }, [open, initial, defaultDate]);
 
   // ─ Derived ──────────────────────────────────────────────────────────────
@@ -381,7 +427,6 @@ export function ScheduleDialog({
           ? curr
           : [...curr, { jid: key, type, label: label || key }],
       );
-      setSearch("");
     },
     [],
   );
@@ -581,16 +626,107 @@ export function ScheduleDialog({
                 </ZoruButton>
               ))}
             </div>
+
+            {/* Searchable picker — live chats list */}
+            <div className="mt-3 rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-bg">
+              <ZoruCommand
+                shouldFilter={false}
+                className="rounded-[var(--zoru-radius-sm)]"
+              >
+                <ZoruCommandInput
+                  placeholder={
+                    targetTab === "individual"
+                      ? "Search chats or contacts…"
+                      : targetTab === "group"
+                        ? "Search groups…"
+                        : "Search broadcast lists…"
+                  }
+                  value={search}
+                  onValueChange={setSearch}
+                />
+                <ZoruCommandList className="max-h-[200px]">
+                  {chatsLoading && (
+                    <div className="px-3 py-2 text-xs text-zoru-ink-muted">
+                      Loading chats…
+                    </div>
+                  )}
+                  <ZoruCommandEmpty>
+                    {chatsLoading
+                      ? "Loading…"
+                      : visibleChats.length === 0
+                        ? "No chats available for this session."
+                        : "No matches. Try a different search."}
+                  </ZoruCommandEmpty>
+                  {filteredChats.length > 0 && (
+                    <ZoruCommandGroup heading="Chats">
+                      {filteredChats.map((c) => {
+                        const meta = targetTypeMeta(
+                          c.type === "group"
+                            ? "group"
+                            : c.type === "broadcast" || c.type === "status"
+                              ? "broadcast"
+                              : "individual",
+                        );
+                        const Icon = meta.Icon;
+                        const name = resolveJid(c.jid);
+                        const phone = formatJid(c.jid);
+                        const alreadyPicked = targets.some(
+                          (t) => t.jid === c.jid,
+                        );
+                        return (
+                          <ZoruCommandItem
+                            key={c.jid}
+                            value={`${name} ${phone} ${c.jid}`}
+                            onSelect={() => {
+                              const pickedType: SabwaScheduledTargetType =
+                                c.type === "group"
+                                  ? "group"
+                                  : c.type === "broadcast" ||
+                                      c.type === "status"
+                                    ? "broadcast"
+                                    : "individual";
+                              addTarget(c.jid, name, pickedType);
+                            }}
+                            disabled={alreadyPicked}
+                          >
+                            <Icon className="h-4 w-4 shrink-0 text-zoru-ink-muted" />
+                            <div className="flex min-w-0 flex-col">
+                              <span className="truncate text-[13px] text-zoru-ink">
+                                {name}
+                              </span>
+                              {phone !== name && (
+                                <span className="truncate text-[11px] text-zoru-ink-subtle">
+                                  {phone}
+                                </span>
+                              )}
+                            </div>
+                            {alreadyPicked && (
+                              <span className="ml-auto text-[10px] uppercase tracking-wide text-zoru-ink-subtle">
+                                Picked
+                              </span>
+                            )}
+                          </ZoruCommandItem>
+                        );
+                      })}
+                    </ZoruCommandGroup>
+                  )}
+                </ZoruCommandList>
+              </ZoruCommand>
+            </div>
+
+            {/* Power-user fallback: paste a raw JID */}
             <div className="mt-3 space-y-2">
               <div className="flex gap-2">
                 <ZoruInput
                   placeholder={targetPlaceholder}
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
+                  value={jidInput}
+                  onChange={(e) => setJidInput(e.target.value)}
                   onKeyDown={(e) => {
-                    if (e.key === "Enter" && search.trim()) {
+                    if (e.key === "Enter" && jidInput.trim()) {
                       e.preventDefault();
-                      addTarget(search.trim(), search.trim(), targetTab);
+                      const raw = jidInput.trim();
+                      addTarget(raw, resolveJid(raw), targetTab);
+                      setJidInput("");
                     }
                   }}
                 />
@@ -598,18 +734,30 @@ export function ScheduleDialog({
                   type="button"
                   variant="secondary"
                   size="sm"
-                  disabled={!search.trim()}
-                  onClick={() =>
-                    addTarget(search.trim(), search.trim(), targetTab)
-                  }
+                  disabled={!jidInput.trim()}
+                  onClick={() => {
+                    const raw = jidInput.trim();
+                    addTarget(raw, resolveJid(raw), targetTab);
+                    setJidInput("");
+                  }}
                 >
                   Add
                 </ZoruButton>
               </div>
               <p className="text-[11px] text-zoru-ink-muted">
-                Live contact / group search will land with Phase 2; for now
-                you can paste a JID and press Enter.
+                Search and pick chats below, or paste a JID.
               </p>
+              {jidInput.trim() && (
+                <p className="text-[11px] text-zoru-ink-subtle">
+                  Will be added as{' '}
+                  <span className="font-medium text-zoru-ink">
+                    {resolveJid(jidInput.trim())}
+                  </span>{' '}
+                  <span className="font-mono text-zoru-ink-muted">
+                    ({formatJid(jidInput.trim())})
+                  </span>
+                </p>
+              )}
             </div>
 
             {targets.length > 0 && (
@@ -617,6 +765,8 @@ export function ScheduleDialog({
                 {targets.map((t) => {
                   const meta = targetTypeMeta(t.type);
                   const Icon = meta.Icon;
+                  const resolvedName = resolveJid(t.jid);
+                  const phone = formatJid(t.jid);
                   return (
                     <span
                       key={t.jid}
@@ -624,12 +774,15 @@ export function ScheduleDialog({
                         "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs",
                         meta.className,
                       )}
+                      title={phone !== resolvedName ? phone : t.jid}
                     >
                       <Icon className="h-3 w-3" />
-                      <span className="max-w-[14ch] truncate">{t.label}</span>
+                      <span className="max-w-[16ch] truncate">
+                        {resolvedName}
+                      </span>
                       <button
                         type="button"
-                        aria-label={`Remove ${t.label}`}
+                        aria-label={`Remove ${resolvedName}`}
                         onClick={() => removeTarget(t.jid)}
                         className="ml-0.5 rounded-full p-0.5 hover:bg-zoru-surface-2"
                       >

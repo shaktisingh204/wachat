@@ -102,6 +102,11 @@ import {
   type SabwaGroupParticipantDto,
   type SabwaGroupPatch,
 } from '@/app/actions/sabwa.actions';
+import {
+  formatJid,
+  useResolveJid,
+  type JidResolver,
+} from '@/lib/sabwa/format-jid';
 import { useSabwaSession } from '@/lib/sabwa/session-context';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -320,6 +325,7 @@ interface MembersTabProps {
   onBulkDm: () => void;
   refresh: () => void;
   requestConfirm: (state: ConfirmState) => void;
+  resolve: JidResolver;
 }
 
 function MembersTab({
@@ -332,6 +338,7 @@ function MembersTab({
   onBulkDm,
   refresh,
   requestConfirm,
+  resolve,
 }: MembersTabProps) {
   const { toast } = useZoruToast();
   const [busy, setBusy] = React.useState<string | null>(null);
@@ -374,16 +381,18 @@ function MembersTab({
   );
 
   const onPromote = React.useCallback(
-    (p: SabwaGroupParticipantDto) => runParticipantOp('promote', p.jid, `${p.name ?? p.jid} promoted`),
-    [runParticipantOp],
+    (p: SabwaGroupParticipantDto) =>
+      runParticipantOp('promote', p.jid, `${p.name?.trim() || resolve(p.jid)} promoted`),
+    [runParticipantOp, resolve],
   );
 
   const onDemote = React.useCallback(
     (p: SabwaGroupParticipantDto) => {
+      const label = p.name?.trim() || resolve(p.jid);
       if (p.isSuperAdmin) {
         requestConfirm({
           title: 'Demote super-admin?',
-          description: `${p.name ?? p.jid} is the group creator. Demoting them is unusual and may not be reversible from WhatsApp.`,
+          description: `${label} is the group creator. Demoting them is unusual and may not be reversible from WhatsApp.`,
           confirmLabel: 'Demote',
           destructive: true,
           onConfirm: () => runParticipantOp('demote', p.jid, 'Member demoted'),
@@ -392,20 +401,21 @@ function MembersTab({
         runParticipantOp('demote', p.jid, 'Member demoted');
       }
     },
-    [runParticipantOp, requestConfirm],
+    [runParticipantOp, requestConfirm, resolve],
   );
 
   const onRemove = React.useCallback(
     (p: SabwaGroupParticipantDto) => {
+      const label = p.name?.trim() || resolve(p.jid);
       requestConfirm({
         title: 'Remove member?',
-        description: `${p.name ?? p.jid} will be removed from "${group.subject}".`,
+        description: `${label} will be removed from "${group.subject}".`,
         confirmLabel: 'Remove',
         destructive: true,
         onConfirm: () => runParticipantOp('remove', p.jid, 'Member removed'),
       });
     },
-    [runParticipantOp, requestConfirm, group.subject],
+    [runParticipantOp, requestConfirm, group.subject, resolve],
   );
 
   const allSelected =
@@ -455,6 +465,7 @@ function MembersTab({
             <ZoruTableBody>
               {group.participants.map((p) => {
                 const role = p.isSuperAdmin ? 'Super admin' : p.isAdmin ? 'Admin' : 'Member';
+                const displayName = p.name?.trim() || resolve(p.jid);
                 return (
                   <ZoruTableRow key={p.jid}>
                     <ZoruTableCell>
@@ -467,14 +478,14 @@ function MembersTab({
                       <div className="flex items-center gap-2">
                         <ZoruAvatar className="h-8 w-8">
                           {p.profilePicUrl ? <ZoruAvatarImage src={p.profilePicUrl} alt="" /> : null}
-                          <ZoruAvatarFallback>{initials(p.name ?? p.jid)}</ZoruAvatarFallback>
+                          <ZoruAvatarFallback>{initials(displayName)}</ZoruAvatarFallback>
                         </ZoruAvatar>
                         <div className="min-w-0">
                           <div className="truncate text-sm font-medium text-zoru-ink">
-                            {p.name ?? p.jid}
+                            {displayName}
                           </div>
                           <div className="truncate text-xs text-zoru-ink-muted">
-                            {p.jid}
+                            {formatJid(p.jid)}
                           </div>
                         </div>
                       </div>
@@ -532,6 +543,7 @@ function MembersTab({
             <div className="divide-y divide-zoru-line">
               {group.participants.map((p) => {
                 const role = p.isSuperAdmin ? 'Super admin' : p.isAdmin ? 'Admin' : 'Member';
+                const displayName = p.name?.trim() || resolve(p.jid);
                 return (
                   <div key={p.jid} className="flex items-center gap-3 p-3">
                     <ZoruCheckbox
@@ -540,11 +552,11 @@ function MembersTab({
                     />
                     <ZoruAvatar className="h-9 w-9">
                       {p.profilePicUrl ? <ZoruAvatarImage src={p.profilePicUrl} alt="" /> : null}
-                      <ZoruAvatarFallback>{initials(p.name ?? p.jid)}</ZoruAvatarFallback>
+                      <ZoruAvatarFallback>{initials(displayName)}</ZoruAvatarFallback>
                     </ZoruAvatar>
                     <div className="min-w-0 flex-1">
-                      <div className="truncate text-sm font-medium text-zoru-ink">{p.name ?? p.jid}</div>
-                      <div className="truncate text-xs text-zoru-ink-muted">{p.jid}</div>
+                      <div className="truncate text-sm font-medium text-zoru-ink">{displayName}</div>
+                      <div className="truncate text-xs text-zoru-ink-muted">{formatJid(p.jid)}</div>
                       <ZoruBadge variant="outline" className="mt-1">
                         {role}
                       </ZoruBadge>
@@ -946,10 +958,12 @@ function PendingTab({
   group,
   sessionId,
   refresh,
+  resolve,
 }: {
   group: SabwaGroupDetail;
   sessionId: string;
   refresh: () => void;
+  resolve: JidResolver;
 }) {
   const { toast } = useZoruToast();
   const [busy, setBusy] = React.useState<string | null>(null);
@@ -1000,15 +1014,17 @@ function PendingTab({
           </p>
         ) : (
           <div className="divide-y divide-zoru-line">
-            {pending.map((req) => (
+            {pending.map((req) => {
+              const displayName = resolve(req.jid);
+              return (
               <div key={req.jid} className="flex items-center gap-3 py-2">
                 <ZoruAvatar className="h-8 w-8">
-                  <ZoruAvatarFallback>{initials(req.jid)}</ZoruAvatarFallback>
+                  <ZoruAvatarFallback>{initials(displayName)}</ZoruAvatarFallback>
                 </ZoruAvatar>
                 <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-medium text-zoru-ink">{req.jid}</div>
+                  <div className="truncate text-sm font-medium text-zoru-ink">{displayName}</div>
                   <div className="text-xs text-zoru-ink-muted">
-                    Requested {formatDate(req.requestedAt)}
+                    {formatJid(req.jid)} · Requested {formatDate(req.requestedAt)}
                   </div>
                 </div>
                 <ZoruButton
@@ -1029,7 +1045,8 @@ function PendingTab({
                   Deny
                 </ZoruButton>
               </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </ZoruCardContent>
@@ -1065,6 +1082,7 @@ export function GroupManagerClient({ groupJid }: { groupJid: string }) {
   const { toast } = useZoruToast();
   const { current } = useSabwaSession();
   const sessionId = current?.id ?? null;
+  const resolve = useResolveJid(sessionId);
 
   const [group, setGroup] = React.useState<SabwaGroupDetail | null>(null);
   const [loading, setLoading] = React.useState(true);
@@ -1243,7 +1261,7 @@ export function GroupManagerClient({ groupJid }: { groupJid: string }) {
               <h1 className="truncate text-[24px] font-semibold leading-[1.15] tracking-[-0.015em] text-zoru-ink">
                 {group.subject}
               </h1>
-              <p className="truncate text-xs text-zoru-ink-muted">{group.jid}</p>
+              <p className="truncate text-xs text-zoru-ink-muted">{formatJid(group.jid)}</p>
               <div className="mt-1 flex flex-wrap items-center gap-1.5">
                 <ZoruBadge variant="secondary" className="gap-1">
                   <Users className="h-3 w-3" />
@@ -1307,6 +1325,7 @@ export function GroupManagerClient({ groupJid }: { groupJid: string }) {
                 onBulkDm={onBulkDm}
                 refresh={fetchGroup}
                 requestConfirm={setConfirm}
+                resolve={resolve}
               />
             ) : null}
             {section === 'info' ? (
@@ -1324,7 +1343,12 @@ export function GroupManagerClient({ groupJid }: { groupJid: string }) {
               />
             ) : null}
             {section === 'pending' && group.isCommunity ? (
-              <PendingTab group={group} sessionId={sessionId} refresh={fetchGroup} />
+              <PendingTab
+                group={group}
+                sessionId={sessionId}
+                refresh={fetchGroup}
+                resolve={resolve}
+              />
             ) : null}
             {section === 'export' ? <ExportTab group={group} /> : null}
           </div>

@@ -189,8 +189,7 @@ export default function SabWaStatusPage() {
     setPosted((prev) => [entry, ...prev]);
     toast.toast({
       title: "Status posted",
-      description:
-        "Your status is queued. The engine bridge will broadcast it when live.",
+      description: "Your status has been queued for delivery.",
     });
     setComposerOpen(false);
     resetComposer();

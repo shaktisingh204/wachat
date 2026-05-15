@@ -114,7 +114,7 @@ function defaultLabel(
   if (phone) return phone;
   // Final fallback: short suffix of the session id so each row is
   // visually distinct even before the phone is known. The engine
-  // populates `phoneE164` / `pushName` after Baileys' first
+  // populates `phoneE164` / `pushName` after the engine's first
   // `connection.update`.
   const tail = session.id?.slice(-6) ?? '';
   return tail ? `Linked WhatsApp · ${tail}` : 'Linked WhatsApp';

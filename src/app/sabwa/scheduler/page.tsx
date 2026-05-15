@@ -9,10 +9,10 @@
  * `ScheduleDialog` in edit mode; the "New schedule" button opens it in
  * create mode.
  *
- * Phase 1: data is fetched via `listScheduledMessages`, which is still a
- * stub that throws "not implemented". We fall back to a small, clearly
- * marked sample set so the UI is meaningful in dev — the moment the
- * action lands, the sample disappears.
+ * Data is fetched via `listScheduledMessages` which returns
+ * `{ items: [] }` when the engine has no schedules for the session. When
+ * empty, we render the calendar shell with an inline empty state — never
+ * placeholder/sample data.
  *
  * Rebuilt on ZoruUI primitives. The month/week/day view picker is rendered
  * as a segmented ZoruButton group (no tab UI per the ZoruUI design rules).
@@ -30,7 +30,6 @@ import {
 } from "lucide-react";
 
 import {
-  ZoruBadge,
   ZoruBreadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
@@ -71,44 +70,6 @@ interface CalendarEvent {
   body: string;
   primaryTargetType: SabwaScheduledTargetType;
   raw: ScheduleDialogInitial;
-}
-
-// ─── Sample fallback (replaced by listScheduledMessages once wired) ─────────
-
-function buildSampleEvents(anchor: Date): CalendarEvent[] {
-  const at = (dayOffset: number, hour: number, minute: number): Date => {
-    const d = new Date(
-      anchor.getFullYear(),
-      anchor.getMonth(),
-      anchor.getDate(),
-    );
-    d.setDate(d.getDate() + dayOffset);
-    d.setHours(hour, minute, 0, 0);
-    return d;
-  };
-  return [
-    {
-      id: "sample-1",
-      date: at(1, 9, 0),
-      body: "Daily standup nudge",
-      primaryTargetType: "group",
-      raw: { body: "Daily standup nudge" },
-    },
-    {
-      id: "sample-2",
-      date: at(2, 14, 30),
-      body: "Promo blast — weekend sale",
-      primaryTargetType: "broadcast",
-      raw: { body: "Promo blast — weekend sale" },
-    },
-    {
-      id: "sample-3",
-      date: at(0, 18, 0),
-      body: "Personal check-in",
-      primaryTargetType: "individual",
-      raw: { body: "Personal check-in" },
-    },
-  ];
 }
 
 // ─── Date helpers ───────────────────────────────────────────────────────────
@@ -166,7 +127,6 @@ export default function SchedulerCalendarPage() {
   const [cursor, setCursor] = React.useState<Date>(() => new Date());
   const [events, setEvents] = React.useState<CalendarEvent[]>([]);
   const [loaded, setLoaded] = React.useState(false);
-  const [usingSample, setUsingSample] = React.useState(false);
 
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [dialogMode, setDialogMode] = React.useState<"create" | "edit">(
@@ -186,14 +146,11 @@ export default function SchedulerCalendarPage() {
       if (res.ok && Array.isArray(res.items)) {
         const mapped: CalendarEvent[] = res.items.map(toCalendarEvent);
         setEvents(mapped);
-        setUsingSample(false);
       } else {
-        setEvents(buildSampleEvents(new Date()));
-        setUsingSample(true);
+        setEvents([]);
       }
     } catch {
-      setEvents(buildSampleEvents(new Date()));
-      setUsingSample(true);
+      setEvents([]);
     } finally {
       setLoaded(true);
     }
@@ -252,13 +209,11 @@ export default function SchedulerCalendarPage() {
       setEvents((curr) =>
         curr.map((e) => (e.id === id ? { ...e, date: next } : e)),
       );
-      if (!usingSample) {
-        try {
-          await updateScheduledMessage(id, { scheduledFor: next });
-        } catch {
-          // Roll back: pull a fresh list.
-          void refresh();
-        }
+      try {
+        await updateScheduledMessage(id, { scheduledFor: next });
+      } catch {
+        // Roll back: pull a fresh list.
+        void refresh();
       }
     };
 
@@ -352,14 +307,9 @@ export default function SchedulerCalendarPage() {
               <CalendarClock className="h-5 w-5" />
             </div>
             <div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <h1 className="text-2xl font-semibold tracking-tight text-zoru-ink">
-                  Scheduler — Calendar
-                </h1>
-                {usingSample && loaded && (
-                  <ZoruBadge variant="secondary">Sample data</ZoruBadge>
-                )}
-              </div>
+              <h1 className="text-2xl font-semibold tracking-tight text-zoru-ink">
+                Scheduler — Calendar
+              </h1>
               <p className="text-sm text-zoru-ink-muted mt-1">
                 Drag events to reschedule. Click an event to edit; click a
                 day to add.
@@ -479,6 +429,20 @@ export default function SchedulerCalendarPage() {
             onEventDragStart={onEventDragStart}
             onEventClick={openEdit}
             onSlotClick={(d) => openCreate(d)}
+          />
+        )}
+
+        {loaded && events.length === 0 && (
+          <ZoruEmptyState
+            icon={<CalendarClock />}
+            title="Calendar is empty"
+            description="Schedules you create will appear here. No scheduled messages yet — use the 'New schedule' button to add one."
+            action={
+              <ZoruButton size="md" onClick={() => openCreate(cursor)}>
+                <Plus className="mr-1.5 h-4 w-4" />
+                New schedule
+              </ZoruButton>
+            }
           />
         )}
       </div>

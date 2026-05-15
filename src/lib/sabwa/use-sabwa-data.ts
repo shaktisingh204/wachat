@@ -21,12 +21,14 @@ import * as React from 'react';
 import {
   getChatMessages,
   listAuditEntries,
+  listBulkCampaigns,
   listChats,
   listContacts,
   listGroups,
   listLabels,
   listScheduledMessages,
   listStarred,
+  listTemplates,
   type ListContactsArgs,
   type SabwaAuditQueryInput,
   type SabwaChatListFilter,
@@ -37,11 +39,14 @@ import {
   type SabwaStarredEntry,
 } from '@/app/actions/sabwa.actions';
 import type {
+  SabwaBroadcast,
   SabwaChat,
   SabwaContact,
   SabwaMessage,
   SabwaScheduled,
+  SabwaTemplate,
 } from './types';
+import { resolveDisplayName } from './format-jid';
 
 // ─── Shared async-state shape ──────────────────────────────────────────────
 
@@ -181,6 +186,8 @@ export interface SabwaAuditRow {
 const EMPTY_CAMPAIGNS: SabwaBulkCampaignRow[] = [];
 const EMPTY_BROADCASTS: SabwaBroadcastRow[] = [];
 const EMPTY_AUDIT: SabwaAuditRow[] = [];
+const EMPTY_TEMPLATES: SabwaTemplate[] = [];
+const EMPTY_RAW_CAMPAIGNS: SabwaBroadcast[] = [];
 
 // ─── Hooks ─────────────────────────────────────────────────────────────────
 
@@ -385,22 +392,69 @@ export function useScheduled(
 }
 
 /**
- * Bulk campaigns list.
- *
- * No dedicated `listBulkCampaigns` server action exists yet — once it
- * lands swap the body. Until then we surface an empty list so consumers
- * can build the page shell.
+ * Bulk campaigns list — projected onto the compact `SabwaBulkCampaignRow`
+ * shape that table consumers expect (id / name / status / progress /
+ * createdAt). For the raw `SabwaBroadcast` payload use
+ * `useBulkCampaignsRaw` instead.
  */
 export function useBulkCampaigns(
   sessionId: string | undefined | null,
 ): UseSabwaDataResult<SabwaBulkCampaignRow[]> {
   const fetcher = React.useCallback(async () => {
     if (!sessionId) return EMPTY_CAMPAIGNS;
-    // TODO (Phase 2): replace with `listBulkCampaigns(sessionId)` once added.
-    return EMPTY_CAMPAIGNS;
+    const res = await listBulkCampaigns(sessionId);
+    if (!res.ok) throw new Error(res.error);
+    const campaigns = res.campaigns ?? EMPTY_RAW_CAMPAIGNS;
+    return campaigns.map<SabwaBulkCampaignRow>((c) => ({
+      id: String(c._id),
+      name: c.name,
+      status: String(c.status),
+      progress: {
+        sent: c.sentCount ?? 0,
+        failed: c.failedCount ?? 0,
+        total: c.totalCount ?? 0,
+      },
+      createdAt: c.createdAt,
+    }));
   }, [sessionId]);
 
   return useFetched(['bulkCampaigns', sessionId], fetcher, EMPTY_CAMPAIGNS);
+}
+
+/**
+ * Bulk campaigns list, returning the raw `SabwaBroadcast` documents
+ * (recipients, payload, timestamps). Use when the projected
+ * `SabwaBulkCampaignRow` from `useBulkCampaigns` doesn't carry enough.
+ */
+export function useBulkCampaignsRaw(
+  sessionId: string | undefined | null,
+): UseSabwaDataResult<SabwaBroadcast[]> {
+  const fetcher = React.useCallback(async () => {
+    if (!sessionId) return EMPTY_RAW_CAMPAIGNS;
+    const res = await listBulkCampaigns(sessionId);
+    if (!res.ok) throw new Error(res.error);
+    return res.campaigns ?? EMPTY_RAW_CAMPAIGNS;
+  }, [sessionId]);
+
+  return useFetched(
+    ['bulkCampaignsRaw', sessionId],
+    fetcher,
+    EMPTY_RAW_CAMPAIGNS,
+  );
+}
+
+/** Message templates list for a session. */
+export function useTemplates(
+  sessionId: string | undefined | null,
+): UseSabwaDataResult<SabwaTemplate[]> {
+  const fetcher = React.useCallback(async () => {
+    if (!sessionId) return EMPTY_TEMPLATES;
+    const res = await listTemplates(sessionId);
+    if (!res.ok) throw new Error(res.error);
+    return res.templates ?? EMPTY_TEMPLATES;
+  }, [sessionId]);
+
+  return useFetched(['templates', sessionId], fetcher, EMPTY_TEMPLATES);
 }
 
 /**
@@ -450,6 +504,39 @@ export function useStarred(
   }, [sessionId]);
 
   return useFetched(['starred', sessionId], fetcher, EMPTY_STARRED);
+}
+
+// ─── Composed name-resolution hook ─────────────────────────────────────────
+
+/**
+ * Returns a memoised `(jid) => string` resolver that walks the session's
+ * chats + contacts (and group-typed chats) to find the best human label for
+ * a JID. Falls back through `resolveDisplayName` to `formatJid`.
+ *
+ * Use this everywhere SabWa UI would otherwise render a raw JID — pages,
+ * tables, exports, audit logs — so the displayed name stays consistent
+ * across modules.
+ */
+export function useResolveJid(
+  sessionId: string | null | undefined,
+): (jid: string | undefined) => string {
+  const { data: chats } = useChats(sessionId);
+  const { data: contacts } = useContacts(sessionId);
+
+  return React.useCallback(
+    (jid: string | undefined) => {
+      const chatList = chats ?? EMPTY_CHATS;
+      const groupList = chatList
+        .filter((c) => c.type === 'group')
+        .map((g) => ({ jid: g.jid, subject: g.name }));
+      return resolveDisplayName(jid, {
+        chats: chatList,
+        contacts: contacts ?? EMPTY_CONTACTS,
+        groups: groupList,
+      });
+    },
+    [chats, contacts],
+  );
 }
 
 // ─── Legacy inbox stream surface ───────────────────────────────────────────

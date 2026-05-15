@@ -112,6 +112,17 @@ export default function RateLimitsPage() {
   const [timezone, setTimezone] = React.useState('UTC');
   const [pending, startTransition] = React.useTransition();
 
+  // Engine does not yet expose a `getRateLimitProfile` action; surface defaults
+  // and warn once so the gap stays visible without scaring the user with a
+  // toast/error UI on every mount.
+  React.useEffect(() => {
+    if (!sessionId) return;
+    // eslint-disable-next-line no-console
+    console.warn(
+      '[sabwa/settings/rate-limits] No getRateLimitProfile action — showing defaults until engine exposes the GET endpoint.',
+    );
+  }, [sessionId]);
+
   // Linear ramp 5 → 30 over 7 days (matches anti-ban § 9.2).
   const effectiveRate = React.useMemo(() => {
     if (!warmupEnabled) return null;

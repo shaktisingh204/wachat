@@ -53,7 +53,7 @@ export type SabwaActionResult<T extends object = {}> =
   | ({ ok: true } & T)
   | { ok: false; error: string };
 
-const NOT_IMPLEMENTED = 'SabWa Phase 1 — not implemented yet';
+const NOT_IMPLEMENTED = 'This feature is not available yet.';
 
 // IdLike — server actions are called from client code where ObjectId is a
 // string, but internally we treat both interchangeably.
@@ -87,28 +87,31 @@ async function requireProject(
   return auth;
 }
 
-/** Paths we've already logged a 404 for this session, to avoid log spam. */
-const warned404Scopes = new Set<string>();
+/** Scope:path pairs we've already logged for this session, to avoid log spam. */
+const loggedFailures = new Set<string>();
 
 /** Convert any error coming back from the engine into a `{ ok: false }` result. */
 function engineFailure(scope: string, err: unknown): { ok: false; error: string } {
   if (err instanceof SabwaEngineError) {
-    // 404 = endpoint not implemented yet; warn once per (scope,path) and stay quiet on polling refreshes.
-    if (err.status === 404) {
-      const key = `${scope}:${err.path.split('?')[0]}`;
-      if (!warned404Scopes.has(key)) {
-        warned404Scopes.add(key);
-        console.warn(`[sabwa.${scope}] engine 404`, { path: err.path });
-      }
-    } else {
-      console.error(`[sabwa.${scope}] engine error`, {
-        status: err.status,
-        path: err.path,
-      });
+    const path = err.path?.split('?')[0] ?? 'unknown';
+    const key = `${scope}:${path}`;
+    if (!loggedFailures.has(key)) {
+      loggedFailures.add(key);
+      console.warn(
+        `[sabwa.${scope}] engine error (silenced after first)`,
+        { status: err.status, path },
+      );
     }
     return { ok: false, error: err.message };
   }
-  console.error(`[sabwa.${scope}] unexpected error`, err);
+  const key = `${scope}:unexpected`;
+  if (!loggedFailures.has(key)) {
+    loggedFailures.add(key);
+    console.warn(
+      `[sabwa.${scope}] unexpected error (silenced after first)`,
+      err,
+    );
+  }
   return {
     ok: false,
     error: err instanceof Error ? err.message : 'Unexpected error.',

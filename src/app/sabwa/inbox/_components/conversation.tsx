@@ -22,6 +22,7 @@ import { Composer } from '@/app/sabwa/_components/composer';
 import { ConversationHeader } from '@/app/sabwa/_components/conversation-header';
 import { EmptyState } from '@/app/sabwa/_components/empty-state';
 import { MessageBubble } from '@/app/sabwa/_components/message-bubble';
+import { useResolveJid } from '@/lib/sabwa/format-jid';
 import {
   markRead,
   sendMessage,
@@ -130,6 +131,7 @@ export function Conversation({
     replaceLocal,
   } = useChatMessages(sessionId, chat.jid);
   const { subscribe } = useSabwaInboxStream(sessionId);
+  const resolve = useResolveJid(sessionId);
 
   const scrollerRef = React.useRef<HTMLDivElement | null>(null);
   const [replyTo, setReplyTo] = React.useState<SabwaMessage | null>(null);
@@ -395,6 +397,7 @@ export function Conversation({
                       showAvatar={showAvatar}
                       messages={messages}
                       onAction={(a) => void handleBubbleAction(a)}
+                      resolveJid={resolve}
                     />
                   );
                 })}

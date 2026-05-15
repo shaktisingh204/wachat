@@ -74,8 +74,7 @@ import {
 } from '@/components/zoruui';
 
 import { EmptyState } from '@/app/sabwa/_components/empty-state';
-
-const STUB_PROJECT_ID = 'stub-project';
+import { useProject } from '@/context/project-context';
 
 const ALL_SCOPES: { value: string; label: string; description: string }[] = [
   {
@@ -117,6 +116,7 @@ function statusVariant(
 
 export default function ApiKeysPage() {
   const toast = useZoruToast();
+  const { activeProjectId } = useProject();
   const [rows, setRows] = React.useState<SabwaApiKeyRow[]>([]);
   const [loading, setLoading] = React.useState(false);
   const [createOpen, setCreateOpen] = React.useState(false);
@@ -125,16 +125,20 @@ export default function ApiKeysPage() {
     React.useState<SabwaApiKeyRow | null>(null);
 
   const load = React.useCallback(async () => {
+    if (!activeProjectId) {
+      setRows([]);
+      return;
+    }
     setLoading(true);
     try {
-      const res = await listApiKeys(STUB_PROJECT_ID);
+      const res = await listApiKeys(activeProjectId);
       if (res.ok) setRows(res.apiKeys);
     } catch {
       // ignore
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [activeProjectId]);
 
   React.useEffect(() => {
     void load();
@@ -231,6 +235,7 @@ export default function ApiKeysPage() {
               </ZoruButton>
             </ZoruDialogTrigger>
             <CreateApiKeyDialogContent
+              projectId={activeProjectId}
               onCreated={async (key) => {
                 setCreateOpen(false);
                 setReveal(key);
@@ -392,8 +397,10 @@ export default function ApiKeysPage() {
 // ─── Generate dialog ───────────────────────────────────────────────────────
 
 function CreateApiKeyDialogContent({
+  projectId,
   onCreated,
 }: {
+  projectId: string | null;
   onCreated: (apiKey: string) => void | Promise<void>;
 }) {
   const toast = useZoruToast();
@@ -414,10 +421,18 @@ function CreateApiKeyDialogContent({
       });
       return;
     }
+    if (!projectId) {
+      toast.toast({
+        title: 'No active project',
+        description: 'Select a project before generating an API key.',
+        variant: 'destructive',
+      });
+      return;
+    }
     setSubmitting(true);
     try {
       const res = await createApiKey({
-        projectId: STUB_PROJECT_ID,
+        projectId,
         scopes,
         expiresAt,
       });

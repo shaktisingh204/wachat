@@ -83,7 +83,14 @@ import {
   type SabFilePick,
 } from '@/components/sabfiles';
 import { useProject } from '@/context/project-context';
+import { formatJid, useResolveJid } from '@/lib/sabwa/format-jid';
 import { getSabwaLimits, type SabwaQuota } from '@/lib/sabwa/plan-limits';
+import { useSabwaSession } from '@/lib/sabwa/session-context';
+import {
+  useBulkCampaignsRaw,
+  useTemplates,
+} from '@/lib/sabwa/use-sabwa-data';
+import type { SabwaTemplate } from '@/lib/sabwa/types';
 
 // ─── Anti-ban dismissed flag ───────────────────────────────────────────────
 
@@ -622,26 +629,15 @@ interface Step2Props {
   onChange: (next: ComposeState) => void;
   sampleRow: CsvRow | undefined;
   availableVars: string[];
+  templates: SabwaTemplate[];
 }
-
-const STUB_TEMPLATES: { id: string; name: string; body: string }[] = [
-  {
-    id: 't_intro',
-    name: 'Intro',
-    body: 'Hi {{firstName}}, this is SabNode reaching out about your account.',
-  },
-  {
-    id: 't_promo',
-    name: 'Promo',
-    body: 'Hey {{firstName}}! Use code SAVE20 for 20% off this week. Reply STOP to opt out.',
-  },
-];
 
 function Step2Compose({
   state,
   onChange,
   sampleRow,
   availableVars,
+  templates,
 }: Step2Props) {
   const insertVar = (v: string) => {
     onChange({ ...state, body: `${state.body}{{${v}}}` });
@@ -674,7 +670,7 @@ function Step2Compose({
                   onChange({ ...state, templateId: null });
                   return;
                 }
-                const t = STUB_TEMPLATES.find((x) => x.id === v);
+                const t = templates.find((x) => String(x._id) === v);
                 onChange({
                   ...state,
                   templateId: v,
@@ -687,11 +683,14 @@ function Step2Compose({
               </ZoruSelectTrigger>
               <ZoruSelectContent>
                 <ZoruSelectItem value="__none__">(write new)</ZoruSelectItem>
-                {STUB_TEMPLATES.map((t) => (
-                  <ZoruSelectItem key={t.id} value={t.id}>
-                    {t.name}
-                  </ZoruSelectItem>
-                ))}
+                {templates.map((t) => {
+                  const id = String(t._id);
+                  return (
+                    <ZoruSelectItem key={id} value={id}>
+                      {t.name}
+                    </ZoruSelectItem>
+                  );
+                })}
               </ZoruSelectContent>
             </ZoruSelect>
           </div>
@@ -1109,7 +1108,11 @@ function recipientStatusBadgeVariant(
   return 'outline';
 }
 
-function Step4Run({ run, onControl }: Step4Props) {
+interface Step4PropsWithResolver extends Step4Props {
+  resolve: (jid: string | undefined) => string;
+}
+
+function Step4Run({ run, onControl, resolve }: Step4PropsWithResolver) {
   const [filter, setFilter] = React.useState<'all' | RecipientRunStatus>('all');
   const total = run.recipients.length;
   const counts = React.useMemo(() => {
@@ -1238,21 +1241,35 @@ function Step4Run({ run, onControl }: Step4Props) {
                 </ZoruTableRow>
               </ZoruTableHeader>
               <ZoruTableBody>
-                {filtered.slice(0, 200).map((r) => (
-                  <ZoruTableRow key={r.jid}>
-                    <ZoruTableCell className="font-mono text-xs">
-                      {r.jid}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-xs capitalize">
-                      <ZoruBadge
-                        variant={recipientStatusBadgeVariant(r.status)}
-                        className="text-[10px]"
-                      >
-                        {r.status}
-                      </ZoruBadge>
-                    </ZoruTableCell>
-                  </ZoruTableRow>
-                ))}
+                {filtered.slice(0, 200).map((r) => {
+                  const jidForLookup = r.jid.includes('@')
+                    ? r.jid
+                    : `${r.jid.replace(/\D/g, '')}@s.whatsapp.net`;
+                  const resolved = resolve(jidForLookup);
+                  const fallback = formatJid(r.jid);
+                  return (
+                    <ZoruTableRow key={r.jid}>
+                      <ZoruTableCell className="text-xs">
+                        <div className="flex flex-col">
+                          <span className="font-medium text-zoru-ink">
+                            {resolved === jidForLookup ? fallback : resolved}
+                          </span>
+                          <span className="font-mono text-[10px] text-zoru-ink-muted">
+                            {fallback}
+                          </span>
+                        </div>
+                      </ZoruTableCell>
+                      <ZoruTableCell className="text-right text-xs capitalize">
+                        <ZoruBadge
+                          variant={recipientStatusBadgeVariant(r.status)}
+                          className="text-[10px]"
+                        >
+                          {r.status}
+                        </ZoruBadge>
+                      </ZoruTableCell>
+                    </ZoruTableRow>
+                  );
+                })}
                 {filtered.length > 200 && (
                   <ZoruTableRow>
                     <ZoruTableCell
@@ -1281,23 +1298,6 @@ interface PastCampaign {
   status: CampaignStatus;
   startedAt: Date;
 }
-
-const PAST_STUB: PastCampaign[] = [
-  {
-    id: 'cmp_jan_promo',
-    name: 'January promo',
-    recipients: 1284,
-    status: 'completed',
-    startedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 4),
-  },
-  {
-    id: 'cmp_dec_check_in',
-    name: 'December check-in',
-    recipients: 412,
-    status: 'completed',
-    startedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 18),
-  },
-];
 
 function PastCampaignsTable({ items }: { items: PastCampaign[] }) {
   return (
@@ -1355,10 +1355,17 @@ function PastCampaignsTable({ items }: { items: PastCampaign[] }) {
 export default function BulkSenderPage() {
   const toaster = useZoruToast();
   const { sessionUser } = useProject();
+  const { current: currentSession } = useSabwaSession();
+  const sessionId = currentSession?.id;
+  const resolve = useResolveJid(sessionId ?? '');
   const planName = sessionUser?.plan?.name ?? 'free';
   const limits = React.useMemo(() => getSabwaLimits(planName), [planName]);
   const maxRecipients = quotaCap(limits.dailySend, 10_000);
   const bulkEnabled = limits.bulkSend.enabled;
+
+  const templatesQ = useTemplates(sessionId);
+  const templates = templatesQ.data ?? [];
+  const campaignsQ = useBulkCampaignsRaw(sessionId);
 
   const [stepIdx, setStepIdx] = React.useState(0);
   const [furthest, setFurthest] = React.useState(0);
@@ -1396,8 +1403,28 @@ export default function BulkSenderPage() {
     acceptedToS: false,
   });
   const [run, setRun] = React.useState<RunState | null>(null);
-  const [pastCampaigns, setPastCampaigns] =
-    React.useState<PastCampaign[]>(PAST_STUB);
+  const [pastCampaigns, setPastCampaigns] = React.useState<PastCampaign[]>([]);
+
+  // Seed past-campaigns table from engine on each fetch — optimistic local
+  // appends/updates from this page (start / pause / abort) replay on top.
+  React.useEffect(() => {
+    const list = campaignsQ.data;
+    if (!list) return;
+    const mapped: PastCampaign[] = list.map((c) => {
+      const status: CampaignStatus =
+        c.status === 'running' || c.status === 'paused' || c.status === 'aborted'
+          ? c.status
+          : 'completed';
+      return {
+        id: String(c._id),
+        name: c.name,
+        recipients: c.totalCount ?? 0,
+        status,
+        startedAt: new Date(c.startedAt ?? c.createdAt ?? Date.now()),
+      };
+    });
+    setPastCampaigns(mapped);
+  }, [campaignsQ.data]);
 
   // Anti-ban banner dismissal
   const [bannerOpen, setBannerOpen] = React.useState(true);
@@ -1676,6 +1703,7 @@ export default function BulkSenderPage() {
             onChange={setCompose}
             sampleRow={sampleRow}
             availableVars={availableVars}
+            templates={templates}
           />
         )}
         {stepIdx === 2 && (
@@ -1687,7 +1715,7 @@ export default function BulkSenderPage() {
           />
         )}
         {stepIdx === 3 && run && (
-          <Step4Run run={run} onControl={handleControl} />
+          <Step4Run run={run} onControl={handleControl} resolve={resolve} />
         )}
         {stepIdx === 3 && !run && (
           <ZoruCard>

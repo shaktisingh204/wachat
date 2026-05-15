@@ -8,13 +8,13 @@
  * rows; click a row to open the shared `ScheduleDialog` in edit
  * mode.
  *
- * Phase 1 wiring goes through:
- *   - `listScheduledMessages` (read)
+ * Wiring goes through:
+ *   - `listScheduledMessages` (read — returns `{ items: [] }` on engine 404)
  *   - `updateScheduledMessage` (single reschedule + bulk reschedule)
  *   - `cancelScheduledMessage`  (single + bulk cancel)
  *
- * Those server actions are still stubs; we surface the error and fall
- * back to a small sample dataset so the UI is usable in dev.
+ * When the engine returns nothing (no scheduled messages yet), we show
+ * an empty state — no fake sample rows.
  *
  * Rebuilt on ZoruUI primitives.
  */
@@ -33,7 +33,6 @@ import {
 } from "lucide-react";
 
 import {
-  ZoruBadge,
   ZoruBreadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
@@ -71,6 +70,7 @@ import {
   updateScheduledMessage,
 } from "@/app/actions/sabwa.actions";
 import { useSabwaSession } from "@/lib/sabwa/session-context";
+import { formatJid, useResolveJid } from "@/lib/sabwa/format-jid";
 import type {
   SabwaScheduled,
   SabwaScheduledStatus,
@@ -89,6 +89,7 @@ interface QueueRow {
   id: string;
   sessionId: string;
   targets: SabwaScheduled["targets"];
+  primaryTargetJid: string;
   primaryTargetLabel: string;
   primaryTargetType: SabwaScheduledTargetType;
   payloadPreview: string;
@@ -96,7 +97,7 @@ interface QueueRow {
   cron?: string;
   status: SabwaScheduledStatus;
   sentAt?: Date;
-  raw: SabwaScheduled | SampleScheduled;
+  raw: SabwaScheduled;
 }
 
 type StatusFilter = "all" | SabwaScheduledStatus;
@@ -117,86 +118,16 @@ const STATUS_BADGE_CLASS: Record<SabwaScheduledStatus, string> = {
     "border-zoru-line bg-zoru-surface text-zoru-ink-muted",
 };
 
-// ─── Sample fallback ───────────────────────────────────────────────────────
-
-interface SampleScheduled {
-  _id: string;
-  sessionId: string;
-  targets: SabwaScheduled["targets"];
-  payload: SabwaScheduled["payload"];
-  scheduledFor: Date;
-  cron?: string;
-  kind: SabwaScheduled["kind"];
-  status: SabwaScheduledStatus;
-  sentAt?: Date;
-  timezone: string;
-}
-
-function buildSampleRows(sessionId: string): SampleScheduled[] {
-  const inDays = (n: number, h = 9): Date => {
-    const d = new Date();
-    d.setHours(h, 0, 0, 0);
-    d.setDate(d.getDate() + n);
-    return d;
-  };
-  return [
-    {
-      _id: "smp-1",
-      sessionId,
-      targets: [{ jid: "919812345678@s.whatsapp.net", type: "individual" }],
-      payload: { type: "text", body: "Personal check-in" },
-      scheduledFor: inDays(0, 18),
-      kind: "one_off",
-      status: "pending",
-      timezone: "Asia/Kolkata",
-    },
-    {
-      _id: "smp-2",
-      sessionId,
-      targets: [{ jid: "12345-67890@g.us", type: "group" }],
-      payload: { type: "text", body: "Daily standup nudge" },
-      scheduledFor: inDays(1, 9),
-      cron: "0 9 * * 1-5",
-      kind: "recurring",
-      status: "pending",
-      timezone: "Asia/Kolkata",
-    },
-    {
-      _id: "smp-3",
-      sessionId,
-      targets: [{ jid: "bcast-weekend@broadcast", type: "broadcast" }],
-      payload: {
-        type: "text",
-        body: "Promo blast — weekend sale (50% off select items)",
-      },
-      scheduledFor: inDays(-1, 11),
-      kind: "one_off",
-      status: "sent",
-      sentAt: inDays(-1, 11),
-      timezone: "Asia/Kolkata",
-    },
-    {
-      _id: "smp-4",
-      sessionId,
-      targets: [{ jid: "919812340000@s.whatsapp.net", type: "individual" }],
-      payload: { type: "text", body: "Follow-up missed" },
-      scheduledFor: inDays(-2, 16),
-      kind: "one_off",
-      status: "failed",
-      timezone: "Asia/Kolkata",
-    },
-  ];
-}
-
 // ─── Mapping ────────────────────────────────────────────────────────────────
 
-function toQueueRow(item: SabwaScheduled | SampleScheduled): QueueRow {
+function toQueueRow(item: SabwaScheduled): QueueRow {
   const firstTarget = item.targets?.[0];
   const date = new Date(item.scheduledFor);
   return {
     id: String(item._id),
     sessionId: String(item.sessionId),
     targets: item.targets,
+    primaryTargetJid: firstTarget?.jid ?? "",
     primaryTargetLabel: firstTarget?.jid ?? "—",
     primaryTargetType: firstTarget?.type ?? "individual",
     payloadPreview:
@@ -233,10 +164,10 @@ export default function SchedulerQueuePage() {
   const toast = useZoruToast();
   const { current: activeSession } = useSabwaSession();
   const sessionId = activeSession?.id ?? '';
+  const resolve = useResolveJid(sessionId);
 
   const [rows, setRows] = React.useState<QueueRow[]>([]);
   const [loaded, setLoaded] = React.useState(false);
-  const [usingSample, setUsingSample] = React.useState(false);
   const [refreshing, setRefreshing] = React.useState(false);
 
   const [status, setStatus] = React.useState<StatusFilter>("all");
@@ -264,14 +195,11 @@ export default function SchedulerQueuePage() {
       const res = await listScheduledMessages(sessionId);
       if (res.ok && Array.isArray(res.items)) {
         setRows(res.items.map(toQueueRow));
-        setUsingSample(false);
       } else {
-        setRows(buildSampleRows(sessionId).map(toQueueRow));
-        setUsingSample(true);
+        setRows([]);
       }
     } catch {
-      setRows(buildSampleRows(sessionId).map(toQueueRow));
-      setUsingSample(true);
+      setRows([]);
     } finally {
       setLoaded(true);
       setRefreshing(false);
@@ -338,7 +266,6 @@ export default function SchedulerQueuePage() {
       setRows((curr) =>
         curr.map((r) => (r.id === id ? { ...r, status: "cancelled" } : r)),
       );
-      if (usingSample) return;
       try {
         const res = await cancelScheduledMessage(id);
         if (!res.ok) {
@@ -354,7 +281,7 @@ export default function SchedulerQueuePage() {
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [usingSample, refresh],
+    [refresh],
   );
 
   const handleBulkCancel = React.useCallback(async () => {
@@ -364,13 +291,6 @@ export default function SchedulerQueuePage() {
       curr.map((r) => (selected.has(r.id) ? { ...r, status: "cancelled" } : r)),
     );
     setSelected(new Set());
-    if (usingSample) {
-      toast.toast({
-        title: `Cancelled ${ids.length} schedule${ids.length === 1 ? "" : "s"}`,
-        description: "Sample data — no engine call was made.",
-      });
-      return;
-    }
     let lastError: string | null = null;
     for (const id of ids) {
       try {
@@ -389,7 +309,7 @@ export default function SchedulerQueuePage() {
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selected, usingSample, refresh, toast]);
+  }, [selected, refresh, toast]);
 
   const handleBulkReschedule = React.useCallback(async () => {
     if (!bulkRescheduleDate) return;
@@ -409,16 +329,6 @@ export default function SchedulerQueuePage() {
         return { ...r, scheduledFor: next };
       }),
     );
-    if (usingSample) {
-      toast.toast({
-        title: `Rescheduled ${ids.length} item${ids.length === 1 ? "" : "s"}`,
-        description: targetDate.toLocaleDateString(),
-      });
-      setBulkRescheduling(false);
-      setBulkRescheduleOpen(false);
-      setSelected(new Set());
-      return;
-    }
     let lastError: string | null = null;
     for (const id of ids) {
       const row = rows.find((r) => r.id === id);
@@ -454,7 +364,6 @@ export default function SchedulerQueuePage() {
     bulkRescheduleDate,
     selected,
     rows,
-    usingSample,
     refresh,
     toast,
   ]);
@@ -526,9 +435,6 @@ export default function SchedulerQueuePage() {
               <h1 className="text-2xl font-semibold tracking-tight text-zoru-ink">
                 Scheduled Queue
               </h1>
-              {usingSample && loaded && (
-                <ZoruBadge variant="secondary">Sample data</ZoruBadge>
-              )}
             </div>
             <p className="text-sm text-zoru-ink-muted mt-1">
               Triage every pending, sent, failed, or cancelled scheduled
@@ -712,13 +618,36 @@ export default function SchedulerQueuePage() {
                   </ZoruTableCell>
                 </ZoruTableRow>
               ))}
-            {visibleRows.length === 0 && loaded && (
+            {visibleRows.length === 0 && loaded && rows.length > 0 && (
               <ZoruTableRow>
                 <ZoruTableCell
                   colSpan={8}
                   className="py-10 text-center text-sm text-zoru-ink-muted"
                 >
                   No scheduled messages match these filters.
+                </ZoruTableCell>
+              </ZoruTableRow>
+            )}
+            {rows.length === 0 && loaded && (
+              <ZoruTableRow>
+                <ZoruTableCell colSpan={8} className="py-10">
+                  <ZoruEmptyState
+                    icon={<CalendarClock />}
+                    title="No scheduled messages yet"
+                    description="Schedule your first WhatsApp message to see it appear here."
+                    action={
+                      <ZoruButton
+                        size="md"
+                        onClick={() => {
+                          setDialogInitial(undefined);
+                          setDialogOpen(true);
+                        }}
+                      >
+                        <Plus className="mr-1.5 h-4 w-4" />
+                        New schedule
+                      </ZoruButton>
+                    }
+                  />
                 </ZoruTableCell>
               </ZoruTableRow>
             )}
@@ -754,7 +683,14 @@ export default function SchedulerQueuePage() {
                       </span>
                       <div className="min-w-0">
                         <div className="truncate text-xs font-medium text-zoru-ink">
-                          {row.primaryTargetLabel}
+                          {row.primaryTargetJid
+                            ? resolve(row.primaryTargetJid)
+                            : row.primaryTargetLabel}
+                        </div>
+                        <div className="truncate font-mono text-[10px] text-zoru-ink-muted">
+                          {row.primaryTargetJid
+                            ? formatJid(row.primaryTargetJid)
+                            : ''}
                         </div>
                         <div className="text-[10px] uppercase tracking-wide text-zoru-ink-muted">
                           {meta.label}

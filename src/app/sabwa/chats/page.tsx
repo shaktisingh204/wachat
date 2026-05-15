@@ -64,6 +64,7 @@ import { ChatListRow } from "@/app/sabwa/_components/chat-list-row";
 import { useChats, useLabels } from "@/lib/sabwa/use-sabwa-data";
 import { useSabwaSession } from "@/lib/sabwa/session-context";
 import { updateChatState } from "@/app/actions/sabwa.actions";
+import { useResolveJid } from "@/lib/sabwa/format-jid";
 import type { SabwaChat } from "@/lib/sabwa/types";
 
 type FilterMode = "all" | "unread" | "read";
@@ -97,6 +98,7 @@ export default function SabWaChatsPage() {
   const toast = useZoruToast();
   const { current: activeSession } = useSabwaSession();
   const sessionId = activeSession?.id ?? null;
+  const resolve = useResolveJid(sessionId);
 
   const { data: chats, loading, error, refetch } = useChats(sessionId, {
     type: "individual",
@@ -180,7 +182,7 @@ export default function SabWaChatsPage() {
         } else if (ok === 0) {
           toast.toast({
             title: `Failed to ${label.toLowerCase()}`,
-            description: `Engine offline (Phase 1). 0 of ${jids.length} applied.`,
+            description: `Couldn't reach the WhatsApp engine. 0 of ${jids.length} applied.`,
             variant: "destructive",
           });
         } else {
@@ -419,13 +421,14 @@ export default function SabWaChatsPage() {
           <ul className="flex flex-col gap-0.5" aria-label="Chats">
             {filtered.map((chat) => {
               const checked = selectedJids.has(chat.jid);
+              const displayName = chat.name?.trim() || resolve(chat.jid);
               return (
                 <li key={chat.jid} className="flex items-center gap-2">
                   {bulkMode ? (
                     <ZoruCheckbox
                       checked={checked}
                       onCheckedChange={() => toggleSelect(chat.jid)}
-                      aria-label={`Select ${chat.name ?? chat.jid}`}
+                      aria-label={`Select ${displayName}`}
                       className="ml-2"
                     />
                   ) : null}
@@ -436,6 +439,7 @@ export default function SabWaChatsPage() {
                       onClick={
                         bulkMode ? () => toggleSelect(chat.jid) : undefined
                       }
+                      resolve={resolve}
                     />
                   </div>
                 </li>

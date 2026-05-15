@@ -84,6 +84,7 @@ import {
   updateContact,
 } from '@/app/actions/sabwa.actions';
 import { useSabwaSession } from '@/lib/sabwa/session-context';
+import { formatJid, useResolveJid } from '@/lib/sabwa/format-jid';
 import type { SabwaContact } from '@/lib/sabwa/types';
 
 // ─── Local view model ──────────────────────────────────────────────────────
@@ -158,6 +159,7 @@ function toContactRow(c: SabwaContact): ContactRow {
 export default function Page() {
   const { current: activeSession } = useSabwaSession();
   const sessionId = activeSession?.id ?? null;
+  const resolve = useResolveJid(sessionId);
   const [search, setSearch] = React.useState('');
   const [tagFilter, setTagFilter] = React.useState<string>('all');
   const [sourceFilter, setSourceFilter] = React.useState<ContactSource | 'all'>(
@@ -516,7 +518,7 @@ export default function Page() {
                         <div className="min-w-0">
                           <div className="flex items-center gap-1.5">
                             <span className="truncate font-medium text-zoru-ink">
-                              {c.name ?? c.pushName ?? 'Unknown'}
+                              {c.name ?? c.pushName ?? resolve(c.jid)}
                             </span>
                             {c.isBusiness && (
                               <ZoruBadge variant="info" className="text-[10px]">
@@ -525,7 +527,7 @@ export default function Page() {
                             )}
                           </div>
                           <div className="truncate text-xs text-zoru-ink-muted">
-                            {c.jid}
+                            {formatJid(c.jid)}
                           </div>
                         </div>
                       </div>
@@ -742,7 +744,7 @@ function ContactDrawer({
           <div className="min-w-0">
             <div className="flex items-center gap-1.5">
               <p className="truncate text-base font-semibold text-zoru-ink">
-                {contact.name ?? contact.pushName ?? 'Unknown'}
+                {contact.name ?? contact.pushName ?? formatJid(contact.jid)}
               </p>
               {contact.isBusiness && (
                 <ZoruBadge variant="info" className="text-[10px]">
@@ -756,7 +758,7 @@ function ContactDrawer({
               )}
             </div>
             <p className="truncate font-mono text-xs text-zoru-ink-muted">
-              {contact.phoneE164 ?? contact.jid}
+              {contact.phoneE164 ?? formatJid(contact.jid)}
             </p>
           </div>
         </div>

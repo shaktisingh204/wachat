@@ -25,6 +25,8 @@ import {
 import { ChatListRow } from '@/app/sabwa/_components/chat-list-row';
 import { EmptyState } from '@/app/sabwa/_components/empty-state';
 import { cn } from '@/lib/utils';
+import { useResolveJid } from '@/lib/sabwa/format-jid';
+import { useSabwaSession } from '@/lib/sabwa/session-context';
 import type { SabwaChat } from '@/lib/sabwa/types';
 
 export type ChatFilter = 'all' | 'unread' | 'personal' | 'groups' | 'broadcasts';
@@ -63,6 +65,8 @@ export function LeftPane({
   onSelectChat,
   className,
 }: LeftPaneProps) {
+  const { current } = useSabwaSession();
+  const resolve = useResolveJid(current?.id);
   const [query, setQuery] = React.useState('');
   const [filter, setFilter] = React.useState<ChatFilter>('all');
 
@@ -160,6 +164,7 @@ export function LeftPane({
                   chat={chat}
                   selected={chat.jid === activeJid}
                   onClick={() => onSelectChat(chat.jid)}
+                  resolve={resolve}
                 />
               </li>
             ))}

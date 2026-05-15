@@ -4,12 +4,8 @@
  * /sabwa/calls — Read-only call log.
  *
  * Surfaces a chronological list of incoming, outgoing, missed and video
- * calls fed by Baileys call events. No outbound dial UI — that's by
- * design (see roadmap banner at top).
- *
- * Phase 1: there's no call-log fetch action yet, so the table starts
- * empty and the empty state explains why. As soon as the engine ships
- * `listCalls`, the loader below will swap to it without UI changes.
+ * calls captured from the active WhatsApp session. No outbound dial UI
+ * — calls happen on the phone, this view is for audit and visibility.
  *
  * Rendered with ZoruUI primitives — no shadcn `/ui/*` imports.
  */
@@ -230,18 +226,13 @@ export default function SabWaCallsPage() {
         </ZoruBreadcrumbList>
       </ZoruBreadcrumb>
 
-      {/* Roadmap banner */}
+      {/* Audit-only notice */}
       <ZoruAlert>
         <Phone className="h-4 w-4" />
-        <ZoruAlertTitle>Calls are read-only in SabWa V1</ZoruAlertTitle>
-        <ZoruAlertDescription className="flex flex-wrap items-center gap-2">
-          <span>
-            Voice and video calls are surfaced from Baileys events for audit.
-            Initiating calls is coming in a future release.
-          </span>
-          <ZoruButton asChild type="button" size="sm" variant="outline">
-            <Link href="/sabwa/settings">View roadmap</Link>
-          </ZoruButton>
+        <ZoruAlertTitle>Read-only call history</ZoruAlertTitle>
+        <ZoruAlertDescription>
+          Voice and video calls happen on your phone — this page is for
+          audit and visibility. Filter, search, and export below.
         </ZoruAlertDescription>
       </ZoruAlert>
 

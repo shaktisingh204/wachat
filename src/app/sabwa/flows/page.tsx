@@ -318,8 +318,8 @@ export default function SabWaFlowsPage() {
               </h3>
               <p className="max-w-md text-[13px] text-zoru-ink-muted">
                 Spin up your first chatbot for personal WhatsApp. The builder
-                opens scoped to SabWa — only triggers and actions that work on
-                Baileys are shown.
+                opens scoped to SabWa — only triggers and actions that work
+                on personal WhatsApp accounts are shown.
               </p>
               <ZoruButton asChild type="button">
                 <Link
