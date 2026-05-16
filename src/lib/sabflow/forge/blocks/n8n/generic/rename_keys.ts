@@ -1,0 +1,110 @@
+/**
+ * Forge block: Rename Keys
+ *
+ * Source: n8n-master/packages/nodes-base/nodes/RenameKeys/RenameKeys.node.ts
+ * Credential type: none — pure data transform.
+ *
+ * Operations covered:
+ *   - rename — rewrite top-level keys of an object (or each object in an
+ *     array) according to a list of { currentKey → newKey } pairs.
+ *
+ * Out of scope: regex-based replacement and dot-path nested renames —
+ * deferred. Use the Code block for complex rewrites.
+ */
+import { registerForgeBlock } from '../../../registry';
+import type {
+  ForgeActionContext,
+  ForgeActionResult,
+  ForgeBlock,
+  ForgeKeyValuePair,
+} from '../../../types';
+import { asString } from '../_shared/http';
+
+function applyRenames<T extends Record<string, unknown>>(
+  input: T,
+  pairs: ForgeKeyValuePair[],
+): Record<string, unknown> {
+  const out: Record<string, unknown> = { ...input };
+  for (const pair of pairs) {
+    const from = asString(pair.key);
+    const to = asString(pair.value);
+    if (!from || !to || from === to) continue;
+    if (Object.prototype.hasOwnProperty.call(out, from)) {
+      out[to] = out[from];
+      delete out[from];
+    }
+  }
+  return out;
+}
+
+function parseInput(raw: unknown): unknown {
+  if (raw == null) return null;
+  if (typeof raw === 'object') return raw;
+  const s = asString(raw).trim();
+  if (!s) return null;
+  try {
+    return JSON.parse(s);
+  } catch (err) {
+    throw new Error(`Rename Keys: invalid input JSON — ${(err as Error).message}`);
+  }
+}
+
+async function rename(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const input = parseInput(ctx.options.input);
+  const pairs = (ctx.options.renames as ForgeKeyValuePair[] | undefined) ?? [];
+  if (!Array.isArray(pairs) || pairs.length === 0) {
+    throw new Error('Rename Keys: at least one rename pair is required');
+  }
+
+  let result: unknown;
+  if (Array.isArray(input)) {
+    result = input.map((item) =>
+      item && typeof item === 'object'
+        ? applyRenames(item as Record<string, unknown>, pairs)
+        : item,
+    );
+  } else if (input && typeof input === 'object') {
+    result = applyRenames(input as Record<string, unknown>, pairs);
+  } else {
+    throw new Error('Rename Keys: input must be an object or an array of objects');
+  }
+
+  return {
+    outputs: { result },
+    logs: [`Rename Keys → ${pairs.length} mapping(s)`],
+  };
+}
+
+const block: ForgeBlock = {
+  id: 'forge_rename_keys',
+  name: 'Rename Keys',
+  description: 'Rewrite object keys according to a list of from→to mappings.',
+  iconName: 'LuArrowLeftRight',
+  category: 'Logic',
+  auth: { type: 'none' },
+  actions: [
+    {
+      id: 'rename',
+      label: 'Rename keys',
+      description: 'Each entry maps a current key (left) to a new key (right).',
+      fields: [
+        {
+          id: 'input',
+          label: 'Input (object or array of objects)',
+          type: 'json',
+          required: true,
+        },
+        {
+          id: 'renames',
+          label: 'Renames (current → new)',
+          type: 'key-value-list',
+          helperText: 'Key column is the current name. Value column is the new name.',
+        },
+      ],
+      run: rename,
+    },
+  ],
+};
+
+registerForgeBlock(block);
+export default block;

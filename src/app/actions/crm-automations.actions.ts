@@ -5,13 +5,25 @@ import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
+import { writeAuditEntry } from '@/lib/audit-log';
+import { requirePermission } from '@/lib/rbac-server';
 import type { CrmAutomation, CrmAutomationNode, CrmAutomationEdge } from '@/lib/definitions';
 import { generateCrmAutomation as generateFlow } from '@/ai/flows/generate-crm-automation-flow';
 import { z } from 'zod';
+import { crmAutomationsApi } from '@/lib/rust-client/crm-automations';
+import { RustApiError } from '@/lib/rust-client/fetcher';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+
+function useRustCrm(): boolean {
+    return process.env.USE_RUST_CRM === 'true';
+}
 
 export async function getCrmAutomations(): Promise<WithId<CrmAutomation>[]> {
     const session = await getSession();
     if (!session?.user) return [];
+
+    const guard = await requirePermission('crm_automations', 'view');
+    if (!guard.ok) return [];
 
     try {
         const { db } = await connectToDatabase();
@@ -32,6 +44,24 @@ export async function getCrmAutomationById(automationId: string): Promise<WithId
     const session = await getSession();
     if (!session?.user) return null;
 
+    const guard = await requirePermission('crm_automations', 'view');
+    if (!guard.ok) return null;
+
+    if (useRustCrm()) {
+        try {
+            const doc = await crmAutomationsApi.getById(automationId);
+            return JSON.parse(JSON.stringify(doc));
+        } catch (e) {
+            console.error('[getCrmAutomationById] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'automation',
+                op: 'get',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+        }
+    }
+
     const { db } = await connectToDatabase();
     const automation = await db.collection<CrmAutomation>('crm_automations').findOne({
         _id: new ObjectId(automationId),
@@ -51,9 +81,12 @@ export async function saveCrmAutomation(data: {
     const session = await getSession();
     if (!session?.user) return { error: 'Access denied' };
 
-    if (!name) return { error: 'Automation Name is required.' };
-
     const isNew = !flowId;
+
+    const guard = await requirePermission('crm_automations', isNew ? 'create' : 'edit');
+    if (!guard.ok) return { error: guard.error };
+
+    if (!name) return { error: 'Automation Name is required.' };
 
     const automationData: Omit<CrmAutomation, '_id' | 'createdAt'> = {
         name,
@@ -67,6 +100,15 @@ export async function saveCrmAutomation(data: {
         const { db } = await connectToDatabase();
         if (isNew) {
             const result = await db.collection('crm_automations').insertOne({ ...automationData, createdAt: new Date() } as any);
+            try {
+                await writeAuditEntry({
+                    tenantUserId: String(session.user._id),
+                    actorId: String(session.user._id),
+                    action: 'create',
+                    entityKind: 'automation',
+                    entityId: result.insertedId.toString(),
+                });
+            } catch { /* non-fatal */ }
             revalidatePath('/dashboard/crm/automations');
             return { message: 'Automation created successfully.', flowId: result.insertedId.toString() };
         } else {
@@ -74,6 +116,15 @@ export async function saveCrmAutomation(data: {
                 { _id: new ObjectId(flowId), userId: new ObjectId(session.user._id) },
                 { $set: automationData }
             );
+            try {
+                await writeAuditEntry({
+                    tenantUserId: String(session.user._id),
+                    actorId: String(session.user._id),
+                    action: 'update',
+                    entityKind: 'automation',
+                    entityId: flowId!,
+                });
+            } catch { /* non-fatal */ }
             revalidatePath('/dashboard/crm/automations');
             return { message: 'Automation updated successfully.', flowId };
         }
@@ -88,12 +139,24 @@ export async function deleteCrmAutomation(automationId: string): Promise<{ messa
     const session = await getSession();
     if (!session?.user) return { error: 'Access denied' };
 
+    const guard = await requirePermission('crm_automations', 'delete');
+    if (!guard.ok) return { error: guard.error };
+
     const { db } = await connectToDatabase();
     const automation = await db.collection('crm_automations').findOne({ _id: new ObjectId(automationId), userId: new ObjectId(session.user._id) });
     if (!automation) return { error: 'Automation not found or you do not have access.' };
 
     try {
         await db.collection('crm_automations').deleteOne({ _id: new ObjectId(automationId) });
+        try {
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'delete',
+                entityKind: 'automation',
+                entityId: automationId,
+            });
+        } catch { /* non-fatal */ }
         revalidatePath('/dashboard/crm/automations');
         return { message: 'Automation deleted.' };
     } catch (e) {
@@ -106,5 +169,9 @@ const GenerateCrmAutomationInputSchema = z.object({
 });
 
 export async function generateCrmAutomation(input: z.infer<typeof GenerateCrmAutomationInputSchema>) {
+    const session = await getSession();
+    if (!session?.user) return { error: 'Access denied' };
+    const guard = await requirePermission('crm_automations', 'create');
+    if (!guard.ok) return { error: guard.error };
     return await generateFlow(input);
 }

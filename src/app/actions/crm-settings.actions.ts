@@ -2,8 +2,16 @@
 
 import { connectToDatabase } from "@/lib/mongodb";
 import { getSession } from "@/app/actions/user.actions";
-import { ObjectId } from "mongodb";
+import { ObjectId, type WithId as MongoWithId } from "mongodb";
+import { revalidatePath } from "next/cache";
 import { CrmSettings, WithId } from "@/lib/definitions";
+import { recordRustFallback } from "@/lib/observability/rust-fallback-counter";
+import { crmSettingsApi } from "@/lib/rust-client/crm-settings";
+import { RustApiError } from "@/lib/rust-client/fetcher";
+
+function useRustCrm(): boolean {
+    return process.env.USE_RUST_CRM === 'true';
+}
 
 const DEFAULT_SETTINGS = {
     companyName: '',
@@ -112,9 +120,51 @@ export async function saveCrmSettings(prevState: any, formData: FormData): Promi
             { $set: { ...settingsData, userId: userObjectId } },
             { upsert: true }
         );
+        revalidatePath('/dashboard/crm/settings');
         return { message: 'Settings updated successfully!' };
     } catch (error) {
         console.error('Save Settings Error:', error);
         return { error: 'Failed to save settings.' };
+    }
+}
+
+/**
+ * Fetch a single CRM setting document by its `_id`, scoped to the current
+ * user. Dual-impl: when `USE_RUST_CRM=true` we hit the Rust BFF first and
+ * fall back to direct Mongo on any failure (network / 5xx / shape mismatch).
+ */
+export async function getSettingById(
+    id: string,
+): Promise<MongoWithId<Record<string, unknown>> | null> {
+    const session = await getSession();
+    if (!session?.user) return null;
+    if (!ObjectId.isValid(id)) return null;
+
+    if (useRustCrm()) {
+        try {
+            const doc = await crmSettingsApi.getById(id);
+            return JSON.parse(JSON.stringify(doc));
+        } catch (e) {
+            console.error('[getSettingById] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'setting',
+                op: 'get',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+        }
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const doc = await db.collection('crm_settings').findOne({
+            _id: new ObjectId(id),
+            userId: new ObjectId(session.user._id as string),
+        });
+        if (!doc) return null;
+        return JSON.parse(JSON.stringify(doc));
+    } catch (e) {
+        console.error('Failed to fetch CRM setting by id:', e);
+        return null;
     }
 }

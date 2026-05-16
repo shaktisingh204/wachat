@@ -109,6 +109,7 @@ pub struct DeleteManyResult {
 }
 
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct TrackClickQuery {
     pub short_code: String,
     /// Lowercased hostname or `null` for default-domain access.

@@ -6,6 +6,13 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
 import { writeAuditEntry } from '@/lib/audit-log';
 import { randomBytes } from 'node:crypto';
+import { crmPortalUsersApi } from '@/lib/rust-client/crm-portal-users';
+import { RustApiError } from '@/lib/rust-client/fetcher';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+
+function useRustCrm(): boolean {
+  return process.env.USE_RUST_CRM === 'true';
+}
 
 export async function savePortalUser(
   _prev: any,
@@ -155,6 +162,21 @@ export async function getPortalUserById(id: string): Promise<any | null> {
   const session = await getSession();
   if (!session?.user?._id) return null;
   if (!ObjectId.isValid(id)) return null;
+
+  if (useRustCrm()) {
+    try {
+      const doc = await crmPortalUsersApi.getById(id);
+      return JSON.parse(JSON.stringify(doc));
+    } catch (e) {
+      console.error('[getPortalUserById] rust path failed; falling back:', e);
+      recordRustFallback({
+        entity: 'portal_user',
+        op: 'get',
+        errorCode: e instanceof RustApiError ? e.code : undefined,
+        status: e instanceof RustApiError ? e.status : undefined,
+      });
+    }
+  }
 
   try {
     const { db } = await connectToDatabase();

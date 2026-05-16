@@ -25,7 +25,9 @@ import { writeAuditEntry } from '@/lib/audit-log';
 import { isDateBefore } from '@/lib/form-validation';
 import { requirePermission } from '@/lib/rbac-server';
 import { crmTicketsApi } from '@/lib/rust-client/crm-tickets';
+import { crmProjectTasksApi } from '@/lib/rust-client/crm-project-tasks';
 import { RustApiError } from '@/lib/rust-client/fetcher';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
 import { buildMagicLink, getProvider } from '@/lib/contracts/esign-providers';
 
 function useRustCrm(): boolean {
@@ -109,6 +111,33 @@ export async function saveProjectTask(_prev: any, formData: FormData) {
     dateFields: ['startDate', 'dueDate'],
     numericKeys: ['estimatedHours', 'actualHours'],
   });
+}
+
+/**
+ * Fetch a single project task document scoped to the current user.
+ *
+ * Dual-impl: when `USE_RUST_CRM === 'true'`, calls the Rust BFF first
+ * and falls back to the legacy Mongo path on error.
+ */
+export async function getProjectTaskById(id: string) {
+  if (!ObjectId.isValid(id)) return null;
+
+  if (useRustCrm()) {
+    try {
+      const doc = await crmProjectTasksApi.getById(id);
+      return JSON.parse(JSON.stringify(doc)) as HrProjectTask & { _id: string };
+    } catch (e) {
+      console.error('[getProjectTaskById] rust path failed; falling back:', e);
+      recordRustFallback({
+        entity: 'project_task',
+        op: 'get',
+        errorCode: e instanceof RustApiError ? e.code : undefined,
+        status: e instanceof RustApiError ? e.status : undefined,
+      });
+    }
+  }
+
+  return hrGetById<HrProjectTask>('crm_project_tasks', id);
 }
 
 export async function updateProjectTaskStatus(
@@ -578,11 +607,8 @@ export async function saveTicket(_prev: any, formData: FormData) {
       revalidatePath('/dashboard/crm/tickets');
       return { message: 'Saved successfully.', id };
     } catch (e) {
-      if (e instanceof RustApiError) {
-        console.error('[saveTicket] rust path failed; falling back:', e);
-      } else {
-        console.error('[saveTicket] rust path failed; falling back:', e);
-      }
+      console.error('[saveTicket] rust path failed; falling back:', e);
+      recordRustFallback({ entity: 'ticket', op: 'create', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
       // fall through
     }
   }
@@ -652,6 +678,7 @@ export async function updateTicketStatus(
       return { success: true };
     } catch (e) {
       console.error('[updateTicketStatus] rust path failed; falling back:', e);
+      recordRustFallback({ entity: 'ticket', op: 'update', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
       // fall through
     }
   }
@@ -705,6 +732,7 @@ export async function deleteTicket(id: string) {
       return { success: true };
     } catch (e) {
       console.error('[deleteTicket] rust path failed; falling back:', e);
+      recordRustFallback({ entity: 'ticket', op: 'delete', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
       // fall through
     }
   }

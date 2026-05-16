@@ -1,7 +1,8 @@
 /**
  * Forge block: Notion.
  *
- * Auth: Notion internal integration token (Bearer).
+ * Auth: routed through SabFlow Connections (credentialType `notion`).
+ *   credential.apiKey → Bearer integration token.
  * Actions: Create page, Append block, Get database.
  */
 
@@ -14,7 +15,10 @@ const NOTION_VERSION = '2022-06-28';
 const str = (v: unknown): string => (typeof v === 'string' ? v : v == null ? '' : String(v));
 
 const buildHeaders = (ctx: ForgeActionContext): Record<string, string> => {
-  const token = ctx.credential?.apiToken ?? str(ctx.options.apiToken);
+  const token = ctx.credential?.apiKey;
+  if (!token) {
+    throw new Error('Notion: select a credential from SabFlow Connections');
+  }
   return {
     Authorization: `Bearer ${token}`,
     'Notion-Version': NOTION_VERSION,
@@ -112,16 +116,7 @@ const block: ForgeBlock = {
   category: 'Integration',
   auth: {
     type: 'apiKey',
-    fields: [
-      {
-        id: 'apiToken',
-        label: 'Integration Token',
-        type: 'password',
-        placeholder: 'secret_…',
-        helperText: 'Create an internal integration at notion.so/my-integrations and paste the secret.',
-        required: true,
-      },
-    ],
+    credentialType: 'notion',
   },
   actions: [
     {

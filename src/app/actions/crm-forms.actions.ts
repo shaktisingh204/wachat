@@ -7,6 +7,14 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
 import type { CrmForm, CrmContact, CrmDeal, User } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+import { crmFormsApi } from '@/lib/rust-client/crm-forms';
+import { crmFormSubmissionsApi } from '@/lib/rust-client/crm-form-submissions';
+import { RustApiError } from '@/lib/rust-client/fetcher';
+
+function useRustCrm(): boolean {
+  return process.env.USE_RUST_CRM === 'true';
+}
 
 export async function getCrmForms(
     page: number = 1,
@@ -86,6 +94,21 @@ export async function saveCrmForm(data: {
 
 export async function getCrmFormById(formId: string): Promise<WithId<CrmForm> | null> {
     if (!ObjectId.isValid(formId)) return null;
+
+    if (useRustCrm()) {
+        try {
+            const doc = await crmFormsApi.getById(formId);
+            return JSON.parse(JSON.stringify(doc));
+        } catch (e) {
+            console.error('[getCrmFormById] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'form',
+                op: 'get',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+        }
+    }
 
     try {
         const { db } = await connectToDatabase();
@@ -192,5 +215,47 @@ export async function handleFormSubmission(formId: string, formData: Record<stri
     } catch (e) {
         console.error("CRM Form Submission API Error:", e);
         return { success: false, error: getErrorMessage(e), message: '' };
+    }
+}
+
+/**
+ * Fetch a single form submission document scoped to the current user.
+ *
+ * Dual-impl: routes through the Rust BFF when `USE_RUST_CRM=true`, falls
+ * back to the Mongo driver on error.
+ */
+export async function getFormSubmissionById(
+    id: string,
+): Promise<WithId<Record<string, unknown>> | null> {
+    const session = await getSession();
+    if (!session?.user) return null;
+    if (!ObjectId.isValid(id)) return null;
+
+    if (useRustCrm()) {
+        try {
+            const doc = await crmFormSubmissionsApi.getById(id);
+            return JSON.parse(JSON.stringify(doc));
+        } catch (e) {
+            console.error('[getFormSubmissionById] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'form_submission',
+                op: 'get',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+        }
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const doc = await db.collection('crm_form_submissions').findOne({
+            _id: new ObjectId(id),
+            userId: new ObjectId(session.user._id),
+        });
+        if (!doc) return null;
+        return JSON.parse(JSON.stringify(doc));
+    } catch (e) {
+        console.error('Failed to fetch form submission by id:', e);
+        return null;
     }
 }

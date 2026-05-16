@@ -7,6 +7,56 @@ import { getErrorMessage } from "@/lib/utils";
 import { ObjectId, WithId } from "mongodb";
 import type { CrmAppraisalReview } from '@/lib/definitions';
 import { revalidatePath } from "next/cache";
+import { recordRustFallback } from "@/lib/observability/rust-fallback-counter";
+import { crmAppraisalsApi } from "@/lib/rust-client/crm-appraisals";
+import { crmKpisApi } from "@/lib/rust-client/crm-kpis";
+import { RustApiError } from "@/lib/rust-client/fetcher";
+
+function useRustCrm(): boolean {
+    return process.env.USE_RUST_CRM === 'true';
+}
+
+/**
+ * Fetch a single appraisal review scoped to the current user.
+ *
+ * Dual-impl: tries the Rust BFF at `/v1/crm/appraisals/{id}` when
+ * `USE_RUST_CRM=true`, otherwise reads `crm_appraisal_reviews` directly.
+ */
+export async function getAppraisalReviewById(
+    id: string,
+): Promise<WithId<Record<string, unknown>> | null> {
+    const session = await getSession();
+    if (!session?.user) return null;
+    if (!ObjectId.isValid(id)) return null;
+
+    if (useRustCrm()) {
+        try {
+            const doc = await crmAppraisalsApi.getById(id);
+            return JSON.parse(JSON.stringify(doc));
+        } catch (e) {
+            console.error('[getAppraisalReviewById] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'appraisal',
+                op: 'get',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+        }
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const doc = await db.collection('crm_appraisal_reviews').findOne({
+            _id: new ObjectId(id),
+            userId: new ObjectId(session.user._id),
+        });
+        if (!doc) return null;
+        return JSON.parse(JSON.stringify(doc));
+    } catch (e) {
+        console.error('Failed to fetch appraisal review by id:', e);
+        return null;
+    }
+}
 
 export async function getCrmAppraisalReviews(): Promise<WithId<CrmAppraisalReview>[]> {
     const session = await getSession();
@@ -113,6 +163,48 @@ export async function getCrmKpis(): Promise<WithId<CrmKpi>[]> {
     } catch (e) {
         console.error('Failed to fetch KPIs:', e);
         return [];
+    }
+}
+
+/**
+ * Fetch a single KPI document scoped to the current user.
+ *
+ * Dual-impl: tries the Rust BFF at `/v1/crm/kpis/{id}` when
+ * `USE_RUST_CRM=true`, otherwise reads `crm_kpis` directly.
+ */
+export async function getKpiById(
+    id: string,
+): Promise<WithId<Record<string, unknown>> | null> {
+    const session = await getSession();
+    if (!session?.user) return null;
+    if (!ObjectId.isValid(id)) return null;
+
+    if (useRustCrm()) {
+        try {
+            const doc = await crmKpisApi.getById(id);
+            return JSON.parse(JSON.stringify(doc));
+        } catch (e) {
+            console.error('[getKpiById] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'kpi',
+                op: 'get',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+        }
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const doc = await db.collection('crm_kpis').findOne({
+            _id: new ObjectId(id),
+            userId: new ObjectId(session.user._id),
+        });
+        if (!doc) return null;
+        return JSON.parse(JSON.stringify(doc));
+    } catch (e) {
+        console.error('Failed to fetch KPI by id:', e);
+        return null;
     }
 }
 

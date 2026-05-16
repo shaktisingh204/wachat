@@ -1,7 +1,8 @@
 /**
  * Forge block: GitHub.
  *
- * Auth: Personal access token (classic or fine-grained).
+ * Auth: routed through SabFlow Connections (credentialType `github`).
+ *   credential.accessToken → personal access token used in the Bearer header.
  * Actions: Create issue, Add comment.
  */
 
@@ -13,7 +14,10 @@ const GITHUB_API = 'https://api.github.com';
 const str = (v: unknown): string => (typeof v === 'string' ? v : v == null ? '' : String(v));
 
 const buildHeaders = (ctx: ForgeActionContext): Record<string, string> => {
-  const token = ctx.credential?.token ?? str(ctx.options.token);
+  const token = ctx.credential?.accessToken;
+  if (!token) {
+    throw new Error('GitHub: select a credential from SabFlow Connections');
+  }
   return {
     Authorization: `Bearer ${token}`,
     Accept: 'application/vnd.github+json',
@@ -82,15 +86,7 @@ const block: ForgeBlock = {
   category: 'Integration',
   auth: {
     type: 'apiKey',
-    fields: [
-      {
-        id: 'token',
-        label: 'Personal Access Token',
-        type: 'password',
-        placeholder: 'ghp_… or github_pat_…',
-        required: true,
-      },
-    ],
+    credentialType: 'github',
   },
   actions: [
     {

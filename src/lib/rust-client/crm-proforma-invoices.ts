@@ -1,0 +1,113 @@
+import 'server-only';
+
+/**
+ * CRM Proforma Invoice client — wraps `/v1/crm/proforma-invoices`.
+ */
+import { rustFetch } from './fetcher';
+
+export type CrmProformaStatus =
+  | 'Draft'
+  | 'Issued'
+  | 'Converted'
+  | 'Cancelled'
+  | 'archived';
+
+export interface CrmProformaLineItem {
+  itemId?: string;
+  description: string;
+  quantity: number;
+  rate: number;
+  unit?: string;
+  taxPct?: number;
+  amount?: number;
+}
+
+export interface CrmProformaInvoiceDoc {
+  _id: string;
+  userId?: string;
+  proformaNumber: string;
+  accountId?: string;
+  proformaDate: string;
+  validTillDate?: string;
+  currency?: string;
+  lineItems: CrmProformaLineItem[];
+  subtotal: number;
+  total: number;
+  taxTotal?: number;
+  discountTotal?: number;
+  termsAndConditions?: string[];
+  notes?: string;
+  status?: CrmProformaStatus;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface CrmProformaListParams {
+  page?: number;
+  limit?: number;
+  q?: string;
+  status?: CrmProformaStatus | 'all';
+  accountId?: string;
+}
+
+export interface CrmProformaListResponse {
+  items: CrmProformaInvoiceDoc[];
+  page: number;
+  limit: number;
+  hasMore: boolean;
+}
+
+export interface CrmProformaCreateInput {
+  proformaNumber: string;
+  accountId?: string;
+  proformaDate: string;
+  validTillDate?: string;
+  currency?: string;
+  lineItems: CrmProformaLineItem[];
+  termsAndConditions?: string[];
+  notes?: string;
+  taxTotal?: number;
+  discountTotal?: number;
+}
+
+export type CrmProformaUpdateInput = Partial<CrmProformaCreateInput> & {
+  status?: CrmProformaStatus;
+};
+
+function buildListQuery(p?: CrmProformaListParams): string {
+  if (!p) return '';
+  const qs = new URLSearchParams();
+  if (p.page != null) qs.set('page', String(p.page));
+  if (p.limit != null) qs.set('limit', String(p.limit));
+  if (p.q) qs.set('q', p.q);
+  if (p.status) qs.set('status', p.status);
+  if (p.accountId) qs.set('accountId', p.accountId);
+  const s = qs.toString();
+  return s ? `?${s}` : '';
+}
+
+export const crmProformaInvoicesApi = {
+  list: (params?: CrmProformaListParams) =>
+    rustFetch<CrmProformaListResponse>(
+      `/v1/crm/proforma-invoices${buildListQuery(params)}`,
+    ),
+  getById: (id: string) =>
+    rustFetch<CrmProformaInvoiceDoc>(
+      `/v1/crm/proforma-invoices/${encodeURIComponent(id)}`,
+    ),
+  create: (input: CrmProformaCreateInput) =>
+    rustFetch<{ id: string; entity: CrmProformaInvoiceDoc }>(
+      '/v1/crm/proforma-invoices',
+      { method: 'POST', body: JSON.stringify(input) },
+    ),
+  update: (id: string, patch: CrmProformaUpdateInput) =>
+    rustFetch<CrmProformaInvoiceDoc>(
+      `/v1/crm/proforma-invoices/${encodeURIComponent(id)}`,
+      { method: 'PATCH', body: JSON.stringify(patch) },
+    ),
+  delete: (id: string) =>
+    rustFetch<{ deleted: boolean }>(
+      `/v1/crm/proforma-invoices/${encodeURIComponent(id)}`,
+      { method: 'DELETE' },
+    ),
+};

@@ -18,6 +18,7 @@ import { LuKeyRound, LuZap } from 'react-icons/lu';
 
 import { Field, selectClass } from '../shared/primitives';
 import { ForgeFieldRenderer } from './ForgeFieldRenderer';
+import { CredentialSelect } from '../shared/CredentialSelect';
 import {
   isFieldVisible,
   isMultiActionBlock,
@@ -25,6 +26,7 @@ import {
   type ForgeBlock,
   type ForgeField,
 } from '@/lib/sabflow/forge/types';
+import type { CredentialType } from '@/lib/sabflow/credentials/types';
 
 /* ── Props ───────────────────────────────────────────────────────────────── */
 
@@ -82,16 +84,39 @@ export function ForgeBlockSettings({ block, options, onChange }: Props) {
       )}
 
       {/* ── Auth section ──────────────────────────────────── */}
-      {block.auth && block.auth.type !== 'none' && block.auth.fields && block.auth.fields.length > 0 && (
+      {block.auth && block.auth.type !== 'none' && (
         <Section icon="key" title="Authentication">
-          <FieldGroup fields={block.auth.fields} options={options} onChange={patchField} />
+          {block.auth.credentialType ? (
+            <Field label="Credential">
+              <CredentialSelect
+                credentialType={block.auth.credentialType as CredentialType}
+                value={typeof options.credentialId === 'string' ? options.credentialId : undefined}
+                onChange={(id) => patchField('credentialId', id)}
+              />
+            </Field>
+          ) : block.auth.fields && block.auth.fields.length > 0 ? (
+            <FieldGroup
+              fields={block.auth.fields}
+              options={options}
+              onChange={patchField}
+              blockId={block.id}
+            />
+          ) : null}
         </Section>
       )}
 
       {/* ── Single-action block fields ────────────────────── */}
       {!multiAction && block.fields && block.fields.length > 0 && (
         <Section icon="zap" title="Configuration">
-          <FieldGroup fields={block.fields} options={options} onChange={patchField} />
+          <FieldGroup
+            fields={block.fields}
+            options={options}
+            onChange={patchField}
+            blockId={block.id}
+            credentialId={
+              typeof options.credentialId === 'string' ? options.credentialId : undefined
+            }
+          />
         </Section>
       )}
 
@@ -123,6 +148,11 @@ export function ForgeBlockSettings({ block, options, onChange }: Props) {
                 fields={selectedAction.fields}
                 options={options}
                 onChange={patchField}
+                blockId={block.id}
+                actionId={selectedActionId ?? undefined}
+                credentialId={
+                  typeof options.credentialId === 'string' ? options.credentialId : undefined
+                }
               />
             </>
           )}
@@ -138,9 +168,22 @@ type FieldGroupProps = {
   fields: ForgeField[];
   options: Record<string, unknown>;
   onChange: (fieldId: string, value: unknown) => void;
+  /** Block id — forwarded so `select` fields with `loadOptions` can resolve. */
+  blockId?: string;
+  /** Selected action id (multi-action blocks). */
+  actionId?: string;
+  /** Selected credential id — drives credential-bound dynamic dropdowns. */
+  credentialId?: string;
 };
 
-function FieldGroup({ fields, options, onChange }: FieldGroupProps) {
+function FieldGroup({
+  fields,
+  options,
+  onChange,
+  blockId,
+  actionId,
+  credentialId,
+}: FieldGroupProps) {
   return (
     <div className="space-y-4">
       {fields.map((field) => {
@@ -153,6 +196,10 @@ function FieldGroup({ fields, options, onChange }: FieldGroupProps) {
             field={field}
             value={effective}
             onChange={(v) => onChange(field.id, v)}
+            blockId={blockId}
+            actionId={actionId}
+            credentialId={credentialId}
+            options={options}
           />
         );
       })}

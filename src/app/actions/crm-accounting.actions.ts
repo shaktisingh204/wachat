@@ -10,12 +10,37 @@ import type { CrmAccountGroup, CrmChartOfAccount, CrmVoucherEntry } from '@/lib/
 import { coerceFiniteMoney } from '@/lib/crm/number-safety';
 import { getErrorMessage } from '@/lib/utils';
 import { writeAuditEntry } from '@/lib/audit-log';
+import { requirePermission } from '@/lib/rbac-server';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+import { crmChartOfAccountsApi } from '@/lib/rust-client/crm-chart-of-accounts';
+import { crmAccountGroupsApi } from '@/lib/rust-client/crm-account-groups';
+import { RustApiError } from '@/lib/rust-client/fetcher';
+
+function useRustCrm(): boolean {
+    return process.env.USE_RUST_CRM === 'true';
+}
 
 /* ─── Account Group: per-id getter (used by group detail / inline editing) ── */
 
 export async function getCrmAccountGroupById(groupId: string): Promise<WithId<CrmAccountGroup> | null> {
     const session = await getSession();
     if (!session?.user || !ObjectId.isValid(groupId)) return null;
+
+    if (useRustCrm()) {
+        try {
+            const doc = await crmAccountGroupsApi.getById(groupId);
+            return JSON.parse(JSON.stringify(doc));
+        } catch (e) {
+            console.error('[getCrmAccountGroupById] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'account_group',
+                op: 'get',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+        }
+    }
+
     try {
         const { db } = await connectToDatabase();
         const group = await db.collection<CrmAccountGroup>('crm_account_groups').findOne({
@@ -52,6 +77,9 @@ export async function saveCrmAccountGroup(prevState: any, formData: FormData): P
 
     const groupId = formData.get('groupId') as string | null;
     const isEditing = !!groupId;
+
+    const guard = await requirePermission('crm_account_group', isEditing ? 'edit' : 'create');
+    if (!guard.ok) return { error: guard.error };
 
     try {
         const groupData: Partial<Omit<CrmAccountGroup, '_id'>> = {
@@ -154,6 +182,9 @@ export async function deleteCrmAccountGroup(groupId: string): Promise<{ success:
         return { success: false, error: 'Invalid Group ID' };
     }
 
+    const guard = await requirePermission('crm_account_group', 'delete');
+    if (!guard.ok) return { success: false, error: guard.error };
+
     try {
         const { db } = await connectToDatabase();
         await db.collection('crm_account_groups').deleteOne({
@@ -212,6 +243,21 @@ export async function getCrmChartOfAccounts(): Promise<WithId<any>[]> {
 export async function getCrmChartOfAccountById(accountId: string): Promise<WithId<any> | null> {
     const session = await getSession();
     if (!session?.user || !ObjectId.isValid(accountId)) return null;
+
+    if (useRustCrm()) {
+        try {
+            const doc = await crmChartOfAccountsApi.getById(accountId);
+            return JSON.parse(JSON.stringify(doc));
+        } catch (e) {
+            console.error('[getCrmChartOfAccountById] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'chart_of_account',
+                op: 'get',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+        }
+    }
 
     try {
         const { db } = await connectToDatabase();
@@ -285,6 +331,9 @@ export async function saveCrmChartOfAccount(prevState: any, formData: FormData):
     const accountId = formData.get('accountId') as string | null;
     const isEditing = !!accountId;
 
+    const guard = await requirePermission('crm_chart_of_account', isEditing ? 'edit' : 'create');
+    if (!guard.ok) return { error: guard.error };
+
     try {
         const accountData: Partial<Omit<CrmChartOfAccount, '_id'>> = {
             userId: new ObjectId(session.user._id),
@@ -341,6 +390,9 @@ export async function deleteCrmChartOfAccount(accountId: string): Promise<{ succ
     if (!accountId || !ObjectId.isValid(accountId)) {
         return { success: false, error: 'Invalid Account ID' };
     }
+
+    const guard = await requirePermission('crm_chart_of_account', 'delete');
+    if (!guard.ok) return { success: false, error: guard.error };
 
     try {
         const { db } = await connectToDatabase();
@@ -707,4 +759,16 @@ export async function generateIncomeStatementData(startDate?: Date, endDate?: Da
     const netSurplus = -totalIncome - totalExpense; // Incomes are credits (negative)
 
     return { incomeData, expenseData, netSurplus };
+}
+
+/**
+ * Convenience alias for {@link getCrmChartOfAccountById} that matches the
+ * naming convention used by the Rust BFF layer (`getChartOfAccountById`).
+ *
+ * Honours the same Rust dual-impl gate — when `USE_RUST_CRM=true`, the
+ * call hits `/v1/crm/chart-of-accounts/{id}` first and only falls back to
+ * the legacy Mongo aggregation pipeline on failure.
+ */
+export async function getChartOfAccountById(id: string): Promise<WithId<any> | null> {
+    return getCrmChartOfAccountById(id);
 }

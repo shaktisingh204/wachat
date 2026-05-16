@@ -5,6 +5,13 @@ import { ObjectId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/index.ts';
 import { getErrorMessage } from '@/lib/utils';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+import { crmDashboardsApi } from '@/lib/rust-client/crm-dashboards';
+import { RustApiError } from '@/lib/rust-client/fetcher';
+
+function useRustCrm(): boolean {
+    return process.env.USE_RUST_CRM === 'true';
+}
 
 export async function saveDashboard(
     _prev: any,
@@ -122,6 +129,21 @@ export async function getDashboardById(id: string): Promise<any | null> {
     const session = await getSession();
     if (!session?.user) return null;
     if (!ObjectId.isValid(id)) return null;
+
+    if (useRustCrm()) {
+        try {
+            const doc = await crmDashboardsApi.getById(id);
+            return JSON.parse(JSON.stringify(doc));
+        } catch (e) {
+            console.error('[getDashboardById] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'dashboard',
+                op: 'get',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+        }
+    }
 
     try {
         const { db } = await connectToDatabase();

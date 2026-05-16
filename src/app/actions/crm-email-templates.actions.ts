@@ -1,12 +1,33 @@
 
 'use server';
 
+/**
+ * CRM Email Template server actions.
+ *
+ * **Dual implementation (read path only, for now):**
+ *  - When `USE_RUST_CRM === 'true'`, `getEmailTemplateById` delegates to
+ *    `/v1/crm/email-templates/:id` on the Rust BFF via
+ *    `src/lib/rust-client/crm-email-templates.ts`.
+ *  - On any failure (including non-404 errors), it falls back to the
+ *    legacy direct-Mongo path against `crm_email_templates`.
+ *
+ * The legacy `saveCrmEmailTemplate`, `getCrmEmailTemplates`, and
+ * `deleteCrmEmailTemplate` exports are unchanged.
+ */
+
 import { revalidatePath } from 'next/cache';
 import { ObjectId, WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
 import type { CrmEmailTemplate } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
+import { crmEmailTemplatesApi } from '@/lib/rust-client/crm-email-templates';
+import { RustApiError } from '@/lib/rust-client/fetcher';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+
+function useRustCrm(): boolean {
+    return process.env.USE_RUST_CRM === 'true';
+}
 
 export async function getCrmEmailTemplates(): Promise<WithId<CrmEmailTemplate>[]> {
     const session = await getSession();
@@ -85,5 +106,52 @@ export async function deleteCrmEmailTemplate(templateId: string): Promise<{ succ
         return { success: true };
     } catch (e) {
         return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+/**
+ * Fetch a single email template by id. Honors the `USE_RUST_CRM` gate:
+ * try the Rust BFF first; on any non-404 failure, fall through to the
+ * legacy direct-Mongo path on `crm_email_templates`.
+ */
+export async function getEmailTemplateById(
+    id: string,
+): Promise<WithId<CrmEmailTemplate> | null> {
+    const session = await getSession();
+    if (!session?.user) return null;
+    if (!id) return null;
+
+    if (useRustCrm()) {
+        try {
+            const doc = await crmEmailTemplatesApi.getById(id);
+            return doc
+                ? (JSON.parse(JSON.stringify(doc)) as WithId<CrmEmailTemplate>)
+                : null;
+        } catch (e) {
+            if (e instanceof RustApiError && e.status === 404) return null;
+            console.error('[getEmailTemplateById] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'email_template',
+                op: 'get',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+            // fall through to legacy
+        }
+    }
+
+    if (!ObjectId.isValid(id)) return null;
+
+    try {
+        const { db } = await connectToDatabase();
+        const template = await db.collection<CrmEmailTemplate>('crm_email_templates').findOne({
+            _id: new ObjectId(id),
+            userId: new ObjectId(session.user._id),
+        });
+        if (!template) return null;
+        return JSON.parse(JSON.stringify(template));
+    } catch (e) {
+        console.error('Failed to fetch email template by id:', e);
+        return null;
     }
 }

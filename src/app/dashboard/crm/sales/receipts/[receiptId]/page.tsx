@@ -26,6 +26,7 @@ import { CrmPageHeader } from '../../../_components/crm-page-header';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import { LineageRail } from '@/components/crm/lineage-rail';
+import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { getPaymentReceipt } from '@/app/actions/crm/payment-receipts.actions';
 import { ReceiptDetailActions } from '../_components/receipt-detail-actions';
 
@@ -299,6 +300,8 @@ export default async function PaymentReceiptDetailPage({
                     />
                 </div>
             </div>
+
+            <EntityAuditTimeline entityKind="paymentReceipt" entityId={receiptId} />
         </div>
     );
 }

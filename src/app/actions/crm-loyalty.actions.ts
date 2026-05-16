@@ -1,10 +1,28 @@
 'use server';
 
+/**
+ * CRM Loyalty Program server actions.
+ *
+ * **Dual implementation:** when `USE_RUST_CRM === 'true'` the read paths
+ * delegate to `/v1/crm/loyalty-programs` on the Rust BFF; otherwise legacy
+ * direct-Mongo runs. Failures record via `recordRustFallback` and fall
+ * through to the legacy path.
+ */
+
 import { revalidatePath } from 'next/cache';
 import { ObjectId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
 import { getErrorMessage } from '@/lib/utils';
+import { writeAuditEntry } from '@/lib/audit-log';
+import { requirePermission } from '@/lib/rbac-server';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+import { crmLoyaltyProgramsApi } from '@/lib/rust-client/crm-loyalty-programs';
+import { RustApiError } from '@/lib/rust-client/fetcher';
+
+function useRustCrm(): boolean {
+    return process.env.USE_RUST_CRM === 'true';
+}
 
 export async function getLoyaltyProgramById(
     loyaltyId: string,
@@ -13,6 +31,21 @@ export async function getLoyaltyProgramById(
 
     const session = await getSession();
     if (!session?.user) return null;
+
+    if (useRustCrm()) {
+        try {
+            const doc = await crmLoyaltyProgramsApi.getById(loyaltyId);
+            return JSON.parse(JSON.stringify(doc));
+        } catch (e) {
+            console.error('[getLoyaltyProgramById] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'loyalty_program',
+                op: 'get',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+        }
+    }
 
     try {
         const { db } = await connectToDatabase();
@@ -33,6 +66,8 @@ export async function updateLoyaltyProgram(
 ): Promise<{ message?: string; error?: string; id?: string }> {
     const session = await getSession();
     if (!session?.user) return { error: 'Access denied' };
+    const guard = await requirePermission('crm_loyalty_program', 'edit');
+    if (!guard.ok) return { error: guard.error };
 
     const loyaltyId = (formData.get('loyaltyId') as string | null) || '';
     if (!loyaltyId || !ObjectId.isValid(loyaltyId)) {
@@ -84,6 +119,18 @@ export async function updateLoyaltyProgram(
             return { error: 'Loyalty program not found.' };
         }
 
+        try {
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'update',
+                entityKind: 'loyalty_program',
+                entityId: loyaltyId,
+            });
+        } catch {
+            /* non-fatal */
+        }
+
         revalidatePath('/dashboard/crm/sales/loyalty');
         revalidatePath(`/dashboard/crm/sales/loyalty/${loyaltyId}`);
         return { message: 'Loyalty program updated successfully.', id: loyaltyId };
@@ -98,6 +145,8 @@ export async function saveLoyaltyProgram(
 ): Promise<{ message?: string; error?: string; id?: string }> {
     const session = await getSession();
     if (!session?.user) return { error: 'Access denied' };
+    const guard = await requirePermission('crm_loyalty_program', 'create');
+    if (!guard.ok) return { error: guard.error };
 
     try {
         const { db } = await connectToDatabase();
@@ -151,6 +200,18 @@ export async function saveLoyaltyProgram(
         if (notes) doc.notes = notes;
 
         const result = await db.collection('crm_loyalty_programs').insertOne(doc);
+
+        try {
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'create',
+                entityKind: 'loyalty_program',
+                entityId: result.insertedId.toString(),
+            });
+        } catch {
+            /* non-fatal */
+        }
 
         revalidatePath('/dashboard/crm/sales/loyalty');
         return {

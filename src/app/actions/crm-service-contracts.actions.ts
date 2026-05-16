@@ -4,12 +4,35 @@ import { ObjectId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
 import { writeAuditEntry } from '@/lib/audit-log';
+import { requirePermission } from '@/lib/rbac-server';
 import { revalidatePath } from 'next/cache';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+import { crmServiceContractsApi } from '@/lib/rust-client/crm-service-contracts';
+import { RustApiError } from '@/lib/rust-client/fetcher';
+
+function useRustCrm(): boolean {
+  return process.env.USE_RUST_CRM === 'true';
+}
 
 export async function getServiceContractById(id: string): Promise<any | null> {
   const session = await getSession();
   if (!session?.user) return null;
   if (!ObjectId.isValid(id)) return null;
+
+  if (useRustCrm()) {
+    try {
+      const doc = await crmServiceContractsApi.getById(id);
+      return JSON.parse(JSON.stringify(doc));
+    } catch (e) {
+      console.error('[getServiceContractById] rust path failed; falling back:', e);
+      recordRustFallback({
+        entity: 'service_contract',
+        op: 'get',
+        errorCode: e instanceof RustApiError ? e.code : undefined,
+        status: e instanceof RustApiError ? e.status : undefined,
+      });
+    }
+  }
 
   try {
     const { db } = await connectToDatabase();
@@ -31,6 +54,9 @@ export async function updateServiceContract(
 ): Promise<{ message?: string; error?: string; id?: string }> {
   const session = await getSession();
   if (!session?.user) return { error: 'Access denied.' };
+
+  const guard = await requirePermission('crm_service_contract', 'edit');
+  if (!guard.ok) return { error: guard.error };
 
   const id = (formData.get('id') as string) || '';
   if (!id || !ObjectId.isValid(id)) {
@@ -98,6 +124,9 @@ export async function saveServiceContract(
 ): Promise<{ message?: string; error?: string; id?: string }> {
   const session = await getSession();
   if (!session?.user) return { error: 'Access denied.' };
+
+  const guard = await requirePermission('crm_service_contract', 'create');
+  if (!guard.ok) return { error: guard.error };
 
   try {
     const { db } = await connectToDatabase();
@@ -280,6 +309,8 @@ export async function updateServiceContractStatus(
 ): Promise<{ success: boolean; error?: string }> {
   const session = await getSession();
   if (!session?.user) return { success: false, error: 'Access denied.' };
+  const guard = await requirePermission('crm_service_contract', 'edit');
+  if (!guard.ok) return { success: false, error: guard.error };
   if (!ObjectId.isValid(contractId)) {
     return { success: false, error: 'Invalid contract ID.' };
   }
@@ -319,6 +350,8 @@ export async function deleteServiceContract(
 ): Promise<{ success: boolean; error?: string }> {
   const session = await getSession();
   if (!session?.user) return { success: false, error: 'Access denied.' };
+  const guard = await requirePermission('crm_service_contract', 'delete');
+  if (!guard.ok) return { success: false, error: guard.error };
   if (!ObjectId.isValid(contractId)) {
     return { success: false, error: 'Invalid contract ID.' };
   }

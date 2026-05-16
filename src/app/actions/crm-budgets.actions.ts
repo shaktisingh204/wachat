@@ -1,15 +1,47 @@
 'use server';
 
+/**
+ * CRM Budget server actions.
+ *
+ * **Dual implementation:** when `USE_RUST_CRM === 'true'` the read paths
+ * delegate to `/v1/crm/budgets` on the Rust BFF; otherwise legacy direct-
+ * Mongo runs. Failures record via `recordRustFallback` and fall through
+ * to the legacy path.
+ */
+
 import { revalidatePath } from 'next/cache';
 import { ObjectId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/index.ts';
 import { writeAuditEntry } from '@/lib/audit-log';
 import { getErrorMessage } from '@/lib/utils';
+import { requirePermission } from '@/lib/rbac-server';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+import { crmBudgetsApi } from '@/lib/rust-client/crm-budgets';
+import { RustApiError } from '@/lib/rust-client/fetcher';
+
+function useRustCrm(): boolean {
+  return process.env.USE_RUST_CRM === 'true';
+}
 
 export async function getBudgets(): Promise<{ budgets: any[]; error?: string }> {
   const session = await getSession();
   if (!session?.user) return { budgets: [], error: 'Access denied.' };
+
+  if (useRustCrm()) {
+    try {
+      const resp = await crmBudgetsApi.list({ page: 0, limit: 50 });
+      return { budgets: JSON.parse(JSON.stringify(resp.items)) };
+    } catch (e) {
+      console.error('[getBudgets] rust path failed; falling back:', e);
+      recordRustFallback({
+        entity: 'budget',
+        op: 'list',
+        errorCode: e instanceof RustApiError ? e.code : undefined,
+        status: e instanceof RustApiError ? e.status : undefined,
+      });
+    }
+  }
 
   try {
     const { db } = await connectToDatabase();
@@ -32,6 +64,21 @@ export async function getBudgetById(id: string): Promise<any | null> {
   if (!session?.user) return null;
   if (!ObjectId.isValid(id)) return null;
 
+  if (useRustCrm()) {
+    try {
+      const doc = await crmBudgetsApi.getById(id);
+      return JSON.parse(JSON.stringify(doc));
+    } catch (e) {
+      console.error('[getBudgetById] rust path failed; falling back:', e);
+      recordRustFallback({
+        entity: 'budget',
+        op: 'get',
+        errorCode: e instanceof RustApiError ? e.code : undefined,
+        status: e instanceof RustApiError ? e.status : undefined,
+      });
+    }
+  }
+
   try {
     const { db } = await connectToDatabase();
     const doc = await db.collection('crm_budgets').findOne({
@@ -52,6 +99,9 @@ export async function updateBudget(
 ): Promise<{ message?: string; error?: string; id?: string }> {
   const session = await getSession();
   if (!session?.user) return { error: 'Access denied.' };
+
+  const guard = await requirePermission('crm_budget', 'edit');
+  if (!guard.ok) return { error: guard.error };
 
   const id = (formData.get('id') as string) || '';
   if (!id || !ObjectId.isValid(id)) {
@@ -113,6 +163,9 @@ export async function saveBudget(
   const session = await getSession();
   if (!session?.user) return { error: 'Access denied.' };
 
+  const guard = await requirePermission('crm_budget', 'create');
+  if (!guard.ok) return { error: guard.error };
+
   try {
     const { db } = await connectToDatabase();
     const userObjectId = new ObjectId(session.user._id as string);
@@ -159,6 +212,9 @@ export async function deleteBudget(
 
   const session = await getSession();
   if (!session?.user) return { success: false, error: 'Access denied.' };
+
+  const guard = await requirePermission('crm_budget', 'delete');
+  if (!guard.ok) return { success: false, error: guard.error };
 
   try {
     const { db } = await connectToDatabase();
@@ -224,6 +280,10 @@ async function setBudgetField(
 }
 
 export async function approveBudget(budgetId: string) {
+  const session = await getSession();
+  if (!session?.user) return { success: false, error: 'Access denied.' };
+  const guard = await requirePermission('crm_budget', 'edit');
+  if (!guard.ok) return { success: false, error: guard.error };
   return setBudgetField(
     budgetId,
     { status: 'approved', approvedAt: new Date() },
@@ -232,6 +292,10 @@ export async function approveBudget(budgetId: string) {
 }
 
 export async function rejectBudget(budgetId: string, reason?: string) {
+  const session = await getSession();
+  if (!session?.user) return { success: false, error: 'Access denied.' };
+  const guard = await requirePermission('crm_budget', 'edit');
+  if (!guard.ok) return { success: false, error: guard.error };
   return setBudgetField(
     budgetId,
     { status: 'rejected', rejectedAt: new Date(), rejectReason: reason || '' },
@@ -240,6 +304,10 @@ export async function rejectBudget(budgetId: string, reason?: string) {
 }
 
 export async function lockBudget(budgetId: string) {
+  const session = await getSession();
+  if (!session?.user) return { success: false, error: 'Access denied.' };
+  const guard = await requirePermission('crm_budget', 'edit');
+  if (!guard.ok) return { success: false, error: guard.error };
   return setBudgetField(
     budgetId,
     { locked: true, lockedAt: new Date() },
@@ -253,6 +321,8 @@ export async function recordBudgetActual(
 ): Promise<{ success: boolean; error?: string }> {
   const session = await getSession();
   if (!session?.user) return { success: false, error: 'Access denied.' };
+  const guard = await requirePermission('crm_budget', 'edit');
+  if (!guard.ok) return { success: false, error: guard.error };
   if (!ObjectId.isValid(budgetId)) {
     return { success: false, error: 'Invalid budget ID.' };
   }

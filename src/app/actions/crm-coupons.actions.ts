@@ -1,9 +1,27 @@
 'use server';
 
+/**
+ * CRM Coupon server actions.
+ *
+ * **Dual implementation:** when `USE_RUST_CRM === 'true'` the read paths
+ * delegate to `/v1/crm/coupons` on the Rust BFF; otherwise the legacy
+ * direct-Mongo path runs. Failures are recorded via `recordRustFallback`
+ * and fall through to the legacy path so the UI never breaks.
+ */
+
 import { ObjectId } from 'mongodb';
 import { revalidatePath } from 'next/cache';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
+import { writeAuditEntry } from '@/lib/audit-log';
+import { requirePermission } from '@/lib/rbac-server';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+import { crmCouponsApi } from '@/lib/rust-client/crm-coupons';
+import { RustApiError } from '@/lib/rust-client/fetcher';
+
+function useRustCrm(): boolean {
+  return process.env.USE_RUST_CRM === 'true';
+}
 
 export async function saveCoupon(
   _prev: any,
@@ -13,6 +31,8 @@ export async function saveCoupon(
   if (!session?.user?._id) {
     return { error: 'Unauthorized.' };
   }
+  const guard = await requirePermission('crm_coupon', 'create');
+  if (!guard.ok) return { error: guard.error };
 
   try {
     const code = ((formData.get('code') as string) || '').trim().toUpperCase();
@@ -81,6 +101,18 @@ export async function saveCoupon(
     const { db } = await connectToDatabase();
     const result = await db.collection('crm_coupons').insertOne(doc);
 
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action: 'create',
+        entityKind: 'coupon',
+        entityId: result.insertedId.toString(),
+      });
+    } catch {
+      /* non-fatal */
+    }
+
     revalidatePath('/dashboard/crm/sales/coupons');
 
     return { message: 'Coupon created successfully.', id: result.insertedId.toString() };
@@ -94,6 +126,21 @@ export async function getCoupons(): Promise<{ coupons: any[]; error?: string }> 
   const session = await getSession();
   if (!session?.user?._id) {
     return { coupons: [], error: 'Unauthorized.' };
+  }
+
+  if (useRustCrm()) {
+    try {
+      const resp = await crmCouponsApi.list({ page: 0, limit: 50 });
+      return { coupons: JSON.parse(JSON.stringify(resp.items)) };
+    } catch (e) {
+      console.error('[getCoupons] rust path failed; falling back:', e);
+      recordRustFallback({
+        entity: 'coupon',
+        op: 'list',
+        errorCode: e instanceof RustApiError ? e.code : undefined,
+        status: e instanceof RustApiError ? e.status : undefined,
+      });
+    }
   }
 
   try {
@@ -120,6 +167,21 @@ export async function getCouponById(
   const session = await getSession();
   if (!session?.user?._id) return null;
 
+  if (useRustCrm()) {
+    try {
+      const doc = await crmCouponsApi.getById(couponId);
+      return JSON.parse(JSON.stringify(doc));
+    } catch (e) {
+      console.error('[getCouponById] rust path failed; falling back:', e);
+      recordRustFallback({
+        entity: 'coupon',
+        op: 'get',
+        errorCode: e instanceof RustApiError ? e.code : undefined,
+        status: e instanceof RustApiError ? e.status : undefined,
+      });
+    }
+  }
+
   try {
     const { db } = await connectToDatabase();
     const doc = await db.collection('crm_coupons').findOne({
@@ -141,6 +203,8 @@ export async function updateCoupon(
   if (!session?.user?._id) {
     return { error: 'Unauthorized.' };
   }
+  const guard = await requirePermission('crm_coupon', 'edit');
+  if (!guard.ok) return { error: guard.error };
 
   const couponId = (formData.get('couponId') as string | null) || '';
   if (!couponId || !ObjectId.isValid(couponId)) {
@@ -188,6 +252,18 @@ export async function updateCoupon(
 
     if (result.matchedCount === 0) {
       return { error: 'Coupon not found.' };
+    }
+
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action: 'update',
+        entityKind: 'coupon',
+        entityId: couponId,
+      });
+    } catch {
+      /* non-fatal */
     }
 
     revalidatePath('/dashboard/crm/sales/coupons');

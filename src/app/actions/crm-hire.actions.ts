@@ -4,6 +4,13 @@ import { revalidatePath } from 'next/cache';
 import { ObjectId, type WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+import { crmPurchaseLeadsApi } from '@/lib/rust-client/crm-purchase-leads';
+import { RustApiError } from '@/lib/rust-client/fetcher';
+
+function useRustCrm(): boolean {
+  return process.env.USE_RUST_CRM === 'true';
+}
 
 /**
  * Shape returned by `getCrmHireById`. Mirrors the Mongo document for the
@@ -38,6 +45,21 @@ export async function getCrmHireById(
   const session = await getSession();
   if (!session?.user) return null;
   if (!hireId || !ObjectId.isValid(hireId)) return null;
+
+  if (useRustCrm()) {
+    try {
+      const doc = await crmPurchaseLeadsApi.getById(hireId);
+      return JSON.parse(JSON.stringify(doc)) as WithId<CrmHireDoc>;
+    } catch (e) {
+      console.error('[getCrmHireById] rust path failed; falling back:', e);
+      recordRustFallback({
+        entity: 'purchase_lead',
+        op: 'get',
+        errorCode: e instanceof RustApiError ? e.code : undefined,
+        status: e instanceof RustApiError ? e.status : undefined,
+      });
+    }
+  }
 
   try {
     const { db } = await connectToDatabase();

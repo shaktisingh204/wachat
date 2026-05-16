@@ -4,6 +4,13 @@ import { revalidatePath } from 'next/cache';
 import { ObjectId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+import { crmKbArticlesApi } from '@/lib/rust-client/crm-kb-articles';
+import { RustApiError } from '@/lib/rust-client/fetcher';
+
+function useRustCrm(): boolean {
+  return process.env.USE_RUST_CRM === 'true';
+}
 
 export interface KbArticleDoc {
   _id: string;
@@ -269,6 +276,22 @@ export async function getKbArticleById(
   if (!ObjectId.isValid(articleId)) return null;
   const session = await getSession();
   if (!session?.user?._id) return null;
+
+  if (useRustCrm()) {
+    try {
+      const doc = await crmKbArticlesApi.getById(articleId);
+      return JSON.parse(JSON.stringify(doc));
+    } catch (e) {
+      console.error('[getKbArticleById] rust path failed; falling back:', e);
+      recordRustFallback({
+        entity: 'kb_article',
+        op: 'get',
+        errorCode: e instanceof RustApiError ? e.code : undefined,
+        status: e instanceof RustApiError ? e.status : undefined,
+      });
+    }
+  }
+
   const { db } = await connectToDatabase();
   const doc = await db.collection('crm_kb_articles').findOne({
     _id: new ObjectId(articleId),

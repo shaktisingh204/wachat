@@ -9,6 +9,13 @@ import { requirePermission } from '@/lib/rbac-server';
 import type { CrmProformaInvoice, LineageKind, LineageRef } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import { appendLineage, buildLineageFromParent } from '@/lib/lineage';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+import { crmProformaInvoicesApi } from '@/lib/rust-client/crm-proforma-invoices';
+import { RustApiError } from '@/lib/rust-client/fetcher';
+
+function useRustCrm(): boolean {
+    return process.env.USE_RUST_CRM === 'true';
+}
 
 async function getNextProformaNumber(db: Db, userId: ObjectId): Promise<string> {
     const lastDoc = await db.collection<CrmProformaInvoice>('crm_proforma_invoices')
@@ -104,6 +111,21 @@ export async function getProformaInvoiceById(
 
     const session = await getSession();
     if (!session?.user) return null;
+
+    if (useRustCrm()) {
+        try {
+            const doc = await crmProformaInvoicesApi.getById(proformaId);
+            return JSON.parse(JSON.stringify(doc));
+        } catch (e) {
+            console.error('[getProformaInvoiceById] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'proforma_invoice',
+                op: 'get',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+        }
+    }
 
     try {
         const { db } = await connectToDatabase();

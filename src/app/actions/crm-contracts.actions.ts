@@ -6,6 +6,13 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
 import { writeAuditEntry } from '@/lib/audit-log';
 import { requirePermission } from '@/lib/rbac-server';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+import { crmContractsApi } from '@/lib/rust-client/crm-contracts';
+import { RustApiError } from '@/lib/rust-client/fetcher';
+
+function useRustCrm(): boolean {
+  return process.env.USE_RUST_CRM === 'true';
+}
 
 function revalidateContracts(id?: string) {
   revalidatePath('/dashboard/crm/sales/contracts');
@@ -125,6 +132,21 @@ export async function getContractById(
   const session = await getSession();
   if (!session?.user) return null;
   if (!ObjectId.isValid(contractId)) return null;
+
+  if (useRustCrm()) {
+    try {
+      const doc = await crmContractsApi.getById(contractId);
+      return JSON.parse(JSON.stringify(doc));
+    } catch (e) {
+      console.error('[getContractById] rust path failed; falling back:', e);
+      recordRustFallback({
+        entity: 'contract',
+        op: 'get',
+        errorCode: e instanceof RustApiError ? e.code : undefined,
+        status: e instanceof RustApiError ? e.status : undefined,
+      });
+    }
+  }
 
   try {
     const { db } = await connectToDatabase();

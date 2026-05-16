@@ -1,7 +1,8 @@
 /**
  * Forge block: SendGrid.
  *
- * Auth: API key (Bearer).
+ * Auth: routed through SabFlow Connections (credentialType `sendgrid`).
+ *   credential.apiKey → Bearer token for the v3 mail API.
  * Actions: Send transactional email.
  */
 
@@ -30,7 +31,10 @@ const parseRecipients = (raw: unknown): Recipient[] => {
 };
 
 async function sendEmail(ctx: ForgeActionContext): Promise<ForgeActionResult> {
-  const apiKey = ctx.credential?.apiKey ?? str(ctx.options.apiKey);
+  const apiKey = ctx.credential?.apiKey;
+  if (!apiKey) {
+    throw new Error('SendGrid: select a credential from SabFlow Connections');
+  }
   const fromEmail = str(ctx.options.fromEmail);
   const fromName = str(ctx.options.fromName);
   const subject = str(ctx.options.subject);
@@ -76,15 +80,7 @@ const block: ForgeBlock = {
   category: 'Integration',
   auth: {
     type: 'apiKey',
-    fields: [
-      {
-        id: 'apiKey',
-        label: 'API Key',
-        type: 'password',
-        placeholder: 'SG.…',
-        required: true,
-      },
-    ],
+    credentialType: 'sendgrid',
   },
   actions: [
     {

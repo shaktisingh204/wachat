@@ -6,6 +6,17 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
 import type { CrmProductCategory, CrmBrand, CrmUnit, CrmIndustry } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
+import { requirePermission } from '@/lib/rbac-server';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+import { crmUnitsApi } from '@/lib/rust-client/crm-units';
+import { crmProductCategoriesApi } from '@/lib/rust-client/crm-product-categories';
+import { crmTaxesApi } from '@/lib/rust-client/crm-taxes';
+import { crmIndustriesApi } from '@/lib/rust-client/crm-industries';
+import { RustApiError } from '@/lib/rust-client/fetcher';
+
+function useRustCrm(): boolean {
+    return process.env.USE_RUST_CRM === 'true';
+}
 
 // --- Categories ---
 export async function getCrmCategories(): Promise<WithId<CrmProductCategory>[]> {
@@ -26,6 +37,8 @@ export async function getCrmCategories(): Promise<WithId<CrmProductCategory>[]> 
 export async function saveCrmCategory(prevState: any, formData: FormData): Promise<{ message?: string; error?: string; topic?: WithId<CrmProductCategory> }> {
     const session = await getSession();
     if (!session?.user) return { error: 'Access denied' };
+    const guard = await requirePermission('crm_inventory_settings', 'create');
+    if (!guard.ok) return { error: guard.error };
     try {
         const { db } = await connectToDatabase();
         const name = formData.get('name') as string;
@@ -59,6 +72,48 @@ export async function saveCrmCategory(prevState: any, formData: FormData): Promi
     }
 }
 
+/**
+ * Fetch a single product category document scoped to the current user.
+ *
+ * Mirrors the canonical loader shape used elsewhere in the CRM. Dual-impl
+ * gated by `USE_RUST_CRM=true`; falls back to direct Mongo on Rust error.
+ */
+export async function getProductCategoryById(
+    id: string,
+): Promise<WithId<Record<string, unknown>> | null> {
+    const session = await getSession();
+    if (!session?.user) return null;
+    if (!ObjectId.isValid(id)) return null;
+
+    if (useRustCrm()) {
+        try {
+            const doc = await crmProductCategoriesApi.getById(id);
+            return JSON.parse(JSON.stringify(doc));
+        } catch (e) {
+            console.error('[getProductCategoryById] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'product_category',
+                op: 'get',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+        }
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const doc = await db.collection('crm_product_categories').findOne({
+            _id: new ObjectId(id),
+            userId: new ObjectId(session.user._id),
+        });
+        if (!doc) return null;
+        return JSON.parse(JSON.stringify(doc));
+    } catch (e) {
+        console.error('Failed to fetch product category by id:', e);
+        return null;
+    }
+}
+
 // --- Brands ---
 export async function getCrmBrands(): Promise<WithId<CrmBrand>[]> {
     const session = await getSession();
@@ -78,6 +133,8 @@ export async function getCrmBrands(): Promise<WithId<CrmBrand>[]> {
 export async function saveCrmBrand(prevState: any, formData: FormData): Promise<{ message?: string; error?: string; topic?: WithId<CrmBrand> }> {
     const session = await getSession();
     if (!session?.user) return { error: 'Access denied' };
+    const guard = await requirePermission('crm_inventory_settings', 'create');
+    if (!guard.ok) return { error: guard.error };
     try {
         const { db } = await connectToDatabase();
         const name = formData.get('name') as string;
@@ -129,6 +186,8 @@ export async function getCrmUnits(): Promise<WithId<CrmUnit>[]> {
 export async function saveCrmUnit(prevState: any, formData: FormData): Promise<{ message?: string; error?: string; topic?: WithId<CrmUnit> }> {
     const session = await getSession();
     if (!session?.user) return { error: 'Access denied' };
+    const guard = await requirePermission('crm_inventory_settings', 'create');
+    if (!guard.ok) return { error: guard.error };
     try {
         const { db } = await connectToDatabase();
         const name = formData.get('name') as string;
@@ -159,6 +218,48 @@ export async function saveCrmUnit(prevState: any, formData: FormData): Promise<{
         return { message: 'Unit saved.', topic: JSON.parse(JSON.stringify(result)) };
     } catch (e) {
         return { error: getErrorMessage(e) };
+    }
+}
+
+/**
+ * Fetch a single unit-of-measure document scoped to the current tenant.
+ *
+ * Dual-impl: when `USE_RUST_CRM=true` we hit the Rust BFF first and fall
+ * back to Mongo on any error (network, decode, RBAC mismatch, etc.).
+ */
+export async function getUnitById(
+    id: string,
+): Promise<WithId<Record<string, unknown>> | null> {
+    const session = await getSession();
+    if (!session?.user) return null;
+    if (!ObjectId.isValid(id)) return null;
+
+    if (useRustCrm()) {
+        try {
+            const doc = await crmUnitsApi.getById(id);
+            return JSON.parse(JSON.stringify(doc));
+        } catch (e) {
+            console.error('[getUnitById] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'unit',
+                op: 'get',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+        }
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const doc = await db.collection('crm_units').findOne({
+            _id: new ObjectId(id),
+            userId: new ObjectId(session.user._id),
+        });
+        if (!doc) return null;
+        return JSON.parse(JSON.stringify(doc));
+    } catch (e) {
+        console.error('Failed to fetch unit by id:', e);
+        return null;
     }
 }
 
@@ -231,6 +332,8 @@ export async function getCrmIndustries(): Promise<WithId<CrmIndustry>[]> {
 export async function saveCrmIndustry(prevState: any, formData: FormData): Promise<{ message?: string; error?: string; topic?: WithId<CrmIndustry> }> {
     const session = await getSession();
     if (!session?.user) return { error: 'Access denied' };
+    const guard = await requirePermission('crm_inventory_settings', 'create');
+    if (!guard.ok) return { error: guard.error };
     try {
         const { db } = await connectToDatabase();
         const name = formData.get('name') as string;
@@ -260,5 +363,89 @@ export async function saveCrmIndustry(prevState: any, formData: FormData): Promi
         return { message: 'Industry saved.', topic: JSON.parse(JSON.stringify(result)) };
     } catch (e) {
         return { error: getErrorMessage(e) };
+    }
+}
+
+/**
+ * Fetch a single industry document scoped to the current user.
+ *
+ * Dual-implementation: when `USE_RUST_CRM=true` we go through the
+ * `crm-industries` BFF, then fall back to the legacy Mongo path on any
+ * error so an outage of the Rust service never breaks the UI.
+ */
+export async function getIndustryById(
+    id: string,
+): Promise<WithId<Record<string, unknown>> | null> {
+    const session = await getSession();
+    if (!session?.user) return null;
+    if (!ObjectId.isValid(id)) return null;
+
+    if (useRustCrm()) {
+        try {
+            const doc = await crmIndustriesApi.getById(id);
+            return JSON.parse(JSON.stringify(doc));
+        } catch (e) {
+            console.error('[getIndustryById] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'industry',
+                op: 'get',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+        }
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const doc = await db.collection('crm_industries').findOne({
+            _id: new ObjectId(id),
+            userId: new ObjectId(session.user._id),
+        });
+        if (!doc) return null;
+        return JSON.parse(JSON.stringify(doc));
+    } catch (e) {
+        console.error('Failed to fetch industry by id:', e);
+        return null;
+    }
+}
+
+// --- Taxes ---
+/**
+ * Fetch a single tax-rate document (from `crm_taxes`) scoped to the
+ * current user. Mirrors the canonical loader shape used elsewhere in
+ * the CRM and dual-implements through the Rust BFF when
+ * `USE_RUST_CRM=true`, falling back to Mongo on error.
+ */
+export async function getTaxById(id: string): Promise<WithId<Record<string, unknown>> | null> {
+    const session = await getSession();
+    if (!session?.user) return null;
+    if (!ObjectId.isValid(id)) return null;
+
+    if (useRustCrm()) {
+        try {
+            const doc = await crmTaxesApi.getById(id);
+            return JSON.parse(JSON.stringify(doc));
+        } catch (e) {
+            console.error('[getTaxById] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'tax',
+                op: 'get',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+        }
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const doc = await db.collection('crm_taxes').findOne({
+            _id: new ObjectId(id),
+            userId: new ObjectId(session.user._id),
+        });
+        if (!doc) return null;
+        return JSON.parse(JSON.stringify(doc));
+    } catch (e) {
+        console.error('Failed to fetch tax by id:', e);
+        return null;
     }
 }

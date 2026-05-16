@@ -1,7 +1,8 @@
 /**
  * Forge block: Twilio.
  *
- * Auth: Account SID + Auth token (HTTP Basic).
+ * Auth: routed through SabFlow Connections (credentialType `twilio`).
+ *   credential.accountSid + credential.authToken → HTTP Basic auth.
  * Actions: Send SMS.
  */
 
@@ -21,8 +22,11 @@ const basicAuth = (user: string, pass: string): string => {
 };
 
 async function sendSms(ctx: ForgeActionContext): Promise<ForgeActionResult> {
-  const accountSid = ctx.credential?.accountSid ?? str(ctx.options.accountSid);
-  const authToken = ctx.credential?.authToken ?? str(ctx.options.authToken);
+  const accountSid = ctx.credential?.accountSid;
+  const authToken = ctx.credential?.authToken;
+  if (!accountSid || !authToken) {
+    throw new Error('Twilio: select a credential from SabFlow Connections');
+  }
   const from = str(ctx.options.from);
   const to = str(ctx.options.to);
   const body = str(ctx.options.body);
@@ -60,21 +64,7 @@ const block: ForgeBlock = {
   category: 'Integration',
   auth: {
     type: 'apiKey',
-    fields: [
-      {
-        id: 'accountSid',
-        label: 'Account SID',
-        type: 'text',
-        placeholder: 'ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
-        required: true,
-      },
-      {
-        id: 'authToken',
-        label: 'Auth Token',
-        type: 'password',
-        required: true,
-      },
-    ],
+    credentialType: 'twilio',
   },
   actions: [
     {

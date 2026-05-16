@@ -1,7 +1,8 @@
 /**
  * Forge block: Airtable.
  *
- * Auth: Personal access token (Bearer).
+ * Auth: routed through SabFlow Connections (credentialType `airtable`).
+ *   credential.apiKey → Bearer personal access token.
  * Actions: Create record, Update record, List records.
  */
 
@@ -13,7 +14,10 @@ const AIRTABLE_API = 'https://api.airtable.com/v0';
 const str = (v: unknown): string => (typeof v === 'string' ? v : v == null ? '' : String(v));
 
 const buildHeaders = (ctx: ForgeActionContext): Record<string, string> => {
-  const token = ctx.credential?.apiKey ?? str(ctx.options.apiKey);
+  const token = ctx.credential?.apiKey;
+  if (!token) {
+    throw new Error('Airtable: select a credential from SabFlow Connections');
+  }
   return {
     Authorization: `Bearer ${token}`,
     'Content-Type': 'application/json',
@@ -100,15 +104,7 @@ const block: ForgeBlock = {
   category: 'Integration',
   auth: {
     type: 'apiKey',
-    fields: [
-      {
-        id: 'apiKey',
-        label: 'Personal Access Token',
-        type: 'password',
-        placeholder: 'patXXXXXXXXXXXXXX',
-        required: true,
-      },
-    ],
+    credentialType: 'airtable',
   },
   actions: [
     {

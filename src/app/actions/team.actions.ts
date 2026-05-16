@@ -10,6 +10,7 @@ import { ObjectId, type WithId } from 'mongodb';
 import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
 import { logActivity } from '@/app/actions/activity.actions';
+import { writeAuditEntry } from '@/lib/audit-log';
 
 import crypto from 'crypto';
 import { getTransporter } from '@/lib/email-service';
@@ -223,6 +224,18 @@ export async function handleInviteAgent(prevState: any, formData: FormData): Pro
                 });
 
                 await logActivity('MEMBER_INVITED', { email, role, type: 'Email Invite', project: projectName }, projectId || undefined);
+                try {
+                    await writeAuditEntry({
+                        tenantUserId: String(session.user._id),
+                        actorId: String(session.user._id),
+                        action: 'create',
+                        entityKind: 'team_user',
+                        entityId: String(invitation._id),
+                        reason: `email invite → ${email}`,
+                    });
+                } catch {
+                    /* non-fatal */
+                }
                 revalidatePath('/dashboard/team/manage-users');
                 return { message: `Invitation sent to ${email}.` };
             } catch (emailError: any) {
@@ -262,6 +275,18 @@ export async function handleInviteAgent(prevState: any, formData: FormData): Pro
             revalidatePath('/dashboard/settings');
             revalidatePath('/dashboard/team/manage-users');
             await logActivity('MEMBER_INVITED', { email, role, project: project.name }, project._id);
+            try {
+                await writeAuditEntry({
+                    tenantUserId: String(session.user._id),
+                    actorId: String(session.user._id),
+                    action: 'create',
+                    entityKind: 'team_user',
+                    entityId: String(invitee._id),
+                    reason: `added to project ${project.name}`,
+                });
+            } catch {
+                /* non-fatal */
+            }
             return { message: `Invitation sent to ${email} for project ${project.name}.` };
         } else {
             // If no project ID, invite to all projects owned by the user.
@@ -292,6 +317,18 @@ export async function handleInviteAgent(prevState: any, formData: FormData): Pro
             revalidatePath('/dashboard/settings');
             revalidatePath('/dashboard/team/manage-users');
             await logActivity('MEMBER_INVITED', { email, role, count: updatedCount, type: 'Global Invite' });
+            try {
+                await writeAuditEntry({
+                    tenantUserId: String(session.user._id),
+                    actorId: String(session.user._id),
+                    action: 'create',
+                    entityKind: 'team_user',
+                    entityId: String(invitee._id),
+                    reason: `bulk invite to ${updatedCount} project(s)`,
+                });
+            } catch {
+                /* non-fatal */
+            }
             return { message: `Invitation sent to ${email}. They have been added to ${updatedCount} project(s).` };
         }
     } catch (e: any) {
@@ -335,6 +372,18 @@ export async function handleRemoveAgent(prevState: any, formData: FormData): Pro
         revalidatePath('/dashboard/settings');
         revalidatePath('/dashboard/team/manage-users');
         await logActivity('MEMBER_REMOVED', { agentId: agentUserId, scope: projectId ? 'Single Project' : 'All Projects' }, projectId || undefined);
+        try {
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'delete',
+                entityKind: 'team_user',
+                entityId: agentUserId,
+                reason: projectId ? `removed from project ${projectId}` : 'removed from all projects',
+            });
+        } catch {
+            /* non-fatal */
+        }
         return { message: 'Agent removed successfully.' };
     } catch (e: any) {
         console.error("Agent removal failed:", e);
@@ -794,6 +843,18 @@ export async function bulkRemoveAgents(
             agentIds: ids,
             matchedProjects: result.matchedCount,
         });
+        try {
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'delete',
+                entityKind: 'team_user',
+                entityId: ids[0] ?? 'bulk',
+                reason: `bulk remove ${ids.length} agent(s) from ${result.matchedCount} project(s)`,
+            });
+        } catch {
+            /* non-fatal */
+        }
         revalidatePath('/dashboard/team/manage-users');
         return { success: true, removed: result.modifiedCount };
     } catch (e) {
@@ -837,6 +898,18 @@ export async function bulkChangeAgentRole(args: {
             agentIds: ids,
             role: args.role,
         });
+        try {
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'update',
+                entityKind: 'team_user',
+                entityId: ids[0] ?? 'bulk',
+                reason: `bulk role change to ${args.role} (${ids.length} agents)`,
+            });
+        } catch {
+            /* non-fatal */
+        }
         revalidatePath('/dashboard/team/manage-users');
         return { success: true, updated: result.modifiedCount };
     } catch (e) {
@@ -877,6 +950,18 @@ export async function changeAgentRole(args: {
             return { success: false, error: 'Project or agent not found, or you are not the owner.' };
         }
         await logActivity('MEMBER_ROLE_CHANGED', { agentUserId, role }, projectId);
+        try {
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'update',
+                entityKind: 'team_user',
+                entityId: agentUserId,
+                reason: `role change to ${role}`,
+            });
+        } catch {
+            /* non-fatal */
+        }
 
         // In-app notification for the agent.
         try {

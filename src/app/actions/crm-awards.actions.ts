@@ -4,6 +4,14 @@ import { revalidatePath } from 'next/cache';
 import { ObjectId, type WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
+import { requirePermission } from '@/lib/rbac-server';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+import { crmAwardProgramsApi } from '@/lib/rust-client/crm-awards';
+import { RustApiError } from '@/lib/rust-client/fetcher';
+
+function useRustCrm(): boolean {
+  return process.env.USE_RUST_CRM === 'true';
+}
 
 export async function saveAwardProgram(
   _prev: any,
@@ -11,6 +19,9 @@ export async function saveAwardProgram(
 ): Promise<{ message?: string; error?: string; id?: string }> {
   const session = await getSession();
   if (!session?.user) return { error: 'Access denied.' };
+
+  const guard = await requirePermission('hrm_award', 'create');
+  if (!guard.ok) return { error: guard.error };
 
   const name = (formData.get('name') as string | null)?.trim() || '';
   if (!name) return { error: 'Program name is required.' };
@@ -63,6 +74,21 @@ export async function getAwardProgramById(
     const session = await getSession();
     if (!session?.user) return null;
     if (!ObjectId.isValid(programId)) return null;
+
+    if (useRustCrm()) {
+        try {
+            const doc = await crmAwardProgramsApi.getById(programId);
+            return JSON.parse(JSON.stringify(doc));
+        } catch (e) {
+            console.error('[getAwardProgramById] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'award_program',
+                op: 'get',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+        }
+    }
 
     try {
         const { db } = await connectToDatabase();

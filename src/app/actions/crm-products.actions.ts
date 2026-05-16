@@ -20,6 +20,10 @@ import { writeAuditEntry } from '@/lib/audit-log';
 import type { CrmProduct } from '@/lib/definitions';
 import { connectToDatabase } from '@/lib/mongodb';
 import { itemApi, type CrmItemDoc } from '@/lib/rust-client/crm-items';
+import {
+    crmProductsApi,
+    type CrmProductDoc,
+} from '@/lib/rust-client/crm-products';
 import { RustApiError } from '@/lib/rust-client/fetcher';
 import { getErrorMessage } from '@/lib/utils';
 import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
@@ -48,6 +52,21 @@ function rustDocToLegacy(doc: CrmItemDoc): WithId<CrmProduct> {
     };
 }
 
+/* ─── Rust products → legacy adapter ─────────────────────────────────── */
+// The new simplified `/v1/crm/products` surface returns a flatter shape than
+// the legacy TS `CrmProduct`. We coerce the overlapping fields and let the
+// callers treat the rest as undefined (they already do for partial docs).
+
+function rustProductDocToLegacy(doc: CrmProductDoc): WithId<CrmProduct> {
+    return {
+        ...(doc as unknown as WithId<CrmProduct>),
+        _id: doc._id ? (doc._id as unknown as ObjectId) : (undefined as unknown as ObjectId),
+        userId: doc.userId as unknown as ObjectId,
+        createdAt: doc.createdAt ? new Date(doc.createdAt) : new Date(),
+        updatedAt: doc.updatedAt ? new Date(doc.updatedAt) : new Date(),
+    };
+}
+
 /* ─── getCrmProductById ──────────────────────────────────────────────── */
 
 export async function getCrmProductById(
@@ -59,13 +78,24 @@ export async function getCrmProductById(
     if (!session?.user) return null;
 
     if (useRustCrm()) {
+        // Try the dedicated `/v1/crm/products` BFF first (entity: 'product').
+        try {
+            const doc = await crmProductsApi.getById(productId);
+            return doc ? rustProductDocToLegacy(doc) : null;
+        } catch (e) {
+            console.error('[getCrmProductById] rust products path failed; falling back:', e);
+            recordRustFallback({ entity: 'product', op: 'get', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
+            // fall through to the items BFF
+        }
+
+        // Existing items BFF fallback (entity: 'item').
         try {
             const doc = await itemApi.getById(productId);
             return doc ? rustDocToLegacy(doc) : null;
         } catch (e) {
-            console.error('[getCrmProductById] rust path failed; falling back:', e);
+            console.error('[getCrmProductById] rust items path failed; falling back:', e);
             recordRustFallback({ entity: 'item', op: 'get', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
-            // fall through
+            // fall through to legacy Mongo
         }
     }
 

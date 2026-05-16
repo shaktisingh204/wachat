@@ -49,6 +49,25 @@ export type ForgeShowIf = {
   equals: ForgeFieldValue;
 };
 
+/**
+ * Context passed to a field's `loadOptions` resolver.
+ *
+ * Resolvers are invoked server-side via `/api/sabflow/load-options` so they
+ * have access to the decrypted credential record + the current options
+ * snapshot for cross-field dependencies (e.g. board → list).
+ */
+export type ForgeLoadOptionsContext = {
+  /** Resolved credential record (decrypted). Undefined when the block's auth.credentialType is not set OR no credential is selected yet. */
+  credential?: Record<string, string>;
+  /** Current snapshot of other field values — useful when one dropdown depends on another. */
+  options: Record<string, unknown>;
+};
+
+/** Async resolver that returns dropdown options at runtime. */
+export type ForgeLoadOptions = (
+  ctx: ForgeLoadOptionsContext,
+) => Promise<ForgeSelectOption[]>;
+
 export type ForgeField = {
   /** Unique field id — becomes the key inside the options object. */
   id: string;
@@ -70,6 +89,13 @@ export type ForgeField = {
   credentialType?: string;
   /** Conditionally render the field based on another field's value. */
   showIf?: ForgeShowIf;
+  /**
+   * Optional dynamic-options resolver for `select` fields. Runs server-side
+   * (via `/api/sabflow/load-options`) so it can read decrypted credentials
+   * and other field values. Merged with the static `options` list on the
+   * client.
+   */
+  loadOptions?: ForgeLoadOptions;
 };
 
 /* ── Action runtime ──────────────────────────────────────────────────────── */
@@ -109,7 +135,20 @@ export type ForgeAuthType = 'apiKey' | 'oauth' | 'none';
 
 export type ForgeAuth = {
   type: ForgeAuthType;
-  /** Fields the user fills in to create a credential. */
+  /**
+   * SabFlow credential type id (matches `CredentialType` in
+   * `src/lib/sabflow/credentials/types.ts`). When set, the block renders a
+   * credential picker bound to that type and the engine resolves the chosen
+   * credential into `ctx.credential` at run time.
+   *
+   * When omitted, the block falls back to the legacy `fields` mode (auth
+   * fields inlined into block options) — kept for the original forge blocks.
+   */
+  credentialType?: string;
+  /**
+   * Legacy inline auth fields. Prefer `credentialType` for new ports — it
+   * routes the credential through the Connections tab + encrypted storage.
+   */
   fields?: ForgeField[];
 };
 

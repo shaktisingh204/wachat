@@ -7,6 +7,8 @@ import { getSession } from '@/app/actions/user.actions';
 import type { CrmPayout, LineageKind, LineageRef } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import { appendLineage, buildLineageFromParent } from '@/lib/lineage';
+import { writeAuditEntry } from '@/lib/audit-log';
+import { requirePermission } from '@/lib/rbac-server';
 
 
 export async function getPayoutById(payoutId: string): Promise<WithId<CrmPayout> | null> {
@@ -67,6 +69,9 @@ export async function getPayouts(
 export async function savePayout(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
     const session = await getSession();
     if (!session?.user) return { error: 'Access denied' };
+
+    const guard = await requirePermission('crm_payout', 'create');
+    if (!guard.ok) return { error: guard.error };
 
     try {
         const { db } = await connectToDatabase();
@@ -204,6 +209,9 @@ export async function deletePayout(payoutId: string): Promise<{ success: boolean
 
     const session = await getSession();
     if (!session?.user) return { success: false, error: 'Access denied.' };
+
+    const guard = await requirePermission('crm_payout', 'delete');
+    if (!guard.ok) return { success: false, error: guard.error };
 
     try {
         const { db } = await connectToDatabase();

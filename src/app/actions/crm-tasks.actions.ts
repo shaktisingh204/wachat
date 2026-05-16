@@ -20,6 +20,13 @@ import type { CrmTask } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import { z } from 'zod';
 import { writeAuditEntry } from '@/lib/audit-log';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+import { crmTasksApi } from '@/lib/rust-client/crm-tasks';
+import { RustApiError } from '@/lib/rust-client/fetcher';
+
+function useRustCrm(): boolean {
+    return process.env.USE_RUST_CRM === 'true';
+}
 
 /** Linked entity discriminator — closed enum the form picker depends on. */
 export type TaskLinkedKind =
@@ -263,6 +270,21 @@ export async function getCrmTaskById(
     const session = await getSession();
     if (!session?.user) return null;
     if (!taskId || !ObjectId.isValid(taskId)) return null;
+
+    if (useRustCrm()) {
+        try {
+            const doc = await crmTasksApi.getById(taskId);
+            return JSON.parse(JSON.stringify(doc));
+        } catch (e) {
+            console.error('[getCrmTaskById] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'task',
+                op: 'get',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+        }
+    }
 
     try {
         const { db } = await connectToDatabase();

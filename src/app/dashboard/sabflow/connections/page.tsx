@@ -10,12 +10,17 @@ import {
   LuX,
   LuEye,
   LuEyeOff,
+  LuSearch,
 } from 'react-icons/lu';
 import { cn } from '@/lib/utils';
 import {
   CREDENTIAL_TYPE_LABEL,
   CREDENTIAL_FIELD_SCHEMAS,
   CREDENTIAL_TYPES,
+  CREDENTIAL_CATEGORIES,
+  CREDENTIAL_CATEGORY_LABEL,
+  CREDENTIAL_TYPE_CATEGORY,
+  type CredentialCategory,
   type CredentialType,
   type MaskedCredential,
 } from '@/lib/sabflow/credentials/types';
@@ -57,6 +62,8 @@ function AddCredentialModal({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showValues, setShowValues] = useState<Record<string, boolean>>({});
+  const [query, setQuery] = useState('');
+  const [activeCategory, setActiveCategory] = useState<CredentialCategory | 'all'>('all');
 
   useEffect(() => {
     if (open) {
@@ -65,8 +72,30 @@ function AddCredentialModal({
       setError(null);
       setSaving(false);
       setShowValues({});
+      setQuery('');
+      setActiveCategory('all');
     }
   }, [open]);
+
+  const filteredTypes = React.useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return CREDENTIAL_TYPES.filter((t) => {
+      if (activeCategory !== 'all' && CREDENTIAL_TYPE_CATEGORY[t] !== activeCategory) return false;
+      if (!q) return true;
+      return CREDENTIAL_TYPE_LABEL[t].toLowerCase().includes(q) || t.toLowerCase().includes(q);
+    });
+  }, [query, activeCategory]);
+
+  const groupedTypes = React.useMemo(() => {
+    const groups = new Map<CredentialCategory, CredentialType[]>();
+    for (const t of filteredTypes) {
+      const cat = CREDENTIAL_TYPE_CATEGORY[t];
+      const list = groups.get(cat) ?? [];
+      list.push(t);
+      groups.set(cat, list);
+    }
+    return groups;
+  }, [filteredTypes]);
 
   if (!open) return null;
 
@@ -102,7 +131,12 @@ function AddCredentialModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="w-full max-w-md bg-zinc-900 border border-zinc-700/60 rounded-2xl shadow-2xl overflow-hidden">
+      <div
+        className={cn(
+          'w-full bg-zinc-900 border border-zinc-700/60 rounded-2xl shadow-2xl overflow-hidden flex flex-col',
+          step === 'type' ? 'max-w-3xl max-h-[80vh]' : 'max-w-md',
+        )}
+      >
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-800">
           <div className="flex items-center gap-2">
@@ -117,23 +151,89 @@ function AddCredentialModal({
         </div>
 
         {/* Body */}
-        <div className="px-6 py-5 space-y-4">
+        <div className={cn('px-6 py-5 space-y-4', step === 'type' && 'flex-1 min-h-0 flex flex-col overflow-hidden')}>
           {step === 'type' ? (
-            <div className="grid grid-cols-2 gap-2 max-h-72 overflow-y-auto pr-1">
-              {CREDENTIAL_TYPES.map((t) => (
+            <>
+              {/* Search */}
+              <div className="relative">
+                <LuSearch className="w-3.5 h-3.5 text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Search providers (e.g. slack, notion, postgres)…"
+                  className="w-full bg-zinc-800 border border-zinc-700 rounded-lg pl-9 pr-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:border-zinc-500"
+                  autoFocus
+                />
+              </div>
+
+              {/* Category chips */}
+              <div className="flex flex-wrap gap-1.5">
                 <button
-                  key={t}
-                  onClick={() => {
-                    setForm((f) => ({ ...f, type: t, data: {} }));
-                    setStep('fields');
-                  }}
-                  className="flex items-center gap-2 px-3 py-2.5 rounded-lg border border-zinc-700/60 bg-zinc-800/50 hover:bg-zinc-700/60 hover:border-zinc-600 transition-colors text-left"
+                  onClick={() => setActiveCategory('all')}
+                  className={cn(
+                    'px-2.5 py-1 rounded-full text-xs font-medium border transition-colors',
+                    activeCategory === 'all'
+                      ? 'bg-zinc-100 text-zinc-900 border-zinc-100'
+                      : 'bg-zinc-800/60 text-zinc-300 border-zinc-700/60 hover:bg-zinc-700/60',
+                  )}
                 >
-                  <LuKey className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
-                  <span className="text-sm text-zinc-200 truncate">{CREDENTIAL_TYPE_LABEL[t]}</span>
+                  All
                 </button>
-              ))}
-            </div>
+                {CREDENTIAL_CATEGORIES.map((cat) => (
+                  <button
+                    key={cat}
+                    onClick={() => setActiveCategory(cat)}
+                    className={cn(
+                      'px-2.5 py-1 rounded-full text-xs font-medium border transition-colors',
+                      activeCategory === cat
+                        ? 'bg-zinc-100 text-zinc-900 border-zinc-100'
+                        : 'bg-zinc-800/60 text-zinc-300 border-zinc-700/60 hover:bg-zinc-700/60',
+                    )}
+                  >
+                    {CREDENTIAL_CATEGORY_LABEL[cat]}
+                  </button>
+                ))}
+              </div>
+
+              {/* Grouped list */}
+              <div className="flex-1 min-h-0 overflow-y-auto pr-1 -mr-1 space-y-5">
+                {filteredTypes.length === 0 ? (
+                  <p className="text-sm text-zinc-500 py-8 text-center">
+                    No providers match “{query}”.
+                  </p>
+                ) : (
+                  CREDENTIAL_CATEGORIES.map((cat) => {
+                    const items = groupedTypes.get(cat);
+                    if (!items?.length) return null;
+                    return (
+                      <div key={cat} className="space-y-2">
+                        <p className="text-xs font-medium uppercase tracking-wider text-zinc-500">
+                          {CREDENTIAL_CATEGORY_LABEL[cat]}
+                        </p>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                          {items.map((t) => (
+                            <button
+                              key={t}
+                              onClick={() => {
+                                setForm((f) => ({ ...f, type: t, data: {} }));
+                                setStep('fields');
+                              }}
+                              className="flex items-center gap-2 px-3 py-2.5 rounded-lg border border-zinc-700/60 bg-zinc-800/50 hover:bg-zinc-700/60 hover:border-zinc-600 transition-colors text-left"
+                            >
+                              <LuKey className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
+                              <span className="text-sm text-zinc-200 truncate">
+                                {CREDENTIAL_TYPE_LABEL[t]}
+                              </span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </>
           ) : (
             <div className="space-y-4">
               {/* Name */}
@@ -241,6 +341,24 @@ export default function SabFlowConnectionsPage() {
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [filter, setFilter] = useState<CredentialCategory | 'all'>('all');
+
+  const visibleCredentials = React.useMemo(
+    () =>
+      filter === 'all'
+        ? credentials
+        : credentials.filter((c) => CREDENTIAL_TYPE_CATEGORY[c.type] === filter),
+    [credentials, filter],
+  );
+
+  const credentialCategoryCounts = React.useMemo(() => {
+    const counts: Partial<Record<CredentialCategory, number>> = {};
+    for (const c of credentials) {
+      const cat = CREDENTIAL_TYPE_CATEGORY[c.type];
+      counts[cat] = (counts[cat] ?? 0) + 1;
+    }
+    return counts;
+  }, [credentials]);
 
   useEffect(() => {
     fetch('/api/sabflow/credentials')
@@ -265,7 +383,7 @@ export default function SabFlowConnectionsPage() {
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 p-6">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-5xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -283,6 +401,37 @@ export default function SabFlowConnectionsPage() {
             Add connection
           </button>
         </div>
+
+        {/* Category filter chips (only when credentials exist) */}
+        {!loading && credentials.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mb-4">
+            <button
+              onClick={() => setFilter('all')}
+              className={cn(
+                'px-2.5 py-1 rounded-full text-xs font-medium border transition-colors',
+                filter === 'all'
+                  ? 'bg-zinc-100 text-zinc-900 border-zinc-100'
+                  : 'bg-zinc-800/60 text-zinc-300 border-zinc-700/60 hover:bg-zinc-700/60',
+              )}
+            >
+              All ({credentials.length})
+            </button>
+            {CREDENTIAL_CATEGORIES.filter((c) => credentialCategoryCounts[c]).map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setFilter(cat)}
+                className={cn(
+                  'px-2.5 py-1 rounded-full text-xs font-medium border transition-colors',
+                  filter === cat
+                    ? 'bg-zinc-100 text-zinc-900 border-zinc-100'
+                    : 'bg-zinc-800/60 text-zinc-300 border-zinc-700/60 hover:bg-zinc-700/60',
+                )}
+              >
+                {CREDENTIAL_CATEGORY_LABEL[cat]} ({credentialCategoryCounts[cat]})
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* Table / Empty */}
         {loading ? (
@@ -311,43 +460,57 @@ export default function SabFlowConnectionsPage() {
                     Type
                   </th>
                   <th className="text-left px-4 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">
+                    Category
+                  </th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">
                     Created
                   </th>
                   <th className="px-4 py-3" />
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-800/60">
-                {credentials.map((cred) => (
-                  <tr key={cred.id} className="hover:bg-zinc-900/50 transition-colors group">
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2">
-                        <LuKey className="w-3.5 h-3.5 text-zinc-500 shrink-0" />
-                        <span className="text-zinc-200 font-medium">{cred.name}</span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-zinc-800 text-zinc-300 border border-zinc-700/60">
-                        {CREDENTIAL_TYPE_LABEL[cred.type] ?? cred.type}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-zinc-400 text-xs">
-                      {formatDate(cred.createdAt)}
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <button
-                        onClick={() => handleDelete(cred.id)}
-                        disabled={deleting === cred.id}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity text-zinc-500 hover:text-red-400 disabled:cursor-not-allowed"
-                      >
-                        {deleting === cred.id ? (
-                          <LuLoader className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <LuTrash2 className="w-4 h-4" />
-                        )}
-                      </button>
+                {visibleCredentials.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="px-4 py-10 text-center text-sm text-zinc-500">
+                      No credentials in this category.
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  visibleCredentials.map((cred) => (
+                    <tr key={cred.id} className="hover:bg-zinc-900/50 transition-colors group">
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <LuKey className="w-3.5 h-3.5 text-zinc-500 shrink-0" />
+                          <span className="text-zinc-200 font-medium">{cred.name}</span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-zinc-800 text-zinc-300 border border-zinc-700/60">
+                          {CREDENTIAL_TYPE_LABEL[cred.type] ?? cred.type}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-zinc-400 text-xs">
+                        {CREDENTIAL_CATEGORY_LABEL[CREDENTIAL_TYPE_CATEGORY[cred.type]] ?? '—'}
+                      </td>
+                      <td className="px-4 py-3 text-zinc-400 text-xs">
+                        {formatDate(cred.createdAt)}
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <button
+                          onClick={() => handleDelete(cred.id)}
+                          disabled={deleting === cred.id}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity text-zinc-500 hover:text-red-400 disabled:cursor-not-allowed"
+                        >
+                          {deleting === cred.id ? (
+                            <LuLoader className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <LuTrash2 className="w-4 h-4" />
+                          )}
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
