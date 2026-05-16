@@ -1,130 +1,450 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
+/**
+ * HR Announcements — list page.
+ *
+ * Server-state is loaded through `getAnnouncements` (Rust-only). Filters
+ * drive server-side filtering by re-calling `getAnnouncements` whenever
+ * they change. Free-text search is debounced before being sent.
+ *
+ * Row columns: Title · Category · Priority · Audience · Publish At ·
+ * Pinned · Status. Status + priority use `<StatusPill>` with tone
+ * variants (urgent→red, high→amber, normal→blue, low→neutral).
+ */
 
-import { Megaphone } from 'lucide-react';
-import { ClayBadge, HrEntityPage } from '../_components/hr-entity-page';
+import * as React from 'react';
+import Link from 'next/link';
+import { Edit, LoaderCircle, Megaphone, Pin, Plus, Trash2 } from 'lucide-react';
+
 import {
-  getAnnouncements,
-  saveAnnouncement,
-  deleteAnnouncement,
-} from '@/app/actions/hr.actions';
-import type { HrAnnouncement } from '@/lib/hr-types';
-import { fields } from './_config';
+    ZoruAlertDialog,
+    ZoruAlertDialogAction,
+    ZoruAlertDialogCancel,
+    ZoruAlertDialogContent,
+    ZoruAlertDialogDescription,
+    ZoruAlertDialogFooter,
+    ZoruAlertDialogHeader,
+    ZoruAlertDialogTitle,
+    ZoruButton,
+    ZoruSelect,
+    ZoruSelectContent,
+    ZoruSelectItem,
+    ZoruSelectTrigger,
+    ZoruSelectValue,
+    ZoruTable,
+    ZoruTableBody,
+    ZoruTableCell,
+    ZoruTableHead,
+    ZoruTableHeader,
+    ZoruTableRow,
+    useZoruToast,
+} from '@/components/zoruui';
 
-function formatDate(value: unknown) {
-  if (!value) return '—';
-  const d = new Date(value as any);
-  if (isNaN(d.getTime())) return '—';
-  return d.toISOString().slice(0, 10);
+import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
+
+import {
+    deleteAnnouncement,
+    getAnnouncements,
+} from '@/app/actions/crm-announcements.actions';
+import type {
+    CrmAnnouncementAudience,
+    CrmAnnouncementCategory,
+    CrmAnnouncementDoc,
+    CrmAnnouncementStatus,
+} from '@/lib/rust-client/crm-announcements';
+
+const BASE = '/dashboard/hrm/hr/announcements';
+
+type StatusFilter = 'all' | CrmAnnouncementStatus;
+type CategoryFilter = 'all' | CrmAnnouncementCategory;
+type AudienceFilter = 'all' | CrmAnnouncementAudience;
+
+const STATUS_OPTIONS: { value: StatusFilter; label: string }[] = [
+    { value: 'all', label: 'All statuses' },
+    { value: 'draft', label: 'Draft' },
+    { value: 'scheduled', label: 'Scheduled' },
+    { value: 'published', label: 'Published' },
+    { value: 'archived', label: 'Archived' },
+];
+
+const CATEGORY_OPTIONS: { value: CategoryFilter; label: string }[] = [
+    { value: 'all', label: 'All categories' },
+    { value: 'general', label: 'General' },
+    { value: 'hr', label: 'HR' },
+    { value: 'policy', label: 'Policy' },
+    { value: 'event', label: 'Event' },
+    { value: 'celebration', label: 'Celebration' },
+    { value: 'urgent', label: 'Urgent' },
+];
+
+const AUDIENCE_OPTIONS: { value: AudienceFilter; label: string }[] = [
+    { value: 'all', label: 'All audiences' },
+    { value: 'department', label: 'Department' },
+    { value: 'team', label: 'Team' },
+    { value: 'role', label: 'Role' },
+];
+
+const STATUS_TONE: Record<string, StatusTone> = {
+    draft: 'neutral',
+    scheduled: 'blue',
+    published: 'green',
+    archived: 'red',
+};
+
+const PRIORITY_TONE: Record<string, StatusTone> = {
+    low: 'neutral',
+    normal: 'blue',
+    high: 'amber',
+    urgent: 'red',
+};
+
+function fmtDateTime(v: unknown): string {
+    if (!v) return '—';
+    const d = new Date(v as string);
+    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleString();
 }
 
-export default function AnnouncementsPage() {
-  return (
-    <HrEntityPage<HrAnnouncement & { _id: string }>
-      title="Announcements"
-      subtitle="Company-wide updates, news, and pinned messages."
-      icon={Megaphone}
-      singular="Announcement"
-      basePath="/dashboard/hrm/hr/announcements"
-      rowLinksToDetail
-      getAllAction={getAnnouncements as any}
-      saveAction={saveAnnouncement}
-      deleteAction={deleteAnnouncement}
-      kpis={[
-        {
-          label: 'Total',
-          compute: (rows) => rows.length,
-        },
-        {
-          label: 'Active',
-          compute: (rows) => {
-            const now = new Date();
-            return rows.filter((r) => {
-              const pub = (r as any).publishAt ? new Date((r as any).publishAt) : null;
-              const exp = (r as any).expiresAt ? new Date((r as any).expiresAt) : null;
-              const publishOk = !pub || isNaN(pub.getTime()) || pub <= now;
-              const notExpired = !exp || isNaN(exp.getTime()) || exp >= now;
-              return publishOk && notExpired;
-            }).length;
-          },
-          tone: 'green',
-        },
-        {
-          label: 'Scheduled',
-          compute: (rows) => {
-            const now = new Date();
-            return rows.filter((r) => {
-              const pub = (r as any).publishAt ? new Date((r as any).publishAt) : null;
-              return pub && !isNaN(pub.getTime()) && pub > now;
-            }).length;
-          },
-          tone: 'blue',
-        },
-        {
-          label: 'Pinned',
-          compute: (rows) =>
-            rows.filter(
-              (r) =>
-                (r as any).pinned === true ||
-                (r as any).pinned === 'yes' ||
-                (r as any).pinned === 'true',
-            ).length,
-          tone: 'amber',
-        },
-        {
-          label: 'Urgent',
-          compute: (rows) =>
-            rows.filter((r) => String((r as any).priority) === 'urgent').length,
-          tone: 'red',
-        },
-      ]}
-      columns={[
-        { key: 'title', label: 'Title' },
-        {
-          key: 'type',
-          label: 'Type',
-          render: (row) => {
-            const t = (row as any).type || 'info';
-            const tone = t === 'warning' ? 'amber' : t === 'success' ? 'green' : 'neutral';
-            return <ClayBadge tone={tone}>{t}</ClayBadge>;
-          },
-        },
-        {
-          key: 'audience',
-          label: 'Audience',
-          render: (row) => (
-            <ClayBadge tone="neutral">{row.audience || 'all'}</ClayBadge>
-          ),
-        },
-        {
-          key: 'publishAt',
-          label: 'Published At',
-          render: (row) => <span>{formatDate(row.publishAt)}</span>,
-        },
-        {
-          key: 'expiresAt',
-          label: 'Expires At',
-          render: (row) => <span>{formatDate((row as any).expiresAt)}</span>,
-        },
-        {
-          key: 'pinned',
-          label: 'Pinned',
-          render: (row) => {
-            const isPinned =
-              row.pinned === true ||
-              (row.pinned as unknown as string) === 'yes' ||
-              (row.pinned as unknown as string) === 'true';
-            return (
-              <ClayBadge tone={isPinned ? 'amber' : 'neutral'}>
-                {isPinned ? 'Yes' : 'No'}
-              </ClayBadge>
-            );
-          },
-        },
-      ]}
-      fields={fields}
-    />
-  );
+function titleCase(s?: string | null): string {
+    if (!s) return '—';
+    return s
+        .split('_')
+        .map((p) => (p ? p[0]!.toUpperCase() + p.slice(1) : ''))
+        .join(' ');
+}
+
+export default function AnnouncementsListPage() {
+    const { toast } = useZoruToast();
+
+    const [items, setItems] = React.useState<CrmAnnouncementDoc[]>([]);
+    const [isLoading, setIsLoading] = React.useState(true);
+
+    const [search, setSearch] = React.useState('');
+    const [debouncedSearch, setDebouncedSearch] = React.useState('');
+    const [statusFilter, setStatusFilter] = React.useState<StatusFilter>('all');
+    const [categoryFilter, setCategoryFilter] =
+        React.useState<CategoryFilter>('all');
+    const [audienceFilter, setAudienceFilter] =
+        React.useState<AudienceFilter>('all');
+
+    const [pendingDelete, setPendingDelete] =
+        React.useState<CrmAnnouncementDoc | null>(null);
+    const [deletePending, startDeleteTransition] = React.useTransition();
+
+    React.useEffect(() => {
+        const id = setTimeout(() => setDebouncedSearch(search), 250);
+        return () => clearTimeout(id);
+    }, [search]);
+
+    const refresh = React.useCallback(async () => {
+        setIsLoading(true);
+        try {
+            const res = await getAnnouncements({
+                q: debouncedSearch || undefined,
+                status: statusFilter !== 'all' ? statusFilter : undefined,
+                category: categoryFilter !== 'all' ? categoryFilter : undefined,
+                audience: audienceFilter !== 'all' ? audienceFilter : undefined,
+                limit: 100,
+            });
+            setItems(res.items ?? []);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [debouncedSearch, statusFilter, categoryFilter, audienceFilter]);
+
+    React.useEffect(() => {
+        void refresh();
+    }, [refresh]);
+
+    const handleDelete = () => {
+        if (!pendingDelete) return;
+        const id = pendingDelete._id;
+        startDeleteTransition(async () => {
+            const result = await deleteAnnouncement(id);
+            if (result.success) {
+                toast({ title: 'Announcement deleted' });
+                setPendingDelete(null);
+                await refresh();
+            } else {
+                toast({
+                    title: 'Error',
+                    description: result.error,
+                    variant: 'destructive',
+                });
+            }
+        });
+    };
+
+    return (
+        <>
+            <div className="flex w-full flex-col gap-6">
+                <CrmPageHeader
+                    breadcrumbs={[
+                        { label: 'HRM', href: '/dashboard/hrm' },
+                        { label: 'HR', href: '/dashboard/hrm/hr' },
+                        { label: 'Announcements' },
+                    ]}
+                    title="Announcements"
+                    subtitle="Company-wide updates, news, and pinned messages."
+                    icon={Megaphone}
+                    actions={
+                        <ZoruButton asChild>
+                            <Link href={`${BASE}/new`}>
+                                <Plus className="mr-1.5 h-3.5 w-3.5" /> New
+                                announcement
+                            </Link>
+                        </ZoruButton>
+                    }
+                />
+
+                <EntityListShell
+                    title=""
+                    search={{
+                        value: search,
+                        onChange: setSearch,
+                        placeholder: 'Search announcements…',
+                    }}
+                    filters={
+                        <>
+                            <ZoruSelect
+                                value={statusFilter}
+                                onValueChange={(v) =>
+                                    setStatusFilter(v as StatusFilter)
+                                }
+                            >
+                                <ZoruSelectTrigger className="h-9 w-[170px]">
+                                    <ZoruSelectValue placeholder="Status" />
+                                </ZoruSelectTrigger>
+                                <ZoruSelectContent>
+                                    {STATUS_OPTIONS.map((o) => (
+                                        <ZoruSelectItem
+                                            key={o.value}
+                                            value={o.value}
+                                        >
+                                            {o.label}
+                                        </ZoruSelectItem>
+                                    ))}
+                                </ZoruSelectContent>
+                            </ZoruSelect>
+                            <ZoruSelect
+                                value={categoryFilter}
+                                onValueChange={(v) =>
+                                    setCategoryFilter(v as CategoryFilter)
+                                }
+                            >
+                                <ZoruSelectTrigger className="h-9 w-[170px]">
+                                    <ZoruSelectValue placeholder="Category" />
+                                </ZoruSelectTrigger>
+                                <ZoruSelectContent>
+                                    {CATEGORY_OPTIONS.map((o) => (
+                                        <ZoruSelectItem
+                                            key={o.value}
+                                            value={o.value}
+                                        >
+                                            {o.label}
+                                        </ZoruSelectItem>
+                                    ))}
+                                </ZoruSelectContent>
+                            </ZoruSelect>
+                            <ZoruSelect
+                                value={audienceFilter}
+                                onValueChange={(v) =>
+                                    setAudienceFilter(v as AudienceFilter)
+                                }
+                            >
+                                <ZoruSelectTrigger className="h-9 w-[170px]">
+                                    <ZoruSelectValue placeholder="Audience" />
+                                </ZoruSelectTrigger>
+                                <ZoruSelectContent>
+                                    {AUDIENCE_OPTIONS.map((o) => (
+                                        <ZoruSelectItem
+                                            key={o.value}
+                                            value={o.value}
+                                        >
+                                            {o.label}
+                                        </ZoruSelectItem>
+                                    ))}
+                                </ZoruSelectContent>
+                            </ZoruSelect>
+                        </>
+                    }
+                    loading={isLoading && items.length === 0}
+                >
+                    <div className="overflow-x-auto rounded-lg border border-zoru-line">
+                        <ZoruTable>
+                            <ZoruTableHeader>
+                                <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                                    <ZoruTableHead className="text-zoru-ink-muted">
+                                        Title
+                                    </ZoruTableHead>
+                                    <ZoruTableHead className="text-zoru-ink-muted">
+                                        Category
+                                    </ZoruTableHead>
+                                    <ZoruTableHead className="text-zoru-ink-muted">
+                                        Priority
+                                    </ZoruTableHead>
+                                    <ZoruTableHead className="text-zoru-ink-muted">
+                                        Audience
+                                    </ZoruTableHead>
+                                    <ZoruTableHead className="text-zoru-ink-muted">
+                                        Publish at
+                                    </ZoruTableHead>
+                                    <ZoruTableHead className="text-zoru-ink-muted">
+                                        Pinned
+                                    </ZoruTableHead>
+                                    <ZoruTableHead className="text-zoru-ink-muted">
+                                        Status
+                                    </ZoruTableHead>
+                                    <ZoruTableHead className="text-zoru-ink-muted text-right">
+                                        Actions
+                                    </ZoruTableHead>
+                                </ZoruTableRow>
+                            </ZoruTableHeader>
+                            <ZoruTableBody>
+                                {isLoading ? (
+                                    <ZoruTableRow className="border-zoru-line">
+                                        <ZoruTableCell
+                                            colSpan={8}
+                                            className="h-24 text-center"
+                                        >
+                                            <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
+                                        </ZoruTableCell>
+                                    </ZoruTableRow>
+                                ) : items.length === 0 ? (
+                                    <ZoruTableRow className="border-zoru-line">
+                                        <ZoruTableCell
+                                            colSpan={8}
+                                            className="h-24 text-center text-zoru-ink-muted"
+                                        >
+                                            No announcements match these filters.
+                                        </ZoruTableCell>
+                                    </ZoruTableRow>
+                                ) : (
+                                    items.map((a) => {
+                                        const statusKey = String(
+                                            a.status ?? 'draft',
+                                        ).toLowerCase();
+                                        const priorityKey = String(
+                                            a.priority ?? 'normal',
+                                        ).toLowerCase();
+                                        return (
+                                            <ZoruTableRow
+                                                key={a._id}
+                                                className="border-zoru-line"
+                                            >
+                                                <ZoruTableCell className="font-medium text-zoru-ink">
+                                                    <Link
+                                                        href={`${BASE}/${a._id}`}
+                                                        className="hover:underline"
+                                                    >
+                                                        {a.title}
+                                                    </Link>
+                                                </ZoruTableCell>
+                                                <ZoruTableCell className="text-zoru-ink">
+                                                    {titleCase(a.category as string)}
+                                                </ZoruTableCell>
+                                                <ZoruTableCell>
+                                                    <StatusPill
+                                                        label={titleCase(
+                                                            a.priority as string,
+                                                        )}
+                                                        tone={
+                                                            PRIORITY_TONE[
+                                                                priorityKey
+                                                            ] ?? 'neutral'
+                                                        }
+                                                    />
+                                                </ZoruTableCell>
+                                                <ZoruTableCell className="text-zoru-ink">
+                                                    {titleCase(a.audience as string)}
+                                                </ZoruTableCell>
+                                                <ZoruTableCell className="text-zoru-ink">
+                                                    {fmtDateTime(a.publishAt)}
+                                                </ZoruTableCell>
+                                                <ZoruTableCell>
+                                                    {a.pinned ? (
+                                                        <span
+                                                            className="inline-flex items-center gap-1 text-[12px] text-zoru-ink"
+                                                            aria-label="Pinned"
+                                                        >
+                                                            <Pin className="h-3.5 w-3.5" />
+                                                            Pinned
+                                                        </span>
+                                                    ) : (
+                                                        <span className="text-zoru-ink-muted">
+                                                            —
+                                                        </span>
+                                                    )}
+                                                </ZoruTableCell>
+                                                <ZoruTableCell>
+                                                    <StatusPill
+                                                        label={titleCase(a.status)}
+                                                        tone={
+                                                            STATUS_TONE[statusKey] ??
+                                                            'neutral'
+                                                        }
+                                                    />
+                                                </ZoruTableCell>
+                                                <ZoruTableCell className="text-right">
+                                                    <ZoruButton
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        asChild
+                                                    >
+                                                        <Link
+                                                            href={`${BASE}/${a._id}/edit`}
+                                                            aria-label={`Edit ${a.title}`}
+                                                        >
+                                                            <Edit className="h-4 w-4" />
+                                                        </Link>
+                                                    </ZoruButton>
+                                                    <ZoruButton
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        aria-label={`Delete ${a.title}`}
+                                                        onClick={() =>
+                                                            setPendingDelete(a)
+                                                        }
+                                                    >
+                                                        <Trash2 className="h-4 w-4 text-destructive" />
+                                                    </ZoruButton>
+                                                </ZoruTableCell>
+                                            </ZoruTableRow>
+                                        );
+                                    })
+                                )}
+                            </ZoruTableBody>
+                        </ZoruTable>
+                    </div>
+                </EntityListShell>
+            </div>
+
+            <ZoruAlertDialog
+                open={!!pendingDelete}
+                onOpenChange={(o) => !o && setPendingDelete(null)}
+            >
+                <ZoruAlertDialogContent>
+                    <ZoruAlertDialogHeader>
+                        <ZoruAlertDialogTitle>
+                            Delete announcement?
+                        </ZoruAlertDialogTitle>
+                        <ZoruAlertDialogDescription>
+                            &ldquo;{pendingDelete?.title}&rdquo; will be removed
+                            and disappear from the company feed.
+                        </ZoruAlertDialogDescription>
+                    </ZoruAlertDialogHeader>
+                    <ZoruAlertDialogFooter>
+                        <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+                        <ZoruAlertDialogAction
+                            onClick={handleDelete}
+                            disabled={deletePending}
+                        >
+                            {deletePending ? 'Deleting…' : 'Delete'}
+                        </ZoruAlertDialogAction>
+                    </ZoruAlertDialogFooter>
+                </ZoruAlertDialogContent>
+            </ZoruAlertDialog>
+        </>
+    );
 }

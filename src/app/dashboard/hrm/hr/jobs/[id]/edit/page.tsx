@@ -1,57 +1,59 @@
-'use client';
+/**
+ * Edit job page — server wrapper that loads the job by id and passes it
+ * as `initialData` to `<JobForm />`.
+ */
 
-import { use, useEffect, useState } from 'react';
-import { Briefcase } from 'lucide-react';
-import { HrFormPage } from '../../../_components/hr-form-page';
-import { fields, sections } from '../../_config';
-import { getJobPostingById, saveJobPosting } from '@/app/actions/hr.actions';
-import { ZoruSkeleton } from '@/components/zoruui';
+import Link from 'next/link';
+import { notFound, redirect } from 'next/navigation';
+import { ArrowLeft, Briefcase } from 'lucide-react';
 
-export default function EditJobPage({
-  params,
+import { ZoruButton } from '@/components/zoruui';
+import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { getSession } from '@/app/actions/user.actions';
+import { getJobById } from '@/app/actions/crm-jobs.actions';
+
+import { JobForm } from '../../_components/job-form';
+
+export const dynamic = 'force-dynamic';
+
+const BASE = '/dashboard/hrm/hr/jobs';
+
+export default async function EditJobPage({
+    params,
 }: {
-  params: Promise<{ id: string }>;
+    params: Promise<{ id: string }>;
 }) {
-  const { id } = use(params);
-  const [initial, setInitial] = useState<Record<string, unknown> | null>(null);
-  const [loading, setLoading] = useState(true);
+    const { id: jobId } = await params;
 
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      try {
-        const doc = await getJobPostingById(id);
-        if (!mounted) return;
-        setInitial(doc ? ({ ...doc, _id: String((doc as any)._id) } as any) : null);
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    })();
-    return () => {
-      mounted = false;
-    };
-  }, [id]);
+    const session = await getSession();
+    if (!session?.user) redirect('/login');
 
-  if (loading) {
+    const job = await getJobById(jobId);
+    if (!job) notFound();
+
     return (
-      <div className="flex w-full flex-col gap-4">
-        <ZoruSkeleton className="h-12 w-full" />
-        <ZoruSkeleton className="h-64 w-full" />
-      </div>
-    );
-  }
+        <div className="flex w-full flex-col gap-6">
+            <CrmPageHeader
+                breadcrumbs={[
+                    { label: 'HR', href: '/dashboard/hrm/hr' },
+                    { label: 'Jobs', href: BASE },
+                    { label: job.title, href: `${BASE}/${jobId}` },
+                    { label: 'Edit' },
+                ]}
+                title={`Edit · ${job.title}`}
+                subtitle="Update job fields. Changes are revalidated immediately."
+                icon={Briefcase}
+                actions={
+                    <ZoruButton variant="ghost" asChild>
+                        <Link href={`${BASE}/${jobId}`}>
+                            <ArrowLeft className="mr-2 h-4 w-4" />
+                            Back to detail
+                        </Link>
+                    </ZoruButton>
+                }
+            />
 
-  return (
-    <HrFormPage
-      title="Edit Job"
-      subtitle="Update details of this job posting."
-      icon={Briefcase}
-      backHref="/dashboard/hrm/hr/jobs"
-      singular="Job"
-      fields={fields}
-      sections={sections}
-      saveAction={saveJobPosting}
-      initial={initial}
-    />
-  );
+            <JobForm initialData={job} />
+        </div>
+    );
 }

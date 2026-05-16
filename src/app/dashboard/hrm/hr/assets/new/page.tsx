@@ -1,24 +1,45 @@
-'use client';
+/**
+ * New asset page — server wrapper around `<AssetForm />`.
+ */
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
+import { ArrowLeft, Package } from 'lucide-react';
 
-import { Package } from 'lucide-react';
-import { HrFormPage } from '../../_components/hr-form-page';
-import { saveAsset } from '@/app/actions/hr.actions';
-import { fields, sections } from '../_config';
+import { ZoruButton } from '@/components/zoruui';
+import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { getSession } from '@/app/actions/user.actions';
 
-export default function NewAssetPage() {
-  return (
-    <HrFormPage
-      title="New Asset"
-      subtitle="Register a new company-owned asset."
-      icon={Package}
-      backHref="/dashboard/hrm/hr/assets"
-      singular="Asset"
-      fields={fields}
-      sections={sections}
-      saveAction={saveAsset}
-    />
-  );
+import { AssetForm } from '../_components/asset-form';
+
+export const dynamic = 'force-dynamic';
+
+export default async function NewAssetPage() {
+    const session = await getSession();
+    if (!session?.user) redirect('/login');
+
+    return (
+        <div className="flex w-full flex-col gap-6">
+            <CrmPageHeader
+                breadcrumbs={[
+                    { label: 'HR', href: '/dashboard/hrm/hr' },
+                    { label: 'Assets', href: '/dashboard/hrm/hr/assets' },
+                    { label: 'New' },
+                ]}
+                title="New Asset"
+                subtitle="Register a new company-owned asset."
+                icon={Package}
+                actions={
+                    <ZoruButton variant="ghost" asChild>
+                        <Link href="/dashboard/hrm/hr/assets">
+                            <ArrowLeft className="mr-2 h-4 w-4" />
+                            Back to list
+                        </Link>
+                    </ZoruButton>
+                }
+            />
+
+            <AssetForm />
+        </div>
+    );
 }

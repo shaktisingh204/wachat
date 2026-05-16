@@ -12,6 +12,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { RustApiError } from '@/lib/rust-client';
+import { requirePermission } from '@/lib/rbac-server';
 import {
   crmEmployeesApi,
   type CrmEmployeeCreateInput,
@@ -153,6 +154,9 @@ export async function saveEmployeeAction(
     return { error: 'First name and last name are required.' };
   }
 
+  const guard = await requirePermission('crm_employee', id ? 'update' : 'create');
+  if (!guard.ok) return { error: guard.error };
+
   // Create path — Rust enforces dob / joiningDate / departmentId /
   // designationId / workEmail / salaryStructureId as required.
   const isCreate = !id;
@@ -267,6 +271,10 @@ export async function deleteEmployeeAction(
   id: string,
 ): Promise<{ success: boolean; error?: string }> {
   if (!id) return { success: false, error: 'Missing employee id.' };
+
+  const guard = await requirePermission('crm_employee', 'delete');
+  if (!guard.ok) return { success: false, error: guard.error };
+
   try {
     await crmEmployeesApi.delete(id);
     revalidatePath(LIST_PATH);

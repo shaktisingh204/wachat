@@ -2,10 +2,16 @@
 
 /**
  * Department + Designation server actions (Rust-backed).
+ *
+ * RBAC: every write checks `requirePermission('crm_department' | 'crm_designation', …)`
+ * server-side. Reads stay open at the action layer (the route is gated by
+ * the dashboard middleware that already checks the page-level permission
+ * key), so the UI can render without per-row capability flicker.
  */
 
 import { revalidatePath } from 'next/cache';
 import { RustApiError } from '@/lib/rust-client';
+import { requirePermission } from '@/lib/rbac-server';
 import {
   crmDepartmentsApi,
   crmDesignationsApi,
@@ -93,6 +99,9 @@ export async function saveDepartmentAction(
   const name = pickStr(fd, 'name');
   if (!name) return { error: 'Name is required.' };
 
+  const guard = await requirePermission('crm_department', id ? 'update' : 'create');
+  if (!guard.ok) return { error: guard.error };
+
   const draft: CrmDepartmentCreateInput = {
     name,
     code: pickStr(fd, 'code'),
@@ -116,6 +125,9 @@ export async function saveDepartmentAction(
 }
 
 export async function deleteDepartmentAction(id: string): Promise<{ success: boolean; error?: string }> {
+  const guard = await requirePermission('crm_department', 'delete');
+  if (!guard.ok) return { success: false, error: guard.error };
+
   try {
     await crmDepartmentsApi.delete(id);
     revalidatePath(DEPT_LIST);
@@ -165,6 +177,9 @@ export async function saveDesignationAction(
   const name = pickStr(fd, 'name');
   if (!name) return { error: 'Name is required.' };
 
+  const guard = await requirePermission('crm_designation', id ? 'update' : 'create');
+  if (!guard.ok) return { error: guard.error };
+
   const draft: CrmDesignationCreateInput = {
     name,
     code: pickStr(fd, 'code'),
@@ -191,6 +206,9 @@ export async function saveDesignationAction(
 }
 
 export async function deleteDesignationAction(id: string): Promise<{ success: boolean; error?: string }> {
+  const guard = await requirePermission('crm_designation', 'delete');
+  if (!guard.ok) return { success: false, error: guard.error };
+
   try {
     await crmDesignationsApi.delete(id);
     revalidatePath(DESIG_LIST);

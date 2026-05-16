@@ -1,29 +1,48 @@
 /**
- * Create payroll run — `/dashboard/hrm/payroll/payroll/new` (canonical).
- *
- * Server-component shell — the form is the shared `<PayrollRunForm>`
- * used by Edit too. Action: `savePayrollRunAction` (Rust client),
- * redirects to the canonical run-detail page on success. No custom
- * fields — `'payrollRun'` is not a registered `WsCustomFieldBelongsTo`
- * target.
+ * New payroll run page — server wrapper around `<PayrollRunForm />`.
  */
 
-import { Banknote } from 'lucide-react';
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
+import { ArrowLeft, Wallet } from 'lucide-react';
 
+import { ZoruButton } from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
-import { PayrollRunForm } from '@/app/dashboard/crm/hr-payroll/payroll/_components/payroll-run-form';
+import { getSession } from '@/app/actions/user.actions';
+
+import { PayrollRunForm } from '../_components/payroll-run-form-v2';
 
 export const dynamic = 'force-dynamic';
 
-export default function NewPayrollRunPage() {
-  return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="New payroll run"
-        subtitle="Define the pay period — compute, approve, and disburse it from the run detail page."
-        icon={Banknote}
-      />
-      <PayrollRunForm />
-    </div>
-  );
+export default async function NewPayrollRunPage() {
+    const session = await getSession();
+    if (!session?.user) redirect('/login');
+
+    return (
+        <div className="flex w-full flex-col gap-6">
+            <CrmPageHeader
+                breadcrumbs={[
+                    { label: 'Payroll', href: '/dashboard/hrm/payroll' },
+                    {
+                        label: 'Payroll runs',
+                        href: '/dashboard/hrm/payroll/payroll',
+                    },
+                    { label: 'New' },
+                ]}
+                title="New payroll run"
+                subtitle="Pick a period — payslips are generated and stored immediately."
+                icon={Wallet}
+                actions={
+                    <ZoruButton variant="ghost" asChild>
+                        <Link href="/dashboard/hrm/payroll/payroll">
+                            <ArrowLeft className="mr-2 h-4 w-4" />
+                            Back to runs
+                        </Link>
+                    </ZoruButton>
+                }
+            />
+
+            <PayrollRunForm />
+        </div>
+    );
 }

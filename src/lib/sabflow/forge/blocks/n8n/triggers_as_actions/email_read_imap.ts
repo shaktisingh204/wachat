@@ -44,11 +44,12 @@ type ImapFlowLike = new (config: Record<string, unknown>) => {
 
 async function loadImapFlow(): Promise<ImapFlowLike> {
   try {
-    // imapflow is an optional peer; use a dynamic specifier so the type
-    // checker doesn't try to resolve its declarations when the package
-    // isn't installed yet.
-    const specifier = 'imapflow';
-    const mod = (await import(/* @vite-ignore */ specifier)) as { ImapFlow?: ImapFlowLike };
+    // imapflow is an optional peer. We hide the import from the bundler's
+    // static analyzer with a Function-constructed dynamic import so neither
+    // webpack nor Turbopack traces the module at build time. Resolves at
+    // runtime; throws below if the package isn't installed.
+    const dyn = new Function('m', 'return import(m)') as (s: string) => Promise<unknown>;
+    const mod = (await dyn('imapflow')) as { ImapFlow?: ImapFlowLike };
     if (!mod.ImapFlow) {
       throw new Error('imapflow loaded but ImapFlow export is missing');
     }
@@ -56,7 +57,7 @@ async function loadImapFlow(): Promise<ImapFlowLike> {
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     throw new Error(
-      `Email Read IMAP: dependency "imapflow" is not installed (${message}). Run \`pnpm add imapflow\` and retry.`,
+      `Email Read IMAP: dependency "imapflow" is not installed (${message}). Run \`npm install imapflow\` and retry.`,
     );
   }
 }

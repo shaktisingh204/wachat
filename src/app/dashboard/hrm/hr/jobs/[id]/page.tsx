@@ -1,259 +1,239 @@
 /**
- * Job detail — §1D.2 rebuild.
+ * Job detail page — §1B canonical contract.
  *
- * Header action group (7): Edit · Publish · Pause · Close · Duplicate ·
- *   Print · Activity.
- * Body cards: Role · Dates & openings · Compensation · Description ·
- *   Requirements · Skills.
- * Right rail: Candidates count + linked candidates + linked recruiter +
- *   department/designation chips.
+ * Server component. Renders summary + role description + requirements +
+ * dates and openings cards.
  */
 
-import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import { notFound, redirect } from 'next/navigation';
 import {
-  Pencil,
-  Power,
-  PowerOff,
-  XSquare,
-  Copy,
-  Printer,
-  Activity,
-  Users,
+    ArrowLeft,
+    Briefcase,
+    ExternalLink,
+    Pencil,
 } from 'lucide-react';
 
-import {
-  getJobPostingById,
-  getCandidates,
-} from '@/app/actions/hr.actions';
-import {
-  publishJobPosting,
-  pauseJobPosting,
-  closeJobPosting,
-} from '@/app/actions/hr-status-flow.actions';
-import {
-  RecruitmentDetailShell,
-  DetailCard,
-  RailCard,
-  RailLink,
-} from '../../_components/recruitment-detail-shell';
-import { HrActionButtons } from '../../_components/hr-action-buttons';
-import { StatusPill, statusToTone } from '@/components/crm/status-pill';
-import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
+import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
+import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
+import { getSession } from '@/app/actions/user.actions';
+import { getJobById } from '@/app/actions/crm-jobs.actions';
+import type { CrmJobStatus } from '@/lib/rust-client/crm-jobs';
 
-interface PageProps {
-  params: Promise<{ id: string }>;
+export const dynamic = 'force-dynamic';
+
+const BASE = '/dashboard/hrm/hr/jobs';
+
+const STATUS_TONE: Record<CrmJobStatus, StatusTone> = {
+    draft: 'amber',
+    open: 'green',
+    on_hold: 'amber',
+    filled: 'blue',
+    closed: 'red',
+    archived: 'neutral',
+};
+
+function fmtDate(value: unknown): string {
+    if (!value) return '—';
+    const d = new Date(value as string);
+    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
 }
 
-export default async function JobDetailPage({ params }: PageProps) {
-  const { id } = await params;
-  const raw = await getJobPostingById(id);
-  if (!raw) notFound();
-  const j = raw as any;
-
-  // Best-effort related-candidates count (skip if call fails).
-  let candidatesForJob: any[] = [];
-  try {
-    const all = (await getCandidates()) as any[];
-    candidatesForJob = all.filter((c) => String(c.jobId) === id).slice(0, 8);
-  } catch {
-    candidatesForJob = [];
-  }
-
-  const status = j.status || 'draft';
-  const tone = statusToTone(status);
-
-  return (
-    <RecruitmentDetailShell
-      title={j.title || 'Job'}
-      eyebrow="JOB POSTING"
-      status={{ label: status, tone: tone as any }}
-      back={{ href: '/dashboard/hrm/hr/jobs', label: 'All jobs' }}
-      actions={[
-        {
-          key: 'edit',
-          label: 'Edit',
-          icon: <Pencil className="h-3.5 w-3.5" />,
-          href: `/dashboard/hrm/hr/jobs/${id}/edit`,
-          variant: 'outline',
-        },
-        {
-          key: 'duplicate',
-          label: 'Duplicate',
-          icon: <Copy className="h-3.5 w-3.5" />,
-        },
-        {
-          key: 'print',
-          label: 'Print',
-          icon: <Printer className="h-3.5 w-3.5" />,
-          href: `/dashboard/hrm/hr/jobs/${id}?print=1`,
-        },
-        {
-          key: 'activity',
-          label: 'Activity',
-          icon: <Activity className="h-3.5 w-3.5" />,
-          href: `/dashboard/hrm/hr/jobs/${id}/activity`,
-        },
-      ]}
-      actionsSlot={
-        <HrActionButtons
-          className="flex flex-wrap items-center gap-1"
-          actions={[
-            {
-              key: 'publish',
-              kind: 'action',
-              label: 'Publish',
-              icon: <Power className="h-3.5 w-3.5" />,
-              onRun: () => publishJobPosting(id),
-            },
-            {
-              key: 'pause',
-              kind: 'action',
-              label: 'Pause',
-              icon: <PowerOff className="h-3.5 w-3.5" />,
-              onRun: () => pauseJobPosting(id),
-            },
-            {
-              key: 'close',
-              kind: 'confirm',
-              label: 'Close',
-              icon: <XSquare className="h-3.5 w-3.5" />,
-              variant: 'destructive',
-              confirmTitle: 'Close this job posting?',
-              confirmDescription:
-                'Closing will stop accepting new candidate applications.',
-              confirmLabel: 'Close posting',
-              onRun: () => closeJobPosting(id),
-            },
-          ]}
-        />
-      }
-      rightRail={
-        <>
-          <RailCard title="Pipeline">
-            <RailLink
-              href={`/dashboard/hrm/hr/candidates/new?fromKind=job&fromId=${id}&jobId=${id}`}
-              label="Add candidate"
-            />
-            <RailLink
-              href={`/dashboard/hrm/hr/candidates?jobId=${id}`}
-              label="All candidates"
-              count={candidatesForJob.length}
-            />
-          </RailCard>
-          {candidatesForJob.length > 0 ? (
-            <RailCard title="Recent candidates">
-              {candidatesForJob.map((c: any) => (
-                <RailLink
-                  key={String(c._id)}
-                  href={`/dashboard/hrm/hr/candidates/${c._id}`}
-                  label={c.name || '—'}
-                  hint={c.stage || ''}
-                />
-              ))}
-            </RailCard>
-          ) : null}
-          <RailCard title="Quick stats">
-            <p>
-              <span className="text-zoru-ink-muted">Openings: </span>
-              <span className="text-zoru-ink">{j.totalOpenings ?? '—'}</span>
-            </p>
-            <p>
-              <span className="text-zoru-ink-muted">Expiry: </span>
-              <span className="text-zoru-ink">
-                {fmtDate(j.deadline || j.endDate)}
-              </span>
-            </p>
-            <p>
-              <span className="text-zoru-ink-muted">Visibility: </span>
-              <span className="text-zoru-ink">{j.visibility || '—'}</span>
-            </p>
-          </RailCard>
-        </>
-      }
-      audit={<EntityAuditTimeline entityKind="jobPosting" entityId={id} />}
-    >
-      <DetailCard
-        title="Role"
-        rows={[
-          { label: 'Title', value: j.title },
-          { label: 'Department', value: j.departmentId },
-          { label: 'Designation', value: j.designationId },
-          { label: 'Location', value: j.location },
-          { label: 'Type', value: j.employmentType },
-          {
-            label: 'Status',
-            value: <StatusPill label={status} tone={tone} />,
-          },
-          { label: 'Visibility', value: j.visibility },
-        ]}
-      />
-      <DetailCard
-        title="Dates & openings"
-        rows={[
-          { label: 'Openings', value: j.totalOpenings },
-          { label: 'Start date', value: fmtDate(j.startDate) },
-          { label: 'End date', value: fmtDate(j.endDate) },
-          { label: 'Deadline', value: fmtDate(j.deadline) },
-          { label: 'Shift', value: j.shiftId },
-          { label: 'Recruiter', value: j.recruiterId },
-        ]}
-      />
-      <DetailCard
-        title="Compensation & experience"
-        rows={[
-          { label: 'Salary from', value: j.salaryMin },
-          { label: 'Salary to', value: j.salaryMax },
-          { label: 'Currency', value: j.salaryCurrency },
-          { label: 'Experience from', value: j.experienceFrom },
-          { label: 'Experience to', value: j.experienceTo },
-          { label: 'Education', value: j.education },
-        ]}
-      />
-      <DetailCard title="Skills & apply">
-        <p>
-          <span className="text-zoru-ink-muted">Skills: </span>
-          <span className="text-zoru-ink">{j.skillsRequired || '—'}</span>
-        </p>
-        <p>
-          <span className="text-zoru-ink-muted">Apply URL: </span>
-          {j.applyUrl ? (
-            <Link
-              href={j.applyUrl}
-              target="_blank"
-              className="text-zoru-ink underline-offset-2 hover:underline"
-            >
-              {j.applyUrl}
-            </Link>
-          ) : (
-            <span className="text-zoru-ink">—</span>
-          )}
-        </p>
-      </DetailCard>
-      {j.description ? (
-        <DetailCard title="Description">
-          <p className="whitespace-pre-wrap">{j.description}</p>
-        </DetailCard>
-      ) : null}
-      {j.responsibilities ? (
-        <DetailCard title="Responsibilities">
-          <p className="whitespace-pre-wrap">{j.responsibilities}</p>
-        </DetailCard>
-      ) : null}
-      {j.requirements ? (
-        <DetailCard title="Requirements">
-          <p className="whitespace-pre-wrap">{j.requirements}</p>
-        </DetailCard>
-      ) : null}
-    </RecruitmentDetailShell>
-  );
+function pretty(s?: string): string {
+    if (!s) return '—';
+    return s.replace(/_/g, ' ');
 }
 
-function fmtDate(d?: string | Date | null) {
-  if (!d) return '—';
-  try {
-    return new Date(d).toLocaleDateString();
-  } catch {
-    return '—';
-  }
+function fmtMoney(amt?: number, currency?: string): string {
+    if (amt == null) return '—';
+    const ccy = currency ?? 'INR';
+    try {
+        return new Intl.NumberFormat(undefined, {
+            style: 'currency',
+            currency: ccy,
+            maximumFractionDigits: 0,
+        }).format(amt);
+    } catch {
+        return `${ccy} ${amt}`;
+    }
+}
+
+export default async function JobDetailPage({
+    params,
+}: {
+    params: Promise<{ id: string }>;
+}) {
+    const { id: jobId } = await params;
+
+    const session = await getSession();
+    if (!session?.user) redirect('/login');
+
+    const job = await getJobById(jobId);
+    if (!job) notFound();
+
+    const status = (job.status ?? 'draft') as CrmJobStatus;
+    const tone = STATUS_TONE[status] ?? 'neutral';
+    const tags = Array.isArray(job.tags) ? job.tags : [];
+
+    return (
+        <div className="flex w-full flex-col gap-6">
+            <CrmPageHeader
+                breadcrumbs={[
+                    { label: 'HR', href: '/dashboard/hrm/hr' },
+                    { label: 'Jobs', href: BASE },
+                    { label: job.title },
+                ]}
+                title={job.title}
+                subtitle={job.departmentName || 'Job detail'}
+                icon={Briefcase}
+                actions={
+                    <div className="flex items-center gap-2">
+                        <ZoruButton variant="outline" asChild>
+                            <Link href={BASE}>
+                                <ArrowLeft className="mr-2 h-4 w-4" />
+                                Back
+                            </Link>
+                        </ZoruButton>
+                        <ZoruButton asChild>
+                            <Link href={`${BASE}/${jobId}/edit`}>
+                                <Pencil className="mr-2 h-4 w-4" />
+                                Edit
+                            </Link>
+                        </ZoruButton>
+                    </div>
+                }
+            />
+
+            {/* Summary card */}
+            <ZoruCard className="p-6">
+                <div className="mb-4 flex flex-wrap items-center gap-2">
+                    <div className="text-[14px] font-medium text-zoru-ink">
+                        Overview
+                    </div>
+                    <StatusPill label={pretty(status)} tone={tone} />
+                    {tags.map((t) => (
+                        <ZoruBadge key={t} variant="ghost">
+                            {t}
+                        </ZoruBadge>
+                    ))}
+                </div>
+                <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-2">
+                    <div>
+                        <div className="text-zoru-ink-muted">Employment type</div>
+                        <div className="capitalize text-zoru-ink">
+                            {pretty(job.employmentType as string)}
+                        </div>
+                    </div>
+                    <div>
+                        <div className="text-zoru-ink-muted">Work mode</div>
+                        <div className="capitalize text-zoru-ink">
+                            {pretty(job.remotePolicy as string | undefined)}
+                        </div>
+                    </div>
+                    <div>
+                        <div className="text-zoru-ink-muted">Location</div>
+                        <div className="text-zoru-ink">{job.location || '—'}</div>
+                    </div>
+                    <div>
+                        <div className="text-zoru-ink-muted">Openings (filled / total)</div>
+                        <div className="font-mono text-zoru-ink">
+                            {job.filled ?? 0} / {job.openings ?? 0}
+                        </div>
+                    </div>
+                    <div>
+                        <div className="text-zoru-ink-muted">Experience</div>
+                        <div className="text-zoru-ink">
+                            {job.experienceMin ?? 0}–{job.experienceMax ?? 0} yrs
+                        </div>
+                    </div>
+                    <div>
+                        <div className="text-zoru-ink-muted">Salary range</div>
+                        <div className="text-zoru-ink">
+                            {fmtMoney(job.salaryMin, job.currency)} –{' '}
+                            {fmtMoney(job.salaryMax, job.currency)}
+                        </div>
+                    </div>
+                    <div>
+                        <div className="text-zoru-ink-muted">Publish at</div>
+                        <div className="text-zoru-ink">{fmtDate(job.publishAt)}</div>
+                    </div>
+                    <div>
+                        <div className="text-zoru-ink-muted">Close at</div>
+                        <div className="text-zoru-ink">{fmtDate(job.closeAt)}</div>
+                    </div>
+                    <div>
+                        <div className="text-zoru-ink-muted">Hiring manager</div>
+                        <div className="font-mono text-[12px] text-zoru-ink">
+                            {job.hiringManagerId || '—'}
+                        </div>
+                    </div>
+                    <div>
+                        <div className="text-zoru-ink-muted">Department</div>
+                        <div className="text-zoru-ink">
+                            {job.departmentName || job.departmentId || '—'}
+                        </div>
+                    </div>
+                </div>
+            </ZoruCard>
+
+            {/* Public posting link */}
+            {job.publishUrl ? (
+                <ZoruCard className="flex flex-wrap items-center justify-between gap-2 p-4">
+                    <div className="flex items-center gap-2 text-[13px] text-zoru-ink">
+                        <ExternalLink className="h-4 w-4 text-zoru-ink-muted" />
+                        Public posting
+                    </div>
+                    <a
+                        href={job.publishUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="max-w-full truncate text-[12.5px] text-zoru-ink underline-offset-2 hover:underline"
+                    >
+                        {job.publishUrl}
+                    </a>
+                </ZoruCard>
+            ) : null}
+
+            {/* Description */}
+            <ZoruCard className="p-6">
+                <div className="mb-3 text-[15px] font-medium text-zoru-ink">
+                    Description
+                </div>
+                {job.description ? (
+                    <pre className="whitespace-pre-wrap rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-4 font-sans text-[13px] text-zoru-ink">
+                        {job.description}
+                    </pre>
+                ) : (
+                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-6 text-center text-[12.5px] text-zoru-ink-muted">
+                        No description.
+                    </div>
+                )}
+            </ZoruCard>
+
+            {/* Responsibilities */}
+            {job.responsibilities ? (
+                <ZoruCard className="p-6">
+                    <div className="mb-3 text-[15px] font-medium text-zoru-ink">
+                        Responsibilities
+                    </div>
+                    <pre className="whitespace-pre-wrap rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-4 font-sans text-[13px] text-zoru-ink">
+                        {job.responsibilities}
+                    </pre>
+                </ZoruCard>
+            ) : null}
+
+            {/* Requirements */}
+            {job.requirements ? (
+                <ZoruCard className="p-6">
+                    <div className="mb-3 text-[15px] font-medium text-zoru-ink">
+                        Requirements
+                    </div>
+                    <pre className="whitespace-pre-wrap rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-4 font-sans text-[13px] text-zoru-ink">
+                        {job.requirements}
+                    </pre>
+                </ZoruCard>
+            ) : null}
+        </div>
+    );
 }

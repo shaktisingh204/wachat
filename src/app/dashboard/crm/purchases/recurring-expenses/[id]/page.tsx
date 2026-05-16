@@ -15,6 +15,7 @@ import { use, useCallback, useEffect, useState, useTransition } from 'react';
 import {
   ArrowLeft,
   Pause,
+  Pencil,
   Play,
   Repeat,
   StopCircle,
@@ -173,6 +174,11 @@ export default function RecurringExpenseDetailPage(props: {
         />
         <div className="flex flex-wrap items-center gap-2">
           <StatusPill label={doc.status} tone={statusToTone(doc.status)} />
+          <ZoruButton size="sm" variant="outline" asChild>
+            <Link href={`/dashboard/crm/purchases/recurring-expenses/${id}/edit`}>
+              <Pencil className="h-3.5 w-3.5" /> Edit
+            </Link>
+          </ZoruButton>
           <ZoruButton
             size="sm"
             onClick={() =>

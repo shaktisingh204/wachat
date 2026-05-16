@@ -1,10 +1,13 @@
 /**
- * Forge entry point.
+ * Forge entry point — SERVER ONLY.
  *
- * Importing this file pulls every declarative block into the registry.  Do
- * this once in a module that is loaded on both the server and client (e.g. a
- * Next.js layout or the BlockSettingsPanel) before reading `getForgeBlocks()`.
+ * Importing this file pulls every declarative block into the registry. Several
+ * blocks transitively reach server-only packages (db drivers, node:crypto,
+ * AWS SDK, etc.), so this barrel is **not** safe to import from a client
+ * component. Use the metadata API (`/api/sabflow/forge-metadata`) from the
+ * client side; the engine + server actions can keep importing this barrel.
  */
+import 'server-only';
 
 import './blocks/notion';
 import './blocks/airtable';

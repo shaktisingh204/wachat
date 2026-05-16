@@ -1,167 +1,287 @@
 /**
- * Announcement detail page (§1D.2).
+ * HR Announcement detail page.
  *
- * Loads a single document from `hr_announcements` and renders an
- * overview card + the announcement body. Actions: Edit · Send now ·
- * Pin / unpin · Archive (stubs).
+ * Server component that fetches a single announcement via
+ * `getAnnouncementById` (Rust-backed) and renders a stacked ZoruCard
+ * layout:
+ *   1. Header — title, category, status, priority, pinned
+ *   2. Banner (when present)
+ *   3. Body
+ *   4. Audience
+ *   5. Schedule + engagement
  */
 
-import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import { notFound, redirect } from 'next/navigation';
 import {
-    Megaphone,
-    Pencil,
-    Send,
-    Pin,
-    Archive,
     ArrowLeft,
+    Calendar,
+    CheckCircle2,
+    Eye,
+    Megaphone,
+    MessageSquare,
+    Pencil,
+    Pin,
+    Users,
 } from 'lucide-react';
 
-import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
-import { statusToTone } from '@/components/crm/status-pill';
-import {
-    getHrEntityById,
-    fmtDate,
-    fmtDateTime,
-    fmtText,
-} from '../../_components/hr-detail-loader';
-import { HrDetailGrid, HrDetailRow } from '../../_components/hr-detail-grid';
-import { HrActionButtons } from '../../_components/hr-action-buttons';
-import {
-    sendAnnouncementNow,
-    toggleAnnouncementPin,
-    archiveAnnouncement,
-} from '@/app/actions/hr-status.actions';
-import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
+import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
+import { getAnnouncementById } from '@/app/actions/crm-announcements.actions';
+import { getSession } from '@/app/actions/user.actions';
 
-interface PageProps {
-    params: Promise<{ id: string }>;
-}
+export const dynamic = 'force-dynamic';
 
 const BASE = '/dashboard/hrm/hr/announcements';
 
-export default async function AnnouncementDetailPage({ params }: PageProps) {
-    const { id } = await params;
-    const doc = await getHrEntityById('hr_announcements', id);
-    if (!doc) notFound();
+const STATUS_TONE: Record<string, StatusTone> = {
+    draft: 'neutral',
+    scheduled: 'blue',
+    published: 'green',
+    archived: 'red',
+};
 
-    const a = doc as Record<string, unknown>;
-    const title = (a.title as string) || 'Untitled announcement';
-    const type = String(a.type || 'info');
-    const priority = String(a.priority || 'normal');
-    const pinned =
-        a.pinned === true || a.pinned === 'yes' || a.pinned === 'true';
-    const body = (a.body as string) || '';
+const PRIORITY_TONE: Record<string, StatusTone> = {
+    low: 'neutral',
+    normal: 'blue',
+    high: 'amber',
+    urgent: 'red',
+};
+
+function fmtDateTime(v: unknown): string {
+    if (!v) return '—';
+    const d = new Date(v as string);
+    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleString();
+}
+
+function titleCase(s?: string | null): string {
+    if (!s) return '—';
+    return s
+        .split('_')
+        .map((p) => (p ? p[0]!.toUpperCase() + p.slice(1) : ''))
+        .join(' ');
+}
+
+export default async function AnnouncementDetailPage({
+    params,
+}: {
+    params: Promise<{ id: string }>;
+}) {
+    const { id } = await params;
+
+    const session = await getSession();
+    if (!session?.user) redirect('/login');
+
+    const announcement = await getAnnouncementById(id);
+    if (!announcement) notFound();
+
+    const statusKey = String(announcement.status ?? 'draft').toLowerCase();
+    const priorityKey = String(announcement.priority ?? 'normal').toLowerCase();
+
+    const audienceIds = Array.isArray(announcement.audienceIds)
+        ? announcement.audienceIds
+        : [];
+    const tags = Array.isArray(announcement.tags) ? announcement.tags : [];
+    const viewCount = announcement.viewCount ?? 0;
+    const ackCount = announcement.acknowledgementCount ?? 0;
 
     return (
-        <EntityDetailShell
-            title={title}
-            eyebrow="HR · ANNOUNCEMENT"
-            back={{ href: BASE, label: 'All announcements' }}
-            status={{ label: type, tone: statusToTone(type === 'success' ? 'approved' : type) }}
-            actions={
-                <>
-                    <Link href={BASE}>
-                        <ZoruButton variant="outline" size="sm">
-                            <ArrowLeft className="h-4 w-4" /> Back
+        <div className="flex w-full flex-col gap-6">
+            <CrmPageHeader
+                breadcrumbs={[
+                    { label: 'HRM', href: '/dashboard/hrm' },
+                    { label: 'HR', href: '/dashboard/hrm/hr' },
+                    { label: 'Announcements', href: BASE },
+                    { label: announcement.title },
+                ]}
+                title={announcement.title}
+                subtitle={titleCase(announcement.category as string)}
+                icon={Megaphone}
+                actions={
+                    <div className="flex items-center gap-2">
+                        <ZoruButton variant="outline" asChild>
+                            <Link href={BASE}>
+                                <ArrowLeft className="mr-1.5 h-4 w-4" />
+                                Back
+                            </Link>
                         </ZoruButton>
-                    </Link>
-                    <Link href={`${BASE}/${id}/edit`}>
-                        <ZoruButton size="sm">
-                            <Pencil className="h-4 w-4" /> Edit
+                        <ZoruButton asChild>
+                            <Link href={`${BASE}/${announcement._id}/edit`}>
+                                <Pencil className="mr-1.5 h-4 w-4" />
+                                Edit
+                            </Link>
                         </ZoruButton>
-                    </Link>
-                    <HrActionButtons
-                        actions={[
-                            {
-                                key: 'send',
-                                kind: 'action',
-                                label: 'Send now',
-                                icon: <Send className="h-4 w-4" />,
-                                onRun: () => sendAnnouncementNow(id),
-                            },
-                            {
-                                key: 'pin',
-                                kind: 'action',
-                                label: pinned ? 'Unpin' : 'Pin',
-                                icon: <Pin className="h-4 w-4" />,
-                                onRun: () => toggleAnnouncementPin(id, !pinned),
-                            },
-                            {
-                                key: 'archive',
-                                kind: 'confirm',
-                                label: 'Archive',
-                                icon: <Archive className="h-4 w-4" />,
-                                variant: 'destructive',
-                                confirmTitle: 'Archive this announcement?',
-                                confirmDescription:
-                                    'Archived announcements are hidden from the workspace feed.',
-                                confirmLabel: 'Archive',
-                                onRun: () => archiveAnnouncement(id),
-                            },
-                        ]}
-                    />
-                </>
-            }
-            audit={<EntityAuditTimeline entityKind="announcement" entityId={id} />}
-        >
-            <HrDetailGrid
-                title="Overview"
-                titleSlot={
-                    <div className="flex items-center gap-1.5">
-                        <ZoruBadge
-                            variant={priority === 'urgent' ? 'danger' : 'ghost'}
-                        >
-                            {priority}
-                        </ZoruBadge>
-                        {pinned ? <ZoruBadge variant="warning">Pinned</ZoruBadge> : null}
                     </div>
                 }
-            >
-                <HrDetailRow label="Title">{title}</HrDetailRow>
-                <HrDetailRow label="Type">{type}</HrDetailRow>
-                <HrDetailRow label="Category">{fmtText(a.category)}</HrDetailRow>
-                <HrDetailRow label="Priority">{priority}</HrDetailRow>
-                <HrDetailRow label="Audience">{fmtText(a.audience)}</HrDetailRow>
-                <HrDetailRow label="Department">{fmtText(a.departmentId)}</HrDetailRow>
-                <HrDetailRow label="Team">{fmtText(a.teamId)}</HrDetailRow>
-                <HrDetailRow label="Target employees">
-                    {fmtText(a.targetEmployeeIds)}
-                </HrDetailRow>
-                <HrDetailRow label="Publish at">{fmtDateTime(a.publishAt)}</HrDetailRow>
-                <HrDetailRow label="Expires at">{fmtDate(a.expiresAt)}</HrDetailRow>
-                <HrDetailRow label="Pinned">{pinned ? 'Yes' : 'No'}</HrDetailRow>
-                <HrDetailRow label="Requires acknowledgment">
-                    {a.requiresAcknowledgment === true ||
-                    a.requiresAcknowledgment === 'yes'
-                        ? 'Yes'
-                        : 'No'}
-                </HrDetailRow>
-                {a.attachmentUrl ? (
-                    <HrDetailRow label="Attachment" fullWidth>
-                        <a
-                            href={String(a.attachmentUrl)}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="break-all text-zoru-ink underline-offset-2 hover:underline"
-                        >
-                            {String(a.attachmentUrl)}
-                        </a>
-                    </HrDetailRow>
-                ) : null}
-            </HrDetailGrid>
+            />
 
+            {/* Header card */}
             <ZoruCard className="p-6">
-                <div className="mb-3 text-[15px] font-medium text-zoru-ink">Message</div>
-                <div className="whitespace-pre-wrap rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-4 text-[13px] text-zoru-ink">
-                    {body || (
-                        <span className="text-zoru-ink-muted">No message body.</span>
+                <div className="flex flex-wrap items-start justify-between gap-4">
+                    <div className="min-w-0">
+                        <h2 className="text-[20px] font-medium text-zoru-ink">
+                            {announcement.title}
+                        </h2>
+                        <div className="mt-2 flex flex-wrap items-center gap-2 text-[12.5px] text-zoru-ink-muted">
+                            <span>
+                                Category:{' '}
+                                {titleCase(announcement.category as string)}
+                            </span>
+                            <span aria-hidden>·</span>
+                            <span>
+                                Audience:{' '}
+                                {titleCase(announcement.audience as string)}
+                            </span>
+                            {announcement.authorName ? (
+                                <>
+                                    <span aria-hidden>·</span>
+                                    <span>By {announcement.authorName}</span>
+                                </>
+                            ) : null}
+                        </div>
+                    </div>
+                    <div className="flex shrink-0 flex-wrap items-center gap-2">
+                        <StatusPill
+                            label={titleCase(announcement.priority as string)}
+                            tone={PRIORITY_TONE[priorityKey] ?? 'neutral'}
+                        />
+                        <StatusPill
+                            label={titleCase(announcement.status)}
+                            tone={STATUS_TONE[statusKey] ?? 'neutral'}
+                        />
+                        {announcement.pinned ? (
+                            <ZoruBadge variant="info">
+                                <Pin className="mr-1 h-3 w-3" />
+                                Pinned
+                            </ZoruBadge>
+                        ) : null}
+                        {announcement.requireAcknowledgement ? (
+                            <ZoruBadge variant="secondary">
+                                Acknowledgement required
+                            </ZoruBadge>
+                        ) : null}
+                    </div>
+                </div>
+
+                {tags.length > 0 ? (
+                    <div className="mt-4 flex flex-wrap gap-1.5">
+                        {tags.map((t) => (
+                            <ZoruBadge key={t} variant="ghost">
+                                {t}
+                            </ZoruBadge>
+                        ))}
+                    </div>
+                ) : null}
+            </ZoruCard>
+
+            {/* Banner */}
+            {announcement.bannerUrl ? (
+                <ZoruCard className="overflow-hidden p-0">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                        src={announcement.bannerUrl}
+                        alt=""
+                        className="max-h-[360px] w-full object-cover"
+                    />
+                </ZoruCard>
+            ) : null}
+
+            {/* Body */}
+            <ZoruCard className="p-6">
+                <div className="mb-3 text-[14px] font-medium text-zoru-ink">
+                    Announcement body
+                </div>
+                <div className="whitespace-pre-wrap text-[13.5px] leading-relaxed text-zoru-ink">
+                    {announcement.body || (
+                        <span className="text-zoru-ink-muted">
+                            No body provided.
+                        </span>
                     )}
                 </div>
             </ZoruCard>
 
-            <Megaphone className="hidden" />
-        </EntityDetailShell>
+            {/* Audience */}
+            <ZoruCard className="p-6">
+                <div className="mb-3 flex items-center gap-2">
+                    <Users className="h-4 w-4 text-zoru-ink-muted" />
+                    <span className="text-[14px] font-medium text-zoru-ink">
+                        Audience
+                    </span>
+                    <span className="ml-auto text-[12px] text-zoru-ink-muted">
+                        {titleCase(announcement.audience as string)} ·{' '}
+                        {audienceIds.length} explicit target
+                        {audienceIds.length === 1 ? '' : 's'}
+                    </span>
+                </div>
+                {audienceIds.length === 0 ? (
+                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-4 text-center text-[12.5px] text-zoru-ink-muted">
+                        {announcement.audience === 'all'
+                            ? 'Published to all employees.'
+                            : 'No explicit target list — resolved by audience.'}
+                    </div>
+                ) : (
+                    <ul className="flex flex-wrap gap-2">
+                        {audienceIds.map((r, i) => (
+                            <li key={`${r}-${i}`}>
+                                <ZoruBadge variant="secondary">{r}</ZoruBadge>
+                            </li>
+                        ))}
+                    </ul>
+                )}
+            </ZoruCard>
+
+            {/* Schedule + engagement */}
+            <ZoruCard className="p-6">
+                <div className="mb-3 flex items-center gap-2">
+                    <Calendar className="h-4 w-4 text-zoru-ink-muted" />
+                    <span className="text-[14px] font-medium text-zoru-ink">
+                        Schedule & engagement
+                    </span>
+                </div>
+                <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-2 lg:grid-cols-4">
+                    <div>
+                        <div className="text-zoru-ink-muted">Publish at</div>
+                        <div className="text-zoru-ink">
+                            {fmtDateTime(announcement.publishAt)}
+                        </div>
+                    </div>
+                    <div>
+                        <div className="text-zoru-ink-muted">Expires at</div>
+                        <div className="text-zoru-ink">
+                            {fmtDateTime(announcement.expiresAt)}
+                        </div>
+                    </div>
+                    <div>
+                        <div className="text-zoru-ink-muted">Published at</div>
+                        <div className="text-zoru-ink">
+                            {fmtDateTime(announcement.publishedAt)}
+                        </div>
+                    </div>
+                    <div>
+                        <div className="text-zoru-ink-muted">Updated</div>
+                        <div className="text-zoru-ink">
+                            {fmtDateTime(announcement.updatedAt)}
+                        </div>
+                    </div>
+                </div>
+                <div className="mt-4 flex flex-wrap gap-2 text-[12.5px] text-zoru-ink">
+                    <span className="inline-flex items-center gap-1.5 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 px-2.5 py-1">
+                        <Eye className="h-3.5 w-3.5 text-zoru-ink-muted" />
+                        {viewCount} view{viewCount === 1 ? '' : 's'}
+                    </span>
+                    <span className="inline-flex items-center gap-1.5 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 px-2.5 py-1">
+                        <CheckCircle2 className="h-3.5 w-3.5 text-zoru-ink-muted" />
+                        {ackCount} acknowledgement
+                        {ackCount === 1 ? '' : 's'}
+                    </span>
+                    <span className="inline-flex items-center gap-1.5 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 px-2.5 py-1">
+                        <MessageSquare className="h-3.5 w-3.5 text-zoru-ink-muted" />
+                        Comments{' '}
+                        {announcement.allowComments ? 'enabled' : 'disabled'}
+                    </span>
+                </div>
+            </ZoruCard>
+        </div>
     );
 }

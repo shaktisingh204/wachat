@@ -9,7 +9,7 @@
  * Animation: CSS translate-x transition (slide in from right).
  */
 
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { LuArrowRight, LuPlay } from 'react-icons/lu';
 import { useGraph } from '@/components/sabflow/graph/providers/GraphProvider';
 import { getBlockLabel, getBlockIcon, getBlockColor } from '@/lib/sabflow/blocks';
@@ -42,9 +42,15 @@ import { SegmentSettings } from '@/components/sabflow/panels/blocks/integrations
 import { PixelSettings } from '@/components/sabflow/panels/blocks/integrations/PixelSettings';
 import { NodeSettings } from '@/components/sabflow/panels/blocks/shared/NodeSettings';
 import { ForgeBlockSettings } from '@/components/sabflow/panels/blocks/forge/ForgeBlockSettings';
-// Importing the forge entry-point populates the in-memory block registry so
-// `getForgeBlock(...)` can find every `forge_*` schema at runtime.
-import { getForgeBlock } from '@/lib/sabflow/forge';
+// The full forge barrel (`@/lib/sabflow/forge`) is `server-only` because some
+// blocks transitively import Node-only packages (mongodb, pg, ssh2, …).
+// We fetch a serializable metadata snapshot from `/api/sabflow/forge-metadata`
+// instead — see `metadata-client.ts`.
+import {
+  preloadForgeMetadata,
+  getForgeBlockMetadataSync,
+} from '@/lib/sabflow/forge/metadata-client';
+import type { ForgeBlock } from '@/lib/sabflow/forge/types';
 import { GoogleSheetsSettings } from '@/components/sabflow/panels/blocks/GoogleSheetsSettings';
 import { SendEmailSettings } from '@/components/sabflow/panels/blocks/SendEmailSettings';
 import { ZapierSettings } from '@/components/sabflow/panels/blocks/ZapierSettings';
@@ -73,6 +79,21 @@ type Props = {
 
 export function BlockSettingsPanel({ flow, onFlowChange, onVariablesChange }: Props) {
   const { openedNodeId, setOpenedNodeId } = useGraph();
+
+  // Lazy-load the forge metadata registry once per session. We bump state on
+  // completion so synchronous reads later in this render pick up the cache.
+  const [, setForgeReady] = useState(0);
+  useEffect(() => {
+    let cancelled = false;
+    preloadForgeMetadata()
+      .catch(() => undefined)
+      .finally(() => {
+        if (!cancelled) setForgeReady((n) => n + 1);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // Find the block that is currently open
   const openedBlock = openedNodeId
@@ -603,17 +624,20 @@ function BlockSettingsBody({ block, variables, variableNames, onUpdate, onCreate
   /* ── Forge blocks (declarative integrations registered in
    *    @/lib/sabflow/forge — forge_github, forge_slack, forge_notion, etc.) */
   if (block.type.startsWith('forge_')) {
-    const forgeBlock = getForgeBlock(block.type);
-    if (forgeBlock) {
+    // Metadata is loaded asynchronously via `/api/sabflow/forge-metadata`.
+    // Settings panels never call `run`, so the cast back to `ForgeBlock` is
+    // safe for the field-rendering renderer.
+    const forgeMetadata = getForgeBlockMetadataSync(block.type);
+    if (forgeMetadata) {
       return (
         <ForgeBlockSettings
-          block={forgeBlock}
+          block={forgeMetadata as unknown as ForgeBlock}
           options={options}
           onChange={(patch) => onUpdate({ options: { ...options, ...patch } })}
         />
       );
     }
-    // Unknown forge id — fall through to NodeSettings which strips the prefix.
+    // Either still loading or unknown forge id — fall through.
   }
 
   /* ── Fallback: render the generic descriptor-driven settings panel.

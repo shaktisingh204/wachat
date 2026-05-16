@@ -55,7 +55,11 @@ async function withSftp<T>(
   fn: (client: SftpClient) => Promise<T>,
 ): Promise<T> {
   const cred = readCred(ctx);
-  const mod = (await import('ssh2-sftp-client')) as unknown as {
+  // Hide the import from Turbopack/webpack static analysis: ssh2-sftp-client
+  // brings cpu-features / ssh2 native bindings that the bundler can't ship.
+  // Function-constructed dynamic import is invisible to the bundler.
+  const dyn = new Function('m', 'return import(m)') as (s: string) => Promise<unknown>;
+  const mod = (await dyn('ssh2-sftp-client')) as unknown as {
     default?: new () => SftpClient;
   } & (new () => SftpClient);
   const SftpCtor = (mod.default ?? mod) as new () => SftpClient;

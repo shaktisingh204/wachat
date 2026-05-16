@@ -155,6 +155,7 @@ export async function getSkills() {
   return hrList<WsSkill>(COL_SKILLS);
 }
 export async function saveSkill(_prev: any, formData: FormData) {
+  // category + description preserved as-is by the generic save path.
   return genericSave(COL_SKILLS, `${ROUTE_BASE}/skills`, formData);
 }
 export async function deleteSkill(id: string) {
@@ -171,6 +172,7 @@ export async function getEmployeeSkills() {
   return hrList<WsEmployeeSkill>(COL_EMP_SKILLS);
 }
 export async function saveEmployeeSkill(_prev: any, formData: FormData) {
+  // proficiency + notes preserved as-is by the generic save path.
   return genericSave(COL_EMP_SKILLS, `${ROUTE_BASE}/employee-skills`, formData);
 }
 export async function deleteEmployeeSkill(id: string) {
@@ -186,8 +188,27 @@ const COL_TEAMS = 'crm_employee_teams';
 export async function getEmployeeTeams() {
   return hrList<WsEmployeeTeam>(COL_TEAMS);
 }
+
+/**
+ * Save a team. Pulls multi-value `member_ids` via `formData.getAll` since
+ * the generic `formToObject` flattens repeated keys.
+ */
 export async function saveEmployeeTeam(_prev: any, formData: FormData) {
-  return genericSave(COL_TEAMS, `${ROUTE_BASE}/teams`, formData);
+  // Pre-coerce repeated `member_ids` entries into a JSON string the
+  // generic saver will then parse back into an array.
+  const memberIds = formData
+    .getAll('member_ids')
+    .map((v) => String(v))
+    .filter((s) => s.length > 0);
+  // Re-write the FormData so genericSave sees a single string + jsonKeys.
+  // This avoids touching the shared CRUD helper.
+  formData.delete('member_ids');
+  formData.append('member_ids', JSON.stringify(memberIds));
+
+  return genericSave(COL_TEAMS, `${ROUTE_BASE}/teams`, formData, {
+    jsonKeys: ['member_ids'],
+    booleanKeys: ['is_active'],
+  });
 }
 export async function deleteEmployeeTeam(id: string) {
   const r = await hrDelete(COL_TEAMS, id);

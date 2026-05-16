@@ -1,17 +1,314 @@
+'use client';
+
 /**
- * Offers list — §1D.1 rebuild.
- *
- * KPI (5): Draft · Sent · Accepted · Rejected · Expired
- * Columns (9): candidate, designation, department, CTC, variable %,
- *   joining, status, validity, sent at
- * Filters (5): status, candidate, job, joining from, min CTC
+ * HR Offers — list page (§1B canonical contract).
  */
 
-import { getOfferLetters } from '@/app/actions/hr.actions';
-import { OffersView } from './_components/offers-view';
+import * as React from 'react';
+import Link from 'next/link';
+import { Edit, FileSignature, LoaderCircle, Plus, Trash2 } from 'lucide-react';
 
-export default async function OffersPage() {
-  const raw = await getOfferLetters();
-  const offers = (raw as any[]).map((o) => ({ ...o, _id: String(o._id) }));
-  return <OffersView initial={offers as any} />;
+import {
+    ZoruAlertDialog,
+    ZoruAlertDialogAction,
+    ZoruAlertDialogCancel,
+    ZoruAlertDialogContent,
+    ZoruAlertDialogDescription,
+    ZoruAlertDialogFooter,
+    ZoruAlertDialogHeader,
+    ZoruAlertDialogTitle,
+    ZoruButton,
+    ZoruInput,
+    ZoruSelect,
+    ZoruSelectContent,
+    ZoruSelectItem,
+    ZoruSelectTrigger,
+    ZoruSelectValue,
+    ZoruTable,
+    ZoruTableBody,
+    ZoruTableCell,
+    ZoruTableHead,
+    ZoruTableHeader,
+    ZoruTableRow,
+    useZoruToast,
+} from '@/components/zoruui';
+
+import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
+
+import { deleteOffer, getOffers } from '@/app/actions/crm-offers.actions';
+import type { CrmOfferDoc, CrmOfferStatus } from '@/lib/rust-client/crm-offers';
+
+const BASE = '/dashboard/hrm/hr/offers';
+
+const STATUS_OPTIONS: Array<{ value: CrmOfferStatus | 'all'; label: string }> = [
+    { value: 'all', label: 'All statuses' },
+    { value: 'draft', label: 'Draft' },
+    { value: 'sent', label: 'Sent' },
+    { value: 'accepted', label: 'Accepted' },
+    { value: 'rejected', label: 'Rejected' },
+    { value: 'expired', label: 'Expired' },
+    { value: 'withdrawn', label: 'Withdrawn' },
+    { value: 'archived', label: 'Archived' },
+];
+
+const STATUS_TONE: Record<CrmOfferStatus, StatusTone> = {
+    draft: 'amber',
+    sent: 'blue',
+    accepted: 'green',
+    rejected: 'red',
+    expired: 'red',
+    withdrawn: 'neutral',
+    archived: 'neutral',
+};
+
+function pretty(s: string | undefined): string {
+    if (!s) return '—';
+    return s.replace(/_/g, ' ');
+}
+
+function fmtDate(value: unknown): string {
+    if (!value) return '—';
+    const d = new Date(value as string);
+    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
+}
+
+function fmtMoney(amt?: number, currency?: string): string {
+    if (amt == null) return '—';
+    const ccy = currency ?? 'INR';
+    try {
+        return new Intl.NumberFormat(undefined, {
+            style: 'currency',
+            currency: ccy,
+            maximumFractionDigits: 0,
+        }).format(amt);
+    } catch {
+        return `${ccy} ${amt}`;
+    }
+}
+
+export default function OffersListPage() {
+    const [offers, setOffers] = React.useState<CrmOfferDoc[]>([]);
+    const [isLoading, setIsLoading] = React.useState(true);
+    const [search, setSearch] = React.useState('');
+    const [statusFilter, setStatusFilter] = React.useState<
+        CrmOfferStatus | 'all'
+    >('all');
+    const [jobFilter, setJobFilter] = React.useState('');
+    const [pendingDelete, setPendingDelete] = React.useState<
+        CrmOfferDoc | null
+    >(null);
+    const [deletePending, startDeleteTransition] = React.useTransition();
+    const { toast } = useZoruToast();
+
+    const refresh = React.useCallback(async () => {
+        setIsLoading(true);
+        try {
+            const res = await getOffers({
+                q: search.trim() || undefined,
+                status: statusFilter === 'all' ? undefined : statusFilter,
+                jobId: jobFilter.trim() || undefined,
+                limit: 100,
+            });
+            setOffers(res.items ?? []);
+        } catch {
+            setOffers([]);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [search, statusFilter, jobFilter]);
+
+    React.useEffect(() => {
+        const t = window.setTimeout(() => {
+            void refresh();
+        }, 250);
+        return () => window.clearTimeout(t);
+    }, [refresh]);
+
+    const handleDelete = () => {
+        if (!pendingDelete) return;
+        const id = pendingDelete._id;
+        startDeleteTransition(async () => {
+            const result = await deleteOffer(id);
+            if (result.success) {
+                toast({ title: 'Offer deleted' });
+                setPendingDelete(null);
+                await refresh();
+            } else {
+                toast({
+                    title: 'Error',
+                    description: result.error ?? 'Could not delete offer.',
+                    variant: 'destructive',
+                });
+            }
+        });
+    };
+
+    return (
+        <>
+            <div className="flex w-full flex-col gap-6">
+                <CrmPageHeader
+                    breadcrumbs={[
+                        { label: 'HR', href: '/dashboard/hrm/hr' },
+                        { label: 'Offers' },
+                    ]}
+                    title="Offers"
+                    subtitle="Offer letters sent to candidates and their response status."
+                    icon={FileSignature}
+                    actions={
+                        <ZoruButton asChild>
+                            <Link href={`${BASE}/new`}>
+                                <Plus className="mr-1.5 h-3.5 w-3.5" /> New offer
+                            </Link>
+                        </ZoruButton>
+                    }
+                />
+
+                <EntityListShell
+                    title=""
+                    search={{
+                        value: search,
+                        onChange: setSearch,
+                        placeholder: 'Search offers…',
+                    }}
+                    filters={
+                        <>
+                            <ZoruSelect
+                                value={statusFilter}
+                                onValueChange={(v) =>
+                                    setStatusFilter(v as CrmOfferStatus | 'all')
+                                }
+                            >
+                                <ZoruSelectTrigger className="h-9 w-[180px]">
+                                    <ZoruSelectValue placeholder="Status" />
+                                </ZoruSelectTrigger>
+                                <ZoruSelectContent>
+                                    {STATUS_OPTIONS.map((o) => (
+                                        <ZoruSelectItem key={o.value} value={o.value}>
+                                            {o.label}
+                                        </ZoruSelectItem>
+                                    ))}
+                                </ZoruSelectContent>
+                            </ZoruSelect>
+                            <ZoruInput
+                                value={jobFilter}
+                                onChange={(e) => setJobFilter(e.target.value)}
+                                placeholder="Job id…"
+                                className="h-9 w-[180px]"
+                            />
+                        </>
+                    }
+                    loading={isLoading && offers.length === 0}
+                >
+                    <div className="overflow-x-auto rounded-lg border border-zoru-line">
+                        <ZoruTable>
+                            <ZoruTableHeader>
+                                <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                                    <ZoruTableHead className="text-zoru-ink-muted">Candidate</ZoruTableHead>
+                                    <ZoruTableHead className="text-zoru-ink-muted">Job</ZoruTableHead>
+                                    <ZoruTableHead className="text-zoru-ink-muted">Salary</ZoruTableHead>
+                                    <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
+                                    <ZoruTableHead className="text-zoru-ink-muted">Sent</ZoruTableHead>
+                                    <ZoruTableHead className="text-zoru-ink-muted text-right">Actions</ZoruTableHead>
+                                </ZoruTableRow>
+                            </ZoruTableHeader>
+                            <ZoruTableBody>
+                                {isLoading ? (
+                                    <ZoruTableRow className="border-zoru-line">
+                                        <ZoruTableCell colSpan={6} className="h-24 text-center">
+                                            <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
+                                        </ZoruTableCell>
+                                    </ZoruTableRow>
+                                ) : offers.length === 0 ? (
+                                    <ZoruTableRow className="border-zoru-line">
+                                        <ZoruTableCell
+                                            colSpan={6}
+                                            className="h-24 text-center text-zoru-ink-muted"
+                                        >
+                                            No offers match this filter.
+                                        </ZoruTableCell>
+                                    </ZoruTableRow>
+                                ) : (
+                                    offers.map((o) => {
+                                        const status = (o.status ?? 'draft') as CrmOfferStatus;
+                                        const tone = STATUS_TONE[status] ?? 'neutral';
+                                        return (
+                                            <ZoruTableRow key={o._id} className="border-zoru-line">
+                                                <ZoruTableCell className="font-medium text-zoru-ink">
+                                                    <Link
+                                                        href={`${BASE}/${o._id}`}
+                                                        className="hover:underline"
+                                                    >
+                                                        {o.candidateName || o.candidateId}
+                                                    </Link>
+                                                </ZoruTableCell>
+                                                <ZoruTableCell className="text-zoru-ink">
+                                                    {o.jobTitle || o.jobId || '—'}
+                                                </ZoruTableCell>
+                                                <ZoruTableCell className="font-mono text-[12px] text-zoru-ink">
+                                                    {fmtMoney(o.salaryAmount, o.salaryCurrency)}{' '}
+                                                    <span className="text-zoru-ink-muted">
+                                                        / {pretty(o.salaryPeriod)}
+                                                    </span>
+                                                </ZoruTableCell>
+                                                <ZoruTableCell>
+                                                    <StatusPill label={pretty(status)} tone={tone} />
+                                                </ZoruTableCell>
+                                                <ZoruTableCell className="text-zoru-ink">
+                                                    {fmtDate(o.sentAt)}
+                                                </ZoruTableCell>
+                                                <ZoruTableCell className="text-right">
+                                                    <ZoruButton variant="ghost" size="icon" asChild>
+                                                        <Link href={`${BASE}/${o._id}/edit`}>
+                                                            <Edit className="h-4 w-4" />
+                                                        </Link>
+                                                    </ZoruButton>
+                                                    <ZoruButton
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        onClick={() => setPendingDelete(o)}
+                                                    >
+                                                        <Trash2 className="h-4 w-4 text-destructive" />
+                                                    </ZoruButton>
+                                                </ZoruTableCell>
+                                            </ZoruTableRow>
+                                        );
+                                    })
+                                )}
+                            </ZoruTableBody>
+                        </ZoruTable>
+                    </div>
+                </EntityListShell>
+            </div>
+
+            <ZoruAlertDialog
+                open={!!pendingDelete}
+                onOpenChange={(o) => !o && setPendingDelete(null)}
+            >
+                <ZoruAlertDialogContent>
+                    <ZoruAlertDialogHeader>
+                        <ZoruAlertDialogTitle>Delete offer?</ZoruAlertDialogTitle>
+                        <ZoruAlertDialogDescription>
+                            Deleting this offer to{' '}
+                            <strong>
+                                {pendingDelete?.candidateName ?? pendingDelete?.candidateId}
+                            </strong>{' '}
+                            removes it from the active offers list. Audit trail is
+                            preserved.
+                        </ZoruAlertDialogDescription>
+                    </ZoruAlertDialogHeader>
+                    <ZoruAlertDialogFooter>
+                        <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+                        <ZoruAlertDialogAction
+                            onClick={handleDelete}
+                            disabled={deletePending}
+                        >
+                            {deletePending ? 'Deleting…' : 'Delete'}
+                        </ZoruAlertDialogAction>
+                    </ZoruAlertDialogFooter>
+                </ZoruAlertDialogContent>
+            </ZoruAlertDialog>
+        </>
+    );
 }

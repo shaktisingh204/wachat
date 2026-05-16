@@ -1,184 +1,182 @@
 /**
- * Document detail page (§1D.2).
+ * Document detail page — server component.
  *
- * Loads a single document from `hr_documents` for the current tenant.
- * Actions: Edit · Open file · Mark verified · Renew (stubs).
+ * Fetches the document by id via the Rust-backed `getDocumentById` server
+ * action and renders a summary card + linked entity + attached file link.
  */
 
-import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import { notFound, redirect } from 'next/navigation';
 import {
-    FileText,
-    Pencil,
-    ExternalLink,
-    CheckCircle2,
-    RefreshCw,
     ArrowLeft,
+    FileText,
+    Paperclip,
+    Pencil,
+    ShieldAlert,
 } from 'lucide-react';
 
-import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { ZoruBadge, ZoruButton } from '@/components/zoruui';
-import { statusToTone } from '@/components/crm/status-pill';
-import {
-    getHrEntityById,
-    fmtDate,
-    fmtText,
-} from '../../_components/hr-detail-loader';
-import { HrDetailGrid, HrDetailRow } from '../../_components/hr-detail-grid';
-import { HrActionButtons } from '../../_components/hr-action-buttons';
-import {
-    markDocumentVerified,
-    renewDocument,
-} from '@/app/actions/hr-status.actions';
-import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
+import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
+import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
+import { getSession } from '@/app/actions/user.actions';
+import { getDocumentById } from '@/app/actions/crm-documents.actions';
+import type { CrmDocumentStatus } from '@/lib/rust-client/crm-documents';
 
-interface PageProps {
-    params: Promise<{ id: string }>;
-}
+export const dynamic = 'force-dynamic';
 
 const BASE = '/dashboard/hrm/hr/documents';
 
-export default async function DocumentDetailPage({ params }: PageProps) {
-    const { id } = await params;
-    const doc = await getHrEntityById('hr_documents', id);
+const STATUS_TONE: Record<CrmDocumentStatus, StatusTone> = {
+    pending: 'amber',
+    verified: 'green',
+    expired: 'red',
+    rejected: 'red',
+    archived: 'neutral',
+};
+
+function fmtDate(value: unknown): string {
+    if (!value) return '—';
+    const d = new Date(value as string);
+    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
+}
+
+function pretty(s?: string): string {
+    if (!s) return '—';
+    return s.replace(/_/g, ' ');
+}
+
+export default async function DocumentDetailPage({
+    params,
+}: {
+    params: Promise<{ id: string }>;
+}) {
+    const { id: documentId } = await params;
+
+    const session = await getSession();
+    if (!session?.user) redirect('/login');
+
+    const doc = await getDocumentById(documentId);
     if (!doc) notFound();
 
-    const d = doc as Record<string, unknown>;
-    const name = (d.name as string) || 'Untitled document';
-    const category = (d.category as string) || '—';
-    const verified =
-        d.verified === true || d.verified === 'yes' || d.isVerified === true;
-    const confidential =
-        d.isConfidential === true || d.isConfidential === 'yes';
-    const url = (d.url as string) || '';
-    const employeeRef = (d.employeeName as string) || (d.employeeId as string) || '—';
-
-    // Compute expiry status
-    let expiryTone: 'success' | 'warning' | 'danger' = 'success';
-    let expiryLabel = 'Valid';
-    if (d.expiresAt) {
-        const exp = new Date(d.expiresAt as any);
-        if (!isNaN(exp.getTime())) {
-            const now = new Date();
-            const daysLeft = Math.floor((exp.getTime() - now.getTime()) / (24 * 60 * 60 * 1000));
-            if (daysLeft < 0) {
-                expiryTone = 'danger';
-                expiryLabel = 'Expired';
-            } else if (daysLeft <= 90) {
-                expiryTone = 'warning';
-                expiryLabel = `Expires in ${daysLeft}d`;
-            }
-        }
-    }
+    const status = (doc.status ?? 'pending') as CrmDocumentStatus;
+    const tone = STATUS_TONE[status] ?? 'neutral';
+    const tags = Array.isArray(doc.tags) ? doc.tags : [];
 
     return (
-        <EntityDetailShell
-            title={name}
-            eyebrow={`HR · ${category.toUpperCase()}`}
-            back={{ href: BASE, label: 'All documents' }}
-            status={{
-                label: verified ? 'verified' : 'unverified',
-                tone: statusToTone(verified ? 'verified' : 'pending'),
-            }}
-            actions={
-                <>
-                    <Link href={BASE}>
-                        <ZoruButton variant="outline" size="sm">
-                            <ArrowLeft className="h-4 w-4" /> Back
+        <div className="flex w-full flex-col gap-6">
+            <CrmPageHeader
+                breadcrumbs={[
+                    { label: 'HR', href: '/dashboard/hrm/hr' },
+                    { label: 'Documents', href: BASE },
+                    { label: doc.name },
+                ]}
+                title={doc.name}
+                subtitle={doc.description || 'Document detail'}
+                icon={FileText}
+                actions={
+                    <div className="flex items-center gap-2">
+                        <ZoruButton variant="outline" asChild>
+                            <Link href={BASE}>
+                                <ArrowLeft className="mr-2 h-4 w-4" />
+                                Back
+                            </Link>
                         </ZoruButton>
-                    </Link>
-                    <Link href={`${BASE}/${id}/edit`}>
-                        <ZoruButton size="sm">
-                            <Pencil className="h-4 w-4" /> Edit
+                        <ZoruButton asChild>
+                            <Link href={`${BASE}/${documentId}/edit`}>
+                                <Pencil className="mr-2 h-4 w-4" />
+                                Edit
+                            </Link>
                         </ZoruButton>
-                    </Link>
-                    {url ? (
-                        <a href={url} target="_blank" rel="noopener noreferrer">
-                            <ZoruButton variant="outline" size="sm">
-                                <ExternalLink className="h-4 w-4" /> Open file
-                            </ZoruButton>
-                        </a>
-                    ) : (
-                        <ZoruButton variant="outline" size="sm" disabled>
-                            <ExternalLink className="h-4 w-4" /> Open file
-                        </ZoruButton>
-                    )}
-                    <HrActionButtons
-                        actions={[
-                            {
-                                key: 'verify',
-                                kind: 'action',
-                                label: 'Mark verified',
-                                icon: <CheckCircle2 className="h-4 w-4" />,
-                                onRun: () => markDocumentVerified(id),
-                                disabled: verified,
-                            },
-                            {
-                                key: 'renew',
-                                kind: 'prompt',
-                                label: 'Renew',
-                                icon: <RefreshCw className="h-4 w-4" />,
-                                promptTitle: 'Renew document',
-                                promptDescription:
-                                    'Set the new expiry date for this document.',
-                                submitLabel: 'Renew',
-                                fields: [
-                                    {
-                                        name: 'newExpiry',
-                                        label: 'New expiry date',
-                                        type: 'date',
-                                        required: true,
-                                    },
-                                ],
-                                onRun: (v) => renewDocument(id, v.newExpiry ?? ''),
-                            },
-                        ]}
-                    />
-                </>
-            }
-            audit={<EntityAuditTimeline entityKind="document" entityId={id} />}
-        >
-            <HrDetailGrid
-                title="Document details"
-                titleSlot={
-                    <div className="flex items-center gap-1.5">
-                        <ZoruBadge variant={expiryTone}>{expiryLabel}</ZoruBadge>
-                        {confidential ? (
-                            <ZoruBadge variant="warning">Confidential</ZoruBadge>
-                        ) : null}
                     </div>
                 }
-            >
-                <HrDetailRow label="Name">{name}</HrDetailRow>
-                <HrDetailRow label="Category">{category}</HrDetailRow>
-                <HrDetailRow label="Document #">{fmtText(d.documentNumber)}</HrDetailRow>
-                <HrDetailRow label="Employee">{fmtText(employeeRef)}</HrDetailRow>
-                <HrDetailRow label="Issued by">{fmtText(d.issuedBy)}</HrDetailRow>
-                <HrDetailRow label="Issued date">{fmtDate(d.issuedDate)}</HrDetailRow>
-                <HrDetailRow label="Expires at">{fmtDate(d.expiresAt)}</HrDetailRow>
-                <HrDetailRow label="Verified">{verified ? 'Yes' : 'No'}</HrDetailRow>
-                <HrDetailRow label="Confidential">{confidential ? 'Yes' : 'No'}</HrDetailRow>
-                <HrDetailRow label="Uploaded">{fmtDate(d.createdAt)}</HrDetailRow>
-                {url ? (
-                    <HrDetailRow label="File URL" fullWidth>
-                        <a
-                            href={url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="break-all text-zoru-ink underline-offset-2 hover:underline"
-                        >
-                            {url}
-                        </a>
-                    </HrDetailRow>
-                ) : null}
-                {d.notes ? (
-                    <HrDetailRow label="Notes" fullWidth>
-                        {String(d.notes)}
-                    </HrDetailRow>
-                ) : null}
-            </HrDetailGrid>
+            />
 
-            <FileText className="hidden" />
-        </EntityDetailShell>
+            <ZoruCard className="p-6">
+                <div className="mb-4 flex flex-wrap items-center gap-2">
+                    <div className="text-[14px] font-medium text-zoru-ink">
+                        Overview
+                    </div>
+                    <StatusPill label={pretty(status)} tone={tone} />
+                    {doc.isConfidential ? (
+                        <ZoruBadge variant="ghost">
+                            <ShieldAlert className="mr-1 h-3 w-3" />
+                            Confidential
+                        </ZoruBadge>
+                    ) : null}
+                    {tags.map((t) => (
+                        <ZoruBadge key={t} variant="ghost">
+                            {t}
+                        </ZoruBadge>
+                    ))}
+                </div>
+                <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-2">
+                    <div>
+                        <div className="text-zoru-ink-muted">Category</div>
+                        <div className="capitalize text-zoru-ink">
+                            {pretty(doc.category as string | undefined)}
+                        </div>
+                    </div>
+                    <div>
+                        <div className="text-zoru-ink-muted">Document number</div>
+                        <div className="font-mono text-zoru-ink">
+                            {doc.documentNumber || '—'}
+                        </div>
+                    </div>
+                    <div>
+                        <div className="text-zoru-ink-muted">Entity</div>
+                        <div className="text-zoru-ink">
+                            {pretty(doc.entityKind)}{doc.entityId ? ` · ${doc.entityId}` : ''}
+                        </div>
+                    </div>
+                    <div>
+                        <div className="text-zoru-ink-muted">Employee</div>
+                        <div className="text-zoru-ink">
+                            {doc.employeeName ?? doc.employeeId ?? '—'}
+                        </div>
+                    </div>
+                    <div>
+                        <div className="text-zoru-ink-muted">Issue date</div>
+                        <div className="text-zoru-ink">{fmtDate(doc.issueDate)}</div>
+                    </div>
+                    <div>
+                        <div className="text-zoru-ink-muted">Expiry date</div>
+                        <div className="text-zoru-ink">{fmtDate(doc.expiryDate)}</div>
+                    </div>
+                    {doc.description ? (
+                        <div className="sm:col-span-2">
+                            <div className="text-zoru-ink-muted">Description</div>
+                            <div className="whitespace-pre-wrap text-zoru-ink">
+                                {doc.description}
+                            </div>
+                        </div>
+                    ) : null}
+                    {doc.notes ? (
+                        <div className="sm:col-span-2">
+                            <div className="text-zoru-ink-muted">Notes</div>
+                            <div className="whitespace-pre-wrap text-zoru-ink">
+                                {doc.notes}
+                            </div>
+                        </div>
+                    ) : null}
+                </div>
+            </ZoruCard>
+
+            {doc.fileUrl ? (
+                <ZoruCard className="flex flex-wrap items-center justify-between gap-2 p-4">
+                    <div className="flex items-center gap-2 text-[13px] text-zoru-ink">
+                        <Paperclip className="h-4 w-4 text-zoru-ink-muted" />
+                        Attached file
+                    </div>
+                    <a
+                        href={doc.fileUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="max-w-full truncate text-[12.5px] text-zoru-ink underline-offset-2 hover:underline"
+                    >
+                        {doc.fileUrl}
+                    </a>
+                </ZoruCard>
+            ) : null}
+        </div>
     );
 }

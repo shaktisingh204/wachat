@@ -1,57 +1,59 @@
-'use client';
+/**
+ * Edit asset page — server wrapper that loads the asset and passes it as
+ * `initialData` to `<AssetForm />`.
+ */
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
+import Link from 'next/link';
+import { notFound, redirect } from 'next/navigation';
+import { ArrowLeft, Package } from 'lucide-react';
 
-import * as React from 'react';
-import { useParams } from 'next/navigation';
-import { Package } from 'lucide-react';
-import { HrFormPage } from '../../../_components/hr-form-page';
-import { getAssets, saveAsset } from '@/app/actions/hr.actions';
-import type { HrAsset } from '@/lib/hr-types';
-import { fields, sections } from '../../_config';
+import { ZoruButton } from '@/components/zoruui';
+import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { getSession } from '@/app/actions/user.actions';
+import { getAssetById } from '@/app/actions/crm-assets.actions';
 
-export default function EditAssetPage() {
-  const params = useParams<{ id: string }>();
-  const id = params?.id;
-  const [record, setRecord] = React.useState<(HrAsset & { _id: string }) | null>(
-    null,
-  );
-  const [loading, setLoading] = React.useState(true);
+import { AssetForm } from '../../_components/asset-form';
 
-  React.useEffect(() => {
-    let active = true;
-    (async () => {
-      try {
-        const list = (await getAssets()) as (HrAsset & { _id: string })[];
-        const found = Array.isArray(list)
-          ? list.find((r) => String(r._id) === String(id)) || null
-          : null;
-        if (active) setRecord(found);
-      } finally {
-        if (active) setLoading(false);
-      }
-    })();
-    return () => {
-      active = false;
-    };
-  }, [id]);
+export const dynamic = 'force-dynamic';
 
-  if (loading) {
-    return <div className="text-[13px] text-muted-foreground">Loading…</div>;
-  }
+const BASE = '/dashboard/hrm/hr/assets';
 
-  return (
-    <HrFormPage
-      title="Edit Asset"
-      subtitle="Update asset details."
-      icon={Package}
-      backHref="/dashboard/hrm/hr/assets"
-      singular="Asset"
-      fields={fields}
-      sections={sections}
-      saveAction={saveAsset}
-      initial={record as unknown as Record<string, unknown>}
-    />
-  );
+export default async function EditAssetPage({
+    params,
+}: {
+    params: Promise<{ id: string }>;
+}) {
+    const { id: assetId } = await params;
+
+    const session = await getSession();
+    if (!session?.user) redirect('/login');
+
+    const asset = await getAssetById(assetId);
+    if (!asset) notFound();
+
+    return (
+        <div className="flex w-full flex-col gap-6">
+            <CrmPageHeader
+                breadcrumbs={[
+                    { label: 'HR', href: '/dashboard/hrm/hr' },
+                    { label: 'Assets', href: BASE },
+                    { label: asset.name, href: `${BASE}/${assetId}` },
+                    { label: 'Edit' },
+                ]}
+                title={`Edit · ${asset.name}`}
+                subtitle="Update asset fields. Changes are revalidated immediately."
+                icon={Package}
+                actions={
+                    <ZoruButton variant="ghost" asChild>
+                        <Link href={`${BASE}/${assetId}`}>
+                            <ArrowLeft className="mr-2 h-4 w-4" />
+                            Back to detail
+                        </Link>
+                    </ZoruButton>
+                }
+            />
+
+            <AssetForm initialData={asset} />
+        </div>
+    );
 }

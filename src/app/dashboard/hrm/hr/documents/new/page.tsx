@@ -1,24 +1,45 @@
-'use client';
+/**
+ * New document page — server wrapper around `<DocumentForm />`.
+ */
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
+import { ArrowLeft, FileText } from 'lucide-react';
 
-import { FileText } from 'lucide-react';
-import { HrFormPage } from '../../_components/hr-form-page';
-import { saveDocument } from '@/app/actions/hr.actions';
-import { fields, sections } from '../_config';
+import { ZoruButton } from '@/components/zoruui';
+import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { getSession } from '@/app/actions/user.actions';
 
-export default function NewDocumentPage() {
-  return (
-    <HrFormPage
-      title="New Document"
-      subtitle="Upload or record an employee document."
-      icon={FileText}
-      backHref="/dashboard/hrm/hr/documents"
-      singular="Document"
-      fields={fields}
-      sections={sections}
-      saveAction={saveDocument}
-    />
-  );
+import { DocumentForm } from '../_components/document-form';
+
+export const dynamic = 'force-dynamic';
+
+export default async function NewDocumentPage() {
+    const session = await getSession();
+    if (!session?.user) redirect('/login');
+
+    return (
+        <div className="flex w-full flex-col gap-6">
+            <CrmPageHeader
+                breadcrumbs={[
+                    { label: 'HR', href: '/dashboard/hrm/hr' },
+                    { label: 'Documents', href: '/dashboard/hrm/hr/documents' },
+                    { label: 'New' },
+                ]}
+                title="New Document"
+                subtitle="Track a new HR document — contracts, IDs, certifications and more."
+                icon={FileText}
+                actions={
+                    <ZoruButton variant="ghost" asChild>
+                        <Link href="/dashboard/hrm/hr/documents">
+                            <ArrowLeft className="mr-2 h-4 w-4" />
+                            Back to list
+                        </Link>
+                    </ZoruButton>
+                }
+            />
+
+            <DocumentForm />
+        </div>
+    );
 }

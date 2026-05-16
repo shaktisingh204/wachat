@@ -1,0 +1,235 @@
+'use client';
+
+/**
+ * <PayrollRunForm /> — create + edit form for the canonical payroll-run
+ * entity (legacy-Mongo backed via `crm-payroll-runs.actions`).
+ *
+ * Creating a run runs `generatePayrollData` + `processPayroll` for the
+ * picked (month, year). Editing a run only updates the metadata
+ * (status, notes, run_date) — payslips are immutable after the first
+ * processing pass.
+ */
+
+import { useActionState, useEffect } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useFormStatus } from 'react-dom';
+import { ArrowLeft, LoaderCircle, Save } from 'lucide-react';
+
+import {
+    ZoruButton,
+    ZoruCard,
+    ZoruInput,
+    ZoruLabel,
+    ZoruSelect,
+    ZoruSelectContent,
+    ZoruSelectItem,
+    ZoruSelectTrigger,
+    ZoruSelectValue,
+    ZoruTextarea,
+    useZoruToast,
+} from '@/components/zoruui';
+
+import { savePayrollRun } from '@/app/actions/crm-payroll-runs.actions';
+import type {
+    CrmPayrollRunDoc,
+    CrmPayrollRunStatus,
+} from '@/app/actions/crm-payroll-runs.actions';
+
+const BASE = '/dashboard/hrm/payroll/payroll';
+
+const STATUS_OPTIONS: ReadonlyArray<{
+    value: CrmPayrollRunStatus;
+    label: string;
+}> = [
+    { value: 'draft', label: 'Draft' },
+    { value: 'in_progress', label: 'In progress' },
+    { value: 'processed', label: 'Processed' },
+    { value: 'paid', label: 'Paid' },
+    { value: 'archived', label: 'Archived' },
+];
+
+const MONTHS: ReadonlyArray<{ value: number; label: string }> = [
+    { value: 1, label: 'January' },
+    { value: 2, label: 'February' },
+    { value: 3, label: 'March' },
+    { value: 4, label: 'April' },
+    { value: 5, label: 'May' },
+    { value: 6, label: 'June' },
+    { value: 7, label: 'July' },
+    { value: 8, label: 'August' },
+    { value: 9, label: 'September' },
+    { value: 10, label: 'October' },
+    { value: 11, label: 'November' },
+    { value: 12, label: 'December' },
+];
+
+function toDateInput(value: unknown): string {
+    if (!value) return '';
+    const d = new Date(value as string);
+    if (Number.isNaN(d.getTime())) return '';
+    return d.toISOString().slice(0, 10);
+}
+
+function SubmitButton({ isEditing }: { isEditing: boolean }) {
+    const { pending } = useFormStatus();
+    return (
+        <ZoruButton type="submit" disabled={pending}>
+            {pending ? (
+                <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+                <Save className="mr-2 h-4 w-4" />
+            )}
+            {isEditing ? 'Save changes' : 'Generate run'}
+        </ZoruButton>
+    );
+}
+
+type SaveState = { message?: string; error?: string; id?: string };
+const INITIAL_STATE: SaveState = {};
+
+interface PayrollRunFormProps {
+    initialData?: CrmPayrollRunDoc | null;
+}
+
+const currentYear = new Date().getFullYear();
+const YEARS = Array.from({ length: 6 }, (_, i) => currentYear - i + 1);
+
+export function PayrollRunForm({ initialData }: PayrollRunFormProps) {
+    const router = useRouter();
+    const { toast } = useZoruToast();
+    const isEditing = !!initialData?._id;
+
+    const [state, formAction] = useActionState(savePayrollRun, INITIAL_STATE);
+
+    useEffect(() => {
+        if (state?.message) {
+            toast({ title: 'Saved', description: state.message });
+            const id = state.id ?? initialData?._id;
+            router.push(id ? `${BASE}/${id}` : BASE);
+        }
+        if (state?.error) {
+            toast({
+                title: 'Error',
+                description: state.error,
+                variant: 'destructive',
+            });
+        }
+    }, [state, toast, router, initialData?._id]);
+
+    return (
+        <ZoruCard className="p-6">
+            <form action={formAction} className="flex flex-col gap-6">
+                {isEditing ? (
+                    <input type="hidden" name="runId" value={initialData!._id} />
+                ) : null}
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-1.5">
+                        <ZoruLabel htmlFor="period_month">Period month *</ZoruLabel>
+                        <ZoruSelect
+                            name="period_month"
+                            defaultValue={String(
+                                initialData?.period_month ?? new Date().getMonth() + 1,
+                            )}
+                            disabled={isEditing}
+                        >
+                            <ZoruSelectTrigger id="period_month">
+                                <ZoruSelectValue />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                {MONTHS.map((m) => (
+                                    <ZoruSelectItem key={m.value} value={String(m.value)}>
+                                        {m.label}
+                                    </ZoruSelectItem>
+                                ))}
+                            </ZoruSelectContent>
+                        </ZoruSelect>
+                    </div>
+
+                    <div className="space-y-1.5">
+                        <ZoruLabel htmlFor="period_year">Period year *</ZoruLabel>
+                        <ZoruSelect
+                            name="period_year"
+                            defaultValue={String(
+                                initialData?.period_year ?? currentYear,
+                            )}
+                            disabled={isEditing}
+                        >
+                            <ZoruSelectTrigger id="period_year">
+                                <ZoruSelectValue />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                {YEARS.map((y) => (
+                                    <ZoruSelectItem key={y} value={String(y)}>
+                                        {y}
+                                    </ZoruSelectItem>
+                                ))}
+                            </ZoruSelectContent>
+                        </ZoruSelect>
+                    </div>
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-1.5">
+                        <ZoruLabel htmlFor="run_date">Run date</ZoruLabel>
+                        <ZoruInput
+                            id="run_date"
+                            name="run_date"
+                            type="date"
+                            defaultValue={toDateInput(initialData?.run_date)}
+                        />
+                    </div>
+                    <div className="space-y-1.5">
+                        <ZoruLabel htmlFor="status">Status</ZoruLabel>
+                        <ZoruSelect
+                            name="status"
+                            defaultValue={initialData?.status ?? 'draft'}
+                        >
+                            <ZoruSelectTrigger id="status">
+                                <ZoruSelectValue />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                {STATUS_OPTIONS.map((o) => (
+                                    <ZoruSelectItem key={o.value} value={o.value}>
+                                        {o.label}
+                                    </ZoruSelectItem>
+                                ))}
+                            </ZoruSelectContent>
+                        </ZoruSelect>
+                    </div>
+                </div>
+
+                <div className="space-y-1.5">
+                    <ZoruLabel htmlFor="notes">Notes</ZoruLabel>
+                    <ZoruTextarea
+                        id="notes"
+                        name="notes"
+                        rows={3}
+                        placeholder="Anything notable about this run."
+                        defaultValue={initialData?.notes ?? ''}
+                    />
+                </div>
+
+                {!isEditing ? (
+                    <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-3 text-[12.5px] text-zoru-ink-muted">
+                        Generating a run will compute payslips for every active
+                        employee in the picked period and persist them to the
+                        payslips collection. Existing payslips for the same period
+                        will be replaced.
+                    </div>
+                ) : null}
+
+                <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
+                    <ZoruButton variant="ghost" asChild>
+                        <Link href={BASE}>
+                            <ArrowLeft className="mr-2 h-4 w-4" />
+                            Back to runs
+                        </Link>
+                    </ZoruButton>
+                    <SubmitButton isEditing={isEditing} />
+                </div>
+            </form>
+        </ZoruCard>
+    );
+}

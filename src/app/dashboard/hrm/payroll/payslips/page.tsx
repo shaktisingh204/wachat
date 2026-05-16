@@ -1,167 +1,231 @@
 'use client';
 
-import { useState, useEffect, useCallback, useTransition } from 'react';
-import { Receipt, LoaderCircle, Download, Printer } from 'lucide-react';
-import { startOfMonth } from 'date-fns';
+/**
+ * Payslips — list page (Rust-backed).
+ *
+ * Columns: Employee, Pay Period, Gross, Net, Status, Issued at.
+ */
+
+import * as React from 'react';
+import Link from 'next/link';
+import { Eye, LoaderCircle, Receipt } from 'lucide-react';
 
 import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
-  ZoruPageDescription,
-  ZoruPageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
+    ZoruButton,
+    ZoruInput,
+    ZoruSelect,
+    ZoruSelectContent,
+    ZoruSelectItem,
+    ZoruSelectTrigger,
+    ZoruSelectValue,
+    ZoruTable,
+    ZoruTableBody,
+    ZoruTableCell,
+    ZoruTableHead,
+    ZoruTableHeader,
+    ZoruTableRow,
 } from '@/components/zoruui';
-import { getPayslips } from '@/app/actions/crm-payroll.actions';
-import { getCrmEmployees } from '@/app/actions/crm-employees.actions';
-import type { WithId, CrmEmployee } from '@/lib/definitions';
 
-const currentYear = new Date().getFullYear();
-const years = Array.from({ length: 5 }, (_, i) => currentYear - i);
-const months = [
-    { value: 0, label: 'January' }, { value: 1, label: 'February' }, { value: 2, label: 'March' },
-    { value: 3, label: 'April' }, { value: 4, label: 'May' }, { value: 5, label: 'June' },
-    { value: 6, label: 'July' }, { value: 7, label: 'August' }, { value: 8, label: 'September' },
-    { value: 9, label: 'October' }, { value: 10, label: 'November' }, { value: 11, label: 'December' },
+import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
+
+import { getPayslipsList } from '@/app/actions/crm-payslips.actions';
+import type {
+    CrmPayslipDoc,
+    CrmPayslipStatus,
+} from '@/lib/rust-client/crm-payslips';
+
+const BASE = '/dashboard/hrm/payroll/payslips';
+
+const STATUS_OPTIONS: ReadonlyArray<{
+    value: CrmPayslipStatus | 'all';
+    label: string;
+}> = [
+    { value: 'all', label: 'All statuses' },
+    { value: 'draft', label: 'Draft' },
+    { value: 'issued', label: 'Issued' },
+    { value: 'paid', label: 'Paid' },
+    { value: 'archived', label: 'Archived' },
 ];
 
-function statusBadge(status: string) {
-    if (status === 'paid') return <ZoruBadge variant="success">Paid</ZoruBadge>;
-    if (status === 'pending') return <ZoruBadge variant="warning">Pending</ZoruBadge>;
-    if (status === 'processing') return <ZoruBadge variant="info">Processing</ZoruBadge>;
-    return <ZoruBadge variant="ghost">{status}</ZoruBadge>;
+const STATUS_TONE: Record<CrmPayslipStatus, StatusTone> = {
+    draft: 'amber',
+    issued: 'blue',
+    paid: 'green',
+    archived: 'neutral',
+};
+
+const inr = new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    maximumFractionDigits: 0,
+});
+
+function fmtDate(value: unknown): string {
+    if (!value) return '—';
+    const d = new Date(value as string);
+    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
 }
 
-export default function PayslipsPage() {
-    const [payslips, setPayslips] = useState<any[]>([]);
-    const [, setEmployees] = useState<WithId<CrmEmployee>[]>([]);
-    const [month, setMonth] = useState(new Date().getMonth());
-    const [year, setYear] = useState(currentYear);
-    const [isLoading, startTransition] = useTransition();
+function fmtPeriod(p: string | undefined): string {
+    if (!p) return '—';
+    // Accept either `YYYY-MM` or full ISO.
+    const m = /^(\d{4})-(\d{2})/.exec(p);
+    if (!m) return p;
+    const d = new Date(Number(m[1]), Number(m[2]) - 1, 1);
+    return d.toLocaleString('default', { month: 'short', year: 'numeric' });
+}
 
-    const fetchData = useCallback(() => {
-        startTransition(async () => {
-            const period = startOfMonth(new Date(year, month));
-            const [payslipsData, employeesData] = await Promise.all([
-                getPayslips(period),
-                getCrmEmployees(),
-            ]);
-            const employeeMap = new Map(employeesData.map(e => [e._id.toString(), e]));
-            const populated = payslipsData.map(p => ({
-                ...p,
-                employee: employeeMap.get(p.employeeId.toString()),
-            }));
-            setPayslips(populated);
-            setEmployees(employeesData);
-        });
-    }, [month, year]);
+export default function PayslipsListPage() {
+    const [rows, setRows] = React.useState<CrmPayslipDoc[]>([]);
+    const [isLoading, setIsLoading] = React.useState(true);
+    const [search, setSearch] = React.useState('');
+    const [statusFilter, setStatusFilter] = React.useState<
+        CrmPayslipStatus | 'all'
+    >('all');
+    const [payPeriod, setPayPeriod] = React.useState<string>('');
 
-    useEffect(() => { fetchData(); }, [fetchData]);
+    const refresh = React.useCallback(async () => {
+        setIsLoading(true);
+        try {
+            const res = await getPayslipsList({
+                q: search.trim() || undefined,
+                status: statusFilter === 'all' ? undefined : statusFilter,
+                payPeriod: payPeriod || undefined,
+                limit: 100,
+            });
+            setRows(res.items ?? []);
+        } catch {
+            setRows([]);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [search, statusFilter, payPeriod]);
 
-    const monthLabel = months.find(m => m.value === month)?.label ?? '';
+    React.useEffect(() => {
+        const t = window.setTimeout(() => {
+            void refresh();
+        }, 250);
+        return () => window.clearTimeout(t);
+    }, [refresh]);
 
     return (
         <div className="flex w-full flex-col gap-6">
-            <div className="flex flex-wrap items-start justify-between gap-4">
-                <div className="flex items-start gap-3">
-                    <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2 text-zoru-ink">
-                        <Receipt className="h-5 w-5" strokeWidth={1.75} />
-                    </div>
-                    <ZoruPageHeader>
-                        <ZoruPageHeading>
-                            <ZoruPageTitle>Payslips</ZoruPageTitle>
-                            <ZoruPageDescription>
-                                View and manage generated payslips for your employees.
-                            </ZoruPageDescription>
-                        </ZoruPageHeading>
-                    </ZoruPageHeader>
-                </div>
-                <div className="flex shrink-0 flex-wrap items-center gap-2">
-                    <ZoruSelect value={String(month)} onValueChange={val => setMonth(Number(val))}>
-                        <ZoruSelectTrigger className="w-36"><ZoruSelectValue /></ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                            {months.map(m => <ZoruSelectItem key={m.value} value={String(m.value)}>{m.label}</ZoruSelectItem>)}
-                        </ZoruSelectContent>
-                    </ZoruSelect>
-                    <ZoruSelect value={String(year)} onValueChange={val => setYear(Number(val))}>
-                        <ZoruSelectTrigger className="w-28"><ZoruSelectValue /></ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                            {years.map(y => <ZoruSelectItem key={y} value={String(y)}>{y}</ZoruSelectItem>)}
-                        </ZoruSelectContent>
-                    </ZoruSelect>
-                    <ZoruButton variant="outline" disabled>
-                        <Printer className="h-4 w-4" />
-                        Print All
-                    </ZoruButton>
-                </div>
-            </div>
+            <CrmPageHeader
+                breadcrumbs={[
+                    { label: 'Payroll', href: '/dashboard/hrm/payroll' },
+                    { label: 'Payslips' },
+                ]}
+                title="Payslips"
+                subtitle="Issued payslips by employee and pay period."
+                icon={Receipt}
+            />
 
-            <ZoruCard className="p-6">
-                <div className="mb-4">
-                    <h2 className="text-[16px] text-zoru-ink">
-                        Payslips for {monthLabel}, {year}
-                    </h2>
-                    <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">{payslips.length} payslips generated for this period.</p>
-                </div>
+            <EntityListShell
+                title=""
+                search={{
+                    value: search,
+                    onChange: setSearch,
+                    placeholder: 'Search by employee…',
+                }}
+                filters={
+                    <>
+                        <ZoruSelect
+                            value={statusFilter}
+                            onValueChange={(v) =>
+                                setStatusFilter(v as CrmPayslipStatus | 'all')
+                            }
+                        >
+                            <ZoruSelectTrigger className="h-9 w-[180px]">
+                                <ZoruSelectValue placeholder="Status" />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                {STATUS_OPTIONS.map((o) => (
+                                    <ZoruSelectItem key={o.value} value={o.value}>
+                                        {o.label}
+                                    </ZoruSelectItem>
+                                ))}
+                            </ZoruSelectContent>
+                        </ZoruSelect>
+                        <ZoruInput
+                            type="month"
+                            className="h-9 w-[160px]"
+                            value={payPeriod}
+                            onChange={(e) => setPayPeriod(e.target.value)}
+                            placeholder="Pay period"
+                        />
+                    </>
+                }
+                loading={isLoading && rows.length === 0}
+            >
                 <div className="overflow-x-auto rounded-lg border border-zoru-line">
-                    <table className="w-full text-left text-[13px]">
-                        <thead>
-                            <tr className="border-b border-zoru-line bg-zoru-surface-2">
-                                <th className="px-4 py-3 text-[12px] uppercase tracking-wide text-zoru-ink-muted">Employee</th>
-                                <th className="px-4 py-3 text-[12px] uppercase tracking-wide text-zoru-ink-muted">Month / Year</th>
-                                <th className="px-4 py-3 text-right text-[12px] uppercase tracking-wide text-zoru-ink-muted">Gross</th>
-                                <th className="px-4 py-3 text-right text-[12px] uppercase tracking-wide text-zoru-ink-muted">Deductions</th>
-                                <th className="px-4 py-3 text-right text-[12px] uppercase tracking-wide text-zoru-ink-muted">Net Pay</th>
-                                <th className="px-4 py-3 text-center text-[12px] uppercase tracking-wide text-zoru-ink-muted">Status</th>
-                                <th className="px-4 py-3 text-right text-[12px] uppercase tracking-wide text-zoru-ink-muted">Download</th>
-                            </tr>
-                        </thead>
-                        <tbody>
+                    <ZoruTable>
+                        <ZoruTableHeader>
+                            <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                                <ZoruTableHead className="text-zoru-ink-muted">Employee</ZoruTableHead>
+                                <ZoruTableHead className="text-zoru-ink-muted">Pay period</ZoruTableHead>
+                                <ZoruTableHead className="text-zoru-ink-muted text-right">Gross</ZoruTableHead>
+                                <ZoruTableHead className="text-zoru-ink-muted text-right">Net</ZoruTableHead>
+                                <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
+                                <ZoruTableHead className="text-zoru-ink-muted">Issued at</ZoruTableHead>
+                                <ZoruTableHead className="text-zoru-ink-muted text-right">Actions</ZoruTableHead>
+                            </ZoruTableRow>
+                        </ZoruTableHeader>
+                        <ZoruTableBody>
                             {isLoading ? (
-                                <tr>
-                                    <td colSpan={7} className="h-48 text-center">
-                                        <LoaderCircle className="mx-auto h-8 w-8 animate-spin text-zoru-ink-muted" />
-                                    </td>
-                                </tr>
-                            ) : payslips.length > 0 ? (
-                                payslips.map((p, idx) => (
-                                    <tr key={p._id?.toString() ?? idx} className="border-b border-zoru-line last:border-0 hover:bg-zoru-surface-2/50 transition-colors">
-                                        <td className="px-4 py-3">
-                                            <div className="text-zoru-ink">
-                                                {p.employee?.firstName} {p.employee?.lastName}
-                                            </div>
-                                            <div className="text-[11.5px] text-zoru-ink-muted">{p.employee?.designationName ?? '—'}</div>
-                                        </td>
-                                        <td className="px-4 py-3 text-zoru-ink">{monthLabel}, {year}</td>
-                                        <td className="px-4 py-3 text-right font-mono text-zoru-ink">₹{(p.grossSalary ?? 0).toLocaleString('en-IN')}</td>
-                                        <td className="px-4 py-3 text-right font-mono text-zoru-danger-ink">₹{(p.totalDeductions ?? 0).toLocaleString('en-IN')}</td>
-                                        <td className="px-4 py-3 text-right font-mono text-zoru-ink">₹{(p.netPay ?? 0).toLocaleString('en-IN')}</td>
-                                        <td className="px-4 py-3 text-center">{statusBadge(p.status)}</td>
-                                        <td className="px-4 py-3 text-right">
-                                            <ZoruButton variant="outline" size="sm" disabled>
-                                                <Download className="h-3.5 w-3.5" />
-                                                PDF
-                                            </ZoruButton>
-                                        </td>
-                                    </tr>
-                                ))
+                                <ZoruTableRow className="border-zoru-line">
+                                    <ZoruTableCell colSpan={7} className="h-24 text-center">
+                                        <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
+                                    </ZoruTableCell>
+                                </ZoruTableRow>
+                            ) : rows.length === 0 ? (
+                                <ZoruTableRow className="border-zoru-line">
+                                    <ZoruTableCell colSpan={7} className="h-24 text-center text-zoru-ink-muted">
+                                        No payslips match this filter.
+                                    </ZoruTableCell>
+                                </ZoruTableRow>
                             ) : (
-                                <tr>
-                                    <td colSpan={7} className="h-24 text-center text-[13px] text-zoru-ink-muted">
-                                        No payslips generated for this period.
-                                    </td>
-                                </tr>
+                                rows.map((p) => {
+                                    const status = (p.status ?? 'draft') as CrmPayslipStatus;
+                                    const tone = STATUS_TONE[status] ?? 'neutral';
+                                    return (
+                                        <ZoruTableRow key={p._id} className="border-zoru-line">
+                                            <ZoruTableCell className="font-medium text-zoru-ink">
+                                                <Link href={`${BASE}/${p._id}`} className="hover:underline">
+                                                    {p.employeeName ?? p.employeeId ?? '—'}
+                                                </Link>
+                                            </ZoruTableCell>
+                                            <ZoruTableCell className="text-zoru-ink">
+                                                {fmtPeriod(p.payPeriod)}
+                                            </ZoruTableCell>
+                                            <ZoruTableCell className="text-right font-mono text-zoru-ink">
+                                                {inr.format(p.gross ?? 0)}
+                                            </ZoruTableCell>
+                                            <ZoruTableCell className="text-right font-mono text-zoru-ink">
+                                                {inr.format(p.net ?? 0)}
+                                            </ZoruTableCell>
+                                            <ZoruTableCell>
+                                                <StatusPill label={status} tone={tone} />
+                                            </ZoruTableCell>
+                                            <ZoruTableCell className="text-zoru-ink">
+                                                {fmtDate(p.issuedAt)}
+                                            </ZoruTableCell>
+                                            <ZoruTableCell className="text-right">
+                                                <ZoruButton variant="ghost" size="icon" asChild>
+                                                    <Link href={`${BASE}/${p._id}`}>
+                                                        <Eye className="h-4 w-4" />
+                                                    </Link>
+                                                </ZoruButton>
+                                            </ZoruTableCell>
+                                        </ZoruTableRow>
+                                    );
+                                })
                             )}
-                        </tbody>
-                    </table>
+                        </ZoruTableBody>
+                    </ZoruTable>
                 </div>
-            </ZoruCard>
+            </EntityListShell>
         </div>
     );
 }
