@@ -91,16 +91,41 @@ export type WsVisaDetail = Owned & {
 
 export type WsSkill = Owned & {
   name: string;
+  /** Optional grouping label (e.g. "Programming", "Soft skills"). */
+  category?: string;
+  /** Short description shown in the skill catalog. */
+  description?: string;
 };
+
+export type WsSkillProficiency =
+  | 'beginner'
+  | 'intermediate'
+  | 'advanced'
+  | 'expert';
 
 export type WsEmployeeSkill = Owned & {
   user_id: string;
   skill_id: string;
+  /** Optional level for the employee on this skill. */
+  proficiency?: WsSkillProficiency;
+  /** Optional free-text notes (certifications, years of experience). */
+  notes?: string;
 };
 
 export type WsEmployeeTeam = Owned & {
   team_name: string;
+  /** Optional description shown in the directory. */
+  description?: string;
+  /** Optional department scope. */
+  department_id?: string;
+  /** Lead employee (legacy field name preserved). */
   leader_user_id?: string;
+  /** Aliased member_ids — Mongo stores as array of ObjectId strings. */
+  member_ids?: string[];
+  /** Active flag — inactive teams are hidden from pickers by default. */
+  is_active?: boolean;
+  /** Optional status label (e.g. "active", "archived", "draft"). */
+  status?: string;
 };
 
 export type WsEmployeeLeaveQuota = Owned & {

@@ -1,163 +1,272 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
+/**
+ * HR Asset Assignments — list page.
+ *
+ * Tracks the active and historic mapping between assets and employees.
+ */
 
 import * as React from 'react';
-import { Layers } from 'lucide-react';
-import { ClayBadge, HrEntityPage } from '../_components/hr-entity-page';
-import {
-  getAssetAssignments,
-  saveAssetAssignment,
-  deleteAssetAssignment,
-} from '@/app/actions/hr.actions';
-import type { HrAssetAssignment } from '@/lib/hr-types';
+import Link from 'next/link';
+import { Edit, Layers, LoaderCircle, Plus, Trash2 } from 'lucide-react';
 
-const STATUS_TONES: Record<string, 'neutral' | 'green' | 'amber' | 'red'> = {
-  assigned: 'amber',
-  returned: 'green',
-  damaged: 'red',
+import {
+    ZoruAlertDialog,
+    ZoruAlertDialogAction,
+    ZoruAlertDialogCancel,
+    ZoruAlertDialogContent,
+    ZoruAlertDialogDescription,
+    ZoruAlertDialogFooter,
+    ZoruAlertDialogHeader,
+    ZoruAlertDialogTitle,
+    ZoruButton,
+    ZoruSelect,
+    ZoruSelectContent,
+    ZoruSelectItem,
+    ZoruSelectTrigger,
+    ZoruSelectValue,
+    ZoruTable,
+    ZoruTableBody,
+    ZoruTableCell,
+    ZoruTableHead,
+    ZoruTableHeader,
+    ZoruTableRow,
+    useZoruToast,
+} from '@/components/zoruui';
+
+import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
+
+import {
+    deleteAssetAssignment,
+    getAssetAssignments,
+} from '@/app/actions/crm-asset-assignments.actions';
+import type {
+    CrmAssetAssignmentDoc,
+    CrmAssetAssignmentStatus,
+} from '@/app/actions/crm-asset-assignments.actions';
+
+const BASE = '/dashboard/hrm/hr/asset-assignments';
+
+const STATUS_OPTIONS: Array<{ value: CrmAssetAssignmentStatus | 'all'; label: string }> = [
+    { value: 'all', label: 'All statuses' },
+    { value: 'assigned', label: 'Assigned' },
+    { value: 'returned', label: 'Returned' },
+    { value: 'lost', label: 'Lost' },
+    { value: 'damaged', label: 'Damaged' },
+    { value: 'archived', label: 'Archived' },
+];
+
+const STATUS_TONE: Record<CrmAssetAssignmentStatus, StatusTone> = {
+    assigned: 'blue',
+    returned: 'green',
+    lost: 'red',
+    damaged: 'red',
+    archived: 'neutral',
 };
 
-function formatDate(value: unknown): React.ReactNode {
-  if (!value) return <span className="text-muted-foreground">—</span>;
-  const d = new Date(value as any);
-  if (isNaN(d.getTime())) return <span className="text-muted-foreground">—</span>;
-  return d.toISOString().slice(0, 10);
+function fmtDate(value: unknown): string {
+    if (!value) return '—';
+    const d = new Date(value as string);
+    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
 }
 
-function isInThisMonth(value: unknown): boolean {
-  if (!value) return false;
-  const d = new Date(value as any);
-  if (isNaN(d.getTime())) return false;
-  const now = new Date();
-  return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
-}
+export default function AssetAssignmentsListPage() {
+    const [rows, setRows] = React.useState<CrmAssetAssignmentDoc[]>([]);
+    const [isLoading, setIsLoading] = React.useState(true);
+    const [search, setSearch] = React.useState('');
+    const [statusFilter, setStatusFilter] = React.useState<CrmAssetAssignmentStatus | 'all'>('all');
+    const [pendingDelete, setPendingDelete] = React.useState<CrmAssetAssignmentDoc | null>(null);
+    const [deletePending, startDeleteTransition] = React.useTransition();
+    const { toast } = useZoruToast();
 
-function isOverdue(row: any): boolean {
-  if (row.status === 'returned') return false;
-  const exp = row.expectedReturnAt;
-  if (!exp) return false;
-  const d = new Date(exp);
-  return !isNaN(d.getTime()) && d < new Date();
-}
+    const refresh = React.useCallback(async () => {
+        setIsLoading(true);
+        try {
+            const items = await getAssetAssignments({
+                q: search.trim() || undefined,
+                status: statusFilter,
+            });
+            setRows(items);
+        } catch {
+            setRows([]);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [search, statusFilter]);
 
-export default function AssetAssignmentsPage() {
-  return (
-    <HrEntityPage<HrAssetAssignment & { _id: string }>
-      title="Asset Assignments"
-      subtitle="Track which asset is issued to which employee."
-      icon={Layers}
-      singular="Assignment"
-      getAllAction={getAssetAssignments as any}
-      saveAction={saveAssetAssignment}
-      deleteAction={deleteAssetAssignment}
-      kpis={[
-        {
-          label: 'Active',
-          compute: (rows) =>
-            rows.filter((r) => String((r as any).status || 'assigned') === 'assigned')
-              .length,
-          tone: 'blue',
-        },
-        {
-          label: 'Returned this month',
-          compute: (rows) =>
-            rows.filter(
-              (r) =>
-                String((r as any).status) === 'returned' &&
-                isInThisMonth((r as any).returnedAt),
-            ).length,
-          tone: 'green',
-        },
-        {
-          label: 'Overdue return',
-          compute: (rows) => rows.filter((r) => isOverdue(r)).length,
-          tone: 'amber',
-        },
-        {
-          label: 'Damaged',
-          compute: (rows) =>
-            rows.filter((r) => String((r as any).status) === 'damaged').length,
-          tone: 'red',
-        },
-      ]}
-      columns={[
-        {
-          key: 'assetId',
-          label: 'Asset',
-          render: (row) => (
-            <span className="block max-w-[160px] truncate">{row.assetId ? String(row.assetId) : '—'}</span>
-          ),
-        },
-        {
-          key: 'employeeId',
-          label: 'Employee',
-          render: (row) => (
-            <span className="block max-w-[160px] truncate">{row.employeeId ? String(row.employeeId) : '—'}</span>
-          ),
-        },
-        {
-          key: 'assignedAt',
-          label: 'Assigned Date',
-          render: (row) => formatDate(row.assignedAt),
-        },
-        {
-          key: 'expectedReturnAt',
-          label: 'Expected Return',
-          render: (row) => formatDate((row as any).expectedReturnAt),
-        },
-        {
-          key: 'returnedAt',
-          label: 'Returned',
-          render: (row) => formatDate(row.returnedAt),
-        },
-        {
-          key: 'returnCondition',
-          label: 'Return condition',
-          render: (row) => (row as any).returnCondition || '—',
-        },
-        {
-          key: 'status',
-          label: 'Status',
-          render: (row) => (
-            <ClayBadge tone={STATUS_TONES[row.status] || 'neutral'} dot>
-              {row.status}
-            </ClayBadge>
-          ),
-        },
-      ]}
-      fields={[
-        { name: 'assetId', label: 'Asset', required: true },
-        { name: 'employeeId', label: 'Employee', required: true, type: 'entity', entity: 'employee' },
-        { name: 'assignedAt', label: 'Assigned Date', type: 'date', required: true },
-        { name: 'expectedReturnAt', label: 'Expected Return Date', type: 'date' },
-        { name: 'returnedAt', label: 'Actual Return Date', type: 'date' },
-        {
-          name: 'returnCondition',
-          label: 'Return Condition',
-          type: 'select',
-          options: [
-            { value: '', label: '—' },
-            { value: 'good', label: 'Good' },
-            { value: 'fair', label: 'Fair' },
-            { value: 'damaged', label: 'Damaged' },
-            { value: 'missing', label: 'Missing' },
-          ],
-        },
-        {
-          name: 'status',
-          label: 'Status',
-          type: 'select',
-          options: [
-            { value: 'assigned', label: 'Assigned' },
-            { value: 'returned', label: 'Returned' },
-            { value: 'damaged', label: 'Damaged' },
-          ],
-          defaultValue: 'assigned',
-        },
-        { name: 'notes', label: 'Notes', type: 'textarea', fullWidth: true },
-      ]}
-    />
-  );
+    React.useEffect(() => {
+        const t = window.setTimeout(() => {
+            void refresh();
+        }, 250);
+        return () => window.clearTimeout(t);
+    }, [refresh]);
+
+    const handleDelete = () => {
+        if (!pendingDelete) return;
+        const id = pendingDelete._id;
+        startDeleteTransition(async () => {
+            const result = await deleteAssetAssignment(id);
+            if (result.success) {
+                toast({ title: 'Assignment deleted' });
+                setPendingDelete(null);
+                await refresh();
+            } else {
+                toast({
+                    title: 'Error',
+                    description: result.error ?? 'Could not delete.',
+                    variant: 'destructive',
+                });
+            }
+        });
+    };
+
+    return (
+        <>
+            <div className="flex w-full flex-col gap-6">
+                <CrmPageHeader
+                    breadcrumbs={[
+                        { label: 'HR', href: '/dashboard/hrm/hr' },
+                        { label: 'Asset assignments' },
+                    ]}
+                    title="Asset assignments"
+                    subtitle="Issue / return events between assets and employees."
+                    icon={Layers}
+                    actions={
+                        <ZoruButton asChild>
+                            <Link href={`${BASE}/new`}>
+                                <Plus className="mr-1.5 h-3.5 w-3.5" /> New assignment
+                            </Link>
+                        </ZoruButton>
+                    }
+                />
+
+                <EntityListShell
+                    title=""
+                    search={{
+                        value: search,
+                        onChange: setSearch,
+                        placeholder: 'Search by asset or employee…',
+                    }}
+                    filters={
+                        <ZoruSelect
+                            value={statusFilter}
+                            onValueChange={(v) =>
+                                setStatusFilter(v as CrmAssetAssignmentStatus | 'all')
+                            }
+                        >
+                            <ZoruSelectTrigger className="h-9 w-[180px]">
+                                <ZoruSelectValue placeholder="Status" />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                {STATUS_OPTIONS.map((o) => (
+                                    <ZoruSelectItem key={o.value} value={o.value}>
+                                        {o.label}
+                                    </ZoruSelectItem>
+                                ))}
+                            </ZoruSelectContent>
+                        </ZoruSelect>
+                    }
+                    loading={isLoading && rows.length === 0}
+                >
+                    <div className="overflow-x-auto rounded-lg border border-zoru-line">
+                        <ZoruTable>
+                            <ZoruTableHeader>
+                                <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                                    <ZoruTableHead className="text-zoru-ink-muted">Asset</ZoruTableHead>
+                                    <ZoruTableHead className="text-zoru-ink-muted">Employee</ZoruTableHead>
+                                    <ZoruTableHead className="text-zoru-ink-muted">Assigned</ZoruTableHead>
+                                    <ZoruTableHead className="text-zoru-ink-muted">Returned</ZoruTableHead>
+                                    <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
+                                    <ZoruTableHead className="text-zoru-ink-muted text-right">Actions</ZoruTableHead>
+                                </ZoruTableRow>
+                            </ZoruTableHeader>
+                            <ZoruTableBody>
+                                {isLoading ? (
+                                    <ZoruTableRow className="border-zoru-line">
+                                        <ZoruTableCell colSpan={6} className="h-24 text-center">
+                                            <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
+                                        </ZoruTableCell>
+                                    </ZoruTableRow>
+                                ) : rows.length === 0 ? (
+                                    <ZoruTableRow className="border-zoru-line">
+                                        <ZoruTableCell
+                                            colSpan={6}
+                                            className="h-24 text-center text-zoru-ink-muted"
+                                        >
+                                            No assignments match this filter.
+                                        </ZoruTableCell>
+                                    </ZoruTableRow>
+                                ) : (
+                                    rows.map((r) => {
+                                        const status = (r.status ?? 'assigned') as CrmAssetAssignmentStatus;
+                                        const tone = STATUS_TONE[status] ?? 'neutral';
+                                        return (
+                                            <ZoruTableRow key={r._id} className="border-zoru-line">
+                                                <ZoruTableCell className="font-medium text-zoru-ink">
+                                                    <Link
+                                                        href={`${BASE}/${r._id}`}
+                                                        className="hover:underline"
+                                                    >
+                                                        {r.asset_name || r.asset_id}
+                                                    </Link>
+                                                </ZoruTableCell>
+                                                <ZoruTableCell className="text-zoru-ink">
+                                                    {r.employee_name || r.employee_id}
+                                                </ZoruTableCell>
+                                                <ZoruTableCell className="text-zoru-ink">
+                                                    {fmtDate(r.assigned_at)}
+                                                </ZoruTableCell>
+                                                <ZoruTableCell className="text-zoru-ink">
+                                                    {fmtDate(r.returned_at)}
+                                                </ZoruTableCell>
+                                                <ZoruTableCell>
+                                                    <StatusPill label={status} tone={tone} />
+                                                </ZoruTableCell>
+                                                <ZoruTableCell className="text-right">
+                                                    <ZoruButton variant="ghost" size="icon" asChild>
+                                                        <Link href={`${BASE}/${r._id}/edit`}>
+                                                            <Edit className="h-4 w-4" />
+                                                        </Link>
+                                                    </ZoruButton>
+                                                    <ZoruButton
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        onClick={() => setPendingDelete(r)}
+                                                    >
+                                                        <Trash2 className="h-4 w-4 text-destructive" />
+                                                    </ZoruButton>
+                                                </ZoruTableCell>
+                                            </ZoruTableRow>
+                                        );
+                                    })
+                                )}
+                            </ZoruTableBody>
+                        </ZoruTable>
+                    </div>
+                </EntityListShell>
+            </div>
+
+            <ZoruAlertDialog
+                open={!!pendingDelete}
+                onOpenChange={(o) => !o && setPendingDelete(null)}
+            >
+                <ZoruAlertDialogContent>
+                    <ZoruAlertDialogHeader>
+                        <ZoruAlertDialogTitle>Delete assignment?</ZoruAlertDialogTitle>
+                        <ZoruAlertDialogDescription>
+                            This will remove the assignment record. The audit entry remains.
+                        </ZoruAlertDialogDescription>
+                    </ZoruAlertDialogHeader>
+                    <ZoruAlertDialogFooter>
+                        <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+                        <ZoruAlertDialogAction onClick={handleDelete} disabled={deletePending}>
+                            {deletePending ? 'Deleting…' : 'Delete'}
+                        </ZoruAlertDialogAction>
+                    </ZoruAlertDialogFooter>
+                </ZoruAlertDialogContent>
+            </ZoruAlertDialog>
+        </>
+    );
 }

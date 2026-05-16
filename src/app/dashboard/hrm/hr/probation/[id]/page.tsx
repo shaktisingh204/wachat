@@ -1,256 +1,211 @@
 /**
- * Probation detail — §1D.2 rebuild.
+ * Probation detail page.
  *
- * Header action group (6): Edit · Confirm · Extend · Reject · Print ·
- *   Activity.
- * Body cards: Probation · Reviewer · Outcome · Notes.
- * Right rail: linked employee · chain transition (confirm → employee).
- *
- * TODO 1D.2: dedicated `getProbationById` server action — currently
- *   we list-then-find.
+ * Server component — fetches the probation by id via the action layer
+ * and renders an overview card, evaluation criteria table and notes.
  */
 
-import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import {
-  Pencil,
-  CheckCircle2,
-  Clock,
-  XCircle,
-  Printer,
-  Activity,
-} from 'lucide-react';
+import { notFound, redirect } from 'next/navigation';
+import { ArrowLeft, Pencil, ShieldCheck } from 'lucide-react';
 
-import { getProbations } from '@/app/actions/hr.actions';
 import {
-  confirmProbation,
-  extendProbation,
-  terminateProbation,
-} from '@/app/actions/hr-status-flow.actions';
+    ZoruBadge,
+    ZoruButton,
+    ZoruCard,
+    ZoruTable,
+    ZoruTableBody,
+    ZoruTableCell,
+    ZoruTableHead,
+    ZoruTableHeader,
+    ZoruTableRow,
+} from '@/components/zoruui';
+import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
+import { getSession } from '@/app/actions/user.actions';
 import {
-  RecruitmentDetailShell,
-  DetailCard,
-  RailCard,
-  RailLink,
-} from '../../_components/recruitment-detail-shell';
-import { HrActionButtons } from '../../_components/hr-action-buttons';
-import { StatusPill, statusToTone } from '@/components/crm/status-pill';
-import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
+    getCrmProbationById,
+    type ProbationStatus,
+} from '@/app/actions/crm-probation.actions';
 
-interface PageProps {
-  params: Promise<{ id: string }>;
+export const dynamic = 'force-dynamic';
+
+const BASE = '/dashboard/hrm/hr/probation';
+
+const STATUS_TONE: Record<ProbationStatus, StatusTone> = {
+    in_progress: 'blue',
+    confirmed: 'green',
+    extended: 'amber',
+    terminated: 'red',
+    archived: 'neutral',
+};
+
+function fmtDate(value: unknown): string {
+    if (!value) return '—';
+    const d = new Date(value as string);
+    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
 }
 
-export default async function ProbationDetailPage({ params }: PageProps) {
-  const { id } = await params;
-  const all = (await getProbations()) as any[];
-  const p = all.find((x) => String(x._id) === id);
-  if (!p) notFound();
-
-  const status = p.status || 'ongoing';
-  const tone = statusToTone(status);
-
-  return (
-    <RecruitmentDetailShell
-      title={`Probation · ${p.employeeId ? String(p.employeeId) : ''}`}
-      eyebrow="PROBATION"
-      status={{ label: status, tone: tone as any }}
-      back={{ href: '/dashboard/hrm/hr/probation', label: 'All probation' }}
-      actions={[
-        {
-          key: 'edit',
-          label: 'Edit',
-          icon: <Pencil className="h-3.5 w-3.5" />,
-          href: `/dashboard/hrm/hr/probation/${id}/edit`,
-          variant: 'outline',
-        },
-        {
-          key: 'print',
-          label: 'Print',
-          icon: <Printer className="h-3.5 w-3.5" />,
-          href: `/dashboard/hrm/hr/probation/${id}?print=1`,
-        },
-        {
-          key: 'activity',
-          label: 'Activity',
-          icon: <Activity className="h-3.5 w-3.5" />,
-          href: `/dashboard/hrm/hr/probation/${id}/activity`,
-        },
-      ]}
-      actionsSlot={
-        <HrActionButtons
-          className="flex flex-wrap items-center gap-1"
-          actions={[
-            {
-              key: 'confirm',
-              kind: 'action',
-              label: 'Confirm',
-              icon: <CheckCircle2 className="h-3.5 w-3.5" />,
-              onRun: () => confirmProbation(id),
-            },
-            {
-              key: 'extend',
-              kind: 'prompt',
-              label: 'Extend',
-              icon: <Clock className="h-3.5 w-3.5" />,
-              promptTitle: 'Extend probation',
-              promptDescription: 'Set the new end date for this probation.',
-              submitLabel: 'Extend',
-              fields: [
-                {
-                  name: 'newEndDate',
-                  label: 'New end date',
-                  type: 'date',
-                  required: true,
-                },
-              ],
-              onRun: (v) => extendProbation(id, v.newEndDate ?? ''),
-            },
-            {
-              key: 'reject',
-              kind: 'prompt',
-              label: 'Reject',
-              icon: <XCircle className="h-3.5 w-3.5" />,
-              variant: 'destructive',
-              promptTitle: 'Terminate probation',
-              promptDescription:
-                'Provide a reason; this will be recorded in the audit log.',
-              submitLabel: 'Terminate',
-              fields: [
-                {
-                  name: 'reason',
-                  label: 'Reason',
-                  type: 'textarea',
-                  placeholder: 'Reason for termination',
-                  required: true,
-                },
-              ],
-              onRun: (v) => terminateProbation(id, v.reason ?? ''),
-            },
-          ]}
-        />
-      }
-      rightRail={
-        <>
-          <RailCard title="Employee">
-            {p.employeeId ? (
-              <RailLink
-                href={`/dashboard/hrm/hr/directory/${p.employeeId}`}
-                label="Linked employee"
-                hint={String(p.employeeId)}
-              />
-            ) : (
-              <p className="px-2 py-1.5 text-zoru-ink-muted">No employee.</p>
-            )}
-          </RailCard>
-          <RailCard title="Quick stats">
-            <p>
-              <span className="text-zoru-ink-muted">Start: </span>
-              <span className="text-zoru-ink">{fmtDate(p.startDate)}</span>
-            </p>
-            <p>
-              <span className="text-zoru-ink-muted">End: </span>
-              <span className="text-zoru-ink">{fmtDate(p.endDate)}</span>
-            </p>
-            <p>
-              <span className="text-zoru-ink-muted">Score: </span>
-              <span className="text-zoru-ink">
-                {p.performanceScore != null ? `${p.performanceScore}/5` : '—'}
-              </span>
-            </p>
-          </RailCard>
-        </>
-      }
-      audit={<EntityAuditTimeline entityKind="probation" entityId={id} />}
-    >
-      <DetailCard
-        title="Probation"
-        rows={[
-          {
-            label: 'Employee',
-            value: p.employeeId ? (
-              <Link
-                href={`/dashboard/hrm/hr/directory/${p.employeeId}`}
-                className="text-zoru-ink hover:underline"
-              >
-                {String(p.employeeId)}
-              </Link>
-            ) : (
-              '—'
-            ),
-          },
-          { label: 'Start date', value: fmtDate(p.startDate) },
-          { label: 'End date', value: fmtDate(p.endDate) },
-          {
-            label: 'Status',
-            value: <StatusPill label={status} tone={tone} />,
-          },
-        ]}
-      />
-      <DetailCard
-        title="Reviewer"
-        rows={[
-          { label: 'Reviewer', value: p.reviewer_id },
-          { label: 'Reviewer name', value: p.reviewerName },
-          { label: 'Reviewer email', value: p.reviewerEmail },
-          { label: 'Mentor', value: p.mentor },
-          { label: 'Mid review', value: fmtDate(p.midReviewDate) },
-        ]}
-      />
-      <DetailCard
-        title="Outcome"
-        rows={[
-          {
-            label: 'Performance score',
-            value: p.performanceScore != null ? `${p.performanceScore}/5` : '—',
-          },
-          { label: 'Extension date', value: fmtDate(p.extension_date) },
-          { label: 'Extended end date', value: fmtDate(p.extendedEndDate) },
-        ]}
-      >
-        {p.review_notes ? (
-          <div>
-            <p className="text-zoru-ink-muted">Review notes</p>
-            <p className="whitespace-pre-wrap text-zoru-ink">{p.review_notes}</p>
-          </div>
-        ) : null}
-        {p.evaluationCriteria ? (
-          <div>
-            <p className="text-zoru-ink-muted">Evaluation criteria</p>
-            <p className="whitespace-pre-wrap text-zoru-ink">
-              {p.evaluationCriteria}
-            </p>
-          </div>
-        ) : null}
-        {p.feedback ? (
-          <div>
-            <p className="text-zoru-ink-muted">Feedback</p>
-            <p className="whitespace-pre-wrap text-zoru-ink">{p.feedback}</p>
-          </div>
-        ) : null}
-        {p.terminationReason ? (
-          <div>
-            <p className="text-zoru-ink-muted">Termination reason</p>
-            <p className="whitespace-pre-wrap text-zoru-ink">
-              {p.terminationReason}
-            </p>
-          </div>
-        ) : null}
-      </DetailCard>
-      {p.notes ? (
-        <DetailCard title="Notes">
-          <p className="whitespace-pre-wrap">{p.notes}</p>
-        </DetailCard>
-      ) : null}
-    </RecruitmentDetailShell>
-  );
+function pretty(s?: string): string {
+    if (!s) return '—';
+    return s.replace(/_/g, ' ');
 }
 
-function fmtDate(d?: string | Date | null) {
-  if (!d) return '—';
-  try {
-    return new Date(d).toLocaleDateString();
-  } catch {
-    return '—';
-  }
+export default async function ProbationDetailPage({
+    params,
+}: {
+    params: Promise<{ id: string }>;
+}) {
+    const { id: probationId } = await params;
+
+    const session = await getSession();
+    if (!session?.user) redirect('/login');
+
+    const probation = await getCrmProbationById(probationId);
+    if (!probation) notFound();
+
+    const status = (probation.status ?? 'in_progress') as ProbationStatus;
+    const tone = STATUS_TONE[status] ?? 'neutral';
+
+    const employeeRef = probation.employeeName || probation.employeeId || 'Probation';
+    const criteria = Array.isArray(probation.criteria) ? probation.criteria : [];
+
+    return (
+        <div className="flex w-full flex-col gap-6">
+            <CrmPageHeader
+                breadcrumbs={[
+                    { label: 'HR', href: '/dashboard/hrm/hr' },
+                    { label: 'Probation', href: BASE },
+                    { label: String(employeeRef) },
+                ]}
+                title={`Probation · ${employeeRef}`}
+                subtitle="Evaluation criteria, scores and outcome."
+                icon={ShieldCheck}
+                actions={
+                    <div className="flex items-center gap-2">
+                        <ZoruButton variant="outline" asChild>
+                            <Link href={BASE}>
+                                <ArrowLeft className="mr-2 h-4 w-4" />
+                                Back
+                            </Link>
+                        </ZoruButton>
+                        <ZoruButton asChild>
+                            <Link href={`${BASE}/${probationId}/edit`}>
+                                <Pencil className="mr-2 h-4 w-4" />
+                                Edit
+                            </Link>
+                        </ZoruButton>
+                    </div>
+                }
+            />
+
+            {/* Summary card */}
+            <ZoruCard className="p-6">
+                <div className="mb-4 flex flex-wrap items-center gap-2">
+                    <div className="text-[14px] font-medium text-zoru-ink">Overview</div>
+                    <StatusPill label={pretty(status)} tone={tone} />
+                    {probation.recommendation ? (
+                        <ZoruBadge variant="ghost">
+                            Recommendation: {probation.recommendation}
+                        </ZoruBadge>
+                    ) : null}
+                </div>
+                <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-2">
+                    <div>
+                        <div className="text-zoru-ink-muted">Employee</div>
+                        <div className="text-zoru-ink">{probation.employeeName || '—'}</div>
+                    </div>
+                    <div>
+                        <div className="text-zoru-ink-muted">Employee ID</div>
+                        <div className="font-mono text-[12px] text-zoru-ink">
+                            {probation.employeeId || '—'}
+                        </div>
+                    </div>
+                    <div>
+                        <div className="text-zoru-ink-muted">Evaluator</div>
+                        <div className="text-zoru-ink">
+                            {probation.evaluatorName || '—'}
+                        </div>
+                    </div>
+                    <div>
+                        <div className="text-zoru-ink-muted">Evaluator ID</div>
+                        <div className="font-mono text-[12px] text-zoru-ink">
+                            {probation.evaluatorId || '—'}
+                        </div>
+                    </div>
+                    <div>
+                        <div className="text-zoru-ink-muted">Start date</div>
+                        <div className="text-zoru-ink">{fmtDate(probation.startDate)}</div>
+                    </div>
+                    <div>
+                        <div className="text-zoru-ink-muted">End date</div>
+                        <div className="text-zoru-ink">{fmtDate(probation.endDate)}</div>
+                    </div>
+                    <div>
+                        <div className="text-zoru-ink-muted">Overall score</div>
+                        <div className="font-mono text-zoru-ink">
+                            {probation.overallScore != null ? probation.overallScore : '—'}
+                        </div>
+                    </div>
+                    <div>
+                        <div className="text-zoru-ink-muted">Recommendation</div>
+                        <div className="capitalize text-zoru-ink">
+                            {pretty(probation.recommendation)}
+                        </div>
+                    </div>
+                </div>
+            </ZoruCard>
+
+            {/* Criteria */}
+            <ZoruCard className="p-6">
+                <div className="mb-3 text-[15px] font-medium text-zoru-ink">
+                    Evaluation criteria
+                </div>
+                {criteria.length === 0 ? (
+                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-6 text-center text-[12.5px] text-zoru-ink-muted">
+                        No criteria recorded.
+                    </div>
+                ) : (
+                    <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-zoru-line">
+                        <ZoruTable>
+                            <ZoruTableHeader>
+                                <ZoruTableRow>
+                                    <ZoruTableHead>Criterion</ZoruTableHead>
+                                    <ZoruTableHead>Target</ZoruTableHead>
+                                    <ZoruTableHead>Achieved</ZoruTableHead>
+                                    <ZoruTableHead className="text-right">Score</ZoruTableHead>
+                                </ZoruTableRow>
+                            </ZoruTableHeader>
+                            <ZoruTableBody>
+                                {criteria.map((c, i) => (
+                                    <ZoruTableRow key={i}>
+                                        <ZoruTableCell className="text-zoru-ink">{c.name}</ZoruTableCell>
+                                        <ZoruTableCell className="text-zoru-ink">{c.target || '—'}</ZoruTableCell>
+                                        <ZoruTableCell className="text-zoru-ink">{c.achieved || '—'}</ZoruTableCell>
+                                        <ZoruTableCell className="text-right font-mono text-[12px] text-zoru-ink">
+                                            {c.score != null ? c.score : '—'}
+                                        </ZoruTableCell>
+                                    </ZoruTableRow>
+                                ))}
+                            </ZoruTableBody>
+                        </ZoruTable>
+                    </div>
+                )}
+            </ZoruCard>
+
+            {/* Notes */}
+            <ZoruCard className="p-6">
+                <div className="mb-3 text-[15px] font-medium text-zoru-ink">Notes</div>
+                {probation.notes ? (
+                    <pre className="whitespace-pre-wrap rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-4 font-sans text-[13px] text-zoru-ink">
+                        {probation.notes}
+                    </pre>
+                ) : (
+                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-6 text-center text-[12.5px] text-zoru-ink-muted">
+                        No notes recorded.
+                    </div>
+                )}
+            </ZoruCard>
+        </div>
+    );
 }

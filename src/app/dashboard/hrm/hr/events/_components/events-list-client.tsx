@@ -14,7 +14,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Edit, ExternalLink, LoaderCircle, Trash2, Video } from 'lucide-react';
+import { Edit, LoaderCircle, Trash2, Video } from 'lucide-react';
 
 import {
     ZoruAlertDialog,
@@ -398,6 +398,3 @@ function LocationCell({
     return <span className="text-zoru-ink-muted">—</span>;
 }
 
-// Kept for tree-shaking ESLint hygiene — used inside the conditional render
-// above when an organizer link is provided.
-void ExternalLink;

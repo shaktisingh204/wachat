@@ -16,7 +16,6 @@ import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
 import {
     ArrowLeft,
-    CalendarDays,
     Image as ImageIcon,
     LoaderCircle,
     Save,
@@ -85,20 +84,6 @@ function toLocalInputValue(iso?: string | null): string {
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(
         d.getHours(),
     )}:${pad(d.getMinutes())}`;
-}
-
-function SubmitButton({ isEditing }: { isEditing: boolean }) {
-    const { pending } = useFormStatus();
-    return (
-        <ZoruButton type="submit" disabled={pending}>
-            {pending ? (
-                <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-                <Save className="mr-2 h-4 w-4" />
-            )}
-            {isEditing ? 'Save changes' : 'Create event'}
-        </ZoruButton>
-    );
 }
 
 export interface EventFormProps {
@@ -454,11 +439,6 @@ export function EventForm({ initialData }: EventFormProps) {
                         </ZoruButton>
                         <SubmitButtonGuarded isEditing={isEditing} disabled={endBeforeStartError} />
                     </div>
-
-                    {/* Visually-hidden helper icon for screen readers / brand */}
-                    <span className="sr-only">
-                        <CalendarDays />
-                    </span>
                 </form>
             </ZoruCardContent>
         </ZoruCard>
@@ -490,5 +470,3 @@ function SubmitButtonGuarded({
     );
 }
 
-// Re-export the simpler submit for callers that don't need cross-field validation.
-export { SubmitButton as EventFormSubmitButton };

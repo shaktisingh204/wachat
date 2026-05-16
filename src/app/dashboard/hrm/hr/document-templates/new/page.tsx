@@ -1,24 +1,48 @@
-'use client';
+/**
+ * New document template page — server wrapper around `<DocumentTemplateForm />`.
+ */
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
+import { ArrowLeft, FileCode } from 'lucide-react';
 
-import { ClipboardList } from 'lucide-react';
-import { HrFormPage } from '../../_components/hr-form-page';
-import { saveDocumentTemplate } from '@/app/actions/hr.actions';
-import { fields, sections } from '../_config';
+import { ZoruButton } from '@/components/zoruui';
+import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { getSession } from '@/app/actions/user.actions';
 
-export default function NewDocumentTemplatePage() {
-  return (
-    <HrFormPage
-      title="New Template"
-      subtitle="Create a reusable document template."
-      icon={ClipboardList}
-      backHref="/dashboard/hrm/hr/document-templates"
-      singular="Template"
-      fields={fields}
-      sections={sections}
-      saveAction={saveDocumentTemplate}
-    />
-  );
+import { DocumentTemplateForm } from '../_components/document-template-form';
+
+export const dynamic = 'force-dynamic';
+
+export default async function NewDocumentTemplatePage() {
+    const session = await getSession();
+    if (!session?.user) redirect('/login');
+
+    return (
+        <div className="flex w-full flex-col gap-6">
+            <CrmPageHeader
+                breadcrumbs={[
+                    { label: 'HR', href: '/dashboard/hrm/hr' },
+                    {
+                        label: 'Document templates',
+                        href: '/dashboard/hrm/hr/document-templates',
+                    },
+                    { label: 'New' },
+                ]}
+                title="New Document Template"
+                subtitle="Author a reusable HR document template with placeholder variables."
+                icon={FileCode}
+                actions={
+                    <ZoruButton variant="ghost" asChild>
+                        <Link href="/dashboard/hrm/hr/document-templates">
+                            <ArrowLeft className="mr-2 h-4 w-4" />
+                            Back to list
+                        </Link>
+                    </ZoruButton>
+                }
+            />
+
+            <DocumentTemplateForm />
+        </div>
+    );
 }

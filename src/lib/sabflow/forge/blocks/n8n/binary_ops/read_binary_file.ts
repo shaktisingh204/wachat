@@ -21,7 +21,8 @@
  */
 
 import { registerForgeBlock } from '../../../registry';
-import { rustPublicFetch } from '@/lib/rust-client/fetcher';
+// `rust-client/fetcher` is server-only (depends on `next/headers`). Loaded
+// dynamically inside `readSabfileShare` so this module stays import-safe.
 import type {
   ForgeActionContext,
   ForgeActionResult,
@@ -74,6 +75,7 @@ async function readSabfileShare(ctx: ForgeActionContext): Promise<ForgeActionRes
   if (!token) throw new Error('ReadBinaryFile: shareToken is required');
 
   const qs = password ? `?password=${encodeURIComponent(password)}` : '';
+  const { rustPublicFetch } = await import('@/lib/rust-client/fetcher');
   const { url } = await rustPublicFetch<{ url: string }>(
     `/v1/sabfiles/share/${encodeURIComponent(token)}/download${qs}`,
   );

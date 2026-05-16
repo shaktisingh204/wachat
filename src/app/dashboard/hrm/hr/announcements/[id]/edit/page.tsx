@@ -1,61 +1,66 @@
-'use client';
+/**
+ * HR Announcement — edit page.
+ *
+ * Server component that loads the existing announcement via
+ * `getAnnouncementById` and renders <AnnouncementForm initialData={...} />
+ * in edit mode. The form action redirects back to the detail page.
+ */
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
+import Link from 'next/link';
+import { notFound, redirect } from 'next/navigation';
+import { ArrowLeft, Megaphone } from 'lucide-react';
 
-import * as React from 'react';
-import { useParams } from 'next/navigation';
-import { Megaphone } from 'lucide-react';
-import { HrFormPage } from '../../../_components/hr-form-page';
-import { getAnnouncements, saveAnnouncement } from '@/app/actions/hr.actions';
-import type { HrAnnouncement } from '@/lib/hr-types';
-import { fields, sections } from '../../_config';
+import { ZoruButton } from '@/components/zoruui';
+import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { getAnnouncementById } from '@/app/actions/crm-announcements.actions';
+import { getSession } from '@/app/actions/user.actions';
 
-export default function EditAnnouncementPage() {
-  const params = useParams<{ id: string }>();
-  const id = params?.id;
-  const [record, setRecord] = React.useState<
-    (HrAnnouncement & { _id: string }) | null
-  >(null);
-  const [loading, setLoading] = React.useState(true);
+import { AnnouncementForm } from '../../_components/announcement-form';
 
-  React.useEffect(() => {
-    let active = true;
-    (async () => {
-      try {
-        const list = (await getAnnouncements()) as (HrAnnouncement & {
-          _id: string;
-        })[];
-        const found = Array.isArray(list)
-          ? list.find((r) => String(r._id) === String(id)) || null
-          : null;
-        if (active) setRecord(found);
-      } finally {
-        if (active) setLoading(false);
-      }
-    })();
-    return () => {
-      active = false;
-    };
-  }, [id]);
+export const dynamic = 'force-dynamic';
 
-  if (loading) {
+const BASE = '/dashboard/hrm/hr/announcements';
+
+export default async function EditAnnouncementPage({
+    params,
+}: {
+    params: Promise<{ id: string }>;
+}) {
+    const { id } = await params;
+
+    const session = await getSession();
+    if (!session?.user) redirect('/login');
+
+    const announcement = await getAnnouncementById(id);
+    if (!announcement) notFound();
+
     return (
-      <div className="text-[13px] text-muted-foreground">Loading…</div>
-    );
-  }
+        <div className="flex w-full flex-col gap-6">
+            <CrmPageHeader
+                breadcrumbs={[
+                    { label: 'HRM', href: '/dashboard/hrm' },
+                    { label: 'HR', href: '/dashboard/hrm/hr' },
+                    { label: 'Announcements', href: BASE },
+                    {
+                        label: announcement.title,
+                        href: `${BASE}/${announcement._id}`,
+                    },
+                    { label: 'Edit' },
+                ]}
+                title={`Edit · ${announcement.title}`}
+                subtitle="Update the contents, audience, or schedule of this announcement."
+                icon={Megaphone}
+                actions={
+                    <ZoruButton variant="ghost" asChild>
+                        <Link href={`${BASE}/${announcement._id}`}>
+                            <ArrowLeft className="mr-1.5 h-4 w-4" />
+                            Back
+                        </Link>
+                    </ZoruButton>
+                }
+            />
 
-  return (
-    <HrFormPage
-      title="Edit Announcement"
-      subtitle="Update announcement details."
-      icon={Megaphone}
-      backHref="/dashboard/hrm/hr/announcements"
-      singular="Announcement"
-      fields={fields}
-      sections={sections}
-      saveAction={saveAnnouncement}
-      initial={record as unknown as Record<string, unknown>}
-    />
-  );
+            <AnnouncementForm initialData={announcement} />
+        </div>
+    );
 }

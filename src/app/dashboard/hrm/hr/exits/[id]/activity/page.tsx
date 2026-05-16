@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { getCrmExitById } from '@/app/actions/crm-exits.actions';
+import { getExitById } from '@/app/actions/crm-exits.actions';
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -10,7 +10,7 @@ interface PageProps {
 
 export default async function ExitActivityPage({ params }: PageProps) {
     const { id } = await params;
-    const exit = await getCrmExitById(id);
+    const exit = await getExitById(id);
     if (!exit) notFound();
 
     return (

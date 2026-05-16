@@ -1,274 +1,240 @@
 'use server';
 
 /**
- * CRM Exit (offboarding) server actions.
+ * CRM HR Exits — server-action wrappers around the Rust crate.
  *
- * Tenant-scoped reads/writes against the `crm_exits` Mongo collection.
- * Mirrors the legacy direct-Mongo branch of `crm-accounts.actions.ts`
- * (no Rust wiring for this entity). Soft-deletes via `archived` flag.
+ * Primary path: `crmExitsApi`. On Rust failure we record a fallback
+ * telemetry event and surface the error — there is no Mongo shadow
+ * read because this entity is fully owned by the Rust crate.
  *
- * Schema (per `crm_function_plan.md` §10):
- *   - type: 'resignation' | 'termination' | 'end-of-contract'
- *   - noticeStart, lastDay (Date)
- *   - fnfStatus: 'pending' | 'in-progress' | 'cleared'
- *   - exitInterviewNotes (string)
- *   - nocStatus, assetReturnStatus, knowledgeTransferStatus
- *
- * Tenant scope: every operation filters by `userId == session.user._id`.
+ * Field shape mirrors the Rust DTO (`rust/crates/crm-exits`) which
+ * serialises with `rename_all = "camelCase"`.
  */
 
 import { revalidatePath } from 'next/cache';
-import { ObjectId, type WithId } from 'mongodb';
 
 import { getSession } from '@/app/actions/user.actions';
-import { connectToDatabase } from '@/lib/mongodb';
-import { writeAuditEntry } from '@/lib/audit-log';
 import { requirePermission } from '@/lib/rbac-server';
 import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
-import { crmExitsApi } from '@/lib/rust-client/crm-exits';
 import { RustApiError } from '@/lib/rust-client/fetcher';
+import {
+    crmExitsApi,
+    type CrmExitCreateInput,
+    type CrmExitDoc,
+    type CrmExitListParams,
+    type CrmExitListResponse,
+    type CrmExitStatus,
+    type CrmExitType,
+    type CrmExitUpdateInput,
+} from '@/lib/rust-client/crm-exits';
 
-function useRustCrm(): boolean {
-  return process.env.USE_RUST_CRM === 'true';
+/* ─── Helpers ────────────────────────────────────────────────────────── */
+
+function asString(v: FormDataEntryValue | null): string | undefined {
+    if (v == null) return undefined;
+    const s = String(v).trim();
+    return s.length > 0 ? s : undefined;
 }
 
-export interface CrmExitDoc {
-  _id?: ObjectId;
-  userId: ObjectId;
-  employeeId?: string;
-  employeeName?: string;
-  type: 'resignation' | 'termination' | 'end-of-contract';
-  noticeStart?: Date;
-  lastDay?: Date;
-  fnfStatus: 'pending' | 'in-progress' | 'cleared';
-  nocStatus: 'pending' | 'issued' | 'na';
-  assetReturnStatus: 'pending' | 'partial' | 'complete';
-  knowledgeTransferStatus: 'pending' | 'in-progress' | 'complete';
-  exitInterviewNotes?: string;
-  reason?: string;
-  notes?: string;
-  archived: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+function rustError(e: unknown): { code?: string; status?: number; msg: string } {
+    if (e instanceof RustApiError) {
+        return { code: e.code, status: e.status, msg: e.message };
+    }
+    return { msg: e instanceof Error ? e.message : 'Unknown error' };
 }
 
-function revalidateSurfaces(id?: string): void {
-  revalidatePath('/dashboard/hrm/hr/exits');
-  if (id) revalidatePath(`/dashboard/hrm/hr/exits/${id}`);
-}
+const VALID_STATUSES: ReadonlySet<CrmExitStatus> = new Set<CrmExitStatus>([
+    'open',
+    'complete',
+    'cancelled',
+    'archived',
+]);
 
-/* ─── getCrmExits ─────────────────────────────────────────────────────── */
+const VALID_TYPES: ReadonlySet<CrmExitType> = new Set<CrmExitType>([
+    'resignation',
+    'termination',
+    'retirement',
+    'end_of_contract',
+    'other',
+]);
 
-export async function getCrmExits(
-  status: 'active' | 'archived' | 'all' = 'active',
-): Promise<WithId<CrmExitDoc>[]> {
-  const session = await getSession();
-  if (!session?.user) return [];
+/* ─── Reads ──────────────────────────────────────────────────────────── */
 
-  try {
-    const { db } = await connectToDatabase();
-    const filter: Record<string, unknown> = {
-      userId: new ObjectId(session.user._id as string),
+export async function getExits(
+    filters?: CrmExitListParams,
+): Promise<CrmExitListResponse> {
+    const empty: CrmExitListResponse = {
+        items: [],
+        page: 1,
+        limit: 50,
+        hasMore: false,
     };
-    if (status === 'active') filter.archived = { $ne: true };
-    else if (status === 'archived') filter.archived = true;
 
-    const docs = await db
-      .collection<CrmExitDoc>('crm_exits')
-      .find(filter)
-      .sort({ createdAt: -1 })
-      .toArray();
-    return JSON.parse(JSON.stringify(docs)) as WithId<CrmExitDoc>[];
-  } catch (e) {
-    console.error('[getCrmExits]', e);
-    return [];
-  }
-}
+    const session = await getSession();
+    if (!session?.user) return empty;
 
-/* ─── getCrmExitById ──────────────────────────────────────────────────── */
+    const guard = await requirePermission('crm_exit', 'view');
+    if (!guard.ok) return empty;
 
-export async function getCrmExitById(
-  id: string,
-): Promise<WithId<CrmExitDoc> | null> {
-  const session = await getSession();
-  if (!session?.user) return null;
-  if (!id || !ObjectId.isValid(id)) return null;
-
-  if (useRustCrm()) {
     try {
-      const doc = await crmExitsApi.getById(id);
-      return JSON.parse(JSON.stringify(doc)) as WithId<CrmExitDoc>;
+        return await crmExitsApi.list(filters);
     } catch (e) {
-      console.error('[getCrmExitById] rust path failed; falling back:', e);
-      recordRustFallback({
-        entity: 'exit',
-        op: 'get',
-        errorCode: e instanceof RustApiError ? e.code : undefined,
-        status: e instanceof RustApiError ? e.status : undefined,
-      });
+        const { code, status, msg } = rustError(e);
+        console.error('[getExits] rust call failed:', msg);
+        recordRustFallback({
+            entity: 'exit',
+            op: 'list',
+            errorCode: code,
+            status,
+        });
+        return empty;
     }
-  }
-
-  try {
-    const { db } = await connectToDatabase();
-    const doc = await db.collection<CrmExitDoc>('crm_exits').findOne({
-      _id: new ObjectId(id),
-      userId: new ObjectId(session.user._id as string),
-    });
-    return doc ? (JSON.parse(JSON.stringify(doc)) as WithId<CrmExitDoc>) : null;
-  } catch (e) {
-    console.error('[getCrmExitById]', e);
-    return null;
-  }
 }
 
-/* ─── saveCrmExit (create + update via _id) ───────────────────────────── */
+export async function getExitById(id: string): Promise<CrmExitDoc | null> {
+    const session = await getSession();
+    if (!session?.user) return null;
+    if (!id) return null;
 
-export async function saveCrmExit(
-  _prev: unknown,
-  formData: FormData,
-): Promise<{ message?: string; error?: string; id?: string }> {
-  const session = await getSession();
-  if (!session?.user) return { error: 'Access denied.' };
+    const guard = await requirePermission('crm_exit', 'view');
+    if (!guard.ok) return null;
 
-  const idRaw = (formData.get('_id') as string | null) || '';
-  const isEditing = !!idRaw && ObjectId.isValid(idRaw);
+    try {
+        return await crmExitsApi.getById(id);
+    } catch (e) {
+        const { code, status, msg } = rustError(e);
+        console.error('[getExitById] rust call failed:', msg);
+        recordRustFallback({
+            entity: 'exit',
+            op: 'get',
+            errorCode: code,
+            status,
+        });
+        return null;
+    }
+}
 
-  const guard = await requirePermission('hrm_exit', isEditing ? 'edit' : 'create');
-  if (!guard.ok) return { error: guard.error };
+/* ─── Writes ─────────────────────────────────────────────────────────── */
 
-  const employeeName = ((formData.get('employeeName') as string | null) || '').trim();
-  const employeeId = ((formData.get('employeeId') as string | null) || '').trim();
-  const type =
-    ((formData.get('type') as string | null) || 'resignation') as CrmExitDoc['type'];
-  const noticeStartRaw = (formData.get('noticeStart') as string | null) || '';
-  const lastDayRaw = (formData.get('lastDay') as string | null) || '';
-  const fnfStatus =
-    ((formData.get('fnfStatus') as string | null) || 'pending') as CrmExitDoc['fnfStatus'];
-  const nocStatus =
-    ((formData.get('nocStatus') as string | null) || 'pending') as CrmExitDoc['nocStatus'];
-  const assetReturnStatus =
-    ((formData.get('assetReturnStatus') as string | null) || 'pending') as CrmExitDoc['assetReturnStatus'];
-  const knowledgeTransferStatus =
-    ((formData.get('knowledgeTransferStatus') as string | null) ||
-      'pending') as CrmExitDoc['knowledgeTransferStatus'];
-  const exitInterviewNotes =
-    ((formData.get('exitInterviewNotes') as string | null) || '').trim() || undefined;
-  const reason = ((formData.get('reason') as string | null) || '').trim() || undefined;
-  const notes = ((formData.get('notes') as string | null) || '').trim() || undefined;
-
-  if (!employeeName && !employeeId) {
-    return { error: 'Employee name or ID is required.' };
-  }
-
-  const update: Partial<CrmExitDoc> = {
-    employeeName: employeeName || undefined,
-    employeeId: employeeId || undefined,
-    type,
-    fnfStatus,
-    nocStatus,
-    assetReturnStatus,
-    knowledgeTransferStatus,
-    exitInterviewNotes,
-    reason,
-    notes,
-    updatedAt: new Date(),
-  };
-  if (noticeStartRaw) update.noticeStart = new Date(noticeStartRaw);
-  if (lastDayRaw) update.lastDay = new Date(lastDayRaw);
-
-  try {
-    const { db } = await connectToDatabase();
-    const userId = new ObjectId(session.user._id as string);
-
-    if (idRaw && ObjectId.isValid(idRaw)) {
-      const res = await db
-        .collection<CrmExitDoc>('crm_exits')
-        .updateOne(
-          { _id: new ObjectId(idRaw), userId },
-          { $set: update },
-        );
-      if (res.matchedCount === 0) {
-        return { error: 'Exit not found or access denied.' };
-      }
-      await writeAuditEntry({
-        tenantUserId: String(session.user._id),
-        actorId: String(session.user._id),
-        action: 'update',
-        entityKind: 'exit',
-        entityId: idRaw,
-      });
-      revalidateSurfaces(idRaw);
-      return { message: 'Exit updated.', id: idRaw };
+function readPayload(formData: FormData): {
+    payload: CrmExitCreateInput;
+    status?: CrmExitStatus;
+    error?: string;
+} {
+    const employeeName = asString(formData.get('employeeName'));
+    const employeeId = asString(formData.get('employeeId'));
+    if (!employeeName && !employeeId) {
+        return {
+            payload: {} as CrmExitCreateInput,
+            error: 'Employee name or ID is required.',
+        };
     }
 
-    const doc: CrmExitDoc = {
-      userId,
-      type,
-      fnfStatus,
-      nocStatus,
-      assetReturnStatus,
-      knowledgeTransferStatus,
-      archived: false,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      ...update,
+    const typeRaw = asString(formData.get('type'));
+    const type: CrmExitType | undefined =
+        typeRaw && VALID_TYPES.has(typeRaw as CrmExitType)
+            ? (typeRaw as CrmExitType)
+            : undefined;
+
+    const statusRaw = asString(formData.get('status'));
+    const status: CrmExitStatus | undefined =
+        statusRaw && VALID_STATUSES.has(statusRaw as CrmExitStatus)
+            ? (statusRaw as CrmExitStatus)
+            : undefined;
+
+    const payload: CrmExitCreateInput = {
+        employeeName,
+        employeeId,
+        type: type ?? 'resignation',
+        noticeStart: asString(formData.get('noticeStart')),
+        lastDay: asString(formData.get('lastDay')),
+        fnfStatus: asString(formData.get('fnfStatus')) ?? 'pending',
+        nocStatus: asString(formData.get('nocStatus')) ?? 'pending',
+        assetReturnStatus: asString(formData.get('assetReturnStatus')) ?? 'pending',
+        knowledgeTransferStatus:
+            asString(formData.get('knowledgeTransferStatus')) ?? 'pending',
+        exitInterviewNotes: asString(formData.get('exitInterviewNotes')),
+        reason: asString(formData.get('reason')),
+        notes: asString(formData.get('notes')),
     };
 
-    const result = await db.collection<CrmExitDoc>('crm_exits').insertOne(doc);
-    await writeAuditEntry({
-      tenantUserId: String(session.user._id),
-      actorId: String(session.user._id),
-      action: 'create',
-      entityKind: 'exit',
-      entityId: String(result.insertedId),
-    });
-
-    revalidateSurfaces();
-    return { message: 'Exit created.', id: result.insertedId.toString() };
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : 'Unknown error';
-    console.error('[saveCrmExit]', e);
-    return { error: msg };
-  }
+    return { payload, status };
 }
 
-/* ─── deleteCrmExit (soft-delete via `archived`) ──────────────────────── */
+export async function saveExit(
+    _prev: { message?: string; error?: string; id?: string } | undefined,
+    formData: FormData,
+): Promise<{ message?: string; error?: string; id?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { error: 'Access denied.' };
 
-export async function deleteCrmExit(
-  id: string,
-): Promise<{ success: boolean; error?: string }> {
-  const session = await getSession();
-  if (!session?.user) return { success: false, error: 'Access denied.' };
-  const guard = await requirePermission('hrm_exit', 'delete');
-  if (!guard.ok) return { success: false, error: guard.error };
-  if (!id || !ObjectId.isValid(id)) {
-    return { success: false, error: 'Invalid id.' };
-  }
+    const exitId = asString(formData.get('exitId'));
+    const isEditing = !!exitId;
 
-  try {
-    const { db } = await connectToDatabase();
-    const res = await db.collection('crm_exits').updateOne(
-      {
-        _id: new ObjectId(id),
-        userId: new ObjectId(session.user._id as string),
-      },
-      { $set: { archived: true, updatedAt: new Date() } },
+    const guard = await requirePermission(
+        'crm_exit',
+        isEditing ? 'edit' : 'create',
     );
-    if (res.matchedCount === 0) {
-      return { success: false, error: 'Not found.' };
+    if (!guard.ok) return { error: guard.error };
+
+    const { payload, status, error } = readPayload(formData);
+    if (error) return { error };
+
+    try {
+        if (isEditing) {
+            const patch: CrmExitUpdateInput = { ...payload };
+            if (status) patch.status = status;
+            const updated = await crmExitsApi.update(exitId!, patch);
+            revalidatePath('/dashboard/hrm/hr/exits');
+            revalidatePath(`/dashboard/hrm/hr/exits/${exitId}`);
+            return {
+                message: 'Exit updated.',
+                id: updated?._id ?? exitId,
+            };
+        }
+
+        const created = await crmExitsApi.create(payload);
+        revalidatePath('/dashboard/hrm/hr/exits');
+        return {
+            message: 'Exit created.',
+            id: created.id,
+        };
+    } catch (e) {
+        const { code, status: httpStatus, msg } = rustError(e);
+        console.error('[saveExit] rust call failed:', msg);
+        recordRustFallback({
+            entity: 'exit',
+            op: isEditing ? 'update' : 'create',
+            errorCode: code,
+            status: httpStatus,
+        });
+        return { error: `Failed to save exit: ${msg}` };
     }
-    await writeAuditEntry({
-      tenantUserId: String(session.user._id),
-      actorId: String(session.user._id),
-      action: 'archive',
-      entityKind: 'exit',
-      entityId: id,
-    });
-    revalidateSurfaces(id);
-    return { success: true };
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : 'Unknown error';
-    return { success: false, error: msg };
-  }
+}
+
+export async function deleteExit(
+    id: string,
+): Promise<{ success: boolean; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied.' };
+    if (!id) return { success: false, error: 'Exit id is required.' };
+
+    const guard = await requirePermission('crm_exit', 'delete');
+    if (!guard.ok) return { success: false, error: guard.error };
+
+    try {
+        const result = await crmExitsApi.delete(id);
+        revalidatePath('/dashboard/hrm/hr/exits');
+        return { success: !!result?.deleted };
+    } catch (e) {
+        const { code, status, msg } = rustError(e);
+        console.error('[deleteExit] rust call failed:', msg);
+        recordRustFallback({
+            entity: 'exit',
+            op: 'delete',
+            errorCode: code,
+            status,
+        });
+        return { success: false, error: `Failed to delete exit: ${msg}` };
+    }
 }

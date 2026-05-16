@@ -1,78 +1,263 @@
-import { HrDetailPage } from '../../_components/hr-detail-page';
-import { HrProgressCell } from '../../_components/hr-list-shell';
-import { getOkrs, deleteOkr } from '@/app/actions/hr.actions';
-import type { HrOkr } from '@/lib/hr-types';
+/**
+ * OKR detail page.
+ *
+ * Server component — fetches the OKR by id via `getOkrById` and renders a
+ * summary card, progress + confidence strip, and the key-results list.
+ */
 
-type Row = HrOkr & {
-  _id: string;
-  title?: string;
-  type?: string;
-  due_date?: string | Date;
-  progress?: number;
+import Link from 'next/link';
+import { notFound, redirect } from 'next/navigation';
+import { ArrowLeft, Pencil, Target } from 'lucide-react';
+
+import {
+    ZoruBadge,
+    ZoruButton,
+    ZoruCard,
+    ZoruProgress,
+} from '@/components/zoruui';
+import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
+import { getSession } from '@/app/actions/user.actions';
+import { getOkrById } from '@/app/actions/crm-okrs.actions';
+import type {
+    CrmOkrKeyResult,
+    CrmOkrKeyResultStatus,
+    CrmOkrStatus,
+} from '@/lib/rust-client/crm-okrs';
+
+export const dynamic = 'force-dynamic';
+
+const BASE = '/dashboard/hrm/hr/okrs';
+
+const STATUS_TONE: Record<CrmOkrStatus, StatusTone> = {
+    draft: 'neutral',
+    in_progress: 'blue',
+    on_track: 'green',
+    at_risk: 'amber',
+    behind: 'red',
+    completed: 'green',
+    missed: 'red',
+    archived: 'neutral',
 };
 
+const KR_STATUS_TONE: Record<CrmOkrKeyResultStatus, StatusTone> = {
+    on_track: 'green',
+    at_risk: 'amber',
+    behind: 'red',
+    completed: 'green',
+};
+
+function fmtDate(value: unknown): string {
+    if (!value) return '—';
+    const d = new Date(value as string);
+    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
+}
+
+function pretty(s?: string): string {
+    if (!s) return '—';
+    return s.replace(/_/g, ' ');
+}
+
+function clampPercent(n: unknown): number {
+    const v = typeof n === 'number' ? n : Number(n);
+    if (!Number.isFinite(v)) return 0;
+    return Math.max(0, Math.min(100, Math.round(v)));
+}
+
 export default async function OkrDetailPage({
-  params,
+    params,
 }: {
-  params: Promise<{ id: string }>;
+    params: Promise<{ id: string }>;
 }) {
-  const { id } = await params;
-  const list = (await getOkrs()) as Row[];
-  const okr = list.find((r) => String(r._id) === id) ?? null;
+    const { id: okrId } = await params;
 
-  if (!okr) {
-    return <div className="text-sm text-zoru-ink-muted">OKR not found.</div>;
-  }
+    const session = await getSession();
+    if (!session?.user) redirect('/login');
 
-  const krs = (okr.keyResults ?? []) as { description: string; progress?: number; target?: string; status?: string }[];
+    const okr = await getOkrById(okrId);
+    if (!okr) notFound();
 
-  return (
-    <HrDetailPage
-      title={okr.title ?? okr.objective ?? 'OKR'}
-      eyebrow="OKR"
-      status={{ label: String(okr.status ?? 'unknown') }}
-      listHref="/dashboard/hrm/hr/okrs"
-      listLabel="Back to OKRs"
-      editHref={`/dashboard/hrm/hr/okrs/${id}/edit`}
-      deleteAction={deleteOkr}
-      entityId={id}
-      sections={[
-        {
-          title: 'Overview',
-          fields: [
-            { label: 'Period', value: okr.quarter },
-            { label: 'Type', value: okr.type },
-            { label: 'Status', value: okr.status },
-            {
-              label: 'Due date',
-              value: okr.due_date ? new Date(okr.due_date).toLocaleDateString() : null,
-            },
-            {
-              label: 'Overall progress',
-              value: <HrProgressCell value={okr.progress} />,
-              fullWidth: true,
-            },
-          ],
-        },
-        {
-          title: `Key results (${krs.length})`,
-          fields:
-            krs.length > 0
-              ? krs.map((kr, i) => ({
-                  label: `KR-${i + 1}: ${kr.description ?? '—'}`,
-                  value: (
-                    <div className="space-y-1">
-                      <HrProgressCell value={kr.progress} />
-                      <p className="text-xs text-zoru-ink-muted">
-                        Target: {kr.target ?? '—'} · Status: {kr.status ?? '—'}
-                      </p>
+    const status = (okr.status ?? 'draft') as CrmOkrStatus;
+    const tone = STATUS_TONE[status] ?? 'neutral';
+    const progress = clampPercent(okr.progress);
+    const confidence =
+        typeof okr.confidence === 'number' ? clampPercent(okr.confidence) : null;
+
+    const krs = Array.isArray(okr.keyResults) ? (okr.keyResults as CrmOkrKeyResult[]) : [];
+    const tags = Array.isArray(okr.tags) ? okr.tags : [];
+
+    return (
+        <div className="flex w-full flex-col gap-6">
+            <CrmPageHeader
+                breadcrumbs={[
+                    { label: 'HR', href: '/dashboard/hrm/hr' },
+                    { label: 'OKRs', href: BASE },
+                    { label: okr.objective },
+                ]}
+                title={okr.objective}
+                subtitle={okr.description || 'OKR detail'}
+                icon={Target}
+                actions={
+                    <div className="flex items-center gap-2">
+                        <ZoruButton variant="outline" asChild>
+                            <Link href={BASE}>
+                                <ArrowLeft className="mr-2 h-4 w-4" />
+                                Back
+                            </Link>
+                        </ZoruButton>
+                        <ZoruButton asChild>
+                            <Link href={`${BASE}/${okrId}/edit`}>
+                                <Pencil className="mr-2 h-4 w-4" />
+                                Edit
+                            </Link>
+                        </ZoruButton>
                     </div>
-                  ),
-                  fullWidth: true,
-                }))
-              : [{ label: 'No key results', value: '—', fullWidth: true }],
-        },
-      ]}
-    />
-  );
+                }
+            />
+
+            {/* Summary card */}
+            <ZoruCard className="p-6">
+                <div className="mb-4 flex flex-wrap items-center gap-2">
+                    <div className="text-[14px] font-medium text-zoru-ink">Overview</div>
+                    <StatusPill label={pretty(status)} tone={tone} />
+                    {tags.map((t) => (
+                        <ZoruBadge key={t} variant="ghost">
+                            {t}
+                        </ZoruBadge>
+                    ))}
+                </div>
+                <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-2">
+                    <div>
+                        <div className="text-zoru-ink-muted">Period</div>
+                        <div className="font-mono text-zoru-ink">{okr.period || '—'}</div>
+                    </div>
+                    <div>
+                        <div className="text-zoru-ink-muted">Owner</div>
+                        <div className="text-zoru-ink">
+                            {okr.ownerName ?? okr.ownerId ?? '—'}
+                        </div>
+                    </div>
+                    <div>
+                        <div className="text-zoru-ink-muted">Team / Department</div>
+                        <div className="text-zoru-ink">
+                            {okr.teamId ?? okr.departmentId ?? '—'}
+                        </div>
+                    </div>
+                    <div>
+                        <div className="text-zoru-ink-muted">Parent OKR</div>
+                        <div className="font-mono text-[12px] text-zoru-ink">
+                            {okr.parentOkrId || '—'}
+                        </div>
+                    </div>
+                    <div>
+                        <div className="text-zoru-ink-muted">Start date</div>
+                        <div className="text-zoru-ink">{fmtDate(okr.startDate)}</div>
+                    </div>
+                    <div>
+                        <div className="text-zoru-ink-muted">End date</div>
+                        <div className="text-zoru-ink">{fmtDate(okr.endDate)}</div>
+                    </div>
+                </div>
+            </ZoruCard>
+
+            {/* Progress strip */}
+            <ZoruCard className="p-6">
+                <div className="mb-3 text-[14px] font-medium text-zoru-ink">
+                    Progress
+                </div>
+                <div className="grid gap-4 sm:grid-cols-2">
+                    <div>
+                        <div className="mb-1.5 flex items-center justify-between text-[12.5px]">
+                            <span className="text-zoru-ink-muted">Overall progress</span>
+                            <span className="font-mono tabular-nums text-zoru-ink">
+                                {progress}%
+                            </span>
+                        </div>
+                        <ZoruProgress value={progress} />
+                    </div>
+                    {confidence != null ? (
+                        <div>
+                            <div className="mb-1.5 flex items-center justify-between text-[12.5px]">
+                                <span className="text-zoru-ink-muted">Confidence</span>
+                                <span className="font-mono tabular-nums text-zoru-ink">
+                                    {confidence}%
+                                </span>
+                            </div>
+                            <ZoruProgress value={confidence} />
+                        </div>
+                    ) : null}
+                </div>
+            </ZoruCard>
+
+            {/* Key results */}
+            <ZoruCard className="p-6">
+                <div className="mb-3 text-[15px] font-medium text-zoru-ink">
+                    Key results ({krs.length})
+                </div>
+                {krs.length === 0 ? (
+                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-6 text-center text-[12.5px] text-zoru-ink-muted">
+                        No key results yet.
+                    </div>
+                ) : (
+                    <div className="flex flex-col gap-3">
+                        {krs.map((kr) => {
+                            const tgt = typeof kr.targetValue === 'number' ? kr.targetValue : null;
+                            const cur = typeof kr.currentValue === 'number' ? kr.currentValue : null;
+                            const krProgress =
+                                tgt != null && tgt > 0 && cur != null
+                                    ? clampPercent((cur / tgt) * 100)
+                                    : null;
+                            const krStatus = kr.status as CrmOkrKeyResultStatus;
+                            const krTone = KR_STATUS_TONE[krStatus] ?? 'neutral';
+                            return (
+                                <div
+                                    key={kr.id}
+                                    className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-3"
+                                >
+                                    <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                                        <div className="font-medium text-zoru-ink">{kr.title}</div>
+                                        <StatusPill label={pretty(krStatus)} tone={krTone} />
+                                    </div>
+                                    <div className="grid gap-3 text-[12.5px] sm:grid-cols-4">
+                                        <div>
+                                            <div className="text-zoru-ink-muted">Metric</div>
+                                            <div className="text-zoru-ink">{kr.metric ?? '—'}</div>
+                                        </div>
+                                        <div>
+                                            <div className="text-zoru-ink-muted">Target</div>
+                                            <div className="font-mono tabular-nums text-zoru-ink">
+                                                {tgt != null ? `${tgt}${kr.unit ? ` ${kr.unit}` : ''}` : '—'}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div className="text-zoru-ink-muted">Current</div>
+                                            <div className="font-mono tabular-nums text-zoru-ink">
+                                                {cur != null ? `${cur}${kr.unit ? ` ${kr.unit}` : ''}` : '—'}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div className="text-zoru-ink-muted">Progress</div>
+                                            {krProgress != null ? (
+                                                <div className="flex items-center gap-2">
+                                                    <ZoruProgress
+                                                        value={krProgress}
+                                                        className="h-2 w-20"
+                                                    />
+                                                    <span className="font-mono tabular-nums text-zoru-ink">
+                                                        {krProgress}%
+                                                    </span>
+                                                </div>
+                                            ) : (
+                                                <div className="text-zoru-ink">—</div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                )}
+            </ZoruCard>
+        </div>
+    );
 }

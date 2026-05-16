@@ -103,7 +103,16 @@ export function PolicyForm({ initialData }: PolicyFormProps) {
     const [documentUrl, setDocumentUrl] = useState<string>(
         initialData?.documentUrl ?? '',
     );
-    const [documentName, setDocumentName] = useState<string>('');
+    const [documentName, setDocumentName] = useState<string>(() => {
+        const u = initialData?.documentUrl;
+        if (!u) return '';
+        try {
+            const path = new URL(u, 'http://x').pathname;
+            return decodeURIComponent(path.split('/').pop() ?? '') || u;
+        } catch {
+            return u;
+        }
+    });
 
     // Drive the controlled `<ZoruSelect>`s. Form submission still reads
     // the bound `<select>` hidden under the hood (ZoruSelect renders a

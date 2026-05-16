@@ -541,6 +541,63 @@ export async function deleteProformaInvoice(proformaId: string): Promise<{ succe
     }
 }
 
+/* ─── Canonical Rust-backed list + delete (§1B contract) ─────────────── */
+
+import type { CrmProformaInvoiceDoc, CrmProformaStatus } from '@/lib/rust-client/crm-proforma-invoices';
+
+export interface ProformaListResult {
+    items: CrmProformaInvoiceDoc[];
+    page: number;
+    limit: number;
+    hasMore: boolean;
+}
+
+/**
+ * Canonical Rust-backed list call used by the client-side
+ * `/dashboard/crm/sales/proforma` list page.
+ */
+export async function listProformaInvoices(params?: {
+    page?: number;
+    limit?: number;
+    q?: string;
+    status?: CrmProformaStatus | 'all';
+    accountId?: string;
+}): Promise<ProformaListResult> {
+    const empty: ProformaListResult = { items: [], page: 1, limit: 50, hasMore: false };
+    const session = await getSession();
+    if (!session?.user) return empty;
+    const guard = await requirePermission('crm_proforma_invoice', 'view');
+    if (!guard.ok) return empty;
+
+    try {
+        const res = await crmProformaInvoicesApi.list(params);
+        return res;
+    } catch (e) {
+        console.error('[listProformaInvoices] rust failed:', e);
+        recordRustFallback({
+            entity: 'proforma_invoice',
+            op: 'list',
+            errorCode: e instanceof RustApiError ? e.code : undefined,
+            status: e instanceof RustApiError ? e.status : undefined,
+        });
+        // Soft fallback to mongo path for resilience.
+        try {
+            const { invoices } = await getProformaInvoices(params?.page ?? 1, params?.limit ?? 50, {
+                query: params?.q,
+                status: params?.status === 'all' ? undefined : params?.status,
+            });
+            return {
+                items: invoices as unknown as CrmProformaInvoiceDoc[],
+                page: params?.page ?? 1,
+                limit: params?.limit ?? 50,
+                hasMore: invoices.length === (params?.limit ?? 50),
+            };
+        } catch {
+            return empty;
+        }
+    }
+}
+
 export async function convertProformaToInvoice(
     proformaId: string,
     invoiceId?: string,

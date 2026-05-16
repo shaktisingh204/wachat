@@ -1,0 +1,215 @@
+/**
+ * Payslip detail page — per-employee breakdown card.
+ */
+
+import Link from 'next/link';
+import { notFound, redirect } from 'next/navigation';
+import { ArrowLeft, Receipt } from 'lucide-react';
+
+import {
+    ZoruButton,
+    ZoruCard,
+} from '@/components/zoruui';
+import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
+
+import { getSession } from '@/app/actions/user.actions';
+import { getPayslipDoc } from '@/app/actions/crm-payslips.actions';
+import type { CrmPayslipStatus } from '@/lib/rust-client/crm-payslips';
+
+export const dynamic = 'force-dynamic';
+
+const BASE = '/dashboard/hrm/payroll/payslips';
+
+const STATUS_TONE: Record<CrmPayslipStatus, StatusTone> = {
+    draft: 'amber',
+    issued: 'blue',
+    paid: 'green',
+    archived: 'neutral',
+};
+
+const inr = new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    maximumFractionDigits: 0,
+});
+
+function fmtDate(value: unknown): string {
+    if (!value) return '—';
+    const d = new Date(value as string);
+    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
+}
+
+function fmtPeriod(p: string | undefined): string {
+    if (!p) return '—';
+    const m = /^(\d{4})-(\d{2})/.exec(p);
+    if (!m) return p;
+    const d = new Date(Number(m[1]), Number(m[2]) - 1, 1);
+    return d.toLocaleString('default', { month: 'long', year: 'numeric' });
+}
+
+export default async function PayslipDetailPage({
+    params,
+}: {
+    params: Promise<{ id: string }>;
+}) {
+    const { id } = await params;
+
+    const session = await getSession();
+    if (!session?.user) redirect('/login');
+
+    const payslip = await getPayslipDoc(id);
+    if (!payslip) notFound();
+
+    const status = (payslip.status ?? 'draft') as CrmPayslipStatus;
+    const tone = STATUS_TONE[status] ?? 'neutral';
+
+    return (
+        <div className="flex w-full flex-col gap-6">
+            <CrmPageHeader
+                breadcrumbs={[
+                    { label: 'Payroll', href: '/dashboard/hrm/payroll' },
+                    { label: 'Payslips', href: BASE },
+                    { label: payslip.employeeName ?? payslip._id },
+                ]}
+                title={`Payslip · ${payslip.employeeName ?? payslip.employeeId}`}
+                subtitle={`Pay period ${fmtPeriod(payslip.payPeriod)}`}
+                icon={Receipt}
+                actions={
+                    <ZoruButton variant="ghost" asChild>
+                        <Link href={BASE}>
+                            <ArrowLeft className="mr-2 h-4 w-4" />
+                            Back to list
+                        </Link>
+                    </ZoruButton>
+                }
+            />
+
+            <ZoruCard className="p-6">
+                <div className="mb-4 flex flex-wrap items-center gap-2">
+                    <div className="text-[14px] font-medium text-zoru-ink">
+                        Breakdown
+                    </div>
+                    <StatusPill label={status} tone={tone} />
+                </div>
+
+                <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-2">
+                    <div>
+                        <div className="text-zoru-ink-muted">Employee</div>
+                        <div className="text-zoru-ink">
+                            {payslip.employeeName ?? '—'}
+                        </div>
+                        <div className="font-mono text-[11.5px] text-zoru-ink-muted">
+                            {payslip.employeeId}
+                        </div>
+                    </div>
+                    <div>
+                        <div className="text-zoru-ink-muted">Pay period</div>
+                        <div className="text-zoru-ink">
+                            {fmtPeriod(payslip.payPeriod)}
+                        </div>
+                    </div>
+                    <div>
+                        <div className="text-zoru-ink-muted">Issued at</div>
+                        <div className="text-zoru-ink">
+                            {fmtDate(payslip.issuedAt)}
+                        </div>
+                    </div>
+                    <div>
+                        <div className="text-zoru-ink-muted">Created at</div>
+                        <div className="text-zoru-ink">
+                            {fmtDate(payslip.createdAt)}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Earnings + Deductions */}
+                <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                    <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-4">
+                        <div className="mb-2 text-[13px] font-medium text-zoru-ink">
+                            Earnings
+                        </div>
+                        <dl className="space-y-1.5 text-[13px]">
+                            <div className="flex items-center justify-between">
+                                <dt className="text-zoru-ink-muted">Basic</dt>
+                                <dd className="font-mono text-zoru-ink">
+                                    {inr.format(payslip.basic ?? 0)}
+                                </dd>
+                            </div>
+                            <div className="flex items-center justify-between">
+                                <dt className="text-zoru-ink-muted">HRA</dt>
+                                <dd className="font-mono text-zoru-ink">
+                                    {inr.format(payslip.hra ?? 0)}
+                                </dd>
+                            </div>
+                            <div className="flex items-center justify-between">
+                                <dt className="text-zoru-ink-muted">Allowances</dt>
+                                <dd className="font-mono text-zoru-ink">
+                                    {inr.format(payslip.allowances ?? 0)}
+                                </dd>
+                            </div>
+                            <div className="mt-2 flex items-center justify-between border-t border-zoru-line pt-2">
+                                <dt className="font-medium text-zoru-ink">Gross</dt>
+                                <dd className="font-mono font-medium text-zoru-ink">
+                                    {inr.format(payslip.gross ?? 0)}
+                                </dd>
+                            </div>
+                        </dl>
+                    </div>
+
+                    <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-4">
+                        <div className="mb-2 text-[13px] font-medium text-zoru-ink">
+                            Deductions
+                        </div>
+                        <dl className="space-y-1.5 text-[13px]">
+                            <div className="flex items-center justify-between">
+                                <dt className="text-zoru-ink-muted">PF</dt>
+                                <dd className="font-mono text-zoru-ink">
+                                    {inr.format(payslip.pf ?? 0)}
+                                </dd>
+                            </div>
+                            <div className="flex items-center justify-between">
+                                <dt className="text-zoru-ink-muted">ESI</dt>
+                                <dd className="font-mono text-zoru-ink">
+                                    {inr.format(payslip.esi ?? 0)}
+                                </dd>
+                            </div>
+                            <div className="flex items-center justify-between">
+                                <dt className="text-zoru-ink-muted">Tax</dt>
+                                <dd className="font-mono text-zoru-ink">
+                                    {inr.format(payslip.tax ?? 0)}
+                                </dd>
+                            </div>
+                            <div className="flex items-center justify-between">
+                                <dt className="text-zoru-ink-muted">Other</dt>
+                                <dd className="font-mono text-zoru-ink">
+                                    {inr.format(payslip.deductions ?? 0)}
+                                </dd>
+                            </div>
+                            <div className="mt-2 flex items-center justify-between border-t border-zoru-line pt-2">
+                                <dt className="font-medium text-zoru-ink">Total deductions</dt>
+                                <dd className="font-mono font-medium text-zoru-ink">
+                                    {inr.format(
+                                        (payslip.pf ?? 0) +
+                                            (payslip.esi ?? 0) +
+                                            (payslip.tax ?? 0) +
+                                            (payslip.deductions ?? 0),
+                                    )}
+                                </dd>
+                            </div>
+                        </dl>
+                    </div>
+                </div>
+
+                <div className="mt-6 flex items-center justify-between rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-4">
+                    <div className="text-[14px] font-medium text-zoru-ink">
+                        Net pay
+                    </div>
+                    <div className="font-mono text-[18px] font-medium text-zoru-ink">
+                        {inr.format(payslip.net ?? 0)}
+                    </div>
+                </div>
+            </ZoruCard>
+        </div>
+    );
+}

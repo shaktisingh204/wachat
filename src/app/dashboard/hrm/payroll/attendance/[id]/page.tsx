@@ -1,246 +1,219 @@
+'use client';
+
 /**
- * Attendance detail — `/dashboard/hrm/payroll/attendance/[id]` (canonical).
+ * Attendance detail — per-row view for one attendance record.
  *
- * Server component: hydrates the record via the Rust client and
- * resolves relational fields through `<EntityPickerChip>`. Uses
- * `<EntityDetailShell>` to render header + sectioned body cards +
- * activity timeline. Edit / Back actions live in the header.
+ * Reads via `getCrmAttendance(date)` (the only available getter on the
+ * Mongo path) and finds the row by `_id`. The page accepts an optional
+ * `?date=YYYY-MM-DD` so deep-linking from the list keeps working; if
+ * omitted we fall back to today (the spec only requires that the user
+ * can land on a row from the list page, which always passes the date).
  *
- * §1D rebuild additions:
- *   - Late-by / Early-out badges with the computed delta
- *   - Punch-location chip + "View on Google Maps" deep-link (no
- *     embedded map per the scope cap)
+ * Status changes are done via the bulk-mark page; this view is read-only.
  */
 
+import * as React from 'react';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import { ArrowLeft, ExternalLink, Pencil } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
+import { ArrowLeft, CalendarCheck, Pencil } from 'lucide-react';
 
-import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
-import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { EntityPickerChip } from '@/components/crm/entity-picker';
-import { getAttendance } from '@/app/actions/crm/attendance.actions';
-import type { CrmAttendanceStatus } from '@/lib/rust-client/crm-attendance';
-import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
+import {
+    ZoruBadge,
+    ZoruButton,
+    ZoruCard,
+} from '@/components/zoruui';
 
-export const dynamic = 'force-dynamic';
+import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 
-const STATUS_LABEL: Record<CrmAttendanceStatus, string> = {
-  present: 'Present',
-  absent: 'Absent',
-  half_day: 'Half day',
-  leave: 'Leave',
-  holiday: 'Holiday',
-  wfh: 'WFH',
-};
+import { getCrmAttendance } from '@/app/actions/crm-hr.actions';
+import { getCrmEmployees } from '@/app/actions/crm-employees.actions';
 
-const STATUS_TONE: Record<
-  CrmAttendanceStatus,
-  'green' | 'red' | 'amber' | 'blue' | 'neutral'
-> = {
-  present: 'green',
-  absent: 'red',
-  half_day: 'amber',
-  leave: 'blue',
-  holiday: 'neutral',
-  wfh: 'green',
-};
-
-function fmtDate(v?: string): string {
-  if (!v) return '—';
-  const d = new Date(v);
-  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
+interface AttendanceRecord {
+    _id: string;
+    employeeId: string;
+    employeeName: string;
+    date: string;
+    status: string;
+    checkIn?: string;
+    checkOut?: string;
+    notes?: string;
 }
 
-function fmtDateTime(v?: string): string {
-  if (!v) return '—';
-  const d = new Date(v);
-  return Number.isNaN(d.getTime())
-    ? '—'
-    : d.toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
+function todayIso(): string {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d.toISOString().slice(0, 10);
 }
 
-function fmtHours(v?: number): string {
-  if (typeof v !== 'number') return '—';
-  return `${v.toFixed(2)}h`;
+function fmtDate(value: unknown): string {
+    if (!value) return '—';
+    const d = new Date(value as string);
+    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
 }
 
-function fmtMinutes(v?: number): string {
-  if (typeof v !== 'number') return '—';
-  return `${v} min`;
+function fmtTime(value: unknown): string {
+    if (!value) return '—';
+    const d = new Date(value as string);
+    return Number.isNaN(d.getTime())
+        ? '—'
+        : d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
-function Field({
-  label,
-  children,
+function statusVariant(s: string): 'success' | 'danger' | 'warning' | 'secondary' {
+    if (s === 'Present') return 'success';
+    if (s === 'Absent') return 'danger';
+    if (s === 'Late' || s === 'Half Day') return 'warning';
+    return 'secondary';
+}
+
+function FieldRow({
+    label,
+    children,
 }: {
-  label: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div>
-      <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
-        {label}
-      </div>
-      <div className="mt-1 text-[13px] text-zoru-ink">{children}</div>
-    </div>
-  );
+    label: string;
+    children: React.ReactNode;
+}): React.JSX.Element {
+    return (
+        <div>
+            <dt className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+                {label}
+            </dt>
+            <dd className="mt-1 text-[13px] text-zoru-ink">{children}</dd>
+        </div>
+    );
 }
 
-export default async function AttendanceDetailPage({
-  params,
+export default function AttendanceDetailPage({
+    params,
 }: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
-  const { record, error } = await getAttendance(id);
+    params: Promise<{ id: string }>;
+}): React.JSX.Element {
+    const { id } = React.use(params);
+    const searchParams = useSearchParams();
+    const queryDate = searchParams.get('date');
 
-  if (!record) {
-    if (error) {
-      return (
-        <div className="flex w-full flex-col gap-4 p-6">
-          <p className="text-[14px] text-zoru-ink">
-            Couldn&apos;t load this record — {error}
-          </p>
-          <ZoruButton variant="outline" asChild>
-            <Link href="/dashboard/hrm/payroll/attendance">
-              <ArrowLeft className="h-4 w-4" /> Back to Attendance
-            </Link>
-          </ZoruButton>
-        </div>
-      );
-    }
-    notFound();
-  }
+    const [record, setRecord] = React.useState<AttendanceRecord | null>(null);
+    const [searchDate, setSearchDate] = React.useState<string>(queryDate || todayIso());
+    const [isLoading, startLoad] = React.useTransition();
 
-  const lateBy = record.lateByMinutes ?? 0;
-  const earlyOut = record.earlyOutByMinutes ?? 0;
-  const lat = record.punchIn?.lat;
-  const lng = record.punchIn?.lng;
-  const hasLocation = typeof lat === 'number' && typeof lng === 'number';
-  const mapsUrl = hasLocation
-    ? `https://www.google.com/maps?q=${encodeURIComponent(`${lat},${lng}`)}`
-    : null;
+    React.useEffect(() => {
+        startLoad(async () => {
+            const tries: string[] = [];
+            // Try the URL-hinted date first, then sweep a small window
+            // around today so the link still resolves if a stale date
+            // hint was passed.
+            tries.push(searchDate);
+            const today = new Date(searchDate);
+            for (let off = 1; off <= 7; off++) {
+                const back = new Date(today);
+                back.setDate(today.getDate() - off);
+                tries.push(back.toISOString().slice(0, 10));
+            }
 
-  return (
-    <EntityDetailShell
-      eyebrow="Attendance"
-      title={fmtDate(record.date)}
-      status={{
-        label: STATUS_LABEL[record.status],
-        tone: STATUS_TONE[record.status],
-      }}
-      back={{ href: '/dashboard/hrm/payroll/attendance', label: 'Attendance' }}
-      actions={
-        <ZoruButton asChild>
-          <Link href={`/dashboard/hrm/payroll/attendance/${id}/edit`}>
-            <Pencil className="h-4 w-4" /> Edit
-          </Link>
-        </ZoruButton>
-      }
-      audit={<EntityAuditTimeline entityKind="attendance" entityId={id} />}
-      rightRail={
-        <ZoruCard className="p-4">
-          <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
-            Approver
-          </h3>
-          <div className="text-[13px] text-zoru-ink">
-            {record.approverId ? (
-              <EntityPickerChip entity="user" id={record.approverId} />
+            const empsPromise = getCrmEmployees();
+
+            for (const d of tries) {
+                const list = await getCrmAttendance(new Date(d));
+                const arr = list as unknown as Array<Record<string, unknown>>;
+                const match = arr.find((a) => String(a._id) === id);
+                if (match) {
+                    const emps = (await empsPromise) as unknown as Array<
+                        Record<string, unknown>
+                    >;
+                    const empId = String(match.employeeId ?? '');
+                    const emp = emps.find((e) => String(e._id) === empId);
+                    const name = emp
+                        ? `${(emp.firstName as string) ?? ''} ${(emp.lastName as string) ?? ''}`.trim() || 'Unnamed'
+                        : 'Unknown';
+                    setRecord({
+                        _id: String(match._id),
+                        employeeId: empId,
+                        employeeName: name,
+                        date: String(match.date),
+                        status: String(match.status ?? '—'),
+                        checkIn: match.checkIn as string | undefined,
+                        checkOut: match.checkOut as string | undefined,
+                        notes: match.notes as string | undefined,
+                    });
+                    return;
+                }
+            }
+            setRecord(null);
+        });
+    }, [id, searchDate]);
+
+    return (
+        <div className="flex w-full flex-col gap-6">
+            <CrmPageHeader
+                breadcrumbs={[
+                    { label: 'HRM', href: '/dashboard/hrm' },
+                    { label: 'Payroll', href: '/dashboard/hrm/payroll' },
+                    {
+                        label: 'Attendance',
+                        href: '/dashboard/hrm/payroll/attendance',
+                    },
+                    { label: 'Record' },
+                ]}
+                title="Attendance record"
+                subtitle="Per-employee attendance entry detail."
+                icon={CalendarCheck}
+                actions={
+                    <div className="flex gap-2">
+                        <ZoruButton variant="ghost" asChild>
+                            <Link href="/dashboard/hrm/payroll/attendance">
+                                <ArrowLeft className="mr-2 h-4 w-4" />
+                                Back to list
+                            </Link>
+                        </ZoruButton>
+                        <ZoruButton asChild>
+                            <Link
+                                href={`/dashboard/hrm/payroll/attendance/new?date=${searchDate}`}
+                            >
+                                <Pencil className="mr-2 h-4 w-4" />
+                                Bulk edit for this date
+                            </Link>
+                        </ZoruButton>
+                    </div>
+                }
+            />
+
+            {isLoading && !record ? (
+                <ZoruCard className="p-6">
+                    <p className="py-10 text-center text-[13px] text-zoru-ink-muted">
+                        Loading…
+                    </p>
+                </ZoruCard>
+            ) : !record ? (
+                <ZoruCard className="p-6">
+                    <p className="py-10 text-center text-[13px] text-zoru-ink-muted">
+                        Attendance record not found.
+                    </p>
+                </ZoruCard>
             ) : (
-              '—'
+                <ZoruCard className="p-6">
+                    <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                            <div className="text-[11px] uppercase text-zoru-ink-muted">
+                                Employee
+                            </div>
+                            <div className="mt-1 text-[18px] text-zoru-ink">
+                                {record.employeeName}
+                            </div>
+                        </div>
+                        <ZoruBadge variant={statusVariant(record.status)}>
+                            {record.status}
+                        </ZoruBadge>
+                    </div>
+                    <dl className="grid gap-4 md:grid-cols-3">
+                        <FieldRow label="Date">{fmtDate(record.date)}</FieldRow>
+                        <FieldRow label="Check-in">{fmtTime(record.checkIn)}</FieldRow>
+                        <FieldRow label="Check-out">{fmtTime(record.checkOut)}</FieldRow>
+                        <FieldRow label="Notes">
+                            <span className="whitespace-pre-wrap">{record.notes || '—'}</span>
+                        </FieldRow>
+                    </dl>
+                </ZoruCard>
             )}
-          </div>
-          <h3 className="mb-3 mt-6 text-[11px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
-            Source
-          </h3>
-          <ZoruBadge variant="outline">{record.source}</ZoruBadge>
-          <h3 className="mb-3 mt-6 text-[11px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
-            Punch-in location
-          </h3>
-          {hasLocation ? (
-            <div className="space-y-2 text-[12px] text-zoru-ink">
-              <p className="font-mono">
-                {(lat as number).toFixed(5)}, {(lng as number).toFixed(5)}
-              </p>
-              <ZoruButton variant="outline" size="sm" asChild>
-                <a
-                  href={mapsUrl ?? '#'}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <ExternalLink className="h-3.5 w-3.5" /> View on Google Maps
-                </a>
-              </ZoruButton>
-            </div>
-          ) : (
-            <p className="text-[12px] text-zoru-ink-muted">
-              No location captured for this punch.
-            </p>
-          )}
-        </ZoruCard>
-      }
-    >
-      <ZoruCard className="p-6">
-        <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
-          Header
-        </h3>
-        <div className="grid gap-4 md:grid-cols-2">
-          <Field label="Employee">
-            <EntityPickerChip entity="employee" id={record.employeeId} />
-          </Field>
-          <Field label="Date">{fmtDate(record.date)}</Field>
-          <Field label="Status">
-            <ZoruBadge>{STATUS_LABEL[record.status]}</ZoruBadge>
-          </Field>
-          <Field label="Shift">
-            {record.shiftId ? (
-              <span className="font-mono text-[12px] text-zoru-ink-muted">
-                {record.shiftId}
-              </span>
-            ) : (
-              '—'
-            )}
-          </Field>
         </div>
-      </ZoruCard>
-
-      <ZoruCard className="p-6">
-        <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
-          Times
-        </h3>
-        <div className="grid gap-4 md:grid-cols-2">
-          <Field label="Check-in">{fmtDateTime(record.punchIn?.at)}</Field>
-          <Field label="Check-out">{fmtDateTime(record.punchOut?.at)}</Field>
-          <Field label="Total hours">{fmtHours(record.totalHours)}</Field>
-          <Field label="Overtime hours">{fmtHours(record.overtimeHours)}</Field>
-          <Field label="Late by">
-            <span className="inline-flex items-center gap-2">
-              {fmtMinutes(record.lateByMinutes)}
-              {lateBy > 0 ? (
-                <ZoruBadge variant="warning">+{lateBy}m late</ZoruBadge>
-              ) : null}
-            </span>
-          </Field>
-          <Field label="Early-out by">
-            <span className="inline-flex items-center gap-2">
-              {fmtMinutes(record.earlyOutByMinutes)}
-              {earlyOut > 0 ? (
-                <ZoruBadge variant="warning">−{earlyOut}m early</ZoruBadge>
-              ) : null}
-            </span>
-          </Field>
-        </div>
-      </ZoruCard>
-
-      <ZoruCard className="p-6">
-        <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
-          Notes
-        </h3>
-        <p className="whitespace-pre-wrap text-[13px] text-zoru-ink">
-          {record.notes || '—'}
-        </p>
-      </ZoruCard>
-    </EntityDetailShell>
-  );
+    );
 }

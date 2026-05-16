@@ -1,58 +1,59 @@
-'use client';
+/**
+ * Edit OKR page — server wrapper that loads the OKR by id and passes it
+ * as `initialData` to `<OkrForm />`.
+ */
 
-import { use, useEffect, useState } from 'react';
-import { Target } from 'lucide-react';
-import { HrFormPage } from '../../../_components/hr-form-page';
-import { fields, sections } from '../../_config';
-import { getOkrs, saveOkr } from '@/app/actions/hr.actions';
-import { ZoruSkeleton } from '@/components/zoruui';
+import Link from 'next/link';
+import { notFound, redirect } from 'next/navigation';
+import { ArrowLeft, Target } from 'lucide-react';
 
-export default function EditOkrPage({
-  params,
+import { ZoruButton } from '@/components/zoruui';
+import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { getSession } from '@/app/actions/user.actions';
+import { getOkrById } from '@/app/actions/crm-okrs.actions';
+
+import { OkrForm } from '../../_components/okr-form';
+
+export const dynamic = 'force-dynamic';
+
+const BASE = '/dashboard/hrm/hr/okrs';
+
+export default async function EditOkrPage({
+    params,
 }: {
-  params: Promise<{ id: string }>;
+    params: Promise<{ id: string }>;
 }) {
-  const { id } = use(params);
-  const [initial, setInitial] = useState<Record<string, unknown> | null>(null);
-  const [loading, setLoading] = useState(true);
+    const { id: okrId } = await params;
 
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      try {
-        const all = await getOkrs();
-        if (!mounted) return;
-        const doc = (all as any[]).find((r) => String(r._id) === id);
-        setInitial(doc ? ({ ...doc, _id: String(doc._id) } as any) : null);
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    })();
-    return () => {
-      mounted = false;
-    };
-  }, [id]);
+    const session = await getSession();
+    if (!session?.user) redirect('/login');
 
-  if (loading) {
+    const okr = await getOkrById(okrId);
+    if (!okr) notFound();
+
     return (
-      <div className="flex w-full flex-col gap-4">
-        <ZoruSkeleton className="h-12 w-full" />
-        <ZoruSkeleton className="h-64 w-full" />
-      </div>
-    );
-  }
+        <div className="flex w-full flex-col gap-6">
+            <CrmPageHeader
+                breadcrumbs={[
+                    { label: 'HR', href: '/dashboard/hrm/hr' },
+                    { label: 'OKRs', href: BASE },
+                    { label: okr.objective, href: `${BASE}/${okrId}` },
+                    { label: 'Edit' },
+                ]}
+                title={`Edit · ${okr.objective}`}
+                subtitle="Update objective and key results. Changes are revalidated immediately."
+                icon={Target}
+                actions={
+                    <ZoruButton variant="ghost" asChild>
+                        <Link href={`${BASE}/${okrId}`}>
+                            <ArrowLeft className="mr-2 h-4 w-4" />
+                            Back to detail
+                        </Link>
+                    </ZoruButton>
+                }
+            />
 
-  return (
-    <HrFormPage
-      title="Edit OKR"
-      subtitle="Update objective and key results."
-      icon={Target}
-      backHref="/dashboard/hrm/hr/okrs"
-      singular="OKR"
-      fields={fields}
-      sections={sections}
-      saveAction={saveOkr}
-      initial={initial}
-    />
-  );
+            <OkrForm initialData={okr} />
+        </div>
+    );
 }
