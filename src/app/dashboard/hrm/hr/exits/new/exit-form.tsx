@@ -4,7 +4,7 @@ import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { LoaderCircle, Save } from 'lucide-react';
 
-import { saveCrmExit } from '@/app/actions/crm-exits.actions';
+import { saveExit } from '@/app/actions/crm-exits.actions';
 import {
     ZoruButton,
     ZoruCard,
@@ -26,7 +26,7 @@ function SubmitButton() {
 }
 
 export function ExitForm({ exit }: { exit?: Record<string, any> }) {
-    const [state, action] = useActionState(saveCrmExit as any, {
+    const [state, action] = useActionState(saveExit as any, {
         message: '',
         error: '',
     } as any);
