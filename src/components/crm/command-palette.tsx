@@ -159,14 +159,33 @@ const entityLabel: Record<EntityKey, string> = {
 };
 
 const ENTITY_ORDER: EntityKey[] = [
+  // Core CRM entities
   'client',
+  'contact',
   'vendor',
   'item',
+  // HR/Team
   'employee',
-  'account',
-  'warehouse',
-  'bankAccount',
   'user',
+  // Accounting
+  'account',
+  'bankAccount',
+  'warehouse',
+  // Sales documents
+  'invoice',
+  'quotation',
+  'deal',
+  'lead',
+  'task',
+  'project',
+  // Operational reference
+  'department',
+  'designation',
+  'category',
+  'asset',
+  'taxRate',
+  'pipeline',
+  'ticketGroup',
 ];
 
 interface QuickAction {

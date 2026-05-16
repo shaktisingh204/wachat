@@ -1,7 +1,8 @@
 /**
  * Forge block: Slack.
  *
- * Auth: Bot user OAuth token (xoxb-…).
+ * Auth: routed through SabFlow Connections (credentialType `slack`).
+ *   credential.botToken → Bearer token used to call chat.postMessage.
  * Actions: Send message (to a channel), Send DM (to a user id).
  */
 
@@ -11,7 +12,10 @@ import type { ForgeActionContext, ForgeActionResult, ForgeBlock } from '../types
 const str = (v: unknown): string => (typeof v === 'string' ? v : v == null ? '' : String(v));
 
 const buildHeaders = (ctx: ForgeActionContext): Record<string, string> => {
-  const token = ctx.credential?.botToken ?? str(ctx.options.botToken);
+  const token = ctx.credential?.botToken;
+  if (!token) {
+    throw new Error('Slack: select a credential from SabFlow Connections');
+  }
   return {
     Authorization: `Bearer ${token}`,
     'Content-Type': 'application/json; charset=utf-8',
@@ -55,15 +59,7 @@ const block: ForgeBlock = {
   category: 'Integration',
   auth: {
     type: 'apiKey',
-    fields: [
-      {
-        id: 'botToken',
-        label: 'Bot User OAuth Token',
-        type: 'password',
-        placeholder: 'xoxb-…',
-        required: true,
-      },
-    ],
+    credentialType: 'slack',
   },
   actions: [
     {

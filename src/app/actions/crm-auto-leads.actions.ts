@@ -5,6 +5,13 @@ import { connectToDatabase } from "@/lib/mongodb";
 import { getErrorMessage } from "@/lib/utils";
 import { ObjectId, type WithId } from "mongodb";
 import { revalidatePath } from "next/cache";
+import { crmAutoLeadsApi } from "@/lib/rust-client/crm-auto-leads";
+import { RustApiError } from "@/lib/rust-client/fetcher";
+import { recordRustFallback } from "@/lib/observability/rust-fallback-counter";
+
+function useRustCrm(): boolean {
+    return process.env.USE_RUST_CRM === 'true';
+}
 
 export type AutoLeadRule = {
     _id: string;
@@ -80,5 +87,47 @@ export async function deleteAutoLeadRule(id: string): Promise<{ success: boolean
         return { success: true };
     } catch (e) {
         return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+/**
+ * Fetch a single auto lead rule document scoped to the current user.
+ *
+ * Dual-impl: when `USE_RUST_CRM=true` the Rust BFF is preferred and the
+ * Mongo path serves as fallback for resilience.
+ */
+export async function getAutoLeadRuleById(
+    id: string,
+): Promise<WithId<Record<string, unknown>> | null> {
+    const session = await getSession();
+    if (!session?.user) return null;
+    if (!ObjectId.isValid(id)) return null;
+
+    if (useRustCrm()) {
+        try {
+            const doc = await crmAutoLeadsApi.getById(id);
+            return JSON.parse(JSON.stringify(doc));
+        } catch (e) {
+            console.error('[getAutoLeadRuleById] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'auto_lead_rule',
+                op: 'get',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+        }
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const doc = await db.collection('crm_auto_lead_rules').findOne({
+            _id: new ObjectId(id),
+            userId: new ObjectId(session.user._id),
+        });
+        if (!doc) return null;
+        return JSON.parse(JSON.stringify(doc));
+    } catch (e) {
+        console.error("Failed to fetch auto lead rule by id:", e);
+        return null;
     }
 }

@@ -20,6 +20,13 @@ import { ObjectId, type WithId } from 'mongodb';
 import { getSession } from '@/app/actions/user.actions';
 import { connectToDatabase } from '@/lib/mongodb';
 import { writeAuditEntry } from '@/lib/audit-log';
+import { crmSuccessionApi } from '@/lib/rust-client/crm-succession';
+import { RustApiError } from '@/lib/rust-client/fetcher';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+
+function useRustCrm(): boolean {
+  return process.env.USE_RUST_CRM === 'true';
+}
 
 export type SuccessionReadiness = 'ready' | '12mo' | '24mo' | 'long-term';
 
@@ -85,6 +92,21 @@ export async function getCrmSuccessionPlanById(
   const session = await getSession();
   if (!session?.user) return null;
   if (!id || !ObjectId.isValid(id)) return null;
+
+  if (useRustCrm()) {
+    try {
+      const doc = await crmSuccessionApi.getById(id);
+      return JSON.parse(JSON.stringify(doc)) as WithId<CrmSuccessionDoc>;
+    } catch (e) {
+      console.error('[getCrmSuccessionPlanById] rust path failed; falling back:', e);
+      recordRustFallback({
+        entity: 'succession_plan',
+        op: 'get',
+        errorCode: e instanceof RustApiError ? e.code : undefined,
+        status: e instanceof RustApiError ? e.status : undefined,
+      });
+    }
+  }
 
   try {
     const { db } = await connectToDatabase();

@@ -1,14 +1,47 @@
 'use server';
+
+/**
+ * CRM Petty Cash server actions.
+ *
+ * **Dual implementation:** when `USE_RUST_CRM === 'true'` the read paths
+ * delegate to `/v1/crm/petty-cash` on the Rust BFF; otherwise legacy
+ * direct-Mongo runs. Failures record via `recordRustFallback` and fall
+ * through to the legacy path.
+ */
+
 import { ObjectId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
 import { writeAuditEntry } from '@/lib/audit-log';
+import { requirePermission } from '@/lib/rbac-server';
 import { revalidatePath } from 'next/cache';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+import { crmPettyCashApi } from '@/lib/rust-client/crm-petty-cash';
+import { RustApiError } from '@/lib/rust-client/fetcher';
+
+function useRustCrm(): boolean {
+  return process.env.USE_RUST_CRM === 'true';
+}
 
 export async function getPettyCashFloatById(id: string): Promise<any | null> {
   const session = await getSession();
   if (!session?.user?._id) return null;
   if (!ObjectId.isValid(id)) return null;
+
+  if (useRustCrm()) {
+    try {
+      const doc = await crmPettyCashApi.getById(id);
+      return JSON.parse(JSON.stringify(doc));
+    } catch (e) {
+      console.error('[getPettyCashFloatById] rust path failed; falling back:', e);
+      recordRustFallback({
+        entity: 'petty_cash',
+        op: 'get',
+        errorCode: e instanceof RustApiError ? e.code : undefined,
+        status: e instanceof RustApiError ? e.status : undefined,
+      });
+    }
+  }
 
   try {
     const { db } = await connectToDatabase();
@@ -32,6 +65,8 @@ export async function updatePettyCashFloat(
   if (!session?.user?._id) {
     return { error: 'Access denied.' };
   }
+  const guard = await requirePermission('crm_petty_cash', 'edit');
+  if (!guard.ok) return { error: guard.error };
 
   const id = (formData.get('id') as string) || '';
   if (!id || !ObjectId.isValid(id)) {
@@ -88,6 +123,8 @@ export async function savePettyCashFloat(
   if (!session?.user?._id) {
     return { error: 'Access denied.' };
   }
+  const guard = await requirePermission('crm_petty_cash', 'create');
+  if (!guard.ok) return { error: guard.error };
 
   const branchName = (formData.get('branchName') as string | null) ?? '';
   const custodianName = (formData.get('custodianName') as string | null) ?? '';
@@ -133,6 +170,8 @@ export async function topUpPettyCash(
   if (!session?.user?._id) {
     return { success: false, error: 'Unauthorized.' };
   }
+  const guard = await requirePermission('crm_petty_cash', 'edit');
+  if (!guard.ok) return { success: false, error: guard.error };
   if (!ObjectId.isValid(floatId)) {
     return { success: false, error: 'Invalid float ID.' };
   }
@@ -204,6 +243,8 @@ export async function recordPettyCashVoucher(
   if (!session?.user?._id) {
     return { success: false, error: 'Unauthorized.' };
   }
+  const guard = await requirePermission('crm_petty_cash', 'edit');
+  if (!guard.ok) return { success: false, error: guard.error };
   if (!ObjectId.isValid(floatId)) {
     return { success: false, error: 'Invalid float ID.' };
   }

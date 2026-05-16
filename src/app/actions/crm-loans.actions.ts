@@ -1,15 +1,47 @@
 'use server';
 
+/**
+ * CRM Loan server actions.
+ *
+ * **Dual implementation:** when `USE_RUST_CRM === 'true'` the read paths
+ * delegate to `/v1/crm/loans` on the Rust BFF; otherwise legacy direct-
+ * Mongo runs. Failures record via `recordRustFallback` and fall through
+ * to the legacy path.
+ */
+
 import { ObjectId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
 import { writeAuditEntry } from '@/lib/audit-log';
+import { requirePermission } from '@/lib/rbac-server';
 import { revalidatePath } from 'next/cache';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+import { crmLoansApi } from '@/lib/rust-client/crm-loans';
+import { RustApiError } from '@/lib/rust-client/fetcher';
+
+function useRustCrm(): boolean {
+  return process.env.USE_RUST_CRM === 'true';
+}
 
 export async function getLoanById(id: string): Promise<any | null> {
   const session = await getSession();
   if (!session?.user?._id) return null;
   if (!ObjectId.isValid(id)) return null;
+
+  if (useRustCrm()) {
+    try {
+      const doc = await crmLoansApi.getById(id);
+      return JSON.parse(JSON.stringify(doc));
+    } catch (e) {
+      console.error('[getLoanById] rust path failed; falling back:', e);
+      recordRustFallback({
+        entity: 'loan',
+        op: 'get',
+        errorCode: e instanceof RustApiError ? e.code : undefined,
+        status: e instanceof RustApiError ? e.status : undefined,
+      });
+    }
+  }
 
   try {
     const { db } = await connectToDatabase();
@@ -33,6 +65,8 @@ export async function updateLoan(
   if (!session?.user?._id) {
     return { error: 'Unauthorized.' };
   }
+  const guard = await requirePermission('crm_loan', 'edit');
+  if (!guard.ok) return { error: guard.error };
 
   const id = (formData.get('id') as string) || '';
   if (!id || !ObjectId.isValid(id)) {
@@ -109,6 +143,8 @@ export async function saveLoan(
   if (!session?.user?._id) {
     return { error: 'Unauthorized.' };
   }
+  const guard = await requirePermission('crm_loan', 'create');
+  if (!guard.ok) return { error: guard.error };
 
   try {
     const type = (formData.get('type') as string) || 'customer_loan';
@@ -181,6 +217,8 @@ export async function recordLoanPayment(
   if (!session?.user?._id) {
     return { success: false, error: 'Unauthorized.' };
   }
+  const guard = await requirePermission('crm_loan', 'edit');
+  if (!guard.ok) return { success: false, error: guard.error };
   if (!ObjectId.isValid(loanId)) {
     return { success: false, error: 'Invalid loan ID.' };
   }
@@ -433,6 +471,8 @@ export async function deleteLoan(
   if (!session?.user?._id) {
     return { success: false, error: 'Unauthorized.' };
   }
+  const guard = await requirePermission('crm_loan', 'delete');
+  if (!guard.ok) return { success: false, error: guard.error };
   if (!ObjectId.isValid(loanId)) {
     return { success: false, error: 'Invalid loan ID.' };
   }

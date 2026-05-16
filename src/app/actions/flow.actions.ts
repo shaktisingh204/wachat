@@ -6,6 +6,7 @@ import { revalidatePath } from 'next/cache';
 import { type WithId } from 'mongodb';
 import { rustClient, RustApiError } from '@/lib/rust-client';
 import type { Flow, FlowNode, FlowEdge } from '@/lib/definitions';
+import { getSession } from '@/app/actions/user.actions';
 
 export async function getFlowsForProject(projectId: string): Promise<WithId<Flow>[]> {
     try {
@@ -36,6 +37,9 @@ export async function saveFlow(data: {
     edges: FlowEdge[];
     triggerKeywords: string[];
 }): Promise<{ message?: string, error?: string, flowId?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { error: 'Unauthorized' };
+
     const { flowId, projectId, name, nodes, edges, triggerKeywords } = data;
     if (!projectId || !name) return { error: 'Project ID and Flow Name are required.' };
 
@@ -64,6 +68,8 @@ export async function saveFlow(data: {
 }
 
 export async function deleteFlow(flowId: string): Promise<{ message?: string; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { error: 'Unauthorized' };
     try {
         const result = await rustClient.wachatFlows.deleteFlow(flowId);
         if (result?.error) return { error: result.error };

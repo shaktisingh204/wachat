@@ -8,6 +8,7 @@ import { revalidatePath } from 'next/cache';
 import type { GlobalPermissions, CrmCustomRole, User } from '@/lib/definitions';
 import { v4 as uuidv4 } from 'uuid';
 import { logActivity } from '@/app/actions/activity.actions';
+import { writeAuditEntry } from '@/lib/audit-log';
 
 import { globalModules } from '@/lib/permission-modules';
 import { requirePermission } from '@/lib/rbac-server';
@@ -46,6 +47,18 @@ export async function saveRolePermissions(prevState: { message?: string; error?:
         );
         revalidatePath('/dashboard/team/manage-roles');
         await logActivity('ROLE_UPDATED', { roles: roleIds, action: 'Permissions Updated' }, undefined);
+        try {
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'update',
+                entityKind: 'role_permissions',
+                entityId: String(session.user._id),
+                reason: `bulk role permissions update`,
+            });
+        } catch {
+            /* non-fatal */
+        }
         return { message: 'Permissions saved successfully.' };
     } catch (e) {
         return { error: getErrorMessage(e) };
@@ -82,6 +95,18 @@ export async function saveRole(role: { id: string, name: string, permissions: an
 
         revalidatePath('/dashboard/team/manage-roles');
         await logActivity('ROLE_UPDATED', { role: newRole.name, action: 'Role Created' }, undefined);
+        try {
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'create',
+                entityKind: 'role',
+                entityId: newRole.id,
+                reason: newRole.name,
+            });
+        } catch {
+            /* non-fatal */
+        }
         return { success: true };
     } catch (e) {
         return { success: false, error: getErrorMessage(e) };
@@ -110,6 +135,17 @@ export async function deleteRole(roleId: string): Promise<{ success: boolean, er
         );
         revalidatePath('/dashboard/team/manage-roles');
         await logActivity('ROLE_UPDATED', { roleId, action: 'Role Deleted' }, undefined);
+        try {
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'delete',
+                entityKind: 'role',
+                entityId: roleId,
+            });
+        } catch {
+            /* non-fatal */
+        }
         return { success: true };
     } catch (e) {
         return { success: false, error: getErrorMessage(e) };

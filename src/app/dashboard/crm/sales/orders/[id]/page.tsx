@@ -36,6 +36,7 @@ import {
 import { ZoruButton, ZoruCard } from '@/components/zoruui';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
+import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { LineageRail } from '@/components/crm/lineage-rail';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import { getSalesOrder } from '@/app/actions/crm/sales-orders.actions';
@@ -357,6 +358,8 @@ export default async function SalesOrderDetailPage({
           </ZoruCard>
         </div>
       </div>
+
+      <EntityAuditTimeline entityKind="salesOrder" entityId={id} />
     </div>
   );
 }

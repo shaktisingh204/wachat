@@ -25,6 +25,7 @@ import { getSession } from '@/app/actions/user.actions';
 import { writeAuditEntry } from '@/lib/audit-log';
 import type { BankAccountDetails, CrmVendor, CrmVendorType } from '@/lib/definitions';
 import { vendorApi, type CrmVendorDoc } from '@/lib/rust-client/crm-vendors';
+import { crmVendorTypesApi } from '@/lib/rust-client/crm-vendor-types';
 import { RustApiError } from '@/lib/rust-client/fetcher';
 import { getErrorMessage } from '@/lib/utils';
 import { requirePermission } from '@/lib/rbac-server';
@@ -411,6 +412,54 @@ export async function getCrmVendorTypes(): Promise<WithId<CrmVendorType>[]> {
         return JSON.parse(JSON.stringify(allTypes));
     } catch (e) {
         return [];
+    }
+}
+
+/* ─── getVendorTypeById ──────────────────────────────────────────────── */
+
+/**
+ * Fetch a single vendor-type master row scoped to the current user.
+ *
+ * Dual-impl: when `USE_RUST_CRM === 'true'` we go through the Rust BFF
+ * (`/v1/crm/vendor-types/:id`); on failure or when the flag is off we
+ * fall back to the direct Mongo read on `crm_vendor_types`.
+ */
+export async function getVendorTypeById(
+    id: string,
+): Promise<WithId<Record<string, unknown>> | null> {
+    if (!id) return null;
+
+    const session = await getSession();
+    if (!session?.user) return null;
+
+    if (useRustCrm()) {
+        try {
+            const doc = await crmVendorTypesApi.getById(id);
+            return JSON.parse(JSON.stringify(doc));
+        } catch (e) {
+            console.error('[getVendorTypeById] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'vendor_type',
+                op: 'get',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+            // fall through
+        }
+    }
+
+    if (!ObjectId.isValid(id)) return null;
+    try {
+        const { db } = await connectToDatabase();
+        const doc = await db.collection('crm_vendor_types').findOne({
+            _id: new ObjectId(id),
+            userId: new ObjectId(session.user._id),
+        });
+        if (!doc) return null;
+        return JSON.parse(JSON.stringify(doc));
+    } catch (e) {
+        console.error('Failed to fetch vendor type by id:', e);
+        return null;
     }
 }
 

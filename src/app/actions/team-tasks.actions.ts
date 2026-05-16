@@ -7,6 +7,7 @@ import { getSession } from '@/app/actions/user.actions';
 import type { TeamTask, Project } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import { logActivity } from '@/app/actions/activity.actions';
+import { writeAuditEntry } from '@/lib/audit-log';
 import { requirePermission } from '@/lib/rbac-server';
 import { notifyTeamMember } from '@/lib/team-notifications';
 
@@ -183,6 +184,17 @@ export async function createTeamTask(
             { title, assignedTo: assignedTo || null, taskId: inserted.insertedId.toString() },
             projectId || undefined,
         );
+        try {
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'create',
+                entityKind: 'team_task',
+                entityId: inserted.insertedId.toString(),
+            });
+        } catch {
+            /* non-fatal */
+        }
         return { message: 'Task created.' };
     } catch (e: any) {
         return { error: getErrorMessage(e) };
@@ -216,6 +228,18 @@ export async function updateTeamTaskStatus(
         );
         revalidatePath('/dashboard/team/tasks');
         await logActivity('TASK_UPDATED', { taskId, status });
+        try {
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'status_change',
+                entityKind: 'team_task',
+                entityId: taskId,
+                diff: { status: { after: status } },
+            });
+        } catch {
+            /* non-fatal */
+        }
         return { success: true };
     } catch (e: any) {
         return { success: false, error: getErrorMessage(e) };
@@ -264,6 +288,17 @@ export async function updateTeamTask(
         }
         revalidatePath('/dashboard/team/tasks');
         await logActivity('TASK_UPDATED', { taskId, patch });
+        try {
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'update',
+                entityKind: 'team_task',
+                entityId: taskId,
+            });
+        } catch {
+            /* non-fatal */
+        }
         return { success: true };
     } catch (e: any) {
         return { success: false, error: getErrorMessage(e) };
@@ -289,6 +324,17 @@ export async function deleteTeamTask(taskId: string): Promise<{ success: boolean
         await db.collection('team_tasks').deleteOne({ _id: new ObjectId(taskId) });
         revalidatePath('/dashboard/team/tasks');
         await logActivity('TASK_DELETED', { taskId, title: task.title });
+        try {
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'delete',
+                entityKind: 'team_task',
+                entityId: taskId,
+            });
+        } catch {
+            /* non-fatal */
+        }
         return { success: true };
     } catch (e: any) {
         return { success: false, error: getErrorMessage(e) };

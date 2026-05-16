@@ -699,17 +699,14 @@ const registry: LookupRegistry = {
     },
   },
 
-  tag: {
-    // TODO(tag): a unified `crm_tags` collection does not exist yet —
-    // tags are inlined per-entity (e.g. `crm_accounts.tags: string[]`).
-    // Once the unified collection lands, swap this for a
-    // `makeMongoLookup({ collection: 'crm_tags', ... })`.
-    searchableFields: ['name'],
+  tag: makeMongoLookup({
+    collection: 'crm_tags',
+    searchableFields: ['name', 'description'],
     toChip: (doc) => ({ primary: doc.name || 'Tag', color: doc.color }),
-    async fetch(params) {
-      return emptyLookupResult(params);
-    },
-  },
+    defaultFilter: () => ({ status: { $ne: 'archived' } }),
+    rawFields: ['color', 'description', 'scope'],
+    sort: { name: 1 },
+  }),
 
   category: makeMongoLookup({
     // Confirmed: `crm_product_categories` is the canonical collection
@@ -935,23 +932,18 @@ const registry: LookupRegistry = {
     },
   },
 
-  branch: {
-    // TODO(branch): the multi-branch feature (plan §12.18) hasn't
-    // produced a `crm_branches` collection yet. Returning an empty
-    // result keeps the picker working — swap to `makeMongoLookup`
-    // once the collection lands. Expected fields per the plan:
-    // `name`, `code`, `address`, `city`, `state`, `country`,
-    // `pincode`, `isDefault`, `userId`.
-    searchableFields: ['name', 'code'],
+  branch: makeMongoLookup({
+    collection: 'crm_branches',
+    searchableFields: ['name', 'code', 'city'],
     toChip: (doc) => ({
       primary: doc.name || 'Branch',
       secondary: doc.code || undefined,
       tertiary: doc.city || undefined,
     }),
-    async fetch(params) {
-      return emptyLookupResult(params);
-    },
-  },
+    defaultFilter: () => ({ status: { $ne: 'archived' } }),
+    rawFields: ['code', 'city', 'state', 'country', 'kind', 'isDefault'],
+    sort: { isDefault: -1, name: 1 },
+  }),
 
   project: makeMongoLookup({
     // Confirmed: `crm_projects` is the canonical collection (used by
@@ -972,18 +964,14 @@ const registry: LookupRegistry = {
     }),
   }),
 
-  brand: {
-    // TODO(brand): a `crm_brands` Mongo collection is the eventual home
-    // (each tenant grows its own brand list as products are imported).
-    // Until that lands, return an empty result so the picker still
-    // mounts cleanly — `<EntityPicker>` falls back to free-text entry
-    // when the registry has no matches.
-    searchableFields: ['name'],
-    toChip: (doc) => ({ primary: doc.name || 'Brand' }),
-    async fetch(params) {
-      return emptyLookupResult(params);
-    },
-  },
+  brand: makeMongoLookup({
+    collection: 'crm_brands',
+    searchableFields: ['name', 'description'],
+    toChip: (doc) => ({ primary: doc.name || 'Brand', secondary: doc.website || undefined }),
+    defaultFilter: () => ({ status: { $ne: 'archived' } }),
+    rawFields: ['description', 'logoUrl', 'website', 'color'],
+    sort: { name: 1 },
+  }),
 
   unit: {
     // Static — small canonical UoM set. Tenant context is ignored.

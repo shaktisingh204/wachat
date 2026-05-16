@@ -3765,3 +3765,47 @@ export type TelegramScheduledPost = {
     createdAt: Date;
     updatedAt: Date;
 };
+
+/* ─── Saved views (CRM_REBUILD_PLAN §5.10) ───────────────────── */
+
+/**
+ * Identifier for the list-page key a saved view applies to. Free-form
+ * string per page (e.g. `'invoices'`, `'sales-orders'`, `'leads'`,
+ * `'tasks'`). Stable across renames since stored as a literal string.
+ */
+export type CrmSavedViewEntityKey = string;
+
+/**
+ * Per-view sharing scope. `'private'` is owner-only; `'team'` is shared
+ * across the tenant (read/write to everyone on the tenant).
+ */
+export type CrmSavedViewScope = 'private' | 'team';
+
+export type CrmSavedView = {
+    _id: ObjectId;
+    userId: ObjectId;
+    /** The tenant member who created/owns this view (always equals userId today). */
+    ownerId: ObjectId;
+    /** Which list-page this view applies to. */
+    entityKey: CrmSavedViewEntityKey;
+    /** Human-friendly name shown in the view-picker chip. */
+    name: string;
+    /** Sharing scope. Defaults to `'private'`. */
+    scope: CrmSavedViewScope;
+    /**
+     * Filter set the page evaluates. Keys + value types are per-page;
+     * stored as a generic record so any list page can use it.
+     */
+    filters: Record<string, unknown>;
+    /** Ordered list of visible columns. Empty → defaults. */
+    columns?: string[];
+    /** Sort spec — `[field, '+' | '-']` pairs. */
+    sort?: Array<[string, '+' | '-']>;
+    /** Density preset for the table. */
+    density?: 'comfortable' | 'compact' | 'dense';
+    /** Marks this view as the default for the owning user + entity. */
+    isDefault?: boolean;
+    archived?: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+};

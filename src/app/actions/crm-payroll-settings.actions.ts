@@ -1,9 +1,16 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { ObjectId } from 'mongodb';
+import { ObjectId, type WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+import { crmPayrollSettingsApi } from '@/lib/rust-client/crm-payroll-settings';
+import { RustApiError } from '@/lib/rust-client/fetcher';
+
+function useRustCrm(): boolean {
+  return process.env.USE_RUST_CRM === 'true';
+}
 
 export type PayrollSettings = {
   payFrequency: string;
@@ -120,5 +127,46 @@ export async function savePayrollSettings(
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : 'Unknown error';
     return { error: `Failed to save settings: ${msg}` };
+  }
+}
+
+/**
+ * Fetch a single payroll-settings document by id, scoped to the current
+ * user. Dual-impl: routes through the Rust BFF when `USE_RUST_CRM=true`,
+ * with automatic fallback to the Mongo path on any error.
+ */
+export async function getPayrollSettingById(
+  id: string,
+): Promise<WithId<Record<string, unknown>> | null> {
+  const session = await getSession();
+  if (!session?.user) return null;
+  if (!ObjectId.isValid(id)) return null;
+
+  if (useRustCrm()) {
+    try {
+      const doc = await crmPayrollSettingsApi.getById(id);
+      return JSON.parse(JSON.stringify(doc));
+    } catch (e) {
+      console.error('[getPayrollSettingById] rust path failed; falling back:', e);
+      recordRustFallback({
+        entity: 'payroll_setting',
+        op: 'get',
+        errorCode: e instanceof RustApiError ? e.code : undefined,
+        status: e instanceof RustApiError ? e.status : undefined,
+      });
+    }
+  }
+
+  try {
+    const { db } = await connectToDatabase();
+    const doc = await db.collection('crm_payroll_settings').findOne({
+      _id: new ObjectId(id),
+      userId: new ObjectId(session.user._id as string),
+    });
+    if (!doc) return null;
+    return JSON.parse(JSON.stringify(doc));
+  } catch (e) {
+    console.error('Failed to fetch payroll setting by id:', e);
+    return null;
   }
 }

@@ -1,7 +1,8 @@
 /**
  * Forge block: Discord (webhook-based).
  *
- * Auth: none (the webhook URL is its own secret).
+ * Auth: routed through SabFlow Connections (credentialType `discord`).
+ *   credential.webhookUrl → Discord incoming webhook used for chat posts.
  * Actions: Send webhook message.
  */
 
@@ -11,7 +12,10 @@ import type { ForgeActionContext, ForgeActionResult, ForgeBlock } from '../types
 const str = (v: unknown): string => (typeof v === 'string' ? v : v == null ? '' : String(v));
 
 async function sendWebhookMessage(ctx: ForgeActionContext): Promise<ForgeActionResult> {
-  const webhookUrl = str(ctx.options.webhookUrl);
+  const webhookUrl = ctx.credential?.webhookUrl;
+  if (!webhookUrl) {
+    throw new Error('Discord: select a credential from SabFlow Connections');
+  }
   const content = str(ctx.options.content);
   const username = str(ctx.options.username);
   const avatarUrl = str(ctx.options.avatarUrl);
@@ -36,32 +40,16 @@ const block: ForgeBlock = {
   description: 'Post a message to a Discord channel via webhook.',
   iconName: 'LuMessageSquare',
   category: 'Integration',
-  auth: { type: 'none' },
-  fields: [
-    {
-      id: 'webhookUrl',
-      label: 'Webhook URL',
-      type: 'password',
-      placeholder: 'https://discord.com/api/webhooks/…',
-      required: true,
-    },
-    { id: 'content', label: 'Message', type: 'textarea', required: true },
-    { id: 'username', label: 'Override Username', type: 'text' },
-    { id: 'avatarUrl', label: 'Override Avatar URL', type: 'text' },
-  ],
+  auth: {
+    type: 'apiKey',
+    credentialType: 'discord',
+  },
   actions: [
     {
       id: 'send_message',
       label: 'Send Webhook Message',
       description: 'Deliver a message through the configured Discord webhook.',
       fields: [
-        {
-          id: 'webhookUrl',
-          label: 'Webhook URL',
-          type: 'password',
-          placeholder: 'https://discord.com/api/webhooks/…',
-          required: true,
-        },
         { id: 'content', label: 'Message', type: 'textarea', required: true },
         { id: 'username', label: 'Override Username', type: 'text' },
         { id: 'avatarUrl', label: 'Override Avatar URL', type: 'text' },

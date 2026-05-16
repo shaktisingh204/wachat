@@ -9,12 +9,16 @@
  * consistent with hand-written block panels.
  */
 
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { ChangeEvent, KeyboardEvent } from 'react';
 import { LuPlus, LuX } from 'react-icons/lu';
 
 import { Field, inputClass, selectClass, toggleClass } from '../shared/primitives';
-import type { ForgeField, ForgeKeyValuePair } from '@/lib/sabflow/forge/types';
+import type {
+  ForgeField,
+  ForgeKeyValuePair,
+  ForgeSelectOption,
+} from '@/lib/sabflow/forge/types';
 import { cn } from '@/lib/utils';
 
 /* ── Props ───────────────────────────────────────────────────────────────── */
@@ -25,6 +29,14 @@ type Props = {
   value: unknown;
   /** Called with the next value for this field. */
   onChange: (value: unknown) => void;
+  /** Block id — required to resolve loadOptions server-side. */
+  blockId?: string;
+  /** Selected action id for multi-action blocks. */
+  actionId?: string;
+  /** Currently selected credential id (for credential-bound loadOptions). */
+  credentialId?: string;
+  /** Snapshot of sibling field values — useful for dependent dropdowns. */
+  options?: Record<string, unknown>;
 };
 
 /* ── Helpers ─────────────────────────────────────────────────────────────── */
@@ -65,7 +77,15 @@ const nextKvId = (): string => {
 
 /* ── Field renderer ──────────────────────────────────────────────────────── */
 
-export function ForgeFieldRenderer({ field, value, onChange }: Props) {
+export function ForgeFieldRenderer({
+  field,
+  value,
+  onChange,
+  blockId,
+  actionId,
+  credentialId,
+  options,
+}: Props) {
   const handleText = useCallback(
     (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
       onChange(e.target.value);
@@ -153,6 +173,19 @@ export function ForgeFieldRenderer({ field, value, onChange }: Props) {
         );
 
       case 'select':
+        if (field.loadOptions && blockId) {
+          return (
+            <DynamicSelect
+              field={field}
+              value={value}
+              onChange={onChange}
+              blockId={blockId}
+              actionId={actionId}
+              credentialId={credentialId}
+              options={options ?? {}}
+            />
+          );
+        }
         return (
           <div className="relative">
             <select
@@ -194,7 +227,7 @@ export function ForgeFieldRenderer({ field, value, onChange }: Props) {
       default:
         return null;
     }
-  }, [field, value, handleText, handleNumber, onChange]);
+  }, [field, value, handleText, handleNumber, onChange, blockId, actionId, credentialId, options]);
 
   return (
     <Field label={field.label}>
@@ -237,6 +270,113 @@ function ToggleInput({ checked, onChange, label }: ToggleProps) {
         )}
       />
     </button>
+  );
+}
+
+/* ── Dynamic select (loadOptions) ────────────────────────────────────────── */
+
+type DynamicSelectProps = {
+  field: ForgeField;
+  value: unknown;
+  onChange: (value: unknown) => void;
+  blockId: string;
+  actionId?: string;
+  credentialId?: string;
+  options: Record<string, unknown>;
+};
+
+function DynamicSelect({
+  field,
+  value,
+  onChange,
+  blockId,
+  actionId,
+  credentialId,
+  options,
+}: DynamicSelectProps) {
+  const [remote, setRemote] = useState<ForgeSelectOption[] | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+
+    fetch('/api/sabflow/load-options', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        blockId,
+        fieldId: field.id,
+        actionId,
+        credentialId,
+        options,
+      }),
+    })
+      .then(async (res) => {
+        const json = (await res.json().catch(() => ({}))) as {
+          options?: ForgeSelectOption[];
+          error?: string;
+        };
+        if (!res.ok) throw new Error(json.error ?? `Failed (${res.status})`);
+        if (!cancelled) setRemote(Array.isArray(json.options) ? json.options : []);
+      })
+      .catch((err: unknown) => {
+        if (cancelled) return;
+        setError(err instanceof Error ? err.message : 'Failed to load options');
+        setRemote(null);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+    // Re-fetch when credential, action, or block changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [blockId, actionId, credentialId, field.id]);
+
+  const merged = useMemo<ForgeSelectOption[]>(() => {
+    const out: ForgeSelectOption[] = [];
+    const seen = new Set<string>();
+    const push = (opt: ForgeSelectOption) => {
+      if (seen.has(opt.value)) return;
+      seen.add(opt.value);
+      out.push(opt);
+    };
+    // Remote options take precedence; static field.options act as fallback.
+    if (remote) remote.forEach(push);
+    field.options?.forEach(push);
+    return out;
+  }, [remote, field.options]);
+
+  return (
+    <div className="relative space-y-1">
+      <select
+        className={selectClass}
+        value={asString(value)}
+        onChange={(e) => onChange(e.target.value)}
+        required={field.required}
+        disabled={loading && merged.length === 0}
+      >
+        {!field.required && <option value="">Select…</option>}
+        {merged.map((opt) => (
+          <option key={opt.value} value={opt.value}>
+            {opt.label}
+          </option>
+        ))}
+      </select>
+      {loading && (
+        <p className="text-[11px] text-[var(--gray-9)] leading-snug">Loading options…</p>
+      )}
+      {error && !loading && (
+        <p className="text-[11px] text-[#f76808] leading-snug">
+          {error} — using fallback options.
+        </p>
+      )}
+    </div>
   );
 }
 

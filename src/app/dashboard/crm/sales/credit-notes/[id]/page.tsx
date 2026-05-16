@@ -29,6 +29,7 @@ import {
 } from '@/components/zoruui';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
+import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import { LineageRail } from '@/components/crm/lineage-rail';
 import { getCreditNote } from '@/app/actions/crm/credit-notes.actions';
@@ -304,6 +305,8 @@ export default async function CreditNoteDetailPage({
                     />
                 </div>
             </div>
+
+            <EntityAuditTimeline entityKind="creditNote" entityId={id} />
         </div>
     );
 }

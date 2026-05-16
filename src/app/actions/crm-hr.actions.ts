@@ -8,6 +8,15 @@ import { getErrorMessage } from "@/lib/utils";
 import { ObjectId, WithId } from "mongodb";
 import type { CrmAttendance, CrmHoliday, CrmLeaveRequest, CrmGoal, CrmProfessionalTaxSlab, CrmEmployee } from '@/lib/definitions';
 import { revalidatePath } from "next/cache";
+import { crmPtSlabsApi } from '@/lib/rust-client/crm-pt-slabs';
+import { crmGoalsApi } from '@/lib/rust-client/crm-goals';
+import { crmLeaveRequestsApi } from '@/lib/rust-client/crm-leave-requests';
+import { RustApiError } from '@/lib/rust-client/fetcher';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+
+function useRustCrm(): boolean {
+    return process.env.USE_RUST_CRM === 'true';
+}
 
 export async function getCrmAttendance(date: Date): Promise<WithId<CrmAttendance>[]> {
     const session = await getSession();
@@ -132,7 +141,7 @@ export async function applyForCrmLeave(prevState: any, formData: FormData): Prom
 export async function approveOrRejectLeave(id: string, status: 'Approved' | 'Rejected'): Promise<{ success: boolean, error?: string }> {
     const session = await getSession();
     if (!session?.user) return { success: false, error: 'Access Denied' };
-    
+
     if (!id || !status) return { success: false, error: 'Missing required fields.' };
 
     try {
@@ -145,6 +154,49 @@ export async function approveOrRejectLeave(id: string, status: 'Approved' | 'Rej
         return { success: true };
     } catch (e) {
         return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+/**
+ * Fetch a single leave-request document scoped to the current user.
+ *
+ * Dual-impl: prefers the Rust BFF (`/v1/crm/leave-requests/:id`) when
+ * `USE_RUST_CRM=true`, falls back to a direct Mongo read on any error
+ * and records the fallback for observability.
+ */
+export async function getLeaveRequestById(
+    id: string,
+): Promise<WithId<Record<string, unknown>> | null> {
+    const session = await getSession();
+    if (!session?.user) return null;
+    if (!id || !ObjectId.isValid(id)) return null;
+
+    if (useRustCrm()) {
+        try {
+            const doc = await crmLeaveRequestsApi.getById(id);
+            return JSON.parse(JSON.stringify(doc));
+        } catch (e) {
+            console.error('[getLeaveRequestById] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'leave_request',
+                op: 'get',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+        }
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const doc = await db.collection('crm_leave_requests').findOne({
+            _id: new ObjectId(id),
+            userId: new ObjectId(session.user._id),
+        });
+        if (!doc) return null;
+        return JSON.parse(JSON.stringify(doc));
+    } catch (e) {
+        console.error('Failed to fetch leave request by id:', e);
+        return null;
     }
 }
 
@@ -294,7 +346,93 @@ export async function deleteCrmGoal(id: string): Promise<{ success: boolean; err
     }
 }
 
+/**
+ * Fetch a single goal document scoped to the current user.
+ *
+ * Dual-impl: prefers the Rust BFF when `USE_RUST_CRM=true`, falls back to a
+ * direct Mongo read on any error and records the fallback for observability.
+ * Mirrors the canonical loader shape used elsewhere in the CRM.
+ */
+export async function getCrmGoalById(
+    id: string,
+): Promise<WithId<Record<string, unknown>> | null> {
+    const session = await getSession();
+    if (!session?.user) return null;
+    if (!ObjectId.isValid(id)) return null;
+
+    if (useRustCrm()) {
+        try {
+            const doc = await crmGoalsApi.getById(id);
+            return JSON.parse(JSON.stringify(doc));
+        } catch (e) {
+            console.error('[getCrmGoalById] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'goal',
+                op: 'get',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+        }
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const doc = await db.collection('crm_goals').findOne({
+            _id: new ObjectId(id),
+            userId: new ObjectId(session.user._id),
+        });
+        if (!doc) return null;
+        return JSON.parse(JSON.stringify(doc));
+    } catch (e) {
+        console.error('Failed to fetch goal by id:', e);
+        return null;
+    }
+}
+
 // --- Professional Tax Slabs ---
+
+/**
+ * Fetch a single Professional Tax slab document scoped to the current user.
+ *
+ * Dual-impl gated on `USE_RUST_CRM`. Falls back to the legacy Mongo path on
+ * any Rust error.
+ */
+export async function getPtSlabById(
+    id: string,
+): Promise<WithId<Record<string, unknown>> | null> {
+    const session = await getSession();
+    if (!session?.user) return null;
+    if (!id || !ObjectId.isValid(id)) return null;
+
+    if (useRustCrm()) {
+        try {
+            const doc = await crmPtSlabsApi.getById(id);
+            return JSON.parse(JSON.stringify(doc));
+        } catch (e) {
+            console.error('[getPtSlabById] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'pt_slab',
+                op: 'get',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+        }
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const doc = await db.collection('crm_pt_slabs').findOne({
+            _id: new ObjectId(id),
+            userId: new ObjectId(session.user._id),
+        });
+        if (!doc) return null;
+        return JSON.parse(JSON.stringify(doc));
+    } catch (e) {
+        console.error('Failed to fetch PT slab by id:', e);
+        return null;
+    }
+}
+
 export async function getCrmPtSlabs(): Promise<WithId<CrmProfessionalTaxSlab>[]> {
     const session = await getSession();
     if (!session?.user) return [];

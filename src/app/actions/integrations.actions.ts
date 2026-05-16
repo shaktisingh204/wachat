@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { ObjectId, type WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getProjectById } from '@/app/actions/project.actions';
+import { getSession } from '@/app/actions/user.actions';
 import { getErrorMessage } from '@/lib/utils';
 import Razorpay from 'razorpay';
 import type { Project, WhatsAppWidgetSettings, Contact } from '@/lib/definitions';
@@ -88,6 +89,9 @@ async function createRazorpayPaymentLink(
 }
 
 export async function handlePaymentRequest(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { error: 'Unauthorized' };
+
     const contactId = formData.get('contactId') as string;
     const amount = parseFloat(formData.get('amount') as string);
     const description = formData.get('description') as string;

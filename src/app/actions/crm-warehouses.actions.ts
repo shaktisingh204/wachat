@@ -24,6 +24,7 @@ import type {
 import { getErrorMessage } from '@/lib/utils';
 import { writeAuditEntry } from '@/lib/audit-log';
 import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+import { requirePermission } from '@/lib/rbac-server';
 
 /* ─── Types ────────────────────────────────────────────────────────── */
 
@@ -280,6 +281,9 @@ export async function saveCrmWarehouse(
     const warehouseId = formData.get('warehouseId') as string | null;
     const isEditing = !!warehouseId;
 
+    const guard = await requirePermission('crm_warehouse', isEditing ? 'edit' : 'create');
+    if (!guard.ok) return { error: guard.error };
+
     try {
         const userId = new ObjectId(session.user._id);
         const name = (formData.get('name') as string)?.trim();
@@ -397,6 +401,8 @@ async function setArchiveState(
         return { success: false, error: 'Invalid warehouse id.' };
     const session = await getSession();
     if (!session?.user) return { success: false, error: 'Access denied.' };
+    const guard = await requirePermission('crm_warehouse', 'edit');
+    if (!guard.ok) return { success: false, error: guard.error };
 
     try {
         const { db } = await connectToDatabase();
@@ -457,6 +463,8 @@ export async function setDefaultCrmWarehouse(
         return { success: false, error: 'Invalid warehouse id.' };
     const session = await getSession();
     if (!session?.user) return { success: false, error: 'Access denied.' };
+    const guard = await requirePermission('crm_warehouse', 'edit');
+    if (!guard.ok) return { success: false, error: guard.error };
 
     try {
         const { db } = await connectToDatabase();
@@ -497,6 +505,8 @@ export async function deleteCrmWarehouse(
         return { success: false, error: 'Invalid Warehouse ID.' };
     const session = await getSession();
     if (!session?.user) return { success: false, error: 'Access denied.' };
+    const guard = await requirePermission('crm_warehouse', 'delete');
+    if (!guard.ok) return { success: false, error: guard.error };
 
     try {
         const { db } = await connectToDatabase();
@@ -570,6 +580,12 @@ export async function bulkWarehouseAction(
     const session = await getSession();
     if (!session?.user)
         return { success: false, processed: 0, error: 'Access denied.' };
+    const guard = await requirePermission(
+        'crm_warehouse',
+        op === 'delete' ? 'delete' : 'edit',
+    );
+    if (!guard.ok)
+        return { success: false, processed: 0, error: guard.error };
 
     let processed = 0;
     for (const id of ids) {

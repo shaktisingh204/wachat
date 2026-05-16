@@ -9,6 +9,13 @@ import { getSession } from '@/app/actions/user.actions';
 import type { CrmDeliveryChallan, LineageKind, LineageRef } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import { appendLineage, buildLineageFromParent } from '@/lib/lineage';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+import { crmDeliveryChallansApi } from '@/lib/rust-client/crm-delivery-challans';
+import { RustApiError } from '@/lib/rust-client/fetcher';
+
+function useRustCrm(): boolean {
+    return process.env.USE_RUST_CRM === 'true';
+}
 
 export async function getDeliveryChallanById(
     challanId: string
@@ -16,6 +23,21 @@ export async function getDeliveryChallanById(
     const session = await getSession();
     if (!session?.user) return null;
     if (!ObjectId.isValid(challanId)) return null;
+
+    if (useRustCrm()) {
+        try {
+            const doc = await crmDeliveryChallansApi.getById(challanId);
+            return JSON.parse(JSON.stringify(doc));
+        } catch (e) {
+            console.error('[getDeliveryChallanById] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'delivery_challan',
+                op: 'get',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+        }
+    }
 
     try {
         const { db } = await connectToDatabase();

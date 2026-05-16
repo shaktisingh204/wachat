@@ -3,6 +3,7 @@
 'use server';
 
 import { getProjectById } from '@/app/actions';
+import { getSession } from '@/app/actions/user.actions';
 import { connectToDatabase } from '@/lib/mongodb';
 import type { EcommProduct, EcommOrder, EcommShop, AbandonedCartSettings, WebsiteBlock, EcommProductVariant, EcommPage, EcommTheme } from '@/lib/definitions';
 import { ObjectId, WithId } from 'mongodb';
@@ -76,6 +77,9 @@ export async function getPublicEcommShopById(shopId: string): Promise<WithId<Eco
 
 
 export async function createEcommShop(prevState: any, formData: FormData): Promise<{ message?: string, error?: string, shopId?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { error: 'Unauthorized' };
+
     const projectId = formData.get('projectId') as string;
     const name = formData.get('name') as string;
     const currency = formData.get('currency') as string;

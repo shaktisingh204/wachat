@@ -9,6 +9,7 @@
  */
 
 import { ObjectId } from 'mongodb';
+import { revalidatePath } from 'next/cache';
 
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
@@ -165,6 +166,7 @@ export async function saveSabchatSettings(patch: Partial<SabchatSettings>): Prom
             { upsert: true },
         );
 
+        revalidatePath('/dashboard/sabchat/settings');
         return { settings: { ...next, updatedAt: updatedAt.toISOString() } };
     } catch (e) {
         return { error: e instanceof Error ? e.message : 'Failed to save settings' };

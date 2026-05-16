@@ -8,6 +8,14 @@ import { getSession } from '@/app/actions/user.actions';
 import type { CrmVoucherBook, CrmVoucherEntry } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import { writeAuditEntry } from '@/lib/audit-log';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+import { crmVoucherBooksApi } from '@/lib/rust-client/crm-vouchers';
+import { crmVoucherEntriesApi } from '@/lib/rust-client/crm-voucher-entries';
+import { RustApiError } from '@/lib/rust-client/fetcher';
+
+function useRustCrm(): boolean {
+    return process.env.USE_RUST_CRM === 'true';
+}
 
 export async function getVoucherBooks(): Promise<WithId<CrmVoucherBook>[]> {
     const session = await getSession();
@@ -49,6 +57,22 @@ export async function getVoucherBooks(): Promise<WithId<CrmVoucherBook>[]> {
 export async function getVoucherBookById(bookId: string): Promise<WithId<CrmVoucherBook> | null> {
     const session = await getSession();
     if (!session?.user || !ObjectId.isValid(bookId)) return null;
+
+    if (useRustCrm()) {
+        try {
+            const doc = await crmVoucherBooksApi.getById(bookId);
+            return JSON.parse(JSON.stringify(doc));
+        } catch (e) {
+            console.error('[getVoucherBookById] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'voucher_book',
+                op: 'get',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+        }
+    }
+
     try {
         const { db } = await connectToDatabase();
         const book = await db.collection<CrmVoucherBook>('crm_voucher_books').findOne({
@@ -58,6 +82,38 @@ export async function getVoucherBookById(bookId: string): Promise<WithId<CrmVouc
         return book ? JSON.parse(JSON.stringify(book)) : null;
     } catch (e) {
         console.error('Failed to fetch voucher book by ID:', e);
+        return null;
+    }
+}
+
+export async function getVoucherEntryById(id: string): Promise<WithId<CrmVoucherEntry> | null> {
+    const session = await getSession();
+    if (!session?.user || !ObjectId.isValid(id)) return null;
+
+    if (useRustCrm()) {
+        try {
+            const doc = await crmVoucherEntriesApi.getById(id);
+            return JSON.parse(JSON.stringify(doc));
+        } catch (e) {
+            console.error('[getVoucherEntryById] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'voucher_entry',
+                op: 'get',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+        }
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const entry = await db.collection<CrmVoucherEntry>('crm_voucher_entries').findOne({
+            _id: new ObjectId(id),
+            userId: new ObjectId(session.user._id),
+        });
+        return entry ? JSON.parse(JSON.stringify(entry)) : null;
+    } catch (e) {
+        console.error('Failed to fetch voucher entry by ID:', e);
         return null;
     }
 }

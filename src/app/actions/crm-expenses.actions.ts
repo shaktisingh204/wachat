@@ -25,6 +25,7 @@ import { writeAuditEntry } from '@/lib/audit-log';
 import { requirePermission } from '@/lib/rbac-server';
 import { crmBillsApi, type CrmBillDoc } from '@/lib/rust-client/crm-bills';
 import { RustApiError } from '@/lib/rust-client/fetcher';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
 
 function useRustCrm(): boolean {
     return process.env.USE_RUST_CRM === 'true';
@@ -158,11 +159,8 @@ export async function saveExpense(prevState: any, formData: FormData): Promise<{
             revalidatePath('/dashboard/crm/purchases/expenses');
             return { message: 'Expense saved successfully.' };
         } catch (e) {
-            if (e instanceof RustApiError) {
-                console.error('[saveExpense] rust path failed; falling back:', e);
-            } else {
-                console.error('[saveExpense] rust path failed; falling back:', e);
-            }
+            console.error('[saveExpense] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'expense', op: 'create', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through to legacy
         }
     }
@@ -295,6 +293,7 @@ export async function getExpenseById(expenseId: string): Promise<WithId<CrmExpen
         } catch (e) {
             if (e instanceof RustApiError && e.status === 404) return null;
             console.error('[getExpenseById] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'expense', op: 'get', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through
         }
     }
@@ -342,6 +341,7 @@ export async function deleteExpense(expenseId: string): Promise<{ success: boole
             return { success: true };
         } catch (e) {
             console.error('[deleteExpense] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'expense', op: 'delete', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
             // fall through
         }
     }

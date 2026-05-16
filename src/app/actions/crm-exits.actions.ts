@@ -23,6 +23,14 @@ import { ObjectId, type WithId } from 'mongodb';
 import { getSession } from '@/app/actions/user.actions';
 import { connectToDatabase } from '@/lib/mongodb';
 import { writeAuditEntry } from '@/lib/audit-log';
+import { requirePermission } from '@/lib/rbac-server';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+import { crmExitsApi } from '@/lib/rust-client/crm-exits';
+import { RustApiError } from '@/lib/rust-client/fetcher';
+
+function useRustCrm(): boolean {
+  return process.env.USE_RUST_CRM === 'true';
+}
 
 export interface CrmExitDoc {
   _id?: ObjectId;
@@ -86,6 +94,21 @@ export async function getCrmExitById(
   if (!session?.user) return null;
   if (!id || !ObjectId.isValid(id)) return null;
 
+  if (useRustCrm()) {
+    try {
+      const doc = await crmExitsApi.getById(id);
+      return JSON.parse(JSON.stringify(doc)) as WithId<CrmExitDoc>;
+    } catch (e) {
+      console.error('[getCrmExitById] rust path failed; falling back:', e);
+      recordRustFallback({
+        entity: 'exit',
+        op: 'get',
+        errorCode: e instanceof RustApiError ? e.code : undefined,
+        status: e instanceof RustApiError ? e.status : undefined,
+      });
+    }
+  }
+
   try {
     const { db } = await connectToDatabase();
     const doc = await db.collection<CrmExitDoc>('crm_exits').findOne({
@@ -109,6 +132,11 @@ export async function saveCrmExit(
   if (!session?.user) return { error: 'Access denied.' };
 
   const idRaw = (formData.get('_id') as string | null) || '';
+  const isEditing = !!idRaw && ObjectId.isValid(idRaw);
+
+  const guard = await requirePermission('hrm_exit', isEditing ? 'edit' : 'create');
+  if (!guard.ok) return { error: guard.error };
+
   const employeeName = ((formData.get('employeeName') as string | null) || '').trim();
   const employeeId = ((formData.get('employeeId') as string | null) || '').trim();
   const type =
@@ -212,6 +240,8 @@ export async function deleteCrmExit(
 ): Promise<{ success: boolean; error?: string }> {
   const session = await getSession();
   if (!session?.user) return { success: false, error: 'Access denied.' };
+  const guard = await requirePermission('hrm_exit', 'delete');
+  if (!guard.ok) return { success: false, error: guard.error };
   if (!id || !ObjectId.isValid(id)) {
     return { success: false, error: 'Invalid id.' };
   }

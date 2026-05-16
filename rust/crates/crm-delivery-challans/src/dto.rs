@@ -1,0 +1,71 @@
+//! Request DTOs.
+
+use serde::{Deserialize, Serialize};
+
+use crate::types::{ChallanLineItem, CrmDeliveryChallan, TransportDetails};
+
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ListQuery {
+    #[serde(default)]
+    pub page: Option<u32>,
+    #[serde(default)]
+    pub limit: Option<u32>,
+    #[serde(default)]
+    pub q: Option<String>,
+    #[serde(default)]
+    pub status: Option<String>,
+    #[serde(default)]
+    pub account_id: Option<String>,
+}
+
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CreateChallanInput {
+    pub challan_number: String,
+    #[serde(default)]
+    pub account_id: Option<String>,
+    pub challan_date: String,
+    #[serde(default)]
+    pub line_items: Vec<ChallanLineItem>,
+    #[serde(default)]
+    pub reason: Option<String>,
+    #[serde(default)]
+    pub transport_details: TransportDetails,
+    #[serde(default)]
+    pub notes: Option<String>,
+}
+
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateChallanInput {
+    #[serde(default)]
+    pub challan_number: Option<String>,
+    #[serde(default)]
+    pub account_id: Option<String>,
+    #[serde(default)]
+    pub challan_date: Option<String>,
+    #[serde(default)]
+    pub line_items: Option<Vec<ChallanLineItem>>,
+    #[serde(default)]
+    pub reason: Option<String>,
+    #[serde(default)]
+    pub transport_details: Option<TransportDetails>,
+    #[serde(default)]
+    pub notes: Option<String>,
+    #[serde(default)]
+    pub status: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CreateChallanResponse {
+    pub id: String,
+    pub entity: CrmDeliveryChallan,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DeleteChallanResponse {
+    pub deleted: bool,
+}

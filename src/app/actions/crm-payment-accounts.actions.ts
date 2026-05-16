@@ -9,10 +9,34 @@ import type { CrmPaymentAccount, CrmVoucherEntry, BankAccountDetails } from '@/l
 import { coerceFiniteMoney } from '@/lib/crm/number-safety';
 import { getErrorMessage } from '@/lib/utils';
 import { writeAuditEntry } from '@/lib/audit-log';
+import { requirePermission } from '@/lib/rbac-server';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+import { crmPaymentAccountsApi } from '@/lib/rust-client/crm-payment-accounts';
+import { RustApiError } from '@/lib/rust-client/fetcher';
+
+function useRustCrm(): boolean {
+    return process.env.USE_RUST_CRM === 'true';
+}
 
 export async function getCrmPaymentAccountById(accountId: string): Promise<WithId<CrmPaymentAccount> | null> {
     const session = await getSession();
     if (!session?.user || !ObjectId.isValid(accountId)) return null;
+
+    if (useRustCrm()) {
+        try {
+            const doc = await crmPaymentAccountsApi.getById(accountId);
+            return JSON.parse(JSON.stringify(doc));
+        } catch (e) {
+            console.error('[getCrmPaymentAccountById] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'payment_account',
+                op: 'get',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+        }
+    }
+
     try {
         const { db } = await connectToDatabase();
         const userId = new ObjectId(session.user._id);
@@ -97,6 +121,8 @@ export async function getCrmPaymentAccounts(): Promise<WithId<CrmPaymentAccount>
 export async function saveCrmPaymentAccount(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
     const session = await getSession();
     if (!session?.user) return { error: 'Access denied' };
+    const guard = await requirePermission('crm_payment_account', 'create');
+    if (!guard.ok) return { error: guard.error };
 
     const accountId = formData.get('accountId') as string | null;
     const isEditing = !!accountId;
@@ -182,6 +208,9 @@ export async function deleteCrmPaymentAccount(accountId: string): Promise<{ succ
     const session = await getSession();
     if (!session?.user) return { success: false, error: "Access denied" };
 
+    const guard = await requirePermission('crm_payment_account', 'delete');
+    if (!guard.ok) return { success: false, error: guard.error };
+
     if (!accountId || !ObjectId.isValid(accountId)) {
         return { success: false, error: 'Invalid Account ID' };
     }
@@ -216,6 +245,11 @@ export async function bulkUpdateCrmPaymentAccounts(
 ): Promise<{ success: boolean; updated?: number; error?: string }> {
     const session = await getSession();
     if (!session?.user) return { success: false, error: 'Access denied' };
+    const guard = await requirePermission(
+        'crm_payment_account',
+        op === 'delete' ? 'delete' : 'edit',
+    );
+    if (!guard.ok) return { success: false, error: guard.error };
     const oids = ids.filter(ObjectId.isValid).map((id) => new ObjectId(id));
     if (oids.length === 0) return { success: false, error: 'No valid IDs supplied' };
     try {

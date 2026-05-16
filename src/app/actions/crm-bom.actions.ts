@@ -14,6 +14,13 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
 import { writeAuditEntry } from '@/lib/audit-log';
 import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+import { requirePermission } from '@/lib/rbac-server';
+import { crmBomApi } from '@/lib/rust-client/crm-bom';
+import { RustApiError } from '@/lib/rust-client/fetcher';
+
+function useRustCrm(): boolean {
+  return process.env.USE_RUST_CRM === 'true';
+}
 
 export interface CrmBomComponent {
   itemId?: string;
@@ -73,6 +80,21 @@ export async function getCrmBomById(
 
   const session = await getSession();
   if (!session?.user) return null;
+
+  if (useRustCrm()) {
+    try {
+      const doc = await crmBomApi.getById(bomId);
+      return JSON.parse(JSON.stringify(doc));
+    } catch (e) {
+      console.error('[getCrmBomById] rust path failed; falling back:', e);
+      recordRustFallback({
+        entity: 'bom',
+        op: 'get',
+        errorCode: e instanceof RustApiError ? e.code : undefined,
+        status: e instanceof RustApiError ? e.status : undefined,
+      });
+    }
+  }
 
   try {
     const { db } = await connectToDatabase();
@@ -240,6 +262,9 @@ export async function saveBom(
     const bomId = (formData.get('bomId') as string | null)?.trim() || '';
     const isEditing = !!bomId && ObjectId.isValid(bomId);
 
+    const guard = await requirePermission('crm_bom', isEditing ? 'edit' : 'create');
+    if (!guard.ok) return { error: guard.error };
+
     const bomNoRaw = (formData.get('bomNo') as string | null)?.trim() || '';
     const finishedGoodName = (formData.get('finishedGoodName') as string | null)?.trim() || '';
     if (!finishedGoodName) return { error: 'Finished Good Name is required.' };
@@ -358,6 +383,8 @@ export async function setBomStatus(
   if (!ObjectId.isValid(bomId)) return { success: false, error: 'Invalid BOM id.' };
   const session = await getSession();
   if (!session?.user) return { success: false, error: 'Access denied.' };
+  const guard = await requirePermission('crm_bom', 'edit');
+  if (!guard.ok) return { success: false, error: guard.error };
   try {
     const { db } = await connectToDatabase();
     await db.collection('crm_boms').updateOne(
@@ -434,6 +461,8 @@ export async function deleteBom(bomId: string): Promise<{ success: boolean; erro
   if (!ObjectId.isValid(bomId)) return { success: false, error: 'Invalid BOM id.' };
   const session = await getSession();
   if (!session?.user) return { success: false, error: 'Access denied.' };
+  const guard = await requirePermission('crm_bom', 'delete');
+  if (!guard.ok) return { success: false, error: guard.error };
   try {
     const { db } = await connectToDatabase();
     await db.collection('crm_boms').deleteOne({
@@ -461,6 +490,8 @@ export async function bulkBomAction(
 ): Promise<{ success: boolean; processed: number; error?: string }> {
   const session = await getSession();
   if (!session?.user) return { success: false, processed: 0, error: 'Access denied.' };
+  const guard = await requirePermission('crm_bom', op === 'delete' ? 'delete' : 'edit');
+  if (!guard.ok) return { success: false, processed: 0, error: guard.error };
   const validIds = ids.filter((id) => ObjectId.isValid(id));
   if (validIds.length === 0) return { success: false, processed: 0, error: 'No valid ids.' };
 

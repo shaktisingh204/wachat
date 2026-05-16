@@ -7,7 +7,15 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
 import type { CrmVoucherEntry, BankStatement, BankStatementTransaction } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
+import { requirePermission } from '@/lib/rbac-server';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+import { crmReconciliationApi } from '@/lib/rust-client/crm-reconciliation';
+import { RustApiError } from '@/lib/rust-client/fetcher';
 import Papa from 'papaparse';
+
+function useRustCrm(): boolean {
+    return process.env.USE_RUST_CRM === 'true';
+}
 
 export async function importBankStatement(file: File): Promise<{ statementEntries?: any[], error?: string }> {
     try {
@@ -85,6 +93,8 @@ export async function saveReconciliation(
 ): Promise<{ success: boolean, error?: string }> {
     const session = await getSession();
     if (!session?.user) return { success: false, error: "Access denied" };
+    const guard = await requirePermission('crm_banking_reconciliation', 'create');
+    if (!guard.ok) return { success: false, error: guard.error };
 
     try {
         const { db } = await connectToDatabase();
@@ -112,5 +122,48 @@ export async function saveReconciliation(
         return { success: true };
     } catch (e) {
         return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+/**
+ * Fetch a single reconciliation document scoped to the current user.
+ *
+ * Mirrors the canonical loader shape used elsewhere in the CRM. When
+ * `USE_RUST_CRM=true`, the Rust BFF at `/v1/crm/reconciliations/:id` is
+ * consulted first and the Mongo path is used as fallback on any error.
+ */
+export async function getReconciliationById(
+    reconciliationId: string,
+): Promise<WithId<Record<string, unknown>> | null> {
+    const session = await getSession();
+    if (!session?.user) return null;
+    if (!ObjectId.isValid(reconciliationId)) return null;
+
+    if (useRustCrm()) {
+        try {
+            const doc = await crmReconciliationApi.getById(reconciliationId);
+            return JSON.parse(JSON.stringify(doc));
+        } catch (e) {
+            console.error('[getReconciliationById] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'reconciliation',
+                op: 'get',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+        }
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const doc = await db.collection('crm_reconciliations').findOne({
+            _id: new ObjectId(reconciliationId),
+            userId: new ObjectId(session.user._id),
+        });
+        if (!doc) return null;
+        return JSON.parse(JSON.stringify(doc));
+    } catch (e) {
+        console.error('Failed to fetch reconciliation by id:', e);
+        return null;
     }
 }

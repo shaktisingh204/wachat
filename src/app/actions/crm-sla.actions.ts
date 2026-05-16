@@ -5,6 +5,52 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
 import { revalidatePath } from 'next/cache';
 import { writeAuditEntry } from '@/lib/audit-log';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+import { crmSlasApi } from '@/lib/rust-client/crm-slas';
+import { RustApiError } from '@/lib/rust-client/fetcher';
+
+function useRustCrm(): boolean {
+  return process.env.USE_RUST_CRM === 'true';
+}
+
+/**
+ * Fetch a single SLA policy by id. Dual-impl: routes through the Rust
+ * BFF when `USE_RUST_CRM` is on, falling back to legacy Mongo on error.
+ */
+export async function getSlaById(
+  slaId: string,
+): Promise<Record<string, any> | null> {
+  if (!slaId || !ObjectId.isValid(slaId)) return null;
+  const session = await getSession();
+  if (!session?.user?._id) return null;
+
+  if (useRustCrm()) {
+    try {
+      const doc = await crmSlasApi.getById(slaId);
+      return JSON.parse(JSON.stringify(doc));
+    } catch (e) {
+      console.error('[getSlaById] rust path failed; falling back:', e);
+      recordRustFallback({
+        entity: 'sla',
+        op: 'get',
+        errorCode: e instanceof RustApiError ? e.code : undefined,
+        status: e instanceof RustApiError ? e.status : undefined,
+      });
+    }
+  }
+
+  try {
+    const { db } = await connectToDatabase();
+    const doc = await db.collection('crm_slas').findOne({
+      _id: new ObjectId(slaId),
+      userId: new ObjectId(session.user._id as string),
+    });
+    return doc ? JSON.parse(JSON.stringify(doc)) : null;
+  } catch (e) {
+    console.error('Failed to fetch SLA by id:', e);
+    return null;
+  }
+}
 import {
   computeFirstResponseDueBy,
   computeResolutionDueBy,

@@ -38,6 +38,7 @@ import { ZoruButton, ZoruCard } from '@/components/zoruui';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { LineageRail } from '@/components/crm/lineage-rail';
+import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import { getDeliveryChallanById } from '@/app/actions/crm-delivery-challans.actions';
 import type { LineageRef } from '@/lib/definitions';
@@ -342,6 +343,8 @@ export default async function DeliveryChallanDetailPage({
           </ZoruCard>
         </div>
       </div>
+
+      <EntityAuditTimeline entityKind="deliveryChallan" entityId={challanId} />
     </div>
   );
 }

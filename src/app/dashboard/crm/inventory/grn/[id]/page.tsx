@@ -26,6 +26,7 @@ import { CrmPageHeader } from '../../../_components/crm-page-header';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import { LineageRail } from '@/components/crm/lineage-rail';
+import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { getGrn } from '@/app/actions/crm/grns.actions';
 import { GrnDetailActions } from '../_components/grn-detail-actions';
 import type { LineageRef } from '@/lib/definitions';
@@ -384,6 +385,8 @@ export default async function GrnDetailPage({
                     />
                 </div>
             </div>
+
+            <EntityAuditTimeline entityKind="grn" entityId={id} />
         </div>
     );
 }

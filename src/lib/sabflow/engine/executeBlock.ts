@@ -398,11 +398,23 @@ async function executeForgeBlock(
     unknown
   >;
 
+  // Resolve credential through SabFlow Connections when the block declares a
+  // credentialType (new ports) — falling back to inline auth fields baked into
+  // the options object for the legacy blocks that pre-date the picker.
+  let credential: Record<string, string> | undefined;
+  if (forge.auth?.credentialType) {
+    const credentialId = (resolvedOptions.credentialId as string | undefined) ?? undefined;
+    if (credentialId) {
+      const record = await getCredentialById(credentialId);
+      credential = record?.data;
+    }
+  }
+
   const outcome = await runWithRetry(block, async () => {
     return action.run({
       options: resolvedOptions,
       variables,
-      credential: undefined,
+      credential,
     });
   });
 

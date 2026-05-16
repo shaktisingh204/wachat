@@ -14,7 +14,14 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
 import { writeAuditEntry } from '@/lib/audit-log';
 import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+import { requirePermission } from '@/lib/rbac-server';
 import type { CrmBomComponent } from '@/app/actions/crm-bom.actions';
+import { crmProductionOrdersApi } from '@/lib/rust-client/crm-production-orders';
+import { RustApiError } from '@/lib/rust-client/fetcher';
+
+function useRustCrm(): boolean {
+  return process.env.USE_RUST_CRM === 'true';
+}
 
 export interface CrmProductionOrderDoc {
   _id: string;
@@ -73,6 +80,22 @@ export async function getProductionOrderById(
   if (!ObjectId.isValid(orderId)) return null;
   const session = await getSession();
   if (!session?.user?._id) return null;
+
+  if (useRustCrm()) {
+    try {
+      const doc = await crmProductionOrdersApi.getById(orderId);
+      return JSON.parse(JSON.stringify(doc));
+    } catch (e) {
+      console.error('[getProductionOrderById] rust path failed; falling back:', e);
+      recordRustFallback({
+        entity: 'production_order',
+        op: 'get',
+        errorCode: e instanceof RustApiError ? e.code : undefined,
+        status: e instanceof RustApiError ? e.status : undefined,
+      });
+    }
+  }
+
   try {
     const { db } = await connectToDatabase();
     const doc = await db.collection('crm_production_orders').findOne({
@@ -268,6 +291,9 @@ export async function saveProductionOrder(
     const orderId = (formData.get('orderId') as string | null)?.trim() || '';
     const isEditing = !!orderId && ObjectId.isValid(orderId);
 
+    const guard = await requirePermission('crm_production_order', isEditing ? 'edit' : 'create');
+    if (!guard.ok) return { error: guard.error };
+
     const orderNoRaw = (formData.get('orderNo') as string | null)?.trim() || '';
     const finishedGoodName = (formData.get('finishedGoodName') as string | null)?.trim() || '';
     if (!finishedGoodName) return { error: 'Finished Good Name is required.' };
@@ -413,6 +439,8 @@ export async function setProductionOrderStatus(
   if (!ObjectId.isValid(orderId)) return { success: false, error: 'Invalid order id.' };
   const session = await getSession();
   if (!session?.user) return { success: false, error: 'Access denied.' };
+  const guard = await requirePermission('crm_production_order', 'edit');
+  if (!guard.ok) return { success: false, error: guard.error };
   try {
     const { db } = await connectToDatabase();
     await db.collection('crm_production_orders').updateOne(
@@ -442,6 +470,8 @@ export async function updateProductionOrderYield(
 ): Promise<{ message?: string; error?: string }> {
   const session = await getSession();
   if (!session?.user) return { error: 'Access denied.' };
+  const guard = await requirePermission('crm_production_order', 'edit');
+  if (!guard.ok) return { error: guard.error };
 
   const orderId = (formData.get('orderId') as string | null)?.trim() || '';
   if (!ObjectId.isValid(orderId)) return { error: 'Invalid order ID.' };
@@ -496,6 +526,8 @@ export async function deleteProductionOrder(
   if (!ObjectId.isValid(orderId)) return { success: false, error: 'Invalid order id.' };
   const session = await getSession();
   if (!session?.user) return { success: false, error: 'Access denied.' };
+  const guard = await requirePermission('crm_production_order', 'delete');
+  if (!guard.ok) return { success: false, error: guard.error };
   try {
     const { db } = await connectToDatabase();
     await db.collection('crm_production_orders').deleteOne({
@@ -530,6 +562,11 @@ export async function bulkProductionOrderAction(
 ): Promise<{ success: boolean; processed: number; error?: string }> {
   const session = await getSession();
   if (!session?.user) return { success: false, processed: 0, error: 'Access denied.' };
+  const guard = await requirePermission(
+    'crm_production_order',
+    op === 'delete' ? 'delete' : 'edit',
+  );
+  if (!guard.ok) return { success: false, processed: 0, error: guard.error };
   const validIds = ids.filter((id) => ObjectId.isValid(id));
   if (validIds.length === 0) return { success: false, processed: 0, error: 'No valid ids.' };
   try {

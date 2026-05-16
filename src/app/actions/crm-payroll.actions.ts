@@ -9,6 +9,14 @@ import type { CrmSalaryStructure, CrmPayslip, CrmEmployee } from '@/lib/definiti
 import { revalidatePath } from 'next/cache';
 import { startOfMonth, endOfMonth, getDaysInMonth } from 'date-fns';
 import { requirePermission } from '@/lib/rbac-server';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+import { crmPayslipsApi } from '@/lib/rust-client/crm-payslips';
+import { crmSalaryStructuresApi } from '@/lib/rust-client/crm-salary-structures';
+import { RustApiError } from '@/lib/rust-client/fetcher';
+
+function useRustCrm(): boolean {
+    return process.env.USE_RUST_CRM === 'true';
+}
 
 export async function getSalaryStructures(): Promise<WithId<CrmSalaryStructure>[]> {
     const session = await getSession();
@@ -213,5 +221,89 @@ export async function getPayslips(payPeriod: Date): Promise<WithId<CrmPayslip>[]
         return JSON.parse(JSON.stringify(payslips));
     } catch (e) {
         return [];
+    }
+}
+
+/**
+ * Fetch a single payslip document scoped to the current user.
+ *
+ * Dual-impl: when `USE_RUST_CRM=true`, defers to the Rust BFF; on failure
+ * (or when disabled) falls back to a direct Mongo read.
+ */
+export async function getPayslipById(
+    id: string,
+): Promise<WithId<Record<string, unknown>> | null> {
+    const session = await getSession();
+    if (!session?.user) return null;
+    if (!ObjectId.isValid(id)) return null;
+
+    if (useRustCrm()) {
+        try {
+            const doc = await crmPayslipsApi.getById(id);
+            return JSON.parse(JSON.stringify(doc));
+        } catch (e) {
+            console.error('[getPayslipById] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'payslip',
+                op: 'get',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+        }
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const doc = await db.collection('crm_payslips').findOne({
+            _id: new ObjectId(id),
+            userId: new ObjectId(session.user._id),
+        });
+        if (!doc) return null;
+        return JSON.parse(JSON.stringify(doc));
+    } catch (e) {
+        console.error('Failed to fetch payslip by id:', e);
+        return null;
+    }
+}
+
+/**
+ * Fetch a single salary-structure document scoped to the current user.
+ *
+ * Dual-impl: when `USE_RUST_CRM=true`, defers to the Rust BFF; on failure
+ * (or when disabled) falls back to a direct Mongo read.
+ */
+export async function getSalaryStructureById(
+    id: string,
+): Promise<WithId<Record<string, unknown>> | null> {
+    const session = await getSession();
+    if (!session?.user) return null;
+    if (!ObjectId.isValid(id)) return null;
+
+    if (useRustCrm()) {
+        try {
+            const doc = await crmSalaryStructuresApi.getById(id);
+            return JSON.parse(JSON.stringify(doc));
+        } catch (e) {
+            console.error('[getSalaryStructureById] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'salary_structure',
+                op: 'get',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+        }
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const doc = await db.collection('crm_salary_structures').findOne({
+            _id: new ObjectId(id),
+            userId: new ObjectId(session.user._id),
+        });
+        if (!doc) return null;
+        return JSON.parse(JSON.stringify(doc));
+    } catch (e) {
+        console.error('Failed to fetch salary structure by id:', e);
+        return null;
     }
 }

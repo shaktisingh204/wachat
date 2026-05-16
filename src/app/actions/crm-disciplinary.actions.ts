@@ -4,6 +4,14 @@ import { revalidatePath } from 'next/cache';
 import { ObjectId, type WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
+import { requirePermission } from '@/lib/rbac-server';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+import { crmDisciplinaryApi } from '@/lib/rust-client/crm-disciplinary';
+import { RustApiError } from '@/lib/rust-client/fetcher';
+
+function useRustCrm(): boolean {
+  return process.env.USE_RUST_CRM === 'true';
+}
 
 export async function saveDisciplinaryCase(
   _prev: any,
@@ -11,6 +19,9 @@ export async function saveDisciplinaryCase(
 ): Promise<{ message?: string; error?: string; id?: string }> {
   const session = await getSession();
   if (!session?.user) return { error: 'Access denied.' };
+
+  const guard = await requirePermission('hrm_disciplinary', 'create');
+  if (!guard.ok) return { error: guard.error };
 
   const employeeName = (formData.get('employeeName') as string | null)?.trim() || '';
   if (!employeeName) return { error: 'Employee name is required.' };
@@ -59,6 +70,21 @@ export async function getDisciplinaryCaseById(
     const session = await getSession();
     if (!session?.user) return null;
     if (!ObjectId.isValid(caseId)) return null;
+
+    if (useRustCrm()) {
+        try {
+            const doc = await crmDisciplinaryApi.getById(caseId);
+            return JSON.parse(JSON.stringify(doc));
+        } catch (e) {
+            console.error('[getDisciplinaryCaseById] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'disciplinary_case',
+                op: 'get',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+        }
+    }
 
     try {
         const { db } = await connectToDatabase();

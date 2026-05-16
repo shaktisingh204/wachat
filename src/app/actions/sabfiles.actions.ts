@@ -18,6 +18,7 @@
 import { revalidatePath } from 'next/cache';
 
 import { rustClient, RustApiError } from '@/lib/rust-client';
+import { getSession } from '@/app/actions/user.actions';
 import type {
     SabfilesNode,
     ListNodesQuery,
@@ -83,6 +84,8 @@ export async function presignUpload(body: PresignUploadBody) {
 }
 
 export async function confirmUpload(body: ConfirmUploadBody) {
+    const session = await getSession();
+    if (!session?.user) return { error: 'Unauthorized' };
     try {
         const { node } = await rustClient.sabfiles.confirmUpload(body);
         revalidatePath(pathFor(body.parent_id));
@@ -93,6 +96,8 @@ export async function confirmUpload(body: ConfirmUploadBody) {
 }
 
 export async function renameNode(id: string, name: string, parentId: string | null) {
+    const session = await getSession();
+    if (!session?.user) return { error: 'Unauthorized' };
     try {
         const { node } = await rustClient.sabfiles.rename(id, name);
         revalidatePath(pathFor(parentId));
@@ -107,6 +112,8 @@ export async function moveNodes(
     targetParentId: string | null,
     sourceParentId: string | null,
 ) {
+    const session = await getSession();
+    if (!session?.user) return { error: 'Unauthorized' };
     try {
         const res = await rustClient.sabfiles.move(ids, targetParentId);
         revalidatePath(pathFor(sourceParentId));
@@ -129,6 +136,8 @@ export async function starNodes(ids: string[], starred: boolean, parentId: strin
 }
 
 export async function trashNodes(ids: string[], parentId: string | null) {
+    const session = await getSession();
+    if (!session?.user) return { error: 'Unauthorized' };
     try {
         const res = await rustClient.sabfiles.trashMany(ids);
         revalidatePath(pathFor(parentId));
@@ -140,6 +149,8 @@ export async function trashNodes(ids: string[], parentId: string | null) {
 }
 
 export async function restoreNodes(ids: string[]) {
+    const session = await getSession();
+    if (!session?.user) return { error: 'Unauthorized' };
     try {
         const res = await rustClient.sabfiles.restore(ids);
         revalidatePath('/dashboard/sabfiles/trash');
