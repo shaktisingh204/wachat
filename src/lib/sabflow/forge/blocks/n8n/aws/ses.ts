@@ -11,6 +11,7 @@
 import { registerForgeBlock } from '../../../registry';
 import type { ForgeActionContext, ForgeActionResult, ForgeBlock, ForgeField } from '../../../types';
 import { asNumber, asString } from '../_shared/http';
+import { optionalImport } from '../_shared/optional_import';
 
 type AwsCred = { accessKeyId: string; secretAccessKey: string; region: string };
 
@@ -35,7 +36,7 @@ type SesSdk = Record<string, unknown> & {
 
 async function loadSdk(): Promise<SesSdk> {
   try {
-    const mod = (await import('@aws-sdk/client-ses' as string)) as Record<string, unknown>;
+    const mod = await optionalImport<Record<string, unknown>>('@aws-sdk/client-ses');
     const real = ((mod as { default?: Record<string, unknown> }).default ?? mod) as SesSdk;
     if (typeof real.SESClient !== 'function') throw new Error('SESClient missing');
     return real;

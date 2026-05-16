@@ -11,10 +11,17 @@
  *   - subscribe    One-shot: subscribe + read one message + close
  */
 
-import { connect } from 'mqtt';
+import type { connect as MqttConnect } from 'mqtt';
 import { registerForgeBlock } from '../../../registry';
 import type { ForgeActionContext, ForgeActionResult, ForgeBlock } from '../../../types';
 import { asBoolean, asNumber, asString } from '../_shared/http';
+
+async function mqttConnect(
+  ...args: Parameters<typeof MqttConnect>
+): Promise<ReturnType<typeof MqttConnect>> {
+  const { connect } = await import('mqtt');
+  return connect(...args);
+}
 
 function buildOpts(ctx: ForgeActionContext): Record<string, unknown> {
   const opts: Record<string, unknown> = {};
@@ -36,7 +43,7 @@ async function publish(ctx: ForgeActionContext): Promise<ForgeActionResult> {
   if (!message) throw new Error('MQTT: message is required');
   const qos = asNumber(ctx.options.qos) ?? 0;
   const retain = asBoolean(ctx.options.retain);
-  const client = connect(url, buildOpts(ctx));
+  const client = await mqttConnect(url, buildOpts(ctx));
   try {
     await new Promise<void>((resolve, reject) => {
       client.on('error', (err) => reject(err as Error));
@@ -62,7 +69,7 @@ async function subscribe(ctx: ForgeActionContext): Promise<ForgeActionResult> {
   if (!topic) throw new Error('MQTT: topic is required');
   const qos = asNumber(ctx.options.qos) ?? 0;
   const timeoutMs = asNumber(ctx.options.timeoutMs) ?? 10000;
-  const client = connect(url, buildOpts(ctx));
+  const client = await mqttConnect(url, buildOpts(ctx));
   try {
     const result = await new Promise<{ topic: string; message: string } | null>((resolve, reject) => {
       const timer = setTimeout(() => resolve(null), timeoutMs);

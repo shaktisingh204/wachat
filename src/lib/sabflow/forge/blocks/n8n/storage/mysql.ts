@@ -14,7 +14,7 @@
  *   - Stored-procedure call helper, transaction blocks, streamed result sets
  */
 
-import { createConnection } from 'mysql2/promise';
+import type { createConnection } from 'mysql2/promise';
 import { registerForgeBlock } from '../../../registry';
 import type { ForgeActionContext, ForgeActionResult, ForgeBlock } from '../../../types';
 import { asNumber, asString, requireCredential } from '../_shared/http';
@@ -47,6 +47,7 @@ async function withConnection<T>(
   fn: (conn: MysqlConnection) => Promise<T>,
 ): Promise<T> {
   const cred = readCred(ctx);
+  const { createConnection } = await import('mysql2/promise');
   const conn = await createConnection({
     host: cred.host,
     port: cred.port,

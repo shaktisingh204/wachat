@@ -11,6 +11,7 @@
 import { registerForgeBlock } from '../../../registry';
 import type { ForgeActionContext, ForgeActionResult, ForgeBlock, ForgeField } from '../../../types';
 import { asNumber, asString } from '../_shared/http';
+import { optionalImport } from '../_shared/optional_import';
 
 type AwsCred = { accessKeyId: string; secretAccessKey: string; region: string };
 
@@ -35,7 +36,7 @@ type TranscribeSdk = Record<string, unknown> & {
 
 async function loadSdk(): Promise<TranscribeSdk> {
   try {
-    const mod = (await import('@aws-sdk/client-transcribe' as string)) as Record<string, unknown>;
+    const mod = await optionalImport<Record<string, unknown>>('@aws-sdk/client-transcribe');
     const real = ((mod as { default?: Record<string, unknown> }).default ?? mod) as TranscribeSdk;
     if (typeof real.TranscribeClient !== 'function') throw new Error('TranscribeClient missing');
     return real;

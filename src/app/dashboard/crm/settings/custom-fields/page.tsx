@@ -1,31 +1,31 @@
 'use client';
 
 /**
- * Custom Fields list — §1D bar:
- *  - KPI strip (Total · By entity (distinct) · Entity-ref count · Required)
- *  - Search across label / slug
- *  - Filter chips by `belongs_to` entity
- *  - Bulk delete + CSV export (filtered subset)
- *  - +New CTA routes to /custom-fields/new (richer dedicated form)
- *  - "Manage Groups" secondary action routes to /custom-fields/groups
- *  - Grouped table preserved (one card per group with move up/down and
- *    edit/delete row actions) — extracted to _components/.
+ * CRM Custom Fields — settings-style list grouped by `entity_kind`.
+ *
+ * A pill row at the top switches the active CRM entity (contact, deal,
+ * lead, account, ticket, employee, vendor, item, project). The table
+ * below is sorted by `display_order` ASC. The inline-create dialog
+ * doubles as the edit dialog and provides structured UI for both the
+ * select/multiselect option set AND the optional numeric/text
+ * validation rules — no raw JSON paste boxes anywhere.
+ *
+ * All RBAC + persistence happens server-side in
+ * `@/app/actions/crm-custom-fields.actions`.
  */
 
 import * as React from 'react';
-import Link from 'next/link';
+import { useActionState } from 'react';
+import { useFormStatus } from 'react-dom';
 import {
-    Layers,
+    Check,
+    Edit,
+    LoaderCircle,
     Plus,
+    Settings2,
     Trash2,
-    FolderTree,
-    Asterisk,
-    Link2,
-    LayoutGrid,
-    Download,
     X,
 } from 'lucide-react';
-import { useEffect, useState, useTransition } from 'react';
 
 import {
     ZoruAlertDialog,
@@ -37,360 +37,867 @@ import {
     ZoruAlertDialogHeader,
     ZoruAlertDialogTitle,
     ZoruButton,
-    ZoruCard,
-    ZoruStatCard,
+    ZoruCheckbox,
+    ZoruDialog,
+    ZoruDialogContent,
+    ZoruDialogFooter,
+    ZoruDialogHeader,
+    ZoruDialogTitle,
+    ZoruInput,
+    ZoruLabel,
+    ZoruSelect,
+    ZoruSelectContent,
+    ZoruSelectItem,
+    ZoruSelectTrigger,
+    ZoruSelectValue,
+    ZoruTable,
+    ZoruTableBody,
+    ZoruTableCell,
+    ZoruTableHead,
+    ZoruTableHeader,
+    ZoruTableRow,
+    ZoruTextarea,
     useZoruToast,
 } from '@/components/zoruui';
+
+import { CrmPageHeader } from '../../_components/crm-page-header';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { StatusPill } from '@/components/crm/status-pill';
+
 import {
-    getCustomFieldGroups,
-    getCustomFields,
     deleteCustomField,
-    reorderCustomFields,
-} from '@/app/actions/worksuite/meta.actions';
-import {
-    CustomFieldsGroupedTable,
-    type FieldRow,
-    type GroupRow,
-} from './_components/custom-fields-grouped-table';
+    getCustomFields,
+    saveCustomField,
+} from '@/app/actions/crm-custom-fields.actions';
+import type {
+    CrmCustomFieldDoc,
+    CrmCustomFieldOption,
+    CrmCustomFieldType,
+    CrmCustomFieldValidation,
+} from '@/lib/rust-client/crm-custom-fields';
 
-function csvCell(v: unknown): string {
-    if (v === null || v === undefined) return '';
-    const s = String(v);
-    if (/[",\n]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
-    return s;
+/* ─── Constants ─────────────────────────────────────────────────── */
+
+/** Entity tabs along the top — one pill per CRM entity. */
+const ENTITY_KINDS: ReadonlyArray<{ value: string; label: string }> = [
+    { value: 'contact', label: 'Contacts' },
+    { value: 'deal', label: 'Deals' },
+    { value: 'lead', label: 'Leads' },
+    { value: 'account', label: 'Accounts' },
+    { value: 'ticket', label: 'Tickets' },
+    { value: 'employee', label: 'Employees' },
+    { value: 'vendor', label: 'Vendors' },
+    { value: 'item', label: 'Items' },
+    { value: 'project', label: 'Projects' },
+];
+
+const DEFAULT_ENTITY_KIND = ENTITY_KINDS[0]!.value;
+
+/** All 13 field types supported by the Rust DTO. */
+const FIELD_TYPES: ReadonlyArray<{ value: CrmCustomFieldType; label: string }> = [
+    { value: 'text', label: 'Text' },
+    { value: 'textarea', label: 'Long text' },
+    { value: 'number', label: 'Number' },
+    { value: 'currency', label: 'Currency' },
+    { value: 'date', label: 'Date' },
+    { value: 'datetime', label: 'Date & time' },
+    { value: 'boolean', label: 'Yes / No' },
+    { value: 'select', label: 'Single select' },
+    { value: 'multiselect', label: 'Multi-select' },
+    { value: 'url', label: 'URL' },
+    { value: 'email', label: 'Email' },
+    { value: 'phone', label: 'Phone' },
+    { value: 'file', label: 'File' },
+];
+
+const OPTION_BEARING: ReadonlySet<CrmCustomFieldType> = new Set([
+    'select',
+    'multiselect',
+]);
+
+const VALIDATABLE: ReadonlySet<CrmCustomFieldType> = new Set([
+    'text',
+    'textarea',
+    'number',
+    'currency',
+]);
+
+/** Entity-kind label resolver — falls back to the raw value for unknown kinds. */
+function labelForEntity(kind: string): string {
+    return ENTITY_KINDS.find((e) => e.value === kind)?.label ?? kind;
 }
 
-function exportCsv(fields: FieldRow[], groups: GroupRow[]): void {
-    const groupMap = new Map<string, GroupRow>();
-    groups.forEach((g) => groupMap.set(String(g._id), g));
-    const header = [
-        'Group',
-        'Belongs to',
-        'Label',
-        'Slug',
-        'Type',
-        'Required',
-        'In Table',
-    ];
-    const lines = fields.map((f) => {
-        const g = groupMap.get(String(f.group_id));
-        return [
-            g?.name ?? '',
-            g?.belongs_to ?? f.belongs_to ?? '',
-            f.label,
-            f.name,
-            f.type,
-            f.is_required ? 'yes' : 'no',
-            f.display_in_table ? 'yes' : 'no',
-        ]
-            .map(csvCell)
-            .join(',');
-    });
-    const csv = [header.join(','), ...lines].join('\n');
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'custom-fields.csv';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+/** Field-type label resolver — falls back to the raw value for unknown types. */
+function labelForType(t: string): string {
+    return FIELD_TYPES.find((f) => f.value === t)?.label ?? t;
 }
 
-export default function CustomFieldsPage() {
+/* ─── Dialog ───────────────────────────────────────────────────── */
+
+const saveInitialState: { message?: string; error?: string; id?: string } = {};
+
+function SubmitButton({ isEditing }: { isEditing: boolean }) {
+    const { pending } = useFormStatus();
+    return (
+        <ZoruButton type="submit" disabled={pending}>
+            {pending ? (
+                <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+            ) : null}
+            {isEditing ? 'Save changes' : 'Create field'}
+        </ZoruButton>
+    );
+}
+
+/**
+ * Structured options repeater for select / multiselect field types.
+ * Each row is `{ label, value, color }`; the parent receives the full
+ * array and re-serialises it into the hidden form input.
+ */
+function OptionsRepeater({
+    options,
+    onChange,
+}: {
+    options: CrmCustomFieldOption[];
+    onChange: (next: CrmCustomFieldOption[]) => void;
+}) {
+    const update = (idx: number, patch: Partial<CrmCustomFieldOption>) => {
+        const next = options.map((o, i) => (i === idx ? { ...o, ...patch } : o));
+        onChange(next);
+    };
+
+    const remove = (idx: number) => {
+        onChange(options.filter((_, i) => i !== idx));
+    };
+
+    const add = () => {
+        onChange([...options, { label: '', value: '', color: '' }]);
+    };
+
+    return (
+        <div className="space-y-2">
+            <div className="flex items-center justify-between">
+                <ZoruLabel>Options</ZoruLabel>
+                <ZoruButton
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={add}
+                >
+                    <Plus className="mr-1 h-3.5 w-3.5" /> Add option
+                </ZoruButton>
+            </div>
+            {options.length === 0 ? (
+                <p className="rounded-md border border-dashed border-border px-3 py-4 text-center text-xs text-muted-foreground">
+                    Add at least one option for a select / multiselect field.
+                </p>
+            ) : (
+                <div className="space-y-2">
+                    {options.map((opt, idx) => (
+                        <div
+                            key={idx}
+                            className="grid grid-cols-[1fr_1fr_120px_auto] items-center gap-2"
+                        >
+                            <ZoruInput
+                                placeholder="Label"
+                                value={opt.label}
+                                onChange={(e) =>
+                                    update(idx, { label: e.target.value })
+                                }
+                            />
+                            <ZoruInput
+                                placeholder="value (slug)"
+                                value={opt.value}
+                                onChange={(e) =>
+                                    update(idx, { value: e.target.value })
+                                }
+                            />
+                            <ZoruInput
+                                type="color"
+                                value={opt.color || '#999999'}
+                                onChange={(e) =>
+                                    update(idx, { color: e.target.value })
+                                }
+                                className="h-9 cursor-pointer p-1"
+                                aria-label="Option color"
+                            />
+                            <ZoruButton
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => remove(idx)}
+                                aria-label="Remove option"
+                            >
+                                <X className="h-4 w-4" />
+                            </ZoruButton>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+}
+
+function CustomFieldDialog({
+    isOpen,
+    onOpenChange,
+    onSave,
+    initialData,
+    defaultEntityKind,
+}: {
+    isOpen: boolean;
+    onOpenChange: (open: boolean) => void;
+    onSave: () => void;
+    initialData: CrmCustomFieldDoc | null;
+    defaultEntityKind: string;
+}) {
+    const isEditing = !!initialData;
+    const [state, formAction] = useActionState(
+        saveCustomField,
+        saveInitialState,
+    );
     const { toast } = useZoruToast();
-    const [groups, setGroups] = useState<GroupRow[]>([]);
-    const [fields, setFields] = useState<FieldRow[]>([]);
-    const [isLoading, startLoading] = useTransition();
-    const [isPending, startReorder] = useTransition();
-    const [deletingId, setDeletingId] = useState<string | null>(null);
-    const [search, setSearch] = useState('');
-    const [entityFilter, setEntityFilter] = useState<string>('all');
-    const [selected, setSelected] = useState<Set<string>>(new Set());
-    const [bulkDeleting, setBulkDeleting] = useState(false);
 
-    const refresh = React.useCallback(() => {
-        startLoading(async () => {
-            try {
-                const [g, f] = await Promise.all([
-                    getCustomFieldGroups() as Promise<GroupRow[]>,
-                    getCustomFields() as Promise<FieldRow[]>,
-                ]);
-                setGroups(Array.isArray(g) ? g : []);
-                setFields(Array.isArray(f) ? f : []);
-            } catch (e) {
-                console.error('Failed to load custom fields:', e);
-            }
-        });
-    }, []);
-
-    useEffect(() => {
-        refresh();
-    }, [refresh]);
-
-    const entitiesInUse = React.useMemo(() => {
-        const s = new Set<string>();
-        groups.forEach((g) => s.add(g.belongs_to as string));
-        return Array.from(s);
-    }, [groups]);
-
-    const filteredFields = React.useMemo(() => {
-        const q = search.trim().toLowerCase();
-        return fields.filter((f) => {
-            if (q) {
-                const matches = [f.label, f.name].some((v) =>
-                    String(v ?? '')
-                        .toLowerCase()
-                        .includes(q),
-                );
-                if (!matches) return false;
-            }
-            if (entityFilter !== 'all') {
-                const g = groups.find((x) => String(x._id) === String(f.group_id));
-                if ((g?.belongs_to as string) !== entityFilter) return false;
-            }
-            return true;
-        });
-    }, [fields, groups, search, entityFilter]);
-
-    const filteredGroups = React.useMemo(
-        () =>
-            entityFilter === 'all'
-                ? groups
-                : groups.filter((g) => (g.belongs_to as string) === entityFilter),
-        [groups, entityFilter],
+    const [fieldType, setFieldType] = React.useState<CrmCustomFieldType>(
+        (initialData?.fieldType as CrmCustomFieldType) || 'text',
+    );
+    const [entityKind, setEntityKind] = React.useState<string>(
+        initialData?.entityKind || defaultEntityKind,
+    );
+    const [options, setOptions] = React.useState<CrmCustomFieldOption[]>(
+        initialData?.options ? [...initialData.options] : [],
+    );
+    const [validation, setValidation] = React.useState<CrmCustomFieldValidation>(
+        initialData?.validation ?? {},
     );
 
-    const handleDelete = async () => {
-        if (!deletingId) return;
-        const res = await deleteCustomField(deletingId);
-        if (res.success) {
-            toast({ title: 'Deleted', description: 'Field removed.' });
-            setDeletingId(null);
-            setSelected((prev) => {
-                const n = new Set(prev);
-                n.delete(deletingId);
-                return n;
-            });
-            refresh();
-        } else {
+    // Reset form state every time the dialog re-opens with different data so
+    // the user never sees stale values from the previous open.
+    React.useEffect(() => {
+        if (!isOpen) return;
+        setFieldType(
+            (initialData?.fieldType as CrmCustomFieldType) || 'text',
+        );
+        setEntityKind(initialData?.entityKind || defaultEntityKind);
+        setOptions(initialData?.options ? [...initialData.options] : []);
+        setValidation(initialData?.validation ?? {});
+    }, [initialData, defaultEntityKind, isOpen]);
+
+    React.useEffect(() => {
+        if (state.message) {
+            toast({ title: 'Success', description: state.message });
+            onSave();
+            onOpenChange(false);
+        }
+        if (state.error) {
             toast({
                 title: 'Error',
-                description: res.error || 'Failed to delete',
+                description: state.error,
                 variant: 'destructive',
             });
         }
+    }, [state, toast, onSave, onOpenChange]);
+
+    const showOptions = OPTION_BEARING.has(fieldType);
+    const showValidation = VALIDATABLE.has(fieldType);
+
+    return (
+        <ZoruDialog open={isOpen} onOpenChange={onOpenChange}>
+            <ZoruDialogContent className="max-w-2xl">
+                <form action={formAction}>
+                    {isEditing ? (
+                        <input
+                            type="hidden"
+                            name="fieldId"
+                            value={String(initialData!._id)}
+                        />
+                    ) : null}
+                    {/* Hidden JSON payload for options — the action parses it. */}
+                    <input
+                        type="hidden"
+                        name="optionsJson"
+                        value={JSON.stringify(options)}
+                    />
+
+                    <ZoruDialogHeader>
+                        <ZoruDialogTitle>
+                            {isEditing ? 'Edit custom field' : 'New custom field'}
+                        </ZoruDialogTitle>
+                    </ZoruDialogHeader>
+
+                    <div className="max-h-[70vh] space-y-4 overflow-y-auto py-4 pr-1">
+                        <div className="grid grid-cols-2 gap-3">
+                            <div className="space-y-2">
+                                <ZoruLabel htmlFor="entityKind">Entity *</ZoruLabel>
+                                <ZoruSelect
+                                    name="entityKind"
+                                    required
+                                    value={entityKind}
+                                    onValueChange={setEntityKind}
+                                >
+                                    <ZoruSelectTrigger id="entityKind">
+                                        <ZoruSelectValue placeholder="Pick an entity…" />
+                                    </ZoruSelectTrigger>
+                                    <ZoruSelectContent>
+                                        {ENTITY_KINDS.map((e) => (
+                                            <ZoruSelectItem
+                                                key={e.value}
+                                                value={e.value}
+                                            >
+                                                {e.label}
+                                            </ZoruSelectItem>
+                                        ))}
+                                    </ZoruSelectContent>
+                                </ZoruSelect>
+                            </div>
+                            <div className="space-y-2">
+                                <ZoruLabel htmlFor="fieldType">Field type *</ZoruLabel>
+                                <ZoruSelect
+                                    name="fieldType"
+                                    required
+                                    value={fieldType}
+                                    onValueChange={(v) =>
+                                        setFieldType(v as CrmCustomFieldType)
+                                    }
+                                >
+                                    <ZoruSelectTrigger id="fieldType">
+                                        <ZoruSelectValue placeholder="Pick a type…" />
+                                    </ZoruSelectTrigger>
+                                    <ZoruSelectContent>
+                                        {FIELD_TYPES.map((t) => (
+                                            <ZoruSelectItem
+                                                key={t.value}
+                                                value={t.value}
+                                            >
+                                                {t.label}
+                                            </ZoruSelectItem>
+                                        ))}
+                                    </ZoruSelectContent>
+                                </ZoruSelect>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                            <div className="space-y-2">
+                                <ZoruLabel htmlFor="label">Display label *</ZoruLabel>
+                                <ZoruInput
+                                    id="label"
+                                    name="label"
+                                    placeholder="e.g. Passport Number"
+                                    required
+                                    defaultValue={initialData?.label}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <ZoruLabel htmlFor="name">Internal name *</ZoruLabel>
+                                <ZoruInput
+                                    id="name"
+                                    name="name"
+                                    placeholder="passport_number"
+                                    required
+                                    pattern="^[a-z][a-z0-9_]*$"
+                                    title="Lowercase letters, digits, and underscores. Must start with a letter."
+                                    className="font-mono"
+                                    defaultValue={initialData?.name}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                            <div className="space-y-2">
+                                <ZoruLabel htmlFor="placeholder">Placeholder</ZoruLabel>
+                                <ZoruInput
+                                    id="placeholder"
+                                    name="placeholder"
+                                    placeholder="Shown inside empty inputs"
+                                    defaultValue={initialData?.placeholder ?? ''}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <ZoruLabel htmlFor="section">Section</ZoruLabel>
+                                <ZoruInput
+                                    id="section"
+                                    name="section"
+                                    placeholder="e.g. Identification"
+                                    defaultValue={initialData?.section ?? ''}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <ZoruLabel htmlFor="helpText">Help text</ZoruLabel>
+                            <ZoruTextarea
+                                id="helpText"
+                                name="helpText"
+                                rows={2}
+                                placeholder="A short hint shown below the field on forms."
+                                defaultValue={initialData?.helpText ?? ''}
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <ZoruLabel htmlFor="displayOrder">Display order</ZoruLabel>
+                            <ZoruInput
+                                id="displayOrder"
+                                name="displayOrder"
+                                type="number"
+                                min={0}
+                                step={1}
+                                defaultValue={initialData?.displayOrder ?? 0}
+                            />
+                        </div>
+
+                        {/* Flag grid — checkbox + label rows. Each checkbox writes
+                            `on` when checked so the action's `pickBool` parser
+                            reads them correctly. */}
+                        <div className="rounded-md border border-border p-3">
+                            <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                                Flags
+                            </p>
+                            <div className="grid grid-cols-2 gap-3">
+                                <FlagCheckbox
+                                    name="required"
+                                    label="Required"
+                                    defaultChecked={initialData?.required ?? false}
+                                />
+                                <FlagCheckbox
+                                    name="unique"
+                                    label="Unique"
+                                    defaultChecked={initialData?.unique ?? false}
+                                />
+                                <FlagCheckbox
+                                    name="visibleInList"
+                                    label="Visible in list"
+                                    defaultChecked={
+                                        initialData?.visibleInList ?? false
+                                    }
+                                />
+                                <FlagCheckbox
+                                    name="visibleInForm"
+                                    label="Visible in form"
+                                    defaultChecked={
+                                        initialData?.visibleInForm ?? true
+                                    }
+                                />
+                                <FlagCheckbox
+                                    name="editableInForm"
+                                    label="Editable in form"
+                                    defaultChecked={
+                                        initialData?.editableInForm ?? true
+                                    }
+                                />
+                                <FlagCheckbox
+                                    name="isActive"
+                                    label="Active"
+                                    defaultChecked={initialData?.isActive ?? true}
+                                />
+                            </div>
+                        </div>
+
+                        {showOptions ? (
+                            <div className="rounded-md border border-border p-3">
+                                <OptionsRepeater
+                                    options={options}
+                                    onChange={setOptions}
+                                />
+                            </div>
+                        ) : null}
+
+                        {showValidation ? (
+                            <div className="rounded-md border border-border p-3">
+                                <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                                    Validation
+                                </p>
+                                <div className="grid grid-cols-3 gap-3">
+                                    <div className="space-y-2">
+                                        <ZoruLabel htmlFor="validation.min">
+                                            Min
+                                        </ZoruLabel>
+                                        <ZoruInput
+                                            id="validation.min"
+                                            name="validation.min"
+                                            type="number"
+                                            step="any"
+                                            placeholder="—"
+                                            defaultValue={
+                                                typeof validation.min === 'number'
+                                                    ? validation.min
+                                                    : ''
+                                            }
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <ZoruLabel htmlFor="validation.max">
+                                            Max
+                                        </ZoruLabel>
+                                        <ZoruInput
+                                            id="validation.max"
+                                            name="validation.max"
+                                            type="number"
+                                            step="any"
+                                            placeholder="—"
+                                            defaultValue={
+                                                typeof validation.max === 'number'
+                                                    ? validation.max
+                                                    : ''
+                                            }
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <ZoruLabel htmlFor="validation.pattern">
+                                            Regex pattern
+                                        </ZoruLabel>
+                                        <ZoruInput
+                                            id="validation.pattern"
+                                            name="validation.pattern"
+                                            placeholder="^[A-Z0-9]+$"
+                                            className="font-mono"
+                                            defaultValue={
+                                                typeof validation.pattern ===
+                                                'string'
+                                                    ? validation.pattern
+                                                    : ''
+                                            }
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        ) : null}
+                    </div>
+
+                    <ZoruDialogFooter>
+                        <ZoruButton
+                            type="button"
+                            variant="ghost"
+                            onClick={() => onOpenChange(false)}
+                        >
+                            Cancel
+                        </ZoruButton>
+                        <SubmitButton isEditing={isEditing} />
+                    </ZoruDialogFooter>
+                </form>
+            </ZoruDialogContent>
+        </ZoruDialog>
+    );
+}
+
+/**
+ * Local helper — controlled ZoruCheckbox that posts `on` via a hidden
+ * input when checked so the server action's `pickBool` parser works
+ * without needing the underlying Radix primitive to be inside a form.
+ */
+function FlagCheckbox({
+    name,
+    label,
+    defaultChecked,
+}: {
+    name: string;
+    label: string;
+    defaultChecked: boolean;
+}) {
+    const [checked, setChecked] = React.useState(defaultChecked);
+    React.useEffect(() => {
+        setChecked(defaultChecked);
+    }, [defaultChecked]);
+    return (
+        <label className="flex cursor-pointer items-center gap-2 text-sm">
+            <ZoruCheckbox
+                checked={checked}
+                onCheckedChange={(v) => setChecked(v === true)}
+            />
+            {checked ? (
+                <input type="hidden" name={name} value="on" />
+            ) : null}
+            <span>{label}</span>
+        </label>
+    );
+}
+
+/* ─── Page ──────────────────────────────────────────────────────── */
+
+export default function CustomFieldsPage() {
+    const [fields, setFields] = React.useState<CrmCustomFieldDoc[]>([]);
+    const [isLoading, setIsLoading] = React.useState(true);
+    const [activeEntity, setActiveEntity] =
+        React.useState<string>(DEFAULT_ENTITY_KIND);
+    const [search, setSearch] = React.useState('');
+    const [editing, setEditing] = React.useState<CrmCustomFieldDoc | null>(null);
+    const [isDialogOpen, setIsDialogOpen] = React.useState(false);
+    const [pendingDelete, setPendingDelete] =
+        React.useState<CrmCustomFieldDoc | null>(null);
+    const [deletePending, startDeleteTransition] = React.useTransition();
+    const { toast } = useZoruToast();
+
+    const refresh = React.useCallback(async () => {
+        setIsLoading(true);
+        const data = await getCustomFields(activeEntity);
+        setFields(data);
+        setIsLoading(false);
+    }, [activeEntity]);
+
+    React.useEffect(() => {
+        void refresh();
+    }, [refresh]);
+
+    const filtered = React.useMemo(() => {
+        const q = search.trim().toLowerCase();
+        if (!q) return fields;
+        return fields.filter((f) =>
+            `${f.label} ${f.name} ${f.section ?? ''}`
+                .toLowerCase()
+                .includes(q),
+        );
+    }, [fields, search]);
+
+    const handleOpenDialog = (field: CrmCustomFieldDoc | null) => {
+        setEditing(field);
+        setIsDialogOpen(true);
     };
 
-    const handleBulkDelete = async () => {
-        const ids = Array.from(selected);
-        if (!ids.length) return;
-        setBulkDeleting(true);
-        let ok = 0;
-        let failed = 0;
-        for (const id of ids) {
-            const res = await deleteCustomField(id);
-            if (res.success) ok += 1;
-            else failed += 1;
-        }
-        setBulkDeleting(false);
-        setSelected(new Set());
-        toast({
-            title: 'Bulk delete',
-            description: `${ok} removed${failed ? `, ${failed} failed` : ''}.`,
-            variant: failed ? 'destructive' : undefined,
-        });
-        refresh();
-    };
-
-    const move = (groupId: string, fieldId: string, dir: -1 | 1) => {
-        const groupFields = fields
-            .filter((f) => String(f.group_id) === String(groupId))
-            .sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
-        const idx = groupFields.findIndex((f) => f._id === fieldId);
-        if (idx === -1) return;
-        const j = idx + dir;
-        if (j < 0 || j >= groupFields.length) return;
-        const ordered = [...groupFields];
-        [ordered[idx], ordered[j]] = [ordered[j], ordered[idx]];
-        const orderedIds = ordered.map((f) => f._id);
-        startReorder(async () => {
-            const res = await reorderCustomFields(groupId, orderedIds);
-            if (res.success) refresh();
-            else
+    const handleDelete = () => {
+        if (!pendingDelete) return;
+        startDeleteTransition(async () => {
+            const result = await deleteCustomField(String(pendingDelete._id));
+            if (result.success) {
+                toast({ title: 'Field deleted' });
+                setPendingDelete(null);
+                await refresh();
+            } else {
                 toast({
                     title: 'Error',
-                    description: res.error || 'Reorder failed',
+                    description: result.error,
                     variant: 'destructive',
                 });
+            }
         });
     };
 
     return (
         <>
-            <EntityListShell
-                title="Custom Fields"
-                subtitle="Extend any CRM entity with custom fields grouped by target module."
-                primaryAction={
-                    <div className="flex items-center gap-2">
-                        <ZoruButton variant="outline" asChild>
-                            <Link href="/dashboard/crm/settings/custom-fields/groups">
-                                <FolderTree className="h-4 w-4" />
-                                Manage Groups
-                            </Link>
-                        </ZoruButton>
-                        <ZoruButton asChild>
-                            <Link href="/dashboard/crm/settings/custom-fields/new">
-                                <Plus className="h-4 w-4" />
-                                New Field
-                            </Link>
-                        </ZoruButton>
-                    </div>
-                }
-                search={{
-                    value: search,
-                    onChange: setSearch,
-                    placeholder: 'Search by label or slug…',
-                }}
-                filters={
-                    <>
-                        <ZoruButton
-                            type="button"
-                            variant={entityFilter === 'all' ? 'default' : 'outline'}
-                            size="sm"
-                            onClick={() => setEntityFilter('all')}
-                        >
-                            All
-                        </ZoruButton>
-                        {entitiesInUse.map((e) => (
-                            <ZoruButton
-                                key={e}
-                                type="button"
-                                variant={entityFilter === e ? 'default' : 'outline'}
-                                size="sm"
-                                onClick={() => setEntityFilter(e)}
-                            >
-                                {e}
-                            </ZoruButton>
-                        ))}
-                    </>
-                }
-                bulkBar={
-                    selected.size > 0 ? (
-                        <div className="flex flex-wrap items-center gap-2 text-[13px]">
-                            <span className="font-medium text-zoru-ink">
-                                {selected.size} selected
-                            </span>
-                            <span className="text-zoru-ink-muted">·</span>
-                            <ZoruButton
-                                variant="ghost"
-                                size="sm"
-                                disabled={bulkDeleting}
-                                onClick={handleBulkDelete}
-                            >
-                                <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
-                                Delete
-                            </ZoruButton>
-                            <ZoruButton
-                                variant="ghost"
-                                size="sm"
-                                onClick={() =>
-                                    exportCsv(
-                                        filteredFields.filter((f) => selected.has(f._id)),
-                                        groups,
-                                    )
-                                }
-                            >
-                                <Download className="h-3.5 w-3.5" />
-                                Export CSV
-                            </ZoruButton>
-                            <span className="ml-auto" />
-                            <ZoruButton
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => setSelected(new Set())}
-                            >
-                                <X className="h-3.5 w-3.5" />
-                                Clear
-                            </ZoruButton>
-                        </div>
-                    ) : null
-                }
-                loading={isLoading && groups.length === 0}
-            >
-                <div className="flex flex-col gap-4">
-                    <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
-                        <ZoruStatCard
-                            label="Total fields"
-                            value={fields.length}
-                            icon={<Layers className="h-4 w-4" />}
-                        />
-                        <ZoruStatCard
-                            label="Entities used"
-                            value={entitiesInUse.length}
-                            icon={<LayoutGrid className="h-4 w-4" />}
-                        />
-                        <ZoruStatCard
-                            label="entity_ref fields"
-                            value={fields.filter((f) => f.type === 'entity_ref').length}
-                            icon={<Link2 className="h-4 w-4" />}
-                        />
-                        <ZoruStatCard
-                            label="Required"
-                            value={fields.filter((f) => f.is_required).length}
-                            icon={<Asterisk className="h-4 w-4" />}
-                        />
-                    </div>
+            <CustomFieldDialog
+                isOpen={isDialogOpen}
+                onOpenChange={setIsDialogOpen}
+                onSave={refresh}
+                initialData={editing}
+                defaultEntityKind={activeEntity}
+            />
 
-                    {groups.length === 0 ? (
-                        <ZoruCard className="p-6">
-                            <div className="text-center">
-                                <p className="text-[13px] text-zoru-ink-muted">
-                                    No groups yet. Create a group first, then add fields
-                                    to it.
-                                </p>
-                                <div className="mt-4">
-                                    <ZoruButton asChild>
-                                        <Link href="/dashboard/crm/settings/custom-fields/groups">
-                                            Create a Group
-                                        </Link>
-                                    </ZoruButton>
-                                </div>
-                            </div>
-                        </ZoruCard>
-                    ) : (
-                        <CustomFieldsGroupedTable
-                            groups={filteredGroups}
-                            fields={filteredFields}
-                            selected={selected}
-                            setSelected={setSelected}
-                            onDelete={(id) => setDeletingId(id)}
-                            onMove={move}
-                            isReorderPending={isPending}
-                            search={search}
-                            entityFilter={entityFilter}
-                        />
-                    )}
+            <div className="flex w-full flex-col gap-6">
+                <CrmPageHeader
+                    breadcrumbs={[
+                        { label: 'Settings', href: '/dashboard/crm/settings' },
+                        { label: 'Custom Fields' },
+                    ]}
+                    title="Custom Fields"
+                    subtitle="Extend any CRM entity with user-defined fields, grouped by entity kind."
+                    icon={Settings2}
+                    actions={
+                        <ZoruButton onClick={() => handleOpenDialog(null)}>
+                            <Plus className="mr-1.5 h-3.5 w-3.5" /> New field
+                        </ZoruButton>
+                    }
+                />
+
+                {/* Entity-kind pill row — acts as the tab switcher. */}
+                <div className="flex flex-wrap items-center gap-2">
+                    {ENTITY_KINDS.map((e) => (
+                        <ZoruButton
+                            key={e.value}
+                            type="button"
+                            size="sm"
+                            variant={
+                                activeEntity === e.value ? 'default' : 'outline'
+                            }
+                            onClick={() => setActiveEntity(e.value)}
+                        >
+                            {e.label}
+                        </ZoruButton>
+                    ))}
                 </div>
-            </EntityListShell>
+
+                <EntityListShell
+                    title=""
+                    search={{
+                        value: search,
+                        onChange: setSearch,
+                        placeholder: 'Search by label, name or section…',
+                    }}
+                    loading={isLoading && fields.length === 0}
+                >
+                    <div className="overflow-x-auto rounded-lg border border-border">
+                        <ZoruTable>
+                            <ZoruTableHeader>
+                                <ZoruTableRow className="border-border hover:bg-transparent">
+                                    <ZoruTableHead className="text-muted-foreground w-16 text-right">
+                                        Order
+                                    </ZoruTableHead>
+                                    <ZoruTableHead className="text-muted-foreground">
+                                        Label
+                                    </ZoruTableHead>
+                                    <ZoruTableHead className="text-muted-foreground">
+                                        Type
+                                    </ZoruTableHead>
+                                    <ZoruTableHead className="text-muted-foreground text-center">
+                                        Required
+                                    </ZoruTableHead>
+                                    <ZoruTableHead className="text-muted-foreground text-center">
+                                        Unique
+                                    </ZoruTableHead>
+                                    <ZoruTableHead className="text-muted-foreground text-center">
+                                        In list
+                                    </ZoruTableHead>
+                                    <ZoruTableHead className="text-muted-foreground">
+                                        Status
+                                    </ZoruTableHead>
+                                    <ZoruTableHead className="text-muted-foreground text-right">
+                                        Actions
+                                    </ZoruTableHead>
+                                </ZoruTableRow>
+                            </ZoruTableHeader>
+                            <ZoruTableBody>
+                                {isLoading ? (
+                                    <ZoruTableRow className="border-border">
+                                        <ZoruTableCell
+                                            colSpan={8}
+                                            className="h-24 text-center"
+                                        >
+                                            <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
+                                        </ZoruTableCell>
+                                    </ZoruTableRow>
+                                ) : filtered.length === 0 ? (
+                                    <ZoruTableRow className="border-border">
+                                        <ZoruTableCell
+                                            colSpan={8}
+                                            className="h-24 text-center text-muted-foreground"
+                                        >
+                                            No custom fields for{' '}
+                                            {labelForEntity(activeEntity)} yet.
+                                        </ZoruTableCell>
+                                    </ZoruTableRow>
+                                ) : (
+                                    filtered.map((f) => (
+                                        <ZoruTableRow
+                                            key={String(f._id)}
+                                            className="border-border"
+                                        >
+                                            <ZoruTableCell className="text-right font-mono text-foreground">
+                                                {f.displayOrder ?? 0}
+                                            </ZoruTableCell>
+                                            <ZoruTableCell>
+                                                <div className="flex flex-col">
+                                                    <span className="font-medium text-foreground">
+                                                        {f.label}
+                                                    </span>
+                                                    <span className="font-mono text-xs text-muted-foreground">
+                                                        {f.name}
+                                                        {f.section ? (
+                                                            <>
+                                                                {' · '}
+                                                                <span className="not-italic">
+                                                                    {f.section}
+                                                                </span>
+                                                            </>
+                                                        ) : null}
+                                                    </span>
+                                                </div>
+                                            </ZoruTableCell>
+                                            <ZoruTableCell className="text-foreground">
+                                                {labelForType(f.fieldType)}
+                                            </ZoruTableCell>
+                                            <ZoruTableCell className="text-center">
+                                                {f.required ? (
+                                                    <Check className="mx-auto h-4 w-4 text-foreground" />
+                                                ) : (
+                                                    <span className="text-muted-foreground">
+                                                        —
+                                                    </span>
+                                                )}
+                                            </ZoruTableCell>
+                                            <ZoruTableCell className="text-center">
+                                                {f.unique ? (
+                                                    <Check className="mx-auto h-4 w-4 text-foreground" />
+                                                ) : (
+                                                    <span className="text-muted-foreground">
+                                                        —
+                                                    </span>
+                                                )}
+                                            </ZoruTableCell>
+                                            <ZoruTableCell className="text-center">
+                                                {f.visibleInList ? (
+                                                    <Check className="mx-auto h-4 w-4 text-foreground" />
+                                                ) : (
+                                                    <span className="text-muted-foreground">
+                                                        —
+                                                    </span>
+                                                )}
+                                            </ZoruTableCell>
+                                            <ZoruTableCell>
+                                                <StatusPill
+                                                    label={
+                                                        f.isActive
+                                                            ? 'Active'
+                                                            : 'Inactive'
+                                                    }
+                                                    tone={
+                                                        f.isActive
+                                                            ? 'green'
+                                                            : 'neutral'
+                                                    }
+                                                />
+                                            </ZoruTableCell>
+                                            <ZoruTableCell className="text-right">
+                                                <ZoruButton
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    onClick={() =>
+                                                        handleOpenDialog(f)
+                                                    }
+                                                    aria-label="Edit field"
+                                                >
+                                                    <Edit className="h-4 w-4" />
+                                                </ZoruButton>
+                                                <ZoruButton
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    onClick={() =>
+                                                        setPendingDelete(f)
+                                                    }
+                                                    aria-label="Delete field"
+                                                >
+                                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                                </ZoruButton>
+                                            </ZoruTableCell>
+                                        </ZoruTableRow>
+                                    ))
+                                )}
+                            </ZoruTableBody>
+                        </ZoruTable>
+                    </div>
+                </EntityListShell>
+            </div>
 
             <ZoruAlertDialog
-                open={deletingId !== null}
-                onOpenChange={(o) => !o && setDeletingId(null)}
+                open={!!pendingDelete}
+                onOpenChange={(o) => !o && setPendingDelete(null)}
             >
                 <ZoruAlertDialogContent>
                     <ZoruAlertDialogHeader>
-                        <ZoruAlertDialogTitle>Delete custom field?</ZoruAlertDialogTitle>
+                        <ZoruAlertDialogTitle>
+                            Delete custom field?
+                        </ZoruAlertDialogTitle>
                         <ZoruAlertDialogDescription>
-                            This will also invalidate the stored value for this slug on
-                            existing records.
+                            Deleting &ldquo;{pendingDelete?.label}&rdquo; will
+                            remove this field from all{' '}
+                            {labelForEntity(pendingDelete?.entityKind || '')}{' '}
+                            forms. Existing stored values are preserved on each
+                            record.
                         </ZoruAlertDialogDescription>
                     </ZoruAlertDialogHeader>
                     <ZoruAlertDialogFooter>
                         <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                        <ZoruAlertDialogAction onClick={handleDelete}>
+                        <ZoruAlertDialogAction
+                            onClick={handleDelete}
+                            disabled={deletePending}
+                        >
                             Delete
                         </ZoruAlertDialogAction>
                     </ZoruAlertDialogFooter>

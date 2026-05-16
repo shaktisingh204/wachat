@@ -13,8 +13,6 @@
  *   - decode   token → { header, payload } (no signature check)
  */
 
-import { createHmac, timingSafeEqual } from 'node:crypto';
-
 import { registerForgeBlock } from '../../../registry';
 import type {
   ForgeActionContext,
@@ -47,12 +45,13 @@ function base64urlDecode(input: string): Buffer {
   return Buffer.from(std, 'base64');
 }
 
-function sign(
+async function sign(
   header: Record<string, unknown>,
   payload: Record<string, unknown>,
   secret: string,
   algo: Algo,
-): string {
+): Promise<string> {
+  const { createHmac } = await import('node:crypto');
   const h = base64urlEncode(JSON.stringify(header));
   const p = base64urlEncode(JSON.stringify(payload));
   const signing = `${h}.${p}`;
@@ -89,7 +88,7 @@ async function signAction(ctx: ForgeActionContext): Promise<ForgeActionResult> {
   if (issuer) payload.iss = issuer;
   if (subject) payload.sub = subject;
   if (audience) payload.aud = audience;
-  const token = sign({ alg: algo, typ: 'JWT' }, payload, secret, algo);
+  const token = await sign({ alg: algo, typ: 'JWT' }, payload, secret, algo);
   return { outputs: { token, payload }, logs: [`JWT sign (${algo})`] };
 }
 
@@ -118,6 +117,7 @@ async function verifyAction(ctx: ForgeActionContext): Promise<ForgeActionResult>
   } catch {
     return { outputs: { valid: false, reason: `unsupported alg "${alg}"`, header, payload }, logs: ['JWT verify → bad alg'] };
   }
+  const { createHmac, timingSafeEqual } = await import('node:crypto');
   const expected = createHmac(nodeAlgo(algo), secret).update(`${h}.${p}`).digest();
   const given = base64urlDecode(s);
   const sigOk = expected.length === given.length && timingSafeEqual(expected, given);

@@ -63,7 +63,7 @@ export const globalModules = [
     'crm_gstr1', 'crm_gstr2b',
 
     // CRM - Settings
-    'crm_settings',
+    'crm_settings', 'crm_currency',
 
     // Team
     'team_users', 'team_roles', 'team_tasks', 'team_chat',
@@ -125,7 +125,7 @@ export const moduleCategories = {
     'CRM Cross-cutting': ['crm_booking', 'crm_fixed_asset', 'crm_saved_view'],
     'CRM Support': ['crm_ticket'],
     'CRM Tax': ['crm_gstr1', 'crm_gstr2b'],
-    'CRM Settings': ['crm_settings'],
+    'CRM Settings': ['crm_settings', 'crm_currency'],
     'Team': ['team_users', 'team_roles', 'team_tasks', 'team_chat'],
     'Facebook': ['facebook_dashboard', 'facebook_posts', 'facebook_scheduled', 'facebook_live', 'facebook_randomizer', 'facebook_messages', 'facebook_kanban', 'facebook_automation', 'facebook_shops', 'facebook_products', 'facebook_shop_setup', 'facebook_orders'],
     'Instagram': ['instagram_dashboard', 'instagram_feed', 'instagram_stories', 'instagram_reels', 'instagram_messages', 'instagram_discovery', 'instagram_hashtags'],

@@ -21,7 +21,7 @@
  */
 
 /// <reference path="../../../../../../types/forge-drivers.d.ts" />
-import SftpClient from 'ssh2-sftp-client';
+import type SftpClient from 'ssh2-sftp-client';
 import { registerForgeBlock } from '../../../registry';
 import type { ForgeActionContext, ForgeActionResult, ForgeBlock } from '../../../types';
 import { asNumber, asString, requireCredential } from '../_shared/http';
@@ -55,7 +55,11 @@ async function withSftp<T>(
   fn: (client: SftpClient) => Promise<T>,
 ): Promise<T> {
   const cred = readCred(ctx);
-  const client = new SftpClient();
+  const mod = (await import('ssh2-sftp-client')) as unknown as {
+    default?: new () => SftpClient;
+  } & (new () => SftpClient);
+  const SftpCtor = (mod.default ?? mod) as new () => SftpClient;
+  const client = new SftpCtor();
   try {
     await client.connect({
       host: cred.host,

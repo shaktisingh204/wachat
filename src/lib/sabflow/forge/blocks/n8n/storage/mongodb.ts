@@ -21,7 +21,7 @@
  * acceptable, but it's the obvious next perf knob to turn.
  */
 
-import { MongoClient, type Document, type Filter, type UpdateFilter } from 'mongodb';
+import type { Document, Filter, UpdateFilter } from 'mongodb';
 import { registerForgeBlock } from '../../../registry';
 import type { ForgeActionContext, ForgeActionResult, ForgeBlock } from '../../../types';
 import { asNumber, asString, requireCredential } from '../_shared/http';
@@ -39,6 +39,7 @@ async function withCollection<T>(
   if (!database) throw new Error('MongoDB: database is required');
   if (!collection) throw new Error('MongoDB: collection is required');
 
+  const { MongoClient } = await import('mongodb');
   const client = new MongoClient(uri);
   try {
     await client.connect();

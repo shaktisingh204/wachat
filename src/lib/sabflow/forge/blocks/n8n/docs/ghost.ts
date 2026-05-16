@@ -20,8 +20,6 @@
  *   - Content API (read-only public key flow) — only Admin API is wired
  */
 
-import { createHmac } from 'node:crypto';
-
 import { registerForgeBlock } from '../../../registry';
 import type {
   ForgeActionContext,
@@ -34,7 +32,8 @@ function base64url(buf: Buffer): string {
   return buf.toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
 }
 
-function signAdminJwt(adminApiKey: string): string {
+async function signAdminJwt(adminApiKey: string): Promise<string> {
+  const { createHmac } = await import('node:crypto');
   const [id, secret] = adminApiKey.split(':');
   if (!id || !secret) {
     throw new Error('Ghost: adminApiKey must be `<id>:<secret>`');
@@ -50,13 +49,13 @@ function signAdminJwt(adminApiKey: string): string {
   return `${signingInput}.${signature}`;
 }
 
-function getBase(ctx: ForgeActionContext): { url: string; token: string } {
+async function getBase(ctx: ForgeActionContext): Promise<{ url: string; token: string }> {
   const cred = requireCredential('Ghost', ctx.credential);
   const baseUrl = (cred.baseUrl || '').replace(/\/+$/, '');
   const adminApiKey = cred.adminApiKey ?? cred.apiKey;
   if (!baseUrl) throw new Error('Ghost: credential is missing `baseUrl`');
   if (!adminApiKey) throw new Error('Ghost: credential is missing `adminApiKey`');
-  return { url: baseUrl, token: signAdminJwt(adminApiKey) };
+  return { url: baseUrl, token: await signAdminJwt(adminApiKey) };
 }
 
 async function ghostApi(
@@ -65,7 +64,7 @@ async function ghostApi(
   path: string,
   json?: unknown,
 ): Promise<unknown> {
-  const { url, token } = getBase(ctx);
+  const { url, token } = await getBase(ctx);
   const res = await apiRequest({
     service: 'Ghost',
     method,

@@ -15,9 +15,8 @@
  */
 
 /// <reference path="../../../../../../types/forge-drivers.d.ts" />
-import { Client as FtpClient } from 'basic-ftp';
-import SftpClient from 'ssh2-sftp-client';
-import { Readable, Writable } from 'node:stream';
+import type { Client as FtpClient } from 'basic-ftp';
+import type SftpClient from 'ssh2-sftp-client';
 import { registerForgeBlock } from '../../../registry';
 import type { ForgeActionContext, ForgeActionResult, ForgeBlock } from '../../../types';
 import { asBoolean, asNumber, asString, requireCredential } from '../_shared/http';
@@ -48,7 +47,11 @@ async function withSftp<T>(
   fn: (client: SftpClient) => Promise<T>,
 ): Promise<T> {
   const cred = readCred(ctx);
-  const client = new SftpClient();
+  const mod = (await import('ssh2-sftp-client')) as unknown as {
+    default?: new () => SftpClient;
+  } & (new () => SftpClient);
+  const SftpCtor = (mod.default ?? mod) as new () => SftpClient;
+  const client = new SftpCtor();
   try {
     await client.connect({
       host: cred.host,
@@ -67,7 +70,8 @@ async function withFtp<T>(
   fn: (client: FtpClient) => Promise<T>,
 ): Promise<T> {
   const cred = readCred(ctx);
-  const client = new FtpClient();
+  const { Client: FtpClientCtor } = await import('basic-ftp');
+  const client = new FtpClientCtor();
   try {
     await client.access({
       host: cred.host,
@@ -96,6 +100,7 @@ async function fileUpload(ctx: ForgeActionContext): Promise<ForgeActionResult> {
       await client.put(Buffer.from(body, 'utf-8'), path);
     });
   } else {
+    const { Readable } = await import('node:stream');
     await withFtp(ctx, async (client) => {
       // basic-ftp uploadFrom accepts a Readable; use a minimal one.
       await client.uploadFrom(Readable.from([Buffer.from(body, 'utf-8')]), path);
@@ -116,6 +121,7 @@ async function fileDownload(ctx: ForgeActionContext): Promise<ForgeActionResult>
       return Buffer.isBuffer(buf) ? buf.toString('utf-8') : String(buf);
     });
   } else {
+    const { Writable } = await import('node:stream');
     body = await withFtp(ctx, async (client) => {
       const chunks: Buffer[] = [];
       const sink = new Writable({

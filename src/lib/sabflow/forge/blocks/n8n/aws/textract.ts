@@ -14,6 +14,7 @@
 import { registerForgeBlock } from '../../../registry';
 import type { ForgeActionContext, ForgeActionResult, ForgeBlock, ForgeField } from '../../../types';
 import { asString } from '../_shared/http';
+import { optionalImport } from '../_shared/optional_import';
 
 type AwsCred = { accessKeyId: string; secretAccessKey: string; region: string };
 
@@ -38,7 +39,7 @@ type TextractSdk = Record<string, unknown> & {
 
 async function loadSdk(): Promise<TextractSdk> {
   try {
-    const mod = (await import('@aws-sdk/client-textract' as string)) as Record<string, unknown>;
+    const mod = await optionalImport<Record<string, unknown>>('@aws-sdk/client-textract');
     const real = ((mod as { default?: Record<string, unknown> }).default ?? mod) as TextractSdk;
     if (typeof real.TextractClient !== 'function') throw new Error('TextractClient missing');
     return real;

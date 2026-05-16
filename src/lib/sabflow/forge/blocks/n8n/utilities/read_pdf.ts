@@ -11,7 +11,6 @@
  *   - extract-text-from-url   Fetch a PDF over HTTP and return its text.
  */
 
-import { PDFParse } from 'pdf-parse';
 import { registerForgeBlock } from '../../../registry';
 import type {
   ForgeActionContext,
@@ -29,6 +28,7 @@ async function extractTextFromUrl(ctx: ForgeActionContext): Promise<ForgeActionR
   }
   const arrayBuffer = await res.arrayBuffer();
   const data = new Uint8Array(arrayBuffer);
+  const { PDFParse } = await import('pdf-parse');
   const parser = new PDFParse({ data });
   try {
     const [textResult, infoResult] = await Promise.all([

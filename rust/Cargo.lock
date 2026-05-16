@@ -1296,7 +1296,70 @@ dependencies = [
 ]
 
 [[package]]
+name = "crm-agent-groups"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "crm-common",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "sabnode-rbac",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "crm-announcements"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "crm-common",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "sabnode-rbac",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "crm-appraisals"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "crm-common",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "sabnode-rbac",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "crm-assets"
 version = "0.1.0"
 dependencies = [
  "anyhow",
@@ -1539,6 +1602,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "crm-candidates"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "crm-common",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "sabnode-rbac",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "crm-chart-of-accounts"
 version = "0.1.0"
 dependencies = [
@@ -1571,6 +1655,27 @@ dependencies = [
  "futures",
  "mongodb",
  "regex",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "sabnode-rbac",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "crm-company-profile"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "crm-common",
+ "futures",
+ "mongodb",
  "sabnode-auth",
  "sabnode-common",
  "sabnode-db",
@@ -1684,6 +1789,48 @@ dependencies = [
  "sabnode-auth",
  "sabnode-common",
  "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "crm-currencies"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "crm-common",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "sabnode-rbac",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "crm-custom-fields"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "crm-common",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "sabnode-rbac",
  "serde",
  "serde_json",
  "tokio",
@@ -1818,6 +1965,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "crm-documents"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "crm-common",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "sabnode-rbac",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "crm-email-templates"
 version = "0.1.0"
 dependencies = [
@@ -1860,7 +2028,49 @@ dependencies = [
 ]
 
 [[package]]
+name = "crm-events"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "crm-common",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "sabnode-rbac",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "crm-exits"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "crm-common",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "sabnode-rbac",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "crm-expense-categories"
 version = "0.1.0"
 dependencies = [
  "anyhow",
@@ -2073,6 +2283,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "crm-interviews"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "crm-common",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "sabnode-rbac",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "crm-inventory-types"
 version = "0.1.0"
 dependencies = [
@@ -2106,7 +2337,49 @@ dependencies = [
 ]
 
 [[package]]
+name = "crm-issues"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "crm-common",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "sabnode-rbac",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "crm-items"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "crm-common",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "sabnode-rbac",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "crm-jobs"
 version = "0.1.0"
 dependencies = [
  "anyhow",
@@ -2326,6 +2599,132 @@ dependencies = [
 ]
 
 [[package]]
+name = "crm-milestones"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "crm-common",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "sabnode-rbac",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "crm-notices"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "crm-common",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "sabnode-rbac",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "crm-offers"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "crm-common",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "sabnode-rbac",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "crm-okrs"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "crm-common",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "sabnode-rbac",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "crm-onboarding"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "crm-common",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "sabnode-rbac",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "crm-one-on-ones"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "crm-common",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "sabnode-rbac",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "crm-payment-accounts"
 version = "0.1.0"
 dependencies = [
@@ -2495,6 +2894,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "crm-policies"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "crm-common",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "sabnode-rbac",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "crm-portal-users"
 version = "0.1.0"
 dependencies = [
@@ -2580,6 +3000,27 @@ dependencies = [
 
 [[package]]
 name = "crm-proforma-invoices"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "crm-common",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "sabnode-rbac",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "crm-project-categories"
 version = "0.1.0"
 dependencies = [
  "anyhow",
@@ -2741,6 +3182,27 @@ dependencies = [
 
 [[package]]
 name = "crm-reconciliation"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "crm-common",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "sabnode-rbac",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "crm-reply-templates"
 version = "0.1.0"
 dependencies = [
  "anyhow",
@@ -2923,6 +3385,48 @@ dependencies = [
 ]
 
 [[package]]
+name = "crm-shift-rotations"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "crm-common",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "sabnode-rbac",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "crm-shifts"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "crm-common",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "sabnode-rbac",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "crm-slas"
 version = "0.1.0"
 dependencies = [
@@ -2986,6 +3490,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "crm-subtasks"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "crm-common",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "sabnode-rbac",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "crm-succession"
 version = "0.1.0"
 dependencies = [
@@ -3008,6 +3533,48 @@ dependencies = [
 
 [[package]]
 name = "crm-tags"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "crm-common",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "sabnode-rbac",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "crm-task-labels"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "crm-common",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "sabnode-rbac",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "crm-taskboard-columns"
 version = "0.1.0"
 dependencies = [
  "anyhow",
@@ -3070,6 +3637,90 @@ dependencies = [
 ]
 
 [[package]]
+name = "crm-ticket-channels"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "crm-common",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "sabnode-rbac",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "crm-ticket-groups"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "crm-common",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "sabnode-rbac",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "crm-ticket-tags"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "crm-common",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "sabnode-rbac",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "crm-ticket-types"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "crm-common",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "sabnode-rbac",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "crm-tickets"
 version = "0.1.0"
 dependencies = [
@@ -3084,6 +3735,48 @@ dependencies = [
  "sabnode-auth",
  "sabnode-common",
  "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "crm-time-logs"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "crm-common",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "sabnode-rbac",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "crm-training"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "crm-common",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "sabnode-rbac",
  "serde",
  "serde_json",
  "tokio",
@@ -6655,7 +7348,10 @@ dependencies = [
  "chrono",
  "crm-account-groups",
  "crm-accounts",
+ "crm-agent-groups",
+ "crm-announcements",
  "crm-appraisals",
+ "crm-assets",
  "crm-attendance",
  "crm-auto-leads",
  "crm-automations",
@@ -6666,20 +7362,27 @@ dependencies = [
  "crm-branches",
  "crm-brands",
  "crm-budgets",
+ "crm-candidates",
  "crm-chart-of-accounts",
+ "crm-company-profile",
  "crm-contacts",
  "crm-contracts",
  "crm-coupons",
  "crm-credit-notes",
+ "crm-currencies",
+ "crm-custom-fields",
  "crm-dashboards",
  "crm-deals",
  "crm-debit-notes",
  "crm-delivery-challans",
  "crm-departments",
  "crm-disciplinary",
+ "crm-documents",
  "crm-email-templates",
  "crm-employees",
+ "crm-events",
  "crm-exits",
+ "crm-expense-categories",
  "crm-fixed-assets",
  "crm-form-submissions",
  "crm-forms",
@@ -6688,8 +7391,11 @@ dependencies = [
  "crm-grns",
  "crm-holidays",
  "crm-industries",
+ "crm-interviews",
  "crm-invoices",
+ "crm-issues",
  "crm-items",
+ "crm-jobs",
  "crm-kb-articles",
  "crm-kpis",
  "crm-labels",
@@ -6699,6 +7405,12 @@ dependencies = [
  "crm-loans",
  "crm-lookup",
  "crm-loyalty-programs",
+ "crm-milestones",
+ "crm-notices",
+ "crm-offers",
+ "crm-okrs",
+ "crm-onboarding",
+ "crm-one-on-ones",
  "crm-payment-accounts",
  "crm-payment-receipts",
  "crm-payouts",
@@ -6707,11 +7419,13 @@ dependencies = [
  "crm-payslips",
  "crm-petty-cash",
  "crm-pipelines",
+ "crm-policies",
  "crm-portal-users",
  "crm-product-categories",
  "crm-production-orders",
  "crm-products",
  "crm-proforma-invoices",
+ "crm-project-categories",
  "crm-project-tasks",
  "crm-pt-slabs",
  "crm-purchase-leads",
@@ -6719,20 +7433,32 @@ dependencies = [
  "crm-purchases",
  "crm-quotations",
  "crm-reconciliation",
+ "crm-reply-templates",
  "crm-rfqs",
  "crm-salary-structures",
  "crm-sales-orders",
  "crm-saved-views",
  "crm-service-contracts",
  "crm-settings",
+ "crm-shift-rotations",
+ "crm-shifts",
  "crm-slas",
  "crm-stock-adjustments",
  "crm-subscriptions",
+ "crm-subtasks",
  "crm-succession",
  "crm-tags",
+ "crm-task-labels",
+ "crm-taskboard-columns",
  "crm-tasks",
  "crm-taxes",
+ "crm-ticket-channels",
+ "crm-ticket-groups",
+ "crm-ticket-tags",
+ "crm-ticket-types",
  "crm-tickets",
+ "crm-time-logs",
+ "crm-training",
  "crm-units",
  "crm-vendor-bids",
  "crm-vendor-types",
