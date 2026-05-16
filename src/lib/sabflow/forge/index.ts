@@ -609,6 +609,227 @@ import './blocks/n8n/variants_service/mattermost_v1';
 import './blocks/n8n/variants_service/splunk_v1';
 import './blocks/n8n/variants_service/lemlist_v1';
 
+// ── Wave 38-47: 10×20 mass-port sweep ──
+// mass_a (utility variants V1/V2/V3)
+import './blocks/n8n/mass_a/crypto_v1';
+import './blocks/n8n/mass_a/crypto_v2';
+import './blocks/n8n/mass_a/datetime_v1';
+import './blocks/n8n/mass_a/datetime_v2';
+import './blocks/n8n/mass_a/emailsend_v1';
+import './blocks/n8n/mass_a/emailsend_v2';
+import './blocks/n8n/mass_a/filter_v2';
+import './blocks/n8n/mass_a/http_request_v3';
+import './blocks/n8n/mass_a/if_v2';
+import './blocks/n8n/mass_a/itemlists_v1';
+import './blocks/n8n/mass_a/itemlists_v2';
+import './blocks/n8n/mass_a/itemlists_v3';
+import './blocks/n8n/mass_a/merge_v3';
+import './blocks/n8n/mass_a/removeduplicates_v1';
+import './blocks/n8n/mass_a/removeduplicates_v2';
+import './blocks/n8n/mass_a/splitinbatches_v1';
+import './blocks/n8n/mass_a/splitinbatches_v2';
+import './blocks/n8n/mass_a/splitinbatches_v3';
+import './blocks/n8n/mass_a/spreadsheetfile_v1';
+import './blocks/n8n/mass_a/switch_v3';
+
+// mass_b (service variants)
+import './blocks/n8n/mass_b/airtable_v2';
+import './blocks/n8n/mass_b/bamboohr_v1';
+import './blocks/n8n/mass_b/discord_v2';
+import './blocks/n8n/mass_b/emailimap_v1';
+import './blocks/n8n/mass_b/emailimap_v2';
+import './blocks/n8n/mass_b/gmail_v1';
+import './blocks/n8n/mass_b/highlevel_v1';
+import './blocks/n8n/mass_b/highlevel_v2';
+import './blocks/n8n/mass_b/hubspot_v2';
+import './blocks/n8n/mass_b/lemlist_v2';
+import './blocks/n8n/mass_b/mailerlite_v2';
+import './blocks/n8n/mass_b/notion_v2';
+import './blocks/n8n/mass_b/pipedrive_v2';
+import './blocks/n8n/mass_b/seatable_v1';
+import './blocks/n8n/mass_b/seatable_v2';
+import './blocks/n8n/mass_b/splunk_v2';
+import './blocks/n8n/mass_b/syncromsp_v1';
+import './blocks/n8n/mass_b/todoist_v1';
+import './blocks/n8n/mass_b/todoist_v2';
+import './blocks/n8n/mass_b/webflow_v2';
+
+// mass_c (service extended ops)
+import './blocks/n8n/mass_c/aws_elb';
+import './blocks/n8n/mass_c/discord_ext';
+import './blocks/n8n/mass_c/hubspot_v2_actions';
+import './blocks/n8n/mass_c/mailchimp_ext';
+import './blocks/n8n/mass_c/mautic_ext';
+import './blocks/n8n/mass_c/ms_excel_v1';
+import './blocks/n8n/mass_c/ms_outlook_v1';
+import './blocks/n8n/mass_c/ms_teams_v1';
+import './blocks/n8n/mass_c/mysql_ext';
+import './blocks/n8n/mass_c/notion_v2_actions';
+import './blocks/n8n/mass_c/postgres_ext';
+import './blocks/n8n/mass_c/salesforce_ext';
+import './blocks/n8n/mass_c/shopify_ext';
+import './blocks/n8n/mass_c/slack_ext';
+import './blocks/n8n/mass_c/slack_v2_actions';
+import './blocks/n8n/mass_c/stripe_ext';
+import './blocks/n8n/mass_c/telegram_ext';
+import './blocks/n8n/mass_c/twilio_ext';
+import './blocks/n8n/mass_c/twitter_v2_actions';
+import './blocks/n8n/mass_c/webflow_v2_actions';
+
+// mass_d (LangChain misc + memory)
+import './blocks/n8n/mass_d/agent_plan_execute';
+import './blocks/n8n/mass_d/agent_react';
+import './blocks/n8n/mass_d/chain_map_reduce';
+import './blocks/n8n/mass_d/chain_qa_simple';
+import './blocks/n8n/mass_d/chain_refine';
+import './blocks/n8n/mass_d/doc_loader_csv';
+import './blocks/n8n/mass_d/doc_loader_pdf';
+import './blocks/n8n/mass_d/doc_loader_url';
+import './blocks/n8n/mass_d/memory_chat_summary';
+import './blocks/n8n/mass_d/memory_conversation';
+import './blocks/n8n/mass_d/memory_token_buffer';
+import './blocks/n8n/mass_d/output_parser_csv';
+import './blocks/n8n/mass_d/output_parser_list';
+import './blocks/n8n/mass_d/output_parser_xml';
+import './blocks/n8n/mass_d/prompt_few_shot';
+import './blocks/n8n/mass_d/prompt_template';
+import './blocks/n8n/mass_d/tool_brave_search';
+import './blocks/n8n/mass_d/tool_python_repl';
+import './blocks/n8n/mass_d/tool_serper';
+import './blocks/n8n/mass_d/tool_tavily';
+
+// mass_e (utility helpers)
+import './blocks/n8n/mass_e/array_chunk';
+import './blocks/n8n/mass_e/array_filter';
+import './blocks/n8n/mass_e/array_flatten';
+import './blocks/n8n/mass_e/array_map';
+import './blocks/n8n/mass_e/array_reduce';
+import './blocks/n8n/mass_e/array_reverse';
+import './blocks/n8n/mass_e/array_unique';
+import './blocks/n8n/mass_e/number_arithmetic';
+import './blocks/n8n/mass_e/number_format';
+import './blocks/n8n/mass_e/number_round';
+import './blocks/n8n/mass_e/regex_match';
+import './blocks/n8n/mass_e/string_concat';
+import './blocks/n8n/mass_e/string_length';
+import './blocks/n8n/mass_e/string_lowercase';
+import './blocks/n8n/mass_e/string_replace';
+import './blocks/n8n/mass_e/string_split';
+import './blocks/n8n/mass_e/string_substring';
+import './blocks/n8n/mass_e/string_titlecase';
+import './blocks/n8n/mass_e/string_trim';
+import './blocks/n8n/mass_e/string_uppercase';
+
+// mass_f (AI/LLM providers)
+import './blocks/n8n/mass_f/audio_assemblyai';
+import './blocks/n8n/mass_f/audio_deepgram';
+import './blocks/n8n/mass_f/audio_elevenlabs_tts';
+import './blocks/n8n/mass_f/audio_openai_tts';
+import './blocks/n8n/mass_f/audio_whisper';
+import './blocks/n8n/mass_f/embed_voyage';
+import './blocks/n8n/mass_f/image_dalle3';
+import './blocks/n8n/mass_f/image_flux';
+import './blocks/n8n/mass_f/image_midjourney';
+import './blocks/n8n/mass_f/image_stable_diffusion';
+import './blocks/n8n/mass_f/lm_chat_anyscale';
+import './blocks/n8n/mass_f/lm_chat_cerebras';
+import './blocks/n8n/mass_f/lm_chat_deepseek';
+import './blocks/n8n/mass_f/lm_chat_fireworks';
+import './blocks/n8n/mass_f/lm_chat_octoai';
+import './blocks/n8n/mass_f/lm_chat_replicate';
+import './blocks/n8n/mass_f/lm_chat_xai';
+import './blocks/n8n/mass_f/rerank_voyage';
+import './blocks/n8n/mass_f/video_runway';
+import './blocks/n8n/mass_f/video_synthesia';
+
+// mass_g (trigger shims overflow)
+import './blocks/n8n/mass_g/affinity_legacy_trigger';
+import './blocks/n8n/mass_g/cisco_webex_legacy_trigger';
+import './blocks/n8n/mass_g/customerio_legacy_trigger';
+import './blocks/n8n/mass_g/drift_trigger';
+import './blocks/n8n/mass_g/freshdesk_trigger';
+import './blocks/n8n/mass_g/helpscout_trigger2';
+import './blocks/n8n/mass_g/intercom_trigger';
+import './blocks/n8n/mass_g/iterable_trigger';
+import './blocks/n8n/mass_g/monica_crm_trigger';
+import './blocks/n8n/mass_g/openai_assistants_trigger';
+import './blocks/n8n/mass_g/pagerduty_trigger';
+import './blocks/n8n/mass_g/posthog_trigger';
+import './blocks/n8n/mass_g/salesmate_trigger';
+import './blocks/n8n/mass_g/segment_trigger';
+import './blocks/n8n/mass_g/sentry_trigger';
+import './blocks/n8n/mass_g/servicenow_trigger';
+import './blocks/n8n/mass_g/spotify_trigger';
+import './blocks/n8n/mass_g/webex_meetings_trigger';
+import './blocks/n8n/mass_g/zendesk_trigger';
+import './blocks/n8n/mass_g/zoom_trigger';
+
+// mass_h (niche services)
+import './blocks/n8n/mass_h/anthropic_messages';
+import './blocks/n8n/mass_h/cohere_generate';
+import './blocks/n8n/mass_h/devto';
+import './blocks/n8n/mass_h/hashnode';
+import './blocks/n8n/mass_h/huggingface_inference';
+import './blocks/n8n/mass_h/inngest';
+import './blocks/n8n/mass_h/lemon_squeezy';
+import './blocks/n8n/mass_h/llama_index_cloud';
+import './blocks/n8n/mass_h/mistral_embed_ext';
+import './blocks/n8n/mass_h/modal_labs';
+import './blocks/n8n/mass_h/pinecone_catalog';
+import './blocks/n8n/mass_h/pinecone_inference';
+import './blocks/n8n/mass_h/pulumi_cloud';
+import './blocks/n8n/mass_h/render';
+import './blocks/n8n/mass_h/replicate';
+import './blocks/n8n/mass_h/sanity';
+import './blocks/n8n/mass_h/sdxl';
+import './blocks/n8n/mass_h/stripe_treasury';
+import './blocks/n8n/mass_h/together_ai_ext';
+import './blocks/n8n/mass_h/vercel';
+
+// mass_i (more niche)
+import './blocks/n8n/mass_i/beehiiv';
+import './blocks/n8n/mass_i/buttondown';
+import './blocks/n8n/mass_i/coda_tables';
+import './blocks/n8n/mass_i/courier';
+import './blocks/n8n/mass_i/crisp';
+import './blocks/n8n/mass_i/customerio_journeys';
+import './blocks/n8n/mass_i/front';
+import './blocks/n8n/mass_i/ghost_members';
+import './blocks/n8n/mass_i/height';
+import './blocks/n8n/mass_i/intercom_workspace';
+import './blocks/n8n/mass_i/kit';
+import './blocks/n8n/mass_i/knock';
+import './blocks/n8n/mass_i/linear_search';
+import './blocks/n8n/mass_i/livechat';
+import './blocks/n8n/mass_i/loops';
+import './blocks/n8n/mass_i/plain';
+import './blocks/n8n/mass_i/pylon';
+import './blocks/n8n/mass_i/substack';
+import './blocks/n8n/mass_i/tana';
+import './blocks/n8n/mass_i/tawk';
+
+// mass_j (closers)
+import './blocks/n8n/mass_j/base64_decode';
+import './blocks/n8n/mass_j/base64_encode';
+import './blocks/n8n/mass_j/currency_convert';
+import './blocks/n8n/mass_j/date_iso';
+import './blocks/n8n/mass_j/date_now';
+import './blocks/n8n/mass_j/date_parse';
+import './blocks/n8n/mass_j/hash_md5';
+import './blocks/n8n/mass_j/hash_sha1';
+import './blocks/n8n/mass_j/hash_sha256';
+import './blocks/n8n/mass_j/ip_lookup';
+import './blocks/n8n/mass_j/json_jq';
+import './blocks/n8n/mass_j/json_merge';
+import './blocks/n8n/mass_j/json_parse';
+import './blocks/n8n/mass_j/json_stringify';
+import './blocks/n8n/mass_j/qr_code';
+import './blocks/n8n/mass_j/text_diff';
+import './blocks/n8n/mass_j/url_decode';
+import './blocks/n8n/mass_j/url_encode';
+import './blocks/n8n/mass_j/url_parse';
+import './blocks/n8n/mass_j/uuid_v4';
+
 // Wave 32 — LangChain Agents/Chains/Tools
 import './blocks/n8n/langchain_agent/agent';
 import './blocks/n8n/langchain_agent/openai_assistant';

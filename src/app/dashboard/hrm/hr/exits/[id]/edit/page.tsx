@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 
 import { CrmPageHeader } from '../../../../../crm/_components/crm-page-header';
-import { getCrmExitById } from '@/app/actions/crm-exits.actions';
+import { getExitById } from '@/app/actions/crm-exits.actions';
 import { ExitForm } from '../../new/exit-form';
 
 interface PageProps {
@@ -10,7 +10,7 @@ interface PageProps {
 
 export default async function ExitEditPage({ params }: PageProps) {
     const { id } = await params;
-    const exit = await getCrmExitById(id);
+    const exit = await getExitById(id);
     if (!exit) notFound();
 
     return (
