@@ -12,10 +12,20 @@
  *   - receive    One-shot: receive one message (or timeout)
  */
 
-import { connect, type Connection, type ConnectionOptions, type EventContext } from 'rhea';
+import type { Connection, ConnectionOptions, EventContext } from 'rhea';
 import { registerForgeBlock } from '../../../registry';
 import type { ForgeActionContext, ForgeActionResult, ForgeBlock } from '../../../types';
 import { asNumber, asString } from '../_shared/http';
+
+async function rheaConnect(opts: ConnectionOptions): Promise<Connection> {
+  const mod = (await import('rhea')) as unknown as {
+    default?: { connect: (opts: ConnectionOptions) => Connection };
+    connect?: (opts: ConnectionOptions) => Connection;
+  };
+  const connectFn = mod.default?.connect ?? mod.connect;
+  if (!connectFn) throw new Error('AMQP: failed to load rhea driver');
+  return connectFn(opts);
+}
 
 function connectOpts(ctx: ForgeActionContext): Record<string, unknown> {
   const host = asString(ctx.options.host);
@@ -37,7 +47,7 @@ async function send(ctx: ForgeActionContext): Promise<ForgeActionResult> {
   if (!address) throw new Error('AMQP: address is required');
   const body = asString(ctx.options.body);
   if (!body) throw new Error('AMQP: body is required');
-  const connection: Connection = connect(connectOpts(ctx) as unknown as ConnectionOptions);
+  const connection: Connection = await rheaConnect(connectOpts(ctx) as unknown as ConnectionOptions);
   try {
     await new Promise<void>((resolve, reject) => {
       const timeout = setTimeout(() => reject(new Error('AMQP: send timed out')), 15000);
@@ -69,7 +79,7 @@ async function receive(ctx: ForgeActionContext): Promise<ForgeActionResult> {
   const address = asString(ctx.options.address);
   if (!address) throw new Error('AMQP: address is required');
   const timeoutMs = asNumber(ctx.options.timeoutMs) ?? 10000;
-  const connection: Connection = connect(connectOpts(ctx) as unknown as ConnectionOptions);
+  const connection: Connection = await rheaConnect(connectOpts(ctx) as unknown as ConnectionOptions);
   try {
     const message = await new Promise<unknown>((resolve) => {
       const timer = setTimeout(() => resolve(null), timeoutMs);

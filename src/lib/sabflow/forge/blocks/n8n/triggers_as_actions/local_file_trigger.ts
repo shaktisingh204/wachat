@@ -9,7 +9,6 @@
  * single read of a file on the server's filesystem.
  */
 
-import { readFile, stat } from 'node:fs/promises';
 import { registerForgeBlock } from '../../../registry';
 import type {
   ForgeActionContext,
@@ -19,6 +18,7 @@ import type {
 import { asString } from '../_shared/http';
 
 async function readFileOnce(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const { readFile, stat } = await import('node:fs/promises');
   const path = asString(ctx.options.path);
   if (!path) throw new Error('Local File Trigger: path is required');
   const encoding = (asString(ctx.options.encoding) || 'utf8') as BufferEncoding;

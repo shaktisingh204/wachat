@@ -15,14 +15,7 @@
  *   - presigned_get_url Issue a presigned GET URL via @aws-sdk/s3-request-presigner
  */
 
-import {
-  DeleteObjectCommand,
-  GetObjectCommand,
-  ListObjectsV2Command,
-  PutObjectCommand,
-  S3Client,
-} from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import type { S3Client } from '@aws-sdk/client-s3';
 import { registerForgeBlock } from '../../../registry';
 import type { ForgeActionContext, ForgeActionResult, ForgeBlock } from '../../../types';
 import { asNumber, asString, requireCredential } from '../_shared/http';
@@ -45,9 +38,10 @@ function credFor(ctx: ForgeActionContext): S3Cred {
   return { accessKeyId, secretAccessKey, region, bucket: asString(raw.bucket) || undefined };
 }
 
-function clientFor(ctx: ForgeActionContext): { client: S3Client; cred: S3Cred } {
+async function clientFor(ctx: ForgeActionContext): Promise<{ client: S3Client; cred: S3Cred }> {
   const cred = credFor(ctx);
-  const client = new S3Client({
+  const { S3Client: S3ClientCtor } = await import('@aws-sdk/client-s3');
+  const client = new S3ClientCtor({
     region: cred.region,
     credentials: { accessKeyId: cred.accessKeyId, secretAccessKey: cred.secretAccessKey },
   });
@@ -72,10 +66,11 @@ async function streamToBase64(body: unknown): Promise<string> {
 }
 
 async function fileList(ctx: ForgeActionContext): Promise<ForgeActionResult> {
-  const { client, cred } = clientFor(ctx);
+  const { client, cred } = await clientFor(ctx);
   const bucket = pickBucket(ctx, cred);
   const prefix = asString(ctx.options.prefix) || undefined;
   const maxKeys = asNumber(ctx.options.maxKeys) ?? 100;
+  const { ListObjectsV2Command } = await import('@aws-sdk/client-s3');
   const res = await client.send(
     new ListObjectsV2Command({ Bucket: bucket, Prefix: prefix, MaxKeys: maxKeys }),
   );
@@ -100,7 +95,7 @@ async function fileList(ctx: ForgeActionContext): Promise<ForgeActionResult> {
 }
 
 async function fileUpload(ctx: ForgeActionContext): Promise<ForgeActionResult> {
-  const { client, cred } = clientFor(ctx);
+  const { client, cred } = await clientFor(ctx);
   const bucket = pickBucket(ctx, cred);
   const key = asString(ctx.options.key);
   if (!key) throw new Error('AWS S3: key is required for upload');
@@ -112,6 +107,7 @@ async function fileUpload(ctx: ForgeActionContext): Promise<ForgeActionResult> {
   } catch {
     throw new Error('AWS S3: body must be a base64-encoded string');
   }
+  const { PutObjectCommand } = await import('@aws-sdk/client-s3');
   const res = await client.send(
     new PutObjectCommand({ Bucket: bucket, Key: key, Body: body, ContentType: contentType }),
   );
@@ -128,10 +124,11 @@ async function fileUpload(ctx: ForgeActionContext): Promise<ForgeActionResult> {
 }
 
 async function fileDownload(ctx: ForgeActionContext): Promise<ForgeActionResult> {
-  const { client, cred } = clientFor(ctx);
+  const { client, cred } = await clientFor(ctx);
   const bucket = pickBucket(ctx, cred);
   const key = asString(ctx.options.key);
   if (!key) throw new Error('AWS S3: key is required for download');
+  const { GetObjectCommand } = await import('@aws-sdk/client-s3');
   const res = await client.send(new GetObjectCommand({ Bucket: bucket, Key: key }));
   const body = await streamToBase64(res.Body);
   return {
@@ -147,10 +144,11 @@ async function fileDownload(ctx: ForgeActionContext): Promise<ForgeActionResult>
 }
 
 async function fileDelete(ctx: ForgeActionContext): Promise<ForgeActionResult> {
-  const { client, cred } = clientFor(ctx);
+  const { client, cred } = await clientFor(ctx);
   const bucket = pickBucket(ctx, cred);
   const key = asString(ctx.options.key);
   if (!key) throw new Error('AWS S3: key is required for delete');
+  const { DeleteObjectCommand } = await import('@aws-sdk/client-s3');
   await client.send(new DeleteObjectCommand({ Bucket: bucket, Key: key }));
   return {
     outputs: { bucket, key, deleted: true },
@@ -159,11 +157,15 @@ async function fileDelete(ctx: ForgeActionContext): Promise<ForgeActionResult> {
 }
 
 async function presignedGetUrl(ctx: ForgeActionContext): Promise<ForgeActionResult> {
-  const { client, cred } = clientFor(ctx);
+  const { client, cred } = await clientFor(ctx);
   const bucket = pickBucket(ctx, cred);
   const key = asString(ctx.options.key);
   if (!key) throw new Error('AWS S3: key is required for presigned GET URL');
   const expiresIn = asNumber(ctx.options.expiresIn) ?? 900; // 15 min default
+  const [{ GetObjectCommand }, { getSignedUrl }] = await Promise.all([
+    import('@aws-sdk/client-s3'),
+    import('@aws-sdk/s3-request-presigner'),
+  ]);
   const url = await getSignedUrl(
     client,
     new GetObjectCommand({ Bucket: bucket, Key: key }),

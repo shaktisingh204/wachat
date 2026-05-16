@@ -632,6 +632,116 @@ const BLOCK_REGISTRY: Record<string, BlockMeta> = {
   forge_airtable_trigger:       { label: 'Trig: Airtable',      icon: LuActivity, category: 'forge', color: '#fcb400' },
   forge_telegram_trigger:       { label: 'Trig: Telegram',      icon: LuActivity, category: 'forge', color: '#26a5e4' },
   forge_slack_trigger:          { label: 'Trig: Slack',         icon: LuActivity, category: 'forge', color: '#4a154b' },
+
+  // Final sweep — 60 trigger shims
+  forge_acuity_trigger:           { label: 'Trig: Acuity',          icon: LuActivity, category: 'forge', color: '#fbbf24' },
+  forge_affinity_trigger:         { label: 'Trig: Affinity',        icon: LuActivity, category: 'forge', color: '#2945cd' },
+  forge_amqp_trigger:             { label: 'Trig: AMQP',            icon: LuActivity, category: 'forge', color: '#0078d4' },
+  forge_autopilot_trigger:        { label: 'Trig: Autopilot',       icon: LuActivity, category: 'forge', color: '#1f2937' },
+  forge_aws_trigger:              { label: 'Trig: AWS',             icon: LuActivity, category: 'forge', color: '#ff9900' },
+  forge_bitbucket_trigger:        { label: 'Trig: Bitbucket',       icon: LuActivity, category: 'forge', color: '#2684ff' },
+  forge_brevo_trigger:            { label: 'Trig: Brevo',           icon: LuActivity, category: 'forge', color: '#0b996e' },
+  forge_cal_trigger:              { label: 'Trig: Cal',             icon: LuActivity, category: 'forge', color: '#0f172a' },
+  forge_chargebee_trigger:        { label: 'Trig: Chargebee',       icon: LuActivity, category: 'forge', color: '#ff6c2c' },
+  forge_eventbrite_trigger:       { label: 'Trig: Eventbrite',      icon: LuActivity, category: 'forge', color: '#f05537' },
+  forge_cisco_webex_trigger:      { label: 'Trig: Cisco Webex',     icon: LuActivity, category: 'forge', color: '#049fd9' },
+  forge_clockify_trigger:         { label: 'Trig: Clockify',        icon: LuActivity, category: 'forge', color: '#03a9f4' },
+  forge_convertkit_trigger:       { label: 'Trig: ConvertKit',      icon: LuActivity, category: 'forge', color: '#fb6970' },
+  forge_copper_trigger:           { label: 'Trig: Copper',          icon: LuActivity, category: 'forge', color: '#ff6c00' },
+  forge_currents_trigger:         { label: 'Trig: Currents',        icon: LuActivity, category: 'forge', color: '#f59e0b' },
+  forge_customerio_trigger:       { label: 'Trig: Customer.io',     icon: LuActivity, category: 'forge', color: '#7c52ff' },
+  forge_emelia_trigger:           { label: 'Trig: Emelia',          icon: LuActivity, category: 'forge', color: '#7c3aed' },
+  forge_facebook_trigger:         { label: 'Trig: Facebook',        icon: LuActivity, category: 'forge', color: '#1877f2' },
+  forge_facebook_lead_ads_trigger: { label: 'Trig: FB Lead Ads',    icon: LuActivity, category: 'forge', color: '#1877f2' },
+  forge_figma_trigger:            { label: 'Trig: Figma',           icon: LuActivity, category: 'forge', color: '#a259ff' },
+  forge_flow_trigger:             { label: 'Trig: Flow',            icon: LuActivity, category: 'forge', color: '#5a3ec9' },
+  forge_form_trigger:             { label: 'Trig: Form',            icon: LuActivity, category: 'forge', color: '#475569' },
+  forge_formio_trigger:           { label: 'Trig: Form.io',         icon: LuActivity, category: 'forge', color: '#3a64a8' },
+  forge_formstack_trigger:        { label: 'Trig: Formstack',       icon: LuActivity, category: 'forge', color: '#21b573' },
+  forge_getresponse_trigger:      { label: 'Trig: GetResponse',     icon: LuActivity, category: 'forge', color: '#00baff' },
+  forge_gumroad_trigger:          { label: 'Trig: Gumroad',         icon: LuActivity, category: 'forge', color: '#ff90e8' },
+  forge_helpscout_trigger:        { label: 'Trig: Help Scout',      icon: LuActivity, category: 'forge', color: '#1292ee' },
+  forge_invoiceninja_trigger:     { label: 'Trig: Invoice Ninja',   icon: LuActivity, category: 'forge', color: '#3e8e6a' },
+  forge_jotform_trigger:          { label: 'Trig: JotForm',         icon: LuActivity, category: 'forge', color: '#ff6100' },
+  forge_kafka_trigger:            { label: 'Trig: Kafka',           icon: LuActivity, category: 'forge', color: '#231f20' },
+  forge_keap_trigger:             { label: 'Trig: Keap',            icon: LuActivity, category: 'forge', color: '#1c8d3e' },
+  forge_kobotoolbox_trigger:      { label: 'Trig: KoBo',            icon: LuActivity, category: 'forge', color: '#5a6679' },
+  forge_lemlist_trigger:          { label: 'Trig: Lemlist',         icon: LuActivity, category: 'forge', color: '#ff6b6b' },
+  forge_lonescale_trigger:        { label: 'Trig: LoneScale',       icon: LuActivity, category: 'forge', color: '#0ea5e9' },
+  forge_mqtt_trigger:             { label: 'Trig: MQTT',            icon: LuActivity, category: 'forge', color: '#660066' },
+  forge_mailjet_trigger:          { label: 'Trig: Mailjet',         icon: LuActivity, category: 'forge', color: '#f0a92c' },
+  forge_mautic_trigger:           { label: 'Trig: Mautic',          icon: LuActivity, category: 'forge', color: '#4e5e9e' },
+  forge_microsoft_outlook_trigger:{ label: 'Trig: MS Outlook',      icon: LuActivity, category: 'forge', color: '#0078d4' },
+  forge_microsoft_teams_trigger:  { label: 'Trig: MS Teams',        icon: LuActivity, category: 'forge', color: '#6264a7' },
+  forge_mailerlite_trigger:       { label: 'Trig: MailerLite',      icon: LuActivity, category: 'forge', color: '#09c269' },
+  forge_netlify_trigger:          { label: 'Trig: Netlify',         icon: LuActivity, category: 'forge', color: '#00c7b7' },
+  forge_onfleet_trigger:          { label: 'Trig: Onfleet',         icon: LuActivity, category: 'forge', color: '#ff6b00' },
+  forge_paypal_trigger:           { label: 'Trig: PayPal',          icon: LuActivity, category: 'forge', color: '#0070ba' },
+  forge_postgres_trigger:         { label: 'Trig: Postgres',        icon: LuActivity, category: 'forge', color: '#336791' },
+  forge_postmark_trigger:         { label: 'Trig: Postmark',        icon: LuActivity, category: 'forge', color: '#ffde00' },
+  forge_pushcut_trigger:          { label: 'Trig: Pushcut',         icon: LuActivity, category: 'forge', color: '#fbbf24' },
+  forge_rabbitmq_trigger:         { label: 'Trig: RabbitMQ',        icon: LuActivity, category: 'forge', color: '#ff6600' },
+  forge_redis_trigger:            { label: 'Trig: Redis',           icon: LuActivity, category: 'forge', color: '#dc382d' },
+  forge_seatable_trigger:         { label: 'Trig: SeaTable',        icon: LuActivity, category: 'forge', color: '#fa743e' },
+  forge_salesforce_trigger:       { label: 'Trig: Salesforce',      icon: LuActivity, category: 'forge', color: '#00a1e0' },
+  forge_surveymonkey_trigger:     { label: 'Trig: SurveyMonkey',    icon: LuActivity, category: 'forge', color: '#00bf6f' },
+  forge_taiga_trigger:            { label: 'Trig: Taiga',           icon: LuActivity, category: 'forge', color: '#83ca56' },
+  forge_thehive_trigger:          { label: 'Trig: TheHive',         icon: LuActivity, category: 'forge', color: '#f57c00' },
+  forge_toggl_trigger:            { label: 'Trig: Toggl',           icon: LuActivity, category: 'forge', color: '#e57cd8' },
+  forge_twilio_trigger:           { label: 'Trig: Twilio',          icon: LuActivity, category: 'forge', color: '#f22f46' },
+  forge_typeform_trigger:         { label: 'Trig: Typeform',        icon: LuActivity, category: 'forge', color: '#262627' },
+  forge_venafi_trigger:           { label: 'Trig: Venafi',          icon: LuActivity, category: 'forge', color: '#00a651' },
+  forge_wise_trigger:             { label: 'Trig: Wise',            icon: LuActivity, category: 'forge', color: '#9fe870' },
+  forge_workable_trigger:         { label: 'Trig: Workable',        icon: LuActivity, category: 'forge', color: '#1ad17e' },
+  forge_wufoo_trigger:            { label: 'Trig: Wufoo',           icon: LuActivity, category: 'forge', color: '#ff3a07' },
+
+  // Final sweep — subfolder extras
+  forge_gsuite_admin:               { label: 'GSuite Admin',           icon: LuUsers,    category: 'forge', color: '#4285f4' },
+  forge_google_business_profile:    { label: 'Business Profile',       icon: LuLayers,   category: 'forge', color: '#4285f4' },
+  forge_google_books:               { label: 'Google Books',           icon: LuFileText, category: 'forge', color: '#4285f4' },
+  forge_google_cnl:                 { label: 'Cloud Natural Lang.',    icon: LuBrain,    category: 'forge', color: '#4285f4' },
+  forge_google_perspective:         { label: 'Google Perspective',     icon: LuEye,      category: 'forge', color: '#4285f4' },
+  forge_google_firebase_rtdb:       { label: 'Firebase RTDB',          icon: LuDatabase, category: 'forge', color: '#ffa000' },
+  forge_azure_cosmos_db:            { label: 'Azure Cosmos DB',        icon: LuDatabase, category: 'forge', color: '#0078d4' },
+  forge_microsoft_entra:            { label: 'Microsoft Entra',        icon: LuUsers,    category: 'forge', color: '#0078d4' },
+  forge_microsoft_graph_security:   { label: 'MS Graph Security',      icon: LuActivity, category: 'forge', color: '#0078d4' },
+  forge_azure_storage:              { label: 'Azure Storage',          icon: LuCloud,    category: 'forge', color: '#0078d4' },
+
+  // Final sweep — LangChain vendors / tools
+  forge_tool_wikipedia:            { label: 'Tool: Wikipedia',        icon: LuFileText, category: 'forge', color: '#a855f7' },
+  forge_tool_serpapi:              { label: 'Tool: SerpAPI',          icon: LuGlobe,    category: 'forge', color: '#a855f7' },
+  forge_tool_wolframalpha:         { label: 'Tool: Wolfram',          icon: LuHash,     category: 'forge', color: '#a855f7' },
+  forge_tool_sql:                  { label: 'Tool: SQL',              icon: LuDatabase, category: 'forge', color: '#a855f7' },
+  forge_tool_http_request:         { label: 'Tool: HTTP',             icon: LuGlobe,    category: 'forge', color: '#a855f7' },
+  forge_tool_code:                 { label: 'Tool: Code',             icon: LuFileCode, category: 'forge', color: '#a855f7' },
+  forge_tool_calculator_n8n:       { label: 'Tool: Calc (n8n)',       icon: LuHash,     category: 'forge', color: '#a855f7' },
+  forge_tool_workflow:             { label: 'Tool: Workflow',         icon: LuLayers,   category: 'forge', color: '#a855f7' },
+  forge_tool_vector_store:         { label: 'Tool: VectorStore',      icon: LuDatabase, category: 'forge', color: '#a855f7' },
+  forge_tool_think:                { label: 'Tool: Think',            icon: LuBrain,    category: 'forge', color: '#a855f7' },
+
+  // Final sweep — utility V1/V2 compat-shims
+  forge_set_v1:           { label: 'Set (v1)',          icon: LuVariable, category: 'forge', color: '#fb923c' },
+  forge_set_v2:           { label: 'Set (v2)',          icon: LuVariable, category: 'forge', color: '#fb923c' },
+  forge_switch_v1:        { label: 'Switch (v1)',       icon: LuShuffle,  category: 'forge', color: '#f97316' },
+  forge_switch_v2:        { label: 'Switch (v2)',       icon: LuShuffle,  category: 'forge', color: '#f97316' },
+  forge_if_v1:            { label: 'If (v1)',           icon: LuGitBranch, category: 'forge', color: '#f97316' },
+  forge_filter_v1:        { label: 'Filter (v1)',       icon: LuFilter,   category: 'forge', color: '#fb923c' },
+  forge_merge_v1:         { label: 'Merge (v1)',        icon: LuGitMerge, category: 'forge', color: '#fb923c' },
+  forge_merge_v2:         { label: 'Merge (v2)',        icon: LuGitMerge, category: 'forge', color: '#fb923c' },
+  forge_http_request_v1:  { label: 'HTTP Req (v1)',     icon: LuGlobe,    category: 'forge', color: '#475569' },
+  forge_http_request_v2:  { label: 'HTTP Req (v2)',     icon: LuGlobe,    category: 'forge', color: '#475569' },
+
+  // Final sweep — service V1 compat-shims
+  forge_slack_v1:         { label: 'Slack (v1)',        icon: LuMessageCircle, category: 'forge', color: '#4a154b' },
+  forge_hubspot_v1:       { label: 'HubSpot (v1)',      icon: LuUsers,    category: 'forge', color: '#ff7a59' },
+  forge_discord_v1:       { label: 'Discord (v1)',      icon: LuShare2,   category: 'forge', color: '#5865f2' },
+  forge_pipedrive_v1:     { label: 'Pipedrive (v1)',    icon: LuUsers,    category: 'forge', color: '#26292c' },
+  forge_notion_v1:        { label: 'Notion (v1)',       icon: LuFileText, category: 'forge', color: '#000000' },
+  forge_airtable_v1:      { label: 'Airtable (v1)',     icon: LuFileBox,  category: 'forge', color: '#fcb400' },
+  forge_twitter_v1:       { label: 'Twitter (v1)',      icon: LuMessageCircle, category: 'forge', color: '#1da1f2' },
+  forge_mattermost_v1:    { label: 'Mattermost (v1)',   icon: LuMessageCircle, category: 'forge', color: '#0072c6' },
+  forge_splunk_v1:        { label: 'Splunk (v1)',       icon: LuChartBar, category: 'forge', color: '#65a637' },
+  forge_lemlist_v1:       { label: 'Lemlist (v1)',      icon: LuMail,     category: 'forge', color: '#ff6b6b' },
 };
 
 export function getBlockLabel(type: string): string {
@@ -816,6 +926,39 @@ export const BLOCK_CATEGORIES = {
       'forge_pipedrive_trigger', 'forge_trello_trigger', 'forge_clickup_trigger', 'forge_asana_trigger',
       'forge_jira_trigger', 'forge_linear_trigger', 'forge_notion_trigger', 'forge_airtable_trigger',
       'forge_telegram_trigger', 'forge_slack_trigger',
+      // Final sweep — 60 trigger shims
+      'forge_acuity_trigger', 'forge_affinity_trigger', 'forge_amqp_trigger', 'forge_autopilot_trigger',
+      'forge_aws_trigger', 'forge_bitbucket_trigger', 'forge_brevo_trigger', 'forge_cal_trigger',
+      'forge_chargebee_trigger', 'forge_eventbrite_trigger',
+      'forge_cisco_webex_trigger', 'forge_clockify_trigger', 'forge_convertkit_trigger', 'forge_copper_trigger',
+      'forge_currents_trigger', 'forge_customerio_trigger', 'forge_emelia_trigger', 'forge_facebook_trigger',
+      'forge_facebook_lead_ads_trigger', 'forge_figma_trigger',
+      'forge_flow_trigger', 'forge_form_trigger', 'forge_formio_trigger', 'forge_formstack_trigger',
+      'forge_getresponse_trigger', 'forge_gumroad_trigger', 'forge_helpscout_trigger',
+      'forge_invoiceninja_trigger', 'forge_jotform_trigger', 'forge_kafka_trigger',
+      'forge_keap_trigger', 'forge_kobotoolbox_trigger', 'forge_lemlist_trigger', 'forge_lonescale_trigger',
+      'forge_mqtt_trigger', 'forge_mailjet_trigger', 'forge_mautic_trigger',
+      'forge_microsoft_outlook_trigger', 'forge_microsoft_teams_trigger', 'forge_mailerlite_trigger',
+      'forge_netlify_trigger', 'forge_onfleet_trigger', 'forge_paypal_trigger', 'forge_postgres_trigger',
+      'forge_postmark_trigger', 'forge_pushcut_trigger', 'forge_rabbitmq_trigger', 'forge_redis_trigger',
+      'forge_seatable_trigger', 'forge_salesforce_trigger',
+      'forge_surveymonkey_trigger', 'forge_taiga_trigger', 'forge_thehive_trigger', 'forge_toggl_trigger',
+      'forge_twilio_trigger', 'forge_typeform_trigger', 'forge_venafi_trigger', 'forge_wise_trigger',
+      'forge_workable_trigger', 'forge_wufoo_trigger',
+      // Final sweep — subfolder extras (10)
+      'forge_gsuite_admin', 'forge_google_business_profile', 'forge_google_books', 'forge_google_cnl',
+      'forge_google_perspective', 'forge_google_firebase_rtdb', 'forge_azure_cosmos_db',
+      'forge_microsoft_entra', 'forge_microsoft_graph_security', 'forge_azure_storage',
+      // Final sweep — LangChain vendors / tools (10)
+      'forge_tool_wikipedia', 'forge_tool_serpapi', 'forge_tool_wolframalpha', 'forge_tool_sql',
+      'forge_tool_http_request', 'forge_tool_code', 'forge_tool_calculator_n8n', 'forge_tool_workflow',
+      'forge_tool_vector_store', 'forge_tool_think',
+      // Final sweep — utility V1/V2 compat-shims (10)
+      'forge_set_v1', 'forge_set_v2', 'forge_switch_v1', 'forge_switch_v2', 'forge_if_v1',
+      'forge_filter_v1', 'forge_merge_v1', 'forge_merge_v2', 'forge_http_request_v1', 'forge_http_request_v2',
+      // Final sweep — service V1 compat-shims (10)
+      'forge_slack_v1', 'forge_hubspot_v1', 'forge_discord_v1', 'forge_pipedrive_v1', 'forge_notion_v1',
+      'forge_airtable_v1', 'forge_twitter_v1', 'forge_mattermost_v1', 'forge_splunk_v1', 'forge_lemlist_v1',
     ],
   },
 } as const;
@@ -1358,6 +1501,111 @@ export function getDefaultBlockData(type: string): Record<string, unknown> {
     case 'forge_airtable_trigger':
     case 'forge_telegram_trigger':
     case 'forge_slack_trigger':
+    // Final sweep — 60 trigger shims
+    case 'forge_acuity_trigger':
+    case 'forge_affinity_trigger':
+    case 'forge_amqp_trigger':
+    case 'forge_autopilot_trigger':
+    case 'forge_aws_trigger':
+    case 'forge_bitbucket_trigger':
+    case 'forge_brevo_trigger':
+    case 'forge_cal_trigger':
+    case 'forge_chargebee_trigger':
+    case 'forge_eventbrite_trigger':
+    case 'forge_cisco_webex_trigger':
+    case 'forge_clockify_trigger':
+    case 'forge_convertkit_trigger':
+    case 'forge_copper_trigger':
+    case 'forge_currents_trigger':
+    case 'forge_customerio_trigger':
+    case 'forge_emelia_trigger':
+    case 'forge_facebook_trigger':
+    case 'forge_facebook_lead_ads_trigger':
+    case 'forge_figma_trigger':
+    case 'forge_flow_trigger':
+    case 'forge_form_trigger':
+    case 'forge_formio_trigger':
+    case 'forge_formstack_trigger':
+    case 'forge_getresponse_trigger':
+    case 'forge_gumroad_trigger':
+    case 'forge_helpscout_trigger':
+    case 'forge_invoiceninja_trigger':
+    case 'forge_jotform_trigger':
+    case 'forge_kafka_trigger':
+    case 'forge_keap_trigger':
+    case 'forge_kobotoolbox_trigger':
+    case 'forge_lemlist_trigger':
+    case 'forge_lonescale_trigger':
+    case 'forge_mqtt_trigger':
+    case 'forge_mailjet_trigger':
+    case 'forge_mautic_trigger':
+    case 'forge_microsoft_outlook_trigger':
+    case 'forge_microsoft_teams_trigger':
+    case 'forge_mailerlite_trigger':
+    case 'forge_netlify_trigger':
+    case 'forge_onfleet_trigger':
+    case 'forge_paypal_trigger':
+    case 'forge_postgres_trigger':
+    case 'forge_postmark_trigger':
+    case 'forge_pushcut_trigger':
+    case 'forge_rabbitmq_trigger':
+    case 'forge_redis_trigger':
+    case 'forge_seatable_trigger':
+    case 'forge_salesforce_trigger':
+    case 'forge_surveymonkey_trigger':
+    case 'forge_taiga_trigger':
+    case 'forge_thehive_trigger':
+    case 'forge_toggl_trigger':
+    case 'forge_twilio_trigger':
+    case 'forge_typeform_trigger':
+    case 'forge_venafi_trigger':
+    case 'forge_wise_trigger':
+    case 'forge_workable_trigger':
+    case 'forge_wufoo_trigger':
+    // Final sweep — subfolder extras
+    case 'forge_gsuite_admin':
+    case 'forge_google_business_profile':
+    case 'forge_google_books':
+    case 'forge_google_cnl':
+    case 'forge_google_perspective':
+    case 'forge_google_firebase_rtdb':
+    case 'forge_azure_cosmos_db':
+    case 'forge_microsoft_entra':
+    case 'forge_microsoft_graph_security':
+    case 'forge_azure_storage':
+    // Final sweep — LangChain vendors / tools
+    case 'forge_tool_wikipedia':
+    case 'forge_tool_serpapi':
+    case 'forge_tool_wolframalpha':
+    case 'forge_tool_sql':
+    case 'forge_tool_http_request':
+    case 'forge_tool_code':
+    case 'forge_tool_calculator_n8n':
+    case 'forge_tool_workflow':
+    case 'forge_tool_vector_store':
+    case 'forge_tool_think':
+    // Final sweep — utility V1/V2 compat-shims
+    case 'forge_set_v1':
+    case 'forge_set_v2':
+    case 'forge_switch_v1':
+    case 'forge_switch_v2':
+    case 'forge_if_v1':
+    case 'forge_filter_v1':
+    case 'forge_merge_v1':
+    case 'forge_merge_v2':
+    case 'forge_http_request_v1':
+    case 'forge_http_request_v2':
+    // Final sweep — service V1 compat-shims
+    case 'forge_slack_v1':
+    case 'forge_hubspot_v1':
+    case 'forge_discord_v1':
+    case 'forge_pipedrive_v1':
+    case 'forge_notion_v1':
+    case 'forge_airtable_v1':
+    case 'forge_twitter_v1':
+    case 'forge_mattermost_v1':
+    case 'forge_splunk_v1':
+    case 'forge_lemlist_v1':
       return { credentialId: '', __action: '' };
 
     default:

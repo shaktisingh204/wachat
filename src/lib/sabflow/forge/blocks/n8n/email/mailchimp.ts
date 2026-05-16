@@ -49,9 +49,8 @@ function baseUrl(c: MailchimpCred): string {
 
 /** Lowercase-MD5 subscriber hash per Mailchimp docs. */
 async function subscriberHash(email: string): Promise<string> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const cryptoMod = await (Function('m', 'return import(m)') as (m: string) => Promise<any>)('node:crypto');
-  return cryptoMod.createHash('md5').update(email.toLowerCase()).digest('hex');
+  const { createHash } = await import('node:crypto');
+  return createHash('md5').update(email.toLowerCase()).digest('hex');
 }
 
 async function memberGet(ctx: ForgeActionContext): Promise<ForgeActionResult> {

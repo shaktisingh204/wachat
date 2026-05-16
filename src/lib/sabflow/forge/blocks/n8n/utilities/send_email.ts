@@ -43,8 +43,13 @@ async function sendEmail(ctx: ForgeActionContext): Promise<ForgeActionResult> {
 
   let nodemailer: NodemailerLike;
   try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    nodemailer = require('nodemailer') as NodemailerLike;
+    const mod = (await import('nodemailer')) as unknown as
+      | NodemailerLike
+      | { default: NodemailerLike };
+    nodemailer =
+      'createTransport' in mod
+        ? (mod as NodemailerLike)
+        : (mod as { default: NodemailerLike }).default;
   } catch {
     throw new Error(
       'Send Email: nodemailer is not installed in the runtime. Add "nodemailer" to dependencies.',

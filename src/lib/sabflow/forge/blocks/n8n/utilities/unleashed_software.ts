@@ -11,8 +11,6 @@
  *   - sales-order.list  GET /SalesOrders
  */
 
-import { createHmac } from 'node:crypto';
-
 import { registerForgeBlock } from '../../../registry';
 import type {
   ForgeActionContext,
@@ -23,7 +21,8 @@ import { apiRequest, asNumber, asString } from '../_shared/http';
 
 const API = 'https://api.unleashedsoftware.com';
 
-function buildHeaders(ctx: ForgeActionContext, query: string): Record<string, string> {
+async function buildHeaders(ctx: ForgeActionContext, query: string): Promise<Record<string, string>> {
+  const { createHmac } = await import('node:crypto');
   const id = asString(ctx.options.apiId);
   const key = asString(ctx.options.apiKey);
   if (!id) throw new Error('Unleashed: apiId is required');
@@ -54,7 +53,7 @@ async function listRequest(
     service: 'Unleashed',
     method: 'GET',
     url,
-    headers: buildHeaders(ctx, query),
+    headers: await buildHeaders(ctx, query),
   });
   return { outputs: { [outputKey]: res.data }, logs: [`Unleashed ${label} list → page ${page}`] };
 }

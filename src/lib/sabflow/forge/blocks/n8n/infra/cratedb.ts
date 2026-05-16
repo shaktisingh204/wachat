@@ -12,7 +12,7 @@
  *   - query.select    SELECT helper returning rows
  */
 
-import { Client } from 'pg';
+import type { Client } from 'pg';
 import { registerForgeBlock } from '../../../registry';
 import type { ForgeActionContext, ForgeActionResult, ForgeBlock } from '../../../types';
 import { asBoolean, asNumber, asString } from '../_shared/http';
@@ -44,7 +44,10 @@ async function withClient<T>(
   fn: (client: Client) => Promise<T>,
 ): Promise<T> {
   const cred = readCred(ctx);
-  const client = new Client({
+  const pg = await import('pg');
+  const PgClient = (pg as unknown as { Client: typeof Client }).Client
+    ?? (pg as unknown as { default: { Client: typeof Client } }).default.Client;
+  const client = new PgClient({
     host: cred.host,
     port: cred.port,
     database: cred.database,

@@ -12,8 +12,6 @@
  *   - verify     secret + code → { valid: boolean }
  */
 
-import { createHmac } from 'node:crypto';
-
 import { registerForgeBlock } from '../../../registry';
 import type {
   ForgeActionContext,
@@ -42,7 +40,8 @@ function base32Decode(input: string): Buffer {
   return Buffer.from(bytes);
 }
 
-function hotp(secret: Buffer, counter: number, digits: number, algo: Algo): string {
+async function hotp(secret: Buffer, counter: number, digits: number, algo: Algo): Promise<string> {
+  const { createHmac } = await import('node:crypto');
   const buf = Buffer.alloc(8);
   // 64-bit big-endian counter
   buf.writeUInt32BE(Math.floor(counter / 0x100000000), 0);
@@ -77,7 +76,7 @@ async function generate(ctx: ForgeActionContext): Promise<ForgeActionResult> {
   const algo = readAlgo(ctx);
   const now = Math.floor(Date.now() / 1000);
   const counter = Math.floor(now / period);
-  const code = hotp(secret, counter, digits, algo);
+  const code = await hotp(secret, counter, digits, algo);
   const secondsRemaining = period - (now % period);
   return {
     outputs: { code, secondsRemaining, digits, period, algorithm: algo },
@@ -97,7 +96,7 @@ async function verify(ctx: ForgeActionContext): Promise<ForgeActionResult> {
   const counter = Math.floor(now / period);
   let valid = false;
   for (let i = -window; i <= window && !valid; i++) {
-    if (hotp(secret, counter + i, digits, algo) === code) valid = true;
+    if ((await hotp(secret, counter + i, digits, algo)) === code) valid = true;
   }
   return {
     outputs: { valid, code },

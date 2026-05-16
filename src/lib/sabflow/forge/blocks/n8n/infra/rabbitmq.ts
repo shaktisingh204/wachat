@@ -10,7 +10,6 @@
  *   - consume.fetch   One-shot consumer: read up to N messages then close
  */
 
-import amqplib from 'amqplib';
 import type { Channel } from 'amqplib';
 import { registerForgeBlock } from '../../../registry';
 import type { ForgeActionContext, ForgeActionResult, ForgeBlock } from '../../../types';
@@ -22,7 +21,13 @@ async function withChannel<T>(
 ): Promise<T> {
   const url = asString(ctx.options.url);
   if (!url) throw new Error('RabbitMQ: url is required (e.g. amqp://user:pass@host:5672)');
-  const conn = await amqplib.connect(url);
+  const amqplibMod = (await import('amqplib')) as unknown as {
+    default?: { connect: (url: string) => Promise<import('amqplib').ChannelModel> };
+    connect?: (url: string) => Promise<import('amqplib').ChannelModel>;
+  };
+  const connect = amqplibMod.default?.connect ?? amqplibMod.connect;
+  if (!connect) throw new Error('RabbitMQ: failed to load amqplib driver');
+  const conn = await connect(url);
   let channel: Channel | undefined;
   try {
     channel = await conn.createChannel();

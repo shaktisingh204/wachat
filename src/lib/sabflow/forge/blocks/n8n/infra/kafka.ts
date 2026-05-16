@@ -11,7 +11,6 @@
  *   - consume.fetch   One-shot consumer: read up to N messages then close
  */
 
-import { Kafka } from 'kafkajs';
 import type { KafkaConfig as KafkaJsConfig, EachMessagePayload } from 'kafkajs';
 import { registerForgeBlock } from '../../../registry';
 import type { ForgeActionContext, ForgeActionResult, ForgeBlock } from '../../../types';
@@ -66,6 +65,7 @@ async function produceSend(ctx: ForgeActionContext): Promise<ForgeActionResult> 
   });
 
   const cfg = readConfig(ctx);
+  const { Kafka } = await import('kafkajs');
   const kafka = new Kafka(cfg as unknown as KafkaJsConfig);
   const producer = kafka.producer();
   await producer.connect();
@@ -89,6 +89,7 @@ async function consumeFetch(ctx: ForgeActionContext): Promise<ForgeActionResult>
   const fromBeginning = asBoolean(ctx.options.fromBeginning);
 
   const cfg = readConfig(ctx);
+  const { Kafka } = await import('kafkajs');
   const kafka = new Kafka(cfg as unknown as KafkaJsConfig);
   const consumer = kafka.consumer({ groupId });
   await consumer.connect();

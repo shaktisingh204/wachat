@@ -12,8 +12,6 @@
  * Out of scope: sign/verify with key pairs, generate-uuid (use a dedicated
  * UUID block), file-stream hashing — deferred.
  */
-import { createHash, createHmac, randomBytes } from 'node:crypto';
-
 import { registerForgeBlock } from '../../../registry';
 import type {
   ForgeActionContext,
@@ -39,6 +37,7 @@ function checkEncoding(v: string): Encoding {
 }
 
 async function hash(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const { createHash } = await import('node:crypto');
   const algorithm = checkAlgo(asString(ctx.options.algorithm) || 'sha256');
   const encoding = checkEncoding(asString(ctx.options.encoding) || 'hex');
   const value = asString(ctx.options.value);
@@ -51,6 +50,7 @@ async function hash(ctx: ForgeActionContext): Promise<ForgeActionResult> {
 }
 
 async function hmac(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const { createHmac } = await import('node:crypto');
   const algorithm = checkAlgo(asString(ctx.options.algorithm) || 'sha256');
   const encoding = checkEncoding(asString(ctx.options.encoding) || 'hex');
   const value = asString(ctx.options.value);
@@ -65,6 +65,7 @@ async function hmac(ctx: ForgeActionContext): Promise<ForgeActionResult> {
 }
 
 async function random(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const { randomBytes } = await import('node:crypto');
   const length = asNumber(ctx.options.length) ?? 16;
   if (length <= 0 || length > 1024) {
     throw new Error('Crypto: length must be between 1 and 1024 bytes');

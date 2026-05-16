@@ -491,6 +491,121 @@ import './blocks/n8n/triggers_app/airtable_trigger';
 import './blocks/n8n/triggers_app/telegram_trigger';
 import './blocks/n8n/triggers_app/slack_trigger';
 
+// Final sweep — Triggers A
+import './blocks/n8n/triggers_app/acuity_trigger';
+import './blocks/n8n/triggers_app/affinity_trigger';
+import './blocks/n8n/triggers_app/amqp_trigger';
+import './blocks/n8n/triggers_app/autopilot_trigger';
+import './blocks/n8n/triggers_app/aws_trigger';
+import './blocks/n8n/triggers_app/bitbucket_trigger';
+import './blocks/n8n/triggers_app/brevo_trigger';
+import './blocks/n8n/triggers_app/cal_trigger';
+import './blocks/n8n/triggers_app/chargebee_trigger';
+import './blocks/n8n/triggers_app/eventbrite_trigger';
+// Final sweep — Triggers B
+import './blocks/n8n/triggers_app/cisco_webex_trigger';
+import './blocks/n8n/triggers_app/clockify_trigger';
+import './blocks/n8n/triggers_app/convertkit_trigger';
+import './blocks/n8n/triggers_app/copper_trigger';
+import './blocks/n8n/triggers_app/currents_trigger';
+import './blocks/n8n/triggers_app/customerio_trigger';
+import './blocks/n8n/triggers_app/emelia_trigger';
+import './blocks/n8n/triggers_app/facebook_trigger';
+import './blocks/n8n/triggers_app/facebook_lead_ads_trigger';
+import './blocks/n8n/triggers_app/figma_trigger';
+// Final sweep — Triggers C
+import './blocks/n8n/triggers_app/flow_trigger';
+import './blocks/n8n/triggers_app/form_trigger';
+import './blocks/n8n/triggers_app/formio_trigger';
+import './blocks/n8n/triggers_app/formstack_trigger';
+import './blocks/n8n/triggers_app/getresponse_trigger';
+import './blocks/n8n/triggers_app/gumroad_trigger';
+import './blocks/n8n/triggers_app/helpscout_trigger';
+import './blocks/n8n/triggers_app/invoiceninja_trigger';
+import './blocks/n8n/triggers_app/jotform_trigger';
+import './blocks/n8n/triggers_app/kafka_trigger';
+// Final sweep — Triggers D
+import './blocks/n8n/triggers_app/keap_trigger';
+import './blocks/n8n/triggers_app/kobotoolbox_trigger';
+import './blocks/n8n/triggers_app/lemlist_trigger';
+import './blocks/n8n/triggers_app/lonescale_trigger';
+import './blocks/n8n/triggers_app/mqtt_trigger';
+import './blocks/n8n/triggers_app/mailjet_trigger';
+import './blocks/n8n/triggers_app/mautic_trigger';
+import './blocks/n8n/triggers_app/microsoft_outlook_trigger';
+import './blocks/n8n/triggers_app/microsoft_teams_trigger';
+import './blocks/n8n/triggers_app/mailerlite_trigger';
+// Final sweep — Triggers E
+import './blocks/n8n/triggers_app/netlify_trigger';
+import './blocks/n8n/triggers_app/onfleet_trigger';
+import './blocks/n8n/triggers_app/paypal_trigger';
+import './blocks/n8n/triggers_app/postgres_trigger';
+import './blocks/n8n/triggers_app/postmark_trigger';
+import './blocks/n8n/triggers_app/pushcut_trigger';
+import './blocks/n8n/triggers_app/rabbitmq_trigger';
+import './blocks/n8n/triggers_app/redis_trigger';
+import './blocks/n8n/triggers_app/seatable_trigger';
+import './blocks/n8n/triggers_app/salesforce_trigger';
+// Final sweep — Triggers F
+import './blocks/n8n/triggers_app/surveymonkey_trigger';
+import './blocks/n8n/triggers_app/taiga_trigger';
+import './blocks/n8n/triggers_app/thehive_trigger';
+import './blocks/n8n/triggers_app/toggl_trigger';
+import './blocks/n8n/triggers_app/twilio_trigger';
+import './blocks/n8n/triggers_app/typeform_trigger';
+import './blocks/n8n/triggers_app/venafi_trigger';
+import './blocks/n8n/triggers_app/wise_trigger';
+import './blocks/n8n/triggers_app/workable_trigger';
+import './blocks/n8n/triggers_app/wufoo_trigger';
+
+// Final sweep — Subfolder extras (Google + Microsoft)
+import './blocks/n8n/subfolder_extras/gsuite_admin';
+import './blocks/n8n/subfolder_extras/google_business_profile';
+import './blocks/n8n/subfolder_extras/google_books';
+import './blocks/n8n/subfolder_extras/google_cnl';
+import './blocks/n8n/subfolder_extras/google_perspective';
+import './blocks/n8n/subfolder_extras/google_firebase_rtdb';
+import './blocks/n8n/subfolder_extras/azure_cosmos_db';
+import './blocks/n8n/subfolder_extras/microsoft_entra';
+import './blocks/n8n/subfolder_extras/microsoft_graph_security';
+import './blocks/n8n/subfolder_extras/azure_storage';
+
+// Final sweep — LangChain vendors / tools
+import './blocks/n8n/langchain_vendor/tool_wikipedia';
+import './blocks/n8n/langchain_vendor/tool_serpapi';
+import './blocks/n8n/langchain_vendor/tool_wolframalpha';
+import './blocks/n8n/langchain_vendor/tool_sql';
+import './blocks/n8n/langchain_vendor/tool_http_request';
+import './blocks/n8n/langchain_vendor/tool_code';
+import './blocks/n8n/langchain_vendor/tool_calculator_n8n';
+import './blocks/n8n/langchain_vendor/tool_workflow';
+import './blocks/n8n/langchain_vendor/tool_vector_store';
+import './blocks/n8n/langchain_vendor/tool_think';
+
+// Final sweep — Utility variants (compat-shims)
+import './blocks/n8n/variants_utility/set_v1';
+import './blocks/n8n/variants_utility/set_v2';
+import './blocks/n8n/variants_utility/switch_v1';
+import './blocks/n8n/variants_utility/switch_v2';
+import './blocks/n8n/variants_utility/if_v1';
+import './blocks/n8n/variants_utility/filter_v1';
+import './blocks/n8n/variants_utility/merge_v1';
+import './blocks/n8n/variants_utility/merge_v2';
+import './blocks/n8n/variants_utility/http_request_v1';
+import './blocks/n8n/variants_utility/http_request_v2';
+
+// Final sweep — Service V1 variants (compat-shims)
+import './blocks/n8n/variants_service/slack_v1';
+import './blocks/n8n/variants_service/hubspot_v1';
+import './blocks/n8n/variants_service/discord_v1';
+import './blocks/n8n/variants_service/pipedrive_v1';
+import './blocks/n8n/variants_service/notion_v1';
+import './blocks/n8n/variants_service/airtable_v1';
+import './blocks/n8n/variants_service/twitter_v1';
+import './blocks/n8n/variants_service/mattermost_v1';
+import './blocks/n8n/variants_service/splunk_v1';
+import './blocks/n8n/variants_service/lemlist_v1';
+
 // Wave 32 — LangChain Agents/Chains/Tools
 import './blocks/n8n/langchain_agent/agent';
 import './blocks/n8n/langchain_agent/openai_assistant';

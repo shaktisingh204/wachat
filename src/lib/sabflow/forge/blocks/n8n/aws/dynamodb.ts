@@ -13,6 +13,7 @@
 import { registerForgeBlock } from '../../../registry';
 import type { ForgeActionContext, ForgeActionResult, ForgeBlock, ForgeField } from '../../../types';
 import { asNumber, asString } from '../_shared/http';
+import { optionalImport } from '../_shared/optional_import';
 
 type AwsCred = { accessKeyId: string; secretAccessKey: string; region: string };
 
@@ -37,7 +38,7 @@ type DynamoSdk = Record<string, unknown> & {
 
 async function loadSdk(): Promise<DynamoSdk> {
   try {
-    const mod = (await import('@aws-sdk/client-dynamodb' as string)) as Record<string, unknown>;
+    const mod = await optionalImport<Record<string, unknown>>('@aws-sdk/client-dynamodb');
     const real = ((mod as { default?: Record<string, unknown> }).default ?? mod) as DynamoSdk;
     if (typeof real.DynamoDBClient !== 'function') {
       throw new Error('DynamoDBClient missing');

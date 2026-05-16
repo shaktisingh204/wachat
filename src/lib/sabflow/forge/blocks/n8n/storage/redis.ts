@@ -23,7 +23,7 @@
  *   - Hash + sorted-set operations (HSET, ZADD…)
  */
 
-import Redis from 'ioredis';
+import type Redis from 'ioredis';
 import { registerForgeBlock } from '../../../registry';
 import type { ForgeActionContext, ForgeActionResult, ForgeBlock } from '../../../types';
 import { asNumber, asString, requireCredential } from '../_shared/http';
@@ -35,7 +35,12 @@ async function withClient<T>(
   const cred = requireCredential('Redis', ctx.credential);
   const uri = cred.connectionString;
   if (!uri) throw new Error('Redis: credential is missing `connectionString`');
-  const client = new Redis(uri, { lazyConnect: true, maxRetriesPerRequest: 1 });
+  type RedisCtorShape = new (uri: string, opts: Record<string, unknown>) => Redis;
+  const mod = (await import('ioredis')) as unknown as {
+    default?: RedisCtorShape;
+  } & RedisCtorShape;
+  const RedisCtor = (mod.default ?? mod) as RedisCtorShape;
+  const client = new RedisCtor(uri, { lazyConnect: true, maxRetriesPerRequest: 1 });
   try {
     await client.connect();
     return await fn(client);

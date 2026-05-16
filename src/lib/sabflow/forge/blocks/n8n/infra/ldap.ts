@@ -13,10 +13,20 @@
  */
 
 /// <reference path="../../../../../../types/forge-drivers.d.ts" />
-import { createClient, type LdapClient } from 'ldapjs';
+import type { LdapClient } from 'ldapjs';
 import { registerForgeBlock } from '../../../registry';
 import type { ForgeActionContext, ForgeActionResult, ForgeBlock } from '../../../types';
 import { asNumber, asString } from '../_shared/http';
+
+async function ldapCreateClient(opts: Record<string, unknown>): Promise<LdapClient> {
+  const mod = (await import('ldapjs')) as unknown as {
+    default?: { createClient: (opts: Record<string, unknown>) => LdapClient };
+    createClient?: (opts: Record<string, unknown>) => LdapClient;
+  };
+  const createFn = mod.default?.createClient ?? mod.createClient;
+  if (!createFn) throw new Error('LDAP: failed to load ldapjs driver');
+  return createFn(opts);
+}
 
 async function withClient<T>(
   ctx: ForgeActionContext,
@@ -26,7 +36,7 @@ async function withClient<T>(
   if (!url) throw new Error('LDAP: url is required (e.g. ldap://host:389)');
   const bindDN = asString(ctx.options.bindDN);
   const bindPassword = asString(ctx.options.bindPassword);
-  const client = createClient({ url });
+  const client = await ldapCreateClient({ url });
   try {
     if (bindDN) {
       await new Promise<void>((resolve, reject) => {
@@ -45,7 +55,7 @@ async function bind(ctx: ForgeActionContext): Promise<ForgeActionResult> {
   const dn = asString(ctx.options.bindDN);
   if (!dn) throw new Error('LDAP: bindDN is required');
   const password = asString(ctx.options.bindPassword);
-  const client = createClient({ url });
+  const client = await ldapCreateClient({ url });
   try {
     await new Promise<void>((resolve, reject) => {
       client.bind(dn, password, (err) => (err ? reject(err) : resolve()));

@@ -1,0 +1,514 @@
+//! HTTP handlers for the ExpenseCategory entity.
+
+use axum::{
+    Json,
+    extract::{Path, Query, State},
+};
+use bson::{DateTime as BsonDateTime, Document, doc, oid::ObjectId};
+use chrono::Utc;
+use crm_common::{
+    audit::{audit_for_create, audit_for_delete, audit_for_update, write_audit},
+    pagination::{clamp_limit, skip_for},
+    search::build_q_filter,
+    tenant::user_oid,
+};
+use futures::TryStreamExt;
+use mongodb::options::FindOptions;
+use sabnode_auth::AuthUser;
+use sabnode_common::{ApiError, Result};
+use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
+use tracing::instrument;
+
+use crate::dto::{
+    CreateExpenseCategoryInput, CreateExpenseCategoryResponse, DeleteExpenseCategoryResponse,
+    ListQuery, UpdateExpenseCategoryInput,
+};
+use crate::types::CrmExpenseCategory;
+
+const COLL: &str = "crm_expense_categories";
+const ENTITY_KIND: &str = "expense_category";
+
+fn list_filter(
+    user_id: ObjectId,
+    status: Option<&str>,
+    is_active: Option<bool>,
+    is_billable: Option<bool>,
+    is_reimbursable: Option<bool>,
+    parent_id: Option<&str>,
+) -> Document {
+    let mut filter = doc! { "userId": user_id };
+    match status.unwrap_or("active") {
+        "all" => {}
+        "archived" => {
+            filter.insert("status", "archived");
+        }
+        _ => {
+            filter.insert("status", doc! { "$ne": "archived" });
+        }
+    }
+    if let Some(active) = is_active {
+        filter.insert("isActive", active);
+    }
+    if let Some(b) = is_billable {
+        filter.insert("isBillable", b);
+    }
+    if let Some(r) = is_reimbursable {
+        filter.insert("isReimbursable", r);
+    }
+    if let Some(p) = parent_id.map(str::trim).filter(|s| !s.is_empty()) {
+        if p.eq_ignore_ascii_case("none") || p.eq_ignore_ascii_case("null") {
+            // Match top-level (either missing field or explicit null).
+            filter.insert("parentId", doc! { "$in": [bson::Bson::Null] });
+        } else if let Ok(oid) = ObjectId::parse_str(p) {
+            filter.insert("parentId", oid);
+        }
+    }
+    filter
+}
+
+fn ownership_filter(user_id: ObjectId, oid: ObjectId) -> Document {
+    doc! { "_id": oid, "userId": user_id }
+}
+
+/// Non-archived doc with the same name for this tenant — used for unique-name
+/// enforcement on create and rename.
+fn duplicate_name_filter(user_id: ObjectId, name: &str, exclude: Option<ObjectId>) -> Document {
+    let mut filter = doc! {
+        "userId": user_id,
+        "name": name,
+        "status": { "$ne": "archived" },
+    };
+    if let Some(oid) = exclude {
+        filter.insert("_id", doc! { "$ne": oid });
+    }
+    filter
+}
+
+fn category_from_create(
+    input: CreateExpenseCategoryInput,
+    user_id: ObjectId,
+) -> Result<CrmExpenseCategory> {
+    let name = input.name.trim();
+    if name.is_empty() {
+        return Err(ApiError::Validation("name is required".to_owned()));
+    }
+    let parent = input
+        .parent_id
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty() && !s.eq_ignore_ascii_case("none") && !s.eq_ignore_ascii_case("null"))
+        .and_then(|s| ObjectId::parse_str(s).ok());
+    let default_account = input
+        .default_account_id
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+        .and_then(|s| ObjectId::parse_str(s).ok());
+    Ok(CrmExpenseCategory {
+        id: None,
+        user_id,
+        name: name.to_owned(),
+        code: input
+            .code
+            .map(|s| s.trim().to_owned())
+            .filter(|s| !s.is_empty()),
+        parent_id: parent,
+        description: input.description,
+        default_account_id: default_account,
+        tax_rate: input.tax_rate,
+        is_billable: input.is_billable.unwrap_or(false),
+        is_reimbursable: input.is_reimbursable.unwrap_or(true),
+        max_amount: input.max_amount,
+        requires_receipt_above: input.requires_receipt_above,
+        color: input.color,
+        icon: input.icon,
+        is_active: input.is_active.unwrap_or(true),
+        status: "active".to_owned(),
+        created_at: BsonDateTime::from_chrono(Utc::now()),
+        updated_at: None,
+    })
+}
+
+fn build_update_doc(patch: UpdateExpenseCategoryInput) -> Result<Document> {
+    let mut set = doc! { "updatedAt": BsonDateTime::from_chrono(Utc::now()) };
+    let mut unset = Document::new();
+
+    if let Some(v) = patch.name {
+        let trimmed = v.trim().to_owned();
+        if trimmed.is_empty() {
+            return Err(ApiError::Validation("name cannot be empty".to_owned()));
+        }
+        set.insert("name", trimmed);
+    }
+    if let Some(v) = patch.code {
+        let trimmed = v.trim().to_owned();
+        if trimmed.is_empty() {
+            unset.insert("code", "");
+        } else {
+            set.insert("code", trimmed);
+        }
+    }
+    if let Some(v) = patch.parent_id {
+        let trimmed = v.trim();
+        if trimmed.is_empty()
+            || trimmed.eq_ignore_ascii_case("none")
+            || trimmed.eq_ignore_ascii_case("null")
+        {
+            unset.insert("parentId", "");
+        } else if let Ok(oid) = ObjectId::parse_str(trimmed) {
+            set.insert("parentId", oid);
+        }
+    }
+    if let Some(v) = patch.description {
+        set.insert("description", v);
+    }
+    if let Some(v) = patch.default_account_id {
+        let trimmed = v.trim();
+        if trimmed.is_empty() || trimmed.eq_ignore_ascii_case("null") {
+            unset.insert("defaultAccountId", "");
+        } else if let Ok(oid) = ObjectId::parse_str(trimmed) {
+            set.insert("defaultAccountId", oid);
+        }
+    }
+    if let Some(v) = patch.tax_rate {
+        set.insert("taxRate", v);
+    }
+    if let Some(v) = patch.is_billable {
+        set.insert("isBillable", v);
+    }
+    if let Some(v) = patch.is_reimbursable {
+        set.insert("isReimbursable", v);
+    }
+    if let Some(v) = patch.max_amount {
+        set.insert("maxAmount", v);
+    }
+    if let Some(v) = patch.requires_receipt_above {
+        set.insert("requiresReceiptAbove", v);
+    }
+    if let Some(v) = patch.color {
+        set.insert("color", v);
+    }
+    if let Some(v) = patch.icon {
+        set.insert("icon", v);
+    }
+    if let Some(v) = patch.is_active {
+        set.insert("isActive", v);
+    }
+    if let Some(v) = patch.status {
+        set.insert("status", v);
+    }
+
+    let mut update = doc! { "$set": set };
+    if !unset.is_empty() {
+        update.insert("$unset", unset);
+    }
+    Ok(update)
+}
+
+fn doc_for_audit(entity: &CrmExpenseCategory) -> Document {
+    bson::to_document(entity).unwrap_or_default()
+}
+
+#[derive(Debug, Clone, serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ListResponse {
+    pub items: Vec<CrmExpenseCategory>,
+    pub page: u32,
+    pub limit: u32,
+    pub has_more: bool,
+}
+
+#[instrument(skip_all, fields(user_id = %user.user_id))]
+pub async fn list_categories(
+    user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Query(q): Query<ListQuery>,
+) -> Result<Json<ListResponse>> {
+    let user_id = user_oid(&user)?;
+    let mut filter = list_filter(
+        user_id,
+        q.status.as_deref(),
+        q.is_active,
+        q.is_billable,
+        q.is_reimbursable,
+        q.parent_id.as_deref(),
+    );
+    if let Some(needle) = q.q.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+        let or = build_q_filter(needle, &["name", "code", "description"]);
+        if let Ok(arr) = or.get_array("$or") {
+            filter.insert("$or", arr.clone());
+        }
+    }
+
+    let limit = clamp_limit(q.limit);
+    let skip = skip_for(q.page, limit);
+
+    let opts = FindOptions::builder()
+        .sort(doc! { "name": 1 })
+        .skip(skip)
+        .limit(limit + 1)
+        .build();
+
+    let coll = mongo.collection::<CrmExpenseCategory>(COLL);
+    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("crm_expense_categories.find"))
+    })?;
+    let mut rows: Vec<CrmExpenseCategory> = cursor.try_collect().await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("crm_expense_categories.collect"))
+    })?;
+
+    let has_more = rows.len() as i64 > limit;
+    if has_more {
+        rows.truncate(limit as usize);
+    }
+    Ok(Json(ListResponse {
+        items: rows,
+        page: q.page.unwrap_or(0),
+        limit: limit as u32,
+        has_more,
+    }))
+}
+
+#[instrument(skip_all, fields(user_id = %user.user_id, id = %category_id))]
+pub async fn get_category(
+    user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Path(category_id): Path<String>,
+) -> Result<Json<CrmExpenseCategory>> {
+    let user_id = user_oid(&user)?;
+    let oid = oid_from_str(&category_id)?;
+    let coll = mongo.collection::<CrmExpenseCategory>(COLL);
+    let row = coll
+        .find_one(ownership_filter(user_id, oid))
+        .await
+        .map_err(|e| {
+            ApiError::Internal(
+                anyhow::Error::new(e).context("crm_expense_categories.find_one"),
+            )
+        })?
+        .ok_or_else(|| ApiError::NotFound("expense_category".to_owned()))?;
+    Ok(Json(row))
+}
+
+#[instrument(skip_all, fields(user_id = %user.user_id))]
+pub async fn create_category(
+    user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Json(input): Json<CreateExpenseCategoryInput>,
+) -> Result<Json<CreateExpenseCategoryResponse>> {
+    let user_id = user_oid(&user)?;
+    let mut entity = category_from_create(input, user_id)?;
+
+    let coll = mongo.collection::<CrmExpenseCategory>(COLL);
+
+    // Unique-name guard (scoped to non-archived categories for this tenant).
+    let dup = coll
+        .find_one(duplicate_name_filter(user_id, &entity.name, None))
+        .await
+        .map_err(|e| {
+            ApiError::Internal(
+                anyhow::Error::new(e).context("crm_expense_categories.dup_check"),
+            )
+        })?;
+    if dup.is_some() {
+        return Err(ApiError::Validation(format!(
+            "expense category '{}' already exists",
+            entity.name
+        )));
+    }
+
+    let inserted = coll.insert_one(&entity).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("crm_expense_categories.insert"))
+    })?;
+    let new_id = inserted
+        .inserted_id
+        .as_object_id()
+        .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
+    entity.id = Some(new_id);
+
+    if let Some(event) =
+        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    {
+        write_audit(&mongo, event).await;
+    }
+
+    Ok(Json(CreateExpenseCategoryResponse {
+        id: new_id.to_hex(),
+        entity,
+    }))
+}
+
+#[instrument(skip_all, fields(user_id = %user.user_id, id = %category_id))]
+pub async fn update_category(
+    user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Path(category_id): Path<String>,
+    Json(patch): Json<UpdateExpenseCategoryInput>,
+) -> Result<Json<CrmExpenseCategory>> {
+    let user_id = user_oid(&user)?;
+    let oid = oid_from_str(&category_id)?;
+
+    let coll = mongo.collection::<CrmExpenseCategory>(COLL);
+    let before = coll
+        .find_one(ownership_filter(user_id, oid))
+        .await
+        .map_err(|e| {
+            ApiError::Internal(
+                anyhow::Error::new(e).context("crm_expense_categories.find_one"),
+            )
+        })?
+        .ok_or_else(|| ApiError::NotFound("expense_category".to_owned()))?;
+
+    // Validate name (non-empty + unique among non-archived categories excluding self).
+    if let Some(new_name) = patch.name.as_deref().map(str::trim) {
+        if new_name.is_empty() {
+            return Err(ApiError::Validation("name must not be empty".to_owned()));
+        }
+        if new_name != before.name {
+            let dup = coll
+                .find_one(duplicate_name_filter(user_id, new_name, Some(oid)))
+                .await
+                .map_err(|e| {
+                    ApiError::Internal(
+                        anyhow::Error::new(e).context("crm_expense_categories.dup_check"),
+                    )
+                })?;
+            if dup.is_some() {
+                return Err(ApiError::Validation(format!(
+                    "expense category '{new_name}' already exists"
+                )));
+            }
+        }
+    }
+
+    let update = build_update_doc(patch)?;
+    let result = coll
+        .update_one(ownership_filter(user_id, oid), update)
+        .await
+        .map_err(|e| {
+            ApiError::Internal(
+                anyhow::Error::new(e).context("crm_expense_categories.update"),
+            )
+        })?;
+    if result.matched_count == 0 {
+        return Err(ApiError::NotFound("expense_category".to_owned()));
+    }
+
+    let after = coll
+        .find_one(ownership_filter(user_id, oid))
+        .await
+        .map_err(|e| {
+            ApiError::Internal(
+                anyhow::Error::new(e).context("crm_expense_categories.refetch"),
+            )
+        })?
+        .ok_or_else(|| ApiError::NotFound("expense_category".to_owned()))?;
+
+    if let Some(event) = audit_for_update(
+        &user,
+        ENTITY_KIND,
+        oid,
+        Some(doc_for_audit(&before)),
+        Some(doc_for_audit(&after)),
+    ) {
+        write_audit(&mongo, event).await;
+    }
+
+    Ok(Json(after))
+}
+
+#[instrument(skip_all, fields(user_id = %user.user_id, id = %category_id))]
+pub async fn delete_category(
+    user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Path(category_id): Path<String>,
+) -> Result<Json<DeleteExpenseCategoryResponse>> {
+    let user_id = user_oid(&user)?;
+    let oid = oid_from_str(&category_id)?;
+
+    let coll = mongo.collection::<CrmExpenseCategory>(COLL);
+    let result = coll
+        .update_one(
+            ownership_filter(user_id, oid),
+            doc! { "$set": {
+                "status": "archived",
+                "isActive": false,
+                "updatedAt": BsonDateTime::from_chrono(Utc::now()),
+            }},
+        )
+        .await
+        .map_err(|e| {
+            ApiError::Internal(
+                anyhow::Error::new(e).context("crm_expense_categories.archive"),
+            )
+        })?;
+    if result.matched_count == 0 {
+        return Err(ApiError::NotFound("expense_category".to_owned()));
+    }
+
+    if let Some(event) = audit_for_delete(&user, ENTITY_KIND, oid) {
+        write_audit(&mongo, event).await;
+    }
+
+    Ok(Json(DeleteExpenseCategoryResponse { deleted: true }))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn list_filter_excludes_archived_by_default() {
+        let oid = ObjectId::new();
+        let f = list_filter(oid, None, None, None, None, None);
+        let status = f.get_document("status").unwrap();
+        assert_eq!(status.get_str("$ne").unwrap(), "archived");
+    }
+
+    #[test]
+    fn category_from_create_defaults_status_billable_reimbursable() {
+        let user_id = ObjectId::new();
+        let input = CreateExpenseCategoryInput {
+            name: "  Travel  ".into(),
+            ..Default::default()
+        };
+        let c = category_from_create(input, user_id).unwrap();
+        // Name is trimmed.
+        assert_eq!(c.name, "Travel");
+        assert_eq!(c.status, "active");
+        assert!(c.is_active);
+        // Default: not billable, but reimbursable.
+        assert!(!c.is_billable);
+        assert!(c.is_reimbursable);
+    }
+
+    #[test]
+    fn category_from_create_rejects_empty_name() {
+        let user_id = ObjectId::new();
+        let input = CreateExpenseCategoryInput {
+            name: "   ".into(),
+            ..Default::default()
+        };
+        assert!(category_from_create(input, user_id).is_err());
+    }
+
+    #[test]
+    fn duplicate_name_filter_scopes_to_user_and_excludes_archived() {
+        let user_id = ObjectId::new();
+        let f = duplicate_name_filter(user_id, "Travel", None);
+        assert_eq!(f.get_object_id("userId").unwrap(), user_id);
+        assert_eq!(f.get_str("name").unwrap(), "Travel");
+        let status = f.get_document("status").unwrap();
+        assert_eq!(status.get_str("$ne").unwrap(), "archived");
+        assert!(!f.contains_key("_id"));
+    }
+
+    #[test]
+    fn duplicate_name_filter_excludes_self_when_renaming() {
+        let user_id = ObjectId::new();
+        let self_id = ObjectId::new();
+        let f = duplicate_name_filter(user_id, "Travel", Some(self_id));
+        let id_clause = f.get_document("_id").unwrap();
+        assert_eq!(id_clause.get_object_id("$ne").unwrap(), self_id);
+    }
+}

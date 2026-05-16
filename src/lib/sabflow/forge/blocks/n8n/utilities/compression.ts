@@ -11,8 +11,6 @@
  *   - gunzip  base64(gzip) → text
  */
 
-import { gunzipSync, gzipSync } from 'node:zlib';
-
 import { registerForgeBlock } from '../../../registry';
 import type {
   ForgeActionContext,
@@ -22,6 +20,7 @@ import type {
 import { asString } from '../_shared/http';
 
 async function gzip(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const { gzipSync } = await import('node:zlib');
   const text = asString(ctx.options.text);
   if (!text) throw new Error('Compression: text is required');
   const buf = gzipSync(Buffer.from(text, 'utf8'));
@@ -32,6 +31,7 @@ async function gzip(ctx: ForgeActionContext): Promise<ForgeActionResult> {
 }
 
 async function gunzip(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const { gunzipSync } = await import('node:zlib');
   const b64 = asString(ctx.options.base64);
   if (!b64) throw new Error('Compression: base64 is required');
   const buf = gunzipSync(Buffer.from(b64, 'base64'));
