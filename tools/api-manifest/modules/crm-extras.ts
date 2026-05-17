@@ -9,7 +9,7 @@
  */
 
 import type { EndpointSpec } from '../types';
-import { crudResource } from '../crud-template';
+import { crudExtendedResource } from '../crud-extended';
 
 const c = (
   resource: string,
@@ -18,7 +18,7 @@ const c = (
   scopeFamily: string,
   options: Partial<{ idParam: string; display: string; tier: 'FREE' | 'PRO' | 'ENTERPRISE' }> = {},
 ): EndpointSpec[] =>
-  crudResource({
+  crudExtendedResource({
     module: 'crm',
     resource,
     basePath,

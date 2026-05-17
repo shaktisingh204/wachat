@@ -23,3 +23,9 @@ import './abandoned-cart';
 import './ad-spend-alert';
 import './welcome-onboarding';
 import './payment-received';
+// Step 23 — additional seed-pack recipes.
+import './openai-qa-bot';
+import './newsletter-signup';
+import './customer-feedback-survey';
+import './appointment-scheduler';
+import './support-escalation';

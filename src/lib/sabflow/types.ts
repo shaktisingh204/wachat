@@ -1347,6 +1347,23 @@ export type FlowSettings = {
   /** Raw CSS injected into the full-page embed. */
   customCss?: string;
 
+  /* ── Concurrency / throttling ─────────────────────── */
+  /**
+   * Maximum number of in-flight runs allowed for this flow at any moment.
+   * When `undefined` or `0` the runner does not throttle.  When exceeded
+   * the runner either queues the run (default) or drops it depending on
+   * `onConcurrencyExceeded`.
+   */
+  maxConcurrentRuns?: number;
+  /**
+   * Maximum total runs (queued + in-flight).  Surplus runs are rejected
+   * with `concurrency_limit_exceeded`.  When `undefined` the queue is
+   * unbounded — only useful with a `maxConcurrentRuns` cap.
+   */
+  maxQueuedRuns?: number;
+  /** What to do when `maxConcurrentRuns` is reached. */
+  onConcurrencyExceeded?: 'queue' | 'reject';
+
   /* ── Legacy / misc keys kept for back-compat ─────── */
   customHeadScript?: string;
   [key: string]: unknown;
@@ -1402,9 +1419,37 @@ export type SabFlowDoc = {
   settings: FlowSettings;
   publicId?: string;
   status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
+  /**
+   * Free-text tags for organisation + cross-flow search.  Lower-case, no
+   * whitespace — UI normalises on input.  Optional and additive: existing
+   * flows without tags continue to load.
+   */
+  tags?: string[];
+  /**
+   * Optional folder grouping.  Folders live in a sibling `sabflow_folders`
+   * collection — when null/undefined the flow is at the workspace root.
+   */
+  folderId?: string;
   createdAt: Date;
   updatedAt: Date;
 };
+
+/* ── SabFlow folder ───────────────────────────────────── */
+
+/**
+ * Folder groupings for the flow-list page.  Flat (no nesting) — folders are
+ * a thin organisation aid, not a permissions boundary.
+ */
+export interface SabFlowFolder {
+  _id?: ObjectId;
+  userId: string;
+  /** Display name shown in the sidebar / dropdown. */
+  name: string;
+  /** Optional colour swatch used by the sidebar chip. */
+  color?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 /* ── Notification settings ────────────────────────────── */
 
@@ -1420,6 +1465,18 @@ export type FlowNotificationSettings = {
   digestFrequency: 'daily' | 'weekly';
   /** HH:mm string e.g. "09:00" */
   digestTime?: string;
+  /* ── Failure alerting ─────────────────────────────── */
+  /** Fire an email when an execution ends with `status === 'error'`. */
+  alertOnFailure?: boolean;
+  /** Recipients for the failure email — defaults to `emailAddresses` when empty. */
+  failureEmailAddresses?: string[];
+  /** Slack incoming-webhook URL — posts a formatted message on failure. */
+  failureSlackWebhook?: string;
+  /**
+   * Throttle: minimum minutes between alerts for the same flow.  Prevents
+   * a stuck flow from sending hundreds of emails.  Default 5.
+   */
+  failureAlertCooldownMinutes?: number;
 };
 
 /* ── Recent activity ──────────────────────────────────── */

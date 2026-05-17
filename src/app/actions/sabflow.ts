@@ -46,6 +46,8 @@ export async function listSabFlows(projectId?: string) {
           edges: 1,
           createdAt: 1,
           updatedAt: 1,
+          tags: 1,
+          folderId: 1,
         },
       })
       .sort({ updatedAt: -1 })

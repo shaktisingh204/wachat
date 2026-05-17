@@ -28,6 +28,79 @@ const GENESIS_HASH =
 /* ── Helpers ────────────────────────────────────────────────────────── */
 
 /**
+ * Recursively project any input into a JSON-safe, deterministically
+ * key-sorted structure suitable for storage as the `before` / `after`
+ * payload of an audit row.
+ *
+ * Rules (mirrors `__tests__/audit-diff-normalize.test.ts`):
+ *  • `ObjectId` (or any `{ toHexString(): string }` duck) → hex string
+ *  • `Date` → ISO-8601 string (invalid date → `null`)
+ *  • `bigint` → decimal string
+ *  • non-finite numbers (`NaN` / `±Infinity`) → `null`
+ *  • `undefined` object property → dropped
+ *  • `undefined` array element → preserved as `null`
+ *  • object keys sorted alphabetically at every level
+ *  • array element order preserved
+ *
+ * Pure — safe to import from any context (no Mongo, no I/O).
+ */
+export function normalizeAuditDiff(value: unknown): unknown {
+    // ObjectId / ObjectId-like duck.
+    if (
+        value &&
+        typeof value === 'object' &&
+        typeof (value as { toHexString?: unknown }).toHexString === 'function'
+    ) {
+        try {
+            return (value as { toHexString: () => string }).toHexString();
+        } catch {
+            return null;
+        }
+    }
+
+    // Date (or anything that strictly identifies as a Date).
+    if (value instanceof Date) {
+        const t = value.getTime();
+        return Number.isFinite(t) ? value.toISOString() : null;
+    }
+
+    // bigint.
+    if (typeof value === 'bigint') {
+        return value.toString(10);
+    }
+
+    // Numbers — guard non-finite.
+    if (typeof value === 'number') {
+        return Number.isFinite(value) ? value : null;
+    }
+
+    // Primitives & null pass through.
+    if (value === null || typeof value !== 'object') {
+        // `undefined` is handled by callers (dropped vs. preserved-as-null).
+        return value === undefined ? undefined : value;
+    }
+
+    // Arrays — preserve order, normalize each, undefined → null.
+    if (Array.isArray(value)) {
+        return value.map((v) => {
+            const n = normalizeAuditDiff(v);
+            return n === undefined ? null : n;
+        });
+    }
+
+    // Plain object — alphabetize keys, drop `undefined` values.
+    const src = value as Record<string, unknown>;
+    const keys = Object.keys(src).sort();
+    const out: Record<string, unknown> = {};
+    for (const k of keys) {
+        const n = normalizeAuditDiff(src[k]);
+        if (n === undefined) continue;
+        out[k] = n;
+    }
+    return out;
+}
+
+/**
  * Produce a stable JSON encoding suitable for hashing.  Keys are
  * sorted recursively so the same logical document always hashes to
  * the same value regardless of insertion order.

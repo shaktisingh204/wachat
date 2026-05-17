@@ -21,6 +21,7 @@ import {
   useCallback,
   useRef,
   useEffect,
+  useMemo,
   type FormEvent,
 } from 'react';
 import type {
@@ -995,6 +996,49 @@ export function FlowPreviewPanel({ flow, onClose }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  /*
+   * Live mode — debounced auto-restart whenever the flow doc changes.
+   * Opt-in (off by default) so users typing into a text bubble don't keep
+   * losing their place mid-conversation.  When enabled, every edit that
+   * changes the structural signature (groups + blocks + edges + variables)
+   * schedules a restart 700 ms after the last keystroke.
+   */
+  const [liveMode, setLiveMode] = useState(false);
+  const flowSignature = useMemo(
+    () =>
+      JSON.stringify({
+        g: flow.groups.map((g) => ({
+          id: g.id,
+          blocks: g.blocks.map((b) => ({
+            id: b.id,
+            type: b.type,
+            options: b.options,
+            items: b.items,
+          })),
+        })),
+        e: flow.edges.map((e) => ({ id: e.id, from: e.from, to: e.to })),
+        v: flow.variables,
+      }),
+    [flow.groups, flow.edges, flow.variables],
+  );
+  const liveModeRef = useRef(false);
+  liveModeRef.current = liveMode;
+  const isFirstSignature = useRef(true);
+  useEffect(() => {
+    if (isFirstSignature.current) {
+      isFirstSignature.current = false;
+      return;
+    }
+    if (!liveModeRef.current) return;
+    const t = setTimeout(() => {
+      // Only restart if the user hasn't started typing into an input — avoid
+      // yanking the conversation out from under them mid-keystroke.
+      if (textValue) return;
+      startSimulator();
+    }, 700);
+    return () => clearTimeout(t);
+  }, [flowSignature, startSimulator, textValue]);
+
   /* ── Submit user input ──────────────────────────────── */
   const submitInput = useCallback(
     (inputValue: string) => {
@@ -1140,6 +1184,30 @@ export function FlowPreviewPanel({ flow, onClose }: Props) {
         >
           <LuTerminal className="h-3.5 w-3.5" strokeWidth={2} />
           Debug
+        </button>
+
+        {/* Live mode toggle — auto-restart on flow edits when on. */}
+        <button
+          onClick={() => setLiveMode((v) => !v)}
+          title={
+            liveMode
+              ? 'Live mode on — preview auto-restarts on edits'
+              : 'Enable live mode to auto-restart on edits'
+          }
+          className={cn(
+            'flex h-7 items-center gap-1.5 rounded-lg px-2.5 text-[12px] font-medium transition-colors',
+            liveMode
+              ? 'bg-green-500/15 text-green-600 border border-green-500/40 dark:text-green-400'
+              : 'border border-[var(--gray-5)] text-[var(--gray-11)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]',
+          )}
+        >
+          <span
+            className={cn(
+              'inline-block h-1.5 w-1.5 rounded-full',
+              liveMode ? 'bg-green-500 animate-pulse' : 'bg-[var(--gray-7)]',
+            )}
+          />
+          Live
         </button>
 
         {/* Restart */}

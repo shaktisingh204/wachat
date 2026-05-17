@@ -16,11 +16,12 @@
  */
 
 import type { EndpointSpec } from '../types';
+import { crudExtendedResource } from '../crud-extended';
 import { crudResource } from '../crud-template';
 
 export const marketingEndpoints: ReadonlyArray<EndpointSpec> = [
   /* ── Ad Manager ───────────────────────────────────────────────────────── */
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'ad-manager',
     resource: 'campaigns',
     basePath: '/ad-manager/campaigns',
@@ -29,7 +30,7 @@ export const marketingEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeWrite: 'ads:write',
     emits: { create: 'ads.campaign.created' },
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'ad-manager',
     resource: 'ad-sets',
     basePath: '/ad-manager/ad-sets',
@@ -38,7 +39,7 @@ export const marketingEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeWrite: 'ads:write',
     idParam: 'adSetId',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'ad-manager',
     resource: 'ads',
     basePath: '/ad-manager/ads',
@@ -46,7 +47,7 @@ export const marketingEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeRead: 'ads:read',
     scopeWrite: 'ads:write',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'ad-manager',
     resource: 'audiences',
     basePath: '/ad-manager/audiences',
@@ -65,7 +66,7 @@ export const marketingEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeWrite: 'facebook:write',
     verbs: ['list', 'get'],
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'facebook',
     resource: 'posts',
     basePath: '/facebook/posts',
@@ -85,7 +86,7 @@ export const marketingEndpoints: ReadonlyArray<EndpointSpec> = [
   }),
 
   /* ── Instagram ────────────────────────────────────────────────────────── */
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'instagram',
     resource: 'posts',
     basePath: '/instagram/posts',
@@ -104,7 +105,7 @@ export const marketingEndpoints: ReadonlyArray<EndpointSpec> = [
   }),
 
   /* ── Utilities ────────────────────────────────────────────────────────── */
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'qr-codes',
     resource: 'qr-codes',
     basePath: '/qr-codes',
@@ -114,7 +115,7 @@ export const marketingEndpoints: ReadonlyArray<EndpointSpec> = [
     idParam: 'qrCodeId',
     emits: { create: 'qr.code.created' },
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'url-shortener',
     resource: 'links',
     basePath: '/url-shortener/links',

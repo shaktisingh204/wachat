@@ -1,6 +1,7 @@
 //! On-disk shape of a `crm_delivery_challans` document.
 
 use bson::{DateTime as BsonDateTime, oid::ObjectId};
+use crm_core::LineageRef;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -53,6 +54,12 @@ pub struct CrmDeliveryChallan {
     /// `"Draft"` | `"Issued"` | `"Delivered"` | `"Cancelled"` | `"archived"`.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub status: Option<String>,
+
+    /// §13.5 lineage chain — `[Lead, Deal, Quotation, SalesOrder, …]`
+    /// inherited from the parent at convert time. Empty on freestanding
+    /// challans (created without a `fromKind`/`fromId`).
+    #[serde(default)]
+    pub lineage: Vec<LineageRef>,
 
     #[serde(rename = "createdAt")]
     pub created_at: BsonDateTime,

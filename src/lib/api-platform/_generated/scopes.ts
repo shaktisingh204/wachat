@@ -11,6 +11,10 @@ export type OAuthScope =
   | 'billing:read'
   | 'broadcasts:read'
   | 'broadcasts:write'
+  | 'builder:read'
+  | 'builder:write'
+  | 'calls:read'
+  | 'calls:write'
   | 'contacts:read'
   | 'contacts:write'
   | 'crm:accounting:read'
@@ -47,27 +51,53 @@ export type OAuthScope =
   | 'crm:settings:write'
   | 'crm:support:read'
   | 'crm:support:write'
+  | 'email:read'
+  | 'email:send'
+  | 'email:write'
+  | 'embed:read'
+  | 'embed:write'
   | 'facebook:read'
   | 'facebook:write'
   | 'instagram:read'
   | 'instagram:write'
+  | 'integrations:read'
+  | 'integrations:write'
   | 'keys:read'
   | 'keys:write'
   | 'me:read'
   | 'messages:read'
   | 'messages:write'
+  | 'meta:read'
+  | 'meta:write'
+  | 'notifications:read'
+  | 'notifications:send'
+  | 'notifications:write'
   | 'oauth:apps:read'
   | 'oauth:apps:write'
+  | 'portfolio:read'
+  | 'portfolio:write'
+  | 'projects:read'
+  | 'projects:write'
   | 'qr:read'
   | 'qr:write'
+  | 'sabchat:read'
+  | 'sabchat:write'
   | 'sabfiles:read'
   | 'sabfiles:write'
+  | 'sabwa:read'
+  | 'sabwa:write'
+  | 'seo:read'
+  | 'seo:write'
+  | 'shop:read'
+  | 'shop:write'
   | 'telegram:read'
   | 'telegram:write'
   | 'templates:read'
   | 'templates:write'
   | 'urls:read'
   | 'urls:write'
+  | 'wachat:read'
+  | 'wachat:write'
   | 'webhooks:read'
   | 'webhooks:write';
 
@@ -78,6 +108,10 @@ export const ALL_SCOPES: ReadonlyArray<OAuthScope> = [
   'billing:read',
   'broadcasts:read',
   'broadcasts:write',
+  'builder:read',
+  'builder:write',
+  'calls:read',
+  'calls:write',
   'contacts:read',
   'contacts:write',
   'crm:accounting:read',
@@ -114,27 +148,53 @@ export const ALL_SCOPES: ReadonlyArray<OAuthScope> = [
   'crm:settings:write',
   'crm:support:read',
   'crm:support:write',
+  'email:read',
+  'email:send',
+  'email:write',
+  'embed:read',
+  'embed:write',
   'facebook:read',
   'facebook:write',
   'instagram:read',
   'instagram:write',
+  'integrations:read',
+  'integrations:write',
   'keys:read',
   'keys:write',
   'me:read',
   'messages:read',
   'messages:write',
+  'meta:read',
+  'meta:write',
+  'notifications:read',
+  'notifications:send',
+  'notifications:write',
   'oauth:apps:read',
   'oauth:apps:write',
+  'portfolio:read',
+  'portfolio:write',
+  'projects:read',
+  'projects:write',
   'qr:read',
   'qr:write',
+  'sabchat:read',
+  'sabchat:write',
   'sabfiles:read',
   'sabfiles:write',
+  'sabwa:read',
+  'sabwa:write',
+  'seo:read',
+  'seo:write',
+  'shop:read',
+  'shop:write',
   'telegram:read',
   'telegram:write',
   'templates:read',
   'templates:write',
   'urls:read',
   'urls:write',
+  'wachat:read',
+  'wachat:write',
   'webhooks:read',
   'webhooks:write',
 ] as const;

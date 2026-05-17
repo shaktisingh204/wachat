@@ -5,10 +5,10 @@
  */
 
 import type { EndpointSpec } from '../types';
-import { crudResource } from '../crud-template';
+import { crudExtendedResource } from '../crud-extended';
 
 export const crmInventoryEndpoints: ReadonlyArray<EndpointSpec> = [
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'items',
     basePath: '/crm/items',
@@ -16,7 +16,7 @@ export const crmInventoryEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeRead: 'crm:inventory:read',
     scopeWrite: 'crm:inventory:write',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'warehouses',
     basePath: '/crm/warehouses',
@@ -24,7 +24,7 @@ export const crmInventoryEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeRead: 'crm:inventory:read',
     scopeWrite: 'crm:inventory:write',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'stock-adjustments',
     basePath: '/crm/stock-adjustments',
@@ -33,7 +33,7 @@ export const crmInventoryEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeWrite: 'crm:inventory:write',
     idParam: 'stockAdjustmentId',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'brands',
     basePath: '/crm/brands',
@@ -41,7 +41,7 @@ export const crmInventoryEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeRead: 'crm:inventory:read',
     scopeWrite: 'crm:inventory:write',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'product-categories',
     basePath: '/crm/product-categories',
@@ -50,7 +50,7 @@ export const crmInventoryEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeWrite: 'crm:inventory:write',
     idParam: 'productCategoryId',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'products',
     basePath: '/crm/products',
@@ -58,7 +58,7 @@ export const crmInventoryEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeRead: 'crm:inventory:read',
     scopeWrite: 'crm:inventory:write',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'fixed-assets',
     basePath: '/crm/fixed-assets',
@@ -67,7 +67,7 @@ export const crmInventoryEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeWrite: 'crm:accounting:write',
     idParam: 'fixedAssetId',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'bom',
     basePath: '/crm/bom',
@@ -77,7 +77,7 @@ export const crmInventoryEndpoints: ReadonlyArray<EndpointSpec> = [
     idParam: 'bomId',
     display: 'BOM entries',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'production-orders',
     basePath: '/crm/production-orders',

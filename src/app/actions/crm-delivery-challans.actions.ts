@@ -117,6 +117,58 @@ export async function saveDeliveryChallan(prevState: any, formData: FormData): P
             return { error: 'Challan number, client, and at least one item are required.' };
         }
 
+        // §13.5 lineage hints — pulled once so both code paths (Rust /
+        // Mongo fallback) can forward them. The Rust handler now owns
+        // the parent lookup + chain build, so the action no longer has
+        // to duplicate that logic on the create path.
+        const fromKindRaw = (formData.get('fromKind') as string | null) || null;
+        const fromId = (formData.get('fromId') as string | null) || null;
+        const ALLOWED_PARENT_KINDS: LineageKind[] = ['salesOrder', 'invoice', 'quotation'];
+        const fromKind: 'salesOrder' | 'invoice' | 'quotation' | null =
+            fromKindRaw && ALLOWED_PARENT_KINDS.includes(fromKindRaw as LineageKind)
+                ? (fromKindRaw as 'salesOrder' | 'invoice' | 'quotation')
+                : null;
+
+        // ── Rust path (create only — update still goes through Mongo
+        // for now, since the Rust update handler does not own lineage).
+        // The Rust handler reads `fromKind`/`fromId` and stamps the
+        // lineage chain on the new DC inside the same insert, replacing
+        // the old post-create Mongo back-fill in this action.
+        if (!id && useRustCrm()) {
+            try {
+                const challanDateRaw = formData.get('challanDate') as string;
+                const challanDateIso = challanDateRaw
+                    ? new Date(challanDateRaw).toISOString()
+                    : new Date().toISOString();
+                const created = await crmDeliveryChallansApi.create({
+                    challanNumber: challanData.challanNumber,
+                    accountId: challanData.accountId?.toString(),
+                    challanDate: challanDateIso,
+                    lineItems: lineItems,
+                    reason: challanData.reason || undefined,
+                    transportDetails: challanData.transportDetails,
+                    notes: challanData.notes || undefined,
+                    ...(fromKind && fromId && ObjectId.isValid(fromId)
+                        ? { fromKind, fromId }
+                        : {}),
+                });
+                revalidatePath('/dashboard/crm/sales/delivery');
+                return {
+                    message: 'Delivery Challan saved successfully.',
+                    id: created.id,
+                };
+            } catch (e) {
+                console.error('[saveDeliveryChallan] rust path failed; falling back:', e);
+                recordRustFallback({
+                    entity: 'delivery_challan',
+                    op: 'create',
+                    errorCode: e instanceof RustApiError ? e.code : undefined,
+                    status: e instanceof RustApiError ? e.status : undefined,
+                });
+                // fall through to Mongo path
+            }
+        }
+
         const { db } = await connectToDatabase();
 
         // PATCH branch — when the form ships a hidden `_id`, update in place.
@@ -142,16 +194,12 @@ export async function saveDeliveryChallan(prevState: any, formData: FormData): P
             return { message: 'Delivery Challan updated.', id };
         }
 
-        // Lineage seeding (crm_function_plan.md §13.5). The form may
-        // optionally pass `fromKind` + `fromId` when a delivery challan
-        // is created in the context of a parent doc (typically a Sales
-        // Order, Invoice, or Quotation). Both fields are optional, so
-        // existing flows keep working unchanged.
+        // Mongo-fallback lineage seeding. Only reached when the Rust
+        // path is disabled or failed — the Rust handler owns the
+        // canonical implementation in
+        // `crm-delivery-challans::seed_lineage_from_parent`.
         let lineage: LineageRef[] | undefined;
-        const fromKind = (formData.get('fromKind') as string | null) || null;
-        const fromId = (formData.get('fromId') as string | null) || null;
-        const ALLOWED_PARENT_KINDS: LineageKind[] = ['salesOrder', 'invoice', 'quotation'];
-        if (fromKind && fromId && ALLOWED_PARENT_KINDS.includes(fromKind as LineageKind) && ObjectId.isValid(fromId)) {
+        if (fromKind && fromId && ObjectId.isValid(fromId)) {
             const parentCollection: Record<string, string> = {
                 salesOrder: 'crm_sales_orders',
                 invoice: 'crm_invoices',

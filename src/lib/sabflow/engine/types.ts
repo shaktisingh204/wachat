@@ -13,6 +13,14 @@ export type ExecutionStep = {
   input?: string;
   output?: string;
   timestamp: Date;
+  /** When the block started executing (Step 22 trace capture). */
+  startedAt?: Date;
+  /** Total wall-clock time the block took to complete, in ms. */
+  durationMs?: number;
+  /** Per-step status — drives the replay timeline icons. */
+  status?: 'success' | 'error' | 'skipped' | 'waiting';
+  /** Error message when the block threw. */
+  error?: string;
 };
 
 export type ExecutionResult = {

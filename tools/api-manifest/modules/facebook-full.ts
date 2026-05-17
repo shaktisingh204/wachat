@@ -4,7 +4,7 @@
  */
 
 import type { EndpointSpec } from '../types';
-import { crudResource } from '../crud-template';
+import { crudExtendedResource } from '../crud-extended';
 
 const f = (
   resource: string,
@@ -12,7 +12,7 @@ const f = (
   rustPath: string,
   options: Partial<{ idParam: string; display: string }> = {},
 ): EndpointSpec[] =>
-  crudResource({
+  crudExtendedResource({
     module: 'facebook',
     resource,
     basePath,

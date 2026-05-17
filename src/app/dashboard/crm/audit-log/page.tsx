@@ -1,63 +1,57 @@
-import { ObjectId } from 'mongodb';
+import {
+  getAuditLogEntries,
+  type AuditLogQuery,
+  type AuditLogRow,
+} from '@/app/actions/crm-audit-log.actions';
+import { AuditLogBrowser } from './_components/audit-log-browser';
 
-import { getSession } from '@/app/actions/user.actions';
-import { connectToDatabase } from '@/lib/mongodb';
-import { AuditLogBrowser, type AuditLogRow } from './_components/audit-log-browser';
+/**
+ * /dashboard/crm/audit-log — §5.5 audit-log viewer.
+ *
+ * Supports URL-driven filter chips (entityKind, actorId, action,
+ * from, to, search). CSV export is wired through the
+ * `exportAuditLogCsv` server action invoked from the client (see
+ * `audit-log-browser.tsx`) — the `?export=csv` URL flag, when present,
+ * triggers that download on mount.
+ *
+ * The audit document shape is owned by `writeAuditEntry` and is NOT
+ * mutated here.
+ */
 
-interface RawAuditDoc {
-  _id?: { toString(): string } | string;
-  createdAt?: string | Date;
-  actorId?: { toString(): string } | string;
-  actorName?: string;
-  action?: string;
-  entityKind?: string;
-  entityId?: { toString(): string } | string;
-  reason?: string | null;
-  diff?: Record<string, { before?: unknown; after?: unknown }> | null;
-  ip?: string;
+type RawSp = Record<string, string | string[] | undefined>;
+
+function firstStr(v: string | string[] | undefined): string | undefined {
+  if (v === undefined) return undefined;
+  return Array.isArray(v) ? v[0] : v;
 }
 
-function toStr(v: { toString(): string } | string | undefined): string | undefined {
-  if (v == null) return undefined;
-  return typeof v === 'string' ? v : v.toString();
+function toQuery(sp: RawSp): AuditLogQuery {
+  return {
+    entityKind: firstStr(sp.entityKind),
+    actorId: firstStr(sp.actorId),
+    action: firstStr(sp.action),
+    from: firstStr(sp.from),
+    to: firstStr(sp.to),
+    search: firstStr(sp.search),
+  };
 }
 
-export default async function AuditLogPage() {
-  const session = await getSession();
-  let rows: AuditLogRow[] = [];
+export default async function AuditLogPage({
+  searchParams,
+}: {
+  searchParams: Promise<RawSp>;
+}) {
+  const sp = await searchParams;
+  const query = toQuery(sp);
+  const autoExport = firstStr(sp.export) === 'csv';
 
-  if (session?.user?._id) {
-    try {
-      const { db } = await connectToDatabase();
-      const userObjectId = new ObjectId(session.user._id as string);
-      const docs = (await db
-        .collection('crm_audit_log')
-        .find({ userId: userObjectId } as Record<string, unknown>)
-        .sort({ createdAt: -1 })
-        .limit(500)
-        .toArray()) as RawAuditDoc[];
+  const rows: AuditLogRow[] = await getAuditLogEntries(query);
 
-      rows = docs.map((d, idx) => ({
-        _id: toStr(d._id) ?? String(idx),
-        createdAt:
-          d.createdAt instanceof Date
-            ? d.createdAt.toISOString()
-            : typeof d.createdAt === 'string'
-              ? d.createdAt
-              : undefined,
-        actorId: toStr(d.actorId),
-        actorName: d.actorName,
-        action: d.action,
-        entityKind: d.entityKind,
-        entityId: toStr(d.entityId),
-        reason: d.reason ?? null,
-        diff: d.diff ?? null,
-        ip: d.ip,
-      }));
-    } catch (e) {
-      console.error('Failed to load crm_audit_log:', e);
-    }
-  }
-
-  return <AuditLogBrowser entries={rows} />;
+  return (
+    <AuditLogBrowser
+      entries={rows}
+      initialQuery={query}
+      autoExportCsv={autoExport}
+    />
+  );
 }

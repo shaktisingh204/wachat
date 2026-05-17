@@ -3,24 +3,52 @@
  *
  * Server component shell. When invoked with `?fromKind=salesOrder&fromId=…`
  * (the canonical SO→DC conversion path) it hydrates the parent sales
- * order and seeds the form with customer + line items + a back-link
- * via `fromKind`/`fromId` for the action's lineage logic.
+ * order via `getCrmEntityForPrefill` and seeds the form with customer
+ * + line items + a back-link via `fromKind`/`fromId` for the action's
+ * lineage logic.
  *
  * `fromKind=invoice` and `fromKind=quotation` also flow through (the
- * action layer already accepts those parent kinds).
+ * action layer already accepts those parent kinds); we only pre-fill
+ * the seed for `salesOrder` today — the other kinds still pass their
+ * lineage tuple through to the action.
  */
 
 import { Truck } from 'lucide-react';
 
 import { CrmPageHeader } from '../../../_components/crm-page-header';
 import { DeliveryForm, type DeliveryFormSeed } from '../_components/delivery-form';
-import { getSalesOrder } from '@/app/actions/crm/sales-orders.actions';
+import { getCrmEntityForPrefill } from '@/lib/crm/convert-with-prefill';
+import type { CrmSalesOrderDoc } from '@/lib/rust-client/crm-sales-orders';
 
 export const dynamic = 'force-dynamic';
 
 interface NewDcSearch {
   fromKind?: string;
   fromId?: string;
+}
+
+/** Project a parent sales order into the delivery-form seed shape. */
+function salesOrderToDeliverySeed(
+  order: CrmSalesOrderDoc,
+  fromId: string,
+): DeliveryFormSeed {
+  const ship = (order.shippingAddress as
+    | { line1?: string; city?: string; state?: string; postalCode?: string; country?: string }
+    | undefined) ?? undefined;
+  return {
+    soRef: fromId,
+    clientId: order.clientId,
+    items: (order.items ?? [])
+      .filter((li) => (li.qtyPending ?? li.qty) > 0)
+      .map((li) => ({
+        itemId: li.itemId,
+        name: li.description ?? '',
+        hsnCode: li.hsnSac,
+        unit: li.unit,
+        quantity: li.qtyPending ?? li.qty,
+      })),
+    shipTo: ship,
+  };
 }
 
 export default async function NewDeliveryChallanPage({
@@ -35,29 +63,9 @@ export default async function NewDeliveryChallanPage({
   let seed: DeliveryFormSeed | undefined;
 
   if (fromKind === 'salesOrder' && fromId) {
-    try {
-      const { order } = await getSalesOrder(fromId);
-      if (order) {
-        const ship = (order.shippingAddress as
-          | { line1?: string; city?: string; state?: string; postalCode?: string; country?: string }
-          | undefined) ?? undefined;
-        seed = {
-          soRef: fromId,
-          clientId: order.clientId,
-          items: (order.items ?? [])
-            .filter((li) => (li.qtyPending ?? li.qty) > 0)
-            .map((li) => ({
-              itemId: li.itemId,
-              name: li.description ?? '',
-              hsnCode: li.hsnSac,
-              unit: li.unit,
-              quantity: li.qtyPending ?? li.qty,
-            })),
-          shipTo: ship,
-        };
-      }
-    } catch {
-      // ignore — fall through with no seed
+    const parent = await getCrmEntityForPrefill<CrmSalesOrderDoc>(fromKind, fromId);
+    if (parent) {
+      seed = salesOrderToDeliverySeed(parent, fromId);
     }
   }
 

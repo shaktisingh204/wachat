@@ -15,3 +15,15 @@ Every file in SabNode lives in SabFiles. NEVER expose a free-text URL paste for 
 ## SabWa engine
 
 SabWa's personal-WhatsApp backend is **`services/sabwa-node/`** — a Node.js + Express + Baileys service on port 4001. The Next.js side talks to it through `src/lib/sabwa/engine-client.ts` with `SABWA_ENGINE_URL` + `SABWA_ENGINE_TOKEN`. PM2 app name: `sabwa-node`. Required env: `SABWA_JWT_SECRET`, `AUTH_STATE_KEY`. The previous Rust crate `services/sabwa-engine/` (with its Node sidecar) is deprecated — do not edit it; all new work goes in `services/sabwa-node/`. See `CHANGELOG-sabwa-rust-to-node.md`.
+
+## Deployment platform — Vercel (native, not integration)
+
+SabNode **IS a Vercel project**, deployed on Vercel. It is not a project that *integrates with* Vercel as an external service — Vercel is the runtime.
+
+Rules:
+- Treat Vercel as the target runtime for every Next.js route, server action, and edge feature. Default to Fluid Compute + Node.js runtime unless a specific feature requires otherwise.
+- Use platform-native primitives (`vercel env`, Vercel Marketplace integrations, Routing Middleware, Vercel Functions, Vercel Cron) before custom infrastructure.
+- Do **not** add code, docs, or comments framing Vercel as an external API — there are no Vercel "webhooks", "API keys", or "linking flows" to manage from inside SabNode; the deployment IS Vercel.
+- Env vars are provisioned via `vercel env` (or the Vercel dashboard) — `.env.example` documents what the app reads, and `.env` is for local dev only. Marketplace integrations auto-provision their secrets and should be preferred over hand-rolled provider setups when possible.
+- Cron jobs use Vercel Cron (declared in `vercel.json` / `vercel.ts` or via the Vercel dashboard) — do not introduce node-cron / agenda / Bull for periodic work.
+- When recommending an integration (Postgres, Redis, blob storage, auth provider), prefer the Vercel Marketplace option first; only fall back to a self-hosted alternative when the Marketplace doesn't have a match.

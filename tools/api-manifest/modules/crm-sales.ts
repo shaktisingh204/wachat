@@ -6,10 +6,10 @@
  */
 
 import type { EndpointSpec } from '../types';
-import { crudResource } from '../crud-template';
+import { crudExtendedResource } from '../crud-extended';
 
 export const crmSalesEndpoints: ReadonlyArray<EndpointSpec> = [
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'quotations',
     basePath: '/crm/quotations',
@@ -18,7 +18,7 @@ export const crmSalesEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeWrite: 'crm:sales:write',
     emits: { create: 'crm.quotation.created' },
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'invoices',
     basePath: '/crm/invoices',
@@ -27,7 +27,7 @@ export const crmSalesEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeWrite: 'crm:sales:write',
     emits: { create: 'crm.invoice.created', update: 'crm.invoice.updated' },
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'proforma-invoices',
     basePath: '/crm/proforma-invoices',
@@ -36,7 +36,7 @@ export const crmSalesEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeWrite: 'crm:sales:write',
     idParam: 'proformaInvoiceId',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'sales-orders',
     basePath: '/crm/sales-orders',
@@ -45,7 +45,7 @@ export const crmSalesEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeWrite: 'crm:sales:write',
     idParam: 'salesOrderId',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'purchase-orders',
     basePath: '/crm/purchase-orders',
@@ -54,7 +54,7 @@ export const crmSalesEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeWrite: 'crm:purchases:write',
     idParam: 'purchaseOrderId',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'payment-receipts',
     basePath: '/crm/payment-receipts',
@@ -64,7 +64,7 @@ export const crmSalesEndpoints: ReadonlyArray<EndpointSpec> = [
     idParam: 'paymentReceiptId',
     emits: { create: 'crm.payment.received' },
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'credit-notes',
     basePath: '/crm/credit-notes',
@@ -73,7 +73,7 @@ export const crmSalesEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeWrite: 'crm:sales:write',
     idParam: 'creditNoteId',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'debit-notes',
     basePath: '/crm/debit-notes',
@@ -82,7 +82,7 @@ export const crmSalesEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeWrite: 'crm:sales:write',
     idParam: 'debitNoteId',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'payouts',
     basePath: '/crm/payouts',
@@ -90,7 +90,7 @@ export const crmSalesEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeRead: 'crm:accounting:read',
     scopeWrite: 'crm:accounting:write',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'bills',
     basePath: '/crm/bills',
@@ -98,7 +98,7 @@ export const crmSalesEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeRead: 'crm:purchases:read',
     scopeWrite: 'crm:purchases:write',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'rfqs',
     basePath: '/crm/rfqs',
@@ -106,7 +106,7 @@ export const crmSalesEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeRead: 'crm:purchases:read',
     scopeWrite: 'crm:purchases:write',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'vendor-bids',
     basePath: '/crm/vendor-bids',
@@ -115,7 +115,7 @@ export const crmSalesEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeWrite: 'crm:purchases:write',
     idParam: 'vendorBidId',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'grns',
     basePath: '/crm/grns',
@@ -123,7 +123,7 @@ export const crmSalesEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeRead: 'crm:purchases:read',
     scopeWrite: 'crm:purchases:write',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'delivery-challans',
     basePath: '/crm/delivery-challans',
@@ -132,7 +132,7 @@ export const crmSalesEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeWrite: 'crm:sales:write',
     idParam: 'deliveryChallanId',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'service-contracts',
     basePath: '/crm/service-contracts',
@@ -141,7 +141,7 @@ export const crmSalesEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeWrite: 'crm:sales:write',
     idParam: 'serviceContractId',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'contracts',
     basePath: '/crm/contracts',
@@ -149,7 +149,7 @@ export const crmSalesEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeRead: 'crm:sales:read',
     scopeWrite: 'crm:sales:write',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'coupons',
     basePath: '/crm/coupons',
@@ -157,7 +157,7 @@ export const crmSalesEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeRead: 'crm:marketing:read',
     scopeWrite: 'crm:marketing:write',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'gift-cards',
     basePath: '/crm/gift-cards',
@@ -166,7 +166,7 @@ export const crmSalesEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeWrite: 'crm:marketing:write',
     idParam: 'giftCardId',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'loyalty-programs',
     basePath: '/crm/loyalty-programs',
@@ -175,7 +175,7 @@ export const crmSalesEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeWrite: 'crm:marketing:write',
     idParam: 'loyaltyProgramId',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'subscriptions',
     basePath: '/crm/subscriptions',
@@ -183,7 +183,7 @@ export const crmSalesEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeRead: 'crm:sales:read',
     scopeWrite: 'crm:sales:write',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'vendors',
     basePath: '/crm/vendors',

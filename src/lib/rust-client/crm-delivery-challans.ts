@@ -64,6 +64,15 @@ export interface CrmChallanCreateInput {
   reason?: string;
   transportDetails?: CrmTransportDetails;
   notes?: string;
+  /**
+   * §13.5 lineage seeding — when both `fromKind` and `fromId` are set,
+   * the Rust handler fetches the parent doc (scoped by `userId`) and
+   * stamps the new challan's `lineage[]` with the parent's full
+   * ancestry plus the parent itself. Allowed `fromKind` values:
+   * `"salesOrder"`, `"invoice"`, `"quotation"`.
+   */
+  fromKind?: 'salesOrder' | 'invoice' | 'quotation';
+  fromId?: string;
 }
 
 export type CrmChallanUpdateInput = Partial<CrmChallanCreateInput> & {

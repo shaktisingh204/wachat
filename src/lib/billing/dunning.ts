@@ -445,6 +445,157 @@ export async function createDunningTicket(
 }
 
 /**
+ * Convenience alias used by the cron route. Returns the next step due for a
+ * subscription given a history (used to skip steps already applied today) and
+ * the current calendar reference. Returns `null` when nothing is due — the
+ * caller short-circuits in that case.
+ *
+ * `history` is normally `sub.lastDunningRun` but accepting it as a separate
+ * arg keeps this helper unit-testable without a full subscription object.
+ */
+export function getNextDunningStep(
+    sub: DunningSubscriptionLike,
+    history?: { step: number; day?: string } | null,
+    today: Date = new Date(),
+): DunningStepNum | null {
+    const candidate = selectDunningStep(sub, today);
+    if (candidate == null) return null;
+    // If we've already attempted this exact step today, leave it for tomorrow.
+    const todayKey = today.toISOString().slice(0, 10);
+    if (
+        history &&
+        history.step === candidate &&
+        history.day === todayKey
+    ) {
+        return null;
+    }
+    return candidate;
+}
+
+/**
+ * Apply a single ladder step. Idempotent against `lastDunningRun.day` — if
+ * the same step was already attempted on the same UTC day, this returns
+ * `{ ok: true, skipped: true }` without re-firing the channel call. Real
+ * channel sends happen only when `options.execute === true`; otherwise the
+ * helper returns `{ ok: true, dryRun: true, channel }` so callers can log
+ * what *would* have happened.
+ */
+export interface ApplyDunningStepOptions {
+    /** When false (default) no actual send/suspend is performed. */
+    execute?: boolean;
+    /** Override the "now" used for the idempotency day key. */
+    today?: Date;
+}
+
+export interface ApplyDunningStepResult {
+    ok: boolean;
+    step: DunningStepNum;
+    channel: DunningSendResult['channel'];
+    skipped?: boolean;
+    dryRun?: boolean;
+    detail?: string;
+}
+
+export async function applyDunningStep(
+    sub: DunningSubscriptionLike,
+    step: DunningStepNum,
+    options: ApplyDunningStepOptions = {},
+): Promise<ApplyDunningStepResult> {
+    const execute = options.execute === true;
+    const today = options.today ?? new Date();
+    const todayKey = today.toISOString().slice(0, 10);
+    const channel = DUNNING_STEP_LABELS[step] as DunningSendResult['channel'];
+
+    // Idempotency — same step, same day = no-op.
+    if (
+        sub.lastDunningRun &&
+        sub.lastDunningRun.step === step &&
+        sub.lastDunningRun.day === todayKey
+    ) {
+        return { ok: true, step, channel, skipped: true };
+    }
+
+    if (!execute) {
+        return { ok: true, step, channel, dryRun: true };
+    }
+
+    let result: DunningSendResult;
+    switch (step) {
+        case 1:
+            result = await sendDunningEmail(sub, step);
+            break;
+        case 2:
+            result = await sendDunningSms(sub, step);
+            break;
+        case 3:
+            result = await sendDunningWhatsApp(sub, step);
+            break;
+        case 4:
+            result = await createDunningTicket(sub, step);
+            break;
+        case 5:
+            result = await suspendSubscriptionForDunning(sub);
+            break;
+    }
+
+    return {
+        ok: result.ok,
+        step,
+        channel: result.channel,
+        detail: result.detail,
+    };
+}
+
+/**
+ * Persist the result of an `applyDunningStep` run back to
+ * `crm_subscriptions`. Splits write-back from the apply helper so dry-runs
+ * don't touch the DB; callers (the cron) invoke this only when
+ * `execute === true` and the step actually fired.
+ */
+export async function advanceDunningStep(
+    subscriptionId: string,
+    fromStep: number,
+    options: {
+        toStep: DunningStepNum;
+        ok: boolean;
+        today?: Date;
+    },
+): Promise<void> {
+    const today = options.today ?? new Date();
+    const todayKey = today.toISOString().slice(0, 10);
+
+    const { ObjectId } = await import('mongodb');
+    const { db } = await connectToDatabase();
+    const filter: any = ObjectId.isValid(subscriptionId)
+        ? { _id: new ObjectId(subscriptionId) }
+        : { _id: subscriptionId };
+
+    const update: any = {
+        $set: {
+            dunningStep: options.toStep,
+            lastDunningRun: {
+                step: options.toStep,
+                ranAt: today.toISOString(),
+                ok: options.ok,
+                day: todayKey,
+            },
+            updatedAt: today,
+        },
+    };
+
+    if (options.toStep === 5 && options.ok) {
+        update.$set.status = 'paused';
+        update.$set.pausedReason = 'dunning_exhausted';
+    }
+
+    // Silence unused-arg warning while keeping the API symmetric — callers
+    // may pass `fromStep` for telemetry without us mutating it.
+    void fromStep;
+
+    await db.collection('crm_subscriptions').updateOne(filter, update);
+}
+
+/**
  * Final ladder rung — flips the subscription to `paused` with a dunning
  * reason. Writes via Rust BFF first; falls back to a direct Mongo update on
  * `crm_subscriptions` so the suspend is durable even if the BFF is down.

@@ -103,6 +103,12 @@ export function FlowListClient({ initialFlows, initialError }: Props) {
   const [actionMenuFor, setActionMenuFor] = useState<string | null>(null);
   const [stats24h, setStats24h] = useState<Stats24h>({ runs: null, credits: null });
   const [refreshing, startRefresh] = useTransition();
+  /** Active folder filter — '' means "all folders". */
+  const [folderFilter, setFolderFilter] = useState<string>('');
+  /** Active tag chips (AND match — every selected tag must be present). */
+  const [tagFilter, setTagFilter] = useState<string[]>([]);
+  /** Modal open: edit tags + folder for this flow id. */
+  const [metaEditFor, setMetaEditFor] = useState<string | null>(null);
 
   /* ── reload flows on demand ──────────────────────────────────────────── */
 
@@ -196,16 +202,79 @@ export function FlowListClient({ initialFlows, initialError }: Props) {
     [],
   );
 
+  /** Persist tag / folder edits made from the metadata modal. */
+  const handleSaveMetadata = useCallback(
+    async (flowId: string, tags: string[], folderId: string | undefined) => {
+      const res = await saveSabFlow(flowId, { tags, folderId });
+      if ('error' in res) {
+        setError(res.error as string);
+        return;
+      }
+      setFlows((prev) =>
+        prev.map((f) => (f._id === flowId ? { ...f, tags, folderId } : f)),
+      );
+      setMetaEditFor(null);
+    },
+    [],
+  );
+
   /* ── derived ─────────────────────────────────────────────────────────── */
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return flows
       .filter((f) => matchesStatus(f, statusFilter))
-      .filter((f) => (q ? f.name.toLowerCase().includes(q) : true))
+      .filter((f) => {
+        if (folderFilter === '') return true;
+        if (folderFilter === '__root__') return !f.folderId;
+        return f.folderId === folderFilter;
+      })
+      .filter((f) => {
+        if (tagFilter.length === 0) return true;
+        const flowTags = new Set((f.tags ?? []).map((t) => t.toLowerCase()));
+        return tagFilter.every((t) => flowTags.has(t.toLowerCase()));
+      })
+      .filter((f) => {
+        if (!q) return true;
+        if (f.name.toLowerCase().includes(q)) return true;
+        // Search also matches tag values + folder names.
+        if ((f.tags ?? []).some((t) => t.toLowerCase().includes(q))) return true;
+        if (f.folderId?.toLowerCase().includes(q)) return true;
+        return false;
+      })
       .slice()
       .sort((a, b) => compareFlows(a, b, sortKey));
-  }, [flows, query, statusFilter, sortKey]);
+  }, [flows, query, statusFilter, folderFilter, tagFilter, sortKey]);
+
+  /** Distinct folders observed across the workspace, sorted alphabetically. */
+  const folderOptions = useMemo(() => {
+    const set = new Set<string>();
+    for (const f of flows) {
+      if (f.folderId) set.add(f.folderId);
+    }
+    return Array.from(set).sort((a, b) => a.localeCompare(b));
+  }, [flows]);
+
+  /** Tag → flow count, used for the tag-chip cloud. */
+  const tagCounts = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const f of flows) {
+      for (const t of f.tags ?? []) {
+        const key = t.toLowerCase();
+        counts.set(key, (counts.get(key) ?? 0) + 1);
+      }
+    }
+    return Array.from(counts.entries())
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+      .slice(0, 24); // hard cap to keep the toolbar readable
+  }, [flows]);
+
+  const toggleTag = useCallback((tag: string) => {
+    const key = tag.toLowerCase();
+    setTagFilter((prev) =>
+      prev.includes(key) ? prev.filter((t) => t !== key) : [...prev, key],
+    );
+  }, []);
 
   const stats = useMemo(() => {
     const total = flows.length;
@@ -318,6 +387,24 @@ export function FlowListClient({ initialFlows, initialError }: Props) {
               </button>
             ))}
           </div>
+
+          {/* Folder dropdown — populated from observed folderId values. */}
+          {folderOptions.length > 0 && (
+            <select
+              value={folderFilter}
+              onChange={(e) => setFolderFilter(e.target.value)}
+              className="rounded-lg border border-zinc-700/60 bg-zinc-900 px-2.5 py-1 text-xs font-medium text-zinc-300 hover:bg-zinc-800 focus:outline-none focus:border-zinc-500"
+              aria-label="Filter by folder"
+            >
+              <option value="">All folders</option>
+              <option value="__root__">No folder</option>
+              {folderOptions.map((folder) => (
+                <option key={folder} value={folder}>
+                  📁 {folder}
+                </option>
+              ))}
+            </select>
+          )}
         </div>
 
         {/* Sort dropdown */}
@@ -362,6 +449,45 @@ export function FlowListClient({ initialFlows, initialError }: Props) {
         </div>
       </div>
 
+      {/* ── Tag-chip row ───────────────────────────────────────────────── */}
+      {tagCounts.length > 0 && (
+        <div className="mb-4 flex flex-wrap items-center gap-1.5">
+          <span className="text-[10.5px] uppercase tracking-wide text-zinc-500 mr-1">
+            Tags:
+          </span>
+          {tagCounts.map(([tag, count]) => {
+            const active = tagFilter.includes(tag);
+            return (
+              <button
+                key={tag}
+                type="button"
+                onClick={() => toggleTag(tag)}
+                className={cn(
+                  'inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium transition-colors',
+                  active
+                    ? 'border-amber-400 bg-amber-400/10 text-amber-300'
+                    : 'border-zinc-700/60 bg-zinc-800/60 text-zinc-300 hover:bg-zinc-700/60',
+                )}
+              >
+                <span>#{tag}</span>
+                <span className="text-[10px] tabular-nums opacity-70">
+                  {count}
+                </span>
+              </button>
+            );
+          })}
+          {tagFilter.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setTagFilter([])}
+              className="ml-1 rounded-full border border-zinc-700/60 px-2 py-0.5 text-[10.5px] text-zinc-400 hover:text-zinc-200"
+            >
+              Clear
+            </button>
+          )}
+        </div>
+      )}
+
       {/* ── Error ──────────────────────────────────────────────────────── */}
       {error && (
         <div className="mb-4 px-3 py-2 rounded-lg border border-red-500/40 bg-red-500/10 text-xs text-red-300">
@@ -397,6 +523,11 @@ export function FlowListClient({ initialFlows, initialError }: Props) {
               onRename={() => handleRename(flow._id, flow.name)}
               onDuplicate={() => handleDuplicate(flow._id)}
               onDelete={() => handleDelete(flow._id, flow.name)}
+              onEditMetadata={() => {
+                setActionMenuFor(null);
+                setMetaEditFor(flow._id);
+              }}
+              onTagClick={toggleTag}
             />
           ))}
         </div>
@@ -411,7 +542,117 @@ export function FlowListClient({ initialFlows, initialError }: Props) {
           reload();
         }}
       />
+
+      {/* ── Metadata edit modal ────────────────────────────────────────── */}
+      {metaEditFor && (
+        <MetadataModal
+          flow={flows.find((f) => f._id === metaEditFor)!}
+          existingFolders={folderOptions}
+          onClose={() => setMetaEditFor(null)}
+          onSave={handleSaveMetadata}
+        />
+      )}
     </>
+  );
+}
+
+/* ── Metadata modal ────────────────────────────────────────────────────── */
+
+function MetadataModal({
+  flow,
+  existingFolders,
+  onClose,
+  onSave,
+}: {
+  flow: FlowItem;
+  existingFolders: string[];
+  onClose: () => void;
+  onSave: (flowId: string, tags: string[], folderId: string | undefined) => void;
+}) {
+  const [tags, setTags] = useState<string>((flow.tags ?? []).join(', '));
+  const [folder, setFolder] = useState<string>(flow.folderId ?? '');
+  const [saving, setSaving] = useState(false);
+
+  const commit = useCallback(() => {
+    setSaving(true);
+    const parsed = tags
+      .split(',')
+      .map((t) => t.trim().toLowerCase())
+      .filter((t) => t.length > 0 && t.length <= 32)
+      // Strip non-tag characters; allow letters, digits, dash, underscore.
+      .map((t) => t.replace(/[^a-z0-9_-]/g, ''))
+      .filter(Boolean);
+    const dedup = Array.from(new Set(parsed));
+    onSave(flow._id, dedup, folder.trim() || undefined);
+  }, [flow._id, tags, folder, onSave]);
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+      <div
+        className="relative z-10 w-full max-w-sm rounded-2xl border border-zinc-700/60 bg-zinc-900 p-5 shadow-xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h3 className="text-sm font-semibold text-zinc-100 mb-1">
+          Edit metadata
+        </h3>
+        <p className="text-[11.5px] text-zinc-400 mb-4 truncate">
+          {flow.name}
+        </p>
+
+        <label className="block text-[11px] font-medium text-zinc-400 mb-1 uppercase tracking-wide">
+          Folder
+        </label>
+        <input
+          type="text"
+          list="folder-suggestions"
+          value={folder}
+          onChange={(e) => setFolder(e.target.value)}
+          placeholder="e.g. Onboarding, Internal, Demo"
+          className="w-full mb-4 rounded-lg border border-zinc-700/60 bg-zinc-950 px-3 py-2 text-xs text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-500"
+        />
+        <datalist id="folder-suggestions">
+          {existingFolders.map((f) => (
+            <option key={f} value={f} />
+          ))}
+        </datalist>
+
+        <label className="block text-[11px] font-medium text-zinc-400 mb-1 uppercase tracking-wide">
+          Tags (comma-separated)
+        </label>
+        <input
+          type="text"
+          value={tags}
+          onChange={(e) => setTags(e.target.value)}
+          placeholder="lead-gen, onboarding, beta"
+          className="w-full rounded-lg border border-zinc-700/60 bg-zinc-950 px-3 py-2 text-xs text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-500"
+        />
+        <p className="mt-1 text-[10.5px] text-zinc-500">
+          Lower-case letters, digits, dashes only — separated by commas.
+        </p>
+
+        <div className="mt-5 flex justify-end gap-2">
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-lg border border-zinc-700/60 px-3 py-1.5 text-xs text-zinc-300 hover:bg-zinc-800"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={commit}
+            disabled={saving}
+            className="rounded-lg bg-amber-500 px-3 py-1.5 text-xs font-medium text-zinc-900 hover:bg-amber-400 disabled:opacity-50"
+          >
+            {saving ? 'Saving…' : 'Save'}
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -504,6 +745,8 @@ function FlowCardLite({
   onRename,
   onDuplicate,
   onDelete,
+  onEditMetadata,
+  onTagClick,
 }: {
   flow: FlowItem;
   menuOpen: boolean;
@@ -512,6 +755,8 @@ function FlowCardLite({
   onRename: () => void;
   onDuplicate: () => void;
   onDelete: () => void;
+  onEditMetadata: () => void;
+  onTagClick: (tag: string) => void;
 }) {
   const isPublished = flow.status === 'PUBLISHED';
   const updatedRel = flow.updatedAt
@@ -596,6 +841,14 @@ function FlowCardLite({
                   onDuplicate();
                 }}
               />
+              <MenuItem
+                icon={<LuPencil className="w-3.5 h-3.5" />}
+                label="Tags & folder"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEditMetadata();
+                }}
+              />
               <div className="my-1 h-px bg-zinc-800" />
               <MenuItem
                 icon={<LuTrash2 className="w-3.5 h-3.5" />}
@@ -628,10 +881,40 @@ function FlowCardLite({
           <span>—</span>
         </div>
 
+        {/* Tags row — clickable chips also toggle the global tag filter. */}
+        {flow.tags && flow.tags.length > 0 && (
+          <div className="flex flex-wrap gap-1">
+            {flow.tags.slice(0, 5).map((tag) => (
+              <button
+                key={tag}
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onTagClick(tag);
+                }}
+                className="rounded-full border border-zinc-700/60 bg-zinc-800/60 px-1.5 py-0.5 text-[10px] font-medium text-zinc-300 hover:border-amber-400/60 hover:text-amber-300 transition-colors"
+              >
+                #{tag}
+              </button>
+            ))}
+            {flow.tags.length > 5 && (
+              <span className="text-[10px] text-zinc-500">
+                +{flow.tags.length - 5}
+              </span>
+            )}
+          </div>
+        )}
+
         <div className="flex items-center justify-between mt-1">
-          <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-zinc-800/80 text-zinc-400 border border-zinc-700/60">
-            Default workspace
-          </span>
+          {flow.folderId ? (
+            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-blue-500/10 text-blue-300 border border-blue-500/30">
+              📁 {flow.folderId}
+            </span>
+          ) : (
+            <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-zinc-800/80 text-zinc-400 border border-zinc-700/60">
+              Default workspace
+            </span>
+          )}
           <span className="text-[10.5px] text-zinc-500" title={format(new Date(flow.updatedAt), 'PPpp')}>
             {updatedRel}
           </span>

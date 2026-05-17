@@ -1,17 +1,17 @@
 /**
- * Forge block: Execute Workflow
+ * Forge block: Execute Workflow.
  *
- * Source: n8n-master/packages/nodes-base/nodes/ExecuteWorkflow/ExecuteWorkflow/ExecuteWorkflow.node.ts
- * Credential type: none.
+ * Source-inspired by n8n's ExecuteWorkflow node; SabFlow's implementation
+ * runs the target flow through `executeFlow` synchronously and returns the
+ * sub-flow's final variables + last messages as outputs.
  *
- * Runtime: STUBBED. Sub-flow execution must go through SabFlow's own engine —
- * see `src/lib/sabflow/engine/executeFlow.ts`. We do not invoke it from a
- * forge block because the engine wants caller context (org, plan, credits,
- * RBAC) that's not available in the forge action ctx. The SabFlow native
- * equivalent is the "Run sub-flow" canvas action.
- *
- * This action records the intent (workflowId + inputs) and emits a `queued`
- * payload that downstream blocks can use to trigger a server action.
+ * Safety:
+ *   - Authorisation: the target flow must be owned by the same userId as
+ *     the caller (ctx.userId).  Cross-tenant calls are rejected.
+ *   - Cycle detection: ctx.callerStack must not already contain the target
+ *     flow id — protects against accidental recursion.
+ *   - Concurrency: inherits the target flow's own `maxConcurrentRuns`
+ *     setting via the existing acquireRunSlot gate inside executeFlow.
  */
 import { registerForgeBlock } from '../../../registry';
 import type {
@@ -20,25 +20,109 @@ import type {
   ForgeBlock,
 } from '../../../types';
 import { asString } from '../_shared/http';
+import { executeFlow } from '@/lib/sabflow/engine';
+import { getSabFlowById } from '@/lib/sabflow/db';
+import {
+  cacheGet,
+  cacheSet,
+  makeCacheKey,
+} from './subWorkflowCache';
 
 async function invoke(ctx: ForgeActionContext): Promise<ForgeActionResult> {
   const workflowId = asString(ctx.options.workflowId);
   if (!workflowId) throw new Error('ExecuteWorkflow: workflowId is required');
+  if (!ctx.userId) {
+    throw new Error(
+      'ExecuteWorkflow: caller userId is missing — sub-workflow invocation requires authenticated context.',
+    );
+  }
+
+  // Cycle guard: cannot call a flow that's already on the stack.
+  const stack = ctx.callerStack ?? [];
+  if (stack.includes(workflowId)) {
+    throw new Error(
+      `ExecuteWorkflow: cycle detected — flow "${workflowId}" already in caller stack [${stack.join(' → ')}].`,
+    );
+  }
+
   const inputsRaw = ctx.options.inputs;
   const inputs =
     inputsRaw && typeof inputsRaw === 'object' && !Array.isArray(inputsRaw)
       ? (inputsRaw as Record<string, unknown>)
       : {};
-  return {
-    outputs: {
-      queued: true,
-      workflowId,
-      inputs,
-      note:
-        'Sub-flow execution is stubbed in forge blocks — invoke ' +
-        '`src/lib/sabflow/engine/executeFlow.ts` from a server action.',
+
+  // Optional result cache.  Opt-in via `cacheTtlSeconds` on block options.
+  const ttlSeconds = Number(ctx.options.cacheTtlSeconds ?? 0) | 0;
+  const cacheKey =
+    ttlSeconds > 0 ? makeCacheKey(workflowId, ctx.userId, inputs) : null;
+  if (cacheKey) {
+    const hit = cacheGet(cacheKey);
+    if (hit) {
+      return {
+        outputs: { ...hit, cached: true },
+        logs: [`ExecuteWorkflow → ${workflowId}: cache hit (ttl=${ttlSeconds}s)`],
+      };
+    }
+  }
+
+  const targetFlow = await getSabFlowById(workflowId);
+  if (!targetFlow) {
+    throw new Error(`ExecuteWorkflow: target flow "${workflowId}" not found.`);
+  }
+  if (targetFlow.userId !== ctx.userId) {
+    throw new Error(
+      `ExecuteWorkflow: target flow "${workflowId}" belongs to a different workspace.`,
+    );
+  }
+
+  const startGroupId = targetFlow.groups[0]?.id;
+  if (!startGroupId) {
+    throw new Error(
+      `ExecuteWorkflow: target flow "${workflowId}" has no executable groups.`,
+    );
+  }
+
+  const seededVars: Record<string, string> = {};
+  for (const v of targetFlow.variables ?? []) {
+    if (v.defaultValue !== undefined) seededVars[v.name] = String(v.defaultValue);
+    else if (v.value !== undefined) seededVars[v.name] = String(v.value);
+  }
+  for (const [k, v] of Object.entries(inputs)) {
+    seededVars[k] = v === null || v === undefined ? '' : String(v);
+  }
+
+  const result = await executeFlow(
+    targetFlow,
+    {
+      flowId: workflowId,
+      currentGroupId: startGroupId,
+      currentBlockIndex: 0,
+      variables: seededVars,
+      history: [],
     },
-    logs: [`ExecuteWorkflow invoke → ${workflowId} (stub, not executed)`],
+  );
+
+  const outputs = {
+    ok: true,
+    workflowId,
+    isCompleted: result.result.isCompleted,
+    variables: result.result.updatedVariables,
+    messages: result.result.messages,
+  };
+
+  // Only cache fully-completed runs — caching a paused/input-waiting run
+  // would short-circuit subsequent invocations that need to provide input.
+  if (cacheKey && result.result.isCompleted) {
+    cacheSet(cacheKey, outputs as Record<string, unknown>, ttlSeconds * 1000);
+  }
+
+  return {
+    outputs,
+    logs: [
+      `ExecuteWorkflow → ${workflowId}: ${result.updatedSession.history.length} step(s), ${
+        result.result.isCompleted ? 'completed' : 'paused'
+      }${cacheKey ? `, cached for ${ttlSeconds}s` : ''}`,
+    ],
   };
 }
 
@@ -68,6 +152,14 @@ const block: ForgeBlock = {
           type: 'json',
           placeholder: '{"foo": "bar"}',
           helperText: 'JSON object passed as the sub-flow input variables.',
+        },
+        {
+          id: 'cacheTtlSeconds',
+          label: 'Cache TTL (seconds)',
+          type: 'number',
+          placeholder: '0',
+          helperText:
+            'Cache the sub-flow result for this many seconds.  0 disables caching.  Same (workflowId + inputs) → same result.',
         },
       ],
       run: invoke,

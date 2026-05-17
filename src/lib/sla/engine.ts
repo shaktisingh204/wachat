@@ -337,6 +337,107 @@ export function isBreached(
     return { breached: false, type: null, minutesOverdue: 0 };
 }
 
+/* ── Breach-state evaluation ─────────────────────────────────────
+ *
+ * `isBreached()` above is a single boolean verdict — handy for the
+ * cron, but the live badge + cron want to distinguish three states
+ * per clock:
+ *
+ *   • ok        — plenty of budget remaining
+ *   • at_risk   — within the last 25% of the budget (per §6.4)
+ *   • breached  — past due
+ *
+ * `evaluateBreachState()` returns both clocks independently so a
+ * caller can react to first-response and resolution separately
+ * without re-computing the due-by anchors twice. Pure — accepts an
+ * explicit `now` for testability.
+ */
+
+export type SlaClockState = 'ok' | 'at_risk' | 'breached';
+
+export interface BreachState {
+    firstResponse: SlaClockState;
+    resolution: SlaClockState;
+    firstResponseDueBy: Date | null;
+    resolutionDueBy: Date | null;
+}
+
+function classifyClock(
+    dueBy: Date,
+    totalMinutes: number,
+    now: Date,
+): SlaClockState {
+    const delta = dueBy.getTime() - now.getTime();
+    if (delta <= 0) return 'breached';
+    // At-risk threshold: within the last 25% of the SLA budget.
+    if (totalMinutes > 0 && delta <= totalMinutes * 60_000 * 0.25) {
+        return 'at_risk';
+    }
+    return 'ok';
+}
+
+export function evaluateBreachState(
+    ticket: SlaTicket,
+    rule: SlaRule,
+    bh: BusinessHours = DEFAULT_BUSINESS_HOURS,
+    now: Date = new Date(),
+): BreachState {
+    const status = String(ticket.status ?? '').toLowerCase();
+    const terminal = status === 'resolved' || status === 'closed' || status === 'archived';
+
+    // Resolved/closed tickets are always 'ok' — the clocks are frozen.
+    if (terminal) {
+        return {
+            firstResponse: 'ok',
+            resolution: 'ok',
+            firstResponseDueBy: null,
+            resolutionDueBy: null,
+        };
+    }
+
+    const firstResponseDueBy = ticket.firstResponseAt
+        ? null
+        : computeFirstResponseDueBy(ticket, rule, bh);
+    const resolutionDueBy = ticket.resolvedAt
+        ? null
+        : computeResolutionDueBy(ticket, rule, bh);
+
+    return {
+        firstResponse: firstResponseDueBy
+            ? classifyClock(firstResponseDueBy, rule.firstResponseMinutes, now)
+            : 'ok',
+        resolution: resolutionDueBy
+            ? classifyClock(resolutionDueBy, rule.resolutionMinutes, now)
+            : 'ok',
+        firstResponseDueBy,
+        resolutionDueBy,
+    };
+}
+
+/**
+ * Convenience wrapper exposing the two due-by anchors as a single
+ * object — matches the cron's contract more cleanly than two scalar
+ * calls. Pure.
+ */
+export function computeDueBy(
+    ticket: SlaTicket,
+    rule: SlaRule,
+    bh: BusinessHours = DEFAULT_BUSINESS_HOURS,
+): { firstResponseDueAt: Date | null; resolutionDueAt: Date | null } {
+    const status = String(ticket.status ?? '').toLowerCase();
+    if (status === 'resolved' || status === 'closed' || status === 'archived') {
+        return { firstResponseDueAt: null, resolutionDueAt: null };
+    }
+    return {
+        firstResponseDueAt: ticket.firstResponseAt
+            ? null
+            : computeFirstResponseDueBy(ticket, rule, bh),
+        resolutionDueAt: ticket.resolvedAt
+            ? null
+            : computeResolutionDueBy(ticket, rule, bh),
+    };
+}
+
 /**
  * Pick the best-matching SLA rule for a ticket.
  *

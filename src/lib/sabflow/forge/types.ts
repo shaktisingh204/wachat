@@ -107,6 +107,18 @@ export type ForgeActionContext = {
   variables: Record<string, unknown>;
   /** Resolved credential (if the block declared `auth`). */
   credential?: Record<string, string>;
+  /**
+   * Workspace owner (userId) that owns the calling flow.  Optional for
+   * back-compat; callers that need cross-resource access (sub-workflow
+   * execution, env-var loads) require it.
+   */
+  userId?: string;
+  /**
+   * Stack of flow ids currently being executed, oldest first.  Sub-workflow
+   * execution uses this to detect cycles and reject self-references.  Empty
+   * or undefined on a top-level run.
+   */
+  callerStack?: string[];
 };
 
 export type ForgeActionResult = {
