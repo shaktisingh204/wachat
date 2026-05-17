@@ -1,0 +1,77 @@
+{
+  "id": "wistia",
+  "name": "Wistia",
+  "description": "Wistia Data API for video hosting.",
+  "category": "Video",
+  "iconName": "LuVideo",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "bearer",
+    "credentialType": "wistia",
+    "header": "Authorization",
+    "scheme": "Bearer"
+  },
+  "baseUrl": "https://api.wistia.com/v1",
+  "endpoints": [
+    {
+      "id": "list_medias",
+      "label": "List medias",
+      "method": "GET",
+      "path": "/medias.json",
+      "fields": [
+        { "id": "page", "label": "Page", "type": "number", "defaultValue": 1, "in": "query" },
+        { "id": "per_page", "label": "Per page", "type": "number", "defaultValue": 25, "in": "query" }
+      ]
+    },
+    {
+      "id": "get_media",
+      "label": "Get media",
+      "method": "GET",
+      "path": "/medias/{hashed_id}.json",
+      "fields": [
+        { "id": "hashed_id", "label": "Hashed ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "update_media",
+      "label": "Update media",
+      "method": "PUT",
+      "path": "/medias/{hashed_id}.json",
+      "fields": [
+        { "id": "hashed_id", "label": "Hashed ID", "type": "text", "required": true, "in": "path" },
+        { "id": "name", "label": "Name", "type": "text", "in": "body" },
+        { "id": "description", "label": "Description", "type": "textarea", "in": "body" }
+      ]
+    },
+    {
+      "id": "delete_media",
+      "label": "Delete media",
+      "method": "DELETE",
+      "path": "/medias/{hashed_id}.json",
+      "fields": [
+        { "id": "hashed_id", "label": "Hashed ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_projects",
+      "label": "List projects",
+      "method": "GET",
+      "path": "/projects.json",
+      "fields": [
+        { "id": "page", "label": "Page", "type": "number", "defaultValue": 1, "in": "query" },
+        { "id": "per_page", "label": "Per page", "type": "number", "defaultValue": 25, "in": "query" }
+      ]
+    },
+    {
+      "id": "create_project",
+      "label": "Create project",
+      "method": "POST",
+      "path": "/projects.json",
+      "fields": [
+        { "id": "name", "label": "Name", "type": "text", "required": true, "in": "body" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "id": "n8n-citrix-adc",
+  "name": "Netscaler ADC",
+  "description": "Consume Netscaler ADC API",
+  "category": "Output",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "certificate_default",
+      "label": "List Certificate",
+      "method": "GET",
+      "path": "/certificate",
+      "fields": []
+    },
+    {
+      "id": "file_default",
+      "label": "List File",
+      "method": "GET",
+      "path": "/file",
+      "fields": []
+    }
+  ]
+}

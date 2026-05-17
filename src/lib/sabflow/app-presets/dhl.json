@@ -1,0 +1,19 @@
+{
+  "id": "dhl",
+  "name": "DHL Express",
+  "description": "DHL Express tracking, rating, shipping.",
+  "category": "Shipping",
+  "iconName": "LuTruck",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": { "type": "header", "credentialType": "dhl", "header": "DHL-API-Key" },
+  "baseUrl": "https://api-eu.dhl.com",
+  "endpoints": [
+    { "id": "track_shipments", "label": "Track shipments", "method": "GET", "path": "/track/shipments", "fields": [{ "id": "trackingNumber", "type": "text", "required": true, "in": "query" }, { "id": "service", "type": "text", "in": "query" }, { "id": "originCountryCode", "type": "text", "in": "query" }, { "id": "recipientPostalCode", "type": "text", "in": "query" }, { "id": "shipmentReference", "type": "text", "in": "query" }] },
+    { "id": "rates", "label": "Rates", "method": "GET", "path": "/express/rating/v0/rates", "fields": [{ "id": "accountNumber", "type": "text", "required": true, "in": "query" }, { "id": "originPostalCode", "type": "text", "required": true, "in": "query" }, { "id": "originCountryCode", "type": "text", "required": true, "in": "query" }, { "id": "destinationPostalCode", "type": "text", "required": true, "in": "query" }, { "id": "destinationCountryCode", "type": "text", "required": true, "in": "query" }, { "id": "weight", "type": "number", "required": true, "in": "query" }, { "id": "plannedShippingDate", "type": "text", "required": true, "in": "query" }] },
+    { "id": "pickup_create", "label": "Create pickup", "method": "POST", "path": "/express/pickup/v0/pickups", "fields": [{ "id": "plannedPickupDateAndTime", "type": "text", "required": true, "in": "body" }, { "id": "accounts", "type": "json", "required": true, "in": "body" }, { "id": "customerDetails", "type": "json", "required": true, "in": "body" }, { "id": "shipmentDetails", "type": "json", "required": true, "in": "body" }] },
+    { "id": "shipments_create", "label": "Create shipment", "method": "POST", "path": "/express/shipments/v0/shipments", "fields": [{ "id": "plannedShippingDateAndTime", "type": "text", "required": true, "in": "body" }, { "id": "productCode", "type": "text", "required": true, "in": "body" }, { "id": "accounts", "type": "json", "required": true, "in": "body" }, { "id": "customerDetails", "type": "json", "required": true, "in": "body" }, { "id": "content", "type": "json", "required": true, "in": "body" }] },
+    { "id": "address_validation", "label": "Address validation", "method": "GET", "path": "/express/postalcodes/v0/postalcodes", "fields": [{ "id": "countryCode", "type": "text", "required": true, "in": "query" }, { "id": "postalCode", "type": "text", "required": true, "in": "query" }, { "id": "strictValidation", "type": "toggle", "in": "query" }] }
+  ]
+}

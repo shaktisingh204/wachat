@@ -1,0 +1,88 @@
+{
+  "id": "discord-webhooks",
+  "name": "Discord Webhooks",
+  "description": "Discord webhook execution and management (separate from full Bot API).",
+  "category": "Community",
+  "iconName": "LuMessageCircle",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "none"
+  },
+  "baseUrl": "https://discord.com/api",
+  "endpoints": [
+    {
+      "id": "execute_webhook",
+      "label": "Execute webhook",
+      "method": "POST",
+      "path": "/webhooks/{webhook_id}/{webhook_token}",
+      "fields": [
+        { "id": "webhook_id", "label": "Webhook ID", "type": "text", "required": true, "in": "path" },
+        { "id": "webhook_token", "label": "Webhook token", "type": "password", "required": true, "in": "path" },
+        { "id": "content", "label": "Content", "type": "textarea", "in": "body" },
+        { "id": "username", "label": "Username override", "type": "text", "in": "body" },
+        { "id": "avatar_url", "label": "Avatar URL", "type": "text", "in": "body" },
+        { "id": "embeds", "label": "Embeds", "type": "json", "in": "body" },
+        { "id": "attachments", "label": "Attachments", "type": "json", "in": "body" },
+        { "id": "tts", "label": "Text-to-speech", "type": "toggle", "in": "body" }
+      ]
+    },
+    {
+      "id": "get_webhook",
+      "label": "Get webhook",
+      "method": "GET",
+      "path": "/webhooks/{webhook_id}/{webhook_token}",
+      "fields": [
+        { "id": "webhook_id", "label": "Webhook ID", "type": "text", "required": true, "in": "path" },
+        { "id": "webhook_token", "label": "Webhook token", "type": "password", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "modify_webhook",
+      "label": "Modify webhook",
+      "method": "PATCH",
+      "path": "/webhooks/{webhook_id}/{webhook_token}",
+      "fields": [
+        { "id": "webhook_id", "label": "Webhook ID", "type": "text", "required": true, "in": "path" },
+        { "id": "webhook_token", "label": "Webhook token", "type": "password", "required": true, "in": "path" },
+        { "id": "name", "label": "Name", "type": "text", "in": "body" },
+        { "id": "avatar", "label": "Avatar (data URI)", "type": "textarea", "in": "body" }
+      ]
+    },
+    {
+      "id": "delete_webhook",
+      "label": "Delete webhook",
+      "method": "DELETE",
+      "path": "/webhooks/{webhook_id}/{webhook_token}",
+      "fields": [
+        { "id": "webhook_id", "label": "Webhook ID", "type": "text", "required": true, "in": "path" },
+        { "id": "webhook_token", "label": "Webhook token", "type": "password", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "edit_webhook_message",
+      "label": "Edit webhook message",
+      "method": "PATCH",
+      "path": "/webhooks/{webhook_id}/{webhook_token}/messages/{message_id}",
+      "fields": [
+        { "id": "webhook_id", "label": "Webhook ID", "type": "text", "required": true, "in": "path" },
+        { "id": "webhook_token", "label": "Webhook token", "type": "password", "required": true, "in": "path" },
+        { "id": "message_id", "label": "Message ID", "type": "text", "required": true, "in": "path" },
+        { "id": "content", "label": "Content", "type": "textarea", "in": "body" },
+        { "id": "embeds", "label": "Embeds", "type": "json", "in": "body" }
+      ]
+    },
+    {
+      "id": "delete_webhook_message",
+      "label": "Delete webhook message",
+      "method": "DELETE",
+      "path": "/webhooks/{webhook_id}/{webhook_token}/messages/{message_id}",
+      "fields": [
+        { "id": "webhook_id", "label": "Webhook ID", "type": "text", "required": true, "in": "path" },
+        { "id": "webhook_token", "label": "Webhook token", "type": "password", "required": true, "in": "path" },
+        { "id": "message_id", "label": "Message ID", "type": "text", "required": true, "in": "path" }
+      ]
+    }
+  ]
+}

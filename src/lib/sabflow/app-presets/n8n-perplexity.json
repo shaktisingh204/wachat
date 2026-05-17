@@ -1,0 +1,24 @@
+{
+  "id": "n8n-perplexity",
+  "name": "Perplexity",
+  "description": "AI-powered answer engine that provides accurate, trusted, and real-time answers to any question. Supports chat completions, agent responses, web search, and embeddings.",
+  "category": "Transform",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "https://api.perplexity.ai",
+  "endpoints": [
+    {
+      "id": "chat_default",
+      "label": "List Chat",
+      "method": "GET",
+      "path": "/chat",
+      "fields": []
+    }
+  ]
+}

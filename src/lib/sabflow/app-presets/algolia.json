@@ -1,0 +1,95 @@
+{
+  "id": "algolia",
+  "name": "Algolia",
+  "description": "Algolia hosted search and indexing API.",
+  "category": "Search",
+  "iconName": "LuSearch",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "header",
+    "credentialType": "algolia",
+    "header": "X-Algolia-API-Key"
+  },
+  "baseUrl": "https://{application_id}-dsn.algolia.net/1",
+  "endpoints": [
+    {
+      "id": "search_index",
+      "label": "Search index",
+      "method": "POST",
+      "path": "/indexes/{index_name}/query",
+      "fields": [
+        { "id": "application_id", "label": "Application ID", "type": "text", "required": true, "in": "header" },
+        { "id": "index_name", "label": "Index name", "type": "text", "required": true, "in": "path" },
+        { "id": "query", "label": "Query", "type": "text", "required": true, "in": "body" },
+        { "id": "hitsPerPage", "label": "Hits per page", "type": "number", "in": "body" },
+        { "id": "page", "label": "Page", "type": "number", "in": "body" },
+        { "id": "filters", "label": "Filters", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "add_object",
+      "label": "Add object",
+      "method": "POST",
+      "path": "/indexes/{index_name}",
+      "fields": [
+        { "id": "application_id", "label": "Application ID", "type": "text", "required": true, "in": "header" },
+        { "id": "index_name", "label": "Index name", "type": "text", "required": true, "in": "path" },
+        { "id": "record", "label": "Record JSON", "type": "json", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "update_object",
+      "label": "Update object",
+      "method": "PUT",
+      "path": "/indexes/{index_name}/{object_id}",
+      "fields": [
+        { "id": "application_id", "label": "Application ID", "type": "text", "required": true, "in": "header" },
+        { "id": "index_name", "label": "Index name", "type": "text", "required": true, "in": "path" },
+        { "id": "object_id", "label": "Object ID", "type": "text", "required": true, "in": "path" },
+        { "id": "record", "label": "Record JSON", "type": "json", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "delete_object",
+      "label": "Delete object",
+      "method": "DELETE",
+      "path": "/indexes/{index_name}/{object_id}",
+      "fields": [
+        { "id": "application_id", "label": "Application ID", "type": "text", "required": true, "in": "header" },
+        { "id": "index_name", "label": "Index name", "type": "text", "required": true, "in": "path" },
+        { "id": "object_id", "label": "Object ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "clear_index",
+      "label": "Clear index",
+      "method": "POST",
+      "path": "/indexes/{index_name}/clear",
+      "fields": [
+        { "id": "application_id", "label": "Application ID", "type": "text", "required": true, "in": "header" },
+        { "id": "index_name", "label": "Index name", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_indexes",
+      "label": "List indexes",
+      "method": "GET",
+      "path": "/indexes",
+      "fields": [
+        { "id": "application_id", "label": "Application ID", "type": "text", "required": true, "in": "header" }
+      ]
+    },
+    {
+      "id": "multi_index_search",
+      "label": "Multi-index search",
+      "method": "POST",
+      "path": "/indexes/*/queries",
+      "fields": [
+        { "id": "application_id", "label": "Application ID", "type": "text", "required": true, "in": "header" },
+        { "id": "requests", "label": "Requests JSON", "type": "json", "required": true, "in": "body" }
+      ]
+    }
+  ]
+}

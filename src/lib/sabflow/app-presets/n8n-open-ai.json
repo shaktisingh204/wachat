@@ -1,0 +1,38 @@
+{
+  "id": "n8n-open-ai",
+  "name": "OpenAI",
+  "description": "Consume Open AI",
+  "category": "Transform",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "chat_default",
+      "label": "List Chat",
+      "method": "GET",
+      "path": "/chat",
+      "fields": []
+    },
+    {
+      "id": "image_default",
+      "label": "List Image",
+      "method": "GET",
+      "path": "/image",
+      "fields": []
+    },
+    {
+      "id": "text_default",
+      "label": "List Text",
+      "method": "GET",
+      "path": "/text",
+      "fields": []
+    }
+  ]
+}

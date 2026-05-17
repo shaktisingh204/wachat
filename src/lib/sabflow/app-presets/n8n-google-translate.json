@@ -1,0 +1,75 @@
+{
+  "id": "n8n-google-translate",
+  "name": "Google Translate",
+  "description": "Translate data using Google Translate",
+  "category": "Input",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "language_translate",
+      "label": "Translate Language",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "serviceAccount",
+          "options": [
+            {
+              "value": "serviceAccount",
+              "label": "Service Account"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        },
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "oAuth2",
+          "options": [
+            {
+              "value": "oAuth2",
+              "label": "OAuth2 (recommended)"
+            },
+            {
+              "value": "serviceAccount",
+              "label": "Service Account"
+            }
+          ]
+        },
+        {
+          "id": "text",
+          "label": "Text",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The input text to translate"
+        },
+        {
+          "id": "translateTo",
+          "label": "Translate To",
+          "type": "select",
+          "in": "query",
+          "required": true,
+          "description": "The language to use for translation of the input text, set to one of the language codes listed in <a href=\"https://cloud.google.com/translate/docs/languages\">Language Support</a>. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>."
+        }
+      ]
+    }
+  ]
+}

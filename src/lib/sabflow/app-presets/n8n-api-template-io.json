@@ -1,0 +1,144 @@
+{
+  "id": "n8n-api-template-io",
+  "name": "APITemplate.io",
+  "description": "Consume the APITemplate.io API",
+  "category": "Transform",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "image_create",
+      "label": "Create Image",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "imageTemplateId",
+          "label": "Template Name or ID",
+          "type": "select",
+          "in": "query",
+          "required": true,
+          "description": "ID of the image template to use. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>."
+        },
+        {
+          "id": "jsonParameters",
+          "label": "JSON Parameters",
+          "type": "toggle",
+          "in": "query",
+          "defaultValue": false
+        },
+        {
+          "id": "download",
+          "label": "Download",
+          "type": "toggle",
+          "in": "query",
+          "description": "Name of the binary property to which to write the data of the read file",
+          "defaultValue": false
+        },
+        {
+          "id": "binaryProperty",
+          "label": "Put Output File in Field",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "defaultValue": "data"
+        },
+        {
+          "id": "overridesJson",
+          "label": "Overrides (JSON)",
+          "type": "json",
+          "in": "query",
+          "placeholder": "[ {\"name\": \"text_1\", \"text\": \"hello world\", \"textBackgroundColor\": \"rgba(246, 243, 243, 0)\" } ]"
+        },
+        {
+          "id": "overridesUi",
+          "label": "Overrides",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Override"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Field"
+        }
+      ]
+    },
+    {
+      "id": "pdf_create",
+      "label": "Create Pdf",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "pdfTemplateId",
+          "label": "Template Name or ID",
+          "type": "select",
+          "in": "query",
+          "required": true,
+          "description": "ID of the PDF template to use. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>."
+        },
+        {
+          "id": "jsonParameters",
+          "label": "JSON Parameters",
+          "type": "toggle",
+          "in": "query",
+          "defaultValue": false
+        },
+        {
+          "id": "download",
+          "label": "Download",
+          "type": "toggle",
+          "in": "query",
+          "description": "Name of the binary property to which to write the data of the read file",
+          "defaultValue": false
+        },
+        {
+          "id": "binaryProperty",
+          "label": "Put Output File in Field",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "defaultValue": "data"
+        },
+        {
+          "id": "propertiesJson",
+          "label": "Properties (JSON)",
+          "type": "json",
+          "in": "query",
+          "placeholder": "{ \"name\": \"text_1\" }"
+        },
+        {
+          "id": "propertiesUi",
+          "label": "Properties",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Property"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Field"
+        }
+      ]
+    },
+    {
+      "id": "account_get",
+      "label": "Get Account",
+      "method": "GET",
+      "path": "/",
+      "fields": []
+    }
+  ]
+}

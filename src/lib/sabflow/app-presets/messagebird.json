@@ -1,0 +1,82 @@
+{
+  "id": "messagebird",
+  "name": "MessageBird",
+  "description": "MessageBird (Bird) SMS, voice and contact API.",
+  "category": "Messaging",
+  "iconName": "LuMessageSquare",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "header",
+    "header": "Authorization",
+    "scheme": "AccessKey",
+    "credentialType": "messagebird"
+  },
+  "baseUrl": "https://rest.messagebird.com",
+  "endpoints": [
+    {
+      "id": "send_sms",
+      "label": "Send SMS",
+      "method": "POST",
+      "path": "/messages",
+      "fields": [
+        { "id": "originator", "label": "Originator", "type": "text", "required": true, "in": "body" },
+        { "id": "recipients", "label": "Recipients", "type": "text", "required": true, "in": "body" },
+        { "id": "body", "label": "Body", "type": "textarea", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "list_messages",
+      "label": "List messages",
+      "method": "GET",
+      "path": "/messages",
+      "fields": [
+        { "id": "limit", "label": "Limit", "type": "number", "defaultValue": 25, "in": "query" },
+        { "id": "offset", "label": "Offset", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "get_message",
+      "label": "Get message",
+      "method": "GET",
+      "path": "/messages/{id}",
+      "fields": [
+        { "id": "id", "label": "Message ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "voice_call",
+      "label": "Voice call",
+      "method": "POST",
+      "path": "/calls",
+      "fields": [
+        { "id": "source", "label": "Source", "type": "text", "required": true, "in": "body" },
+        { "id": "destination", "label": "Destination", "type": "text", "required": true, "in": "body" },
+        { "id": "callFlow", "label": "Call flow", "type": "json", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "list_contacts",
+      "label": "List contacts",
+      "method": "GET",
+      "path": "/contacts",
+      "fields": [
+        { "id": "limit", "label": "Limit", "type": "number", "defaultValue": 25, "in": "query" },
+        { "id": "offset", "label": "Offset", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "create_contact",
+      "label": "Create contact",
+      "method": "POST",
+      "path": "/contacts",
+      "fields": [
+        { "id": "msisdn", "label": "MSISDN", "type": "text", "required": true, "in": "body" },
+        { "id": "firstName", "label": "First name", "type": "text", "in": "body" },
+        { "id": "lastName", "label": "Last name", "type": "text", "in": "body" },
+        { "id": "custom", "label": "Custom fields", "type": "json", "in": "body" }
+      ]
+    }
+  ]
+}

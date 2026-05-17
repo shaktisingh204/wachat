@@ -1,0 +1,188 @@
+/**
+ * Form detail page.
+ *
+ * Server component — fetches the form by id via `getFormById` and renders
+ * a summary card + fields table + embed snippet.
+ */
+
+import Link from 'next/link';
+import { notFound, redirect } from 'next/navigation';
+import { ArrowLeft, ClipboardList, Eye, Pencil } from 'lucide-react';
+
+import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
+import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
+import { getSession } from '@/app/actions/user.actions';
+import { getFormById } from '@/app/actions/crm-forms.actions';
+import type { CrmFormStatus } from '@/lib/rust-client/crm-forms';
+
+export const dynamic = 'force-dynamic';
+
+const BASE = '/dashboard/crm/sales-crm/forms';
+
+const STATUS_TONE: Record<CrmFormStatus, StatusTone> = {
+    draft: 'amber',
+    published: 'green',
+    archived: 'neutral',
+};
+
+function fmtDate(value: unknown): string {
+    if (!value) return '—';
+    const d = new Date(value as string);
+    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
+}
+
+export default async function FormDetailPage({
+    params,
+}: {
+    params: Promise<{ formId: string }>;
+}) {
+    const { formId } = await params;
+
+    const session = await getSession();
+    if (!session?.user) redirect('/login');
+
+    const form = await getFormById(formId);
+    if (!form) notFound();
+
+    const status = form.status ?? 'draft';
+    const tone = STATUS_TONE[status] ?? 'neutral';
+    const fields = form.fields ?? [];
+    const settings = (form.settings ?? {}) as Record<string, unknown>;
+
+    return (
+        <div className="flex w-full flex-col gap-6">
+            <CrmPageHeader
+                breadcrumbs={[
+                    { label: 'Sales CRM', href: '/dashboard/crm/sales-crm' },
+                    { label: 'Forms', href: BASE },
+                    { label: form.name },
+                ]}
+                title={form.name}
+                subtitle={form.slug ? `/${form.slug}` : 'Lead-capture form'}
+                icon={ClipboardList}
+                actions={
+                    <div className="flex items-center gap-2">
+                        <ZoruButton variant="outline" asChild>
+                            <Link href={BASE}>
+                                <ArrowLeft className="mr-2 h-4 w-4" />
+                                Back
+                            </Link>
+                        </ZoruButton>
+                        <ZoruButton variant="outline" asChild>
+                            <a
+                                href={`/embed/crm-form/${formId}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                <Eye className="mr-2 h-4 w-4" />
+                                Preview
+                            </a>
+                        </ZoruButton>
+                        <ZoruButton asChild>
+                            <Link href={`${BASE}/${formId}/edit`}>
+                                <Pencil className="mr-2 h-4 w-4" />
+                                Edit
+                            </Link>
+                        </ZoruButton>
+                    </div>
+                }
+            />
+
+            {/* Summary card */}
+            <ZoruCard className="p-6">
+                <div className="mb-4 flex flex-wrap items-center gap-2">
+                    <div className="text-[14px] font-medium text-zoru-ink">Overview</div>
+                    <StatusPill label={status} tone={tone} />
+                </div>
+                <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-2">
+                    <div>
+                        <div className="text-zoru-ink-muted">Slug</div>
+                        <div className="font-mono text-zoru-ink">{form.slug ?? '—'}</div>
+                    </div>
+                    <div>
+                        <div className="text-zoru-ink-muted">Submissions</div>
+                        <div className="font-mono text-zoru-ink">
+                            {form.submissionCount ?? 0}
+                        </div>
+                    </div>
+                    <div>
+                        <div className="text-zoru-ink-muted">Created</div>
+                        <div className="text-zoru-ink">{fmtDate(form.createdAt)}</div>
+                    </div>
+                    <div>
+                        <div className="text-zoru-ink-muted">Updated</div>
+                        <div className="text-zoru-ink">{fmtDate(form.updatedAt)}</div>
+                    </div>
+                    {typeof settings.successMessage === 'string' ? (
+                        <div className="sm:col-span-2">
+                            <div className="text-zoru-ink-muted">Success message</div>
+                            <div className="text-zoru-ink">
+                                {settings.successMessage as string}
+                            </div>
+                        </div>
+                    ) : null}
+                    {typeof settings.redirectUrl === 'string' ? (
+                        <div className="sm:col-span-2">
+                            <div className="text-zoru-ink-muted">Redirect URL</div>
+                            <a
+                                href={settings.redirectUrl as string}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="truncate text-zoru-ink underline-offset-2 hover:underline"
+                            >
+                                {settings.redirectUrl as string}
+                            </a>
+                        </div>
+                    ) : null}
+                </div>
+            </ZoruCard>
+
+            {/* Fields */}
+            <ZoruCard className="p-6">
+                <div className="mb-3 flex items-center justify-between">
+                    <div className="text-[15px] font-medium text-zoru-ink">Fields</div>
+                    <div className="text-[12px] text-zoru-ink-muted">
+                        {fields.length} field{fields.length === 1 ? '' : 's'}
+                    </div>
+                </div>
+                {fields.length === 0 ? (
+                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-6 text-center text-[12.5px] text-zoru-ink-muted">
+                        No fields defined.
+                    </div>
+                ) : (
+                    <ol className="space-y-2">
+                        {fields.map((f, i) => (
+                            <li
+                                key={`${f.name}-${i}`}
+                                className="grid grid-cols-1 gap-1 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-3 sm:grid-cols-[auto_1fr_1fr_140px_auto]"
+                            >
+                                <span className="font-mono text-[11px] text-zoru-ink-muted self-center">
+                                    #{i + 1}
+                                </span>
+                                <span className="font-mono text-[12.5px] text-zoru-ink self-center">
+                                    {f.name}
+                                </span>
+                                <span className="text-[13px] text-zoru-ink self-center">
+                                    {f.label ?? f.name}
+                                </span>
+                                <ZoruBadge variant="ghost" className="self-center">
+                                    {f.type ?? 'text'}
+                                </ZoruBadge>
+                                {f.required ? (
+                                    <ZoruBadge variant="warning" className="self-center">
+                                        Required
+                                    </ZoruBadge>
+                                ) : (
+                                    <span className="self-center text-[11.5px] text-zoru-ink-muted">
+                                        Optional
+                                    </span>
+                                )}
+                            </li>
+                        ))}
+                    </ol>
+                )}
+            </ZoruCard>
+        </div>
+    );
+}

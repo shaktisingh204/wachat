@@ -1,0 +1,347 @@
+'use client';
+
+/**
+ * <SuccessionForm /> — create + edit form for HR succession plans.
+ *
+ * Binds to the `saveSuccessionPlan` server action via `useActionState`.
+ * The successors repeater is a structured list of
+ * `{ name, employeeId, readiness }` rows serialised to JSON via a
+ * hidden input on submit.
+ */
+
+import { useActionState, useEffect, useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useFormStatus } from 'react-dom';
+import { ArrowLeft, LoaderCircle, Plus, Save, Trash2 } from 'lucide-react';
+
+import {
+    ZoruButton,
+    ZoruCard,
+    ZoruCheckbox,
+    ZoruInput,
+    ZoruLabel,
+    ZoruSelect,
+    ZoruSelectContent,
+    ZoruSelectItem,
+    ZoruSelectTrigger,
+    ZoruSelectValue,
+    ZoruTextarea,
+    useZoruToast,
+} from '@/components/zoruui';
+
+import { saveSuccessionPlan } from '@/app/actions/crm-succession.actions';
+import type {
+    CrmSuccessionCandidate,
+    CrmSuccessionPlanDoc,
+    CrmSuccessionReadinessOverall,
+    CrmSuccessionStatus,
+} from '@/lib/rust-client/crm-succession';
+
+const BASE = '/dashboard/hrm/hr/succession';
+
+const STATUS_OPTIONS: Array<{ value: CrmSuccessionStatus; label: string }> = [
+    { value: 'draft', label: 'Draft' },
+    { value: 'approved', label: 'Approved' },
+    { value: 'archived', label: 'Archived' },
+];
+
+const READINESS_OPTIONS: Array<{
+    value: '' | CrmSuccessionReadinessOverall;
+    label: string;
+}> = [
+    { value: '', label: '— Not assessed —' },
+    { value: 'ready_now', label: 'Ready now' },
+    { value: '1_year', label: '1 year' },
+    { value: '2_3_years', label: '2–3 years' },
+];
+
+const SUCCESSOR_READINESS: Array<{ value: string; label: string }> = [
+    { value: 'ready_now', label: 'Ready now' },
+    { value: '1_year', label: '1 year' },
+    { value: '2_3_years', label: '2–3 years' },
+];
+
+interface SuccessionFormProps {
+    initialData?: CrmSuccessionPlanDoc | null;
+}
+
+type SaveState = { message?: string; error?: string; id?: string };
+const initialState: SaveState = {};
+
+function SubmitButton({ isEditing }: { isEditing: boolean }) {
+    const { pending } = useFormStatus();
+    return (
+        <ZoruButton type="submit" disabled={pending}>
+            {pending ? (
+                <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+                <Save className="mr-2 h-4 w-4" />
+            )}
+            {isEditing ? 'Save changes' : 'Create plan'}
+        </ZoruButton>
+    );
+}
+
+export function SuccessionForm({ initialData }: SuccessionFormProps) {
+    const router = useRouter();
+    const { toast } = useZoruToast();
+    const isEditing = !!initialData?._id;
+
+    const [state, formAction] = useActionState(saveSuccessionPlan, initialState);
+
+    const [status, setStatus] = useState<CrmSuccessionStatus>(
+        (initialData?.status as CrmSuccessionStatus) ?? 'draft',
+    );
+    const [readinessOverall, setReadinessOverall] = useState<
+        '' | CrmSuccessionReadinessOverall
+    >((initialData?.readinessOverall as CrmSuccessionReadinessOverall) ?? '');
+
+    const [successors, setSuccessors] = useState<CrmSuccessionCandidate[]>(() => {
+        const raw = initialData?.successors;
+        if (Array.isArray(raw) && raw.length > 0) {
+            return raw.map((s) => ({
+                name: s.name ?? '',
+                employeeId: s.employeeId,
+                readiness: s.readiness,
+            }));
+        }
+        return [{ name: '', employeeId: '', readiness: '' }];
+    });
+
+    useEffect(() => {
+        if (state?.message) {
+            toast({ title: 'Saved', description: state.message });
+            const id = state.id ?? initialData?._id;
+            if (id) router.push(`${BASE}/${id}`);
+            else router.push(BASE);
+        }
+        if (state?.error) {
+            toast({
+                title: 'Error',
+                description: state.error,
+                variant: 'destructive',
+            });
+        }
+    }, [state, toast, router, initialData?._id]);
+
+    const addSuccessor = () =>
+        setSuccessors((prev) => [
+            ...prev,
+            { name: '', employeeId: '', readiness: '' },
+        ]);
+
+    const removeSuccessor = (idx: number) =>
+        setSuccessors((prev) => prev.filter((_, i) => i !== idx));
+
+    const updateSuccessor = <K extends keyof CrmSuccessionCandidate>(
+        idx: number,
+        key: K,
+        value: CrmSuccessionCandidate[K],
+    ) =>
+        setSuccessors((prev) =>
+            prev.map((s, i) => (i === idx ? { ...s, [key]: value } : s)),
+        );
+
+    const cleanSuccessorsJson = JSON.stringify(
+        successors
+            .map((s) => ({
+                name: s.name?.trim() ?? '',
+                employeeId: s.employeeId?.trim() || undefined,
+                readiness: s.readiness?.trim() || undefined,
+            }))
+            .filter((s) => s.name.length > 0),
+    );
+
+    return (
+        <ZoruCard className="p-6">
+            <form action={formAction} className="flex flex-col gap-6">
+                {isEditing ? (
+                    <input type="hidden" name="planId" value={initialData!._id} />
+                ) : null}
+                <input type="hidden" name="status" value={status} />
+                <input
+                    type="hidden"
+                    name="readinessOverall"
+                    value={readinessOverall}
+                />
+                <input
+                    type="hidden"
+                    name="successors"
+                    value={cleanSuccessorsJson}
+                />
+
+                {/* Role title */}
+                <div className="space-y-1.5">
+                    <ZoruLabel htmlFor="roleTitle">Role title *</ZoruLabel>
+                    <ZoruInput
+                        id="roleTitle"
+                        name="roleTitle"
+                        required
+                        placeholder="e.g. Head of Engineering"
+                        defaultValue={initialData?.roleTitle ?? ''}
+                    />
+                </div>
+
+                {/* Current incumbent + Critical role */}
+                <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-1.5">
+                        <ZoruLabel htmlFor="currentIncumbent">Current incumbent</ZoruLabel>
+                        <ZoruInput
+                            id="currentIncumbent"
+                            name="currentIncumbent"
+                            placeholder="Name of the person currently in role"
+                            defaultValue={initialData?.currentIncumbent ?? ''}
+                        />
+                    </div>
+                    <div className="flex items-center gap-2 self-end pb-1.5">
+                        <ZoruCheckbox
+                            id="criticalRole"
+                            name="criticalRole"
+                            defaultChecked={!!initialData?.criticalRole}
+                        />
+                        <ZoruLabel htmlFor="criticalRole" className="cursor-pointer">
+                            Critical role (business-impacting)
+                        </ZoruLabel>
+                    </div>
+                </div>
+
+                {/* Successors repeater */}
+                <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                        <ZoruLabel>Successors</ZoruLabel>
+                        <ZoruButton
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={addSuccessor}
+                        >
+                            <Plus className="mr-1.5 h-3.5 w-3.5" />
+                            Add successor
+                        </ZoruButton>
+                    </div>
+
+                    <div className="flex flex-col gap-2">
+                        {successors.map((s, idx) => (
+                            <div
+                                key={idx}
+                                className="grid grid-cols-1 gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-3 sm:grid-cols-[1.4fr_1fr_1fr_auto]"
+                            >
+                                <ZoruInput
+                                    placeholder="Successor name"
+                                    value={s.name}
+                                    onChange={(e) =>
+                                        updateSuccessor(idx, 'name', e.target.value)
+                                    }
+                                />
+                                <ZoruInput
+                                    placeholder="Employee ID"
+                                    value={s.employeeId ?? ''}
+                                    onChange={(e) =>
+                                        updateSuccessor(idx, 'employeeId', e.target.value)
+                                    }
+                                />
+                                <select
+                                    value={s.readiness ?? ''}
+                                    onChange={(e) =>
+                                        updateSuccessor(idx, 'readiness', e.target.value)
+                                    }
+                                    className="flex h-9 w-full rounded-md border border-zoru-line bg-transparent px-3 py-1 text-[13px] text-zoru-ink shadow-sm focus:outline-none focus:ring-1 focus:ring-zoru-accent"
+                                >
+                                    <option value="">— Readiness —</option>
+                                    {SUCCESSOR_READINESS.map((o) => (
+                                        <option key={o.value} value={o.value}>
+                                            {o.label}
+                                        </option>
+                                    ))}
+                                </select>
+                                <ZoruButton
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => removeSuccessor(idx)}
+                                    disabled={successors.length === 1}
+                                    aria-label="Remove successor"
+                                >
+                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                </ZoruButton>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Readiness + Status */}
+                <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-1.5">
+                        <ZoruLabel htmlFor="readiness-trigger">
+                            Overall readiness
+                        </ZoruLabel>
+                        <ZoruSelect
+                            value={readinessOverall || 'none'}
+                            onValueChange={(v) =>
+                                setReadinessOverall(
+                                    v === 'none' ? '' : (v as CrmSuccessionReadinessOverall),
+                                )
+                            }
+                        >
+                            <ZoruSelectTrigger id="readiness-trigger">
+                                <ZoruSelectValue placeholder="—" />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                {READINESS_OPTIONS.map((o) => (
+                                    <ZoruSelectItem
+                                        key={o.value || 'none'}
+                                        value={o.value || 'none'}
+                                    >
+                                        {o.label}
+                                    </ZoruSelectItem>
+                                ))}
+                            </ZoruSelectContent>
+                        </ZoruSelect>
+                    </div>
+                    <div className="space-y-1.5">
+                        <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
+                        <ZoruSelect
+                            value={status}
+                            onValueChange={(v) => setStatus(v as CrmSuccessionStatus)}
+                        >
+                            <ZoruSelectTrigger id="status-trigger">
+                                <ZoruSelectValue placeholder="Status" />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                {STATUS_OPTIONS.map((o) => (
+                                    <ZoruSelectItem key={o.value} value={o.value}>
+                                        {o.label}
+                                    </ZoruSelectItem>
+                                ))}
+                            </ZoruSelectContent>
+                        </ZoruSelect>
+                    </div>
+                </div>
+
+                {/* Notes */}
+                <div className="space-y-1.5">
+                    <ZoruLabel htmlFor="notes">Notes</ZoruLabel>
+                    <ZoruTextarea
+                        id="notes"
+                        name="notes"
+                        rows={4}
+                        placeholder="Development plan, risks, gating criteria…"
+                        defaultValue={initialData?.notes ?? ''}
+                    />
+                </div>
+
+                {/* Footer */}
+                <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
+                    <ZoruButton variant="ghost" asChild>
+                        <Link href={BASE}>
+                            <ArrowLeft className="mr-2 h-4 w-4" />
+                            Back to plans
+                        </Link>
+                    </ZoruButton>
+                    <SubmitButton isEditing={isEditing} />
+                </div>
+            </form>
+        </ZoruCard>
+    );
+}

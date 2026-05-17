@@ -1,0 +1,117 @@
+{
+  "id": "cloudflare-workers-kv",
+  "name": "Cloudflare Workers KV",
+  "description": "Cloudflare Workers KV — global low-latency key-value store via the Cloudflare API.",
+  "category": "KV Store",
+  "iconName": "LuDatabase",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "bearer",
+    "credentialType": "cloudflare"
+  },
+  "baseUrl": "https://api.cloudflare.com/client/v4",
+  "endpoints": [
+    {
+      "id": "list_namespaces",
+      "label": "List namespaces",
+      "method": "GET",
+      "path": "/accounts/{account_id}/storage/kv/namespaces",
+      "fields": [
+        { "id": "account_id", "label": "Account ID", "type": "text", "required": true, "in": "path" },
+        { "id": "page", "label": "Page", "type": "number", "in": "query" },
+        { "id": "per_page", "label": "Per page", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "create_namespace",
+      "label": "Create namespace",
+      "method": "POST",
+      "path": "/accounts/{account_id}/storage/kv/namespaces",
+      "fields": [
+        { "id": "account_id", "label": "Account ID", "type": "text", "required": true, "in": "path" },
+        { "id": "title", "label": "Title", "type": "text", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "delete_namespace",
+      "label": "Delete namespace",
+      "method": "DELETE",
+      "path": "/accounts/{account_id}/storage/kv/namespaces/{namespace_id}",
+      "fields": [
+        { "id": "account_id", "label": "Account ID", "type": "text", "required": true, "in": "path" },
+        { "id": "namespace_id", "label": "Namespace ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_keys",
+      "label": "List keys",
+      "method": "GET",
+      "path": "/accounts/{account_id}/storage/kv/namespaces/{namespace_id}/keys",
+      "fields": [
+        { "id": "account_id", "label": "Account ID", "type": "text", "required": true, "in": "path" },
+        { "id": "namespace_id", "label": "Namespace ID", "type": "text", "required": true, "in": "path" },
+        { "id": "limit", "label": "Limit", "type": "number", "in": "query" },
+        { "id": "cursor", "label": "Cursor", "type": "text", "in": "query" },
+        { "id": "prefix", "label": "Prefix", "type": "text", "in": "query" }
+      ]
+    },
+    {
+      "id": "read_value",
+      "label": "Read value",
+      "method": "GET",
+      "path": "/accounts/{account_id}/storage/kv/namespaces/{namespace_id}/values/{key_name}",
+      "fields": [
+        { "id": "account_id", "label": "Account ID", "type": "text", "required": true, "in": "path" },
+        { "id": "namespace_id", "label": "Namespace ID", "type": "text", "required": true, "in": "path" },
+        { "id": "key_name", "label": "Key name", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "write_value",
+      "label": "Write value",
+      "method": "PUT",
+      "path": "/accounts/{account_id}/storage/kv/namespaces/{namespace_id}/values/{key_name}",
+      "fields": [
+        { "id": "account_id", "label": "Account ID", "type": "text", "required": true, "in": "path" },
+        { "id": "namespace_id", "label": "Namespace ID", "type": "text", "required": true, "in": "path" },
+        { "id": "key_name", "label": "Key name", "type": "text", "required": true, "in": "path" },
+        { "id": "value", "label": "Value", "type": "textarea", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "delete_key",
+      "label": "Delete key",
+      "method": "DELETE",
+      "path": "/accounts/{account_id}/storage/kv/namespaces/{namespace_id}/values/{key_name}",
+      "fields": [
+        { "id": "account_id", "label": "Account ID", "type": "text", "required": true, "in": "path" },
+        { "id": "namespace_id", "label": "Namespace ID", "type": "text", "required": true, "in": "path" },
+        { "id": "key_name", "label": "Key name", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "bulk_write",
+      "label": "Bulk write",
+      "method": "PUT",
+      "path": "/accounts/{account_id}/storage/kv/namespaces/{namespace_id}/bulk",
+      "fields": [
+        { "id": "account_id", "label": "Account ID", "type": "text", "required": true, "in": "path" },
+        { "id": "namespace_id", "label": "Namespace ID", "type": "text", "required": true, "in": "path" },
+        { "id": "items", "label": "Items JSON array", "type": "json", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "bulk_delete",
+      "label": "Bulk delete",
+      "method": "DELETE",
+      "path": "/accounts/{account_id}/storage/kv/namespaces/{namespace_id}/bulk",
+      "fields": [
+        { "id": "account_id", "label": "Account ID", "type": "text", "required": true, "in": "path" },
+        { "id": "namespace_id", "label": "Namespace ID", "type": "text", "required": true, "in": "path" },
+        { "id": "keys", "label": "Keys JSON array", "type": "json", "required": true, "in": "body" }
+      ]
+    }
+  ]
+}

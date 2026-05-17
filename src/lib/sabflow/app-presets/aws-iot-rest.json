@@ -1,0 +1,19 @@
+{
+  "id": "aws-iot-rest",
+  "name": "AWS IoT (REST data plane)",
+  "description": "AWS IoT Core data-plane HTTP endpoints. Requires SigV4-signed Authorization.",
+  "category": "IoT",
+  "iconName": "LuCloud",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": { "type": "aws_sigv4", "credentialType": "aws_sigv4" },
+  "baseUrl": "https://{endpoint}.iot.{region}.amazonaws.com",
+  "endpoints": [
+    { "id": "publish_to_topic", "label": "Publish to topic", "method": "POST", "path": "/topics/{topic_name}", "fields": [{ "id": "endpoint", "type": "text", "required": true, "in": "path" }, { "id": "region", "type": "text", "required": true, "in": "path" }, { "id": "topic_name", "type": "text", "required": true, "in": "path" }, { "id": "qos", "type": "number", "defaultValue": 0, "in": "query" }, { "id": "payload", "type": "json", "required": true, "in": "body" }] },
+    { "id": "get_thing_shadow", "label": "Get thing shadow", "method": "GET", "path": "/things/{thing_name}/shadow", "fields": [{ "id": "endpoint", "type": "text", "required": true, "in": "path" }, { "id": "region", "type": "text", "required": true, "in": "path" }, { "id": "thing_name", "type": "text", "required": true, "in": "path" }, { "id": "name", "type": "text", "in": "query" }] },
+    { "id": "update_thing_shadow", "label": "Update thing shadow", "method": "POST", "path": "/things/{thing_name}/shadow", "fields": [{ "id": "endpoint", "type": "text", "required": true, "in": "path" }, { "id": "region", "type": "text", "required": true, "in": "path" }, { "id": "thing_name", "type": "text", "required": true, "in": "path" }, { "id": "name", "type": "text", "in": "query" }, { "id": "state", "type": "json", "required": true, "in": "body", "defaultValue": { "desired": {}, "reported": {} } }] },
+    { "id": "delete_thing_shadow", "label": "Delete thing shadow", "method": "DELETE", "path": "/things/{thing_name}/shadow", "fields": [{ "id": "endpoint", "type": "text", "required": true, "in": "path" }, { "id": "region", "type": "text", "required": true, "in": "path" }, { "id": "thing_name", "type": "text", "required": true, "in": "path" }, { "id": "name", "type": "text", "in": "query" }] },
+    { "id": "list_named_shadows_for_thing", "label": "List named shadows for thing", "method": "GET", "path": "/api/things/shadow/ListNamedShadowsForThing/{thing_name}", "fields": [{ "id": "endpoint", "type": "text", "required": true, "in": "path" }, { "id": "region", "type": "text", "required": true, "in": "path" }, { "id": "thing_name", "type": "text", "required": true, "in": "path" }, { "id": "nextToken", "type": "text", "in": "query" }, { "id": "pageSize", "type": "number", "in": "query" }] }
+  ]
+}

@@ -1,0 +1,121 @@
+{
+  "id": "rollbar",
+  "name": "Rollbar",
+  "description": "Rollbar real-time error tracking and deploy monitoring API.",
+  "category": "Monitoring",
+  "iconName": "LuBug",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "header",
+    "credentialType": "rollbar",
+    "header": "X-Rollbar-Access-Token"
+  },
+  "baseUrl": "https://api.rollbar.com/api/1",
+  "endpoints": [
+    {
+      "id": "list_items",
+      "label": "List items",
+      "method": "GET",
+      "path": "/items/",
+      "fields": [
+        { "id": "status", "label": "Status", "type": "select", "in": "query" },
+        { "id": "level", "label": "Level", "type": "select", "in": "query" },
+        { "id": "page", "label": "Page", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "get_item",
+      "label": "Get item",
+      "method": "GET",
+      "path": "/item/{id}",
+      "fields": [
+        { "id": "id", "label": "Item ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "update_item",
+      "label": "Update item",
+      "method": "PATCH",
+      "path": "/item/{id}",
+      "fields": [
+        { "id": "id", "label": "Item ID", "type": "text", "required": true, "in": "path" },
+        { "id": "status", "label": "Status", "type": "select", "in": "body" },
+        { "id": "level", "label": "Level", "type": "select", "in": "body" },
+        { "id": "assigned_user_id", "label": "Assigned user ID", "type": "number", "in": "body" },
+        { "id": "resolved_in_version", "label": "Resolved in version", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "list_occurrences",
+      "label": "List occurrences",
+      "method": "GET",
+      "path": "/item/{id}/instances/",
+      "fields": [
+        { "id": "id", "label": "Item ID", "type": "text", "required": true, "in": "path" },
+        { "id": "page", "label": "Page", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "list_deploys",
+      "label": "List deploys",
+      "method": "GET",
+      "path": "/deploys",
+      "fields": [
+        { "id": "page", "label": "Page", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "report_deploy",
+      "label": "Report deploy",
+      "method": "POST",
+      "path": "/deploy",
+      "fields": [
+        { "id": "environment", "label": "Environment", "type": "text", "required": true, "in": "body" },
+        { "id": "revision", "label": "Revision", "type": "text", "in": "body" },
+        { "id": "local_username", "label": "Local username", "type": "text", "in": "body" },
+        { "id": "comment", "label": "Comment", "type": "textarea", "in": "body" },
+        { "id": "status", "label": "Status", "type": "select", "in": "body" }
+      ]
+    },
+    {
+      "id": "report_item",
+      "label": "Report item",
+      "method": "POST",
+      "path": "/item/",
+      "fields": [
+        { "id": "data", "label": "Data (JSON)", "type": "json", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "rql_jobs",
+      "label": "Create RQL job",
+      "method": "POST",
+      "path": "/rql/jobs",
+      "fields": [
+        { "id": "query_string", "label": "Query string (RQL)", "type": "textarea", "required": true, "in": "body" },
+        { "id": "force_refresh", "label": "Force refresh", "type": "toggle", "in": "body" }
+      ]
+    },
+    {
+      "id": "get_rql_job",
+      "label": "Get RQL job",
+      "method": "GET",
+      "path": "/rql/job/{id}",
+      "fields": [
+        { "id": "id", "label": "Job ID", "type": "text", "required": true, "in": "path" },
+        { "id": "expand", "label": "Expand", "type": "text", "defaultValue": "result", "in": "query" }
+      ]
+    },
+    {
+      "id": "list_projects",
+      "label": "List projects",
+      "method": "GET",
+      "path": "/projects",
+      "fields": [
+        { "id": "page", "label": "Page", "type": "number", "in": "query" }
+      ]
+    }
+  ]
+}

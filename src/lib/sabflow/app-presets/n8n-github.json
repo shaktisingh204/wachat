@@ -1,0 +1,2125 @@
+{
+  "id": "n8n-github",
+  "name": "GitHub",
+  "description": "Consume GitHub API",
+  "category": "Input",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "organization_get_repositories",
+      "label": "Get Repositories Organization",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        },
+        {
+          "id": "owner",
+          "label": "Repository Owner",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "repository",
+          "label": "Repository Name",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "in": "query",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "in": "query",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ]
+    },
+    {
+      "id": "issue_create",
+      "label": "Create Issue",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        },
+        {
+          "id": "owner",
+          "label": "Repository Owner",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "repository",
+          "label": "Repository Name",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "title",
+          "label": "Title",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The title of the issue"
+        },
+        {
+          "id": "body",
+          "label": "Body",
+          "type": "text",
+          "in": "query",
+          "description": "The body of the issue"
+        },
+        {
+          "id": "labels",
+          "label": "Labels",
+          "type": "json",
+          "in": "query"
+        },
+        {
+          "id": "assignees",
+          "label": "Assignees",
+          "type": "json",
+          "in": "query"
+        }
+      ]
+    },
+    {
+      "id": "issue_create_comment",
+      "label": "Create Comment Issue",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        },
+        {
+          "id": "owner",
+          "label": "Repository Owner",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "repository",
+          "label": "Repository Name",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "issueNumber",
+          "label": "Issue Number",
+          "type": "number",
+          "in": "query",
+          "required": true,
+          "description": "The number of the issue on which to create the comment on",
+          "defaultValue": 0
+        },
+        {
+          "id": "body",
+          "label": "Body",
+          "type": "text",
+          "in": "query",
+          "description": "The body of the comment"
+        }
+      ]
+    },
+    {
+      "id": "issue_edit",
+      "label": "Edit Issue",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        },
+        {
+          "id": "owner",
+          "label": "Repository Owner",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "repository",
+          "label": "Repository Name",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "issueNumber",
+          "label": "Issue Number",
+          "type": "number",
+          "in": "query",
+          "required": true,
+          "description": "The number of the issue edit",
+          "defaultValue": 0
+        },
+        {
+          "id": "editFields",
+          "label": "Edit Fields",
+          "type": "json",
+          "in": "query"
+        }
+      ]
+    },
+    {
+      "id": "issue_get",
+      "label": "Get Issue",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        },
+        {
+          "id": "owner",
+          "label": "Repository Owner",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "repository",
+          "label": "Repository Name",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "issueNumber",
+          "label": "Issue Number",
+          "type": "number",
+          "in": "query",
+          "required": true,
+          "description": "The issue number to get data for",
+          "defaultValue": 0
+        }
+      ]
+    },
+    {
+      "id": "issue_lock",
+      "label": "Lock Issue",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        },
+        {
+          "id": "owner",
+          "label": "Repository Owner",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "repository",
+          "label": "Repository Name",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "issueNumber",
+          "label": "Issue Number",
+          "type": "number",
+          "in": "query",
+          "required": true,
+          "description": "The issue number to lock",
+          "defaultValue": 0
+        },
+        {
+          "id": "lockReason",
+          "label": "Lock Reason",
+          "type": "select",
+          "in": "query",
+          "description": "The reason for locking the issue",
+          "defaultValue": "resolved",
+          "options": [
+            {
+              "value": "off-topic",
+              "label": "Off-Topic"
+            },
+            {
+              "value": "too heated",
+              "label": "Too Heated"
+            },
+            {
+              "value": "resolved",
+              "label": "Resolved"
+            },
+            {
+              "value": "spam",
+              "label": "Spam"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "file_create",
+      "label": "Create File",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        },
+        {
+          "id": "owner",
+          "label": "Repository Owner",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "repository",
+          "label": "Repository Name",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "filePath",
+          "label": "File Path",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "docs/README.md",
+          "description": "The file path of the file. Has to contain the full path."
+        },
+        {
+          "id": "binaryData",
+          "label": "Binary File",
+          "type": "toggle",
+          "in": "query",
+          "required": true,
+          "description": "Whether the data to upload should be taken from binary field",
+          "defaultValue": false
+        },
+        {
+          "id": "fileContent",
+          "label": "File Content",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The text content of the file"
+        },
+        {
+          "id": "binaryPropertyName",
+          "label": "Input Binary Field",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "defaultValue": "data"
+        },
+        {
+          "id": "commitMessage",
+          "label": "Commit Message",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "additionalParameters",
+          "label": "Additional Parameters",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Parameter",
+          "description": "Additional fields to add"
+        }
+      ]
+    },
+    {
+      "id": "file_delete",
+      "label": "Delete File",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        },
+        {
+          "id": "owner",
+          "label": "Repository Owner",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "repository",
+          "label": "Repository Name",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "filePath",
+          "label": "File Path",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "docs/README.md",
+          "description": "The file path of the file. Has to contain the full path."
+        },
+        {
+          "id": "commitMessage",
+          "label": "Commit Message",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "additionalParameters",
+          "label": "Additional Parameters",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Parameter",
+          "description": "Additional fields to add"
+        }
+      ]
+    },
+    {
+      "id": "file_edit",
+      "label": "Edit File",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        },
+        {
+          "id": "owner",
+          "label": "Repository Owner",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "repository",
+          "label": "Repository Name",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "filePath",
+          "label": "File Path",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "docs/README.md",
+          "description": "The file path of the file. Has to contain the full path."
+        },
+        {
+          "id": "binaryData",
+          "label": "Binary File",
+          "type": "toggle",
+          "in": "query",
+          "required": true,
+          "description": "Whether the data to upload should be taken from binary field",
+          "defaultValue": false
+        },
+        {
+          "id": "fileContent",
+          "label": "File Content",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The text content of the file"
+        },
+        {
+          "id": "binaryPropertyName",
+          "label": "Input Binary Field",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "defaultValue": "data"
+        },
+        {
+          "id": "commitMessage",
+          "label": "Commit Message",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "additionalParameters",
+          "label": "Additional Parameters",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Parameter",
+          "description": "Additional fields to add"
+        }
+      ]
+    },
+    {
+      "id": "file_get",
+      "label": "Get File",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        },
+        {
+          "id": "owner",
+          "label": "Repository Owner",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "repository",
+          "label": "Repository Name",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "filePath",
+          "label": "File Path",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "docs/README.md",
+          "description": "The file path of the file. Has to contain the full path."
+        },
+        {
+          "id": "asBinaryProperty",
+          "label": "As Binary Property",
+          "type": "toggle",
+          "in": "query",
+          "description": "Whether to set the data of the file as binary property instead of returning the raw API response",
+          "defaultValue": true
+        },
+        {
+          "id": "binaryPropertyName",
+          "label": "Put Output File in Field",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "defaultValue": "data"
+        },
+        {
+          "id": "additionalParameters",
+          "label": "Additional Parameters",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Parameter",
+          "description": "Additional fields to add"
+        }
+      ]
+    },
+    {
+      "id": "file_list",
+      "label": "List File",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        },
+        {
+          "id": "owner",
+          "label": "Repository Owner",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "repository",
+          "label": "Repository Name",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "filePath",
+          "label": "File Path",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "docs/README.md",
+          "description": "The file path of the file. Has to contain the full path."
+        },
+        {
+          "id": "filePath",
+          "label": "Path",
+          "type": "text",
+          "in": "query",
+          "placeholder": "docs/",
+          "description": "The path of the folder to list"
+        }
+      ]
+    },
+    {
+      "id": "repository_get",
+      "label": "Get Repository",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        },
+        {
+          "id": "owner",
+          "label": "Repository Owner",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "repository",
+          "label": "Repository Name",
+          "type": "text",
+          "in": "query",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "repository_get_issues",
+      "label": "Get Issues Repository",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        },
+        {
+          "id": "owner",
+          "label": "Repository Owner",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "repository",
+          "label": "Repository Name",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "in": "query",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "in": "query",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "getRepositoryIssuesFilters",
+          "label": "Filters",
+          "type": "json",
+          "in": "query"
+        }
+      ]
+    },
+    {
+      "id": "repository_get_license",
+      "label": "Get License Repository",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        },
+        {
+          "id": "owner",
+          "label": "Repository Owner",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "repository",
+          "label": "Repository Name",
+          "type": "text",
+          "in": "query",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "repository_get_profile",
+      "label": "Get Profile Repository",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        },
+        {
+          "id": "owner",
+          "label": "Repository Owner",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "repository",
+          "label": "Repository Name",
+          "type": "text",
+          "in": "query",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "repository_get_pull_requests",
+      "label": "Get Pull Requests Repository",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        },
+        {
+          "id": "owner",
+          "label": "Repository Owner",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "repository",
+          "label": "Repository Name",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "in": "query",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "in": "query",
+          "description": "Max number of results to return. Maximum value is <a href=\"https://docs.github.com/en/rest/pulls/pulls?apiVersion=2022-11-28#list-pull-requests\">100</a>.",
+          "defaultValue": 50
+        },
+        {
+          "id": "getRepositoryPullRequestsFilters",
+          "label": "Filters",
+          "type": "json",
+          "in": "query"
+        }
+      ]
+    },
+    {
+      "id": "repository_list_popular_paths",
+      "label": "List Popular Paths Repository",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        },
+        {
+          "id": "owner",
+          "label": "Repository Owner",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "repository",
+          "label": "Repository Name",
+          "type": "text",
+          "in": "query",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "repository_list_referrers",
+      "label": "List Referrers Repository",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        },
+        {
+          "id": "owner",
+          "label": "Repository Owner",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "repository",
+          "label": "Repository Name",
+          "type": "text",
+          "in": "query",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "user_get_repositories",
+      "label": "Get Repositories User",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        },
+        {
+          "id": "owner",
+          "label": "Repository Owner",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "repository",
+          "label": "Repository Name",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "in": "query",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "in": "query",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ]
+    },
+    {
+      "id": "user_get_user_issues",
+      "label": "Get Issues User",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        },
+        {
+          "id": "owner",
+          "label": "Repository Owner",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "repository",
+          "label": "Repository Name",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "in": "query",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "in": "query",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "getUserIssuesFilters",
+          "label": "Filters",
+          "type": "json",
+          "in": "query"
+        }
+      ]
+    },
+    {
+      "id": "user_invite",
+      "label": "Invite User",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        },
+        {
+          "id": "owner",
+          "label": "Repository Owner",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "repository",
+          "label": "Repository Name",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "organization",
+          "label": "Organization",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The GitHub organization that the user is being invited to"
+        },
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "name@email.com",
+          "description": "The email address of the invited user"
+        }
+      ]
+    },
+    {
+      "id": "release_create",
+      "label": "Create Release",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        },
+        {
+          "id": "owner",
+          "label": "Repository Owner",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "repository",
+          "label": "Repository Name",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "releaseTag",
+          "label": "Tag",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The tag of the release"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "in": "query"
+        }
+      ]
+    },
+    {
+      "id": "release_delete",
+      "label": "Delete Release",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        },
+        {
+          "id": "owner",
+          "label": "Repository Owner",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "repository",
+          "label": "Repository Name",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "release_id",
+          "label": "Release ID",
+          "type": "text",
+          "in": "query",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "release_get",
+      "label": "Get Release",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        },
+        {
+          "id": "owner",
+          "label": "Repository Owner",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "repository",
+          "label": "Repository Name",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "release_id",
+          "label": "Release ID",
+          "type": "text",
+          "in": "query",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "release_get_all",
+      "label": "Get Many Release",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        },
+        {
+          "id": "owner",
+          "label": "Repository Owner",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "repository",
+          "label": "Repository Name",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "in": "query",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "in": "query",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ]
+    },
+    {
+      "id": "release_update",
+      "label": "Update Release",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        },
+        {
+          "id": "owner",
+          "label": "Repository Owner",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "repository",
+          "label": "Repository Name",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "release_id",
+          "label": "Release ID",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "in": "query"
+        }
+      ]
+    },
+    {
+      "id": "review_create",
+      "label": "Create Review",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        },
+        {
+          "id": "owner",
+          "label": "Repository Owner",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "repository",
+          "label": "Repository Name",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "pullRequestNumber",
+          "label": "PR Number",
+          "type": "number",
+          "in": "query",
+          "required": true,
+          "description": "The number of the pull request to review",
+          "defaultValue": 0
+        },
+        {
+          "id": "event",
+          "label": "Event",
+          "type": "select",
+          "in": "query",
+          "description": "The review action you want to perform",
+          "defaultValue": "approve",
+          "options": [
+            {
+              "value": "approve",
+              "label": "Approve"
+            },
+            {
+              "value": "requestChanges",
+              "label": "Request Change"
+            },
+            {
+              "value": "comment",
+              "label": "Comment"
+            },
+            {
+              "value": "pending",
+              "label": "Pending"
+            }
+          ]
+        },
+        {
+          "id": "body",
+          "label": "Body",
+          "type": "text",
+          "in": "query",
+          "description": "The body of the review (required for events Request Changes or Comment)"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Field"
+        }
+      ]
+    },
+    {
+      "id": "review_get",
+      "label": "Get Review",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        },
+        {
+          "id": "owner",
+          "label": "Repository Owner",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "repository",
+          "label": "Repository Name",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "pullRequestNumber",
+          "label": "PR Number",
+          "type": "number",
+          "in": "query",
+          "required": true,
+          "description": "The number of the pull request",
+          "defaultValue": 0
+        },
+        {
+          "id": "reviewId",
+          "label": "Review ID",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "ID of the review"
+        }
+      ]
+    },
+    {
+      "id": "review_get_all",
+      "label": "Get Many Review",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        },
+        {
+          "id": "owner",
+          "label": "Repository Owner",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "repository",
+          "label": "Repository Name",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "pullRequestNumber",
+          "label": "PR Number",
+          "type": "number",
+          "in": "query",
+          "required": true,
+          "description": "The number of the pull request",
+          "defaultValue": 0
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "in": "query",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "in": "query",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ]
+    },
+    {
+      "id": "review_update",
+      "label": "Update Review",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        },
+        {
+          "id": "owner",
+          "label": "Repository Owner",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "repository",
+          "label": "Repository Name",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "pullRequestNumber",
+          "label": "PR Number",
+          "type": "number",
+          "in": "query",
+          "required": true,
+          "description": "The number of the pull request",
+          "defaultValue": 0
+        },
+        {
+          "id": "reviewId",
+          "label": "Review ID",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "ID of the review"
+        },
+        {
+          "id": "body",
+          "label": "Body",
+          "type": "text",
+          "in": "query",
+          "description": "The body of the review"
+        }
+      ]
+    },
+    {
+      "id": "workflow_disable",
+      "label": "Disable Workflow",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        },
+        {
+          "id": "owner",
+          "label": "Repository Owner",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "repository",
+          "label": "Repository Name",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "workflowId",
+          "label": "Workflow",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The workflow to dispatch"
+        }
+      ]
+    },
+    {
+      "id": "workflow_dispatch",
+      "label": "Dispatch Workflow",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        },
+        {
+          "id": "owner",
+          "label": "Repository Owner",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "repository",
+          "label": "Repository Name",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "workflowId",
+          "label": "Workflow",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The workflow to dispatch"
+        },
+        {
+          "id": "ref",
+          "label": "Ref",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The git reference for the workflow dispatch (branch or tag name)",
+          "defaultValue": "main"
+        },
+        {
+          "id": "ref",
+          "label": "Ref",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The git reference for the workflow dispatch (branch, tag, or commit SHA)"
+        },
+        {
+          "id": "inputs",
+          "label": "Inputs",
+          "type": "json",
+          "in": "query",
+          "description": "JSON object with input parameters for the workflow",
+          "defaultValue": "{}"
+        }
+      ]
+    },
+    {
+      "id": "workflow_dispatch_and_wait",
+      "label": "Dispatch and Wait for Completion Workflow",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        },
+        {
+          "id": "webhookNotice",
+          "label": "Your execution will pause until a webhook is called. This URL will be generated at runtime and passed to your Github workflow as a resumeUrl input.",
+          "type": "text",
+          "in": "query"
+        },
+        {
+          "id": "owner",
+          "label": "Repository Owner",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "repository",
+          "label": "Repository Name",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "workflowId",
+          "label": "Workflow",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The workflow to dispatch"
+        },
+        {
+          "id": "ref",
+          "label": "Ref",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The git reference for the workflow dispatch (branch or tag name)",
+          "defaultValue": "main"
+        },
+        {
+          "id": "ref",
+          "label": "Ref",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The git reference for the workflow dispatch (branch, tag, or commit SHA)"
+        },
+        {
+          "id": "inputs",
+          "label": "Inputs",
+          "type": "json",
+          "in": "query",
+          "description": "JSON object with input parameters for the workflow",
+          "defaultValue": "{}"
+        }
+      ]
+    },
+    {
+      "id": "workflow_enable",
+      "label": "Enable Workflow",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        },
+        {
+          "id": "owner",
+          "label": "Repository Owner",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "repository",
+          "label": "Repository Name",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "workflowId",
+          "label": "Workflow",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The workflow to dispatch"
+        }
+      ]
+    },
+    {
+      "id": "workflow_get",
+      "label": "Get Workflow",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        },
+        {
+          "id": "owner",
+          "label": "Repository Owner",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "repository",
+          "label": "Repository Name",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "workflowId",
+          "label": "Workflow",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The workflow to dispatch"
+        }
+      ]
+    },
+    {
+      "id": "workflow_get_usage",
+      "label": "Get Usage Workflow",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        },
+        {
+          "id": "owner",
+          "label": "Repository Owner",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "repository",
+          "label": "Repository Name",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "workflowId",
+          "label": "Workflow",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The workflow to dispatch"
+        }
+      ]
+    },
+    {
+      "id": "workflow_list",
+      "label": "List Workflow",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        },
+        {
+          "id": "owner",
+          "label": "Repository Owner",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "repository",
+          "label": "Repository Name",
+          "type": "text",
+          "in": "query",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

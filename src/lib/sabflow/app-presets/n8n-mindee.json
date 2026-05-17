@@ -1,0 +1,119 @@
+{
+  "id": "n8n-mindee",
+  "name": "Mindee",
+  "description": "Consume Mindee API",
+  "category": "Input",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "invoice_predict",
+      "label": "Predict Invoice",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "apiVersion",
+          "label": "API Version",
+          "type": "select",
+          "in": "query",
+          "description": "Which Mindee API Version to use",
+          "defaultValue": 1,
+          "options": []
+        },
+        {
+          "id": "apiVersion",
+          "label": "API Version",
+          "type": "select",
+          "in": "query",
+          "description": "Which Mindee API Version to use",
+          "defaultValue": 3,
+          "options": []
+        },
+        {
+          "id": "apiVersion",
+          "label": "API Version",
+          "type": "select",
+          "in": "query",
+          "description": "Which Mindee API Version to use",
+          "defaultValue": 4,
+          "options": []
+        },
+        {
+          "id": "binaryPropertyName",
+          "label": "Input Binary Field",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "defaultValue": "data"
+        },
+        {
+          "id": "rawData",
+          "label": "RAW Data",
+          "type": "toggle",
+          "in": "query",
+          "description": "Whether to return the data exactly in the way it got received from the API",
+          "defaultValue": false
+        }
+      ]
+    },
+    {
+      "id": "receipt_predict",
+      "label": "Predict Receipt",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "apiVersion",
+          "label": "API Version",
+          "type": "select",
+          "in": "query",
+          "description": "Which Mindee API Version to use",
+          "defaultValue": 1,
+          "options": []
+        },
+        {
+          "id": "apiVersion",
+          "label": "API Version",
+          "type": "select",
+          "in": "query",
+          "description": "Which Mindee API Version to use",
+          "defaultValue": 3,
+          "options": []
+        },
+        {
+          "id": "apiVersion",
+          "label": "API Version",
+          "type": "select",
+          "in": "query",
+          "description": "Which Mindee API Version to use",
+          "defaultValue": 4,
+          "options": []
+        },
+        {
+          "id": "binaryPropertyName",
+          "label": "Input Binary Field",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "defaultValue": "data"
+        },
+        {
+          "id": "rawData",
+          "label": "RAW Data",
+          "type": "toggle",
+          "in": "query",
+          "description": "Whether to return the data exactly in the way it got received from the API",
+          "defaultValue": false
+        }
+      ]
+    }
+  ]
+}

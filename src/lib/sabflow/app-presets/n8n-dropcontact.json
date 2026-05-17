@@ -1,0 +1,69 @@
+{
+  "id": "n8n-dropcontact",
+  "name": "Dropcontact",
+  "description": "Find B2B emails and enrich contacts",
+  "category": "Transform",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "contact_enrich",
+      "label": "Enrich Contact",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "in": "query",
+          "placeholder": "name@email.com"
+        },
+        {
+          "id": "simplify",
+          "label": "Simplify Output (Faster)",
+          "type": "toggle",
+          "in": "query",
+          "description": "When off, waits for the contact data before completing. Waiting time can be adjusted with Extend Wait Time option. When on, returns a request_id that can be used later in the Fetch Request operation.",
+          "defaultValue": false
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Field"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add option"
+        }
+      ]
+    },
+    {
+      "id": "contact_fetch_request",
+      "label": "Fetch Request Contact",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "requestId",
+          "label": "Request ID",
+          "type": "text",
+          "in": "query",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

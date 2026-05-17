@@ -1,0 +1,118 @@
+{
+  "id": "snipcart",
+  "name": "Snipcart",
+  "description": "Snipcart shopping cart platform: manage orders, customers, products, discounts, and abandoned carts.",
+  "category": "Commerce",
+  "iconName": "LuShoppingCart",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "basic",
+    "credentialType": "snipcart"
+  },
+  "baseUrl": "https://app.snipcart.com/api",
+  "endpoints": [
+    {
+      "id": "list_orders",
+      "label": "List Orders",
+      "method": "GET",
+      "path": "/orders",
+      "fields": [
+        { "id": "limit", "label": "Limit", "type": "number", "in": "query" },
+        { "id": "offset", "label": "Offset", "type": "number", "in": "query" },
+        { "id": "status", "label": "Status", "type": "text", "in": "query" }
+      ]
+    },
+    {
+      "id": "get_order",
+      "label": "Get Order",
+      "method": "GET",
+      "path": "/orders/{token}",
+      "fields": [
+        { "id": "token", "label": "Order Token", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "update_order",
+      "label": "Update Order",
+      "method": "PUT",
+      "path": "/orders/{token}",
+      "fields": [
+        { "id": "token", "label": "Order Token", "type": "text", "required": true, "in": "path" },
+        { "id": "status", "label": "Status", "type": "text", "in": "body" },
+        { "id": "paymentStatus", "label": "Payment Status", "type": "text", "in": "body" },
+        { "id": "trackingNumber", "label": "Tracking Number", "type": "text", "in": "body" },
+        { "id": "trackingUrl", "label": "Tracking URL", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "list_customers",
+      "label": "List Customers",
+      "method": "GET",
+      "path": "/customers",
+      "fields": [
+        { "id": "limit", "label": "Limit", "type": "number", "in": "query" },
+        { "id": "offset", "label": "Offset", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "get_customer",
+      "label": "Get Customer",
+      "method": "GET",
+      "path": "/customers/{id}",
+      "fields": [
+        { "id": "id", "label": "Customer ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_products",
+      "label": "List Products",
+      "method": "GET",
+      "path": "/products",
+      "fields": [
+        { "id": "limit", "label": "Limit", "type": "number", "in": "query" },
+        { "id": "offset", "label": "Offset", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "list_discounts",
+      "label": "List Discounts",
+      "method": "GET",
+      "path": "/discounts",
+      "fields": []
+    },
+    {
+      "id": "create_discount",
+      "label": "Create Discount",
+      "method": "POST",
+      "path": "/discounts",
+      "fields": [
+        { "id": "name", "label": "Name", "type": "text", "required": true, "in": "body" },
+        { "id": "trigger", "label": "Trigger", "type": "text", "required": true, "in": "body" },
+        { "id": "code", "label": "Code", "type": "text", "in": "body" },
+        { "id": "type", "label": "Type", "type": "text", "required": true, "in": "body" },
+        { "id": "amount", "label": "Amount", "type": "number", "in": "body" }
+      ]
+    },
+    {
+      "id": "delete_discount",
+      "label": "Delete Discount",
+      "method": "DELETE",
+      "path": "/discounts/{id}",
+      "fields": [
+        { "id": "id", "label": "Discount ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_carts_abandoned",
+      "label": "List Abandoned Carts",
+      "method": "GET",
+      "path": "/carts/abandoned",
+      "fields": [
+        { "id": "limit", "label": "Limit", "type": "number", "in": "query" },
+        { "id": "offset", "label": "Offset", "type": "number", "in": "query" }
+      ]
+    }
+  ]
+}

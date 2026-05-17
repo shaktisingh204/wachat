@@ -1,0 +1,88 @@
+{
+  "id": "paystack",
+  "name": "Paystack",
+  "description": "Payments & transfers for Africa.",
+  "category": "Fintech",
+  "iconName": "LuCreditCard",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "bearer",
+    "credentialType": "paystack",
+    "header": "Authorization",
+    "scheme": "Bearer"
+  },
+  "baseUrl": "https://api.paystack.co",
+  "endpoints": [
+    {
+      "id": "initialize_transaction",
+      "label": "Initialize transaction",
+      "method": "POST",
+      "path": "/transaction/initialize",
+      "fields": [
+        { "id": "email", "label": "Email", "type": "text", "required": true, "in": "body" },
+        { "id": "amount", "label": "Amount (kobo)", "type": "number", "required": true, "in": "body" },
+        { "id": "currency", "label": "Currency", "type": "text", "in": "body" },
+        { "id": "reference", "label": "Reference", "type": "text", "in": "body" },
+        { "id": "callback_url", "label": "Callback URL", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "verify_transaction",
+      "label": "Verify transaction",
+      "method": "GET",
+      "path": "/transaction/verify/{reference}",
+      "fields": [
+        { "id": "reference", "label": "Reference", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_transactions",
+      "label": "List transactions",
+      "method": "GET",
+      "path": "/transaction",
+      "fields": [
+        { "id": "perPage", "label": "Per page", "type": "number", "defaultValue": 50, "in": "query" },
+        { "id": "page", "label": "Page", "type": "number", "defaultValue": 1, "in": "query" }
+      ]
+    },
+    {
+      "id": "create_customer",
+      "label": "Create customer",
+      "method": "POST",
+      "path": "/customer",
+      "fields": [
+        { "id": "email", "label": "Email", "type": "text", "required": true, "in": "body" },
+        { "id": "first_name", "label": "First name", "type": "text", "in": "body" },
+        { "id": "last_name", "label": "Last name", "type": "text", "in": "body" },
+        { "id": "phone", "label": "Phone", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "create_transfer_recipient",
+      "label": "Create transfer recipient",
+      "method": "POST",
+      "path": "/transferrecipient",
+      "fields": [
+        { "id": "type", "label": "Type", "type": "text", "required": true, "in": "body" },
+        { "id": "name", "label": "Name", "type": "text", "required": true, "in": "body" },
+        { "id": "account_number", "label": "Account number", "type": "text", "required": true, "in": "body" },
+        { "id": "bank_code", "label": "Bank code", "type": "text", "required": true, "in": "body" },
+        { "id": "currency", "label": "Currency", "type": "text", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "initiate_transfer",
+      "label": "Initiate transfer",
+      "method": "POST",
+      "path": "/transfer",
+      "fields": [
+        { "id": "source", "label": "Source", "type": "text", "defaultValue": "balance", "required": true, "in": "body" },
+        { "id": "amount", "label": "Amount (kobo)", "type": "number", "required": true, "in": "body" },
+        { "id": "recipient", "label": "Recipient code", "type": "text", "required": true, "in": "body" },
+        { "id": "reason", "label": "Reason", "type": "text", "in": "body" }
+      ]
+    }
+  ]
+}

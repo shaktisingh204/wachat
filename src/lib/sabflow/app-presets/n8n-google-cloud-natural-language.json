@@ -1,0 +1,67 @@
+{
+  "id": "n8n-google-cloud-natural-language",
+  "name": "Google Cloud Natural Language",
+  "description": "Consume Google Cloud Natural Language API",
+  "category": "Input",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "oauth2",
+    "credentialType": "oauth2"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "document_analyze_sentiment",
+      "label": "Analyze Sentiment Document",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "source",
+          "label": "Source",
+          "type": "select",
+          "in": "query",
+          "required": true,
+          "description": "The source of the document: a string containing the content or a Google Cloud Storage URI",
+          "defaultValue": "content",
+          "options": [
+            {
+              "value": "content",
+              "label": "Content"
+            },
+            {
+              "value": "gcsContentUri",
+              "label": "Google Cloud Storage URI"
+            }
+          ]
+        },
+        {
+          "id": "content",
+          "label": "Content",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The content of the input in string format. Cloud audit logging exempt since it is based on user data."
+        },
+        {
+          "id": "gcsContentUri",
+          "label": "Google Cloud Storage URI",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The Google Cloud Storage URI where the file content is located. This URI must be of the form: <code>gs://bucket_name/object_name</code>. For more details, see <a href=\"https://cloud.google.com/storage/docs/reference-uris.\">reference</a>."
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add option"
+        }
+      ]
+    }
+  ]
+}

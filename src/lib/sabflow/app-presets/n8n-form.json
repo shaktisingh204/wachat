@@ -1,0 +1,44 @@
+{
+  "id": "n8n-form",
+  "name": "n8n Form",
+  "description": "Generate webforms in n8n and pass their responses to the workflow",
+  "category": "Input",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "none"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "default_page",
+      "label": "Next Form Page",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "triggerNotice",
+          "label": "An n8n Form Trigger node must be set up before this node",
+          "type": "text",
+          "in": "query"
+        }
+      ]
+    },
+    {
+      "id": "default_completion",
+      "label": "Form Ending",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "triggerNotice",
+          "label": "An n8n Form Trigger node must be set up before this node",
+          "type": "text",
+          "in": "query"
+        }
+      ]
+    }
+  ]
+}

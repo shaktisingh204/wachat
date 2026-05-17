@@ -1,0 +1,24 @@
+{
+  "id": "pandadoc",
+  "name": "PandaDoc",
+  "description": "PandaDoc document automation API.",
+  "category": "Legal",
+  "iconName": "LuFileSignature",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": { "type": "header", "credentialType": "pandadoc", "header": "Authorization", "scheme": "API-Key" },
+  "baseUrl": "https://api.pandadoc.com/public/v1",
+  "endpoints": [
+    { "id": "create_document", "label": "Create document", "method": "POST", "path": "/documents", "fields": [{ "id": "name", "type": "text", "required": true, "in": "body" }, { "id": "template_uuid", "type": "text", "in": "body" }, { "id": "recipients", "type": "json", "required": true, "in": "body" }, { "id": "tokens", "type": "json", "in": "body" }, { "id": "fields", "type": "json", "in": "body" }, { "id": "metadata", "type": "json", "in": "body" }] },
+    { "id": "get_document_status", "label": "Get document status", "method": "GET", "path": "/documents/{id}", "fields": [{ "id": "id", "type": "text", "required": true, "in": "path" }] },
+    { "id": "list_documents", "label": "List documents", "method": "GET", "path": "/documents", "fields": [{ "id": "status", "type": "text", "in": "query" }, { "id": "deleted", "type": "toggle", "in": "query" }, { "id": "template", "type": "text", "in": "query" }] },
+    { "id": "send_document", "label": "Send document", "method": "POST", "path": "/documents/{id}/send", "fields": [{ "id": "id", "type": "text", "required": true, "in": "path" }, { "id": "message", "type": "textarea", "in": "body" }, { "id": "silent", "type": "toggle", "in": "body" }, { "id": "subject", "type": "text", "in": "body" }] },
+    { "id": "delete_document", "label": "Delete document", "method": "DELETE", "path": "/documents/{id}", "fields": [{ "id": "id", "type": "text", "required": true, "in": "path" }] },
+    { "id": "download_document", "label": "Download document", "method": "GET", "path": "/documents/{id}/download", "fields": [{ "id": "id", "type": "text", "required": true, "in": "path" }] },
+    { "id": "create_document_link", "label": "Create document link", "method": "POST", "path": "/documents/{id}/session", "fields": [{ "id": "id", "type": "text", "required": true, "in": "path" }, { "id": "recipient", "type": "text", "required": true, "in": "body" }, { "id": "lifetime", "type": "number", "in": "body" }] },
+    { "id": "list_templates", "label": "List templates", "method": "GET", "path": "/templates", "fields": [] },
+    { "id": "get_template", "label": "Get template", "method": "GET", "path": "/templates/{id}/details", "fields": [{ "id": "id", "type": "text", "required": true, "in": "path" }] },
+    { "id": "list_contacts", "label": "List contacts", "method": "GET", "path": "/contacts", "fields": [] }
+  ]
+}

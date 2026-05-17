@@ -1,0 +1,66 @@
+{
+  "id": "mux",
+  "name": "Mux",
+  "description": "Mux Video API for streaming.",
+  "category": "Video",
+  "iconName": "LuVideo",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "basic",
+    "credentialType": "mux"
+  },
+  "baseUrl": "https://api.mux.com/video/v1",
+  "endpoints": [
+    {
+      "id": "create_asset",
+      "label": "Create asset",
+      "method": "POST",
+      "path": "/assets",
+      "fields": [
+        { "id": "input", "label": "Input", "type": "json", "required": true, "in": "body" },
+        { "id": "playback_policy", "label": "Playback policy", "type": "json", "in": "body" },
+        { "id": "mp4_support", "label": "MP4 support", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "get_asset",
+      "label": "Get asset",
+      "method": "GET",
+      "path": "/assets/{id}",
+      "fields": [
+        { "id": "id", "label": "Asset ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "delete_asset",
+      "label": "Delete asset",
+      "method": "DELETE",
+      "path": "/assets/{id}",
+      "fields": [
+        { "id": "id", "label": "Asset ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_assets",
+      "label": "List assets",
+      "method": "GET",
+      "path": "/assets",
+      "fields": [
+        { "id": "page", "label": "Page", "type": "number", "defaultValue": 1, "in": "query" },
+        { "id": "limit", "label": "Limit", "type": "number", "defaultValue": 25, "in": "query" }
+      ]
+    },
+    {
+      "id": "create_upload",
+      "label": "Create upload",
+      "method": "POST",
+      "path": "/uploads",
+      "fields": [
+        { "id": "new_asset_settings", "label": "New asset settings", "type": "json", "required": true, "in": "body" },
+        { "id": "cors_origin", "label": "CORS origin", "type": "text", "in": "body" }
+      ]
+    }
+  ]
+}

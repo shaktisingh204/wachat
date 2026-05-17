@@ -1,0 +1,233 @@
+/**
+ * Estimate template detail page.
+ *
+ * Renders the body, the default line items table, and the default terms.
+ * Async `params` per Next.js 15+.
+ */
+
+import Link from 'next/link';
+import { notFound, redirect } from 'next/navigation';
+import { ArrowLeft, LayoutTemplate, Pencil } from 'lucide-react';
+
+import { ZoruButton, ZoruCard } from '@/components/zoruui';
+import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
+import { getSession } from '@/app/actions/user.actions';
+import {
+    getEstimateTemplateById,
+    type CrmEstimateTemplateStatus,
+} from '@/app/actions/crm-estimate-templates.actions';
+
+export const dynamic = 'force-dynamic';
+
+const BASE = '/dashboard/crm/sales/estimates-templates';
+
+const STATUS_TONE: Record<CrmEstimateTemplateStatus, StatusTone> = {
+    draft: 'amber',
+    published: 'green',
+    archived: 'neutral',
+};
+
+function fmt(n: unknown): string {
+    const num = typeof n === 'number' ? n : parseFloat(String(n ?? ''));
+    return Number.isFinite(num) ? num.toFixed(2) : '0.00';
+}
+
+export default async function EstimateTemplateDetailPage({
+    params,
+}: {
+    params: Promise<{ templateId: string }>;
+}) {
+    const { templateId } = await params;
+
+    const session = await getSession();
+    if (!session?.user) redirect('/login');
+
+    const tpl = await getEstimateTemplateById(templateId);
+    if (!tpl) notFound();
+
+    const status =
+        (tpl.status as CrmEstimateTemplateStatus | undefined) ?? 'draft';
+    const tone = STATUS_TONE[status] ?? 'neutral';
+    const items = Array.isArray(tpl.defaultItems)
+        ? (tpl.defaultItems as Array<{
+              description?: string;
+              quantity?: number;
+              rate?: number;
+          }>)
+        : [];
+
+    const subtotal = items.reduce((sum, it) => {
+        const q =
+            typeof it.quantity === 'number'
+                ? it.quantity
+                : parseFloat(String(it.quantity ?? '0')) || 0;
+        const r =
+            typeof it.rate === 'number'
+                ? it.rate
+                : parseFloat(String(it.rate ?? '0')) || 0;
+        return sum + q * r;
+    }, 0);
+
+    return (
+        <div className="flex w-full flex-col gap-6">
+            <CrmPageHeader
+                title={(tpl.name as string) || 'Estimate template'}
+                subtitle={(tpl.category as string) || 'Template detail'}
+                icon={LayoutTemplate}
+                actions={
+                    <div className="flex items-center gap-2">
+                        <ZoruButton variant="outline" asChild>
+                            <Link href={BASE}>
+                                <ArrowLeft className="mr-2 h-4 w-4" />
+                                Back
+                            </Link>
+                        </ZoruButton>
+                        <ZoruButton asChild>
+                            <Link href={`${BASE}/${templateId}/edit`}>
+                                <Pencil className="mr-2 h-4 w-4" />
+                                Edit
+                            </Link>
+                        </ZoruButton>
+                    </div>
+                }
+            />
+
+            {/* Summary */}
+            <ZoruCard className="p-6">
+                <div className="mb-4 flex flex-wrap items-center gap-2">
+                    <div className="text-[14px] font-medium text-zoru-ink">
+                        Overview
+                    </div>
+                    <StatusPill label={status} tone={tone} />
+                    {tpl.isActive === false ? (
+                        <StatusPill label="Inactive" tone="neutral" />
+                    ) : (
+                        <StatusPill label="Active" tone="green" />
+                    )}
+                </div>
+                <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-2">
+                    <div>
+                        <div className="text-zoru-ink-muted">Name</div>
+                        <div className="text-zoru-ink">
+                            {(tpl.name as string) || '—'}
+                        </div>
+                    </div>
+                    <div>
+                        <div className="text-zoru-ink-muted">Category</div>
+                        <div className="capitalize text-zoru-ink">
+                            {(tpl.category as string) || '—'}
+                        </div>
+                    </div>
+                </div>
+            </ZoruCard>
+
+            {/* Body */}
+            <ZoruCard className="p-6">
+                <div className="mb-3 text-[15px] font-medium text-zoru-ink">
+                    Template body
+                </div>
+                {tpl.templateBody ? (
+                    <pre className="whitespace-pre-wrap rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-4 font-sans text-[13px] text-zoru-ink">
+                        {String(tpl.templateBody)}
+                    </pre>
+                ) : (
+                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-6 text-center text-[12.5px] text-zoru-ink-muted">
+                        No template body. Add markdown when editing.
+                    </div>
+                )}
+            </ZoruCard>
+
+            {/* Line items */}
+            <ZoruCard className="p-6">
+                <div className="mb-3 text-[15px] font-medium text-zoru-ink">
+                    Default line items
+                </div>
+                {items.length === 0 ? (
+                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-6 text-center text-[12.5px] text-zoru-ink-muted">
+                        No default line items configured.
+                    </div>
+                ) : (
+                    <div className="overflow-hidden rounded-[var(--zoru-radius)] border border-zoru-line">
+                        <table className="w-full text-[13px]">
+                            <thead className="bg-zoru-surface-2 text-zoru-ink-muted">
+                                <tr>
+                                    <th className="px-3 py-2 text-left font-medium">
+                                        Description
+                                    </th>
+                                    <th className="w-24 px-3 py-2 text-right font-medium">
+                                        Qty
+                                    </th>
+                                    <th className="w-32 px-3 py-2 text-right font-medium">
+                                        Rate
+                                    </th>
+                                    <th className="w-32 px-3 py-2 text-right font-medium">
+                                        Total
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {items.map((it, idx) => {
+                                    const q =
+                                        typeof it.quantity === 'number'
+                                            ? it.quantity
+                                            : parseFloat(
+                                                  String(it.quantity ?? '0'),
+                                              ) || 0;
+                                    const r =
+                                        typeof it.rate === 'number'
+                                            ? it.rate
+                                            : parseFloat(
+                                                  String(it.rate ?? '0'),
+                                              ) || 0;
+                                    return (
+                                        <tr
+                                            key={idx}
+                                            className="border-t border-zoru-line"
+                                        >
+                                            <td className="px-3 py-2 text-zoru-ink">
+                                                {it.description || '—'}
+                                            </td>
+                                            <td className="px-3 py-2 text-right font-mono text-zoru-ink">
+                                                {fmt(q)}
+                                            </td>
+                                            <td className="px-3 py-2 text-right font-mono text-zoru-ink">
+                                                {fmt(r)}
+                                            </td>
+                                            <td className="px-3 py-2 text-right font-mono text-zoru-ink">
+                                                {fmt(q * r)}
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                                <tr className="border-t border-zoru-line bg-zoru-surface-2">
+                                    <td
+                                        colSpan={3}
+                                        className="px-3 py-2 text-right text-zoru-ink-muted"
+                                    >
+                                        Subtotal
+                                    </td>
+                                    <td className="px-3 py-2 text-right font-mono font-medium text-zoru-ink">
+                                        {fmt(subtotal)}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+            </ZoruCard>
+
+            {/* Default terms */}
+            {tpl.defaultTerms ? (
+                <ZoruCard className="p-6">
+                    <div className="mb-3 text-[15px] font-medium text-zoru-ink">
+                        Default terms
+                    </div>
+                    <pre className="whitespace-pre-wrap rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-4 font-sans text-[13px] text-zoru-ink">
+                        {String(tpl.defaultTerms)}
+                    </pre>
+                </ZoruCard>
+            ) : null}
+        </div>
+    );
+}

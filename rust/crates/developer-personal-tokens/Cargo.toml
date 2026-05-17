@@ -1,0 +1,51 @@
+# Personal Access Token management for the developer API.
+#
+# Mirrors `wachat-api-keys-admin` but writes to the `personal_access_tokens`
+# Mongo collection. PATs are bound to a specific user inside a tenant, so
+# calls through a PAT inherit that user's RBAC (in contrast to API keys
+# which are tenant-scoped).
+#
+# Mount under `/v1/personal-access-tokens` from the `api` crate:
+#   .nest("/v1/personal-access-tokens", developer_personal_tokens::router::<AppState>())
+[package]
+name = "developer-personal-tokens"
+version = "0.1.0"
+edition = "2024"
+description = "Personal Access Token CRUD for the SabNode developer API (generate/list/revoke). Writes SHA-256-hashed `personal_access_tokens` rows that the Next.js verifyApiKey path reads when the token carries the `sab_pat_` prefix."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "developer_personal_tokens"
+path = "src/lib.rs"
+
+[dependencies]
+axum = { version = "0.8", default-features = false, features = ["json", "http1", "tokio", "macros", "query"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+bson = { version = "2", features = ["chrono-0_4"] }
+mongodb = { version = "3" }
+
+# SHA-256 hashing — matches the algorithm the Next.js `verifyApiKey` path uses
+# so a token written here is found by the verifier without any sync step.
+sha2 = "0.10"
+hex = "0.4"
+
+# Random plaintext generation.
+rand = "0.8"
+
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+futures = "0.3"
+
+tracing = "0.1"
+anyhow = "1"
+
+sabnode-common = { path = "../common" }
+sabnode-auth = { path = "../auth" }
+sabnode-db = { path = "../db" }
+
+[lints]
+workspace = true

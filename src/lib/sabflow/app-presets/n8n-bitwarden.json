@@ -1,0 +1,45 @@
+{
+  "id": "n8n-bitwarden",
+  "name": "Bitwarden",
+  "description": "Consume the Bitwarden API",
+  "category": "Transform",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "collection_default",
+      "label": "List Collection",
+      "method": "GET",
+      "path": "/collection",
+      "fields": []
+    },
+    {
+      "id": "event_default",
+      "label": "List Event",
+      "method": "GET",
+      "path": "/event",
+      "fields": []
+    },
+    {
+      "id": "group_default",
+      "label": "List Group",
+      "method": "GET",
+      "path": "/group",
+      "fields": []
+    },
+    {
+      "id": "member_default",
+      "label": "List Member",
+      "method": "GET",
+      "path": "/member",
+      "fields": []
+    }
+  ]
+}

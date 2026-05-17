@@ -1,0 +1,87 @@
+{
+  "id": "n8n-shopify",
+  "name": "Shopify",
+  "description": "Consume Shopify API",
+  "category": "Output",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "order_default",
+      "label": "List Order",
+      "method": "GET",
+      "path": "/order",
+      "fields": [
+        {
+          "id": "apiVersion",
+          "label": "Shopify API Version: 2024-07",
+          "type": "text",
+          "in": "query"
+        },
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "apiKey",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            },
+            {
+              "value": "apiKey",
+              "label": "API Key"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "product_default",
+      "label": "List Product",
+      "method": "GET",
+      "path": "/product",
+      "fields": [
+        {
+          "id": "apiVersion",
+          "label": "Shopify API Version: 2024-07",
+          "type": "text",
+          "in": "query"
+        },
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "apiKey",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            },
+            {
+              "value": "apiKey",
+              "label": "API Key"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

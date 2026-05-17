@@ -1,0 +1,23 @@
+{
+  "id": "garmin-health",
+  "name": "Garmin Health",
+  "description": "Garmin Health wellness data API.",
+  "category": "Wellness",
+  "iconName": "LuActivity",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": { "type": "oauth2", "credentialType": "oauth2" },
+  "baseUrl": "https://apis.garmin.com/wellness-api/rest",
+  "endpoints": [
+    { "id": "daily_summaries", "label": "Daily summaries", "method": "GET", "path": "/dailies", "fields": [{ "id": "uploadStartTimeInSeconds", "type": "number", "in": "query" }, { "id": "uploadEndTimeInSeconds", "type": "number", "in": "query" }] },
+    { "id": "epochs", "label": "Epochs", "method": "GET", "path": "/epochs", "fields": [{ "id": "uploadStartTimeInSeconds", "type": "number", "in": "query" }, { "id": "uploadEndTimeInSeconds", "type": "number", "in": "query" }] },
+    { "id": "sleeps", "label": "Sleeps", "method": "GET", "path": "/sleeps", "fields": [{ "id": "uploadStartTimeInSeconds", "type": "number", "in": "query" }, { "id": "uploadEndTimeInSeconds", "type": "number", "in": "query" }] },
+    { "id": "bodycomp", "label": "Body composition", "method": "GET", "path": "/bodyComps", "fields": [{ "id": "uploadStartTimeInSeconds", "type": "number", "in": "query" }, { "id": "uploadEndTimeInSeconds", "type": "number", "in": "query" }] },
+    { "id": "heart_rate_variability", "label": "HRV summaries", "method": "GET", "path": "/hrvSummaries", "fields": [{ "id": "uploadStartTimeInSeconds", "type": "number", "in": "query" }, { "id": "uploadEndTimeInSeconds", "type": "number", "in": "query" }] },
+    { "id": "respirations", "label": "Respirations", "method": "GET", "path": "/respirations", "fields": [{ "id": "uploadStartTimeInSeconds", "type": "number", "in": "query" }, { "id": "uploadEndTimeInSeconds", "type": "number", "in": "query" }] },
+    { "id": "stress_details", "label": "Stress details", "method": "GET", "path": "/stressDetails", "fields": [{ "id": "uploadStartTimeInSeconds", "type": "number", "in": "query" }, { "id": "uploadEndTimeInSeconds", "type": "number", "in": "query" }] },
+    { "id": "activities", "label": "Activities", "method": "GET", "path": "/activities", "fields": [{ "id": "uploadStartTimeInSeconds", "type": "number", "in": "query" }, { "id": "uploadEndTimeInSeconds", "type": "number", "in": "query" }] },
+    { "id": "manual_backfill", "label": "Manual backfill (dailies)", "method": "POST", "path": "/backfill/dailies", "fields": [{ "id": "summaryStartTimeInSeconds", "type": "number", "required": true, "in": "query" }, { "id": "summaryEndTimeInSeconds", "type": "number", "required": true, "in": "query" }] }
+  ]
+}

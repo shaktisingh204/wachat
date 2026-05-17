@@ -1,0 +1,23 @@
+{
+  "id": "aftership",
+  "name": "AfterShip",
+  "description": "AfterShip multi-carrier tracking.",
+  "category": "Shipping",
+  "iconName": "LuTruck",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": { "type": "header", "credentialType": "aftership", "header": "aftership-api-key" },
+  "baseUrl": "https://api.aftership.com/v4",
+  "endpoints": [
+    { "id": "create_tracking", "label": "Create tracking", "method": "POST", "path": "/trackings", "fields": [{ "id": "tracking", "type": "json", "required": true, "in": "body", "defaultValue": { "tracking_number": "", "slug": "", "title": "", "order_id": "" } }] },
+    { "id": "list_trackings", "label": "List trackings", "method": "GET", "path": "/trackings", "fields": [] },
+    { "id": "get_tracking_by_id", "label": "Get tracking by id", "method": "GET", "path": "/trackings/{id}", "fields": [{ "id": "id", "type": "text", "required": true, "in": "path" }] },
+    { "id": "get_tracking", "label": "Get tracking by slug + number", "method": "GET", "path": "/trackings/{slug}/{tracking_number}", "fields": [{ "id": "slug", "type": "text", "required": true, "in": "path" }, { "id": "tracking_number", "type": "text", "required": true, "in": "path" }] },
+    { "id": "update_tracking", "label": "Update tracking", "method": "PUT", "path": "/trackings/{slug}/{tracking_number}", "fields": [{ "id": "slug", "type": "text", "required": true, "in": "path" }, { "id": "tracking_number", "type": "text", "required": true, "in": "path" }, { "id": "tracking", "type": "json", "in": "body" }] },
+    { "id": "delete_tracking", "label": "Delete tracking", "method": "DELETE", "path": "/trackings/{slug}/{tracking_number}", "fields": [{ "id": "slug", "type": "text", "required": true, "in": "path" }, { "id": "tracking_number", "type": "text", "required": true, "in": "path" }] },
+    { "id": "retrack", "label": "Retrack", "method": "POST", "path": "/trackings/{slug}/{tracking_number}/retrack", "fields": [{ "id": "slug", "type": "text", "required": true, "in": "path" }, { "id": "tracking_number", "type": "text", "required": true, "in": "path" }] },
+    { "id": "list_couriers", "label": "List couriers", "method": "GET", "path": "/couriers", "fields": [] },
+    { "id": "detect_courier", "label": "Detect courier", "method": "POST", "path": "/couriers/detect", "fields": [{ "id": "tracking", "type": "json", "required": true, "in": "body", "defaultValue": { "tracking_number": "" } }] }
+  ]
+}

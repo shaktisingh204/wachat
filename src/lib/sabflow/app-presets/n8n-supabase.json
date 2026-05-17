@@ -1,0 +1,41 @@
+{
+  "id": "n8n-supabase",
+  "name": "Supabase",
+  "description": "Add, get, delete and update data in a table",
+  "category": "Input",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "row_default",
+      "label": "List Row",
+      "method": "GET",
+      "path": "/row",
+      "fields": [
+        {
+          "id": "useCustomSchema",
+          "label": "Use Custom Schema",
+          "type": "toggle",
+          "in": "query",
+          "description": "Whether to use a database schema different from the default \"public\" schema (requires schema exposure in the <a href=\"https://supabase.com/docs/guides/api/using-custom-schemas?queryGroups=language&language=curl#exposing-custom-schemas\">Supabase API</a>)",
+          "defaultValue": false
+        },
+        {
+          "id": "schema",
+          "label": "Schema",
+          "type": "text",
+          "in": "query",
+          "description": "Name of database schema to use for table",
+          "defaultValue": "public"
+        }
+      ]
+    }
+  ]
+}

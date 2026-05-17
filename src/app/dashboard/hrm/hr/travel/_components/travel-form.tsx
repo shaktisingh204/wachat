@@ -1,0 +1,312 @@
+'use client';
+
+/**
+ * <TravelRequestForm /> — create + edit form for HR travel requests.
+ *
+ * Binds to `saveTravelRequest` via `useActionState`. ZoruUI throughout.
+ * No file picker here — itinerary attachments are out of scope for this
+ * lightweight request record.
+ */
+
+import { useActionState, useEffect, useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useFormStatus } from 'react-dom';
+import { ArrowLeft, LoaderCircle, Save } from 'lucide-react';
+
+import {
+    ZoruButton,
+    ZoruCard,
+    ZoruInput,
+    ZoruLabel,
+    ZoruSelect,
+    ZoruSelectContent,
+    ZoruSelectItem,
+    ZoruSelectTrigger,
+    ZoruSelectValue,
+    ZoruTextarea,
+    useZoruToast,
+} from '@/components/zoruui';
+
+import { saveTravelRequest } from '@/app/actions/crm-travel.actions';
+import type {
+    CrmTravelMode,
+    CrmTravelRequestDoc,
+    CrmTravelStatus,
+} from '@/app/actions/crm-travel.actions';
+
+const BASE = '/dashboard/hrm/hr/travel';
+
+const STATUS_OPTIONS: Array<{ value: CrmTravelStatus; label: string }> = [
+    { value: 'draft', label: 'Draft' },
+    { value: 'pending', label: 'Pending' },
+    { value: 'approved', label: 'Approved' },
+    { value: 'rejected', label: 'Rejected' },
+    { value: 'cancelled', label: 'Cancelled' },
+    { value: 'completed', label: 'Completed' },
+    { value: 'archived', label: 'Archived' },
+];
+
+const MODE_OPTIONS: Array<{ value: CrmTravelMode; label: string }> = [
+    { value: 'flight', label: 'Flight' },
+    { value: 'train', label: 'Train' },
+    { value: 'bus', label: 'Bus' },
+    { value: 'car', label: 'Car' },
+    { value: 'taxi', label: 'Taxi' },
+    { value: 'other', label: 'Other' },
+];
+
+function toDateInput(value: unknown): string {
+    if (!value) return '';
+    const d = new Date(value as string);
+    if (Number.isNaN(d.getTime())) return '';
+    return d.toISOString().slice(0, 10);
+}
+
+interface TravelRequestFormProps {
+    initialData?: CrmTravelRequestDoc | null;
+}
+
+type SaveState = { message?: string; error?: string; id?: string };
+const initialState: SaveState = {};
+
+function SubmitButton({ isEditing }: { isEditing: boolean }) {
+    const { pending } = useFormStatus();
+    return (
+        <ZoruButton type="submit" disabled={pending}>
+            {pending ? (
+                <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+                <Save className="mr-2 h-4 w-4" />
+            )}
+            {isEditing ? 'Save changes' : 'Create travel request'}
+        </ZoruButton>
+    );
+}
+
+export function TravelRequestForm({ initialData }: TravelRequestFormProps) {
+    const router = useRouter();
+    const { toast } = useZoruToast();
+    const isEditing = !!initialData?._id;
+
+    const [state, formAction] = useActionState(saveTravelRequest, initialState);
+
+    const [mode, setMode] = useState<string>(
+        (initialData?.mode as string) ?? 'flight',
+    );
+    const [status, setStatus] = useState<CrmTravelStatus>(
+        (initialData?.status as CrmTravelStatus) ?? 'pending',
+    );
+
+    useEffect(() => {
+        if (state?.message) {
+            toast({ title: 'Saved', description: state.message });
+            const id = state.id ?? initialData?._id;
+            router.push(id ? `${BASE}/${id}` : BASE);
+        }
+        if (state?.error) {
+            toast({ title: 'Error', description: state.error, variant: 'destructive' });
+        }
+    }, [state, toast, router, initialData?._id]);
+
+    return (
+        <ZoruCard className="p-6">
+            <form action={formAction} className="flex flex-col gap-6">
+                {isEditing ? (
+                    <input type="hidden" name="travelId" value={initialData!._id} />
+                ) : null}
+                <input type="hidden" name="mode" value={mode} />
+                <input type="hidden" name="status" value={status} />
+
+                {/* Row 1: Employee */}
+                <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-1.5">
+                        <ZoruLabel htmlFor="employee_id">Employee id *</ZoruLabel>
+                        <ZoruInput
+                            id="employee_id"
+                            name="employee_id"
+                            required
+                            placeholder="Employee record id"
+                            defaultValue={initialData?.employee_id ?? ''}
+                        />
+                    </div>
+                    <div className="space-y-1.5">
+                        <ZoruLabel htmlFor="employee_name">Employee name</ZoruLabel>
+                        <ZoruInput
+                            id="employee_name"
+                            name="employee_name"
+                            placeholder="Friendly display name"
+                            defaultValue={initialData?.employee_name ?? ''}
+                        />
+                    </div>
+                </div>
+
+                {/* Row 2: Purpose */}
+                <div className="space-y-1.5">
+                    <ZoruLabel htmlFor="purpose">Purpose</ZoruLabel>
+                    <ZoruInput
+                        id="purpose"
+                        name="purpose"
+                        placeholder="e.g. Client kickoff workshop"
+                        defaultValue={initialData?.purpose ?? ''}
+                    />
+                </div>
+
+                {/* Row 3: From / To / Mode */}
+                <div className="grid gap-4 sm:grid-cols-3">
+                    <div className="space-y-1.5">
+                        <ZoruLabel htmlFor="from_city">From city</ZoruLabel>
+                        <ZoruInput
+                            id="from_city"
+                            name="from_city"
+                            placeholder="Bengaluru"
+                            defaultValue={initialData?.from_city ?? ''}
+                        />
+                    </div>
+                    <div className="space-y-1.5">
+                        <ZoruLabel htmlFor="to_city">To city</ZoruLabel>
+                        <ZoruInput
+                            id="to_city"
+                            name="to_city"
+                            placeholder="Mumbai"
+                            defaultValue={initialData?.to_city ?? ''}
+                        />
+                    </div>
+                    <div className="space-y-1.5">
+                        <ZoruLabel htmlFor="mode-trigger">Mode</ZoruLabel>
+                        <ZoruSelect value={mode} onValueChange={setMode}>
+                            <ZoruSelectTrigger id="mode-trigger">
+                                <ZoruSelectValue placeholder="Mode" />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                {MODE_OPTIONS.map((o) => (
+                                    <ZoruSelectItem key={o.value} value={o.value}>
+                                        {o.label}
+                                    </ZoruSelectItem>
+                                ))}
+                            </ZoruSelectContent>
+                        </ZoruSelect>
+                    </div>
+                </div>
+
+                {/* Row 4: Dates */}
+                <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-1.5">
+                        <ZoruLabel htmlFor="travel_date">Travel date</ZoruLabel>
+                        <ZoruInput
+                            id="travel_date"
+                            name="travel_date"
+                            type="date"
+                            defaultValue={toDateInput(initialData?.travel_date)}
+                        />
+                    </div>
+                    <div className="space-y-1.5">
+                        <ZoruLabel htmlFor="return_date">Return date</ZoruLabel>
+                        <ZoruInput
+                            id="return_date"
+                            name="return_date"
+                            type="date"
+                            defaultValue={toDateInput(initialData?.return_date)}
+                        />
+                    </div>
+                </div>
+
+                {/* Row 5: Costs + currency */}
+                <div className="grid gap-4 sm:grid-cols-3">
+                    <div className="space-y-1.5">
+                        <ZoruLabel htmlFor="estimated_cost">Estimated cost</ZoruLabel>
+                        <ZoruInput
+                            id="estimated_cost"
+                            name="estimated_cost"
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            defaultValue={initialData?.estimated_cost ?? ''}
+                        />
+                    </div>
+                    <div className="space-y-1.5">
+                        <ZoruLabel htmlFor="actual_cost">Actual cost</ZoruLabel>
+                        <ZoruInput
+                            id="actual_cost"
+                            name="actual_cost"
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            defaultValue={initialData?.actual_cost ?? ''}
+                        />
+                    </div>
+                    <div className="space-y-1.5">
+                        <ZoruLabel htmlFor="currency">Currency</ZoruLabel>
+                        <ZoruInput
+                            id="currency"
+                            name="currency"
+                            placeholder="INR"
+                            defaultValue={initialData?.currency ?? 'INR'}
+                        />
+                    </div>
+                </div>
+
+                {/* Row 6: Approver + Status */}
+                <div className="grid gap-4 sm:grid-cols-3">
+                    <div className="space-y-1.5">
+                        <ZoruLabel htmlFor="approver_id">Approver id</ZoruLabel>
+                        <ZoruInput
+                            id="approver_id"
+                            name="approver_id"
+                            placeholder="Optional"
+                            defaultValue={initialData?.approver_id ?? ''}
+                        />
+                    </div>
+                    <div className="space-y-1.5">
+                        <ZoruLabel htmlFor="approver_name">Approver name</ZoruLabel>
+                        <ZoruInput
+                            id="approver_name"
+                            name="approver_name"
+                            defaultValue={initialData?.approver_name ?? ''}
+                        />
+                    </div>
+                    <div className="space-y-1.5">
+                        <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
+                        <ZoruSelect
+                            value={status}
+                            onValueChange={(v) => setStatus(v as CrmTravelStatus)}
+                        >
+                            <ZoruSelectTrigger id="status-trigger">
+                                <ZoruSelectValue placeholder="Status" />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                {STATUS_OPTIONS.map((o) => (
+                                    <ZoruSelectItem key={o.value} value={o.value}>
+                                        {o.label}
+                                    </ZoruSelectItem>
+                                ))}
+                            </ZoruSelectContent>
+                        </ZoruSelect>
+                    </div>
+                </div>
+
+                {/* Row 7: Notes */}
+                <div className="space-y-1.5">
+                    <ZoruLabel htmlFor="notes">Notes</ZoruLabel>
+                    <ZoruTextarea
+                        id="notes"
+                        name="notes"
+                        rows={3}
+                        defaultValue={initialData?.notes ?? ''}
+                    />
+                </div>
+
+                {/* Footer */}
+                <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
+                    <ZoruButton variant="ghost" asChild>
+                        <Link href={BASE}>
+                            <ArrowLeft className="mr-2 h-4 w-4" />
+                            Back to travel requests
+                        </Link>
+                    </ZoruButton>
+                    <SubmitButton isEditing={isEditing} />
+                </div>
+            </form>
+        </ZoruCard>
+    );
+}

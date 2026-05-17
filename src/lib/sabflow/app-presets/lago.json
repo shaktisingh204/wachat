@@ -1,0 +1,114 @@
+{
+  "id": "lago",
+  "name": "Lago",
+  "description": "Lago open-source usage-based billing: customers, subscriptions, plans, billable metrics, event ingestion, and invoices.",
+  "category": "Billing",
+  "iconName": "LuCreditCard",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "bearer",
+    "credentialType": "lago"
+  },
+  "baseUrl": "https://api.getlago.com/api/v1",
+  "endpoints": [
+    {
+      "id": "list_customers",
+      "label": "List Customers",
+      "method": "GET",
+      "path": "/customers",
+      "fields": [
+        { "id": "page", "label": "Page", "type": "number", "in": "query" },
+        { "id": "per_page", "label": "Per Page", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "get_customer",
+      "label": "Get Customer",
+      "method": "GET",
+      "path": "/customers/{external_id}",
+      "fields": [
+        { "id": "external_id", "label": "External Customer ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "create_customer",
+      "label": "Create Customer",
+      "method": "POST",
+      "path": "/customers",
+      "fields": [
+        { "id": "customer", "label": "Customer Object", "type": "json", "required": true, "defaultValue": "{\"external_id\":\"\",\"name\":\"\",\"email\":\"\"}", "in": "body" }
+      ]
+    },
+    {
+      "id": "list_subscriptions",
+      "label": "List Subscriptions",
+      "method": "GET",
+      "path": "/subscriptions",
+      "fields": [
+        { "id": "external_customer_id", "label": "External Customer ID", "type": "text", "in": "query" },
+        { "id": "plan_code", "label": "Plan Code", "type": "text", "in": "query" },
+        { "id": "page", "label": "Page", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "create_subscription",
+      "label": "Create Subscription",
+      "method": "POST",
+      "path": "/subscriptions",
+      "fields": [
+        { "id": "subscription", "label": "Subscription Object", "type": "json", "required": true, "defaultValue": "{\"external_customer_id\":\"\",\"plan_code\":\"\",\"external_id\":\"\"}", "in": "body" }
+      ]
+    },
+    {
+      "id": "cancel_subscription",
+      "label": "Cancel Subscription",
+      "method": "DELETE",
+      "path": "/subscriptions/{external_id}",
+      "fields": [
+        { "id": "external_id", "label": "External Subscription ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "ingest_event",
+      "label": "Ingest Event",
+      "method": "POST",
+      "path": "/events",
+      "fields": [
+        { "id": "event", "label": "Event Object", "type": "json", "required": true, "defaultValue": "{\"transaction_id\":\"\",\"code\":\"\",\"external_customer_id\":\"\",\"properties\":{}}", "in": "body" }
+      ]
+    },
+    {
+      "id": "list_plans",
+      "label": "List Plans",
+      "method": "GET",
+      "path": "/plans",
+      "fields": [
+        { "id": "page", "label": "Page", "type": "number", "in": "query" },
+        { "id": "per_page", "label": "Per Page", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "list_invoices",
+      "label": "List Invoices",
+      "method": "GET",
+      "path": "/invoices",
+      "fields": [
+        { "id": "external_customer_id", "label": "External Customer ID", "type": "text", "in": "query" },
+        { "id": "status", "label": "Status", "type": "text", "in": "query" },
+        { "id": "page", "label": "Page", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "list_billable_metrics",
+      "label": "List Billable Metrics",
+      "method": "GET",
+      "path": "/billable_metrics",
+      "fields": [
+        { "id": "page", "label": "Page", "type": "number", "in": "query" },
+        { "id": "per_page", "label": "Per Page", "type": "number", "in": "query" }
+      ]
+    }
+  ]
+}

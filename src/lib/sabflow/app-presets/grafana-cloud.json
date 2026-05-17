@@ -1,0 +1,143 @@
+{
+  "id": "grafana-cloud",
+  "name": "Grafana Cloud",
+  "description": "Grafana Cloud HTTP API — dashboards, datasources, alerts, annotations.",
+  "category": "Monitoring",
+  "iconName": "LuActivity",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "bearer",
+    "credentialType": "grafana_cloud"
+  },
+  "baseUrl": "https://{stack}.grafana.net/api",
+  "endpoints": [
+    {
+      "id": "me",
+      "label": "Get current user",
+      "method": "GET",
+      "path": "/user",
+      "fields": [
+        { "id": "stack", "label": "Stack subdomain", "type": "text", "required": true, "in": "header" }
+      ]
+    },
+    {
+      "id": "list_dashboards",
+      "label": "List dashboards",
+      "method": "GET",
+      "path": "/search",
+      "fields": [
+        { "id": "stack", "label": "Stack subdomain", "type": "text", "required": true, "in": "header" },
+        { "id": "type", "label": "Type", "type": "text", "defaultValue": "dash-db", "in": "query" },
+        { "id": "query", "label": "Query", "type": "text", "in": "query" }
+      ]
+    },
+    {
+      "id": "get_dashboard",
+      "label": "Get dashboard",
+      "method": "GET",
+      "path": "/dashboards/uid/{uid}",
+      "fields": [
+        { "id": "stack", "label": "Stack subdomain", "type": "text", "required": true, "in": "header" },
+        { "id": "uid", "label": "Dashboard UID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "create_or_update_dashboard",
+      "label": "Create or update dashboard",
+      "method": "POST",
+      "path": "/dashboards/db",
+      "fields": [
+        { "id": "stack", "label": "Stack subdomain", "type": "text", "required": true, "in": "header" },
+        { "id": "dashboard", "label": "Dashboard (JSON)", "type": "json", "required": true, "in": "body" },
+        { "id": "folderUid", "label": "Folder UID", "type": "text", "in": "body" },
+        { "id": "overwrite", "label": "Overwrite", "type": "toggle", "in": "body" },
+        { "id": "message", "label": "Message", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "delete_dashboard",
+      "label": "Delete dashboard",
+      "method": "DELETE",
+      "path": "/dashboards/uid/{uid}",
+      "fields": [
+        { "id": "stack", "label": "Stack subdomain", "type": "text", "required": true, "in": "header" },
+        { "id": "uid", "label": "Dashboard UID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_datasources",
+      "label": "List datasources",
+      "method": "GET",
+      "path": "/datasources",
+      "fields": [
+        { "id": "stack", "label": "Stack subdomain", "type": "text", "required": true, "in": "header" }
+      ]
+    },
+    {
+      "id": "query_datasource",
+      "label": "Query datasource",
+      "method": "POST",
+      "path": "/ds/query",
+      "fields": [
+        { "id": "stack", "label": "Stack subdomain", "type": "text", "required": true, "in": "header" },
+        { "id": "queries", "label": "Queries (JSON array)", "type": "json", "required": true, "in": "body" },
+        { "id": "from", "label": "From", "type": "text", "in": "body" },
+        { "id": "to", "label": "To", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "list_alert_rules",
+      "label": "List alert rules",
+      "method": "GET",
+      "path": "/v1/provisioning/alert-rules",
+      "fields": [
+        { "id": "stack", "label": "Stack subdomain", "type": "text", "required": true, "in": "header" }
+      ]
+    },
+    {
+      "id": "list_folders",
+      "label": "List folders",
+      "method": "GET",
+      "path": "/folders",
+      "fields": [
+        { "id": "stack", "label": "Stack subdomain", "type": "text", "required": true, "in": "header" }
+      ]
+    },
+    {
+      "id": "create_folder",
+      "label": "Create folder",
+      "method": "POST",
+      "path": "/folders",
+      "fields": [
+        { "id": "stack", "label": "Stack subdomain", "type": "text", "required": true, "in": "header" },
+        { "id": "uid", "label": "UID", "type": "text", "in": "body" },
+        { "id": "title", "label": "Title", "type": "text", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "list_annotations",
+      "label": "List annotations",
+      "method": "GET",
+      "path": "/annotations",
+      "fields": [
+        { "id": "stack", "label": "Stack subdomain", "type": "text", "required": true, "in": "header" },
+        { "id": "from", "label": "From", "type": "number", "in": "query" },
+        { "id": "to", "label": "To", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "create_annotation",
+      "label": "Create annotation",
+      "method": "POST",
+      "path": "/annotations",
+      "fields": [
+        { "id": "stack", "label": "Stack subdomain", "type": "text", "required": true, "in": "header" },
+        { "id": "time", "label": "Time (epoch ms)", "type": "number", "required": true, "in": "body" },
+        { "id": "text", "label": "Text", "type": "textarea", "required": true, "in": "body" },
+        { "id": "tags", "label": "Tags (JSON array)", "type": "json", "in": "body" }
+      ]
+    }
+  ]
+}

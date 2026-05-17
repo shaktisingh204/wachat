@@ -1,0 +1,45 @@
+{
+  "id": "n8n-elastic-security",
+  "name": "Elastic Security",
+  "description": "Consume the Elastic Security API",
+  "category": "Transform",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "case_default",
+      "label": "List Case",
+      "method": "GET",
+      "path": "/case",
+      "fields": []
+    },
+    {
+      "id": "case_comment_default",
+      "label": "List CaseComment",
+      "method": "GET",
+      "path": "/caseComment",
+      "fields": []
+    },
+    {
+      "id": "case_tag_default",
+      "label": "List CaseTag",
+      "method": "GET",
+      "path": "/caseTag",
+      "fields": []
+    },
+    {
+      "id": "connector_default",
+      "label": "List Connector",
+      "method": "GET",
+      "path": "/connector",
+      "fields": []
+    }
+  ]
+}

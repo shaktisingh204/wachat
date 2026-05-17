@@ -1,0 +1,131 @@
+{
+  "id": "heroku",
+  "name": "Heroku",
+  "description": "Heroku Platform API for apps, dynos, config vars, and add-ons.",
+  "category": "DevOps",
+  "iconName": "LuServer",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "bearer",
+    "credentialType": "heroku"
+  },
+  "baseUrl": "https://api.heroku.com",
+  "endpoints": [
+    {
+      "id": "list_apps",
+      "label": "List apps",
+      "method": "GET",
+      "path": "/apps",
+      "fields": [
+        { "id": "accept", "label": "Accept", "type": "text", "defaultValue": "application/vnd.heroku+json; version=3", "in": "header" }
+      ]
+    },
+    {
+      "id": "get_app",
+      "label": "Get app",
+      "method": "GET",
+      "path": "/apps/{app_id_or_name}",
+      "fields": [
+        { "id": "accept", "label": "Accept", "type": "text", "defaultValue": "application/vnd.heroku+json; version=3", "in": "header" },
+        { "id": "app_id_or_name", "label": "App ID or name", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "create_app",
+      "label": "Create app",
+      "method": "POST",
+      "path": "/apps",
+      "fields": [
+        { "id": "accept", "label": "Accept", "type": "text", "defaultValue": "application/vnd.heroku+json; version=3", "in": "header" },
+        { "id": "name", "label": "Name", "type": "text", "in": "body" },
+        { "id": "region", "label": "Region", "type": "text", "in": "body" },
+        { "id": "stack", "label": "Stack", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "delete_app",
+      "label": "Delete app",
+      "method": "DELETE",
+      "path": "/apps/{app_id_or_name}",
+      "fields": [
+        { "id": "accept", "label": "Accept", "type": "text", "defaultValue": "application/vnd.heroku+json; version=3", "in": "header" },
+        { "id": "app_id_or_name", "label": "App ID or name", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_dynos",
+      "label": "List dynos",
+      "method": "GET",
+      "path": "/apps/{app_id_or_name}/dynos",
+      "fields": [
+        { "id": "accept", "label": "Accept", "type": "text", "defaultValue": "application/vnd.heroku+json; version=3", "in": "header" },
+        { "id": "app_id_or_name", "label": "App ID or name", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "restart_dynos",
+      "label": "Restart all dynos",
+      "method": "DELETE",
+      "path": "/apps/{app_id_or_name}/dynos",
+      "fields": [
+        { "id": "accept", "label": "Accept", "type": "text", "defaultValue": "application/vnd.heroku+json; version=3", "in": "header" },
+        { "id": "app_id_or_name", "label": "App ID or name", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_config_vars",
+      "label": "List config vars",
+      "method": "GET",
+      "path": "/apps/{app_id_or_name}/config-vars",
+      "fields": [
+        { "id": "accept", "label": "Accept", "type": "text", "defaultValue": "application/vnd.heroku+json; version=3", "in": "header" },
+        { "id": "app_id_or_name", "label": "App ID or name", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "update_config_vars",
+      "label": "Update config vars",
+      "method": "PATCH",
+      "path": "/apps/{app_id_or_name}/config-vars",
+      "fields": [
+        { "id": "accept", "label": "Accept", "type": "text", "defaultValue": "application/vnd.heroku+json; version=3", "in": "header" },
+        { "id": "app_id_or_name", "label": "App ID or name", "type": "text", "required": true, "in": "path" },
+        { "id": "vars", "label": "Vars JSON object", "type": "json", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "list_addons",
+      "label": "List add-ons",
+      "method": "GET",
+      "path": "/apps/{app_id_or_name}/addons",
+      "fields": [
+        { "id": "accept", "label": "Accept", "type": "text", "defaultValue": "application/vnd.heroku+json; version=3", "in": "header" },
+        { "id": "app_id_or_name", "label": "App ID or name", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "create_addon",
+      "label": "Create add-on",
+      "method": "POST",
+      "path": "/apps/{app_id_or_name}/addons",
+      "fields": [
+        { "id": "accept", "label": "Accept", "type": "text", "defaultValue": "application/vnd.heroku+json; version=3", "in": "header" },
+        { "id": "app_id_or_name", "label": "App ID or name", "type": "text", "required": true, "in": "path" },
+        { "id": "plan", "label": "Plan", "type": "text", "required": true, "in": "body" },
+        { "id": "config", "label": "Config JSON", "type": "json", "in": "body" }
+      ]
+    },
+    {
+      "id": "list_releases",
+      "label": "List releases",
+      "method": "GET",
+      "path": "/apps/{app_id_or_name}/releases",
+      "fields": [
+        { "id": "accept", "label": "Accept", "type": "text", "defaultValue": "application/vnd.heroku+json; version=3", "in": "header" },
+        { "id": "app_id_or_name", "label": "App ID or name", "type": "text", "required": true, "in": "path" }
+      ]
+    }
+  ]
+}

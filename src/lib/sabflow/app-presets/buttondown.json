@@ -1,0 +1,100 @@
+{
+  "id": "buttondown",
+  "name": "Buttondown",
+  "description": "Buttondown newsletter API.",
+  "category": "Newsletter",
+  "iconName": "LuMail",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "header",
+    "header": "Authorization",
+    "scheme": "Token",
+    "credentialType": "buttondown"
+  },
+  "baseUrl": "https://api.buttondown.email/v1",
+  "endpoints": [
+    {
+      "id": "list_subscribers",
+      "label": "List subscribers",
+      "method": "GET",
+      "path": "/subscribers",
+      "fields": [
+        { "id": "page", "label": "Page", "type": "number", "defaultValue": 1, "in": "query" },
+        { "id": "type", "label": "Type", "type": "text", "in": "query" }
+      ]
+    },
+    {
+      "id": "get_subscriber",
+      "label": "Get subscriber",
+      "method": "GET",
+      "path": "/subscribers/{id}",
+      "fields": [
+        { "id": "id", "label": "Subscriber ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "create_subscriber",
+      "label": "Create subscriber",
+      "method": "POST",
+      "path": "/subscribers",
+      "fields": [
+        { "id": "email", "label": "Email", "type": "text", "required": true, "in": "body" },
+        { "id": "type", "label": "Type", "type": "text", "in": "body" },
+        { "id": "tags", "label": "Tags", "type": "json", "in": "body" },
+        { "id": "metadata", "label": "Metadata", "type": "json", "in": "body" }
+      ]
+    },
+    {
+      "id": "update_subscriber",
+      "label": "Update subscriber",
+      "method": "PATCH",
+      "path": "/subscribers/{id}",
+      "fields": [
+        { "id": "id", "label": "Subscriber ID", "type": "text", "required": true, "in": "path" },
+        { "id": "email", "label": "Email", "type": "text", "in": "body" },
+        { "id": "tags", "label": "Tags", "type": "json", "in": "body" },
+        { "id": "metadata", "label": "Metadata", "type": "json", "in": "body" }
+      ]
+    },
+    {
+      "id": "delete_subscriber",
+      "label": "Delete subscriber",
+      "method": "DELETE",
+      "path": "/subscribers/{id}",
+      "fields": [
+        { "id": "id", "label": "Subscriber ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_emails",
+      "label": "List emails",
+      "method": "GET",
+      "path": "/emails",
+      "fields": [
+        { "id": "page", "label": "Page", "type": "number", "defaultValue": 1, "in": "query" }
+      ]
+    },
+    {
+      "id": "create_email",
+      "label": "Create email",
+      "method": "POST",
+      "path": "/emails",
+      "fields": [
+        { "id": "subject", "label": "Subject", "type": "text", "required": true, "in": "body" },
+        { "id": "body", "label": "Body", "type": "textarea", "required": true, "in": "body" },
+        { "id": "status", "label": "Status", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "list_tags",
+      "label": "List tags",
+      "method": "GET",
+      "path": "/tags",
+      "fields": [
+        { "id": "page", "label": "Page", "type": "number", "defaultValue": 1, "in": "query" }
+      ]
+    }
+  ]
+}

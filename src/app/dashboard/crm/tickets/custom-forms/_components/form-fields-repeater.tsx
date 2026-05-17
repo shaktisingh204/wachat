@@ -1,0 +1,289 @@
+'use client';
+
+/**
+ * <FormFieldsRepeater /> — structured add/remove rows for ticket
+ * custom-form field definitions.
+ *
+ * Per the SabNode project rule, we do NOT take a JSON paste here. Each
+ * row exposes proper inputs for `name`, `label`, `type`, `required`,
+ * `placeholder`, and (for select/radio/checkbox) `options`. Each input
+ * is named `fields[i][key]` so the server action can read the rows
+ * out of FormData in order.
+ */
+
+import * as React from 'react';
+import { GripVertical, Plus, Trash2 } from 'lucide-react';
+
+import {
+  ZoruButton,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruSwitch,
+  ZoruTextarea,
+} from '@/components/zoruui';
+
+import type { CrmFormFieldDef } from '@/lib/rust-client/crm-forms';
+
+const FIELD_TYPE_OPTIONS = [
+  { value: 'text', label: 'Text' },
+  { value: 'textarea', label: 'Textarea' },
+  { value: 'email', label: 'Email' },
+  { value: 'phone', label: 'Phone' },
+  { value: 'url', label: 'URL' },
+  { value: 'number', label: 'Number' },
+  { value: 'date', label: 'Date' },
+  { value: 'select', label: 'Select' },
+  { value: 'radio', label: 'Radio' },
+  { value: 'checkbox', label: 'Checkbox' },
+  { value: 'file', label: 'File' },
+];
+
+const OPTIONS_TYPES = new Set(['select', 'radio', 'checkbox']);
+
+interface RowState extends CrmFormFieldDef {
+  /** Stable key for React reconciliation across reorders. */
+  __key: string;
+}
+
+function nextKey(): string {
+  return Math.random().toString(36).slice(2, 10);
+}
+
+function toRows(initial: CrmFormFieldDef[] | undefined): RowState[] {
+  if (!initial || initial.length === 0) return [];
+  return initial.map((f) => ({ ...f, __key: nextKey() }));
+}
+
+export interface FormFieldsRepeaterProps {
+  initialFields?: CrmFormFieldDef[];
+}
+
+export function FormFieldsRepeater({ initialFields }: FormFieldsRepeaterProps) {
+  const [rows, setRows] = React.useState<RowState[]>(() => toRows(initialFields));
+
+  const addRow = () => {
+    setRows((r) => [
+      ...r,
+      {
+        __key: nextKey(),
+        name: '',
+        label: '',
+        type: 'text',
+        required: false,
+        placeholder: '',
+        options: [],
+      },
+    ]);
+  };
+
+  const removeRow = (key: string) => {
+    setRows((r) => r.filter((row) => row.__key !== key));
+  };
+
+  const moveRow = (key: string, dir: -1 | 1) => {
+    setRows((r) => {
+      const idx = r.findIndex((row) => row.__key === key);
+      if (idx === -1) return r;
+      const next = idx + dir;
+      if (next < 0 || next >= r.length) return r;
+      const copy = r.slice();
+      const [item] = copy.splice(idx, 1);
+      copy.splice(next, 0, item);
+      return copy;
+    });
+  };
+
+  const updateRow = (key: string, patch: Partial<RowState>) => {
+    setRows((r) => r.map((row) => (row.__key === key ? { ...row, ...patch } : row)));
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <ZoruLabel>Form fields</ZoruLabel>
+          <p className="text-xs text-muted-foreground">
+            Add, reorder, and remove the inputs that ticket creators will see.
+            Order here is the order on the rendered form.
+          </p>
+        </div>
+        <ZoruButton type="button" variant="outline" size="sm" onClick={addRow}>
+          <Plus className="mr-1.5 h-3.5 w-3.5" />
+          Add field
+        </ZoruButton>
+      </div>
+
+      {rows.length === 0 ? (
+        <div className="rounded-md border border-dashed border-border bg-zoru-surface-2 px-3 py-8 text-center text-[12.5px] text-muted-foreground">
+          No fields yet. Click <strong>Add field</strong> to create the first
+          one.
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {rows.map((row, idx) => {
+            const needsOptions = OPTIONS_TYPES.has(row.type ?? 'text');
+            const prefix = `fields[${idx}]`;
+            return (
+              <div
+                key={row.__key}
+                className="rounded-md border border-border bg-zoru-surface p-4"
+              >
+                <div className="mb-3 flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-[12.5px] text-zoru-ink-muted">
+                    <GripVertical className="h-4 w-4" />
+                    Field #{idx + 1}
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <ZoruButton
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => moveRow(row.__key, -1)}
+                      disabled={idx === 0}
+                    >
+                      ↑
+                    </ZoruButton>
+                    <ZoruButton
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => moveRow(row.__key, 1)}
+                      disabled={idx === rows.length - 1}
+                    >
+                      ↓
+                    </ZoruButton>
+                    <ZoruButton
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removeRow(row.__key)}
+                      aria-label="Remove field"
+                    >
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </ZoruButton>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <div className="space-y-1.5">
+                    <ZoruLabel htmlFor={`${prefix}-name`}>Name *</ZoruLabel>
+                    <ZoruInput
+                      id={`${prefix}-name`}
+                      name={`${prefix}[name]`}
+                      required
+                      placeholder="e.g. order_id"
+                      value={row.name}
+                      onChange={(e) =>
+                        updateRow(row.__key, { name: e.target.value })
+                      }
+                      className="font-mono"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <ZoruLabel htmlFor={`${prefix}-label`}>Label</ZoruLabel>
+                    <ZoruInput
+                      id={`${prefix}-label`}
+                      name={`${prefix}[label]`}
+                      placeholder="e.g. Order ID"
+                      value={row.label ?? ''}
+                      onChange={(e) =>
+                        updateRow(row.__key, { label: e.target.value })
+                      }
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <ZoruLabel htmlFor={`${prefix}-type-trigger`}>Type</ZoruLabel>
+                    <ZoruSelect
+                      value={row.type ?? 'text'}
+                      onValueChange={(v) => updateRow(row.__key, { type: v })}
+                    >
+                      <ZoruSelectTrigger id={`${prefix}-type-trigger`}>
+                        <ZoruSelectValue placeholder="Type" />
+                      </ZoruSelectTrigger>
+                      <ZoruSelectContent>
+                        {FIELD_TYPE_OPTIONS.map((o) => (
+                          <ZoruSelectItem key={o.value} value={o.value}>
+                            {o.label}
+                          </ZoruSelectItem>
+                        ))}
+                      </ZoruSelectContent>
+                    </ZoruSelect>
+                    {/* Hidden mirror so the form action sees the type. */}
+                    <input
+                      type="hidden"
+                      name={`${prefix}[type]`}
+                      value={row.type ?? 'text'}
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <ZoruLabel htmlFor={`${prefix}-placeholder`}>
+                      Placeholder
+                    </ZoruLabel>
+                    <ZoruInput
+                      id={`${prefix}-placeholder`}
+                      name={`${prefix}[placeholder]`}
+                      placeholder="Optional hint shown inside the input"
+                      value={row.placeholder ?? ''}
+                      onChange={(e) =>
+                        updateRow(row.__key, { placeholder: e.target.value })
+                      }
+                    />
+                  </div>
+                  {needsOptions ? (
+                    <div className="space-y-1.5 sm:col-span-2">
+                      <ZoruLabel htmlFor={`${prefix}-options`}>
+                        Options
+                      </ZoruLabel>
+                      <ZoruTextarea
+                        id={`${prefix}-options`}
+                        name={`${prefix}[options]`}
+                        rows={3}
+                        placeholder="One per line — or comma-separated"
+                        value={(row.options ?? []).join('\n')}
+                        onChange={(e) =>
+                          updateRow(row.__key, {
+                            options: e.target.value
+                              .split(/\n|,/)
+                              .map((s) => s.trim())
+                              .filter(Boolean),
+                          })
+                        }
+                      />
+                    </div>
+                  ) : null}
+                  <div className="flex items-center justify-between rounded-md border border-border px-3 py-2 sm:col-span-2">
+                    <div className="flex flex-col">
+                      <ZoruLabel htmlFor={`${prefix}-required`}>
+                        Required
+                      </ZoruLabel>
+                      <span className="text-xs text-muted-foreground">
+                        Must be filled before the form can be submitted.
+                      </span>
+                    </div>
+                    <ZoruSwitch
+                      id={`${prefix}-required`}
+                      checked={!!row.required}
+                      onCheckedChange={(v) =>
+                        updateRow(row.__key, { required: !!v })
+                      }
+                    />
+                    <input
+                      type="hidden"
+                      name={`${prefix}[required]`}
+                      value={row.required ? 'true' : 'false'}
+                    />
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}

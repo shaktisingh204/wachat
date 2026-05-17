@@ -1,0 +1,275 @@
+{
+  "id": "n8n-ftp",
+  "name": "FTP",
+  "description": "Transfer files via FTP or SFTP",
+  "category": "Input",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "default_delete",
+      "label": "Delete",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "protocol",
+          "label": "Protocol",
+          "type": "select",
+          "in": "query",
+          "description": "File transfer protocol",
+          "defaultValue": "ftp",
+          "options": [
+            {
+              "value": "ftp",
+              "label": "FTP"
+            },
+            {
+              "value": "sftp",
+              "label": "SFTP"
+            }
+          ]
+        },
+        {
+          "id": "path",
+          "label": "Path",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "e.g. /public/documents/file-to-delete.txt",
+          "description": "The file path of the file to delete. Has to contain the full path."
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add option"
+        }
+      ]
+    },
+    {
+      "id": "default_download",
+      "label": "Download",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "protocol",
+          "label": "Protocol",
+          "type": "select",
+          "in": "query",
+          "description": "File transfer protocol",
+          "defaultValue": "ftp",
+          "options": [
+            {
+              "value": "ftp",
+              "label": "FTP"
+            },
+            {
+              "value": "sftp",
+              "label": "SFTP"
+            }
+          ]
+        },
+        {
+          "id": "path",
+          "label": "Path",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "e.g. /public/documents/file-to-download.txt",
+          "description": "The file path of the file to download. Has to contain the full path."
+        },
+        {
+          "id": "binaryPropertyName",
+          "label": "Put Output File in Field",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "defaultValue": "data"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Field"
+        }
+      ]
+    },
+    {
+      "id": "default_list",
+      "label": "List",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "protocol",
+          "label": "Protocol",
+          "type": "select",
+          "in": "query",
+          "description": "File transfer protocol",
+          "defaultValue": "ftp",
+          "options": [
+            {
+              "value": "ftp",
+              "label": "FTP"
+            },
+            {
+              "value": "sftp",
+              "label": "SFTP"
+            }
+          ]
+        },
+        {
+          "id": "path",
+          "label": "Path",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "e.g. /public/folder",
+          "description": "Path of directory to list contents of",
+          "defaultValue": "/"
+        },
+        {
+          "id": "recursive",
+          "label": "Recursive",
+          "type": "toggle",
+          "in": "query",
+          "required": true,
+          "description": "Whether to return object representing all directories / objects recursively found within SFTP server",
+          "defaultValue": false
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Field"
+        }
+      ]
+    },
+    {
+      "id": "default_rename",
+      "label": "Rename",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "protocol",
+          "label": "Protocol",
+          "type": "select",
+          "in": "query",
+          "description": "File transfer protocol",
+          "defaultValue": "ftp",
+          "options": [
+            {
+              "value": "ftp",
+              "label": "FTP"
+            },
+            {
+              "value": "sftp",
+              "label": "SFTP"
+            }
+          ]
+        },
+        {
+          "id": "oldPath",
+          "label": "Old Path",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "e.g. /public/documents/old-file.txt"
+        },
+        {
+          "id": "newPath",
+          "label": "New Path",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "e.g. /public/documents/new-file.txt"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Field"
+        }
+      ]
+    },
+    {
+      "id": "default_upload",
+      "label": "Upload",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "protocol",
+          "label": "Protocol",
+          "type": "select",
+          "in": "query",
+          "description": "File transfer protocol",
+          "defaultValue": "ftp",
+          "options": [
+            {
+              "value": "ftp",
+              "label": "FTP"
+            },
+            {
+              "value": "sftp",
+              "label": "SFTP"
+            }
+          ]
+        },
+        {
+          "id": "path",
+          "label": "Path",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "e.g. /public/documents/file-to-upload.txt",
+          "description": "The file path of the file to upload. Has to contain the full path."
+        },
+        {
+          "id": "binaryData",
+          "label": "Binary File",
+          "type": "toggle",
+          "in": "query",
+          "description": "The text content of the file to upload",
+          "defaultValue": true
+        },
+        {
+          "id": "binaryPropertyName",
+          "label": "Input Binary Field",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "defaultValue": "data"
+        },
+        {
+          "id": "fileContent",
+          "label": "File Content",
+          "type": "text",
+          "in": "query",
+          "description": "The text content of the file to upload"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Field"
+        }
+      ]
+    }
+  ]
+}

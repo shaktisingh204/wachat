@@ -1,0 +1,24 @@
+{
+  "id": "n8n-microsoft-dynamics-crm",
+  "name": "Microsoft Dynamics CRM",
+  "description": "Consume Microsoft Dynamics CRM API",
+  "category": "Input",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "oauth2",
+    "credentialType": "oauth2"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "account_default",
+      "label": "List Account",
+      "method": "GET",
+      "path": "/account",
+      "fields": []
+    }
+  ]
+}

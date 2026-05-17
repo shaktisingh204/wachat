@@ -1,0 +1,86 @@
+{
+  "id": "n8n-convert-to-file",
+  "name": "Convert to File",
+  "description": "Convert JSON data to binary data",
+  "category": "Input",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "none"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "default_csv",
+      "label": "Convert to CSV",
+      "method": "GET",
+      "path": "/",
+      "fields": []
+    },
+    {
+      "id": "default_html",
+      "label": "Convert to HTML",
+      "method": "GET",
+      "path": "/",
+      "fields": []
+    },
+    {
+      "id": "default_i_cal",
+      "label": "Convert to ICS",
+      "method": "GET",
+      "path": "/",
+      "fields": []
+    },
+    {
+      "id": "default_to_json",
+      "label": "Convert to JSON",
+      "method": "GET",
+      "path": "/",
+      "fields": []
+    },
+    {
+      "id": "default_ods",
+      "label": "Convert to ODS",
+      "method": "GET",
+      "path": "/",
+      "fields": []
+    },
+    {
+      "id": "default_rtf",
+      "label": "Convert to RTF",
+      "method": "GET",
+      "path": "/",
+      "fields": []
+    },
+    {
+      "id": "default_to_text",
+      "label": "Convert to Text File",
+      "method": "GET",
+      "path": "/",
+      "fields": []
+    },
+    {
+      "id": "default_xls",
+      "label": "Convert to XLS",
+      "method": "GET",
+      "path": "/",
+      "fields": []
+    },
+    {
+      "id": "default_xlsx",
+      "label": "Convert to XLSX",
+      "method": "GET",
+      "path": "/",
+      "fields": []
+    },
+    {
+      "id": "default_to_binary",
+      "label": "Move Base64 String to File",
+      "method": "GET",
+      "path": "/",
+      "fields": []
+    }
+  ]
+}

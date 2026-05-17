@@ -1,0 +1,18 @@
+{
+  "id": "ofac-sdn",
+  "name": "OFAC SDN (Consolidated Screening)",
+  "description": "US Treasury OFAC Specially Designated Nationals list (Trade.gov).",
+  "category": "Compliance",
+  "iconName": "LuShield",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": { "type": "query_token", "credentialType": "ofac", "queryParam": "api_key" },
+  "baseUrl": "https://api.trade.gov/v3/consolidated_screening_list",
+  "endpoints": [
+    { "id": "search", "label": "Search sanctions list", "method": "GET", "path": "/search", "fields": [{ "id": "name", "type": "text", "in": "query" }, { "id": "sources", "type": "text", "in": "query" }, { "id": "countries", "type": "text", "in": "query" }, { "id": "fuzzy_name", "type": "toggle", "in": "query" }, { "id": "size", "type": "number", "defaultValue": 10, "in": "query" }] },
+    { "id": "sources", "label": "List sources", "method": "GET", "path": "/sources", "fields": [] },
+    { "id": "health", "label": "Health", "method": "GET", "path": "/health", "fields": [] },
+    { "id": "health_kibana", "label": "Kibana status", "method": "GET", "path": "/_kibana/status", "fields": [] }
+  ]
+}

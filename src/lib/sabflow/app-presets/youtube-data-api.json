@@ -1,0 +1,146 @@
+{
+  "id": "youtube-data-api",
+  "name": "YouTube Data API",
+  "description": "YouTube Data API v3 for videos, playlists, channels, and comments.",
+  "category": "Social",
+  "iconName": "LuYoutube",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "oauth2",
+    "credentialType": "oauth2"
+  },
+  "baseUrl": "https://www.googleapis.com/youtube/v3",
+  "endpoints": [
+    {
+      "id": "search",
+      "label": "Search",
+      "method": "GET",
+      "path": "/search",
+      "fields": [
+        { "id": "part", "label": "Part", "type": "text", "defaultValue": "snippet", "in": "query" },
+        { "id": "q", "label": "Query", "type": "text", "required": true, "in": "query" },
+        { "id": "type", "label": "Type", "type": "select", "in": "query" },
+        { "id": "maxResults", "label": "Max results", "type": "number", "defaultValue": 10, "in": "query" }
+      ]
+    },
+    {
+      "id": "list_videos",
+      "label": "List videos",
+      "method": "GET",
+      "path": "/videos",
+      "fields": [
+        { "id": "part", "label": "Part", "type": "text", "defaultValue": "snippet,statistics,contentDetails", "in": "query" },
+        { "id": "id", "label": "Video IDs (CSV)", "type": "text", "in": "query" },
+        { "id": "mine", "label": "Mine", "type": "toggle", "in": "query" }
+      ]
+    },
+    {
+      "id": "insert_video",
+      "label": "Insert video (upload)",
+      "method": "POST",
+      "path": "/videos",
+      "fields": [
+        { "id": "part", "label": "Part", "type": "text", "defaultValue": "snippet,status", "in": "query" },
+        { "id": "snippet", "label": "Snippet", "type": "json", "required": true, "in": "body" },
+        { "id": "status", "label": "Status", "type": "json", "required": true, "in": "body" },
+        { "id": "media_url", "label": "Media URL", "type": "text", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "update_video",
+      "label": "Update video",
+      "method": "PUT",
+      "path": "/videos",
+      "fields": [
+        { "id": "part", "label": "Part", "type": "text", "defaultValue": "snippet,status", "in": "query" },
+        { "id": "id", "label": "Video ID", "type": "text", "required": true, "in": "body" },
+        { "id": "snippet", "label": "Snippet", "type": "json", "in": "body" },
+        { "id": "status", "label": "Status", "type": "json", "in": "body" }
+      ]
+    },
+    {
+      "id": "delete_video",
+      "label": "Delete video",
+      "method": "DELETE",
+      "path": "/videos",
+      "fields": [
+        { "id": "id", "label": "Video ID", "type": "text", "required": true, "in": "query" }
+      ]
+    },
+    {
+      "id": "list_playlists",
+      "label": "List playlists",
+      "method": "GET",
+      "path": "/playlists",
+      "fields": [
+        { "id": "part", "label": "Part", "type": "text", "defaultValue": "snippet", "in": "query" },
+        { "id": "mine", "label": "Mine", "type": "toggle", "in": "query" },
+        { "id": "channelId", "label": "Channel ID", "type": "text", "in": "query" }
+      ]
+    },
+    {
+      "id": "insert_playlist",
+      "label": "Insert playlist",
+      "method": "POST",
+      "path": "/playlists",
+      "fields": [
+        { "id": "part", "label": "Part", "type": "text", "defaultValue": "snippet,status", "in": "query" },
+        { "id": "snippet", "label": "Snippet { title, description? }", "type": "json", "required": true, "in": "body" },
+        { "id": "status", "label": "Status { privacyStatus }", "type": "json", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "list_playlist_items",
+      "label": "List playlist items",
+      "method": "GET",
+      "path": "/playlistItems",
+      "fields": [
+        { "id": "part", "label": "Part", "type": "text", "defaultValue": "snippet", "in": "query" },
+        { "id": "playlistId", "label": "Playlist ID", "type": "text", "required": true, "in": "query" }
+      ]
+    },
+    {
+      "id": "insert_playlist_item",
+      "label": "Insert playlist item",
+      "method": "POST",
+      "path": "/playlistItems",
+      "fields": [
+        { "id": "part", "label": "Part", "type": "text", "defaultValue": "snippet", "in": "query" },
+        { "id": "snippet", "label": "Snippet { playlistId, resourceId:{ kind, videoId } }", "type": "json", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "list_channels",
+      "label": "List channels",
+      "method": "GET",
+      "path": "/channels",
+      "fields": [
+        { "id": "part", "label": "Part", "type": "text", "defaultValue": "snippet,statistics", "in": "query" },
+        { "id": "id", "label": "Channel IDs (CSV)", "type": "text", "in": "query" },
+        { "id": "mine", "label": "Mine", "type": "toggle", "in": "query" }
+      ]
+    },
+    {
+      "id": "list_subscriptions",
+      "label": "List subscriptions",
+      "method": "GET",
+      "path": "/subscriptions",
+      "fields": [
+        { "id": "part", "label": "Part", "type": "text", "defaultValue": "snippet", "in": "query" },
+        { "id": "mine", "label": "Mine", "type": "toggle", "defaultValue": true, "in": "query" }
+      ]
+    },
+    {
+      "id": "list_comments",
+      "label": "List comment threads",
+      "method": "GET",
+      "path": "/commentThreads",
+      "fields": [
+        { "id": "part", "label": "Part", "type": "text", "defaultValue": "snippet", "in": "query" },
+        { "id": "videoId", "label": "Video ID", "type": "text", "required": true, "in": "query" }
+      ]
+    }
+  ]
+}

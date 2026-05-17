@@ -1,0 +1,24 @@
+{
+  "id": "drchrono",
+  "name": "DrChrono",
+  "description": "DrChrono EHR/PM API.",
+  "category": "Healthcare",
+  "iconName": "LuHeartPulse",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": { "type": "oauth2", "credentialType": "oauth2" },
+  "baseUrl": "https://app.drchrono.com/api",
+  "endpoints": [
+    { "id": "list_patients", "label": "List patients", "method": "GET", "path": "/patients", "fields": [] },
+    { "id": "get_patient", "label": "Get patient", "method": "GET", "path": "/patients/{id}", "fields": [{ "id": "id", "type": "text", "required": true, "in": "path" }] },
+    { "id": "create_patient", "label": "Create patient", "method": "POST", "path": "/patients", "fields": [{ "id": "first_name", "type": "text", "required": true, "in": "body" }, { "id": "last_name", "type": "text", "required": true, "in": "body" }, { "id": "doctor", "type": "text", "required": true, "in": "body" }, { "id": "gender", "type": "text", "in": "body" }, { "id": "date_of_birth", "type": "text", "in": "body" }] },
+    { "id": "list_appointments", "label": "List appointments", "method": "GET", "path": "/appointments", "fields": [{ "id": "since", "type": "text", "in": "query" }, { "id": "date_range", "type": "text", "in": "query" }] },
+    { "id": "create_appointment", "label": "Create appointment", "method": "POST", "path": "/appointments", "fields": [{ "id": "patient", "type": "text", "required": true, "in": "body" }, { "id": "doctor", "type": "text", "required": true, "in": "body" }, { "id": "exam_room", "type": "text", "required": true, "in": "body" }, { "id": "office", "type": "text", "required": true, "in": "body" }, { "id": "scheduled_time", "type": "text", "required": true, "in": "body" }, { "id": "duration", "type": "number", "required": true, "in": "body" }] },
+    { "id": "update_appointment", "label": "Update appointment", "method": "PATCH", "path": "/appointments/{id}", "fields": [{ "id": "id", "type": "text", "required": true, "in": "path" }] },
+    { "id": "list_appointment_profiles", "label": "List appointment profiles", "method": "GET", "path": "/appointment_profiles", "fields": [] },
+    { "id": "list_clinical_notes", "label": "List clinical notes", "method": "GET", "path": "/clinical_notes", "fields": [{ "id": "patient", "type": "text", "in": "query" }] },
+    { "id": "list_problems", "label": "List problems", "method": "GET", "path": "/problems", "fields": [{ "id": "patient", "type": "text", "in": "query" }] },
+    { "id": "list_doctors", "label": "List doctors", "method": "GET", "path": "/doctors", "fields": [] }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "id": "cognism",
+  "name": "Cognism",
+  "description": "B2B sales intelligence.",
+  "category": "Sales",
+  "iconName": "LuSearch",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": { "type": "header", "credentialType": "cognism", "header": "Authorization" },
+  "baseUrl": "https://app.cognism.com/api/v2",
+  "endpoints": [
+    { "id": "enrich_person", "label": "Enrich person (bulk)", "method": "POST", "path": "/redeem", "fields": [{ "id": "data", "type": "json", "required": true, "in": "body", "defaultValue": [{ "email": "", "linkedinUrl": "", "firstName": "", "lastName": "", "companyName": "" }] }] },
+    { "id": "enrich_company", "label": "Enrich company (bulk)", "method": "POST", "path": "/redeem/company", "fields": [{ "id": "data", "type": "json", "required": true, "in": "body", "defaultValue": [{ "domain": "", "companyName": "" }] }] },
+    { "id": "search_contacts", "label": "Search contacts", "method": "POST", "path": "/search/contacts", "fields": [{ "id": "filters", "type": "json", "required": true, "in": "body" }, { "id": "page", "type": "number", "in": "body" }] },
+    { "id": "search_companies", "label": "Search companies", "method": "POST", "path": "/search/companies", "fields": [{ "id": "filters", "type": "json", "required": true, "in": "body" }, { "id": "page", "type": "number", "in": "body" }] },
+    { "id": "list_credits", "label": "List credits", "method": "GET", "path": "/credits", "fields": [] },
+    { "id": "list_users", "label": "List users", "method": "GET", "path": "/users", "fields": [] }
+  ]
+}

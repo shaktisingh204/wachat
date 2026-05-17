@@ -1,0 +1,103 @@
+{
+  "id": "maxio",
+  "name": "Maxio (Advanced Billing / Chargify)",
+  "description": "Maxio Advanced Billing (formerly Chargify): subscription billing for B2B SaaS — customers, subscriptions, products, components, allocations.",
+  "category": "Billing",
+  "iconName": "LuCreditCard",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "basic",
+    "credentialType": "maxio"
+  },
+  "baseUrl": "https://{subdomain}.chargify.com",
+  "endpoints": [
+    {
+      "id": "list_customers",
+      "label": "List Customers",
+      "method": "GET",
+      "path": "/customers.json",
+      "fields": [
+        { "id": "page", "label": "Page", "type": "number", "in": "query" },
+        { "id": "per_page", "label": "Per Page", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "create_customer",
+      "label": "Create Customer",
+      "method": "POST",
+      "path": "/customers.json",
+      "fields": [
+        { "id": "customer", "label": "Customer Object", "type": "json", "required": true, "defaultValue": "{\"first_name\":\"\",\"last_name\":\"\",\"email\":\"\"}", "in": "body" }
+      ]
+    },
+    {
+      "id": "list_subscriptions",
+      "label": "List Subscriptions",
+      "method": "GET",
+      "path": "/subscriptions.json",
+      "fields": [
+        { "id": "page", "label": "Page", "type": "number", "in": "query" },
+        { "id": "per_page", "label": "Per Page", "type": "number", "in": "query" },
+        { "id": "state", "label": "State", "type": "text", "in": "query" }
+      ]
+    },
+    {
+      "id": "create_subscription",
+      "label": "Create Subscription",
+      "method": "POST",
+      "path": "/subscriptions.json",
+      "fields": [
+        { "id": "subscription", "label": "Subscription Object", "type": "json", "required": true, "defaultValue": "{\"customer_id\":0,\"product_handle\":\"\"}", "in": "body" }
+      ]
+    },
+    {
+      "id": "cancel_subscription",
+      "label": "Cancel Subscription",
+      "method": "DELETE",
+      "path": "/subscriptions/{id}.json",
+      "fields": [
+        { "id": "id", "label": "Subscription ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_products",
+      "label": "List Products",
+      "method": "GET",
+      "path": "/products.json",
+      "fields": []
+    },
+    {
+      "id": "list_invoices",
+      "label": "List Invoices",
+      "method": "GET",
+      "path": "/invoices.json",
+      "fields": [
+        { "id": "page", "label": "Page", "type": "number", "in": "query" },
+        { "id": "per_page", "label": "Per Page", "type": "number", "in": "query" },
+        { "id": "status", "label": "Status", "type": "text", "in": "query" }
+      ]
+    },
+    {
+      "id": "list_components",
+      "label": "List Components",
+      "method": "GET",
+      "path": "/products/{product_id}/components.json",
+      "fields": [
+        { "id": "product_id", "label": "Product ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "allocate_component",
+      "label": "Allocate Component",
+      "method": "POST",
+      "path": "/subscriptions/{subscription_id}/components/{component_id}/allocations.json",
+      "fields": [
+        { "id": "subscription_id", "label": "Subscription ID", "type": "text", "required": true, "in": "path" },
+        { "id": "component_id", "label": "Component ID", "type": "text", "required": true, "in": "path" },
+        { "id": "allocation", "label": "Allocation Object", "type": "json", "required": true, "defaultValue": "{\"quantity\":1,\"memo\":\"\"}", "in": "body" }
+      ]
+    }
+  ]
+}

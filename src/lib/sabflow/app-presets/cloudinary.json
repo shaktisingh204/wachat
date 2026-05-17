@@ -1,0 +1,57 @@
+{
+  "id": "cloudinary",
+  "name": "Cloudinary",
+  "description": "Cloudinary media management and transformation.",
+  "category": "Media",
+  "iconName": "LuImage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "basic",
+    "credentialType": "cloudinary"
+  },
+  "baseUrl": "https://api.cloudinary.com/v1_1/{cloud_name}",
+  "endpoints": [
+    {
+      "id": "upload_image",
+      "label": "Upload image",
+      "method": "POST",
+      "path": "/image/upload",
+      "fields": [
+        { "id": "file", "label": "File", "type": "text", "required": true, "in": "body" },
+        { "id": "public_id", "label": "Public ID", "type": "text", "in": "body" },
+        { "id": "folder", "label": "Folder", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "list_resources",
+      "label": "List resources",
+      "method": "GET",
+      "path": "/resources/image",
+      "fields": [
+        { "id": "max_results", "label": "Max results", "type": "number", "defaultValue": 25, "in": "query" },
+        { "id": "next_cursor", "label": "Next cursor", "type": "text", "in": "query" }
+      ]
+    },
+    {
+      "id": "delete_resource",
+      "label": "Delete resource",
+      "method": "DELETE",
+      "path": "/resources/image/upload",
+      "fields": [
+        { "id": "public_ids", "label": "Public IDs", "type": "json", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "transform_url",
+      "label": "Build transformation URL",
+      "method": "GET",
+      "path": "/image/upload/{transformation}/{public_id}",
+      "fields": [
+        { "id": "transformation", "label": "Transformation", "type": "text", "required": true, "in": "path" },
+        { "id": "public_id", "label": "Public ID", "type": "text", "required": true, "in": "path" }
+      ]
+    }
+  ]
+}

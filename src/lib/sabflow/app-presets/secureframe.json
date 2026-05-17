@@ -1,0 +1,23 @@
+{
+  "id": "secureframe",
+  "name": "Secureframe",
+  "description": "Secureframe compliance automation.",
+  "category": "Compliance",
+  "iconName": "LuShield",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": { "type": "bearer", "credentialType": "secureframe" },
+  "baseUrl": "https://api.secureframe.com/v1",
+  "endpoints": [
+    { "id": "list_workspaces", "label": "List workspaces", "method": "GET", "path": "/workspaces", "fields": [] },
+    { "id": "list_personnel", "label": "List personnel", "method": "GET", "path": "/personnel", "fields": [] },
+    { "id": "list_devices", "label": "List devices", "method": "GET", "path": "/devices", "fields": [] },
+    { "id": "list_controls", "label": "List controls", "method": "GET", "path": "/controls", "fields": [] },
+    { "id": "list_tests", "label": "List tests", "method": "GET", "path": "/tests", "fields": [] },
+    { "id": "list_evidence", "label": "List evidence", "method": "GET", "path": "/evidence", "fields": [] },
+    { "id": "list_policies", "label": "List policies", "method": "GET", "path": "/policies", "fields": [] },
+    { "id": "list_vendors", "label": "List vendors", "method": "GET", "path": "/vendors", "fields": [] },
+    { "id": "list_risks", "label": "List risks", "method": "GET", "path": "/risks", "fields": [] }
+  ]
+}

@@ -1,0 +1,125 @@
+{
+  "id": "datadog",
+  "name": "Datadog",
+  "description": "Datadog observability platform — metrics, logs, monitors, incidents.",
+  "category": "Monitoring",
+  "iconName": "LuActivity",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "header",
+    "credentialType": "datadog",
+    "header": "DD-API-KEY"
+  },
+  "baseUrl": "https://api.datadoghq.com/api/v2",
+  "endpoints": [
+    {
+      "id": "submit_metric",
+      "label": "Submit metric series",
+      "method": "POST",
+      "path": "/series",
+      "fields": [
+        { "id": "DD-APPLICATION-KEY", "label": "Application key", "type": "password", "required": true, "in": "header" },
+        { "id": "series", "label": "Series (JSON array)", "type": "json", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "submit_event",
+      "label": "Submit event",
+      "method": "POST",
+      "path": "/events",
+      "fields": [
+        { "id": "DD-APPLICATION-KEY", "label": "Application key", "type": "password", "required": true, "in": "header" },
+        { "id": "data", "label": "Event data (JSON)", "type": "json", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "list_incidents",
+      "label": "List incidents",
+      "method": "GET",
+      "path": "/incidents",
+      "fields": [
+        { "id": "DD-APPLICATION-KEY", "label": "Application key", "type": "password", "required": true, "in": "header" },
+        { "id": "page[size]", "label": "Page size", "type": "number", "in": "query" },
+        { "id": "page[offset]", "label": "Page offset", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "create_incident",
+      "label": "Create incident",
+      "method": "POST",
+      "path": "/incidents",
+      "fields": [
+        { "id": "DD-APPLICATION-KEY", "label": "Application key", "type": "password", "required": true, "in": "header" },
+        { "id": "data", "label": "Incident data (JSON)", "type": "json", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "list_monitors",
+      "label": "List monitors",
+      "method": "GET",
+      "path": "/monitor",
+      "fields": [
+        { "id": "DD-APPLICATION-KEY", "label": "Application key", "type": "password", "required": true, "in": "header" },
+        { "id": "page", "label": "Page", "type": "number", "in": "query" },
+        { "id": "page_size", "label": "Page size", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "create_monitor",
+      "label": "Create monitor",
+      "method": "POST",
+      "path": "/monitor",
+      "fields": [
+        { "id": "DD-APPLICATION-KEY", "label": "Application key", "type": "password", "required": true, "in": "header" },
+        { "id": "name", "label": "Name", "type": "text", "required": true, "in": "body" },
+        { "id": "type", "label": "Type", "type": "text", "required": true, "in": "body" },
+        { "id": "query", "label": "Query", "type": "textarea", "required": true, "in": "body" },
+        { "id": "message", "label": "Message", "type": "textarea", "required": true, "in": "body" },
+        { "id": "tags", "label": "Tags (JSON array)", "type": "json", "in": "body" },
+        { "id": "options", "label": "Options (JSON)", "type": "json", "in": "body" }
+      ]
+    },
+    {
+      "id": "delete_monitor",
+      "label": "Delete monitor",
+      "method": "DELETE",
+      "path": "/monitor/{monitor_id}",
+      "fields": [
+        { "id": "DD-APPLICATION-KEY", "label": "Application key", "type": "password", "required": true, "in": "header" },
+        { "id": "monitor_id", "label": "Monitor ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_dashboards",
+      "label": "List dashboards",
+      "method": "GET",
+      "path": "/dashboard",
+      "fields": [
+        { "id": "DD-APPLICATION-KEY", "label": "Application key", "type": "password", "required": true, "in": "header" }
+      ]
+    },
+    {
+      "id": "list_logs",
+      "label": "Search logs",
+      "method": "POST",
+      "path": "/logs/events/search",
+      "fields": [
+        { "id": "DD-APPLICATION-KEY", "label": "Application key", "type": "password", "required": true, "in": "header" },
+        { "id": "filter", "label": "Filter (JSON)", "type": "json", "required": true, "in": "body" },
+        { "id": "page", "label": "Page (JSON)", "type": "json", "in": "body" },
+        { "id": "sort", "label": "Sort", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "list_synthetics_tests",
+      "label": "List synthetics tests",
+      "method": "GET",
+      "path": "/synthetics/tests",
+      "fields": [
+        { "id": "DD-APPLICATION-KEY", "label": "Application key", "type": "password", "required": true, "in": "header" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "id": "n8n-marketstack",
+  "name": "Marketstack",
+  "description": "Consume Marketstack API",
+  "category": "Transform",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "end_of_day_data_default",
+      "label": "List EndOfDayData",
+      "method": "GET",
+      "path": "/endOfDayData",
+      "fields": []
+    },
+    {
+      "id": "exchange_default",
+      "label": "List Exchange",
+      "method": "GET",
+      "path": "/exchange",
+      "fields": []
+    },
+    {
+      "id": "ticker_default",
+      "label": "List Ticker",
+      "method": "GET",
+      "path": "/ticker",
+      "fields": []
+    }
+  ]
+}

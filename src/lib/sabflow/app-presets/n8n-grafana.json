@@ -1,0 +1,45 @@
+{
+  "id": "n8n-grafana",
+  "name": "Grafana",
+  "description": "Consume the Grafana API",
+  "category": "Transform",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "dashboard_default",
+      "label": "List Dashboard",
+      "method": "GET",
+      "path": "/dashboard",
+      "fields": []
+    },
+    {
+      "id": "team_default",
+      "label": "List Team",
+      "method": "GET",
+      "path": "/team",
+      "fields": []
+    },
+    {
+      "id": "team_member_default",
+      "label": "List TeamMember",
+      "method": "GET",
+      "path": "/teamMember",
+      "fields": []
+    },
+    {
+      "id": "user_default",
+      "label": "List User",
+      "method": "GET",
+      "path": "/user",
+      "fields": []
+    }
+  ]
+}

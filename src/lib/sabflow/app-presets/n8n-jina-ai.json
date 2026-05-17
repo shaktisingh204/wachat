@@ -1,0 +1,112 @@
+{
+  "id": "n8n-jina-ai",
+  "name": "Jina AI",
+  "description": "Interact with Jina AI API",
+  "category": "Transform",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "reader_read",
+      "label": "Read Reader",
+      "method": "GET",
+      "path": "/=https://r.jina.ai/{{ $parameter[\"url\"] }}",
+      "fields": [
+        {
+          "id": "url",
+          "label": "URL",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "https://jina.ai/",
+          "description": "The URL to fetch content from"
+        },
+        {
+          "id": "simplify",
+          "label": "Simplify",
+          "type": "toggle",
+          "in": "query",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Option"
+        }
+      ]
+    },
+    {
+      "id": "reader_search",
+      "label": "Search Reader",
+      "method": "GET",
+      "path": "/https://s.jina.ai/",
+      "fields": [
+        {
+          "id": "searchQuery",
+          "label": "Search Query",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "e.g. Jina AI"
+        },
+        {
+          "id": "simplify",
+          "label": "Simplify",
+          "type": "toggle",
+          "in": "query",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Option"
+        }
+      ]
+    },
+    {
+      "id": "research_deep_research",
+      "label": "Deep Research Research",
+      "method": "POST",
+      "path": "/https://deepsearch.jina.ai/v1/chat/completions",
+      "fields": [
+        {
+          "id": "researchQuery",
+          "label": "Research Query",
+          "type": "text",
+          "in": "body",
+          "required": true,
+          "placeholder": "e.g. Analyze the impact of renewable energy sources on climate change mitigation",
+          "description": "The topic or question for the AI to research"
+        },
+        {
+          "id": "simplify",
+          "label": "Simplify",
+          "type": "toggle",
+          "in": "body",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "in": "body",
+          "placeholder": "Add Option"
+        }
+      ]
+    }
+  ]
+}

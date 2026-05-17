@@ -1,0 +1,167 @@
+{
+  "id": "n8n-mautic",
+  "name": "Mautic",
+  "description": "Consume Mautic API",
+  "category": "Output",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "campaign_contact_default",
+      "label": "List CampaignContact",
+      "method": "GET",
+      "path": "/campaignContact",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "credentials",
+          "options": [
+            {
+              "value": "credentials",
+              "label": "Credentials"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "company_default",
+      "label": "List Company",
+      "method": "GET",
+      "path": "/company",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "credentials",
+          "options": [
+            {
+              "value": "credentials",
+              "label": "Credentials"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "company_contact_default",
+      "label": "List CompanyContact",
+      "method": "GET",
+      "path": "/companyContact",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "credentials",
+          "options": [
+            {
+              "value": "credentials",
+              "label": "Credentials"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "contact_default",
+      "label": "List Contact",
+      "method": "GET",
+      "path": "/contact",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "credentials",
+          "options": [
+            {
+              "value": "credentials",
+              "label": "Credentials"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "contact_segment_default",
+      "label": "List ContactSegment",
+      "method": "GET",
+      "path": "/contactSegment",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "credentials",
+          "options": [
+            {
+              "value": "credentials",
+              "label": "Credentials"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "segment_email_default",
+      "label": "List SegmentEmail",
+      "method": "GET",
+      "path": "/segmentEmail",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "credentials",
+          "options": [
+            {
+              "value": "credentials",
+              "label": "Credentials"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

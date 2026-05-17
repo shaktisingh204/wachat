@@ -1,0 +1,45 @@
+{
+  "id": "n8n-ko-bo-toolbox",
+  "name": "KoBoToolbox",
+  "description": "Work with KoBoToolbox forms and submissions",
+  "category": "Transform",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "file_default",
+      "label": "List File",
+      "method": "GET",
+      "path": "/file",
+      "fields": []
+    },
+    {
+      "id": "form_default",
+      "label": "List Form",
+      "method": "GET",
+      "path": "/form",
+      "fields": []
+    },
+    {
+      "id": "hook_default",
+      "label": "List Hook",
+      "method": "GET",
+      "path": "/hook",
+      "fields": []
+    },
+    {
+      "id": "submission_default",
+      "label": "List Submission",
+      "method": "GET",
+      "path": "/submission",
+      "fields": []
+    }
+  ]
+}

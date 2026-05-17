@@ -1,0 +1,31 @@
+{
+  "id": "n8n-venafi-tls-protect-cloud",
+  "name": "Venafi TLS Protect Cloud",
+  "description": "Consume Venafi TLS Protect Cloud API",
+  "category": "Input",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "certificate_default",
+      "label": "List Certificate",
+      "method": "GET",
+      "path": "/certificate",
+      "fields": []
+    },
+    {
+      "id": "certificate_request_default",
+      "label": "List CertificateRequest",
+      "method": "GET",
+      "path": "/certificateRequest",
+      "fields": []
+    }
+  ]
+}

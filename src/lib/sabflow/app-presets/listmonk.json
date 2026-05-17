@@ -1,0 +1,127 @@
+{
+  "id": "listmonk",
+  "name": "Listmonk",
+  "description": "Listmonk self-hosted newsletter and mailing list manager.",
+  "category": "Email marketing",
+  "iconName": "LuMail",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "basic",
+    "credentialType": "listmonk"
+  },
+  "baseUrl": "https://listmonk.example.com/api",
+  "endpoints": [
+    {
+      "id": "list_subscribers",
+      "label": "List subscribers",
+      "method": "GET",
+      "path": "/subscribers",
+      "fields": [
+        { "id": "page", "label": "Page", "type": "number", "defaultValue": 1, "in": "query" },
+        { "id": "per_page", "label": "Per page", "type": "number", "defaultValue": 20, "in": "query" },
+        { "id": "query", "label": "Query", "type": "text", "in": "query" }
+      ]
+    },
+    {
+      "id": "get_subscriber",
+      "label": "Get subscriber",
+      "method": "GET",
+      "path": "/subscribers/{id}",
+      "fields": [
+        { "id": "id", "label": "Subscriber ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "create_subscriber",
+      "label": "Create subscriber",
+      "method": "POST",
+      "path": "/subscribers",
+      "fields": [
+        { "id": "email", "label": "Email", "type": "text", "required": true, "in": "body" },
+        { "id": "name", "label": "Name", "type": "text", "required": true, "in": "body" },
+        { "id": "status", "label": "Status", "type": "text", "required": true, "in": "body" },
+        { "id": "lists", "label": "Lists", "type": "json", "in": "body" },
+        { "id": "attribs", "label": "Attributes", "type": "json", "in": "body" }
+      ]
+    },
+    {
+      "id": "update_subscriber",
+      "label": "Update subscriber",
+      "method": "PUT",
+      "path": "/subscribers/{id}",
+      "fields": [
+        { "id": "id", "label": "Subscriber ID", "type": "text", "required": true, "in": "path" },
+        { "id": "email", "label": "Email", "type": "text", "required": true, "in": "body" },
+        { "id": "name", "label": "Name", "type": "text", "required": true, "in": "body" },
+        { "id": "status", "label": "Status", "type": "text", "required": true, "in": "body" },
+        { "id": "lists", "label": "Lists", "type": "json", "in": "body" }
+      ]
+    },
+    {
+      "id": "delete_subscriber",
+      "label": "Delete subscriber",
+      "method": "DELETE",
+      "path": "/subscribers/{id}",
+      "fields": [
+        { "id": "id", "label": "Subscriber ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_lists",
+      "label": "List lists",
+      "method": "GET",
+      "path": "/lists",
+      "fields": [
+        { "id": "page", "label": "Page", "type": "number", "defaultValue": 1, "in": "query" },
+        { "id": "per_page", "label": "Per page", "type": "number", "defaultValue": 20, "in": "query" }
+      ]
+    },
+    {
+      "id": "create_list",
+      "label": "Create list",
+      "method": "POST",
+      "path": "/lists",
+      "fields": [
+        { "id": "name", "label": "Name", "type": "text", "required": true, "in": "body" },
+        { "id": "type", "label": "Type", "type": "text", "required": true, "in": "body" },
+        { "id": "optin", "label": "Opt-in", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "list_campaigns",
+      "label": "List campaigns",
+      "method": "GET",
+      "path": "/campaigns",
+      "fields": [
+        { "id": "page", "label": "Page", "type": "number", "defaultValue": 1, "in": "query" },
+        { "id": "per_page", "label": "Per page", "type": "number", "defaultValue": 20, "in": "query" }
+      ]
+    },
+    {
+      "id": "create_campaign",
+      "label": "Create campaign",
+      "method": "POST",
+      "path": "/campaigns",
+      "fields": [
+        { "id": "name", "label": "Name", "type": "text", "required": true, "in": "body" },
+        { "id": "subject", "label": "Subject", "type": "text", "required": true, "in": "body" },
+        { "id": "lists", "label": "Lists", "type": "json", "required": true, "in": "body" },
+        { "id": "type", "label": "Type", "type": "text", "required": true, "in": "body" },
+        { "id": "content_type", "label": "Content type", "type": "text", "required": true, "in": "body" },
+        { "id": "body", "label": "Body", "type": "textarea", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "send_campaign",
+      "label": "Send campaign",
+      "method": "PUT",
+      "path": "/campaigns/{id}/status",
+      "fields": [
+        { "id": "id", "label": "Campaign ID", "type": "text", "required": true, "in": "path" },
+        { "id": "status", "label": "Status", "type": "text", "required": true, "defaultValue": "running", "in": "body" }
+      ]
+    }
+  ]
+}

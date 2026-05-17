@@ -1,0 +1,1243 @@
+{
+  "id": "n8n-gitlab",
+  "name": "GitLab",
+  "description": "Retrieve data from GitLab API",
+  "category": "Input",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "issue_create",
+      "label": "Create Issue",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        },
+        {
+          "id": "owner",
+          "label": "Project Owner",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "n8n-io",
+          "description": "User, group or namespace of the project"
+        },
+        {
+          "id": "repository",
+          "label": "Project Name",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "n8n",
+          "description": "The name of the project"
+        },
+        {
+          "id": "title",
+          "label": "Title",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The title of the issue"
+        },
+        {
+          "id": "body",
+          "label": "Body",
+          "type": "text",
+          "in": "query",
+          "description": "The body of the issue"
+        },
+        {
+          "id": "due_date",
+          "label": "Due Date",
+          "type": "text",
+          "in": "query",
+          "description": "Due Date for issue"
+        },
+        {
+          "id": "labels",
+          "label": "Labels",
+          "type": "json",
+          "in": "query"
+        },
+        {
+          "id": "assignee_ids",
+          "label": "Assignees",
+          "type": "json",
+          "in": "query"
+        }
+      ]
+    },
+    {
+      "id": "issue_create_comment",
+      "label": "Create Comment Issue",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        },
+        {
+          "id": "owner",
+          "label": "Project Owner",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "n8n-io",
+          "description": "User, group or namespace of the project"
+        },
+        {
+          "id": "repository",
+          "label": "Project Name",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "n8n",
+          "description": "The name of the project"
+        },
+        {
+          "id": "issueNumber",
+          "label": "Issue Number",
+          "type": "number",
+          "in": "query",
+          "required": true,
+          "description": "The number of the issue on which to create the comment on",
+          "defaultValue": 0
+        },
+        {
+          "id": "body",
+          "label": "Body",
+          "type": "text",
+          "in": "query",
+          "description": "The body of the comment"
+        }
+      ]
+    },
+    {
+      "id": "issue_edit",
+      "label": "Edit Issue",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        },
+        {
+          "id": "owner",
+          "label": "Project Owner",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "n8n-io",
+          "description": "User, group or namespace of the project"
+        },
+        {
+          "id": "repository",
+          "label": "Project Name",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "n8n",
+          "description": "The name of the project"
+        },
+        {
+          "id": "issueNumber",
+          "label": "Issue Number",
+          "type": "number",
+          "in": "query",
+          "required": true,
+          "description": "The number of the issue edit",
+          "defaultValue": 0
+        },
+        {
+          "id": "editFields",
+          "label": "Edit Fields",
+          "type": "json",
+          "in": "query"
+        }
+      ]
+    },
+    {
+      "id": "issue_get",
+      "label": "Get Issue",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        },
+        {
+          "id": "owner",
+          "label": "Project Owner",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "n8n-io",
+          "description": "User, group or namespace of the project"
+        },
+        {
+          "id": "repository",
+          "label": "Project Name",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "n8n",
+          "description": "The name of the project"
+        },
+        {
+          "id": "issueNumber",
+          "label": "Issue Number",
+          "type": "number",
+          "in": "query",
+          "required": true,
+          "description": "The number of the issue get data of",
+          "defaultValue": 0
+        }
+      ]
+    },
+    {
+      "id": "issue_lock",
+      "label": "Lock Issue",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        },
+        {
+          "id": "owner",
+          "label": "Project Owner",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "n8n-io",
+          "description": "User, group or namespace of the project"
+        },
+        {
+          "id": "repository",
+          "label": "Project Name",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "n8n",
+          "description": "The name of the project"
+        },
+        {
+          "id": "issueNumber",
+          "label": "Issue Number",
+          "type": "number",
+          "in": "query",
+          "required": true,
+          "description": "The number of the issue to lock",
+          "defaultValue": 0
+        },
+        {
+          "id": "lockReason",
+          "label": "Lock Reason",
+          "type": "select",
+          "in": "query",
+          "description": "The reason to lock the issue",
+          "defaultValue": "resolved",
+          "options": [
+            {
+              "value": "off-topic",
+              "label": "Off-Topic"
+            },
+            {
+              "value": "too heated",
+              "label": "Too Heated"
+            },
+            {
+              "value": "resolved",
+              "label": "Resolved"
+            },
+            {
+              "value": "spam",
+              "label": "Spam"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "repository_get",
+      "label": "Get Repository",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        },
+        {
+          "id": "owner",
+          "label": "Project Owner",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "n8n-io",
+          "description": "User, group or namespace of the project"
+        },
+        {
+          "id": "repository",
+          "label": "Project Name",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "n8n",
+          "description": "The name of the project"
+        }
+      ]
+    },
+    {
+      "id": "repository_get_issues",
+      "label": "Get Issues Repository",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        },
+        {
+          "id": "owner",
+          "label": "Project Owner",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "n8n-io",
+          "description": "User, group or namespace of the project"
+        },
+        {
+          "id": "repository",
+          "label": "Project Name",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "n8n",
+          "description": "The name of the project"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "in": "query",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "in": "query",
+          "description": "Max number of results to return",
+          "defaultValue": 20
+        },
+        {
+          "id": "getRepositoryIssuesFilters",
+          "label": "Filters",
+          "type": "json",
+          "in": "query"
+        }
+      ]
+    },
+    {
+      "id": "user_get_repositories",
+      "label": "Get Repositories User",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        },
+        {
+          "id": "owner",
+          "label": "Project Owner",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "n8n-io",
+          "description": "User, group or namespace of the project"
+        },
+        {
+          "id": "repository",
+          "label": "Project Name",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "n8n",
+          "description": "The name of the project"
+        }
+      ]
+    },
+    {
+      "id": "release_create",
+      "label": "Create Release",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        },
+        {
+          "id": "owner",
+          "label": "Project Owner",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "n8n-io",
+          "description": "User, group or namespace of the project"
+        },
+        {
+          "id": "repository",
+          "label": "Project Name",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "n8n",
+          "description": "The name of the project"
+        },
+        {
+          "id": "releaseTag",
+          "label": "Tag",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The tag of the release"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "in": "query"
+        }
+      ]
+    },
+    {
+      "id": "release_delete",
+      "label": "Delete Release",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        },
+        {
+          "id": "owner",
+          "label": "Project Owner",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "n8n-io",
+          "description": "User, group or namespace of the project"
+        },
+        {
+          "id": "repository",
+          "label": "Project Name",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "n8n",
+          "description": "The name of the project"
+        },
+        {
+          "id": "projectId",
+          "label": "Project ID",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The ID or URL-encoded path of the project"
+        },
+        {
+          "id": "tag_name",
+          "label": "Tag Name",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The Git tag the release is associated with"
+        }
+      ]
+    },
+    {
+      "id": "release_get",
+      "label": "Get Release",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        },
+        {
+          "id": "owner",
+          "label": "Project Owner",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "n8n-io",
+          "description": "User, group or namespace of the project"
+        },
+        {
+          "id": "repository",
+          "label": "Project Name",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "n8n",
+          "description": "The name of the project"
+        },
+        {
+          "id": "projectId",
+          "label": "Project ID",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The ID or URL-encoded path of the project"
+        },
+        {
+          "id": "tag_name",
+          "label": "Tag Name",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The Git tag the release is associated with"
+        }
+      ]
+    },
+    {
+      "id": "release_get_all",
+      "label": "Get Many Release",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        },
+        {
+          "id": "owner",
+          "label": "Project Owner",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "n8n-io",
+          "description": "User, group or namespace of the project"
+        },
+        {
+          "id": "repository",
+          "label": "Project Name",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "n8n",
+          "description": "The name of the project"
+        },
+        {
+          "id": "projectId",
+          "label": "Project ID",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The ID or URL-encoded path of the project"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "in": "query",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "in": "query",
+          "description": "Max number of results to return",
+          "defaultValue": 20
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "in": "query"
+        }
+      ]
+    },
+    {
+      "id": "release_update",
+      "label": "Update Release",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        },
+        {
+          "id": "owner",
+          "label": "Project Owner",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "n8n-io",
+          "description": "User, group or namespace of the project"
+        },
+        {
+          "id": "repository",
+          "label": "Project Name",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "n8n",
+          "description": "The name of the project"
+        },
+        {
+          "id": "projectId",
+          "label": "Project ID",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The ID or URL-encoded path of the project"
+        },
+        {
+          "id": "tag_name",
+          "label": "Tag Name",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The Git tag the release is associated with"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "in": "query"
+        }
+      ]
+    },
+    {
+      "id": "file_create",
+      "label": "Create File",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        },
+        {
+          "id": "owner",
+          "label": "Project Owner",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "n8n-io",
+          "description": "User, group or namespace of the project"
+        },
+        {
+          "id": "repository",
+          "label": "Project Name",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "n8n",
+          "description": "The name of the project"
+        },
+        {
+          "id": "filePath",
+          "label": "File Path",
+          "type": "text",
+          "in": "query",
+          "placeholder": "docs/README.md",
+          "description": "The file path of the file. Has to contain the full path or leave it empty for root folder."
+        },
+        {
+          "id": "binaryData",
+          "label": "Binary File",
+          "type": "toggle",
+          "in": "query",
+          "required": true,
+          "description": "Whether the data to upload should be taken from binary field",
+          "defaultValue": false
+        },
+        {
+          "id": "fileContent",
+          "label": "File Content",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The text content of the file"
+        },
+        {
+          "id": "binaryPropertyName",
+          "label": "Input Binary Field",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "defaultValue": "data"
+        },
+        {
+          "id": "commitMessage",
+          "label": "Commit Message",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "branch",
+          "label": "Branch",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "Name of the new branch to create. The commit is added to this branch."
+        },
+        {
+          "id": "additionalParameters",
+          "label": "Additional Parameters",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Parameter",
+          "description": "Additional fields to add"
+        }
+      ]
+    },
+    {
+      "id": "file_delete",
+      "label": "Delete File",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        },
+        {
+          "id": "owner",
+          "label": "Project Owner",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "n8n-io",
+          "description": "User, group or namespace of the project"
+        },
+        {
+          "id": "repository",
+          "label": "Project Name",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "n8n",
+          "description": "The name of the project"
+        },
+        {
+          "id": "filePath",
+          "label": "File Path",
+          "type": "text",
+          "in": "query",
+          "placeholder": "docs/README.md",
+          "description": "The file path of the file. Has to contain the full path or leave it empty for root folder."
+        },
+        {
+          "id": "commitMessage",
+          "label": "Commit Message",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "branch",
+          "label": "Branch",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "Name of the new branch to create. The commit is added to this branch."
+        },
+        {
+          "id": "additionalParameters",
+          "label": "Additional Parameters",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Parameter",
+          "description": "Additional fields to add"
+        }
+      ]
+    },
+    {
+      "id": "file_edit",
+      "label": "Edit File",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        },
+        {
+          "id": "owner",
+          "label": "Project Owner",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "n8n-io",
+          "description": "User, group or namespace of the project"
+        },
+        {
+          "id": "repository",
+          "label": "Project Name",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "n8n",
+          "description": "The name of the project"
+        },
+        {
+          "id": "filePath",
+          "label": "File Path",
+          "type": "text",
+          "in": "query",
+          "placeholder": "docs/README.md",
+          "description": "The file path of the file. Has to contain the full path or leave it empty for root folder."
+        },
+        {
+          "id": "binaryData",
+          "label": "Binary File",
+          "type": "toggle",
+          "in": "query",
+          "required": true,
+          "description": "Whether the data to upload should be taken from binary field",
+          "defaultValue": false
+        },
+        {
+          "id": "fileContent",
+          "label": "File Content",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The text content of the file"
+        },
+        {
+          "id": "binaryPropertyName",
+          "label": "Input Binary Field",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "defaultValue": "data"
+        },
+        {
+          "id": "commitMessage",
+          "label": "Commit Message",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "branch",
+          "label": "Branch",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "Name of the new branch to create. The commit is added to this branch."
+        },
+        {
+          "id": "additionalParameters",
+          "label": "Additional Parameters",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Parameter",
+          "description": "Additional fields to add"
+        }
+      ]
+    },
+    {
+      "id": "file_get",
+      "label": "Get File",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        },
+        {
+          "id": "owner",
+          "label": "Project Owner",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "n8n-io",
+          "description": "User, group or namespace of the project"
+        },
+        {
+          "id": "repository",
+          "label": "Project Name",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "n8n",
+          "description": "The name of the project"
+        },
+        {
+          "id": "filePath",
+          "label": "File Path",
+          "type": "text",
+          "in": "query",
+          "placeholder": "docs/README.md",
+          "description": "The file path of the file. Has to contain the full path or leave it empty for root folder."
+        },
+        {
+          "id": "asBinaryProperty",
+          "label": "As Binary Property",
+          "type": "toggle",
+          "in": "query",
+          "description": "Whether to set the data of the file as binary property instead of returning the raw API response",
+          "defaultValue": true
+        },
+        {
+          "id": "binaryPropertyName",
+          "label": "Put Output File in Field",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "defaultValue": "data"
+        },
+        {
+          "id": "additionalParameters",
+          "label": "Additional Parameters",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Parameter",
+          "description": "Additional fields to add"
+        }
+      ]
+    },
+    {
+      "id": "file_list",
+      "label": "List File",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        },
+        {
+          "id": "owner",
+          "label": "Project Owner",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "n8n-io",
+          "description": "User, group or namespace of the project"
+        },
+        {
+          "id": "repository",
+          "label": "Project Name",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "n8n",
+          "description": "The name of the project"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "in": "query",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "in": "query",
+          "description": "Max number of results to return",
+          "defaultValue": 20
+        },
+        {
+          "id": "filePath",
+          "label": "File Path",
+          "type": "text",
+          "in": "query",
+          "placeholder": "docs/README.md",
+          "description": "The file path of the file. Has to contain the full path or leave it empty for root folder."
+        },
+        {
+          "id": "filePath",
+          "label": "Path",
+          "type": "text",
+          "in": "query",
+          "placeholder": "docs/",
+          "description": "The path of the folder to list"
+        },
+        {
+          "id": "page",
+          "label": "Page",
+          "type": "number",
+          "in": "query",
+          "description": "Page of results to display",
+          "defaultValue": 1
+        },
+        {
+          "id": "additionalParameters",
+          "label": "Additional Parameters",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Parameter",
+          "description": "Additional fields to add"
+        }
+      ]
+    }
+  ]
+}

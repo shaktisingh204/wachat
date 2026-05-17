@@ -1,0 +1,166 @@
+/**
+ * SLA policy detail page.
+ *
+ * Server component — fetches the SLA via the Rust-backed action,
+ * renders the policy spec, escalation block, and any descriptive
+ * notes.
+ */
+
+import Link from 'next/link';
+import { notFound, redirect } from 'next/navigation';
+import { ArrowLeft, Pencil, Timer } from 'lucide-react';
+
+import { ZoruButton, ZoruCard } from '@/components/zoruui';
+import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
+import { getSession } from '@/app/actions/user.actions';
+import { getSlaById } from '@/app/actions/crm-sla.actions';
+import type { CrmSlaStatus } from '@/lib/rust-client/crm-slas';
+
+export const dynamic = 'force-dynamic';
+
+const BASE = '/dashboard/crm/tickets/sla';
+
+const STATUS_TONE: Record<CrmSlaStatus, StatusTone> = {
+  active: 'green',
+  archived: 'neutral',
+};
+
+const PRIORITY_TONE: Record<string, StatusTone> = {
+  low: 'neutral',
+  medium: 'blue',
+  high: 'amber',
+  urgent: 'red',
+};
+
+function fmtMins(mins: number | undefined): string {
+  if (mins == null) return '—';
+  if (mins < 60) return `${mins} min`;
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  return m === 0 ? `${h}h` : `${h}h ${m}m`;
+}
+
+export default async function SlaDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+
+  const session = await getSession();
+  if (!session?.user) redirect('/login');
+
+  const sla = await getSlaById(id);
+  if (!sla) notFound();
+
+  const status = (sla.status ?? 'active') as CrmSlaStatus;
+  const tone = STATUS_TONE[status] ?? 'neutral';
+  const priority = String(sla.priority ?? 'medium');
+  const priorityTone = PRIORITY_TONE[priority] ?? 'neutral';
+
+  return (
+    <div className="flex w-full flex-col gap-6">
+      <CrmPageHeader
+        breadcrumbs={[
+          { label: 'Tickets', href: '/dashboard/crm/tickets' },
+          { label: 'SLA', href: BASE },
+          { label: sla.name },
+        ]}
+        title={sla.name}
+        subtitle={sla.description || 'SLA policy detail'}
+        icon={Timer}
+        actions={
+          <div className="flex items-center gap-2">
+            <ZoruButton variant="outline" asChild>
+              <Link href={BASE}>
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back
+              </Link>
+            </ZoruButton>
+            <ZoruButton asChild>
+              <Link href={`${BASE}/${id}/edit`}>
+                <Pencil className="mr-2 h-4 w-4" />
+                Edit
+              </Link>
+            </ZoruButton>
+          </div>
+        }
+      />
+
+      <ZoruCard className="p-6">
+        <div className="mb-4 flex flex-wrap items-center gap-2">
+          <div className="text-[14px] font-medium text-zoru-ink">Overview</div>
+          <StatusPill label={status} tone={tone} />
+          <StatusPill label={priority} tone={priorityTone} />
+        </div>
+        <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-3">
+          <div>
+            <div className="text-zoru-ink-muted">First response</div>
+            <div className="font-mono text-zoru-ink">
+              {fmtMins(sla.firstResponseMinutes)}
+            </div>
+          </div>
+          <div>
+            <div className="text-zoru-ink-muted">Resolution</div>
+            <div className="font-mono text-zoru-ink">
+              {fmtMins(sla.resolutionMinutes)}
+            </div>
+          </div>
+          <div>
+            <div className="text-zoru-ink-muted">Business hours only</div>
+            <div className="text-zoru-ink">
+              {sla.businessHoursOnly ? 'Yes' : 'No'}
+            </div>
+          </div>
+        </div>
+      </ZoruCard>
+
+      {sla.escalateAfterMinutes || sla.escalateTo ? (
+        <ZoruCard className="p-6">
+          <div className="mb-3 text-[15px] font-medium text-zoru-ink">
+            Escalation
+          </div>
+          <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-2">
+            <div>
+              <div className="text-zoru-ink-muted">Escalate after</div>
+              <div className="font-mono text-zoru-ink">
+                {fmtMins(sla.escalateAfterMinutes ?? undefined)}
+              </div>
+            </div>
+            <div>
+              <div className="text-zoru-ink-muted">Escalate to</div>
+              <div className="font-mono text-zoru-ink">
+                {sla.escalateTo || '—'}
+              </div>
+            </div>
+          </div>
+        </ZoruCard>
+      ) : null}
+
+      {sla.description || sla.notes ? (
+        <ZoruCard className="p-6">
+          <div className="mb-3 text-[15px] font-medium text-zoru-ink">Notes</div>
+          {sla.description ? (
+            <div className="mb-4 space-y-1">
+              <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                Description
+              </div>
+              <p className="whitespace-pre-wrap text-zoru-ink">
+                {sla.description}
+              </p>
+            </div>
+          ) : null}
+          {sla.notes ? (
+            <div className="space-y-1">
+              <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                Internal notes
+              </div>
+              <p className="whitespace-pre-wrap text-zoru-ink">{sla.notes}</p>
+            </div>
+          ) : null}
+        </ZoruCard>
+      ) : null}
+    </div>
+  );
+}

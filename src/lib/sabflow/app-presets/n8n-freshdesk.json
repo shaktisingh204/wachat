@@ -1,0 +1,248 @@
+{
+  "id": "n8n-freshdesk",
+  "name": "Freshdesk",
+  "description": "Consume Freshdesk API",
+  "category": "Output",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "ticket_create",
+      "label": "Create Ticket",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "requester",
+          "label": "Requester Identification",
+          "type": "select",
+          "in": "query",
+          "required": true,
+          "defaultValue": "requesterId",
+          "options": [
+            {
+              "value": "email",
+              "label": "Email"
+            },
+            {
+              "value": "facebookId",
+              "label": "Facebook ID"
+            },
+            {
+              "value": "phone",
+              "label": "Phone"
+            },
+            {
+              "value": "requesterId",
+              "label": "Requester ID"
+            },
+            {
+              "value": "twitterId",
+              "label": "Twitter ID"
+            },
+            {
+              "value": "uniqueExternalId",
+              "label": "Unique External ID"
+            }
+          ]
+        },
+        {
+          "id": "requesterIdentificationValue",
+          "label": "Value",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "Value of the identification selected"
+        },
+        {
+          "id": "status",
+          "label": "Status",
+          "type": "select",
+          "in": "query",
+          "required": true,
+          "defaultValue": "pending",
+          "options": [
+            {
+              "value": "closed",
+              "label": "Closed"
+            },
+            {
+              "value": "open",
+              "label": "Open"
+            },
+            {
+              "value": "pending",
+              "label": "Pending"
+            },
+            {
+              "value": "resolved",
+              "label": "Resolved"
+            }
+          ]
+        },
+        {
+          "id": "priority",
+          "label": "Priority",
+          "type": "select",
+          "in": "query",
+          "required": true,
+          "defaultValue": "low",
+          "options": [
+            {
+              "value": "low",
+              "label": "Low"
+            },
+            {
+              "value": "medium",
+              "label": "Medium"
+            },
+            {
+              "value": "high",
+              "label": "High"
+            },
+            {
+              "value": "urgent",
+              "label": "Urgent"
+            }
+          ]
+        },
+        {
+          "id": "source",
+          "label": "Source",
+          "type": "select",
+          "in": "query",
+          "required": true,
+          "description": "The channel through which the ticket was created",
+          "defaultValue": "portal",
+          "options": [
+            {
+              "value": "chat",
+              "label": "Chat"
+            },
+            {
+              "value": "email",
+              "label": "Email"
+            },
+            {
+              "value": "feedbackWidget",
+              "label": "Feedback Widget"
+            },
+            {
+              "value": "mobileHelp",
+              "label": "Mobihelp"
+            },
+            {
+              "value": "OutboundEmail",
+              "label": "Outbound Email"
+            },
+            {
+              "value": "phone",
+              "label": "Phone"
+            },
+            {
+              "value": "portal",
+              "label": "Portal"
+            }
+          ]
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add option"
+        }
+      ]
+    },
+    {
+      "id": "ticket_delete",
+      "label": "Delete Ticket",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "ticketId",
+          "label": "Ticket ID",
+          "type": "text",
+          "in": "query",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "ticket_get",
+      "label": "Get Ticket",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "ticketId",
+          "label": "Ticket ID",
+          "type": "text",
+          "in": "query",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "ticket_get_all",
+      "label": "Get Many Ticket",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "in": "query",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "in": "query",
+          "description": "Max number of results to return",
+          "defaultValue": 5
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add option"
+        }
+      ]
+    },
+    {
+      "id": "ticket_update",
+      "label": "Update Ticket",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "ticketId",
+          "label": "Ticket ID",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Field"
+        }
+      ]
+    }
+  ]
+}

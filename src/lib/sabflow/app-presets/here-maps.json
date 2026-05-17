@@ -1,0 +1,21 @@
+{
+  "id": "here-maps",
+  "name": "HERE Maps",
+  "description": "HERE geocoding, autosuggest, discover, routing v8.",
+  "category": "Geo",
+  "iconName": "LuMap",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": { "type": "query_token", "credentialType": "here_maps", "queryParam": "apiKey" },
+  "baseUrl": "https://geocode.search.hereapi.com/v1",
+  "endpoints": [
+    { "id": "geocode", "label": "Geocode", "method": "GET", "path": "/geocode", "fields": [{ "id": "q", "type": "text", "required": true, "in": "query" }, { "id": "in", "type": "text", "in": "query" }, { "id": "limit", "type": "number", "defaultValue": 10, "in": "query" }] },
+    { "id": "reverse_geocode", "label": "Reverse geocode", "method": "GET", "path": "/revgeocode", "fields": [{ "id": "at", "type": "text", "required": true, "in": "query" }, { "id": "lang", "type": "text", "in": "query" }, { "id": "limit", "type": "number", "in": "query" }] },
+    { "id": "autosuggest", "label": "Autosuggest", "method": "GET", "path": "/autosuggest", "fields": [{ "id": "q", "type": "text", "required": true, "in": "query" }, { "id": "at", "type": "text", "in": "query" }, { "id": "limit", "type": "number", "in": "query" }] },
+    { "id": "lookup", "label": "Lookup by id", "method": "GET", "path": "/lookup", "fields": [{ "id": "id", "type": "text", "required": true, "in": "query" }] },
+    { "id": "discover", "label": "Discover", "method": "GET", "path": "https://discover.search.hereapi.com/v1/discover", "fields": [{ "id": "q", "type": "text", "required": true, "in": "query" }, { "id": "at", "type": "text", "required": true, "in": "query" }, { "id": "limit", "type": "number", "in": "query" }] },
+    { "id": "routing_v8", "label": "Routing v8", "method": "GET", "path": "https://router.hereapi.com/v8/routes", "fields": [{ "id": "origin", "type": "text", "required": true, "in": "query" }, { "id": "destination", "type": "text", "required": true, "in": "query" }, { "id": "transportMode", "type": "text", "defaultValue": "car", "required": true, "in": "query" }, { "id": "return", "type": "text", "in": "query" }] },
+    { "id": "routing_matrix_v8", "label": "Routing matrix v8", "method": "POST", "path": "https://matrix.router.hereapi.com/v8/matrix", "fields": [{ "id": "async", "type": "toggle", "defaultValue": false, "in": "query" }, { "id": "origins", "type": "json", "required": true, "in": "body" }, { "id": "destinations", "type": "json", "required": true, "in": "body" }, { "id": "regionDefinition", "type": "json", "required": true, "in": "body", "defaultValue": { "type": "world" } }, { "id": "transportMode", "type": "text", "in": "body" }] }
+  ]
+}

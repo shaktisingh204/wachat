@@ -1,0 +1,97 @@
+{
+  "id": "personio",
+  "name": "Personio",
+  "description": "Personio HR platform: employees, attendances, absences (time-offs), and documents.",
+  "category": "HR",
+  "iconName": "LuUsers",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "bearer",
+    "credentialType": "personio"
+  },
+  "baseUrl": "https://api.personio.de/v1",
+  "endpoints": [
+    {
+      "id": "list_employees",
+      "label": "List employees",
+      "method": "GET",
+      "path": "/company/employees",
+      "fields": []
+    },
+    {
+      "id": "get_employee",
+      "label": "Get employee",
+      "method": "GET",
+      "path": "/company/employees/{employee_id}",
+      "fields": [
+        { "id": "employee_id", "label": "Employee ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "update_employee",
+      "label": "Update employee",
+      "method": "PATCH",
+      "path": "/company/employees",
+      "fields": [
+        { "id": "employee", "label": "Employee payload (JSON: { id: { value }, attributes })", "type": "json", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "list_attendances",
+      "label": "List attendances",
+      "method": "GET",
+      "path": "/company/attendances",
+      "fields": [
+        { "id": "start_date", "label": "Start date (YYYY-MM-DD)", "type": "text", "required": true, "in": "query" },
+        { "id": "end_date", "label": "End date (YYYY-MM-DD)", "type": "text", "required": true, "in": "query" },
+        { "id": "employees[]", "label": "Employee IDs", "type": "text", "in": "query" }
+      ]
+    },
+    {
+      "id": "create_attendances",
+      "label": "Create attendances",
+      "method": "POST",
+      "path": "/company/attendances",
+      "fields": [
+        { "id": "attendances", "label": "Attendances (JSON array)", "type": "json", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "list_absences",
+      "label": "List absences (time-offs)",
+      "method": "GET",
+      "path": "/company/time-offs",
+      "fields": []
+    },
+    {
+      "id": "create_absence",
+      "label": "Create absence",
+      "method": "POST",
+      "path": "/company/time-offs",
+      "fields": [
+        { "id": "employee_id", "label": "Employee ID", "type": "number", "required": true, "in": "body" },
+        { "id": "time_off_type_id", "label": "Time-off type ID", "type": "number", "required": true, "in": "body" },
+        { "id": "start_date", "label": "Start date (YYYY-MM-DD)", "type": "text", "required": true, "in": "body" },
+        { "id": "end_date", "label": "End date (YYYY-MM-DD)", "type": "text", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "delete_absence",
+      "label": "Delete absence",
+      "method": "DELETE",
+      "path": "/company/time-offs/{id}",
+      "fields": [
+        { "id": "id", "label": "Absence ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_documents",
+      "label": "List document categories",
+      "method": "GET",
+      "path": "/company/document-categories",
+      "fields": []
+    }
+  ]
+}

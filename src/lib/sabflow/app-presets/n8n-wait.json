@@ -1,0 +1,15 @@
+{
+  "id": "n8n-wait",
+  "name": "Wait",
+  "description": "Wait before continue with execution",
+  "category": "Organization",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "none"
+  },
+  "baseUrl": "",
+  "endpoints": []
+}

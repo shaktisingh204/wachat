@@ -1,0 +1,67 @@
+{
+  "id": "n8n-google-firebase-cloud-firestore",
+  "name": "Google Cloud Firestore",
+  "description": "Interact with Google Firebase - Cloud Firestore API",
+  "category": "Input",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "oauth2",
+    "credentialType": "oauth2"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "document_default",
+      "label": "List Document",
+      "method": "GET",
+      "path": "/document",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "googleFirebaseCloudFirestoreOAuth2Api",
+          "options": [
+            {
+              "value": "googleFirebaseCloudFirestoreOAuth2Api",
+              "label": "OAuth2 (recommended)"
+            },
+            {
+              "value": "serviceAccount",
+              "label": "Service Account"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "collection_default",
+      "label": "List Collection",
+      "method": "GET",
+      "path": "/collection",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "googleFirebaseCloudFirestoreOAuth2Api",
+          "options": [
+            {
+              "value": "googleFirebaseCloudFirestoreOAuth2Api",
+              "label": "OAuth2 (recommended)"
+            },
+            {
+              "value": "serviceAccount",
+              "label": "Service Account"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "id": "n8n-linked-in",
+  "name": "LinkedIn",
+  "description": "Consume LinkedIn API",
+  "category": "Input",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "oauth2",
+    "credentialType": "oauth2"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "post_default",
+      "label": "List Post",
+      "method": "GET",
+      "path": "/post",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "standard",
+          "options": [
+            {
+              "value": "standard",
+              "label": "Standard"
+            },
+            {
+              "value": "communityManagement",
+              "label": "Community Management"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

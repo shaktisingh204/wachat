@@ -1,0 +1,98 @@
+{
+  "id": "n8n-e2e-test",
+  "name": "E2E Test",
+  "description": "Dummy node used for e2e testing",
+  "category": "Output",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "none"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "default_remote_options",
+      "label": "Remote Options",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "fieldId",
+          "label": "Field ID",
+          "type": "text",
+          "in": "query"
+        },
+        {
+          "id": "remoteOptions",
+          "label": "Remote Options Name or ID",
+          "type": "select",
+          "in": "query",
+          "required": true,
+          "description": "Remote options to load. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>."
+        },
+        {
+          "id": "otherField",
+          "label": "Other Non Important Field",
+          "type": "text",
+          "in": "query"
+        }
+      ]
+    },
+    {
+      "id": "default_resource_locator",
+      "label": "Resource Locator",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "fieldId",
+          "label": "Field ID",
+          "type": "text",
+          "in": "query"
+        },
+        {
+          "id": "rlc",
+          "label": "Resource Locator",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "otherField",
+          "label": "Other Non Important Field",
+          "type": "text",
+          "in": "query"
+        }
+      ]
+    },
+    {
+      "id": "default_resource_mapper",
+      "label": "Resource Mapping Component",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "fieldId",
+          "label": "Field ID",
+          "type": "text",
+          "in": "query"
+        },
+        {
+          "id": "resourceMapper",
+          "label": "Resource Mapping Component",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "otherField",
+          "label": "Other Non Important Field",
+          "type": "text",
+          "in": "query"
+        }
+      ]
+    }
+  ]
+}

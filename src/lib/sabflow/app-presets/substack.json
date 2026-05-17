@@ -1,0 +1,68 @@
+{
+  "id": "substack",
+  "name": "Substack",
+  "description": "Substack newsletter (unofficial) API.",
+  "category": "Newsletter",
+  "iconName": "LuMail",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "header",
+    "header": "Cookie",
+    "credentialType": "substack_cookie"
+  },
+  "baseUrl": "https://substack.com/api/v1",
+  "endpoints": [
+    {
+      "id": "get_publication",
+      "label": "Get publication",
+      "method": "GET",
+      "path": "/reader/feed/profile/{handle}",
+      "fields": [
+        { "id": "handle", "label": "Handle", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_subscribers",
+      "label": "List subscribers",
+      "method": "GET",
+      "path": "/subscribers",
+      "fields": [
+        { "id": "limit", "label": "Limit", "type": "number", "defaultValue": 25, "in": "query" },
+        { "id": "offset", "label": "Offset", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "create_post_draft",
+      "label": "Create post draft",
+      "method": "POST",
+      "path": "/drafts",
+      "fields": [
+        { "id": "draft_title", "label": "Title", "type": "text", "required": true, "in": "body" },
+        { "id": "draft_body", "label": "Body", "type": "textarea", "required": true, "in": "body" },
+        { "id": "draft_subtitle", "label": "Subtitle", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "publish_draft",
+      "label": "Publish draft",
+      "method": "PUT",
+      "path": "/drafts/{id}/publish",
+      "fields": [
+        { "id": "id", "label": "Draft ID", "type": "text", "required": true, "in": "path" },
+        { "id": "send", "label": "Send to subscribers", "type": "toggle", "defaultValue": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "list_drafts",
+      "label": "List drafts",
+      "method": "GET",
+      "path": "/drafts",
+      "fields": [
+        { "id": "limit", "label": "Limit", "type": "number", "defaultValue": 25, "in": "query" },
+        { "id": "offset", "label": "Offset", "type": "number", "in": "query" }
+      ]
+    }
+  ]
+}

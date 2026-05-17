@@ -1,0 +1,133 @@
+{
+  "id": "recharge",
+  "name": "Recharge",
+  "description": "Recharge subscriptions for Shopify and headless commerce: subscriptions, customers, charges, addresses.",
+  "category": "Subscriptions",
+  "iconName": "LuRepeat",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "header",
+    "header": "X-Recharge-Access-Token",
+    "credentialType": "recharge"
+  },
+  "baseUrl": "https://api.rechargeapps.com",
+  "endpoints": [
+    {
+      "id": "list_subscriptions",
+      "label": "List Subscriptions",
+      "method": "GET",
+      "path": "/subscriptions",
+      "fields": [
+        { "id": "X-Recharge-Version", "label": "API Version", "type": "text", "defaultValue": "2021-11", "in": "header" },
+        { "id": "limit", "label": "Limit", "type": "number", "in": "query" },
+        { "id": "status", "label": "Status", "type": "text", "in": "query" },
+        { "id": "customer_id", "label": "Customer ID", "type": "text", "in": "query" }
+      ]
+    },
+    {
+      "id": "get_subscription",
+      "label": "Get Subscription",
+      "method": "GET",
+      "path": "/subscriptions/{id}",
+      "fields": [
+        { "id": "X-Recharge-Version", "label": "API Version", "type": "text", "defaultValue": "2021-11", "in": "header" },
+        { "id": "id", "label": "Subscription ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "create_subscription",
+      "label": "Create Subscription",
+      "method": "POST",
+      "path": "/subscriptions",
+      "fields": [
+        { "id": "X-Recharge-Version", "label": "API Version", "type": "text", "defaultValue": "2021-11", "in": "header" },
+        { "id": "customer_id", "label": "Customer ID", "type": "text", "required": true, "in": "body" },
+        { "id": "address_id", "label": "Address ID", "type": "text", "required": true, "in": "body" },
+        { "id": "next_charge_scheduled_at", "label": "Next Charge Scheduled At", "type": "text", "required": true, "in": "body" },
+        { "id": "order_interval_unit", "label": "Order Interval Unit", "type": "text", "required": true, "in": "body" },
+        { "id": "order_interval_frequency", "label": "Order Interval Frequency", "type": "number", "required": true, "in": "body" },
+        { "id": "product_title", "label": "Product Title", "type": "text", "required": true, "in": "body" },
+        { "id": "quantity", "label": "Quantity", "type": "number", "required": true, "in": "body" },
+        { "id": "shopify_variant_id", "label": "Shopify Variant ID", "type": "text", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "cancel_subscription",
+      "label": "Cancel Subscription",
+      "method": "POST",
+      "path": "/subscriptions/{id}/cancel",
+      "fields": [
+        { "id": "X-Recharge-Version", "label": "API Version", "type": "text", "defaultValue": "2021-11", "in": "header" },
+        { "id": "id", "label": "Subscription ID", "type": "text", "required": true, "in": "path" },
+        { "id": "cancellation_reason", "label": "Cancellation Reason", "type": "text", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "activate_subscription",
+      "label": "Activate Subscription",
+      "method": "POST",
+      "path": "/subscriptions/{id}/activate",
+      "fields": [
+        { "id": "X-Recharge-Version", "label": "API Version", "type": "text", "defaultValue": "2021-11", "in": "header" },
+        { "id": "id", "label": "Subscription ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "skip_subscription",
+      "label": "Set Next Charge Date (Skip)",
+      "method": "POST",
+      "path": "/subscriptions/{id}/set_next_charge_date",
+      "fields": [
+        { "id": "X-Recharge-Version", "label": "API Version", "type": "text", "defaultValue": "2021-11", "in": "header" },
+        { "id": "id", "label": "Subscription ID", "type": "text", "required": true, "in": "path" },
+        { "id": "date", "label": "Date", "type": "text", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "list_customers",
+      "label": "List Customers",
+      "method": "GET",
+      "path": "/customers",
+      "fields": [
+        { "id": "X-Recharge-Version", "label": "API Version", "type": "text", "defaultValue": "2021-11", "in": "header" },
+        { "id": "limit", "label": "Limit", "type": "number", "in": "query" },
+        { "id": "email", "label": "Email", "type": "text", "in": "query" }
+      ]
+    },
+    {
+      "id": "list_orders",
+      "label": "List Orders",
+      "method": "GET",
+      "path": "/orders",
+      "fields": [
+        { "id": "X-Recharge-Version", "label": "API Version", "type": "text", "defaultValue": "2021-11", "in": "header" },
+        { "id": "limit", "label": "Limit", "type": "number", "in": "query" },
+        { "id": "status", "label": "Status", "type": "text", "in": "query" }
+      ]
+    },
+    {
+      "id": "list_charges",
+      "label": "List Charges",
+      "method": "GET",
+      "path": "/charges",
+      "fields": [
+        { "id": "X-Recharge-Version", "label": "API Version", "type": "text", "defaultValue": "2021-11", "in": "header" },
+        { "id": "limit", "label": "Limit", "type": "number", "in": "query" },
+        { "id": "status", "label": "Status", "type": "text", "in": "query" }
+      ]
+    },
+    {
+      "id": "list_addresses",
+      "label": "List Addresses",
+      "method": "GET",
+      "path": "/addresses",
+      "fields": [
+        { "id": "X-Recharge-Version", "label": "API Version", "type": "text", "defaultValue": "2021-11", "in": "header" },
+        { "id": "limit", "label": "Limit", "type": "number", "in": "query" },
+        { "id": "customer_id", "label": "Customer ID", "type": "text", "in": "query" }
+      ]
+    }
+  ]
+}

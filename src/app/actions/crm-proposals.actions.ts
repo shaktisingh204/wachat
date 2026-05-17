@@ -28,6 +28,17 @@ import { getSession } from '@/app/actions/user.actions';
 import { requirePermission } from '@/lib/rbac-server';
 import { writeAuditEntry } from '@/lib/audit-log';
 import { getErrorMessage } from '@/lib/utils';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+import {
+    crmProposalsApi,
+    type CrmProposalCreateInput,
+    type CrmProposalUpdateInput,
+} from '@/lib/rust-client/crm-proposals';
+import { RustApiError } from '@/lib/rust-client/fetcher';
+
+function useRustCrm(): boolean {
+    return process.env.USE_RUST_CRM === 'true';
+}
 
 /* ─── Types ─────────────────────────────────────────────────────────── */
 
@@ -128,6 +139,28 @@ export async function getProposals(
     const guard = await requirePermission('crm_proposal', 'view');
     if (!guard.ok) return empty;
 
+    if (useRustCrm()) {
+        try {
+            const res = await crmProposalsApi.list({
+                q: filters?.q,
+                status: filters?.status,
+                limit: filters?.limit,
+            });
+            return {
+                items: JSON.parse(JSON.stringify(res.items ?? [])),
+                total: (res.items ?? []).length,
+            };
+        } catch (e) {
+            console.error('[getProposals] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'proposal',
+                op: 'list',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+        }
+    }
+
     try {
         const { db } = await connectToDatabase();
         const userObjectId = new ObjectId(session.user._id as string);
@@ -178,6 +211,21 @@ export async function getProposalById(
 
     const guard = await requirePermission('crm_proposal', 'view');
     if (!guard.ok) return null;
+
+    if (useRustCrm()) {
+        try {
+            const doc = await crmProposalsApi.getById(proposalId);
+            return JSON.parse(JSON.stringify(doc));
+        } catch (e) {
+            console.error('[getProposalById] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'proposal',
+                op: 'get',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+        }
+    }
 
     try {
         const { db } = await connectToDatabase();
@@ -235,6 +283,88 @@ export async function saveProposal(
 
     const sections = parseSections(formData.get('sections'));
     const attachments = parseAttachments(formData.get('attachments'));
+
+    if (useRustCrm()) {
+        try {
+            if (isEditing) {
+                if (!ObjectId.isValid(proposalId!)) {
+                    return { error: 'Invalid proposal id.' };
+                }
+                const patch: CrmProposalUpdateInput = {
+                    title,
+                    accountId,
+                    currency,
+                    totalAmount,
+                    status,
+                    sections,
+                    attachments,
+                };
+                if (validUntil && !Number.isNaN(validUntil.getTime())) {
+                    patch.validUntil = validUntil.toISOString();
+                }
+                await crmProposalsApi.update(proposalId!, patch);
+
+                try {
+                    await writeAuditEntry({
+                        tenantUserId: String(session.user._id),
+                        actorId: String(session.user._id),
+                        action: 'update',
+                        entityKind: 'proposal',
+                        entityId: proposalId!,
+                    });
+                } catch {
+                    /* non-fatal */
+                }
+
+                revalidatePath('/dashboard/crm/sales/proposals');
+                revalidatePath(`/dashboard/crm/sales/proposals/${proposalId}`);
+                return { message: 'Proposal updated.', id: proposalId };
+            }
+
+            const input: CrmProposalCreateInput = {
+                title,
+                accountId,
+                currency,
+                totalAmount,
+                status,
+                sections,
+                attachments,
+            };
+            if (validUntil && !Number.isNaN(validUntil.getTime())) {
+                input.validUntil = validUntil.toISOString();
+            }
+            const created = await crmProposalsApi.create(input);
+
+            try {
+                await writeAuditEntry({
+                    tenantUserId: String(session.user._id),
+                    actorId: String(session.user._id),
+                    action: 'create',
+                    entityKind: 'proposal',
+                    entityId: created.id,
+                });
+            } catch {
+                /* non-fatal */
+            }
+
+            revalidatePath('/dashboard/crm/sales/proposals');
+            const proposalNumber = created.entity?.proposalNumber;
+            return {
+                message: proposalNumber
+                    ? `Proposal ${proposalNumber} created.`
+                    : 'Proposal created.',
+                id: created.id,
+            };
+        } catch (e) {
+            console.error('[saveProposal] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'proposal',
+                op: isEditing ? 'update' : 'create',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+        }
+    }
 
     try {
         const { db } = await connectToDatabase();
@@ -355,6 +485,35 @@ export async function deleteProposal(
 
     const guard = await requirePermission('crm_proposal', 'delete');
     if (!guard.ok) return { success: false, error: guard.error };
+
+    if (useRustCrm()) {
+        try {
+            await crmProposalsApi.delete(id);
+
+            try {
+                await writeAuditEntry({
+                    tenantUserId: String(session.user._id),
+                    actorId: String(session.user._id),
+                    action: 'delete',
+                    entityKind: 'proposal',
+                    entityId: id,
+                });
+            } catch {
+                /* non-fatal */
+            }
+
+            revalidatePath('/dashboard/crm/sales/proposals');
+            return { success: true };
+        } catch (e) {
+            console.error('[deleteProposal] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'proposal',
+                op: 'delete',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+        }
+    }
 
     try {
         const { db } = await connectToDatabase();

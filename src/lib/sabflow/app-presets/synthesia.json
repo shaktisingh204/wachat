@@ -1,0 +1,59 @@
+{
+  "id": "synthesia",
+  "name": "Synthesia",
+  "description": "Synthesia AI avatar video generation.",
+  "category": "AI Video",
+  "iconName": "LuVideo",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "header",
+    "credentialType": "synthesia",
+    "header": "Authorization",
+    "scheme": ""
+  },
+  "baseUrl": "https://api.synthesia.io/v2",
+  "endpoints": [
+    {
+      "id": "create_video",
+      "label": "Create video",
+      "method": "POST",
+      "path": "/videos",
+      "fields": [
+        { "id": "test", "label": "Test mode", "type": "toggle", "in": "body" },
+        { "id": "title", "label": "Title", "type": "text", "required": true, "in": "body" },
+        { "id": "description", "label": "Description", "type": "textarea", "in": "body" },
+        { "id": "input", "label": "Input scenes", "type": "json", "required": true, "in": "body", "defaultValue": [{ "avatar": "", "scriptText": "", "background": "" }] }
+      ]
+    },
+    {
+      "id": "get_video",
+      "label": "Get video",
+      "method": "GET",
+      "path": "/videos/{video_id}",
+      "fields": [
+        { "id": "video_id", "label": "Video ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_videos",
+      "label": "List videos",
+      "method": "GET",
+      "path": "/videos",
+      "fields": [
+        { "id": "limit", "label": "Limit", "type": "number", "defaultValue": 25, "in": "query" },
+        { "id": "offset", "label": "Offset", "type": "number", "defaultValue": 0, "in": "query" }
+      ]
+    },
+    {
+      "id": "delete_video",
+      "label": "Delete video",
+      "method": "DELETE",
+      "path": "/videos/{video_id}",
+      "fields": [
+        { "id": "video_id", "label": "Video ID", "type": "text", "required": true, "in": "path" }
+      ]
+    }
+  ]
+}

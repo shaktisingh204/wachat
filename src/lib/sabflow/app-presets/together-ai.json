@@ -1,0 +1,102 @@
+{
+  "id": "together-ai",
+  "name": "Together AI",
+  "description": "Together AI inference, embeddings, image generation, and fine-tuning APIs.",
+  "category": "AI",
+  "iconName": "LuBrain",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "bearer",
+    "credentialType": "together_ai"
+  },
+  "baseUrl": "https://api.together.xyz/v1",
+  "endpoints": [
+    {
+      "id": "chat_completions",
+      "label": "Chat completions",
+      "method": "POST",
+      "path": "/chat/completions",
+      "fields": [
+        { "id": "model", "label": "Model", "type": "text", "required": true, "in": "body" },
+        { "id": "messages", "label": "Messages JSON", "type": "json", "required": true, "in": "body" },
+        { "id": "max_tokens", "label": "Max tokens", "type": "number", "in": "body" },
+        { "id": "temperature", "label": "Temperature", "type": "number", "in": "body" },
+        { "id": "top_p", "label": "Top P", "type": "number", "in": "body" },
+        { "id": "stream", "label": "Stream", "type": "toggle", "in": "body" }
+      ]
+    },
+    {
+      "id": "completions",
+      "label": "Text completions",
+      "method": "POST",
+      "path": "/completions",
+      "fields": [
+        { "id": "model", "label": "Model", "type": "text", "required": true, "in": "body" },
+        { "id": "prompt", "label": "Prompt", "type": "textarea", "required": true, "in": "body" },
+        { "id": "max_tokens", "label": "Max tokens", "type": "number", "in": "body" },
+        { "id": "temperature", "label": "Temperature", "type": "number", "in": "body" }
+      ]
+    },
+    {
+      "id": "embeddings",
+      "label": "Create embeddings",
+      "method": "POST",
+      "path": "/embeddings",
+      "fields": [
+        { "id": "model", "label": "Model", "type": "text", "required": true, "in": "body" },
+        { "id": "input", "label": "Input", "type": "textarea", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "images_generations",
+      "label": "Generate images",
+      "method": "POST",
+      "path": "/images/generations",
+      "fields": [
+        { "id": "model", "label": "Model", "type": "text", "required": true, "in": "body" },
+        { "id": "prompt", "label": "Prompt", "type": "textarea", "required": true, "in": "body" },
+        { "id": "width", "label": "Width", "type": "number", "in": "body" },
+        { "id": "height", "label": "Height", "type": "number", "in": "body" },
+        { "id": "steps", "label": "Steps", "type": "number", "in": "body" },
+        { "id": "n", "label": "Count (n)", "type": "number", "in": "body" }
+      ]
+    },
+    {
+      "id": "list_models",
+      "label": "List models",
+      "method": "GET",
+      "path": "/models",
+      "fields": []
+    },
+    {
+      "id": "fine_tune_create",
+      "label": "Create fine-tune",
+      "method": "POST",
+      "path": "/fine-tunes",
+      "fields": [
+        { "id": "training_file", "label": "Training file ID", "type": "text", "required": true, "in": "body" },
+        { "id": "model", "label": "Model", "type": "text", "required": true, "in": "body" },
+        { "id": "n_epochs", "label": "Epochs", "type": "number", "in": "body" },
+        { "id": "learning_rate", "label": "Learning rate", "type": "number", "in": "body" }
+      ]
+    },
+    {
+      "id": "fine_tune_get",
+      "label": "Get fine-tune",
+      "method": "GET",
+      "path": "/fine-tunes/{id}",
+      "fields": [
+        { "id": "id", "label": "Fine-tune ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "fine_tune_list",
+      "label": "List fine-tunes",
+      "method": "GET",
+      "path": "/fine-tunes",
+      "fields": []
+    }
+  ]
+}

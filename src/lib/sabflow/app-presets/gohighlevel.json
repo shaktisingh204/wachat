@@ -1,0 +1,134 @@
+{
+  "id": "gohighlevel",
+  "name": "GoHighLevel",
+  "description": "GoHighLevel (HighLevel) CRM API for contacts, opportunities, conversations, and calendars.",
+  "category": "CRM",
+  "iconName": "LuUsers",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "bearer",
+    "credentialType": "gohighlevel",
+    "header": "Authorization",
+    "scheme": "Bearer"
+  },
+  "baseUrl": "https://services.leadconnectorhq.com",
+  "endpoints": [
+    {
+      "id": "list_contacts",
+      "label": "List contacts",
+      "method": "GET",
+      "path": "/contacts/",
+      "fields": [
+        { "id": "Version", "label": "API Version", "type": "text", "required": true, "defaultValue": "2021-07-28", "in": "header" },
+        { "id": "locationId", "label": "Location ID", "type": "text", "required": true, "in": "query" },
+        { "id": "limit", "label": "Limit", "type": "number", "defaultValue": 20, "in": "query" },
+        { "id": "startAfterId", "label": "Start after ID", "type": "text", "in": "query" }
+      ]
+    },
+    {
+      "id": "create_contact",
+      "label": "Create contact",
+      "method": "POST",
+      "path": "/contacts/",
+      "fields": [
+        { "id": "Version", "label": "API Version", "type": "text", "required": true, "defaultValue": "2021-07-28", "in": "header" },
+        { "id": "locationId", "label": "Location ID", "type": "text", "required": true, "in": "body" },
+        { "id": "firstName", "label": "First name", "type": "text", "required": true, "in": "body" },
+        { "id": "lastName", "label": "Last name", "type": "text", "in": "body" },
+        { "id": "email", "label": "Email", "type": "text", "in": "body" },
+        { "id": "phone", "label": "Phone", "type": "text", "in": "body" },
+        { "id": "tags", "label": "Tags (JSON array)", "type": "json", "in": "body" }
+      ]
+    },
+    {
+      "id": "update_contact",
+      "label": "Update contact",
+      "method": "PUT",
+      "path": "/contacts/{contactId}",
+      "fields": [
+        { "id": "Version", "label": "API Version", "type": "text", "required": true, "defaultValue": "2021-07-28", "in": "header" },
+        { "id": "contactId", "label": "Contact ID", "type": "text", "required": true, "in": "path" },
+        { "id": "firstName", "label": "First name", "type": "text", "in": "body" },
+        { "id": "lastName", "label": "Last name", "type": "text", "in": "body" },
+        { "id": "email", "label": "Email", "type": "text", "in": "body" },
+        { "id": "phone", "label": "Phone", "type": "text", "in": "body" },
+        { "id": "tags", "label": "Tags (JSON array)", "type": "json", "in": "body" }
+      ]
+    },
+    {
+      "id": "delete_contact",
+      "label": "Delete contact",
+      "method": "DELETE",
+      "path": "/contacts/{contactId}",
+      "fields": [
+        { "id": "Version", "label": "API Version", "type": "text", "required": true, "defaultValue": "2021-07-28", "in": "header" },
+        { "id": "contactId", "label": "Contact ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_opportunities",
+      "label": "List opportunities",
+      "method": "GET",
+      "path": "/opportunities/search",
+      "fields": [
+        { "id": "Version", "label": "API Version", "type": "text", "required": true, "defaultValue": "2021-07-28", "in": "header" },
+        { "id": "locationId", "label": "Location ID", "type": "text", "required": true, "in": "query" },
+        { "id": "pipelineId", "label": "Pipeline ID", "type": "text", "in": "query" },
+        { "id": "limit", "label": "Limit", "type": "number", "defaultValue": 20, "in": "query" }
+      ]
+    },
+    {
+      "id": "create_opportunity",
+      "label": "Create opportunity",
+      "method": "POST",
+      "path": "/opportunities/",
+      "fields": [
+        { "id": "Version", "label": "API Version", "type": "text", "required": true, "defaultValue": "2021-07-28", "in": "header" },
+        { "id": "pipelineId", "label": "Pipeline ID", "type": "text", "required": true, "in": "body" },
+        { "id": "locationId", "label": "Location ID", "type": "text", "required": true, "in": "body" },
+        { "id": "name", "label": "Name", "type": "text", "required": true, "in": "body" },
+        { "id": "status", "label": "Status", "type": "select", "required": true, "defaultValue": "open", "in": "body" },
+        { "id": "contactId", "label": "Contact ID", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "send_sms",
+      "label": "Send SMS",
+      "method": "POST",
+      "path": "/conversations/messages",
+      "fields": [
+        { "id": "Version", "label": "API Version", "type": "text", "required": true, "defaultValue": "2021-07-28", "in": "header" },
+        { "id": "type", "label": "Type", "type": "text", "required": true, "defaultValue": "SMS", "in": "body" },
+        { "id": "contactId", "label": "Contact ID", "type": "text", "required": true, "in": "body" },
+        { "id": "message", "label": "Message", "type": "textarea", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "list_calendars",
+      "label": "List calendars",
+      "method": "GET",
+      "path": "/calendars/",
+      "fields": [
+        { "id": "Version", "label": "API Version", "type": "text", "required": true, "defaultValue": "2021-07-28", "in": "header" },
+        { "id": "locationId", "label": "Location ID", "type": "text", "required": true, "in": "query" }
+      ]
+    },
+    {
+      "id": "create_appointment",
+      "label": "Create appointment",
+      "method": "POST",
+      "path": "/calendars/events/appointments",
+      "fields": [
+        { "id": "Version", "label": "API Version", "type": "text", "required": true, "defaultValue": "2021-07-28", "in": "header" },
+        { "id": "calendarId", "label": "Calendar ID", "type": "text", "required": true, "in": "body" },
+        { "id": "locationId", "label": "Location ID", "type": "text", "required": true, "in": "body" },
+        { "id": "contactId", "label": "Contact ID", "type": "text", "required": true, "in": "body" },
+        { "id": "startTime", "label": "Start time (ISO)", "type": "text", "required": true, "in": "body" },
+        { "id": "endTime", "label": "End time (ISO)", "type": "text", "required": true, "in": "body" },
+        { "id": "title", "label": "Title", "type": "text", "in": "body" }
+      ]
+    }
+  ]
+}

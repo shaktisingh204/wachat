@@ -26,7 +26,12 @@
     "worker:email": "tsx src/workers/seo/email.worker.ts",
     "worker:content": "tsx src/workers/seo/content.worker.ts",
     "worker:webhook": "tsx src/workers/seo/webhook.worker.ts",
-    "worker:image": "tsx src/workers/seo/image.worker.ts"
+    "worker:image": "tsx src/workers/seo/image.worker.ts",
+    "worker:webhook-dispatcher": "tsx services/webhook-worker/index.ts",
+    "api:gen": "tsx tools/api-codegen/generate.ts",
+    "api:gen:check": "tsx tools/api-codegen/generate.ts --check",
+    "api:lint": "tsx tools/api-codegen/lint.ts",
+    "api:test": "tsx --test tools/api-codegen/__tests__/*.test.ts"
   },
   "dependencies": {
     "@aws-sdk/client-lambda": "^3.1048.0",

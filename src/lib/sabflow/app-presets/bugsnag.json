@@ -1,0 +1,143 @@
+{
+  "id": "bugsnag",
+  "name": "Bugsnag",
+  "description": "Bugsnag error monitoring and application stability API.",
+  "category": "Monitoring",
+  "iconName": "LuBug",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "header",
+    "credentialType": "bugsnag",
+    "header": "Authorization",
+    "scheme": "token"
+  },
+  "baseUrl": "https://api.bugsnag.com",
+  "endpoints": [
+    {
+      "id": "list_organizations",
+      "label": "List organizations",
+      "method": "GET",
+      "path": "/user/organizations",
+      "fields": [
+        { "id": "X-Version", "label": "API version", "type": "text", "required": true, "defaultValue": "2", "in": "header" }
+      ]
+    },
+    {
+      "id": "list_projects",
+      "label": "List projects",
+      "method": "GET",
+      "path": "/organizations/{organization_id}/projects",
+      "fields": [
+        { "id": "X-Version", "label": "API version", "type": "text", "required": true, "defaultValue": "2", "in": "header" },
+        { "id": "organization_id", "label": "Organization ID", "type": "text", "required": true, "in": "path" },
+        { "id": "per_page", "label": "Per page", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "get_project",
+      "label": "Get project",
+      "method": "GET",
+      "path": "/projects/{project_id}",
+      "fields": [
+        { "id": "X-Version", "label": "API version", "type": "text", "required": true, "defaultValue": "2", "in": "header" },
+        { "id": "project_id", "label": "Project ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_errors",
+      "label": "List errors",
+      "method": "GET",
+      "path": "/projects/{project_id}/errors",
+      "fields": [
+        { "id": "X-Version", "label": "API version", "type": "text", "required": true, "defaultValue": "2", "in": "header" },
+        { "id": "project_id", "label": "Project ID", "type": "text", "required": true, "in": "path" },
+        { "id": "filters", "label": "Filters (JSON)", "type": "json", "in": "query" },
+        { "id": "per_page", "label": "Per page", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "get_error",
+      "label": "Get error",
+      "method": "GET",
+      "path": "/projects/{project_id}/errors/{error_id}",
+      "fields": [
+        { "id": "X-Version", "label": "API version", "type": "text", "required": true, "defaultValue": "2", "in": "header" },
+        { "id": "project_id", "label": "Project ID", "type": "text", "required": true, "in": "path" },
+        { "id": "error_id", "label": "Error ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "update_error",
+      "label": "Update error",
+      "method": "PATCH",
+      "path": "/projects/{project_id}/errors/{error_id}",
+      "fields": [
+        { "id": "X-Version", "label": "API version", "type": "text", "required": true, "defaultValue": "2", "in": "header" },
+        { "id": "project_id", "label": "Project ID", "type": "text", "required": true, "in": "path" },
+        { "id": "error_id", "label": "Error ID", "type": "text", "required": true, "in": "path" },
+        { "id": "operation", "label": "Operation", "type": "text", "required": true, "in": "body" },
+        { "id": "severity", "label": "Severity", "type": "select", "in": "body" },
+        { "id": "issue_url", "label": "Issue URL", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "list_events_for_error",
+      "label": "List events for error",
+      "method": "GET",
+      "path": "/projects/{project_id}/errors/{error_id}/events",
+      "fields": [
+        { "id": "X-Version", "label": "API version", "type": "text", "required": true, "defaultValue": "2", "in": "header" },
+        { "id": "project_id", "label": "Project ID", "type": "text", "required": true, "in": "path" },
+        { "id": "error_id", "label": "Error ID", "type": "text", "required": true, "in": "path" },
+        { "id": "per_page", "label": "Per page", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "list_releases",
+      "label": "List releases",
+      "method": "GET",
+      "path": "/projects/{project_id}/releases",
+      "fields": [
+        { "id": "X-Version", "label": "API version", "type": "text", "required": true, "defaultValue": "2", "in": "header" },
+        { "id": "project_id", "label": "Project ID", "type": "text", "required": true, "in": "path" },
+        { "id": "per_page", "label": "Per page", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "create_release",
+      "label": "Create release",
+      "method": "POST",
+      "path": "/projects/{project_id}/releases",
+      "fields": [
+        { "id": "X-Version", "label": "API version", "type": "text", "required": true, "defaultValue": "2", "in": "header" },
+        { "id": "project_id", "label": "Project ID", "type": "text", "required": true, "in": "path" },
+        { "id": "release_stage", "label": "Release stage", "type": "text", "required": true, "in": "body" },
+        { "id": "app_version", "label": "App version", "type": "text", "required": true, "in": "body" },
+        { "id": "source_control", "label": "Source control (JSON)", "type": "json", "in": "body" }
+      ]
+    },
+    {
+      "id": "list_pivot_table",
+      "label": "List pivots",
+      "method": "GET",
+      "path": "/projects/{project_id}/pivots",
+      "fields": [
+        { "id": "X-Version", "label": "API version", "type": "text", "required": true, "defaultValue": "2", "in": "header" },
+        { "id": "project_id", "label": "Project ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_users",
+      "label": "List users",
+      "method": "GET",
+      "path": "/projects/{project_id}/users",
+      "fields": [
+        { "id": "X-Version", "label": "API version", "type": "text", "required": true, "defaultValue": "2", "in": "header" },
+        { "id": "project_id", "label": "Project ID", "type": "text", "required": true, "in": "path" },
+        { "id": "per_page", "label": "Per page", "type": "number", "in": "query" }
+      ]
+    }
+  ]
+}

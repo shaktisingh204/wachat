@@ -1,0 +1,59 @@
+{
+  "id": "n8n-s3",
+  "name": "S3",
+  "description": "Sends data to any S3-compatible service",
+  "category": "Output",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "bucket_default",
+      "label": "List Bucket",
+      "method": "GET",
+      "path": "/bucket",
+      "fields": [
+        {
+          "id": "s3StandardNotice",
+          "label": "This node is for services that use the S3 standard, e.g. Minio or Digital Ocean Spaces. For AWS S3 use the 'AWS S3' node.",
+          "type": "text",
+          "in": "query"
+        }
+      ]
+    },
+    {
+      "id": "file_default",
+      "label": "List File",
+      "method": "GET",
+      "path": "/file",
+      "fields": [
+        {
+          "id": "s3StandardNotice",
+          "label": "This node is for services that use the S3 standard, e.g. Minio or Digital Ocean Spaces. For AWS S3 use the 'AWS S3' node.",
+          "type": "text",
+          "in": "query"
+        }
+      ]
+    },
+    {
+      "id": "folder_default",
+      "label": "List Folder",
+      "method": "GET",
+      "path": "/folder",
+      "fields": [
+        {
+          "id": "s3StandardNotice",
+          "label": "This node is for services that use the S3 standard, e.g. Minio or Digital Ocean Spaces. For AWS S3 use the 'AWS S3' node.",
+          "type": "text",
+          "in": "query"
+        }
+      ]
+    }
+  ]
+}

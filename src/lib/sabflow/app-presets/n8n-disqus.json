@@ -1,0 +1,157 @@
+{
+  "id": "n8n-disqus",
+  "name": "Disqus",
+  "description": "Access data on Disqus",
+  "category": "Input",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "forum_get",
+      "label": "Get Forum",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Forum Name",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The short name(aka ID) of the forum to get"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Field"
+        }
+      ]
+    },
+    {
+      "id": "forum_get_categories",
+      "label": "Get All Categories Forum",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Forum Name",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The short name(aka ID) of the forum to get Categories"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "in": "query",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "in": "query",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Field"
+        }
+      ]
+    },
+    {
+      "id": "forum_get_threads",
+      "label": "Get All Threads Forum",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Forum Name",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The short name(aka ID) of the forum to get Threads"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "in": "query",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "in": "query",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Field"
+        }
+      ]
+    },
+    {
+      "id": "forum_get_posts",
+      "label": "Get All Posts Forum",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Forum Name",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The short name(aka ID) of the forum to get"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "in": "query",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "in": "query",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Field"
+        }
+      ]
+    }
+  ]
+}

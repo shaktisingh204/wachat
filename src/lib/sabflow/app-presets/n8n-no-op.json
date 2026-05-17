@@ -1,0 +1,15 @@
+{
+  "id": "n8n-no-op",
+  "name": "No Operation, do nothing",
+  "description": "No Operation",
+  "category": "Organization",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "none"
+  },
+  "baseUrl": "",
+  "endpoints": []
+}

@@ -1,0 +1,23 @@
+{
+  "id": "apollo-io",
+  "name": "Apollo.io",
+  "description": "B2B sales intelligence and engagement.",
+  "category": "Sales",
+  "iconName": "LuTarget",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": { "type": "header", "credentialType": "apollo_io", "header": "X-Api-Key" },
+  "baseUrl": "https://api.apollo.io/v1",
+  "endpoints": [
+    { "id": "search_people", "label": "Search people", "method": "POST", "path": "/mixed_people/search", "fields": [{ "id": "q_organization_domains", "type": "text", "in": "body" }, { "id": "person_titles", "type": "json", "in": "body", "defaultValue": [] }, { "id": "page", "type": "number", "defaultValue": 1, "in": "body" }, { "id": "per_page", "type": "number", "defaultValue": 25, "in": "body" }] },
+    { "id": "enrich_person", "label": "Enrich person", "method": "POST", "path": "/people/match", "fields": [{ "id": "email", "type": "text", "in": "body" }, { "id": "name", "type": "text", "in": "body" }, { "id": "organization_name", "type": "text", "in": "body" }] },
+    { "id": "bulk_enrich_people", "label": "Bulk enrich people", "method": "POST", "path": "/people/bulk_match", "fields": [{ "id": "details", "type": "json", "required": true, "in": "body", "defaultValue": [] }] },
+    { "id": "search_organizations", "label": "Search organizations", "method": "POST", "path": "/mixed_companies/search", "fields": [{ "id": "q_organization_domains", "type": "text", "in": "body" }, { "id": "page", "type": "number", "in": "body" }] },
+    { "id": "enrich_organization", "label": "Enrich organization", "method": "POST", "path": "/organizations/enrich", "fields": [{ "id": "domain", "type": "text", "required": true, "in": "body" }] },
+    { "id": "list_contacts", "label": "List contacts", "method": "GET", "path": "/contacts", "fields": [] },
+    { "id": "create_contact", "label": "Create contact", "method": "POST", "path": "/contacts", "fields": [{ "id": "first_name", "type": "text", "in": "body" }, { "id": "last_name", "type": "text", "in": "body" }, { "id": "email", "type": "text", "in": "body" }, { "id": "organization_name", "type": "text", "in": "body" }] },
+    { "id": "update_contact", "label": "Update contact", "method": "PUT", "path": "/contacts/{id}", "fields": [{ "id": "id", "type": "text", "required": true, "in": "path" }] },
+    { "id": "list_sequences", "label": "List sequences", "method": "GET", "path": "/emailer_campaigns", "fields": [] }
+  ]
+}

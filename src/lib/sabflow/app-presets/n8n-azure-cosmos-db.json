@@ -1,0 +1,31 @@
+{
+  "id": "n8n-azure-cosmos-db",
+  "name": "Azure Cosmos DB",
+  "description": "Interact with Azure Cosmos DB API",
+  "category": "Transform",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "=https://{{ $credentials.account }}.documents.azure.com/dbs/{{ $credentials.database }}",
+  "endpoints": [
+    {
+      "id": "container_default",
+      "label": "List Container",
+      "method": "GET",
+      "path": "/container",
+      "fields": []
+    },
+    {
+      "id": "item_default",
+      "label": "List Item",
+      "method": "GET",
+      "path": "/item",
+      "fields": []
+    }
+  ]
+}

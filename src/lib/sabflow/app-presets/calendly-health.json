@@ -1,0 +1,20 @@
+{
+  "id": "calendly-health",
+  "name": "Calendly (Health)",
+  "description": "Calendly scheduling tuned for healthcare intake.",
+  "category": "Wellness",
+  "iconName": "LuCalendar",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": { "type": "bearer", "credentialType": "calendly" },
+  "baseUrl": "https://api.calendly.com",
+  "endpoints": [
+    { "id": "me", "label": "Me", "method": "GET", "path": "/users/me", "fields": [] },
+    { "id": "list_scheduled_events_for_user", "label": "List scheduled events", "method": "GET", "path": "/scheduled_events", "fields": [{ "id": "user", "type": "text", "in": "query" }, { "id": "status", "type": "text", "in": "query" }, { "id": "min_start_time", "type": "text", "in": "query" }] },
+    { "id": "get_scheduled_event", "label": "Get scheduled event", "method": "GET", "path": "/scheduled_events/{uuid}", "fields": [{ "id": "uuid", "type": "text", "required": true, "in": "path" }] },
+    { "id": "list_invitees_with_health_responses", "label": "List invitees with responses", "method": "GET", "path": "/scheduled_events/{event_uuid}/invitees", "fields": [{ "id": "event_uuid", "type": "text", "required": true, "in": "path" }] },
+    { "id": "create_health_intake_webhook", "label": "Create webhook subscription", "method": "POST", "path": "/webhook_subscriptions", "fields": [{ "id": "url", "type": "text", "required": true, "in": "body" }, { "id": "events", "type": "json", "required": true, "in": "body", "defaultValue": ["invitee.created"] }, { "id": "organization", "type": "text", "required": true, "in": "body" }, { "id": "scope", "type": "text", "defaultValue": "organization", "required": true, "in": "body" }, { "id": "signing_key", "type": "password", "in": "body" }] },
+    { "id": "cancel_event", "label": "Cancel event", "method": "POST", "path": "/scheduled_events/{uuid}/cancellation", "fields": [{ "id": "uuid", "type": "text", "required": true, "in": "path" }, { "id": "reason", "type": "textarea", "in": "body" }] }
+  ]
+}

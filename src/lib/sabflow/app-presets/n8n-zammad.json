@@ -1,0 +1,117 @@
+{
+  "id": "n8n-zammad",
+  "name": "Zammad",
+  "description": "Consume the Zammad API",
+  "category": "Input",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "basic",
+    "credentialType": "http_basic_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "group_default",
+      "label": "List Group",
+      "method": "GET",
+      "path": "/group",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "tokenAuth",
+          "options": [
+            {
+              "value": "basicAuth",
+              "label": "Basic Auth"
+            },
+            {
+              "value": "tokenAuth",
+              "label": "Token Auth"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "organization_default",
+      "label": "List Organization",
+      "method": "GET",
+      "path": "/organization",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "tokenAuth",
+          "options": [
+            {
+              "value": "basicAuth",
+              "label": "Basic Auth"
+            },
+            {
+              "value": "tokenAuth",
+              "label": "Token Auth"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ticket_default",
+      "label": "List Ticket",
+      "method": "GET",
+      "path": "/ticket",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "tokenAuth",
+          "options": [
+            {
+              "value": "basicAuth",
+              "label": "Basic Auth"
+            },
+            {
+              "value": "tokenAuth",
+              "label": "Token Auth"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "user_default",
+      "label": "List User",
+      "method": "GET",
+      "path": "/user",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "tokenAuth",
+          "options": [
+            {
+              "value": "basicAuth",
+              "label": "Basic Auth"
+            },
+            {
+              "value": "tokenAuth",
+              "label": "Token Auth"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

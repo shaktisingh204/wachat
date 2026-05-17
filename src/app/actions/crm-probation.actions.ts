@@ -25,6 +25,13 @@ import { getSession } from '@/app/actions/user.actions';
 import { connectToDatabase } from '@/lib/mongodb';
 import { requirePermission } from '@/lib/rbac-server';
 import { writeAuditEntry } from '@/lib/audit-log';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+import { crmProbationsApi } from '@/lib/rust-client/crm-probation';
+import { RustApiError } from '@/lib/rust-client/fetcher';
+
+function useRustCrm(): boolean {
+    return process.env.USE_RUST_CRM === 'true';
+}
 
 /* ─── Types ──────────────────────────────────────────────────────────── */
 
@@ -140,6 +147,24 @@ export async function getCrmProbations(
     const guard = await requirePermission('crm_probation', 'view');
     if (!guard.ok) return [];
 
+    if (useRustCrm()) {
+        try {
+            const res = await crmProbationsApi.list({
+                q: filters?.q,
+                status: filters?.status,
+            });
+            return JSON.parse(JSON.stringify(res.items ?? [])) as WithId<CrmProbationDoc>[];
+        } catch (e) {
+            console.error('[getCrmProbations] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'probation',
+                op: 'list',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+        }
+    }
+
     try {
         const { db } = await connectToDatabase();
         const filter: Record<string, unknown> = {
@@ -188,6 +213,21 @@ export async function getCrmProbationById(
 
     const guard = await requirePermission('crm_probation', 'view');
     if (!guard.ok) return null;
+
+    if (useRustCrm()) {
+        try {
+            const doc = await crmProbationsApi.getById(id);
+            return JSON.parse(JSON.stringify(doc)) as WithId<CrmProbationDoc>;
+        } catch (e) {
+            console.error('[getCrmProbationById] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'probation',
+                op: 'get',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+        }
+    }
 
     try {
         const { db } = await connectToDatabase();

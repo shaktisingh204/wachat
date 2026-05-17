@@ -1,0 +1,58 @@
+{
+  "id": "runwayml",
+  "name": "RunwayML",
+  "description": "RunwayML generative video AI.",
+  "category": "AI",
+  "iconName": "LuSparkles",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "bearer",
+    "credentialType": "runwayml",
+    "header": "Authorization",
+    "scheme": "Bearer"
+  },
+  "baseUrl": "https://api.runwayml.com/v1",
+  "endpoints": [
+    {
+      "id": "create_image_to_video",
+      "label": "Create image to video",
+      "method": "POST",
+      "path": "/image_to_video",
+      "fields": [
+        { "id": "promptImage", "label": "Prompt image", "type": "text", "required": true, "in": "body" },
+        { "id": "model", "label": "Model", "type": "text", "required": true, "in": "body" },
+        { "id": "ratio", "label": "Ratio", "type": "text", "in": "body" },
+        { "id": "duration", "label": "Duration", "type": "number", "in": "body" }
+      ]
+    },
+    {
+      "id": "create_video_upscale",
+      "label": "Create video upscale",
+      "method": "POST",
+      "path": "/video_upscale",
+      "fields": [
+        { "id": "videoUri", "label": "Video URI", "type": "text", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "get_task",
+      "label": "Get task",
+      "method": "GET",
+      "path": "/tasks/{id}",
+      "fields": [
+        { "id": "id", "label": "Task ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "cancel_task",
+      "label": "Cancel task",
+      "method": "DELETE",
+      "path": "/tasks/{id}",
+      "fields": [
+        { "id": "id", "label": "Task ID", "type": "text", "required": true, "in": "path" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "id": "salesloft",
+  "name": "Salesloft",
+  "description": "Sales engagement platform.",
+  "category": "Sales",
+  "iconName": "LuMail",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": { "type": "bearer", "credentialType": "salesloft" },
+  "baseUrl": "https://api.salesloft.com/v2",
+  "endpoints": [
+    { "id": "list_people", "label": "List people", "method": "GET", "path": "/people", "fields": [{ "id": "page", "type": "number", "in": "query" }, { "id": "per_page", "type": "number", "defaultValue": 25, "in": "query" }] },
+    { "id": "get_person", "label": "Get person", "method": "GET", "path": "/people/{id}", "fields": [{ "id": "id", "type": "text", "required": true, "in": "path" }] },
+    { "id": "create_person", "label": "Create person", "method": "POST", "path": "/people", "fields": [{ "id": "email_address", "type": "text", "required": true, "in": "body" }, { "id": "first_name", "type": "text", "in": "body" }, { "id": "last_name", "type": "text", "in": "body" }, { "id": "account_id", "type": "number", "in": "body" }] },
+    { "id": "update_person", "label": "Update person", "method": "PUT", "path": "/people/{id}", "fields": [{ "id": "id", "type": "text", "required": true, "in": "path" }, { "id": "first_name", "type": "text", "in": "body" }, { "id": "last_name", "type": "text", "in": "body" }] },
+    { "id": "list_cadences", "label": "List cadences", "method": "GET", "path": "/cadences", "fields": [] },
+    { "id": "import_cadence", "label": "Import cadence", "method": "POST", "path": "/cadence_imports", "fields": [{ "id": "cadence_content", "type": "json", "required": true, "in": "body" }] },
+    { "id": "list_accounts", "label": "List accounts", "method": "GET", "path": "/accounts", "fields": [] },
+    { "id": "list_emails", "label": "List emails", "method": "GET", "path": "/emails", "fields": [] },
+    { "id": "create_call", "label": "Create call", "method": "POST", "path": "/calls", "fields": [{ "id": "person_id", "type": "number", "required": true, "in": "body" }, { "id": "duration", "type": "number", "in": "body" }, { "id": "disposition", "type": "text", "in": "body" }, { "id": "sentiment", "type": "text", "in": "body" }, { "id": "to", "type": "text", "in": "body" }, { "id": "notes", "type": "textarea", "in": "body" }] }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "id": "n8n-wekan",
+  "name": "Wekan",
+  "description": "Consume Wekan API",
+  "category": "Transform",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "board_default",
+      "label": "List Board",
+      "method": "GET",
+      "path": "/board",
+      "fields": []
+    },
+    {
+      "id": "card_default",
+      "label": "List Card",
+      "method": "GET",
+      "path": "/card",
+      "fields": []
+    },
+    {
+      "id": "card_comment_default",
+      "label": "List CardComment",
+      "method": "GET",
+      "path": "/cardComment",
+      "fields": []
+    },
+    {
+      "id": "checklist_default",
+      "label": "List Checklist",
+      "method": "GET",
+      "path": "/checklist",
+      "fields": []
+    },
+    {
+      "id": "checklist_item_default",
+      "label": "List ChecklistItem",
+      "method": "GET",
+      "path": "/checklistItem",
+      "fields": []
+    },
+    {
+      "id": "list_default",
+      "label": "List List",
+      "method": "GET",
+      "path": "/list",
+      "fields": []
+    }
+  ]
+}

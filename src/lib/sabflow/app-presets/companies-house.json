@@ -1,0 +1,22 @@
+{
+  "id": "companies-house",
+  "name": "UK Companies House",
+  "description": "UK Companies House public REST API.",
+  "category": "Government",
+  "iconName": "LuLandmark",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": { "type": "basic", "credentialType": "companies_house" },
+  "baseUrl": "https://api.company-information.service.gov.uk",
+  "endpoints": [
+    { "id": "search_companies", "label": "Search companies", "method": "GET", "path": "/search/companies", "fields": [{ "id": "q", "type": "text", "required": true, "in": "query" }, { "id": "items_per_page", "type": "number", "defaultValue": 20, "in": "query" }, { "id": "start_index", "type": "number", "in": "query" }] },
+    { "id": "get_company", "label": "Get company", "method": "GET", "path": "/company/{company_number}", "fields": [{ "id": "company_number", "type": "text", "required": true, "in": "path" }] },
+    { "id": "list_officers", "label": "List officers", "method": "GET", "path": "/company/{company_number}/officers", "fields": [{ "id": "company_number", "type": "text", "required": true, "in": "path" }] },
+    { "id": "get_officer_appointments", "label": "Get officer appointments", "method": "GET", "path": "/officers/{officer_id}/appointments", "fields": [{ "id": "officer_id", "type": "text", "required": true, "in": "path" }] },
+    { "id": "list_filings", "label": "List filings", "method": "GET", "path": "/company/{company_number}/filing-history", "fields": [{ "id": "company_number", "type": "text", "required": true, "in": "path" }] },
+    { "id": "get_filing", "label": "Get filing", "method": "GET", "path": "/company/{company_number}/filing-history/{transaction_id}", "fields": [{ "id": "company_number", "type": "text", "required": true, "in": "path" }, { "id": "transaction_id", "type": "text", "required": true, "in": "path" }] },
+    { "id": "list_charges", "label": "List charges", "method": "GET", "path": "/company/{company_number}/charges", "fields": [{ "id": "company_number", "type": "text", "required": true, "in": "path" }] },
+    { "id": "list_psc", "label": "List PSC", "method": "GET", "path": "/company/{company_number}/persons-with-significant-control", "fields": [{ "id": "company_number", "type": "text", "required": true, "in": "path" }] }
+  ]
+}

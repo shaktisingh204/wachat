@@ -1,0 +1,107 @@
+{
+  "id": "n8n-ldap",
+  "name": "Ldap",
+  "description": "Interact with LDAP servers",
+  "category": "Transform",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "default_compare",
+      "label": "Compare",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "nodeDebug",
+          "label": "Debug",
+          "type": "toggle",
+          "in": "query",
+          "defaultValue": false
+        }
+      ]
+    },
+    {
+      "id": "default_create",
+      "label": "Create",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "nodeDebug",
+          "label": "Debug",
+          "type": "toggle",
+          "in": "query",
+          "defaultValue": false
+        }
+      ]
+    },
+    {
+      "id": "default_delete",
+      "label": "Delete",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "nodeDebug",
+          "label": "Debug",
+          "type": "toggle",
+          "in": "query",
+          "defaultValue": false
+        }
+      ]
+    },
+    {
+      "id": "default_rename",
+      "label": "Rename",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "nodeDebug",
+          "label": "Debug",
+          "type": "toggle",
+          "in": "query",
+          "defaultValue": false
+        }
+      ]
+    },
+    {
+      "id": "default_search",
+      "label": "Search",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "nodeDebug",
+          "label": "Debug",
+          "type": "toggle",
+          "in": "query",
+          "defaultValue": false
+        }
+      ]
+    },
+    {
+      "id": "default_update",
+      "label": "Update",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "nodeDebug",
+          "label": "Debug",
+          "type": "toggle",
+          "in": "query",
+          "defaultValue": false
+        }
+      ]
+    }
+  ]
+}

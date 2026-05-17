@@ -1,0 +1,132 @@
+{
+  "id": "billingforce",
+  "name": "BillingForce (Zuora)",
+  "description": "Enterprise billing modeled on Zuora REST: accounts, subscriptions, products, invoices, payments, and usage import.",
+  "category": "Billing",
+  "iconName": "LuCreditCard",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "header",
+    "header": "Authorization",
+    "scheme": "Bearer",
+    "credentialType": "zuora"
+  },
+  "baseUrl": "https://rest.zuora.com/v1",
+  "endpoints": [
+    {
+      "id": "list_accounts",
+      "label": "List Accounts",
+      "method": "GET",
+      "path": "/object/account",
+      "fields": [
+        { "id": "pageSize", "label": "Page Size", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "get_account",
+      "label": "Get Account",
+      "method": "GET",
+      "path": "/object/account/{id}",
+      "fields": [
+        { "id": "id", "label": "Account ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "create_account",
+      "label": "Create Account",
+      "method": "POST",
+      "path": "/object/account",
+      "fields": [
+        { "id": "Name", "label": "Name", "type": "text", "required": true, "in": "body" },
+        { "id": "Currency", "label": "Currency", "type": "text", "required": true, "in": "body" },
+        { "id": "Status", "label": "Status", "type": "text", "required": true, "in": "body" },
+        { "id": "BillCycleDay", "label": "Bill Cycle Day", "type": "number", "in": "body" }
+      ]
+    },
+    {
+      "id": "list_subscriptions",
+      "label": "List Subscriptions for Account",
+      "method": "GET",
+      "path": "/subscriptions/accounts/{account_id}",
+      "fields": [
+        { "id": "account_id", "label": "Account ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "create_subscription",
+      "label": "Create Subscription",
+      "method": "POST",
+      "path": "/subscriptions",
+      "fields": [
+        { "id": "accountKey", "label": "Account Key", "type": "text", "required": true, "in": "body" },
+        { "id": "contractEffectiveDate", "label": "Contract Effective Date", "type": "text", "required": true, "in": "body" },
+        { "id": "subscribeToRatePlans", "label": "Subscribe To Rate Plans", "type": "json", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "cancel_subscription",
+      "label": "Cancel Subscription",
+      "method": "PUT",
+      "path": "/subscriptions/{subscriptionKey}/cancel",
+      "fields": [
+        { "id": "subscriptionKey", "label": "Subscription Key", "type": "text", "required": true, "in": "path" },
+        { "id": "cancellationPolicy", "label": "Cancellation Policy", "type": "text", "required": true, "in": "body" },
+        { "id": "cancellationEffectiveDate", "label": "Cancellation Effective Date", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "list_products",
+      "label": "List Products",
+      "method": "GET",
+      "path": "/object/product",
+      "fields": [
+        { "id": "pageSize", "label": "Page Size", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "list_invoices",
+      "label": "List Invoices",
+      "method": "GET",
+      "path": "/invoices",
+      "fields": [
+        { "id": "accountId", "label": "Account ID", "type": "text", "in": "query" },
+        { "id": "status", "label": "Status", "type": "text", "in": "query" },
+        { "id": "pageSize", "label": "Page Size", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "post_payment",
+      "label": "Post Payment",
+      "method": "POST",
+      "path": "/payments",
+      "fields": [
+        { "id": "AccountId", "label": "Account ID", "type": "text", "required": true, "in": "body" },
+        { "id": "Amount", "label": "Amount", "type": "number", "required": true, "in": "body" },
+        { "id": "EffectiveDate", "label": "Effective Date", "type": "text", "required": true, "in": "body" },
+        { "id": "Type", "label": "Type", "type": "text", "required": true, "in": "body" },
+        { "id": "PaymentMethodId", "label": "Payment Method ID", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "list_usage",
+      "label": "List Usage",
+      "method": "GET",
+      "path": "/usage",
+      "fields": [
+        { "id": "accountId", "label": "Account ID", "type": "text", "in": "query" },
+        { "id": "pageSize", "label": "Page Size", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "import_usage",
+      "label": "Import Usage (CSV)",
+      "method": "POST",
+      "path": "/usage",
+      "fields": [
+        { "id": "csv_data", "label": "CSV Data", "type": "textarea", "required": true, "in": "body" }
+      ]
+    }
+  ]
+}

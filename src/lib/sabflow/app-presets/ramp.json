@@ -1,0 +1,89 @@
+{
+  "id": "ramp",
+  "name": "Ramp",
+  "description": "Corporate cards, spend management & expenses.",
+  "category": "Fintech",
+  "iconName": "LuCreditCard",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "bearer",
+    "credentialType": "ramp",
+    "header": "Authorization",
+    "scheme": "Bearer"
+  },
+  "baseUrl": "https://api.ramp.com/developer/v1",
+  "endpoints": [
+    {
+      "id": "list_transactions",
+      "label": "List transactions",
+      "method": "GET",
+      "path": "/transactions",
+      "fields": [
+        { "id": "page_size", "label": "Page size", "type": "number", "defaultValue": 50, "in": "query" },
+        { "id": "start", "label": "Start cursor", "type": "text", "in": "query" }
+      ]
+    },
+    {
+      "id": "list_users",
+      "label": "List users",
+      "method": "GET",
+      "path": "/users",
+      "fields": [
+        { "id": "page_size", "label": "Page size", "type": "number", "defaultValue": 50, "in": "query" },
+        { "id": "start", "label": "Start cursor", "type": "text", "in": "query" }
+      ]
+    },
+    {
+      "id": "get_user",
+      "label": "Get user",
+      "method": "GET",
+      "path": "/users/{user_id}",
+      "fields": [
+        { "id": "user_id", "label": "User ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "invite_user",
+      "label": "Invite user",
+      "method": "POST",
+      "path": "/users/deferred",
+      "fields": [
+        { "id": "email", "label": "Email", "type": "text", "required": true, "in": "body" },
+        { "id": "first_name", "label": "First name", "type": "text", "required": true, "in": "body" },
+        { "id": "last_name", "label": "Last name", "type": "text", "required": true, "in": "body" },
+        { "id": "role", "label": "Role", "type": "text", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "list_cards",
+      "label": "List cards",
+      "method": "GET",
+      "path": "/cards",
+      "fields": [
+        { "id": "page_size", "label": "Page size", "type": "number", "defaultValue": 50, "in": "query" },
+        { "id": "start", "label": "Start cursor", "type": "text", "in": "query" }
+      ]
+    },
+    {
+      "id": "list_reimbursements",
+      "label": "List reimbursements",
+      "method": "GET",
+      "path": "/reimbursements",
+      "fields": [
+        { "id": "page_size", "label": "Page size", "type": "number", "defaultValue": 50, "in": "query" },
+        { "id": "start", "label": "Start cursor", "type": "text", "in": "query" }
+      ]
+    },
+    {
+      "id": "list_departments",
+      "label": "List departments",
+      "method": "GET",
+      "path": "/departments",
+      "fields": [
+        { "id": "page_size", "label": "Page size", "type": "number", "defaultValue": 50, "in": "query" }
+      ]
+    }
+  ]
+}

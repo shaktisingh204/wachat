@@ -1,0 +1,104 @@
+{
+  "id": "lemlist",
+  "name": "Lemlist",
+  "description": "Lemlist cold outreach API for campaigns, leads, and activities.",
+  "category": "Sales",
+  "iconName": "LuMail",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "basic",
+    "credentialType": "lemlist"
+  },
+  "baseUrl": "https://api.lemlist.com/api",
+  "endpoints": [
+    {
+      "id": "list_campaigns",
+      "label": "List campaigns",
+      "method": "GET",
+      "path": "/campaigns",
+      "fields": [
+        { "id": "page", "label": "Page", "type": "number", "in": "query" },
+        { "id": "limit", "label": "Limit", "type": "number", "defaultValue": 50, "in": "query" }
+      ]
+    },
+    {
+      "id": "list_leads_in_campaign",
+      "label": "List leads in campaign",
+      "method": "GET",
+      "path": "/campaigns/{campaignId}/leads",
+      "fields": [
+        { "id": "campaignId", "label": "Campaign ID", "type": "text", "required": true, "in": "path" },
+        { "id": "page", "label": "Page", "type": "number", "in": "query" },
+        { "id": "limit", "label": "Limit", "type": "number", "defaultValue": 50, "in": "query" }
+      ]
+    },
+    {
+      "id": "add_lead_to_campaign",
+      "label": "Add lead to campaign",
+      "method": "POST",
+      "path": "/campaigns/{campaignId}/leads/{email}",
+      "fields": [
+        { "id": "campaignId", "label": "Campaign ID", "type": "text", "required": true, "in": "path" },
+        { "id": "email", "label": "Email", "type": "text", "required": true, "in": "path" },
+        { "id": "firstName", "label": "First name", "type": "text", "in": "body" },
+        { "id": "lastName", "label": "Last name", "type": "text", "in": "body" },
+        { "id": "companyName", "label": "Company name", "type": "text", "in": "body" },
+        { "id": "customData", "label": "Custom data (JSON)", "type": "json", "in": "body" }
+      ]
+    },
+    {
+      "id": "update_lead",
+      "label": "Update lead",
+      "method": "PATCH",
+      "path": "/campaigns/{campaignId}/leads/{email}",
+      "fields": [
+        { "id": "campaignId", "label": "Campaign ID", "type": "text", "required": true, "in": "path" },
+        { "id": "email", "label": "Email", "type": "text", "required": true, "in": "path" },
+        { "id": "firstName", "label": "First name", "type": "text", "in": "body" },
+        { "id": "lastName", "label": "Last name", "type": "text", "in": "body" },
+        { "id": "customData", "label": "Custom data (JSON)", "type": "json", "in": "body" }
+      ]
+    },
+    {
+      "id": "delete_lead",
+      "label": "Delete lead",
+      "method": "DELETE",
+      "path": "/campaigns/{campaignId}/leads/{email}",
+      "fields": [
+        { "id": "campaignId", "label": "Campaign ID", "type": "text", "required": true, "in": "path" },
+        { "id": "email", "label": "Email", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "mark_lead_interested",
+      "label": "Mark lead interested",
+      "method": "POST",
+      "path": "/campaigns/{campaignId}/leads/{email}/interested",
+      "fields": [
+        { "id": "campaignId", "label": "Campaign ID", "type": "text", "required": true, "in": "path" },
+        { "id": "email", "label": "Email", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_team_members",
+      "label": "List team members",
+      "method": "GET",
+      "path": "/team",
+      "fields": []
+    },
+    {
+      "id": "list_activities",
+      "label": "List activities",
+      "method": "GET",
+      "path": "/activities",
+      "fields": [
+        { "id": "campaignId", "label": "Campaign ID", "type": "text", "in": "query" },
+        { "id": "type", "label": "Activity type", "type": "text", "in": "query" },
+        { "id": "page", "label": "Page", "type": "number", "in": "query" },
+        { "id": "limit", "label": "Limit", "type": "number", "defaultValue": 50, "in": "query" }
+      ]
+    }
+  ]
+}

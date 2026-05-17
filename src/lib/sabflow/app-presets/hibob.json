@@ -1,0 +1,23 @@
+{
+  "id": "hibob",
+  "name": "HiBob",
+  "description": "HiBob HRIS.",
+  "category": "HR",
+  "iconName": "LuUsers",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": { "type": "basic", "credentialType": "hibob" },
+  "baseUrl": "https://api.hibob.com/v1",
+  "endpoints": [
+    { "id": "list_employees", "label": "Search employees", "method": "POST", "path": "/people/search", "fields": [{ "id": "fields", "type": "json", "required": true, "in": "body", "defaultValue": [] }, { "id": "filters", "type": "json", "in": "body" }] },
+    { "id": "get_employee", "label": "Get employee", "method": "GET", "path": "/people/{employee_id}", "fields": [{ "id": "employee_id", "type": "text", "required": true, "in": "path" }] },
+    { "id": "create_employee", "label": "Create employee", "method": "POST", "path": "/people", "fields": [{ "id": "firstName", "type": "text", "required": true, "in": "body" }, { "id": "surname", "type": "text", "required": true, "in": "body" }, { "id": "email", "type": "text", "required": true, "in": "body" }, { "id": "work", "type": "json", "required": true, "in": "body", "defaultValue": { "site": "", "startDate": "", "employmentType": "" } }] },
+    { "id": "update_employee_fields", "label": "Update employee fields", "method": "POST", "path": "/people/{employee_id}", "fields": [{ "id": "employee_id", "type": "text", "required": true, "in": "path" }] },
+    { "id": "list_time_off_requests", "label": "List time-off requests", "method": "GET", "path": "/timeoff/requests", "fields": [{ "id": "from", "type": "text", "in": "query" }, { "id": "to", "type": "text", "in": "query" }] },
+    { "id": "submit_time_off_request", "label": "Submit time-off request", "method": "POST", "path": "/timeoff/employees/{employee_id}/requests", "fields": [{ "id": "employee_id", "type": "text", "required": true, "in": "path" }, { "id": "policyType", "type": "text", "required": true, "in": "body" }, { "id": "startDate", "type": "text", "required": true, "in": "body" }, { "id": "endDate", "type": "text", "required": true, "in": "body" }, { "id": "requestRangeType", "type": "text", "required": true, "in": "body" }, { "id": "description", "type": "textarea", "in": "body" }] },
+    { "id": "cancel_time_off_request", "label": "Cancel time-off request", "method": "PUT", "path": "/timeoff/employees/{employee_id}/requests/{request_id}/cancel", "fields": [{ "id": "employee_id", "type": "text", "required": true, "in": "path" }, { "id": "request_id", "type": "text", "required": true, "in": "path" }] },
+    { "id": "list_tasks", "label": "List tasks", "method": "GET", "path": "/tasks", "fields": [] },
+    { "id": "me", "label": "Me", "method": "GET", "path": "/me", "fields": [] }
+  ]
+}

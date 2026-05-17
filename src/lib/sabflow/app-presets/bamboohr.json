@@ -1,0 +1,115 @@
+{
+  "id": "bamboohr",
+  "name": "BambooHR",
+  "description": "BambooHR HRIS: employees, time off, reports, custom fields, and employee files.",
+  "category": "HR",
+  "iconName": "LuUsers",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "basic",
+    "credentialType": "bamboohr"
+  },
+  "baseUrl": "https://api.bamboohr.com/api/gateway.php/{subdomain}/v1",
+  "endpoints": [
+    {
+      "id": "list_employees",
+      "label": "List employees (directory)",
+      "method": "GET",
+      "path": "/employees/directory",
+      "fields": []
+    },
+    {
+      "id": "get_employee",
+      "label": "Get employee",
+      "method": "GET",
+      "path": "/employees/{id}",
+      "fields": [
+        { "id": "id", "label": "Employee ID", "type": "text", "required": true, "in": "path" },
+        { "id": "fields", "label": "Fields (comma-separated)", "type": "text", "required": true, "in": "query" }
+      ]
+    },
+    {
+      "id": "create_employee",
+      "label": "Create employee",
+      "method": "POST",
+      "path": "/employees/",
+      "fields": [
+        { "id": "firstName", "label": "First name", "type": "text", "required": true, "in": "body" },
+        { "id": "lastName", "label": "Last name", "type": "text", "required": true, "in": "body" },
+        { "id": "workEmail", "label": "Work email", "type": "text", "in": "body" },
+        { "id": "jobTitle", "label": "Job title", "type": "text", "in": "body" },
+        { "id": "department", "label": "Department", "type": "text", "in": "body" },
+        { "id": "hireDate", "label": "Hire date (YYYY-MM-DD)", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "update_employee",
+      "label": "Update employee",
+      "method": "POST",
+      "path": "/employees/{id}",
+      "fields": [
+        { "id": "id", "label": "Employee ID", "type": "text", "required": true, "in": "path" },
+        { "id": "body", "label": "Fields to update (JSON)", "type": "json", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "list_time_offs",
+      "label": "List time off requests",
+      "method": "GET",
+      "path": "/time_off/requests",
+      "fields": [
+        { "id": "status", "label": "Status", "type": "select", "in": "query" },
+        { "id": "start", "label": "Start date (YYYY-MM-DD)", "type": "text", "in": "query" },
+        { "id": "end", "label": "End date (YYYY-MM-DD)", "type": "text", "in": "query" }
+      ]
+    },
+    {
+      "id": "request_time_off",
+      "label": "Update time off request status",
+      "method": "PUT",
+      "path": "/employees/{id}/time_off/request/{requestId}",
+      "fields": [
+        { "id": "id", "label": "Employee ID", "type": "text", "required": true, "in": "path" },
+        { "id": "requestId", "label": "Request ID", "type": "text", "required": true, "in": "path" },
+        { "id": "status", "label": "Status", "type": "select", "required": true, "in": "body" },
+        { "id": "note", "label": "Note", "type": "textarea", "in": "body" }
+      ]
+    },
+    {
+      "id": "list_meta_fields",
+      "label": "List meta fields",
+      "method": "GET",
+      "path": "/meta/fields/",
+      "fields": []
+    },
+    {
+      "id": "list_reports",
+      "label": "List reports",
+      "method": "GET",
+      "path": "/reports/",
+      "fields": []
+    },
+    {
+      "id": "run_custom_report",
+      "label": "Run custom report",
+      "method": "POST",
+      "path": "/reports/custom",
+      "fields": [
+        { "id": "title", "label": "Report title", "type": "text", "required": true, "in": "body" },
+        { "id": "fields", "label": "Fields (JSON array)", "type": "json", "required": true, "in": "body" },
+        { "id": "filters", "label": "Filters (JSON)", "type": "json", "in": "body" }
+      ]
+    },
+    {
+      "id": "list_files_for_employee",
+      "label": "List employee files",
+      "method": "GET",
+      "path": "/employees/{id}/files/view/",
+      "fields": [
+        { "id": "id", "label": "Employee ID", "type": "text", "required": true, "in": "path" }
+      ]
+    }
+  ]
+}

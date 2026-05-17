@@ -1,0 +1,114 @@
+{
+  "id": "n8n-twilio",
+  "name": "Twilio",
+  "description": "Send SMS and WhatsApp messages or make phone calls",
+  "category": "Transform",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "sms_send",
+      "label": "Send Sms",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "from",
+          "label": "From",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "+14155238886",
+          "description": "The number from which to send the message"
+        },
+        {
+          "id": "to",
+          "label": "To",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "+14155238886",
+          "description": "The number to which to send the message"
+        },
+        {
+          "id": "toWhatsapp",
+          "label": "To Whatsapp",
+          "type": "toggle",
+          "in": "query",
+          "description": "Whether the message should be sent to WhatsApp",
+          "defaultValue": false
+        },
+        {
+          "id": "message",
+          "label": "Message",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The message to send"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Field"
+        }
+      ]
+    },
+    {
+      "id": "call_make",
+      "label": "Make Call",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "from",
+          "label": "From",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "+14155238886",
+          "description": "The number from which to send the message"
+        },
+        {
+          "id": "to",
+          "label": "To",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "+14155238886",
+          "description": "The number to which to send the message"
+        },
+        {
+          "id": "twiml",
+          "label": "Use TwiML",
+          "type": "toggle",
+          "in": "query",
+          "description": "Whether to use the <a href=\"https://www.twilio.com/docs/voice/twiml\">Twilio Markup Language</a> in the message",
+          "defaultValue": false
+        },
+        {
+          "id": "message",
+          "label": "Message",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Field"
+        }
+      ]
+    }
+  ]
+}

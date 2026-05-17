@@ -1,0 +1,21 @@
+{
+  "id": "fedex",
+  "name": "FedEx",
+  "description": "FedEx tracking, rating, shipping REST API.",
+  "category": "Shipping",
+  "iconName": "LuTruck",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": { "type": "oauth2", "credentialType": "oauth2" },
+  "baseUrl": "https://apis.fedex.com",
+  "endpoints": [
+    { "id": "oauth_token", "label": "OAuth token", "method": "POST", "path": "/oauth/token", "fields": [{ "id": "grant_type", "type": "text", "defaultValue": "client_credentials", "required": true, "in": "body" }, { "id": "client_id", "type": "text", "required": true, "in": "body" }, { "id": "client_secret", "type": "password", "required": true, "in": "body" }] },
+    { "id": "track_by_tracking_number", "label": "Track by tracking number", "method": "POST", "path": "/track/v1/trackingnumbers", "fields": [{ "id": "trackingInfo", "type": "json", "required": true, "in": "body", "defaultValue": [{ "trackingNumberInfo": { "trackingNumber": "" } }] }, { "id": "includeDetailedScans", "type": "toggle", "in": "body" }] },
+    { "id": "rate_full_schema", "label": "Rate (full schema)", "method": "POST", "path": "/rate/v1/rates/quotes", "fields": [{ "id": "accountNumber", "type": "json", "required": true, "in": "body", "defaultValue": { "value": "" } }, { "id": "requestedShipment", "type": "json", "required": true, "in": "body" }] },
+    { "id": "ship", "label": "Ship", "method": "POST", "path": "/ship/v1/shipments", "fields": [{ "id": "labelResponseOptions", "type": "text", "required": true, "in": "body" }, { "id": "requestedShipment", "type": "json", "required": true, "in": "body" }, { "id": "accountNumber", "type": "json", "required": true, "in": "body" }] },
+    { "id": "cancel_shipment", "label": "Cancel shipment", "method": "PUT", "path": "/ship/v1/shipments/cancel", "fields": [{ "id": "accountNumber", "type": "json", "required": true, "in": "body" }, { "id": "trackingNumber", "type": "text", "required": true, "in": "body" }] },
+    { "id": "pickup_create", "label": "Create pickup", "method": "POST", "path": "/pickup/v1/pickups", "fields": [{ "id": "associatedAccountNumber", "type": "json", "required": true, "in": "body" }, { "id": "originDetail", "type": "json", "required": true, "in": "body" }] },
+    { "id": "address_validate", "label": "Address validate", "method": "POST", "path": "/address/v1/addresses/resolve", "fields": [{ "id": "addressesToValidate", "type": "json", "required": true, "in": "body" }] }
+  ]
+}

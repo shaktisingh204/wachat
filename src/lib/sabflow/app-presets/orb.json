@@ -1,0 +1,121 @@
+{
+  "id": "orb",
+  "name": "Orb",
+  "description": "Orb usage-based billing: customers, plans, subscriptions, event ingestion, and invoices.",
+  "category": "Billing",
+  "iconName": "LuCreditCard",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "bearer",
+    "credentialType": "orb"
+  },
+  "baseUrl": "https://api.withorb.com/v1",
+  "endpoints": [
+    {
+      "id": "list_customers",
+      "label": "List Customers",
+      "method": "GET",
+      "path": "/customers",
+      "fields": [
+        { "id": "limit", "label": "Limit", "type": "number", "in": "query" },
+        { "id": "cursor", "label": "Cursor", "type": "text", "in": "query" }
+      ]
+    },
+    {
+      "id": "get_customer",
+      "label": "Get Customer",
+      "method": "GET",
+      "path": "/customers/{customer_id}",
+      "fields": [
+        { "id": "customer_id", "label": "Customer ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "create_customer",
+      "label": "Create Customer",
+      "method": "POST",
+      "path": "/customers",
+      "fields": [
+        { "id": "email", "label": "Email", "type": "text", "required": true, "in": "body" },
+        { "id": "name", "label": "Name", "type": "text", "required": true, "in": "body" },
+        { "id": "external_customer_id", "label": "External Customer ID", "type": "text", "in": "body" },
+        { "id": "currency", "label": "Currency", "type": "text", "in": "body" },
+        { "id": "timezone", "label": "Timezone", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "list_subscriptions",
+      "label": "List Subscriptions",
+      "method": "GET",
+      "path": "/subscriptions",
+      "fields": [
+        { "id": "customer_id", "label": "Customer ID", "type": "text", "in": "query" },
+        { "id": "status", "label": "Status", "type": "text", "in": "query" },
+        { "id": "limit", "label": "Limit", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "create_subscription",
+      "label": "Create Subscription",
+      "method": "POST",
+      "path": "/subscriptions",
+      "fields": [
+        { "id": "customer_id", "label": "Customer ID", "type": "text", "required": true, "in": "body" },
+        { "id": "plan_id", "label": "Plan ID", "type": "text", "required": true, "in": "body" },
+        { "id": "start_date", "label": "Start Date", "type": "text", "in": "body" },
+        { "id": "external_plan_id", "label": "External Plan ID", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "cancel_subscription",
+      "label": "Cancel Subscription",
+      "method": "POST",
+      "path": "/subscriptions/{subscription_id}/cancel",
+      "fields": [
+        { "id": "subscription_id", "label": "Subscription ID", "type": "text", "required": true, "in": "path" },
+        { "id": "cancel_option", "label": "Cancel Option", "type": "text", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "list_plans",
+      "label": "List Plans",
+      "method": "GET",
+      "path": "/plans",
+      "fields": [
+        { "id": "limit", "label": "Limit", "type": "number", "in": "query" },
+        { "id": "cursor", "label": "Cursor", "type": "text", "in": "query" }
+      ]
+    },
+    {
+      "id": "ingest_events",
+      "label": "Ingest Events",
+      "method": "POST",
+      "path": "/ingest",
+      "fields": [
+        { "id": "events", "label": "Events Array", "type": "json", "required": true, "defaultValue": "[{\"event_name\":\"\",\"timestamp\":\"\",\"external_customer_id\":\"\",\"properties\":{}}]", "in": "body" }
+      ]
+    },
+    {
+      "id": "list_invoices",
+      "label": "List Invoices",
+      "method": "GET",
+      "path": "/invoices",
+      "fields": [
+        { "id": "customer_id", "label": "Customer ID", "type": "text", "in": "query" },
+        { "id": "status", "label": "Status", "type": "text", "in": "query" },
+        { "id": "limit", "label": "Limit", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "get_invoice",
+      "label": "Get Invoice",
+      "method": "GET",
+      "path": "/invoices/{invoice_id}",
+      "fields": [
+        { "id": "invoice_id", "label": "Invoice ID", "type": "text", "required": true, "in": "path" }
+      ]
+    }
+  ]
+}

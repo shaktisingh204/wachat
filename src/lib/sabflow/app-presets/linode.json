@@ -1,0 +1,122 @@
+{
+  "id": "linode",
+  "name": "Linode",
+  "description": "Linode (Akamai Cloud) REST API for instances, volumes, domains, Kubernetes, and object storage.",
+  "category": "Cloud",
+  "iconName": "LuCloud",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "bearer",
+    "credentialType": "linode"
+  },
+  "baseUrl": "https://api.linode.com/v4",
+  "endpoints": [
+    {
+      "id": "list_instances",
+      "label": "List Linode instances",
+      "method": "GET",
+      "path": "/linode/instances",
+      "fields": [
+        { "id": "page", "label": "Page", "type": "number", "in": "query" },
+        { "id": "page_size", "label": "Page size", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "get_instance",
+      "label": "Get Linode instance",
+      "method": "GET",
+      "path": "/linode/instances/{linodeId}",
+      "fields": [
+        { "id": "linodeId", "label": "Linode ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "create_instance",
+      "label": "Create Linode instance",
+      "method": "POST",
+      "path": "/linode/instances",
+      "fields": [
+        { "id": "type", "label": "Type", "type": "text", "required": true, "in": "body" },
+        { "id": "region", "label": "Region", "type": "text", "required": true, "in": "body" },
+        { "id": "image", "label": "Image", "type": "text", "required": true, "in": "body" },
+        { "id": "root_pass", "label": "Root password", "type": "password", "in": "body" },
+        { "id": "label", "label": "Label", "type": "text", "in": "body" },
+        { "id": "tags", "label": "Tags JSON array", "type": "json", "in": "body" }
+      ]
+    },
+    {
+      "id": "delete_instance",
+      "label": "Delete Linode instance",
+      "method": "DELETE",
+      "path": "/linode/instances/{linodeId}",
+      "fields": [
+        { "id": "linodeId", "label": "Linode ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "boot_instance",
+      "label": "Boot Linode instance",
+      "method": "POST",
+      "path": "/linode/instances/{linodeId}/boot",
+      "fields": [
+        { "id": "linodeId", "label": "Linode ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "reboot_instance",
+      "label": "Reboot Linode instance",
+      "method": "POST",
+      "path": "/linode/instances/{linodeId}/reboot",
+      "fields": [
+        { "id": "linodeId", "label": "Linode ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "shutdown_instance",
+      "label": "Shutdown Linode instance",
+      "method": "POST",
+      "path": "/linode/instances/{linodeId}/shutdown",
+      "fields": [
+        { "id": "linodeId", "label": "Linode ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_volumes",
+      "label": "List volumes",
+      "method": "GET",
+      "path": "/volumes",
+      "fields": [
+        { "id": "page", "label": "Page", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "list_domains",
+      "label": "List domains",
+      "method": "GET",
+      "path": "/domains",
+      "fields": [
+        { "id": "page", "label": "Page", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "list_kubernetes_clusters",
+      "label": "List Kubernetes clusters",
+      "method": "GET",
+      "path": "/lke/clusters",
+      "fields": [
+        { "id": "page", "label": "Page", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "list_object_storage_buckets",
+      "label": "List Object Storage buckets",
+      "method": "GET",
+      "path": "/object-storage/buckets",
+      "fields": [
+        { "id": "page", "label": "Page", "type": "number", "in": "query" }
+      ]
+    }
+  ]
+}

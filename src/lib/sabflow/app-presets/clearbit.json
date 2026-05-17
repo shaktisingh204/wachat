@@ -1,0 +1,21 @@
+{
+  "id": "clearbit",
+  "name": "Clearbit",
+  "description": "Contact and company data enrichment (HubSpot Clearbit).",
+  "category": "Sales",
+  "iconName": "LuSearch",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": { "type": "bearer", "credentialType": "clearbit" },
+  "baseUrl": "https://person.clearbit.com/v2",
+  "endpoints": [
+    { "id": "person_enrichment", "label": "Person enrichment", "method": "GET", "path": "/people/find", "fields": [{ "id": "email", "type": "text", "required": true, "in": "query" }] },
+    { "id": "combined_enrichment", "label": "Combined enrichment", "method": "GET", "path": "https://person.clearbit.com/v2/combined/find", "fields": [{ "id": "email", "type": "text", "required": true, "in": "query" }] },
+    { "id": "company_enrichment", "label": "Company enrichment", "method": "GET", "path": "https://company.clearbit.com/v2/companies/find", "fields": [{ "id": "domain", "type": "text", "required": true, "in": "query" }] },
+    { "id": "company_autocomplete", "label": "Company autocomplete", "method": "GET", "path": "https://autocomplete.clearbit.com/v1/companies/suggest", "fields": [{ "id": "query", "type": "text", "required": true, "in": "query" }] },
+    { "id": "prospector_search", "label": "Prospector search", "method": "GET", "path": "https://prospector.clearbit.com/v1/people/search", "fields": [{ "id": "domain", "type": "text", "required": true, "in": "query" }, { "id": "role", "type": "text", "in": "query" }, { "id": "seniority", "type": "text", "in": "query" }] },
+    { "id": "reveal_lookup", "label": "Reveal (IP to company)", "method": "GET", "path": "https://reveal.clearbit.com/v1/companies/find", "fields": [{ "id": "ip", "type": "text", "required": true, "in": "query" }] },
+    { "id": "risk_lookup", "label": "Risk calculate", "method": "POST", "path": "https://risk.clearbit.com/v1/calculate", "fields": [{ "id": "email", "type": "text", "required": true, "in": "body" }, { "id": "ip", "type": "text", "required": true, "in": "body" }, { "id": "given_name", "type": "text", "in": "body" }, { "id": "family_name", "type": "text", "in": "body" }] }
+  ]
+}

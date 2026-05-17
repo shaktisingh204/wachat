@@ -1,0 +1,38 @@
+{
+  "id": "n8n-plivo",
+  "name": "Plivo",
+  "description": "Send SMS/MMS messages or make phone calls",
+  "category": "Transform",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "call_default",
+      "label": "List Call",
+      "method": "GET",
+      "path": "/call",
+      "fields": []
+    },
+    {
+      "id": "mms_default",
+      "label": "List Mms",
+      "method": "GET",
+      "path": "/mms",
+      "fields": []
+    },
+    {
+      "id": "sms_default",
+      "label": "List Sms",
+      "method": "GET",
+      "path": "/sms",
+      "fields": []
+    }
+  ]
+}

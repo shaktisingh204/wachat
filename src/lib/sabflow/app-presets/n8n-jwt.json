@@ -1,0 +1,101 @@
+{
+  "id": "n8n-jwt",
+  "name": "JWT",
+  "description": "JWT",
+  "category": "Transform",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "default_decode",
+      "label": "Decode",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "token",
+          "label": "Token",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The token to verify or decode"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add option"
+        }
+      ]
+    },
+    {
+      "id": "default_sign",
+      "label": "Sign",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "useJson",
+          "label": "Use JSON to Build Payload",
+          "type": "toggle",
+          "in": "query",
+          "description": "Whether to use JSON to build the claims",
+          "defaultValue": false
+        },
+        {
+          "id": "claims",
+          "label": "Payload Claims",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Claim"
+        },
+        {
+          "id": "claimsJson",
+          "label": "Payload Claims (JSON)",
+          "type": "json",
+          "in": "query",
+          "description": "Claims to add to the token in JSON format",
+          "defaultValue": "{\n  \"my_field_1\": \"value 1\",\n  \"my_field_2\": \"value 2\"\n}\n"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add option"
+        }
+      ]
+    },
+    {
+      "id": "default_verify",
+      "label": "Verify",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "token",
+          "label": "Token",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The token to verify or decode"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add option"
+        }
+      ]
+    }
+  ]
+}

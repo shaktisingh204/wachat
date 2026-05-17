@@ -1,0 +1,53 @@
+# OAuth 2.0 (Authorization Code + PKCE) server for the SabNode developer
+# API. Issues access + refresh tokens scoped to a third-party app and a
+# tenant grant.
+#
+# Token format on the wire:
+#   - Access token : `sab_oat_<32 chars>`  → `oauth_access_tokens` collection
+#   - Refresh token: `sab_ort_<32 chars>`  → `oauth_refresh_tokens` collection
+#
+# Both are SHA-256-hashed at rest. The Next.js `verifyApiKey` path in
+# `src/lib/api-platform/auth.ts` already understands `sab_oat_` and reads
+# from `oauth_access_tokens`, so tokens minted here are immediately usable
+# against the public API.
+#
+# Mount under `/v1/oauth` from the `api` crate.
+[package]
+name = "developer-oauth"
+version = "0.1.0"
+edition = "2024"
+description = "OAuth 2.0 (Auth Code + PKCE) issuance for the SabNode developer API: app registration, authorize endpoint, token exchange, revoke, introspect."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "developer_oauth"
+path = "src/lib.rs"
+
+[dependencies]
+axum = { version = "0.8", default-features = false, features = ["json", "http1", "tokio", "macros", "query", "form"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+bson = { version = "2", features = ["chrono-0_4"] }
+mongodb = { version = "3" }
+
+sha2 = "0.10"
+hex = "0.4"
+base64 = "0.22"
+rand = "0.8"
+
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+futures = "0.3"
+
+tracing = "0.1"
+anyhow = "1"
+
+sabnode-common = { path = "../common" }
+sabnode-auth = { path = "../auth" }
+sabnode-db = { path = "../db" }
+
+[lints]
+workspace = true

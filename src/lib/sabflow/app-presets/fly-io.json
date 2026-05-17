@@ -1,0 +1,115 @@
+{
+  "id": "fly-io",
+  "name": "Fly.io",
+  "description": "Fly.io Machines API for apps, machines, and secrets.",
+  "category": "DevOps",
+  "iconName": "LuFlame",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "bearer",
+    "credentialType": "fly_io"
+  },
+  "baseUrl": "https://api.machines.dev/v1",
+  "endpoints": [
+    {
+      "id": "list_apps",
+      "label": "List apps",
+      "method": "GET",
+      "path": "/apps",
+      "fields": [
+        { "id": "org_slug", "label": "Org slug", "type": "text", "in": "query" }
+      ]
+    },
+    {
+      "id": "get_app",
+      "label": "Get app",
+      "method": "GET",
+      "path": "/apps/{app_name}",
+      "fields": [
+        { "id": "app_name", "label": "App name", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "create_app",
+      "label": "Create app",
+      "method": "POST",
+      "path": "/apps",
+      "fields": [
+        { "id": "app_name", "label": "App name", "type": "text", "required": true, "in": "body" },
+        { "id": "org_slug", "label": "Org slug", "type": "text", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "delete_app",
+      "label": "Delete app",
+      "method": "DELETE",
+      "path": "/apps/{app_name}",
+      "fields": [
+        { "id": "app_name", "label": "App name", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_machines",
+      "label": "List machines",
+      "method": "GET",
+      "path": "/apps/{app_name}/machines",
+      "fields": [
+        { "id": "app_name", "label": "App name", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "create_machine",
+      "label": "Create machine",
+      "method": "POST",
+      "path": "/apps/{app_name}/machines",
+      "fields": [
+        { "id": "app_name", "label": "App name", "type": "text", "required": true, "in": "path" },
+        { "id": "name", "label": "Name", "type": "text", "in": "body" },
+        { "id": "config", "label": "Config JSON", "type": "json", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "start_machine",
+      "label": "Start machine",
+      "method": "POST",
+      "path": "/apps/{app_name}/machines/{machine_id}/start",
+      "fields": [
+        { "id": "app_name", "label": "App name", "type": "text", "required": true, "in": "path" },
+        { "id": "machine_id", "label": "Machine ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "stop_machine",
+      "label": "Stop machine",
+      "method": "POST",
+      "path": "/apps/{app_name}/machines/{machine_id}/stop",
+      "fields": [
+        { "id": "app_name", "label": "App name", "type": "text", "required": true, "in": "path" },
+        { "id": "machine_id", "label": "Machine ID", "type": "text", "required": true, "in": "path" },
+        { "id": "signal", "label": "Signal", "type": "text", "in": "body" },
+        { "id": "timeout", "label": "Timeout", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "destroy_machine",
+      "label": "Destroy machine",
+      "method": "DELETE",
+      "path": "/apps/{app_name}/machines/{machine_id}",
+      "fields": [
+        { "id": "app_name", "label": "App name", "type": "text", "required": true, "in": "path" },
+        { "id": "machine_id", "label": "Machine ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_secrets",
+      "label": "List secrets",
+      "method": "GET",
+      "path": "/apps/{app_name}/secrets",
+      "fields": [
+        { "id": "app_name", "label": "App name", "type": "text", "required": true, "in": "path" }
+      ]
+    }
+  ]
+}

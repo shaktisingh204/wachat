@@ -1,0 +1,20 @@
+{
+  "id": "lusha",
+  "name": "Lusha",
+  "description": "B2B contact data enrichment.",
+  "category": "Sales",
+  "iconName": "LuTarget",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": { "type": "header", "credentialType": "lusha", "header": "api_key" },
+  "baseUrl": "https://api.lusha.com",
+  "endpoints": [
+    { "id": "person_search", "label": "Person enrichment (bulk)", "method": "POST", "path": "/v2/person", "fields": [{ "id": "contacts", "type": "json", "required": true, "in": "body", "defaultValue": [{ "firstName": "", "lastName": "", "companies": [] }] }] },
+    { "id": "company_search", "label": "Company enrichment (bulk)", "method": "POST", "path": "/v2/company", "fields": [{ "id": "companies", "type": "json", "required": true, "in": "body", "defaultValue": [{ "name": "", "domain": "" }] }] },
+    { "id": "prospecting_search_contact", "label": "Prospecting search contact", "method": "POST", "path": "/prospecting/contact/search", "fields": [{ "id": "pages", "type": "json", "required": true, "in": "body" }, { "id": "filters", "type": "json", "required": true, "in": "body" }] },
+    { "id": "prospecting_search_company", "label": "Prospecting search company", "method": "POST", "path": "/prospecting/company/search", "fields": [{ "id": "pages", "type": "json", "required": true, "in": "body" }, { "id": "filters", "type": "json", "required": true, "in": "body" }] },
+    { "id": "prospecting_contact", "label": "Reveal prospecting contact", "method": "POST", "path": "/prospecting/contact", "fields": [{ "id": "contactIds", "type": "json", "required": true, "in": "body" }, { "id": "revealEmails", "type": "toggle", "in": "body" }, { "id": "revealPhones", "type": "toggle", "in": "body" }] },
+    { "id": "usage", "label": "Usage", "method": "GET", "path": "/usage", "fields": [] }
+  ]
+}

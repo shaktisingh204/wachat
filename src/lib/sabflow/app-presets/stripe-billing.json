@@ -1,0 +1,160 @@
+{
+  "id": "stripe-billing",
+  "name": "Stripe Billing",
+  "description": "Stripe Billing extensions: subscription schedules, invoice items, credit notes, tax rates, coupons, quotes — complementing SabFlow native Stripe.",
+  "category": "Billing",
+  "iconName": "LuCreditCard",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "bearer",
+    "credentialType": "stripe"
+  },
+  "baseUrl": "https://api.stripe.com/v1",
+  "endpoints": [
+    {
+      "id": "list_subscription_schedules",
+      "label": "List Subscription Schedules",
+      "method": "GET",
+      "path": "/subscription_schedules",
+      "fields": [
+        { "id": "customer", "label": "Customer", "type": "text", "in": "query" },
+        { "id": "limit", "label": "Limit", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "create_subscription_schedule",
+      "label": "Create Subscription Schedule",
+      "method": "POST",
+      "path": "/subscription_schedules",
+      "fields": [
+        { "id": "customer", "label": "Customer", "type": "text", "required": true, "in": "body" },
+        { "id": "start_date", "label": "Start Date", "type": "text", "required": true, "in": "body" },
+        { "id": "end_behavior", "label": "End Behavior", "type": "text", "required": true, "in": "body" },
+        { "id": "phases", "label": "Phases", "type": "json", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "release_subscription_schedule",
+      "label": "Release Subscription Schedule",
+      "method": "POST",
+      "path": "/subscription_schedules/{schedule}/release",
+      "fields": [
+        { "id": "schedule", "label": "Schedule ID", "type": "text", "required": true, "in": "path" },
+        { "id": "preserve_cancel_date", "label": "Preserve Cancel Date", "type": "toggle", "in": "body" }
+      ]
+    },
+    {
+      "id": "cancel_subscription_schedule",
+      "label": "Cancel Subscription Schedule",
+      "method": "POST",
+      "path": "/subscription_schedules/{schedule}/cancel",
+      "fields": [
+        { "id": "schedule", "label": "Schedule ID", "type": "text", "required": true, "in": "path" },
+        { "id": "invoice_now", "label": "Invoice Now", "type": "toggle", "in": "body" },
+        { "id": "prorate", "label": "Prorate", "type": "toggle", "in": "body" }
+      ]
+    },
+    {
+      "id": "list_invoice_items",
+      "label": "List Invoice Items",
+      "method": "GET",
+      "path": "/invoiceitems",
+      "fields": [
+        { "id": "customer", "label": "Customer", "type": "text", "in": "query" },
+        { "id": "limit", "label": "Limit", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "create_invoice_item",
+      "label": "Create Invoice Item",
+      "method": "POST",
+      "path": "/invoiceitems",
+      "fields": [
+        { "id": "customer", "label": "Customer", "type": "text", "required": true, "in": "body" },
+        { "id": "amount", "label": "Amount", "type": "number", "in": "body" },
+        { "id": "currency", "label": "Currency", "type": "text", "in": "body" },
+        { "id": "description", "label": "Description", "type": "text", "in": "body" },
+        { "id": "invoice", "label": "Invoice", "type": "text", "in": "body" },
+        { "id": "price", "label": "Price", "type": "text", "in": "body" },
+        { "id": "quantity", "label": "Quantity", "type": "number", "in": "body" },
+        { "id": "subscription", "label": "Subscription", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "list_credit_notes",
+      "label": "List Credit Notes",
+      "method": "GET",
+      "path": "/credit_notes",
+      "fields": [
+        { "id": "invoice", "label": "Invoice", "type": "text", "in": "query" },
+        { "id": "customer", "label": "Customer", "type": "text", "in": "query" },
+        { "id": "limit", "label": "Limit", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "create_credit_note",
+      "label": "Create Credit Note",
+      "method": "POST",
+      "path": "/credit_notes",
+      "fields": [
+        { "id": "invoice", "label": "Invoice", "type": "text", "required": true, "in": "body" },
+        { "id": "amount", "label": "Amount", "type": "number", "in": "body" },
+        { "id": "refund", "label": "Refund", "type": "text", "in": "body" },
+        { "id": "lines", "label": "Lines", "type": "json", "in": "body" }
+      ]
+    },
+    {
+      "id": "list_tax_rates",
+      "label": "List Tax Rates",
+      "method": "GET",
+      "path": "/tax_rates",
+      "fields": [
+        { "id": "active", "label": "Active", "type": "toggle", "in": "query" },
+        { "id": "limit", "label": "Limit", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "list_coupons",
+      "label": "List Coupons",
+      "method": "GET",
+      "path": "/coupons",
+      "fields": [
+        { "id": "limit", "label": "Limit", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "list_promotion_codes",
+      "label": "List Promotion Codes",
+      "method": "GET",
+      "path": "/promotion_codes",
+      "fields": [
+        { "id": "active", "label": "Active", "type": "toggle", "in": "query" },
+        { "id": "code", "label": "Code", "type": "text", "in": "query" },
+        { "id": "limit", "label": "Limit", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "list_quotes",
+      "label": "List Quotes",
+      "method": "GET",
+      "path": "/quotes",
+      "fields": [
+        { "id": "customer", "label": "Customer", "type": "text", "in": "query" },
+        { "id": "status", "label": "Status", "type": "text", "in": "query" },
+        { "id": "limit", "label": "Limit", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "create_quote",
+      "label": "Create Quote",
+      "method": "POST",
+      "path": "/quotes",
+      "fields": [
+        { "id": "customer", "label": "Customer", "type": "text", "required": true, "in": "body" },
+        { "id": "line_items", "label": "Line Items", "type": "json", "in": "body" }
+      ]
+    }
+  ]
+}

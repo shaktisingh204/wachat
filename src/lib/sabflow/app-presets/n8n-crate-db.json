@@ -1,0 +1,146 @@
+{
+  "id": "n8n-crate-db",
+  "name": "CrateDB",
+  "description": "Add and update data in CrateDB",
+  "category": "Input",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "default_execute_query",
+      "label": "Execute Query",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "query",
+          "label": "Query",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "SELECT id, name FROM product WHERE quantity > $1 AND price <= $2",
+          "description": "The SQL query to execute. You can use n8n expressions or $1 and $2 in conjunction with query parameters."
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Field"
+        }
+      ]
+    },
+    {
+      "id": "default_insert",
+      "label": "Insert",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "schema",
+          "label": "Schema",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "Name of the schema the table belongs to",
+          "defaultValue": "doc"
+        },
+        {
+          "id": "table",
+          "label": "Table",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "Name of the table in which to insert data to"
+        },
+        {
+          "id": "columns",
+          "label": "Columns",
+          "type": "text",
+          "in": "query",
+          "placeholder": "id,name,description",
+          "description": "Comma-separated list of the properties which should used as columns for the new rows"
+        },
+        {
+          "id": "returnFields",
+          "label": "Return Fields",
+          "type": "text",
+          "in": "query",
+          "description": "Comma-separated list of the fields that the operation will return",
+          "defaultValue": "*"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Field"
+        }
+      ]
+    },
+    {
+      "id": "default_update",
+      "label": "Update",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "schema",
+          "label": "Schema",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "Name of the schema the table belongs to",
+          "defaultValue": "doc"
+        },
+        {
+          "id": "table",
+          "label": "Table",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "Name of the table in which to update data in"
+        },
+        {
+          "id": "updateKey",
+          "label": "Update Key",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "Comma-separated list of the properties which decides which rows in the database should be updated. Normally that would be \"id\".",
+          "defaultValue": "id"
+        },
+        {
+          "id": "columns",
+          "label": "Columns",
+          "type": "text",
+          "in": "query",
+          "placeholder": "name,description",
+          "description": "Comma-separated list of the properties which should used as columns for rows to update"
+        },
+        {
+          "id": "returnFields",
+          "label": "Return Fields",
+          "type": "text",
+          "in": "query",
+          "description": "Comma-separated list of the fields that the operation will return",
+          "defaultValue": "*"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Field"
+        }
+      ]
+    }
+  ]
+}

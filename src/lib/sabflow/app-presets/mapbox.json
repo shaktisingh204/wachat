@@ -1,0 +1,22 @@
+{
+  "id": "mapbox",
+  "name": "Mapbox",
+  "description": "Mapbox geocoding, directions, isochrones, optimization.",
+  "category": "Geo",
+  "iconName": "LuMap",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": { "type": "query_token", "credentialType": "mapbox", "queryParam": "access_token" },
+  "baseUrl": "https://api.mapbox.com",
+  "endpoints": [
+    { "id": "forward_geocoding", "label": "Forward geocoding", "method": "GET", "path": "/geocoding/v5/mapbox.places/{search_text}.json", "fields": [{ "id": "search_text", "type": "text", "required": true, "in": "path" }, { "id": "country", "type": "text", "in": "query" }, { "id": "proximity", "type": "text", "in": "query" }, { "id": "limit", "type": "number", "defaultValue": 5, "in": "query" }] },
+    { "id": "reverse_geocoding", "label": "Reverse geocoding", "method": "GET", "path": "/geocoding/v5/mapbox.places/{longitude},{latitude}.json", "fields": [{ "id": "longitude", "type": "number", "required": true, "in": "path" }, { "id": "latitude", "type": "number", "required": true, "in": "path" }, { "id": "types", "type": "text", "in": "query" }, { "id": "limit", "type": "number", "in": "query" }] },
+    { "id": "directions", "label": "Directions", "method": "GET", "path": "/directions/v5/mapbox/{profile}/{coordinates}", "fields": [{ "id": "profile", "type": "text", "required": true, "in": "path" }, { "id": "coordinates", "type": "text", "required": true, "in": "path" }, { "id": "alternatives", "type": "toggle", "in": "query" }, { "id": "geometries", "type": "text", "in": "query" }, { "id": "overview", "type": "text", "in": "query" }] },
+    { "id": "matrix", "label": "Matrix", "method": "GET", "path": "/directions-matrix/v1/mapbox/{profile}/{coordinates}", "fields": [{ "id": "profile", "type": "text", "required": true, "in": "path" }, { "id": "coordinates", "type": "text", "required": true, "in": "path" }, { "id": "sources", "type": "text", "in": "query" }, { "id": "destinations", "type": "text", "in": "query" }, { "id": "annotations", "type": "text", "in": "query" }] },
+    { "id": "isochrone", "label": "Isochrone", "method": "GET", "path": "/isochrone/v1/mapbox/{profile}/{coordinates}", "fields": [{ "id": "profile", "type": "text", "required": true, "in": "path" }, { "id": "coordinates", "type": "text", "required": true, "in": "path" }, { "id": "contours_minutes", "type": "text", "in": "query" }, { "id": "polygons", "type": "toggle", "in": "query" }, { "id": "denoise", "type": "number", "in": "query" }] },
+    { "id": "optimization", "label": "Optimized trip", "method": "GET", "path": "/optimized-trips/v1/mapbox/{profile}/{coordinates}", "fields": [{ "id": "profile", "type": "text", "required": true, "in": "path" }, { "id": "coordinates", "type": "text", "required": true, "in": "path" }, { "id": "roundtrip", "type": "toggle", "in": "query" }, { "id": "source", "type": "text", "in": "query" }, { "id": "destination", "type": "text", "in": "query" }] },
+    { "id": "static_image", "label": "Static map image", "method": "GET", "path": "/styles/v1/{username}/{style_id}/static/{overlay}/{lon},{lat},{zoom}/{width}x{height}@2x", "fields": [{ "id": "username", "type": "text", "required": true, "in": "path" }, { "id": "style_id", "type": "text", "required": true, "in": "path" }, { "id": "overlay", "type": "text", "required": true, "in": "path" }, { "id": "lon", "type": "number", "required": true, "in": "path" }, { "id": "lat", "type": "number", "required": true, "in": "path" }, { "id": "zoom", "type": "number", "required": true, "in": "path" }, { "id": "width", "type": "number", "required": true, "in": "path" }, { "id": "height", "type": "number", "required": true, "in": "path" }] },
+    { "id": "tilequery", "label": "Tilequery", "method": "GET", "path": "/v4/{tileset_id}/tilequery/{lon},{lat}.json", "fields": [{ "id": "tileset_id", "type": "text", "required": true, "in": "path" }, { "id": "lon", "type": "number", "required": true, "in": "path" }, { "id": "lat", "type": "number", "required": true, "in": "path" }, { "id": "radius", "type": "number", "in": "query" }, { "id": "layers", "type": "text", "in": "query" }, { "id": "limit", "type": "number", "in": "query" }] }
+  ]
+}

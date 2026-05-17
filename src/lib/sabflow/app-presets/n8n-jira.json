@@ -1,0 +1,133 @@
+{
+  "id": "n8n-jira",
+  "name": "Jira Software",
+  "description": "Consume Jira Software API",
+  "category": "Output",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "issue_default",
+      "label": "List Issue",
+      "method": "GET",
+      "path": "/issue",
+      "fields": [
+        {
+          "id": "jiraVersion",
+          "label": "Jira Version",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "cloud",
+          "options": [
+            {
+              "value": "cloud",
+              "label": "Cloud"
+            },
+            {
+              "value": "server",
+              "label": "Server (Self Hosted)"
+            },
+            {
+              "value": "serverPat",
+              "label": "Server Pat (Self Hosted)"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "issue_attachment_default",
+      "label": "List IssueAttachment",
+      "method": "GET",
+      "path": "/issueAttachment",
+      "fields": [
+        {
+          "id": "jiraVersion",
+          "label": "Jira Version",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "cloud",
+          "options": [
+            {
+              "value": "cloud",
+              "label": "Cloud"
+            },
+            {
+              "value": "server",
+              "label": "Server (Self Hosted)"
+            },
+            {
+              "value": "serverPat",
+              "label": "Server Pat (Self Hosted)"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "issue_comment_default",
+      "label": "List IssueComment",
+      "method": "GET",
+      "path": "/issueComment",
+      "fields": [
+        {
+          "id": "jiraVersion",
+          "label": "Jira Version",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "cloud",
+          "options": [
+            {
+              "value": "cloud",
+              "label": "Cloud"
+            },
+            {
+              "value": "server",
+              "label": "Server (Self Hosted)"
+            },
+            {
+              "value": "serverPat",
+              "label": "Server Pat (Self Hosted)"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "user_default",
+      "label": "List User",
+      "method": "GET",
+      "path": "/user",
+      "fields": [
+        {
+          "id": "jiraVersion",
+          "label": "Jira Version",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "cloud",
+          "options": [
+            {
+              "value": "cloud",
+              "label": "Cloud"
+            },
+            {
+              "value": "server",
+              "label": "Server (Self Hosted)"
+            },
+            {
+              "value": "serverPat",
+              "label": "Server Pat (Self Hosted)"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

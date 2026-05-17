@@ -1,0 +1,137 @@
+{
+  "id": "lemon-squeezy",
+  "name": "Lemon Squeezy",
+  "description": "Lemon Squeezy: sell digital products, subscriptions, and license keys via a simple commerce API.",
+  "category": "Commerce",
+  "iconName": "LuShoppingCart",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "bearer",
+    "credentialType": "lemon_squeezy"
+  },
+  "baseUrl": "https://api.lemonsqueezy.com/v1",
+  "endpoints": [
+    {
+      "id": "list_stores",
+      "label": "List Stores",
+      "method": "GET",
+      "path": "/stores",
+      "fields": [
+        { "id": "page[number]", "label": "Page Number", "type": "number", "in": "query" },
+        { "id": "page[size]", "label": "Page Size", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "get_store",
+      "label": "Get Store",
+      "method": "GET",
+      "path": "/stores/{id}",
+      "fields": [
+        { "id": "id", "label": "Store ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_products",
+      "label": "List Products",
+      "method": "GET",
+      "path": "/products",
+      "fields": [
+        { "id": "filter[store_id]", "label": "Store ID Filter", "type": "text", "in": "query" }
+      ]
+    },
+    {
+      "id": "get_product",
+      "label": "Get Product",
+      "method": "GET",
+      "path": "/products/{id}",
+      "fields": [
+        { "id": "id", "label": "Product ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_variants",
+      "label": "List Variants",
+      "method": "GET",
+      "path": "/variants",
+      "fields": [
+        { "id": "filter[product_id]", "label": "Product ID Filter", "type": "text", "in": "query" }
+      ]
+    },
+    {
+      "id": "list_customers",
+      "label": "List Customers",
+      "method": "GET",
+      "path": "/customers",
+      "fields": [
+        { "id": "filter[store_id]", "label": "Store ID Filter", "type": "text", "in": "query" },
+        { "id": "filter[email]", "label": "Email Filter", "type": "text", "in": "query" }
+      ]
+    },
+    {
+      "id": "create_customer",
+      "label": "Create Customer",
+      "method": "POST",
+      "path": "/customers",
+      "fields": [
+        { "id": "data", "label": "Customer JSON:API Data", "type": "json", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "list_subscriptions",
+      "label": "List Subscriptions",
+      "method": "GET",
+      "path": "/subscriptions",
+      "fields": [
+        { "id": "filter[store_id]", "label": "Store ID Filter", "type": "text", "in": "query" },
+        { "id": "filter[status]", "label": "Status Filter", "type": "text", "in": "query" }
+      ]
+    },
+    {
+      "id": "cancel_subscription",
+      "label": "Cancel Subscription",
+      "method": "DELETE",
+      "path": "/subscriptions/{id}",
+      "fields": [
+        { "id": "id", "label": "Subscription ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_orders",
+      "label": "List Orders",
+      "method": "GET",
+      "path": "/orders",
+      "fields": [
+        { "id": "filter[store_id]", "label": "Store ID Filter", "type": "text", "in": "query" }
+      ]
+    },
+    {
+      "id": "list_license_keys",
+      "label": "List License Keys",
+      "method": "GET",
+      "path": "/license-keys",
+      "fields": [
+        { "id": "filter[store_id]", "label": "Store ID Filter", "type": "text", "in": "query" }
+      ]
+    },
+    {
+      "id": "list_checkouts",
+      "label": "List Checkouts",
+      "method": "GET",
+      "path": "/checkouts",
+      "fields": [
+        { "id": "filter[store_id]", "label": "Store ID Filter", "type": "text", "in": "query" }
+      ]
+    },
+    {
+      "id": "create_checkout",
+      "label": "Create Checkout",
+      "method": "POST",
+      "path": "/checkouts",
+      "fields": [
+        { "id": "data", "label": "Checkout JSON:API Data", "type": "json", "required": true, "in": "body" }
+      ]
+    }
+  ]
+}

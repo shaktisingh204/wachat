@@ -1,0 +1,165 @@
+{
+  "id": "paddle",
+  "name": "Paddle Billing",
+  "description": "Paddle Billing v2: products, prices, customers, subscriptions, and transactions on the merchant-of-record platform.",
+  "category": "Billing",
+  "iconName": "LuCreditCard",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "bearer",
+    "credentialType": "paddle"
+  },
+  "baseUrl": "https://api.paddle.com",
+  "endpoints": [
+    {
+      "id": "list_products",
+      "label": "List Products",
+      "method": "GET",
+      "path": "/products",
+      "fields": [
+        { "id": "per_page", "label": "Per Page", "type": "number", "in": "query" },
+        { "id": "after", "label": "After Cursor", "type": "text", "in": "query" },
+        { "id": "status", "label": "Status", "type": "text", "in": "query" }
+      ]
+    },
+    {
+      "id": "get_product",
+      "label": "Get Product",
+      "method": "GET",
+      "path": "/products/{id}",
+      "fields": [
+        { "id": "id", "label": "Product ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "create_product",
+      "label": "Create Product",
+      "method": "POST",
+      "path": "/products",
+      "fields": [
+        { "id": "name", "label": "Name", "type": "text", "required": true, "in": "body" },
+        { "id": "tax_category", "label": "Tax Category", "type": "text", "required": true, "in": "body" },
+        { "id": "description", "label": "Description", "type": "textarea", "in": "body" },
+        { "id": "type", "label": "Type", "type": "text", "in": "body" },
+        { "id": "image_url", "label": "Image URL", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "update_product",
+      "label": "Update Product",
+      "method": "PATCH",
+      "path": "/products/{id}",
+      "fields": [
+        { "id": "id", "label": "Product ID", "type": "text", "required": true, "in": "path" },
+        { "id": "name", "label": "Name", "type": "text", "in": "body" },
+        { "id": "description", "label": "Description", "type": "textarea", "in": "body" },
+        { "id": "status", "label": "Status", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "list_prices",
+      "label": "List Prices",
+      "method": "GET",
+      "path": "/prices",
+      "fields": [
+        { "id": "product_id", "label": "Product ID", "type": "text", "in": "query" },
+        { "id": "status", "label": "Status", "type": "text", "in": "query" }
+      ]
+    },
+    {
+      "id": "create_price",
+      "label": "Create Price",
+      "method": "POST",
+      "path": "/prices",
+      "fields": [
+        { "id": "product_id", "label": "Product ID", "type": "text", "required": true, "in": "body" },
+        { "id": "description", "label": "Description", "type": "text", "required": true, "in": "body" },
+        { "id": "unit_price", "label": "Unit Price", "type": "json", "required": true, "in": "body" },
+        { "id": "billing_cycle", "label": "Billing Cycle", "type": "json", "in": "body" },
+        { "id": "trial_period", "label": "Trial Period", "type": "json", "in": "body" },
+        { "id": "tax_mode", "label": "Tax Mode", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "list_customers",
+      "label": "List Customers",
+      "method": "GET",
+      "path": "/customers",
+      "fields": [
+        { "id": "email", "label": "Email Filter", "type": "text", "in": "query" },
+        { "id": "status", "label": "Status", "type": "text", "in": "query" }
+      ]
+    },
+    {
+      "id": "create_customer",
+      "label": "Create Customer",
+      "method": "POST",
+      "path": "/customers",
+      "fields": [
+        { "id": "email", "label": "Email", "type": "text", "required": true, "in": "body" },
+        { "id": "name", "label": "Name", "type": "text", "in": "body" },
+        { "id": "locale", "label": "Locale", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "list_subscriptions",
+      "label": "List Subscriptions",
+      "method": "GET",
+      "path": "/subscriptions",
+      "fields": [
+        { "id": "customer_id", "label": "Customer ID", "type": "text", "in": "query" },
+        { "id": "status", "label": "Status", "type": "text", "in": "query" }
+      ]
+    },
+    {
+      "id": "get_subscription",
+      "label": "Get Subscription",
+      "method": "GET",
+      "path": "/subscriptions/{id}",
+      "fields": [
+        { "id": "id", "label": "Subscription ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "pause_subscription",
+      "label": "Pause Subscription",
+      "method": "POST",
+      "path": "/subscriptions/{id}/pause",
+      "fields": [
+        { "id": "id", "label": "Subscription ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "resume_subscription",
+      "label": "Resume Subscription",
+      "method": "POST",
+      "path": "/subscriptions/{id}/resume",
+      "fields": [
+        { "id": "id", "label": "Subscription ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "cancel_subscription",
+      "label": "Cancel Subscription",
+      "method": "POST",
+      "path": "/subscriptions/{id}/cancel",
+      "fields": [
+        { "id": "id", "label": "Subscription ID", "type": "text", "required": true, "in": "path" },
+        { "id": "effective_from", "label": "Effective From", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "list_transactions",
+      "label": "List Transactions",
+      "method": "GET",
+      "path": "/transactions",
+      "fields": [
+        { "id": "customer_id", "label": "Customer ID", "type": "text", "in": "query" },
+        { "id": "subscription_id", "label": "Subscription ID", "type": "text", "in": "query" },
+        { "id": "status", "label": "Status", "type": "text", "in": "query" }
+      ]
+    }
+  ]
+}

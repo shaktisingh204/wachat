@@ -1,0 +1,24 @@
+{
+  "id": "greenhouse",
+  "name": "Greenhouse",
+  "description": "Greenhouse Harvest ATS API.",
+  "category": "HR",
+  "iconName": "LuUsers",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": { "type": "basic", "credentialType": "greenhouse" },
+  "baseUrl": "https://harvest.greenhouse.io/v1",
+  "endpoints": [
+    { "id": "list_candidates", "label": "List candidates", "method": "GET", "path": "/candidates", "fields": [{ "id": "per_page", "type": "number", "defaultValue": 50, "in": "query" }, { "id": "page", "type": "number", "in": "query" }] },
+    { "id": "get_candidate", "label": "Get candidate", "method": "GET", "path": "/candidates/{id}", "fields": [{ "id": "id", "type": "text", "required": true, "in": "path" }] },
+    { "id": "create_candidate", "label": "Create candidate", "method": "POST", "path": "/candidates", "fields": [{ "id": "first_name", "type": "text", "required": true, "in": "body" }, { "id": "last_name", "type": "text", "required": true, "in": "body" }, { "id": "phone_numbers", "type": "json", "in": "body" }, { "id": "email_addresses", "type": "json", "in": "body" }, { "id": "applications", "type": "json", "in": "body" }] },
+    { "id": "update_candidate", "label": "Update candidate", "method": "PATCH", "path": "/candidates/{id}", "fields": [{ "id": "id", "type": "text", "required": true, "in": "path" }] },
+    { "id": "merge_candidates", "label": "Merge candidates", "method": "PUT", "path": "/candidates/{primary_candidate_id}/merge", "fields": [{ "id": "primary_candidate_id", "type": "text", "required": true, "in": "path" }, { "id": "candidate_id_to_merge", "type": "text", "required": true, "in": "body" }] },
+    { "id": "list_applications", "label": "List applications", "method": "GET", "path": "/applications", "fields": [] },
+    { "id": "move_application", "label": "Move application", "method": "POST", "path": "/applications/{id}/move", "fields": [{ "id": "id", "type": "text", "required": true, "in": "path" }, { "id": "from_stage_id", "type": "number", "required": true, "in": "body" }, { "id": "to_stage_id", "type": "number", "required": true, "in": "body" }] },
+    { "id": "list_jobs", "label": "List jobs", "method": "GET", "path": "/jobs", "fields": [] },
+    { "id": "get_job", "label": "Get job", "method": "GET", "path": "/jobs/{id}", "fields": [{ "id": "id", "type": "text", "required": true, "in": "path" }] },
+    { "id": "list_offers_for_application", "label": "List offers for application", "method": "GET", "path": "/applications/{id}/offers", "fields": [{ "id": "id", "type": "text", "required": true, "in": "path" }] }
+  ]
+}

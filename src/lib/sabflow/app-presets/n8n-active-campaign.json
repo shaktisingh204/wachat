@@ -1,0 +1,101 @@
+{
+  "id": "n8n-active-campaign",
+  "name": "ActiveCampaign",
+  "description": "Create and edit data in ActiveCampaign",
+  "category": "Transform",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "account_default",
+      "label": "List Account",
+      "method": "GET",
+      "path": "/account",
+      "fields": []
+    },
+    {
+      "id": "account_contact_default",
+      "label": "List AccountContact",
+      "method": "GET",
+      "path": "/accountContact",
+      "fields": []
+    },
+    {
+      "id": "connection_default",
+      "label": "List Connection",
+      "method": "GET",
+      "path": "/connection",
+      "fields": []
+    },
+    {
+      "id": "contact_default",
+      "label": "List Contact",
+      "method": "GET",
+      "path": "/contact",
+      "fields": []
+    },
+    {
+      "id": "contact_list_default",
+      "label": "List ContactList",
+      "method": "GET",
+      "path": "/contactList",
+      "fields": []
+    },
+    {
+      "id": "contact_tag_default",
+      "label": "List ContactTag",
+      "method": "GET",
+      "path": "/contactTag",
+      "fields": []
+    },
+    {
+      "id": "deal_default",
+      "label": "List Deal",
+      "method": "GET",
+      "path": "/deal",
+      "fields": []
+    },
+    {
+      "id": "ecommerce_customer_default",
+      "label": "List EcommerceCustomer",
+      "method": "GET",
+      "path": "/ecommerceCustomer",
+      "fields": []
+    },
+    {
+      "id": "ecommerce_order_default",
+      "label": "List EcommerceOrder",
+      "method": "GET",
+      "path": "/ecommerceOrder",
+      "fields": []
+    },
+    {
+      "id": "ecommerce_order_products_default",
+      "label": "List EcommerceOrderProducts",
+      "method": "GET",
+      "path": "/ecommerceOrderProducts",
+      "fields": []
+    },
+    {
+      "id": "list_default",
+      "label": "List List",
+      "method": "GET",
+      "path": "/list",
+      "fields": []
+    },
+    {
+      "id": "tag_default",
+      "label": "List Tag",
+      "method": "GET",
+      "path": "/tag",
+      "fields": []
+    }
+  ]
+}

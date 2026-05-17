@@ -1,0 +1,65 @@
+{
+  "id": "bunny-stream",
+  "name": "Bunny Stream",
+  "description": "Bunny.net Stream video platform.",
+  "category": "Video",
+  "iconName": "LuVideo",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "header",
+    "credentialType": "bunny_stream",
+    "header": "AccessKey"
+  },
+  "baseUrl": "https://video.bunnycdn.com/library/{library_id}",
+  "endpoints": [
+    {
+      "id": "list_videos",
+      "label": "List videos",
+      "method": "GET",
+      "path": "/videos",
+      "fields": [
+        { "id": "page", "label": "Page", "type": "number", "defaultValue": 1, "in": "query" },
+        { "id": "itemsPerPage", "label": "Items per page", "type": "number", "defaultValue": 25, "in": "query" }
+      ]
+    },
+    {
+      "id": "get_video",
+      "label": "Get video",
+      "method": "GET",
+      "path": "/videos/{video_id}",
+      "fields": [
+        { "id": "video_id", "label": "Video ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "create_video",
+      "label": "Create video",
+      "method": "POST",
+      "path": "/videos",
+      "fields": [
+        { "id": "title", "label": "Title", "type": "text", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "upload_video",
+      "label": "Upload video",
+      "method": "PUT",
+      "path": "/videos/{video_id}",
+      "fields": [
+        { "id": "video_id", "label": "Video ID", "type": "text", "required": true, "in": "path" },
+        { "id": "body", "label": "Raw body", "type": "text", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "delete_video",
+      "label": "Delete video",
+      "method": "DELETE",
+      "path": "/videos/{video_id}",
+      "fields": [
+        { "id": "video_id", "label": "Video ID", "type": "text", "required": true, "in": "path" }
+      ]
+    }
+  ]
+}

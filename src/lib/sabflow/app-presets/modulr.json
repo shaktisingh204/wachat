@@ -1,0 +1,71 @@
+{
+  "id": "modulr",
+  "name": "Modulr",
+  "description": "Embedded payments & accounts infrastructure.",
+  "category": "Fintech",
+  "iconName": "LuLandmark",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "header",
+    "credentialType": "modulr",
+    "header": "Authorization"
+  },
+  "baseUrl": "https://api-sandbox.modulrfinance.com/api-sandbox",
+  "endpoints": [
+    {
+      "id": "list_accounts",
+      "label": "List accounts",
+      "method": "GET",
+      "path": "/accounts",
+      "fields": [
+        { "id": "page", "label": "Page", "type": "number", "defaultValue": 0, "in": "query" },
+        { "id": "size", "label": "Size", "type": "number", "defaultValue": 20, "in": "query" }
+      ]
+    },
+    {
+      "id": "get_account",
+      "label": "Get account",
+      "method": "GET",
+      "path": "/accounts/{id}",
+      "fields": [
+        { "id": "id", "label": "Account ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_transactions",
+      "label": "List account transactions",
+      "method": "GET",
+      "path": "/accounts/{id}/transactions",
+      "fields": [
+        { "id": "id", "label": "Account ID", "type": "text", "required": true, "in": "path" },
+        { "id": "page", "label": "Page", "type": "number", "defaultValue": 0, "in": "query" },
+        { "id": "size", "label": "Size", "type": "number", "defaultValue": 20, "in": "query" }
+      ]
+    },
+    {
+      "id": "create_payment",
+      "label": "Create payment",
+      "method": "POST",
+      "path": "/payments",
+      "fields": [
+        { "id": "sourceAccountId", "label": "Source account ID", "type": "text", "required": true, "in": "body" },
+        { "id": "destination", "label": "Destination", "type": "json", "required": true, "in": "body" },
+        { "id": "amount", "label": "Amount", "type": "number", "required": true, "in": "body" },
+        { "id": "currency", "label": "Currency", "type": "text", "required": true, "in": "body" },
+        { "id": "externalReference", "label": "External reference", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "list_payments",
+      "label": "List payments",
+      "method": "GET",
+      "path": "/payments",
+      "fields": [
+        { "id": "page", "label": "Page", "type": "number", "defaultValue": 0, "in": "query" },
+        { "id": "size", "label": "Size", "type": "number", "defaultValue": 20, "in": "query" }
+      ]
+    }
+  ]
+}

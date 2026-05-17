@@ -1,0 +1,97 @@
+{
+  "id": "wufoo",
+  "name": "Wufoo",
+  "description": "Wufoo API for managing forms, entries, reports, and webhooks.",
+  "category": "Forms",
+  "iconName": "LuClipboardList",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "basic",
+    "credentialType": "wufoo"
+  },
+  "baseUrl": "https://{subdomain}.wufoo.com/api/v3",
+  "endpoints": [
+    {
+      "id": "list_forms",
+      "label": "List forms",
+      "method": "GET",
+      "path": "/forms.json",
+      "fields": [
+        { "id": "subdomain", "label": "Subdomain", "type": "text", "required": true, "in": "path" },
+        { "id": "pageStart", "label": "Page start", "type": "number", "in": "query" },
+        { "id": "pageSize", "label": "Page size", "type": "number", "defaultValue": 25, "in": "query" }
+      ]
+    },
+    {
+      "id": "get_form",
+      "label": "Get form",
+      "method": "GET",
+      "path": "/forms/{formId}.json",
+      "fields": [
+        { "id": "subdomain", "label": "Subdomain", "type": "text", "required": true, "in": "path" },
+        { "id": "formId", "label": "Form ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_entries",
+      "label": "List entries",
+      "method": "GET",
+      "path": "/forms/{formId}/entries.json",
+      "fields": [
+        { "id": "subdomain", "label": "Subdomain", "type": "text", "required": true, "in": "path" },
+        { "id": "formId", "label": "Form ID", "type": "text", "required": true, "in": "path" },
+        { "id": "pageStart", "label": "Page start", "type": "number", "in": "query" },
+        { "id": "pageSize", "label": "Page size", "type": "number", "defaultValue": 25, "in": "query" },
+        { "id": "sort", "label": "Sort field", "type": "text", "in": "query" },
+        { "id": "sortDirection", "label": "Sort direction", "type": "select", "in": "query" }
+      ]
+    },
+    {
+      "id": "create_entry",
+      "label": "Create entry",
+      "method": "POST",
+      "path": "/forms/{formId}/entries.json",
+      "fields": [
+        { "id": "subdomain", "label": "Subdomain", "type": "text", "required": true, "in": "path" },
+        { "id": "formId", "label": "Form ID", "type": "text", "required": true, "in": "path" },
+        { "id": "fields", "label": "Fields (Field1, Field2, ...) JSON", "type": "json", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "list_reports",
+      "label": "List reports",
+      "method": "GET",
+      "path": "/reports.json",
+      "fields": [
+        { "id": "subdomain", "label": "Subdomain", "type": "text", "required": true, "in": "path" },
+        { "id": "pageStart", "label": "Page start", "type": "number", "in": "query" },
+        { "id": "pageSize", "label": "Page size", "type": "number", "defaultValue": 25, "in": "query" }
+      ]
+    },
+    {
+      "id": "list_webhooks",
+      "label": "List webhooks",
+      "method": "GET",
+      "path": "/forms/{formId}/webhooks.json",
+      "fields": [
+        { "id": "subdomain", "label": "Subdomain", "type": "text", "required": true, "in": "path" },
+        { "id": "formId", "label": "Form ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "add_webhook",
+      "label": "Add webhook",
+      "method": "PUT",
+      "path": "/forms/{formId}/webhooks.json",
+      "fields": [
+        { "id": "subdomain", "label": "Subdomain", "type": "text", "required": true, "in": "path" },
+        { "id": "formId", "label": "Form ID", "type": "text", "required": true, "in": "path" },
+        { "id": "url", "label": "Webhook URL", "type": "text", "required": true, "in": "body" },
+        { "id": "handshakeKey", "label": "Handshake key", "type": "password", "in": "body" },
+        { "id": "metadata", "label": "Include metadata", "type": "toggle", "in": "body" }
+      ]
+    }
+  ]
+}

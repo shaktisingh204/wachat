@@ -1,0 +1,77 @@
+{
+  "id": "brex",
+  "name": "Brex",
+  "description": "Corporate cards, expenses & cash accounts.",
+  "category": "Fintech",
+  "iconName": "LuCreditCard",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "bearer",
+    "credentialType": "brex",
+    "header": "Authorization",
+    "scheme": "Bearer"
+  },
+  "baseUrl": "https://platform.brexapis.com",
+  "endpoints": [
+    {
+      "id": "list_transactions",
+      "label": "List card transactions",
+      "method": "GET",
+      "path": "/v2/transactions/card/primary",
+      "fields": [
+        { "id": "cursor", "label": "Cursor", "type": "text", "in": "query" },
+        { "id": "limit", "label": "Limit", "type": "number", "defaultValue": 50, "in": "query" }
+      ]
+    },
+    {
+      "id": "list_accounts",
+      "label": "List cash accounts",
+      "method": "GET",
+      "path": "/v2/accounts/cash",
+      "fields": []
+    },
+    {
+      "id": "get_account",
+      "label": "Get cash account",
+      "method": "GET",
+      "path": "/v2/accounts/cash/{id}",
+      "fields": [
+        { "id": "id", "label": "Account ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_users",
+      "label": "List users",
+      "method": "GET",
+      "path": "/v2/users",
+      "fields": [
+        { "id": "cursor", "label": "Cursor", "type": "text", "in": "query" },
+        { "id": "limit", "label": "Limit", "type": "number", "defaultValue": 50, "in": "query" }
+      ]
+    },
+    {
+      "id": "list_vendors",
+      "label": "List vendors",
+      "method": "GET",
+      "path": "/v1/vendors",
+      "fields": [
+        { "id": "cursor", "label": "Cursor", "type": "text", "in": "query" },
+        { "id": "limit", "label": "Limit", "type": "number", "defaultValue": 50, "in": "query" }
+      ]
+    },
+    {
+      "id": "create_payment",
+      "label": "Create payment transfer",
+      "method": "POST",
+      "path": "/v1/payments/transfers",
+      "fields": [
+        { "id": "amount", "label": "Amount", "type": "json", "required": true, "in": "body" },
+        { "id": "payment_type", "label": "Payment type", "type": "text", "required": true, "in": "body" },
+        { "id": "originating_account", "label": "Originating account", "type": "json", "required": true, "in": "body" },
+        { "id": "recipient", "label": "Recipient", "type": "json", "required": true, "in": "body" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,107 @@
+{
+  "id": "linkedin",
+  "name": "LinkedIn",
+  "description": "LinkedIn Marketing/Posts API for sharing content and managing organizations.",
+  "category": "Social",
+  "iconName": "LuLinkedin",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "bearer",
+    "credentialType": "linkedin"
+  },
+  "baseUrl": "https://api.linkedin.com/v2",
+  "endpoints": [
+    {
+      "id": "me",
+      "label": "Get me",
+      "method": "GET",
+      "path": "/me",
+      "fields": [
+        { "id": "X-Restli-Protocol-Version", "label": "X-Restli-Protocol-Version", "type": "text", "defaultValue": "2.0.0", "in": "header" }
+      ]
+    },
+    {
+      "id": "create_ugc_post",
+      "label": "Create UGC post",
+      "method": "POST",
+      "path": "/ugcPosts",
+      "fields": [
+        { "id": "X-Restli-Protocol-Version", "label": "X-Restli-Protocol-Version", "type": "text", "defaultValue": "2.0.0", "in": "header" },
+        { "id": "author", "label": "Author URN", "type": "text", "required": true, "in": "body" },
+        { "id": "lifecycleState", "label": "Lifecycle state", "type": "text", "defaultValue": "PUBLISHED", "in": "body" },
+        { "id": "specificContent", "label": "Specific content", "type": "json", "required": true, "in": "body" },
+        { "id": "visibility", "label": "Visibility", "type": "json", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "delete_post",
+      "label": "Delete post",
+      "method": "DELETE",
+      "path": "/ugcPosts/{share_urn}",
+      "fields": [
+        { "id": "X-Restli-Protocol-Version", "label": "X-Restli-Protocol-Version", "type": "text", "defaultValue": "2.0.0", "in": "header" },
+        { "id": "share_urn", "label": "Share URN", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_my_posts",
+      "label": "List my posts",
+      "method": "GET",
+      "path": "/posts",
+      "fields": [
+        { "id": "X-Restli-Protocol-Version", "label": "X-Restli-Protocol-Version", "type": "text", "defaultValue": "2.0.0", "in": "header" },
+        { "id": "author", "label": "Author URN", "type": "text", "required": true, "in": "query" },
+        { "id": "q", "label": "Query type", "type": "text", "defaultValue": "author", "in": "query" }
+      ]
+    },
+    {
+      "id": "share_v2",
+      "label": "Share (v2)",
+      "method": "POST",
+      "path": "/shares",
+      "fields": [
+        { "id": "X-Restli-Protocol-Version", "label": "X-Restli-Protocol-Version", "type": "text", "defaultValue": "2.0.0", "in": "header" },
+        { "id": "owner", "label": "Owner URN", "type": "text", "required": true, "in": "body" },
+        { "id": "text", "label": "Text { text }", "type": "json", "required": true, "in": "body" },
+        { "id": "distribution", "label": "Distribution", "type": "json", "in": "body" }
+      ]
+    },
+    {
+      "id": "list_organizations",
+      "label": "List organizations I admin",
+      "method": "GET",
+      "path": "/organizationalEntityAcls",
+      "fields": [
+        { "id": "X-Restli-Protocol-Version", "label": "X-Restli-Protocol-Version", "type": "text", "defaultValue": "2.0.0", "in": "header" },
+        { "id": "q", "label": "Query type", "type": "text", "defaultValue": "roleAssignee", "in": "query" },
+        { "id": "role", "label": "Role", "type": "text", "defaultValue": "ADMINISTRATOR", "in": "query" },
+        { "id": "projection", "label": "Projection", "type": "text", "defaultValue": "(elements*(organizationalTarget~(localizedName)))", "in": "query" }
+      ]
+    },
+    {
+      "id": "get_organization",
+      "label": "Get organization",
+      "method": "GET",
+      "path": "/organizations/{id}",
+      "fields": [
+        { "id": "X-Restli-Protocol-Version", "label": "X-Restli-Protocol-Version", "type": "text", "defaultValue": "2.0.0", "in": "header" },
+        { "id": "id", "label": "Organization ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "organization_share",
+      "label": "Organization share (UGC)",
+      "method": "POST",
+      "path": "/ugcPosts",
+      "fields": [
+        { "id": "X-Restli-Protocol-Version", "label": "X-Restli-Protocol-Version", "type": "text", "defaultValue": "2.0.0", "in": "header" },
+        { "id": "author", "label": "Author (organization URN)", "type": "text", "required": true, "in": "body" },
+        { "id": "lifecycleState", "label": "Lifecycle state", "type": "text", "defaultValue": "PUBLISHED", "in": "body" },
+        { "id": "specificContent", "label": "Specific content", "type": "json", "required": true, "in": "body" },
+        { "id": "visibility", "label": "Visibility", "type": "json", "required": true, "in": "body" }
+      ]
+    }
+  ]
+}

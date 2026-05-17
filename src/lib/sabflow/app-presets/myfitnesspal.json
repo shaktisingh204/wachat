@@ -1,0 +1,21 @@
+{
+  "id": "myfitnesspal",
+  "name": "MyFitnessPal",
+  "description": "Nutrition diary platform.",
+  "category": "Wellness",
+  "iconName": "LuActivity",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": { "type": "oauth2", "credentialType": "oauth2" },
+  "baseUrl": "https://api.myfitnesspal.com/v2",
+  "endpoints": [
+    { "id": "me", "label": "Me", "method": "GET", "path": "/user/me", "fields": [] },
+    { "id": "get_diary", "label": "Get diary", "method": "GET", "path": "/diary/{date}", "fields": [{ "id": "date", "type": "text", "required": true, "in": "path" }] },
+    { "id": "list_food_entries", "label": "List food entries", "method": "GET", "path": "/diary/{date}/entries", "fields": [{ "id": "date", "type": "text", "required": true, "in": "path" }] },
+    { "id": "add_food_entry", "label": "Add food entry", "method": "POST", "path": "/diary/{date}/entries", "fields": [{ "id": "date", "type": "text", "required": true, "in": "path" }, { "id": "meal_name", "type": "text", "required": true, "in": "body" }, { "id": "food_id", "type": "text", "required": true, "in": "body" }, { "id": "servings", "type": "number", "required": true, "in": "body" }, { "id": "serving_size_id", "type": "text", "required": true, "in": "body" }] },
+    { "id": "search_foods", "label": "Search foods", "method": "GET", "path": "/foods/search", "fields": [{ "id": "q", "type": "text", "required": true, "in": "query" }, { "id": "limit", "type": "number", "defaultValue": 25, "in": "query" }] },
+    { "id": "get_food", "label": "Get food", "method": "GET", "path": "/foods/{food_id}", "fields": [{ "id": "food_id", "type": "text", "required": true, "in": "path" }] },
+    { "id": "list_recipes", "label": "List recipes", "method": "GET", "path": "/recipes", "fields": [] }
+  ]
+}

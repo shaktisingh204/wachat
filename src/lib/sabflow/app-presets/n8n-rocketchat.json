@@ -1,0 +1,67 @@
+{
+  "id": "n8n-rocketchat",
+  "name": "RocketChat",
+  "description": "Consume RocketChat API",
+  "category": "Output",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "chat_post_message",
+      "label": "Post Message Chat",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "channel",
+          "label": "Channel",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The channel name with the prefix in front of it"
+        },
+        {
+          "id": "text",
+          "label": "Text",
+          "type": "text",
+          "in": "query",
+          "description": "The text of the message to send, is optional because of attachments"
+        },
+        {
+          "id": "jsonParameters",
+          "label": "JSON Parameters",
+          "type": "toggle",
+          "in": "query",
+          "defaultValue": false
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add option"
+        },
+        {
+          "id": "attachments",
+          "label": "Attachments",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Attachment Item"
+        },
+        {
+          "id": "attachmentsJson",
+          "label": "Attachments",
+          "type": "json",
+          "in": "query"
+        }
+      ]
+    }
+  ]
+}

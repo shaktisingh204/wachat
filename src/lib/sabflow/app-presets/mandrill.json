@@ -1,0 +1,67 @@
+{
+  "id": "mandrill",
+  "name": "Mandrill",
+  "description": "Mailchimp Transactional (Mandrill) email API.",
+  "category": "Email",
+  "iconName": "LuMail",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "none",
+    "credentialType": "mandrill"
+  },
+  "baseUrl": "https://mandrillapp.com/api/1.0",
+  "endpoints": [
+    {
+      "id": "send",
+      "label": "Send message",
+      "method": "POST",
+      "path": "/messages/send",
+      "fields": [
+        { "id": "key", "label": "API key", "type": "password", "required": true, "in": "body" },
+        { "id": "message", "label": "Message", "type": "json", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "send_template",
+      "label": "Send template",
+      "method": "POST",
+      "path": "/messages/send-template",
+      "fields": [
+        { "id": "key", "label": "API key", "type": "password", "required": true, "in": "body" },
+        { "id": "template_name", "label": "Template name", "type": "text", "required": true, "in": "body" },
+        { "id": "template_content", "label": "Template content", "type": "json", "required": true, "in": "body" },
+        { "id": "message", "label": "Message", "type": "json", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "users_info",
+      "label": "Users info",
+      "method": "POST",
+      "path": "/users/info",
+      "fields": [
+        { "id": "key", "label": "API key", "type": "password", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "list_templates",
+      "label": "List templates",
+      "method": "POST",
+      "path": "/templates/list",
+      "fields": [
+        { "id": "key", "label": "API key", "type": "password", "required": true, "in": "body" },
+        { "id": "label", "label": "Label", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "ping",
+      "label": "Ping",
+      "method": "POST",
+      "path": "/users/ping",
+      "fields": [
+        { "id": "key", "label": "API key", "type": "password", "required": true, "in": "body" }
+      ]
+    }
+  ]
+}

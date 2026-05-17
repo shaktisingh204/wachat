@@ -1,0 +1,23 @@
+{
+  "id": "vanta",
+  "name": "Vanta",
+  "description": "Vanta compliance automation (SOC 2, ISO 27001).",
+  "category": "Compliance",
+  "iconName": "LuShield",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": { "type": "bearer", "credentialType": "vanta" },
+  "baseUrl": "https://api.vanta.com/v1",
+  "endpoints": [
+    { "id": "list_people", "label": "List people", "method": "GET", "path": "/people", "fields": [] },
+    { "id": "list_tests", "label": "List tests", "method": "GET", "path": "/tests", "fields": [] },
+    { "id": "get_test", "label": "Get test", "method": "GET", "path": "/tests/{testId}", "fields": [{ "id": "testId", "type": "text", "required": true, "in": "path" }] },
+    { "id": "list_test_failures", "label": "List test failures", "method": "GET", "path": "/test-failures", "fields": [{ "id": "testId", "type": "text", "in": "query" }] },
+    { "id": "list_vendors", "label": "List vendors", "method": "GET", "path": "/vendors", "fields": [] },
+    { "id": "create_vendor", "label": "Create vendor", "method": "POST", "path": "/vendors", "fields": [{ "id": "name", "type": "text", "required": true, "in": "body" }, { "id": "websiteUrl", "type": "text", "in": "body" }, { "id": "contactEmail", "type": "text", "in": "body" }, { "id": "riskLevel", "type": "text", "in": "body" }] },
+    { "id": "list_policies", "label": "List policies", "method": "GET", "path": "/policies", "fields": [] },
+    { "id": "list_evidence_uploads", "label": "List evidence uploads", "method": "GET", "path": "/evidence-uploads", "fields": [] },
+    { "id": "list_documents", "label": "List documents", "method": "GET", "path": "/documents", "fields": [] }
+  ]
+}

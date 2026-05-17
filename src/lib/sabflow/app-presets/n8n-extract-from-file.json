@@ -1,0 +1,100 @@
+{
+  "id": "n8n-extract-from-file",
+  "name": "Extract from File",
+  "description": "Convert binary data to JSON",
+  "category": "Input",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "none"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "default_csv",
+      "label": "Extract From CSV",
+      "method": "GET",
+      "path": "/",
+      "fields": []
+    },
+    {
+      "id": "default_html",
+      "label": "Extract From HTML",
+      "method": "GET",
+      "path": "/",
+      "fields": []
+    },
+    {
+      "id": "default_from_ics",
+      "label": "Extract From ICS",
+      "method": "GET",
+      "path": "/",
+      "fields": []
+    },
+    {
+      "id": "default_from_json",
+      "label": "Extract From JSON",
+      "method": "GET",
+      "path": "/",
+      "fields": []
+    },
+    {
+      "id": "default_ods",
+      "label": "Extract From ODS",
+      "method": "GET",
+      "path": "/",
+      "fields": []
+    },
+    {
+      "id": "default_pdf",
+      "label": "Extract From PDF",
+      "method": "GET",
+      "path": "/",
+      "fields": []
+    },
+    {
+      "id": "default_rtf",
+      "label": "Extract From RTF",
+      "method": "GET",
+      "path": "/",
+      "fields": []
+    },
+    {
+      "id": "default_text",
+      "label": "Extract From Text File",
+      "method": "GET",
+      "path": "/",
+      "fields": []
+    },
+    {
+      "id": "default_xml",
+      "label": "Extract From XML",
+      "method": "GET",
+      "path": "/",
+      "fields": []
+    },
+    {
+      "id": "default_xls",
+      "label": "Extract From XLS",
+      "method": "GET",
+      "path": "/",
+      "fields": []
+    },
+    {
+      "id": "default_xlsx",
+      "label": "Extract From XLSX",
+      "method": "GET",
+      "path": "/",
+      "fields": []
+    },
+    {
+      "id": "default_binary_to_propery",
+      "label": "Move File to Base64 String",
+      "method": "GET",
+      "path": "/",
+      "fields": []
+    }
+  ]
+}

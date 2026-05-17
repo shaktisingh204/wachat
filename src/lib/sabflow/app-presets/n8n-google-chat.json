@@ -1,0 +1,92 @@
+{
+  "id": "n8n-google-chat",
+  "name": "Google Chat",
+  "description": "Consume Google Chat API",
+  "category": "Input",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "member_default",
+      "label": "List Member",
+      "method": "GET",
+      "path": "/member",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "serviceAccount",
+          "options": [
+            {
+              "value": "oAuth2",
+              "label": "OAuth2 (recommended)"
+            },
+            {
+              "value": "serviceAccount",
+              "label": "Service Account"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "message_default",
+      "label": "List Message",
+      "method": "GET",
+      "path": "/message",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "serviceAccount",
+          "options": [
+            {
+              "value": "oAuth2",
+              "label": "OAuth2 (recommended)"
+            },
+            {
+              "value": "serviceAccount",
+              "label": "Service Account"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "space_default",
+      "label": "List Space",
+      "method": "GET",
+      "path": "/space",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "serviceAccount",
+          "options": [
+            {
+              "value": "oAuth2",
+              "label": "OAuth2 (recommended)"
+            },
+            {
+              "value": "serviceAccount",
+              "label": "Service Account"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

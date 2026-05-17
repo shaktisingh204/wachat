@@ -1,0 +1,48 @@
+{
+  "id": "n8n-lingva-nex",
+  "name": "LingvaNex",
+  "description": "Consume LingvaNex API",
+  "category": "Output",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "default_translate",
+      "label": "Translate",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "text",
+          "label": "Text",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The input text to translate"
+        },
+        {
+          "id": "translateTo",
+          "label": "Translate To",
+          "type": "select",
+          "in": "query",
+          "required": true,
+          "description": "The language to use for translation of the input text, set to one of the language codes listed in <a href=\"https://cloud.google.com/translate/docs/languages\">Language Support</a>. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>."
+        },
+        {
+          "id": "options",
+          "label": "Additional Options",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add option"
+        }
+      ]
+    }
+  ]
+}

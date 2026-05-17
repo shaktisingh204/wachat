@@ -1,0 +1,20 @@
+{
+  "id": "usps",
+  "name": "USPS",
+  "description": "USPS v3 OAuth APIs (tracking, addresses, prices).",
+  "category": "Shipping",
+  "iconName": "LuTruck",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": { "type": "oauth2", "credentialType": "oauth2" },
+  "baseUrl": "https://api.usps.com",
+  "endpoints": [
+    { "id": "oauth_token", "label": "OAuth token", "method": "POST", "path": "/oauth2/v3/token", "fields": [{ "id": "grant_type", "type": "text", "defaultValue": "client_credentials", "required": true, "in": "body" }, { "id": "client_id", "type": "text", "required": true, "in": "body" }, { "id": "client_secret", "type": "password", "required": true, "in": "body" }, { "id": "scope", "type": "text", "in": "body" }] },
+    { "id": "tracking_v3", "label": "Tracking", "method": "GET", "path": "/tracking/v3/tracking/{trackingNumber}", "fields": [{ "id": "trackingNumber", "type": "text", "required": true, "in": "path" }, { "id": "expand", "type": "text", "in": "query" }] },
+    { "id": "addresses_v3_validate", "label": "Validate address", "method": "GET", "path": "/addresses/v3/address", "fields": [{ "id": "streetAddress", "type": "text", "required": true, "in": "query" }, { "id": "city", "type": "text", "in": "query" }, { "id": "state", "type": "text", "in": "query" }, { "id": "ZIPCode", "type": "text", "in": "query" }, { "id": "secondaryAddress", "type": "text", "in": "query" }] },
+    { "id": "prices_v3", "label": "Search total rates", "method": "POST", "path": "/prices/v3/total-rates/search", "fields": [{ "id": "originZIPCode", "type": "text", "required": true, "in": "body" }, { "id": "destinationZIPCode", "type": "text", "required": true, "in": "body" }, { "id": "weight", "type": "number", "required": true, "in": "body" }, { "id": "length", "type": "number", "required": true, "in": "body" }, { "id": "width", "type": "number", "required": true, "in": "body" }, { "id": "height", "type": "number", "required": true, "in": "body" }, { "id": "mailClass", "type": "text", "required": true, "in": "body" }, { "id": "processingCategory", "type": "text", "required": true, "in": "body" }, { "id": "priceType", "type": "text", "required": true, "in": "body" }, { "id": "mailingDate", "type": "text", "required": true, "in": "body" }] },
+    { "id": "service_standards_v3", "label": "Service standards estimates", "method": "GET", "path": "/service-standards/v3/estimates", "fields": [{ "id": "originZIPCode", "type": "text", "required": true, "in": "query" }, { "id": "destinationZIPCode", "type": "text", "required": true, "in": "query" }, { "id": "mailClass", "type": "text", "required": true, "in": "query" }, { "id": "destinationEntryFacilityType", "type": "text", "in": "query" }, { "id": "acceptanceDate", "type": "text", "in": "query" }] },
+    { "id": "locations", "label": "Locations", "method": "GET", "path": "/locations/v3/locations", "fields": [{ "id": "ZIPCode", "type": "text", "required": true, "in": "query" }, { "id": "radius", "type": "number", "in": "query" }, { "id": "services", "type": "text", "in": "query" }] }
+  ]
+}

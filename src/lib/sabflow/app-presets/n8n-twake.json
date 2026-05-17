@@ -1,0 +1,47 @@
+{
+  "id": "n8n-twake",
+  "name": "Twake",
+  "description": "Consume Twake API",
+  "category": "Transform",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "message_send",
+      "label": "Send Message",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "channelId",
+          "label": "Channel Name or ID",
+          "type": "select",
+          "in": "query",
+          "description": "Channel's ID. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>."
+        },
+        {
+          "id": "content",
+          "label": "Content",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "Message content"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Field"
+        }
+      ]
+    }
+  ]
+}

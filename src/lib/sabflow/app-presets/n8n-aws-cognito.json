@@ -1,0 +1,38 @@
+{
+  "id": "n8n-aws-cognito",
+  "name": "AWS Cognito",
+  "description": "Sends data to AWS Cognito",
+  "category": "Output",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "group_default",
+      "label": "List Group",
+      "method": "GET",
+      "path": "/group",
+      "fields": []
+    },
+    {
+      "id": "user_default",
+      "label": "List User",
+      "method": "GET",
+      "path": "/user",
+      "fields": []
+    },
+    {
+      "id": "user_pool_default",
+      "label": "List UserPool",
+      "method": "GET",
+      "path": "/userPool",
+      "fields": []
+    }
+  ]
+}

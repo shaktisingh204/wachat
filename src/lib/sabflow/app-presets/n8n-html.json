@@ -1,0 +1,102 @@
+{
+  "id": "n8n-html",
+  "name": "HTML",
+  "description": "Work with HTML",
+  "category": "Transform",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "none"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "default_generate_html_template",
+      "label": "Generate HTML Template",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "html",
+          "label": "HTML Template",
+          "type": "text",
+          "in": "query",
+          "description": "HTML template to render"
+        },
+        {
+          "id": "notice",
+          "label": "<b>Tips</b>: Type ctrl+space for completions. Use <code>{{ }}</code> for expressions and <code>&lt;style&gt;</code> tags for CSS. JS in <code>&lt;script&gt;</code> tags is included but not executed in n8n.",
+          "type": "text",
+          "in": "query"
+        }
+      ]
+    },
+    {
+      "id": "default_extract_html_content",
+      "label": "Extract HTML Content",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "sourceData",
+          "label": "Source Data",
+          "type": "select",
+          "in": "query",
+          "description": "If HTML should be read from binary or JSON data",
+          "defaultValue": "json",
+          "options": [
+            {
+              "value": "binary",
+              "label": "Binary"
+            },
+            {
+              "value": "json",
+              "label": "JSON"
+            }
+          ]
+        },
+        {
+          "id": "dataPropertyName",
+          "label": "Input Binary Field",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "defaultValue": "data"
+        },
+        {
+          "id": "dataPropertyName",
+          "label": "JSON Property",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "Name of the JSON property in which the HTML to extract the data from can be found. The property can either contain a string or an array of strings.",
+          "defaultValue": "data"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add option"
+        }
+      ]
+    },
+    {
+      "id": "default_convert_to_html_table",
+      "label": "Convert to HTML Table",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add option"
+        }
+      ]
+    }
+  ]
+}

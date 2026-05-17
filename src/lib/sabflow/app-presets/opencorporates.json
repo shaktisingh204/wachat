@@ -1,0 +1,20 @@
+{
+  "id": "opencorporates",
+  "name": "OpenCorporates",
+  "description": "Global open company data.",
+  "category": "Government",
+  "iconName": "LuLandmark",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": { "type": "query_token", "credentialType": "opencorporates", "queryParam": "api_token" },
+  "baseUrl": "https://api.opencorporates.com/v0.4",
+  "endpoints": [
+    { "id": "search_companies", "label": "Search companies", "method": "GET", "path": "/companies/search", "fields": [{ "id": "q", "type": "text", "required": true, "in": "query" }, { "id": "jurisdiction_code", "type": "text", "in": "query" }, { "id": "country_code", "type": "text", "in": "query" }, { "id": "inactive", "type": "toggle", "in": "query" }] },
+    { "id": "get_company", "label": "Get company", "method": "GET", "path": "/companies/{jurisdiction_code}/{company_number}", "fields": [{ "id": "jurisdiction_code", "type": "text", "required": true, "in": "path" }, { "id": "company_number", "type": "text", "required": true, "in": "path" }] },
+    { "id": "search_officers", "label": "Search officers", "method": "GET", "path": "/officers/search", "fields": [{ "id": "q", "type": "text", "required": true, "in": "query" }] },
+    { "id": "get_officer", "label": "Get officer", "method": "GET", "path": "/officers/{id}", "fields": [{ "id": "id", "type": "text", "required": true, "in": "path" }] },
+    { "id": "get_filings", "label": "Get filings for company", "method": "GET", "path": "/companies/{jurisdiction_code}/{company_number}/filings", "fields": [{ "id": "jurisdiction_code", "type": "text", "required": true, "in": "path" }, { "id": "company_number", "type": "text", "required": true, "in": "path" }] },
+    { "id": "get_industry_codes", "label": "Get industry codes", "method": "GET", "path": "/industry_codes/{code_scheme}/{code}", "fields": [{ "id": "code_scheme", "type": "text", "required": true, "in": "path" }, { "id": "code", "type": "text", "required": true, "in": "path" }] }
+  ]
+}

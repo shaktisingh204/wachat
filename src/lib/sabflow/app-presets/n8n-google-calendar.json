@@ -1,0 +1,45 @@
+{
+  "id": "n8n-google-calendar",
+  "name": "Google Calendar",
+  "description": "Consume Google Calendar API",
+  "category": "Input",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "oauth2",
+    "credentialType": "oauth2"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "calendar_default",
+      "label": "List Calendar",
+      "method": "GET",
+      "path": "/calendar",
+      "fields": [
+        {
+          "id": "useN8nTimeZone",
+          "label": "This node will use the time zone set in n8n’s settings, but you can override this in the workflow settings",
+          "type": "text",
+          "in": "query"
+        }
+      ]
+    },
+    {
+      "id": "event_default",
+      "label": "List Event",
+      "method": "GET",
+      "path": "/event",
+      "fields": [
+        {
+          "id": "useN8nTimeZone",
+          "label": "This node will use the time zone set in n8n’s settings, but you can override this in the workflow settings",
+          "type": "text",
+          "in": "query"
+        }
+      ]
+    }
+  ]
+}

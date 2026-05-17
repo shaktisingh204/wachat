@@ -1,0 +1,366 @@
+'use client';
+
+/**
+ * <LearningPathForm /> — create + edit form for HR Learning paths.
+ *
+ * Binds to the `saveLearningPath` server action via `useActionState`.
+ *
+ * Trainings are picked from the live training list (fetched on mount via
+ * `getTrainings`) and submitted as multiple hidden `trainings` inputs;
+ * the server action reads them with `formData.getAll('trainings')`.
+ */
+
+import * as React from 'react';
+import { useActionState, useEffect, useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useFormStatus } from 'react-dom';
+import {
+    ArrowLeft,
+    BookOpen,
+    LoaderCircle,
+    Plus,
+    Save,
+    X,
+} from 'lucide-react';
+
+import {
+    ZoruBadge,
+    ZoruButton,
+    ZoruCard,
+    ZoruCheckbox,
+    ZoruInput,
+    ZoruLabel,
+    ZoruSelect,
+    ZoruSelectContent,
+    ZoruSelectItem,
+    ZoruSelectTrigger,
+    ZoruSelectValue,
+    ZoruTextarea,
+    useZoruToast,
+} from '@/components/zoruui';
+
+import {
+    saveLearningPath,
+    type CrmLearningPathAudience,
+    type CrmLearningPathDoc,
+    type CrmLearningPathStatus,
+} from '@/app/actions/crm-learning-paths.actions';
+import { getTrainings } from '@/app/actions/crm-training.actions';
+import type { CrmTrainingDoc } from '@/lib/rust-client/crm-training';
+
+import { AUDIENCE_OPTIONS, BASE, STATUS_OPTIONS } from '../_config';
+
+interface LearningPathFormProps {
+    initialData?: CrmLearningPathDoc | null;
+}
+
+type SaveState = { message?: string; error?: string; id?: string };
+const initialState: SaveState = {};
+
+// Strip the synthetic 'all' status entry; the form picks a concrete status.
+const FORM_STATUS_OPTIONS = STATUS_OPTIONS.filter(
+    (o): o is { value: CrmLearningPathStatus; label: string } =>
+        o.value !== 'all',
+);
+
+function SubmitButton({ isEditing }: { isEditing: boolean }) {
+    const { pending } = useFormStatus();
+    return (
+        <ZoruButton type="submit" disabled={pending}>
+            {pending ? (
+                <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+                <Save className="mr-2 h-4 w-4" />
+            )}
+            {isEditing ? 'Save changes' : 'Create learning path'}
+        </ZoruButton>
+    );
+}
+
+export function LearningPathForm({ initialData }: LearningPathFormProps) {
+    const router = useRouter();
+    const { toast } = useZoruToast();
+    const isEditing = !!initialData?._id;
+
+    const [state, formAction] = useActionState(saveLearningPath, initialState);
+
+    const [status, setStatus] = useState<CrmLearningPathStatus>(
+        initialData?.status ?? 'draft',
+    );
+    const [audience, setAudience] = useState<CrmLearningPathAudience>(
+        initialData?.targetAudience ?? 'all',
+    );
+
+    // Selected training ids (string[]). Pre-seeded from initialData.
+    const [selectedTrainings, setSelectedTrainings] = useState<string[]>(() =>
+        Array.isArray(initialData?.trainings) ? initialData!.trainings : [],
+    );
+    // Picker dropdown value (single select that appends to the array).
+    const [pickerValue, setPickerValue] = useState<string>('');
+
+    // Live training catalogue for the picker + chip labels.
+    const [allTrainings, setAllTrainings] = useState<CrmTrainingDoc[]>([]);
+    const [loadingTrainings, setLoadingTrainings] = useState(true);
+
+    useEffect(() => {
+        let active = true;
+        (async () => {
+            try {
+                const res = await getTrainings({ limit: 200 });
+                if (active) setAllTrainings(res.items ?? []);
+            } catch {
+                if (active) setAllTrainings([]);
+            } finally {
+                if (active) setLoadingTrainings(false);
+            }
+        })();
+        return () => {
+            active = false;
+        };
+    }, []);
+
+    useEffect(() => {
+        if (state?.message) {
+            toast({ title: 'Saved', description: state.message });
+            const id = state.id ?? initialData?._id;
+            if (id) router.push(`${BASE}/${id}`);
+            else router.push(BASE);
+        }
+        if (state?.error) {
+            toast({
+                title: 'Error',
+                description: state.error,
+                variant: 'destructive',
+            });
+        }
+    }, [state, toast, router, initialData?._id]);
+
+    const trainingName = React.useCallback(
+        (id: string): string => {
+            const found = allTrainings.find((t) => t._id === id);
+            return found?.name ?? id;
+        },
+        [allTrainings],
+    );
+
+    const addTraining = () => {
+        if (!pickerValue) return;
+        setSelectedTrainings((curr) =>
+            curr.includes(pickerValue) ? curr : [...curr, pickerValue],
+        );
+        setPickerValue('');
+    };
+
+    const removeTraining = (id: string) => {
+        setSelectedTrainings((curr) => curr.filter((x) => x !== id));
+    };
+
+    // The picker should not show already-selected trainings.
+    const availableForPicker = allTrainings.filter(
+        (t) => !selectedTrainings.includes(t._id),
+    );
+
+    return (
+        <ZoruCard className="p-6">
+            <form action={formAction} className="flex flex-col gap-6">
+                {isEditing ? (
+                    <input
+                        type="hidden"
+                        name="learningPathId"
+                        value={initialData!._id}
+                    />
+                ) : null}
+                <input type="hidden" name="status" value={status} />
+                <input type="hidden" name="targetAudience" value={audience} />
+
+                {/* Row 1: Name */}
+                <div className="space-y-1.5">
+                    <ZoruLabel htmlFor="name">Name *</ZoruLabel>
+                    <ZoruInput
+                        id="name"
+                        name="name"
+                        required
+                        placeholder="e.g. Frontend Engineering Track"
+                        defaultValue={initialData?.name ?? ''}
+                    />
+                </div>
+
+                {/* Row 2: Description */}
+                <div className="space-y-1.5">
+                    <ZoruLabel htmlFor="description">Description</ZoruLabel>
+                    <ZoruTextarea
+                        id="description"
+                        name="description"
+                        rows={4}
+                        placeholder="Outline what this learning path covers and who it is for."
+                        defaultValue={initialData?.description ?? ''}
+                    />
+                </div>
+
+                {/* Row 3: Audience + Duration */}
+                <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-1.5">
+                        <ZoruLabel htmlFor="audience-trigger">Target audience</ZoruLabel>
+                        <ZoruSelect
+                            value={audience}
+                            onValueChange={(v) =>
+                                setAudience(v as CrmLearningPathAudience)
+                            }
+                        >
+                            <ZoruSelectTrigger id="audience-trigger">
+                                <ZoruSelectValue placeholder="Pick an audience…" />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                {AUDIENCE_OPTIONS.map((o) => (
+                                    <ZoruSelectItem key={o.value} value={o.value}>
+                                        {o.label}
+                                    </ZoruSelectItem>
+                                ))}
+                            </ZoruSelectContent>
+                        </ZoruSelect>
+                    </div>
+                    <div className="space-y-1.5">
+                        <ZoruLabel htmlFor="durationWeeks">Duration (weeks)</ZoruLabel>
+                        <ZoruInput
+                            id="durationWeeks"
+                            name="durationWeeks"
+                            type="number"
+                            min={0}
+                            defaultValue={initialData?.durationWeeks ?? ''}
+                        />
+                    </div>
+                </div>
+
+                {/* Row 4: Trainings multi-pick */}
+                <div className="space-y-2">
+                    <div className="flex items-baseline justify-between">
+                        <ZoruLabel>Trainings</ZoruLabel>
+                        <span className="text-[11.5px] text-zoru-ink-muted">
+                            {selectedTrainings.length} selected
+                        </span>
+                    </div>
+
+                    {/* Hidden inputs — the server reads `formData.getAll('trainings')`. */}
+                    {selectedTrainings.map((id) => (
+                        <input
+                            key={`hidden-${id}`}
+                            type="hidden"
+                            name="trainings"
+                            value={id}
+                        />
+                    ))}
+
+                    {/* Picker — single ZoruSelect + Add button. */}
+                    <div className="flex flex-wrap items-center gap-2">
+                        <ZoruSelect value={pickerValue} onValueChange={setPickerValue}>
+                            <ZoruSelectTrigger className="min-w-[260px] flex-1">
+                                <ZoruSelectValue
+                                    placeholder={
+                                        loadingTrainings
+                                            ? 'Loading trainings…'
+                                            : availableForPicker.length === 0
+                                              ? 'No more trainings to add'
+                                              : 'Pick a training to add…'
+                                    }
+                                />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                {availableForPicker.map((t) => (
+                                    <ZoruSelectItem key={t._id} value={t._id}>
+                                        {t.name}
+                                    </ZoruSelectItem>
+                                ))}
+                            </ZoruSelectContent>
+                        </ZoruSelect>
+                        <ZoruButton
+                            type="button"
+                            variant="outline"
+                            onClick={addTraining}
+                            disabled={!pickerValue}
+                        >
+                            <Plus className="mr-1.5 h-4 w-4" />
+                            Add
+                        </ZoruButton>
+                    </div>
+
+                    {/* Chips list */}
+                    {selectedTrainings.length === 0 ? (
+                        <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-6 text-center text-[12.5px] text-zoru-ink-muted">
+                            No trainings selected yet.
+                        </div>
+                    ) : (
+                        <ul className="flex flex-wrap gap-2">
+                            {selectedTrainings.map((id) => (
+                                <li key={id}>
+                                    <ZoruBadge
+                                        variant="ghost"
+                                        className="flex items-center gap-1.5 pr-1"
+                                    >
+                                        <BookOpen className="h-3 w-3" />
+                                        <span className="max-w-[220px] truncate">
+                                            {trainingName(id)}
+                                        </span>
+                                        <button
+                                            type="button"
+                                            aria-label={`Remove ${trainingName(id)}`}
+                                            className="ml-0.5 inline-flex h-4 w-4 items-center justify-center rounded hover:bg-zoru-surface"
+                                            onClick={() => removeTraining(id)}
+                                        >
+                                            <X className="h-3 w-3" />
+                                        </button>
+                                    </ZoruBadge>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </div>
+
+                {/* Row 5: Mandatory + Status */}
+                <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="flex items-center gap-2 self-end pb-1.5">
+                        <ZoruCheckbox
+                            id="isMandatory"
+                            name="isMandatory"
+                            defaultChecked={!!initialData?.isMandatory}
+                        />
+                        <ZoruLabel htmlFor="isMandatory" className="cursor-pointer">
+                            Mandatory for the target audience
+                        </ZoruLabel>
+                    </div>
+                    <div className="space-y-1.5">
+                        <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
+                        <ZoruSelect
+                            value={status}
+                            onValueChange={(v) =>
+                                setStatus(v as CrmLearningPathStatus)
+                            }
+                        >
+                            <ZoruSelectTrigger id="status-trigger">
+                                <ZoruSelectValue placeholder="Status" />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                {FORM_STATUS_OPTIONS.map((o) => (
+                                    <ZoruSelectItem key={o.value} value={o.value}>
+                                        {o.label}
+                                    </ZoruSelectItem>
+                                ))}
+                            </ZoruSelectContent>
+                        </ZoruSelect>
+                    </div>
+                </div>
+
+                {/* Footer */}
+                <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
+                    <ZoruButton variant="ghost" asChild>
+                        <Link href={BASE}>
+                            <ArrowLeft className="mr-2 h-4 w-4" />
+                            Back to learning paths
+                        </Link>
+                    </ZoruButton>
+                    <SubmitButton isEditing={isEditing} />
+                </div>
+            </form>
+        </ZoruCard>
+    );
+}

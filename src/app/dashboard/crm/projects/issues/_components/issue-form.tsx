@@ -1,0 +1,225 @@
+'use client';
+
+/**
+ * Shared <IssueForm> — used by /issues/new and /issues/[issueId]/edit
+ * (§1B W7). The action `saveWsIssue` PATCHes when a hidden `_id` is set;
+ * otherwise POSTs.
+ */
+
+import * as React from 'react';
+import { useRouter } from 'next/navigation';
+import { useActionState, useEffect } from 'react';
+import { LoaderCircle } from 'lucide-react';
+
+import { ClayCard, ClayButton } from '@/components/clay';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
+import { useToast } from '@/hooks/use-toast';
+import { saveWsIssue } from '@/app/actions/worksuite/projects.actions';
+import { EntityFormField } from '@/components/crm/entity-form-field';
+
+export interface IssueFormInitial {
+    _id?: string;
+    title?: string;
+    description?: string;
+    projectId?: string;
+    status?: string;
+    priority?: string;
+    assigneeId?: string;
+    assigneeName?: string;
+    reporterId?: string;
+    reporterName?: string;
+}
+
+export interface IssueFormProps {
+    mode: 'new' | 'edit';
+    initial?: IssueFormInitial;
+}
+
+export function IssueForm({ mode, initial }: IssueFormProps) {
+    const router = useRouter();
+    const { toast } = useToast();
+    const [state, action, isPending] = useActionState(saveWsIssue, {
+        message: '',
+        error: '',
+    } as { message?: string; error?: string; id?: string });
+
+    useEffect(() => {
+        if (state?.message) {
+            toast({ title: 'Saved', description: state.message });
+            const target = state.id
+                ? `/dashboard/crm/projects/issues/${state.id}`
+                : '/dashboard/crm/projects/issues';
+            router.push(target);
+        }
+        if (state?.error) {
+            toast({
+                title: 'Error',
+                description: state.error,
+                variant: 'destructive',
+            });
+        }
+    }, [state, toast, router]);
+
+    return (
+        <ClayCard>
+            <form action={action} className="space-y-4">
+                {initial?._id ? (
+                    <input type="hidden" name="_id" value={initial._id} />
+                ) : null}
+
+                <div>
+                    <Label htmlFor="title" className="text-foreground">
+                        Title <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                        id="title"
+                        name="title"
+                        required
+                        defaultValue={initial?.title ?? ''}
+                        className="h-10 rounded-lg border-border bg-card text-[13px]"
+                    />
+                </div>
+
+                <div>
+                    <Label htmlFor="description" className="text-foreground">
+                        Description
+                    </Label>
+                    <Textarea
+                        id="description"
+                        name="description"
+                        rows={4}
+                        defaultValue={initial?.description ?? ''}
+                        className="rounded-lg border-border bg-card text-[13px]"
+                    />
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-2">
+                    <div>
+                        <Label htmlFor="projectId" className="text-foreground">
+                            Project
+                        </Label>
+                        <EntityFormField
+                            entity="project"
+                            name="projectId"
+                            initialId={initial?.projectId}
+                            placeholder="Select project (optional)"
+                        />
+                    </div>
+                    <div>
+                        <Label htmlFor="status" className="text-foreground">
+                            Status
+                        </Label>
+                        <Select name="status" defaultValue={initial?.status ?? 'open'}>
+                            <SelectTrigger
+                                id="status"
+                                className="h-10 rounded-lg border-border bg-card text-[13px]"
+                            >
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="open">Open</SelectItem>
+                                <SelectItem value="in_progress">In progress</SelectItem>
+                                <SelectItem value="resolved">Resolved</SelectItem>
+                                <SelectItem value="closed">Closed</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-2">
+                    <div>
+                        <Label htmlFor="priority" className="text-foreground">
+                            Priority
+                        </Label>
+                        <Select
+                            name="priority"
+                            defaultValue={initial?.priority ?? 'medium'}
+                        >
+                            <SelectTrigger
+                                id="priority"
+                                className="h-10 rounded-lg border-border bg-card text-[13px]"
+                            >
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="low">Low</SelectItem>
+                                <SelectItem value="medium">Medium</SelectItem>
+                                <SelectItem value="high">High</SelectItem>
+                                <SelectItem value="urgent">Urgent</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div>
+                        <Label htmlFor="assigneeId" className="text-foreground">
+                            Assignee
+                        </Label>
+                        <EntityFormField
+                            entity="employee"
+                            name="assigneeId"
+                            dualWriteName="assigneeName"
+                            initialId={initial?.assigneeId}
+                            initialLabel={initial?.assigneeName}
+                            placeholder="Select assignee"
+                        />
+                    </div>
+                </div>
+
+                <div>
+                    <Label htmlFor="reporterId" className="text-foreground">
+                        Reporter
+                    </Label>
+                    <EntityFormField
+                        entity="user"
+                        name="reporterId"
+                        dualWriteName="reporterName"
+                        initialId={initial?.reporterId}
+                        initialLabel={initial?.reporterName}
+                        placeholder="Select reporter"
+                    />
+                </div>
+
+                <div className="flex justify-end gap-2 pt-2">
+                    <ClayButton
+                        type="button"
+                        variant="pill"
+                        onClick={() =>
+                            router.push(
+                                initial?._id
+                                    ? `/dashboard/crm/projects/issues/${initial._id}`
+                                    : '/dashboard/crm/projects/issues',
+                            )
+                        }
+                    >
+                        Cancel
+                    </ClayButton>
+                    <ClayButton
+                        type="submit"
+                        variant="obsidian"
+                        disabled={isPending}
+                        leading={
+                            isPending ? (
+                                <LoaderCircle
+                                    className="h-4 w-4 animate-spin"
+                                    strokeWidth={1.75}
+                                />
+                            ) : null
+                        }
+                    >
+                        {mode === 'edit' ? 'Save changes' : 'Save'}
+                    </ClayButton>
+                </div>
+            </form>
+        </ClayCard>
+    );
+}
+
+export default IssueForm;

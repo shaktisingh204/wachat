@@ -1,0 +1,31 @@
+{
+  "id": "n8n-unleashed-software",
+  "name": "Unleashed Software",
+  "description": "Consume Unleashed Software API",
+  "category": "Transform",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "sales_order_default",
+      "label": "List SalesOrder",
+      "method": "GET",
+      "path": "/salesOrder",
+      "fields": []
+    },
+    {
+      "id": "stock_on_hand_default",
+      "label": "List StockOnHand",
+      "method": "GET",
+      "path": "/stockOnHand",
+      "fields": []
+    }
+  ]
+}

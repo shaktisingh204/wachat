@@ -1,0 +1,149 @@
+/**
+ * PF/ESI record detail page — server component.
+ */
+
+import Link from 'next/link';
+import { notFound, redirect } from 'next/navigation';
+import { ArrowLeft, Pencil, ShieldCheck } from 'lucide-react';
+
+import { ZoruButton, ZoruCard } from '@/components/zoruui';
+import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
+import { getSession } from '@/app/actions/user.actions';
+import {
+    getPfEsiRecordById,
+    type CrmPfEsiStatus,
+} from '@/app/actions/crm-pf-esi.actions';
+
+export const dynamic = 'force-dynamic';
+
+const BASE = '/dashboard/hrm/payroll/pf-esi';
+
+const STATUS_TONE: Record<CrmPfEsiStatus, StatusTone> = {
+    pending: 'amber',
+    deposited: 'blue',
+    filed: 'green',
+    archived: 'neutral',
+};
+
+function fmtDate(value: unknown): string {
+    if (!value) return '—';
+    const d = new Date(value as string);
+    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
+}
+
+function inr(n: unknown): string {
+    if (typeof n !== 'number' || !Number.isFinite(n)) return '—';
+    return `₹${n.toLocaleString('en-IN')}`;
+}
+
+export default async function PfEsiDetailPage({
+    params,
+}: {
+    params: Promise<{ id: string }>;
+}) {
+    const { id } = await params;
+
+    const session = await getSession();
+    if (!session?.user) redirect('/login');
+
+    const row = await getPfEsiRecordById(id);
+    if (!row) notFound();
+
+    const status = (row.status as CrmPfEsiStatus | undefined) ?? 'pending';
+    const tone = STATUS_TONE[status] ?? 'neutral';
+    const employeeName = (row.employeeName as string | undefined) ?? '—';
+    const month = (row.month as string | undefined) ?? '—';
+
+    return (
+        <div className="flex w-full flex-col gap-6">
+            <CrmPageHeader
+                breadcrumbs={[
+                    { label: 'Payroll', href: '/dashboard/hrm/payroll' },
+                    { label: 'PF / ESI', href: BASE },
+                    { label: `${employeeName} · ${month}` },
+                ]}
+                title={employeeName}
+                subtitle={`PF & ESI · ${month}`}
+                icon={ShieldCheck}
+                actions={
+                    <div className="flex items-center gap-2">
+                        <ZoruButton variant="outline" asChild>
+                            <Link href={BASE}>
+                                <ArrowLeft className="mr-2 h-4 w-4" />
+                                Back
+                            </Link>
+                        </ZoruButton>
+                        <ZoruButton asChild>
+                            <Link href={`${BASE}/${id}/edit`}>
+                                <Pencil className="mr-2 h-4 w-4" />
+                                Edit
+                            </Link>
+                        </ZoruButton>
+                    </div>
+                }
+            />
+
+            <ZoruCard className="p-6">
+                <div className="mb-4 flex flex-wrap items-center gap-2">
+                    <div className="text-[14px] font-medium text-zoru-ink">Overview</div>
+                    <StatusPill label={status} tone={tone} />
+                </div>
+                <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-3">
+                    <div>
+                        <div className="text-zoru-ink-muted">PF employer share</div>
+                        <div className="font-mono text-zoru-ink">{inr(row.pfEmployer)}</div>
+                    </div>
+                    <div>
+                        <div className="text-zoru-ink-muted">PF employee share</div>
+                        <div className="font-mono text-zoru-ink">{inr(row.pfEmployee)}</div>
+                    </div>
+                    <div>
+                        <div className="text-zoru-ink-muted">UAN</div>
+                        <div className="font-mono text-[12px] text-zoru-ink">
+                            {(row.pfUan as string | undefined) ?? '—'}
+                        </div>
+                    </div>
+                    <div>
+                        <div className="text-zoru-ink-muted">ESI employer share</div>
+                        <div className="font-mono text-zoru-ink">{inr(row.esiEmployer)}</div>
+                    </div>
+                    <div>
+                        <div className="text-zoru-ink-muted">ESI employee share</div>
+                        <div className="font-mono text-zoru-ink">{inr(row.esiEmployee)}</div>
+                    </div>
+                    <div>
+                        <div className="text-zoru-ink-muted">ESI IC number</div>
+                        <div className="font-mono text-[12px] text-zoru-ink">
+                            {(row.esiIcNumber as string | undefined) ?? '—'}
+                        </div>
+                    </div>
+                    <div>
+                        <div className="text-zoru-ink-muted">Challan number</div>
+                        <div className="font-mono text-[12px] text-zoru-ink">
+                            {(row.challanNumber as string | undefined) ?? '—'}
+                        </div>
+                    </div>
+                    <div>
+                        <div className="text-zoru-ink-muted">Deposit date</div>
+                        <div className="text-zoru-ink">{fmtDate(row.depositDate)}</div>
+                    </div>
+                    <div>
+                        <div className="text-zoru-ink-muted">Employee ID</div>
+                        <div className="font-mono text-[12px] text-zoru-ink">
+                            {(row.employeeId as string | undefined) ?? '—'}
+                        </div>
+                    </div>
+                    {row.notes ? (
+                        <div className="sm:col-span-3">
+                            <div className="text-zoru-ink-muted">Notes</div>
+                            <div className="whitespace-pre-wrap text-zoru-ink">
+                                {row.notes as string}
+                            </div>
+                        </div>
+                    ) : null}
+                </div>
+            </ZoruCard>
+        </div>
+    );
+}

@@ -1,0 +1,113 @@
+{
+  "id": "n8n-chargebee",
+  "name": "Chargebee",
+  "description": "Retrieve data from Chargebee API",
+  "category": "Input",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "customer_create",
+      "label": "Create Customer",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "properties",
+          "label": "Properties",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Property",
+          "description": "Properties to set on the new user"
+        }
+      ]
+    },
+    {
+      "id": "invoice_list",
+      "label": "List Invoice",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "maxResults",
+          "label": "Max Results",
+          "type": "number",
+          "in": "query",
+          "description": "Max. amount of results to return(< 100).",
+          "defaultValue": 10
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Filter",
+          "description": "Filter for invoices"
+        }
+      ]
+    },
+    {
+      "id": "invoice_pdf_url",
+      "label": "PDF Invoice URL Invoice",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "invoiceId",
+          "label": "Invoice ID",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The ID of the invoice to get"
+        }
+      ]
+    },
+    {
+      "id": "subscription_cancel",
+      "label": "Cancel Subscription",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "subscriptionId",
+          "label": "Subscription ID",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The ID of the subscription to cancel"
+        },
+        {
+          "id": "endOfTerm",
+          "label": "Schedule End of Term",
+          "type": "toggle",
+          "in": "query",
+          "description": "Whether it will not cancel it directly in will instead schedule the cancelation for the end of the term",
+          "defaultValue": false
+        }
+      ]
+    },
+    {
+      "id": "subscription_delete",
+      "label": "Delete Subscription",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "subscriptionId",
+          "label": "Subscription ID",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The ID of the subscription to delete"
+        }
+      ]
+    }
+  ]
+}

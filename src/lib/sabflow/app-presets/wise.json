@@ -1,0 +1,85 @@
+{
+  "id": "wise",
+  "name": "Wise",
+  "description": "International money transfers & multi-currency accounts.",
+  "category": "Fintech",
+  "iconName": "LuLandmark",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "bearer",
+    "credentialType": "wise",
+    "header": "Authorization",
+    "scheme": "Bearer"
+  },
+  "baseUrl": "https://api.wise.com",
+  "endpoints": [
+    {
+      "id": "get_profiles",
+      "label": "Get profiles",
+      "method": "GET",
+      "path": "/v2/profiles",
+      "fields": []
+    },
+    {
+      "id": "get_balances",
+      "label": "Get balances",
+      "method": "GET",
+      "path": "/v4/profiles/{profileId}/balances",
+      "fields": [
+        { "id": "profileId", "label": "Profile ID", "type": "text", "required": true, "in": "path" },
+        { "id": "types", "label": "Types", "type": "text", "defaultValue": "STANDARD", "in": "query" }
+      ]
+    },
+    {
+      "id": "create_quote",
+      "label": "Create quote",
+      "method": "POST",
+      "path": "/v3/profiles/{profileId}/quotes",
+      "fields": [
+        { "id": "profileId", "label": "Profile ID", "type": "text", "required": true, "in": "path" },
+        { "id": "sourceCurrency", "label": "Source currency", "type": "text", "required": true, "in": "body" },
+        { "id": "targetCurrency", "label": "Target currency", "type": "text", "required": true, "in": "body" },
+        { "id": "sourceAmount", "label": "Source amount", "type": "number", "in": "body" },
+        { "id": "targetAmount", "label": "Target amount", "type": "number", "in": "body" }
+      ]
+    },
+    {
+      "id": "create_recipient",
+      "label": "Create recipient",
+      "method": "POST",
+      "path": "/v1/accounts",
+      "fields": [
+        { "id": "currency", "label": "Currency", "type": "text", "required": true, "in": "body" },
+        { "id": "type", "label": "Type", "type": "text", "required": true, "in": "body" },
+        { "id": "profile", "label": "Profile", "type": "number", "required": true, "in": "body" },
+        { "id": "accountHolderName", "label": "Account holder name", "type": "text", "required": true, "in": "body" },
+        { "id": "details", "label": "Details", "type": "json", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "create_transfer",
+      "label": "Create transfer",
+      "method": "POST",
+      "path": "/v1/transfers",
+      "fields": [
+        { "id": "targetAccount", "label": "Target account", "type": "number", "required": true, "in": "body" },
+        { "id": "quoteUuid", "label": "Quote UUID", "type": "text", "required": true, "in": "body" },
+        { "id": "customerTransactionId", "label": "Customer transaction ID", "type": "text", "required": true, "in": "body" },
+        { "id": "details", "label": "Details", "type": "json", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "fund_transfer",
+      "label": "Fund transfer",
+      "method": "POST",
+      "path": "/v3/profiles/{profileId}/transfers/{transferId}/payments",
+      "fields": [
+        { "id": "profileId", "label": "Profile ID", "type": "text", "required": true, "in": "path" },
+        { "id": "transferId", "label": "Transfer ID", "type": "text", "required": true, "in": "path" },
+        { "id": "type", "label": "Type", "type": "text", "defaultValue": "BALANCE", "required": true, "in": "body" }
+      ]
+    }
+  ]
+}

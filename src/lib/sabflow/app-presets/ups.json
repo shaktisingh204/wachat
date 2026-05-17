@@ -1,0 +1,21 @@
+{
+  "id": "ups",
+  "name": "UPS",
+  "description": "UPS REST API (track, rate, ship).",
+  "category": "Shipping",
+  "iconName": "LuTruck",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": { "type": "oauth2", "credentialType": "oauth2" },
+  "baseUrl": "https://onlinetools.ups.com/api",
+  "endpoints": [
+    { "id": "oauth_token", "label": "OAuth token", "method": "POST", "path": "/security/v1/oauth/token", "fields": [{ "id": "grant_type", "type": "text", "defaultValue": "client_credentials", "required": true, "in": "body" }] },
+    { "id": "track", "label": "Track", "method": "GET", "path": "/track/v1/details/{trackingNumber}", "fields": [{ "id": "trackingNumber", "type": "text", "required": true, "in": "path" }, { "id": "locale", "type": "text", "in": "query" }, { "id": "returnSignature", "type": "toggle", "in": "query" }] },
+    { "id": "rate", "label": "Rate", "method": "POST", "path": "/rating/v1/Rate", "fields": [{ "id": "RateRequest", "type": "json", "required": true, "in": "body" }] },
+    { "id": "ship", "label": "Ship", "method": "POST", "path": "/shipments/v1/ship", "fields": [{ "id": "ShipmentRequest", "type": "json", "required": true, "in": "body" }] },
+    { "id": "void_label", "label": "Void label", "method": "DELETE", "path": "/shipments/v1/void/cancel/{shipmentidentificationnumber}", "fields": [{ "id": "shipmentidentificationnumber", "type": "text", "required": true, "in": "path" }] },
+    { "id": "address_validation", "label": "Address validation", "method": "POST", "path": "/addressvalidation/v1/3", "fields": [{ "id": "XAVRequest", "type": "json", "required": true, "in": "body" }] },
+    { "id": "time_in_transit", "label": "Time in transit", "method": "POST", "path": "/shipments/v1/transittimes", "fields": [{ "id": "originCountryCode", "type": "text", "required": true, "in": "body" }, { "id": "originPostalCode", "type": "text", "required": true, "in": "body" }, { "id": "destinationCountryCode", "type": "text", "required": true, "in": "body" }, { "id": "destinationPostalCode", "type": "text", "required": true, "in": "body" }, { "id": "weight", "type": "number", "required": true, "in": "body" }, { "id": "shipDate", "type": "text", "required": true, "in": "body" }] }
+  ]
+}

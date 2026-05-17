@@ -1,0 +1,126 @@
+{
+  "id": "betterstack",
+  "name": "BetterStack",
+  "description": "BetterStack uptime monitoring and incident management API.",
+  "category": "Monitoring",
+  "iconName": "LuActivity",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "bearer",
+    "credentialType": "betterstack"
+  },
+  "baseUrl": "https://uptime.betterstack.com/api/v2",
+  "endpoints": [
+    {
+      "id": "list_monitors",
+      "label": "List monitors",
+      "method": "GET",
+      "path": "/monitors",
+      "fields": [
+        { "id": "page", "label": "Page", "type": "number", "in": "query" },
+        { "id": "per_page", "label": "Per page", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "get_monitor",
+      "label": "Get monitor",
+      "method": "GET",
+      "path": "/monitors/{id}",
+      "fields": [
+        { "id": "id", "label": "Monitor ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "create_monitor",
+      "label": "Create monitor",
+      "method": "POST",
+      "path": "/monitors",
+      "fields": [
+        { "id": "monitor_type", "label": "Monitor type", "type": "text", "required": true, "in": "body" },
+        { "id": "url", "label": "URL", "type": "text", "required": true, "in": "body" },
+        { "id": "pronounceable_name", "label": "Pronounceable name", "type": "text", "in": "body" },
+        { "id": "check_frequency", "label": "Check frequency (seconds)", "type": "number", "in": "body" }
+      ]
+    },
+    {
+      "id": "update_monitor",
+      "label": "Update monitor",
+      "method": "PATCH",
+      "path": "/monitors/{id}",
+      "fields": [
+        { "id": "id", "label": "Monitor ID", "type": "text", "required": true, "in": "path" },
+        { "id": "paused", "label": "Paused", "type": "toggle", "in": "body" },
+        { "id": "pronounceable_name", "label": "Pronounceable name", "type": "text", "in": "body" },
+        { "id": "check_frequency", "label": "Check frequency (seconds)", "type": "number", "in": "body" }
+      ]
+    },
+    {
+      "id": "delete_monitor",
+      "label": "Delete monitor",
+      "method": "DELETE",
+      "path": "/monitors/{id}",
+      "fields": [
+        { "id": "id", "label": "Monitor ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_incidents",
+      "label": "List incidents",
+      "method": "GET",
+      "path": "/incidents",
+      "fields": [
+        { "id": "page", "label": "Page", "type": "number", "in": "query" },
+        { "id": "per_page", "label": "Per page", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "acknowledge_incident",
+      "label": "Acknowledge incident",
+      "method": "POST",
+      "path": "/incidents/{id}/acknowledge",
+      "fields": [
+        { "id": "id", "label": "Incident ID", "type": "text", "required": true, "in": "path" },
+        { "id": "acknowledged_by", "label": "Acknowledged by", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "resolve_incident",
+      "label": "Resolve incident",
+      "method": "POST",
+      "path": "/incidents/{id}/resolve",
+      "fields": [
+        { "id": "id", "label": "Incident ID", "type": "text", "required": true, "in": "path" },
+        { "id": "resolved_by", "label": "Resolved by", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "list_heartbeats",
+      "label": "List heartbeats",
+      "method": "GET",
+      "path": "/heartbeats",
+      "fields": [
+        { "id": "page", "label": "Page", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "list_status_pages",
+      "label": "List status pages",
+      "method": "GET",
+      "path": "/status-pages",
+      "fields": [
+        { "id": "page", "label": "Page", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "list_on_call_calendars",
+      "label": "List on-call calendars",
+      "method": "GET",
+      "path": "/on-calls",
+      "fields": [
+        { "id": "page", "label": "Page", "type": "number", "in": "query" }
+      ]
+    }
+  ]
+}

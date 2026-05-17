@@ -1,0 +1,80 @@
+{
+  "id": "n8n-onfleet",
+  "name": "Onfleet",
+  "description": "Consume Onfleet API",
+  "category": "Input",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "admin_default",
+      "label": "List Admin",
+      "method": "GET",
+      "path": "/admin",
+      "fields": []
+    },
+    {
+      "id": "container_default",
+      "label": "List Container",
+      "method": "GET",
+      "path": "/container",
+      "fields": []
+    },
+    {
+      "id": "destination_default",
+      "label": "List Destination",
+      "method": "GET",
+      "path": "/destination",
+      "fields": []
+    },
+    {
+      "id": "hub_default",
+      "label": "List Hub",
+      "method": "GET",
+      "path": "/hub",
+      "fields": []
+    },
+    {
+      "id": "organization_default",
+      "label": "List Organization",
+      "method": "GET",
+      "path": "/organization",
+      "fields": []
+    },
+    {
+      "id": "recipient_default",
+      "label": "List Recipient",
+      "method": "GET",
+      "path": "/recipient",
+      "fields": []
+    },
+    {
+      "id": "task_default",
+      "label": "List Task",
+      "method": "GET",
+      "path": "/task",
+      "fields": []
+    },
+    {
+      "id": "team_default",
+      "label": "List Team",
+      "method": "GET",
+      "path": "/team",
+      "fields": []
+    },
+    {
+      "id": "worker_default",
+      "label": "List Worker",
+      "method": "GET",
+      "path": "/worker",
+      "fields": []
+    }
+  ]
+}

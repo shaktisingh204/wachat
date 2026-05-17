@@ -1,0 +1,138 @@
+{
+  "id": "matrix",
+  "name": "Matrix",
+  "description": "Matrix Client-Server API v3 for messaging and room management.",
+  "category": "Community",
+  "iconName": "LuMessageCircle",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "bearer",
+    "credentialType": "matrix"
+  },
+  "baseUrl": "https://matrix.org/_matrix/client/v3",
+  "endpoints": [
+    {
+      "id": "whoami",
+      "label": "Who am I",
+      "method": "GET",
+      "path": "/account/whoami",
+      "fields": []
+    },
+    {
+      "id": "joined_rooms",
+      "label": "Joined rooms",
+      "method": "GET",
+      "path": "/joined_rooms",
+      "fields": []
+    },
+    {
+      "id": "send_message",
+      "label": "Send message",
+      "method": "PUT",
+      "path": "/rooms/{room_id}/send/{event_type}/{txn_id}",
+      "fields": [
+        { "id": "room_id", "label": "Room ID", "type": "text", "required": true, "in": "path" },
+        { "id": "event_type", "label": "Event type", "type": "text", "required": true, "defaultValue": "m.room.message", "in": "path" },
+        { "id": "txn_id", "label": "Transaction ID", "type": "text", "required": true, "in": "path" },
+        { "id": "msgtype", "label": "Msgtype", "type": "text", "required": true, "defaultValue": "m.text", "in": "body" },
+        { "id": "body", "label": "Body", "type": "textarea", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "redact_event",
+      "label": "Redact event",
+      "method": "PUT",
+      "path": "/rooms/{room_id}/redact/{event_id}/{txn_id}",
+      "fields": [
+        { "id": "room_id", "label": "Room ID", "type": "text", "required": true, "in": "path" },
+        { "id": "event_id", "label": "Event ID", "type": "text", "required": true, "in": "path" },
+        { "id": "txn_id", "label": "Transaction ID", "type": "text", "required": true, "in": "path" },
+        { "id": "reason", "label": "Reason", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "room_messages",
+      "label": "Room messages",
+      "method": "GET",
+      "path": "/rooms/{room_id}/messages",
+      "fields": [
+        { "id": "room_id", "label": "Room ID", "type": "text", "required": true, "in": "path" },
+        { "id": "from", "label": "From token", "type": "text", "in": "query" },
+        { "id": "dir", "label": "Direction (b/f)", "type": "select", "defaultValue": "b", "in": "query" },
+        { "id": "limit", "label": "Limit", "type": "number", "defaultValue": 10, "in": "query" }
+      ]
+    },
+    {
+      "id": "join_room",
+      "label": "Join room",
+      "method": "POST",
+      "path": "/join/{room_id_or_alias}",
+      "fields": [
+        { "id": "room_id_or_alias", "label": "Room ID or alias", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "leave_room",
+      "label": "Leave room",
+      "method": "POST",
+      "path": "/rooms/{room_id}/leave",
+      "fields": [
+        { "id": "room_id", "label": "Room ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "create_room",
+      "label": "Create room",
+      "method": "POST",
+      "path": "/createRoom",
+      "fields": [
+        { "id": "name", "label": "Name", "type": "text", "in": "body" },
+        { "id": "topic", "label": "Topic", "type": "textarea", "in": "body" },
+        { "id": "preset", "label": "Preset", "type": "select", "in": "body" },
+        { "id": "invite", "label": "Invite (user IDs)", "type": "json", "in": "body" }
+      ]
+    },
+    {
+      "id": "invite_member",
+      "label": "Invite member",
+      "method": "POST",
+      "path": "/rooms/{room_id}/invite",
+      "fields": [
+        { "id": "room_id", "label": "Room ID", "type": "text", "required": true, "in": "path" },
+        { "id": "user_id", "label": "User ID", "type": "text", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "kick_member",
+      "label": "Kick member",
+      "method": "POST",
+      "path": "/rooms/{room_id}/kick",
+      "fields": [
+        { "id": "room_id", "label": "Room ID", "type": "text", "required": true, "in": "path" },
+        { "id": "user_id", "label": "User ID", "type": "text", "required": true, "in": "body" },
+        { "id": "reason", "label": "Reason", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "room_state",
+      "label": "Room state",
+      "method": "GET",
+      "path": "/rooms/{room_id}/state",
+      "fields": [
+        { "id": "room_id", "label": "Room ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "upload_content",
+      "label": "Upload content",
+      "method": "POST",
+      "path": "https://matrix.org/_matrix/media/v3/upload",
+      "fields": [
+        { "id": "Content-Type", "label": "Content-Type", "type": "text", "in": "header" },
+        { "id": "body", "label": "Raw body", "type": "textarea", "required": true, "in": "body" }
+      ]
+    }
+  ]
+}

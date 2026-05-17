@@ -1,0 +1,115 @@
+{
+  "id": "new-relic",
+  "name": "New Relic",
+  "description": "New Relic application performance monitoring and observability API.",
+  "category": "Monitoring",
+  "iconName": "LuActivity",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "header",
+    "credentialType": "new_relic",
+    "header": "X-Api-Key"
+  },
+  "baseUrl": "https://api.newrelic.com/v2",
+  "endpoints": [
+    {
+      "id": "list_applications",
+      "label": "List applications",
+      "method": "GET",
+      "path": "/applications.json",
+      "fields": [
+        { "id": "page", "label": "Page", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "get_application",
+      "label": "Get application",
+      "method": "GET",
+      "path": "/applications/{application_id}.json",
+      "fields": [
+        { "id": "application_id", "label": "Application ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "application_metric_data",
+      "label": "Application metric data",
+      "method": "GET",
+      "path": "/applications/{application_id}/metrics/data.json",
+      "fields": [
+        { "id": "application_id", "label": "Application ID", "type": "text", "required": true, "in": "path" },
+        { "id": "names[]", "label": "Metric names", "type": "text", "in": "query" },
+        { "id": "values[]", "label": "Metric values", "type": "text", "in": "query" },
+        { "id": "from", "label": "From (ISO 8601)", "type": "text", "in": "query" },
+        { "id": "to", "label": "To (ISO 8601)", "type": "text", "in": "query" }
+      ]
+    },
+    {
+      "id": "list_alert_policies",
+      "label": "List alert policies",
+      "method": "GET",
+      "path": "/alerts_policies.json",
+      "fields": [
+        { "id": "page", "label": "Page", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "create_alert_policy",
+      "label": "Create alert policy",
+      "method": "POST",
+      "path": "/alerts_policies.json",
+      "fields": [
+        { "id": "policy", "label": "Policy (JSON)", "type": "json", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "list_alert_conditions",
+      "label": "List alert conditions",
+      "method": "GET",
+      "path": "/alerts_conditions.json",
+      "fields": [
+        { "id": "policy_id", "label": "Policy ID", "type": "text", "required": true, "in": "query" },
+        { "id": "page", "label": "Page", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "list_incidents",
+      "label": "List incidents",
+      "method": "GET",
+      "path": "/alerts_incidents.json",
+      "fields": [
+        { "id": "page", "label": "Page", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "list_synthetics_monitors",
+      "label": "List synthetics monitors",
+      "method": "GET",
+      "path": "https://synthetics.newrelic.com/synthetics/api/v3/monitors",
+      "fields": [
+        { "id": "offset", "label": "Offset", "type": "number", "in": "query" },
+        { "id": "limit", "label": "Limit", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "nrql_query",
+      "label": "NRQL GraphQL query",
+      "method": "POST",
+      "path": "/graphql",
+      "fields": [
+        { "id": "query", "label": "GraphQL query", "type": "textarea", "required": true, "in": "body" },
+        { "id": "variables", "label": "Variables (JSON)", "type": "json", "in": "body" }
+      ]
+    },
+    {
+      "id": "list_users",
+      "label": "List users",
+      "method": "GET",
+      "path": "/users.json",
+      "fields": [
+        { "id": "page", "label": "Page", "type": "number", "in": "query" }
+      ]
+    }
+  ]
+}

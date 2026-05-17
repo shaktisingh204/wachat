@@ -1,0 +1,87 @@
+{
+  "id": "n8n-quickbooks",
+  "name": "QuickBooks Online",
+  "description": "Consume the QuickBooks Online API",
+  "category": "Transform",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "oauth2",
+    "credentialType": "oauth2"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "bill_default",
+      "label": "List Bill",
+      "method": "GET",
+      "path": "/bill",
+      "fields": []
+    },
+    {
+      "id": "customer_default",
+      "label": "List Customer",
+      "method": "GET",
+      "path": "/customer",
+      "fields": []
+    },
+    {
+      "id": "employee_default",
+      "label": "List Employee",
+      "method": "GET",
+      "path": "/employee",
+      "fields": []
+    },
+    {
+      "id": "estimate_default",
+      "label": "List Estimate",
+      "method": "GET",
+      "path": "/estimate",
+      "fields": []
+    },
+    {
+      "id": "invoice_default",
+      "label": "List Invoice",
+      "method": "GET",
+      "path": "/invoice",
+      "fields": []
+    },
+    {
+      "id": "item_default",
+      "label": "List Item",
+      "method": "GET",
+      "path": "/item",
+      "fields": []
+    },
+    {
+      "id": "payment_default",
+      "label": "List Payment",
+      "method": "GET",
+      "path": "/payment",
+      "fields": []
+    },
+    {
+      "id": "purchase_default",
+      "label": "List Purchase",
+      "method": "GET",
+      "path": "/purchase",
+      "fields": []
+    },
+    {
+      "id": "transaction_default",
+      "label": "List Transaction",
+      "method": "GET",
+      "path": "/transaction",
+      "fields": []
+    },
+    {
+      "id": "vendor_default",
+      "label": "List Vendor",
+      "method": "GET",
+      "path": "/vendor",
+      "fields": []
+    }
+  ]
+}
