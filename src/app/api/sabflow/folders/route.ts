@@ -8,6 +8,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { getSession } from '@/app/actions/user.actions';
 import { createFolder, listFolders } from '@/lib/sabflow/folders/db';
+import { recordFlowAction } from '@/lib/sabflow/audit/middleware';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -44,6 +45,12 @@ export async function POST(req: NextRequest) {
   };
   try {
     const folder = await createFolder(userId, body.name ?? '', body.color);
+    void recordFlowAction('folder.created', {
+      userId,
+      target: folder._id,
+      metadata: { name: folder.name, color: folder.color },
+      request: req,
+    });
     return NextResponse.json({ folder }, { status: 201 });
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'Internal server error';

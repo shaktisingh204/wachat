@@ -65,7 +65,7 @@ export default function ProfileSettingsPage() {
       const session = await getSession();
       const u = session?.user || null;
       setUser(u as any);
-      if (u && (u as any).language) setLanguage((u as any).language);
+      if (u && u.language) setLanguage(u.language);
     });
   };
 

@@ -27,7 +27,9 @@ import { List, Plus, Sparkles } from 'lucide-react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import { PaginationBar } from '@/components/crm/pagination-bar';
+import { SavedViewsBar } from '@/components/crm/SavedViewsBar';
 import { ZoruButton, useZoruToast } from '@/components/zoruui';
+import type { SavedView } from '@/lib/saved-views/types';
 
 import {
     deleteCrmContact,
@@ -487,6 +489,36 @@ export default function CrmContactsPage() {
                 }
             >
                 <div className="flex flex-col gap-4">
+                    <SavedViewsBar
+                        entityKind="contact"
+                        currentFilters={{
+                            search,
+                            statusFilter,
+                            lifecycleFilter,
+                            sourceFilter,
+                            ownerFilter,
+                            accountFilter,
+                            tagFilter,
+                        }}
+                        currentColumns={[]}
+                        onApplyView={(view: SavedView) => {
+                            const f = (view.filters ?? {}) as Record<string, unknown>;
+                            if (typeof f.search === 'string') setSearch(f.search);
+                            if (typeof f.statusFilter === 'string')
+                                setStatusFilter(f.statusFilter as ContactStatusFilter);
+                            if (typeof f.lifecycleFilter === 'string')
+                                setLifecycleFilter(f.lifecycleFilter as ContactLifecycleFilter);
+                            if (typeof f.sourceFilter === 'string')
+                                setSourceFilter(f.sourceFilter);
+                            if (typeof f.ownerFilter === 'string')
+                                setOwnerFilter(f.ownerFilter);
+                            if (typeof f.accountFilter === 'string')
+                                setAccountFilter(f.accountFilter);
+                            if (typeof f.tagFilter === 'string')
+                                setTagFilter(f.tagFilter);
+                            setPage(1);
+                        }}
+                    />
                     <ContactsKpiStrip
                         kpis={kpis}
                         statusFilter={statusFilter}

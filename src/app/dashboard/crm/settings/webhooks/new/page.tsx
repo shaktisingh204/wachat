@@ -1,0 +1,259 @@
+'use client';
+
+/**
+ * CRM Settings — New webhook subscription (Phase 7 foundation).
+ *
+ * The shared secret is shown EXACTLY ONCE after creation.
+ */
+
+import * as React from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { Check, Copy, LoaderCircle, Webhook } from 'lucide-react';
+
+import {
+    ZoruAlert,
+    ZoruAlertDescription,
+    ZoruAlertTitle,
+    ZoruBreadcrumb,
+    ZoruBreadcrumbItem,
+    ZoruBreadcrumbLink,
+    ZoruBreadcrumbList,
+    ZoruBreadcrumbPage,
+    ZoruBreadcrumbSeparator,
+    ZoruButton,
+    ZoruCard,
+    ZoruCheckbox,
+    ZoruInput,
+    ZoruLabel,
+    ZoruPageDescription,
+    ZoruPageHeader,
+    ZoruPageHeading,
+    ZoruPageTitle,
+    useZoruToast,
+} from '@/components/zoruui';
+import {
+    createWebhookSubscription,
+    listKnownEvents,
+} from '@/app/actions/crm-webhooks.actions';
+
+export default function NewWebhookPage() {
+    const router = useRouter();
+    const toast = useZoruToast();
+
+    const [name, setName] = React.useState('');
+    const [targetUrl, setTargetUrl] = React.useState('');
+    const [events, setEvents] = React.useState<readonly string[]>([]);
+    const [selected, setSelected] = React.useState<Set<string>>(() => new Set());
+    const [submitting, setSubmitting] = React.useState(false);
+    const [secret, setSecret] = React.useState<string | null>(null);
+    const [copied, setCopied] = React.useState(false);
+
+    React.useEffect(() => {
+        let mounted = true;
+        (async () => {
+            const list = await listKnownEvents();
+            if (mounted) setEvents(list);
+        })();
+        return () => {
+            mounted = false;
+        };
+    }, []);
+
+    const toggle = (e: string) => {
+        setSelected((prev) => {
+            const next = new Set(prev);
+            if (next.has(e)) next.delete(e);
+            else next.add(e);
+            return next;
+        });
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!name.trim() || !targetUrl.trim()) {
+            toast.toast({
+                title: 'Missing fields',
+                description: 'Name and target URL are required.',
+                variant: 'destructive',
+            });
+            return;
+        }
+        if (selected.size === 0) {
+            toast.toast({
+                title: 'Pick at least one event',
+                variant: 'destructive',
+            });
+            return;
+        }
+        setSubmitting(true);
+        try {
+            const res = await createWebhookSubscription({
+                name: name.trim(),
+                targetUrl: targetUrl.trim(),
+                events: Array.from(selected),
+            });
+            if (!res.ok) {
+                toast.toast({
+                    title: 'Failed',
+                    description: res.error,
+                    variant: 'destructive',
+                });
+                return;
+            }
+            setSecret(res.secret);
+            toast.toast({ title: 'Subscription created — copy the secret now.' });
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    const handleCopy = async () => {
+        if (!secret) return;
+        try {
+            await navigator.clipboard.writeText(secret);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        } catch {
+            // ignore
+        }
+    };
+
+    if (secret) {
+        return (
+            <div className="flex min-h-full flex-col gap-6">
+                <ZoruPageHeader>
+                    <ZoruPageHeading>
+                        <Webhook className="size-5" />
+                        <ZoruPageTitle>Subscription created</ZoruPageTitle>
+                    </ZoruPageHeading>
+                </ZoruPageHeader>
+                <ZoruAlert variant="destructive">
+                    <ZoruAlertTitle>Copy the signing secret now</ZoruAlertTitle>
+                    <ZoruAlertDescription>
+                        This secret is used to verify the{' '}
+                        <code className="font-mono">X-Sabnode-Signature</code> HMAC header
+                        on every delivery. It will not be shown again.
+                    </ZoruAlertDescription>
+                </ZoruAlert>
+                <ZoruCard className="p-4">
+                    <div className="font-mono text-sm break-all rounded-md bg-muted p-3">
+                        {secret}
+                    </div>
+                    <div className="mt-3 flex gap-2">
+                        <ZoruButton onClick={handleCopy}>
+                            {copied ? (
+                                <>
+                                    <Check className="mr-2 size-4" />
+                                    Copied
+                                </>
+                            ) : (
+                                <>
+                                    <Copy className="mr-2 size-4" />
+                                    Copy
+                                </>
+                            )}
+                        </ZoruButton>
+                        <ZoruButton
+                            variant="outline"
+                            onClick={() => router.push('/dashboard/crm/settings/webhooks')}
+                        >
+                            Done
+                        </ZoruButton>
+                    </div>
+                </ZoruCard>
+            </div>
+        );
+    }
+
+    return (
+        <div className="flex min-h-full flex-col gap-6">
+            <ZoruBreadcrumb>
+                <ZoruBreadcrumbList>
+                    <ZoruBreadcrumbItem>
+                        <ZoruBreadcrumbLink href="/dashboard/crm/settings/webhooks">
+                            Webhooks
+                        </ZoruBreadcrumbLink>
+                    </ZoruBreadcrumbItem>
+                    <ZoruBreadcrumbSeparator />
+                    <ZoruBreadcrumbItem>
+                        <ZoruBreadcrumbPage>New</ZoruBreadcrumbPage>
+                    </ZoruBreadcrumbItem>
+                </ZoruBreadcrumbList>
+            </ZoruBreadcrumb>
+            <ZoruPageHeader>
+                <ZoruPageHeading>
+                    <Webhook className="size-5" />
+                    <ZoruPageTitle>New webhook subscription</ZoruPageTitle>
+                </ZoruPageHeading>
+                <ZoruPageDescription>
+                    The shared signing secret will be shown once after creation.
+                </ZoruPageDescription>
+            </ZoruPageHeader>
+
+            <form className="space-y-6" onSubmit={handleSubmit}>
+                <ZoruCard className="space-y-4 p-4">
+                    <div>
+                        <ZoruLabel htmlFor="wh-name">Name</ZoruLabel>
+                        <ZoruInput
+                            id="wh-name"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            disabled={submitting}
+                            placeholder="Production CRM events"
+                        />
+                    </div>
+                    <div>
+                        <ZoruLabel htmlFor="wh-url">Target URL</ZoruLabel>
+                        <ZoruInput
+                            id="wh-url"
+                            type="url"
+                            value={targetUrl}
+                            onChange={(e) => setTargetUrl(e.target.value)}
+                            disabled={submitting}
+                            placeholder="https://example.com/webhooks/sabnode"
+                        />
+                    </div>
+                </ZoruCard>
+
+                <ZoruCard className="p-4">
+                    <div className="mb-3 flex items-center justify-between">
+                        <ZoruLabel>Events</ZoruLabel>
+                        <span className="text-sm text-muted-foreground">
+                            {selected.size} selected
+                        </span>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                        {events.map((ev) => (
+                            <label
+                                key={ev}
+                                className="flex items-center gap-2 text-sm"
+                            >
+                                <ZoruCheckbox
+                                    checked={selected.has(ev)}
+                                    onCheckedChange={() => toggle(ev)}
+                                    disabled={submitting}
+                                />
+                                <span className="font-mono text-xs">{ev}</span>
+                            </label>
+                        ))}
+                    </div>
+                </ZoruCard>
+
+                <div className="flex gap-2">
+                    <ZoruButton type="submit" disabled={submitting}>
+                        {submitting && (
+                            <LoaderCircle className="mr-2 size-4 animate-spin" />
+                        )}
+                        Create subscription
+                    </ZoruButton>
+                    <Link href="/dashboard/crm/settings/webhooks">
+                        <ZoruButton type="button" variant="outline" disabled={submitting}>
+                            Cancel
+                        </ZoruButton>
+                    </Link>
+                </div>
+            </form>
+        </div>
+    );
+}

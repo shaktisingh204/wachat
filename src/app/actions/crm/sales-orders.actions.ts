@@ -13,6 +13,9 @@
  */
 
 import { revalidatePath } from 'next/cache';
+import { ObjectId } from 'mongodb';
+import { connectToDatabase } from '@/lib/mongodb';
+import { getSession } from '@/app/actions/user.actions';
 import { RustApiError } from '@/lib/rust-client';
 import {
   crmSalesOrdersApi,
@@ -308,4 +311,58 @@ export async function updateSalesOrder(
 
 export async function deleteSalesOrder(id: string) {
   return crmSalesOrdersApi.delete(id);
+}
+
+/* ─── getCrmSalesOrderRelatedCounts ─────────────────────────────────────
+ * Right-rail counts (§5.6) for the sales-order detail page. Delivery
+ * challans + invoices descend from a SO via lineage / direct FK. All
+ * counts tenant-scoped on `userId`.
+ */
+export async function getCrmSalesOrderRelatedCounts(
+  salesOrderId: string,
+): Promise<{ deliveryChallans: number; invoices: number }> {
+  const empty = { deliveryChallans: 0, invoices: 0 };
+  if (!salesOrderId) return empty;
+  const session = await getSession();
+  if (!session?.user) return empty;
+
+  try {
+    const { db } = await connectToDatabase();
+    const userId = new ObjectId(String(session.user._id));
+    const idCandidates: unknown[] = [salesOrderId];
+    if (ObjectId.isValid(salesOrderId)) idCandidates.push(new ObjectId(salesOrderId));
+
+    const [deliveryChallans, invoices] = await Promise.all([
+      db
+        .collection('crm_delivery_challans')
+        .countDocuments({
+          userId,
+          $or: [
+            { salesOrderId: { $in: idCandidates } },
+            { soId: { $in: idCandidates } },
+            { 'lineage.id': salesOrderId, 'lineage.kind': 'salesOrder' },
+          ],
+        } as Record<string, unknown>)
+        .catch(() => 0),
+      db
+        .collection('crm_invoices')
+        .countDocuments({
+          userId,
+          $or: [
+            { salesOrderId: { $in: idCandidates } },
+            { soId: { $in: idCandidates } },
+            { 'lineage.id': salesOrderId, 'lineage.kind': 'salesOrder' },
+          ],
+        } as Record<string, unknown>)
+        .catch(() => 0),
+    ]);
+
+    return {
+      deliveryChallans: Number(deliveryChallans) || 0,
+      invoices: Number(invoices) || 0,
+    };
+  } catch (e) {
+    console.error('[getCrmSalesOrderRelatedCounts] failed:', e);
+    return empty;
+  }
 }

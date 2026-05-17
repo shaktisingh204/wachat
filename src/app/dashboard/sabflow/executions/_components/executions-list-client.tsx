@@ -24,10 +24,13 @@ import {
   LuTriangleAlert,
 } from 'react-icons/lu';
 import { cn } from '@/lib/utils';
+import { getActiveLocale, t } from '@/lib/sabflow/i18n';
 import type {
   ExecutionStatus,
   ExecutionTriggerMode,
 } from '@/lib/sabflow/types';
+
+const LOCALE = getActiveLocale();
 
 type ExecutionRow = {
   _id: string;
@@ -114,19 +117,19 @@ export function ExecutionsListClient() {
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="flex items-center gap-3 border-b border-[var(--gray-4)] px-6 py-4 shrink-0">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400">
+      <div className="flex flex-wrap items-center gap-3 border-b border-[var(--gray-4)] px-4 sm:px-6 py-3 sm:py-4 shrink-0">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400 shrink-0">
           <LuActivity className="h-4 w-4" strokeWidth={2} />
         </div>
-        <div className="flex flex-col leading-tight">
-          <h1 className="text-[15px] font-semibold text-[var(--gray-12)]">
-            Executions
+        <div className="flex flex-col leading-tight min-w-0">
+          <h1 className="text-sm sm:text-[15px] font-semibold text-[var(--gray-12)]">
+            {t('executions.title', LOCALE)}
           </h1>
-          <p className="text-[11.5px] text-[var(--gray-9)]">
+          <p className="hidden sm:block text-[11.5px] text-[var(--gray-9)]">
             Past flow runs with per-node detail
           </p>
         </div>
-        <div className="ml-auto">
+        <div className="ml-auto shrink-0">
           <button
             type="button"
             onClick={load}
@@ -134,35 +137,35 @@ export function ExecutionsListClient() {
             className="flex items-center gap-1.5 rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-2.5 py-1.5 text-[12px] font-medium text-[var(--gray-11)] hover:border-[var(--gray-7)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)] disabled:opacity-50"
           >
             <LuRefreshCw className={cn('h-3.5 w-3.5', loading && 'animate-spin')} />
-            Refresh
+            <span className="hidden sm:inline">{t('executions.refresh', LOCALE)}</span>
           </button>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap items-center gap-2 border-b border-[var(--gray-4)] px-6 py-2.5 shrink-0">
-        <div className="relative flex items-center">
+      <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 border-b border-[var(--gray-4)] px-4 sm:px-6 py-2.5 shrink-0">
+        <div className="relative flex items-center w-full sm:w-auto">
           <LuSearch className="absolute left-2.5 h-3.5 w-3.5 text-[var(--gray-8)]" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search by flow, session, or id…"
-            className="w-[260px] rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] py-1.5 pl-8 pr-2.5 text-[12.5px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-[#f76808]"
+            className="w-full sm:w-[260px] rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] py-1.5 pl-8 pr-2.5 text-[12.5px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-[#f76808]"
           />
         </div>
-        <div className="flex items-center gap-1 text-[10.5px] text-[var(--gray-9)] ml-auto">
+        <div className="hidden sm:flex items-center gap-1 text-[10.5px] text-[var(--gray-9)] sm:ml-auto">
           <LuFilter className="h-3 w-3" strokeWidth={2} />
           Filter:
         </div>
-        <div className="flex items-center gap-0.5 rounded-lg bg-[var(--gray-3)] p-0.5">
+        <div className="flex items-center gap-0.5 rounded-lg bg-[var(--gray-3)] p-0.5 overflow-x-auto -mx-1 px-1 sm:mx-0 sm:px-0 sm:overflow-visible">
           {STATUS_FILTERS.map((f) => (
             <button
               key={f.value}
               type="button"
               onClick={() => setStatusFilter(f.value)}
               className={cn(
-                'rounded-md px-2 py-1 text-[11.5px] font-medium transition-colors',
+                'rounded-md px-2 py-1 text-[11.5px] font-medium transition-colors whitespace-nowrap',
                 statusFilter === f.value
                   ? 'bg-[var(--gray-1)] text-[var(--gray-12)] shadow-sm'
                   : 'text-[var(--gray-9)] hover:text-[var(--gray-12)]',
@@ -194,7 +197,7 @@ export function ExecutionsListClient() {
             <p className="text-[13px] text-[var(--gray-11)] font-medium">
               {search || statusFilter !== 'all'
                 ? 'No executions match'
-                : 'No executions yet'}
+                : t('executions.empty', LOCALE)}
             </p>
             <p className="text-[11.5px] text-[var(--gray-9)]">
               {search || statusFilter !== 'all'
@@ -203,74 +206,128 @@ export function ExecutionsListClient() {
             </p>
           </div>
         ) : (
-          <table className="w-full text-[12px]">
-            <thead className="border-b border-[var(--gray-4)] text-left">
-              <tr className="text-[10.5px] uppercase tracking-wide text-[var(--gray-9)]">
-                <th className="px-6 py-2 font-semibold">Status</th>
-                <th className="px-3 py-2 font-semibold">Flow</th>
-                <th className="px-3 py-2 font-semibold">Trigger</th>
-                <th className="px-3 py-2 font-semibold">Started</th>
-                <th className="px-3 py-2 font-semibold">Duration</th>
-                <th className="px-3 py-2 font-semibold">Nodes</th>
-                <th className="px-3 py-2"></th>
-              </tr>
-            </thead>
-            <tbody>
+          <>
+            {/* Mobile: card list (under md) */}
+            <div className="md:hidden divide-y divide-[var(--gray-3)]">
               {filtered.map((row) => (
-                <tr
+                <Link
                   key={row._id}
-                  className="border-b border-[var(--gray-3)] hover:bg-[var(--gray-2)]"
+                  href={`/dashboard/sabflow/executions/${row._id}`}
+                  className="block px-4 py-3 hover:bg-[var(--gray-2)] active:bg-[var(--gray-3)]"
                 >
-                  <td className="px-6 py-2.5">
+                  <div className="flex items-start gap-2">
                     <span
                       className={cn(
-                        'inline-flex items-center rounded-md px-1.5 py-0.5 text-[10.5px] font-semibold uppercase tracking-wide',
+                        'inline-flex items-center rounded-md px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide shrink-0 mt-0.5',
                         STATUS_STYLES[row.status] ?? STATUS_STYLES.cancelled,
                       )}
                     >
                       {row.status}
                     </span>
-                  </td>
-                  <td className="px-3 py-2.5">
-                    <span className="font-medium text-[var(--gray-12)]">
-                      {row.flowName ?? '—'}
-                    </span>
-                    {row.error && (
-                      <p
-                        className="mt-0.5 truncate text-[11px] text-red-600 max-w-[280px]"
-                        title={row.error}
-                      >
-                        {row.error}
-                      </p>
-                    )}
-                  </td>
-                  <td className="px-3 py-2.5 text-[var(--gray-10)]">
-                    {row.triggerMode ? TRIGGER_LABELS[row.triggerMode] : '—'}
-                  </td>
-                  <td className="px-3 py-2.5 text-[var(--gray-10)]">
-                    {row.startedAt ? formatTime(row.startedAt) : '—'}
-                  </td>
-                  <td className="px-3 py-2.5 text-[var(--gray-10)] tabular-nums">
-                    <span className="inline-flex items-center gap-1">
-                      <LuClock className="h-3 w-3" />
-                      {formatDuration(row.executionTimeMs)}
-                    </span>
-                  </td>
-                  <td className="px-3 py-2.5 text-[var(--gray-10)] tabular-nums">
-                    {row.nodeCount ?? 0}
-                  </td>
-                  <td className="px-3 py-2.5">
-                    <Link
-                      href={`/dashboard/sabflow/executions/${row._id}`}
-                      className="inline-flex items-center gap-1 text-[11.5px] font-medium text-[#f76808] hover:text-[#e25c00]"
-                    >
-                      View <LuArrowRight className="h-3 w-3" />
-                    </Link>
-                  </td>
-                </tr>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-baseline gap-2">
+                        <span className="font-medium text-[13px] text-[var(--gray-12)] truncate">
+                          {row.flowName ?? '—'}
+                        </span>
+                        <LuArrowRight className="h-3 w-3 shrink-0 text-[#f76808]" />
+                      </div>
+                      {row.error && (
+                        <p
+                          className="mt-0.5 truncate text-[11px] text-red-600"
+                          title={row.error}
+                        >
+                          {row.error}
+                        </p>
+                      )}
+                      <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[11px] text-[var(--gray-9)]">
+                        <span>
+                          {row.triggerMode ? TRIGGER_LABELS[row.triggerMode] : '—'}
+                        </span>
+                        <span>{row.startedAt ? formatTime(row.startedAt) : '—'}</span>
+                        <span className="inline-flex items-center gap-1 tabular-nums">
+                          <LuClock className="h-3 w-3" />
+                          {formatDuration(row.executionTimeMs)}
+                        </span>
+                        <span className="tabular-nums">
+                          {row.nodeCount ?? 0} nodes
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
               ))}
-            </tbody>
-          </table>
+            </div>
+
+            {/* Desktop: table (md+) */}
+            <table className="hidden md:table w-full text-[12px]">
+              <thead className="border-b border-[var(--gray-4)] text-left">
+                <tr className="text-[10.5px] uppercase tracking-wide text-[var(--gray-9)]">
+                  <th className="px-6 py-2 font-semibold">Status</th>
+                  <th className="px-3 py-2 font-semibold">Flow</th>
+                  <th className="px-3 py-2 font-semibold">Trigger</th>
+                  <th className="px-3 py-2 font-semibold">Started</th>
+                  <th className="px-3 py-2 font-semibold">Duration</th>
+                  <th className="px-3 py-2 font-semibold">Nodes</th>
+                  <th className="px-3 py-2"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((row) => (
+                  <tr
+                    key={row._id}
+                    className="border-b border-[var(--gray-3)] hover:bg-[var(--gray-2)]"
+                  >
+                    <td className="px-6 py-2.5">
+                      <span
+                        className={cn(
+                          'inline-flex items-center rounded-md px-1.5 py-0.5 text-[10.5px] font-semibold uppercase tracking-wide',
+                          STATUS_STYLES[row.status] ?? STATUS_STYLES.cancelled,
+                        )}
+                      >
+                        {row.status}
+                      </span>
+                    </td>
+                    <td className="px-3 py-2.5">
+                      <span className="font-medium text-[var(--gray-12)]">
+                        {row.flowName ?? '—'}
+                      </span>
+                      {row.error && (
+                        <p
+                          className="mt-0.5 truncate text-[11px] text-red-600 max-w-[280px]"
+                          title={row.error}
+                        >
+                          {row.error}
+                        </p>
+                      )}
+                    </td>
+                    <td className="px-3 py-2.5 text-[var(--gray-10)]">
+                      {row.triggerMode ? TRIGGER_LABELS[row.triggerMode] : '—'}
+                    </td>
+                    <td className="px-3 py-2.5 text-[var(--gray-10)]">
+                      {row.startedAt ? formatTime(row.startedAt) : '—'}
+                    </td>
+                    <td className="px-3 py-2.5 text-[var(--gray-10)] tabular-nums">
+                      <span className="inline-flex items-center gap-1">
+                        <LuClock className="h-3 w-3" />
+                        {formatDuration(row.executionTimeMs)}
+                      </span>
+                    </td>
+                    <td className="px-3 py-2.5 text-[var(--gray-10)] tabular-nums">
+                      {row.nodeCount ?? 0}
+                    </td>
+                    <td className="px-3 py-2.5">
+                      <Link
+                        href={`/dashboard/sabflow/executions/${row._id}`}
+                        className="inline-flex items-center gap-1 text-[11.5px] font-medium text-[#f76808] hover:text-[#e25c00]"
+                      >
+                        View <LuArrowRight className="h-3 w-3" />
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </>
         )}
       </div>
     </div>

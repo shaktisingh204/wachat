@@ -832,3 +832,227 @@ export async function importTasksCsv(input: BulkImportActionInput) {
 export async function importTicketsCsv(input: BulkImportActionInput) {
   return runForKind('crm_ticket', TICKET_ADAPTER, input);
 }
+
+/* ─── §5.9 Wizard endpoints (registry-driven) ──────────────────────────
+ *
+ * Registry-keyed entry points the `<BulkImportWizard>` calls. They keep
+ * the legacy per-entity actions above intact for existing callers.
+ */
+
+import { parseCsv as parseCsvWizard } from '@/lib/bulk-io';
+import { getAdapter as getWizardAdapter } from '@/lib/bulk-import/registry';
+import type {
+  BulkImportField,
+  ExecuteResult,
+} from '@/lib/bulk-import/adapters/types';
+
+export interface BulkImportPreviewRow {
+  rowIndex: number;
+  action: 'create' | 'update' | 'skip' | 'error';
+  value?: Record<string, unknown>;
+  reason?: string;
+  existingId?: string;
+}
+
+export interface BulkImportPreviewResult {
+  entityKind: string;
+  totalRows: number;
+  createCount: number;
+  updateCount: number;
+  skipCount: number;
+  errorCount: number;
+  rows: BulkImportPreviewRow[];
+  previewCsv: string;
+}
+
+export interface WizardBulkImportArgs {
+  entityKind: string;
+  csv: string;
+  mapping?: Record<string, string>;
+  dedupField?: string;
+  updateExisting?: boolean;
+}
+
+export interface WizardSchemaResponse {
+  entityKind: string;
+  label: string;
+  fields: Array<Pick<BulkImportField, 'field' | 'label' | 'required'>>;
+}
+
+function applyMappingWizard(
+  rows: Array<Record<string, string>>,
+  mapping?: Record<string, string>,
+): Array<Record<string, string>> {
+  if (!mapping) return rows;
+  return rows.map((r) => {
+    const next: Record<string, string> = {};
+    for (const [csvCol, value] of Object.entries(r)) {
+      const target = mapping[csvCol];
+      if (target) next[target] = value;
+    }
+    return next;
+  });
+}
+
+function previewRowsToCsv(rows: BulkImportPreviewRow[]): string {
+  const header = ['rowIndex', 'action', 'existingId', 'reason', 'json'];
+  const lines = [header.join(',')];
+  for (const r of rows) {
+    const json = r.value ? JSON.stringify(r.value).replace(/"/g, '""') : '';
+    const cells = [
+      String(r.rowIndex),
+      r.action,
+      r.existingId ?? '',
+      (r.reason ?? '').replace(/"/g, '""'),
+      json ? `"${json}"` : '',
+    ];
+    lines.push(
+      cells
+        .map((c) =>
+          c.includes(',') || c.includes('"')
+            ? `"${c.replace(/"/g, '""')}"`
+            : c,
+        )
+        .join(','),
+    );
+  }
+  return lines.join('\n');
+}
+
+export async function getBulkImportSchema(
+  entityKind: string,
+): Promise<WizardSchemaResponse | null> {
+  const adapter = getWizardAdapter(entityKind);
+  if (!adapter) return null;
+  return {
+    entityKind: adapter.entityKind,
+    label: adapter.label,
+    fields: adapter.targetSchema.map((f) => ({
+      field: f.field,
+      label: f.label,
+      required: f.required,
+    })),
+  };
+}
+
+export async function previewBulkImport(
+  args: WizardBulkImportArgs,
+): Promise<{ result?: BulkImportPreviewResult; error?: string }> {
+  const adapter = getWizardAdapter(args.entityKind);
+  if (!adapter) return { error: `Unknown entity "${args.entityKind}".` };
+  if (!args.csv || !args.csv.trim()) return { error: 'CSV is empty.' };
+
+  try {
+    const parsed = parseCsvWizard(args.csv);
+    if (parsed.rows.length === 0) {
+      return {
+        result: {
+          entityKind: args.entityKind,
+          totalRows: 0,
+          createCount: 0,
+          updateCount: 0,
+          skipCount: 0,
+          errorCount: 0,
+          rows: [],
+          previewCsv: '',
+        },
+      };
+    }
+    const remapped = applyMappingWizard(parsed.rows, args.mapping);
+
+    type Slot = { idx: number; value: unknown };
+    const ok: Slot[] = [];
+    const previewRows: BulkImportPreviewRow[] = [];
+    for (let i = 0; i < remapped.length; i += 1) {
+      const r = adapter.normalize(remapped[i]!);
+      if (!r.ok) {
+        previewRows.push({ rowIndex: i + 1, action: 'error', reason: r.error });
+      } else {
+        ok.push({ idx: i, value: r.value });
+      }
+    }
+
+    const buckets = adapter.dedupe(
+      ok.map((s) => s.value),
+      [],
+      args.dedupField,
+    );
+    let cursor = 0;
+    for (const v of buckets.toCreate) {
+      const slot = ok[cursor++]!;
+      previewRows.push({
+        rowIndex: slot.idx + 1,
+        action: 'create',
+        value: v as Record<string, unknown>,
+      });
+    }
+    for (const v of buckets.toUpdate) {
+      const slot = ok[cursor++]!;
+      previewRows.push({
+        rowIndex: slot.idx + 1,
+        action: 'update',
+        value: v.value as Record<string, unknown>,
+        existingId: v.existingId,
+      });
+    }
+    for (const v of buckets.skipped) {
+      const slot = ok[cursor++]!;
+      previewRows.push({
+        rowIndex: slot.idx + 1,
+        action: 'skip',
+        value: v.value as Record<string, unknown>,
+        reason: v.reason,
+      });
+    }
+    previewRows.sort((a, b) => a.rowIndex - b.rowIndex);
+
+    return {
+      result: {
+        entityKind: args.entityKind,
+        totalRows: parsed.rows.length,
+        createCount: previewRows.filter((r) => r.action === 'create').length,
+        updateCount: previewRows.filter((r) => r.action === 'update').length,
+        skipCount: previewRows.filter((r) => r.action === 'skip').length,
+        errorCount: previewRows.filter((r) => r.action === 'error').length,
+        rows: previewRows,
+        previewCsv: previewRowsToCsv(previewRows),
+      },
+    };
+  } catch (e) {
+    console.error('[previewBulkImport] failed:', e);
+    return { error: 'Could not preview import.' };
+  }
+}
+
+export async function executeBulkImport(
+  args: WizardBulkImportArgs,
+): Promise<{ result?: ExecuteResult; error?: string }> {
+  const adapter = getWizardAdapter(args.entityKind);
+  if (!adapter) return { error: `Unknown entity "${args.entityKind}".` };
+  if (!args.csv || !args.csv.trim()) return { error: 'CSV is empty.' };
+
+  try {
+    const parsed = parseCsvWizard(args.csv);
+    const remapped = applyMappingWizard(parsed.rows, args.mapping);
+    const errs: Array<{ rowIndex: number; error: string }> = [];
+    const values: unknown[] = [];
+    for (let i = 0; i < remapped.length; i += 1) {
+      const r = adapter.normalize(remapped[i]!);
+      if (!r.ok) {
+        errs.push({ rowIndex: i + 1, error: r.error });
+      } else {
+        values.push(r.value);
+      }
+    }
+    const result = await adapter.execute(values, {
+      updateExisting: args.updateExisting === true,
+      dedupField: args.dedupField,
+    });
+    result.errors = [...errs, ...result.errors];
+    revalidatePath('/dashboard/crm', 'layout');
+    return { result };
+  } catch (e) {
+    console.error('[executeBulkImport] failed:', e);
+    return { error: 'Import failed.' };
+  }
+}

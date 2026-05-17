@@ -6,6 +6,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { getSession } from '@/app/actions/user.actions';
 import { revokeApiKey } from '@/lib/sabflow/apiKeys/db';
+import { recordFlowAction } from '@/lib/sabflow/audit/middleware';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -27,6 +28,11 @@ export async function DELETE(
       return NextResponse.json({ error: 'Key not found' }, { status: 404 });
     }
     console.log(`[SABFLOW API-KEYS] revoked user=${userId} key=${keyId}`);
+    void recordFlowAction('apiKey.revoked', {
+      userId,
+      target: keyId,
+      request: _req,
+    });
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error('[SABFLOW API-KEYS DELETE]', err);

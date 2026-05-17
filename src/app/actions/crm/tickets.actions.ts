@@ -11,6 +11,8 @@
  */
 
 import { revalidatePath } from 'next/cache';
+import { ObjectId } from 'mongodb';
+import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
 import { writeAuditEntry } from '@/lib/audit-log';
 import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
@@ -254,4 +256,89 @@ export async function updateTicket(id: string, patch: CrmTicketUpdateInput) {
 
 export async function deleteTicket(id: string) {
   return crmTicketsApi.delete(id);
+}
+
+/* ─── getCrmTicketRelatedCounts ─────────────────────────────────────────
+ * Right-rail counts (§5.6) for the ticket detail page: replies on this
+ * ticket, attachments, and any related tickets (same requester or
+ * parent linkage). Each filter is tenant-scoped on `userId`. Returns
+ * zeros on any failure so the UI never blocks.
+ */
+export async function getCrmTicketRelatedCounts(ticketId: string): Promise<{
+  replies: number;
+  attachments: number;
+  relatedTickets: number;
+}> {
+  const empty = { replies: 0, attachments: 0, relatedTickets: 0 };
+  if (!ticketId) return empty;
+  const session = await getSession();
+  if (!session?.user) return empty;
+
+  try {
+    const { db } = await connectToDatabase();
+    const userId = new ObjectId(String(session.user._id));
+    const idCandidates: unknown[] = [ticketId];
+    if (ObjectId.isValid(ticketId)) idCandidates.push(new ObjectId(ticketId));
+
+    // The ticket doc itself supplies `requesterId` + `parentTicketId`
+    // so we can resolve sibling/child tickets in one extra round-trip.
+    const ticketDoc = await db
+      .collection('crm_tickets')
+      .findOne(
+        ObjectId.isValid(ticketId)
+          ? ({ _id: new ObjectId(ticketId), userId } as Record<string, unknown>)
+          : ({ _id: ticketId, userId } as Record<string, unknown>),
+        { projection: { requesterId: 1, parentTicketId: 1 } },
+      )
+      .catch(() => null);
+    const requesterId = (ticketDoc as { requesterId?: string } | null)?.requesterId;
+    const parentTicketId = (ticketDoc as { parentTicketId?: string } | null)?.parentTicketId;
+
+    const [replies, attachments, relatedTickets] = await Promise.all([
+      db
+        .collection('crm_ticket_replies')
+        .countDocuments({
+          userId,
+          ticketId: { $in: idCandidates },
+        } as Record<string, unknown>)
+        .catch(() => 0),
+      db
+        .collection('crm_attachments')
+        .countDocuments({
+          userId,
+          $or: [
+            { entityKind: 'ticket', entityId: { $in: idCandidates } },
+            { ticketId: { $in: idCandidates } },
+          ],
+        } as Record<string, unknown>)
+        .catch(() => 0),
+      (async () => {
+        const ors: Record<string, unknown>[] = [];
+        if (requesterId) ors.push({ requesterId });
+        if (parentTicketId) ors.push({ parentTicketId });
+        ors.push({ parentTicketId: { $in: idCandidates } });
+        if (ors.length === 0) return 0;
+        const idMatcher = ObjectId.isValid(ticketId)
+          ? { $ne: new ObjectId(ticketId) }
+          : { $ne: ticketId };
+        return db
+          .collection('crm_tickets')
+          .countDocuments({
+            userId,
+            _id: idMatcher,
+            $or: ors,
+          } as Record<string, unknown>)
+          .catch(() => 0);
+      })(),
+    ]);
+
+    return {
+      replies: Number(replies) || 0,
+      attachments: Number(attachments) || 0,
+      relatedTickets: Number(relatedTickets) || 0,
+    };
+  } catch (e) {
+    console.error('[getCrmTicketRelatedCounts] failed:', e);
+    return empty;
+  }
 }

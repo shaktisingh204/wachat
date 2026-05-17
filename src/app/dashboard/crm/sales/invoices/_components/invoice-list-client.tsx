@@ -24,6 +24,8 @@ import {
 } from '@/components/zoruui';
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
+import { SavedViewsBar } from '@/components/crm/SavedViewsBar';
+import type { SavedView } from '@/lib/saved-views/types';
 
 import { InvoicesKpiStrip } from './invoices-kpi-strip';
 import { InvoicesToolbar } from './invoices-toolbar';
@@ -354,8 +356,69 @@ export function InvoiceListClient({
     Boolean(amountMin) ||
     Boolean(amountMax);
 
+  /* §5.10: Saved-views integration ─────────────────────────────────────── */
+  const savedViewFilters = React.useMemo(
+    () => ({
+      query,
+      statusFilter,
+      customerFilter,
+      agentFilter,
+      branchFilter,
+      currencyFilter,
+      fromDate,
+      toDate,
+      dueFrom,
+      dueTo,
+      amountMin,
+      amountMax,
+      preset,
+    }),
+    [
+      query,
+      statusFilter,
+      customerFilter,
+      agentFilter,
+      branchFilter,
+      currencyFilter,
+      fromDate,
+      toDate,
+      dueFrom,
+      dueTo,
+      amountMin,
+      amountMax,
+      preset,
+    ],
+  );
+  const handleApplyView = React.useCallback((view: SavedView) => {
+    const f = (view.filters ?? {}) as Record<string, unknown>;
+    if (typeof f.query === 'string') setQuery(f.query);
+    if (typeof f.statusFilter === 'string') setStatusFilter(f.statusFilter);
+    if (typeof f.customerFilter === 'string' || f.customerFilter === null)
+      setCustomerFilter((f.customerFilter as string | null) ?? null);
+    if (typeof f.agentFilter === 'string' || f.agentFilter === null)
+      setAgentFilter((f.agentFilter as string | null) ?? null);
+    if (typeof f.branchFilter === 'string' || f.branchFilter === null)
+      setBranchFilter((f.branchFilter as string | null) ?? null);
+    if (typeof f.currencyFilter === 'string' || f.currencyFilter === null)
+      setCurrencyFilter((f.currencyFilter as string | null) ?? null);
+    if (typeof f.fromDate === 'string') setFromDate(f.fromDate);
+    if (typeof f.toDate === 'string') setToDate(f.toDate);
+    if (typeof f.dueFrom === 'string') setDueFrom(f.dueFrom);
+    if (typeof f.dueTo === 'string') setDueTo(f.dueTo);
+    if (typeof f.amountMin === 'string') setAmountMin(f.amountMin);
+    if (typeof f.amountMax === 'string') setAmountMax(f.amountMax);
+    if (typeof f.preset === 'string') setPreset(f.preset as InvoicePresetKey);
+  }, []);
+
   return (
     <div className="flex w-full flex-col gap-5">
+      <SavedViewsBar
+        entityKind="invoice"
+        currentFilters={savedViewFilters}
+        currentColumns={[]}
+        onApplyView={handleApplyView}
+      />
+
       {/* KPI strip */}
       <InvoicesKpiStrip
         kpi={kpi}

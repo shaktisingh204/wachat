@@ -39,8 +39,10 @@ import {
   useZoruToast,
 } from '@/components/zoruui';
 import { PaginationBar } from '@/components/crm/pagination-bar';
+import { SavedViewsBar } from '@/components/crm/SavedViewsBar';
 import { deleteLeadAction } from '@/app/actions/crm/leads.actions';
 import type { CrmLeadDoc } from '@/lib/rust-client/crm-leads';
+import type { SavedView } from '@/lib/saved-views/types';
 
 interface LeadListClientProps {
   leads: CrmLeadDoc[];
@@ -121,7 +123,22 @@ export function LeadListClient({
     });
   };
 
+  /* §5.10: Saved-views integration ─────────────────────────────────────── */
+  const savedViewFilters = React.useMemo(() => ({ query }), [query]);
+  const handleApplyView = React.useCallback((view: SavedView) => {
+    const f = (view.filters ?? {}) as Record<string, unknown>;
+    if (typeof f.query === 'string') setQuery(f.query);
+  }, []);
+
   return (
+    <div className="flex w-full flex-col gap-3">
+      <SavedViewsBar
+        entityKind="lead"
+        currentFilters={savedViewFilters}
+        currentColumns={[]}
+        onApplyView={handleApplyView}
+      />
+
     <ZoruCard className="overflow-hidden p-0">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zoru-line p-3">
         <div className="relative max-w-sm flex-1">
@@ -260,5 +277,6 @@ export function LeadListClient({
         </ZoruAlertDialogContent>
       </ZoruAlertDialog>
     </ZoruCard>
+    </div>
   );
 }

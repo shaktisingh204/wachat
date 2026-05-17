@@ -160,63 +160,95 @@ export function ExecutionReplayClient({ executionId }: { executionId: string }) 
   }, [playing, nodes.length, playbackMs]);
 
   /*
-   * Step 37 — live trace via Server-Sent Events.
+   * Live trace via Server-Sent Events.
    *
    * When the loaded execution is still `running`, subscribe to the SSE
-   * endpoint and append each incoming step into the local snapshot so the
-   * timeline animates while the run progresses.  On the terminal `end`
-   * event we close the connection and refresh the snapshot once to pick
-   * up final variables + status.
+   * endpoint and merge each incoming snapshot/update into local state so
+   * the timeline animates while the run progresses. The route emits
+   * unnamed events whose JSON `data` is `{ type, data }` envelopes —
+   * `snapshot` and `update` both carry the full execution row. On a
+   * terminal status (or `timeout` / `error` payload, or hard EventSource
+   * failure) we close the stream and refresh once to pick up the final
+   * row (executionTimeMs, etc.).
    */
   useEffect(() => {
     if (!data || data.execution.status !== 'running') return;
     const src = new EventSource(`/api/sabflow/executions/${executionId}/stream`);
 
-    src.addEventListener('step', (e) => {
-      try {
-        const evt = JSON.parse((e as MessageEvent).data) as {
-          step: ExecutionHistoryNode;
-          index: number;
-        };
-        setData((prev) => {
-          if (!prev) return prev;
-          const nextNodes = (prev.execution.nodes ?? []).slice();
-          nextNodes.push({
-            ...evt.step,
-            startedAt: evt.step.startedAt
-              ? new Date(evt.step.startedAt as unknown as string)
-              : undefined,
-            finishedAt: evt.step.finishedAt
-              ? new Date(evt.step.finishedAt as unknown as string)
-              : undefined,
-          });
-          return {
-            ...prev,
-            execution: {
-              ...prev.execution,
-              nodes: nextNodes,
-              nodeCount: nextNodes.length,
-            },
-          };
-        });
-      } catch {
-        /* malformed event — ignore */
-      }
-    });
+    const TERMINAL = new Set(['success', 'error', 'cancelled']);
 
-    src.addEventListener('end', () => {
+    const finish = (refresh: boolean) => {
       src.close();
-      // Refresh once so we pick up final status, executionTimeMs, etc.
-      void load();
-    });
-
-    src.onerror = () => {
-      // EventSource auto-reconnects on transient network errors; only
-      // close on a hard failure where readyState is CLOSED.
-      if (src.readyState === EventSource.CLOSED) src.close();
+      if (refresh) void load();
     };
 
-    return () => src.close();
+    const onMessage = (e: MessageEvent) => {
+      let envelope:
+        | { type: 'snapshot' | 'update'; data: Partial<ExecutionHistoryEntry> }
+        | { type: 'timeout' }
+        | { error: string };
+      try {
+        envelope = JSON.parse(e.data);
+      } catch {
+        return; // malformed — ignore
+      }
+
+      if ('error' in envelope) {
+        finish(false);
+        return;
+      }
+      if (envelope.type === 'timeout') {
+        finish(true);
+        return;
+      }
+
+      const incoming = envelope.data;
+      setData((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          execution: {
+            ...prev.execution,
+            ...incoming,
+            // Preserve our local Date hydration of timestamps where the
+            // server has handed back ISO strings.
+            nodes: Array.isArray(incoming.nodes)
+              ? incoming.nodes.map((n) => ({
+                  ...n,
+                  startedAt: n.startedAt
+                    ? new Date(n.startedAt as unknown as string)
+                    : undefined,
+                  finishedAt: n.finishedAt
+                    ? new Date(n.finishedAt as unknown as string)
+                    : undefined,
+                }))
+              : prev.execution.nodes,
+            nodeCount: Array.isArray(incoming.nodes)
+              ? incoming.nodes.length
+              : prev.execution.nodeCount,
+          },
+        };
+      });
+
+      if (incoming.status && TERMINAL.has(incoming.status)) {
+        finish(true);
+      }
+    };
+
+    const onError = () => {
+      // EventSource auto-reconnects on transient drops; close only on a
+      // hard CLOSED state to avoid reconnecting indefinitely.
+      if (src.readyState === EventSource.CLOSED) finish(true);
+    };
+
+    src.addEventListener('message', onMessage);
+    src.addEventListener('error', onError);
+
+    return () => {
+      src.removeEventListener('message', onMessage);
+      src.removeEventListener('error', onError);
+      src.close();
+    };
   }, [data, executionId, load]);
 
   if (loading) {

@@ -335,3 +335,182 @@ export async function getDefaultSavedView(
     return null;
   }
 }
+
+/* ─── §5.10 spec-aligned wrappers ──────────────────────────────────────
+ *
+ * These names match CRM_REBUILD_PLAN §5.10 verbatim. They delegate to the
+ * existing implementations above; new call sites should prefer these.
+ */
+
+import type { SavedView, SavedViewScope, SavedViewSortDir } from '@/lib/saved-views/types';
+
+function toSavedViewShape(row: WithId<CrmSavedView>): SavedView {
+  const r = row as unknown as {
+    _id: unknown;
+    userId?: unknown;
+    ownerId?: unknown;
+    name?: string;
+    entityKey?: string;
+    scope?: string;
+    filters?: Record<string, unknown>;
+    columns?: string[];
+    visibleColumns?: string[];
+    sort?: Array<[string, '+' | '-']>;
+    sortBy?: string | null;
+    sortDir?: SavedViewSortDir | null;
+    isDefault?: boolean;
+    createdAt?: Date | string;
+    updatedAt?: Date | string;
+  };
+  let sortBy: string | undefined = r.sortBy ?? undefined;
+  let sortDir: SavedViewSortDir | undefined = r.sortDir ?? undefined;
+  if (!sortBy && Array.isArray(r.sort) && r.sort.length > 0) {
+    const head = r.sort[0];
+    if (Array.isArray(head) && typeof head[0] === 'string') {
+      sortBy = head[0];
+      sortDir = head[1] === '-' ? 'desc' : 'asc';
+    }
+  }
+  const visibleColumns =
+    (Array.isArray(r.visibleColumns) && r.visibleColumns) ||
+    (Array.isArray(r.columns) && r.columns) ||
+    [];
+  return {
+    _id: String(r._id),
+    ownerId: String(r.ownerId ?? r.userId ?? ''),
+    name: r.name ?? '',
+    entityKind: r.entityKey ?? '',
+    // Legacy DB rows use 'team' for the shared scope; §5.10 uses 'shared'.
+    scope: r.scope === 'shared' || r.scope === 'team' ? 'shared' : 'private',
+    filters: r.filters ?? {},
+    visibleColumns,
+    sortBy,
+    sortDir,
+    isDefault: !!r.isDefault,
+    createdAt:
+      r.createdAt instanceof Date
+        ? r.createdAt.toISOString()
+        : typeof r.createdAt === 'string'
+          ? r.createdAt
+          : new Date().toISOString(),
+    updatedAt:
+      r.updatedAt instanceof Date
+        ? r.updatedAt.toISOString()
+        : typeof r.updatedAt === 'string'
+          ? r.updatedAt
+          : new Date().toISOString(),
+  };
+}
+
+/** Returns views the current user owns + tenant-shared views. (§5.10) */
+export async function getSavedViews(entityKind: string): Promise<SavedView[]> {
+  if (!entityKind) return [];
+  const { views } = await listSavedViews({ entityKey: entityKind, includeTeam: true });
+  return views.map(toSavedViewShape);
+}
+
+function parseJsonRecord(
+  raw: FormDataEntryValue | null,
+  fallback: Record<string, unknown>,
+): Record<string, unknown> {
+  if (typeof raw !== 'string' || !raw.trim()) return fallback;
+  try {
+    const parsed = JSON.parse(raw);
+    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+      return parsed as Record<string, unknown>;
+    }
+  } catch {
+    /* fall through */
+  }
+  return fallback;
+}
+
+function parseJsonStringArray(
+  raw: FormDataEntryValue | null,
+  fallback: string[],
+): string[] {
+  if (typeof raw !== 'string' || !raw.trim()) return fallback;
+  try {
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed)) {
+      return parsed.filter((v): v is string => typeof v === 'string');
+    }
+  } catch {
+    /* fall through */
+  }
+  return fallback;
+}
+
+/**
+ * §5.10 spec-named saveSavedView — FormData form.
+ *
+ * Accepts: `viewId?`, `name`, `entityKind`, `scope`, `filters` (JSON),
+ * `visibleColumns` (JSON), `sortBy?`, `sortDir?`, `isDefault`.
+ */
+export async function saveSavedViewFromForm(
+  _prev: { error?: string; message?: string; view?: SavedView } | undefined,
+  formData: FormData,
+): Promise<{ error?: string; message?: string; view?: SavedView }> {
+  const viewId = (formData.get('viewId') as string | null) ?? undefined;
+  const name = ((formData.get('name') as string | null) ?? '').trim();
+  const entityKind = ((formData.get('entityKind') as string | null) ?? '').trim();
+  const scopeRaw = ((formData.get('scope') as string | null) ?? 'private').trim();
+  const scope: SavedViewScope = scopeRaw === 'shared' ? 'shared' : 'private';
+  const filters = parseJsonRecord(formData.get('filters'), {});
+  const visibleColumns = parseJsonStringArray(formData.get('visibleColumns'), []);
+  const sortBy = ((formData.get('sortBy') as string | null) ?? '').trim() || undefined;
+  const sortDirRaw = ((formData.get('sortDir') as string | null) ?? '').trim();
+  const sortDir: SavedViewSortDir | undefined =
+    sortDirRaw === 'asc' || sortDirRaw === 'desc' ? sortDirRaw : undefined;
+  const isDefault = (formData.get('isDefault') as string | null) === 'true';
+
+  if (!name) return { error: 'A view name is required.' };
+  if (!entityKind) return { error: 'entityKind is required.' };
+
+  const sortTuple: Array<[string, '+' | '-']> = sortBy
+    ? [[sortBy, sortDir === 'desc' ? '-' : '+']]
+    : [];
+
+  // Bridge from the §5.10 scope ('shared') to the legacy DB scope ('team').
+  const legacyScope: CrmSavedViewScope = scope === 'shared' ? 'team' : 'private';
+  const res = await saveSavedView({
+    id: viewId && viewId.trim() ? viewId : undefined,
+    entityKey: entityKind,
+    name,
+    scope: legacyScope,
+    filters,
+    columns: visibleColumns,
+    sort: sortTuple,
+    isDefault,
+  });
+  if (!res.success) return { error: res.error ?? 'Save failed.' };
+  if (!res.id) return { message: 'Saved.' };
+  const row = await getSavedViewById(res.id);
+  return {
+    message: 'View saved.',
+    view: row ? toSavedViewShape(row) : undefined,
+  };
+}
+
+/**
+ * §5.10 spec-named: flip a view to default for `(userId, entityKind)`.
+ * Thin wrapper around `setSavedViewAsDefault` that also validates the
+ * (entityKind, viewId) tuple — keeps the public surface aligned with the
+ * plan even though the underlying impl only needs the id.
+ */
+export async function setDefaultSavedView(
+  entityKind: string,
+  viewId: string,
+): Promise<{ success: boolean; error?: string }> {
+  if (!entityKind) return { success: false, error: 'entityKind is required.' };
+  if (!viewId || !ObjectId.isValid(viewId)) {
+    return { success: false, error: 'Invalid view id.' };
+  }
+  const view = await getSavedViewById(viewId);
+  if (!view) return { success: false, error: 'Saved view not found.' };
+  const viewEntityKind = (view as unknown as { entityKey?: string }).entityKey;
+  if (viewEntityKind && viewEntityKind !== entityKind) {
+    return { success: false, error: 'View does not belong to this list.' };
+  }
+  return setSavedViewAsDefault(viewId);
+}

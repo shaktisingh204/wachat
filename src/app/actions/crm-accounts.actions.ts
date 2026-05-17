@@ -224,6 +224,24 @@ export async function addCrmAccount(
                 logoUrl: str('logoUrl'),
             });
             revalidateAccountSurfaces();
+            // Phase 7: fire-and-forget webhook fan-out for `account.created`.
+            // Wrapped defensively so any failure here can never unwind the
+            // user-visible mutation. Same pattern is used by every CRM action
+            // that will eventually emit events (this is the wiring example).
+            try {
+                const { dispatchWebhookEvent } = await import('@/lib/webhooks/dispatch');
+                void dispatchWebhookEvent(
+                    String(session.user._id),
+                    'account.created',
+                    {
+                        account: entity
+                            ? { ...rustDocToLegacy(entity), _id: id }
+                            : { _id: id, name },
+                    },
+                );
+            } catch (whErr) {
+                console.error('[addCrmAccount] webhook dispatch failed:', whErr);
+            }
             return {
                 message: 'Account added successfully.',
                 newClient: entity
@@ -279,6 +297,17 @@ export async function addCrmAccount(
         });
 
         revalidateAccountSurfaces();
+        // Phase 7: webhook fan-out (legacy path).
+        try {
+            const { dispatchWebhookEvent } = await import('@/lib/webhooks/dispatch');
+            void dispatchWebhookEvent(
+                String(session.user._id),
+                'account.created',
+                { account: { ...newAccount, _id: result.insertedId } },
+            );
+        } catch (whErr) {
+            console.error('[addCrmAccount] webhook dispatch failed:', whErr);
+        }
         return {
             message: 'Account added successfully.',
             newClient: { ...newAccount, _id: result.insertedId },

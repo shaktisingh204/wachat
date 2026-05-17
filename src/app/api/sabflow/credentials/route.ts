@@ -25,6 +25,7 @@ import {
   type CredentialType,
   type MaskedCredential,
 } from '@/lib/sabflow/credentials/types';
+import { recordFlowAction } from '@/lib/sabflow/audit/middleware';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -145,6 +146,12 @@ export async function POST(req: NextRequest) {
       type: raw.type,
       name,
       data,
+    });
+    void recordFlowAction('credential.created', {
+      userId,
+      target: id,
+      metadata: { type: raw.type },
+      request: req,
     });
     return NextResponse.json({ id }, { status: 201 });
   } catch (err) {

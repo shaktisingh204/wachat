@@ -12,6 +12,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { getSession } from '@/app/actions/user.actions';
 import { deleteFolder, renameFolder } from '@/lib/sabflow/folders/db';
+import { recordFlowAction } from '@/lib/sabflow/audit/middleware';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -41,6 +42,14 @@ export async function PATCH(
   }
   try {
     const ok = await renameFolder(userId, folderId, body.name, body.color);
+    if (ok) {
+      void recordFlowAction('folder.renamed', {
+        userId,
+        target: folderId,
+        metadata: { name: body.name, color: body.color },
+        request: req,
+      });
+    }
     return NextResponse.json({ ok }, { status: ok ? 200 : 404 });
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'Internal server error';
@@ -60,6 +69,13 @@ export async function DELETE(
   const { folderId } = await ctx.params;
   try {
     const ok = await deleteFolder(userId, folderId);
+    if (ok) {
+      void recordFlowAction('folder.deleted', {
+        userId,
+        target: folderId,
+        request: _req,
+      });
+    }
     return NextResponse.json({ ok }, { status: ok ? 200 : 404 });
   } catch (err) {
     console.error('[SABFLOW FOLDERS DELETE]', err);

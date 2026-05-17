@@ -9,7 +9,15 @@
 
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { Users, Pencil, ArrowLeft } from 'lucide-react';
+import {
+  Users,
+  Pencil,
+  ArrowLeft,
+  Handshake,
+  ListChecks,
+  LifeBuoy,
+  FileText,
+} from 'lucide-react';
 
 import {
   ZoruButton,
@@ -19,7 +27,9 @@ import {
 import { CrmPageHeader } from '../../_components/crm-page-header';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { CustomFieldDisplay } from '@/components/crm/custom-field-input';
+import { RelatedRail } from '@/components/crm/RelatedRail';
 import { getLead } from '@/app/actions/crm/leads.actions';
+import { getCrmLeadRelatedCounts } from '@/app/actions/crm-leads.actions';
 import { getCustomFieldsFor } from '@/app/actions/worksuite/meta.actions';
 import type { WsCustomField } from '@/lib/worksuite/meta-types';
 
@@ -61,9 +71,10 @@ export default async function LeadDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [{ lead, error }, customFields] = await Promise.all([
+  const [{ lead, error }, customFields, relatedCounts] = await Promise.all([
     getLead(id),
     getCustomFieldsFor('lead') as Promise<WsCustomField[]>,
+    getCrmLeadRelatedCounts(id),
   ]);
 
   if (!lead) {
@@ -148,19 +159,50 @@ export default async function LeadDetailPage({
           </div>
         </ZoruCard>
 
-        <ZoruCard className="p-6">
-          <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
-            Value & Forecast
-          </h3>
-          <div className="flex flex-col gap-4">
-            <Field label="Estimated value">{fmtMoney(lead.estimatedValue, lead.currency)}</Field>
-            <Field label="Currency">{lead.currency || '—'}</Field>
-            <Field label="Probability">
-              {typeof lead.probabilityPct === 'number' ? `${lead.probabilityPct}%` : '—'}
-            </Field>
-            <Field label="Expected close">{fmtDate(lead.expectedClose)}</Field>
-          </div>
-        </ZoruCard>
+        <div className="flex flex-col gap-6">
+          <ZoruCard className="p-6">
+            <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+              Value & Forecast
+            </h3>
+            <div className="flex flex-col gap-4">
+              <Field label="Estimated value">{fmtMoney(lead.estimatedValue, lead.currency)}</Field>
+              <Field label="Currency">{lead.currency || '—'}</Field>
+              <Field label="Probability">
+                {typeof lead.probabilityPct === 'number' ? `${lead.probabilityPct}%` : '—'}
+              </Field>
+              <Field label="Expected close">{fmtDate(lead.expectedClose)}</Field>
+            </div>
+          </ZoruCard>
+
+          <RelatedRail
+            items={[
+              {
+                label: 'Deals',
+                count: relatedCounts.deals,
+                icon: <Handshake className="h-3.5 w-3.5" />,
+                href: `/dashboard/crm/sales-crm/deals?leadId=${id}`,
+              },
+              {
+                label: 'Tasks',
+                count: relatedCounts.tasks,
+                icon: <ListChecks className="h-3.5 w-3.5" />,
+                href: `/dashboard/crm/tasks?leadId=${id}`,
+              },
+              {
+                label: 'Tickets',
+                count: relatedCounts.tickets,
+                icon: <LifeBuoy className="h-3.5 w-3.5" />,
+                href: `/dashboard/crm/tickets?leadId=${id}`,
+              },
+              {
+                label: 'Quotations',
+                count: relatedCounts.quotations,
+                icon: <FileText className="h-3.5 w-3.5" />,
+                href: `/dashboard/crm/sales/quotations?leadId=${id}`,
+              },
+            ]}
+          />
+        </div>
       </div>
 
       {customFields.length > 0 ? (

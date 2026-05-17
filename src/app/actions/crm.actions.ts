@@ -731,3 +731,104 @@ export async function getCrmDashboardStats() {
         };
     }
 }
+
+/* ─── getCrmContactRelatedCounts ──────────────────────────────────────
+ * Right-rail counts for the contact detail page (§5.6). All filters
+ * are tenant-scoped on `userId`. Returns zeros on any failure so the
+ * UI never blocks.
+ */
+export async function getCrmContactRelatedCounts(contactId: string): Promise<{
+    deals: number;
+    tasks: number;
+    notes: number;
+    tickets: number;
+    invoices: number;
+    attachments: number;
+}> {
+    const empty = { deals: 0, tasks: 0, notes: 0, tickets: 0, invoices: 0, attachments: 0 };
+    if (!contactId || !ObjectId.isValid(contactId)) return empty;
+    const session = await getSession();
+    if (!session?.user) return empty;
+
+    try {
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(String(session.user._id));
+        const objId = new ObjectId(contactId);
+        const idCandidates: unknown[] = [contactId, objId];
+
+        const [deals, tasks, notes, tickets, invoices, attachments] = await Promise.all([
+            db
+                .collection('crm_deals')
+                .countDocuments({
+                    userId,
+                    $or: [
+                        { contactIds: { $in: idCandidates } },
+                        { contactId: { $in: idCandidates } },
+                    ],
+                } as Record<string, unknown>)
+                .catch(() => 0),
+            db
+                .collection('crm_tasks')
+                .countDocuments({
+                    userId,
+                    $or: [
+                        { contactId: { $in: idCandidates } },
+                        { 'linkedEntity.kind': 'contact', 'linkedEntity.id': { $in: idCandidates } },
+                    ],
+                } as Record<string, unknown>)
+                .catch(() => 0),
+            db
+                .collection('crm_notes')
+                .countDocuments({
+                    userId,
+                    $or: [
+                        { recordId: { $in: idCandidates }, recordType: 'contact' },
+                        { contactId: { $in: idCandidates } },
+                    ],
+                } as Record<string, unknown>)
+                .catch(() => 0),
+            db
+                .collection('crm_tickets')
+                .countDocuments({
+                    userId,
+                    $or: [
+                        { contactId: { $in: idCandidates } },
+                        { requesterId: { $in: idCandidates } },
+                    ],
+                } as Record<string, unknown>)
+                .catch(() => 0),
+            db
+                .collection('crm_invoices')
+                .countDocuments({
+                    userId,
+                    $or: [
+                        { contactId: { $in: idCandidates } },
+                        { clientId: { $in: idCandidates } },
+                    ],
+                } as Record<string, unknown>)
+                .catch(() => 0),
+            db
+                .collection('crm_attachments')
+                .countDocuments({
+                    userId,
+                    $or: [
+                        { entityKind: 'contact', entityId: { $in: idCandidates } },
+                        { contactId: { $in: idCandidates } },
+                    ],
+                } as Record<string, unknown>)
+                .catch(() => 0),
+        ]);
+
+        return {
+            deals: Number(deals) || 0,
+            tasks: Number(tasks) || 0,
+            notes: Number(notes) || 0,
+            tickets: Number(tickets) || 0,
+            invoices: Number(invoices) || 0,
+            attachments: Number(attachments) || 0,
+        };
+    } catch (e) {
+        console.error('[getCrmContactRelatedCounts] failed:', e);
+        return empty;
+    }
+}

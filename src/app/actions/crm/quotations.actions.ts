@@ -11,6 +11,8 @@
  */
 
 import { revalidatePath } from 'next/cache';
+import { ObjectId } from 'mongodb';
+import { connectToDatabase } from '@/lib/mongodb';
 import { RustApiError } from '@/lib/rust-client';
 import {
   crmQuotationsApi,
@@ -422,4 +424,58 @@ export async function bulkChangeQuotationStatus(
     await crmQuotationsApi.update(id, { status });
     await recordAudit('update', id);
   });
+}
+
+/* ─── getCrmQuotationRelatedCounts ──────────────────────────────────────
+ * Lightweight aggregate of related-entity counts for the quotation
+ * detail right rail (§5.6). Sales orders + invoices descend from a
+ * quotation via lineage. Returns 0s on any failure so the UI never
+ * blocks.
+ */
+export async function getCrmQuotationRelatedCounts(
+  quotationId: string,
+): Promise<{ salesOrders: number; invoices: number }> {
+  const empty = { salesOrders: 0, invoices: 0 };
+  if (!quotationId) return empty;
+  const session = await getSession();
+  if (!session?.user) return empty;
+
+  try {
+    const { db } = await connectToDatabase();
+    const userId = new ObjectId(String(session.user._id));
+    const idCandidates: unknown[] = [quotationId];
+    if (ObjectId.isValid(quotationId)) idCandidates.push(new ObjectId(quotationId));
+
+    const [salesOrders, invoices] = await Promise.all([
+      db
+        .collection('crm_sales_orders')
+        .countDocuments({
+          userId,
+          $or: [
+            { quotationRef: { $in: idCandidates } },
+            { quotationId: { $in: idCandidates } },
+            { 'lineage.id': quotationId, 'lineage.kind': 'quotation' },
+          ],
+        } as Record<string, unknown>)
+        .catch(() => 0),
+      db
+        .collection('crm_invoices')
+        .countDocuments({
+          userId,
+          $or: [
+            { quotationId: { $in: idCandidates } },
+            { 'lineage.id': quotationId, 'lineage.kind': 'quotation' },
+          ],
+        } as Record<string, unknown>)
+        .catch(() => 0),
+    ]);
+
+    return {
+      salesOrders: Number(salesOrders) || 0,
+      invoices: Number(invoices) || 0,
+    };
+  } catch (e) {
+    console.error('[getCrmQuotationRelatedCounts] failed:', e);
+    return empty;
+  }
 }

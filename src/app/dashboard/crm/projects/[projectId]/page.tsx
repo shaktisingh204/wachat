@@ -18,6 +18,10 @@ import {
   Activity as ActivityIcon,
   GanttChart,
   Users,
+  ListChecks,
+  Bug,
+  Clock,
+  Paperclip,
 } from 'lucide-react';
 import {
   getWsProjectById,
@@ -38,7 +42,9 @@ import {
   deleteWsProjectNote,
   getWsProjectActivitiesByProject,
   getWsGanttLinksByProject,
+  getCrmProjectRelatedCounts,
 } from '@/app/actions/worksuite/projects.actions';
+import { RelatedRail } from '@/components/crm/RelatedRail';
 import type {
   WsProject,
   WsTask,
@@ -150,6 +156,13 @@ export default function ProjectDetailPage(props: {
   const [activity, setActivity] = useState<ActivityRow[]>([]);
   const [ganttLinks, setGanttLinks] = useState<GanttLink[]>([]);
   const [activeTab, setActiveTab] = useState<TabId>('overview');
+  const [relatedCounts, setRelatedCounts] = useState<{
+    tasks: number;
+    milestones: number;
+    issues: number;
+    timeLogs: number;
+    attachments: number;
+  }>({ tasks: 0, milestones: 0, issues: 0, timeLogs: 0, attachments: 0 });
 
   const [isLoading, startLoading] = useTransition();
 
@@ -186,7 +199,7 @@ export default function ProjectDetailPage(props: {
 
   const refresh = useCallback(() => {
     startLoading(async () => {
-      const [p, ts, ms, mls, fs, ns, acts, gls] = await Promise.all([
+      const [p, ts, ms, mls, fs, ns, acts, gls, rc] = await Promise.all([
         getWsProjectById(projectId),
         getWsTasksByProject(projectId),
         getWsProjectMembersByProject(projectId),
@@ -195,6 +208,7 @@ export default function ProjectDetailPage(props: {
         getWsProjectNotesByProject(projectId),
         getWsProjectActivitiesByProject(projectId),
         getWsGanttLinksByProject(projectId),
+        getCrmProjectRelatedCounts(projectId),
       ]);
       setProject(p as Project | null);
       setTasks(Array.isArray(ts) ? (ts as Task[]) : []);
@@ -204,6 +218,7 @@ export default function ProjectDetailPage(props: {
       setNotes(Array.isArray(ns) ? (ns as Note[]) : []);
       setActivity(Array.isArray(acts) ? (acts as ActivityRow[]) : []);
       setGanttLinks(Array.isArray(gls) ? (gls as GanttLink[]) : []);
+      setRelatedCounts(rc);
     });
   }, [projectId]);
 
@@ -469,6 +484,42 @@ export default function ProjectDetailPage(props: {
           </div>
         </div>
       </ZoruCard>
+
+      {/* Related rail (chip strip) */}
+      <RelatedRail
+        items={[
+          {
+            label: 'Tasks',
+            count: relatedCounts.tasks,
+            icon: <ListChecks className="h-3.5 w-3.5" />,
+            href: `/dashboard/crm/tasks?projectId=${projectId}`,
+          },
+          {
+            label: 'Milestones',
+            count: relatedCounts.milestones,
+            icon: <Flag className="h-3.5 w-3.5" />,
+            href: `/dashboard/crm/projects/${projectId}#milestones`,
+          },
+          {
+            label: 'Issues',
+            count: relatedCounts.issues,
+            icon: <Bug className="h-3.5 w-3.5" />,
+            href: `/dashboard/crm/projects/issues?projectId=${projectId}`,
+          },
+          {
+            label: 'Time logs',
+            count: relatedCounts.timeLogs,
+            icon: <Clock className="h-3.5 w-3.5" />,
+            href: `/dashboard/crm/time-tracking?projectId=${projectId}`,
+          },
+          {
+            label: 'Attachments',
+            count: relatedCounts.attachments,
+            icon: <Paperclip className="h-3.5 w-3.5" />,
+            href: `/dashboard/crm/projects/${projectId}#files`,
+          },
+        ]}
+      />
 
       {/* Tabs */}
       <ZoruCard className="p-6">

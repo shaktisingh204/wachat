@@ -20,6 +20,8 @@ import { getCachedSession, getCachedProjects } from "@/lib/server-cache";
 import { RBACGuard } from "@/components/wabasimplify/rbac-guard";
 import { ZoruHomeShell } from "@/components/zoruui";
 import { ProjectProvider } from "@/context/project-context";
+import { LocaleProvider } from "@/lib/i18n/client";
+import { getCurrentLocale } from "@/lib/i18n/server";
 
 export default async function DashboardLayout({
   children,
@@ -49,6 +51,13 @@ export default async function DashboardLayout({
     redirect("/onboarding");
   }
 
+  // Resolve the active locale for the request. Reads (in order): the
+  // `locale` cookie set by the client provider, the user's saved
+  // `language` preference, and falls back to English. Hydrating this on
+  // the server means RSC and the first client render agree on which
+  // dictionary to use — no hydration flash on translated strings.
+  const locale = await getCurrentLocale();
+
   // session.user.credits is keyed by channel; collapse to a single
   // total for the sidebar plan-card readout.
   const credits = user?.credits;
@@ -64,21 +73,23 @@ export default async function DashboardLayout({
 
   return (
     <RBACGuard>
-      <ProjectProvider initialProjects={projects} user={user}>
-        <ZoruHomeShell
-          user={{
-            name: user?.name,
-            email: user?.email,
-            avatar: user?.image,
-          }}
-          plan={{
-            name: user?.plan?.name,
-            credits: totalCredits,
-          }}
-        >
-          {children}
-        </ZoruHomeShell>
-      </ProjectProvider>
+      <LocaleProvider initialLocale={locale}>
+        <ProjectProvider initialProjects={projects} user={user}>
+          <ZoruHomeShell
+            user={{
+              name: user?.name,
+              email: user?.email,
+              avatar: user?.image,
+            }}
+            plan={{
+              name: user?.plan?.name,
+              credits: totalCredits,
+            }}
+          >
+            {children}
+          </ZoruHomeShell>
+        </ProjectProvider>
+      </LocaleProvider>
     </RBACGuard>
   );
 }

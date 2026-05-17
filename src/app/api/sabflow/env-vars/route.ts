@@ -17,6 +17,7 @@ import {
   upsertEnvVar,
   validateKey,
 } from '@/lib/sabflow/envVars/db';
+import { recordFlowAction } from '@/lib/sabflow/audit/middleware';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -62,6 +63,12 @@ export async function PUT(req: NextRequest) {
 
   try {
     const saved = await upsertEnvVar(userId, key, value, isSecret);
+    void recordFlowAction('env.upserted', {
+      userId,
+      target: key,
+      metadata: { key, isSecret },
+      request: req,
+    });
     return NextResponse.json({ var: saved });
   } catch (err) {
     console.error('[SABFLOW ENV-VARS UPSERT]', err);
@@ -83,6 +90,14 @@ export async function DELETE(req: NextRequest) {
   }
   try {
     const ok = await deleteEnvVar(userId, key);
+    if (ok) {
+      void recordFlowAction('env.deleted', {
+        userId,
+        target: key,
+        metadata: { key },
+        request: req,
+      });
+    }
     return NextResponse.json({ ok }, { status: ok ? 200 : 404 });
   } catch (err) {
     console.error('[SABFLOW ENV-VARS DELETE]', err);
