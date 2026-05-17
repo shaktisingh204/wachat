@@ -322,6 +322,94 @@ function BehaviourSection({ flow, onUpdate }: Pick<Props, 'flow' | 'onUpdate'>) 
   );
 }
 
+/* ── Concurrency / throttling ────────────────────────────── */
+
+function ConcurrencySection({ flow, onUpdate }: Pick<Props, 'flow' | 'onUpdate'>) {
+  const settings = flow.settings ?? {};
+
+  const patch = useCallback(
+    (partial: Partial<FlowSettings>) =>
+      onUpdate({ settings: { ...settings, ...partial } }),
+    [settings, onUpdate],
+  );
+
+  const cap = Number(settings.maxConcurrentRuns ?? 0);
+  const queueCap = Number(settings.maxQueuedRuns ?? 0);
+  const mode = (settings.onConcurrencyExceeded ?? 'queue') as 'queue' | 'reject';
+  const enabled = cap > 0;
+
+  return (
+    <Section title="Concurrency" defaultOpen={false}>
+      <div className="flex items-start gap-2 rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2.5">
+        <LuInfo className="h-3.5 w-3.5 text-[var(--gray-8)] shrink-0 mt-px" strokeWidth={2} />
+        <p className="text-[11.5px] text-[var(--gray-9)] leading-relaxed">
+          Cap how many runs of this flow can execute in parallel.  Extra runs
+          either queue (FIFO) or get rejected — useful for rate-limited APIs.
+        </p>
+      </div>
+
+      <Field
+        label="Max concurrent runs"
+        hint="Maximum simultaneous in-flight runs. Set to 0 to disable throttling."
+      >
+        <input
+          type="number"
+          min={0}
+          max={500}
+          step={1}
+          className={inputCls}
+          value={cap || ''}
+          onChange={(e) =>
+            patch({
+              maxConcurrentRuns: e.target.value === '' ? undefined : Number(e.target.value),
+            })
+          }
+          placeholder="0 (no limit)"
+        />
+      </Field>
+
+      <Field
+        label="When the limit is reached"
+        hint="Queue waits for a free slot.  Reject returns an error to the caller immediately."
+      >
+        <select
+          value={mode}
+          disabled={!enabled}
+          onChange={(e) =>
+            patch({ onConcurrencyExceeded: e.target.value as 'queue' | 'reject' })
+          }
+          className={cn(inputCls, !enabled && 'opacity-50 cursor-not-allowed')}
+        >
+          <option value="queue">Queue (FIFO)</option>
+          <option value="reject">Reject with 429</option>
+        </select>
+      </Field>
+
+      {enabled && mode === 'queue' && (
+        <Field
+          label="Max queued runs"
+          hint="Hard cap on the FIFO wait queue. Surplus runs are rejected. Leave blank for unbounded."
+        >
+          <input
+            type="number"
+            min={0}
+            max={10000}
+            step={1}
+            className={inputCls}
+            value={queueCap || ''}
+            onChange={(e) =>
+              patch({
+                maxQueuedRuns: e.target.value === '' ? undefined : Number(e.target.value),
+              })
+            }
+            placeholder="Unbounded"
+          />
+        </Field>
+      )}
+    </Section>
+  );
+}
+
 /* ── Metadata (SEO) ──────────────────────────────────────── */
 
 function MetadataSection({ flow, onUpdate }: Pick<Props, 'flow' | 'onUpdate'>) {
@@ -500,6 +588,7 @@ export function FlowSettingsPanel({ flow, onUpdate, onClose }: Props) {
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
         <GeneralSection flow={flow} onUpdate={onUpdate} />
         <BehaviourSection flow={flow} onUpdate={onUpdate} />
+        <ConcurrencySection flow={flow} onUpdate={onUpdate} />
         <MetadataSection flow={flow} onUpdate={onUpdate} />
         <CustomDomainSection flow={flow} onUpdate={onUpdate} />
         <CustomCssSection flow={flow} onUpdate={onUpdate} />

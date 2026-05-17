@@ -26,8 +26,10 @@ import {
   LuClock,
   LuLoader,
   LuPlay,
+  LuRotateCw,
   LuTriangleAlert,
 } from 'react-icons/lu';
+import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import type {
   ExecutionHistoryEntry,
@@ -49,10 +51,49 @@ type ApiResponse = {
 };
 
 export function ExecutionReplayClient({ executionId }: { executionId: string }) {
+  const router = useRouter();
   const [data, setData] = useState<ApiResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedIdx, setSelectedIdx] = useState(0);
+  /** Block id currently being re-run from — drives the button spinner. */
+  const [rerunningFrom, setRerunningFrom] = useState<string | null>(null);
+  const [rerunError, setRerunError] = useState<string | null>(null);
+
+  const handleRerun = useCallback(
+    async (fromBlockId: string) => {
+      setRerunningFrom(fromBlockId);
+      setRerunError(null);
+      try {
+        const res = await fetch(
+          `/api/sabflow/executions/${executionId}/rerun`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ fromBlockId }),
+          },
+        );
+        const json = (await res.json().catch(() => ({}))) as {
+          execution?: { _id?: string; id?: string };
+          executionId?: string;
+          error?: string;
+        };
+        if (!res.ok) {
+          throw new Error(json.error ?? `Re-run failed (${res.status})`);
+        }
+        const newId =
+          json.execution?._id ?? json.execution?.id ?? json.executionId;
+        if (newId) {
+          router.push(`/dashboard/sabflow/executions/${newId}`);
+        }
+      } catch (e) {
+        setRerunError(e instanceof Error ? e.message : 'Re-run failed');
+      } finally {
+        setRerunningFrom(null);
+      }
+    },
+    [executionId, router],
+  );
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -213,7 +254,12 @@ export function ExecutionReplayClient({ executionId }: { executionId: string }) 
           {/* Detail pane */}
           <div className="flex-1 overflow-y-auto p-6">
             {selectedNode ? (
-              <NodeDetail node={selectedNode} />
+              <NodeDetail
+                node={selectedNode}
+                onRerun={() => handleRerun(selectedNode.blockId)}
+                rerunning={rerunningFrom === selectedNode.blockId}
+                rerunError={rerunError}
+              />
             ) : (
               <p className="text-[12px] text-[var(--gray-9)]">Select a node from the timeline.</p>
             )}
@@ -224,7 +270,17 @@ export function ExecutionReplayClient({ executionId }: { executionId: string }) 
   );
 }
 
-function NodeDetail({ node }: { node: ExecutionHistoryNode }) {
+function NodeDetail({
+  node,
+  onRerun,
+  rerunning,
+  rerunError,
+}: {
+  node: ExecutionHistoryNode;
+  onRerun: () => void;
+  rerunning: boolean;
+  rerunError: string | null;
+}) {
   const status = STATUS_ICON[node.status] ?? STATUS_ICON.skipped;
   const Icon = status.icon;
 
@@ -239,7 +295,33 @@ function NodeDetail({ node }: { node: ExecutionHistoryNode }) {
         <code className="rounded bg-[var(--gray-3)] px-1.5 py-0.5 font-mono text-[10.5px] text-[var(--gray-10)]">
           {node.blockId}
         </code>
+        <button
+          type="button"
+          onClick={onRerun}
+          disabled={rerunning}
+          title="Re-run the flow from this block — upstream node outputs are pinned from the original run."
+          className={cn(
+            'ml-auto inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-[11.5px] font-medium transition-colors',
+            rerunning
+              ? 'border-[var(--gray-5)] bg-[var(--gray-2)] text-[var(--gray-9)] cursor-wait'
+              : 'border-[#f76808]/40 bg-[#f76808]/10 text-[#f76808] hover:bg-[#f76808]/20',
+          )}
+        >
+          {rerunning ? (
+            <LuLoader className="h-3 w-3 animate-spin" strokeWidth={2} />
+          ) : (
+            <LuRotateCw className="h-3 w-3" strokeWidth={2} />
+          )}
+          {rerunning ? 'Re-running…' : 'Re-run from here'}
+        </button>
       </div>
+
+      {rerunError && (
+        <div className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-[11.5px] text-red-700">
+          <LuTriangleAlert className="h-3.5 w-3.5 shrink-0 mt-0.5" />
+          <span>{rerunError}</span>
+        </div>
+      )}
 
       {/* Meta strip */}
       <div className="flex flex-wrap items-center gap-3 text-[11.5px] text-[var(--gray-10)]">

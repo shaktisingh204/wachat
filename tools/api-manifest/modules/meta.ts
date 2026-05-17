@@ -3,10 +3,10 @@
  */
 
 import type { EndpointSpec } from '../types';
-import { crudResource } from '../crud-template';
+import { crudExtendedResource } from '../crud-extended';
 
 export const metaEndpoints: ReadonlyArray<EndpointSpec> = [
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'meta',
     resource: 'suite',
     basePath: '/meta/suite',
@@ -15,7 +15,7 @@ export const metaEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeWrite: 'meta:write',
     idParam: 'suiteId',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'meta',
     resource: 'tokens',
     basePath: '/meta/tokens',
@@ -25,7 +25,7 @@ export const metaEndpoints: ReadonlyArray<EndpointSpec> = [
     idParam: 'tokenId',
     verbs: ['list', 'get', 'create', 'delete'],
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'meta',
     resource: 'flows',
     basePath: '/meta/flows',

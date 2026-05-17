@@ -6,10 +6,11 @@
  */
 
 import type { EndpointSpec } from '../types';
+import { crudExtendedResource } from '../crud-extended';
 import { crudResource } from '../crud-template';
 
 export const crmPerformanceEndpoints: ReadonlyArray<EndpointSpec> = [
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'appraisals',
     basePath: '/crm/appraisals',
@@ -17,7 +18,7 @@ export const crmPerformanceEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeRead: 'crm:hr:read',
     scopeWrite: 'crm:hr:write',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'goals',
     basePath: '/crm/goals',
@@ -25,7 +26,7 @@ export const crmPerformanceEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeRead: 'crm:hr:read',
     scopeWrite: 'crm:hr:write',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'okrs',
     basePath: '/crm/okrs',
@@ -34,7 +35,7 @@ export const crmPerformanceEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeWrite: 'crm:hr:write',
     idParam: 'okrId',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'kpis',
     basePath: '/crm/kpis',
@@ -43,7 +44,7 @@ export const crmPerformanceEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeWrite: 'crm:hr:write',
     idParam: 'kpiId',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'one-on-ones',
     basePath: '/crm/one-on-ones',
@@ -53,7 +54,7 @@ export const crmPerformanceEndpoints: ReadonlyArray<EndpointSpec> = [
     idParam: 'oneOnOneId',
     display: '1-on-1 meetings',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'succession',
     basePath: '/crm/succession',
@@ -63,7 +64,7 @@ export const crmPerformanceEndpoints: ReadonlyArray<EndpointSpec> = [
     idParam: 'successionId',
     display: 'succession plans',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'awards',
     basePath: '/crm/awards',
@@ -71,7 +72,7 @@ export const crmPerformanceEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeRead: 'crm:hr:read',
     scopeWrite: 'crm:hr:write',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'tasks',
     basePath: '/crm/tasks',
@@ -80,7 +81,7 @@ export const crmPerformanceEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeWrite: 'crm:projects:write',
     emits: { create: 'crm.task.created', update: 'crm.task.updated' },
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'tickets',
     basePath: '/crm/tickets',
@@ -89,7 +90,7 @@ export const crmPerformanceEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeWrite: 'crm:support:write',
     emits: { create: 'crm.ticket.created', update: 'crm.ticket.updated' },
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'slas',
     basePath: '/crm/slas',
@@ -98,7 +99,7 @@ export const crmPerformanceEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeWrite: 'crm:support:write',
     idParam: 'slaId',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'kb-articles',
     basePath: '/crm/kb-articles',
@@ -108,7 +109,7 @@ export const crmPerformanceEndpoints: ReadonlyArray<EndpointSpec> = [
     idParam: 'kbArticleId',
     display: 'knowledge base articles',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'forms',
     basePath: '/crm/forms',
@@ -126,7 +127,7 @@ export const crmPerformanceEndpoints: ReadonlyArray<EndpointSpec> = [
     idParam: 'formSubmissionId',
     verbs: ['list', 'get'],
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'portal-users',
     basePath: '/crm/portal-users',
@@ -135,7 +136,7 @@ export const crmPerformanceEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeWrite: 'crm:portal:write',
     idParam: 'portalUserId',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'announcements',
     basePath: '/crm/announcements',
@@ -143,7 +144,7 @@ export const crmPerformanceEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeRead: 'crm:content:read',
     scopeWrite: 'crm:content:write',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'dashboards',
     basePath: '/crm/dashboards',
@@ -151,7 +152,7 @@ export const crmPerformanceEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeRead: 'crm:analytics:read',
     scopeWrite: 'crm:analytics:write',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'disciplinary',
     basePath: '/crm/disciplinary',
@@ -161,7 +162,7 @@ export const crmPerformanceEndpoints: ReadonlyArray<EndpointSpec> = [
     idParam: 'disciplinaryId',
     display: 'disciplinary actions',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'exits',
     basePath: '/crm/exits',

@@ -5,10 +5,11 @@
  */
 
 import type { EndpointSpec } from '../types';
+import { crudExtendedResource } from '../crud-extended';
 import { crudResource } from '../crud-template';
 
 export const crmHrmEndpoints: ReadonlyArray<EndpointSpec> = [
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'employees',
     basePath: '/crm/employees',
@@ -17,7 +18,7 @@ export const crmHrmEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeWrite: 'crm:hr:write',
     emits: { create: 'crm.employee.created', update: 'crm.employee.updated', delete: 'crm.employee.deleted' },
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'candidates',
     basePath: '/crm/candidates',
@@ -25,7 +26,7 @@ export const crmHrmEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeRead: 'crm:hr:read',
     scopeWrite: 'crm:hr:write',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'jobs',
     basePath: '/crm/jobs',
@@ -33,7 +34,7 @@ export const crmHrmEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeRead: 'crm:hr:read',
     scopeWrite: 'crm:hr:write',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'interviews',
     basePath: '/crm/interviews',
@@ -41,7 +42,7 @@ export const crmHrmEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeRead: 'crm:hr:read',
     scopeWrite: 'crm:hr:write',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'attendance',
     basePath: '/crm/attendance',
@@ -51,7 +52,7 @@ export const crmHrmEndpoints: ReadonlyArray<EndpointSpec> = [
     idParam: 'attendanceId',
     display: 'attendance records',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'leaves',
     basePath: '/crm/leaves',
@@ -60,7 +61,7 @@ export const crmHrmEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeWrite: 'crm:hr:write',
     emits: { create: 'crm.leave.requested', update: 'crm.leave.updated' },
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'payroll-runs',
     basePath: '/crm/payroll-runs',
@@ -79,7 +80,7 @@ export const crmHrmEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeWrite: 'crm:hr:write',
     verbs: ['list', 'get'],
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'salary-structures',
     basePath: '/crm/salary-structures',
@@ -88,7 +89,7 @@ export const crmHrmEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeWrite: 'crm:hr:write',
     idParam: 'salaryStructureId',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'holidays',
     basePath: '/crm/holidays',
@@ -96,7 +97,7 @@ export const crmHrmEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeRead: 'crm:hr:read',
     scopeWrite: 'crm:hr:write',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'departments',
     basePath: '/crm/departments',

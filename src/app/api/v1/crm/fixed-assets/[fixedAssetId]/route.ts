@@ -58,3 +58,21 @@ export const PATCH = withApiV1(async (req, { ctx, params }) => {
   );
   return NextResponse.json(data);
 }, { scope: 'crm:accounting:write' });
+
+// Replace fixed-assets  (scope: crm:accounting:write, tier: FREE)
+export const PUT = withApiV1(async (req, { ctx, params }) => {
+  let body: unknown = undefined;
+  try { body = await req.json(); } catch { body = undefined; }
+  const url = new URL(req.url);
+  const qs = url.searchParams.toString();
+  const path = `/v1/crm/fixed-assets/${encodeURIComponent(String((params as Record<string, string>).fixedAssetId ?? ''))}${qs ? `?${qs}` : ''}`;
+  const data = await rustFetchAsUser<unknown>(
+    ctx.tenantId,
+    path,
+    {
+      method: 'PUT',
+      body: body === undefined ? undefined : JSON.stringify(body),
+    },
+  );
+  return NextResponse.json(data);
+}, { scope: 'crm:accounting:write' });

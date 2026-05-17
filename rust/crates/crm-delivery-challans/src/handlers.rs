@@ -1,4 +1,14 @@
 //! HTTP handlers for the Delivery Challan entity.
+//!
+//! ## Lineage seeding (§13.5)
+//!
+//! On create the body may carry `fromKind` + `fromId` where
+//! `fromKind ∈ { salesOrder, invoice, quotation }`. When both are
+//! present we fetch the parent (under the same `userId` scope) and
+//! seed the new challan's `lineage[]` via
+//! [`crm_core::build_lineage_from_parent`]. Best-effort — a missing or
+//! mis-scoped parent quietly skips the seed and still saves the
+//! challan, mirroring the TS `try { ... } catch {}` pattern.
 
 use axum::{
     Json,
@@ -12,12 +22,13 @@ use crm_common::{
     search::build_q_filter,
     tenant::user_oid,
 };
+use crm_core::{LineageRef, build_lineage_from_parent};
 use futures::TryStreamExt;
 use mongodb::options::FindOptions;
 use sabnode_auth::AuthUser;
 use sabnode_common::{ApiError, Result};
 use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
-use tracing::instrument;
+use tracing::{instrument, warn};
 
 use crate::dto::{
     CreateChallanInput, CreateChallanResponse, DeleteChallanResponse, ListQuery,
@@ -27,6 +38,21 @@ use crate::types::CrmDeliveryChallan;
 
 const COLL: &str = "crm_delivery_challans";
 const ENTITY_KIND: &str = "delivery_challan";
+
+/// Allowed `fromKind` values for lineage seeding. Mirrors the TS
+/// `ALLOWED_PARENT_KINDS` whitelist in `saveDeliveryChallan`.
+const ALLOWED_PARENT_KINDS: &[&str] = &["salesOrder", "invoice", "quotation"];
+
+/// Map of `fromKind` → backing Mongo collection. Mirrors the TS
+/// `parentCollection` lookup table.
+fn parent_collection_for(kind: &str) -> Option<&'static str> {
+    match kind {
+        "salesOrder" => Some("crm_sales_orders"),
+        "invoice" => Some("crm_invoices"),
+        "quotation" => Some("crm_quotations"),
+        _ => None,
+    }
+}
 
 fn list_filter(user_id: ObjectId, status: Option<&str>, account_id: Option<&str>) -> Document {
     let mut filter = doc! { "userId": user_id };
@@ -88,9 +114,60 @@ fn challan_from_create(
         transport_details: input.transport_details,
         notes: input.notes,
         status: Some("Draft".to_owned()),
+        lineage: Vec::new(),
         created_at: BsonDateTime::from_chrono(Utc::now()),
         updated_at: None,
     })
+}
+
+/// Fetch the parent doc (scoped by `userId`) and build the lineage chain
+/// a freshly-created delivery challan should inherit. Returns
+/// `Ok(None)` if the parent doesn't exist or isn't owned by the caller.
+///
+/// On success returns `(chain, parent_oid, parent_collection_name)` so
+/// the caller can also push a back-link onto the parent.
+async fn seed_lineage_from_parent(
+    mongo: &MongoHandle,
+    user_oid: ObjectId,
+    parent_kind: &str,
+    parent_id_hex: &str,
+) -> Result<Option<(Vec<LineageRef>, ObjectId, &'static str)>> {
+    let parent_coll = match parent_collection_for(parent_kind) {
+        Some(c) => c,
+        None => return Ok(None),
+    };
+    let parent_oid = oid_from_str(parent_id_hex)?;
+    let coll = mongo.collection::<Document>(parent_coll);
+    let parent = match coll
+        .find_one(doc! { "_id": parent_oid, "userId": user_oid })
+        .await
+        .map_err(|e| {
+            ApiError::Internal(
+                anyhow::Error::new(e).context(format!("{parent_coll}.find_one(lineage)")),
+            )
+        })? {
+        Some(d) => d,
+        None => return Ok(None),
+    };
+
+    // Existing lineage on the parent (if any) — passed through verbatim.
+    let parent_chain: Vec<LineageRef> = parent
+        .get_array("lineage")
+        .ok()
+        .map(|arr| {
+            arr.iter()
+                .filter_map(|b| b.as_document())
+                .filter_map(|d| {
+                    let kind = d.get_str("kind").ok()?.to_owned();
+                    let id = d.get_object_id("id").ok()?;
+                    Some(LineageRef::new(kind, id))
+                })
+                .collect()
+        })
+        .unwrap_or_default();
+
+    let chain = build_lineage_from_parent(parent_kind, parent_oid, &parent_chain);
+    Ok(Some((chain, parent_oid, parent_coll)))
 }
 
 fn build_update_doc(patch: UpdateChallanInput) -> Document {
@@ -211,7 +288,34 @@ pub async fn create_challan(
     Json(input): Json<CreateChallanInput>,
 ) -> Result<Json<CreateChallanResponse>> {
     let user_id = user_oid(&user)?;
+
+    // Extract lineage hints before the rest of `input` is moved into
+    // `challan_from_create`.
+    let from_kind = input.from_kind.clone();
+    let from_id = input.from_id.clone();
+
     let mut entity = challan_from_create(input, user_id)?;
+
+    // ---- Lineage seeding (§13.5) ---------------------------------------
+    let mut parent_back_link: Option<(&'static str, ObjectId)> = None;
+    if let (Some(kind), Some(parent_id)) = (from_kind.as_deref(), from_id.as_deref()) {
+        let kind_trimmed = kind.trim();
+        if ALLOWED_PARENT_KINDS.contains(&kind_trimmed) && !parent_id.is_empty() {
+            match seed_lineage_from_parent(&mongo, user_id, kind_trimmed, parent_id).await {
+                Ok(Some((chain, parent_oid, parent_coll))) => {
+                    entity.lineage = chain;
+                    parent_back_link = Some((parent_coll, parent_oid));
+                }
+                Ok(None) => {
+                    // Parent not found / not owned — quietly skip.
+                }
+                Err(e) => {
+                    warn!(error = %e, "lineage seed failed; saving challan without lineage");
+                }
+            }
+        }
+    }
+
     let coll = mongo.collection::<CrmDeliveryChallan>(COLL);
     let inserted = coll.insert_one(&entity).await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("crm_delivery_challans.insert"))
@@ -221,6 +325,23 @@ pub async fn create_challan(
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
+
+    // Best-effort back-link onto the parent doc's lineage. Non-fatal —
+    // mirrors the TS server-action's `try { ... } catch {}` block.
+    if let Some((parent_coll_name, parent_oid)) = parent_back_link {
+        let parents = mongo.collection::<Document>(parent_coll_name);
+        let now = BsonDateTime::from_chrono(Utc::now());
+        let _ = parents
+            .update_one(
+                doc! { "_id": parent_oid, "userId": user_id },
+                doc! {
+                    "$push": { "lineage": { "kind": "deliveryChallan", "id": new_id } },
+                    "$set":  { "updatedAt": now },
+                },
+            )
+            .await;
+    }
+
     if let Some(event) =
         audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
@@ -348,5 +469,39 @@ mod tests {
             ..Default::default()
         };
         assert!(challan_from_create(input, user_id).is_err());
+    }
+
+    #[test]
+    fn challan_from_create_starts_with_empty_lineage() {
+        let user_id = ObjectId::new();
+        let input = CreateChallanInput {
+            challan_number: "DC-1".into(),
+            challan_date: "2026-05-16T00:00:00Z".into(),
+            line_items: vec![ChallanLineItem {
+                item_id: None,
+                description: "Widget".into(),
+                quantity: 1.0,
+                unit: None,
+                hsn_code: None,
+            }],
+            ..Default::default()
+        };
+        let c = challan_from_create(input, user_id).unwrap();
+        assert!(c.lineage.is_empty());
+    }
+
+    #[test]
+    fn parent_collection_lookup_matches_ts_table() {
+        assert_eq!(parent_collection_for("salesOrder"), Some("crm_sales_orders"));
+        assert_eq!(parent_collection_for("invoice"), Some("crm_invoices"));
+        assert_eq!(parent_collection_for("quotation"), Some("crm_quotations"));
+        assert_eq!(parent_collection_for("lead"), None);
+        assert_eq!(parent_collection_for("unknown"), None);
+    }
+
+    #[test]
+    fn allowed_parent_kinds_align_with_ts_whitelist() {
+        // Mirrors `ALLOWED_PARENT_KINDS` in TS `saveDeliveryChallan`.
+        assert_eq!(ALLOWED_PARENT_KINDS, &["salesOrder", "invoice", "quotation"]);
     }
 }

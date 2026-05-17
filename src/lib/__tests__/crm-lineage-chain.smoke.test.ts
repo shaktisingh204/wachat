@@ -260,15 +260,35 @@ test('edge[salesOrder→deliveryChallan]: child lineage carries lead + deal + qu
     };
     const { childLineage } = convertChild(so, dc);
 
-    // Helper-level chain is fine — but the *action* must call the helper.
+    // Helper-level chain is fine — the chain semantics must hold.
     assert.deepEqual(
         childLineage.map((r) => r.kind),
         ['lead', 'deal', 'quotation', 'salesOrder'],
         `${edge('salesOrder', 'deliveryChallan')} (helper)`,
     );
-    assertActionUsesLineageHelper(
-        'crm-delivery-challans.actions.ts',
-        edge('salesOrder', 'deliveryChallan'),
+
+    // Unlike the other chain edges, the DC action delegates lineage
+    // seeding to the Rust handler (`crm-delivery-challans` crate,
+    // `seed_lineage_from_parent`). The TS action no longer needs to
+    // call `buildLineageFromParent` on the Rust path — instead it
+    // forwards `fromKind` + `fromId` to the Rust client. Assert that
+    // contract here so a future refactor can't silently drop the
+    // forwarding.
+    const dcSrc = actionSource('crm-delivery-challans.actions.ts');
+    assert.match(
+        dcSrc,
+        /crmDeliveryChallansApi\.create\s*\(/,
+        `${edge('salesOrder', 'deliveryChallan')}: action does not call crmDeliveryChallansApi.create — Rust create path missing`,
+    );
+    assert.match(
+        dcSrc,
+        /fromKind/,
+        `${edge('salesOrder', 'deliveryChallan')}: action does not forward fromKind — Rust lineage seed disabled`,
+    );
+    assert.match(
+        dcSrc,
+        /fromId/,
+        `${edge('salesOrder', 'deliveryChallan')}: action does not forward fromId — Rust lineage seed disabled`,
     );
 });
 

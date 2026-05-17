@@ -5,7 +5,7 @@
  */
 
 import type { EndpointSpec } from '../types';
-import { crudResource } from '../crud-template';
+import { crudExtendedResource } from '../crud-extended';
 
 const generic2xx = { description: 'OK', schema: { type: 'object' as const } };
 const auth = {
@@ -15,7 +15,7 @@ const auth = {
 
 export const wachatExtrasEndpoints: ReadonlyArray<EndpointSpec> = [
   /* ── Projects ─────────────────────────────────────────────────────────── */
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'wachat',
     resource: 'projects',
     basePath: '/wachat/projects',
@@ -141,7 +141,7 @@ export const wachatExtrasEndpoints: ReadonlyArray<EndpointSpec> = [
   },
 
   /* ── Flows (Wachat-bound, separate from SabFlow which is excluded) ────── */
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'wachat',
     resource: 'flows',
     basePath: '/wachat/flows',

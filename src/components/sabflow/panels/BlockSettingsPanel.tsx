@@ -650,6 +650,13 @@ function BlockSettingsBody({ block, variables, variableNames, onUpdate, onCreate
       nodeType={block.type}
       values={options}
       onChange={(next) => onUpdate({ options: next })}
+      onChangeBlockType={(nextType) =>
+        // Stub-fallback "Swap" button — replace the block type in place
+        // while keeping every option that overlaps.  Cast through the
+        // string-keyed `Block.type` union (NodeSettings only suggests
+        // forge types we know exist).
+        onUpdate({ type: nextType as Block['type'] })
+      }
     />
   );
 }

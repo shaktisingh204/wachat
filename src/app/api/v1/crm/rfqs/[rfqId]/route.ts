@@ -58,3 +58,21 @@ export const PATCH = withApiV1(async (req, { ctx, params }) => {
   );
   return NextResponse.json(data);
 }, { scope: 'crm:purchases:write' });
+
+// Replace rfqs  (scope: crm:purchases:write, tier: FREE)
+export const PUT = withApiV1(async (req, { ctx, params }) => {
+  let body: unknown = undefined;
+  try { body = await req.json(); } catch { body = undefined; }
+  const url = new URL(req.url);
+  const qs = url.searchParams.toString();
+  const path = `/v1/crm/rfqs/${encodeURIComponent(String((params as Record<string, string>).rfqId ?? ''))}${qs ? `?${qs}` : ''}`;
+  const data = await rustFetchAsUser<unknown>(
+    ctx.tenantId,
+    path,
+    {
+      method: 'PUT',
+      body: body === undefined ? undefined : JSON.stringify(body),
+    },
+  );
+  return NextResponse.json(data);
+}, { scope: 'crm:purchases:write' });

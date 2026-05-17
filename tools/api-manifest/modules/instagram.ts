@@ -5,14 +5,14 @@
  */
 
 import type { EndpointSpec } from '../types';
-import { crudResource } from '../crud-template';
+import { crudExtendedResource } from '../crud-extended';
 
 const i = (
   resource: string,
   rustResource: string,
   options: Partial<{ idParam: string; display: string }> = {},
 ): EndpointSpec[] =>
-  crudResource({
+  crudExtendedResource({
     module: 'instagram',
     resource,
     basePath: `/instagram/${resource}`,

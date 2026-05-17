@@ -58,3 +58,21 @@ export const PATCH = withApiV1(async (req, { ctx, params }) => {
   );
   return NextResponse.json(data);
 }, { scope: 'crm:settings:write' });
+
+// Replace custom-fields  (scope: crm:settings:write, tier: FREE)
+export const PUT = withApiV1(async (req, { ctx, params }) => {
+  let body: unknown = undefined;
+  try { body = await req.json(); } catch { body = undefined; }
+  const url = new URL(req.url);
+  const qs = url.searchParams.toString();
+  const path = `/v1/crm/custom-fields/${encodeURIComponent(String((params as Record<string, string>).customFieldId ?? ''))}${qs ? `?${qs}` : ''}`;
+  const data = await rustFetchAsUser<unknown>(
+    ctx.tenantId,
+    path,
+    {
+      method: 'PUT',
+      body: body === undefined ? undefined : JSON.stringify(body),
+    },
+  );
+  return NextResponse.json(data);
+}, { scope: 'crm:settings:write' });

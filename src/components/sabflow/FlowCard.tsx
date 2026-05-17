@@ -26,6 +26,10 @@ export type FlowItem = {
   edges: { id: string }[];
   updatedAt: string;
   createdAt: string;
+  /** Lower-case tags surfaced by the flow-list filter chips. */
+  tags?: string[];
+  /** Folder id the flow lives in — null/undefined means "root". */
+  folderId?: string;
 };
 
 type Props = {

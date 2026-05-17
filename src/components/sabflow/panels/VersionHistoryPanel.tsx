@@ -484,18 +484,60 @@ interface VersionRowProps {
   isRestoring: boolean;
   onRestore: () => void;
   onCompare: () => void;
+  /** When true the whole row becomes a selectable checkbox for diffing. */
+  compareMode?: boolean;
+  /** True when this row is one of the two picked in compare mode. */
+  isPicked?: boolean;
+  /** Called when the row is clicked while in compare mode. */
+  onTogglePick?: () => void;
 }
 
-function VersionRow({ version, isLatest, isRestoring, onRestore, onCompare }: VersionRowProps) {
+function VersionRow({
+  version,
+  isLatest,
+  isRestoring,
+  onRestore,
+  onCompare,
+  compareMode = false,
+  isPicked = false,
+  onTogglePick,
+}: VersionRowProps) {
   return (
     <div
+      onClick={compareMode ? onTogglePick : undefined}
+      role={compareMode ? 'checkbox' : undefined}
+      aria-checked={compareMode ? isPicked : undefined}
+      tabIndex={compareMode ? 0 : undefined}
+      onKeyDown={
+        compareMode
+          ? (e) => {
+              if (e.key === ' ' || e.key === 'Enter') {
+                e.preventDefault();
+                onTogglePick?.();
+              }
+            }
+          : undefined
+      }
       className={cn(
         'group flex items-start gap-2.5 rounded-xl border px-3 py-2.5 transition-all',
-        isLatest
+        compareMode && 'cursor-pointer',
+        isPicked
+          ? 'border-[#f76808] bg-[#f76808]/10'
+          : isLatest
           ? 'border-amber-200 bg-amber-50/60 dark:border-amber-800/50 dark:bg-amber-950/20'
           : 'border-[var(--gray-5)] bg-[var(--gray-2)] hover:border-[var(--gray-7)] hover:bg-[var(--gray-1)]',
       )}
     >
+      {compareMode && (
+        <input
+          type="checkbox"
+          checked={isPicked}
+          onChange={() => onTogglePick?.()}
+          onClick={(e) => e.stopPropagation()}
+          aria-label={`Select "${version.label}" for comparison`}
+          className="mt-1 h-3.5 w-3.5 shrink-0 accent-[#f76808] cursor-pointer"
+        />
+      )}
       {/* Clock icon */}
       <div className={cn(
         'flex h-6 w-6 shrink-0 items-center justify-center rounded-lg mt-0.5',
@@ -526,8 +568,13 @@ function VersionRow({ version, isLatest, isRestoring, onRestore, onCompare }: Ve
         </p>
       </div>
 
-      {/* Action buttons */}
-      <div className="flex items-center gap-0.5 mt-0.5">
+      {/* Action buttons — hidden in compare mode so clicks don't trigger restore. */}
+      <div
+        className={cn(
+          'flex items-center gap-0.5 mt-0.5',
+          compareMode && 'hidden',
+        )}
+      >
         {/* Compare with current */}
         <button
           type="button"

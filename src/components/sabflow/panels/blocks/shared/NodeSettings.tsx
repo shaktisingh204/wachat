@@ -14,10 +14,11 @@
  */
 
 import { useEffect, useState } from 'react';
-import { LuLoader, LuTriangleAlert } from 'react-icons/lu';
+import { LuLoader, LuTriangleAlert, LuArrowRight } from 'react-icons/lu';
 import { CredentialSelect } from './CredentialSelect';
 import { selectClass } from './primitives';
 import type { CredentialType } from '@/lib/sabflow/credentials/types';
+import { getStubFallback } from '@/lib/sabflow/forge/stubFallbacks';
 
 /* ── Descriptor shape (matches Rust serde-camelCase output) ───────────────── */
 
@@ -87,6 +88,13 @@ interface Props {
   values: Record<string, unknown>;
   /** Called with the next merged options object whenever a field changes. */
   onChange: (next: Record<string, unknown>) => void;
+  /**
+   * Optional swap-the-block callback.  When supplied, the stub banner offers
+   * a one-click migration to a curated forge equivalent (see
+   * `@/lib/sabflow/forge/stubFallbacks`).  When omitted, the stub banner
+   * stays advisory-only.
+   */
+  onChangeBlockType?: (nextType: string) => void;
 }
 
 /* ── Name-form helpers (so snake_case block.type still resolves) ──────────── */
@@ -113,7 +121,7 @@ const textareaClass = `${inputBase} font-mono text-[12px] leading-snug resize-y`
 
 /* ── Component ────────────────────────────────────────────────────────────── */
 
-export function NodeSettings({ nodeType, values, onChange }: Props) {
+export function NodeSettings({ nodeType, values, onChange, onChangeBlockType }: Props) {
   const [descriptor, setDescriptor] = useState<NodeDescriptor | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -447,15 +455,45 @@ export function NodeSettings({ nodeType, values, onChange }: Props) {
         )}
       </div>
 
-      {descriptor.stub && (
-        <div className="flex items-start gap-2 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-[11.5px] text-amber-700">
-          <LuTriangleAlert className="h-3.5 w-3.5 mt-0.5 shrink-0" strokeWidth={1.8} />
-          <span>
-            This node is a stub — its executor is not yet implemented. Configuration is
-            available for testing the descriptor only.
-          </span>
-        </div>
-      )}
+      {descriptor.stub && (() => {
+        // Check if we have a curated forge fallback for this stub.  When
+        // we do AND the caller wired `onChangeBlockType`, offer one-click
+        // migration so users escape the dead end.
+        const fallback = getStubFallback(descriptor.name);
+        return (
+          <div className="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-[11.5px] text-amber-700 dark:border-amber-700/50 dark:bg-amber-950/30 dark:text-amber-300 space-y-2">
+            <div className="flex items-start gap-2">
+              <LuTriangleAlert className="h-3.5 w-3.5 mt-0.5 shrink-0" strokeWidth={1.8} />
+              <span>
+                This node is a stub — its executor is not yet implemented.
+                Configuration is available for testing the descriptor only.
+              </span>
+            </div>
+            {fallback && onChangeBlockType && (
+              <div className="flex items-center justify-between gap-3 rounded-md bg-amber-100/60 dark:bg-amber-900/30 px-2.5 py-1.5">
+                <div className="min-w-0">
+                  <p className="text-[11.5px] font-medium text-amber-800 dark:text-amber-200">
+                    Use{' '}
+                    <span className="font-semibold">{fallback.label}</span>{' '}
+                    instead
+                  </p>
+                  <p className="mt-0.5 text-[10.5px] text-amber-700/80 dark:text-amber-300/80 leading-snug">
+                    {fallback.rationale}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => onChangeBlockType(fallback.forgeType)}
+                  className="shrink-0 inline-flex items-center gap-1 rounded-md bg-amber-600 text-white px-2 py-1 text-[11px] font-semibold hover:bg-amber-700 transition-colors"
+                >
+                  Swap
+                  <LuArrowRight className="h-3 w-3" strokeWidth={2.5} />
+                </button>
+              </div>
+            )}
+          </div>
+        );
+      })()}
 
       <div className="space-y-3">{descriptor.properties.map((p) => renderProperty(p))}</div>
     </div>

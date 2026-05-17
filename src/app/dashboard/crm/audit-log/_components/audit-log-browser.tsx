@@ -1,34 +1,35 @@
 'use client';
 
 /**
- * Audit Log Viewer — §1D.1 data-rich list page.
+ * Audit Log Viewer — §5.5 filter-chip page.
  *
- * Composition:
- *   <EntityListShell>
- *     KPI strip (4): Total 7d · Most active entity · Most active actor · Critical 24h
- *     Filter row: actor · entity kind · action · date range · has-diff · search reason
- *     Table (8 cols): when · actor · action · entity kind · entity id · reason · diff toggle · IP
- *     Diff drawer (ZoruSheet) on row click
- *     Export JSON + CSV via toolbar action group
+ * Filters are URL-driven (entityKind, actorId, action, from, to,
+ * search) so links/back-button work. The browser also exposes:
+ *   • Per-entity chip (every registered EntityKey)
+ *   • Per-actor chip (employee picker + free-text fallback)
+ *   • Per-date range chip (from / to)
+ *   • Action chip (create / update / delete / status_change / …)
+ *   • Free-text "search-in-diff" (server-side, $text if indexed else regex)
+ *   • CSV export streamed from `exportAuditLogCsv` server action
  *
- * Read-only — no mutation actions. Data comes from `crm_audit_log` snapshot
- * passed in from the server component.
+ * KPI strip: Today · This week · Top actor · Top entity kind.
+ *
+ * Read-only. Sort: `ts desc` (server-side).
  */
 
 import * as React from 'react';
 import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
-  Download,
   Eye,
   FileJson,
   FileText,
-  Filter,
-  Loader2,
   Search,
   X,
 } from 'lucide-react';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { EntityFormField } from '@/components/crm/entity-form-field';
 import { StatusPill } from '@/components/crm/status-pill';
 import {
   ZoruBadge,
@@ -55,20 +56,13 @@ import {
   ZoruTableRow,
 } from '@/components/zoruui';
 import { ENTITY_KEYS, type EntityKey } from '@/lib/lookup-registry';
+import {
+  exportAuditLogCsv,
+  type AuditLogQuery,
+  type AuditLogRow,
+} from '@/app/actions/crm-audit-log.actions';
 
-/** Wire shape — matches what the page server fetcher produces. */
-export interface AuditLogRow {
-  _id: string;
-  createdAt?: string;
-  actorId?: string;
-  actorName?: string;
-  action?: string;
-  entityKind?: string;
-  entityId?: string;
-  reason?: string | null;
-  diff?: Record<string, { before?: unknown; after?: unknown }> | null;
-  ip?: string;
-}
+export type { AuditLogRow };
 
 const ACTION_OPTIONS = [
   'create',
@@ -143,33 +137,69 @@ function formatAbsolute(value: string | undefined): string {
   return Number.isNaN(d.getTime()) ? '' : d.toLocaleString();
 }
 
-export interface AuditLogBrowserProps {
-  entries: AuditLogRow[];
+function startOfTodayMs(): number {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  return d.getTime();
 }
 
-export function AuditLogBrowser({ entries }: AuditLogBrowserProps): React.JSX.Element {
-  const [actorFilter, setActorFilter] = React.useState('');
-  const [entityKindFilter, setEntityKindFilter] = React.useState<string>('all');
-  const [actionFilter, setActionFilter] = React.useState<string>('all');
-  const [dateFrom, setDateFrom] = React.useState<string>('');
-  const [dateTo, setDateTo] = React.useState<string>('');
-  const [hasDiffOnly, setHasDiffOnly] = React.useState(false);
-  const [search, setSearch] = React.useState('');
-  const [drawerRow, setDrawerRow] = React.useState<AuditLogRow | null>(null);
+function startOfWeekMs(): number {
+  // Last 7d rolling window — keeps "this week" useful regardless of locale.
+  return Date.now() - 7 * 24 * 60 * 60 * 1000;
+}
 
-  // ── KPIs (computed once per `entries` ref) ─────────────────────────────
+function downloadBlob(content: string, filename: string, type: string): void {
+  const blob = new Blob([content], { type });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+export interface AuditLogBrowserProps {
+  entries: AuditLogRow[];
+  /** Hydrated from the URL searchParams on the server. */
+  initialQuery?: AuditLogQuery;
+  /** If true, trigger CSV download on mount (driven by `?export=csv`). */
+  autoExportCsv?: boolean;
+}
+
+export function AuditLogBrowser({
+  entries,
+  initialQuery,
+  autoExportCsv,
+}: AuditLogBrowserProps): React.JSX.Element {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Local state mirrors URL — URL is the source of truth across reloads.
+  const [actorId, setActorId] = React.useState(initialQuery?.actorId ?? '');
+  const [entityKindFilter, setEntityKindFilter] = React.useState<string>(
+    initialQuery?.entityKind ?? 'all',
+  );
+  const [actionFilter, setActionFilter] = React.useState<string>(
+    initialQuery?.action ?? 'all',
+  );
+  const [dateFrom, setDateFrom] = React.useState<string>(initialQuery?.from ?? '');
+  const [dateTo, setDateTo] = React.useState<string>(initialQuery?.to ?? '');
+  const [search, setSearch] = React.useState(initialQuery?.search ?? '');
+  const [drawerRow, setDrawerRow] = React.useState<AuditLogRow | null>(null);
+  const [isExporting, setIsExporting] = React.useState(false);
+
+  // ── KPIs (computed from the rendered slice) ────────────────────────────
   const kpis = React.useMemo(() => {
-    const now = Date.now();
-    const sevenDaysAgo = now - 7 * 24 * 60 * 60 * 1000;
-    const oneDayAgo = now - 24 * 60 * 60 * 1000;
+    const todayMs = startOfTodayMs();
+    const weekMs = startOfWeekMs();
     const entityCounts = new Map<string, number>();
     const actorCounts = new Map<string, number>();
-    let total7d = 0;
-    let critical24h = 0;
+    let today = 0;
+    let week = 0;
     for (const e of entries) {
       const t = e.createdAt ? new Date(e.createdAt).getTime() : 0;
-      if (t >= sevenDaysAgo) total7d += 1;
-      if (t >= oneDayAgo && CRITICAL_ACTIONS.has(String(e.action))) critical24h += 1;
+      if (t >= todayMs) today += 1;
+      if (t >= weekMs) week += 1;
       if (e.entityKind) entityCounts.set(e.entityKind, (entityCounts.get(e.entityKind) ?? 0) + 1);
       const actor = e.actorName || e.actorId || '';
       if (actor) actorCounts.set(actor, (actorCounts.get(actor) ?? 0) + 1);
@@ -177,115 +207,131 @@ export function AuditLogBrowser({ entries }: AuditLogBrowserProps): React.JSX.El
     const topEntity = [...entityCounts.entries()].sort((a, b) => b[1] - a[1])[0];
     const topActor = [...actorCounts.entries()].sort((a, b) => b[1] - a[1])[0];
     return {
-      total7d,
+      today,
+      week,
       topEntity: topEntity ? `${topEntity[0]} (${topEntity[1]})` : '—',
       topActor: topActor ? `${topActor[0]} (${topActor[1]})` : '—',
-      critical24h,
     };
   }, [entries]);
 
-  // ── Filtered rows ──────────────────────────────────────────────────────
-  const filtered = React.useMemo(() => {
-    const lowerSearch = search.trim().toLowerCase();
-    const lowerActor = actorFilter.trim().toLowerCase();
-    const from = dateFrom ? new Date(dateFrom).getTime() : -Infinity;
-    const to = dateTo ? new Date(dateTo).getTime() + 24 * 60 * 60 * 1000 : Infinity;
-    return entries.filter((e) => {
-      if (entityKindFilter !== 'all' && e.entityKind !== entityKindFilter) return false;
-      if (actionFilter !== 'all' && e.action !== actionFilter) return false;
-      if (lowerActor) {
-        const actor = (e.actorName || e.actorId || '').toLowerCase();
-        if (!actor.includes(lowerActor)) return false;
-      }
-      if (hasDiffOnly && !e.diff) return false;
-      if (lowerSearch && !(e.reason || '').toLowerCase().includes(lowerSearch)) return false;
-      const t = e.createdAt ? new Date(e.createdAt).getTime() : 0;
-      if (t < from || t > to) return false;
-      return true;
+  // ── URL sync ───────────────────────────────────────────────────────────
+  /**
+   * Build a query string from current filter state and push to the URL
+   * via `router.replace`. The server fetcher then re-runs in the
+   * background; `useSearchParams` is the dependency keying that.
+   */
+  const pushToUrl = React.useCallback(
+    (patch: Partial<AuditLogQuery & { export?: string }>) => {
+      const next = new URLSearchParams(searchParams?.toString() ?? '');
+      const apply = (k: string, v: string | undefined) => {
+        if (v === undefined || v === '' || v === 'all') next.delete(k);
+        else next.set(k, v);
+      };
+      apply('entityKind', patch.entityKind);
+      apply('actorId', patch.actorId);
+      apply('action', patch.action);
+      apply('from', patch.from);
+      apply('to', patch.to);
+      apply('search', patch.search);
+      // Never persist export trigger in pushed URL — it's one-shot.
+      next.delete('export');
+      const qs = next.toString();
+      router.replace(qs ? `?${qs}` : '?');
+    },
+    [router, searchParams],
+  );
+
+  const applyFilters = React.useCallback(() => {
+    pushToUrl({
+      entityKind: entityKindFilter === 'all' ? undefined : entityKindFilter,
+      actorId: actorId || undefined,
+      action: actionFilter === 'all' ? undefined : actionFilter,
+      from: dateFrom || undefined,
+      to: dateTo || undefined,
+      search: search || undefined,
     });
-  }, [entries, actorFilter, entityKindFilter, actionFilter, dateFrom, dateTo, hasDiffOnly, search]);
+  }, [pushToUrl, entityKindFilter, actorId, actionFilter, dateFrom, dateTo, search]);
 
   const clearFilters = React.useCallback(() => {
-    setActorFilter('');
+    setActorId('');
     setEntityKindFilter('all');
     setActionFilter('all');
     setDateFrom('');
     setDateTo('');
-    setHasDiffOnly(false);
     setSearch('');
-  }, []);
+    router.replace('?');
+  }, [router]);
 
   const hasActiveFilters =
-    !!actorFilter ||
+    !!actorId ||
     entityKindFilter !== 'all' ||
     actionFilter !== 'all' ||
     !!dateFrom ||
     !!dateTo ||
-    hasDiffOnly ||
     !!search;
 
+  // ── Exports ────────────────────────────────────────────────────────────
   const exportJson = React.useCallback(() => {
-    const blob = new Blob([JSON.stringify(filtered, null, 2)], {
-      type: 'application/json',
-    });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `audit-log-${new Date().toISOString().slice(0, 10)}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-  }, [filtered]);
+    downloadBlob(
+      JSON.stringify(entries, null, 2),
+      `audit-log-${new Date().toISOString().slice(0, 10)}.json`,
+      'application/json',
+    );
+  }, [entries]);
 
-  const exportCsv = React.useCallback(() => {
-    const header = ['When', 'Actor', 'Action', 'Entity Kind', 'Entity Id', 'Reason', 'IP'];
-    const escape = (v: unknown) => `"${String(v ?? '').replace(/"/g, '""')}"`;
-    const csv = [
-      header.join(','),
-      ...filtered.map((e) =>
-        [
-          escape(e.createdAt ? new Date(e.createdAt).toISOString() : ''),
-          escape(e.actorName || e.actorId || ''),
-          escape(e.action),
-          escape(e.entityKind),
-          escape(e.entityId),
-          escape(e.reason),
-          escape(e.ip),
-        ].join(','),
-      ),
-    ].join('\n');
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `audit-log-${new Date().toISOString().slice(0, 10)}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-  }, [filtered]);
+  const exportCsv = React.useCallback(async () => {
+    setIsExporting(true);
+    try {
+      const csv = await exportAuditLogCsv({
+        entityKind: entityKindFilter === 'all' ? undefined : entityKindFilter,
+        actorId: actorId || undefined,
+        action: actionFilter === 'all' ? undefined : actionFilter,
+        from: dateFrom || undefined,
+        to: dateTo || undefined,
+        search: search || undefined,
+      });
+      downloadBlob(
+        csv,
+        `audit-log-${new Date().toISOString().slice(0, 10)}.csv`,
+        'text/csv;charset=utf-8;',
+      );
+    } finally {
+      setIsExporting(false);
+    }
+  }, [entityKindFilter, actorId, actionFilter, dateFrom, dateTo, search]);
+
+  // Auto-trigger CSV when arriving via `?export=csv`.
+  const didAutoExport = React.useRef(false);
+  React.useEffect(() => {
+    if (!autoExportCsv || didAutoExport.current) return;
+    didAutoExport.current = true;
+    void exportCsv();
+  }, [autoExportCsv, exportCsv]);
 
   return (
     <>
       <EntityListShell
         title="Audit Log"
-        subtitle="Immutable record of every create, update, delete, archive and convert action across the CRM."
+        subtitle="Immutable record of every create, update, delete and status change across the CRM. Sorted newest first."
         primaryAction={
           <div className="flex flex-wrap items-center gap-2">
             <ZoruButton variant="ghost" onClick={exportJson}>
               <FileJson className="h-4 w-4" /> Export JSON
             </ZoruButton>
-            <ZoruButton variant="ghost" onClick={exportCsv}>
-              <FileText className="h-4 w-4" /> Export CSV
+            <ZoruButton variant="ghost" onClick={() => void exportCsv()} disabled={isExporting}>
+              <FileText className="h-4 w-4" /> {isExporting ? 'Exporting…' : 'Export CSV'}
             </ZoruButton>
           </div>
         }
         search={{
           value: search,
           onChange: setSearch,
-          placeholder: 'Search reason text…',
+          placeholder: 'Search in diff / reason…',
         }}
         filters={
           <AuditFilters
-            actorFilter={actorFilter}
-            onActorChange={setActorFilter}
+            actorId={actorId}
+            onActorIdChange={setActorId}
             entityKindFilter={entityKindFilter}
             onEntityKindChange={setEntityKindFilter}
             actionFilter={actionFilter}
@@ -294,21 +340,20 @@ export function AuditLogBrowser({ entries }: AuditLogBrowserProps): React.JSX.El
             dateTo={dateTo}
             onDateFromChange={setDateFrom}
             onDateToChange={setDateTo}
-            hasDiffOnly={hasDiffOnly}
-            onHasDiffChange={setHasDiffOnly}
             hasActiveFilters={hasActiveFilters}
+            onApply={applyFilters}
             onClear={clearFilters}
           />
         }
         empty={
-          filtered.length === 0 ? (
+          entries.length === 0 ? (
             <div className="flex flex-col items-center gap-3 p-4">
               <Search className="h-8 w-8 text-zoru-ink-muted" />
               <h3 className="text-base font-medium text-zoru-ink">No audit entries</h3>
               <p className="max-w-sm text-sm text-zoru-ink-muted">
-                {entries.length === 0
-                  ? 'No mutations have been recorded yet. Audit rows are written on every create/update/delete.'
-                  : 'No entries match the current filters. Try clearing them.'}
+                {hasActiveFilters
+                  ? 'No entries match the current filters. Try clearing them.'
+                  : 'No mutations have been recorded yet. Audit rows are written on every create/update/delete.'}
               </p>
               {hasActiveFilters ? (
                 <ZoruButton variant="outline" onClick={clearFilters}>
@@ -337,7 +382,7 @@ export function AuditLogBrowser({ entries }: AuditLogBrowserProps): React.JSX.El
                   </ZoruTableRow>
                 </ZoruTableHeader>
                 <ZoruTableBody>
-                  {filtered.map((row) => {
+                  {entries.map((row) => {
                     const tone = ACTION_TONE[String(row.action)] ?? 'neutral';
                     const href = entityHref(row.entityKind, row.entityId);
                     return (
@@ -419,21 +464,21 @@ export function AuditLogBrowser({ entries }: AuditLogBrowserProps): React.JSX.El
 function KpiStrip({
   kpis,
 }: {
-  kpis: { total7d: number; topEntity: string; topActor: string; critical24h: number };
+  kpis: { today: number; week: number; topActor: string; topEntity: string };
 }): React.JSX.Element {
   return (
     <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
-      <ZoruStatCard label="Total events 7d" value={kpis.total7d.toLocaleString()} />
-      <ZoruStatCard label="Most active entity" value={kpis.topEntity} />
-      <ZoruStatCard label="Most active actor" value={kpis.topActor} />
-      <ZoruStatCard label="Critical actions 24h" value={kpis.critical24h.toLocaleString()} />
+      <ZoruStatCard label="Today" value={kpis.today.toLocaleString()} />
+      <ZoruStatCard label="This week" value={kpis.week.toLocaleString()} />
+      <ZoruStatCard label="Top actor" value={kpis.topActor} />
+      <ZoruStatCard label="Top entity kind" value={kpis.topEntity} />
     </div>
   );
 }
 
 function AuditFilters({
-  actorFilter,
-  onActorChange,
+  actorId,
+  onActorIdChange,
   entityKindFilter,
   onEntityKindChange,
   actionFilter,
@@ -442,13 +487,12 @@ function AuditFilters({
   dateTo,
   onDateFromChange,
   onDateToChange,
-  hasDiffOnly,
-  onHasDiffChange,
   hasActiveFilters,
+  onApply,
   onClear,
 }: {
-  actorFilter: string;
-  onActorChange: (v: string) => void;
+  actorId: string;
+  onActorIdChange: (v: string) => void;
   entityKindFilter: string;
   onEntityKindChange: (v: string) => void;
   actionFilter: string;
@@ -457,22 +501,20 @@ function AuditFilters({
   dateTo: string;
   onDateFromChange: (v: string) => void;
   onDateToChange: (v: string) => void;
-  hasDiffOnly: boolean;
-  onHasDiffChange: (v: boolean) => void;
   hasActiveFilters: boolean;
+  onApply: () => void;
   onClear: () => void;
 }): React.JSX.Element {
   return (
     <div className="flex flex-wrap items-end gap-2">
-      <div className="w-40">
-        <ZoruLabel htmlFor="actor-filter" className="text-[11px]">
-          Actor
-        </ZoruLabel>
-        <ZoruInput
-          id="actor-filter"
-          value={actorFilter}
-          onChange={(e) => onActorChange(e.target.value)}
-          placeholder="Name or id…"
+      <div className="min-w-[220px]">
+        <ZoruLabel className="text-[11px]">Actor</ZoruLabel>
+        <EntityFormField
+          entity="employee"
+          name="actorId"
+          initialId={actorId || null}
+          placeholder="Any actor…"
+          onChange={(id) => onActorIdChange(id ?? '')}
         />
       </div>
       <div className="w-44">
@@ -529,14 +571,9 @@ function AuditFilters({
           onChange={(e) => onDateToChange(e.target.value)}
         />
       </div>
-      <label className="flex items-center gap-2 pb-2 text-[12px] text-zoru-ink-muted">
-        <input
-          type="checkbox"
-          checked={hasDiffOnly}
-          onChange={(e) => onHasDiffChange(e.target.checked)}
-        />
-        Has diff only
-      </label>
+      <ZoruButton size="sm" onClick={onApply} className="mb-1">
+        Apply
+      </ZoruButton>
       {hasActiveFilters ? (
         <ZoruButton variant="ghost" size="sm" onClick={onClear} className="mb-1">
           <X className="h-3.5 w-3.5" /> Clear

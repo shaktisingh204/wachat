@@ -8,10 +8,10 @@
  */
 
 import type { EndpointSpec } from '../types';
-import { crudResource } from '../crud-template';
+import { crudExtendedResource } from '../crud-extended';
 
 export const sabfilesEndpoints: ReadonlyArray<EndpointSpec> = [
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'sabfiles',
     resource: 'files',
     basePath: '/sabfiles',

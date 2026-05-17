@@ -2,6 +2,8 @@ import type { SabFlowDoc } from '@/lib/sabflow/types';
 import type { SessionState, ExecutionResult, InputRequest } from './types';
 import type { OutgoingMessage } from './types';
 import { executeBlock } from './executeBlock';
+import { acquireRunSlot } from '@/lib/sabflow/execution/concurrency';
+import { loadEnvVars } from '@/lib/sabflow/envVars/db';
 
 type ExecuteFlowReturn = {
   result: ExecutionResult;
@@ -19,7 +21,68 @@ type ExecuteFlowReturn = {
  * When `userInput` is provided it is consumed by the first input block that is
  * encountered (i.e. the block recorded in `session.currentBlockIndex`).
  */
+/**
+ * Error class thrown when a run is rejected by the concurrency gate
+ * (flow has `settings.onConcurrencyExceeded === 'reject'` and is at its
+ * cap, or the queue is also full).  Callers can catch this specifically
+ * to surface a 429 / "try again later" without confusing it with a real
+ * engine error.
+ */
+export class ConcurrencyLimitError extends Error {
+  readonly code = 'concurrency_limit_exceeded';
+  readonly limit: number;
+  readonly waitingCount: number;
+  constructor(limit: number, waitingCount: number) {
+    super(`Concurrency limit reached (cap=${limit}, queued=${waitingCount})`);
+    this.name = 'ConcurrencyLimitError';
+    this.limit = limit;
+    this.waitingCount = waitingCount;
+  }
+}
+
 export async function executeFlow(
+  flow: SabFlowDoc,
+  session: SessionState,
+  userInput?: string,
+): Promise<ExecuteFlowReturn> {
+  // Concurrency gate — opt-in via flow settings.  When disabled the gate is
+  // a no-op and adds a single Map lookup of overhead per run.
+  const flowKey = (flow._id?.toString?.() ?? flow.publicId ?? flow.name) as string;
+  const slot = await acquireRunSlot(flowKey, flow.settings);
+  if (!slot.ok) {
+    throw new ConcurrencyLimitError(flow.settings?.maxConcurrentRuns ?? 0, slot.waitingCount);
+  }
+
+  // Load the workspace-scoped env vars once per run and merge them into
+  // `variables` so that any block reading `{{KEY}}` resolves them.  We
+  // overlay them with a `$env.` prefix too for explicit access — the
+  // overlay never overwrites a flow-defined variable of the same name.
+  let envVars: Record<string, string> = {};
+  if (flow.userId) {
+    try {
+      envVars = await loadEnvVars(flow.userId);
+    } catch {
+      /* best-effort — engine should still run without env vars */
+    }
+  }
+  const sessionWithEnv: SessionState = {
+    ...session,
+    variables: {
+      ...Object.fromEntries(
+        Object.entries(envVars).map(([k, v]) => [`$env.${k}`, v]),
+      ),
+      ...session.variables,
+    },
+  };
+
+  try {
+    return await runFlowInner(flow, sessionWithEnv, userInput);
+  } finally {
+    slot.release();
+  }
+}
+
+async function runFlowInner(
   flow: SabFlowDoc,
   session: SessionState,
   userInput?: string,
@@ -33,6 +96,15 @@ export async function executeFlow(
   // loops caused by misconfigured flows.
   const MAX_GROUP_HOPS = 100;
   let hopCount = 0;
+
+  /**
+   * Step-22 trace accumulator.  Pushed to `session.history` at each block
+   * boundary with input/output/duration/status so the replay view
+   * (`/dashboard/sabflow/executions/[id]`) can render real n8n-style
+   * per-node detail.  Errors are caught locally so a single block failure
+   * gets recorded as a trace entry instead of aborting the whole run.
+   */
+  const traceHistory: typeof session.history = [...session.history];
 
   outer: while (hopCount < MAX_GROUP_HOPS) {
     const group = flow.groups.find((g) => g.id === currentGroupId);
@@ -49,12 +121,47 @@ export async function executeFlow(
           ? userInput
           : undefined;
 
-      const blockResult = await executeBlock(
-        block,
-        variables,
-        flow.edges,
-        inputForThisBlock,
-      );
+      const stepStartedAt = Date.now();
+      let blockResult;
+      try {
+        blockResult = await executeBlock(
+          block,
+          variables,
+          flow.edges,
+          inputForThisBlock,
+        );
+      } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        const durationMs = Date.now() - stepStartedAt;
+        traceHistory.push({
+          groupId: currentGroupId,
+          blockId: block.id,
+          blockType: block.type,
+          input: inputForThisBlock,
+          timestamp: new Date(),
+          startedAt: new Date(stepStartedAt),
+          durationMs,
+          status: 'error',
+          error: message,
+        });
+        // Re-throw so upstream finalisation paths (v1/run, rerun) can mark
+        // the execution as `status: 'error'` and fire failure alerts.
+        throw err;
+      }
+      const stepDurationMs = Date.now() - stepStartedAt;
+      traceHistory.push({
+        groupId: currentGroupId,
+        blockId: block.id,
+        blockType: block.type,
+        input: inputForThisBlock,
+        output: blockResult.messages.length
+          ? blockResult.messages.map((m) => m.content).join('\n')
+          : undefined,
+        timestamp: new Date(),
+        startedAt: new Date(stepStartedAt),
+        durationMs: stepDurationMs,
+        status: blockResult.requiresInput ? 'waiting' : 'success',
+      });
 
       // Accumulate messages from this block
       messages.push(...blockResult.messages);
@@ -85,15 +192,8 @@ export async function executeFlow(
             currentGroupId,
             currentBlockIndex: i,
             variables,
-            history: [
-              ...session.history,
-              {
-                groupId: currentGroupId,
-                blockId: block.id,
-                blockType: block.type,
-                timestamp: new Date(),
-              },
-            ],
+            // Step-22 trace already includes the current block — no extra push.
+            history: traceHistory,
           },
         };
       }
@@ -115,6 +215,17 @@ export async function executeFlow(
           continue outer;
         }
         // 'halt' — terminate execution with the error surfaced as a message.
+        // The just-recorded trace entry's status was 'success'; rewrite it
+        // to 'error' so the replay timeline shows the failure correctly.
+        const lastIdx = traceHistory.length - 1;
+        if (lastIdx >= 0 && traceHistory[lastIdx].blockId === block.id) {
+          traceHistory[lastIdx] = {
+            ...traceHistory[lastIdx],
+            status: 'error',
+            error: blockResult.errorSignal.message,
+            output: blockResult.errorSignal.message,
+          };
+        }
         return {
           result: {
             messages,
@@ -126,16 +237,7 @@ export async function executeFlow(
             currentGroupId,
             currentBlockIndex: i,
             variables,
-            history: [
-              ...session.history,
-              {
-                groupId: currentGroupId,
-                blockId: block.id,
-                blockType: block.type,
-                timestamp: new Date(),
-                output: blockResult.errorSignal.message,
-              },
-            ],
+            history: traceHistory,
           },
         };
       }
@@ -172,8 +274,10 @@ export async function executeFlow(
       currentGroupId,
       currentBlockIndex: 0,
       variables,
+      // Append the terminal sentinel onto the per-step trace so the
+      // ExecutionHistoryEntry.nodes array ends with a clear "__end__" marker.
       history: [
-        ...session.history,
+        ...traceHistory,
         {
           groupId: currentGroupId,
           blockId: '__end__',

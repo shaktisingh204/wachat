@@ -4,7 +4,7 @@
  */
 
 import type { EndpointSpec } from '../types';
-import { crudResource } from '../crud-template';
+import { crudExtendedResource } from '../crud-extended';
 
 const t = (
   resource: string,
@@ -13,7 +13,7 @@ const t = (
   scope: 'telegram:read' | 'telegram:write' = 'telegram:read',
   options: Partial<{ idParam: string; display: string }> = {},
 ): EndpointSpec[] =>
-  crudResource({
+  crudExtendedResource({
     module: 'telegram',
     resource,
     basePath,

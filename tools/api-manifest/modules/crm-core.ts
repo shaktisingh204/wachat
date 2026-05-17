@@ -5,10 +5,10 @@
  */
 
 import type { EndpointSpec } from '../types';
-import { crudResource } from '../crud-template';
+import { crudExtendedResource } from '../crud-extended';
 
 export const crmCoreEndpoints: ReadonlyArray<EndpointSpec> = [
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'leads',
     basePath: '/crm/leads',
@@ -17,7 +17,7 @@ export const crmCoreEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeWrite: 'crm:leads:write',
     emits: { create: 'crm.lead.created', update: 'crm.lead.updated', delete: 'crm.lead.deleted' },
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'deals',
     basePath: '/crm/deals',
@@ -26,7 +26,7 @@ export const crmCoreEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeWrite: 'crm:deals:write',
     emits: { create: 'crm.deal.created', update: 'crm.deal.updated', delete: 'crm.deal.deleted' },
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'pipelines',
     basePath: '/crm/pipelines',
@@ -34,7 +34,7 @@ export const crmCoreEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeRead: 'crm:pipelines:read',
     scopeWrite: 'crm:pipelines:write',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'accounts',
     basePath: '/crm/accounts',
@@ -42,7 +42,7 @@ export const crmCoreEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeRead: 'crm:accounts:read',
     scopeWrite: 'crm:accounts:write',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'contacts',
     basePath: '/crm/contacts',
@@ -50,7 +50,7 @@ export const crmCoreEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeRead: 'crm:contacts:read',
     scopeWrite: 'crm:contacts:write',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'custom-fields',
     basePath: '/crm/custom-fields',
@@ -59,7 +59,7 @@ export const crmCoreEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeWrite: 'crm:settings:write',
     idParam: 'customFieldId',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'saved-views',
     basePath: '/crm/saved-views',
@@ -68,7 +68,7 @@ export const crmCoreEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeWrite: 'crm:settings:write',
     idParam: 'savedViewId',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'labels',
     basePath: '/crm/labels',

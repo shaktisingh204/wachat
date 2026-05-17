@@ -4,10 +4,10 @@
  */
 
 import type { EndpointSpec } from '../types';
-import { crudResource } from '../crud-template';
+import { crudExtendedResource } from '../crud-extended';
 
 export const crmAccountingEndpoints: ReadonlyArray<EndpointSpec> = [
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'chart-of-accounts',
     basePath: '/crm/chart-of-accounts',
@@ -16,7 +16,7 @@ export const crmAccountingEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeWrite: 'crm:accounting:write',
     idParam: 'chartOfAccountId',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'account-groups',
     basePath: '/crm/account-groups',
@@ -25,7 +25,7 @@ export const crmAccountingEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeWrite: 'crm:accounting:write',
     idParam: 'accountGroupId',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'budgets',
     basePath: '/crm/budgets',
@@ -33,7 +33,7 @@ export const crmAccountingEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeRead: 'crm:accounting:read',
     scopeWrite: 'crm:accounting:write',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'loans',
     basePath: '/crm/loans',
@@ -41,7 +41,7 @@ export const crmAccountingEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeRead: 'crm:hr:read',
     scopeWrite: 'crm:hr:write',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'petty-cash',
     basePath: '/crm/petty-cash',
@@ -50,7 +50,7 @@ export const crmAccountingEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeWrite: 'crm:accounting:write',
     idParam: 'pettyCashId',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'vouchers',
     basePath: '/crm/vouchers',
@@ -58,7 +58,7 @@ export const crmAccountingEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeRead: 'crm:accounting:read',
     scopeWrite: 'crm:accounting:write',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'reconciliation',
     basePath: '/crm/reconciliation',
@@ -68,7 +68,7 @@ export const crmAccountingEndpoints: ReadonlyArray<EndpointSpec> = [
     idParam: 'reconciliationId',
     display: 'reconciliations',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'payment-accounts',
     basePath: '/crm/payment-accounts',
@@ -77,7 +77,7 @@ export const crmAccountingEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeWrite: 'crm:accounting:write',
     idParam: 'paymentAccountId',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'currencies',
     basePath: '/crm/currencies',
@@ -85,7 +85,7 @@ export const crmAccountingEndpoints: ReadonlyArray<EndpointSpec> = [
     scopeRead: 'crm:accounting:read',
     scopeWrite: 'crm:accounting:write',
   }),
-  ...crudResource({
+  ...crudExtendedResource({
     module: 'crm',
     resource: 'pt-slabs',
     basePath: '/crm/pt-slabs',

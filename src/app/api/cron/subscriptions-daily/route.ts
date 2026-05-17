@@ -1,28 +1,38 @@
 /**
- * Subscriptions daily cron + dunning ladder worker.
+ * Subscriptions daily cron + dunning ladder worker (CRM_REBUILD_PLAN §6.1).
  *
- * Runs once per day (Vercel Cron: `0 2 * * *` UTC). For every active
- * subscription it:
+ * Scheduled by Vercel Cron (`0 2 * * *` UTC, see `vercel.json`). For each
+ * active subscription whose `nextBillingDate <= today` it does one of:
  *
- *  1. Generates the next invoice when `nextBillingAt <= now`.
- *  2. If the invoice generation OR payment fails, marks the subscription as
- *     entering dunning (sets `dunningStep` and `dunningStartedAt`).
- *  3. Walks the dunning ladder via `src/lib/billing/dunning.ts`:
+ *  1. **Fresh cycle** (`attemptCount === 0`): create an invoice from the
+ *     subscription's plan/customer/items, advance `nextBillingDate` by the
+ *     billing interval, increment `attemptCount`, and emit the
+ *     `subscription.invoice_issued` notification.
+ *  2. **Outstanding invoice past grace** (`graceDays`, default 3): walk the
+ *     dunning ladder via `src/lib/billing/dunning.ts` —
  *       step 1 (D+1):  email
  *       step 2 (D+3):  SMS
  *       step 3 (D+5):  WhatsApp template
- *       step 4 (D+7):  ticket to billing
- *       step 5 (D+14): suspend
- *  4. Writes an audit row per ladder advancement and one summary row at the
- *     end of the run.
+ *       step 4 (D+7):  create billing ticket
+ *       step 5 (D+14): suspend subscription
  *
- * Auth: `Authorization: Bearer $CRON_SECRET` — the header Vercel Cron sends
- * automatically. Bypassed with `?dryRun=true` only when `NODE_ENV !=
- * production`, so staging exploration is safe; in prod the secret is still
- * required.
+ * **Safety defaults**
+ *  - `dryRun=true` unless caller appends `?execute=1`. The dry-run path emits
+ *    a structured `dunning_step_due` log line for every step that *would*
+ *    have fired but performs no Mongo writes and no channel calls.
+ *  - Cap per run: **200 subscriptions**. When more are pending the response
+ *    has `hasMore: true` and the next cron tick (or an ops-triggered manual
+ *    re-run) picks them up.
  *
- * Idempotency: per-subscription, per-step, per-UTC-day — duplicate runs in
- * the same calendar day will short-circuit at the `lastDunningRun.day` check.
+ * **Wiring TODO** — real channel sends (email/SMS/WhatsApp) currently emit
+ * an in-app `notifyTeamMember` row + a `billing_events` doc; the dedicated
+ * channel workers (see `src/lib/notifications/`, queue consumers) need a
+ * subscriber for `dunning.attempt` events to actually deliver. The ticket
+ * + suspend steps already go through the Rust BFF when available.
+ *
+ * Auth: `Authorization: Bearer $CRON_SECRET` (mirrors
+ * `/api/cron/audit-retention/route.ts`). `x-cron-secret` accepted as a
+ * fallback for non-Vercel schedulers.
  */
 
 import { NextResponse, type NextRequest } from 'next/server';
@@ -32,12 +42,9 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { writeAuditEntry } from '@/lib/audit-log';
 import {
     DUNNING_STEP_LABELS,
-    createDunningTicket,
-    selectDunningStep,
-    sendDunningEmail,
-    sendDunningSms,
-    sendDunningWhatsApp,
-    suspendSubscriptionForDunning,
+    advanceDunningStep,
+    applyDunningStep,
+    getNextDunningStep,
     type DunningStepNum,
     type DunningSubscriptionLike,
 } from '@/lib/billing/dunning';
@@ -46,36 +53,39 @@ export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
 const DAY_MS = 24 * 60 * 60 * 1000;
+const RUN_CAP = 200;
+const DEFAULT_GRACE_DAYS = 3;
 
 interface RunSummary {
     processed: number;
-    invoicesAttempted: number;
-    invoicesFailed: number;
-    dunningSent: number;
+    invoicesIssued: number;
+    dunningSteps: number;
     suspended: number;
     skipped: number;
     errors: Array<{ subscriptionId: string; message: string }>;
+    hasMore: boolean;
 }
 
 function utcDayString(d: Date): string {
     return d.toISOString().slice(0, 10);
 }
 
-function isAuthorized(request: NextRequest): boolean {
-    const cronSecret = process.env.CRON_SECRET;
-    if (!cronSecret) {
-        // Without a configured secret we refuse the request unless the
-        // process is in dev mode — surfaces config drift instead of silently
-        // running open to the internet.
-        return process.env.NODE_ENV !== 'production';
+function authorize(
+    request: NextRequest,
+): { ok: true } | { ok: false; status: number; body: unknown } {
+    const expected = process.env.CRON_SECRET;
+    if (!expected) {
+        return {
+            ok: false,
+            status: 503,
+            body: { error: 'CRON_SECRET not configured' },
+        };
     }
-    const header = request.headers.get('authorization') ?? '';
-    if (header === `Bearer ${cronSecret}`) return true;
-    // Vercel cron is the primary caller and always uses the bearer scheme,
-    // but ops scripts sometimes use the `x-cron-secret` header for parity
-    // with the webhook drain cron.
-    const altHeader = request.headers.get('x-cron-secret') ?? '';
-    return altHeader === cronSecret;
+    const auth = request.headers.get('authorization') ?? '';
+    if (auth === `Bearer ${expected}`) return { ok: true };
+    const xCron = request.headers.get('x-cron-secret') ?? '';
+    if (xCron === expected) return { ok: true };
+    return { ok: false, status: 401, body: { error: 'Unauthorized' } };
 }
 
 function structuredLog(
@@ -89,51 +99,6 @@ function structuredLog(
             ...fields,
         }),
     );
-}
-
-/**
- * Generate the next invoice for a billing-due subscription. We do not call
- * `saveInvoice` directly because that server action is FormData-bound and
- * session-scoped — it would reject a cron caller. Instead we insert a
- * minimal invoice row and mark the subscription as advanced; the existing
- * invoice processor picks it up from there. Returns `true` on success.
- */
-async function generateNextInvoice(
-    sub: WithId<Record<string, unknown>>,
-): Promise<{ ok: boolean; invoiceId?: string; reason?: string }> {
-    try {
-        const { db } = await connectToDatabase();
-        const now = new Date();
-
-        const items = Array.isArray(sub.items) ? (sub.items as any[]) : [];
-        const billingAmount =
-            typeof sub.billingAmount === 'number'
-                ? (sub.billingAmount as number)
-                : items.reduce(
-                      (acc, it) =>
-                          acc +
-                          (Number(it?.rate ?? 0) * Number(it?.qty ?? 1) || 0),
-                      0,
-                  );
-
-        const inv = await db.collection('crm_invoices').insertOne({
-            userId: sub.userId,
-            subscriptionId: sub._id,
-            accountId: sub.accountId ?? sub.customerId ?? null,
-            customerName: sub.customerName ?? null,
-            currency: sub.currency ?? 'INR',
-            amount: billingAmount,
-            status: 'sent',
-            source: 'subscription_cron',
-            issueDate: now,
-            createdAt: now,
-            updatedAt: now,
-        });
-
-        return { ok: true, invoiceId: inv.insertedId.toString() };
-    } catch (e) {
-        return { ok: false, reason: (e as Error).message };
-    }
 }
 
 function nextBillingFromFrequency(
@@ -178,38 +143,72 @@ function toSubscriptionLike(
     };
 }
 
-async function runStep(
-    sub: DunningSubscriptionLike,
-    step: DunningStepNum,
-): Promise<{ ok: boolean; detail?: string }> {
-    switch (step) {
-        case 1:
-            return sendDunningEmail(sub, step);
-        case 2:
-            return sendDunningSms(sub, step);
-        case 3:
-            return sendDunningWhatsApp(sub, step);
-        case 4:
-            return createDunningTicket(sub, step);
-        case 5:
-            return suspendSubscriptionForDunning(sub);
+/**
+ * Insert a fresh invoice row for this billing cycle. We don't call the
+ * `saveInvoice` server action because that path expects a user session +
+ * FormData. Instead we drop a minimal row that the existing invoice worker
+ * picks up. Returns the inserted invoice id on success.
+ */
+async function issueInvoice(
+    sub: WithId<Record<string, unknown>>,
+    now: Date,
+): Promise<{ ok: boolean; invoiceId?: string; reason?: string }> {
+    try {
+        const { db } = await connectToDatabase();
+        const items = Array.isArray(sub.items) ? (sub.items as any[]) : [];
+        const billingAmount =
+            typeof sub.billingAmount === 'number'
+                ? (sub.billingAmount as number)
+                : items.reduce(
+                      (acc, it) =>
+                          acc +
+                          (Number(it?.rate ?? 0) * Number(it?.qty ?? 1) || 0),
+                      0,
+                  );
+
+        const inv = await db.collection('crm_invoices').insertOne({
+            userId: sub.userId,
+            subscriptionId: sub._id,
+            accountId: sub.accountId ?? sub.customerId ?? null,
+            customerName: sub.customerName ?? null,
+            currency: sub.currency ?? 'INR',
+            amount: billingAmount,
+            status: 'sent',
+            source: 'subscription_cron',
+            issueDate: now,
+            createdAt: now,
+            updatedAt: now,
+        });
+        return { ok: true, invoiceId: inv.insertedId.toString() };
+    } catch (e) {
+        return { ok: false, reason: (e as Error).message };
     }
+}
+
+interface ProcessOptions {
+    execute: boolean;
+    graceDays: number;
 }
 
 async function processSubscription(
     doc: WithId<Record<string, unknown>>,
     today: Date,
     summary: RunSummary,
-    opts: { dryRun: boolean },
+    opts: ProcessOptions,
 ): Promise<void> {
     const sub = toSubscriptionLike(doc);
-    const todayKey = utcDayString(today);
-    summary.processed++;
 
+    // Tenants can opt a single subscription out of dunning entirely.
+    if ((doc as any).dunningDisabled === true) {
+        summary.skipped++;
+        structuredLog('dunning_skipped_disabled', { subscriptionId: sub._id });
+        return;
+    }
+
+    summary.processed++;
     const { db } = await connectToDatabase();
     const filter: any = { _id: doc._id };
 
-    // 1. Try to advance billing when the next-billing timestamp has passed.
     const nextBillingRaw = sub.nextBillingAt
         ? new Date(sub.nextBillingAt as any)
         : null;
@@ -219,114 +218,150 @@ async function processSubscription(
         !Number.isNaN(nextBillingRaw.getTime()) &&
         nextBillingRaw.getTime() <= today.getTime();
 
-    let enteredDunning = false;
-    if (billingDue) {
-        summary.invoicesAttempted++;
-        if (opts.dryRun) {
-            structuredLog('cron_subscriptions_daily.invoice_dry_run', {
+    const attemptCount = (doc.attemptCount as number) ?? 0;
+
+    // ─── 1. Fresh cycle ──────────────────────────────────────────────────
+    if (billingDue && attemptCount === 0) {
+        if (!opts.execute) {
+            structuredLog('invoice_issued_dry_run', {
                 subscriptionId: sub._id,
+                nextBillingAt: nextBillingRaw?.toISOString(),
             });
-        } else {
-            const result = await generateNextInvoice(doc);
-            if (result.ok) {
-                const next = nextBillingFromFrequency(
-                    today,
-                    (doc.frequency as string) ?? 'monthly',
+            summary.invoicesIssued++;
+            return;
+        }
+
+        const result = await issueInvoice(doc, today);
+        if (!result.ok) {
+            summary.errors.push({
+                subscriptionId: sub._id,
+                message: result.reason ?? 'invoice_issue_failed',
+            });
+            structuredLog('invoice_issue_failed', {
+                subscriptionId: sub._id,
+                reason: result.reason,
+            });
+            return;
+        }
+
+        const next = nextBillingFromFrequency(
+            today,
+            (doc.frequency as string) ?? 'monthly',
+        );
+        await db.collection('crm_subscriptions').updateOne(filter, {
+            $set: {
+                nextBillingAt: next,
+                lastInvoicedAt: today,
+                attemptCount: 1,
+                lastInvoiceId: result.invoiceId,
+                lastInvoiceIssuedAt: today,
+                updatedAt: today,
+            },
+        });
+
+        // Best-effort issued notification — falls through silently if the
+        // notification module is unavailable in this build target.
+        if (sub.userId) {
+            try {
+                const { notifyTeamMember } = await import(
+                    '@/lib/team-notifications'
                 );
-                await db.collection('crm_subscriptions').updateOne(filter, {
-                    $set: {
-                        nextBillingAt: next,
-                        lastInvoicedAt: today,
-                        updatedAt: today,
-                    },
+                await notifyTeamMember({
+                    recipientUserId: sub.userId,
+                    message: `Invoice issued for subscription ${sub.planName ?? sub._id}`,
+                    link: `/dashboard/crm/sales/subscriptions/${sub._id}`,
+                    eventType: 'subscription.invoice_issued',
+                    sourceApp: 'system',
                 });
-                structuredLog('cron_subscriptions_daily.invoice_ok', {
-                    subscriptionId: sub._id,
-                    invoiceId: result.invoiceId,
-                });
-            } else {
-                summary.invoicesFailed++;
-                enteredDunning = true;
-                if (!sub.dunningStartedAt) {
-                    await db
-                        .collection('crm_subscriptions')
-                        .updateOne(filter, {
-                            $set: {
-                                dunningStartedAt: today,
-                                dunningStep: 0,
-                                updatedAt: today,
-                            },
-                        });
-                    sub.dunningStartedAt = today;
-                    sub.dunningStep = 0;
-                }
-                structuredLog('cron_subscriptions_daily.invoice_fail', {
-                    subscriptionId: sub._id,
-                    reason: result.reason,
-                });
+            } catch {
+                /* best-effort */
             }
+        }
+
+        summary.invoicesIssued++;
+        structuredLog('invoice_issued', {
+            subscriptionId: sub._id,
+            invoiceId: result.invoiceId,
+        });
+        return;
+    }
+
+    // ─── 2. Dunning ladder ───────────────────────────────────────────────
+    //
+    // Only walk the ladder if there's an outstanding invoice that has aged
+    // past the grace window. `dunningStartedAt` is the canonical "started
+    // dunning" timestamp; if absent and the invoice has aged past grace,
+    // start the clock now (write happens on the first ladder step).
+    if (!billingDue && !sub.dunningStartedAt) return;
+
+    const issuedAtRaw = (doc.lastInvoiceIssuedAt as any) ?? sub.nextBillingAt;
+    const issuedAt = issuedAtRaw ? new Date(issuedAtRaw) : null;
+    if (issuedAt && !Number.isNaN(issuedAt.getTime())) {
+        const ageMs = today.getTime() - issuedAt.getTime();
+        if (ageMs < opts.graceDays * DAY_MS && !sub.dunningStartedAt) {
+            // Within grace — defer ladder advancement until grace expires.
+            summary.skipped++;
+            return;
         }
     }
 
-    // 2. Walk the ladder if the subscription is currently in dunning.
-    if (!sub.dunningStartedAt && !enteredDunning) return;
+    if (!sub.dunningStartedAt) {
+        sub.dunningStartedAt = today;
+        if (opts.execute) {
+            await db.collection('crm_subscriptions').updateOne(filter, {
+                $set: {
+                    dunningStartedAt: today,
+                    dunningStep: 0,
+                    updatedAt: today,
+                },
+            });
+        }
+    }
 
-    const nextStep = selectDunningStep(sub, today);
+    const nextStep = getNextDunningStep(sub, sub.lastDunningRun ?? null, today);
     if (nextStep == null) {
         summary.skipped++;
         return;
     }
 
-    // Idempotency guard — same step in same UTC day must not double-fire.
-    if (
-        sub.lastDunningRun &&
-        sub.lastDunningRun.step === nextStep &&
-        sub.lastDunningRun.day === todayKey
-    ) {
+    // Structured "would advance" log — emitted in BOTH dry-run and live runs
+    // so ops can correlate the planned step against the eventual write.
+    structuredLog('dunning_step_due', {
+        subscriptionId: sub._id,
+        step: nextStep,
+        label: DUNNING_STEP_LABELS[nextStep],
+        dryRun: !opts.execute,
+    });
+
+    const applied = await applyDunningStep(sub, nextStep, {
+        execute: opts.execute,
+        today,
+    });
+
+    if (applied.skipped) {
         summary.skipped++;
         return;
     }
-
-    if (opts.dryRun) {
-        structuredLog('cron_subscriptions_daily.dunning_dry_run', {
-            subscriptionId: sub._id,
-            wouldRunStep: nextStep,
-            label: DUNNING_STEP_LABELS[nextStep],
-        });
+    if (applied.dryRun) {
+        // Dry-run already logged via `dunning_step_due`.
         return;
     }
 
-    const result = await runStep(sub, nextStep);
-    const ranAt = new Date().toISOString();
-    const update: any = {
-        $set: {
-            dunningStep: nextStep,
-            lastDunningRun: {
-                step: nextStep,
-                ranAt,
-                ok: result.ok,
-                day: todayKey,
-            },
-            updatedAt: today,
-        },
-    };
-
-    if (nextStep === 5 && result.ok) {
-        summary.suspended++;
-        // `suspendSubscriptionForDunning` already flipped status to paused,
-        // but the local update keeps the audit-trail tidy.
-        update.$set.status = 'paused';
-        update.$set.pausedReason = 'dunning_exhausted';
-    } else if (result.ok) {
-        summary.dunningSent++;
+    if (applied.ok) {
+        if (nextStep === 5) summary.suspended++;
+        else summary.dunningSteps++;
     } else {
         summary.errors.push({
             subscriptionId: sub._id,
-            message: result.detail ?? `step ${nextStep} failed`,
+            message: applied.detail ?? `step ${nextStep} failed`,
         });
     }
 
-    await db.collection('crm_subscriptions').updateOne(filter, update);
+    await advanceDunningStep(sub._id, sub.dunningStep ?? 0, {
+        toStep: nextStep as DunningStepNum,
+        ok: applied.ok,
+        today,
+    });
 
     if (sub.userId) {
         try {
@@ -335,53 +370,64 @@ async function processSubscription(
                 action: `dunning_step_${nextStep}`,
                 entityKind: 'subscription',
                 entityId: sub._id,
-                reason: `automated ${DUNNING_STEP_LABELS[nextStep]} run (ok=${result.ok})`,
+                reason: `automated ${DUNNING_STEP_LABELS[nextStep]} (ok=${applied.ok})`,
             });
         } catch {
             /* non-fatal */
         }
     }
 
-    structuredLog('cron_subscriptions_daily.dunning_step', {
+    structuredLog('dunning_step_applied', {
         subscriptionId: sub._id,
         step: nextStep,
         label: DUNNING_STEP_LABELS[nextStep],
-        ok: result.ok,
-        detail: result.detail,
+        ok: applied.ok,
+        detail: applied.detail,
     });
 }
 
-export async function GET(request: NextRequest) {
+async function handle(request: NextRequest): Promise<NextResponse> {
     const startedAt = Date.now();
-    if (!isAuthorized(request)) {
-        return NextResponse.json(
-            { error: 'unauthorized' },
-            { status: 401 },
-        );
+
+    const guard = authorize(request);
+    if (!guard.ok) {
+        return NextResponse.json(guard.body, { status: guard.status });
     }
 
-    const dryRun =
-        new URL(request.url).searchParams.get('dryRun') === 'true';
-    const today = new Date();
+    // SAFETY: dry-run by default; ops flips writes on with `?execute=1`.
+    const url = new URL(request.url);
+    const execute = url.searchParams.get('execute') === '1';
+    const graceDaysParam = url.searchParams.get('graceDays');
+    const graceDays = graceDaysParam
+        ? Math.max(0, parseInt(graceDaysParam, 10) || DEFAULT_GRACE_DAYS)
+        : DEFAULT_GRACE_DAYS;
 
+    const today = new Date();
     const summary: RunSummary = {
         processed: 0,
-        invoicesAttempted: 0,
-        invoicesFailed: 0,
-        dunningSent: 0,
+        invoicesIssued: 0,
+        dunningSteps: 0,
         suspended: 0,
         skipped: 0,
         errors: [],
+        hasMore: false,
     };
 
-    structuredLog('cron_subscriptions_daily.start', { dryRun });
+    structuredLog('cron_subscriptions_daily.start', {
+        dryRun: !execute,
+        graceDays,
+        cap: RUN_CAP,
+    });
 
     try {
         const { db } = await connectToDatabase();
-        // Pull active subs that are billing-due OR currently in dunning.
+
+        // We pull `RUN_CAP + 1` so we can detect "more pending" without a
+        // separate count query.
         const candidates = (await db
             .collection('crm_subscriptions')
             .find({
+                dunningDisabled: { $ne: true },
                 $or: [
                     {
                         status: 'active',
@@ -391,12 +437,18 @@ export async function GET(request: NextRequest) {
                     { dunningStartedAt: { $exists: true, $ne: null } },
                 ],
             })
-            .limit(1000)
+            .limit(RUN_CAP + 1)
             .toArray()) as WithId<Record<string, unknown>>[];
 
-        for (const doc of candidates) {
+        const batch = candidates.slice(0, RUN_CAP);
+        summary.hasMore = candidates.length > RUN_CAP;
+
+        for (const doc of batch) {
             try {
-                await processSubscription(doc, today, summary, { dryRun });
+                await processSubscription(doc, today, summary, {
+                    execute,
+                    graceDays,
+                });
             } catch (e) {
                 summary.errors.push({
                     subscriptionId: String(doc._id),
@@ -413,35 +465,56 @@ export async function GET(request: NextRequest) {
             error: (e as Error).message,
         });
         return NextResponse.json(
-            { ...summary, error: (e as Error).message },
+            {
+                ok: false,
+                dryRun: !execute,
+                durationMs: Date.now() - startedAt,
+                ...summary,
+                error: (e as Error).message,
+            },
             { status: 500 },
         );
     }
 
-    // Run-level audit row — tenantUserId is required by `writeAuditEntry`,
-    // so we mint a sentinel system ObjectId; the writer no-ops if the id
-    // isn't valid, which is fine for the summary marker.
+    // Summary audit row — sentinel tenant id so the audit log keeps a single
+    // canonical "cron ran" entry per day. `writeAuditEntry` is no-op safe.
     try {
         await writeAuditEntry({
             tenantUserId: new ObjectId('000000000000000000000000').toString(),
             action: 'dunning_run',
             entityKind: 'subscription',
             entityId: 'cron',
-            reason: `processed=${summary.processed} dunningSent=${summary.dunningSent} suspended=${summary.suspended} errors=${summary.errors.length} dryRun=${dryRun}`,
+            reason:
+                `processed=${summary.processed} ` +
+                `invoicesIssued=${summary.invoicesIssued} ` +
+                `dunningSteps=${summary.dunningSteps} ` +
+                `suspended=${summary.suspended} ` +
+                `errors=${summary.errors.length} ` +
+                `hasMore=${summary.hasMore} ` +
+                `dryRun=${!execute} day=${utcDayString(today)}`,
         });
     } catch {
         /* non-fatal */
     }
 
     structuredLog('cron_subscriptions_daily.complete', {
-        dryRun,
+        dryRun: !execute,
         durationMs: Date.now() - startedAt,
         ...summary,
     });
 
-    return NextResponse.json({ ...summary, dryRun });
+    return NextResponse.json({
+        ok: true,
+        dryRun: !execute,
+        durationMs: Date.now() - startedAt,
+        ...summary,
+    });
+}
+
+export async function GET(request: NextRequest) {
+    return handle(request);
 }
 
 export async function POST(request: NextRequest) {
-    return GET(request);
+    return handle(request);
 }

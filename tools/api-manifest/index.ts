@@ -50,6 +50,11 @@ import { facebookFullEndpoints } from './modules/facebook-full';
 import { metaEndpoints } from './modules/meta';
 import { wachatExtrasEndpoints } from './modules/wachat-extras';
 import { instagramFullEndpoints } from './modules/instagram';
+import { reportsEndpoints } from './modules/reports';
+import { seoEndpoints } from './modules/seo';
+import { shopEndpoints } from './modules/shop';
+import { messagingChannelsEndpoints } from './modules/messaging-channels';
+import { builderEndpoints } from './modules/builder';
 
 export const manifest: Manifest = {
   info: {
@@ -88,6 +93,11 @@ export const manifest: Manifest = {
     ...metaEndpoints,
     ...wachatExtrasEndpoints,
     ...instagramFullEndpoints,
+    ...reportsEndpoints,
+    ...seoEndpoints,
+    ...shopEndpoints,
+    ...messagingChannelsEndpoints,
+    ...builderEndpoints,
   ],
   schemas: sharedSchemas,
 };
