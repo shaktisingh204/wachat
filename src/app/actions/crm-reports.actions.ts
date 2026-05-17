@@ -686,3 +686,591 @@ export async function generateAllTransactionsReport(filters: {
         return { data: [], error: 'Failed to generate report.' };
     }
 }
+
+/* ════════════════════════════════════════════════════════════════════════
+ *  §6.8 Unified Reports Engine — definitions, runs, and dispatch.
+ *
+ *  Backs `src/lib/reports/engine.ts`. Two collections:
+ *
+ *    • `crm_report_definitions` — saved configs (filters, schedule,
+ *      delivery). One per `{ userId, name }`. Created on demand.
+ *    • `crm_report_runs`         — append-only audit log of executions
+ *      with captured columns/rows + delivery outcome.
+ *
+ *  RBAC: gated on `crm_reports` (plural) — the existing permission
+ *  module key registered in `src/lib/permission-modules.ts:45`. The
+ *  singular `crm_report` key referenced in the §6.8 spec does not yet
+ *  exist; documenting and using the plural to avoid silently allowing
+ *  unauthorized access.
+ * ════════════════════════════════════════════════════════════════════════
+ */
+
+import { requirePermission as requirePermissionUnified } from '@/lib/rbac-server';
+import {
+    runReport as engineRunReport,
+    reportResultToCsv,
+} from '@/lib/reports/engine';
+import type {
+    ReportDefinition,
+    ReportKind,
+    ReportFilter,
+    ReportSchedule,
+    ReportDelivery,
+    ReportRun,
+    ReportRunResult,
+    ReportRecipient,
+} from '@/lib/reports/types';
+import { REPORT_KINDS } from '@/lib/reports/types';
+
+/** Plural permission key — see §6.8 RBAC note in the file header. */
+const REPORTS_PERMISSION_KEY = 'crm_reports';
+
+/** Trimmed-down doc shape persisted in `crm_report_definitions`. */
+export interface ReportDefinitionDoc {
+    _id: string;
+    userId: string;
+    kind: ReportKind;
+    name: string;
+    description?: string;
+    filters?: ReportFilter;
+    schedule?: ReportSchedule | null;
+    delivery?: ReportDelivery | null;
+    recipients?: ReportRecipient[];
+    lastRunAt?: string | null;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface ReportRunDoc {
+    _id: string;
+    definitionId: string;
+    userId: string;
+    kind: ReportKind;
+    status: ReportRun['status'];
+    trigger: ReportRun['trigger'];
+    startedAt: string;
+    finishedAt?: string | null;
+    result?: ReportRunResult;
+    error?: string | null;
+    delivered?: ReportRun['delivered'];
+    rowCount?: number;
+}
+
+/* ─── Reads ──────────────────────────────────────────────────────────── */
+
+export async function getReportDefinitions(filters?: {
+    kind?: ReportKind;
+    q?: string;
+}): Promise<ReportDefinitionDoc[]> {
+    const session = await getSession();
+    if (!session?.user) return [];
+    const guard = await requirePermissionUnified(REPORTS_PERMISSION_KEY, 'view');
+    if (!guard.ok) return [];
+
+    try {
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(session.user._id);
+        const q: Record<string, unknown> = { userId };
+        if (filters?.kind) q.kind = filters.kind;
+        if (filters?.q) q.name = { $regex: filters.q, $options: 'i' };
+
+        const docs = await db
+            .collection('crm_report_definitions')
+            .find(q)
+            .sort({ updatedAt: -1 })
+            .limit(200)
+            .toArray();
+        return JSON.parse(JSON.stringify(docs));
+    } catch (e) {
+        console.error('[getReportDefinitions] failed:', e);
+        return [];
+    }
+}
+
+export async function getReportDefinitionById(
+    id: string,
+): Promise<ReportDefinitionDoc | null> {
+    const session = await getSession();
+    if (!session?.user) return null;
+    if (!ObjectId.isValid(id)) return null;
+    const guard = await requirePermissionUnified(REPORTS_PERMISSION_KEY, 'view');
+    if (!guard.ok) return null;
+
+    try {
+        const { db } = await connectToDatabase();
+        const doc = await db.collection('crm_report_definitions').findOne({
+            _id: new ObjectId(id),
+            userId: new ObjectId(session.user._id),
+        });
+        return doc ? JSON.parse(JSON.stringify(doc)) : null;
+    } catch (e) {
+        console.error('[getReportDefinitionById] failed:', e);
+        return null;
+    }
+}
+
+export async function getReportRunsForDefinition(
+    definitionId: string,
+    limit = 50,
+): Promise<ReportRunDoc[]> {
+    const session = await getSession();
+    if (!session?.user) return [];
+    if (!ObjectId.isValid(definitionId)) return [];
+    const guard = await requirePermissionUnified(REPORTS_PERMISSION_KEY, 'view');
+    if (!guard.ok) return [];
+
+    try {
+        const { db } = await connectToDatabase();
+        const docs = await db
+            .collection('crm_report_runs')
+            .find({
+                definitionId: new ObjectId(definitionId),
+                userId: new ObjectId(session.user._id),
+            })
+            .sort({ startedAt: -1 })
+            .limit(Math.min(Math.max(1, limit), 500))
+            .toArray();
+        return JSON.parse(JSON.stringify(docs));
+    } catch (e) {
+        console.error('[getReportRunsForDefinition] failed:', e);
+        return [];
+    }
+}
+
+export async function getReportRun(runId: string): Promise<ReportRunDoc | null> {
+    const session = await getSession();
+    if (!session?.user) return null;
+    if (!ObjectId.isValid(runId)) return null;
+    const guard = await requirePermissionUnified(REPORTS_PERMISSION_KEY, 'view');
+    if (!guard.ok) return null;
+
+    try {
+        const { db } = await connectToDatabase();
+        const doc = await db.collection('crm_report_runs').findOne({
+            _id: new ObjectId(runId),
+            userId: new ObjectId(session.user._id),
+        });
+        return doc ? JSON.parse(JSON.stringify(doc)) : null;
+    } catch (e) {
+        console.error('[getReportRun] failed:', e);
+        return null;
+    }
+}
+
+/* ─── Writes ─────────────────────────────────────────────────────────── */
+
+function parseJsonField<T>(raw: FormDataEntryValue | null, fallback: T): T {
+    if (raw == null) return fallback;
+    const s = String(raw).trim();
+    if (!s) return fallback;
+    try {
+        return JSON.parse(s) as T;
+    } catch {
+        return fallback;
+    }
+}
+
+export async function saveReportDefinition(
+    _prev: { message?: string; error?: string; id?: string } | undefined,
+    formData: FormData,
+): Promise<{ message?: string; error?: string; id?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { error: 'Access denied.' };
+
+    const id = (formData.get('id') as string) || '';
+    const isEditing = !!id && ObjectId.isValid(id);
+    const guard = await requirePermissionUnified(
+        REPORTS_PERMISSION_KEY,
+        isEditing ? 'edit' : 'create',
+    );
+    if (!guard.ok) return { error: guard.error };
+
+    const kind = String(formData.get('kind') ?? '') as ReportKind;
+    const name = String(formData.get('name') ?? '').trim();
+    const description = String(formData.get('description') ?? '').trim() || undefined;
+
+    if (!REPORT_KINDS.includes(kind)) return { error: 'Unknown report kind.' };
+    if (!name) return { error: 'Name is required.' };
+
+    const filters = parseJsonField<ReportFilter | undefined>(
+        formData.get('filters'),
+        undefined,
+    );
+    const schedule = parseJsonField<ReportSchedule | null>(
+        formData.get('schedule'),
+        null,
+    );
+    const delivery = parseJsonField<ReportDelivery | null>(
+        formData.get('delivery'),
+        null,
+    );
+    const recipients = parseJsonField<ReportRecipient[]>(
+        formData.get('recipients'),
+        [],
+    );
+
+    try {
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(session.user._id);
+        const now = new Date();
+
+        if (isEditing) {
+            await db.collection('crm_report_definitions').updateOne(
+                { _id: new ObjectId(id), userId },
+                {
+                    $set: {
+                        kind,
+                        name,
+                        description,
+                        filters,
+                        schedule,
+                        delivery,
+                        recipients,
+                        updatedAt: now,
+                        updatedBy: userId,
+                    },
+                },
+            );
+            return { message: 'Report definition updated.', id };
+        }
+
+        const res = await db.collection('crm_report_definitions').insertOne({
+            userId,
+            kind,
+            name,
+            description,
+            filters,
+            schedule,
+            delivery,
+            recipients,
+            lastRunAt: null,
+            createdAt: now,
+            updatedAt: now,
+            createdBy: userId,
+            updatedBy: userId,
+        } as any);
+        return { message: 'Report saved.', id: String(res.insertedId) };
+    } catch (e: any) {
+        console.error('[saveReportDefinition] failed:', e);
+        return { error: 'Failed to save report definition.' };
+    }
+}
+
+export async function deleteReportDefinition(
+    id: string,
+): Promise<{ success: boolean; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied.' };
+    if (!ObjectId.isValid(id))
+        return { success: false, error: 'Invalid id.' };
+    const guard = await requirePermissionUnified(
+        REPORTS_PERMISSION_KEY,
+        'delete',
+    );
+    if (!guard.ok) return { success: false, error: guard.error };
+
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('crm_report_definitions').deleteOne({
+            _id: new ObjectId(id),
+            userId: new ObjectId(session.user._id),
+        });
+        return { success: true };
+    } catch (e: any) {
+        console.error('[deleteReportDefinition] failed:', e);
+        return { success: false, error: 'Failed to delete.' };
+    }
+}
+
+/* ─── Run + delivery ─────────────────────────────────────────────────── */
+
+const MAX_PERSISTED_ROWS = 5000;
+
+/**
+ * Internal helper — actually runs the definition and writes the result
+ * row to `crm_report_runs`. Used by `runReportById` (manual) AND the
+ * scheduler (cron).
+ */
+export async function executeReportDefinition(opts: {
+    definition: ReportDefinitionDoc;
+    tenantUserId: string;
+    trigger: ReportRun['trigger'];
+}): Promise<{ runId: string; result: ReportRunResult; delivered: ReportRun['delivered'] }> {
+    const { db } = await connectToDatabase();
+    const startedAt = new Date();
+
+    // Pre-insert a "running" run doc so concurrent dispatches don't
+    // double-execute the same definition (cron + manual race).
+    const userObjId = new ObjectId(opts.tenantUserId);
+    const defObjId = new ObjectId(String(opts.definition._id));
+
+    const insert = await db.collection('crm_report_runs').insertOne({
+        definitionId: defObjId,
+        userId: userObjId,
+        kind: opts.definition.kind,
+        status: 'running',
+        trigger: opts.trigger,
+        startedAt,
+    } as any);
+    const runId = String(insert.insertedId);
+
+    const defForEngine: ReportDefinition = {
+        _id: String(opts.definition._id),
+        userId: opts.tenantUserId,
+        kind: opts.definition.kind,
+        name: opts.definition.name,
+        filters: opts.definition.filters,
+        schedule: opts.definition.schedule,
+        delivery: opts.definition.delivery,
+        recipients: opts.definition.recipients,
+    };
+
+    let result: ReportRunResult;
+    try {
+        result = await engineRunReport(defForEngine, {
+            tenantUserId: opts.tenantUserId,
+        });
+    } catch (e: any) {
+        result = {
+            columns: [],
+            rows: [],
+            kind: opts.definition.kind,
+            error: e?.message ?? 'engine_threw',
+        };
+    }
+
+    const finishedAt = new Date();
+    const status: ReportRun['status'] = result.error ? 'failed' : 'succeeded';
+    const trimmedResult: ReportRunResult = {
+        ...result,
+        rows: result.rows.slice(0, MAX_PERSISTED_ROWS),
+    };
+
+    // Delivery (best-effort; failures are captured in the run doc but
+    // don't poison the run itself).
+    const delivered = await dispatchDelivery({
+        definition: opts.definition,
+        result: trimmedResult,
+        runId,
+    });
+
+    await db.collection('crm_report_runs').updateOne(
+        { _id: insert.insertedId },
+        {
+            $set: {
+                status,
+                finishedAt,
+                result: trimmedResult,
+                rowCount: result.rows.length,
+                error: result.error ?? null,
+                delivered,
+            },
+        },
+    );
+
+    if (status === 'succeeded') {
+        await db.collection('crm_report_definitions').updateOne(
+            { _id: defObjId, userId: userObjId },
+            { $set: { lastRunAt: finishedAt } },
+        );
+    }
+
+    return { runId, result: trimmedResult, delivered };
+}
+
+export async function runReportById(
+    id: string,
+): Promise<{ runId?: string; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { error: 'Access denied.' };
+    if (!ObjectId.isValid(id)) return { error: 'Invalid id.' };
+
+    const guard = await requirePermissionUnified(
+        REPORTS_PERMISSION_KEY,
+        'view',
+    );
+    if (!guard.ok) return { error: guard.error };
+
+    const def = await getReportDefinitionById(id);
+    if (!def) return { error: 'Definition not found.' };
+
+    try {
+        const { runId } = await executeReportDefinition({
+            definition: def,
+            tenantUserId: String(session.user._id),
+            trigger: 'manual',
+        });
+        return { runId };
+    } catch (e: any) {
+        console.error('[runReportById] failed:', e);
+        return { error: 'Failed to execute report.' };
+    }
+}
+
+/* ─── Delivery dispatch ──────────────────────────────────────────────── */
+
+/**
+ * Fan-out delivery. `email` is structured-logged + flagged in the run
+ * doc as a TODO — no generic transactional-email helper exists yet in
+ * this codebase, so a future PR wires in a real transport without
+ * touching the engine. `webhook` is fully wired (HTTP POST with JSON).
+ */
+async function dispatchDelivery(opts: {
+    definition: ReportDefinitionDoc;
+    result: ReportRunResult;
+    runId: string;
+}): Promise<ReportRun['delivered']> {
+    const delivered: ReportRun['delivered'] = {};
+    const d = opts.definition.delivery;
+    if (!d) return delivered;
+
+    // ── email (stubbed — no global mailer in this codebase) ──────────
+    if (d.email && Array.isArray(d.email.to) && d.email.to.length > 0) {
+        try {
+            const csv = reportResultToCsv(opts.result);
+            // Intentional: structured log only. A future
+            // `dispatchReportEmail()` helper will pick this up via the
+            // run doc and re-send through a real transport.
+            console.log(
+                '[reports.delivery.email] TODO mailer not wired — would send',
+                {
+                    runId: opts.runId,
+                    kind: opts.definition.kind,
+                    to: d.email.to,
+                    subject:
+                        d.email.subject ??
+                        `[SabNode CRM] ${opts.definition.name}`,
+                    csvBytes: csv.length,
+                    rowCount: opts.result.rows.length,
+                },
+            );
+            delivered.email = {
+                ok: false,
+                recipients: d.email.to,
+                error: 'mailer_not_configured',
+            };
+        } catch (e: any) {
+            delivered.email = {
+                ok: false,
+                recipients: d.email.to,
+                error: e?.message ?? 'email_dispatch_threw',
+            };
+        }
+    }
+
+    // ── webhook (real HTTP POST) ─────────────────────────────────────
+    if (d.webhook && typeof d.webhook.url === 'string' && d.webhook.url.length > 0) {
+        try {
+            const headers: Record<string, string> = {
+                'content-type': 'application/json',
+                'x-sabnode-report-run': opts.runId,
+                'x-sabnode-report-kind': opts.definition.kind,
+                ...(d.webhook.headers ?? {}),
+            };
+            const body = JSON.stringify({
+                runId: opts.runId,
+                definitionId: String(opts.definition._id),
+                kind: opts.definition.kind,
+                name: opts.definition.name,
+                columns: opts.result.columns,
+                rows: opts.result.rows,
+                summary: opts.result.summary,
+                error: opts.result.error ?? null,
+            });
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), 15_000);
+            try {
+                const res = await fetch(d.webhook.url, {
+                    method: 'POST',
+                    headers,
+                    body,
+                    signal: controller.signal,
+                });
+                delivered.webhook = {
+                    ok: res.ok,
+                    status: res.status,
+                };
+            } finally {
+                clearTimeout(timeout);
+            }
+        } catch (e: any) {
+            delivered.webhook = {
+                ok: false,
+                error: e?.message ?? 'webhook_dispatch_failed',
+            };
+        }
+    }
+
+    return delivered;
+}
+
+/* ─── Schedule helpers (used by the cron route) ──────────────────────── */
+
+/**
+ * Returns true if `cron` (5-field) matches the given hour. Only a
+ * minimal subset is supported here — the current SabNode cron is
+ * Vercel-driven and ticks hourly, so we only need to evaluate
+ * `minute` (ignored — Vercel triggers per-hour), `hour`,
+ * `dayOfMonth`, `month`, `dayOfWeek`. Each field is one of
+ * `*`, `n`, `n,m,…`, `n-m`, or `\*\/k` (step).
+ */
+export function cronMatchesHour(cron: string, when: Date): boolean {
+    const parts = cron.trim().split(/\s+/);
+    if (parts.length < 5) return false;
+    const [, hourF, domF, monthF, dowF] = parts;
+
+    const hour = when.getUTCHours();
+    const dom = when.getUTCDate();
+    const month = when.getUTCMonth() + 1;
+    const dow = when.getUTCDay();
+
+    return (
+        cronFieldMatches(hourF, hour, 0, 23) &&
+        cronFieldMatches(domF, dom, 1, 31) &&
+        cronFieldMatches(monthF, month, 1, 12) &&
+        cronFieldMatches(dowF, dow, 0, 6)
+    );
+}
+
+function cronFieldMatches(
+    field: string,
+    value: number,
+    min: number,
+    max: number,
+): boolean {
+    if (!field || field === '*') return true;
+    for (const token of field.split(',')) {
+        const stepMatch = token.match(/^(.+)\/(\d+)$/);
+        if (stepMatch) {
+            const step = Number(stepMatch[2]);
+            if (!step) continue;
+            const base = stepMatch[1] === '*' ? `${min}-${max}` : stepMatch[1];
+            const rangeMatch = base.match(/^(\d+)-(\d+)$/);
+            if (rangeMatch) {
+                const lo = Number(rangeMatch[1]);
+                const hi = Number(rangeMatch[2]);
+                if (value >= lo && value <= hi && (value - lo) % step === 0) return true;
+            } else {
+                const start = Number(base);
+                if (
+                    Number.isFinite(start) &&
+                    value >= start &&
+                    (value - start) % step === 0
+                )
+                    return true;
+            }
+            continue;
+        }
+        const rangeMatch = token.match(/^(\d+)-(\d+)$/);
+        if (rangeMatch) {
+            const lo = Number(rangeMatch[1]);
+            const hi = Number(rangeMatch[2]);
+            if (value >= lo && value <= hi) return true;
+            continue;
+        }
+        const exact = Number(token);
+        if (Number.isFinite(exact) && exact === value) return true;
+    }
+    return false;
+}
+

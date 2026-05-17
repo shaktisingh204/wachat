@@ -72,6 +72,61 @@ export function VendorEditForm({ vendor }: Props) {
                         <ZoruLabel htmlFor="notes">Notes</ZoruLabel>
                         <ZoruTextarea id="notes" name="notes" defaultValue={vendor.notes ?? ''} rows={3} />
                     </div>
+                    {/*
+                     * MSME / IT §43B(h) compliance section (§6.10).
+                     * All fields additive — legacy vendor rows have
+                     * undefined values which coerce to non-MSME.
+                     */}
+                    <div className="md:col-span-2 rounded-lg border border-border bg-muted/20 p-4">
+                        <div className="mb-3 flex items-center justify-between">
+                            <div>
+                                <div className="text-[13.5px] font-semibold">MSME / Compliance</div>
+                                <p className="text-[11.5px] text-muted-foreground">
+                                    Bills to MSME-registered vendors must clear in 45 days (MSMED Act + IT §43B(h)).
+                                </p>
+                            </div>
+                        </div>
+                        <div className="grid gap-3 md:grid-cols-2">
+                            <label className="flex items-center gap-2 text-[13px]">
+                                <input
+                                    type="checkbox"
+                                    name="isMsme"
+                                    value="true"
+                                    defaultChecked={Boolean(vendor.isMsme)}
+                                />
+                                MSME-registered (Udyam)
+                            </label>
+                            <Field
+                                name="udyamRegistrationNumber"
+                                label="Udyam Registration Number"
+                                defaultValue={vendor.udyamRegistrationNumber}
+                            />
+                            <div>
+                                <ZoruLabel htmlFor="msmeCategory">MSME Category</ZoruLabel>
+                                <select
+                                    id="msmeCategory"
+                                    name="msmeCategory"
+                                    defaultValue={vendor.msmeCategory ?? ''}
+                                    className="h-10 w-full rounded-lg border border-border bg-card px-3 text-[13px]"
+                                >
+                                    <option value="">—</option>
+                                    <option value="Micro">Micro</option>
+                                    <option value="Small">Small</option>
+                                    <option value="Medium">Medium</option>
+                                </select>
+                            </div>
+                            <Field
+                                name="msmePaymentTermsDays"
+                                label="Payment terms (days, default 45)"
+                                defaultValue={
+                                    vendor.msmePaymentTermsDays != null
+                                        ? String(vendor.msmePaymentTermsDays)
+                                        : ''
+                                }
+                                type="number"
+                            />
+                        </div>
+                    </div>
                     <div className="md:col-span-2 flex items-center justify-between gap-3">
                         <div className="text-sm">
                             {state?.error ? (

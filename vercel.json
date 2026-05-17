@@ -20,6 +20,10 @@
     {
       "path": "/api/cron/webhook-dispatcher",
       "schedule": "* * * * *"
+    },
+    {
+      "path": "/api/cron/msme-45-day-check",
+      "schedule": "0 6 * * *"
     }
   ]
 }

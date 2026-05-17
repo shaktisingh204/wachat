@@ -836,6 +836,16 @@ export type CrmVendor = {
     showEmailInInvoice?: boolean;
     showPhoneInInvoice?: boolean;
     attachments?: string[]; // URLs
+    /**
+     * MSME / MSMED Act 2006 + IT §43B(h) compliance flags. All additive,
+     * defaulted in code so legacy vendor docs (missing these fields)
+     * continue to read as non-MSME without a migration. See
+     * `src/lib/india-tax/msme-45-day.ts` for the daily-clock logic.
+     */
+    isMsme?: boolean;
+    udyamRegistrationNumber?: string; // UDYAM-XX-NN-NNNNNNN
+    msmeCategory?: 'Micro' | 'Small' | 'Medium';
+    msmePaymentTermsDays?: number; // default 45 in code
     createdAt: Date;
     updatedAt: Date;
 };

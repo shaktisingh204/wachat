@@ -26,7 +26,10 @@ import {
   LuClock,
   LuLoader,
   LuPlay,
+  LuPause,
   LuRotateCw,
+  LuRewind,
+  LuFastForward,
   LuTriangleAlert,
 } from 'react-icons/lu';
 import { useRouter } from 'next/navigation';
@@ -59,6 +62,10 @@ export function ExecutionReplayClient({ executionId }: { executionId: string }) 
   /** Block id currently being re-run from — drives the button spinner. */
   const [rerunningFrom, setRerunningFrom] = useState<string | null>(null);
   const [rerunError, setRerunError] = useState<string | null>(null);
+  /** Recording-style playback (Step 31). */
+  const [playing, setPlaying] = useState(false);
+  /** Playback rate in ms-per-step.  Smaller = faster. */
+  const [playbackMs, setPlaybackMs] = useState(800);
 
   const handleRerun = useCallback(
     async (fromBlockId: string) => {
@@ -126,11 +133,91 @@ export function ExecutionReplayClient({ executionId }: { executionId: string }) 
       } else if (e.key === 'ArrowUp' || e.key === 'k') {
         e.preventDefault();
         setSelectedIdx((i) => Math.max(0, i - 1));
+      } else if (e.key === ' ') {
+        e.preventDefault();
+        setPlaying((p) => !p);
       }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [nodes.length]);
+
+  // Step 31 — playback timer.  Auto-advances selectedIdx at `playbackMs`
+  // interval; stops at the last step.  Resets to 0 when the user clicks
+  // Play after reaching the end.
+  useEffect(() => {
+    if (!playing || nodes.length === 0) return;
+    const id = setInterval(() => {
+      setSelectedIdx((i) => {
+        if (i + 1 >= nodes.length) {
+          setPlaying(false);
+          return i;
+        }
+        return i + 1;
+      });
+    }, playbackMs);
+    return () => clearInterval(id);
+  }, [playing, nodes.length, playbackMs]);
+
+  /*
+   * Step 37 — live trace via Server-Sent Events.
+   *
+   * When the loaded execution is still `running`, subscribe to the SSE
+   * endpoint and append each incoming step into the local snapshot so the
+   * timeline animates while the run progresses.  On the terminal `end`
+   * event we close the connection and refresh the snapshot once to pick
+   * up final variables + status.
+   */
+  useEffect(() => {
+    if (!data || data.execution.status !== 'running') return;
+    const src = new EventSource(`/api/sabflow/executions/${executionId}/stream`);
+
+    src.addEventListener('step', (e) => {
+      try {
+        const evt = JSON.parse((e as MessageEvent).data) as {
+          step: ExecutionHistoryNode;
+          index: number;
+        };
+        setData((prev) => {
+          if (!prev) return prev;
+          const nextNodes = (prev.execution.nodes ?? []).slice();
+          nextNodes.push({
+            ...evt.step,
+            startedAt: evt.step.startedAt
+              ? new Date(evt.step.startedAt as unknown as string)
+              : undefined,
+            finishedAt: evt.step.finishedAt
+              ? new Date(evt.step.finishedAt as unknown as string)
+              : undefined,
+          });
+          return {
+            ...prev,
+            execution: {
+              ...prev.execution,
+              nodes: nextNodes,
+              nodeCount: nextNodes.length,
+            },
+          };
+        });
+      } catch {
+        /* malformed event — ignore */
+      }
+    });
+
+    src.addEventListener('end', () => {
+      src.close();
+      // Refresh once so we pick up final status, executionTimeMs, etc.
+      void load();
+    });
+
+    src.onerror = () => {
+      // EventSource auto-reconnects on transient network errors; only
+      // close on a hard failure where readyState is CLOSED.
+      if (src.readyState === EventSource.CLOSED) src.close();
+    };
+
+    return () => src.close();
+  }, [data, executionId, load]);
 
   if (loading) {
     return (
@@ -266,6 +353,145 @@ export function ExecutionReplayClient({ executionId }: { executionId: string }) 
           </div>
         </div>
       )}
+
+      {/* Step 31 — recording-style timeline scrubber + transport */}
+      {nodes.length > 0 && (
+        <TimelineScrubber
+          nodes={nodes}
+          selectedIdx={selectedIdx}
+          playing={playing}
+          playbackMs={playbackMs}
+          onSelect={setSelectedIdx}
+          onTogglePlay={() => {
+            // If at the end, rewind before starting.
+            if (selectedIdx >= nodes.length - 1) setSelectedIdx(0);
+            setPlaying((p) => !p);
+          }}
+          onRewind={() => setSelectedIdx(0)}
+          onForward={() => setSelectedIdx(nodes.length - 1)}
+          onRateChange={setPlaybackMs}
+        />
+      )}
+    </div>
+  );
+}
+
+/* ── TimelineScrubber ────────────────────────────────────── */
+
+function TimelineScrubber({
+  nodes,
+  selectedIdx,
+  playing,
+  playbackMs,
+  onSelect,
+  onTogglePlay,
+  onRewind,
+  onForward,
+  onRateChange,
+}: {
+  nodes: ExecutionHistoryNode[];
+  selectedIdx: number;
+  playing: boolean;
+  playbackMs: number;
+  onSelect: (idx: number) => void;
+  onTogglePlay: () => void;
+  onRewind: () => void;
+  onForward: () => void;
+  onRateChange: (ms: number) => void;
+}) {
+  // Width each step bar takes — proportional to its duration so a slow step
+  // visibly dominates a fast one.  Min 12px so single-ms steps stay clickable.
+  const total = nodes.reduce((acc, n) => acc + Math.max(1, n.durationMs ?? 1), 0);
+  return (
+    <div className="border-t border-[var(--gray-4)] bg-[var(--gray-1)] px-4 py-3 shrink-0">
+      <div className="flex items-center gap-3">
+        {/* Transport controls */}
+        <button
+          type="button"
+          onClick={onRewind}
+          title="Rewind to start"
+          className="flex h-7 w-7 items-center justify-center rounded-md text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]"
+        >
+          <LuRewind className="h-3.5 w-3.5" />
+        </button>
+        <button
+          type="button"
+          onClick={onTogglePlay}
+          title={playing ? 'Pause (Space)' : 'Play (Space)'}
+          className={cn(
+            'flex h-7 w-7 items-center justify-center rounded-md',
+            playing
+              ? 'bg-[#f76808] text-white hover:bg-[#e25c00]'
+              : 'bg-[var(--gray-3)] text-[var(--gray-12)] hover:bg-[var(--gray-4)]',
+          )}
+        >
+          {playing ? <LuPause className="h-3.5 w-3.5" /> : <LuPlay className="h-3.5 w-3.5" />}
+        </button>
+        <button
+          type="button"
+          onClick={onForward}
+          title="Jump to end"
+          className="flex h-7 w-7 items-center justify-center rounded-md text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]"
+        >
+          <LuFastForward className="h-3.5 w-3.5" />
+        </button>
+
+        {/* Step counter */}
+        <span className="text-[11px] tabular-nums text-[var(--gray-10)] shrink-0 w-[60px]">
+          {selectedIdx + 1} / {nodes.length}
+        </span>
+
+        {/* Bars */}
+        <div className="flex-1 flex items-stretch gap-px h-8 rounded-md bg-[var(--gray-3)] overflow-hidden">
+          {nodes.map((node, idx) => {
+            const status = STATUS_ICON[node.status] ?? STATUS_ICON.skipped;
+            const colour =
+              node.status === 'success'
+                ? 'bg-emerald-500'
+                : node.status === 'error'
+                ? 'bg-red-500'
+                : node.status === 'waiting'
+                ? 'bg-amber-500'
+                : 'bg-zinc-400';
+            const widthPct =
+              ((Math.max(1, node.durationMs ?? 1) / total) * 100).toFixed(2);
+            const selected = idx === selectedIdx;
+            return (
+              <button
+                key={`${node.blockId}-${idx}`}
+                type="button"
+                onClick={() => onSelect(idx)}
+                title={`${node.blockType} · ${formatDuration(node.durationMs)} · ${node.status}`}
+                style={{ width: `${widthPct}%`, minWidth: 8 }}
+                className={cn(
+                  'h-full transition-opacity',
+                  colour,
+                  selected ? 'opacity-100 ring-2 ring-[#f76808] ring-inset' : 'opacity-60 hover:opacity-100',
+                )}
+                aria-label={`Step ${idx + 1}: ${node.blockType}`}
+              >
+                {/* Visual-only — title attribute carries the detail */}
+                {/* keep the status icon var referenced to avoid TS unused warnings */}
+                <span className="sr-only">{status.color}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Speed selector */}
+        <select
+          value={playbackMs}
+          onChange={(e) => onRateChange(Number(e.target.value))}
+          className="rounded-md border border-[var(--gray-5)] bg-[var(--gray-2)] px-2 py-1 text-[11.5px] text-[var(--gray-11)] focus:outline-none focus:border-[var(--gray-7)]"
+          aria-label="Playback speed"
+        >
+          <option value={1600}>0.5×</option>
+          <option value={800}>1×</option>
+          <option value={400}>2×</option>
+          <option value={200}>4×</option>
+          <option value={100}>8×</option>
+        </select>
+      </div>
     </div>
   );
 }

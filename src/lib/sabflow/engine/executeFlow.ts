@@ -4,6 +4,7 @@ import type { OutgoingMessage } from './types';
 import { executeBlock } from './executeBlock';
 import { acquireRunSlot } from '@/lib/sabflow/execution/concurrency';
 import { loadEnvVars } from '@/lib/sabflow/envVars/db';
+import { publishTraceEvent } from '@/lib/sabflow/execution/traceBus';
 
 type ExecuteFlowReturn = {
   result: ExecutionResult;
@@ -44,6 +45,12 @@ export async function executeFlow(
   flow: SabFlowDoc,
   session: SessionState,
   userInput?: string,
+  /**
+   * When supplied, every step trace gets published to the in-process bus
+   * (`execution/traceBus.ts`) keyed by this id — drives the SSE live-replay
+   * endpoint.  Callers that don't care about live streaming can omit it.
+   */
+  executionId?: string,
 ): Promise<ExecuteFlowReturn> {
   // Concurrency gate — opt-in via flow settings.  When disabled the gate is
   // a no-op and adds a single Map lookup of overhead per run.
@@ -76,7 +83,25 @@ export async function executeFlow(
   };
 
   try {
-    return await runFlowInner(flow, sessionWithEnv, userInput);
+    const result = await runFlowInner(flow, sessionWithEnv, userInput, executionId);
+    if (executionId) {
+      publishTraceEvent({
+        kind: 'end',
+        executionId,
+        status: result.result.isCompleted ? 'success' : 'success', // paused waiting input is not a failure
+      });
+    }
+    return result;
+  } catch (err) {
+    if (executionId) {
+      publishTraceEvent({
+        kind: 'end',
+        executionId,
+        status: 'error',
+        error: err instanceof Error ? err.message : String(err),
+      });
+    }
+    throw err;
   } finally {
     slot.release();
   }
@@ -86,6 +111,7 @@ async function runFlowInner(
   flow: SabFlowDoc,
   session: SessionState,
   userInput?: string,
+  executionId?: string,
 ): Promise<ExecuteFlowReturn> {
   const messages: OutgoingMessage[] = [];
   let variables = { ...session.variables };
@@ -133,7 +159,7 @@ async function runFlowInner(
       } catch (err) {
         const message = err instanceof Error ? err.message : String(err);
         const durationMs = Date.now() - stepStartedAt;
-        traceHistory.push({
+        const errStep = {
           groupId: currentGroupId,
           blockId: block.id,
           blockType: block.type,
@@ -141,15 +167,24 @@ async function runFlowInner(
           timestamp: new Date(),
           startedAt: new Date(stepStartedAt),
           durationMs,
-          status: 'error',
+          status: 'error' as const,
           error: message,
-        });
+        };
+        traceHistory.push(errStep);
+        if (executionId) {
+          publishTraceEvent({
+            kind: 'step',
+            executionId,
+            step: errStep,
+            index: traceHistory.length - 1,
+          });
+        }
         // Re-throw so upstream finalisation paths (v1/run, rerun) can mark
         // the execution as `status: 'error'` and fire failure alerts.
         throw err;
       }
       const stepDurationMs = Date.now() - stepStartedAt;
-      traceHistory.push({
+      const okStep = {
         groupId: currentGroupId,
         blockId: block.id,
         blockType: block.type,
@@ -160,8 +195,17 @@ async function runFlowInner(
         timestamp: new Date(),
         startedAt: new Date(stepStartedAt),
         durationMs: stepDurationMs,
-        status: blockResult.requiresInput ? 'waiting' : 'success',
-      });
+        status: (blockResult.requiresInput ? 'waiting' : 'success') as 'waiting' | 'success',
+      };
+      traceHistory.push(okStep);
+      if (executionId) {
+        publishTraceEvent({
+          kind: 'step',
+          executionId,
+          step: okStep,
+          index: traceHistory.length - 1,
+        });
+      }
 
       // Accumulate messages from this block
       messages.push(...blockResult.messages);

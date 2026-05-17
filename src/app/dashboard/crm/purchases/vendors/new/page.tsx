@@ -45,7 +45,13 @@ export default function NewVendorPage() {
         let cancelled = false;
         (async () => {
             const v = await getCrmVendorById(editVendorId);
-            if (!cancelled) setVendor(v);
+            if (!cancelled) {
+                setVendor(v);
+                if (v) {
+                    setIsMsme(Boolean((v as any).isMsme));
+                    setUdyamRegistrationNumber(String((v as any).udyamRegistrationNumber ?? ''));
+                }
+            }
         })();
         return () => {
             cancelled = true;
@@ -64,6 +70,17 @@ export default function NewVendorPage() {
     const [logoUrl, setLogoUrl] = useState<string>('');
     const [logoFileName, setLogoFileName] = useState<string>('');
     const [attachmentUrls, setAttachmentUrls] = useState<{ url: string; name: string }[]>([]);
+
+    // MSME / §43B(h) compliance section (§6.10).
+    const [isMsme, setIsMsme] = useState<boolean>(false);
+    const [udyamRegistrationNumber, setUdyamRegistrationNumber] = useState<string>('');
+    const udyamWarning =
+        isMsme && udyamRegistrationNumber.trim().length === 0
+            ? 'Udyam Registration Number is recommended when "MSME-registered" is on.'
+            : isMsme &&
+                !/^UDYAM-[A-Z]{2}-\d{2}-\d{7}$/i.test(udyamRegistrationNumber.trim())
+              ? 'Udyam Registration Number looks malformed (expected UDYAM-XX-NN-NNNNNNN).'
+              : '';
 
     useEffect(() => {
         if (state.message) {
@@ -234,6 +251,87 @@ export default function NewVendorPage() {
                                 </div>
                                 <div className="space-y-2"><ZoruLabel>Postal Code / Zip Code</ZoruLabel><ZoruInput name="pincode" maxLength={20} className="h-10 rounded-lg border-border bg-card text-[13px]" /></div>
                                 <div className="space-y-2"><ZoruLabel>Street Address</ZoruLabel><ZoruInput name="street" maxLength={200} className="h-10 rounded-lg border-border bg-card text-[13px]" /></div>
+                            </ZoruAccordionContent>
+                        </ZoruAccordionItem>
+                        <ZoruAccordionItem value="msme">
+                            <ZoruAccordionTrigger>MSME / Compliance (Optional)</ZoruAccordionTrigger>
+                            <ZoruAccordionContent className="space-y-4 pt-2">
+                                <p className="text-[12.5px] text-muted-foreground">
+                                    India MSMED Act 2006 + IT §43B(h): bills owed to MSME-registered vendors
+                                    must be cleared within 45 days (or 15 days if no written agreement). Late
+                                    payment triggers interest u/s 16 + IT deduction disallowance.
+                                </p>
+                                <input type="hidden" name="isMsme" value={isMsme ? 'true' : 'false'} />
+                                <div className="flex items-center gap-2">
+                                    <ZoruCheckbox
+                                        id="isMsme"
+                                        checked={isMsme}
+                                        onCheckedChange={(v) => setIsMsme(Boolean(v))}
+                                    />
+                                    <ZoruLabel htmlFor="isMsme" className="font-normal">
+                                        This vendor is MSME-registered (Udyam)
+                                    </ZoruLabel>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <ZoruLabel htmlFor="udyamRegistrationNumber">
+                                            Udyam Registration Number
+                                        </ZoruLabel>
+                                        <ZoruInput
+                                            id="udyamRegistrationNumber"
+                                            name="udyamRegistrationNumber"
+                                            placeholder="UDYAM-XX-NN-NNNNNNN"
+                                            maxLength={32}
+                                            value={udyamRegistrationNumber}
+                                            onChange={(e) => setUdyamRegistrationNumber(e.target.value)}
+                                            className="h-10 rounded-lg border-border bg-card text-[13px]"
+                                            disabled={!isMsme}
+                                        />
+                                        {udyamWarning ? (
+                                            <p className="text-[11.5px] text-amber-600">{udyamWarning}</p>
+                                        ) : null}
+                                    </div>
+                                    <div className="space-y-2">
+                                        <ZoruLabel htmlFor="msmeCategory">MSME Category</ZoruLabel>
+                                        <ZoruSelect
+                                            name="msmeCategory"
+                                            defaultValue={(vendor as any)?.msmeCategory ?? ''}
+                                            disabled={!isMsme}
+                                        >
+                                            <ZoruSelectTrigger>
+                                                <ZoruSelectValue placeholder="Select category" />
+                                            </ZoruSelectTrigger>
+                                            <ZoruSelectContent>
+                                                <ZoruSelectItem value="Micro">Micro</ZoruSelectItem>
+                                                <ZoruSelectItem value="Small">Small</ZoruSelectItem>
+                                                <ZoruSelectItem value="Medium">Medium</ZoruSelectItem>
+                                            </ZoruSelectContent>
+                                        </ZoruSelect>
+                                    </div>
+                                </div>
+                                <div className="space-y-2">
+                                    <ZoruLabel htmlFor="msmePaymentTermsDays">
+                                        Payment terms (days, default 45)
+                                    </ZoruLabel>
+                                    <ZoruInput
+                                        id="msmePaymentTermsDays"
+                                        name="msmePaymentTermsDays"
+                                        type="number"
+                                        min={1}
+                                        max={180}
+                                        placeholder="45"
+                                        defaultValue={
+                                            (vendor as any)?.msmePaymentTermsDays
+                                                ? String((vendor as any).msmePaymentTermsDays)
+                                                : ''
+                                        }
+                                        className="h-10 rounded-lg border-border bg-card text-[13px]"
+                                        disabled={!isMsme}
+                                    />
+                                    <p className="text-[11.5px] text-muted-foreground">
+                                        Override only when a written agreement specifies a shorter window.
+                                    </p>
+                                </div>
                             </ZoruAccordionContent>
                         </ZoruAccordionItem>
                         <ZoruAccordionItem value="additional">

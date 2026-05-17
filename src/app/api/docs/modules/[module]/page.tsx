@@ -5,7 +5,10 @@
 import catalog from '../../_data/catalog.json';
 import { notFound } from 'next/navigation';
 
-export const dynamic = 'force-static';
+// Render on-demand and cache for an hour. Pre-rendering all 11k+
+// endpoints at build time is wasteful; rendering on first request +
+// caching keeps the build fast and the page fresh.
+export const revalidate = 3600;
 export const dynamicParams = true;
 
 interface Row {

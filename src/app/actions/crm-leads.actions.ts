@@ -26,6 +26,7 @@ import { writeAuditEntry } from '@/lib/audit-log';
 import { crmLeadsApi, type CrmLeadDoc, type CrmLeadCreateInput, type CrmLeadUpdateInput } from '@/lib/rust-client/crm-leads';
 import { RustApiError } from '@/lib/rust-client/fetcher';
 import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+import { dispatchAutomations } from '@/lib/automations/dispatch';
 
 function useRustCrm(): boolean {
     return process.env.USE_RUST_CRM === 'true';
@@ -463,6 +464,21 @@ export async function addCrmLead(prevState: any, formData: FormData, apiUser?: W
             });
 
             revalidateLeadSurfaces(newId);
+            // Fire automations. Best-effort — a buggy automation must
+            // never break lead creation. Wire on other entities
+            // incrementally (deals, tasks done; contacts/accounts/etc. TODO).
+            try {
+                await dispatchAutomations({
+                    type: 'entity_created',
+                    entityKind: 'lead',
+                    entityId: String(newId),
+                    tenantUserId: String(session.user._id),
+                    entity: (created as unknown as Record<string, unknown>) ?? {},
+                    occurredAt: Date.now(),
+                });
+            } catch (err) {
+                console.warn('[addCrmLead] automation dispatch failed (non-fatal):', err);
+            }
             return { message: 'Lead added successfully.', leadId: newId };
         } catch (e) {
             console.error('[addCrmLead] rust path failed; falling back:', e);
@@ -498,6 +514,19 @@ export async function addCrmLead(prevState: any, formData: FormData, apiUser?: W
         });
 
         revalidateLeadSurfaces(result.insertedId.toString());
+        // Fire automations (best-effort).
+        try {
+            await dispatchAutomations({
+                type: 'entity_created',
+                entityKind: 'lead',
+                entityId: result.insertedId.toString(),
+                tenantUserId: String(session.user._id),
+                entity: { ...(newLead as Record<string, unknown>), _id: result.insertedId },
+                occurredAt: Date.now(),
+            });
+        } catch (err) {
+            console.warn('[addCrmLead] automation dispatch failed (non-fatal):', err);
+        }
         return { message: 'Lead added successfully.', leadId: result.insertedId.toString() };
     } catch (e: any) {
         return { error: getErrorMessage(e) };
@@ -619,6 +648,37 @@ export async function updateCrmLead(
         });
 
         revalidateLeadSurfaces(leadId);
+        // Fire automations (best-effort). For each changed field, emit
+        // both a generic `entity_updated` and (if it's the status field)
+        // a focused `status_changed` event so authors can target either.
+        try {
+            const merged = { ...(before as Record<string, unknown>), ...set, _id: new ObjectId(leadId) };
+            const changedFields = Object.keys(diff);
+            await dispatchAutomations({
+                type: 'entity_updated',
+                entityKind: 'lead',
+                entityId: leadId,
+                tenantUserId: String(session.user._id),
+                entity: merged,
+                fieldName: changedFields[0],
+                occurredAt: Date.now(),
+            });
+            if (diff.status) {
+                await dispatchAutomations({
+                    type: 'status_changed',
+                    entityKind: 'lead',
+                    entityId: leadId,
+                    tenantUserId: String(session.user._id),
+                    entity: merged,
+                    fieldName: 'status',
+                    fromValue: diff.status.before,
+                    toValue: diff.status.after,
+                    occurredAt: Date.now(),
+                });
+            }
+        } catch (err) {
+            console.warn('[updateCrmLead] automation dispatch failed (non-fatal):', err);
+        }
         return { message: 'Lead updated successfully.', leadId };
     } catch (e: any) {
         return { error: getErrorMessage(e) };

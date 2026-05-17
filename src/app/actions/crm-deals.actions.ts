@@ -28,6 +28,7 @@ import { writeAuditEntry } from '@/lib/audit-log';
 import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
 import { crmDealsApi, type CrmDealDoc, type CrmDealCreateInput, type CrmDealUpdateInput } from '@/lib/rust-client/crm-deals';
 import { RustApiError } from '@/lib/rust-client/fetcher';
+import { dispatchAutomations } from '@/lib/automations/dispatch';
 
 function useRustCrm(): boolean {
     return process.env.USE_RUST_CRM === 'true';
@@ -237,6 +238,19 @@ export async function createCrmDeal(prevState: any, formData: FormData): Promise
             });
 
             revalidateDealSurfaces();
+            // Fire automations (best-effort).
+            try {
+                await dispatchAutomations({
+                    type: 'entity_created',
+                    entityKind: 'deal',
+                    entityId: String(created.dealId ?? ''),
+                    tenantUserId: String(session.user._id),
+                    entity: (created as unknown as Record<string, unknown>) ?? {},
+                    occurredAt: Date.now(),
+                });
+            } catch (err) {
+                console.warn('[createCrmDeal] automation dispatch failed (non-fatal):', err);
+            }
             return { message: 'Deal created successfully.' };
         } catch (e) {
             console.error('[createCrmDeal] rust path failed; falling back:', e);
@@ -370,6 +384,19 @@ export async function createCrmDeal(prevState: any, formData: FormData): Promise
         });
 
         revalidateDealSurfaces();
+        // Fire automations (best-effort).
+        try {
+            await dispatchAutomations({
+                type: 'entity_created',
+                entityKind: 'deal',
+                entityId: insertResult.insertedId.toString(),
+                tenantUserId: String(session.user._id),
+                entity: { ...(newDeal as Record<string, unknown>), _id: insertResult.insertedId },
+                occurredAt: Date.now(),
+            });
+        } catch (err) {
+            console.warn('[createCrmDeal] automation dispatch failed (non-fatal):', err);
+        }
         return { message: 'Deal created successfully.' };
     } catch (e: any) {
         return { error: getErrorMessage(e) };

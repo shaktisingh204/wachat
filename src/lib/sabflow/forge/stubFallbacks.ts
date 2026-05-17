@@ -431,6 +431,358 @@ export const STUB_FALLBACKS: Record<string, StubFallback> = {
     label: 'Pabbly Connect (native)',
     rationale: 'Use the native Pabbly Connect block.',
   },
+
+  /* ── DevOps / observability ─────────────────────────── */
+  jenkins: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → Jenkins REST',
+    rationale: 'Trigger Jenkins jobs via {host}/job/{name}/build with Basic auth.',
+  },
+  circleCi: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → CircleCI v2',
+    rationale: 'Drive https://circleci.com/api/v2 via HTTP Request with API token.',
+  },
+  travisCi: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → Travis CI',
+    rationale: 'Drive https://api.travis-ci.com/v3 via HTTP Request.',
+  },
+  datadog: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → Datadog v1/v2',
+    rationale: 'Drive https://api.datadoghq.com/api/v2 via HTTP Request with DD-API-KEY.',
+  },
+  sentry: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → Sentry API',
+    rationale: 'Drive https://sentry.io/api/0 via HTTP Request with bearer token.',
+  },
+  pagerDuty: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → PagerDuty Events v2',
+    rationale: 'POST to https://events.pagerduty.com/v2/enqueue via HTTP Request.',
+  },
+  newRelic: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → New Relic',
+    rationale: 'Drive https://api.newrelic.com/v2 via HTTP Request with Api-Key.',
+  },
+  grafana: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → Grafana API',
+    rationale: 'Drive {host}/api via HTTP Request with bearer token.',
+  },
+  opsGenie: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → OpsGenie v2',
+    rationale: 'Drive https://api.opsgenie.com/v2 via HTTP Request with GenieKey header.',
+  },
+  rollbar: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → Rollbar API',
+    rationale: 'Drive https://api.rollbar.com/api/1 via HTTP Request.',
+  },
+  statuspage: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → Statuspage v1',
+    rationale: 'Drive https://api.statuspage.io/v1 via HTTP Request.',
+  },
+
+  /* ── Communications (extras) ────────────────────────── */
+  microsoftTeams: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → Teams (Graph)',
+    rationale: 'POST to https://graph.microsoft.com/v1.0/teams/{id}/channels/{ch}/messages via HTTP Request.',
+  },
+  whatsappBusiness: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → WhatsApp Cloud API',
+    rationale: 'Drive https://graph.facebook.com/v18.0/{phone-id}/messages via HTTP Request.',
+  },
+  viber: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → Viber',
+    rationale: 'Drive https://chatapi.viber.com/pa via HTTP Request with X-Viber-Auth-Token.',
+  },
+  line: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → LINE Messaging',
+    rationale: 'Drive https://api.line.me/v2 via HTTP Request with bearer token.',
+  },
+  wechat: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → WeChat',
+    rationale: 'Drive https://api.weixin.qq.com via HTTP Request with access_token.',
+  },
+  mattermost: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → Mattermost v4',
+    rationale: 'Drive {host}/api/v4 via HTTP Request with bearer token.',
+  },
+  rocketChat: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → Rocket.Chat REST',
+    rationale: 'Drive {host}/api/v1 via HTTP Request with X-Auth-Token + X-User-Id.',
+  },
+  signal: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → signal-cli REST',
+    rationale: 'Drive your self-hosted signal-cli-rest-api via HTTP Request.',
+  },
+
+  /* ── HR / ATS ───────────────────────────────────────── */
+  greenhouse: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → Greenhouse Harvest',
+    rationale: 'Drive https://harvest.greenhouse.io/v1 via HTTP Request with Basic auth.',
+  },
+  lever: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → Lever v1',
+    rationale: 'Drive https://api.lever.co/v1 via HTTP Request with Basic auth.',
+  },
+  bamboohr: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → BambooHR v1',
+    rationale: 'Drive https://api.bamboohr.com/api/gateway.php/{company}/v1 via HTTP Request.',
+  },
+  workable: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → Workable v3',
+    rationale: 'Drive https://{subdomain}.workable.com/spi/v3 via HTTP Request.',
+  },
+  recruitee: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → Recruitee',
+    rationale: 'Drive https://api.recruitee.com/c/{company} via HTTP Request.',
+  },
+
+  /* ── Payments ───────────────────────────────────────── */
+  payPal: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → PayPal v1',
+    rationale: 'Drive https://api-m.paypal.com/v1 via HTTP Request with OAuth bearer.',
+  },
+  square: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → Square API',
+    rationale: 'Drive https://connect.squareup.com/v2 via HTTP Request with bearer.',
+  },
+  razorpay: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → Razorpay v1',
+    rationale: 'Drive https://api.razorpay.com/v1 via HTTP Request with Basic auth.',
+  },
+  adyen: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → Adyen API',
+    rationale: 'Drive https://checkout-live.adyen.com/v70 via HTTP Request with X-API-Key.',
+  },
+  braintree: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → Braintree GraphQL',
+    rationale: 'Drive https://payments.braintree-api.com/graphql via HTTP Request.',
+  },
+
+  /* ── Productivity / notes ───────────────────────────── */
+  evernote: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → Evernote',
+    rationale: 'Drive https://www.evernote.com/shard/{shard}/notestore via HTTP Request.',
+  },
+  oneNote: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → OneNote (Graph)',
+    rationale: 'Drive https://graph.microsoft.com/v1.0/me/onenote via HTTP Request.',
+  },
+  todoist: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → Todoist Sync v9',
+    rationale: 'Drive https://api.todoist.com/sync/v9 via HTTP Request with bearer.',
+  },
+  things3: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → Things URL scheme',
+    rationale: 'Things accepts `things:///` URL deep-links — synthesize via HTTP Request.',
+  },
+  obsidian: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → Obsidian REST plugin',
+    rationale: 'Drive your local Obsidian REST API plugin via HTTP Request.',
+  },
+
+  /* ── FTP / storage extras ───────────────────────────── */
+  ftp: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → FTP gateway',
+    rationale: 'Drive your FTP gateway (e.g. transfer.sh / Bunny Storage) via HTTP Request.',
+  },
+  sftp: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → SFTP gateway',
+    rationale: 'Drive your SFTP gateway via HTTP Request — true SFTP needs a worker.',
+  },
+  webdav: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → WebDAV',
+    rationale: 'PROPFIND/PUT against WebDAV servers via HTTP Request.',
+  },
+  backblazeB2: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → Backblaze B2',
+    rationale: 'Drive https://api.backblazeb2.com via HTTP Request with B2 Authorization.',
+  },
+  wasabi: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → Wasabi (S3-compat)',
+    rationale: 'S3-compatible — pre-sign on backend, PUT via HTTP Request.',
+  },
+  nextcloudFile: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → Nextcloud OCS',
+    rationale: 'Drive {host}/ocs/v2.php via HTTP Request with Basic auth + OCS-APIRequest header.',
+  },
+
+  /* ── Forms ──────────────────────────────────────────── */
+  typeform: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → Typeform v1',
+    rationale: 'Drive https://api.typeform.com via HTTP Request with bearer token.',
+  },
+  tally: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → Tally',
+    rationale: 'Tally posts to webhooks — receive in HTTP Request trigger.',
+  },
+  jotform: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → Jotform',
+    rationale: 'Drive https://api.jotform.com via HTTP Request with apiKey query.',
+  },
+  wufoo: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → Wufoo REST',
+    rationale: 'Drive https://{subdomain}.wufoo.com/api/v3 via HTTP Request with Basic auth.',
+  },
+  formstack: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → Formstack v2',
+    rationale: 'Drive https://www.formstack.com/api/v2 via HTTP Request.',
+  },
+  googleForms: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → Apps Script webhook',
+    rationale: 'Bind a Google Apps Script trigger to your Form, POST to SabFlow via HTTP Request.',
+  },
+
+  /* ── Data / ETL ─────────────────────────────────────── */
+  airbyte: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → Airbyte API',
+    rationale: 'Drive https://api.airbyte.com/v1 (Cloud) or your self-host via HTTP Request.',
+  },
+  fivetran: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → Fivetran v1',
+    rationale: 'Drive https://api.fivetran.com/v1 via HTTP Request with Basic auth.',
+  },
+  hightouch: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → Hightouch API',
+    rationale: 'Drive https://api.hightouch.com via HTTP Request with bearer.',
+  },
+  census: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → Census API',
+    rationale: 'Drive https://app.getcensus.com/api/v1 via HTTP Request.',
+  },
+  dbtCloud: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → dbt Cloud',
+    rationale: 'Drive https://cloud.getdbt.com/api/v2 via HTTP Request with bearer.',
+  },
+
+  /* ── Maps / geo ─────────────────────────────────────── */
+  googleMaps: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → Google Maps Platform',
+    rationale: 'Drive maps.googleapis.com endpoints via HTTP Request with API key.',
+  },
+  mapbox: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → Mapbox API',
+    rationale: 'Drive https://api.mapbox.com via HTTP Request with access_token query.',
+  },
+
+  /* ── SMS / phone (extras) ───────────────────────────── */
+  vonage: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → Vonage (Nexmo)',
+    rationale: 'Drive https://rest.nexmo.com via HTTP Request with key+secret.',
+  },
+  plivo: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → Plivo v1',
+    rationale: 'Drive https://api.plivo.com/v1/Account/{auth_id} via HTTP Request with Basic auth.',
+  },
+  messageBird: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → MessageBird REST',
+    rationale: 'Drive https://rest.messagebird.com via HTTP Request with AccessKey header.',
+  },
+  bandwidth: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → Bandwidth Messaging v2',
+    rationale: 'Drive https://messaging.bandwidth.com/api/v2 via HTTP Request.',
+  },
+  sinch: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → Sinch SMS REST',
+    rationale: 'Drive https://us.sms.api.sinch.com via HTTP Request with bearer.',
+  },
+
+  /* ── Misc verticals ─────────────────────────────────── */
+  airtableEnterprise: {
+    forgeType: 'forge_airtable',
+    label: 'Airtable (forge)',
+    rationale: 'Use the existing Airtable forge block.',
+  },
+  contentful: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → Contentful CMA',
+    rationale: 'Drive https://api.contentful.com via HTTP Request with bearer token.',
+  },
+  sanity: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → Sanity API',
+    rationale: 'Drive https://{projectId}.api.sanity.io via HTTP Request with bearer.',
+  },
+  strapi: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → Strapi REST',
+    rationale: 'Drive your Strapi instance REST API via HTTP Request with bearer.',
+  },
+  webflow: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → Webflow CMS API',
+    rationale: 'Drive https://api.webflow.com/v2 via HTTP Request with bearer.',
+  },
+  wordpress: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → WordPress REST',
+    rationale: 'Drive {site}/wp-json/wp/v2 via HTTP Request with App Password.',
+  },
+  ghost: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → Ghost Admin API',
+    rationale: 'Drive {site}/ghost/api/admin via HTTP Request with JWT.',
+  },
+  medium: {
+    forgeType: 'webhook',
+    label: 'HTTP Request → Medium v1',
+    rationale: 'Drive https://api.medium.com/v1 via HTTP Request with bearer.',
+  },
 };
 
 /* ── Public API ─────────────────────────────────────────────────────────── */

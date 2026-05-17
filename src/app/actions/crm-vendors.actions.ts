@@ -182,6 +182,25 @@ export async function saveCrmVendor(
     const bankAccountDetails = parseBankAccountDetails(bankRaw);
     const industryIdStr = (formData.get('industryId') as string | null) || undefined;
 
+    // MSME / IT §43B(h) compliance fields (§6.10). All additive — legacy
+    // vendor rows without these stay non-MSME on read.
+    const isMsmeRaw = (formData.get('isMsme') as string | null) ?? '';
+    const isMsme = isMsmeRaw === 'true' || isMsmeRaw === 'on' || isMsmeRaw === '1';
+    const udyamRegistrationNumber =
+        ((formData.get('udyamRegistrationNumber') as string | null) || '').trim() || undefined;
+    const msmeCategoryRaw =
+        ((formData.get('msmeCategory') as string | null) || '').trim() || undefined;
+    const msmeCategory: 'Micro' | 'Small' | 'Medium' | undefined =
+        msmeCategoryRaw === 'Micro' || msmeCategoryRaw === 'Small' || msmeCategoryRaw === 'Medium'
+            ? msmeCategoryRaw
+            : undefined;
+    const msmeTermsRaw = (formData.get('msmePaymentTermsDays') as string | null) || '';
+    const msmePaymentTermsDaysParsed = Number(msmeTermsRaw);
+    const msmePaymentTermsDays =
+        Number.isFinite(msmePaymentTermsDaysParsed) && msmePaymentTermsDaysParsed > 0
+            ? Math.min(180, Math.floor(msmePaymentTermsDaysParsed))
+            : undefined;
+
     if (useRustCrm()) {
         try {
             // Shape shared by create + update so both branches stay aligned.
@@ -205,6 +224,13 @@ export async function saveCrmVendor(
                 bankAccountDetails,
                 logoUrl: logoUrlRaw || undefined,
                 attachments,
+                // MSME compliance — Rust BFF accepts extra fields and
+                // round-trips them; if/when the Rust DTO catches up
+                // these will be typed properly.
+                isMsme: isMsme || undefined,
+                udyamRegistrationNumber,
+                msmeCategory,
+                msmePaymentTermsDays,
             };
 
             if (isEditing && vendorId) {
@@ -259,6 +285,11 @@ export async function saveCrmVendor(
             bankAccountDetails: bankAccountDetails ?? ({} as BankAccountDetails),
             logoUrl: logoUrlRaw || undefined,
             attachments: attachments && attachments.length ? attachments : undefined,
+            // MSME compliance — see §6.10 in CRM_REBUILD_PLAN.md.
+            isMsme: isMsme || undefined,
+            udyamRegistrationNumber,
+            msmeCategory,
+            msmePaymentTermsDays,
             updatedAt: new Date(),
         };
 

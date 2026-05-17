@@ -23,6 +23,7 @@ import { writeAuditEntry } from '@/lib/audit-log';
 import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
 import { crmTasksApi } from '@/lib/rust-client/crm-tasks';
 import { RustApiError } from '@/lib/rust-client/fetcher';
+import { dispatchAutomations } from '@/lib/automations/dispatch';
 
 function useRustCrm(): boolean {
     return process.env.USE_RUST_CRM === 'true';
@@ -430,6 +431,19 @@ export async function createCrmTask(
         });
 
         revalidateTaskSurfaces(result.insertedId.toString());
+        // Fire automations (best-effort).
+        try {
+            await dispatchAutomations({
+                type: 'entity_created',
+                entityKind: 'task',
+                entityId: result.insertedId.toString(),
+                tenantUserId: String(session.user._id),
+                entity: { ...newDoc, _id: result.insertedId },
+                occurredAt: Date.now(),
+            });
+        } catch (err) {
+            console.warn('[createCrmTask] automation dispatch failed (non-fatal):', err);
+        }
         return { message: 'Task created.', taskId: result.insertedId.toString() };
     } catch (e: any) {
         return { error: getErrorMessage(e) };

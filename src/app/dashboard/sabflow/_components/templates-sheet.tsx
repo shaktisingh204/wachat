@@ -28,6 +28,20 @@ type CategoryFilter = 'All' | TemplateCategory;
 
 const FILTERS: CategoryFilter[] = ['All', ...TEMPLATE_CATEGORIES];
 
+/**
+ * Step 36 — featured-templates pinned to the top of the marketplace.  Order
+ * here = order in the strip.  Keep this list short (≤ 6) so the row
+ * doesn't out-shout the main grid.
+ */
+const FEATURED_TEMPLATE_IDS: string[] = [
+  'lead-capture',
+  'customer-support',
+  'faq-bot',
+  'newsletter-signup',
+  'mortgage-calculator',
+  'product-recommendation',
+];
+
 type Props = {
   open: boolean;
   onClose: () => void;
@@ -197,6 +211,16 @@ export function TemplatesSheet({ open, onClose, onCreated }: Props) {
           </div>
         )}
 
+        {/* Featured row — only when there's no active filter / query */}
+        {filter === 'All' && !query.trim() && (
+          <FeaturedRow
+            templates={TEMPLATES.filter((t) => FEATURED_TEMPLATE_IDS.includes(t.id))}
+            onSelect={handleSelect}
+            disabled={isPending}
+            creating={creating}
+          />
+        )}
+
         {/* List */}
         <div className="flex-1 min-h-0 overflow-y-auto px-6 pb-6">
           {filtered.length === 0 ? (
@@ -252,6 +276,67 @@ export function TemplatesSheet({ open, onClose, onCreated }: Props) {
             </div>
           )}
         </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── FeaturedRow ─────────────────────────────────────────── */
+
+/**
+ * Horizontally-scrollable strip of curated picks shown at the top of the
+ * marketplace when no filter or search is active.  Tap → one-click
+ * instantiation, same code path as the grid.
+ */
+function FeaturedRow({
+  templates,
+  onSelect,
+  disabled,
+  creating,
+}: {
+  templates: TemplateDefinition[];
+  onSelect: (tpl: TemplateDefinition) => void;
+  disabled: boolean;
+  creating: string | null;
+}) {
+  if (templates.length === 0) return null;
+  return (
+    <div className="px-6 pb-3 shrink-0">
+      <div className="mb-2 flex items-center gap-1.5 text-[10.5px] uppercase tracking-wide text-zinc-500">
+        <LuSparkles className="h-3 w-3 text-amber-400" />
+        Featured
+      </div>
+      <div className="flex gap-3 overflow-x-auto pb-1 -mx-1 px-1">
+        {templates.map((tpl) => {
+          const Icon = tpl.icon;
+          const busy = creating === tpl.id;
+          return (
+            <button
+              key={`featured-${tpl.id}`}
+              type="button"
+              disabled={disabled}
+              onClick={() => onSelect(tpl)}
+              className={cn(
+                'group shrink-0 w-[220px] rounded-xl border border-amber-400/30 bg-gradient-to-br from-amber-500/10 to-zinc-900/60 p-3 text-left transition-colors',
+                'hover:border-amber-400/60 hover:from-amber-500/15',
+                disabled && !busy && 'opacity-50 cursor-not-allowed',
+              )}
+            >
+              <div className="flex items-center gap-2 mb-1.5">
+                <div className="flex h-7 w-7 items-center justify-center rounded-lg border border-amber-400/30 bg-zinc-950 text-amber-300">
+                  {busy ? <LuLoader className="h-3.5 w-3.5 animate-spin" /> : <Icon className="h-3.5 w-3.5" strokeWidth={1.75} />}
+                </div>
+                <p className="flex-1 truncate text-[12.5px] font-semibold text-zinc-100">
+                  <span className="mr-1" aria-hidden>{tpl.emoji}</span>
+                  {tpl.name}
+                </p>
+              </div>
+              <p className="text-[10.5px] text-zinc-400 leading-snug line-clamp-2">
+                {tpl.description}
+              </p>
+            </button>
+          );
+        })}
       </div>
     </div>
   );

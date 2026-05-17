@@ -19,6 +19,12 @@ import './blocks/sendgrid';
 import './blocks/agent-run';
 import './blocks/agent-tool';
 import './blocks/agent-conditional';
+// Step 28 — TypeScript shim executors for previously-stubbed integrations.
+import './blocks/shims';
+// Step 29 — net-new n8n-parity integrations.
+import './blocks/parity';
+// Step 39 — native database blocks (Postgres / MySQL / MongoDB / Redis).
+import './blocks/databases';
 
 // ── n8n migration: wave 1+ ports (see N8N_MIGRATION_PLAN.md) ───────────────
 // Pilots

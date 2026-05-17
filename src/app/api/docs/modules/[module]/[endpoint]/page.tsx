@@ -6,10 +6,12 @@ import catalog from '../../../_data/catalog.json';
 import { notFound } from 'next/navigation';
 import { CodeSamplesTabs } from '../../../_components/CodeSamplesTabs';
 import { TestEndpointRunner } from '../../../_components/TestEndpointRunner';
-import { manifest } from '../../../../../../tools/api-manifest/index';
-import { buildAllSamples } from '../../../../../../tools/api-codegen/code-samples';
+import { buildSamples } from '@/lib/api-platform/sample-builder';
 
-export const dynamic = 'force-static';
+// Render on-demand and cache for an hour. Pre-rendering all 11k+
+// endpoints at build time is wasteful; rendering on first request +
+// caching keeps the build fast and the page fresh.
+export const revalidate = 3600;
 export const dynamicParams = true;
 
 interface Row {
@@ -30,15 +32,6 @@ interface Row {
 }
 
 const rows = catalog as Row[];
-
-function slugFor(method: string, path: string): string {
-  const cleanPath = path
-    .replace(/\[([^\]]+)\]/g, '$1')
-    .replace(/[{}]/g, '')
-    .replace(/[^a-z0-9]+/gi, '-')
-    .replace(/^-|-$/g, '');
-  return method.toLowerCase() + '--' + cleanPath;
-}
 
 export async function generateStaticParams() {
   // For 11k+ endpoints we render on-demand and let Next.js cache after
@@ -96,13 +89,19 @@ export default async function Page({
   const e = rows.find((r) => r.module === module && r.slug === endpoint);
   if (!e) notFound();
 
-  // Generate code samples on-demand from the manifest. Keeping samples
-  // out of the catalog JSON keeps the imported file small enough for the
-  // Server Component to load cleanly.
-  const spec = manifest.endpoints.find(
-    (s) => s.module === e.module && slugFor(s.method, s.path) === e.slug,
-  );
-  const samples = spec ? buildAllSamples(spec) : [];
+  // Build samples on-demand from the slim catalog row. The builder lives
+  // under `src/lib/api-platform/sample-builder.ts` so the docs page
+  // never needs to reach into `tools/` (Turbopack production builds
+  // don't include code outside `src/`).
+  const samples = buildSamples({
+    module: e.module,
+    method: e.method,
+    path: e.path,
+    hasBody: e.hasBody,
+    idempotent: e.idempotent,
+    pathParams: e.pathParams,
+    queryParams: e.queryParams,
+  });
 
   return (
     <div className="max-w-5xl mx-auto px-6 py-8 text-zinc-100">
