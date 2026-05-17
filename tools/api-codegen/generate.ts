@@ -37,6 +37,10 @@ function main(): void {
   const routes = generateRoutes();
   result.written.push(...routes.written);
   result.unchanged.push(...routes.unchanged);
+  if (routes.removed.length) {
+    console.log(`✓ Pruned ${routes.removed.length} orphan route file(s):`);
+    for (const f of routes.removed) console.log(`    - ${f}`);
+  }
 
   const oapi = generateOpenApiPaths();
   if (oapi.wrote) result.written.push(oapi.relPath);
