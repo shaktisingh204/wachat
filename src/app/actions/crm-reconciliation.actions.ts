@@ -167,3 +167,98 @@ export async function getReconciliationById(
         return null;
     }
 }
+
+/* ─── Legacy-name wrapper used by the ReconciliationForm UI ─────────── */
+
+/**
+ * `useActionState`-compatible wrapper used by
+ * `<ReconciliationForm />`. Persists a full reconciliation document
+ * directly to `crm_reconciliations` (the row-level shape the form
+ * captures — account, period, balances, statement file, notes, status).
+ *
+ * Distinct from `saveReconciliation`, which takes pre-computed matched
+ * id arrays and is used by the matcher UI.
+ */
+export async function saveReconciliationRecord(
+    _prevState: { message?: string; error?: string; id?: string } | undefined,
+    formData: FormData,
+): Promise<{ message?: string; error?: string; id?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { error: 'Access denied' };
+
+    const reconciliationId =
+        (formData.get('reconciliationId') as string | null) || undefined;
+    const isEditing = !!reconciliationId;
+
+    const guard = await requirePermission(
+        'crm_banking_reconciliation',
+        isEditing ? 'edit' : 'create',
+    );
+    if (!guard.ok) return { error: guard.error };
+
+    const accountIdRaw = (formData.get('accountId') as string | null) || '';
+    if (!ObjectId.isValid(accountIdRaw)) {
+        return { error: 'A valid account id is required.' };
+    }
+
+    const periodStart = formData.get('periodStart') as string | null;
+    const periodEnd = formData.get('periodEnd') as string | null;
+    if (!periodStart || !periodEnd) {
+        return { error: 'Period start and end are required.' };
+    }
+
+    const openingBalance = Number(formData.get('openingBalance') ?? 0);
+    const closingBalance = Number(formData.get('closingBalance') ?? 0);
+    const matchedCount = Number(formData.get('matchedCount') ?? 0);
+    const unmatchedCount = Number(formData.get('unmatchedCount') ?? 0);
+    const status = (formData.get('status') as string | null) || 'in_progress';
+    const statementUrl =
+        (formData.get('statementUrl') as string | null) || null;
+    const notes = (formData.get('notes') as string | null) || '';
+
+    try {
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(session.user._id);
+        const accountId = new ObjectId(accountIdRaw);
+        const now = new Date();
+
+        const doc: Record<string, unknown> = {
+            userId,
+            accountId,
+            periodStart: new Date(periodStart),
+            periodEnd: new Date(periodEnd),
+            openingBalance: Number.isFinite(openingBalance) ? openingBalance : 0,
+            closingBalance: Number.isFinite(closingBalance) ? closingBalance : 0,
+            matchedCount: Number.isFinite(matchedCount) ? matchedCount : 0,
+            unmatchedCount: Number.isFinite(unmatchedCount) ? unmatchedCount : 0,
+            status,
+            statementUrl,
+            notes,
+            updatedAt: now,
+        };
+
+        if (isEditing && ObjectId.isValid(reconciliationId)) {
+            await db.collection('crm_reconciliations').updateOne(
+                { _id: new ObjectId(reconciliationId), userId },
+                { $set: doc },
+            );
+            revalidatePath('/dashboard/crm/banking/reconciliation');
+            return {
+                message: 'Reconciliation updated.',
+                id: reconciliationId,
+            };
+        }
+
+        doc.createdAt = now;
+        const result = await db
+            .collection('crm_reconciliations')
+            .insertOne(doc as any);
+        revalidatePath('/dashboard/crm/banking/reconciliation');
+        return {
+            message: 'Reconciliation created.',
+            id: result.insertedId.toString(),
+        };
+    } catch (e) {
+        return { error: getErrorMessage(e) };
+    }
+}

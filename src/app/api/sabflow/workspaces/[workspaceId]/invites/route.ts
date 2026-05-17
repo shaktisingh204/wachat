@@ -17,6 +17,7 @@ import {
 } from '@/lib/sabflow/workspaces/db';
 import { canManageMembers } from '@/lib/sabflow/workspaces/permissions';
 import type { WorkspaceRole } from '@/lib/sabflow/workspaces/types';
+import { recordFlowAction } from '@/lib/sabflow/audit/middleware';
 
 export const dynamic = 'force-dynamic';
 
@@ -84,6 +85,16 @@ export async function POST(
 
   const origin = request.nextUrl.origin;
   const inviteUrl = `${origin}/dashboard/sabflow/invites/${invite.token}`;
+
+  void recordFlowAction('workspace.member.invited', {
+    userId: session.user._id.toString(),
+    workspaceId,
+    target:
+      (invite as { _id?: { toString(): string }; id?: string })._id?.toString() ??
+      (invite as { id?: string }).id,
+    metadata: { email, role: inviteRole },
+    request,
+  });
 
   return NextResponse.json({ invite, inviteUrl }, { status: 201 });
 }

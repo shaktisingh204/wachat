@@ -90,3 +90,67 @@ import './support-sla-breach-alert';
 import './support-csat-collect';
 // Onboarding bonus
 import './onboarding-task-assign';
+
+// ═══════════════════════════════════════════════════════════════
+// === Wave-C imports: support, devops, sales, HR ===
+// ═══════════════════════════════════════════════════════════════
+// Support & incident management
+import './support-incident-triage-sentiment';
+import './support-sla-breach-pagerduty';
+import './support-auto-close-stale';
+import './support-zendesk-to-linear';
+import './support-csat-health-alert';
+import './support-oncall-rotation-reminder';
+// DevOps & monitoring alerts
+import './devops-datadog-anomaly-slack';
+import './devops-sentry-spike-to-jira';
+import './devops-github-deploy-discord';
+import './devops-uptime-probe-sms';
+import './devops-aws-cost-spike-email';
+import './devops-pr-auto-merge';
+// Sales pipeline automation
+import './sales-deal-stage-advanced-slack';
+import './sales-stripe-payment-hubspot-closedwon';
+import './sales-calendly-to-salesforce';
+import './sales-lost-deal-segment-event';
+import './sales-quarterly-pipeline-summary';
+import './sales-trial-expiring-email';
+// HR onboarding / offboarding
+import './hr-new-hire-provision';
+import './hr-offboarding-revoke-credentials';
+import './hr-birthday-anniversary-slack';
+import './hr-timeoff-request-notify';
+import './hr-performance-review-reminder';
+import './hr-offboarding-equipment-return';
+
+// ═══════════════════════════════════════════════════════════════
+// === Wave-D imports: marketing, finance, data, social ===
+// ═══════════════════════════════════════════════════════════════
+// Marketing campaign automation
+import './marketing-trial-drip-klaviyo';
+import './marketing-cart-abandon-7day';
+import './marketing-reengage-90day';
+import './marketing-lead-magnet-hubspot';
+import './marketing-webinar-reminder';
+import './marketing-influencer-outreach';
+// Finance & billing automation
+import './finance-stripe-dunning';
+import './finance-monthly-revenue-rollup';
+import './finance-chargebee-provision-auth0';
+import './finance-quarterly-expense-categorize';
+import './finance-refund-issued-sentry';
+import './finance-invoice-overdue-followup';
+// Data enrichment & validation
+import './data-enrich-clearbit-hubspot';
+import './data-enrich-email-validate-neverbounce';
+import './data-enrich-address-salesforce';
+import './data-enrich-phone-twilio-lookup';
+import './data-enrich-apollo-firmographics';
+import './data-enrich-mx-probe';
+// Social media scheduling & engagement
+import './social-rss-crosspost';
+import './social-mention-monitor-slack';
+import './social-twitter-thread-from-blog';
+import './social-linkedin-job-to-ats';
+import './social-instagram-dm-autoreply';
+import './social-content-calendar-reminder';

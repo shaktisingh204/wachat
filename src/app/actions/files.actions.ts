@@ -7,6 +7,7 @@ import { revalidatePath } from 'next/cache';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
 import { buildFileKey, deleteFromR2, uploadToR2 } from '@/lib/r2';
+import { recordFlowAction } from '@/lib/sabflow/audit/middleware';
 
 const COLLECTION = 'user_files';
 
@@ -153,6 +154,17 @@ export async function uploadLibraryFile(formData: FormData): Promise<LibraryFile
 
   revalidatePath('/dashboard');
 
+  void recordFlowAction('sabfile.uploaded', {
+    userId,
+    target: String(insert.insertedId),
+    metadata: {
+      name: file.name,
+      size: uploaded.size,
+      mime,
+      surface: 'library',
+    },
+  });
+
   return toLibraryFile({
     _id: insert.insertedId,
     userId,
@@ -176,6 +188,11 @@ export async function renameLibraryFile(id: string, name: string): Promise<void>
     { _id: new ObjectId(id), userId },
     { $set: { name: trimmed.slice(0, 200), updatedAt: new Date() } },
   );
+  void recordFlowAction('sabfile.renamed', {
+    userId,
+    target: id,
+    metadata: { name: trimmed.slice(0, 200), surface: 'library' },
+  });
 }
 
 export async function deleteLibraryFile(id: string): Promise<void> {
@@ -190,6 +207,11 @@ export async function deleteLibraryFile(id: string): Promise<void> {
     // Continue even if R2 delete fails — DB row goes; orphan key can be GC'd later.
   });
   await db.collection<FileDoc>(COLLECTION).deleteOne({ _id: doc._id });
+  void recordFlowAction('sabfile.deleted', {
+    userId,
+    target: id,
+    metadata: { name: doc.name, surface: 'library' },
+  });
 }
 
 export async function getLibraryFile(id: string): Promise<LibraryFile | null> {

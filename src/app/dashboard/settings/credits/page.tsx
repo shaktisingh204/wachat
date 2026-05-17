@@ -21,24 +21,26 @@ import {
     ZoruSkeleton,
 } from '@/components/zoruui';
 import { getSession } from '@/app/actions/user.actions';
+import { useT } from '@/lib/i18n/client';
 import type { User, WithId } from '@/lib/definitions';
 
 type CreditRow = {
     id: keyof NonNullable<User['credits']>;
-    label: string;
-    description: string;
+    labelKey: string;
+    descriptionKey: string;
     icon: React.ComponentType<{ className?: string }>;
 };
 
 const CREDIT_ROWS: CreditRow[] = [
-    { id: 'broadcast', label: 'Broadcast', description: 'WhatsApp broadcast messages', icon: Send },
-    { id: 'sms', label: 'SMS', description: 'SMS messages sent through any gateway', icon: MessageSquare },
-    { id: 'meta', label: 'Meta', description: 'Meta ads, FB/IG messaging', icon: Zap },
-    { id: 'email', label: 'Email', description: 'Transactional + marketing email', icon: Mail },
-    { id: 'seo', label: 'SEO', description: 'Site audits, rank checks, embeddings', icon: Globe },
+    { id: 'broadcast', labelKey: 'settings.credits.rows.broadcast.label', descriptionKey: 'settings.credits.rows.broadcast.description', icon: Send },
+    { id: 'sms', labelKey: 'settings.credits.rows.sms.label', descriptionKey: 'settings.credits.rows.sms.description', icon: MessageSquare },
+    { id: 'meta', labelKey: 'settings.credits.rows.meta.label', descriptionKey: 'settings.credits.rows.meta.description', icon: Zap },
+    { id: 'email', labelKey: 'settings.credits.rows.email.label', descriptionKey: 'settings.credits.rows.email.description', icon: Mail },
+    { id: 'seo', labelKey: 'settings.credits.rows.seo.label', descriptionKey: 'settings.credits.rows.seo.description', icon: Globe },
 ];
 
 export default function CreditsSettingsPage() {
+    const { t, locale } = useT();
     const [user, setUser] = useState<WithId<User> | null>(null);
     const [loading, startLoading] = useTransition();
 
@@ -58,11 +60,11 @@ export default function CreditsSettingsPage() {
             <ZoruBreadcrumb>
                 <ZoruBreadcrumbList>
                     <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbLink href="/dashboard/settings">Settings</ZoruBreadcrumbLink>
+                        <ZoruBreadcrumbLink href="/dashboard/settings">{t('settings.overview.title')}</ZoruBreadcrumbLink>
                     </ZoruBreadcrumbItem>
                     <ZoruBreadcrumbSeparator />
                     <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbPage>Credits</ZoruBreadcrumbPage>
+                        <ZoruBreadcrumbPage>{t('settings.credits.title')}</ZoruBreadcrumbPage>
                     </ZoruBreadcrumbItem>
                 </ZoruBreadcrumbList>
             </ZoruBreadcrumb>
@@ -70,16 +72,16 @@ export default function CreditsSettingsPage() {
             <div className="flex flex-wrap items-center justify-between gap-4">
                 <ZoruPageHeader>
                     <ZoruPageHeading>
-                        <ZoruPageTitle>Credits</ZoruPageTitle>
+                        <ZoruPageTitle>{t('settings.credits.title')}</ZoruPageTitle>
                         <ZoruPageDescription>
-                            Per-module credit balances and wallet top-ups.
+                            {t('settings.credits.subtitle')}
                         </ZoruPageDescription>
                     </ZoruPageHeading>
                 </ZoruPageHeader>
                 <ZoruButton size="sm" asChild>
                     <Link href="/dashboard/user/billing">
                         <Star className="h-4 w-4" />
-                        Top up
+                        {t('settings.credits.topUp')}
                     </Link>
                 </ZoruButton>
             </div>
@@ -93,24 +95,24 @@ export default function CreditsSettingsPage() {
                         </div>
                         <div>
                             <p className="text-xs uppercase tracking-wide text-zoru-ink-muted">
-                                Wallet balance
+                                {t('settings.credits.walletBalance')}
                             </p>
                             {loading ? (
                                 <ZoruSkeleton className="mt-1 h-8 w-40" />
                             ) : (
                                 <p className="mt-0.5 text-[24px] text-zoru-ink">
-                                    {formatCurrency((wallet?.balance ?? 0) / 100, wallet?.currency ?? 'INR')}
+                                    {formatCurrency((wallet?.balance ?? 0) / 100, wallet?.currency ?? 'INR', locale)}
                                 </p>
                             )}
                         </div>
                     </div>
                     <div className="flex items-center gap-2">
                         <ZoruBadge variant="ghost">
-                            {total.toLocaleString()} credits remaining
+                            {t('settings.credits.creditsRemaining', { count: total.toLocaleString(locale) })}
                         </ZoruBadge>
                         <ZoruButton variant="outline" size="sm" asChild>
                             <Link href="/dashboard/user/billing">
-                                View billing
+                                {t('settings.credits.viewBilling')}
                                 <ArrowUpRight className="h-4 w-4" />
                             </Link>
                         </ZoruButton>
@@ -128,18 +130,18 @@ export default function CreditsSettingsPage() {
                                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-zoru-surface-2 text-zoru-ink">
                                     <row.icon className="h-5 w-5" />
                                 </div>
-                                {value === 0 && <ZoruBadge variant="danger">Empty</ZoruBadge>}
-                                {value > 0 && value < 100 && <ZoruBadge variant="warning">Low</ZoruBadge>}
+                                {value === 0 && <ZoruBadge variant="danger">{t('settings.credits.badges.empty')}</ZoruBadge>}
+                                {value > 0 && value < 100 && <ZoruBadge variant="warning">{t('settings.credits.badges.low')}</ZoruBadge>}
                             </div>
-                            <p className="text-xs text-zoru-ink-muted">{row.label}</p>
+                            <p className="text-xs text-zoru-ink-muted">{t(row.labelKey)}</p>
                             {loading ? (
                                 <ZoruSkeleton className="mt-1 h-8 w-24" />
                             ) : (
                                 <p className="mt-0.5 text-[26px] leading-none text-zoru-ink">
-                                    {value.toLocaleString()}
+                                    {value.toLocaleString(locale)}
                                 </p>
                             )}
-                            <p className="mt-2 text-xs text-zoru-ink-muted">{row.description}</p>
+                            <p className="mt-2 text-xs text-zoru-ink-muted">{t(row.descriptionKey)}</p>
                         </ZoruCard>
                     );
                 })}
@@ -151,10 +153,9 @@ export default function CreditsSettingsPage() {
                         <Zap className="h-4 w-4" />
                     </div>
                     <div>
-                        <p className="text-sm text-zoru-ink">How credits are consumed</p>
+                        <p className="text-sm text-zoru-ink">{t('settings.credits.howConsumed.title')}</p>
                         <p className="mt-1 text-xs text-zoru-ink-muted">
-                            Credits are deducted when messages are delivered. Your plan grants a monthly
-                            allotment, and unused credits roll over while your plan is active.
+                            {t('settings.credits.howConsumed.description')}
                         </p>
                     </div>
                 </div>
@@ -163,9 +164,9 @@ export default function CreditsSettingsPage() {
     );
 }
 
-function formatCurrency(value: number, currency = 'USD'): string {
+function formatCurrency(value: number, currency = 'USD', locale?: string): string {
     try {
-        return new Intl.NumberFormat(undefined, {
+        return new Intl.NumberFormat(locale, {
             style: 'currency',
             currency,
             maximumFractionDigits: 2,

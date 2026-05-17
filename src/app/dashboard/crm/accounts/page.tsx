@@ -28,6 +28,7 @@ import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import { ZoruButton, useZoruToast } from '@/components/zoruui';
+import { useT } from '@/lib/i18n/client';
 
 import {
     archiveCrmAccount,
@@ -58,6 +59,7 @@ type ViewMode = 'table';
 
 export default function CrmAccountsPage() {
     const { toast } = useZoruToast();
+    const { t } = useT();
 
     /* ─── List state ──────────────────────────────────────────────── */
     const [accounts, setAccounts] = React.useState<WithId<CrmAccount>[]>([]);
@@ -202,18 +204,22 @@ export default function CrmAccountsPage() {
             : await archiveCrmAccount(archiveTargetId);
         if (res.success) {
             toast({
-                title: isArchived ? 'Account restored' : 'Account archived',
+                title: isArchived
+                    ? t('crm.accounts.list.toast.restored')
+                    : t('crm.accounts.list.toast.archived'),
             });
             fetchData();
         } else {
             toast({
-                title: isArchived ? 'Restore failed' : 'Archive failed',
+                title: isArchived
+                    ? t('crm.accounts.list.toast.restoreFailed')
+                    : t('crm.accounts.list.toast.archiveFailed'),
                 description: res.error,
                 variant: 'destructive',
             });
         }
         setArchiveTargetId(null);
-    }, [archiveTarget, archiveTargetId, fetchData, toast]);
+    }, [archiveTarget, archiveTargetId, fetchData, toast, t]);
 
     /* ─── Bulk actions ──────────────────────────────────────── */
     const runBulkArchive = React.useCallback(async () => {
@@ -226,34 +232,41 @@ export default function CrmAccountsPage() {
             else fail++;
         }
         toast({
-            title: `${ok} archived${fail ? `, ${fail} failed` : ''}`,
+            title: fail
+                ? t('crm.accounts.list.toast.bulkArchivedWithFails', { ok, fail })
+                : t('crm.accounts.list.toast.bulkArchived', { ok }),
             variant: fail ? 'destructive' : 'default',
         });
         setSelected(new Set());
         fetchData();
-    }, [selected, fetchData, toast]);
+    }, [selected, fetchData, toast, t]);
 
     const runBulkCategory = React.useCallback(
         async (next: 'new' | 'strategic' | 'key' | 'regular') => {
             if (selected.size === 0) return;
             const res = await setCrmAccountCategory(Array.from(selected), next);
             if (res.success) {
+                const count = res.modifiedCount ?? selected.size;
                 toast({
-                    title: 'Category updated',
-                    description: `${res.modifiedCount ?? selected.size} account${(res.modifiedCount ?? selected.size) === 1 ? '' : 's'} → ${next}.`,
+                    title: t('crm.accounts.list.toast.categoryUpdated'),
+                    description: t('crm.accounts.list.toast.categoryUpdatedDescription', {
+                        count,
+                        label: count === 1 ? 'account' : 'accounts',
+                        next,
+                    }),
                     variant: 'success',
                 });
                 setSelected(new Set());
                 fetchData();
             } else {
                 toast({
-                    title: 'Bulk category change failed',
-                    description: res.error ?? 'Unknown error.',
+                    title: t('crm.accounts.list.toast.bulkCategoryFailed'),
+                    description: res.error ?? t('crm.accounts.list.toast.unknownError'),
                     variant: 'destructive',
                 });
             }
         },
-        [selected, toast, fetchData],
+        [selected, toast, fetchData, t],
     );
 
     const exportCsv = React.useCallback(() => {
@@ -314,8 +327,8 @@ export default function CrmAccountsPage() {
     return (
         <>
             <EntityListShell
-                title="Accounts"
-                subtitle="Companies and organisations in your CRM."
+                title={t('crm.accounts.list.title')}
+                subtitle={t('crm.accounts.list.subtitle')}
                 viewSwitcher={
                     <div className="inline-flex rounded-md border border-zoru-line p-0.5">
                         <button
@@ -323,7 +336,7 @@ export default function CrmAccountsPage() {
                             aria-pressed={view === 'table'}
                             className="inline-flex items-center gap-1 rounded-sm bg-zoru-surface px-2 py-1 text-[12px] text-zoru-ink"
                         >
-                            <List className="h-3.5 w-3.5" /> Table
+                            <List className="h-3.5 w-3.5" /> {t('crm.accounts.list.view.table')}
                         </button>
                         {/* TODO 1D.1: card-grid view deferred — table is the contract default. */}
                     </div>
@@ -331,12 +344,12 @@ export default function CrmAccountsPage() {
                 search={{
                     value: search,
                     onChange: (v) => handleSearch(v),
-                    placeholder: 'Search name, industry, website…',
+                    placeholder: t('crm.accounts.list.search.placeholder'),
                 }}
                 primaryAction={
                     <ZoruButton asChild>
                         <Link href="/dashboard/crm/accounts/new">
-                            <Plus className="h-4 w-4" /> New account
+                            <Plus className="h-4 w-4" /> {t('crm.accounts.list.action.new')}
                         </Link>
                     </ZoruButton>
                 }
@@ -387,17 +400,14 @@ export default function CrmAccountsPage() {
                         <div className="flex flex-col items-center gap-3 p-4">
                             <Building2 className="h-8 w-8 text-zoru-ink-muted" />
                             <h3 className="text-base font-medium text-zoru-ink">
-                                No accounts yet
+                                {t('crm.accounts.list.empty.title')}
                             </h3>
                             <p className="max-w-sm text-sm text-zoru-ink-muted">
-                                Accounts are the companies you sell to,
-                                support, and invoice. They group contacts,
-                                deals, quotes and invoices in one place.
+                                {t('crm.accounts.list.empty.subtitle')}
                             </p>
                             <ZoruButton asChild>
                                 <Link href="/dashboard/crm/accounts/new">
-                                    <Plus className="h-4 w-4" /> Add your first
-                                    account
+                                    <Plus className="h-4 w-4" /> {t('crm.accounts.list.empty.action')}
                                 </Link>
                             </ZoruButton>
                         </div>
@@ -451,16 +461,18 @@ export default function CrmAccountsPage() {
                 onOpenChange={(o) => !o && setArchiveTargetId(null)}
                 title={
                     archiveTarget?.status === 'archived'
-                        ? 'Restore this account?'
-                        : 'Archive this account?'
+                        ? t('crm.accounts.list.confirm.restoreTitle')
+                        : t('crm.accounts.list.confirm.archiveTitle')
                 }
                 description={
                     archiveTarget?.status === 'archived'
-                        ? `"${archiveTarget?.name}" will return to your active list.`
-                        : `"${archiveTarget?.name}" will be hidden from default views. You can restore it later.`
+                        ? t('crm.accounts.list.confirm.restoreDescription', { name: archiveTarget?.name ?? '' })
+                        : t('crm.accounts.list.confirm.archiveDescription', { name: archiveTarget?.name ?? '' })
                 }
                 confirmLabel={
-                    archiveTarget?.status === 'archived' ? 'Restore' : 'Archive'
+                    archiveTarget?.status === 'archived'
+                        ? t('crm.accounts.list.confirm.restore')
+                        : t('crm.accounts.list.confirm.archive')
                 }
                 confirmTone="primary"
                 onConfirm={handleConfirmArchive}

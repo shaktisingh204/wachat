@@ -26,6 +26,7 @@ import { CalendarHeart, PartyPopper, Plus, Trash2 } from 'lucide-react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import { ZoruButton, useZoruToast } from '@/components/zoruui';
+import { useT } from '@/lib/i18n/client';
 
 import {
   deleteCrmHoliday,
@@ -93,6 +94,7 @@ function quarterOf(d: Date): number {
 
 export default function HolidaysPage(): React.JSX.Element {
   const { toast } = useZoruToast();
+  const { t } = useT();
 
   /* Data */
   const [holidays, setHolidays] = React.useState<HolidayRow[]>([]);
@@ -297,28 +299,31 @@ export default function HolidaysPage(): React.JSX.Element {
       if (res.success) processed++;
     }
     toast({
-      title: 'Delete completed',
-      description: `${processed} of ${ids.length} holidays removed.`,
+      title: t('hrm.payroll.holidays.toast.deleted'),
+      description: t('hrm.payroll.holidays.toast.deletedDescription', {
+        processed,
+        total: ids.length,
+      }),
     });
     setSelected(new Set());
     fetchAll();
-  }, [selected, toast, fetchAll]);
+  }, [selected, toast, fetchAll, t]);
 
   const runSingleDelete = React.useCallback(
     async (id: string) => {
       const res = await deleteCrmHoliday(id);
       if (res.success) {
-        toast({ title: 'Deleted' });
+        toast({ title: t('hrm.payroll.holidays.toast.singleDeleted') });
         fetchAll();
       } else {
         toast({
-          title: 'Delete failed',
+          title: t('hrm.payroll.holidays.toast.deleteFailed'),
           description: res.error,
           variant: 'destructive',
         });
       }
     },
-    [toast, fetchAll],
+    [toast, fetchAll, t],
   );
 
   /* Add public holidays */
@@ -335,8 +340,8 @@ export default function HolidaysPage(): React.JSX.Element {
         if (res.message) added++;
       }
       toast({
-        title: 'Public holidays added',
-        description: `${added} holidays inserted.`,
+        title: t('hrm.payroll.holidays.toast.publicAdded'),
+        description: t('hrm.payroll.holidays.toast.publicAddedDescription', { count: added }),
       });
       fetchAll();
     });
@@ -350,8 +355,8 @@ export default function HolidaysPage(): React.JSX.Element {
         : filtered;
     if (out.length === 0) {
       toast({
-        title: 'Nothing to export',
-        description: 'No rows match the current filters / selection.',
+        title: t('hrm.payroll.holidays.toast.nothingToExport'),
+        description: t('hrm.payroll.holidays.toast.nothingToExportDescription'),
       });
       return;
     }
@@ -365,20 +370,20 @@ export default function HolidaysPage(): React.JSX.Element {
     a.click();
     URL.revokeObjectURL(url);
     toast({
-      title: 'Exported',
-      description: `${out.length} holidays saved to CSV.`,
+      title: t('hrm.payroll.holidays.toast.exported'),
+      description: t('hrm.payroll.holidays.toast.exportedDescription', { count: out.length }),
     });
-  }, [filtered, selected, toast]);
+  }, [filtered, selected, toast, t]);
 
   return (
     <>
       <EntityListShell
-        title="Holidays"
-        subtitle="Maintain your organization's official holiday calendar."
+        title={t('hrm.payroll.holidays.title')}
+        subtitle={t('hrm.payroll.holidays.subtitle')}
         search={{
           value: search,
           onChange: setSearch,
-          placeholder: 'Search by name, location, notes…',
+          placeholder: t('hrm.payroll.holidays.search.placeholder'),
         }}
         primaryAction={
           <div className="flex items-center gap-2">
@@ -389,11 +394,11 @@ export default function HolidaysPage(): React.JSX.Element {
               disabled={bulkBusy}
             >
               <PartyPopper className="h-3.5 w-3.5" />
-              {bulkBusy ? 'Adding…' : 'Add public holidays'}
+              {bulkBusy ? t('hrm.payroll.holidays.action.addingPublic') : t('hrm.payroll.holidays.action.addPublic')}
             </ZoruButton>
             <ZoruButton size="sm" asChild>
               <Link href="/dashboard/hrm/payroll/holidays/new">
-                <Plus className="h-3.5 w-3.5" /> New holiday
+                <Plus className="h-3.5 w-3.5" /> {t('hrm.payroll.holidays.action.new')}
               </Link>
             </ZoruButton>
           </div>
@@ -421,10 +426,9 @@ export default function HolidaysPage(): React.JSX.Element {
           selected.size > 0 ? (
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-[13px] text-zoru-ink">
-                <span className="font-medium tabular-nums">
-                  {selected.size}
-                </span>
-                {selected.size === 1 ? ' holiday' : ' holidays'} selected
+                {selected.size === 1
+                  ? t('hrm.payroll.holidays.selection.one', { count: selected.size })
+                  : t('hrm.payroll.holidays.selection.many', { count: selected.size })}
               </span>
               <span className="mx-1 h-4 w-px bg-zoru-line" aria-hidden />
               <ZoruButton
@@ -432,10 +436,10 @@ export default function HolidaysPage(): React.JSX.Element {
                 variant="outline"
                 onClick={() => setDeletePending(true)}
               >
-                <Trash2 className="h-3.5 w-3.5 text-rose-500" /> Delete
+                <Trash2 className="h-3.5 w-3.5 text-rose-500" /> {t('hrm.payroll.holidays.bulk.delete')}
               </ZoruButton>
               <ZoruButton size="sm" variant="outline" onClick={exportCsv}>
-                Export CSV
+                {t('hrm.payroll.holidays.bulk.export')}
               </ZoruButton>
               <ZoruButton
                 size="sm"
@@ -443,7 +447,7 @@ export default function HolidaysPage(): React.JSX.Element {
                 onClick={() => setSelected(new Set())}
                 className="ml-auto"
               >
-                Clear selection
+                {t('hrm.payroll.holidays.bulk.clear')}
               </ZoruButton>
             </div>
           ) : null
@@ -454,19 +458,18 @@ export default function HolidaysPage(): React.JSX.Element {
             <div className="flex flex-col items-center gap-3 p-4">
               <CalendarHeart className="h-8 w-8 text-zoru-ink-muted" />
               <h3 className="text-base font-medium text-zoru-ink">
-                No holidays added yet
+                {t('hrm.payroll.holidays.empty.title')}
               </h3>
               <p className="max-w-sm text-sm text-zoru-ink-muted">
-                Seed the calendar with public holidays or add your first
-                holiday manually.
+                {t('hrm.payroll.holidays.empty.subtitle')}
               </p>
               <div className="flex gap-2">
                 <ZoruButton variant="outline" onClick={addPublicHolidays}>
-                  <PartyPopper className="h-4 w-4" /> Add public holidays
+                  <PartyPopper className="h-4 w-4" /> {t('hrm.payroll.holidays.action.addPublic')}
                 </ZoruButton>
                 <ZoruButton asChild>
                   <Link href="/dashboard/hrm/payroll/holidays/new">
-                    <Plus className="h-4 w-4" /> Add holiday
+                    <Plus className="h-4 w-4" /> {t('hrm.payroll.holidays.empty.actionAdd')}
                   </Link>
                 </ZoruButton>
               </div>
@@ -491,9 +494,13 @@ export default function HolidaysPage(): React.JSX.Element {
       <ConfirmDialog
         open={deletePending}
         onOpenChange={setDeletePending}
-        title={`Delete ${selected.size} holiday${selected.size === 1 ? '' : 's'}?`}
-        description="This permanently removes the selected holidays. The action cannot be undone."
-        confirmLabel="Delete"
+        title={
+          selected.size === 1
+            ? t('hrm.payroll.holidays.delete.bulkTitleOne', { count: selected.size })
+            : t('hrm.payroll.holidays.delete.bulkTitleMany', { count: selected.size })
+        }
+        description={t('hrm.payroll.holidays.delete.bulkDescription')}
+        confirmLabel={t('hrm.payroll.holidays.delete.confirm')}
         requireTyped="DELETE"
         onConfirm={async () => {
           await runBulkDelete();
@@ -504,10 +511,10 @@ export default function HolidaysPage(): React.JSX.Element {
       <ConfirmDialog
         open={!!singleDeleteId}
         onOpenChange={(o) => !o && setSingleDeleteId(null)}
-        title="Delete this holiday?"
-        description="This permanently removes the holiday. The action cannot be undone."
+        title={t('hrm.payroll.holidays.delete.singleTitle')}
+        description={t('hrm.payroll.holidays.delete.singleDescription')}
         requireTyped="DELETE"
-        confirmLabel="Delete"
+        confirmLabel={t('hrm.payroll.holidays.delete.confirm')}
         onConfirm={async () => {
           if (singleDeleteId) await runSingleDelete(singleDeleteId);
           setSingleDeleteId(null);

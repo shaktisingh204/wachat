@@ -5,6 +5,7 @@ import { executeBlock } from './executeBlock';
 import { acquireRunSlot } from '@/lib/sabflow/execution/concurrency';
 import { loadEnvVars } from '@/lib/sabflow/envVars/db';
 import { publishTraceEvent } from '@/lib/sabflow/execution/traceBus';
+import { recordFlowAction } from '@/lib/sabflow/audit/middleware';
 
 type ExecuteFlowReturn = {
   result: ExecutionResult;
@@ -60,6 +61,16 @@ export async function executeFlow(
     throw new ConcurrencyLimitError(flow.settings?.maxConcurrentRuns ?? 0, slot.waitingCount);
   }
 
+  const flowIdForAudit = (flow._id?.toString?.() ?? flow.publicId ?? flowKey) as string;
+  if (flow.userId) {
+    void recordFlowAction('flow.execution.started', {
+      userId: flow.userId,
+      flowId: flowIdForAudit,
+      target: flowIdForAudit,
+      metadata: { executionId, flowName: flow.name },
+    });
+  }
+
   // Load the workspace-scoped env vars once per run and merge them into
   // `variables` so that any block reading `{{KEY}}` resolves them.  We
   // overlay them with a `$env.` prefix too for explicit access — the
@@ -91,6 +102,14 @@ export async function executeFlow(
         status: result.result.isCompleted ? 'success' : 'success', // paused waiting input is not a failure
       });
     }
+    if (flow.userId && result.result.isCompleted) {
+      void recordFlowAction('flow.execution.completed', {
+        userId: flow.userId,
+        flowId: flowIdForAudit,
+        target: flowIdForAudit,
+        metadata: { executionId, flowName: flow.name },
+      });
+    }
     return result;
   } catch (err) {
     if (executionId) {
@@ -99,6 +118,18 @@ export async function executeFlow(
         executionId,
         status: 'error',
         error: err instanceof Error ? err.message : String(err),
+      });
+    }
+    if (flow.userId && !(err instanceof ConcurrencyLimitError)) {
+      void recordFlowAction('flow.execution.failed', {
+        userId: flow.userId,
+        flowId: flowIdForAudit,
+        target: flowIdForAudit,
+        metadata: {
+          executionId,
+          flowName: flow.name,
+          error: err instanceof Error ? err.message : String(err),
+        },
       });
     }
     throw err;
@@ -117,6 +148,7 @@ async function runFlowInner(
   let variables = { ...session.variables };
   let currentGroupId = session.currentGroupId;
   let currentBlockIndex = session.currentBlockIndex;
+  const flowIdForAudit = (flow._id?.toString?.() ?? flow.publicId ?? flow.name) as string;
 
   // Safety valve: cap the number of group transitions to prevent infinite
   // loops caused by misconfigured flows.
@@ -179,6 +211,20 @@ async function runFlowInner(
             index: traceHistory.length - 1,
           });
         }
+        if (flow.userId) {
+          void recordFlowAction('flow.step.failed', {
+            userId: flow.userId,
+            flowId: flowIdForAudit,
+            target: block.id,
+            metadata: {
+              executionId,
+              blockId: block.id,
+              blockType: block.type,
+              groupId: currentGroupId,
+              error: message,
+            },
+          });
+        }
         // Re-throw so upstream finalisation paths (v1/run, rerun) can mark
         // the execution as `status: 'error'` and fire failure alerts.
         throw err;
@@ -204,6 +250,20 @@ async function runFlowInner(
           executionId,
           step: okStep,
           index: traceHistory.length - 1,
+        });
+      }
+      if (flow.userId && okStep.status === 'success') {
+        void recordFlowAction('flow.step.completed', {
+          userId: flow.userId,
+          flowId: flowIdForAudit,
+          target: block.id,
+          metadata: {
+            executionId,
+            blockId: block.id,
+            blockType: block.type,
+            groupId: currentGroupId,
+            durationMs: stepDurationMs,
+          },
         });
       }
 

@@ -155,3 +155,24 @@ export async function getEmailTemplateById(
         return null;
     }
 }
+
+/* ─── Legacy-name aliases (kept for the email-templates UI) ─────────── */
+// These aliases re-export the canonical functions under their pre-rename
+// names so the existing callers in
+// `src/app/dashboard/crm/settings/email-templates/**` keep compiling.
+// Drop these once every caller has been migrated to the `Crm`-prefixed
+// names.
+export async function getEmailTemplates(): Promise<WithId<CrmEmailTemplate>[]> {
+    return getCrmEmailTemplates();
+}
+export async function saveEmailTemplate(
+    prevState: any,
+    formData: FormData,
+): Promise<{ message?: string; error?: string }> {
+    return saveCrmEmailTemplate(prevState, formData);
+}
+export async function deleteEmailTemplate(
+    templateId: string,
+): Promise<{ success: boolean; error?: string }> {
+    return deleteCrmEmailTemplate(templateId);
+}

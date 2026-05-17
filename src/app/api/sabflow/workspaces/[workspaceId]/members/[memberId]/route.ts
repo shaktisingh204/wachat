@@ -18,6 +18,7 @@ import {
 } from '@/lib/sabflow/workspaces/db';
 import { canManageMembers } from '@/lib/sabflow/workspaces/permissions';
 import type { WorkspaceRole } from '@/lib/sabflow/workspaces/types';
+import { recordFlowAction } from '@/lib/sabflow/audit/middleware';
 
 export const dynamic = 'force-dynamic';
 
@@ -81,11 +82,25 @@ export async function PATCH(
   }
 
   await updateWorkspaceMemberRole(memberId, newRole);
+
+  void recordFlowAction('workspace.member.roleChanged', {
+    userId: session.user._id.toString(),
+    workspaceId,
+    target: memberId,
+    metadata: {
+      memberId,
+      memberUserId: target.userId,
+      previousRole: target.role,
+      newRole,
+    },
+    request,
+  });
+
   return NextResponse.json({ ok: true });
 }
 
 export async function DELETE(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ workspaceId: string; memberId: string }> },
 ) {
   const session = await getSession();
@@ -115,5 +130,19 @@ export async function DELETE(
   }
 
   await removeWorkspaceMember(memberId);
+
+  void recordFlowAction('workspace.member.removed', {
+    userId: callerUserId,
+    workspaceId,
+    target: memberId,
+    metadata: {
+      memberId,
+      memberUserId: target.userId,
+      role: target.role,
+      selfRemoval: isSelf,
+    },
+    request,
+  });
+
   return NextResponse.json({ ok: true });
 }

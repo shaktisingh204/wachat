@@ -17,6 +17,7 @@ import { consumeOAuthState } from '@/lib/sabflow/oauth/stateStore';
 import { getOAuthProvider } from '@/lib/sabflow/oauth/providers';
 import type { OAuthTokens } from '@/lib/sabflow/oauth/types';
 import type { CredentialType } from '@/lib/sabflow/credentials/types';
+import { recordFlowAction } from '@/lib/sabflow/audit/middleware';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -53,7 +54,7 @@ export async function GET(req: NextRequest) {
 
   try {
     const tokens = await provider.exchangeCode({ code, config });
-    await persistOAuthCredential({
+    const persisted = await persistOAuthCredential({
       userId: stateEntry.userId,
       providerId: stateEntry.providerId,
       credentialId: stateEntry.credentialId,
@@ -64,6 +65,16 @@ export async function GET(req: NextRequest) {
     console.log(
       `[SABFLOW OAUTH CALLBACK] success provider=${stateEntry.providerId} user=${stateEntry.userId}`,
     );
+    void recordFlowAction('credential.oauth.granted', {
+      userId: stateEntry.userId,
+      target: persisted.credentialId,
+      metadata: {
+        provider: stateEntry.providerId,
+        scopes: stateEntry.scopes ?? provider.defaultScopes,
+        created: persisted.created,
+      },
+      request: req,
+    });
     const returnTo =
       stateEntry.returnTo && stateEntry.returnTo.startsWith('/')
         ? stateEntry.returnTo
@@ -108,7 +119,7 @@ async function persistOAuthCredential(opts: {
   label?: string;
   scopes: string[];
   tokens: OAuthTokens;
-}): Promise<void> {
+}): Promise<{ credentialId: string; created: boolean }> {
   const { db } = await connectToDatabase();
   const col = db.collection('sabflow_credentials');
 
@@ -139,11 +150,12 @@ async function persistOAuthCredential(opts: {
         },
       },
     );
-    return;
+    return { credentialId: opts.credentialId, created: false };
   }
 
+  const newId = new ObjectId();
   await col.insertOne({
-    _id: new ObjectId(),
+    _id: newId,
     workspaceId: opts.userId,
     type: credentialType,
     name: opts.label || `${opts.providerId} OAuth`,
@@ -151,4 +163,5 @@ async function persistOAuthCredential(opts: {
     createdAt: now,
     updatedAt: now,
   });
+  return { credentialId: newId.toHexString(), created: true };
 }

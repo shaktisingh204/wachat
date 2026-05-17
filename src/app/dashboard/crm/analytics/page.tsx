@@ -4,6 +4,7 @@ import { BarChart } from 'lucide-react';
 
 import { getAnalyticsData } from '@/app/actions/crm-analytics.actions';
 import { AnalyticsDashboard } from '@/components/crm/analytics/analytics-dashboard';
+import { getT } from '@/lib/i18n/server';
 import {
   ZoruCard,
   ZoruPageDescription,
@@ -17,7 +18,7 @@ export default async function AnalyticsPage(props: {
 }) {
   const searchParams = await props.searchParams;
   const year = searchParams.year ? parseInt(searchParams.year) : new Date().getFullYear();
-  const data = await getAnalyticsData(year);
+  const [t, data] = await Promise.all([getT(), getAnalyticsData(year)]);
 
   return (
     <div className="flex w-full flex-col gap-6">
@@ -27,9 +28,9 @@ export default async function AnalyticsPage(props: {
             <BarChart className="h-5 w-5 text-zoru-ink" strokeWidth={1.75} />
           </div>
           <ZoruPageHeading>
-            <ZoruPageTitle>CRM Analytics</ZoruPageTitle>
+            <ZoruPageTitle>{t('crm.analytics.title')}</ZoruPageTitle>
             <ZoruPageDescription>
-              Financial and sales intelligence for {year}
+              {t('crm.analytics.subtitle', { year })}
             </ZoruPageDescription>
           </ZoruPageHeading>
         </div>
@@ -40,7 +41,7 @@ export default async function AnalyticsPage(props: {
       ) : (
         <ZoruCard className="p-6">
           <p className="py-8 text-center text-[13px] text-zoru-ink-muted">
-            Unable to load analytics data.
+            {t('crm.analytics.errorLoad')}
           </p>
         </ZoruCard>
       )}

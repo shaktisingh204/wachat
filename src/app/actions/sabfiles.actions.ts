@@ -19,6 +19,7 @@ import { revalidatePath } from 'next/cache';
 
 import { rustClient, RustApiError } from '@/lib/rust-client';
 import { getSession } from '@/app/actions/user.actions';
+import { recordFlowAction } from '@/lib/sabflow/audit/middleware';
 import type {
     SabfilesNode,
     ListNodesQuery,
@@ -27,6 +28,15 @@ import type {
     ConfirmUploadBody,
     CreateShareBody,
 } from '@/lib/rust-client/sabfiles';
+
+async function getActorId(): Promise<string | null> {
+    const session = await getSession();
+    if (!session?.user) return null;
+    const u = session.user as { _id?: string | { toString(): string }; id?: string };
+    const userId = u._id ?? u.id;
+    if (!userId) return null;
+    return typeof userId === 'string' ? userId : String(userId);
+}
 
 function pathFor(parentId: string | null | undefined): string {
     if (!parentId) return '/dashboard/sabfiles';
@@ -64,6 +74,14 @@ export async function createFolder(parentId: string | null, name: string) {
             parent_id: parentId,
         });
         revalidatePath(pathFor(parentId));
+        const actorId = await getActorId();
+        if (actorId) {
+            void recordFlowAction('sabfile.folder.created', {
+                userId: actorId,
+                target: (node as { id?: string } | undefined)?.id,
+                metadata: { name, parentId },
+            });
+        }
         return { node };
     } catch (e) {
         return asError(e);
@@ -89,6 +107,21 @@ export async function confirmUpload(body: ConfirmUploadBody) {
     try {
         const { node } = await rustClient.sabfiles.confirmUpload(body);
         revalidatePath(pathFor(body.parent_id));
+        const u = session.user as { _id?: string | { toString(): string }; id?: string };
+        const actorRaw = u._id ?? u.id;
+        const actorId = actorRaw ? (typeof actorRaw === 'string' ? actorRaw : String(actorRaw)) : null;
+        if (actorId) {
+            void recordFlowAction('sabfile.uploaded', {
+                userId: actorId,
+                target: (node as { id?: string } | undefined)?.id,
+                metadata: {
+                    name: (body as { name?: string }).name,
+                    size: (body as { size?: number }).size,
+                    mime: (body as { mime?: string }).mime,
+                    parentId: body.parent_id,
+                },
+            });
+        }
         return { node };
     } catch (e) {
         return asError(e);
@@ -101,6 +134,16 @@ export async function renameNode(id: string, name: string, parentId: string | nu
     try {
         const { node } = await rustClient.sabfiles.rename(id, name);
         revalidatePath(pathFor(parentId));
+        const u = session.user as { _id?: string | { toString(): string }; id?: string };
+        const actorRaw = u._id ?? u.id;
+        const actorId = actorRaw ? (typeof actorRaw === 'string' ? actorRaw : String(actorRaw)) : null;
+        if (actorId) {
+            void recordFlowAction('sabfile.renamed', {
+                userId: actorId,
+                target: id,
+                metadata: { name, parentId },
+            });
+        }
         return { node };
     } catch (e) {
         return asError(e);
@@ -142,6 +185,15 @@ export async function trashNodes(ids: string[], parentId: string | null) {
         const res = await rustClient.sabfiles.trashMany(ids);
         revalidatePath(pathFor(parentId));
         revalidatePath('/dashboard/sabfiles/trash');
+        const u = session.user as { _id?: string | { toString(): string }; id?: string };
+        const actorRaw = u._id ?? u.id;
+        const actorId = actorRaw ? (typeof actorRaw === 'string' ? actorRaw : String(actorRaw)) : null;
+        if (actorId) {
+            void recordFlowAction('sabfile.deleted', {
+                userId: actorId,
+                metadata: { ids, parentId, mode: 'trash' },
+            });
+        }
         return res;
     } catch (e) {
         return asError(e);
@@ -165,6 +217,13 @@ export async function permanentDelete(ids: string[]) {
     try {
         const res = await rustClient.sabfiles.permanentDelete(ids);
         revalidatePath('/dashboard/sabfiles/trash');
+        const actorId = await getActorId();
+        if (actorId) {
+            void recordFlowAction('sabfile.deleted', {
+                userId: actorId,
+                metadata: { ids, mode: 'permanent' },
+            });
+        }
         return res;
     } catch (e) {
         return asError(e);
@@ -194,6 +253,14 @@ export async function createShare(id: string, body: CreateShareBody, parentId: s
         const res = await rustClient.sabfiles.createShare(id, body);
         revalidatePath(pathFor(parentId));
         revalidatePath('/dashboard/sabfiles/shared');
+        const actorId = await getActorId();
+        if (actorId) {
+            void recordFlowAction('sabfile.shareLink.created', {
+                userId: actorId,
+                target: id,
+                metadata: { parentId },
+            });
+        }
         return res;
     } catch (e) {
         return asError(e);
@@ -205,6 +272,14 @@ export async function revokeShare(id: string, parentId: string | null) {
         const res = await rustClient.sabfiles.revokeShare(id);
         revalidatePath(pathFor(parentId));
         revalidatePath('/dashboard/sabfiles/shared');
+        const actorId = await getActorId();
+        if (actorId) {
+            void recordFlowAction('sabfile.shareLink.revoked', {
+                userId: actorId,
+                target: id,
+                metadata: { parentId },
+            });
+        }
         return res;
     } catch (e) {
         return asError(e);

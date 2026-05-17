@@ -11,11 +11,12 @@ import {
   getInviteByToken,
 } from '@/lib/sabflow/workspaces/db';
 import { getSession } from '@/app/actions/user.actions';
+import { recordFlowAction } from '@/lib/sabflow/audit/middleware';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ token: string }> },
 ) {
   const session = await getSession();
@@ -52,6 +53,18 @@ export async function POST(
 
   try {
     await acceptInvite(token, session.user._id.toString());
+    void recordFlowAction('workspace.invite.accepted', {
+      userId: session.user._id.toString(),
+      workspaceId: invite.workspaceId,
+      target:
+        (invite as { _id?: { toString(): string }; id?: string })._id?.toString() ??
+        (invite as { id?: string }).id,
+      metadata: {
+        email: invite.email,
+        role: (invite as { role?: string }).role,
+      },
+      request,
+    });
     return NextResponse.json({ workspaceId: invite.workspaceId });
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'Failed to accept invite';

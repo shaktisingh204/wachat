@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import { getCrmDashboardStats } from '@/app/actions/crm.actions';
 import { getPinnedQuickList } from '@/app/actions/worksuite/dashboard.actions';
 import type { WsPinnedItem } from '@/lib/worksuite/dashboard-types';
+import { useT } from '@/lib/i18n/client';
 import {
   ZoruBadge,
   ZoruButton,
@@ -60,6 +61,7 @@ function StatCard({
 type PinnedRow = WsPinnedItem & { _id: string };
 
 function PinnedQuickCard({ items }: { items: PinnedRow[] }) {
+  const { t } = useT();
   if (!items || items.length === 0) return null;
   return (
     <ZoruCard className="p-6">
@@ -68,11 +70,11 @@ function PinnedQuickCard({ items }: { items: PinnedRow[] }) {
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zoru-surface-2">
             <Pin className="h-4 w-4 text-zoru-ink" strokeWidth={1.75} />
           </div>
-          <h2 className="text-[15px] text-zoru-ink">Pinned</h2>
+          <h2 className="text-[15px] text-zoru-ink">{t('crm.dashboard.pinned.title')}</h2>
           <ZoruBadge variant="ghost">{items.length}</ZoruBadge>
         </div>
         <Link href="/dashboard/crm/pinned">
-          <ZoruButton variant="outline" size="sm">View all</ZoruButton>
+          <ZoruButton variant="outline" size="sm">{t('crm.dashboard.pinned.viewAll')}</ZoruButton>
         </Link>
       </div>
       <ul className="grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-3">
@@ -94,6 +96,7 @@ function PinnedQuickCard({ items }: { items: PinnedRow[] }) {
 
 export default function CrmDashboardPage() {
   const router = useRouter();
+  const { t, locale } = useT();
   const [stats, setStats] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [pinned, setPinned] = useState<PinnedRow[]>([]);
@@ -137,9 +140,9 @@ export default function CrmDashboardPage() {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <ZoruPageHeader>
           <ZoruPageHeading>
-            <ZoruPageTitle>CRM Dashboard</ZoruPageTitle>
+            <ZoruPageTitle>{t('crm.dashboard.title')}</ZoruPageTitle>
             <ZoruPageDescription>
-              An overview of your customer relationships, leads, and deals.
+              {t('crm.dashboard.subtitle')}
             </ZoruPageDescription>
           </ZoruPageHeading>
         </ZoruPageHeader>
@@ -149,11 +152,11 @@ export default function CrmDashboardPage() {
             onClick={() => router.push('/dashboard/crm/contacts')}
           >
             <Plus className="h-4 w-4" strokeWidth={1.75} />
-            New Contact
+            {t('crm.dashboard.action.newContact')}
           </ZoruButton>
           <ZoruButton onClick={() => router.push('/dashboard/crm/deals')}>
             <Handshake className="h-4 w-4" strokeWidth={1.75} />
-            New Deal
+            {t('crm.dashboard.action.newDeal')}
           </ZoruButton>
         </div>
       </div>
@@ -164,26 +167,26 @@ export default function CrmDashboardPage() {
       {/* Key stats */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
-          title="Total Contacts"
+          title={t('crm.dashboard.stat.totalContacts')}
           value={stats.counts?.contacts?.toLocaleString() ?? 0}
           icon={Users}
           tone="blue"
         />
         <StatCard
-          title="Total Deals"
+          title={t('crm.dashboard.stat.totalDeals')}
           value={stats.counts?.deals?.toLocaleString() ?? 0}
           icon={Handshake}
           tone="rose"
         />
         <StatCard
-          title="Deals Won"
+          title={t('crm.dashboard.stat.dealsWon')}
           value={stats.counts?.dealsWon?.toLocaleString() ?? 0}
           icon={Trophy}
           tone="green"
         />
         <StatCard
-          title="Pipeline Revenue"
-          value={new Intl.NumberFormat('en-US', {
+          title={t('crm.dashboard.stat.pipelineRevenue')}
+          value={new Intl.NumberFormat(locale, {
             style: 'currency',
             currency,
           }).format(stats.counts?.pipelineValue ?? 0)}

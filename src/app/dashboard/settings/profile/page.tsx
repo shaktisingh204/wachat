@@ -6,6 +6,7 @@ import { AtSign, LoaderCircle, Mail, Save, User as UserIcon } from 'lucide-react
 
 import { getSession, handleUpdateUserProfile } from '@/app/actions/user.actions';
 import type { WithId, User } from '@/lib/definitions';
+import { useT } from '@/lib/i18n/client';
 import {
   ZoruBreadcrumb,
   ZoruBreadcrumbItem,
@@ -45,15 +46,17 @@ const LANGUAGES = [
 
 function SaveButton() {
   const { pending } = useFormStatus();
+  const { t } = useT();
   return (
     <ZoruButton type="submit" disabled={pending}>
       {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-      {pending ? 'Saving…' : 'Save changes'}
+      {pending ? t('common.saving') : t('settings.profile.saveChanges')}
     </ZoruButton>
   );
 }
 
 export default function ProfileSettingsPage() {
+  const { t } = useT();
   const [user, setUser] = useState<WithId<User> | null>(null);
   const [loading, startLoading] = useTransition();
   const [language, setLanguage] = useState('en');
@@ -76,10 +79,10 @@ export default function ProfileSettingsPage() {
 
   useEffect(() => {
     if (state.message) {
-      toast({ title: 'Profile updated' });
+      toast({ title: t('settings.profile.toast.updated') });
       load();
     }
-    if (state.error) toast({ title: 'Error', description: state.error, variant: 'destructive' });
+    if (state.error) toast({ title: t('common.error'), description: state.error, variant: 'destructive' });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
 
@@ -88,20 +91,20 @@ export default function ProfileSettingsPage() {
       <ZoruBreadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard/settings">Settings</ZoruBreadcrumbLink>
+            <ZoruBreadcrumbLink href="/dashboard/settings">{t('settings.overview.title')}</ZoruBreadcrumbLink>
           </ZoruBreadcrumbItem>
           <ZoruBreadcrumbSeparator />
           <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Profile</ZoruBreadcrumbPage>
+            <ZoruBreadcrumbPage>{t('settings.profile.title')}</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
       </ZoruBreadcrumb>
 
       <ZoruPageHeader>
         <ZoruPageHeading>
-          <ZoruPageTitle>Profile</ZoruPageTitle>
+          <ZoruPageTitle>{t('settings.profile.title')}</ZoruPageTitle>
           <ZoruPageDescription>
-            Update your name, contact email, and display preferences.
+            {t('settings.profile.subtitle')}
           </ZoruPageDescription>
         </ZoruPageHeading>
       </ZoruPageHeader>
@@ -116,20 +119,20 @@ export default function ProfileSettingsPage() {
                 <UserIcon className="h-5 w-5" />
               </div>
               <div>
-                <p className="text-sm text-zoru-ink">{user.name ?? 'Unnamed user'}</p>
+                <p className="text-sm text-zoru-ink">{user.name ?? t('settings.profile.unnamedUser')}</p>
                 <p className="text-xs text-zoru-ink-muted">{user.email}</p>
               </div>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="Display name">
+              <Field label={t('settings.profile.fields.displayName')}>
                 <ZoruInput
                   name="name"
                   defaultValue={user.name ?? ''}
-                  placeholder="Your name"
+                  placeholder={t('settings.profile.placeholders.name')}
                   leadingSlot={<UserIcon />}
                 />
               </Field>
-              <Field label="Contact email">
+              <Field label={t('settings.profile.fields.contactEmail')}>
                 <ZoruInput
                   name="email"
                   type="email"
@@ -137,15 +140,15 @@ export default function ProfileSettingsPage() {
                   leadingSlot={<Mail />}
                 />
               </Field>
-              <Field label="Username / handle">
+              <Field label={t('settings.profile.fields.usernameHandle')}>
                 <ZoruInput
                   name="username"
                   defaultValue={(user as any).username ?? ''}
-                  placeholder="you"
+                  placeholder={t('settings.profile.placeholders.username')}
                   leadingSlot={<AtSign />}
                 />
               </Field>
-              <Field label="Preferred language">
+              <Field label={t('settings.profile.fields.preferredLanguage')}>
                 <ZoruSelect name="language" value={language} onValueChange={setLanguage}>
                   <ZoruSelectTrigger>
                     <ZoruSelectValue />
@@ -165,16 +168,16 @@ export default function ProfileSettingsPage() {
 
           <ZoruCard className="p-6">
             <div className="mb-4">
-              <p className="text-sm text-zoru-ink">Bio</p>
+              <p className="text-sm text-zoru-ink">{t('settings.profile.bio.title')}</p>
               <p className="text-xs text-zoru-ink-muted">
-                A short intro that teammates see in chat and activity logs.
+                {t('settings.profile.bio.description')}
               </p>
             </div>
             <ZoruTextarea
               name="bio"
               defaultValue={(user as any).bio ?? ''}
               rows={4}
-              placeholder="Tell your teammates a bit about yourself…"
+              placeholder={t('settings.profile.bio.placeholder')}
             />
           </ZoruCard>
 

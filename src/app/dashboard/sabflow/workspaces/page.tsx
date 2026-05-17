@@ -19,6 +19,7 @@ import {
   LuArrowRight,
 } from 'react-icons/lu';
 import { cn } from '@/lib/utils';
+import { useT } from '@/lib/i18n/client';
 
 type WorkspaceRole = 'owner' | 'admin' | 'member';
 type WorkspacePlan = 'Free' | 'Starter' | 'Pro' | 'Business';
@@ -52,6 +53,7 @@ const PLAN_STYLES: Record<WorkspacePlan, string> = {
 };
 
 export default function SabFlowWorkspacesPage() {
+  const { t } = useT();
   const [workspaces] = useState<Workspace[]>(MOCK_WORKSPACES);
   const [query, setQuery] = useState('');
 
@@ -68,11 +70,11 @@ export default function SabFlowWorkspacesPage() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <p className="text-xs font-medium uppercase tracking-widest text-zinc-500 mb-1">
-              SabFlow
+              {t('module.sabflow')}
             </p>
-            <h1 className="text-2xl font-bold text-zinc-100">Workspaces</h1>
+            <h1 className="text-2xl font-bold text-zinc-100">{t('sabflow.workspaces.title')}</h1>
             <p className="text-sm text-zinc-400 mt-1">
-              Switch between workspaces or create a new one for a different team.
+              {t('sabflow.workspaces.subtitle')}
             </p>
           </div>
           <Link
@@ -80,7 +82,7 @@ export default function SabFlowWorkspacesPage() {
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-zinc-100 text-zinc-900 text-sm font-medium hover:bg-white transition-colors"
           >
             <LuPlus className="w-4 h-4" />
-            New workspace
+            {t('sabflow.workspaces.newWorkspace')}
           </Link>
         </div>
 
@@ -91,7 +93,7 @@ export default function SabFlowWorkspacesPage() {
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search workspaces…"
+            placeholder={t('sabflow.workspaces.searchPlaceholder')}
             className="w-full bg-zinc-900 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:border-zinc-600"
           />
         </div>
@@ -106,7 +108,7 @@ export default function SabFlowWorkspacesPage() {
 
         {visible.length === 0 && query && (
           <p className="mt-6 text-center text-sm text-zinc-500">
-            No workspaces match &ldquo;{query}&rdquo;.
+            {t('sabflow.workspaces.searchEmpty', { query })}
           </p>
         )}
       </div>
@@ -115,6 +117,7 @@ export default function SabFlowWorkspacesPage() {
 }
 
 function WorkspaceCard({ workspace }: { workspace: Workspace }) {
+  const { t } = useT();
   return (
     <article className="group rounded-xl border border-zinc-800 bg-zinc-900/40 p-4 hover:bg-zinc-900/70 transition-colors flex flex-col">
       <div className="flex items-start justify-between gap-2">
@@ -126,7 +129,7 @@ function WorkspaceCard({ workspace }: { workspace: Workspace }) {
             <h2 className="text-sm font-semibold text-zinc-100 truncate">
               {workspace.name}
             </h2>
-            <p className="text-xs text-zinc-500">ID: {workspace.id}</p>
+            <p className="text-xs text-zinc-500">{t('sabflow.workspaces.idLabel')}: {workspace.id}</p>
           </div>
         </div>
         <span
@@ -135,7 +138,7 @@ function WorkspaceCard({ workspace }: { workspace: Workspace }) {
             ROLE_STYLES[workspace.role],
           )}
         >
-          {workspace.role}
+          {t(`sabflow.workspaces.role.${workspace.role}`)}
         </span>
       </div>
 
@@ -150,7 +153,7 @@ function WorkspaceCard({ workspace }: { workspace: Workspace }) {
         </span>
         <span className="flex items-center gap-1 text-zinc-400">
           <LuUsers className="w-3.5 h-3.5" />
-          {workspace.memberCount} {workspace.memberCount === 1 ? 'member' : 'members'}
+          {workspace.memberCount} {workspace.memberCount === 1 ? t('sabflow.workspaces.member') : t('sabflow.workspaces.members')}
         </span>
       </div>
 
@@ -158,7 +161,7 @@ function WorkspaceCard({ workspace }: { workspace: Workspace }) {
         href={`/dashboard/sabflow/workspaces/${workspace.id}/settings`}
         className="mt-4 flex items-center justify-center gap-1.5 w-full rounded-lg border border-zinc-800 bg-zinc-800/50 py-2 text-sm font-medium text-zinc-200 hover:bg-zinc-800 transition-colors"
       >
-        Open
+        {t('sabflow.workspaces.open')}
         <LuArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
       </Link>
     </article>
@@ -166,6 +169,7 @@ function WorkspaceCard({ workspace }: { workspace: Workspace }) {
 }
 
 function CreateWorkspaceCard() {
+  const { t } = useT();
   return (
     <Link
       href="/dashboard/sabflow/workspaces/new"
@@ -174,9 +178,9 @@ function CreateWorkspaceCard() {
       <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-800 text-zinc-300 mb-3">
         <LuPlus className="w-5 h-5" />
       </span>
-      <p className="text-sm font-medium text-zinc-200">Create workspace</p>
+      <p className="text-sm font-medium text-zinc-200">{t('sabflow.workspaces.createWorkspace')}</p>
       <p className="text-xs text-zinc-500 mt-1">
-        Start a fresh workspace for a new team or project.
+        {t('sabflow.workspaces.createHint')}
       </p>
     </Link>
   );

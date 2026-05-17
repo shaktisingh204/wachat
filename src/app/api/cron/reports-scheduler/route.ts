@@ -17,10 +17,10 @@ import { NextResponse, type NextRequest } from 'next/server';
 
 import { connectToDatabase } from '@/lib/mongodb';
 import {
-    cronMatchesHour,
     executeReportDefinition,
     type ReportDefinitionDoc,
 } from '@/app/actions/crm-reports.actions';
+import { cronMatchesHour } from '@/lib/crm/cron-match';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;

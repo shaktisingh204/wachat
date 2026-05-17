@@ -51,6 +51,7 @@ import {
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill } from '@/components/crm/status-pill';
+import { useT } from '@/lib/i18n/client';
 
 import {
     deleteDepartmentAction,
@@ -62,13 +63,13 @@ const BASE = '/dashboard/hrm/payroll/departments';
 
 type ActiveFilter = 'all' | 'active' | 'inactive';
 
-const ACTIVE_OPTIONS: Array<{ value: ActiveFilter; label: string }> = [
-    { value: 'all', label: 'All departments' },
-    { value: 'active', label: 'Active only' },
-    { value: 'inactive', label: 'Inactive only' },
-];
-
 export default function DepartmentsListPage() {
+    const { t } = useT();
+    const ACTIVE_OPTIONS: Array<{ value: ActiveFilter; label: string }> = [
+        { value: 'all', label: t('hrm.payroll.departments.filter.all') },
+        { value: 'active', label: t('hrm.payroll.departments.filter.activeOnly') },
+        { value: 'inactive', label: t('hrm.payroll.departments.filter.inactiveOnly') },
+    ];
     const [departments, setDepartments] = React.useState<CrmDepartmentDoc[]>([]);
     const [isLoading, setIsLoading] = React.useState(true);
     const [search, setSearch] = React.useState('');
@@ -118,13 +119,13 @@ export default function DepartmentsListPage() {
         startDeleteTransition(async () => {
             const result = await deleteDepartmentAction(id);
             if (result.success) {
-                toast({ title: 'Department deleted' });
+                toast({ title: t('hrm.payroll.departments.toast.deleted') });
                 setPendingDelete(null);
                 await refresh();
             } else {
                 toast({
-                    title: 'Error',
-                    description: result.error ?? 'Could not delete department.',
+                    title: t('hrm.payroll.departments.toast.error'),
+                    description: result.error ?? t('hrm.payroll.departments.toast.errorDescription'),
                     variant: 'destructive',
                 });
             }
@@ -136,25 +137,25 @@ export default function DepartmentsListPage() {
             <div className="flex w-full flex-col gap-6">
                 <CrmPageHeader
                     breadcrumbs={[
-                        { label: 'HRM', href: '/dashboard/hrm' },
-                        { label: 'Payroll', href: '/dashboard/hrm/payroll' },
-                        { label: 'Departments' },
+                        { label: t('hrm.breadcrumb.hrm'), href: '/dashboard/hrm' },
+                        { label: t('hrm.breadcrumb.payroll'), href: '/dashboard/hrm/payroll' },
+                        { label: t('hrm.breadcrumb.departments') },
                     ]}
-                    title="Departments"
-                    subtitle="Organisational units used to scope employees, payroll runs and reports."
+                    title={t('hrm.payroll.departments.title')}
+                    subtitle={t('hrm.payroll.departments.subtitle')}
                     icon={Building2}
                     actions={
                         <div className="flex items-center gap-2">
                             <ZoruButton variant="outline" asChild>
                                 <Link href={`${BASE}/hierarchy`}>
                                     <GitBranch className="mr-1.5 h-3.5 w-3.5" />
-                                    Hierarchy
+                                    {t('hrm.payroll.departments.action.hierarchy')}
                                 </Link>
                             </ZoruButton>
                             <ZoruButton asChild>
                                 <Link href={`${BASE}/new`}>
                                     <Plus className="mr-1.5 h-3.5 w-3.5" />
-                                    New department
+                                    {t('hrm.payroll.departments.action.new')}
                                 </Link>
                             </ZoruButton>
                         </div>
@@ -166,7 +167,7 @@ export default function DepartmentsListPage() {
                     search={{
                         value: search,
                         onChange: setSearch,
-                        placeholder: 'Search departments…',
+                        placeholder: t('hrm.payroll.departments.search.placeholder'),
                     }}
                     filters={
                         <ZoruSelect
@@ -174,7 +175,7 @@ export default function DepartmentsListPage() {
                             onValueChange={(v) => setActiveFilter(v as ActiveFilter)}
                         >
                             <ZoruSelectTrigger className="h-9 w-[200px]">
-                                <ZoruSelectValue placeholder="Active filter" />
+                                <ZoruSelectValue placeholder={t('hrm.payroll.departments.activeFilter.placeholder')} />
                             </ZoruSelectTrigger>
                             <ZoruSelectContent>
                                 {ACTIVE_OPTIONS.map((o) => (
@@ -191,11 +192,11 @@ export default function DepartmentsListPage() {
                         <ZoruTable>
                             <ZoruTableHeader>
                                 <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                                    <ZoruTableHead className="text-zoru-ink-muted">Name</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Code</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Cost centre</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
-                                    <ZoruTableHead className="text-right text-zoru-ink-muted">Actions</ZoruTableHead>
+                                    <ZoruTableHead className="text-zoru-ink-muted">{t('hrm.payroll.departments.col.name')}</ZoruTableHead>
+                                    <ZoruTableHead className="text-zoru-ink-muted">{t('hrm.payroll.departments.col.code')}</ZoruTableHead>
+                                    <ZoruTableHead className="text-zoru-ink-muted">{t('hrm.payroll.departments.col.costCenter')}</ZoruTableHead>
+                                    <ZoruTableHead className="text-zoru-ink-muted">{t('hrm.payroll.departments.col.status')}</ZoruTableHead>
+                                    <ZoruTableHead className="text-right text-zoru-ink-muted">{t('hrm.payroll.departments.col.actions')}</ZoruTableHead>
                                 </ZoruTableRow>
                             </ZoruTableHeader>
                             <ZoruTableBody>
@@ -211,7 +212,7 @@ export default function DepartmentsListPage() {
                                             colSpan={5}
                                             className="h-24 text-center text-zoru-ink-muted"
                                         >
-                                            No departments match this filter.
+                                            {t('hrm.payroll.departments.empty')}
                                         </ZoruTableCell>
                                     </ZoruTableRow>
                                 ) : (
@@ -246,7 +247,7 @@ export default function DepartmentsListPage() {
                                                 </ZoruTableCell>
                                                 <ZoruTableCell>
                                                     <StatusPill
-                                                        label={active ? 'Active' : 'Inactive'}
+                                                        label={active ? t('hrm.payroll.departments.status.active') : t('hrm.payroll.departments.status.inactive')}
                                                         tone={active ? 'green' : 'neutral'}
                                                     />
                                                 </ZoruTableCell>
@@ -280,21 +281,18 @@ export default function DepartmentsListPage() {
             >
                 <ZoruAlertDialogContent>
                     <ZoruAlertDialogHeader>
-                        <ZoruAlertDialogTitle>Delete department?</ZoruAlertDialogTitle>
+                        <ZoruAlertDialogTitle>{t('hrm.payroll.departments.delete.title')}</ZoruAlertDialogTitle>
                         <ZoruAlertDialogDescription>
-                            Deleting &ldquo;{pendingDelete?.name}&rdquo; removes it from the
-                            directory. Employees assigned to this department keep their
-                            historical record but the department reference will resolve to
-                            an empty value.
+                            {t('hrm.payroll.departments.delete.description', { name: pendingDelete?.name ?? '' })}
                         </ZoruAlertDialogDescription>
                     </ZoruAlertDialogHeader>
                     <ZoruAlertDialogFooter>
-                        <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+                        <ZoruAlertDialogCancel>{t('hrm.payroll.departments.delete.cancel')}</ZoruAlertDialogCancel>
                         <ZoruAlertDialogAction
                             onClick={handleDelete}
                             disabled={deletePending}
                         >
-                            {deletePending ? 'Deleting…' : 'Delete'}
+                            {deletePending ? t('hrm.payroll.departments.delete.inProgress') : t('hrm.payroll.departments.delete.confirm')}
                         </ZoruAlertDialogAction>
                     </ZoruAlertDialogFooter>
                 </ZoruAlertDialogContent>

@@ -17,6 +17,7 @@ import { Users } from 'lucide-react';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { listEmployees } from '@/app/actions/crm/employees.actions';
 import { getSession } from '@/app/actions/user.actions';
+import { getT } from '@/lib/i18n/server';
 import {
   crmEmployeesApi,
   type CrmEmployeeDoc,
@@ -71,8 +72,9 @@ export default async function EmployeesPage({ searchParams }: PageProps) {
   const q = (sp.q ?? '').trim();
 
   const session = await getSession();
-  const [{ employees: pageEmployees, hasMore, error }, kpiSource] =
+  const [t, { employees: pageEmployees, hasMore, error }, kpiSource] =
     await Promise.all([
+      getT(),
       listEmployees({ page, limit, q: q || undefined }),
       // Wider window for the KPI aggregate so a single page doesn't
       // skew the strip. Capped at 200 — the Rust endpoint enforces its
@@ -88,13 +90,13 @@ export default async function EmployeesPage({ searchParams }: PageProps) {
   return (
     <div className="flex w-full flex-col gap-6">
       <CrmPageHeader
-        title="Employees"
-        subtitle="Search and manage every employee across departments and locations."
+        title={t('hrm.payroll.employees.title')}
+        subtitle={t('hrm.payroll.employees.subtitle')}
         icon={Users}
         breadcrumbs={[
-          { label: 'HRM', href: '/dashboard/hrm' },
-          { label: 'Payroll', href: '/dashboard/hrm/payroll' },
-          { label: 'Employees' },
+          { label: t('hrm.breadcrumb.hrm'), href: '/dashboard/hrm' },
+          { label: t('hrm.breadcrumb.payroll'), href: '/dashboard/hrm/payroll' },
+          { label: t('hrm.breadcrumb.employees') },
         ]}
       />
 

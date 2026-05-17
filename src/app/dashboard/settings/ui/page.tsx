@@ -26,6 +26,7 @@ import {
     setAppearancePrefs,
     type AppearancePrefs,
 } from '@/app/actions/account.actions';
+import { useT } from '@/lib/i18n/client';
 
 type Appearance = AppearancePrefs;
 
@@ -37,6 +38,7 @@ const DEFAULTS: Appearance = {
 };
 
 export default function AppearanceSettingsPage() {
+    const { t } = useT();
     const [prefs, setPrefs] = useState<Appearance>(DEFAULTS);
     const [saving, setSaving] = useState(false);
     const { toast } = useZoruToast();
@@ -67,11 +69,11 @@ export default function AppearanceSettingsPage() {
                 if (prefs.theme === 'dark') root.classList.add('dark');
                 else if (prefs.theme === 'light') root.classList.add('light');
             }
-            toast({ title: 'Appearance saved' });
+            toast({ title: t('settings.appearance.toast.saved') });
         } catch (e: any) {
             toast({
-                title: 'Could not save',
-                description: e?.message ?? 'Try again.',
+                title: t('settings.appearance.toast.saveFailed'),
+                description: e?.message ?? t('common.tryAgain'),
                 variant: 'destructive',
             });
         } finally {
@@ -84,11 +86,11 @@ export default function AppearanceSettingsPage() {
             <ZoruBreadcrumb>
                 <ZoruBreadcrumbList>
                     <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbLink href="/dashboard/settings">Settings</ZoruBreadcrumbLink>
+                        <ZoruBreadcrumbLink href="/dashboard/settings">{t('settings.overview.title')}</ZoruBreadcrumbLink>
                     </ZoruBreadcrumbItem>
                     <ZoruBreadcrumbSeparator />
                     <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbPage>Appearance</ZoruBreadcrumbPage>
+                        <ZoruBreadcrumbPage>{t('settings.appearance.title')}</ZoruBreadcrumbPage>
                     </ZoruBreadcrumbItem>
                 </ZoruBreadcrumbList>
             </ZoruBreadcrumb>
@@ -96,15 +98,15 @@ export default function AppearanceSettingsPage() {
             <div className="flex flex-wrap items-center justify-between gap-4">
                 <ZoruPageHeader>
                     <ZoruPageHeading>
-                        <ZoruPageTitle>Appearance</ZoruPageTitle>
+                        <ZoruPageTitle>{t('settings.appearance.title')}</ZoruPageTitle>
                         <ZoruPageDescription>
-                            Theme, density, and motion preferences for your SabNode workspace.
+                            {t('settings.appearance.subtitle')}
                         </ZoruPageDescription>
                     </ZoruPageHeading>
                 </ZoruPageHeader>
                 <ZoruButton size="sm" onClick={handleSave} disabled={saving}>
                     {saving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                    {saving ? 'Saving…' : 'Save'}
+                    {saving ? t('common.saving') : t('action.save')}
                 </ZoruButton>
             </div>
 
@@ -112,26 +114,26 @@ export default function AppearanceSettingsPage() {
             <ZoruCard className="p-6">
                 <SectionTitle
                     icon={<Eye className="h-4 w-4" />}
-                    title="Theme"
-                    description="Pick a color mode. System follows your OS setting."
+                    title={t('settings.appearance.theme.title')}
+                    description={t('settings.appearance.theme.description')}
                 />
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                     <ThemeTile
                         selected={prefs.theme === 'system'}
                         icon={<Monitor className="h-5 w-5" />}
-                        label="System"
+                        label={t('settings.appearance.theme.system')}
                         onClick={() => setPrefs({ ...prefs, theme: 'system' })}
                     />
                     <ThemeTile
                         selected={prefs.theme === 'light'}
                         icon={<Sun className="h-5 w-5" />}
-                        label="Light"
+                        label={t('settings.appearance.theme.light')}
                         onClick={() => setPrefs({ ...prefs, theme: 'light' })}
                     />
                     <ThemeTile
                         selected={prefs.theme === 'dark'}
                         icon={<Moon className="h-5 w-5" />}
-                        label="Dark"
+                        label={t('settings.appearance.theme.dark')}
                         onClick={() => setPrefs({ ...prefs, theme: 'dark' })}
                     />
                 </div>
@@ -141,20 +143,20 @@ export default function AppearanceSettingsPage() {
             <ZoruCard className="p-6">
                 <SectionTitle
                     icon={<Eye className="h-4 w-4" />}
-                    title="Density"
-                    description="Adjust list row spacing to fit more content on screen."
+                    title={t('settings.appearance.density.title')}
+                    description={t('settings.appearance.density.description')}
                 />
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <DensityTile
                         selected={prefs.density === 'comfortable'}
-                        label="Comfortable"
-                        description="Roomy spacing with generous padding."
+                        label={t('settings.appearance.density.comfortable.label')}
+                        description={t('settings.appearance.density.comfortable.description')}
                         onClick={() => setPrefs({ ...prefs, density: 'comfortable' })}
                     />
                     <DensityTile
                         selected={prefs.density === 'compact'}
-                        label="Compact"
-                        description="Tighter rows, more data per screen."
+                        label={t('settings.appearance.density.compact.label')}
+                        description={t('settings.appearance.density.compact.description')}
                         onClick={() => setPrefs({ ...prefs, density: 'compact' })}
                     />
                 </div>
@@ -164,21 +166,21 @@ export default function AppearanceSettingsPage() {
             <ZoruCard className="p-6">
                 <SectionTitle
                     icon={<Eye className="h-4 w-4" />}
-                    title="Motion & navigation"
-                    description="Fine-tune how the UI behaves around you."
+                    title={t('settings.appearance.motion.title')}
+                    description={t('settings.appearance.motion.description')}
                 />
                 <ul className="divide-y divide-zoru-line">
                     <Row
                         id="collapsed"
-                        label="Collapse sidebar by default"
-                        description="Start each session with the sidebar minimized."
+                        label={t('settings.appearance.motion.sidebar.label')}
+                        description={t('settings.appearance.motion.sidebar.description')}
                         checked={prefs.sidebarCollapsed}
                         onChange={(v) => setPrefs({ ...prefs, sidebarCollapsed: v })}
                     />
                     <Row
                         id="reduced-motion"
-                        label="Reduce motion"
-                        description="Minimize animations and transitions."
+                        label={t('settings.appearance.motion.reducedMotion.label')}
+                        description={t('settings.appearance.motion.reducedMotion.description')}
                         checked={prefs.reducedMotion}
                         onChange={(v) => setPrefs({ ...prefs, reducedMotion: v })}
                     />
