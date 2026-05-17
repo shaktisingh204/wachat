@@ -14,7 +14,9 @@
 
 import {
   useCallback,
+  useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from 'react';
@@ -23,6 +25,7 @@ import {
   LuChevronRight,
   LuCircleAlert,
   LuCircleCheck,
+  LuCircleX,
   LuLoader,
   LuPlay,
 } from 'react-icons/lu';
@@ -33,6 +36,7 @@ import {
 } from '@/lib/sabflow/execution/nodeData';
 import { useNodeContext } from '@/lib/sabflow/execution/useNodeContext';
 import type { Block, SabFlowDoc } from '@/lib/sabflow/types';
+import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { PinDataButton } from '@/components/sabflow/panels/blocks/shared/PinDataButton';
 
@@ -307,6 +311,119 @@ function ResultPanel({
   );
 }
 
+/* ── Live trace (SSE) ────────────────────────────────────────────────────── */
+
+/**
+ * Shape of a single step entry rendered in the live-trace list. Built from
+ * the per-node entries inside the `ExecutionHistoryEntry` snapshots/updates
+ * pushed by `/api/sabflow/executions/[id]/stream`.
+ */
+type LiveTraceStep = {
+  blockId?: string;
+  blockType?: string;
+  status?: string;
+  durationMs?: number;
+  index?: number;
+};
+
+/** Statuses that mean the execution is finished and the stream should close. */
+const TERMINAL_EXEC_STATUSES = new Set(['success', 'error', 'cancelled']);
+
+/**
+ * Envelope produced by the SSE route. Each message payload is one of:
+ *   { type: 'snapshot' | 'update', data: ExecutionHistoryEntry }
+ *   { type: 'timeout' }
+ *   { error: string }
+ */
+type StreamEnvelope =
+  | { type: 'snapshot'; data: StreamExecutionData }
+  | { type: 'update'; data: StreamExecutionData }
+  | { type: 'timeout' }
+  | { error: string };
+
+type StreamExecutionData = {
+  status?: string;
+  nodes?: Array<{
+    blockId?: string;
+    blockType?: string;
+    status?: string;
+    durationMs?: number;
+  }>;
+};
+
+/**
+ * Pull an executionId off a `TestNodeResult`. `testNode()` runs in-browser
+ * today and doesn't surface one, but the runner is allowed to attach extra
+ * fields — when present we open an EventSource. When absent the live-trace
+ * subsystem is a no-op.
+ */
+function extractExecutionId(result: TestNodeResult | null): string | null {
+  if (!result) return null;
+  const maybe = (result as unknown as { executionId?: unknown }).executionId;
+  return typeof maybe === 'string' && maybe.length > 0 ? maybe : null;
+}
+
+/** Map the server's per-node entries into the panel's LiveTraceStep shape. */
+function nodesToSteps(
+  nodes: StreamExecutionData['nodes'],
+): LiveTraceStep[] {
+  if (!Array.isArray(nodes)) return [];
+  return nodes.map((n, i) => ({
+    blockId: n.blockId,
+    blockType: n.blockType,
+    status: n.status,
+    durationMs: n.durationMs,
+    index: i,
+  }));
+}
+
+function LiveTraceStatusIcon({ status }: { status?: string }) {
+  if (status === 'success') {
+    return <LuCircleCheck className="h-3 w-3 shrink-0 text-emerald-500" strokeWidth={2} />;
+  }
+  if (status === 'error') {
+    return <LuCircleX className="h-3 w-3 shrink-0 text-red-500" strokeWidth={2} />;
+  }
+  return (
+    <LuLoader
+      className="h-3 w-3 shrink-0 animate-spin text-[var(--gray-10)]"
+      strokeWidth={2}
+    />
+  );
+}
+
+function LiveTraceList({ steps }: { steps: LiveTraceStep[] }) {
+  if (steps.length === 0) {
+    return (
+      <div className="rounded-md border border-dashed border-[var(--gray-5)] px-3 py-2 text-[11.5px] text-[var(--gray-9)]">
+        Waiting for step events…
+      </div>
+    );
+  }
+  return (
+    <ul className="space-y-1">
+      {steps.map((step, i) => (
+        <li
+          // Live trace is append-only per run; index is stable.
+          // eslint-disable-next-line react/no-array-index-key
+          key={`${step.blockId ?? 'step'}-${i}`}
+          className="flex items-center gap-2 rounded border border-[var(--gray-5)] bg-[var(--gray-2)] px-2 py-1 text-[11px] text-[var(--gray-11)]"
+        >
+          <LiveTraceStatusIcon status={step.status} />
+          <span className="font-mono text-[var(--gray-12)]">
+            {step.blockType ?? step.blockId ?? 'step'}
+          </span>
+          <span className="text-[var(--gray-9)]">·</span>
+          <span className="text-[var(--gray-10)]">{step.status ?? 'running'}</span>
+          <span className="ml-auto tabular-nums text-[10.5px] text-[var(--gray-9)]">
+            {typeof step.durationMs === 'number' ? `${step.durationMs}ms` : '—'}
+          </span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 /* ── Main panel ──────────────────────────────────────────────────────────── */
 
 function TestNodePanelInner({ block, flow, onBlockChange }: TestNodePanelProps) {
@@ -314,6 +431,7 @@ function TestNodePanelInner({ block, flow, onBlockChange }: TestNodePanelProps) 
   const recordResult = useNodeDataStore((s) => s.recordResult);
   const cached = useNodeDataStore((s) => s.entries[block.id]);
   const upstreamEntries = useNodeDataStore((s) => s.entries);
+  const { toast } = useToast();
 
   const [tab, setTab] = useState<Tab>('input');
   const [inputText, setInputText] = useState<string>(() =>
@@ -333,6 +451,23 @@ function TestNodePanelInner({ block, flow, onBlockChange }: TestNodePanelProps) 
     () => cached?.lastResult ?? null,
   );
 
+  /*
+   * Live trace via Server-Sent Events.
+   *
+   * Feature-flag-guarded: only activates when `testNode()` surfaces an
+   * `executionId` on its result. When present, an EventSource subscribes
+   * to /api/sabflow/executions/[id]/stream and rebuilds the per-node trace
+   * from each incoming snapshot/update payload (which carries the full
+   * execution row, including the `nodes` array). The stream closes once
+   * the execution reaches a terminal status, on a hard EventSource error
+   * (one-time toast, no auto-reconnect), and on unmount.
+   */
+  const [liveSteps, setLiveSteps] = useState<LiveTraceStep[]>([]);
+  const liveExecutionId = extractExecutionId(result);
+  const liveTraceEnabled = liveExecutionId !== null;
+  /** Guards the one-time error toast across re-renders during a single run. */
+  const streamErrorNotifiedRef = useRef(false);
+
   const inputParsed = useMemo(() => parseJson(inputText), [inputText]);
   const variablesParsed = useMemo(
     () => parseJson(variablesText),
@@ -350,6 +485,10 @@ function TestNodePanelInner({ block, flow, onBlockChange }: TestNodePanelProps) 
   const handleExecute = useCallback(async () => {
     if (parseError) return;
     setStatus('running');
+    // Clear any previous live-trace entries and re-arm the one-time
+    // stream-error toast guard on every new run.
+    setLiveSteps([]);
+    streamErrorNotifiedRef.current = false;
 
     const pinnedUpstream: Record<string, unknown> = {};
     const upstreamIds = getUpstreamBlockIds(flow, block.id);
@@ -373,6 +512,91 @@ function TestNodePanelInner({ block, flow, onBlockChange }: TestNodePanelProps) 
       inputParsed.value,
     );
   }, [parseError, block, flow, inputParsed.value, variablesParsed.value, upstreamEntries, recordResult]);
+
+  /*
+   * SSE subscription for live per-node trace.
+   *
+   * Mirrors the wire format produced by `/api/sabflow/executions/[id]/stream`:
+   * each message is the default (unnamed) SSE event whose `data` is a JSON
+   * envelope of `{ type: 'snapshot' | 'update', data }`, `{ type: 'timeout' }`,
+   * or `{ error }`. The handler rebuilds the trace from `data.nodes` and
+   * closes the stream when the execution reaches a terminal status, on a
+   * `timeout`/`error` payload, on a hard EventSource failure (one-time toast),
+   * and on component unmount.
+   */
+  useEffect(() => {
+    if (!liveTraceEnabled || !liveExecutionId) return;
+
+    const src = new EventSource(
+      `/api/sabflow/executions/${liveExecutionId}/stream`,
+    );
+
+    const finish = () => {
+      // Idempotent close — readyState becomes CLOSED, future events are
+      // suppressed by the browser, and the unmount cleanup is a no-op.
+      src.close();
+    };
+
+    const onMessage = (e: MessageEvent) => {
+      let envelope: StreamEnvelope;
+      try {
+        envelope = JSON.parse(e.data) as StreamEnvelope;
+      } catch {
+        return; // malformed payload — ignore
+      }
+
+      if ('error' in envelope) {
+        if (!streamErrorNotifiedRef.current) {
+          streamErrorNotifiedRef.current = true;
+          toast({
+            title: 'Live trace unavailable',
+            description: envelope.error,
+            variant: 'destructive',
+          });
+        }
+        finish();
+        return;
+      }
+
+      if (envelope.type === 'timeout') {
+        finish();
+        return;
+      }
+
+      // snapshot | update — both carry the full execution row in `data`.
+      const exec = envelope.data;
+      setLiveSteps(nodesToSteps(exec?.nodes));
+      if (exec?.status && TERMINAL_EXEC_STATUSES.has(exec.status)) {
+        finish();
+      }
+    };
+
+    const onError = () => {
+      // EventSource auto-reconnects on transient drops; only treat a hard
+      // CLOSED state as fatal. Show the toast once per run, then stop —
+      // the browser would otherwise reconnect indefinitely.
+      if (src.readyState === EventSource.CLOSED) {
+        if (!streamErrorNotifiedRef.current) {
+          streamErrorNotifiedRef.current = true;
+          toast({
+            title: 'Live trace disconnected',
+            description: 'Lost connection to the execution stream.',
+            variant: 'destructive',
+          });
+        }
+        finish();
+      }
+    };
+
+    src.addEventListener('message', onMessage);
+    src.addEventListener('error', onError);
+
+    return () => {
+      src.removeEventListener('message', onMessage);
+      src.removeEventListener('error', onError);
+      src.close();
+    };
+  }, [liveTraceEnabled, liveExecutionId, toast]);
 
   const activeText = tab === 'input' ? inputText : variablesText;
   const activeError =
@@ -465,6 +689,29 @@ function TestNodePanelInner({ block, flow, onBlockChange }: TestNodePanelProps) 
           onBlockChange ? () => onBlockChange({ pinData: undefined }) : undefined
         }
       />
+
+      {/*
+        Step 37 — Live trace. Only renders when the runner surfaced an
+        executionId. List grows as `step` events arrive over SSE; cleared
+        on each new test run.
+      */}
+      {liveTraceEnabled ? (
+        <div>
+          <div className="mb-1 flex items-center gap-2 text-[10.5px] font-semibold uppercase tracking-wide text-[var(--gray-10)]">
+            <span>Live trace</span>
+            {status === 'running' ? (
+              <LuLoader
+                className="h-3 w-3 animate-spin text-[#f76808]"
+                strokeWidth={2}
+              />
+            ) : null}
+            <span className="ml-auto font-mono text-[10px] normal-case tracking-normal text-[var(--gray-9)]">
+              {liveSteps.length} {liveSteps.length === 1 ? 'step' : 'steps'}
+            </span>
+          </div>
+          <LiveTraceList steps={liveSteps} />
+        </div>
+      ) : null}
     </div>
   );
 }

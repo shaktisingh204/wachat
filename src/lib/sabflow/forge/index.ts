@@ -23,6 +23,12 @@ import './blocks/agent-conditional';
 import './blocks/shims';
 // Step 29 — net-new n8n-parity integrations.
 import './blocks/parity';
+// Agent A1 — 20 more shim executors (Asana, Linear, Jira, GitLab, …).
+import './blocks/shims2';
+// Agent A2 — 10 net-new integrations (HubSpot, Calendly, Pinecone, …).
+import './blocks/parity2';
+// Agent B9 — 10 more integrations (Cloudflare, Vercel, Linode, Heroku, …).
+import './blocks/parity3';
 // Step 39 — native database blocks (Postgres / MySQL / MongoDB / Redis).
 import './blocks/databases';
 
@@ -847,6 +853,28 @@ import './blocks/n8n/langchain_agent/sentiment_analysis';
 import './blocks/n8n/langchain_agent/text_classifier';
 import './blocks/n8n/langchain_agent/tool_executor';
 import './blocks/n8n/langchain_agent/output_parser_json';
+
+// gap_c — additional bespoke integrations (~20 most-requested services)
+import './blocks/n8n/gap_c/calendly';
+import './blocks/n8n/gap_c/typeform';
+import './blocks/n8n/gap_c/postmark';
+import './blocks/n8n/gap_c/resend';
+import './blocks/n8n/gap_c/mixpanel';
+import './blocks/n8n/gap_c/upstash_redis';
+import './blocks/n8n/gap_c/upstash_qstash';
+import './blocks/n8n/gap_c/cloudflare_kv';
+import './blocks/n8n/gap_c/pinecone_vector';
+import './blocks/n8n/gap_c/onesignal';
+import './blocks/n8n/gap_c/exa_search';
+import './blocks/n8n/gap_c/tavily_search';
+import './blocks/n8n/gap_c/firecrawl';
+import './blocks/n8n/gap_c/brave_search';
+import './blocks/n8n/gap_c/algolia';
+import './blocks/n8n/gap_c/meilisearch';
+import './blocks/n8n/gap_c/typesense';
+import './blocks/n8n/gap_c/tally';
+import './blocks/n8n/gap_c/groq';
+import './blocks/n8n/gap_c/openrouter';
 
 // Wave 24 — Deprecated / training
 import './blocks/n8n/deprecated/compare_datasets';

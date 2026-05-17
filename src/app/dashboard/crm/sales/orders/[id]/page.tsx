@@ -38,8 +38,12 @@ import { CrmPageHeader } from '../../../_components/crm-page-header';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { LineageRail } from '@/components/crm/lineage-rail';
+import { RelatedRail } from '@/components/crm/RelatedRail';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
-import { getSalesOrder } from '@/app/actions/crm/sales-orders.actions';
+import {
+  getCrmSalesOrderRelatedCounts,
+  getSalesOrder,
+} from '@/app/actions/crm/sales-orders.actions';
 import { SalesOrdersDetailFulfillment } from '../_components/sales-orders-detail-fulfillment';
 import type { LineageRef } from '@/lib/definitions';
 
@@ -87,7 +91,10 @@ export default async function SalesOrderDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const { order, error } = await getSalesOrder(id);
+  const [{ order, error }, relatedCounts] = await Promise.all([
+    getSalesOrder(id),
+    getCrmSalesOrderRelatedCounts(id),
+  ]);
 
   if (!order) {
     if (error) {
@@ -349,6 +356,23 @@ export default async function SalesOrderDetailPage({
               status: order.status,
             }}
             lineage={lineage}
+          />
+
+          <RelatedRail
+            items={[
+              {
+                label: 'Delivery challans',
+                count: relatedCounts.deliveryChallans,
+                icon: <Truck className="h-3.5 w-3.5" />,
+                href: `/dashboard/crm/sales/delivery-challans?salesOrderId=${id}`,
+              },
+              {
+                label: 'Invoices',
+                count: relatedCounts.invoices,
+                icon: <Receipt className="h-3.5 w-3.5" />,
+                href: `/dashboard/crm/sales/invoices?salesOrderId=${id}`,
+              },
+            ]}
           />
 
           <ZoruCard className="p-4 text-[11.5px] text-zoru-ink-muted">

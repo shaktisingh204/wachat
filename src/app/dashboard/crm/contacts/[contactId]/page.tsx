@@ -2,7 +2,10 @@
 
 import { useEffect, useState, useTransition } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { getCrmContactById } from '@/app/actions/crm.actions';
+import {
+  getCrmContactById,
+  getCrmContactRelatedCounts,
+} from '@/app/actions/crm.actions';
 import { getCrmAccountById } from '@/app/actions/crm-accounts.actions';
 import { getCrmDeals } from '@/app/actions/crm-deals.actions';
 import type { CrmContact, WithId, CrmAccount, CrmDeal } from '@/lib/definitions';
@@ -13,10 +16,17 @@ import {
   Phone,
   MessageSquare,
   Users,
+  Handshake,
+  ListChecks,
+  StickyNote,
+  LifeBuoy,
+  Receipt,
+  Paperclip,
 } from 'lucide-react';
 import { CrmNotes } from '@/components/wabasimplify/crm-notes';
 import Link from 'next/link';
 import { ComposeEmailDialog } from '@/components/wabasimplify/crm-compose-email-dialog';
+import { RelatedRail } from '@/components/crm/RelatedRail';
 
 import {
   ZoruAvatar,
@@ -60,6 +70,14 @@ export default function CrmContactDetailPage() {
   const [contact, setContact] = useState<WithId<CrmContact> | null>(null);
   const [account, setAccount] = useState<WithId<CrmAccount> | null>(null);
   const [deals, setDeals] = useState<WithId<CrmDeal>[]>([]);
+  const [relatedCounts, setRelatedCounts] = useState<{
+    deals: number;
+    tasks: number;
+    notes: number;
+    tickets: number;
+    invoices: number;
+    attachments: number;
+  }>({ deals: 0, tasks: 0, notes: 0, tickets: 0, invoices: 0, attachments: 0 });
   const [isLoading, startTransition] = useTransition();
   const [isComposeOpen, setIsComposeOpen] = useState(false);
 
@@ -81,6 +99,12 @@ export default function CrmContactDetailPage() {
               ),
             ),
           );
+        }
+        try {
+          const counts = await getCrmContactRelatedCounts(contactId);
+          setRelatedCounts(counts);
+        } catch {
+          /* leave zeros */
         }
       });
     }
@@ -243,6 +267,47 @@ export default function CrmContactDetailPage() {
               recordId={contact._id.toString()}
               recordType="contact"
               notes={contact.notes || []}
+            />
+
+            <RelatedRail
+              items={[
+                {
+                  label: 'Deals',
+                  count: relatedCounts.deals,
+                  icon: <Handshake className="h-3.5 w-3.5" />,
+                  href: `/dashboard/crm/sales-crm/deals?contactId=${contactId}`,
+                },
+                {
+                  label: 'Tasks',
+                  count: relatedCounts.tasks,
+                  icon: <ListChecks className="h-3.5 w-3.5" />,
+                  href: `/dashboard/crm/tasks?contactId=${contactId}`,
+                },
+                {
+                  label: 'Notes',
+                  count: relatedCounts.notes,
+                  icon: <StickyNote className="h-3.5 w-3.5" />,
+                  href: `/dashboard/crm/contacts/${contactId}`,
+                },
+                {
+                  label: 'Tickets',
+                  count: relatedCounts.tickets,
+                  icon: <LifeBuoy className="h-3.5 w-3.5" />,
+                  href: `/dashboard/crm/tickets?contactId=${contactId}`,
+                },
+                {
+                  label: 'Invoices',
+                  count: relatedCounts.invoices,
+                  icon: <Receipt className="h-3.5 w-3.5" />,
+                  href: `/dashboard/crm/sales/invoices?contactId=${contactId}`,
+                },
+                {
+                  label: 'Attachments',
+                  count: relatedCounts.attachments,
+                  icon: <Paperclip className="h-3.5 w-3.5" />,
+                  href: `/dashboard/crm/files?entity=contact&entityId=${contactId}`,
+                },
+              ]}
             />
           </div>
 

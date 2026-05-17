@@ -699,3 +699,83 @@ export async function updateWsTaskColumn(
     return { success: false, error: e?.message || 'Failed to move task' };
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+ *  Right-rail counts (§5.6) for the project detail page.
+ *  Tasks · milestones · issues · time-logs · attachments.
+ *  All counts tenant-scoped (`userId`). Returns zeros on failure.
+ * ══════════════════════════════════════════════════════════════════ */
+
+export async function getCrmProjectRelatedCounts(projectId: string): Promise<{
+  tasks: number;
+  milestones: number;
+  issues: number;
+  timeLogs: number;
+  attachments: number;
+}> {
+  const empty = { tasks: 0, milestones: 0, issues: 0, timeLogs: 0, attachments: 0 };
+  if (!projectId) return empty;
+
+  const { ObjectId } = await import('mongodb');
+  const { connectToDatabase } = await import('@/lib/mongodb');
+  const { getSession } = await import('@/app/actions/user.actions');
+
+  const session = await getSession();
+  if (!session?.user) return empty;
+
+  try {
+    const { db } = await connectToDatabase();
+    const userId = new ObjectId(String(session.user._id));
+    const idCandidates: unknown[] = [projectId];
+    if (ObjectId.isValid(projectId)) idCandidates.push(new ObjectId(projectId));
+
+    const [tasks, milestones, issues, timeLogs, attachments] = await Promise.all([
+      db
+        .collection('crm_tasks')
+        .countDocuments({
+          userId,
+          projectId: { $in: idCandidates },
+        } as Record<string, unknown>)
+        .catch(() => 0),
+      db
+        .collection('crm_project_milestones')
+        .countDocuments({
+          userId,
+          projectId: { $in: idCandidates },
+        } as Record<string, unknown>)
+        .catch(() => 0),
+      db
+        .collection('crm_issues')
+        .countDocuments({
+          userId,
+          projectId: { $in: idCandidates },
+        } as Record<string, unknown>)
+        .catch(() => 0),
+      db
+        .collection('crm_time_logs')
+        .countDocuments({
+          userId,
+          projectId: { $in: idCandidates },
+        } as Record<string, unknown>)
+        .catch(() => 0),
+      db
+        .collection('crm_project_files')
+        .countDocuments({
+          userId,
+          projectId: { $in: idCandidates },
+        } as Record<string, unknown>)
+        .catch(() => 0),
+    ]);
+
+    return {
+      tasks: Number(tasks) || 0,
+      milestones: Number(milestones) || 0,
+      issues: Number(issues) || 0,
+      timeLogs: Number(timeLogs) || 0,
+      attachments: Number(attachments) || 0,
+    };
+  } catch (e) {
+    console.error('[getCrmProjectRelatedCounts] failed:', e);
+    return empty;
+  }
+}

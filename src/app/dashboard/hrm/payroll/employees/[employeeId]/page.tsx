@@ -28,12 +28,26 @@
 
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, PenLine, PlaneTakeoff, StickyNote } from 'lucide-react';
+import {
+  ArrowLeft,
+  PenLine,
+  PlaneTakeoff,
+  StickyNote,
+  ListChecks,
+  CalendarCheck,
+  FileText,
+  Package,
+  Banknote,
+} from 'lucide-react';
 
 import { ZoruButton, ZoruCard } from '@/components/zoruui';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
-import { getEmployee } from '@/app/actions/crm/employees.actions';
+import { RelatedRail } from '@/components/crm/RelatedRail';
+import {
+  getEmployee,
+  getCrmEmployeeRelatedCounts,
+} from '@/app/actions/crm/employees.actions';
 import { getCustomFieldsFor } from '@/app/actions/worksuite/meta.actions';
 import { crmEmployeesApi } from '@/lib/rust-client/crm-employees';
 import type { WsCustomField } from '@/lib/worksuite/meta-types';
@@ -68,9 +82,10 @@ export default async function EmployeeDetailPage({
   params: Promise<{ employeeId: string }>;
 }) {
   const { employeeId } = await params;
-  const [{ employee, error }, customFields] = await Promise.all([
+  const [{ employee, error }, customFields, relatedCounts] = await Promise.all([
     getEmployee(employeeId),
     getCustomFieldsFor('employee') as Promise<WsCustomField[]>,
+    getCrmEmployeeRelatedCounts(employeeId),
   ]);
 
   if (!employee) {
@@ -222,6 +237,47 @@ export default async function EmployeeDetailPage({
               )}
             </div>
           </ZoruCard>
+
+          <RelatedRail
+            items={[
+              {
+                label: 'Tasks',
+                count: relatedCounts.tasks,
+                icon: <ListChecks className="h-3.5 w-3.5" />,
+                href: `/dashboard/crm/tasks?employeeId=${employeeId}`,
+              },
+              {
+                label: 'Leaves',
+                count: relatedCounts.leaves,
+                icon: <PlaneTakeoff className="h-3.5 w-3.5" />,
+                href: `/dashboard/crm/hr-payroll/leave?employeeId=${employeeId}`,
+              },
+              {
+                label: 'Attendance',
+                count: relatedCounts.attendance,
+                icon: <CalendarCheck className="h-3.5 w-3.5" />,
+                href: `/dashboard/crm/hr-payroll/attendance?employeeId=${employeeId}`,
+              },
+              {
+                label: 'Documents',
+                count: relatedCounts.documents,
+                icon: <FileText className="h-3.5 w-3.5" />,
+                href: `/dashboard/crm/hr/documents?employeeId=${employeeId}`,
+              },
+              {
+                label: 'Assets',
+                count: relatedCounts.assets,
+                icon: <Package className="h-3.5 w-3.5" />,
+                href: `/dashboard/crm/hr/asset-assignments?employeeId=${employeeId}`,
+              },
+              {
+                label: 'Payslips',
+                count: relatedCounts.payslips,
+                icon: <Banknote className="h-3.5 w-3.5" />,
+                href: `/dashboard/crm/hr-payroll/payslips?employeeId=${employeeId}`,
+              },
+            ]}
+          />
         </>
       }
     >

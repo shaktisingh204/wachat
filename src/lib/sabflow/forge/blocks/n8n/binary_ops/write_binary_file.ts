@@ -4,29 +4,16 @@
  * Source: n8n-master/packages/nodes-base/nodes/WriteBinaryFile/WriteBinaryFile.node.ts
  *
  * STATUS:
- *   • `write`          — disk-IO stub; remains disabled.
+ *   • `write`          — disk-IO; remains disabled by policy. The SabFlow
+ *                        engine refuses to expose the host filesystem to
+ *                        tenant flows — use the SabFile / presigned-URL paths
+ *                        instead.
  *   • `write_to_url`   — generic presigned-URL uploader, works for S3 / R2 /
  *                        GCS as long as the caller already has a presigned
  *                        PUT/POST URL.
- *   • `write_sabfile`  — STATUS REPORT, not yet wired.
- *
- *   A real `write_sabfile(name, base64Data, contentType?)` action requires
- *   tenant identity (`userId`) so the new file lands inside the correct
- *   user's R2 namespace and is recorded in their Mongo `sabfiles_nodes`
- *   collection. The two pieces this needs:
- *
- *     1. `ForgeActionContext.tenant.userId` — see the matching note in
- *        `./read_binary_files.ts`. Currently absent.
- *     2. A worker-safe Rust BFF call. Two options once tenant is plumbed:
- *        a. `rustFetch` with a hand-minted JWT
- *           (`issueRustJwt({ userId: ctx.tenant.userId })`) — sidesteps
- *           the `cookies()` requirement of the standard fetcher.
- *        b. Write directly to R2 with `uploadToR2(...)` from
- *           `@/lib/r2.ts` (worker-safe), then call the Rust BFF's
- *           `confirmUpload` to record the Mongo node.
- *
- *   Until tenant plumbing lands this action throws a clear "pending" error
- *   pointing at this header.
+ *   • `write_sabfile`  — uploads base64 bytes into the caller's SabFile
+ *                        library via the Rust BFF (presign → PUT → confirm),
+ *                        with a worker-safe JWT minted from `ctx.userId`.
  */
 
 import { registerForgeBlock } from '../../../registry';
@@ -37,18 +24,146 @@ import type {
 } from '../../../types';
 import { asString } from '../_shared/http';
 
-const NEEDS_TENANT_PLUMBING =
-  'WriteBinaryFile write_sabfile: requires tenant identity in ForgeActionContext. ' +
-  'See file header for the wiring checklist; for now use write_to_url with a presigned R2 PUT URL.';
-
 async function write(_ctx: ForgeActionContext): Promise<ForgeActionResult> {
   throw new Error(
     'WriteBinaryFile: server-side file IO is disabled in SabFlow. Use SabFiles via the @/components/sabfiles components for tenant-isolated storage.',
   );
 }
 
-async function writeSabfile(_ctx: ForgeActionContext): Promise<ForgeActionResult> {
-  throw new Error(NEEDS_TENANT_PLUMBING);
+/**
+ * Mint a short-lived Rust JWT for the calling workspace and POST `path` with
+ * the supplied JSON body, returning the typed response.
+ *
+ * Forge actions run inside the BullMQ worker which has no Next.js request
+ * context (`cookies()` would throw). We therefore bypass `rustFetch` and call
+ * the BFF directly with a JWT issued from `ctx.userId`.
+ */
+async function rustWorkerFetch<T>(
+  ctx: ForgeActionContext,
+  path: string,
+  init: RequestInit,
+): Promise<T> {
+  if (!ctx.userId) {
+    throw new Error('WriteBinaryFile: ctx.userId missing — cannot mint Rust JWT.');
+  }
+  const { issueRustJwt } = await import('@/lib/jwt-for-rust');
+  const token = await issueRustJwt({
+    userId: ctx.userId,
+    tenantId: ctx.userId,
+    roles: [],
+  });
+  const base = process.env.RUST_API_URL || 'http://localhost:8080';
+  const headers = new Headers(init.headers);
+  headers.set('Authorization', `Bearer ${token}`);
+  if (!headers.has('Accept')) headers.set('Accept', 'application/json');
+  const res = await fetch(`${base}${path}`, { ...init, headers, cache: 'no-store' });
+  if (!res.ok) {
+    let detail = '';
+    try {
+      const body = await res.text();
+      detail = body.length > 300 ? `${body.slice(0, 300)}…` : body;
+    } catch {
+      /* ignore */
+    }
+    throw new Error(`WriteBinaryFile: Rust BFF ${res.status} ${res.statusText} — ${detail}`);
+  }
+  return (await res.json()) as T;
+}
+
+async function writeSabfile(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const name = asString(ctx.options.name).trim();
+  const base64 = asString(ctx.options.base64Data);
+  const contentType = asString(ctx.options.contentType) || 'application/octet-stream';
+  const folderId = asString(ctx.options.folderId).trim();
+  if (!name) throw new Error('WriteBinaryFile: name is required');
+  if (!base64) throw new Error('WriteBinaryFile: base64Data is required');
+  if (!ctx.userId) {
+    throw new Error(
+      'WriteBinaryFile: caller userId is missing — SabFile uploads require authenticated context.',
+    );
+  }
+
+  const buf = Buffer.from(base64, 'base64');
+  const size = buf.length;
+  if (size === 0) throw new Error('WriteBinaryFile: decoded base64 payload is empty');
+
+  // 1. Presign — get an upload URL + R2 key from the BFF.
+  type PresignResponse = {
+    upload_url: string;
+    key: string;
+    method: string;
+    headers: Record<string, string>;
+    expires_in: number;
+  };
+  const presign = await rustWorkerFetch<PresignResponse>(ctx, '/v1/sabfiles/upload/presign', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      name,
+      size,
+      mime: contentType,
+      parent_id: folderId || null,
+    }),
+  });
+
+  // 2. Upload bytes directly to R2 with the presigned URL. The BFF returns
+  //    the exact method + headers required (typically PUT with content-type),
+  //    so we forward them verbatim.
+  const uploadHeaders = new Headers(presign.headers ?? {});
+  if (!uploadHeaders.has('Content-Type')) {
+    uploadHeaders.set('Content-Type', contentType);
+  }
+  const uploadRes = await fetch(presign.upload_url, {
+    method: (presign.method || 'PUT').toUpperCase(),
+    headers: uploadHeaders,
+    body: new Uint8Array(buf),
+  });
+  if (!uploadRes.ok) {
+    const txt = await uploadRes.text().catch(() => '');
+    const clip = txt.length > 300 ? `${txt.slice(0, 300)}…` : txt;
+    throw new Error(
+      `WriteBinaryFile: R2 upload failed (${uploadRes.status} ${uploadRes.statusText}): ${clip}`,
+    );
+  }
+
+  // 3. Confirm — record the new node in the SabFiles collection.
+  type ConfirmResponse = {
+    node: {
+      _id: string;
+      id: string;
+      name: string;
+      size?: number;
+      mime?: string;
+      r2Key?: string;
+      parentId: string | null;
+      createdAt: string;
+    };
+  };
+  const confirmed = await rustWorkerFetch<ConfirmResponse>(ctx, '/v1/sabfiles/upload/confirm', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      key: presign.key,
+      name,
+      size,
+      mime: contentType,
+      parent_id: folderId || null,
+    }),
+  });
+
+  return {
+    outputs: {
+      id: confirmed.node.id,
+      name: confirmed.node.name,
+      size: confirmed.node.size ?? size,
+      mime: confirmed.node.mime ?? contentType,
+      parentId: confirmed.node.parentId,
+      createdAt: confirmed.node.createdAt,
+    },
+    logs: [
+      `WriteBinaryFile write_sabfile → ${name} (${size}B, ${contentType}) → ${confirmed.node.id}`,
+    ],
+  };
 }
 
 async function writeToUrl(ctx: ForgeActionContext): Promise<ForgeActionResult> {
@@ -63,7 +178,7 @@ async function writeToUrl(ctx: ForgeActionContext): Promise<ForgeActionResult> {
   const res = await fetch(url, {
     method,
     headers: { 'Content-Type': contentType },
-    body: buf,
+    body: new Uint8Array(buf),
   });
   if (!res.ok) {
     const txt = await res.text();
@@ -117,9 +232,8 @@ const block: ForgeBlock = {
     },
     {
       id: 'write_sabfile',
-      label: 'Write SabFile (pending)',
-      description:
-        'Upload base64 bytes into the current user\'s SabFiles. Pending: tenant identity must be plumbed into ForgeActionContext first.',
+      label: 'Write SabFile',
+      description: 'Upload base64 bytes into the workspace\'s SabFile library (presign → PUT → confirm).',
       fields: [
         { id: 'name', label: 'File name', type: 'text', required: true, placeholder: 'report.pdf' },
         { id: 'base64Data', label: 'Base64 data', type: 'textarea', required: true },

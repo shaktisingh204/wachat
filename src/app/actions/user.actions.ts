@@ -300,6 +300,7 @@ export async function handleUpdateUserProfile(prevState: { message?: string; err
         const name = formData.get('name') as string;
         const tagsJSON = formData.get('tags') as string | null;
         const appRailPosition = formData.get('appRailPosition') as 'left' | 'top' | null;
+        const language = formData.get('language') as string | null;
 
         const businessName = formData.get('businessName') as string | null;
         const businessAddress = formData.get('businessAddress') as string | null;
@@ -307,6 +308,12 @@ export async function handleUpdateUserProfile(prevState: { message?: string; err
 
         if (name) updateData.name = name;
         if (appRailPosition) updateData.appRailPosition = appRailPosition;
+        // Persist the locale preference so the dashboard layout's
+        // `getCurrentLocale()` picks it up on the next request. The
+        // profile form already collects this — historically it was
+        // dropped on the floor, which is why the language Select
+        // appeared to be a no-op.
+        if (language) updateData.language = language;
         if (tagsJSON) {
             const parsedTags = JSON.parse(tagsJSON).map((tag: any) => ({
                 _id: tag._id && !tag._id.startsWith('temp_') ? new ObjectId(tag._id) : new ObjectId(),

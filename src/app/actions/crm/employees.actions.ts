@@ -11,6 +11,9 @@
  */
 
 import { revalidatePath } from 'next/cache';
+import { ObjectId } from 'mongodb';
+import { connectToDatabase } from '@/lib/mongodb';
+import { getSession } from '@/app/actions/user.actions';
 import { RustApiError } from '@/lib/rust-client';
 import { requirePermission } from '@/lib/rbac-server';
 import {
@@ -303,4 +306,98 @@ export async function updateEmployee(id: string, patch: CrmEmployeeUpdateInput) 
 
 export async function deleteEmployee(id: string) {
   return crmEmployeesApi.delete(id);
+}
+
+/* ─── getCrmEmployeeRelatedCounts ───────────────────────────────────────
+ * Right-rail counts (§5.6) for the employee detail page. Tasks, leaves,
+ * attendance, documents, assigned assets, and payslips for this
+ * employee — all tenant-scoped on `userId`. Returns zeros on any
+ * failure so the UI never blocks.
+ */
+export async function getCrmEmployeeRelatedCounts(employeeId: string): Promise<{
+  tasks: number;
+  leaves: number;
+  attendance: number;
+  documents: number;
+  assets: number;
+  payslips: number;
+}> {
+  const empty = {
+    tasks: 0,
+    leaves: 0,
+    attendance: 0,
+    documents: 0,
+    assets: 0,
+    payslips: 0,
+  };
+  if (!employeeId) return empty;
+  const session = await getSession();
+  if (!session?.user) return empty;
+
+  try {
+    const { db } = await connectToDatabase();
+    const userId = new ObjectId(String(session.user._id));
+    const idCandidates: unknown[] = [employeeId];
+    if (ObjectId.isValid(employeeId)) idCandidates.push(new ObjectId(employeeId));
+
+    const [tasks, leaves, attendance, documents, assets, payslips] = await Promise.all([
+      db
+        .collection('crm_tasks')
+        .countDocuments({
+          userId,
+          $or: [
+            { assigneeId: { $in: idCandidates } },
+            { employeeId: { $in: idCandidates } },
+          ],
+        } as Record<string, unknown>)
+        .catch(() => 0),
+      db
+        .collection('crm_leaves')
+        .countDocuments({
+          userId,
+          employeeId: { $in: idCandidates },
+        } as Record<string, unknown>)
+        .catch(() => 0),
+      db
+        .collection('crm_attendance')
+        .countDocuments({
+          userId,
+          employeeId: { $in: idCandidates },
+        } as Record<string, unknown>)
+        .catch(() => 0),
+      db
+        .collection('crm_hr_documents')
+        .countDocuments({
+          userId,
+          employeeId: { $in: idCandidates },
+        } as Record<string, unknown>)
+        .catch(() => 0),
+      db
+        .collection('crm_asset_assignments')
+        .countDocuments({
+          userId,
+          employeeId: { $in: idCandidates },
+        } as Record<string, unknown>)
+        .catch(() => 0),
+      db
+        .collection('crm_payslips')
+        .countDocuments({
+          userId,
+          employeeId: { $in: idCandidates },
+        } as Record<string, unknown>)
+        .catch(() => 0),
+    ]);
+
+    return {
+      tasks: Number(tasks) || 0,
+      leaves: Number(leaves) || 0,
+      attendance: Number(attendance) || 0,
+      documents: Number(documents) || 0,
+      assets: Number(assets) || 0,
+      payslips: Number(payslips) || 0,
+    };
+  } catch (e) {
+    console.error('[getCrmEmployeeRelatedCounts] failed:', e);
+    return empty;
+  }
 }

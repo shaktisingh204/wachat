@@ -19,7 +19,7 @@
 
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, ClipboardList, FileText } from 'lucide-react';
+import { ArrowLeft, ClipboardList, FileText, Receipt, ShoppingCart } from 'lucide-react';
 
 import {
   ZoruBadge,
@@ -30,8 +30,12 @@ import { CrmPageHeader } from '../../../_components/crm-page-header';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { LineageRail } from '@/components/crm/lineage-rail';
+import { RelatedRail } from '@/components/crm/RelatedRail';
 import { CustomFieldDisplay } from '@/components/crm/custom-field-input';
-import { getQuotation } from '@/app/actions/crm/quotations.actions';
+import {
+  getCrmQuotationRelatedCounts,
+  getQuotation,
+} from '@/app/actions/crm/quotations.actions';
 import { getCustomFieldsFor } from '@/app/actions/worksuite/meta.actions';
 import type { CrmQuotationLineItem } from '@/lib/rust-client/crm-quotations';
 import type { WsCustomField } from '@/lib/worksuite/meta-types';
@@ -109,9 +113,10 @@ export default async function QuotationDetailPage({ params, searchParams }: Page
   const sp = await searchParams;
   const printMode = sp?.print === '1';
 
-  const [{ quotation, error }, customFields] = await Promise.all([
+  const [{ quotation, error }, customFields, relatedCounts] = await Promise.all([
     getQuotation(id),
     getCustomFieldsFor('quotation') as Promise<WsCustomField[]>,
+    getCrmQuotationRelatedCounts(id),
   ]);
 
   if (!quotation) {
@@ -482,6 +487,24 @@ export default async function QuotationDetailPage({ params, searchParams }: Page
                 status,
               }}
               lineage={[]}
+            />
+
+            {/* Related entities */}
+            <RelatedRail
+              items={[
+                {
+                  label: 'Sales orders',
+                  count: relatedCounts.salesOrders,
+                  icon: <ShoppingCart className="h-3.5 w-3.5" />,
+                  href: `/dashboard/crm/sales/orders?quotationId=${quotationId}`,
+                },
+                {
+                  label: 'Invoices',
+                  count: relatedCounts.invoices,
+                  icon: <Receipt className="h-3.5 w-3.5" />,
+                  href: `/dashboard/crm/sales/invoices?quotationId=${quotationId}`,
+                },
+              ]}
             />
 
             <ZoruButton size="sm" variant="ghost" asChild className="w-full">

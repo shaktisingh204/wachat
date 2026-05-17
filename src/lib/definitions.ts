@@ -836,16 +836,6 @@ export type CrmVendor = {
     showEmailInInvoice?: boolean;
     showPhoneInInvoice?: boolean;
     attachments?: string[]; // URLs
-    /**
-     * MSME / MSMED Act 2006 + IT §43B(h) compliance flags. All additive,
-     * defaulted in code so legacy vendor docs (missing these fields)
-     * continue to read as non-MSME without a migration. See
-     * `src/lib/india-tax/msme-45-day.ts` for the daily-clock logic.
-     */
-    isMsme?: boolean;
-    udyamRegistrationNumber?: string; // UDYAM-XX-NN-NNNNNNN
-    msmeCategory?: 'Micro' | 'Small' | 'Medium';
-    msmePaymentTermsDays?: number; // default 45 in code
     createdAt: Date;
     updatedAt: Date;
 };
@@ -2357,6 +2347,13 @@ export type User = {
     crmIndustry?: string;
     crmPipelines?: CrmPipeline[];
     appRailPosition?: 'left' | 'top';
+    /**
+     * BCP-47-style locale code (e.g. `en`, `hi`, `pt-BR`) selected by the
+     * user on the profile settings page. Consumed by `getCurrentLocale()`
+     * in `src/lib/i18n/server.ts` to pick the dashboard translation
+     * bundle. Falls back to `en` when absent.
+     */
+    language?: string;
     businessProfile?: {
         name?: string;
         address?: string;

@@ -12,7 +12,7 @@
 
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { LifeBuoy, ArrowLeft } from 'lucide-react';
+import { LifeBuoy, ArrowLeft, MessageSquare, Paperclip, Ticket } from 'lucide-react';
 
 import {
     ZoruBadge,
@@ -25,7 +25,11 @@ import {
 import { CrmPageHeader } from '../../_components/crm-page-header';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { CustomFieldDisplay } from '@/components/crm/custom-field-input';
-import { getTicket } from '@/app/actions/crm/tickets.actions';
+import { RelatedRail } from '@/components/crm/RelatedRail';
+import {
+    getTicket,
+    getCrmTicketRelatedCounts,
+} from '@/app/actions/crm/tickets.actions';
 import { getCustomFieldsFor } from '@/app/actions/worksuite/meta.actions';
 import type { WsCustomField } from '@/lib/worksuite/meta-types';
 
@@ -72,9 +76,10 @@ export default async function TicketDetailPage({
     params: Promise<{ id: string }>;
 }) {
     const { id } = await params;
-    const [{ ticket, error }, customFields] = await Promise.all([
+    const [{ ticket, error }, customFields, relatedCounts] = await Promise.all([
         getTicket(id),
         getCustomFieldsFor('ticket') as Promise<WsCustomField[]>,
+        getCrmTicketRelatedCounts(id),
     ]);
 
     if (!ticket) {
@@ -310,6 +315,29 @@ export default async function TicketDetailPage({
                             </ZoruCardContent>
                         </ZoruCard>
                     ) : null}
+
+                    <RelatedRail
+                        items={[
+                            {
+                                label: 'Replies',
+                                count: relatedCounts.replies,
+                                icon: <MessageSquare className="h-3.5 w-3.5" />,
+                                href: `/dashboard/crm/tickets/${id}/activity`,
+                            },
+                            {
+                                label: 'Attachments',
+                                count: relatedCounts.attachments,
+                                icon: <Paperclip className="h-3.5 w-3.5" />,
+                                href: `/dashboard/crm/tickets/${id}`,
+                            },
+                            {
+                                label: 'Related tickets',
+                                count: relatedCounts.relatedTickets,
+                                icon: <Ticket className="h-3.5 w-3.5" />,
+                                href: `/dashboard/crm/tickets?relatedTo=${id}`,
+                            },
+                        ]}
+                    />
                 </aside>
             </div>
 

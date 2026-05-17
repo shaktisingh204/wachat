@@ -11,6 +11,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { getSession } from '@/app/actions/user.actions';
 import { createApiKey, listApiKeys } from '@/lib/sabflow/apiKeys/db';
+import { recordFlowAction } from '@/lib/sabflow/audit/middleware';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -50,6 +51,12 @@ export async function POST(req: NextRequest) {
   try {
     const minted = await createApiKey(userId, label);
     console.log(`[SABFLOW API-KEYS] minted user=${userId} prefix=${minted.prefix}`);
+    void recordFlowAction('apiKey.created', {
+      userId,
+      target: minted.id,
+      metadata: { prefix: minted.prefix, label },
+      request: req,
+    });
     return NextResponse.json(minted, { status: 201 });
   } catch (err) {
     console.error('[SABFLOW API-KEYS CREATE]', err);

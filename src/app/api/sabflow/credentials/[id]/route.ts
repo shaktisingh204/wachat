@@ -20,6 +20,7 @@ import {
   type Credential,
   type MaskedCredential,
 } from '@/lib/sabflow/credentials/types';
+import { recordFlowAction } from '@/lib/sabflow/audit/middleware';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -135,6 +136,12 @@ export async function PATCH(req: NextRequest, { params }: RouteContext) {
 
   try {
     await updateCredential(id, updates);
+    void recordFlowAction('credential.updated', {
+      userId: guard.userId,
+      target: id,
+      metadata: { type: guard.credential.type },
+      request: req,
+    });
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error('[SABFLOW CREDENTIALS] PATCH error:', err);
@@ -151,6 +158,12 @@ export async function DELETE(_req: NextRequest, { params }: RouteContext) {
 
   try {
     await deleteCredential(id);
+    void recordFlowAction('credential.deleted', {
+      userId: guard.userId,
+      target: id,
+      metadata: { type: guard.credential.type },
+      request: _req,
+    });
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error('[SABFLOW CREDENTIALS] DELETE error:', err);
