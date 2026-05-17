@@ -27,10 +27,27 @@ export NEXT_CPU_COUNT=$USE_CORES
 export UV_THREADPOOL_SIZE=$USE_CORES
 export NODE_OPTIONS="--max-old-space-size=240000"
 export GENERATE_SOURCEMAP=false
-export NODE_ENV=production
+# NOTE: do NOT export NODE_ENV=production at the top of the script.
+# npm@8+ skips devDependencies whenever NODE_ENV=production, which strips
+# tsx / typescript / @types/* and breaks api:gen, api:test and next build.
+# We pass `--include=dev` to npm explicitly so build tools always install,
+# and PM2 itself sets NODE_ENV=production for the running processes.
+unset NODE_ENV
 
 step() {
   printf "\n\033[1;36m▶ %s\033[0m\n" "$*"
+}
+
+# Helper: confirm a binary exists in node_modules/.bin before we try to run it,
+# so a missing build tool fails the deploy with a clear message instead of
+# `sh: 1: <tool>: not found` halfway through.
+require_bin() {
+  local name=$1
+  if [ ! -x "node_modules/.bin/$name" ]; then
+    echo "✖ Missing build tool: node_modules/.bin/$name" >&2
+    echo "  devDependencies did not install — check NODE_ENV / npm flags." >&2
+    exit 1
+  fi
 }
 
 # ── 0) Sync source ------------------------------------------------------
@@ -38,12 +55,17 @@ step "Pulling latest from main"
 git pull origin main
 
 # ── 1) Next.js web -----------------------------------------------------
-step "Installing root deps (npm ci)"
+# `--include=dev` is load-bearing: tsx / typescript / @types/* are in
+# devDependencies and are required by api:gen, api:test and next build.
+step "Installing root deps (npm ci, incl. dev)"
 if [ -f package-lock.json ]; then
-  npm ci --no-audit --no-fund
+  npm ci --no-audit --no-fund --include=dev
 else
-  npm install --no-audit --no-fund
+  npm install --no-audit --no-fund --include=dev
 fi
+
+require_bin tsx
+require_bin next
 
 # ── 1a) Developer-API codegen --------------------------------------------
 # Regenerates the 9k+ route handlers, the OpenAPI doc, the per-endpoint
@@ -102,8 +124,10 @@ print("✓ No route-pattern conflicts.")
 PY
 
 # ── 1c) Build the Next.js app ------------------------------------------
+# Set NODE_ENV only for the build itself so Next produces a prod bundle,
+# but devDependencies stay on disk for any post-build scripts.
 step "Building Next.js app (sabnode-web)"
-npx next build
+NODE_ENV=production npx next build
 
 # ── 2) Rust workspace --------------------------------------------------
 step "Building Rust workspace (sabnode-api + sabnode-broadcast-worker)"
@@ -127,13 +151,14 @@ step "Building SabWa Node.js engine (sabwa-node)"
   cd "$REPO_DIR/services/sabwa-node"
 
   # Use npm — pnpm isn't guaranteed on PATH in production.
+  # `--include=dev` so tsc / type defs are present for `npm run build`.
   if [ -f package-lock.json ]; then
-    npm ci --no-audit --no-fund
+    npm ci --no-audit --no-fund --include=dev
   else
-    npm install --no-audit --no-fund
+    npm install --no-audit --no-fund --include=dev
   fi
 
-  npm run build
+  NODE_ENV=production npm run build
 
   if [ ! -f dist/index.js ]; then
     echo "✖ sabwa-node build did not produce dist/index.js" >&2
