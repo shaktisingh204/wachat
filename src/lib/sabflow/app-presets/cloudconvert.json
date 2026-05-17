@@ -1,0 +1,76 @@
+{
+  "id": "cloudconvert",
+  "name": "CloudConvert",
+  "description": "CloudConvert file conversion jobs.",
+  "category": "Document",
+  "iconName": "LuFileType",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "bearer",
+    "credentialType": "cloudconvert",
+    "header": "Authorization",
+    "scheme": "Bearer"
+  },
+  "baseUrl": "https://api.cloudconvert.com/v2",
+  "endpoints": [
+    {
+      "id": "create_job",
+      "label": "Create job",
+      "method": "POST",
+      "path": "/jobs",
+      "fields": [
+        { "id": "tasks", "label": "Tasks", "type": "json", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "get_job",
+      "label": "Get job",
+      "method": "GET",
+      "path": "/jobs/{id}",
+      "fields": [
+        { "id": "id", "label": "Job ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "wait_job",
+      "label": "Wait job",
+      "method": "GET",
+      "path": "/jobs/{id}/wait",
+      "fields": [
+        { "id": "id", "label": "Job ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "delete_job",
+      "label": "Delete job",
+      "method": "DELETE",
+      "path": "/jobs/{id}",
+      "fields": [
+        { "id": "id", "label": "Job ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "create_import_url_task",
+      "label": "Create import URL task",
+      "method": "POST",
+      "path": "/import/url",
+      "fields": [
+        { "id": "url", "label": "URL", "type": "text", "required": true, "in": "body" },
+        { "id": "filename", "label": "Filename", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "create_convert_task",
+      "label": "Create convert task",
+      "method": "POST",
+      "path": "/convert",
+      "fields": [
+        { "id": "input", "label": "Input", "type": "text", "required": true, "in": "body" },
+        { "id": "output_format", "label": "Output format", "type": "text", "required": true, "in": "body" },
+        { "id": "options", "label": "Options", "type": "json", "in": "body" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "id": "irs-forms",
+  "name": "IRS Tax Exempt / Forms",
+  "description": "IRS tax-exempt organization search & Form 990 index (public).",
+  "category": "Government",
+  "iconName": "LuLandmark",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": { "type": "none" },
+  "baseUrl": "https://apps.irs.gov",
+  "endpoints": [
+    { "id": "tax_exempt_search", "label": "Tax-exempt org search", "method": "GET", "path": "/app/eos/allSearch", "fields": [{ "id": "ein", "type": "text", "in": "query" }, { "id": "names", "type": "text", "in": "query" }, { "id": "city", "type": "text", "in": "query" }, { "id": "state", "type": "text", "in": "query" }, { "id": "country", "type": "text", "in": "query" }, { "id": "postalCode", "type": "text", "in": "query" }] },
+    { "id": "tax_exempt_publication_78", "label": "Publication 78 search", "method": "GET", "path": "/app/eos/pub78Search", "fields": [{ "id": "ein", "type": "text", "in": "query" }, { "id": "names", "type": "text", "in": "query" }] },
+    { "id": "tax_exempt_revocations", "label": "Auto-revocation search", "method": "GET", "path": "/app/eos/autoRevocationSearch", "fields": [{ "id": "ein", "type": "text", "in": "query" }, { "id": "names", "type": "text", "in": "query" }] },
+    { "id": "form_990_filing_index", "label": "Form 990 filing index", "method": "GET", "path": "/app/eos/990Search", "fields": [{ "id": "ein", "type": "text", "in": "query" }] }
+  ]
+}

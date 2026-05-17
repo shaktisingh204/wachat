@@ -1,0 +1,70 @@
+{
+  "id": "mercury",
+  "name": "Mercury",
+  "description": "Banking built for startups.",
+  "category": "Fintech",
+  "iconName": "LuLandmark",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "bearer",
+    "credentialType": "mercury",
+    "header": "Authorization",
+    "scheme": "Bearer"
+  },
+  "baseUrl": "https://api.mercury.com/api/v1",
+  "endpoints": [
+    {
+      "id": "list_accounts",
+      "label": "List accounts",
+      "method": "GET",
+      "path": "/accounts",
+      "fields": []
+    },
+    {
+      "id": "get_account",
+      "label": "Get account",
+      "method": "GET",
+      "path": "/account/{id}",
+      "fields": [
+        { "id": "id", "label": "Account ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_transactions",
+      "label": "List transactions",
+      "method": "GET",
+      "path": "/account/{accountId}/transactions",
+      "fields": [
+        { "id": "accountId", "label": "Account ID", "type": "text", "required": true, "in": "path" },
+        { "id": "limit", "label": "Limit", "type": "number", "defaultValue": 50, "in": "query" },
+        { "id": "offset", "label": "Offset", "type": "number", "defaultValue": 0, "in": "query" }
+      ]
+    },
+    {
+      "id": "get_transaction",
+      "label": "Get transaction",
+      "method": "GET",
+      "path": "/account/{accountId}/transaction/{transactionId}",
+      "fields": [
+        { "id": "accountId", "label": "Account ID", "type": "text", "required": true, "in": "path" },
+        { "id": "transactionId", "label": "Transaction ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "create_payment",
+      "label": "Create payment",
+      "method": "POST",
+      "path": "/account/{accountId}/transactions",
+      "fields": [
+        { "id": "accountId", "label": "Account ID", "type": "text", "required": true, "in": "path" },
+        { "id": "recipientId", "label": "Recipient ID", "type": "text", "required": true, "in": "body" },
+        { "id": "amount", "label": "Amount", "type": "number", "required": true, "in": "body" },
+        { "id": "paymentMethod", "label": "Payment method", "type": "text", "required": true, "in": "body" },
+        { "id": "idempotencyKey", "label": "Idempotency key", "type": "text", "required": true, "in": "body" },
+        { "id": "note", "label": "Note", "type": "text", "in": "body" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,104 @@
+{
+  "id": "signal-bridge",
+  "name": "Signal Bridge",
+  "description": "Self-hosted signal-cli-rest-api bridge for sending and receiving Signal messages.",
+  "category": "Community",
+  "iconName": "LuMessageCircle",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "none"
+  },
+  "baseUrl": "https://signal-bridge.example.com",
+  "endpoints": [
+    {
+      "id": "health",
+      "label": "Health",
+      "method": "GET",
+      "path": "/v1/health",
+      "fields": []
+    },
+    {
+      "id": "list_accounts",
+      "label": "List accounts",
+      "method": "GET",
+      "path": "/v1/accounts",
+      "fields": []
+    },
+    {
+      "id": "register_account",
+      "label": "Register account",
+      "method": "POST",
+      "path": "/v1/register/{number}",
+      "fields": [
+        { "id": "number", "label": "Phone number (E.164)", "type": "text", "required": true, "in": "path" },
+        { "id": "captcha", "label": "Captcha token", "type": "text", "in": "body" },
+        { "id": "use_voice", "label": "Use voice", "type": "toggle", "in": "body" }
+      ]
+    },
+    {
+      "id": "verify_account",
+      "label": "Verify account",
+      "method": "POST",
+      "path": "/v1/register/{number}/verify/{token}",
+      "fields": [
+        { "id": "number", "label": "Phone number (E.164)", "type": "text", "required": true, "in": "path" },
+        { "id": "token", "label": "Verification token", "type": "text", "required": true, "in": "path" },
+        { "id": "pin", "label": "PIN", "type": "password", "in": "body" }
+      ]
+    },
+    {
+      "id": "send_message",
+      "label": "Send message",
+      "method": "POST",
+      "path": "/v2/send",
+      "fields": [
+        { "id": "message", "label": "Message", "type": "textarea", "required": true, "in": "body" },
+        { "id": "number", "label": "From number (E.164)", "type": "text", "required": true, "in": "body" },
+        { "id": "recipients", "label": "Recipients", "type": "json", "required": true, "in": "body" },
+        { "id": "attachments", "label": "Attachments (base64 array)", "type": "json", "in": "body" }
+      ]
+    },
+    {
+      "id": "list_groups",
+      "label": "List groups",
+      "method": "GET",
+      "path": "/v1/groups/{number}",
+      "fields": [
+        { "id": "number", "label": "Phone number (E.164)", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "create_group",
+      "label": "Create group",
+      "method": "POST",
+      "path": "/v1/groups/{number}",
+      "fields": [
+        { "id": "number", "label": "Phone number (E.164)", "type": "text", "required": true, "in": "path" },
+        { "id": "name", "label": "Group name", "type": "text", "required": true, "in": "body" },
+        { "id": "members", "label": "Members", "type": "json", "required": true, "in": "body" },
+        { "id": "description", "label": "Description", "type": "textarea", "in": "body" }
+      ]
+    },
+    {
+      "id": "list_identities",
+      "label": "List identities",
+      "method": "GET",
+      "path": "/v1/identities/{number}",
+      "fields": [
+        { "id": "number", "label": "Phone number (E.164)", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "receive_messages",
+      "label": "Receive messages",
+      "method": "GET",
+      "path": "/v1/receive/{number}",
+      "fields": [
+        { "id": "number", "label": "Phone number (E.164)", "type": "text", "required": true, "in": "path" },
+        { "id": "timeout", "label": "Timeout (seconds)", "type": "number", "defaultValue": 10, "in": "query" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "id": "diffbot",
+  "name": "Diffbot",
+  "description": "Diffbot AI extraction APIs for articles, products, images, discussions, and knowledge graph.",
+  "category": "Scraping",
+  "iconName": "LuSearch",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "query_token",
+    "credentialType": "diffbot",
+    "queryParam": "token"
+  },
+  "baseUrl": "https://api.diffbot.com/v3",
+  "endpoints": [
+    {
+      "id": "analyze",
+      "label": "Analyze URL",
+      "method": "GET",
+      "path": "/analyze",
+      "fields": [
+        { "id": "url", "label": "URL", "type": "text", "required": true, "in": "query" },
+        { "id": "mode", "label": "Mode", "type": "text", "in": "query" },
+        { "id": "fields", "label": "Fields", "type": "text", "in": "query" }
+      ]
+    },
+    {
+      "id": "article",
+      "label": "Extract article",
+      "method": "GET",
+      "path": "/article",
+      "fields": [
+        { "id": "url", "label": "URL", "type": "text", "required": true, "in": "query" },
+        { "id": "fields", "label": "Fields", "type": "text", "in": "query" }
+      ]
+    },
+    {
+      "id": "product",
+      "label": "Extract product",
+      "method": "GET",
+      "path": "/product",
+      "fields": [
+        { "id": "url", "label": "URL", "type": "text", "required": true, "in": "query" },
+        { "id": "fields", "label": "Fields", "type": "text", "in": "query" }
+      ]
+    },
+    {
+      "id": "image",
+      "label": "Extract image",
+      "method": "GET",
+      "path": "/image",
+      "fields": [
+        { "id": "url", "label": "URL", "type": "text", "required": true, "in": "query" },
+        { "id": "fields", "label": "Fields", "type": "text", "in": "query" }
+      ]
+    },
+    {
+      "id": "discussion",
+      "label": "Extract discussion",
+      "method": "GET",
+      "path": "/discussion",
+      "fields": [
+        { "id": "url", "label": "URL", "type": "text", "required": true, "in": "query" }
+      ]
+    },
+    {
+      "id": "enhance",
+      "label": "Knowledge graph enhance",
+      "method": "POST",
+      "path": "/kg/v3/enhance",
+      "fields": [
+        { "id": "type", "label": "Type", "type": "text", "required": true, "in": "body" },
+        { "id": "name", "label": "Name", "type": "text", "in": "body" },
+        { "id": "url", "label": "URL", "type": "text", "in": "body" },
+        { "id": "extra", "label": "Extra fields JSON", "type": "json", "in": "body" }
+      ]
+    }
+  ]
+}

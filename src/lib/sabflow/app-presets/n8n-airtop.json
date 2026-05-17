@@ -1,0 +1,59 @@
+{
+  "id": "n8n-airtop",
+  "name": "Airtop",
+  "description": "Scrape and control any site with Airtop",
+  "category": "Transform",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "agent_default",
+      "label": "List Agent",
+      "method": "GET",
+      "path": "/agent",
+      "fields": []
+    },
+    {
+      "id": "extraction_default",
+      "label": "List Extraction",
+      "method": "GET",
+      "path": "/extraction",
+      "fields": []
+    },
+    {
+      "id": "file_default",
+      "label": "List File",
+      "method": "GET",
+      "path": "/file",
+      "fields": []
+    },
+    {
+      "id": "interaction_default",
+      "label": "List Interaction",
+      "method": "GET",
+      "path": "/interaction",
+      "fields": []
+    },
+    {
+      "id": "session_default",
+      "label": "List Session",
+      "method": "GET",
+      "path": "/session",
+      "fields": []
+    },
+    {
+      "id": "window_default",
+      "label": "List Window",
+      "method": "GET",
+      "path": "/window",
+      "fields": []
+    }
+  ]
+}

@@ -1,0 +1,102 @@
+{
+  "id": "cal-com",
+  "name": "Cal.com",
+  "description": "Cal.com scheduling API for bookings, event types, and availability.",
+  "category": "Scheduling",
+  "iconName": "LuCalendar",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "query_token",
+    "credentialType": "cal_com",
+    "queryParam": "apiKey"
+  },
+  "baseUrl": "https://api.cal.com/v1",
+  "endpoints": [
+    {
+      "id": "list_bookings",
+      "label": "List bookings",
+      "method": "GET",
+      "path": "/bookings",
+      "fields": [
+        { "id": "userId", "label": "User ID", "type": "number", "in": "query" },
+        { "id": "status", "label": "Status", "type": "text", "in": "query" },
+        { "id": "limit", "label": "Limit", "type": "number", "defaultValue": 50, "in": "query" }
+      ]
+    },
+    {
+      "id": "get_booking",
+      "label": "Get booking",
+      "method": "GET",
+      "path": "/bookings/{id}",
+      "fields": [
+        { "id": "id", "label": "Booking ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "create_booking",
+      "label": "Create booking",
+      "method": "POST",
+      "path": "/bookings",
+      "fields": [
+        { "id": "eventTypeId", "label": "Event type ID", "type": "number", "required": true, "in": "body" },
+        { "id": "start", "label": "Start (ISO)", "type": "text", "required": true, "in": "body" },
+        { "id": "end", "label": "End (ISO)", "type": "text", "required": true, "in": "body" },
+        { "id": "responses", "label": "Responses (JSON)", "type": "json", "required": true, "in": "body" },
+        { "id": "timeZone", "label": "Time zone", "type": "text", "required": true, "in": "body" },
+        { "id": "language", "label": "Language", "type": "text", "required": true, "defaultValue": "en", "in": "body" },
+        { "id": "metadata", "label": "Metadata (JSON)", "type": "json", "in": "body" }
+      ]
+    },
+    {
+      "id": "cancel_booking",
+      "label": "Cancel booking",
+      "method": "DELETE",
+      "path": "/bookings/{id}",
+      "fields": [
+        { "id": "id", "label": "Booking ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_event_types",
+      "label": "List event types",
+      "method": "GET",
+      "path": "/event-types",
+      "fields": [
+        { "id": "limit", "label": "Limit", "type": "number", "defaultValue": 50, "in": "query" }
+      ]
+    },
+    {
+      "id": "list_availability",
+      "label": "List availability",
+      "method": "GET",
+      "path": "/availability",
+      "fields": [
+        { "id": "userId", "label": "User ID", "type": "number", "required": true, "in": "query" },
+        { "id": "dateFrom", "label": "Date from (ISO)", "type": "text", "required": true, "in": "query" },
+        { "id": "dateTo", "label": "Date to (ISO)", "type": "text", "required": true, "in": "query" }
+      ]
+    },
+    {
+      "id": "list_users",
+      "label": "List users",
+      "method": "GET",
+      "path": "/users",
+      "fields": [
+        { "id": "limit", "label": "Limit", "type": "number", "defaultValue": 50, "in": "query" }
+      ]
+    },
+    {
+      "id": "create_user",
+      "label": "Create user",
+      "method": "POST",
+      "path": "/users",
+      "fields": [
+        { "id": "email", "label": "Email", "type": "text", "required": true, "in": "body" },
+        { "id": "username", "label": "Username", "type": "text", "required": true, "in": "body" },
+        { "id": "password", "label": "Password", "type": "password", "in": "body" }
+      ]
+    }
+  ]
+}

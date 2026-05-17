@@ -1,0 +1,52 @@
+{
+  "id": "n8n-paddle",
+  "name": "Paddle",
+  "description": "Consume Paddle API",
+  "category": "Output",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "coupon_default",
+      "label": "List Coupon",
+      "method": "GET",
+      "path": "/coupon",
+      "fields": []
+    },
+    {
+      "id": "payment_default",
+      "label": "List Payment",
+      "method": "GET",
+      "path": "/payment",
+      "fields": []
+    },
+    {
+      "id": "plan_default",
+      "label": "List Plan",
+      "method": "GET",
+      "path": "/plan",
+      "fields": []
+    },
+    {
+      "id": "product_default",
+      "label": "List Product",
+      "method": "GET",
+      "path": "/product",
+      "fields": []
+    },
+    {
+      "id": "user_default",
+      "label": "List User",
+      "method": "GET",
+      "path": "/user",
+      "fields": []
+    }
+  ]
+}

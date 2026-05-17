@@ -1,0 +1,129 @@
+{
+  "id": "digitalocean",
+  "name": "DigitalOcean",
+  "description": "DigitalOcean REST API for droplets, volumes, load balancers, apps, and databases.",
+  "category": "Cloud",
+  "iconName": "LuCloud",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "bearer",
+    "credentialType": "digitalocean"
+  },
+  "baseUrl": "https://api.digitalocean.com/v2",
+  "endpoints": [
+    {
+      "id": "list_droplets",
+      "label": "List droplets",
+      "method": "GET",
+      "path": "/droplets",
+      "fields": [
+        { "id": "page", "label": "Page", "type": "number", "in": "query" },
+        { "id": "per_page", "label": "Per page", "type": "number", "in": "query" },
+        { "id": "tag_name", "label": "Tag name", "type": "text", "in": "query" }
+      ]
+    },
+    {
+      "id": "get_droplet",
+      "label": "Get droplet",
+      "method": "GET",
+      "path": "/droplets/{droplet_id}",
+      "fields": [
+        { "id": "droplet_id", "label": "Droplet ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "create_droplet",
+      "label": "Create droplet",
+      "method": "POST",
+      "path": "/droplets",
+      "fields": [
+        { "id": "name", "label": "Name", "type": "text", "required": true, "in": "body" },
+        { "id": "region", "label": "Region", "type": "text", "required": true, "in": "body" },
+        { "id": "size", "label": "Size", "type": "text", "required": true, "in": "body" },
+        { "id": "image", "label": "Image", "type": "text", "required": true, "in": "body" },
+        { "id": "ssh_keys", "label": "SSH keys JSON array", "type": "json", "in": "body" },
+        { "id": "backups", "label": "Backups", "type": "toggle", "in": "body" },
+        { "id": "ipv6", "label": "IPv6", "type": "toggle", "in": "body" },
+        { "id": "tags", "label": "Tags JSON array", "type": "json", "in": "body" }
+      ]
+    },
+    {
+      "id": "delete_droplet",
+      "label": "Delete droplet",
+      "method": "DELETE",
+      "path": "/droplets/{droplet_id}",
+      "fields": [
+        { "id": "droplet_id", "label": "Droplet ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "droplet_action",
+      "label": "Droplet action",
+      "method": "POST",
+      "path": "/droplets/{droplet_id}/actions",
+      "fields": [
+        { "id": "droplet_id", "label": "Droplet ID", "type": "text", "required": true, "in": "path" },
+        { "id": "type", "label": "Action type", "type": "text", "required": true, "in": "body" },
+        { "id": "name", "label": "Name", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "list_volumes",
+      "label": "List volumes",
+      "method": "GET",
+      "path": "/volumes",
+      "fields": [
+        { "id": "page", "label": "Page", "type": "number", "in": "query" },
+        { "id": "per_page", "label": "Per page", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "list_load_balancers",
+      "label": "List load balancers",
+      "method": "GET",
+      "path": "/load_balancers",
+      "fields": [
+        { "id": "page", "label": "Page", "type": "number", "in": "query" },
+        { "id": "per_page", "label": "Per page", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "list_apps",
+      "label": "List apps",
+      "method": "GET",
+      "path": "/apps",
+      "fields": [
+        { "id": "page", "label": "Page", "type": "number", "in": "query" },
+        { "id": "per_page", "label": "Per page", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "create_app",
+      "label": "Create app",
+      "method": "POST",
+      "path": "/apps",
+      "fields": [
+        { "id": "spec", "label": "App spec JSON", "type": "json", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "list_databases",
+      "label": "List databases",
+      "method": "GET",
+      "path": "/databases",
+      "fields": [
+        { "id": "page", "label": "Page", "type": "number", "in": "query" },
+        { "id": "per_page", "label": "Per page", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "list_spaces_keys",
+      "label": "List Spaces keys",
+      "method": "GET",
+      "path": "/spaces/keys",
+      "fields": []
+    }
+  ]
+}

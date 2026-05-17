@@ -1,0 +1,70 @@
+{
+  "id": "truelayer",
+  "name": "Truelayer",
+  "description": "Open banking, payments & account data.",
+  "category": "Fintech",
+  "iconName": "LuLandmark",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "oauth2",
+    "credentialType": "oauth2",
+    "header": "Authorization",
+    "scheme": "Bearer"
+  },
+  "baseUrl": "https://api.truelayer.com",
+  "endpoints": [
+    {
+      "id": "accounts",
+      "label": "List accounts",
+      "method": "GET",
+      "path": "/data/v1/accounts",
+      "fields": []
+    },
+    {
+      "id": "account_balance",
+      "label": "Get account balance",
+      "method": "GET",
+      "path": "/data/v1/accounts/{account_id}/balance",
+      "fields": [
+        { "id": "account_id", "label": "Account ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "account_transactions",
+      "label": "Get account transactions",
+      "method": "GET",
+      "path": "/data/v1/accounts/{account_id}/transactions",
+      "fields": [
+        { "id": "account_id", "label": "Account ID", "type": "text", "required": true, "in": "path" },
+        { "id": "from", "label": "From (ISO date)", "type": "text", "in": "query" },
+        { "id": "to", "label": "To (ISO date)", "type": "text", "in": "query" }
+      ]
+    },
+    {
+      "id": "card_transactions",
+      "label": "Get card transactions",
+      "method": "GET",
+      "path": "/data/v1/cards/{card_id}/transactions",
+      "fields": [
+        { "id": "card_id", "label": "Card ID", "type": "text", "required": true, "in": "path" },
+        { "id": "from", "label": "From (ISO date)", "type": "text", "in": "query" },
+        { "id": "to", "label": "To (ISO date)", "type": "text", "in": "query" }
+      ]
+    },
+    {
+      "id": "payment_create",
+      "label": "Create payment",
+      "method": "POST",
+      "path": "/payments/v3/payments",
+      "fields": [
+        { "id": "amount_in_minor", "label": "Amount (minor units)", "type": "number", "required": true, "in": "body" },
+        { "id": "currency", "label": "Currency", "type": "text", "required": true, "in": "body" },
+        { "id": "payment_method", "label": "Payment method", "type": "json", "required": true, "in": "body" },
+        { "id": "beneficiary", "label": "Beneficiary", "type": "json", "required": true, "in": "body" },
+        { "id": "user", "label": "User", "type": "json", "required": true, "in": "body" }
+      ]
+    }
+  ]
+}

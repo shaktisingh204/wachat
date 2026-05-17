@@ -1,0 +1,45 @@
+{
+  "id": "n8n-quickbase",
+  "name": "Quick Base",
+  "description": "Integrate with the Quick Base RESTful API",
+  "category": "Input",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "field_default",
+      "label": "List Field",
+      "method": "GET",
+      "path": "/field",
+      "fields": []
+    },
+    {
+      "id": "file_default",
+      "label": "List File",
+      "method": "GET",
+      "path": "/file",
+      "fields": []
+    },
+    {
+      "id": "record_default",
+      "label": "List Record",
+      "method": "GET",
+      "path": "/record",
+      "fields": []
+    },
+    {
+      "id": "report_default",
+      "label": "List Report",
+      "method": "GET",
+      "path": "/report",
+      "fields": []
+    }
+  ]
+}

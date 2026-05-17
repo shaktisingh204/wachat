@@ -1,0 +1,118 @@
+{
+  "id": "bluesky",
+  "name": "Bluesky",
+  "description": "Bluesky social network built on the AT Protocol.",
+  "category": "Social",
+  "iconName": "LuMessageCircle",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "bearer",
+    "credentialType": "bluesky_session"
+  },
+  "baseUrl": "https://bsky.social/xrpc",
+  "endpoints": [
+    {
+      "id": "create_session",
+      "label": "Create session",
+      "method": "POST",
+      "path": "/com.atproto.server.createSession",
+      "fields": [
+        { "id": "identifier", "label": "Identifier (handle or email)", "type": "text", "required": true, "in": "body" },
+        { "id": "password", "label": "App password", "type": "password", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "refresh_session",
+      "label": "Refresh session",
+      "method": "POST",
+      "path": "/com.atproto.server.refreshSession",
+      "fields": []
+    },
+    {
+      "id": "create_post",
+      "label": "Create post",
+      "method": "POST",
+      "path": "/com.atproto.repo.createRecord",
+      "fields": [
+        { "id": "repo", "label": "Repo (DID)", "type": "text", "required": true, "in": "body" },
+        { "id": "collection", "label": "Collection", "type": "text", "required": true, "defaultValue": "app.bsky.feed.post", "in": "body" },
+        { "id": "record", "label": "Record { text, createdAt }", "type": "json", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "delete_post",
+      "label": "Delete post",
+      "method": "POST",
+      "path": "/com.atproto.repo.deleteRecord",
+      "fields": [
+        { "id": "repo", "label": "Repo (DID)", "type": "text", "required": true, "in": "body" },
+        { "id": "collection", "label": "Collection", "type": "text", "required": true, "defaultValue": "app.bsky.feed.post", "in": "body" },
+        { "id": "rkey", "label": "Record key", "type": "text", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "get_timeline",
+      "label": "Get timeline",
+      "method": "GET",
+      "path": "/app.bsky.feed.getTimeline",
+      "fields": [
+        { "id": "algorithm", "label": "Algorithm", "type": "text", "in": "query" },
+        { "id": "limit", "label": "Limit", "type": "number", "defaultValue": 50, "in": "query" },
+        { "id": "cursor", "label": "Cursor", "type": "text", "in": "query" }
+      ]
+    },
+    {
+      "id": "get_author_feed",
+      "label": "Get author feed",
+      "method": "GET",
+      "path": "/app.bsky.feed.getAuthorFeed",
+      "fields": [
+        { "id": "actor", "label": "Actor (DID or handle)", "type": "text", "required": true, "in": "query" },
+        { "id": "limit", "label": "Limit", "type": "number", "defaultValue": 50, "in": "query" }
+      ]
+    },
+    {
+      "id": "get_profile",
+      "label": "Get profile",
+      "method": "GET",
+      "path": "/app.bsky.actor.getProfile",
+      "fields": [
+        { "id": "actor", "label": "Actor (DID or handle)", "type": "text", "required": true, "in": "query" }
+      ]
+    },
+    {
+      "id": "follow_user",
+      "label": "Follow user",
+      "method": "POST",
+      "path": "/com.atproto.repo.createRecord",
+      "fields": [
+        { "id": "repo", "label": "Repo (DID)", "type": "text", "required": true, "in": "body" },
+        { "id": "collection", "label": "Collection", "type": "text", "required": true, "defaultValue": "app.bsky.graph.follow", "in": "body" },
+        { "id": "record", "label": "Record { subject, createdAt }", "type": "json", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "like_post",
+      "label": "Like post",
+      "method": "POST",
+      "path": "/com.atproto.repo.createRecord",
+      "fields": [
+        { "id": "repo", "label": "Repo (DID)", "type": "text", "required": true, "in": "body" },
+        { "id": "collection", "label": "Collection", "type": "text", "required": true, "defaultValue": "app.bsky.feed.like", "in": "body" },
+        { "id": "record", "label": "Record { subject:{uri,cid}, createdAt }", "type": "json", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "search_actors",
+      "label": "Search actors",
+      "method": "GET",
+      "path": "/app.bsky.actor.searchActors",
+      "fields": [
+        { "id": "term", "label": "Term", "type": "text", "required": true, "in": "query" },
+        { "id": "limit", "label": "Limit", "type": "number", "defaultValue": 25, "in": "query" }
+      ]
+    }
+  ]
+}

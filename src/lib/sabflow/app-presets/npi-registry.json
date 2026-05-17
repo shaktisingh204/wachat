@@ -1,0 +1,15 @@
+{
+  "id": "npi-registry",
+  "name": "NPI Registry (NPPES)",
+  "description": "US National Provider Identifier registry (CMS, public).",
+  "category": "Healthcare",
+  "iconName": "LuHeartPulse",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": { "type": "none" },
+  "baseUrl": "https://npiregistry.cms.hhs.gov/api",
+  "endpoints": [
+    { "id": "search", "label": "Search NPI", "method": "GET", "path": "/", "fields": [{ "id": "version", "type": "text", "defaultValue": "2.1", "required": true, "in": "query" }, { "id": "number", "type": "text", "in": "query" }, { "id": "first_name", "type": "text", "in": "query" }, { "id": "last_name", "type": "text", "in": "query" }, { "id": "taxonomy_description", "type": "text", "in": "query" }, { "id": "city", "type": "text", "in": "query" }, { "id": "state", "type": "text", "in": "query" }, { "id": "postal_code", "type": "text", "in": "query" }, { "id": "country_code", "type": "text", "in": "query" }, { "id": "limit", "type": "number", "defaultValue": 10, "in": "query" }] }
+  ]
+}

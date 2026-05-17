@@ -1,0 +1,85 @@
+{
+  "id": "apify",
+  "name": "Apify",
+  "description": "Apify platform for running actors, datasets, and key-value stores.",
+  "category": "Scraping",
+  "iconName": "LuSearch",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "bearer",
+    "credentialType": "apify"
+  },
+  "baseUrl": "https://api.apify.com/v2",
+  "endpoints": [
+    {
+      "id": "list_actors",
+      "label": "List actors",
+      "method": "GET",
+      "path": "/acts",
+      "fields": []
+    },
+    {
+      "id": "run_actor",
+      "label": "Run actor",
+      "method": "POST",
+      "path": "/acts/{actor_id}/runs",
+      "fields": [
+        { "id": "actor_id", "label": "Actor ID", "type": "text", "required": true, "in": "path" },
+        { "id": "input", "label": "Input JSON", "type": "json", "in": "body" }
+      ]
+    },
+    {
+      "id": "get_run",
+      "label": "Get run",
+      "method": "GET",
+      "path": "/actor-runs/{run_id}",
+      "fields": [
+        { "id": "run_id", "label": "Run ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "abort_run",
+      "label": "Abort run",
+      "method": "POST",
+      "path": "/actor-runs/{run_id}/abort",
+      "fields": [
+        { "id": "run_id", "label": "Run ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "get_run_dataset_items",
+      "label": "Get dataset items",
+      "method": "GET",
+      "path": "/datasets/{dataset_id}/items",
+      "fields": [
+        { "id": "dataset_id", "label": "Dataset ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_datasets",
+      "label": "List datasets",
+      "method": "GET",
+      "path": "/datasets",
+      "fields": []
+    },
+    {
+      "id": "list_key_value_stores",
+      "label": "List key-value stores",
+      "method": "GET",
+      "path": "/key-value-stores",
+      "fields": []
+    },
+    {
+      "id": "get_kv_record",
+      "label": "Get KV record",
+      "method": "GET",
+      "path": "/key-value-stores/{store_id}/records/{key}",
+      "fields": [
+        { "id": "store_id", "label": "Store ID", "type": "text", "required": true, "in": "path" },
+        { "id": "key", "label": "Record key", "type": "text", "required": true, "in": "path" }
+      ]
+    }
+  ]
+}

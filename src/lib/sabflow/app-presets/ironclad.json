@@ -1,0 +1,23 @@
+{
+  "id": "ironclad",
+  "name": "Ironclad",
+  "description": "Ironclad contract lifecycle management.",
+  "category": "Legal",
+  "iconName": "LuFileSignature",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": { "type": "bearer", "credentialType": "ironclad" },
+  "baseUrl": "https://ironcladapp.com/public/api/v1",
+  "endpoints": [
+    { "id": "list_records", "label": "List records", "method": "GET", "path": "/records", "fields": [] },
+    { "id": "get_record", "label": "Get record", "method": "GET", "path": "/records/{recordId}", "fields": [{ "id": "recordId", "type": "text", "required": true, "in": "path" }] },
+    { "id": "list_workflows", "label": "List workflows", "method": "GET", "path": "/workflows", "fields": [] },
+    { "id": "get_workflow", "label": "Get workflow", "method": "GET", "path": "/workflows/{workflowId}", "fields": [{ "id": "workflowId", "type": "text", "required": true, "in": "path" }] },
+    { "id": "create_workflow", "label": "Create workflow", "method": "POST", "path": "/workflows", "fields": [{ "id": "template", "type": "text", "required": true, "in": "body" }, { "id": "attributes", "type": "json", "required": true, "in": "body" }, { "id": "creator", "type": "json", "required": true, "in": "body" }] },
+    { "id": "update_workflow", "label": "Update workflow", "method": "PATCH", "path": "/workflows/{workflowId}", "fields": [{ "id": "workflowId", "type": "text", "required": true, "in": "path" }, { "id": "attributes", "type": "json", "in": "body" }] },
+    { "id": "list_workflow_schemas", "label": "List workflow schemas", "method": "GET", "path": "/workflow-schemas", "fields": [] },
+    { "id": "webhook_subscribe", "label": "Subscribe webhook", "method": "POST", "path": "/webhooks", "fields": [{ "id": "events", "type": "json", "required": true, "in": "body" }, { "id": "url", "type": "text", "required": true, "in": "body" }] },
+    { "id": "list_webhooks", "label": "List webhooks", "method": "GET", "path": "/webhooks", "fields": [] }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "id": "healthie",
+  "name": "Healthie",
+  "description": "Healthie practice management (GraphQL).",
+  "category": "Wellness",
+  "iconName": "LuHeartPulse",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": { "type": "bearer", "credentialType": "healthie" },
+  "baseUrl": "https://api.gethealthie.com/graphql",
+  "endpoints": [
+    { "id": "me", "label": "Me", "method": "POST", "path": "/", "fields": [{ "id": "authorization_source", "type": "text", "defaultValue": "API", "in": "header" }, { "id": "query", "type": "textarea", "required": true, "defaultValue": "query { currentUser { id email } }", "in": "body" }] },
+    { "id": "list_clients", "label": "List clients", "method": "POST", "path": "/", "fields": [{ "id": "authorization_source", "type": "text", "defaultValue": "API", "in": "header" }, { "id": "query", "type": "textarea", "required": true, "defaultValue": "query { users(role: \"patient\") { id first_name last_name } }", "in": "body" }] },
+    { "id": "create_client", "label": "Create client", "method": "POST", "path": "/", "fields": [{ "id": "authorization_source", "type": "text", "defaultValue": "API", "in": "header" }, { "id": "query", "type": "textarea", "required": true, "defaultValue": "mutation($input: createClientInput!){ createClient(input:$input){ user { id } } }", "in": "body" }, { "id": "variables", "type": "json", "in": "body" }] },
+    { "id": "list_appointments", "label": "List appointments", "method": "POST", "path": "/", "fields": [{ "id": "authorization_source", "type": "text", "defaultValue": "API", "in": "header" }, { "id": "query", "type": "textarea", "required": true, "defaultValue": "query($from: String, $to: String){ appointments(date_after:$from, date_before:$to){ id date duration } }", "in": "body" }, { "id": "variables", "type": "json", "in": "body" }] },
+    { "id": "create_appointment", "label": "Create appointment", "method": "POST", "path": "/", "fields": [{ "id": "authorization_source", "type": "text", "defaultValue": "API", "in": "header" }, { "id": "query", "type": "textarea", "required": true, "defaultValue": "mutation($input: createAppointmentInput!){ createAppointment(input:$input){ appointment{ id } } }", "in": "body" }, { "id": "variables", "type": "json", "in": "body" }] },
+    { "id": "list_charting_notes", "label": "List charting notes", "method": "POST", "path": "/", "fields": [{ "id": "authorization_source", "type": "text", "defaultValue": "API", "in": "header" }, { "id": "query", "type": "textarea", "required": true, "defaultValue": "query($id: ID){ chartingNotes(client_id:$id){ id } }", "in": "body" }, { "id": "variables", "type": "json", "in": "body" }] }
+  ]
+}

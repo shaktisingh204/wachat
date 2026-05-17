@@ -1,0 +1,74 @@
+{
+  "id": "n8n-pushover",
+  "name": "Pushover",
+  "description": "Consume Pushover API",
+  "category": "Input",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "message_push",
+      "label": "Push Message",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "userKey",
+          "label": "User Key",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The user/group key (not e-mail address) of your user (or you), viewable when logged into the <a href=\"https://pushover.net/\">dashboard</a> (often referred to as <code>USER_KEY</code> in the <a href=\"https://support.pushover.net/i44-example-code-and-pushover-libraries\">libraries</a> and code examples)"
+        },
+        {
+          "id": "message",
+          "label": "Message",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "Your message"
+        },
+        {
+          "id": "priority",
+          "label": "Priority",
+          "type": "select",
+          "in": "query",
+          "description": "Send as -2 to generate no notification/alert, -1 to always send as a quiet notification, 1 to display as high-priority and bypass the user's quiet hours, or 2 to also require confirmation from the user",
+          "options": []
+        },
+        {
+          "id": "retry",
+          "label": "Retry (Seconds)",
+          "type": "number",
+          "in": "query",
+          "required": true,
+          "description": "Specifies how often (in seconds) the Pushover servers will send the same notification to the user. This parameter must have a value of at least 30 seconds between retries.",
+          "defaultValue": 30
+        },
+        {
+          "id": "expire",
+          "label": "Expire (Seconds)",
+          "type": "number",
+          "in": "query",
+          "required": true,
+          "description": "Specifies how many seconds your notification will continue to be retried for (every retry seconds)",
+          "defaultValue": 30
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Field"
+        }
+      ]
+    }
+  ]
+}

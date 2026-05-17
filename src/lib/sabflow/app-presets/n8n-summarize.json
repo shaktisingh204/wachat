@@ -1,0 +1,15 @@
+{
+  "id": "n8n-summarize",
+  "name": "Summarize",
+  "description": "Sum, count, max, etc. across items",
+  "category": "Transform",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "none"
+  },
+  "baseUrl": "",
+  "endpoints": []
+}

@@ -1,0 +1,24 @@
+{
+  "id": "deel",
+  "name": "Deel",
+  "description": "Global payroll & contractor management.",
+  "category": "HR",
+  "iconName": "LuUsers",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": { "type": "bearer", "credentialType": "deel" },
+  "baseUrl": "https://api.letsdeel.com/rest/v2",
+  "endpoints": [
+    { "id": "list_people", "label": "List people", "method": "GET", "path": "/people", "fields": [] },
+    { "id": "get_person", "label": "Get person", "method": "GET", "path": "/people/{worker_id}", "fields": [{ "id": "worker_id", "type": "text", "required": true, "in": "path" }] },
+    { "id": "list_contracts", "label": "List contracts", "method": "GET", "path": "/contracts", "fields": [] },
+    { "id": "get_contract", "label": "Get contract", "method": "GET", "path": "/contracts/{contract_id}", "fields": [{ "id": "contract_id", "type": "text", "required": true, "in": "path" }] },
+    { "id": "create_contract", "label": "Create contract", "method": "POST", "path": "/contracts", "fields": [{ "id": "type", "type": "text", "required": true, "in": "body" }, { "id": "title", "type": "text", "required": true, "in": "body" }, { "id": "country", "type": "text", "required": true, "in": "body" }, { "id": "scope_of_work", "type": "textarea", "required": true, "in": "body" }] },
+    { "id": "terminate_contract", "label": "Terminate contract", "method": "POST", "path": "/contracts/{contract_id}/terminations", "fields": [{ "id": "contract_id", "type": "text", "required": true, "in": "path" }, { "id": "termination_date", "type": "text", "required": true, "in": "body" }, { "id": "last_working_date", "type": "text", "required": true, "in": "body" }, { "id": "reason", "type": "textarea", "required": true, "in": "body" }] },
+    { "id": "list_invoices", "label": "List invoices", "method": "GET", "path": "/invoices", "fields": [] },
+    { "id": "list_time_offs", "label": "List time-offs", "method": "GET", "path": "/time_offs", "fields": [] },
+    { "id": "list_organizations", "label": "List organizations", "method": "GET", "path": "/organizations", "fields": [] },
+    { "id": "me", "label": "Me", "method": "GET", "path": "/me", "fields": [] }
+  ]
+}

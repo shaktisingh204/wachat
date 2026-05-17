@@ -1,0 +1,45 @@
+{
+  "id": "n8n-autopilot",
+  "name": "Autopilot",
+  "description": "Consume Autopilot API",
+  "category": "Input",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "contact_default",
+      "label": "List Contact",
+      "method": "GET",
+      "path": "/contact",
+      "fields": []
+    },
+    {
+      "id": "contact_journey_default",
+      "label": "List ContactJourney",
+      "method": "GET",
+      "path": "/contactJourney",
+      "fields": []
+    },
+    {
+      "id": "contact_list_default",
+      "label": "List ContactList",
+      "method": "GET",
+      "path": "/contactList",
+      "fields": []
+    },
+    {
+      "id": "list_default",
+      "label": "List List",
+      "method": "GET",
+      "path": "/list",
+      "fields": []
+    }
+  ]
+}

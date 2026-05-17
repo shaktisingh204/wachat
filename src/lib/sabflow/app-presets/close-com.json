@@ -1,0 +1,128 @@
+{
+  "id": "close-com",
+  "name": "Close",
+  "description": "Close (close.com) CRM API — leads, contacts, opportunities, and call activities.",
+  "category": "CRM",
+  "iconName": "LuUsers",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "basic",
+    "credentialType": "close_com"
+  },
+  "baseUrl": "https://api.close.com/api/v1",
+  "endpoints": [
+    {
+      "id": "list_leads",
+      "label": "List leads",
+      "method": "GET",
+      "path": "/lead/",
+      "fields": [
+        { "id": "query", "label": "Query", "type": "text", "in": "query" },
+        { "id": "_limit", "label": "Limit", "type": "number", "defaultValue": 100, "in": "query" },
+        { "id": "_skip", "label": "Skip", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "get_lead",
+      "label": "Get lead",
+      "method": "GET",
+      "path": "/lead/{id}/",
+      "fields": [
+        { "id": "id", "label": "Lead ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "create_lead",
+      "label": "Create lead",
+      "method": "POST",
+      "path": "/lead/",
+      "fields": [
+        { "id": "name", "label": "Name", "type": "text", "in": "body" },
+        { "id": "contacts", "label": "Contacts (JSON array)", "type": "json", "in": "body" },
+        { "id": "custom", "label": "Custom fields (JSON object)", "type": "json", "in": "body" },
+        { "id": "description", "label": "Description", "type": "textarea", "in": "body" }
+      ]
+    },
+    {
+      "id": "update_lead",
+      "label": "Update lead",
+      "method": "PUT",
+      "path": "/lead/{id}/",
+      "fields": [
+        { "id": "id", "label": "Lead ID", "type": "text", "required": true, "in": "path" },
+        { "id": "name", "label": "Name", "type": "text", "in": "body" },
+        { "id": "description", "label": "Description", "type": "textarea", "in": "body" },
+        { "id": "custom", "label": "Custom fields (JSON object)", "type": "json", "in": "body" }
+      ]
+    },
+    {
+      "id": "delete_lead",
+      "label": "Delete lead",
+      "method": "DELETE",
+      "path": "/lead/{id}/",
+      "fields": [
+        { "id": "id", "label": "Lead ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_contacts",
+      "label": "List contacts",
+      "method": "GET",
+      "path": "/contact/",
+      "fields": [
+        { "id": "lead_id", "label": "Lead ID", "type": "text", "in": "query" },
+        { "id": "_limit", "label": "Limit", "type": "number", "defaultValue": 100, "in": "query" }
+      ]
+    },
+    {
+      "id": "create_contact",
+      "label": "Create contact",
+      "method": "POST",
+      "path": "/contact/",
+      "fields": [
+        { "id": "lead_id", "label": "Lead ID", "type": "text", "required": true, "in": "body" },
+        { "id": "name", "label": "Name", "type": "text", "in": "body" },
+        { "id": "emails", "label": "Emails (JSON array)", "type": "json", "in": "body" },
+        { "id": "phones", "label": "Phones (JSON array)", "type": "json", "in": "body" }
+      ]
+    },
+    {
+      "id": "list_opportunities",
+      "label": "List opportunities",
+      "method": "GET",
+      "path": "/opportunity/",
+      "fields": [
+        { "id": "lead_id", "label": "Lead ID", "type": "text", "in": "query" },
+        { "id": "_limit", "label": "Limit", "type": "number", "defaultValue": 100, "in": "query" }
+      ]
+    },
+    {
+      "id": "create_opportunity",
+      "label": "Create opportunity",
+      "method": "POST",
+      "path": "/opportunity/",
+      "fields": [
+        { "id": "lead_id", "label": "Lead ID", "type": "text", "required": true, "in": "body" },
+        { "id": "status_id", "label": "Status ID", "type": "text", "required": true, "in": "body" },
+        { "id": "value", "label": "Value (cents)", "type": "number", "in": "body" },
+        { "id": "value_period", "label": "Value period", "type": "select", "in": "body" },
+        { "id": "note", "label": "Note", "type": "textarea", "in": "body" }
+      ]
+    },
+    {
+      "id": "create_call",
+      "label": "Create call activity",
+      "method": "POST",
+      "path": "/activity/call/",
+      "fields": [
+        { "id": "lead_id", "label": "Lead ID", "type": "text", "required": true, "in": "body" },
+        { "id": "direction", "label": "Direction", "type": "select", "required": true, "in": "body" },
+        { "id": "status", "label": "Status", "type": "select", "required": true, "in": "body" },
+        { "id": "duration", "label": "Duration (s)", "type": "number", "in": "body" },
+        { "id": "note", "label": "Note", "type": "textarea", "in": "body" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imagekit",
+  "name": "ImageKit",
+  "description": "ImageKit media delivery and transformation.",
+  "category": "Media",
+  "iconName": "LuImage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "basic",
+    "credentialType": "imagekit"
+  },
+  "baseUrl": "https://api.imagekit.io/v1",
+  "endpoints": [
+    {
+      "id": "list_files",
+      "label": "List files",
+      "method": "GET",
+      "path": "/files",
+      "fields": [
+        { "id": "skip", "label": "Skip", "type": "number", "defaultValue": 0, "in": "query" },
+        { "id": "limit", "label": "Limit", "type": "number", "defaultValue": 25, "in": "query" }
+      ]
+    },
+    {
+      "id": "upload_file",
+      "label": "Upload file",
+      "method": "POST",
+      "path": "/files/upload",
+      "fields": [
+        { "id": "file", "label": "File", "type": "text", "required": true, "in": "body" },
+        { "id": "fileName", "label": "File name", "type": "text", "required": true, "in": "body" },
+        { "id": "folder", "label": "Folder", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "delete_file",
+      "label": "Delete file",
+      "method": "DELETE",
+      "path": "/files/{fileId}",
+      "fields": [
+        { "id": "fileId", "label": "File ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "get_file_details",
+      "label": "Get file details",
+      "method": "GET",
+      "path": "/files/{fileId}/details",
+      "fields": [
+        { "id": "fileId", "label": "File ID", "type": "text", "required": true, "in": "path" }
+      ]
+    }
+  ]
+}

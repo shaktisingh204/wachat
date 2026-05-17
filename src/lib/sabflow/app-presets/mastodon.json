@@ -1,0 +1,134 @@
+{
+  "id": "mastodon",
+  "name": "Mastodon",
+  "description": "Mastodon federated social network API.",
+  "category": "Social",
+  "iconName": "LuMessageCircle",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "bearer",
+    "credentialType": "mastodon"
+  },
+  "baseUrl": "https://{instance}.social/api/v1",
+  "endpoints": [
+    {
+      "id": "verify_credentials",
+      "label": "Verify credentials",
+      "method": "GET",
+      "path": "/accounts/verify_credentials",
+      "fields": []
+    },
+    {
+      "id": "post_status",
+      "label": "Post status",
+      "method": "POST",
+      "path": "/statuses",
+      "fields": [
+        { "id": "status", "label": "Status", "type": "textarea", "required": true, "in": "body" },
+        { "id": "media_ids", "label": "Media IDs", "type": "json", "in": "body" },
+        { "id": "in_reply_to_id", "label": "In reply to ID", "type": "text", "in": "body" },
+        { "id": "sensitive", "label": "Sensitive", "type": "toggle", "in": "body" },
+        { "id": "spoiler_text", "label": "Spoiler text", "type": "text", "in": "body" },
+        { "id": "visibility", "label": "Visibility", "type": "select", "defaultValue": "public", "in": "body" }
+      ]
+    },
+    {
+      "id": "delete_status",
+      "label": "Delete status",
+      "method": "DELETE",
+      "path": "/statuses/{id}",
+      "fields": [
+        { "id": "id", "label": "Status ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "get_status",
+      "label": "Get status",
+      "method": "GET",
+      "path": "/statuses/{id}",
+      "fields": [
+        { "id": "id", "label": "Status ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "boost_status",
+      "label": "Boost status",
+      "method": "POST",
+      "path": "/statuses/{id}/reblog",
+      "fields": [
+        { "id": "id", "label": "Status ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "unboost_status",
+      "label": "Unboost status",
+      "method": "POST",
+      "path": "/statuses/{id}/unreblog",
+      "fields": [
+        { "id": "id", "label": "Status ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "favourite_status",
+      "label": "Favourite status",
+      "method": "POST",
+      "path": "/statuses/{id}/favourite",
+      "fields": [
+        { "id": "id", "label": "Status ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "unfavourite_status",
+      "label": "Unfavourite status",
+      "method": "POST",
+      "path": "/statuses/{id}/unfavourite",
+      "fields": [
+        { "id": "id", "label": "Status ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "home_timeline",
+      "label": "Home timeline",
+      "method": "GET",
+      "path": "/timelines/home",
+      "fields": [
+        { "id": "limit", "label": "Limit", "type": "number", "defaultValue": 20, "in": "query" },
+        { "id": "max_id", "label": "Max ID", "type": "text", "in": "query" },
+        { "id": "since_id", "label": "Since ID", "type": "text", "in": "query" }
+      ]
+    },
+    {
+      "id": "public_timeline",
+      "label": "Public timeline",
+      "method": "GET",
+      "path": "/timelines/public",
+      "fields": [
+        { "id": "limit", "label": "Limit", "type": "number", "defaultValue": 20, "in": "query" },
+        { "id": "local", "label": "Local only", "type": "toggle", "in": "query" }
+      ]
+    },
+    {
+      "id": "follow_account",
+      "label": "Follow account",
+      "method": "POST",
+      "path": "/accounts/{id}/follow",
+      "fields": [
+        { "id": "id", "label": "Account ID", "type": "text", "required": true, "in": "path" },
+        { "id": "reblogs", "label": "Receive reblogs", "type": "toggle", "in": "body" },
+        { "id": "notify", "label": "Notify on new posts", "type": "toggle", "in": "body" }
+      ]
+    },
+    {
+      "id": "search",
+      "label": "Search",
+      "method": "GET",
+      "path": "/search",
+      "fields": [
+        { "id": "q", "label": "Query", "type": "text", "required": true, "in": "query" },
+        { "id": "type", "label": "Type", "type": "select", "in": "query" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "id": "browserless",
+  "name": "Browserless",
+  "description": "Browserless.io headless Chrome API for PDF, screenshots, content, and custom functions.",
+  "category": "Scraping",
+  "iconName": "LuSearch",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "query_token",
+    "credentialType": "browserless",
+    "queryParam": "token"
+  },
+  "baseUrl": "https://chrome.browserless.io",
+  "endpoints": [
+    {
+      "id": "pdf",
+      "label": "Generate PDF",
+      "method": "POST",
+      "path": "/pdf",
+      "fields": [
+        { "id": "url", "label": "URL", "type": "text", "in": "body" },
+        { "id": "html", "label": "HTML", "type": "textarea", "in": "body" },
+        { "id": "options", "label": "Options JSON", "type": "json", "in": "body" }
+      ]
+    },
+    {
+      "id": "screenshot",
+      "label": "Take screenshot",
+      "method": "POST",
+      "path": "/screenshot",
+      "fields": [
+        { "id": "url", "label": "URL", "type": "text", "in": "body" },
+        { "id": "html", "label": "HTML", "type": "textarea", "in": "body" },
+        { "id": "options", "label": "Options JSON", "type": "json", "in": "body" }
+      ]
+    },
+    {
+      "id": "content",
+      "label": "Get content",
+      "method": "POST",
+      "path": "/content",
+      "fields": [
+        { "id": "url", "label": "URL", "type": "text", "required": true, "in": "body" },
+        { "id": "gotoOptions", "label": "Goto options JSON", "type": "json", "in": "body" }
+      ]
+    },
+    {
+      "id": "function",
+      "label": "Run function",
+      "method": "POST",
+      "path": "/function",
+      "fields": [
+        { "id": "code", "label": "Code", "type": "textarea", "required": true, "in": "body" },
+        { "id": "context", "label": "Context JSON", "type": "json", "in": "body" }
+      ]
+    },
+    {
+      "id": "download",
+      "label": "Download",
+      "method": "POST",
+      "path": "/download",
+      "fields": [
+        { "id": "url", "label": "URL", "type": "text", "required": true, "in": "body" },
+        { "id": "code", "label": "Code", "type": "textarea", "in": "body" }
+      ]
+    },
+    {
+      "id": "stats",
+      "label": "Get stats",
+      "method": "GET",
+      "path": "/stats",
+      "fields": []
+    }
+  ]
+}

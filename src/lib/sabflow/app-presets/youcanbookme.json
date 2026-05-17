@@ -1,0 +1,69 @@
+{
+  "id": "youcanbookme",
+  "name": "YouCanBookMe",
+  "description": "YouCanBookMe scheduling API for profiles and bookings.",
+  "category": "Scheduling",
+  "iconName": "LuCalendar",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "basic",
+    "credentialType": "youcanbookme"
+  },
+  "baseUrl": "https://api.youcanbook.me",
+  "endpoints": [
+    {
+      "id": "list_profiles",
+      "label": "List profiles",
+      "method": "GET",
+      "path": "/v1/{accountId}/profiles",
+      "fields": [
+        { "id": "accountId", "label": "Account ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "get_profile",
+      "label": "Get profile",
+      "method": "GET",
+      "path": "/v1/{accountId}/profiles/{profileId}",
+      "fields": [
+        { "id": "accountId", "label": "Account ID", "type": "text", "required": true, "in": "path" },
+        { "id": "profileId", "label": "Profile ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_bookings",
+      "label": "List bookings",
+      "method": "GET",
+      "path": "/v1/{accountId}/bookings",
+      "fields": [
+        { "id": "accountId", "label": "Account ID", "type": "text", "required": true, "in": "path" },
+        { "id": "profileId", "label": "Profile ID", "type": "text", "in": "query" },
+        { "id": "startsAfter", "label": "Starts after (ISO)", "type": "text", "in": "query" },
+        { "id": "startsBefore", "label": "Starts before (ISO)", "type": "text", "in": "query" },
+        { "id": "limit", "label": "Limit", "type": "number", "defaultValue": 50, "in": "query" }
+      ]
+    },
+    {
+      "id": "get_booking",
+      "label": "Get booking",
+      "method": "GET",
+      "path": "/v1/{accountId}/bookings/{bookingId}",
+      "fields": [
+        { "id": "accountId", "label": "Account ID", "type": "text", "required": true, "in": "path" },
+        { "id": "bookingId", "label": "Booking ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "cancel_booking",
+      "label": "Cancel booking",
+      "method": "DELETE",
+      "path": "/v1/{accountId}/bookings/{bookingId}",
+      "fields": [
+        { "id": "accountId", "label": "Account ID", "type": "text", "required": true, "in": "path" },
+        { "id": "bookingId", "label": "Booking ID", "type": "text", "required": true, "in": "path" }
+      ]
+    }
+  ]
+}

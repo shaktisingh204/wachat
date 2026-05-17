@@ -1,0 +1,122 @@
+{
+  "id": "n8n-freshservice",
+  "name": "Freshservice",
+  "description": "Consume the Freshservice API",
+  "category": "Transform",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "agent_default",
+      "label": "List Agent",
+      "method": "GET",
+      "path": "/agent",
+      "fields": []
+    },
+    {
+      "id": "agent_group_default",
+      "label": "List AgentGroup",
+      "method": "GET",
+      "path": "/agentGroup",
+      "fields": []
+    },
+    {
+      "id": "agent_role_default",
+      "label": "List AgentRole",
+      "method": "GET",
+      "path": "/agentRole",
+      "fields": []
+    },
+    {
+      "id": "announcement_default",
+      "label": "List Announcement",
+      "method": "GET",
+      "path": "/announcement",
+      "fields": []
+    },
+    {
+      "id": "asset_type_default",
+      "label": "List AssetType",
+      "method": "GET",
+      "path": "/assetType",
+      "fields": []
+    },
+    {
+      "id": "change_default",
+      "label": "List Change",
+      "method": "GET",
+      "path": "/change",
+      "fields": []
+    },
+    {
+      "id": "department_default",
+      "label": "List Department",
+      "method": "GET",
+      "path": "/department",
+      "fields": []
+    },
+    {
+      "id": "location_default",
+      "label": "List Location",
+      "method": "GET",
+      "path": "/location",
+      "fields": []
+    },
+    {
+      "id": "problem_default",
+      "label": "List Problem",
+      "method": "GET",
+      "path": "/problem",
+      "fields": []
+    },
+    {
+      "id": "product_default",
+      "label": "List Product",
+      "method": "GET",
+      "path": "/product",
+      "fields": []
+    },
+    {
+      "id": "release_default",
+      "label": "List Release",
+      "method": "GET",
+      "path": "/release",
+      "fields": []
+    },
+    {
+      "id": "requester_default",
+      "label": "List Requester",
+      "method": "GET",
+      "path": "/requester",
+      "fields": []
+    },
+    {
+      "id": "requester_group_default",
+      "label": "List RequesterGroup",
+      "method": "GET",
+      "path": "/requesterGroup",
+      "fields": []
+    },
+    {
+      "id": "software_default",
+      "label": "List Software",
+      "method": "GET",
+      "path": "/software",
+      "fields": []
+    },
+    {
+      "id": "ticket_default",
+      "label": "List Ticket",
+      "method": "GET",
+      "path": "/ticket",
+      "fields": []
+    }
+  ]
+}

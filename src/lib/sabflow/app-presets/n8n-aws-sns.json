@@ -1,0 +1,84 @@
+{
+  "id": "n8n-aws-sns",
+  "name": "AWS SNS",
+  "description": "Sends data to AWS SNS",
+  "category": "Output",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "none"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "default_create",
+      "label": "Create",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add option"
+        }
+      ]
+    },
+    {
+      "id": "default_delete",
+      "label": "Delete",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "topic",
+          "label": "Topic",
+          "type": "text",
+          "in": "query",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "default_publish",
+      "label": "Publish",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "topic",
+          "label": "Topic",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "subject",
+          "label": "Subject",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "Subject when the message is delivered to email endpoints"
+        },
+        {
+          "id": "message",
+          "label": "Message",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The message you want to send"
+        }
+      ]
+    }
+  ]
+}

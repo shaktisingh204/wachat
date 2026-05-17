@@ -1,0 +1,235 @@
+{
+  "id": "n8n-open-weather-map",
+  "name": "OpenWeatherMap",
+  "description": "Gets current and future weather information",
+  "category": "Input",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "default_current_weather",
+      "label": "Current Weather",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "format",
+          "label": "Format",
+          "type": "select",
+          "in": "query",
+          "description": "The format in which format the data should be returned",
+          "defaultValue": "metric",
+          "options": [
+            {
+              "value": "imperial",
+              "label": "Imperial"
+            },
+            {
+              "value": "metric",
+              "label": "Metric"
+            },
+            {
+              "value": "standard",
+              "label": "Scientific"
+            }
+          ]
+        },
+        {
+          "id": "locationSelection",
+          "label": "Location Selection",
+          "type": "select",
+          "in": "query",
+          "description": "How to define the location for which to return the weather",
+          "defaultValue": "cityName",
+          "options": [
+            {
+              "value": "cityName",
+              "label": "City Name"
+            },
+            {
+              "value": "cityId",
+              "label": "City ID"
+            },
+            {
+              "value": "coordinates",
+              "label": "Coordinates"
+            },
+            {
+              "value": "zipCode",
+              "label": "Zip Code"
+            }
+          ]
+        },
+        {
+          "id": "cityName",
+          "label": "City",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "berlin,de",
+          "description": "The name of the city to return the weather of"
+        },
+        {
+          "id": "cityId",
+          "label": "City ID",
+          "type": "number",
+          "in": "query",
+          "required": true,
+          "description": "The ID of city to return the weather of. List can be downloaded here: http://bulk.openweathermap.org/sample/.",
+          "defaultValue": 160001123
+        },
+        {
+          "id": "latitude",
+          "label": "Latitude",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "13.39",
+          "description": "The latitude of the location to return the weather of"
+        },
+        {
+          "id": "longitude",
+          "label": "Longitude",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "52.52",
+          "description": "The longitude of the location to return the weather of"
+        },
+        {
+          "id": "zipCode",
+          "label": "Zip Code",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "10115,de",
+          "description": "The ID of city to return the weather of. List can be downloaded here: http://bulk.openweathermap.org/sample/."
+        },
+        {
+          "id": "language",
+          "label": "Language",
+          "type": "text",
+          "in": "query",
+          "placeholder": "en",
+          "description": "The two letter language code to get your output in (eg. en, de, ...)."
+        }
+      ]
+    },
+    {
+      "id": "default_5_day_forecast",
+      "label": "5 Day Forecast",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "format",
+          "label": "Format",
+          "type": "select",
+          "in": "query",
+          "description": "The format in which format the data should be returned",
+          "defaultValue": "metric",
+          "options": [
+            {
+              "value": "imperial",
+              "label": "Imperial"
+            },
+            {
+              "value": "metric",
+              "label": "Metric"
+            },
+            {
+              "value": "standard",
+              "label": "Scientific"
+            }
+          ]
+        },
+        {
+          "id": "locationSelection",
+          "label": "Location Selection",
+          "type": "select",
+          "in": "query",
+          "description": "How to define the location for which to return the weather",
+          "defaultValue": "cityName",
+          "options": [
+            {
+              "value": "cityName",
+              "label": "City Name"
+            },
+            {
+              "value": "cityId",
+              "label": "City ID"
+            },
+            {
+              "value": "coordinates",
+              "label": "Coordinates"
+            },
+            {
+              "value": "zipCode",
+              "label": "Zip Code"
+            }
+          ]
+        },
+        {
+          "id": "cityName",
+          "label": "City",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "berlin,de",
+          "description": "The name of the city to return the weather of"
+        },
+        {
+          "id": "cityId",
+          "label": "City ID",
+          "type": "number",
+          "in": "query",
+          "required": true,
+          "description": "The ID of city to return the weather of. List can be downloaded here: http://bulk.openweathermap.org/sample/.",
+          "defaultValue": 160001123
+        },
+        {
+          "id": "latitude",
+          "label": "Latitude",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "13.39",
+          "description": "The latitude of the location to return the weather of"
+        },
+        {
+          "id": "longitude",
+          "label": "Longitude",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "52.52",
+          "description": "The longitude of the location to return the weather of"
+        },
+        {
+          "id": "zipCode",
+          "label": "Zip Code",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "10115,de",
+          "description": "The ID of city to return the weather of. List can be downloaded here: http://bulk.openweathermap.org/sample/."
+        },
+        {
+          "id": "language",
+          "label": "Language",
+          "type": "text",
+          "in": "query",
+          "placeholder": "en",
+          "description": "The two letter language code to get your output in (eg. en, de, ...)."
+        }
+      ]
+    }
+  ]
+}

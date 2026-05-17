@@ -1,0 +1,130 @@
+{
+  "id": "statuspage",
+  "name": "Atlassian Statuspage",
+  "description": "Atlassian Statuspage — status pages, components, incidents, subscribers.",
+  "category": "Status",
+  "iconName": "LuActivity",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "header",
+    "credentialType": "statuspage",
+    "header": "Authorization",
+    "scheme": "OAuth"
+  },
+  "baseUrl": "https://api.statuspage.io/v1",
+  "endpoints": [
+    {
+      "id": "list_pages",
+      "label": "List pages",
+      "method": "GET",
+      "path": "/pages",
+      "fields": [
+        { "id": "page", "label": "Page", "type": "number", "in": "query" },
+        { "id": "per_page", "label": "Per page", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "get_page",
+      "label": "Get page",
+      "method": "GET",
+      "path": "/pages/{page_id}",
+      "fields": [
+        { "id": "page_id", "label": "Page ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_components",
+      "label": "List components",
+      "method": "GET",
+      "path": "/pages/{page_id}/components",
+      "fields": [
+        { "id": "page_id", "label": "Page ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "update_component",
+      "label": "Update component",
+      "method": "PATCH",
+      "path": "/pages/{page_id}/components/{component_id}",
+      "fields": [
+        { "id": "page_id", "label": "Page ID", "type": "text", "required": true, "in": "path" },
+        { "id": "component_id", "label": "Component ID", "type": "text", "required": true, "in": "path" },
+        { "id": "component", "label": "Component (JSON)", "type": "json", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "list_incidents",
+      "label": "List incidents",
+      "method": "GET",
+      "path": "/pages/{page_id}/incidents",
+      "fields": [
+        { "id": "page_id", "label": "Page ID", "type": "text", "required": true, "in": "path" },
+        { "id": "page", "label": "Page", "type": "number", "in": "query" },
+        { "id": "per_page", "label": "Per page", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "create_incident",
+      "label": "Create incident",
+      "method": "POST",
+      "path": "/pages/{page_id}/incidents",
+      "fields": [
+        { "id": "page_id", "label": "Page ID", "type": "text", "required": true, "in": "path" },
+        { "id": "incident", "label": "Incident (JSON)", "type": "json", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "update_incident",
+      "label": "Update incident",
+      "method": "PATCH",
+      "path": "/pages/{page_id}/incidents/{incident_id}",
+      "fields": [
+        { "id": "page_id", "label": "Page ID", "type": "text", "required": true, "in": "path" },
+        { "id": "incident_id", "label": "Incident ID", "type": "text", "required": true, "in": "path" },
+        { "id": "incident", "label": "Incident (JSON)", "type": "json", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "delete_incident",
+      "label": "Delete incident",
+      "method": "DELETE",
+      "path": "/pages/{page_id}/incidents/{incident_id}",
+      "fields": [
+        { "id": "page_id", "label": "Page ID", "type": "text", "required": true, "in": "path" },
+        { "id": "incident_id", "label": "Incident ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_subscribers",
+      "label": "List subscribers",
+      "method": "GET",
+      "path": "/pages/{page_id}/subscribers",
+      "fields": [
+        { "id": "page_id", "label": "Page ID", "type": "text", "required": true, "in": "path" },
+        { "id": "page", "label": "Page", "type": "number", "in": "query" },
+        { "id": "per_page", "label": "Per page", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "create_subscriber",
+      "label": "Create subscriber",
+      "method": "POST",
+      "path": "/pages/{page_id}/subscribers",
+      "fields": [
+        { "id": "page_id", "label": "Page ID", "type": "text", "required": true, "in": "path" },
+        { "id": "subscriber", "label": "Subscriber (JSON)", "type": "json", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "list_metrics_providers",
+      "label": "List metrics providers",
+      "method": "GET",
+      "path": "/pages/{page_id}/metrics_providers",
+      "fields": [
+        { "id": "page_id", "label": "Page ID", "type": "text", "required": true, "in": "path" }
+      ]
+    }
+  ]
+}

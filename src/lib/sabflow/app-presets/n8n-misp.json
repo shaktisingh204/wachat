@@ -1,0 +1,94 @@
+{
+  "id": "n8n-misp",
+  "name": "MISP",
+  "description": "Consume the MISP API",
+  "category": "Transform",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "attribute_default",
+      "label": "List Attribute",
+      "method": "GET",
+      "path": "/attribute",
+      "fields": []
+    },
+    {
+      "id": "event_default",
+      "label": "List Event",
+      "method": "GET",
+      "path": "/event",
+      "fields": []
+    },
+    {
+      "id": "event_tag_default",
+      "label": "List EventTag",
+      "method": "GET",
+      "path": "/eventTag",
+      "fields": []
+    },
+    {
+      "id": "feed_default",
+      "label": "List Feed",
+      "method": "GET",
+      "path": "/feed",
+      "fields": []
+    },
+    {
+      "id": "galaxy_default",
+      "label": "List Galaxy",
+      "method": "GET",
+      "path": "/galaxy",
+      "fields": []
+    },
+    {
+      "id": "noticelist_default",
+      "label": "List Noticelist",
+      "method": "GET",
+      "path": "/noticelist",
+      "fields": []
+    },
+    {
+      "id": "object_default",
+      "label": "List Object",
+      "method": "GET",
+      "path": "/object",
+      "fields": []
+    },
+    {
+      "id": "organisation_default",
+      "label": "List Organisation",
+      "method": "GET",
+      "path": "/organisation",
+      "fields": []
+    },
+    {
+      "id": "tag_default",
+      "label": "List Tag",
+      "method": "GET",
+      "path": "/tag",
+      "fields": []
+    },
+    {
+      "id": "user_default",
+      "label": "List User",
+      "method": "GET",
+      "path": "/user",
+      "fields": []
+    },
+    {
+      "id": "warninglist_default",
+      "label": "List Warninglist",
+      "method": "GET",
+      "path": "/warninglist",
+      "fields": []
+    }
+  ]
+}

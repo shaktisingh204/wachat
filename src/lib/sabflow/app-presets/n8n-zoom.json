@@ -1,0 +1,42 @@
+{
+  "id": "n8n-zoom",
+  "name": "Zoom",
+  "description": "Consume Zoom API",
+  "category": "Input",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "meeting_default",
+      "label": "List Meeting",
+      "method": "GET",
+      "path": "/meeting",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

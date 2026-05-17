@@ -1,0 +1,97 @@
+{
+  "id": "n8n-adalo",
+  "name": "Adalo",
+  "description": "Consume Adalo API",
+  "category": "Transform",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "=https://api.adalo.com/v0/apps/{{$credentials.appId}}",
+  "endpoints": [
+    {
+      "id": "collection_create",
+      "label": "Create Collection",
+      "method": "POST",
+      "path": "/=/collections/{{$parameter[\"collectionId\"]}}",
+      "fields": [
+        {
+          "id": "collectionId",
+          "label": "Collection ID",
+          "type": "text",
+          "in": "body",
+          "required": true,
+          "description": "Open your Adalo application and click on the three buttons beside the collection name, then select API Documentation"
+        }
+      ]
+    },
+    {
+      "id": "collection_delete",
+      "label": "Delete Collection",
+      "method": "DELETE",
+      "path": "/=/collections/{{$parameter[\"collectionId\"]}}/{{$parameter[\"rowId\"]}}",
+      "fields": [
+        {
+          "id": "collectionId",
+          "label": "Collection ID",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "Open your Adalo application and click on the three buttons beside the collection name, then select API Documentation"
+        }
+      ]
+    },
+    {
+      "id": "collection_get",
+      "label": "Get Collection",
+      "method": "GET",
+      "path": "/=/collections/{{$parameter[\"collectionId\"]}}/{{$parameter[\"rowId\"]}}",
+      "fields": [
+        {
+          "id": "collectionId",
+          "label": "Collection ID",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "Open your Adalo application and click on the three buttons beside the collection name, then select API Documentation"
+        }
+      ]
+    },
+    {
+      "id": "collection_get_all",
+      "label": "Get Many Collection",
+      "method": "GET",
+      "path": "/=/collections/{{$parameter[\"collectionId\"]}}",
+      "fields": [
+        {
+          "id": "collectionId",
+          "label": "Collection ID",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "Open your Adalo application and click on the three buttons beside the collection name, then select API Documentation"
+        }
+      ]
+    },
+    {
+      "id": "collection_update",
+      "label": "Update Collection",
+      "method": "PUT",
+      "path": "/=/collections/{{$parameter[\"collectionId\"]}}/{{$parameter[\"rowId\"]}}",
+      "fields": [
+        {
+          "id": "collectionId",
+          "label": "Collection ID",
+          "type": "text",
+          "in": "body",
+          "required": true,
+          "description": "Open your Adalo application and click on the three buttons beside the collection name, then select API Documentation"
+        }
+      ]
+    }
+  ]
+}

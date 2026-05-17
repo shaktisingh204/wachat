@@ -1,0 +1,204 @@
+{
+  "id": "n8n-rabbitmq",
+  "name": "RabbitMQ",
+  "description": "Sends messages to a RabbitMQ topic",
+  "category": "Transform",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "default_send_message",
+      "label": "Send a Message to RabbitMQ",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "mode",
+          "label": "Mode",
+          "type": "select",
+          "in": "query",
+          "description": "To where data should be moved",
+          "defaultValue": "queue",
+          "options": [
+            {
+              "value": "queue",
+              "label": "Queue"
+            },
+            {
+              "value": "exchange",
+              "label": "Exchange"
+            }
+          ]
+        },
+        {
+          "id": "queue",
+          "label": "Queue / Topic",
+          "type": "text",
+          "in": "query",
+          "placeholder": "queue-name",
+          "description": "Name of the queue to publish to"
+        },
+        {
+          "id": "exchange",
+          "label": "Exchange",
+          "type": "text",
+          "in": "query",
+          "placeholder": "exchange-name",
+          "description": "Name of the exchange to publish to"
+        },
+        {
+          "id": "exchangeType",
+          "label": "Type",
+          "type": "select",
+          "in": "query",
+          "description": "Type of exchange",
+          "defaultValue": "fanout",
+          "options": [
+            {
+              "value": "direct",
+              "label": "Direct"
+            },
+            {
+              "value": "topic",
+              "label": "Topic"
+            },
+            {
+              "value": "headers",
+              "label": "Headers"
+            },
+            {
+              "value": "fanout",
+              "label": "Fanout"
+            }
+          ]
+        },
+        {
+          "id": "routingKey",
+          "label": "Routing Key",
+          "type": "text",
+          "in": "query",
+          "placeholder": "routing-key",
+          "description": "The routing key for the message"
+        },
+        {
+          "id": "sendInputData",
+          "label": "Send Input Data",
+          "type": "toggle",
+          "in": "query",
+          "description": "Whether to send the data the node receives as JSON",
+          "defaultValue": true
+        },
+        {
+          "id": "message",
+          "label": "Message",
+          "type": "text",
+          "in": "query",
+          "description": "The message to be sent"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add option"
+        }
+      ]
+    },
+    {
+      "id": "default_delete_message",
+      "label": "Delete From Queue",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "deleteMessage",
+          "label": "Will delete an item from the queue triggered earlier in the workflow by a RabbitMQ Trigger node",
+          "type": "text",
+          "in": "query"
+        },
+        {
+          "id": "mode",
+          "label": "Mode",
+          "type": "select",
+          "in": "query",
+          "description": "To where data should be moved",
+          "defaultValue": "queue",
+          "options": [
+            {
+              "value": "queue",
+              "label": "Queue"
+            },
+            {
+              "value": "exchange",
+              "label": "Exchange"
+            }
+          ]
+        },
+        {
+          "id": "queue",
+          "label": "Queue / Topic",
+          "type": "text",
+          "in": "query",
+          "placeholder": "queue-name",
+          "description": "Name of the queue to publish to"
+        },
+        {
+          "id": "exchange",
+          "label": "Exchange",
+          "type": "text",
+          "in": "query",
+          "placeholder": "exchange-name",
+          "description": "Name of the exchange to publish to"
+        },
+        {
+          "id": "exchangeType",
+          "label": "Type",
+          "type": "select",
+          "in": "query",
+          "description": "Type of exchange",
+          "defaultValue": "fanout",
+          "options": [
+            {
+              "value": "direct",
+              "label": "Direct"
+            },
+            {
+              "value": "topic",
+              "label": "Topic"
+            },
+            {
+              "value": "headers",
+              "label": "Headers"
+            },
+            {
+              "value": "fanout",
+              "label": "Fanout"
+            }
+          ]
+        },
+        {
+          "id": "routingKey",
+          "label": "Routing Key",
+          "type": "text",
+          "in": "query",
+          "placeholder": "routing-key",
+          "description": "The routing key for the message"
+        },
+        {
+          "id": "message",
+          "label": "Message",
+          "type": "text",
+          "in": "query",
+          "description": "The message to be sent"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,136 @@
+{
+  "id": "n8n-compression",
+  "name": "Compression",
+  "description": "Compress and decompress files",
+  "category": "Transform",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "none"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "default_compress",
+      "label": "Compress",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "binaryPropertyName",
+          "label": "Input Binary Field(s)",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "e.g. data,data2,data3",
+          "description": "To process more than one file, use a comma-separated list of the binary fields names",
+          "defaultValue": "data"
+        },
+        {
+          "id": "outputFormat",
+          "label": "Output Format",
+          "type": "select",
+          "in": "query",
+          "description": "Format of the output",
+          "options": [
+            {
+              "value": "gzip",
+              "label": "Gzip"
+            },
+            {
+              "value": "zip",
+              "label": "Zip"
+            }
+          ]
+        },
+        {
+          "id": "outputFormat",
+          "label": "Output Format",
+          "type": "select",
+          "in": "query",
+          "description": "Format of the output",
+          "defaultValue": "zip",
+          "options": [
+            {
+              "value": "gzip",
+              "label": "Gzip"
+            },
+            {
+              "value": "zip",
+              "label": "Zip"
+            }
+          ]
+        },
+        {
+          "id": "fileName",
+          "label": "File Name",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "e.g. data.zip",
+          "description": "Name of the output file"
+        },
+        {
+          "id": "binaryPropertyOutput",
+          "label": "Put Output File in Field",
+          "type": "text",
+          "in": "query",
+          "defaultValue": "data"
+        },
+        {
+          "id": "fileName",
+          "label": "File Name",
+          "type": "text",
+          "in": "query",
+          "placeholder": "e.g. data.txt",
+          "description": "Name of the output file"
+        },
+        {
+          "id": "binaryPropertyOutput",
+          "label": "Put Output File in Field",
+          "type": "text",
+          "in": "query",
+          "defaultValue": "data"
+        },
+        {
+          "id": "outputPrefix",
+          "label": "Output File Prefix",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "Prefix to add to the gzip file",
+          "defaultValue": "data"
+        }
+      ]
+    },
+    {
+      "id": "default_decompress",
+      "label": "Decompress",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "binaryPropertyName",
+          "label": "Input Binary Field(s)",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "e.g. data",
+          "description": "To process more than one file, use a comma-separated list of the binary fields names",
+          "defaultValue": "data"
+        },
+        {
+          "id": "outputPrefix",
+          "label": "Output Prefix",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "Prefix to add to the decompressed files",
+          "defaultValue": "file_"
+        }
+      ]
+    }
+  ]
+}

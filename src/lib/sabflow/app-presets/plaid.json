@@ -1,0 +1,101 @@
+{
+  "id": "plaid",
+  "name": "Plaid",
+  "description": "Bank account linking & financial data.",
+  "category": "Fintech",
+  "iconName": "LuLandmark",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "none",
+    "credentialType": "plaid"
+  },
+  "baseUrl": "https://production.plaid.com",
+  "endpoints": [
+    {
+      "id": "link_token_create",
+      "label": "Create link token",
+      "method": "POST",
+      "path": "/link/token/create",
+      "fields": [
+        { "id": "client_id", "label": "Client ID", "type": "text", "required": true, "in": "body" },
+        { "id": "secret", "label": "Secret", "type": "password", "required": true, "in": "body" },
+        { "id": "client_name", "label": "Client name", "type": "text", "required": true, "in": "body" },
+        { "id": "user", "label": "User", "type": "json", "required": true, "in": "body" },
+        { "id": "products", "label": "Products", "type": "json", "required": true, "in": "body" },
+        { "id": "country_codes", "label": "Country codes", "type": "json", "required": true, "in": "body" },
+        { "id": "language", "label": "Language", "type": "text", "defaultValue": "en", "in": "body" }
+      ]
+    },
+    {
+      "id": "item_public_token_exchange",
+      "label": "Exchange public token",
+      "method": "POST",
+      "path": "/item/public_token/exchange",
+      "fields": [
+        { "id": "client_id", "label": "Client ID", "type": "text", "required": true, "in": "body" },
+        { "id": "secret", "label": "Secret", "type": "password", "required": true, "in": "body" },
+        { "id": "public_token", "label": "Public token", "type": "text", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "accounts_get",
+      "label": "Get accounts",
+      "method": "POST",
+      "path": "/accounts/get",
+      "fields": [
+        { "id": "client_id", "label": "Client ID", "type": "text", "required": true, "in": "body" },
+        { "id": "secret", "label": "Secret", "type": "password", "required": true, "in": "body" },
+        { "id": "access_token", "label": "Access token", "type": "text", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "transactions_get",
+      "label": "Get transactions",
+      "method": "POST",
+      "path": "/transactions/get",
+      "fields": [
+        { "id": "client_id", "label": "Client ID", "type": "text", "required": true, "in": "body" },
+        { "id": "secret", "label": "Secret", "type": "password", "required": true, "in": "body" },
+        { "id": "access_token", "label": "Access token", "type": "text", "required": true, "in": "body" },
+        { "id": "start_date", "label": "Start date (YYYY-MM-DD)", "type": "text", "required": true, "in": "body" },
+        { "id": "end_date", "label": "End date (YYYY-MM-DD)", "type": "text", "required": true, "in": "body" },
+        { "id": "options", "label": "Options", "type": "json", "in": "body" }
+      ]
+    },
+    {
+      "id": "identity_get",
+      "label": "Get identity",
+      "method": "POST",
+      "path": "/identity/get",
+      "fields": [
+        { "id": "client_id", "label": "Client ID", "type": "text", "required": true, "in": "body" },
+        { "id": "secret", "label": "Secret", "type": "password", "required": true, "in": "body" },
+        { "id": "access_token", "label": "Access token", "type": "text", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "auth_get",
+      "label": "Get auth",
+      "method": "POST",
+      "path": "/auth/get",
+      "fields": [
+        { "id": "client_id", "label": "Client ID", "type": "text", "required": true, "in": "body" },
+        { "id": "secret", "label": "Secret", "type": "password", "required": true, "in": "body" },
+        { "id": "access_token", "label": "Access token", "type": "text", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "item_remove",
+      "label": "Remove item",
+      "method": "POST",
+      "path": "/item/remove",
+      "fields": [
+        { "id": "client_id", "label": "Client ID", "type": "text", "required": true, "in": "body" },
+        { "id": "secret", "label": "Secret", "type": "password", "required": true, "in": "body" },
+        { "id": "access_token", "label": "Access token", "type": "text", "required": true, "in": "body" }
+      ]
+    }
+  ]
+}

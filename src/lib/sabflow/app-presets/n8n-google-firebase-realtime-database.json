@@ -1,0 +1,177 @@
+{
+  "id": "n8n-google-firebase-realtime-database",
+  "name": "Google Cloud Realtime Database",
+  "description": "Interact with Google Firebase - Realtime Database API",
+  "category": "Input",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "oauth2",
+    "credentialType": "oauth2"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "default_create",
+      "label": "Create",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "projectId",
+          "label": "Project Name or ID",
+          "type": "select",
+          "in": "query",
+          "required": true,
+          "description": "As displayed in firebase console URL. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>."
+        },
+        {
+          "id": "path",
+          "label": "Object Path",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "e.g. /app/users",
+          "description": "Object path on database. Do not append .json."
+        },
+        {
+          "id": "attributes",
+          "label": "Columns / Attributes",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "age, name, city",
+          "description": "Attributes to save"
+        }
+      ]
+    },
+    {
+      "id": "default_delete",
+      "label": "Delete",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "projectId",
+          "label": "Project Name or ID",
+          "type": "select",
+          "in": "query",
+          "required": true,
+          "description": "As displayed in firebase console URL. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>."
+        },
+        {
+          "id": "path",
+          "label": "Object Path",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "e.g. /app/users",
+          "description": "Object path on database. Do not append .json."
+        }
+      ]
+    },
+    {
+      "id": "default_get",
+      "label": "Get",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "projectId",
+          "label": "Project Name or ID",
+          "type": "select",
+          "in": "query",
+          "required": true,
+          "description": "As displayed in firebase console URL. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>."
+        },
+        {
+          "id": "path",
+          "label": "Object Path",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "e.g. /app/users",
+          "description": "Object path on database. Do not append .json."
+        },
+        {
+          "id": "path",
+          "label": "Object Path",
+          "type": "text",
+          "in": "query",
+          "placeholder": "e.g. /app/users",
+          "description": "Object path on database. Do not append .json."
+        }
+      ]
+    },
+    {
+      "id": "default_push",
+      "label": "Push",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "projectId",
+          "label": "Project Name or ID",
+          "type": "select",
+          "in": "query",
+          "required": true,
+          "description": "As displayed in firebase console URL. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>."
+        },
+        {
+          "id": "path",
+          "label": "Object Path",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "e.g. /app/users",
+          "description": "Object path on database. Do not append .json."
+        },
+        {
+          "id": "attributes",
+          "label": "Columns / Attributes",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "age, name, city",
+          "description": "Attributes to save"
+        }
+      ]
+    },
+    {
+      "id": "default_update",
+      "label": "Update",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "projectId",
+          "label": "Project Name or ID",
+          "type": "select",
+          "in": "query",
+          "required": true,
+          "description": "As displayed in firebase console URL. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>."
+        },
+        {
+          "id": "path",
+          "label": "Object Path",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "e.g. /app/users",
+          "description": "Object path on database. Do not append .json."
+        },
+        {
+          "id": "attributes",
+          "label": "Columns / Attributes",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "age, name, city",
+          "description": "Attributes to save"
+        }
+      ]
+    }
+  ]
+}

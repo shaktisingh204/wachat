@@ -1,0 +1,45 @@
+{
+  "id": "n8n-halo-psa",
+  "name": "HaloPSA",
+  "description": "Consume HaloPSA API",
+  "category": "Input",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "client_default",
+      "label": "List Client",
+      "method": "GET",
+      "path": "/client",
+      "fields": []
+    },
+    {
+      "id": "site_default",
+      "label": "List Site",
+      "method": "GET",
+      "path": "/site",
+      "fields": []
+    },
+    {
+      "id": "ticket_default",
+      "label": "List Ticket",
+      "method": "GET",
+      "path": "/ticket",
+      "fields": []
+    },
+    {
+      "id": "user_default",
+      "label": "List User",
+      "method": "GET",
+      "path": "/user",
+      "fields": []
+    }
+  ]
+}

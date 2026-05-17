@@ -1,0 +1,24 @@
+{
+  "id": "rippling",
+  "name": "Rippling",
+  "description": "Rippling HRIS / workforce platform.",
+  "category": "HR",
+  "iconName": "LuUsers",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": { "type": "bearer", "credentialType": "rippling" },
+  "baseUrl": "https://api.rippling.com/platform/api",
+  "endpoints": [
+    { "id": "list_employees", "label": "List employees", "method": "GET", "path": "/employees", "fields": [] },
+    { "id": "get_employee", "label": "Get employee", "method": "GET", "path": "/employees/{id}", "fields": [{ "id": "id", "type": "text", "required": true, "in": "path" }] },
+    { "id": "create_employee", "label": "Create employee", "method": "POST", "path": "/employees", "fields": [{ "id": "firstName", "type": "text", "required": true, "in": "body" }, { "id": "lastName", "type": "text", "required": true, "in": "body" }, { "id": "workEmail", "type": "text", "required": true, "in": "body" }, { "id": "jobTitle", "type": "text", "in": "body" }, { "id": "startDate", "type": "text", "in": "body" }] },
+    { "id": "update_employee", "label": "Update employee", "method": "PATCH", "path": "/employees/{id}", "fields": [{ "id": "id", "type": "text", "required": true, "in": "path" }] },
+    { "id": "list_departments", "label": "List departments", "method": "GET", "path": "/departments", "fields": [] },
+    { "id": "list_teams", "label": "List teams", "method": "GET", "path": "/teams", "fields": [] },
+    { "id": "list_levels", "label": "List levels", "method": "GET", "path": "/levels", "fields": [] },
+    { "id": "list_time_off_requests", "label": "List time-off requests", "method": "GET", "path": "/leaves/time_off_requests", "fields": [] },
+    { "id": "list_companies", "label": "List companies", "method": "GET", "path": "/companies", "fields": [] },
+    { "id": "me", "label": "Me", "method": "GET", "path": "/me", "fields": [] }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "id": "scrapingbee",
+  "name": "ScrapingBee",
+  "description": "ScrapingBee web scraping API with JS rendering and premium proxies.",
+  "category": "Scraping",
+  "iconName": "LuSearch",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "query_token",
+    "credentialType": "scrapingbee",
+    "queryParam": "api_key"
+  },
+  "baseUrl": "https://app.scrapingbee.com/api/v1",
+  "endpoints": [
+    {
+      "id": "scrape",
+      "label": "Scrape URL",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        { "id": "url", "label": "URL", "type": "text", "required": true, "in": "query" },
+        { "id": "render_js", "label": "Render JS", "type": "toggle", "in": "query" },
+        { "id": "premium_proxy", "label": "Premium proxy", "type": "toggle", "in": "query" },
+        { "id": "country_code", "label": "Country code", "type": "text", "in": "query" },
+        { "id": "wait", "label": "Wait (ms)", "type": "number", "in": "query" },
+        { "id": "extract_rules", "label": "Extract rules JSON", "type": "json", "in": "query" }
+      ]
+    },
+    {
+      "id": "usage",
+      "label": "Get usage",
+      "method": "GET",
+      "path": "/usage",
+      "fields": []
+    }
+  ]
+}

@@ -1,0 +1,359 @@
+{
+  "id": "n8n-nasa",
+  "name": "NASA",
+  "description": "Retrieve data from the NASA API",
+  "category": "Transform",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "astronomy_picture_of_the_day_get",
+      "label": "Get AstronomyPictureOfTheDay",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "download",
+          "label": "Download Image",
+          "type": "toggle",
+          "in": "query",
+          "description": "By default just the URL of the image is returned. When set to true the image will be downloaded.",
+          "defaultValue": true
+        },
+        {
+          "id": "binaryPropertyName",
+          "label": "Put Output File in Field",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "defaultValue": "data"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add field"
+        }
+      ]
+    },
+    {
+      "id": "asteroid_neo_feed_get",
+      "label": "Get AsteroidNeoFeed",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add field"
+        }
+      ]
+    },
+    {
+      "id": "asteroid_neo_lookup_get",
+      "label": "Get AsteroidNeoLookup",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "asteroidId",
+          "label": "Asteroid ID",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "3542519",
+          "description": "The ID of the asteroid to be returned"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Field"
+        }
+      ]
+    },
+    {
+      "id": "asteroid_neo_browse_get_all",
+      "label": "Get Many AsteroidNeoBrowse",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "in": "query",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "in": "query",
+          "description": "Max number of results to return",
+          "defaultValue": 20
+        }
+      ]
+    },
+    {
+      "id": "donki_coronal_mass_ejection_get",
+      "label": "Get DonkiCoronalMassEjection",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add field"
+        }
+      ]
+    },
+    {
+      "id": "donki_geomagnetic_storm_get",
+      "label": "Get DonkiGeomagneticStorm",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add field"
+        }
+      ]
+    },
+    {
+      "id": "donki_interplanetary_shock_get",
+      "label": "Get DonkiInterplanetaryShock",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add field"
+        }
+      ]
+    },
+    {
+      "id": "donki_solar_flare_get",
+      "label": "Get DonkiSolarFlare",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add field"
+        }
+      ]
+    },
+    {
+      "id": "donki_solar_energetic_particle_get",
+      "label": "Get DonkiSolarEnergeticParticle",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add field"
+        }
+      ]
+    },
+    {
+      "id": "donki_magnetopause_crossing_get",
+      "label": "Get DonkiMagnetopauseCrossing",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add field"
+        }
+      ]
+    },
+    {
+      "id": "donki_radiation_belt_enhancement_get",
+      "label": "Get DonkiRadiationBeltEnhancement",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add field"
+        }
+      ]
+    },
+    {
+      "id": "donki_high_speed_stream_get",
+      "label": "Get DonkiHighSpeedStream",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add field"
+        }
+      ]
+    },
+    {
+      "id": "donki_wsa_enlil_simulation_get",
+      "label": "Get DonkiWsaEnlilSimulation",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add field"
+        }
+      ]
+    },
+    {
+      "id": "donki_notifications_get",
+      "label": "Get DonkiNotifications",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add field"
+        }
+      ]
+    },
+    {
+      "id": "earth_imagery_get",
+      "label": "Get EarthImagery",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "lat",
+          "label": "Latitude",
+          "type": "number",
+          "in": "query",
+          "placeholder": "47.751076",
+          "description": "Latitude for the location of the image"
+        },
+        {
+          "id": "lon",
+          "label": "Longitude",
+          "type": "number",
+          "in": "query",
+          "placeholder": "-120.740135",
+          "description": "Longitude for the location of the image"
+        },
+        {
+          "id": "binaryPropertyName",
+          "label": "Put Output File in Field",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "defaultValue": "data"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add field"
+        }
+      ]
+    },
+    {
+      "id": "earth_assets_get",
+      "label": "Get EarthAssets",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "lat",
+          "label": "Latitude",
+          "type": "number",
+          "in": "query",
+          "placeholder": "47.751076",
+          "description": "Latitude for the location of the image"
+        },
+        {
+          "id": "lon",
+          "label": "Longitude",
+          "type": "number",
+          "in": "query",
+          "placeholder": "-120.740135",
+          "description": "Longitude for the location of the image"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add field"
+        }
+      ]
+    },
+    {
+      "id": "in_sight_mars_weather_service_get",
+      "label": "Get InSightMarsWeatherService",
+      "method": "GET",
+      "path": "/",
+      "fields": []
+    },
+    {
+      "id": "image_and_video_library_get",
+      "label": "Get ImageAndVideoLibrary",
+      "method": "GET",
+      "path": "/",
+      "fields": []
+    },
+    {
+      "id": "tech_transfer_get",
+      "label": "Get TechTransfer",
+      "method": "GET",
+      "path": "/",
+      "fields": []
+    },
+    {
+      "id": "two_line_element_set_get",
+      "label": "Get TwoLineElementSet",
+      "method": "GET",
+      "path": "/",
+      "fields": []
+    }
+  ]
+}

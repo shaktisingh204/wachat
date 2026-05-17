@@ -1,0 +1,150 @@
+'use client';
+
+/**
+ * <BankTransactionStatusActions> — tiny client component used on the
+ * transaction detail page. Wraps {@link setBankTransactionStatus} +
+ * {@link deleteBankTransaction} so the parent server component stays
+ * statically renderable.
+ */
+
+import * as React from 'react';
+import { useRouter } from 'next/navigation';
+import { Archive, CheckCircle2, LoaderCircle, RotateCcw, Trash2 } from 'lucide-react';
+
+import {
+    ZoruAlertDialog,
+    ZoruAlertDialogAction,
+    ZoruAlertDialogCancel,
+    ZoruAlertDialogContent,
+    ZoruAlertDialogDescription,
+    ZoruAlertDialogFooter,
+    ZoruAlertDialogHeader,
+    ZoruAlertDialogTitle,
+    ZoruButton,
+    useZoruToast,
+} from '@/components/zoruui';
+
+import {
+    deleteBankTransaction,
+    setBankTransactionStatus,
+    type CrmBankTransactionStatus,
+} from '@/app/actions/crm-bank-transactions.actions';
+
+interface BankTransactionStatusActionsProps {
+    id: string;
+    current: CrmBankTransactionStatus;
+}
+
+export function BankTransactionStatusActions({
+    id,
+    current,
+}: BankTransactionStatusActionsProps): React.JSX.Element {
+    const { toast } = useZoruToast();
+    const router = useRouter();
+    const [isPending, startTransition] = React.useTransition();
+    const [confirmDelete, setConfirmDelete] = React.useState(false);
+
+    const moveTo = React.useCallback(
+        (next: CrmBankTransactionStatus) => {
+            if (next === current) return;
+            startTransition(async () => {
+                const r = await setBankTransactionStatus(id, next);
+                if (r.success) {
+                    toast({ title: `Marked ${next}.` });
+                    router.refresh();
+                } else {
+                    toast({
+                        title: 'Error',
+                        description: r.error,
+                        variant: 'destructive',
+                    });
+                }
+            });
+        },
+        [id, current, router, toast],
+    );
+
+    const onDelete = React.useCallback(() => {
+        startTransition(async () => {
+            const r = await deleteBankTransaction(id);
+            if (r.success) {
+                toast({ title: 'Transaction deleted.' });
+                router.push('/dashboard/crm/banking/bank-transactions');
+            } else {
+                toast({
+                    title: 'Error',
+                    description: r.error,
+                    variant: 'destructive',
+                });
+            }
+        });
+    }, [id, router, toast]);
+
+    return (
+        <div className="flex flex-wrap items-center gap-2">
+            <ZoruButton
+                size="sm"
+                variant={current === 'cleared' ? 'default' : 'outline'}
+                onClick={() => moveTo('cleared')}
+                disabled={isPending || current === 'cleared'}
+            >
+                <CheckCircle2 className="mr-1.5 h-3.5 w-3.5" /> Cleared
+            </ZoruButton>
+            <ZoruButton
+                size="sm"
+                variant={current === 'reconciled' ? 'default' : 'outline'}
+                onClick={() => moveTo('reconciled')}
+                disabled={isPending || current === 'reconciled'}
+            >
+                <CheckCircle2 className="mr-1.5 h-3.5 w-3.5" /> Reconciled
+            </ZoruButton>
+            <ZoruButton
+                size="sm"
+                variant="outline"
+                onClick={() => moveTo('pending')}
+                disabled={isPending || current === 'pending'}
+            >
+                <RotateCcw className="mr-1.5 h-3.5 w-3.5" /> Reopen
+            </ZoruButton>
+            <ZoruButton
+                size="sm"
+                variant="outline"
+                onClick={() => moveTo('archived')}
+                disabled={isPending || current === 'archived'}
+            >
+                <Archive className="mr-1.5 h-3.5 w-3.5" /> Archive
+            </ZoruButton>
+            <ZoruButton
+                size="sm"
+                variant="destructive"
+                onClick={() => setConfirmDelete(true)}
+                disabled={isPending}
+            >
+                {isPending ? (
+                    <LoaderCircle className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                ) : (
+                    <Trash2 className="mr-1.5 h-3.5 w-3.5" />
+                )}
+                Delete
+            </ZoruButton>
+
+            <ZoruAlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
+                <ZoruAlertDialogContent>
+                    <ZoruAlertDialogHeader>
+                        <ZoruAlertDialogTitle>Delete this transaction?</ZoruAlertDialogTitle>
+                        <ZoruAlertDialogDescription>
+                            This action cannot be undone. The linked voucher entry (if any)
+                            is not affected.
+                        </ZoruAlertDialogDescription>
+                    </ZoruAlertDialogHeader>
+                    <ZoruAlertDialogFooter>
+                        <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+                        <ZoruAlertDialogAction onClick={onDelete} disabled={isPending}>
+                            Delete
+                        </ZoruAlertDialogAction>
+                    </ZoruAlertDialogFooter>
+                </ZoruAlertDialogContent>
+            </ZoruAlertDialog>
+        </div>
+    );
+}

@@ -1,0 +1,87 @@
+{
+  "id": "firecrawl",
+  "name": "FireCrawl",
+  "description": "FireCrawl scraping, crawling, mapping, and AI extraction API.",
+  "category": "Scraping",
+  "iconName": "LuSearch",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "bearer",
+    "credentialType": "firecrawl"
+  },
+  "baseUrl": "https://api.firecrawl.dev/v1",
+  "endpoints": [
+    {
+      "id": "scrape_url",
+      "label": "Scrape URL",
+      "method": "POST",
+      "path": "/scrape",
+      "fields": [
+        { "id": "url", "label": "URL", "type": "text", "required": true, "in": "body" },
+        { "id": "formats", "label": "Formats JSON", "type": "json", "in": "body" },
+        { "id": "onlyMainContent", "label": "Only main content", "type": "toggle", "in": "body" },
+        { "id": "headers", "label": "Headers JSON", "type": "json", "in": "body" },
+        { "id": "waitFor", "label": "Wait for (ms)", "type": "number", "in": "body" },
+        { "id": "screenshot", "label": "Screenshot", "type": "toggle", "in": "body" }
+      ]
+    },
+    {
+      "id": "crawl_url",
+      "label": "Crawl URL",
+      "method": "POST",
+      "path": "/crawl",
+      "fields": [
+        { "id": "url", "label": "URL", "type": "text", "required": true, "in": "body" },
+        { "id": "limit", "label": "Limit", "type": "number", "in": "body" },
+        { "id": "maxDepth", "label": "Max depth", "type": "number", "in": "body" },
+        { "id": "allowBackwardLinks", "label": "Allow backward links", "type": "toggle", "in": "body" },
+        { "id": "allowExternalLinks", "label": "Allow external links", "type": "toggle", "in": "body" },
+        { "id": "scrapeOptions", "label": "Scrape options JSON", "type": "json", "in": "body" }
+      ]
+    },
+    {
+      "id": "get_crawl_status",
+      "label": "Get crawl status",
+      "method": "GET",
+      "path": "/crawl/{id}",
+      "fields": [
+        { "id": "id", "label": "Crawl ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "cancel_crawl",
+      "label": "Cancel crawl",
+      "method": "DELETE",
+      "path": "/crawl/{id}",
+      "fields": [
+        { "id": "id", "label": "Crawl ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "map_url",
+      "label": "Map URL",
+      "method": "POST",
+      "path": "/map",
+      "fields": [
+        { "id": "url", "label": "URL", "type": "text", "required": true, "in": "body" },
+        { "id": "search", "label": "Search", "type": "text", "in": "body" },
+        { "id": "limit", "label": "Limit", "type": "number", "in": "body" },
+        { "id": "ignoreSitemap", "label": "Ignore sitemap", "type": "toggle", "in": "body" }
+      ]
+    },
+    {
+      "id": "extract",
+      "label": "Extract structured data",
+      "method": "POST",
+      "path": "/extract",
+      "fields": [
+        { "id": "urls", "label": "URLs JSON", "type": "json", "required": true, "in": "body" },
+        { "id": "prompt", "label": "Prompt", "type": "textarea", "in": "body" },
+        { "id": "schema", "label": "Schema JSON", "type": "json", "in": "body" },
+        { "id": "agent", "label": "Agent JSON", "type": "json", "in": "body" }
+      ]
+    }
+  ]
+}

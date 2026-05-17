@@ -1,0 +1,191 @@
+{
+  "id": "n8n-sentry-io",
+  "name": "Sentry.io",
+  "description": "Consume Sentry.io API",
+  "category": "Output",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "oauth2",
+    "credentialType": "oauth2"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "event_default",
+      "label": "List Event",
+      "method": "GET",
+      "path": "/event",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token (Cloud)"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2 (Cloud)"
+            },
+            {
+              "value": "accessTokenServer",
+              "label": "Access Token (Self Hosted)"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "issue_default",
+      "label": "List Issue",
+      "method": "GET",
+      "path": "/issue",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token (Cloud)"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2 (Cloud)"
+            },
+            {
+              "value": "accessTokenServer",
+              "label": "Access Token (Self Hosted)"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "organization_default",
+      "label": "List Organization",
+      "method": "GET",
+      "path": "/organization",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token (Cloud)"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2 (Cloud)"
+            },
+            {
+              "value": "accessTokenServer",
+              "label": "Access Token (Self Hosted)"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "project_default",
+      "label": "List Project",
+      "method": "GET",
+      "path": "/project",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token (Cloud)"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2 (Cloud)"
+            },
+            {
+              "value": "accessTokenServer",
+              "label": "Access Token (Self Hosted)"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "release_default",
+      "label": "List Release",
+      "method": "GET",
+      "path": "/release",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token (Cloud)"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2 (Cloud)"
+            },
+            {
+              "value": "accessTokenServer",
+              "label": "Access Token (Self Hosted)"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "team_default",
+      "label": "List Team",
+      "method": "GET",
+      "path": "/team",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "accessToken",
+          "options": [
+            {
+              "value": "accessToken",
+              "label": "Access Token (Cloud)"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2 (Cloud)"
+            },
+            {
+              "value": "accessTokenServer",
+              "label": "Access Token (Self Hosted)"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

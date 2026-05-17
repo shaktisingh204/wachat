@@ -1,0 +1,19 @@
+{
+  "id": "maxmind-geoip",
+  "name": "MaxMind GeoIP2",
+  "description": "MaxMind GeoIP2 web service (country, city, insights).",
+  "category": "Geo",
+  "iconName": "LuGlobe",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": { "type": "basic", "credentialType": "maxmind_geoip" },
+  "baseUrl": "https://geoip.maxmind.com/geoip/v2.1",
+  "endpoints": [
+    { "id": "country", "label": "Country", "method": "GET", "path": "/country/{ip_address}", "fields": [{ "id": "ip_address", "type": "text", "required": true, "in": "path" }] },
+    { "id": "city", "label": "City", "method": "GET", "path": "/city/{ip_address}", "fields": [{ "id": "ip_address", "type": "text", "required": true, "in": "path" }] },
+    { "id": "insights", "label": "Insights", "method": "GET", "path": "/insights/{ip_address}", "fields": [{ "id": "ip_address", "type": "text", "required": true, "in": "path" }] },
+    { "id": "me_country", "label": "Me — country", "method": "GET", "path": "/country/me", "fields": [] },
+    { "id": "me_city", "label": "Me — city", "method": "GET", "path": "/city/me", "fields": [] }
+  ]
+}

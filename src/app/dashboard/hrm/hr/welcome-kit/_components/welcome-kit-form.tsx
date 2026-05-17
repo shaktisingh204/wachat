@@ -1,0 +1,308 @@
+'use client';
+
+/**
+ * <WelcomeKitForm /> — create + edit form for HR welcome kits.
+ *
+ * Binds to `saveWelcomeKit` via `useActionState`. The kit's items are
+ * managed inline with add/remove rows; the array is serialised to JSON
+ * and posted as `itemsJson` so the server action can parse it.
+ */
+
+import { useActionState, useEffect, useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useFormStatus } from 'react-dom';
+import { ArrowLeft, LoaderCircle, Plus, Save, Trash2 } from 'lucide-react';
+
+import {
+    ZoruButton,
+    ZoruCard,
+    ZoruCheckbox,
+    ZoruInput,
+    ZoruLabel,
+    ZoruSelect,
+    ZoruSelectContent,
+    ZoruSelectItem,
+    ZoruSelectTrigger,
+    ZoruSelectValue,
+    ZoruTextarea,
+    useZoruToast,
+} from '@/components/zoruui';
+
+import { saveWelcomeKit } from '@/app/actions/crm-welcome-kits.actions';
+import type {
+    CrmWelcomeKitDoc,
+    CrmWelcomeKitItem,
+    CrmWelcomeKitStatus,
+} from '@/app/actions/crm-welcome-kits.actions';
+
+const BASE = '/dashboard/hrm/hr/welcome-kit';
+
+const STATUS_OPTIONS: Array<{ value: CrmWelcomeKitStatus; label: string }> = [
+    { value: 'pending', label: 'Pending' },
+    { value: 'shipped', label: 'Shipped' },
+    { value: 'delivered', label: 'Delivered' },
+    { value: 'archived', label: 'Archived' },
+];
+
+interface WelcomeKitFormProps {
+    initialData?: CrmWelcomeKitDoc | null;
+}
+
+type SaveState = { message?: string; error?: string; id?: string };
+const initialState: SaveState = {};
+
+function SubmitButton({ isEditing }: { isEditing: boolean }) {
+    const { pending } = useFormStatus();
+    return (
+        <ZoruButton type="submit" disabled={pending}>
+            {pending ? (
+                <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+                <Save className="mr-2 h-4 w-4" />
+            )}
+            {isEditing ? 'Save changes' : 'Create welcome kit'}
+        </ZoruButton>
+    );
+}
+
+function toDateInput(value: unknown): string {
+    if (!value) return '';
+    const d = new Date(value as string);
+    if (Number.isNaN(d.getTime())) return '';
+    return d.toISOString().slice(0, 10);
+}
+
+export function WelcomeKitForm({ initialData }: WelcomeKitFormProps) {
+    const router = useRouter();
+    const { toast } = useZoruToast();
+    const isEditing = !!initialData?._id;
+
+    const [state, formAction] = useActionState(saveWelcomeKit, initialState);
+
+    const [status, setStatus] = useState<CrmWelcomeKitStatus>(
+        (initialData?.status as CrmWelcomeKitStatus) ?? 'pending',
+    );
+
+    const [items, setItems] = useState<CrmWelcomeKitItem[]>(
+        Array.isArray(initialData?.items)
+            ? (initialData!.items as CrmWelcomeKitItem[])
+            : [],
+    );
+
+    useEffect(() => {
+        if (state?.message) {
+            toast({ title: 'Saved', description: state.message });
+            const id = state.id ?? initialData?._id;
+            router.push(id ? `${BASE}/${id}` : BASE);
+        }
+        if (state?.error) {
+            toast({ title: 'Error', description: state.error, variant: 'destructive' });
+        }
+    }, [state, toast, router, initialData?._id]);
+
+    const addItem = () => {
+        setItems((curr) => [
+            ...curr,
+            { name: '', sku: '', delivered: false, delivered_at: null },
+        ]);
+    };
+
+    const updateItem = (idx: number, patch: Partial<CrmWelcomeKitItem>) => {
+        setItems((curr) =>
+            curr.map((it, i) => (i === idx ? { ...it, ...patch } : it)),
+        );
+    };
+
+    const removeItem = (idx: number) => {
+        setItems((curr) => curr.filter((_, i) => i !== idx));
+    };
+
+    return (
+        <ZoruCard className="p-6">
+            <form action={formAction} className="flex flex-col gap-6">
+                {isEditing ? (
+                    <input type="hidden" name="kitId" value={initialData!._id} />
+                ) : null}
+                <input type="hidden" name="status" value={status} />
+                <input
+                    type="hidden"
+                    name="itemsJson"
+                    value={JSON.stringify(items)}
+                />
+
+                {/* Row 1: Employee */}
+                <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-1.5">
+                        <ZoruLabel htmlFor="employee_id">Employee id *</ZoruLabel>
+                        <ZoruInput
+                            id="employee_id"
+                            name="employee_id"
+                            required
+                            placeholder="Employee record id"
+                            defaultValue={initialData?.employee_id ?? ''}
+                        />
+                    </div>
+                    <div className="space-y-1.5">
+                        <ZoruLabel htmlFor="employee_name">Employee name</ZoruLabel>
+                        <ZoruInput
+                            id="employee_name"
+                            name="employee_name"
+                            placeholder="Friendly display name"
+                            defaultValue={initialData?.employee_name ?? ''}
+                        />
+                    </div>
+                </div>
+
+                {/* Row 2: Shipping address + tracking */}
+                <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-1.5">
+                        <ZoruLabel htmlFor="shipping_address">Shipping address</ZoruLabel>
+                        <ZoruTextarea
+                            id="shipping_address"
+                            name="shipping_address"
+                            rows={3}
+                            placeholder="Full delivery address"
+                            defaultValue={initialData?.shipping_address ?? ''}
+                        />
+                    </div>
+                    <div className="space-y-1.5">
+                        <ZoruLabel htmlFor="tracking_number">Tracking number</ZoruLabel>
+                        <ZoruInput
+                            id="tracking_number"
+                            name="tracking_number"
+                            placeholder="Courier tracking reference"
+                            defaultValue={initialData?.tracking_number ?? ''}
+                        />
+                    </div>
+                </div>
+
+                {/* Row 3: Status */}
+                <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-1.5">
+                        <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
+                        <ZoruSelect
+                            value={status}
+                            onValueChange={(v) => setStatus(v as CrmWelcomeKitStatus)}
+                        >
+                            <ZoruSelectTrigger id="status-trigger">
+                                <ZoruSelectValue placeholder="Status" />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                {STATUS_OPTIONS.map((o) => (
+                                    <ZoruSelectItem key={o.value} value={o.value}>
+                                        {o.label}
+                                    </ZoruSelectItem>
+                                ))}
+                            </ZoruSelectContent>
+                        </ZoruSelect>
+                    </div>
+                </div>
+
+                {/* Items */}
+                <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                        <ZoruLabel>Items</ZoruLabel>
+                        <ZoruButton
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={addItem}
+                        >
+                            <Plus className="mr-1.5 h-3.5 w-3.5" /> Add item
+                        </ZoruButton>
+                    </div>
+                    {items.length === 0 ? (
+                        <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-6 text-center text-[12.5px] text-zoru-ink-muted">
+                            No items yet. Add one with the button above.
+                        </div>
+                    ) : (
+                        <div className="flex flex-col gap-2">
+                            {items.map((it, idx) => (
+                                <div
+                                    key={idx}
+                                    className="grid grid-cols-1 items-end gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-3 sm:grid-cols-[1fr_140px_140px_120px_auto]"
+                                >
+                                    <div className="space-y-1">
+                                        <ZoruLabel className="text-[11px] text-zoru-ink-muted">
+                                            Item name
+                                        </ZoruLabel>
+                                        <ZoruInput
+                                            value={it.name}
+                                            onChange={(e) =>
+                                                updateItem(idx, { name: e.target.value })
+                                            }
+                                            placeholder="e.g. T-shirt"
+                                            required
+                                        />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <ZoruLabel className="text-[11px] text-zoru-ink-muted">
+                                            SKU
+                                        </ZoruLabel>
+                                        <ZoruInput
+                                            value={it.sku ?? ''}
+                                            onChange={(e) =>
+                                                updateItem(idx, { sku: e.target.value })
+                                            }
+                                            placeholder="Optional"
+                                        />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <ZoruLabel className="text-[11px] text-zoru-ink-muted">
+                                            Delivered at
+                                        </ZoruLabel>
+                                        <ZoruInput
+                                            type="date"
+                                            value={toDateInput(it.delivered_at)}
+                                            onChange={(e) =>
+                                                updateItem(idx, {
+                                                    delivered_at: e.target.value || null,
+                                                })
+                                            }
+                                        />
+                                    </div>
+                                    <div className="flex items-center gap-2 pb-2">
+                                        <ZoruCheckbox
+                                            id={`item-delivered-${idx}`}
+                                            checked={!!it.delivered}
+                                            onCheckedChange={(c) =>
+                                                updateItem(idx, { delivered: !!c })
+                                            }
+                                        />
+                                        <ZoruLabel
+                                            htmlFor={`item-delivered-${idx}`}
+                                            className="cursor-pointer text-[12px]"
+                                        >
+                                            Delivered
+                                        </ZoruLabel>
+                                    </div>
+                                    <ZoruButton
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={() => removeItem(idx)}
+                                        aria-label="Remove item"
+                                    >
+                                        <Trash2 className="h-4 w-4 text-destructive" />
+                                    </ZoruButton>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+
+                {/* Footer */}
+                <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
+                    <ZoruButton variant="ghost" asChild>
+                        <Link href={BASE}>
+                            <ArrowLeft className="mr-2 h-4 w-4" />
+                            Back to welcome kits
+                        </Link>
+                    </ZoruButton>
+                    <SubmitButton isEditing={isEditing} />
+                </div>
+            </form>
+        </ZoruCard>
+    );
+}

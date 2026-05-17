@@ -1,0 +1,130 @@
+{
+  "id": "reddit",
+  "name": "Reddit",
+  "description": "Reddit API for submitting, commenting, voting, and reading subreddits.",
+  "category": "Social",
+  "iconName": "LuMessageCircle",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "bearer",
+    "credentialType": "reddit"
+  },
+  "baseUrl": "https://oauth.reddit.com",
+  "endpoints": [
+    {
+      "id": "me",
+      "label": "Get me",
+      "method": "GET",
+      "path": "/api/v1/me",
+      "fields": []
+    },
+    {
+      "id": "submit",
+      "label": "Submit post",
+      "method": "POST",
+      "path": "/api/submit",
+      "fields": [
+        { "id": "sr", "label": "Subreddit", "type": "text", "required": true, "in": "body" },
+        { "id": "kind", "label": "Kind", "type": "select", "required": true, "defaultValue": "self", "in": "body" },
+        { "id": "title", "label": "Title", "type": "text", "required": true, "in": "body" },
+        { "id": "text", "label": "Text (self post)", "type": "textarea", "in": "body" },
+        { "id": "url", "label": "URL (link post)", "type": "text", "in": "body" },
+        { "id": "sendreplies", "label": "Send replies", "type": "toggle", "in": "body" },
+        { "id": "resubmit", "label": "Resubmit", "type": "toggle", "in": "body" }
+      ]
+    },
+    {
+      "id": "comment",
+      "label": "Comment",
+      "method": "POST",
+      "path": "/api/comment",
+      "fields": [
+        { "id": "parent", "label": "Parent fullname", "type": "text", "required": true, "in": "body" },
+        { "id": "text", "label": "Text", "type": "textarea", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "delete",
+      "label": "Delete thing",
+      "method": "POST",
+      "path": "/api/del",
+      "fields": [
+        { "id": "id", "label": "Thing fullname", "type": "text", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "vote",
+      "label": "Vote",
+      "method": "POST",
+      "path": "/api/vote",
+      "fields": [
+        { "id": "dir", "label": "Direction (1, 0, -1)", "type": "number", "required": true, "in": "body" },
+        { "id": "id", "label": "Thing fullname", "type": "text", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "subreddit_about",
+      "label": "Subreddit about",
+      "method": "GET",
+      "path": "/r/{subreddit}/about",
+      "fields": [
+        { "id": "subreddit", "label": "Subreddit", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "subreddit_hot",
+      "label": "Subreddit hot",
+      "method": "GET",
+      "path": "/r/{subreddit}/hot",
+      "fields": [
+        { "id": "subreddit", "label": "Subreddit", "type": "text", "required": true, "in": "path" },
+        { "id": "limit", "label": "Limit", "type": "number", "defaultValue": 25, "in": "query" }
+      ]
+    },
+    {
+      "id": "subreddit_new",
+      "label": "Subreddit new",
+      "method": "GET",
+      "path": "/r/{subreddit}/new",
+      "fields": [
+        { "id": "subreddit", "label": "Subreddit", "type": "text", "required": true, "in": "path" },
+        { "id": "limit", "label": "Limit", "type": "number", "defaultValue": 25, "in": "query" }
+      ]
+    },
+    {
+      "id": "subreddit_top",
+      "label": "Subreddit top",
+      "method": "GET",
+      "path": "/r/{subreddit}/top",
+      "fields": [
+        { "id": "subreddit", "label": "Subreddit", "type": "text", "required": true, "in": "path" },
+        { "id": "t", "label": "Time window", "type": "select", "defaultValue": "day", "in": "query" },
+        { "id": "limit", "label": "Limit", "type": "number", "defaultValue": 25, "in": "query" }
+      ]
+    },
+    {
+      "id": "search",
+      "label": "Search",
+      "method": "GET",
+      "path": "/search",
+      "fields": [
+        { "id": "q", "label": "Query", "type": "text", "required": true, "in": "query" },
+        { "id": "restrict_sr", "label": "Restrict to subreddit", "type": "toggle", "in": "query" },
+        { "id": "sort", "label": "Sort", "type": "select", "in": "query" },
+        { "id": "t", "label": "Time window", "type": "select", "in": "query" }
+      ]
+    },
+    {
+      "id": "subscribe",
+      "label": "Subscribe",
+      "method": "POST",
+      "path": "/api/subscribe",
+      "fields": [
+        { "id": "action", "label": "Action (sub/unsub)", "type": "select", "required": true, "defaultValue": "sub", "in": "body" },
+        { "id": "sr_name", "label": "Subreddit name", "type": "text", "required": true, "in": "body" }
+      ]
+    }
+  ]
+}

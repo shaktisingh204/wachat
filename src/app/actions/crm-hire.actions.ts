@@ -5,7 +5,11 @@ import { ObjectId, type WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
 import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
-import { crmPurchaseLeadsApi } from '@/lib/rust-client/crm-purchase-leads';
+import {
+  crmHireApi,
+  type CrmHireCreateInput,
+  type CrmHireUpdateInput,
+} from '@/lib/rust-client/crm-hire';
 import { RustApiError } from '@/lib/rust-client/fetcher';
 
 function useRustCrm(): boolean {
@@ -48,9 +52,10 @@ export async function getCrmHireById(
 
   if (useRustCrm()) {
     try {
-      const doc = await crmPurchaseLeadsApi.getById(hireId);
+      const doc = await crmHireApi.getById(hireId);
       return JSON.parse(JSON.stringify(doc)) as WithId<CrmHireDoc>;
     } catch (e) {
+      if (e instanceof RustApiError && e.status === 404) return null;
       console.error('[getCrmHireById] rust path failed; falling back:', e);
       recordRustFallback({
         entity: 'purchase_lead',
@@ -112,6 +117,42 @@ export async function updateCrmHire(
   const stage = (formData.get('stage') as string | null)?.trim() || undefined;
   const status = (formData.get('status') as string | null)?.trim() || undefined;
 
+  if (useRustCrm()) {
+    try {
+      const patch: CrmHireUpdateInput = {
+        title,
+        ...(category !== undefined ? { category } : {}),
+        ...(vendorCandidate !== undefined ? { vendorCandidate } : {}),
+        ...(requiredByRaw
+          ? { requiredBy: new Date(requiredByRaw).toISOString() }
+          : {}),
+        ...(qty !== undefined && !isNaN(qty) ? { quantity: qty } : {}),
+        ...(estimatedBudget !== undefined && !isNaN(estimatedBudget)
+          ? { estimatedBudget }
+          : {}),
+        ...(specs !== undefined ? { specs } : {}),
+        ...(owner !== undefined ? { owner } : {}),
+        ...(stage ? { stage } : {}),
+        ...(status ? { status } : {}),
+      };
+      await crmHireApi.update(hireId, patch);
+      revalidatePath('/dashboard/crm/purchases/hire');
+      revalidatePath(`/dashboard/crm/purchases/hire/${hireId}`);
+      return { message: 'Hire request updated.', id: hireId };
+    } catch (e) {
+      if (e instanceof RustApiError && e.status === 404) {
+        return { error: 'Hire request not found.' };
+      }
+      console.error('[updateCrmHire] rust path failed; falling back:', e);
+      recordRustFallback({
+        entity: 'purchase_lead',
+        op: 'update',
+        errorCode: e instanceof RustApiError ? e.code : undefined,
+        status: e instanceof RustApiError ? e.status : undefined,
+      });
+    }
+  }
+
   try {
     const { db } = await connectToDatabase();
     const result = await db.collection('crm_purchase_leads').updateOne(
@@ -172,6 +213,38 @@ export async function savePurchaseLead(
     : undefined;
   const specs = (formData.get('specs') as string | null)?.trim() || undefined;
   const owner = (formData.get('owner') as string | null)?.trim() || undefined;
+
+  if (useRustCrm()) {
+    try {
+      const input: CrmHireCreateInput = {
+        title,
+        ...(category ? { category } : {}),
+        ...(vendorCandidate ? { vendorCandidate } : {}),
+        ...(requiredByRaw
+          ? { requiredBy: new Date(requiredByRaw).toISOString() }
+          : {}),
+        ...(qty !== undefined && !isNaN(qty) ? { quantity: qty } : {}),
+        ...(estimatedBudget !== undefined && !isNaN(estimatedBudget)
+          ? { estimatedBudget }
+          : {}),
+        ...(specs ? { specs } : {}),
+        ...(owner ? { owner } : {}),
+        stage: 'sourcing',
+        status: 'open',
+      };
+      const created = await crmHireApi.create(input);
+      revalidatePath('/dashboard/crm/purchases/hire');
+      return { message: 'Hire request created.', id: created.id };
+    } catch (e) {
+      console.error('[savePurchaseLead] rust path failed; falling back:', e);
+      recordRustFallback({
+        entity: 'purchase_lead',
+        op: 'create',
+        errorCode: e instanceof RustApiError ? e.code : undefined,
+        status: e instanceof RustApiError ? e.status : undefined,
+      });
+    }
+  }
 
   try {
     const { db } = await connectToDatabase();

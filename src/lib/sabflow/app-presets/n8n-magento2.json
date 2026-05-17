@@ -1,0 +1,45 @@
+{
+  "id": "n8n-magento2",
+  "name": "Magento 2",
+  "description": "Consume Magento API",
+  "category": "Input",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "customer_default",
+      "label": "List Customer",
+      "method": "GET",
+      "path": "/customer",
+      "fields": []
+    },
+    {
+      "id": "invoice_default",
+      "label": "List Invoice",
+      "method": "GET",
+      "path": "/invoice",
+      "fields": []
+    },
+    {
+      "id": "order_default",
+      "label": "List Order",
+      "method": "GET",
+      "path": "/order",
+      "fields": []
+    },
+    {
+      "id": "product_default",
+      "label": "List Product",
+      "method": "GET",
+      "path": "/product",
+      "fields": []
+    }
+  ]
+}

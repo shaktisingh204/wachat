@@ -1,0 +1,274 @@
+{
+  "id": "n8n-one-simple-api",
+  "name": "One Simple API",
+  "description": "A toolbox of no-code utilities",
+  "category": "Transform",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "website_pdf",
+      "label": "Generate PDF Website",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "link",
+          "label": "Webpage URL",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "Link to webpage to convert"
+        },
+        {
+          "id": "download",
+          "label": "Download PDF?",
+          "type": "toggle",
+          "in": "query",
+          "required": true,
+          "description": "Whether to download the PDF or return a link to it",
+          "defaultValue": false
+        },
+        {
+          "id": "output",
+          "label": "Put Output In Field",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The name of the output field to put the binary file data in",
+          "defaultValue": "data"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add option"
+        }
+      ]
+    },
+    {
+      "id": "website_seo",
+      "label": "Get SEO Data Website",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "link",
+          "label": "Webpage URL",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "Webpage to get SEO information for"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add option"
+        }
+      ]
+    },
+    {
+      "id": "website_screenshot",
+      "label": "Take Screenshot Website",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "link",
+          "label": "Webpage URL",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "Link to webpage to convert"
+        },
+        {
+          "id": "download",
+          "label": "Download Screenshot?",
+          "type": "toggle",
+          "in": "query",
+          "required": true,
+          "description": "Whether to download the screenshot or return a link to it",
+          "defaultValue": false
+        },
+        {
+          "id": "output",
+          "label": "Put Output In Field",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The name of the output field to put the binary file data in",
+          "defaultValue": "data"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add option"
+        }
+      ]
+    },
+    {
+      "id": "social_profile_instagram_profile",
+      "label": "Instagram SocialProfile",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "profileName",
+          "label": "Profile Name",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "Profile name to get details of"
+        }
+      ]
+    },
+    {
+      "id": "social_profile_spotify_artist_profile",
+      "label": "Spotify SocialProfile",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "artistName",
+          "label": "Artist Name",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "Artist name to get details for"
+        }
+      ]
+    },
+    {
+      "id": "information_exchange_rate",
+      "label": "Exchange Rate Information",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "value",
+          "label": "Value",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "Value to convert"
+        },
+        {
+          "id": "fromCurrency",
+          "label": "From Currency",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "USD"
+        },
+        {
+          "id": "toCurrency",
+          "label": "To Currency",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "EUR"
+        }
+      ]
+    },
+    {
+      "id": "information_image_metadata",
+      "label": "Image Metadata Information",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "link",
+          "label": "Link To Image",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "Image to get metadata from"
+        }
+      ]
+    },
+    {
+      "id": "utility_expand_url",
+      "label": "Expand URL Utility",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "link",
+          "label": "URL",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "URL to unshorten"
+        }
+      ]
+    },
+    {
+      "id": "utility_qr_code",
+      "label": "Generate QR Code Utility",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "message",
+          "label": "QR Content",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The text that should be turned into a QR code - like a website URL"
+        },
+        {
+          "id": "download",
+          "label": "Download Image?",
+          "type": "toggle",
+          "in": "query",
+          "required": true,
+          "description": "Whether to download the QR code or return a link to it",
+          "defaultValue": false
+        },
+        {
+          "id": "output",
+          "label": "Put Output In Field",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The name of the output field to put the binary file data in",
+          "defaultValue": "data"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add option"
+        }
+      ]
+    },
+    {
+      "id": "utility_validate_email",
+      "label": "Validate Email Utility",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "emailAddress",
+          "label": "Email Address",
+          "type": "text",
+          "in": "query",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

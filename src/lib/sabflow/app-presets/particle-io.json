@@ -1,0 +1,23 @@
+{
+  "id": "particle-io",
+  "name": "Particle.io",
+  "description": "Particle IoT cloud (devices, functions, variables, events).",
+  "category": "IoT",
+  "iconName": "LuCpu",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": { "type": "bearer", "credentialType": "particle_io" },
+  "baseUrl": "https://api.particle.io/v1",
+  "endpoints": [
+    { "id": "list_devices", "label": "List devices", "method": "GET", "path": "/devices", "fields": [] },
+    { "id": "get_device", "label": "Get device", "method": "GET", "path": "/devices/{device_id}", "fields": [{ "id": "device_id", "type": "text", "required": true, "in": "path" }] },
+    { "id": "call_function", "label": "Call function", "method": "POST", "path": "/devices/{device_id}/{function}", "fields": [{ "id": "device_id", "type": "text", "required": true, "in": "path" }, { "id": "function", "type": "text", "required": true, "in": "path" }, { "id": "arg", "type": "text", "in": "body" }] },
+    { "id": "get_variable", "label": "Get variable", "method": "GET", "path": "/devices/{device_id}/{variable}", "fields": [{ "id": "device_id", "type": "text", "required": true, "in": "path" }, { "id": "variable", "type": "text", "required": true, "in": "path" }] },
+    { "id": "signal_device", "label": "Signal device", "method": "PUT", "path": "/devices/{device_id}", "fields": [{ "id": "device_id", "type": "text", "required": true, "in": "path" }, { "id": "signal", "type": "text", "required": true, "in": "body" }] },
+    { "id": "publish_event", "label": "Publish event", "method": "POST", "path": "/devices/events", "fields": [{ "id": "name", "type": "text", "required": true, "in": "body" }, { "id": "data", "type": "text", "in": "body" }, { "id": "private", "type": "toggle", "in": "body" }, { "id": "ttl", "type": "number", "in": "body" }] },
+    { "id": "list_products", "label": "List products", "method": "GET", "path": "/products", "fields": [] },
+    { "id": "list_product_devices", "label": "List product devices", "method": "GET", "path": "/products/{product_id_or_slug}/devices", "fields": [{ "id": "product_id_or_slug", "type": "text", "required": true, "in": "path" }] },
+    { "id": "flash_firmware", "label": "Flash firmware", "method": "PUT", "path": "/devices/{device_id}", "fields": [{ "id": "device_id", "type": "text", "required": true, "in": "path" }, { "id": "name", "type": "text", "in": "body" }, { "id": "file", "type": "text", "in": "body" }] }
+  ]
+}

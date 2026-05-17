@@ -1,0 +1,94 @@
+{
+  "id": "hotjar",
+  "name": "Hotjar",
+  "description": "Hotjar product experience insights — recordings, heatmaps, surveys.",
+  "category": "Monitoring",
+  "iconName": "LuActivity",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "bearer",
+    "credentialType": "hotjar"
+  },
+  "baseUrl": "https://insights.hotjar.com/api/v3",
+  "endpoints": [
+    {
+      "id": "list_sites",
+      "label": "List sites",
+      "method": "GET",
+      "path": "/sites",
+      "fields": []
+    },
+    {
+      "id": "get_site",
+      "label": "Get site",
+      "method": "GET",
+      "path": "/sites/{site_id}",
+      "fields": [
+        { "id": "site_id", "label": "Site ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_recordings",
+      "label": "List recordings",
+      "method": "GET",
+      "path": "/sites/{site_id}/recordings",
+      "fields": [
+        { "id": "site_id", "label": "Site ID", "type": "text", "required": true, "in": "path" },
+        { "id": "page", "label": "Page", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "get_recording",
+      "label": "Get recording",
+      "method": "GET",
+      "path": "/sites/{site_id}/recordings/{recording_id}",
+      "fields": [
+        { "id": "site_id", "label": "Site ID", "type": "text", "required": true, "in": "path" },
+        { "id": "recording_id", "label": "Recording ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_heatmaps",
+      "label": "List heatmaps",
+      "method": "GET",
+      "path": "/sites/{site_id}/heatmaps",
+      "fields": [
+        { "id": "site_id", "label": "Site ID", "type": "text", "required": true, "in": "path" },
+        { "id": "page", "label": "Page", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "list_surveys",
+      "label": "List surveys",
+      "method": "GET",
+      "path": "/sites/{site_id}/surveys",
+      "fields": [
+        { "id": "site_id", "label": "Site ID", "type": "text", "required": true, "in": "path" },
+        { "id": "page", "label": "Page", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "list_survey_responses",
+      "label": "List survey responses",
+      "method": "GET",
+      "path": "/sites/{site_id}/surveys/{survey_id}/responses",
+      "fields": [
+        { "id": "site_id", "label": "Site ID", "type": "text", "required": true, "in": "path" },
+        { "id": "survey_id", "label": "Survey ID", "type": "text", "required": true, "in": "path" },
+        { "id": "page", "label": "Page", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "list_feedbacks",
+      "label": "List feedbacks",
+      "method": "GET",
+      "path": "/sites/{site_id}/feedbacks",
+      "fields": [
+        { "id": "site_id", "label": "Site ID", "type": "text", "required": true, "in": "path" },
+        { "id": "page", "label": "Page", "type": "number", "in": "query" }
+      ]
+    }
+  ]
+}

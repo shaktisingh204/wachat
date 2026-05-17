@@ -1,0 +1,128 @@
+{
+  "id": "pinterest",
+  "name": "Pinterest",
+  "description": "Pinterest API v5 for boards, pins, and analytics.",
+  "category": "Social",
+  "iconName": "LuImage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "bearer",
+    "credentialType": "pinterest"
+  },
+  "baseUrl": "https://api.pinterest.com/v5",
+  "endpoints": [
+    {
+      "id": "me",
+      "label": "Get user account",
+      "method": "GET",
+      "path": "/user_account",
+      "fields": []
+    },
+    {
+      "id": "list_boards",
+      "label": "List boards",
+      "method": "GET",
+      "path": "/boards",
+      "fields": [
+        { "id": "page_size", "label": "Page size", "type": "number", "defaultValue": 25, "in": "query" },
+        { "id": "bookmark", "label": "Bookmark", "type": "text", "in": "query" }
+      ]
+    },
+    {
+      "id": "get_board",
+      "label": "Get board",
+      "method": "GET",
+      "path": "/boards/{board_id}",
+      "fields": [
+        { "id": "board_id", "label": "Board ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "create_board",
+      "label": "Create board",
+      "method": "POST",
+      "path": "/boards",
+      "fields": [
+        { "id": "name", "label": "Name", "type": "text", "required": true, "in": "body" },
+        { "id": "description", "label": "Description", "type": "textarea", "in": "body" },
+        { "id": "privacy", "label": "Privacy", "type": "select", "defaultValue": "PUBLIC", "in": "body" }
+      ]
+    },
+    {
+      "id": "delete_board",
+      "label": "Delete board",
+      "method": "DELETE",
+      "path": "/boards/{board_id}",
+      "fields": [
+        { "id": "board_id", "label": "Board ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_pins",
+      "label": "List pins",
+      "method": "GET",
+      "path": "/pins",
+      "fields": [
+        { "id": "page_size", "label": "Page size", "type": "number", "defaultValue": 25, "in": "query" },
+        { "id": "bookmark", "label": "Bookmark", "type": "text", "in": "query" }
+      ]
+    },
+    {
+      "id": "get_pin",
+      "label": "Get pin",
+      "method": "GET",
+      "path": "/pins/{pin_id}",
+      "fields": [
+        { "id": "pin_id", "label": "Pin ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "create_pin",
+      "label": "Create pin",
+      "method": "POST",
+      "path": "/pins",
+      "fields": [
+        { "id": "board_id", "label": "Board ID", "type": "text", "required": true, "in": "body" },
+        { "id": "title", "label": "Title", "type": "text", "in": "body" },
+        { "id": "description", "label": "Description", "type": "textarea", "in": "body" },
+        { "id": "alt_text", "label": "Alt text", "type": "text", "in": "body" },
+        { "id": "link", "label": "Link", "type": "text", "in": "body" },
+        { "id": "media_source", "label": "Media source { source_type, url? }", "type": "json", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "delete_pin",
+      "label": "Delete pin",
+      "method": "DELETE",
+      "path": "/pins/{pin_id}",
+      "fields": [
+        { "id": "pin_id", "label": "Pin ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "analytics_pin",
+      "label": "Pin analytics",
+      "method": "GET",
+      "path": "/pins/{pin_id}/analytics",
+      "fields": [
+        { "id": "pin_id", "label": "Pin ID", "type": "text", "required": true, "in": "path" },
+        { "id": "start_date", "label": "Start date (YYYY-MM-DD)", "type": "text", "required": true, "in": "query" },
+        { "id": "end_date", "label": "End date (YYYY-MM-DD)", "type": "text", "required": true, "in": "query" },
+        { "id": "metric_types", "label": "Metric types (CSV)", "type": "text", "required": true, "in": "query" }
+      ]
+    },
+    {
+      "id": "analytics_user_account",
+      "label": "User account analytics",
+      "method": "GET",
+      "path": "/user_account/analytics",
+      "fields": [
+        { "id": "start_date", "label": "Start date (YYYY-MM-DD)", "type": "text", "required": true, "in": "query" },
+        { "id": "end_date", "label": "End date (YYYY-MM-DD)", "type": "text", "required": true, "in": "query" },
+        { "id": "metric_types", "label": "Metric types (CSV)", "type": "text", "required": true, "in": "query" }
+      ]
+    }
+  ]
+}

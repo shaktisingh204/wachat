@@ -1,0 +1,19 @@
+{
+  "id": "realtor-com",
+  "name": "Realtor.com (RapidAPI)",
+  "description": "Realtor.com listings via RapidAPI.",
+  "category": "Real estate",
+  "iconName": "LuHome",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": { "type": "header", "credentialType": "realtor_com", "header": "X-RapidAPI-Key" },
+  "baseUrl": "https://realtor.p.rapidapi.com",
+  "endpoints": [
+    { "id": "properties_v3_list", "label": "Properties (v3) list by city", "method": "GET", "path": "/properties/v3/list-by-city", "fields": [{ "id": "rapidapi_host", "type": "text", "defaultValue": "realtor.p.rapidapi.com", "in": "header" }, { "id": "city", "type": "text", "required": true, "in": "query" }, { "id": "state_code", "type": "text", "required": true, "in": "query" }, { "id": "limit", "type": "number", "defaultValue": 25, "in": "query" }, { "id": "offset", "type": "number", "in": "query" }] },
+    { "id": "properties_v3_detail", "label": "Property detail", "method": "GET", "path": "/properties/v3/detail", "fields": [{ "id": "rapidapi_host", "type": "text", "defaultValue": "realtor.p.rapidapi.com", "in": "header" }, { "id": "property_id", "type": "text", "required": true, "in": "query" }] },
+    { "id": "properties_list_for_sale", "label": "Properties list for sale", "method": "GET", "path": "/properties/list-for-sale", "fields": [{ "id": "rapidapi_host", "type": "text", "defaultValue": "realtor.p.rapidapi.com", "in": "header" }, { "id": "city", "type": "text", "required": true, "in": "query" }, { "id": "state_code", "type": "text", "required": true, "in": "query" }, { "id": "offset", "type": "number", "in": "query" }, { "id": "limit", "type": "number", "defaultValue": 25, "in": "query" }] },
+    { "id": "agents_search", "label": "Agents search", "method": "GET", "path": "/agents/search", "fields": [{ "id": "rapidapi_host", "type": "text", "defaultValue": "realtor.p.rapidapi.com", "in": "header" }, { "id": "nameOrPhoneOrEmail", "type": "text", "required": true, "in": "query" }] },
+    { "id": "mortgage_check_affordability", "label": "Mortgage affordability", "method": "GET", "path": "/mortgage/check-affordability", "fields": [{ "id": "rapidapi_host", "type": "text", "defaultValue": "realtor.p.rapidapi.com", "in": "header" }, { "id": "annual_income", "type": "number", "required": true, "in": "query" }, { "id": "monthly_debts", "type": "number", "in": "query" }, { "id": "down_payment", "type": "number", "in": "query" }, { "id": "interest_rate", "type": "number", "in": "query" }, { "id": "duration_years", "type": "number", "in": "query" }] }
+  ]
+}

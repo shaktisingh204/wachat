@@ -1,0 +1,24 @@
+{
+  "id": "n8n-url-scan-io",
+  "name": "urlscan.io",
+  "description": "Provides various utilities for monitoring websites like health checks or screenshots",
+  "category": "Transform",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "scan_default",
+      "label": "List Scan",
+      "method": "GET",
+      "path": "/scan",
+      "fields": []
+    }
+  ]
+}

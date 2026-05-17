@@ -1,13 +1,14 @@
 'use server';
 
 /**
- * CRM HR Certifications — legacy Mongo-backed server actions.
+ * CRM HR Certifications server actions.
  *
- * There is no Rust crate yet for `certifications`, so all reads and writes
- * go straight to the `crm_certifications` Mongo collection. Auth + RBAC +
- * audit follow the standard CRM pattern.
+ * **Dual implementation:** when `USE_RUST_CRM === 'true'` the read paths
+ * delegate to `/v1/crm/certifications` on the Rust BFF; otherwise legacy
+ * direct-Mongo runs. Failures record via `recordRustFallback` and fall
+ * through to the legacy path.
  *
- * Fields:
+ * Fields (Mongo source-of-truth uses snake_case):
  *   name, issuer, employee_id, employee_name, certification_number,
  *   issue_date, expiry_date, certificate_url (SabFile),
  *   status (active/expired/revoked/archived)
@@ -22,6 +23,13 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
 import { requirePermission } from '@/lib/rbac-server';
 import { writeAuditEntry } from '@/lib/audit-log';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+import { crmCertificationsApi } from '@/lib/rust-client/crm-certifications';
+import { RustApiError } from '@/lib/rust-client/fetcher';
+
+function useRustCrm(): boolean {
+    return process.env.USE_RUST_CRM === 'true';
+}
 
 /* ─── Types ──────────────────────────────────────────────────────────── */
 
@@ -142,6 +150,32 @@ export async function getCertifications(
     const guard = await requirePermission('crm_certification', 'view');
     if (!guard.ok) return empty;
 
+    if (useRustCrm()) {
+        try {
+            const res = await crmCertificationsApi.list({
+                q: filters?.q,
+                status: filters?.status,
+                employeeId: filters?.employeeId,
+                limit: filters?.limit,
+            });
+            const items = (res.items ?? []).map((row) =>
+                toDoc(row as unknown as WithId<Document>),
+            );
+            return { items };
+        } catch (e) {
+            console.error(
+                '[getCertifications] rust path failed; falling back:',
+                e,
+            );
+            recordRustFallback({
+                entity: 'certification',
+                op: 'list',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+        }
+    }
+
     try {
         const { db } = await connectToDatabase();
         const filter: Record<string, unknown> = {
@@ -185,6 +219,24 @@ export async function getCertificationById(
 
     const guard = await requirePermission('crm_certification', 'view');
     if (!guard.ok) return null;
+
+    if (useRustCrm()) {
+        try {
+            const doc = await crmCertificationsApi.getById(id);
+            return toDoc(doc as unknown as WithId<Document>);
+        } catch (e) {
+            console.error(
+                '[getCertificationById] rust path failed; falling back:',
+                e,
+            );
+            recordRustFallback({
+                entity: 'certification',
+                op: 'get',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+        }
+    }
 
     try {
         const { db } = await connectToDatabase();

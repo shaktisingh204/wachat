@@ -1,0 +1,66 @@
+{
+  "id": "n8n-rundeck",
+  "name": "Rundeck",
+  "description": "Manage Rundeck API",
+  "category": "Transform",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "job_execute",
+      "label": "Execute Job",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "jobid",
+          "label": "Job ID",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "Rundeck Job ID",
+          "description": "The job ID to execute"
+        },
+        {
+          "id": "arguments",
+          "label": "Arguments",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Argument"
+        },
+        {
+          "id": "filter",
+          "label": "Filter",
+          "type": "text",
+          "in": "query",
+          "placeholder": "Add Filters",
+          "description": "Filter Rundeck nodes by name"
+        }
+      ]
+    },
+    {
+      "id": "job_get_metadata",
+      "label": "Get Metadata Job",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "jobid",
+          "label": "Job ID",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "Rundeck Job ID",
+          "description": "The job ID to get metadata off"
+        }
+      ]
+    }
+  ]
+}

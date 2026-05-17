@@ -1,0 +1,86 @@
+{
+  "id": "logrocket",
+  "name": "LogRocket",
+  "description": "LogRocket session replay and frontend monitoring API.",
+  "category": "Monitoring",
+  "iconName": "LuActivity",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "bearer",
+    "credentialType": "logrocket"
+  },
+  "baseUrl": "https://api.logrocket.com/v1",
+  "endpoints": [
+    {
+      "id": "list_sessions",
+      "label": "List sessions",
+      "method": "GET",
+      "path": "/projects/{project_slug}/sessions",
+      "fields": [
+        { "id": "project_slug", "label": "Project slug", "type": "text", "required": true, "in": "path" },
+        { "id": "cursor", "label": "Cursor", "type": "text", "in": "query" },
+        { "id": "limit", "label": "Limit", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "get_session",
+      "label": "Get session",
+      "method": "GET",
+      "path": "/projects/{project_slug}/sessions/{session_id}",
+      "fields": [
+        { "id": "project_slug", "label": "Project slug", "type": "text", "required": true, "in": "path" },
+        { "id": "session_id", "label": "Session ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_errors",
+      "label": "List errors",
+      "method": "GET",
+      "path": "/projects/{project_slug}/errors",
+      "fields": [
+        { "id": "project_slug", "label": "Project slug", "type": "text", "required": true, "in": "path" },
+        { "id": "cursor", "label": "Cursor", "type": "text", "in": "query" },
+        { "id": "limit", "label": "Limit", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "get_error",
+      "label": "Get error",
+      "method": "GET",
+      "path": "/projects/{project_slug}/errors/{error_id}",
+      "fields": [
+        { "id": "project_slug", "label": "Project slug", "type": "text", "required": true, "in": "path" },
+        { "id": "error_id", "label": "Error ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_metrics",
+      "label": "List metrics",
+      "method": "GET",
+      "path": "/projects/{project_slug}/metrics",
+      "fields": [
+        { "id": "project_slug", "label": "Project slug", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_dashboards",
+      "label": "List dashboards",
+      "method": "GET",
+      "path": "/projects/{project_slug}/dashboards",
+      "fields": [
+        { "id": "project_slug", "label": "Project slug", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_segments",
+      "label": "List segments",
+      "method": "GET",
+      "path": "/projects/{project_slug}/segments",
+      "fields": [
+        { "id": "project_slug", "label": "Project slug", "type": "text", "required": true, "in": "path" }
+      ]
+    }
+  ]
+}

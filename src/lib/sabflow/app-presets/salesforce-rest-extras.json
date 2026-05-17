@@ -1,0 +1,114 @@
+{
+  "id": "salesforce-rest-extras",
+  "name": "Salesforce REST Extras",
+  "description": "Salesforce REST API extras — SOQL queries, composite/batch, Bulk API 2.0 ingest jobs, and sObject describes.",
+  "category": "CRM",
+  "iconName": "LuUsers",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "oauth2",
+    "credentialType": "oauth2"
+  },
+  "baseUrl": "https://{instance}.salesforce.com/services/data/v60.0",
+  "endpoints": [
+    {
+      "id": "query_soql",
+      "label": "Query (SOQL)",
+      "method": "GET",
+      "path": "/query",
+      "fields": [
+        { "id": "q", "label": "SOQL query", "type": "textarea", "required": true, "in": "query" }
+      ]
+    },
+    {
+      "id": "query_more",
+      "label": "Query more (next page)",
+      "method": "GET",
+      "path": "/query/{queryLocator}",
+      "fields": [
+        { "id": "queryLocator", "label": "Query locator", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "composite_request",
+      "label": "Composite request",
+      "method": "POST",
+      "path": "/composite",
+      "fields": [
+        { "id": "compositeRequest", "label": "Composite request (JSON array)", "type": "json", "required": true, "in": "body" },
+        { "id": "allOrNone", "label": "All or none", "type": "toggle", "in": "body" }
+      ]
+    },
+    {
+      "id": "batch_request",
+      "label": "Batch request",
+      "method": "POST",
+      "path": "/composite/batch",
+      "fields": [
+        { "id": "batchRequests", "label": "Batch requests (JSON array)", "type": "json", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "tree_create",
+      "label": "Composite tree create",
+      "method": "POST",
+      "path": "/composite/tree/{sobjectName}",
+      "fields": [
+        { "id": "sobjectName", "label": "sObject name", "type": "text", "required": true, "in": "path" },
+        { "id": "records", "label": "Records (JSON array)", "type": "json", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "bulk_create_job",
+      "label": "Bulk 2.0 — create ingest job",
+      "method": "POST",
+      "path": "/jobs/ingest",
+      "fields": [
+        { "id": "object", "label": "sObject", "type": "text", "required": true, "in": "body" },
+        { "id": "contentType", "label": "Content type", "type": "select", "required": true, "defaultValue": "CSV", "in": "body" },
+        { "id": "operation", "label": "Operation", "type": "select", "required": true, "defaultValue": "insert", "in": "body" },
+        { "id": "lineEnding", "label": "Line ending", "type": "select", "in": "body" }
+      ]
+    },
+    {
+      "id": "bulk_upload_job",
+      "label": "Bulk 2.0 — upload CSV to job",
+      "method": "PUT",
+      "path": "/jobs/ingest/{jobId}/batches",
+      "fields": [
+        { "id": "jobId", "label": "Job ID", "type": "text", "required": true, "in": "path" },
+        { "id": "csv_data", "label": "CSV data (raw)", "type": "textarea", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "bulk_close_job",
+      "label": "Bulk 2.0 — close ingest job",
+      "method": "PATCH",
+      "path": "/jobs/ingest/{jobId}",
+      "fields": [
+        { "id": "jobId", "label": "Job ID", "type": "text", "required": true, "in": "path" },
+        { "id": "state", "label": "State", "type": "select", "required": true, "defaultValue": "UploadComplete", "in": "body" }
+      ]
+    },
+    {
+      "id": "bulk_job_status",
+      "label": "Bulk 2.0 — job status",
+      "method": "GET",
+      "path": "/jobs/ingest/{jobId}",
+      "fields": [
+        { "id": "jobId", "label": "Job ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "describe_sobject",
+      "label": "Describe sObject",
+      "method": "GET",
+      "path": "/sobjects/{sobjectName}/describe",
+      "fields": [
+        { "id": "sobjectName", "label": "sObject name", "type": "text", "required": true, "in": "path" }
+      ]
+    }
+  ]
+}

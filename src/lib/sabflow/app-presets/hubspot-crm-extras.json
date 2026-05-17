@@ -1,0 +1,121 @@
+{
+  "id": "hubspot-crm-extras",
+  "name": "HubSpot CRM Extras",
+  "description": "HubSpot CRM v3 extras — object search, merge, batch ops, pipelines, properties, associations, quotes, and feedback submissions.",
+  "category": "CRM",
+  "iconName": "LuUsers",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "bearer",
+    "credentialType": "hubspot"
+  },
+  "baseUrl": "https://api.hubapi.com",
+  "endpoints": [
+    {
+      "id": "search_objects",
+      "label": "Search objects",
+      "method": "POST",
+      "path": "/crm/v3/objects/{objectType}/search",
+      "fields": [
+        { "id": "objectType", "label": "Object type", "type": "text", "required": true, "in": "path" },
+        { "id": "filterGroups", "label": "Filter groups (JSON array)", "type": "json", "in": "body" },
+        { "id": "sorts", "label": "Sorts (JSON array)", "type": "json", "in": "body" },
+        { "id": "query", "label": "Query string", "type": "text", "in": "body" },
+        { "id": "properties", "label": "Properties (JSON array)", "type": "json", "in": "body" },
+        { "id": "limit", "label": "Limit", "type": "number", "defaultValue": 100, "in": "body" },
+        { "id": "after", "label": "After cursor", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "merge_objects",
+      "label": "Merge objects",
+      "method": "POST",
+      "path": "/crm/v3/objects/{objectType}/merge",
+      "fields": [
+        { "id": "objectType", "label": "Object type", "type": "text", "required": true, "in": "path" },
+        { "id": "primaryObjectId", "label": "Primary object ID", "type": "text", "required": true, "in": "body" },
+        { "id": "objectIdToMerge", "label": "Object ID to merge", "type": "text", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "batch_create",
+      "label": "Batch create",
+      "method": "POST",
+      "path": "/crm/v3/objects/{objectType}/batch/create",
+      "fields": [
+        { "id": "objectType", "label": "Object type", "type": "text", "required": true, "in": "path" },
+        { "id": "inputs", "label": "Inputs (JSON array)", "type": "json", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "batch_update",
+      "label": "Batch update",
+      "method": "POST",
+      "path": "/crm/v3/objects/{objectType}/batch/update",
+      "fields": [
+        { "id": "objectType", "label": "Object type", "type": "text", "required": true, "in": "path" },
+        { "id": "inputs", "label": "Inputs (JSON array)", "type": "json", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "batch_archive",
+      "label": "Batch archive",
+      "method": "POST",
+      "path": "/crm/v3/objects/{objectType}/batch/archive",
+      "fields": [
+        { "id": "objectType", "label": "Object type", "type": "text", "required": true, "in": "path" },
+        { "id": "inputs", "label": "Inputs (JSON array)", "type": "json", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "pipelines_list",
+      "label": "List pipelines",
+      "method": "GET",
+      "path": "/crm/v3/pipelines/{objectType}",
+      "fields": [
+        { "id": "objectType", "label": "Object type", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "properties_list",
+      "label": "List properties",
+      "method": "GET",
+      "path": "/crm/v3/properties/{objectType}",
+      "fields": [
+        { "id": "objectType", "label": "Object type", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "associations_list",
+      "label": "List associations",
+      "method": "GET",
+      "path": "/crm/v4/objects/{fromObjectType}/{fromId}/associations/{toObjectType}",
+      "fields": [
+        { "id": "fromObjectType", "label": "From object type", "type": "text", "required": true, "in": "path" },
+        { "id": "fromId", "label": "From ID", "type": "text", "required": true, "in": "path" },
+        { "id": "toObjectType", "label": "To object type", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "quote_create",
+      "label": "Create quote",
+      "method": "POST",
+      "path": "/crm/v3/objects/quotes",
+      "fields": [
+        { "id": "properties", "label": "Properties (JSON object)", "type": "json", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "feedback_submissions_list",
+      "label": "List feedback submissions",
+      "method": "GET",
+      "path": "/crm/v3/objects/feedback_submissions",
+      "fields": [
+        { "id": "limit", "label": "Limit", "type": "number", "defaultValue": 100, "in": "query" },
+        { "id": "after", "label": "After cursor", "type": "text", "in": "query" }
+      ]
+    }
+  ]
+}

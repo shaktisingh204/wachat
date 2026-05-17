@@ -1,0 +1,303 @@
+'use client';
+
+/**
+ * <SlaForm /> — create + edit form for a CRM SLA policy.
+ *
+ * Sections: basics (name, priority, status), targets (first-response,
+ * resolution, business-hours-only), escalation (escalateTo, after
+ * minutes), notes (description + internal notes).
+ */
+
+import * as React from 'react';
+import { useActionState, useEffect, useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useFormStatus } from 'react-dom';
+import { ArrowLeft, LoaderCircle, Save } from 'lucide-react';
+
+import {
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruSwitch,
+  ZoruTextarea,
+  useZoruToast,
+} from '@/components/zoruui';
+
+import {
+  saveSla,
+  type SaveSlaState,
+} from '@/app/actions/crm-sla.actions';
+import type {
+  CrmSlaDoc,
+  CrmSlaPriority,
+  CrmSlaStatus,
+} from '@/lib/rust-client/crm-slas';
+
+const BASE = '/dashboard/crm/tickets/sla';
+
+const PRIORITY_OPTIONS: Array<{ value: CrmSlaPriority; label: string }> = [
+  { value: 'low', label: 'Low' },
+  { value: 'medium', label: 'Medium' },
+  { value: 'high', label: 'High' },
+  { value: 'urgent', label: 'Urgent' },
+];
+
+const STATUS_OPTIONS: Array<{ value: CrmSlaStatus; label: string }> = [
+  { value: 'active', label: 'Active' },
+  { value: 'archived', label: 'Archived' },
+];
+
+const initialState: SaveSlaState = {};
+
+function SubmitButton({ isEditing }: { isEditing: boolean }) {
+  const { pending } = useFormStatus();
+  return (
+    <ZoruButton type="submit" disabled={pending}>
+      {pending ? (
+        <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+      ) : (
+        <Save className="mr-2 h-4 w-4" />
+      )}
+      {isEditing ? 'Save changes' : 'Create SLA'}
+    </ZoruButton>
+  );
+}
+
+interface SlaFormProps {
+  initialData?: CrmSlaDoc | null;
+}
+
+export function SlaForm({ initialData }: SlaFormProps) {
+  const router = useRouter();
+  const { toast } = useZoruToast();
+  const isEditing = !!initialData?._id;
+
+  const [state, formAction] = useActionState(saveSla, initialState);
+
+  const [priority, setPriority] = useState<CrmSlaPriority>(
+    (initialData?.priority as CrmSlaPriority) ?? 'medium',
+  );
+  const [status, setStatus] = useState<CrmSlaStatus>(
+    initialData?.status ?? 'active',
+  );
+  const [businessHoursOnly, setBusinessHoursOnly] = useState<boolean>(
+    initialData?.businessHoursOnly ?? false,
+  );
+
+  useEffect(() => {
+    if (state?.message) {
+      toast({ title: 'Saved', description: state.message });
+      const id = state.id ?? initialData?._id;
+      router.push(id ? `${BASE}/${id}` : BASE);
+    }
+    if (state?.error) {
+      toast({
+        title: 'Error',
+        description: state.error,
+        variant: 'destructive',
+      });
+    }
+  }, [state, toast, router, initialData?._id]);
+
+  return (
+    <form action={formAction} className="flex flex-col gap-6">
+      {isEditing ? (
+        <input type="hidden" name="slaId" value={initialData!._id} />
+      ) : null}
+      <input type="hidden" name="priority" value={priority} />
+      <input
+        type="hidden"
+        name="businessHoursOnly"
+        value={businessHoursOnly ? 'true' : 'false'}
+      />
+      {isEditing ? (
+        <input type="hidden" name="status" value={status} />
+      ) : null}
+
+      <ZoruCard className="p-6">
+        <h2 className="mb-4 text-[14px] font-medium text-zoru-ink">Basics</h2>
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+          <div className="space-y-1.5 sm:col-span-2">
+            <ZoruLabel htmlFor="name">
+              Name <span className="text-zoru-danger-ink">*</span>
+            </ZoruLabel>
+            <ZoruInput
+              id="name"
+              name="name"
+              required
+              placeholder="e.g. Critical 1-hour SLA"
+              defaultValue={initialData?.name ?? ''}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <ZoruLabel htmlFor="priority-trigger">Applies to priority</ZoruLabel>
+            <ZoruSelect
+              value={priority}
+              onValueChange={(v) => setPriority(v as CrmSlaPriority)}
+            >
+              <ZoruSelectTrigger id="priority-trigger">
+                <ZoruSelectValue placeholder="Priority" />
+              </ZoruSelectTrigger>
+              <ZoruSelectContent>
+                {PRIORITY_OPTIONS.map((o) => (
+                  <ZoruSelectItem key={o.value} value={o.value}>
+                    {o.label}
+                  </ZoruSelectItem>
+                ))}
+              </ZoruSelectContent>
+            </ZoruSelect>
+          </div>
+          {isEditing ? (
+            <div className="space-y-1.5">
+              <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
+              <ZoruSelect
+                value={status}
+                onValueChange={(v) => setStatus(v as CrmSlaStatus)}
+              >
+                <ZoruSelectTrigger id="status-trigger">
+                  <ZoruSelectValue placeholder="Status" />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
+                  {STATUS_OPTIONS.map((o) => (
+                    <ZoruSelectItem key={o.value} value={o.value}>
+                      {o.label}
+                    </ZoruSelectItem>
+                  ))}
+                </ZoruSelectContent>
+              </ZoruSelect>
+            </div>
+          ) : null}
+        </div>
+      </ZoruCard>
+
+      <ZoruCard className="p-6">
+        <h2 className="mb-4 text-[14px] font-medium text-zoru-ink">
+          Response targets
+        </h2>
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+          <div className="space-y-1.5">
+            <ZoruLabel htmlFor="firstResponseMinutes">
+              First response (minutes) *
+            </ZoruLabel>
+            <ZoruInput
+              id="firstResponseMinutes"
+              name="firstResponseMinutes"
+              type="number"
+              min={1}
+              required
+              placeholder="e.g. 60"
+              defaultValue={initialData?.firstResponseMinutes ?? ''}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <ZoruLabel htmlFor="resolutionMinutes">
+              Resolution (minutes) *
+            </ZoruLabel>
+            <ZoruInput
+              id="resolutionMinutes"
+              name="resolutionMinutes"
+              type="number"
+              min={1}
+              required
+              placeholder="e.g. 480"
+              defaultValue={initialData?.resolutionMinutes ?? ''}
+            />
+          </div>
+          <div className="flex items-center justify-between rounded-md border border-border px-3 py-2 sm:col-span-2">
+            <div className="flex flex-col">
+              <ZoruLabel htmlFor="bh-toggle">Business hours only</ZoruLabel>
+              <span className="text-xs text-muted-foreground">
+                Pause the SLA clock outside of configured business hours.
+              </span>
+            </div>
+            <ZoruSwitch
+              id="bh-toggle"
+              checked={businessHoursOnly}
+              onCheckedChange={setBusinessHoursOnly}
+            />
+          </div>
+        </div>
+      </ZoruCard>
+
+      <ZoruCard className="p-6">
+        <h2 className="mb-4 text-[14px] font-medium text-zoru-ink">
+          Escalation
+        </h2>
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+          <div className="space-y-1.5">
+            <ZoruLabel htmlFor="escalateAfterMinutes">
+              Escalate after (minutes)
+            </ZoruLabel>
+            <ZoruInput
+              id="escalateAfterMinutes"
+              name="escalateAfterMinutes"
+              type="number"
+              min={1}
+              placeholder="Optional"
+              defaultValue={initialData?.escalateAfterMinutes ?? ''}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <ZoruLabel htmlFor="escalateTo">Escalate to (user ID)</ZoruLabel>
+            <ZoruInput
+              id="escalateTo"
+              name="escalateTo"
+              placeholder="ObjectId of an agent or manager"
+              defaultValue={initialData?.escalateTo ?? ''}
+              className="font-mono"
+            />
+          </div>
+        </div>
+      </ZoruCard>
+
+      <ZoruCard className="p-6">
+        <h2 className="mb-4 text-[14px] font-medium text-zoru-ink">
+          Notes
+        </h2>
+        <div className="grid grid-cols-1 gap-5">
+          <div className="space-y-1.5">
+            <ZoruLabel htmlFor="description">Description</ZoruLabel>
+            <ZoruTextarea
+              id="description"
+              name="description"
+              rows={3}
+              placeholder="Optional — describe when this SLA applies."
+              defaultValue={initialData?.description ?? ''}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <ZoruLabel htmlFor="notes">Internal notes</ZoruLabel>
+            <ZoruTextarea
+              id="notes"
+              name="notes"
+              rows={3}
+              placeholder="Optional — only visible to your team."
+              defaultValue={initialData?.notes ?? ''}
+            />
+          </div>
+        </div>
+      </ZoruCard>
+
+      <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
+        <ZoruButton variant="ghost" asChild>
+          <Link
+            href={
+              isEditing && initialData?._id ? `${BASE}/${initialData._id}` : BASE
+            }
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Cancel
+          </Link>
+        </ZoruButton>
+        <SubmitButton isEditing={isEditing} />
+      </div>
+    </form>
+  );
+}

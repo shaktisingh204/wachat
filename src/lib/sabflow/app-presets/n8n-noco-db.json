@@ -1,0 +1,262 @@
+{
+  "id": "n8n-noco-db",
+  "name": "NocoDB",
+  "description": "Read, update, write and delete data from NocoDB",
+  "category": "Input",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "row_create",
+      "label": "Create Row",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "nocoDb",
+          "options": [
+            {
+              "value": "nocoDbApiToken",
+              "label": "API Token"
+            },
+            {
+              "value": "nocoDb",
+              "label": "User Token"
+            }
+          ]
+        },
+        {
+          "id": "version",
+          "label": "API Version",
+          "type": "select",
+          "in": "query",
+          "defaultValue": 1,
+          "options": []
+        },
+        {
+          "id": "version",
+          "label": "API Version",
+          "type": "select",
+          "in": "query",
+          "defaultValue": 2,
+          "options": []
+        },
+        {
+          "id": "version",
+          "label": "API Version",
+          "type": "select",
+          "in": "query",
+          "defaultValue": 3,
+          "options": []
+        }
+      ]
+    },
+    {
+      "id": "row_delete",
+      "label": "Delete Row",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "nocoDb",
+          "options": [
+            {
+              "value": "nocoDbApiToken",
+              "label": "API Token"
+            },
+            {
+              "value": "nocoDb",
+              "label": "User Token"
+            }
+          ]
+        },
+        {
+          "id": "version",
+          "label": "API Version",
+          "type": "select",
+          "in": "query",
+          "defaultValue": 1,
+          "options": []
+        },
+        {
+          "id": "version",
+          "label": "API Version",
+          "type": "select",
+          "in": "query",
+          "defaultValue": 2,
+          "options": []
+        },
+        {
+          "id": "version",
+          "label": "API Version",
+          "type": "select",
+          "in": "query",
+          "defaultValue": 3,
+          "options": []
+        }
+      ]
+    },
+    {
+      "id": "row_get",
+      "label": "Get Row",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "nocoDb",
+          "options": [
+            {
+              "value": "nocoDbApiToken",
+              "label": "API Token"
+            },
+            {
+              "value": "nocoDb",
+              "label": "User Token"
+            }
+          ]
+        },
+        {
+          "id": "version",
+          "label": "API Version",
+          "type": "select",
+          "in": "query",
+          "defaultValue": 1,
+          "options": []
+        },
+        {
+          "id": "version",
+          "label": "API Version",
+          "type": "select",
+          "in": "query",
+          "defaultValue": 2,
+          "options": []
+        },
+        {
+          "id": "version",
+          "label": "API Version",
+          "type": "select",
+          "in": "query",
+          "defaultValue": 3,
+          "options": []
+        }
+      ]
+    },
+    {
+      "id": "row_get_all",
+      "label": "Get Many Row",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "nocoDb",
+          "options": [
+            {
+              "value": "nocoDbApiToken",
+              "label": "API Token"
+            },
+            {
+              "value": "nocoDb",
+              "label": "User Token"
+            }
+          ]
+        },
+        {
+          "id": "version",
+          "label": "API Version",
+          "type": "select",
+          "in": "query",
+          "defaultValue": 1,
+          "options": []
+        },
+        {
+          "id": "version",
+          "label": "API Version",
+          "type": "select",
+          "in": "query",
+          "defaultValue": 2,
+          "options": []
+        },
+        {
+          "id": "version",
+          "label": "API Version",
+          "type": "select",
+          "in": "query",
+          "defaultValue": 3,
+          "options": []
+        }
+      ]
+    },
+    {
+      "id": "row_update",
+      "label": "Update Row",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "nocoDb",
+          "options": [
+            {
+              "value": "nocoDbApiToken",
+              "label": "API Token"
+            },
+            {
+              "value": "nocoDb",
+              "label": "User Token"
+            }
+          ]
+        },
+        {
+          "id": "version",
+          "label": "API Version",
+          "type": "select",
+          "in": "query",
+          "defaultValue": 1,
+          "options": []
+        },
+        {
+          "id": "version",
+          "label": "API Version",
+          "type": "select",
+          "in": "query",
+          "defaultValue": 2,
+          "options": []
+        },
+        {
+          "id": "version",
+          "label": "API Version",
+          "type": "select",
+          "in": "query",
+          "defaultValue": 3,
+          "options": []
+        }
+      ]
+    }
+  ]
+}

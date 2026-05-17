@@ -1,0 +1,36 @@
+{
+  "id": "convertapi",
+  "name": "ConvertAPI",
+  "description": "ConvertAPI document and file conversion.",
+  "category": "Document",
+  "iconName": "LuFileType",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "query_token",
+    "credentialType": "convertapi",
+    "queryParam": "Secret"
+  },
+  "baseUrl": "https://v2.convertapi.com",
+  "endpoints": [
+    {
+      "id": "convert",
+      "label": "Convert file",
+      "method": "POST",
+      "path": "/convert/{from_format}/to/{to_format}",
+      "fields": [
+        { "id": "from_format", "label": "From format", "type": "text", "required": true, "in": "path" },
+        { "id": "to_format", "label": "To format", "type": "text", "required": true, "in": "path" },
+        { "id": "Parameters", "label": "Parameters", "type": "json", "required": true, "in": "body", "defaultValue": [{ "Name": "File", "FileValue": { "Url": "" } }] }
+      ]
+    },
+    {
+      "id": "get_user_info",
+      "label": "Get user info",
+      "method": "GET",
+      "path": "/user",
+      "fields": []
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "id": "browserbase",
+  "name": "Browserbase",
+  "description": "Browserbase managed browser sessions for automation and scraping.",
+  "category": "Scraping",
+  "iconName": "LuSearch",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "header",
+    "credentialType": "browserbase",
+    "header": "X-BB-API-Key"
+  },
+  "baseUrl": "https://api.browserbase.com/v1",
+  "endpoints": [
+    {
+      "id": "create_session",
+      "label": "Create session",
+      "method": "POST",
+      "path": "/sessions",
+      "fields": [
+        { "id": "projectId", "label": "Project ID", "type": "text", "required": true, "in": "body" },
+        { "id": "browserSettings", "label": "Browser settings JSON", "type": "json", "in": "body" }
+      ]
+    },
+    {
+      "id": "get_session",
+      "label": "Get session",
+      "method": "GET",
+      "path": "/sessions/{id}",
+      "fields": [
+        { "id": "id", "label": "Session ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_sessions",
+      "label": "List sessions",
+      "method": "GET",
+      "path": "/sessions",
+      "fields": [
+        { "id": "status", "label": "Status", "type": "text", "in": "query" }
+      ]
+    },
+    {
+      "id": "end_session",
+      "label": "End session",
+      "method": "POST",
+      "path": "/sessions/{id}",
+      "fields": [
+        { "id": "id", "label": "Session ID", "type": "text", "required": true, "in": "path" },
+        { "id": "status", "label": "Status", "type": "text", "required": true, "defaultValue": "REQUEST_RELEASE", "in": "body" }
+      ]
+    },
+    {
+      "id": "list_projects",
+      "label": "List projects",
+      "method": "GET",
+      "path": "/projects",
+      "fields": []
+    },
+    {
+      "id": "download_recording",
+      "label": "Download recording",
+      "method": "GET",
+      "path": "/sessions/{id}/recording",
+      "fields": [
+        { "id": "id", "label": "Session ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_contexts",
+      "label": "List contexts",
+      "method": "GET",
+      "path": "/contexts",
+      "fields": []
+    }
+  ]
+}

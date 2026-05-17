@@ -1,0 +1,44 @@
+{
+  "id": "n8n-read-write-file",
+  "name": "Read/Write Files from Disk",
+  "description": "Read or write files from the computer that runs n8n",
+  "category": "Input",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "none"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "default_read",
+      "label": "Read File(s) From Disk",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "info",
+          "label": "Use this node to read and write files on the same computer running n8n. To handle files between different computers please use other nodes (e.g. FTP, HTTP Request, AWS).",
+          "type": "text",
+          "in": "query"
+        }
+      ]
+    },
+    {
+      "id": "default_write",
+      "label": "Write File to Disk",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "info",
+          "label": "Use this node to read and write files on the same computer running n8n. To handle files between different computers please use other nodes (e.g. FTP, HTTP Request, AWS).",
+          "type": "text",
+          "in": "query"
+        }
+      ]
+    }
+  ]
+}

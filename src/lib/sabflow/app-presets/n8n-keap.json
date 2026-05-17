@@ -1,0 +1,73 @@
+{
+  "id": "n8n-keap",
+  "name": "Keap",
+  "description": "Consume Keap API",
+  "category": "Input",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "oauth2",
+    "credentialType": "oauth2"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "company_default",
+      "label": "List Company",
+      "method": "GET",
+      "path": "/company",
+      "fields": []
+    },
+    {
+      "id": "contact_default",
+      "label": "List Contact",
+      "method": "GET",
+      "path": "/contact",
+      "fields": []
+    },
+    {
+      "id": "contact_note_default",
+      "label": "List ContactNote",
+      "method": "GET",
+      "path": "/contactNote",
+      "fields": []
+    },
+    {
+      "id": "contact_tag_default",
+      "label": "List ContactTag",
+      "method": "GET",
+      "path": "/contactTag",
+      "fields": []
+    },
+    {
+      "id": "ecommerce_order_default",
+      "label": "List EcommerceOrder",
+      "method": "GET",
+      "path": "/ecommerceOrder",
+      "fields": []
+    },
+    {
+      "id": "ecommerce_product_default",
+      "label": "List EcommerceProduct",
+      "method": "GET",
+      "path": "/ecommerceProduct",
+      "fields": []
+    },
+    {
+      "id": "email_default",
+      "label": "List Email",
+      "method": "GET",
+      "path": "/email",
+      "fields": []
+    },
+    {
+      "id": "file_default",
+      "label": "List File",
+      "method": "GET",
+      "path": "/file",
+      "fields": []
+    }
+  ]
+}

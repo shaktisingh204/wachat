@@ -1,0 +1,84 @@
+{
+  "id": "stability-ai",
+  "name": "Stability AI",
+  "description": "Stability AI image and video generation, upscaling, and Stable Diffusion 3.",
+  "category": "AI",
+  "iconName": "LuSparkles",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "bearer",
+    "credentialType": "stability_ai"
+  },
+  "baseUrl": "https://api.stability.ai/v2beta",
+  "endpoints": [
+    {
+      "id": "generate_ultra",
+      "label": "Generate Ultra image",
+      "method": "POST",
+      "path": "/stable-image/generate/ultra",
+      "fields": [
+        { "id": "prompt", "label": "Prompt", "type": "textarea", "required": true, "in": "body" },
+        { "id": "output_format", "label": "Output format", "type": "text", "in": "body" },
+        { "id": "aspect_ratio", "label": "Aspect ratio", "type": "text", "in": "body" },
+        { "id": "negative_prompt", "label": "Negative prompt", "type": "textarea", "in": "body" }
+      ]
+    },
+    {
+      "id": "generate_core",
+      "label": "Generate Core image",
+      "method": "POST",
+      "path": "/stable-image/generate/core",
+      "fields": [
+        { "id": "prompt", "label": "Prompt", "type": "textarea", "required": true, "in": "body" },
+        { "id": "output_format", "label": "Output format", "type": "text", "in": "body" },
+        { "id": "aspect_ratio", "label": "Aspect ratio", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "generate_sd3",
+      "label": "Generate SD3 image",
+      "method": "POST",
+      "path": "/stable-image/generate/sd3",
+      "fields": [
+        { "id": "prompt", "label": "Prompt", "type": "textarea", "required": true, "in": "body" },
+        { "id": "mode", "label": "Mode", "type": "text", "in": "body" },
+        { "id": "output_format", "label": "Output format", "type": "text", "in": "body" },
+        { "id": "model", "label": "Model", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "upscale_creative",
+      "label": "Creative upscale",
+      "method": "POST",
+      "path": "/stable-image/upscale/creative",
+      "fields": [
+        { "id": "image", "label": "Image URL/path", "type": "text", "required": true, "in": "body" },
+        { "id": "prompt", "label": "Prompt", "type": "textarea", "required": true, "in": "body" },
+        { "id": "creativity", "label": "Creativity", "type": "number", "in": "body" }
+      ]
+    },
+    {
+      "id": "image_to_video",
+      "label": "Image to video",
+      "method": "POST",
+      "path": "/image-to-video",
+      "fields": [
+        { "id": "image", "label": "Image URL/path", "type": "text", "required": true, "in": "body" },
+        { "id": "seed", "label": "Seed", "type": "number", "in": "body" },
+        { "id": "cfg_scale", "label": "CFG scale", "type": "number", "in": "body" },
+        { "id": "motion_bucket_id", "label": "Motion bucket ID", "type": "number", "in": "body" }
+      ]
+    },
+    {
+      "id": "get_video_result",
+      "label": "Get video result",
+      "method": "GET",
+      "path": "/image-to-video/result/{id}",
+      "fields": [
+        { "id": "id", "label": "Generation ID", "type": "text", "required": true, "in": "path" }
+      ]
+    }
+  ]
+}

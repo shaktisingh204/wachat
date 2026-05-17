@@ -1,0 +1,20 @@
+{
+  "id": "zillow",
+  "name": "Zillow Bridge",
+  "description": "Zillow Bridge API for real estate listings.",
+  "category": "Real estate",
+  "iconName": "LuHome",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": { "type": "query_token", "credentialType": "zillow", "queryParam": "access_token" },
+  "baseUrl": "https://api.bridgedataoutput.com/api/v2",
+  "endpoints": [
+    { "id": "search_properties", "label": "Search listings", "method": "GET", "path": "/{dataset}/listings", "fields": [{ "id": "dataset", "type": "text", "required": true, "in": "path" }, { "id": "_filter", "type": "text", "in": "query" }, { "id": "_select", "type": "text", "in": "query" }, { "id": "_limit", "type": "number", "defaultValue": 10, "in": "query" }, { "id": "_offset", "type": "number", "in": "query" }] },
+    { "id": "get_property", "label": "Get listing", "method": "GET", "path": "/{dataset}/listings/{listing_id}", "fields": [{ "id": "dataset", "type": "text", "required": true, "in": "path" }, { "id": "listing_id", "type": "text", "required": true, "in": "path" }] },
+    { "id": "list_agents", "label": "List agents", "method": "GET", "path": "/{dataset}/agents", "fields": [{ "id": "dataset", "type": "text", "required": true, "in": "path" }] },
+    { "id": "list_offices", "label": "List offices", "method": "GET", "path": "/{dataset}/offices", "fields": [{ "id": "dataset", "type": "text", "required": true, "in": "path" }] },
+    { "id": "replication_listings", "label": "Replication feed", "method": "GET", "path": "/{dataset}/listings/replication", "fields": [{ "id": "dataset", "type": "text", "required": true, "in": "path" }, { "id": "lastUpdated", "type": "text", "in": "query" }, { "id": "limit", "type": "number", "defaultValue": 100, "in": "query" }] },
+    { "id": "dataset_meta", "label": "Dataset metadata", "method": "GET", "path": "/{dataset}/meta", "fields": [{ "id": "dataset", "type": "text", "required": true, "in": "path" }] }
+  ]
+}

@@ -1,0 +1,427 @@
+{
+  "id": "n8n-redis",
+  "name": "Redis",
+  "description": "Get, send and update data in Redis",
+  "category": "Input",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "default_delete",
+      "label": "Delete",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "key",
+          "label": "Key",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "Name of the key to delete from Redis"
+        },
+        {
+          "id": "valueIsJSON",
+          "label": "Value Is JSON",
+          "type": "toggle",
+          "in": "query",
+          "description": "Whether the value is JSON or key value pairs",
+          "defaultValue": true
+        }
+      ]
+    },
+    {
+      "id": "default_get",
+      "label": "Get",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "propertyName",
+          "label": "Name",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "Name of the property to write received data to. Supports dot-notation. Example: \"data.person[0].name\".",
+          "defaultValue": "propertyName"
+        },
+        {
+          "id": "key",
+          "label": "Key",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "Name of the key to get from Redis"
+        },
+        {
+          "id": "keyType",
+          "label": "Key Type",
+          "type": "select",
+          "in": "query",
+          "description": "The type of the key to get",
+          "defaultValue": "automatic",
+          "options": [
+            {
+              "value": "automatic",
+              "label": "Automatic"
+            },
+            {
+              "value": "hash",
+              "label": "Hash"
+            },
+            {
+              "value": "list",
+              "label": "List"
+            },
+            {
+              "value": "sets",
+              "label": "Sets"
+            },
+            {
+              "value": "string",
+              "label": "String"
+            }
+          ]
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add option"
+        },
+        {
+          "id": "valueIsJSON",
+          "label": "Value Is JSON",
+          "type": "toggle",
+          "in": "query",
+          "description": "Whether the value is JSON or key value pairs",
+          "defaultValue": true
+        }
+      ]
+    },
+    {
+      "id": "default_incr",
+      "label": "Increment",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "key",
+          "label": "Key",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "Name of the key to increment"
+        },
+        {
+          "id": "expire",
+          "label": "Expire",
+          "type": "toggle",
+          "in": "query",
+          "description": "Whether to set a timeout on key",
+          "defaultValue": false
+        },
+        {
+          "id": "ttl",
+          "label": "TTL",
+          "type": "number",
+          "in": "query",
+          "description": "Number of seconds before key expiration",
+          "defaultValue": 60
+        },
+        {
+          "id": "valueIsJSON",
+          "label": "Value Is JSON",
+          "type": "toggle",
+          "in": "query",
+          "description": "Whether the value is JSON or key value pairs",
+          "defaultValue": true
+        }
+      ]
+    },
+    {
+      "id": "default_info",
+      "label": "Info",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "valueIsJSON",
+          "label": "Value Is JSON",
+          "type": "toggle",
+          "in": "query",
+          "description": "Whether the value is JSON or key value pairs",
+          "defaultValue": true
+        }
+      ]
+    },
+    {
+      "id": "default_keys",
+      "label": "Keys",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "keyPattern",
+          "label": "Key Pattern",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The key pattern for the keys to return"
+        },
+        {
+          "id": "getValues",
+          "label": "Get Values",
+          "type": "toggle",
+          "in": "query",
+          "description": "Whether to get the value of matching keys",
+          "defaultValue": true
+        },
+        {
+          "id": "valueIsJSON",
+          "label": "Value Is JSON",
+          "type": "toggle",
+          "in": "query",
+          "description": "Whether the value is JSON or key value pairs",
+          "defaultValue": true
+        }
+      ]
+    },
+    {
+      "id": "default_llen",
+      "label": "List Length",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "list",
+          "label": "List",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "Name of the list in Redis"
+        },
+        {
+          "id": "list",
+          "label": "List",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "Name of the list in Redis"
+        },
+        {
+          "id": "valueIsJSON",
+          "label": "Value Is JSON",
+          "type": "toggle",
+          "in": "query",
+          "description": "Whether the value is JSON or key value pairs",
+          "defaultValue": true
+        }
+      ]
+    },
+    {
+      "id": "default_pop",
+      "label": "Pop",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "valueIsJSON",
+          "label": "Value Is JSON",
+          "type": "toggle",
+          "in": "query",
+          "description": "Whether the value is JSON or key value pairs",
+          "defaultValue": true
+        },
+        {
+          "id": "list",
+          "label": "List",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "Name of the list in Redis"
+        },
+        {
+          "id": "tail",
+          "label": "Tail",
+          "type": "toggle",
+          "in": "query",
+          "description": "Whether to push or pop data from the end of the list",
+          "defaultValue": false
+        },
+        {
+          "id": "propertyName",
+          "label": "Name",
+          "type": "text",
+          "in": "query",
+          "description": "Optional name of the property to write received data to. Supports dot-notation. Example: \"data.person[0].name\".",
+          "defaultValue": "propertyName"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add option"
+        }
+      ]
+    },
+    {
+      "id": "default_publish",
+      "label": "Publish",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "valueIsJSON",
+          "label": "Value Is JSON",
+          "type": "toggle",
+          "in": "query",
+          "description": "Whether the value is JSON or key value pairs",
+          "defaultValue": true
+        },
+        {
+          "id": "channel",
+          "label": "Channel",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "Channel name"
+        },
+        {
+          "id": "messageData",
+          "label": "Data",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "Data to publish"
+        }
+      ]
+    },
+    {
+      "id": "default_push",
+      "label": "Push",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "valueIsJSON",
+          "label": "Value Is JSON",
+          "type": "toggle",
+          "in": "query",
+          "description": "Whether the value is JSON or key value pairs",
+          "defaultValue": true
+        },
+        {
+          "id": "list",
+          "label": "List",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "Name of the list in Redis"
+        },
+        {
+          "id": "messageData",
+          "label": "Data",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "Data to push"
+        },
+        {
+          "id": "tail",
+          "label": "Tail",
+          "type": "toggle",
+          "in": "query",
+          "description": "Whether to push or pop data from the end of the list",
+          "defaultValue": false
+        }
+      ]
+    },
+    {
+      "id": "default_set",
+      "label": "Set",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "key",
+          "label": "Key",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "Name of the key to set in Redis"
+        },
+        {
+          "id": "value",
+          "label": "Value",
+          "type": "text",
+          "in": "query",
+          "description": "The value to write in Redis"
+        },
+        {
+          "id": "keyType",
+          "label": "Key Type",
+          "type": "select",
+          "in": "query",
+          "description": "The type of the key to set",
+          "defaultValue": "automatic",
+          "options": [
+            {
+              "value": "automatic",
+              "label": "Automatic"
+            },
+            {
+              "value": "hash",
+              "label": "Hash"
+            },
+            {
+              "value": "list",
+              "label": "List"
+            },
+            {
+              "value": "sets",
+              "label": "Sets"
+            },
+            {
+              "value": "string",
+              "label": "String"
+            }
+          ]
+        },
+        {
+          "id": "valueIsJSON",
+          "label": "Value Is JSON",
+          "type": "toggle",
+          "in": "query",
+          "description": "Whether the value is JSON or key value pairs",
+          "defaultValue": true
+        },
+        {
+          "id": "expire",
+          "label": "Expire",
+          "type": "toggle",
+          "in": "query",
+          "description": "Whether to set a timeout on key",
+          "defaultValue": false
+        },
+        {
+          "id": "ttl",
+          "label": "TTL",
+          "type": "number",
+          "in": "query",
+          "description": "Number of seconds before key expiration",
+          "defaultValue": 60
+        }
+      ]
+    }
+  ]
+}

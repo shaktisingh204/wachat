@@ -1,0 +1,66 @@
+{
+  "id": "square-terminal",
+  "name": "Square Terminal",
+  "description": "In-person card payments via Square Terminal devices.",
+  "category": "Fintech",
+  "iconName": "LuCreditCard",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "bearer",
+    "credentialType": "square",
+    "header": "Authorization",
+    "scheme": "Bearer"
+  },
+  "baseUrl": "https://connect.squareup.com/v2",
+  "endpoints": [
+    {
+      "id": "create_terminal_checkout",
+      "label": "Create terminal checkout",
+      "method": "POST",
+      "path": "/terminals/checkouts",
+      "fields": [
+        { "id": "idempotency_key", "label": "Idempotency key", "type": "text", "required": true, "in": "body" },
+        { "id": "checkout", "label": "Checkout (amount_money + device_options)", "type": "json", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "search_terminal_checkouts",
+      "label": "Search terminal checkouts",
+      "method": "POST",
+      "path": "/terminals/checkouts/search",
+      "fields": [
+        { "id": "query", "label": "Query", "type": "json", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "get_terminal_checkout",
+      "label": "Get terminal checkout",
+      "method": "GET",
+      "path": "/terminals/checkouts/{checkout_id}",
+      "fields": [
+        { "id": "checkout_id", "label": "Checkout ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "cancel_terminal_checkout",
+      "label": "Cancel terminal checkout",
+      "method": "POST",
+      "path": "/terminals/checkouts/{checkout_id}/cancel",
+      "fields": [
+        { "id": "checkout_id", "label": "Checkout ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "create_terminal_refund",
+      "label": "Create terminal refund",
+      "method": "POST",
+      "path": "/terminals/refunds",
+      "fields": [
+        { "id": "idempotency_key", "label": "Idempotency key", "type": "text", "required": true, "in": "body" },
+        { "id": "refund", "label": "Refund (payment_id + amount_money + reason)", "type": "json", "required": true, "in": "body" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "id": "n8n-reddit",
+  "name": "Reddit",
+  "description": "Consume the Reddit API",
+  "category": "Transform",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "oauth2",
+    "credentialType": "oauth2"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "post_default",
+      "label": "List Post",
+      "method": "GET",
+      "path": "/post",
+      "fields": []
+    },
+    {
+      "id": "post_comment_default",
+      "label": "List PostComment",
+      "method": "GET",
+      "path": "/postComment",
+      "fields": []
+    },
+    {
+      "id": "profile_default",
+      "label": "List Profile",
+      "method": "GET",
+      "path": "/profile",
+      "fields": []
+    },
+    {
+      "id": "subreddit_default",
+      "label": "List Subreddit",
+      "method": "GET",
+      "path": "/subreddit",
+      "fields": []
+    },
+    {
+      "id": "user_default",
+      "label": "List User",
+      "method": "GET",
+      "path": "/user",
+      "fields": []
+    }
+  ]
+}

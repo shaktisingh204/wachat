@@ -1,0 +1,123 @@
+{
+  "id": "calendly",
+  "name": "Calendly",
+  "description": "Calendly API for events, invitees, webhooks, and organization data.",
+  "category": "Scheduling",
+  "iconName": "LuCalendar",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "bearer",
+    "credentialType": "calendly"
+  },
+  "baseUrl": "https://api.calendly.com",
+  "endpoints": [
+    {
+      "id": "me",
+      "label": "Get current user",
+      "method": "GET",
+      "path": "/users/me",
+      "fields": []
+    },
+    {
+      "id": "list_event_types",
+      "label": "List event types",
+      "method": "GET",
+      "path": "/event_types",
+      "fields": [
+        { "id": "user", "label": "User URI", "type": "text", "required": true, "in": "query" },
+        { "id": "active", "label": "Active only", "type": "toggle", "in": "query" },
+        { "id": "count", "label": "Count", "type": "number", "defaultValue": 20, "in": "query" }
+      ]
+    },
+    {
+      "id": "list_scheduled_events",
+      "label": "List scheduled events",
+      "method": "GET",
+      "path": "/scheduled_events",
+      "fields": [
+        { "id": "user", "label": "User URI", "type": "text", "required": true, "in": "query" },
+        { "id": "status", "label": "Status", "type": "select", "in": "query" },
+        { "id": "min_start_time", "label": "Min start time (ISO)", "type": "text", "in": "query" },
+        { "id": "max_start_time", "label": "Max start time (ISO)", "type": "text", "in": "query" },
+        { "id": "count", "label": "Count", "type": "number", "defaultValue": 20, "in": "query" }
+      ]
+    },
+    {
+      "id": "get_scheduled_event",
+      "label": "Get scheduled event",
+      "method": "GET",
+      "path": "/scheduled_events/{uuid}",
+      "fields": [
+        { "id": "uuid", "label": "Event UUID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "cancel_scheduled_event",
+      "label": "Cancel scheduled event",
+      "method": "POST",
+      "path": "/scheduled_events/{uuid}/cancellation",
+      "fields": [
+        { "id": "uuid", "label": "Event UUID", "type": "text", "required": true, "in": "path" },
+        { "id": "reason", "label": "Reason", "type": "textarea", "in": "body" }
+      ]
+    },
+    {
+      "id": "list_invitees",
+      "label": "List invitees",
+      "method": "GET",
+      "path": "/scheduled_events/{event_uuid}/invitees",
+      "fields": [
+        { "id": "event_uuid", "label": "Event UUID", "type": "text", "required": true, "in": "path" },
+        { "id": "status", "label": "Status", "type": "select", "in": "query" },
+        { "id": "count", "label": "Count", "type": "number", "defaultValue": 20, "in": "query" }
+      ]
+    },
+    {
+      "id": "list_webhook_subscriptions",
+      "label": "List webhook subscriptions",
+      "method": "GET",
+      "path": "/webhook_subscriptions",
+      "fields": [
+        { "id": "organization", "label": "Organization URI", "type": "text", "required": true, "in": "query" },
+        { "id": "user", "label": "User URI", "type": "text", "in": "query" },
+        { "id": "scope", "label": "Scope", "type": "select", "required": true, "defaultValue": "user", "in": "query" }
+      ]
+    },
+    {
+      "id": "create_webhook_subscription",
+      "label": "Create webhook subscription",
+      "method": "POST",
+      "path": "/webhook_subscriptions",
+      "fields": [
+        { "id": "url", "label": "Webhook URL", "type": "text", "required": true, "in": "body" },
+        { "id": "events", "label": "Events (JSON array)", "type": "json", "required": true, "in": "body" },
+        { "id": "organization", "label": "Organization URI", "type": "text", "required": true, "in": "body" },
+        { "id": "user", "label": "User URI", "type": "text", "in": "body" },
+        { "id": "scope", "label": "Scope", "type": "select", "required": true, "defaultValue": "user", "in": "body" },
+        { "id": "signing_key", "label": "Signing key", "type": "password", "in": "body" }
+      ]
+    },
+    {
+      "id": "list_organization_memberships",
+      "label": "List organization memberships",
+      "method": "GET",
+      "path": "/organization_memberships",
+      "fields": [
+        { "id": "organization", "label": "Organization URI", "type": "text", "required": true, "in": "query" },
+        { "id": "count", "label": "Count", "type": "number", "defaultValue": 20, "in": "query" }
+      ]
+    },
+    {
+      "id": "list_routing_forms",
+      "label": "List routing forms",
+      "method": "GET",
+      "path": "/routing_forms",
+      "fields": [
+        { "id": "organization", "label": "Organization URI", "type": "text", "required": true, "in": "query" },
+        { "id": "count", "label": "Count", "type": "number", "defaultValue": 20, "in": "query" }
+      ]
+    }
+  ]
+}

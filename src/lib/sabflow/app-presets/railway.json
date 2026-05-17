@@ -1,0 +1,66 @@
+{
+  "id": "railway",
+  "name": "Railway",
+  "description": "Railway GraphQL API for projects, services, deployments, and environments.",
+  "category": "DevOps",
+  "iconName": "LuTrain",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "bearer",
+    "credentialType": "railway"
+  },
+  "baseUrl": "https://backboard.railway.app/graphql/v2",
+  "endpoints": [
+    {
+      "id": "graphql",
+      "label": "GraphQL request",
+      "method": "POST",
+      "path": "/",
+      "fields": [
+        { "id": "query", "label": "GraphQL query", "type": "textarea", "required": true, "in": "body" },
+        { "id": "variables", "label": "Variables JSON", "type": "json", "in": "body" }
+      ]
+    },
+    {
+      "id": "list_projects",
+      "label": "List projects",
+      "method": "POST",
+      "path": "/",
+      "fields": [
+        { "id": "query", "label": "GraphQL query", "type": "textarea", "required": true, "defaultValue": "query { me { projects { edges { node { id name } } } } }", "in": "body" }
+      ]
+    },
+    {
+      "id": "get_project",
+      "label": "Get project",
+      "method": "POST",
+      "path": "/",
+      "fields": [
+        { "id": "query", "label": "GraphQL query", "type": "textarea", "required": true, "defaultValue": "query($id: String!){ project(id:$id){ id name services { edges { node { id name } } } } }", "in": "body" },
+        { "id": "variables", "label": "Variables JSON", "type": "json", "required": true, "defaultValue": "{ \"id\": \"\" }", "in": "body" }
+      ]
+    },
+    {
+      "id": "create_deployment",
+      "label": "Create deployment",
+      "method": "POST",
+      "path": "/",
+      "fields": [
+        { "id": "query", "label": "GraphQL mutation", "type": "textarea", "required": true, "defaultValue": "mutation($input: ServiceInstanceDeployInput!){ serviceInstanceDeploy(input:$input){ id } }", "in": "body" },
+        { "id": "variables", "label": "Variables JSON", "type": "json", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "list_envs",
+      "label": "List environments",
+      "method": "POST",
+      "path": "/",
+      "fields": [
+        { "id": "query", "label": "GraphQL query", "type": "textarea", "required": true, "defaultValue": "query($projectId: String!){ project(id:$projectId){ environments { edges { node { id name } } } } }", "in": "body" },
+        { "id": "variables", "label": "Variables JSON", "type": "json", "required": true, "defaultValue": "{ \"projectId\": \"\" }", "in": "body" }
+      ]
+    }
+  ]
+}

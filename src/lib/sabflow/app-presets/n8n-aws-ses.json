@@ -1,0 +1,395 @@
+{
+  "id": "n8n-aws-ses",
+  "name": "AWS SES",
+  "description": "Sends data to AWS SES",
+  "category": "Output",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "none"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "custom_verification_email_create",
+      "label": "Create CustomVerificationEmail",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "fromEmailAddress",
+          "label": "From Email",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The email address that the custom verification email is sent from"
+        },
+        {
+          "id": "templateName",
+          "label": "Template Name",
+          "type": "text",
+          "in": "query",
+          "description": "The name of the custom verification email template"
+        },
+        {
+          "id": "templateContent",
+          "label": "Template Content",
+          "type": "text",
+          "in": "query",
+          "description": "The content of the custom verification email. The total size of the email must be less than 10 MB. The message body may contain HTML"
+        },
+        {
+          "id": "templateSubject",
+          "label": "Template Subject",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The subject line of the custom verification email"
+        },
+        {
+          "id": "successRedirectionURL",
+          "label": "Success Redirection URL",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The URL that the recipient of the verification email is sent to if his or her address is successfully verified"
+        },
+        {
+          "id": "failureRedirectionURL",
+          "label": "Failure Redirection URL",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The URL that the recipient of the verification email is sent to if his or her address is not successfully verified"
+        }
+      ]
+    },
+    {
+      "id": "custom_verification_email_delete",
+      "label": "Delete CustomVerificationEmail",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "templateName",
+          "label": "Template Name",
+          "type": "text",
+          "in": "query",
+          "description": "The name of the custom verification email template"
+        }
+      ]
+    },
+    {
+      "id": "custom_verification_email_get",
+      "label": "Get CustomVerificationEmail",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "templateName",
+          "label": "Template Name",
+          "type": "text",
+          "in": "query",
+          "description": "The name of the custom verification email template"
+        }
+      ]
+    },
+    {
+      "id": "custom_verification_email_get_all",
+      "label": "Get Many CustomVerificationEmail",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "in": "query",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "in": "query",
+          "description": "Max number of results to return",
+          "defaultValue": 20
+        }
+      ]
+    },
+    {
+      "id": "custom_verification_email_send",
+      "label": "Send CustomVerificationEmail",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "name@email.com",
+          "description": "The email address to verify"
+        },
+        {
+          "id": "templateName",
+          "label": "Template Name",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The name of the custom verification email template to use when sending the verification email"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Field"
+        }
+      ]
+    },
+    {
+      "id": "custom_verification_email_update",
+      "label": "Update CustomVerificationEmail",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "templateName",
+          "label": "Template Name",
+          "type": "text",
+          "in": "query",
+          "description": "The name of the custom verification email template"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Field"
+        }
+      ]
+    },
+    {
+      "id": "email_send",
+      "label": "Send Email",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "isBodyHtml",
+          "label": "Is Body HTML",
+          "type": "toggle",
+          "in": "query",
+          "description": "Whether body is HTML or simple text",
+          "defaultValue": false
+        },
+        {
+          "id": "subject",
+          "label": "Subject",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "body",
+          "label": "Body",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The message to be sent"
+        },
+        {
+          "id": "fromEmail",
+          "label": "From Email",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "admin@example.com",
+          "description": "Email address of the sender"
+        },
+        {
+          "id": "toAddresses",
+          "label": "To Addresses",
+          "type": "text",
+          "in": "query",
+          "placeholder": "info@example.com",
+          "description": "Email addresses of the recipients"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Field"
+        }
+      ]
+    },
+    {
+      "id": "email_send_template",
+      "label": "Send Template Email",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "templateName",
+          "label": "Template Name or ID",
+          "type": "select",
+          "in": "query",
+          "description": "The ARN of the template to use when sending this email. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>."
+        },
+        {
+          "id": "fromEmail",
+          "label": "From Email",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "admin@example.com",
+          "description": "Email address of the sender"
+        },
+        {
+          "id": "toAddresses",
+          "label": "To Addresses",
+          "type": "text",
+          "in": "query",
+          "placeholder": "info@example.com",
+          "description": "Email addresses of the recipients"
+        },
+        {
+          "id": "templateDataUi",
+          "label": "Template Data",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Data"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Field"
+        }
+      ]
+    },
+    {
+      "id": "template_create",
+      "label": "Create Template",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "templateName",
+          "label": "Template Name",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The name of the template"
+        },
+        {
+          "id": "subjectPart",
+          "label": "Subject Part",
+          "type": "text",
+          "in": "query",
+          "description": "The subject line of the email"
+        },
+        {
+          "id": "htmlPart",
+          "label": "Html Part",
+          "type": "text",
+          "in": "query",
+          "description": "The HTML body of the email"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Field"
+        }
+      ]
+    },
+    {
+      "id": "template_delete",
+      "label": "Delete Template",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "templateName",
+          "label": "Template Name",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The name of the template"
+        }
+      ]
+    },
+    {
+      "id": "template_get",
+      "label": "Get Template",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "templateName",
+          "label": "Template Name",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The name of the template"
+        }
+      ]
+    },
+    {
+      "id": "template_get_all",
+      "label": "Get Many Template",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "in": "query",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "in": "query",
+          "description": "Max number of results to return",
+          "defaultValue": 20
+        }
+      ]
+    },
+    {
+      "id": "template_update",
+      "label": "Update Template",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "templateName",
+          "label": "Template Name",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The name of the template"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Field"
+        }
+      ]
+    }
+  ]
+}

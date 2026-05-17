@@ -1,0 +1,31 @@
+{
+  "id": "n8n-pay-pal",
+  "name": "PayPal",
+  "description": "Consume PayPal API",
+  "category": "Output",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "payout_default",
+      "label": "List Payout",
+      "method": "GET",
+      "path": "/payout",
+      "fields": []
+    },
+    {
+      "id": "payout_item_default",
+      "label": "List PayoutItem",
+      "method": "GET",
+      "path": "/payoutItem",
+      "fields": []
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "id": "formspree",
+  "name": "Formspree",
+  "description": "Formspree API for managing forms and submissions.",
+  "category": "Forms",
+  "iconName": "LuClipboardList",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "bearer",
+    "credentialType": "formspree"
+  },
+  "baseUrl": "https://formspree.io/api",
+  "endpoints": [
+    {
+      "id": "list_forms",
+      "label": "List forms",
+      "method": "GET",
+      "path": "/forms",
+      "fields": [
+        { "id": "page", "label": "Page", "type": "number", "in": "query" },
+        { "id": "limit", "label": "Limit", "type": "number", "defaultValue": 50, "in": "query" }
+      ]
+    },
+    {
+      "id": "get_form",
+      "label": "Get form",
+      "method": "GET",
+      "path": "/forms/{formId}",
+      "fields": [
+        { "id": "formId", "label": "Form ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_submissions",
+      "label": "List submissions",
+      "method": "GET",
+      "path": "/forms/{formId}/submissions",
+      "fields": [
+        { "id": "formId", "label": "Form ID", "type": "text", "required": true, "in": "path" },
+        { "id": "page", "label": "Page", "type": "number", "in": "query" },
+        { "id": "limit", "label": "Limit", "type": "number", "defaultValue": 50, "in": "query" }
+      ]
+    },
+    {
+      "id": "delete_submission",
+      "label": "Delete submission",
+      "method": "DELETE",
+      "path": "/submissions/{submissionId}",
+      "fields": [
+        { "id": "submissionId", "label": "Submission ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "submit_form",
+      "label": "Submit form",
+      "method": "POST",
+      "path": "/{formId}",
+      "fields": [
+        { "id": "formId", "label": "Form ID", "type": "text", "required": true, "in": "path" },
+        { "id": "email", "label": "Email", "type": "text", "required": true, "in": "body" },
+        { "id": "message", "label": "Message", "type": "textarea", "in": "body" },
+        { "id": "name", "label": "Name", "type": "text", "in": "body" },
+        { "id": "subject", "label": "Subject", "type": "text", "in": "body" },
+        { "id": "extra", "label": "Extra fields (JSON)", "type": "json", "in": "body" }
+      ]
+    }
+  ]
+}

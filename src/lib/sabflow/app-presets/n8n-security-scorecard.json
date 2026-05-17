@@ -1,0 +1,59 @@
+{
+  "id": "n8n-security-scorecard",
+  "name": "SecurityScorecard",
+  "description": "Consume SecurityScorecard API",
+  "category": "Transform",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "company_default",
+      "label": "List Company",
+      "method": "GET",
+      "path": "/company",
+      "fields": []
+    },
+    {
+      "id": "industry_default",
+      "label": "List Industry",
+      "method": "GET",
+      "path": "/industry",
+      "fields": []
+    },
+    {
+      "id": "invite_default",
+      "label": "List Invite",
+      "method": "GET",
+      "path": "/invite",
+      "fields": []
+    },
+    {
+      "id": "portfolio_default",
+      "label": "List Portfolio",
+      "method": "GET",
+      "path": "/portfolio",
+      "fields": []
+    },
+    {
+      "id": "portfolio_company_default",
+      "label": "List PortfolioCompany",
+      "method": "GET",
+      "path": "/portfolioCompany",
+      "fields": []
+    },
+    {
+      "id": "report_default",
+      "label": "List Report",
+      "method": "GET",
+      "path": "/report",
+      "fields": []
+    }
+  ]
+}

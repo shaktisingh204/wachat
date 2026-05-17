@@ -1,0 +1,45 @@
+{
+  "id": "n8n-twist",
+  "name": "Twist",
+  "description": "Consume Twist API",
+  "category": "Input",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "oauth2",
+    "credentialType": "oauth2"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "channel_default",
+      "label": "List Channel",
+      "method": "GET",
+      "path": "/channel",
+      "fields": []
+    },
+    {
+      "id": "comment_default",
+      "label": "List Comment",
+      "method": "GET",
+      "path": "/comment",
+      "fields": []
+    },
+    {
+      "id": "message_conversation_default",
+      "label": "List MessageConversation",
+      "method": "GET",
+      "path": "/messageConversation",
+      "fields": []
+    },
+    {
+      "id": "thread_default",
+      "label": "List Thread",
+      "method": "GET",
+      "path": "/thread",
+      "fields": []
+    }
+  ]
+}

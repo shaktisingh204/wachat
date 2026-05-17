@@ -1,0 +1,90 @@
+{
+  "id": "assemblyai",
+  "name": "AssemblyAI",
+  "description": "AssemblyAI speech-to-text transcription, audio intelligence, and LeMUR LLM tasks.",
+  "category": "AI",
+  "iconName": "LuMic",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "header",
+    "credentialType": "assemblyai",
+    "header": "Authorization"
+  },
+  "baseUrl": "https://api.assemblyai.com/v2",
+  "endpoints": [
+    {
+      "id": "transcribe",
+      "label": "Create transcript",
+      "method": "POST",
+      "path": "/transcript",
+      "fields": [
+        { "id": "audio_url", "label": "Audio URL", "type": "text", "required": true, "in": "body" },
+        { "id": "speaker_labels", "label": "Speaker labels", "type": "toggle", "in": "body" },
+        { "id": "sentiment_analysis", "label": "Sentiment analysis", "type": "toggle", "in": "body" },
+        { "id": "auto_chapters", "label": "Auto chapters", "type": "toggle", "in": "body" },
+        { "id": "entity_detection", "label": "Entity detection", "type": "toggle", "in": "body" },
+        { "id": "language_code", "label": "Language code", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "get_transcript",
+      "label": "Get transcript",
+      "method": "GET",
+      "path": "/transcript/{id}",
+      "fields": [
+        { "id": "id", "label": "Transcript ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "delete_transcript",
+      "label": "Delete transcript",
+      "method": "DELETE",
+      "path": "/transcript/{id}",
+      "fields": [
+        { "id": "id", "label": "Transcript ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_transcripts",
+      "label": "List transcripts",
+      "method": "GET",
+      "path": "/transcript",
+      "fields": []
+    },
+    {
+      "id": "upload",
+      "label": "Upload audio",
+      "method": "POST",
+      "path": "/upload",
+      "fields": [
+        { "id": "file_url", "label": "File URL", "type": "text", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "lemur_task",
+      "label": "LeMUR custom task",
+      "method": "POST",
+      "path": "/lemur/v3/generate/task",
+      "fields": [
+        { "id": "transcript_ids", "label": "Transcript IDs JSON", "type": "json", "required": true, "in": "body" },
+        { "id": "prompt", "label": "Prompt", "type": "textarea", "required": true, "in": "body" },
+        { "id": "final_model", "label": "Final model", "type": "text", "in": "body" },
+        { "id": "max_output_size", "label": "Max output size", "type": "number", "in": "body" }
+      ]
+    },
+    {
+      "id": "lemur_summary",
+      "label": "LeMUR summary",
+      "method": "POST",
+      "path": "/lemur/v3/generate/summary",
+      "fields": [
+        { "id": "transcript_ids", "label": "Transcript IDs JSON", "type": "json", "required": true, "in": "body" },
+        { "id": "context", "label": "Context", "type": "textarea", "in": "body" },
+        { "id": "answer_format", "label": "Answer format", "type": "text", "in": "body" },
+        { "id": "final_model", "label": "Final model", "type": "text", "in": "body" }
+      ]
+    }
+  ]
+}

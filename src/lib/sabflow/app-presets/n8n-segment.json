@@ -1,0 +1,38 @@
+{
+  "id": "n8n-segment",
+  "name": "Segment",
+  "description": "Consume Segment API",
+  "category": "Output",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "group_default",
+      "label": "List Group",
+      "method": "GET",
+      "path": "/group",
+      "fields": []
+    },
+    {
+      "id": "identify_default",
+      "label": "List Identify",
+      "method": "GET",
+      "path": "/identify",
+      "fields": []
+    },
+    {
+      "id": "track_default",
+      "label": "List Track",
+      "method": "GET",
+      "path": "/track",
+      "fields": []
+    }
+  ]
+}

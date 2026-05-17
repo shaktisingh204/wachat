@@ -1,0 +1,21 @@
+{
+  "id": "google-maps-places",
+  "name": "Google Maps Places (new)",
+  "description": "Google Maps Places API v1.",
+  "category": "Geo",
+  "iconName": "LuMap",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": { "type": "header", "credentialType": "google_maps", "header": "X-Goog-Api-Key" },
+  "baseUrl": "https://places.googleapis.com/v1",
+  "endpoints": [
+    { "id": "text_search", "label": "Text search", "method": "POST", "path": "/places:searchText", "fields": [{ "id": "field_mask", "type": "text", "defaultValue": "places.id,places.displayName,places.formattedAddress", "in": "header" }, { "id": "textQuery", "type": "text", "required": true, "in": "body" }, { "id": "languageCode", "type": "text", "in": "body" }, { "id": "maxResultCount", "type": "number", "in": "body" }] },
+    { "id": "nearby_search", "label": "Nearby search", "method": "POST", "path": "/places:searchNearby", "fields": [{ "id": "field_mask", "type": "text", "defaultValue": "places.id,places.displayName,places.formattedAddress", "in": "header" }, { "id": "includedTypes", "type": "json", "required": true, "in": "body" }, { "id": "locationRestriction", "type": "json", "required": true, "in": "body", "defaultValue": { "circle": { "center": { "latitude": 0, "longitude": 0 }, "radius": 1000 } } }, { "id": "maxResultCount", "type": "number", "in": "body" }] },
+    { "id": "get_place", "label": "Get place", "method": "GET", "path": "/places/{place_id}", "fields": [{ "id": "field_mask", "type": "text", "defaultValue": "id,displayName,formattedAddress", "in": "header" }, { "id": "place_id", "type": "text", "required": true, "in": "path" }, { "id": "languageCode", "type": "text", "in": "query" }] },
+    { "id": "autocomplete", "label": "Autocomplete", "method": "POST", "path": "/places:autocomplete", "fields": [{ "id": "input", "type": "text", "required": true, "in": "body" }, { "id": "locationBias", "type": "json", "in": "body" }, { "id": "languageCode", "type": "text", "in": "body" }] },
+    { "id": "photo_get", "label": "Get photo media", "method": "GET", "path": "/{photo_name}/media", "fields": [{ "id": "photo_name", "type": "text", "required": true, "in": "path" }, { "id": "maxWidthPx", "type": "number", "in": "query" }, { "id": "maxHeightPx", "type": "number", "in": "query" }] },
+    { "id": "place_validate_address", "label": "Validate address", "method": "POST", "path": "/places:validateAddress", "fields": [{ "id": "address", "type": "json", "required": true, "in": "body", "defaultValue": { "regionCode": "US", "addressLines": [] } }] },
+    { "id": "route_compute", "label": "Compute routes", "method": "POST", "path": "https://routes.googleapis.com/directions/v2:computeRoutes", "fields": [{ "id": "field_mask", "type": "text", "defaultValue": "routes.duration,routes.distanceMeters,routes.polyline", "in": "header" }, { "id": "origin", "type": "json", "required": true, "in": "body" }, { "id": "destination", "type": "json", "required": true, "in": "body" }, { "id": "travelMode", "type": "text", "defaultValue": "DRIVE", "in": "body" }] }
+  ]
+}

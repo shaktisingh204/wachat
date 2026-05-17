@@ -1,0 +1,65 @@
+{
+  "id": "n8n-message-bird",
+  "name": "MessageBird",
+  "description": "Sends SMS via MessageBird",
+  "category": "Output",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "sms_send",
+      "label": "Send Sms",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "originator",
+          "label": "From",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "14155238886",
+          "description": "The number from which to send the message"
+        },
+        {
+          "id": "recipients",
+          "label": "To",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "14155238886/+14155238886",
+          "description": "All recipients separated by commas"
+        },
+        {
+          "id": "message",
+          "label": "Message",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The message to be send"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Fields"
+        }
+      ]
+    },
+    {
+      "id": "balance_get",
+      "label": "Get Balance",
+      "method": "GET",
+      "path": "/",
+      "fields": []
+    }
+  ]
+}

@@ -16,6 +16,13 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
 import { writeAuditEntry } from '@/lib/audit-log';
 import { requirePermission } from '@/lib/rbac-server';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+import { crmAssetAssignmentsApi } from '@/lib/rust-client/crm-asset-assignments';
+import { RustApiError } from '@/lib/rust-client/fetcher';
+
+function useRustCrm(): boolean {
+    return process.env.USE_RUST_CRM === 'true';
+}
 
 const COLLECTION = 'crm_asset_assignments';
 const BASE_PATH = '/dashboard/hrm/hr/asset-assignments';
@@ -98,6 +105,32 @@ export async function getAssetAssignments(
     const guard = await requirePermission(RBAC_KEY, 'view');
     if (!guard.ok) return [];
 
+    if (useRustCrm()) {
+        try {
+            const res = await crmAssetAssignmentsApi.list({
+                q: filters?.q,
+                status: filters?.status,
+                assetId: filters?.assetId,
+                employeeId: filters?.employeeId,
+                limit: 200,
+            });
+            return JSON.parse(
+                JSON.stringify(res.items ?? []),
+            ) as CrmAssetAssignmentDoc[];
+        } catch (e) {
+            console.error(
+                '[getAssetAssignments] rust path failed; falling back:',
+                e,
+            );
+            recordRustFallback({
+                entity: ENTITY_KIND,
+                op: 'list',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+        }
+    }
+
     try {
         const { db } = await connectToDatabase();
         const filter: Record<string, unknown> = {
@@ -141,6 +174,24 @@ export async function getAssetAssignmentById(
 
     const guard = await requirePermission(RBAC_KEY, 'view');
     if (!guard.ok) return null;
+
+    if (useRustCrm()) {
+        try {
+            const doc = await crmAssetAssignmentsApi.getById(id);
+            return JSON.parse(JSON.stringify(doc)) as CrmAssetAssignmentDoc;
+        } catch (e) {
+            console.error(
+                '[getAssetAssignmentById] rust path failed; falling back:',
+                e,
+            );
+            recordRustFallback({
+                entity: ENTITY_KIND,
+                op: 'get',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+        }
+    }
 
     try {
         const { db } = await connectToDatabase();

@@ -1,0 +1,130 @@
+{
+  "id": "pipedrive-extras",
+  "name": "Pipedrive Extras",
+  "description": "Pipedrive v1 extras — activities, notes, products, pipelines, and stages.",
+  "category": "CRM",
+  "iconName": "LuUsers",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "query_token",
+    "queryParam": "api_token",
+    "credentialType": "pipedrive"
+  },
+  "baseUrl": "https://{company}.pipedrive.com/api/v1",
+  "endpoints": [
+    {
+      "id": "list_activities",
+      "label": "List activities",
+      "method": "GET",
+      "path": "/activities",
+      "fields": [
+        { "id": "user_id", "label": "User ID", "type": "number", "in": "query" },
+        { "id": "type", "label": "Type", "type": "text", "in": "query" },
+        { "id": "limit", "label": "Limit", "type": "number", "defaultValue": 100, "in": "query" },
+        { "id": "start", "label": "Start (offset)", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "create_activity",
+      "label": "Create activity",
+      "method": "POST",
+      "path": "/activities",
+      "fields": [
+        { "id": "subject", "label": "Subject", "type": "text", "required": true, "in": "body" },
+        { "id": "type", "label": "Type", "type": "text", "required": true, "in": "body" },
+        { "id": "due_date", "label": "Due date (YYYY-MM-DD)", "type": "text", "in": "body" },
+        { "id": "due_time", "label": "Due time (HH:MM)", "type": "text", "in": "body" },
+        { "id": "deal_id", "label": "Deal ID", "type": "number", "in": "body" },
+        { "id": "person_id", "label": "Person ID", "type": "number", "in": "body" },
+        { "id": "org_id", "label": "Organization ID", "type": "number", "in": "body" },
+        { "id": "user_id", "label": "User ID", "type": "number", "in": "body" }
+      ]
+    },
+    {
+      "id": "update_activity",
+      "label": "Update activity",
+      "method": "PUT",
+      "path": "/activities/{id}",
+      "fields": [
+        { "id": "id", "label": "Activity ID", "type": "number", "required": true, "in": "path" },
+        { "id": "subject", "label": "Subject", "type": "text", "in": "body" },
+        { "id": "done", "label": "Done", "type": "toggle", "in": "body" },
+        { "id": "due_date", "label": "Due date", "type": "text", "in": "body" },
+        { "id": "due_time", "label": "Due time", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "delete_activity",
+      "label": "Delete activity",
+      "method": "DELETE",
+      "path": "/activities/{id}",
+      "fields": [
+        { "id": "id", "label": "Activity ID", "type": "number", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_notes",
+      "label": "List notes",
+      "method": "GET",
+      "path": "/notes",
+      "fields": [
+        { "id": "deal_id", "label": "Deal ID", "type": "number", "in": "query" },
+        { "id": "person_id", "label": "Person ID", "type": "number", "in": "query" },
+        { "id": "org_id", "label": "Organization ID", "type": "number", "in": "query" },
+        { "id": "limit", "label": "Limit", "type": "number", "defaultValue": 100, "in": "query" }
+      ]
+    },
+    {
+      "id": "create_note",
+      "label": "Create note",
+      "method": "POST",
+      "path": "/notes",
+      "fields": [
+        { "id": "content", "label": "Content", "type": "textarea", "required": true, "in": "body" },
+        { "id": "deal_id", "label": "Deal ID", "type": "number", "in": "body" },
+        { "id": "person_id", "label": "Person ID", "type": "number", "in": "body" },
+        { "id": "org_id", "label": "Organization ID", "type": "number", "in": "body" }
+      ]
+    },
+    {
+      "id": "list_products",
+      "label": "List products",
+      "method": "GET",
+      "path": "/products",
+      "fields": [
+        { "id": "limit", "label": "Limit", "type": "number", "defaultValue": 100, "in": "query" },
+        { "id": "start", "label": "Start (offset)", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "create_product",
+      "label": "Create product",
+      "method": "POST",
+      "path": "/products",
+      "fields": [
+        { "id": "name", "label": "Name", "type": "text", "required": true, "in": "body" },
+        { "id": "code", "label": "Code", "type": "text", "in": "body" },
+        { "id": "unit", "label": "Unit", "type": "text", "in": "body" },
+        { "id": "prices", "label": "Prices (JSON array)", "type": "json", "in": "body" }
+      ]
+    },
+    {
+      "id": "list_pipelines",
+      "label": "List pipelines",
+      "method": "GET",
+      "path": "/pipelines",
+      "fields": []
+    },
+    {
+      "id": "list_stages",
+      "label": "List stages",
+      "method": "GET",
+      "path": "/stages",
+      "fields": [
+        { "id": "pipeline_id", "label": "Pipeline ID", "type": "number", "in": "query" }
+      ]
+    }
+  ]
+}

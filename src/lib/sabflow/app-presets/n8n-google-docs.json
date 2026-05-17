@@ -1,0 +1,59 @@
+{
+  "id": "n8n-google-docs",
+  "name": "Google Docs",
+  "description": "Consume Google Docs API.",
+  "category": "Input",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "document_default",
+      "label": "List Document",
+      "method": "GET",
+      "path": "/document",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "serviceAccount",
+          "options": [
+            {
+              "value": "serviceAccount",
+              "label": "Service Account"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        },
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "oAuth2",
+          "options": [
+            {
+              "value": "oAuth2",
+              "label": "OAuth2 (recommended)"
+            },
+            {
+              "value": "serviceAccount",
+              "label": "Service Account"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

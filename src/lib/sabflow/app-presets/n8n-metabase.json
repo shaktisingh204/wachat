@@ -1,0 +1,45 @@
+{
+  "id": "n8n-metabase",
+  "name": "Metabase",
+  "description": "Use the Metabase API",
+  "category": "Transform",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "alerts_default",
+      "label": "List Alerts",
+      "method": "GET",
+      "path": "/alerts",
+      "fields": []
+    },
+    {
+      "id": "databases_default",
+      "label": "List Databases",
+      "method": "GET",
+      "path": "/databases",
+      "fields": []
+    },
+    {
+      "id": "metrics_default",
+      "label": "List Metrics",
+      "method": "GET",
+      "path": "/metrics",
+      "fields": []
+    },
+    {
+      "id": "questions_default",
+      "label": "List Questions",
+      "method": "GET",
+      "path": "/questions",
+      "fields": []
+    }
+  ]
+}

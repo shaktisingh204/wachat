@@ -1,0 +1,24 @@
+{
+  "id": "adafruit-io",
+  "name": "Adafruit IO",
+  "description": "Adafruit IoT cloud (feeds, data, groups).",
+  "category": "IoT",
+  "iconName": "LuCpu",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": { "type": "header", "credentialType": "adafruit_io", "header": "X-AIO-Key" },
+  "baseUrl": "https://io.adafruit.com/api/v2",
+  "endpoints": [
+    { "id": "list_feeds", "label": "List feeds", "method": "GET", "path": "/{username}/feeds", "fields": [{ "id": "username", "type": "text", "required": true, "in": "path" }] },
+    { "id": "get_feed", "label": "Get feed", "method": "GET", "path": "/{username}/feeds/{feed_key}", "fields": [{ "id": "username", "type": "text", "required": true, "in": "path" }, { "id": "feed_key", "type": "text", "required": true, "in": "path" }] },
+    { "id": "create_feed", "label": "Create feed", "method": "POST", "path": "/{username}/feeds", "fields": [{ "id": "username", "type": "text", "required": true, "in": "path" }, { "id": "feed", "type": "json", "required": true, "in": "body", "defaultValue": { "name": "", "key": "", "description": "", "license": "", "visibility": "private" } }] },
+    { "id": "delete_feed", "label": "Delete feed", "method": "DELETE", "path": "/{username}/feeds/{feed_key}", "fields": [{ "id": "username", "type": "text", "required": true, "in": "path" }, { "id": "feed_key", "type": "text", "required": true, "in": "path" }] },
+    { "id": "create_data", "label": "Create data point", "method": "POST", "path": "/{username}/feeds/{feed_key}/data", "fields": [{ "id": "username", "type": "text", "required": true, "in": "path" }, { "id": "feed_key", "type": "text", "required": true, "in": "path" }, { "id": "value", "type": "text", "required": true, "in": "body" }, { "id": "lat", "type": "number", "in": "body" }, { "id": "lon", "type": "number", "in": "body" }, { "id": "ele", "type": "number", "in": "body" }, { "id": "created_at", "type": "text", "in": "body" }] },
+    { "id": "list_data", "label": "List data", "method": "GET", "path": "/{username}/feeds/{feed_key}/data", "fields": [{ "id": "username", "type": "text", "required": true, "in": "path" }, { "id": "feed_key", "type": "text", "required": true, "in": "path" }, { "id": "limit", "type": "number", "defaultValue": 100, "in": "query" }] },
+    { "id": "get_data", "label": "Get data point", "method": "GET", "path": "/{username}/feeds/{feed_key}/data/{id}", "fields": [{ "id": "username", "type": "text", "required": true, "in": "path" }, { "id": "feed_key", "type": "text", "required": true, "in": "path" }, { "id": "id", "type": "text", "required": true, "in": "path" }] },
+    { "id": "delete_data", "label": "Delete data point", "method": "DELETE", "path": "/{username}/feeds/{feed_key}/data/{id}", "fields": [{ "id": "username", "type": "text", "required": true, "in": "path" }, { "id": "feed_key", "type": "text", "required": true, "in": "path" }, { "id": "id", "type": "text", "required": true, "in": "path" }] },
+    { "id": "list_groups", "label": "List groups", "method": "GET", "path": "/{username}/groups", "fields": [{ "id": "username", "type": "text", "required": true, "in": "path" }] },
+    { "id": "create_group_data", "label": "Create group data", "method": "POST", "path": "/{username}/groups/{group_key}/data", "fields": [{ "id": "username", "type": "text", "required": true, "in": "path" }, { "id": "group_key", "type": "text", "required": true, "in": "path" }, { "id": "feeds", "type": "json", "required": true, "in": "body", "defaultValue": [{ "key": "", "value": "" }] }] }
+  ]
+}

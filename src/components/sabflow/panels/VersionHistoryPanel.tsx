@@ -148,6 +148,39 @@ export function VersionHistoryPanel({ flowId, onClose, onRestore }: Props) {
   const [restoringId, setRestoringId] = useState<string | null>(null);
   const [restoreError, setRestoreError] = useState<string | null>(null);
 
+  // Compare-two-versions mode: when active, clicking a row toggles selection
+  // instead of restoring.  Once two versions are picked the user can fire the
+  // existing diff page with both ids.
+  const [compareMode, setCompareMode] = useState(false);
+  const [picked, setPicked] = useState<string[]>([]);
+
+  const togglePicked = useCallback((id: string) => {
+    setPicked((prev) => {
+      if (prev.includes(id)) return prev.filter((p) => p !== id);
+      if (prev.length >= 2) return [prev[1], id];
+      return [...prev, id];
+    });
+  }, []);
+
+  const exitCompareMode = useCallback(() => {
+    setCompareMode(false);
+    setPicked([]);
+  }, []);
+
+  const openDiff = useCallback(() => {
+    if (picked.length !== 2) return;
+    // The diff page expects `from` (older) and `to` (newer).  Versions are
+    // returned newest-first, so the lower-index pick is the newer one.
+    const [a, b] = picked;
+    const orderA = versions.findIndex((v) => v._id === a);
+    const orderB = versions.findIndex((v) => v._id === b);
+    const from = orderA > orderB ? a : b;
+    const to = orderA > orderB ? b : a;
+    router.push(
+      `/dashboard/sabflow/flow-builder/${flowId}/diff?from=${from}&to=${to}`,
+    );
+  }, [picked, versions, flowId, router]);
+
   /* ── Fetch versions ───────────────────────────────────────── */
 
   const fetchVersions = useCallback(async () => {
@@ -321,6 +354,44 @@ export function VersionHistoryPanel({ flowId, onClose, onRestore }: Props) {
           )}
         </div>
 
+        {/* ── Compare-mode toolbar ──────────────────────────────── */}
+        <div className="flex items-center gap-2 border-b border-[var(--gray-4)] px-3 py-2 shrink-0">
+          <button
+            type="button"
+            onClick={() => (compareMode ? exitCompareMode() : setCompareMode(true))}
+            className={cn(
+              'flex items-center gap-1.5 rounded-lg border px-2 py-1 text-[11.5px] font-medium transition-colors',
+              compareMode
+                ? 'border-[#f76808] bg-[#f76808]/10 text-[#f76808]'
+                : 'border-[var(--gray-5)] bg-[var(--gray-2)] text-[var(--gray-10)] hover:border-[var(--gray-7)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]',
+            )}
+            title={compareMode ? 'Exit compare mode' : 'Pick two versions to diff'}
+          >
+            <LuGitCompare className="h-3 w-3" strokeWidth={2} />
+            {compareMode ? 'Cancel' : 'Compare versions'}
+          </button>
+          {compareMode && (
+            <>
+              <span className="text-[10.5px] text-[var(--gray-9)] ml-auto">
+                {picked.length} / 2 picked
+              </span>
+              <button
+                type="button"
+                onClick={openDiff}
+                disabled={picked.length !== 2}
+                className={cn(
+                  'rounded-lg px-2 py-1 text-[11.5px] font-semibold transition-colors',
+                  picked.length === 2
+                    ? 'bg-[#f76808] text-white hover:bg-[#e25c00]'
+                    : 'bg-[var(--gray-3)] text-[var(--gray-8)] cursor-not-allowed',
+                )}
+              >
+                View diff
+              </button>
+            </>
+          )}
+        </div>
+
         {/* ── Restore error banner ──────────────────────────────── */}
         {restoreError && (
           <div className="mx-3 mt-2 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 dark:border-red-800 dark:bg-red-950/30 shrink-0">
@@ -384,6 +455,9 @@ export function VersionHistoryPanel({ flowId, onClose, onRestore }: Props) {
                     `/dashboard/sabflow/flow-builder/${flowId}/diff?from=${version._id}&to=current`,
                   )
                 }
+                compareMode={compareMode}
+                isPicked={picked.includes(version._id)}
+                onTogglePick={() => togglePicked(version._id)}
               />
             ))
           )}

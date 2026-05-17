@@ -1,0 +1,217 @@
+{
+  "id": "n8n-baserow",
+  "name": "Baserow",
+  "description": "Consume the Baserow API",
+  "category": "Output",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "row_batch_create",
+      "label": "Batch Create Row",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "usernamePassword",
+          "options": [
+            {
+              "value": "usernamePassword",
+              "label": "Username & Password"
+            },
+            {
+              "value": "databaseToken",
+              "label": "Database Token"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "row_batch_delete",
+      "label": "Batch Delete Row",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "usernamePassword",
+          "options": [
+            {
+              "value": "usernamePassword",
+              "label": "Username & Password"
+            },
+            {
+              "value": "databaseToken",
+              "label": "Database Token"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "row_batch_update",
+      "label": "Batch Update Row",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "usernamePassword",
+          "options": [
+            {
+              "value": "usernamePassword",
+              "label": "Username & Password"
+            },
+            {
+              "value": "databaseToken",
+              "label": "Database Token"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "row_create",
+      "label": "Create Row",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "usernamePassword",
+          "options": [
+            {
+              "value": "usernamePassword",
+              "label": "Username & Password"
+            },
+            {
+              "value": "databaseToken",
+              "label": "Database Token"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "row_delete",
+      "label": "Delete Row",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "usernamePassword",
+          "options": [
+            {
+              "value": "usernamePassword",
+              "label": "Username & Password"
+            },
+            {
+              "value": "databaseToken",
+              "label": "Database Token"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "row_get",
+      "label": "Get Row",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "usernamePassword",
+          "options": [
+            {
+              "value": "usernamePassword",
+              "label": "Username & Password"
+            },
+            {
+              "value": "databaseToken",
+              "label": "Database Token"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "row_get_all",
+      "label": "Get Many Row",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "usernamePassword",
+          "options": [
+            {
+              "value": "usernamePassword",
+              "label": "Username & Password"
+            },
+            {
+              "value": "databaseToken",
+              "label": "Database Token"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "row_update",
+      "label": "Update Row",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "usernamePassword",
+          "options": [
+            {
+              "value": "usernamePassword",
+              "label": "Username & Password"
+            },
+            {
+              "value": "databaseToken",
+              "label": "Database Token"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

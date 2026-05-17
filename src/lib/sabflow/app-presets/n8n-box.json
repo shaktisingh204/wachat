@@ -1,0 +1,31 @@
+{
+  "id": "n8n-box",
+  "name": "Box",
+  "description": "Consume Box API",
+  "category": "Input",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "oauth2",
+    "credentialType": "oauth2"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "file_default",
+      "label": "List File",
+      "method": "GET",
+      "path": "/file",
+      "fields": []
+    },
+    {
+      "id": "folder_default",
+      "label": "List Folder",
+      "method": "GET",
+      "path": "/folder",
+      "fields": []
+    }
+  ]
+}

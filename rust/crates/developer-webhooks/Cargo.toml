@@ -1,0 +1,53 @@
+# Webhook subscription CRUD + delivery log for the SabNode developer API.
+#
+# The Rust side is the *control plane* only:
+#   - manage `webhook_subscriptions` rows
+#   - expose `webhook_deliveries` for the dashboard / replay UI
+#
+# Actual fan-out is performed by the Node `webhook-worker` process which
+# pulls from a BullMQ queue and signs deliveries with HMAC-SHA256 keyed by
+# the subscription's `secret`. Both sides share the same Mongo
+# collections so a manual write to `webhook_subscriptions` is immediately
+# honoured by the worker.
+#
+# Mount under `/v1/developer-webhooks` from the `api` crate:
+#   .nest("/v1/developer-webhooks", developer_webhooks::router::<AppState>())
+[package]
+name = "developer-webhooks"
+version = "0.1.0"
+edition = "2024"
+description = "Webhook subscription CRUD + delivery log for the SabNode developer API. Companion control plane to the Node webhook-worker."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "developer_webhooks"
+path = "src/lib.rs"
+
+[dependencies]
+axum = { version = "0.8", default-features = false, features = ["json", "http1", "tokio", "macros", "query"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+bson = { version = "2", features = ["chrono-0_4"] }
+mongodb = { version = "3" }
+
+# Random secret generation.
+rand = "0.8"
+sha2 = "0.10"
+hex = "0.4"
+
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+futures = "0.3"
+
+tracing = "0.1"
+anyhow = "1"
+
+sabnode-common = { path = "../common" }
+sabnode-auth = { path = "../auth" }
+sabnode-db = { path = "../db" }
+
+[lints]
+workspace = true

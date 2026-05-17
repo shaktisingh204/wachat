@@ -1,0 +1,234 @@
+{
+  "id": "n8n-mandrill",
+  "name": "Mandrill",
+  "description": "Consume Mandrill API",
+  "category": "Output",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "message_send_template",
+      "label": "Send Template Message",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "template",
+          "label": "Template Name or ID",
+          "type": "select",
+          "in": "query",
+          "required": true,
+          "description": "The template you want to send. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>.",
+          "options": []
+        },
+        {
+          "id": "fromEmail",
+          "label": "From Email",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "Admin <example@yourdomain.com>",
+          "description": "Email address of the sender optional with name"
+        },
+        {
+          "id": "toEmail",
+          "label": "To Email",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "info@example.com",
+          "description": "Email address of the recipient. Multiple ones can be separated by comma."
+        },
+        {
+          "id": "jsonParameters",
+          "label": "JSON Parameters",
+          "type": "toggle",
+          "in": "query",
+          "defaultValue": false
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add option"
+        },
+        {
+          "id": "mergeVarsJson",
+          "label": "Merge Vars",
+          "type": "json",
+          "in": "query",
+          "placeholder": "[\n\t{\n\t\t{ \"name\": \"name\", \"content\": \"content\" }\n\t}\n]",
+          "description": "Global merge variables"
+        },
+        {
+          "id": "mergeVarsUi",
+          "label": "Merge Vars",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Merge Vars",
+          "description": "Per-recipient merge variables"
+        },
+        {
+          "id": "metadataUi",
+          "label": "Metadata",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Metadata",
+          "description": "Metadata an associative array of user metadata. Mandrill will store this metadata and make it available for retrieval. In addition, you can select up to 10 metadata fields to index and make searchable using the Mandrill search api."
+        },
+        {
+          "id": "metadataJson",
+          "label": "Metadata",
+          "type": "json",
+          "in": "query",
+          "placeholder": "{\n\t\"website\": \"www.example.com\"\n}",
+          "description": "Metadata an associative array of user metadata. Mandrill will store this metadata and make it available for retrieval. In addition, you can select up to 10 metadata fields to index and make searchable using the Mandrill search api."
+        },
+        {
+          "id": "attachmentsJson",
+          "label": "Attachments",
+          "type": "json",
+          "in": "query",
+          "placeholder": "[\n\t{\n\t\t\"type\": \"text/plain\" (the MIME type of the attachment),\n\t\t\"name\": \"myfile.txt\" (the file name of the attachment),\n\t\t\"content\": \"ZXhhbXBsZSBmaWxl\" (the content of the attachment as a base64-encoded string)\n\t}\n]",
+          "description": "An array of supported attachments to add to the message"
+        },
+        {
+          "id": "attachmentsUi",
+          "label": "Attachments",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Attachments",
+          "description": "Array of supported attachments to add to the message"
+        },
+        {
+          "id": "headersJson",
+          "label": "Headers",
+          "type": "json",
+          "in": "query",
+          "placeholder": "{\n\t\"Reply-To\": \"replies@example.com\"\n}",
+          "description": "Optional extra headers to add to the message (most headers are allowed)"
+        },
+        {
+          "id": "headersUi",
+          "label": "Headers",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Headers",
+          "description": "Optional extra headers to add to the message (most headers are allowed)"
+        }
+      ]
+    },
+    {
+      "id": "message_send_html",
+      "label": "Send HTML Message",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "fromEmail",
+          "label": "From Email",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "Admin <example@yourdomain.com>",
+          "description": "Email address of the sender optional with name"
+        },
+        {
+          "id": "toEmail",
+          "label": "To Email",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "info@example.com",
+          "description": "Email address of the recipient. Multiple ones can be separated by comma."
+        },
+        {
+          "id": "jsonParameters",
+          "label": "JSON Parameters",
+          "type": "toggle",
+          "in": "query",
+          "defaultValue": false
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add option"
+        },
+        {
+          "id": "mergeVarsJson",
+          "label": "Merge Vars",
+          "type": "json",
+          "in": "query",
+          "placeholder": "[\n\t{\n\t\t{ \"name\": \"name\", \"content\": \"content\" }\n\t}\n]",
+          "description": "Global merge variables"
+        },
+        {
+          "id": "mergeVarsUi",
+          "label": "Merge Vars",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Merge Vars",
+          "description": "Per-recipient merge variables"
+        },
+        {
+          "id": "metadataUi",
+          "label": "Metadata",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Metadata",
+          "description": "Metadata an associative array of user metadata. Mandrill will store this metadata and make it available for retrieval. In addition, you can select up to 10 metadata fields to index and make searchable using the Mandrill search api."
+        },
+        {
+          "id": "metadataJson",
+          "label": "Metadata",
+          "type": "json",
+          "in": "query",
+          "placeholder": "{\n\t\"website\": \"www.example.com\"\n}",
+          "description": "Metadata an associative array of user metadata. Mandrill will store this metadata and make it available for retrieval. In addition, you can select up to 10 metadata fields to index and make searchable using the Mandrill search api."
+        },
+        {
+          "id": "attachmentsJson",
+          "label": "Attachments",
+          "type": "json",
+          "in": "query",
+          "placeholder": "[\n\t{\n\t\t\"type\": \"text/plain\" (the MIME type of the attachment),\n\t\t\"name\": \"myfile.txt\" (the file name of the attachment),\n\t\t\"content\": \"ZXhhbXBsZSBmaWxl\" (the content of the attachment as a base64-encoded string)\n\t}\n]",
+          "description": "An array of supported attachments to add to the message"
+        },
+        {
+          "id": "attachmentsUi",
+          "label": "Attachments",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Attachments",
+          "description": "Array of supported attachments to add to the message"
+        },
+        {
+          "id": "headersJson",
+          "label": "Headers",
+          "type": "json",
+          "in": "query",
+          "placeholder": "{\n\t\"Reply-To\": \"replies@example.com\"\n}",
+          "description": "Optional extra headers to add to the message (most headers are allowed)"
+        },
+        {
+          "id": "headersUi",
+          "label": "Headers",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Headers",
+          "description": "Optional extra headers to add to the message (most headers are allowed)"
+        }
+      ]
+    }
+  ]
+}

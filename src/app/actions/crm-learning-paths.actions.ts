@@ -1,13 +1,14 @@
 'use server';
 
 /**
- * CRM HR Learning Paths — legacy Mongo-backed server actions.
+ * CRM HR Learning Paths server actions.
  *
- * There is no Rust crate yet, so all reads and writes go straight to the
- * `crm_learning_paths` Mongo collection. Auth + RBAC + audit follow the
- * standard CRM pattern.
+ * **Dual implementation:** when `USE_RUST_CRM === 'true'` the read paths
+ * delegate to `/v1/crm/learning-paths` on the Rust BFF; otherwise legacy
+ * direct-Mongo runs. Failures record via `recordRustFallback` and fall
+ * through to the legacy path.
  *
- * Fields:
+ * Fields (Mongo source-of-truth — snake_case):
  *   name, description, target_audience ('department'|'role'|'all'),
  *   trainings (string[] — training _id refs), duration_weeks,
  *   is_mandatory, status (draft|active|archived)
@@ -22,6 +23,13 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
 import { requirePermission } from '@/lib/rbac-server';
 import { writeAuditEntry } from '@/lib/audit-log';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+import { crmLearningPathsApi } from '@/lib/rust-client/crm-learning-paths';
+import { RustApiError } from '@/lib/rust-client/fetcher';
+
+function useRustCrm(): boolean {
+    return process.env.USE_RUST_CRM === 'true';
+}
 
 /* ─── Types ──────────────────────────────────────────────────────────── */
 
@@ -163,6 +171,32 @@ export async function getLearningPaths(
     const guard = await requirePermission('crm_learning_path', 'view');
     if (!guard.ok) return empty;
 
+    if (useRustCrm()) {
+        try {
+            const res = await crmLearningPathsApi.list({
+                q: filters?.q,
+                status: filters?.status,
+                targetAudience: filters?.targetAudience,
+                limit: filters?.limit,
+            });
+            const items = (res.items ?? []).map((row) =>
+                toDoc(row as unknown as WithId<Document>),
+            );
+            return { items };
+        } catch (e) {
+            console.error(
+                '[getLearningPaths] rust path failed; falling back:',
+                e,
+            );
+            recordRustFallback({
+                entity: 'learning_path',
+                op: 'list',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+        }
+    }
+
     try {
         const { db } = await connectToDatabase();
         const filter: Record<string, unknown> = {
@@ -203,6 +237,24 @@ export async function getLearningPathById(
 
     const guard = await requirePermission('crm_learning_path', 'view');
     if (!guard.ok) return null;
+
+    if (useRustCrm()) {
+        try {
+            const doc = await crmLearningPathsApi.getById(id);
+            return toDoc(doc as unknown as WithId<Document>);
+        } catch (e) {
+            console.error(
+                '[getLearningPathById] rust path failed; falling back:',
+                e,
+            );
+            recordRustFallback({
+                entity: 'learning_path',
+                op: 'get',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+        }
+    }
 
     try {
         const { db } = await connectToDatabase();

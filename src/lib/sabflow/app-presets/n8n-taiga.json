@@ -1,0 +1,45 @@
+{
+  "id": "n8n-taiga",
+  "name": "Taiga",
+  "description": "Consume Taiga API",
+  "category": "Transform",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "epic_default",
+      "label": "List Epic",
+      "method": "GET",
+      "path": "/epic",
+      "fields": []
+    },
+    {
+      "id": "issue_default",
+      "label": "List Issue",
+      "method": "GET",
+      "path": "/issue",
+      "fields": []
+    },
+    {
+      "id": "task_default",
+      "label": "List Task",
+      "method": "GET",
+      "path": "/task",
+      "fields": []
+    },
+    {
+      "id": "user_story_default",
+      "label": "List UserStory",
+      "method": "GET",
+      "path": "/userStory",
+      "fields": []
+    }
+  ]
+}

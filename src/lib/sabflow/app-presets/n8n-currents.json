@@ -1,0 +1,73 @@
+{
+  "id": "n8n-currents",
+  "name": "Currents",
+  "description": "Interact with the Currents API for test orchestration and analytics",
+  "category": "Transform",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "https://api.currents.dev/v1",
+  "endpoints": [
+    {
+      "id": "action_default",
+      "label": "List Action",
+      "method": "GET",
+      "path": "/action",
+      "fields": []
+    },
+    {
+      "id": "instance_default",
+      "label": "List Instance",
+      "method": "GET",
+      "path": "/instance",
+      "fields": []
+    },
+    {
+      "id": "project_default",
+      "label": "List Project",
+      "method": "GET",
+      "path": "/project",
+      "fields": []
+    },
+    {
+      "id": "run_default",
+      "label": "List Run",
+      "method": "GET",
+      "path": "/run",
+      "fields": []
+    },
+    {
+      "id": "signature_default",
+      "label": "List Signature",
+      "method": "GET",
+      "path": "/signature",
+      "fields": []
+    },
+    {
+      "id": "spec_file_default",
+      "label": "List SpecFile",
+      "method": "GET",
+      "path": "/specFile",
+      "fields": []
+    },
+    {
+      "id": "test_default",
+      "label": "List Test",
+      "method": "GET",
+      "path": "/test",
+      "fields": []
+    },
+    {
+      "id": "test_result_default",
+      "label": "List TestResult",
+      "method": "GET",
+      "path": "/testResult",
+      "fields": []
+    }
+  ]
+}

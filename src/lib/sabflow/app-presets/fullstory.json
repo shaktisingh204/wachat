@@ -1,0 +1,108 @@
+{
+  "id": "fullstory",
+  "name": "FullStory",
+  "description": "FullStory digital experience analytics and session replay API.",
+  "category": "Monitoring",
+  "iconName": "LuActivity",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "bearer",
+    "credentialType": "fullstory"
+  },
+  "baseUrl": "https://api.fullstory.com/v2",
+  "endpoints": [
+    {
+      "id": "me",
+      "label": "Get current user",
+      "method": "GET",
+      "path": "/me",
+      "fields": []
+    },
+    {
+      "id": "create_user",
+      "label": "Create user",
+      "method": "POST",
+      "path": "/users",
+      "fields": [
+        { "id": "display_name", "label": "Display name", "type": "text", "in": "body" },
+        { "id": "email", "label": "Email", "type": "text", "in": "body" },
+        { "id": "properties", "label": "Properties (JSON)", "type": "json", "in": "body" },
+        { "id": "uid", "label": "User UID", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "update_user",
+      "label": "Update user",
+      "method": "POST",
+      "path": "/users/{user_id}",
+      "fields": [
+        { "id": "user_id", "label": "User ID", "type": "text", "required": true, "in": "path" },
+        { "id": "display_name", "label": "Display name", "type": "text", "in": "body" },
+        { "id": "email", "label": "Email", "type": "text", "in": "body" },
+        { "id": "properties", "label": "Properties (JSON)", "type": "json", "in": "body" }
+      ]
+    },
+    {
+      "id": "delete_user",
+      "label": "Delete user",
+      "method": "DELETE",
+      "path": "/users/{user_id}",
+      "fields": [
+        { "id": "user_id", "label": "User ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "create_event",
+      "label": "Create event",
+      "method": "POST",
+      "path": "/events",
+      "fields": [
+        { "id": "name", "label": "Event name", "type": "text", "required": true, "in": "body" },
+        { "id": "properties", "label": "Properties (JSON)", "type": "json", "in": "body" },
+        { "id": "timestamp", "label": "Timestamp (ISO 8601)", "type": "text", "in": "body" },
+        { "id": "uid", "label": "User UID", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "list_segments",
+      "label": "List segments",
+      "method": "GET",
+      "path": "/segments",
+      "fields": [
+        { "id": "page_token", "label": "Page token", "type": "text", "in": "query" }
+      ]
+    },
+    {
+      "id": "export_segment",
+      "label": "Export segment",
+      "method": "POST",
+      "path": "/segments/{segment_id}/exports",
+      "fields": [
+        { "id": "segment_id", "label": "Segment ID", "type": "text", "required": true, "in": "path" },
+        { "id": "start_time", "label": "Start time (ISO 8601)", "type": "text", "required": true, "in": "body" },
+        { "id": "end_time", "label": "End time (ISO 8601)", "type": "text", "required": true, "in": "body" },
+        { "id": "fields", "label": "Fields (JSON array)", "type": "json", "in": "body" }
+      ]
+    },
+    {
+      "id": "get_export",
+      "label": "Get export",
+      "method": "GET",
+      "path": "/segments/exports/{export_id}",
+      "fields": [
+        { "id": "export_id", "label": "Export ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_workspaces",
+      "label": "List workspaces",
+      "method": "GET",
+      "path": "/workspaces",
+      "fields": [
+        { "id": "page_token", "label": "Page token", "type": "text", "in": "query" }
+      ]
+    }
+  ]
+}

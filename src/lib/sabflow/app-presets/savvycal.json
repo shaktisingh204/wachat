@@ -1,0 +1,65 @@
+{
+  "id": "savvycal",
+  "name": "SavvyCal",
+  "description": "SavvyCal scheduling API for links and bookings.",
+  "category": "Scheduling",
+  "iconName": "LuCalendar",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "bearer",
+    "credentialType": "savvycal"
+  },
+  "baseUrl": "https://api.savvycal.com/v1",
+  "endpoints": [
+    {
+      "id": "list_links",
+      "label": "List links",
+      "method": "GET",
+      "path": "/links",
+      "fields": [
+        { "id": "page", "label": "Page", "type": "number", "in": "query" },
+        { "id": "limit", "label": "Limit", "type": "number", "defaultValue": 50, "in": "query" }
+      ]
+    },
+    {
+      "id": "get_link",
+      "label": "Get link",
+      "method": "GET",
+      "path": "/links/{id}",
+      "fields": [
+        { "id": "id", "label": "Link ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_bookings",
+      "label": "List bookings",
+      "method": "GET",
+      "path": "/links/{linkId}/bookings",
+      "fields": [
+        { "id": "linkId", "label": "Link ID", "type": "text", "required": true, "in": "path" },
+        { "id": "page", "label": "Page", "type": "number", "in": "query" },
+        { "id": "limit", "label": "Limit", "type": "number", "defaultValue": 50, "in": "query" }
+      ]
+    },
+    {
+      "id": "get_booking",
+      "label": "Get booking",
+      "method": "GET",
+      "path": "/bookings/{id}",
+      "fields": [
+        { "id": "id", "label": "Booking ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "cancel_booking",
+      "label": "Cancel booking",
+      "method": "DELETE",
+      "path": "/bookings/{id}",
+      "fields": [
+        { "id": "id", "label": "Booking ID", "type": "text", "required": true, "in": "path" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,153 @@
+{
+  "id": "n8n-execute-workflow",
+  "name": "Execute Sub-workflow",
+  "description": "Execute another workflow",
+  "category": "Transform",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "none"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "default_call_workflow",
+      "label": "Execute a Sub-Workflow",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "outdatedVersionWarning",
+          "label": "This node is out of date. Please upgrade by removing it and adding a new one",
+          "type": "text",
+          "in": "query"
+        },
+        {
+          "id": "source",
+          "label": "Source",
+          "type": "select",
+          "in": "query",
+          "description": "Where to get the workflow to execute from",
+          "defaultValue": "database",
+          "options": [
+            {
+              "value": "database",
+              "label": "Database"
+            },
+            {
+              "value": "localFile",
+              "label": "Local File"
+            },
+            {
+              "value": "parameter",
+              "label": "Parameter"
+            },
+            {
+              "value": "url",
+              "label": "URL"
+            }
+          ]
+        },
+        {
+          "id": "source",
+          "label": "Source",
+          "type": "select",
+          "in": "query",
+          "description": "Where to get the workflow to execute from",
+          "defaultValue": "database",
+          "options": [
+            {
+              "value": "database",
+              "label": "Database"
+            },
+            {
+              "value": "parameter",
+              "label": "Define Below"
+            }
+          ]
+        },
+        {
+          "id": "workflowId",
+          "label": "Workflow ID",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "Note on using an expression here: if this node is set to run once with all items, they will all be sent to the <em>same</em> workflow. That workflow's ID will be calculated by evaluating the expression for the <strong>first input item</strong>."
+        },
+        {
+          "id": "workflowId",
+          "label": "Workflow",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "workflowPath",
+          "label": "Workflow Path",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "/data/workflow.json",
+          "description": "The path to local JSON workflow file to execute"
+        },
+        {
+          "id": "workflowJson",
+          "label": "Workflow JSON",
+          "type": "json",
+          "in": "query",
+          "required": true,
+          "description": "The workflow JSON code to execute",
+          "defaultValue": "\n\n\n"
+        },
+        {
+          "id": "workflowUrl",
+          "label": "Workflow URL",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "https://example.com/workflow.json",
+          "description": "The URL from which to load the workflow from"
+        },
+        {
+          "id": "executeWorkflowNotice",
+          "label": "Any data you pass into this node will be output by the Execute Workflow Trigger. <a href=\"https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.executeworkflow/\" target=\"_blank\">More info</a>",
+          "type": "text",
+          "in": "query"
+        },
+        {
+          "id": "workflowInputs",
+          "label": "Workflow Inputs",
+          "type": "text",
+          "in": "query",
+          "required": true
+        },
+        {
+          "id": "mode",
+          "label": "Mode",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "once",
+          "options": [
+            {
+              "value": "once",
+              "label": "Run once with all items"
+            },
+            {
+              "value": "each",
+              "label": "Run once for each item"
+            }
+          ]
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add option"
+        }
+      ]
+    }
+  ]
+}

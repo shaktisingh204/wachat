@@ -1,0 +1,23 @@
+{
+  "id": "recruitee",
+  "name": "Recruitee",
+  "description": "Recruitee ATS API.",
+  "category": "HR",
+  "iconName": "LuUsers",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": { "type": "bearer", "credentialType": "recruitee" },
+  "baseUrl": "https://api.recruitee.com/c/{company_id}",
+  "endpoints": [
+    { "id": "list_candidates", "label": "List candidates", "method": "GET", "path": "/candidates", "fields": [{ "id": "company_id", "type": "text", "required": true, "in": "path" }] },
+    { "id": "get_candidate", "label": "Get candidate", "method": "GET", "path": "/candidates/{id}", "fields": [{ "id": "company_id", "type": "text", "required": true, "in": "path" }, { "id": "id", "type": "text", "required": true, "in": "path" }] },
+    { "id": "create_candidate", "label": "Create candidate", "method": "POST", "path": "/candidates", "fields": [{ "id": "company_id", "type": "text", "required": true, "in": "path" }, { "id": "candidate", "type": "json", "required": true, "in": "body", "defaultValue": { "name": "", "emails": [], "phones": [], "offers": [] } }] },
+    { "id": "update_candidate", "label": "Update candidate", "method": "PATCH", "path": "/candidates/{id}", "fields": [{ "id": "company_id", "type": "text", "required": true, "in": "path" }, { "id": "id", "type": "text", "required": true, "in": "path" }] },
+    { "id": "list_offers", "label": "List offers", "method": "GET", "path": "/offers", "fields": [{ "id": "company_id", "type": "text", "required": true, "in": "path" }] },
+    { "id": "list_pipelines", "label": "List pipeline templates", "method": "GET", "path": "/pipeline_templates", "fields": [{ "id": "company_id", "type": "text", "required": true, "in": "path" }] },
+    { "id": "move_candidate_in_pipeline", "label": "Move candidate in pipeline", "method": "PATCH", "path": "/placements/{placement_id}", "fields": [{ "id": "company_id", "type": "text", "required": true, "in": "path" }, { "id": "placement_id", "type": "text", "required": true, "in": "path" }, { "id": "stage_id", "type": "number", "required": true, "in": "body" }] },
+    { "id": "list_notes", "label": "List notes", "method": "GET", "path": "/candidates/{id}/notes", "fields": [{ "id": "company_id", "type": "text", "required": true, "in": "path" }, { "id": "id", "type": "text", "required": true, "in": "path" }] },
+    { "id": "create_note", "label": "Create note", "method": "POST", "path": "/candidates/{id}/notes", "fields": [{ "id": "company_id", "type": "text", "required": true, "in": "path" }, { "id": "id", "type": "text", "required": true, "in": "path" }, { "id": "note", "type": "json", "required": true, "in": "body", "defaultValue": { "body": "", "visibility": "everyone" } }] }
+  ]
+}

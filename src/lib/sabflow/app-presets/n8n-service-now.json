@@ -1,0 +1,277 @@
+{
+  "id": "n8n-service-now",
+  "name": "ServiceNow",
+  "description": "Consume ServiceNow API",
+  "category": "Output",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "oauth2",
+    "credentialType": "oauth2"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "attachment_default",
+      "label": "List Attachment",
+      "method": "GET",
+      "path": "/attachment",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "description": "Authentication method to use",
+          "defaultValue": "oAuth2",
+          "options": [
+            {
+              "value": "basicAuth",
+              "label": "Basic Auth"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "business_service_default",
+      "label": "List BusinessService",
+      "method": "GET",
+      "path": "/businessService",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "description": "Authentication method to use",
+          "defaultValue": "oAuth2",
+          "options": [
+            {
+              "value": "basicAuth",
+              "label": "Basic Auth"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "configuration_items_default",
+      "label": "List ConfigurationItems",
+      "method": "GET",
+      "path": "/configurationItems",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "description": "Authentication method to use",
+          "defaultValue": "oAuth2",
+          "options": [
+            {
+              "value": "basicAuth",
+              "label": "Basic Auth"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "department_default",
+      "label": "List Department",
+      "method": "GET",
+      "path": "/department",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "description": "Authentication method to use",
+          "defaultValue": "oAuth2",
+          "options": [
+            {
+              "value": "basicAuth",
+              "label": "Basic Auth"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dictionary_default",
+      "label": "List Dictionary",
+      "method": "GET",
+      "path": "/dictionary",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "description": "Authentication method to use",
+          "defaultValue": "oAuth2",
+          "options": [
+            {
+              "value": "basicAuth",
+              "label": "Basic Auth"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "incident_default",
+      "label": "List Incident",
+      "method": "GET",
+      "path": "/incident",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "description": "Authentication method to use",
+          "defaultValue": "oAuth2",
+          "options": [
+            {
+              "value": "basicAuth",
+              "label": "Basic Auth"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "table_record_default",
+      "label": "List TableRecord",
+      "method": "GET",
+      "path": "/tableRecord",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "description": "Authentication method to use",
+          "defaultValue": "oAuth2",
+          "options": [
+            {
+              "value": "basicAuth",
+              "label": "Basic Auth"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "user_default",
+      "label": "List User",
+      "method": "GET",
+      "path": "/user",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "description": "Authentication method to use",
+          "defaultValue": "oAuth2",
+          "options": [
+            {
+              "value": "basicAuth",
+              "label": "Basic Auth"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "user_group_default",
+      "label": "List UserGroup",
+      "method": "GET",
+      "path": "/userGroup",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "description": "Authentication method to use",
+          "defaultValue": "oAuth2",
+          "options": [
+            {
+              "value": "basicAuth",
+              "label": "Basic Auth"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "user_role_default",
+      "label": "List UserRole",
+      "method": "GET",
+      "path": "/userRole",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "description": "Authentication method to use",
+          "defaultValue": "oAuth2",
+          "options": [
+            {
+              "value": "basicAuth",
+              "label": "Basic Auth"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,101 @@
+{
+  "id": "n8n-monica-crm",
+  "name": "Monica CRM",
+  "description": "Consume the Monica CRM API",
+  "category": "Transform",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "activity_default",
+      "label": "List Activity",
+      "method": "GET",
+      "path": "/activity",
+      "fields": []
+    },
+    {
+      "id": "call_default",
+      "label": "List Call",
+      "method": "GET",
+      "path": "/call",
+      "fields": []
+    },
+    {
+      "id": "contact_default",
+      "label": "List Contact",
+      "method": "GET",
+      "path": "/contact",
+      "fields": []
+    },
+    {
+      "id": "contact_field_default",
+      "label": "List ContactField",
+      "method": "GET",
+      "path": "/contactField",
+      "fields": []
+    },
+    {
+      "id": "contact_tag_default",
+      "label": "List ContactTag",
+      "method": "GET",
+      "path": "/contactTag",
+      "fields": []
+    },
+    {
+      "id": "conversation_default",
+      "label": "List Conversation",
+      "method": "GET",
+      "path": "/conversation",
+      "fields": []
+    },
+    {
+      "id": "conversation_message_default",
+      "label": "List ConversationMessage",
+      "method": "GET",
+      "path": "/conversationMessage",
+      "fields": []
+    },
+    {
+      "id": "journal_entry_default",
+      "label": "List JournalEntry",
+      "method": "GET",
+      "path": "/journalEntry",
+      "fields": []
+    },
+    {
+      "id": "note_default",
+      "label": "List Note",
+      "method": "GET",
+      "path": "/note",
+      "fields": []
+    },
+    {
+      "id": "reminder_default",
+      "label": "List Reminder",
+      "method": "GET",
+      "path": "/reminder",
+      "fields": []
+    },
+    {
+      "id": "tag_default",
+      "label": "List Tag",
+      "method": "GET",
+      "path": "/tag",
+      "fields": []
+    },
+    {
+      "id": "task_default",
+      "label": "List Task",
+      "method": "GET",
+      "path": "/task",
+      "fields": []
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "id": "n8n-philips-hue",
+  "name": "Philips Hue",
+  "description": "Consume Philips Hue API",
+  "category": "Input",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "oauth2",
+    "credentialType": "oauth2"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "light_default",
+      "label": "List Light",
+      "method": "GET",
+      "path": "/light",
+      "fields": []
+    }
+  ]
+}

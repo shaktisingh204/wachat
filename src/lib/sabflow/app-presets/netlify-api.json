@@ -1,0 +1,123 @@
+{
+  "id": "netlify-api",
+  "name": "Netlify",
+  "description": "Netlify REST API for sites, deploys, env vars, and forms.",
+  "category": "DevOps",
+  "iconName": "LuTriangle",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "bearer",
+    "credentialType": "netlify"
+  },
+  "baseUrl": "https://api.netlify.com/api/v1",
+  "endpoints": [
+    {
+      "id": "list_sites",
+      "label": "List sites",
+      "method": "GET",
+      "path": "/sites",
+      "fields": [
+        { "id": "page", "label": "Page", "type": "number", "in": "query" },
+        { "id": "per_page", "label": "Per page", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "get_site",
+      "label": "Get site",
+      "method": "GET",
+      "path": "/sites/{site_id}",
+      "fields": [
+        { "id": "site_id", "label": "Site ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "create_site",
+      "label": "Create site",
+      "method": "POST",
+      "path": "/sites",
+      "fields": [
+        { "id": "name", "label": "Name", "type": "text", "in": "body" },
+        { "id": "custom_domain", "label": "Custom domain", "type": "text", "in": "body" },
+        { "id": "repo", "label": "Repo JSON", "type": "json", "in": "body" }
+      ]
+    },
+    {
+      "id": "list_deploys",
+      "label": "List deploys",
+      "method": "GET",
+      "path": "/sites/{site_id}/deploys",
+      "fields": [
+        { "id": "site_id", "label": "Site ID", "type": "text", "required": true, "in": "path" },
+        { "id": "page", "label": "Page", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "trigger_deploy",
+      "label": "Trigger deploy",
+      "method": "POST",
+      "path": "/sites/{site_id}/builds",
+      "fields": [
+        { "id": "site_id", "label": "Site ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "restore_deploy",
+      "label": "Restore deploy",
+      "method": "POST",
+      "path": "/sites/{site_id}/deploys/{deploy_id}/restore",
+      "fields": [
+        { "id": "site_id", "label": "Site ID", "type": "text", "required": true, "in": "path" },
+        { "id": "deploy_id", "label": "Deploy ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_env_vars",
+      "label": "List environment variables",
+      "method": "GET",
+      "path": "/accounts/{account_slug}/env",
+      "fields": [
+        { "id": "account_slug", "label": "Account slug", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "create_env_vars",
+      "label": "Create environment variables",
+      "method": "POST",
+      "path": "/accounts/{account_slug}/env",
+      "fields": [
+        { "id": "account_slug", "label": "Account slug", "type": "text", "required": true, "in": "path" },
+        { "id": "vars", "label": "Env vars JSON array", "type": "json", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "purge_cache",
+      "label": "Purge cache",
+      "method": "POST",
+      "path": "/purge",
+      "fields": [
+        { "id": "site_id", "label": "Site ID", "type": "text", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "list_forms",
+      "label": "List forms",
+      "method": "GET",
+      "path": "/sites/{site_id}/forms",
+      "fields": [
+        { "id": "site_id", "label": "Site ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_submissions",
+      "label": "List form submissions",
+      "method": "GET",
+      "path": "/forms/{form_id}/submissions",
+      "fields": [
+        { "id": "form_id", "label": "Form ID", "type": "text", "required": true, "in": "path" },
+        { "id": "page", "label": "Page", "type": "number", "in": "query" }
+      ]
+    }
+  ]
+}

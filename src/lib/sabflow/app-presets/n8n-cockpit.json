@@ -1,0 +1,38 @@
+{
+  "id": "n8n-cockpit",
+  "name": "Cockpit",
+  "description": "Consume Cockpit API",
+  "category": "Output",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "collection_default",
+      "label": "List Collection",
+      "method": "GET",
+      "path": "/collection",
+      "fields": []
+    },
+    {
+      "id": "form_default",
+      "label": "List Form",
+      "method": "GET",
+      "path": "/form",
+      "fields": []
+    },
+    {
+      "id": "singleton_default",
+      "label": "List Singleton",
+      "method": "GET",
+      "path": "/singleton",
+      "fields": []
+    }
+  ]
+}

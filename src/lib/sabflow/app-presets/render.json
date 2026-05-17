@@ -1,0 +1,118 @@
+{
+  "id": "render",
+  "name": "Render",
+  "description": "Render.com REST API for services, deploys, env vars, and databases.",
+  "category": "DevOps",
+  "iconName": "LuServer",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "bearer",
+    "credentialType": "render"
+  },
+  "baseUrl": "https://api.render.com/v1",
+  "endpoints": [
+    {
+      "id": "list_services",
+      "label": "List services",
+      "method": "GET",
+      "path": "/services",
+      "fields": [
+        { "id": "limit", "label": "Limit", "type": "number", "in": "query" },
+        { "id": "cursor", "label": "Cursor", "type": "text", "in": "query" }
+      ]
+    },
+    {
+      "id": "get_service",
+      "label": "Get service",
+      "method": "GET",
+      "path": "/services/{serviceId}",
+      "fields": [
+        { "id": "serviceId", "label": "Service ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "create_service",
+      "label": "Create service",
+      "method": "POST",
+      "path": "/services",
+      "fields": [
+        { "id": "type", "label": "Type", "type": "text", "required": true, "in": "body" },
+        { "id": "name", "label": "Name", "type": "text", "required": true, "in": "body" },
+        { "id": "ownerId", "label": "Owner ID", "type": "text", "required": true, "in": "body" },
+        { "id": "repo", "label": "Repo", "type": "text", "required": true, "in": "body" },
+        { "id": "branch", "label": "Branch", "type": "text", "in": "body" },
+        { "id": "serviceDetails", "label": "Service details JSON", "type": "json", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "update_service",
+      "label": "Update service",
+      "method": "PATCH",
+      "path": "/services/{serviceId}",
+      "fields": [
+        { "id": "serviceId", "label": "Service ID", "type": "text", "required": true, "in": "path" },
+        { "id": "name", "label": "Name", "type": "text", "in": "body" },
+        { "id": "autoDeploy", "label": "Auto deploy", "type": "toggle", "in": "body" }
+      ]
+    },
+    {
+      "id": "delete_service",
+      "label": "Delete service",
+      "method": "DELETE",
+      "path": "/services/{serviceId}",
+      "fields": [
+        { "id": "serviceId", "label": "Service ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_deploys",
+      "label": "List deploys",
+      "method": "GET",
+      "path": "/services/{serviceId}/deploys",
+      "fields": [
+        { "id": "serviceId", "label": "Service ID", "type": "text", "required": true, "in": "path" },
+        { "id": "limit", "label": "Limit", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "create_deploy",
+      "label": "Create deploy",
+      "method": "POST",
+      "path": "/services/{serviceId}/deploys",
+      "fields": [
+        { "id": "serviceId", "label": "Service ID", "type": "text", "required": true, "in": "path" },
+        { "id": "clearCache", "label": "Clear cache", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "list_env_vars",
+      "label": "List environment variables",
+      "method": "GET",
+      "path": "/services/{serviceId}/env-vars",
+      "fields": [
+        { "id": "serviceId", "label": "Service ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "update_env_vars",
+      "label": "Update environment variables",
+      "method": "PUT",
+      "path": "/services/{serviceId}/env-vars",
+      "fields": [
+        { "id": "serviceId", "label": "Service ID", "type": "text", "required": true, "in": "path" },
+        { "id": "env_vars", "label": "Env vars JSON array", "type": "json", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "list_databases",
+      "label": "List Postgres databases",
+      "method": "GET",
+      "path": "/postgres",
+      "fields": [
+        { "id": "limit", "label": "Limit", "type": "number", "in": "query" }
+      ]
+    }
+  ]
+}

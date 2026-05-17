@@ -1,0 +1,156 @@
+{
+  "id": "n8n-ssh",
+  "name": "SSH",
+  "description": "Execute commands via SSH",
+  "category": "Input",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "command_execute",
+      "label": "Execute Command",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "password",
+          "options": [
+            {
+              "value": "password",
+              "label": "Password"
+            },
+            {
+              "value": "privateKey",
+              "label": "Private Key"
+            }
+          ]
+        },
+        {
+          "id": "command",
+          "label": "Command",
+          "type": "text",
+          "in": "query",
+          "description": "The command to be executed on a remote device"
+        },
+        {
+          "id": "cwd",
+          "label": "Working Directory",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "defaultValue": "/"
+        }
+      ]
+    },
+    {
+      "id": "file_download",
+      "label": "Download File",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "password",
+          "options": [
+            {
+              "value": "password",
+              "label": "Password"
+            },
+            {
+              "value": "privateKey",
+              "label": "Private Key"
+            }
+          ]
+        },
+        {
+          "id": "path",
+          "label": "Path",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "/home/user/invoice.txt",
+          "description": "The file path of the file to download. Has to contain the full path including file name."
+        },
+        {
+          "id": "binaryPropertyName",
+          "label": "File Property",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "Object property name which holds binary data",
+          "defaultValue": "data"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add option"
+        }
+      ]
+    },
+    {
+      "id": "file_upload",
+      "label": "Upload File",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "password",
+          "options": [
+            {
+              "value": "password",
+              "label": "Password"
+            },
+            {
+              "value": "privateKey",
+              "label": "Private Key"
+            }
+          ]
+        },
+        {
+          "id": "binaryPropertyName",
+          "label": "Input Binary Field",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "defaultValue": "data"
+        },
+        {
+          "id": "path",
+          "label": "Target Directory",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "/home/user",
+          "description": "The directory to upload the file to. The name of the file does not need to be specified, it's taken from the binary data file name. To override this behavior, set the parameter \"File Name\" under options."
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add option"
+        }
+      ]
+    }
+  ]
+}

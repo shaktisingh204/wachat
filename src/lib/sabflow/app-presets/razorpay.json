@@ -1,0 +1,92 @@
+{
+  "id": "razorpay",
+  "name": "Razorpay",
+  "description": "Payments, payouts & subscriptions for India.",
+  "category": "Fintech",
+  "iconName": "LuCreditCard",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "basic",
+    "credentialType": "razorpay"
+  },
+  "baseUrl": "https://api.razorpay.com/v1",
+  "endpoints": [
+    {
+      "id": "create_order",
+      "label": "Create order",
+      "method": "POST",
+      "path": "/orders",
+      "fields": [
+        { "id": "amount", "label": "Amount (paise)", "type": "number", "required": true, "in": "body" },
+        { "id": "currency", "label": "Currency", "type": "text", "defaultValue": "INR", "required": true, "in": "body" },
+        { "id": "receipt", "label": "Receipt", "type": "text", "in": "body" },
+        { "id": "notes", "label": "Notes", "type": "json", "in": "body" }
+      ]
+    },
+    {
+      "id": "get_order",
+      "label": "Get order",
+      "method": "GET",
+      "path": "/orders/{id}",
+      "fields": [
+        { "id": "id", "label": "Order ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_payments",
+      "label": "List payments",
+      "method": "GET",
+      "path": "/payments",
+      "fields": [
+        { "id": "count", "label": "Count", "type": "number", "defaultValue": 10, "in": "query" },
+        { "id": "skip", "label": "Skip", "type": "number", "defaultValue": 0, "in": "query" }
+      ]
+    },
+    {
+      "id": "get_payment",
+      "label": "Get payment",
+      "method": "GET",
+      "path": "/payments/{id}",
+      "fields": [
+        { "id": "id", "label": "Payment ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "capture_payment",
+      "label": "Capture payment",
+      "method": "POST",
+      "path": "/payments/{id}/capture",
+      "fields": [
+        { "id": "id", "label": "Payment ID", "type": "text", "required": true, "in": "path" },
+        { "id": "amount", "label": "Amount (paise)", "type": "number", "required": true, "in": "body" },
+        { "id": "currency", "label": "Currency", "type": "text", "defaultValue": "INR", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "create_refund",
+      "label": "Create refund",
+      "method": "POST",
+      "path": "/payments/{id}/refund",
+      "fields": [
+        { "id": "id", "label": "Payment ID", "type": "text", "required": true, "in": "path" },
+        { "id": "amount", "label": "Amount (paise)", "type": "number", "in": "body" }
+      ]
+    },
+    {
+      "id": "create_payout",
+      "label": "Create payout",
+      "method": "POST",
+      "path": "/payouts",
+      "fields": [
+        { "id": "account_number", "label": "Account number", "type": "text", "required": true, "in": "body" },
+        { "id": "fund_account_id", "label": "Fund account ID", "type": "text", "required": true, "in": "body" },
+        { "id": "amount", "label": "Amount (paise)", "type": "number", "required": true, "in": "body" },
+        { "id": "currency", "label": "Currency", "type": "text", "defaultValue": "INR", "required": true, "in": "body" },
+        { "id": "mode", "label": "Mode", "type": "text", "required": true, "in": "body" },
+        { "id": "purpose", "label": "Purpose", "type": "text", "required": true, "in": "body" }
+      ]
+    }
+  ]
+}

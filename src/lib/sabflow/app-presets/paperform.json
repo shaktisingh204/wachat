@@ -1,0 +1,88 @@
+{
+  "id": "paperform",
+  "name": "Paperform",
+  "description": "Paperform API for managing forms, submissions, and webhooks.",
+  "category": "Forms",
+  "iconName": "LuClipboardList",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "bearer",
+    "credentialType": "paperform"
+  },
+  "baseUrl": "https://api.paperform.co/v1",
+  "endpoints": [
+    {
+      "id": "list_forms",
+      "label": "List forms",
+      "method": "GET",
+      "path": "/forms",
+      "fields": [
+        { "id": "page", "label": "Page", "type": "number", "in": "query" },
+        { "id": "limit", "label": "Limit", "type": "number", "defaultValue": 50, "in": "query" }
+      ]
+    },
+    {
+      "id": "get_form",
+      "label": "Get form",
+      "method": "GET",
+      "path": "/forms/{formId}",
+      "fields": [
+        { "id": "formId", "label": "Form ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_submissions",
+      "label": "List submissions",
+      "method": "GET",
+      "path": "/forms/{formId}/submissions",
+      "fields": [
+        { "id": "formId", "label": "Form ID", "type": "text", "required": true, "in": "path" },
+        { "id": "page", "label": "Page", "type": "number", "in": "query" },
+        { "id": "limit", "label": "Limit", "type": "number", "defaultValue": 50, "in": "query" },
+        { "id": "after", "label": "After (ISO date)", "type": "text", "in": "query" },
+        { "id": "before", "label": "Before (ISO date)", "type": "text", "in": "query" }
+      ]
+    },
+    {
+      "id": "get_submission",
+      "label": "Get submission",
+      "method": "GET",
+      "path": "/submissions/{submissionId}",
+      "fields": [
+        { "id": "submissionId", "label": "Submission ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_webhooks",
+      "label": "List webhooks",
+      "method": "GET",
+      "path": "/forms/{formId}/webhooks",
+      "fields": [
+        { "id": "formId", "label": "Form ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "add_webhook",
+      "label": "Add webhook",
+      "method": "POST",
+      "path": "/forms/{formId}/webhooks",
+      "fields": [
+        { "id": "formId", "label": "Form ID", "type": "text", "required": true, "in": "path" },
+        { "id": "url", "label": "Webhook URL", "type": "text", "required": true, "in": "body" },
+        { "id": "events", "label": "Events (JSON array)", "type": "json", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "delete_webhook",
+      "label": "Delete webhook",
+      "method": "DELETE",
+      "path": "/forms/{formId}/webhooks/{webhookId}",
+      "fields": [
+        { "id": "formId", "label": "Form ID", "type": "text", "required": true, "in": "path" },
+        { "id": "webhookId", "label": "Webhook ID", "type": "text", "required": true, "in": "path" }
+      ]
+    }
+  ]
+}

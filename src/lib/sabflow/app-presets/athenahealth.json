@@ -1,0 +1,24 @@
+{
+  "id": "athenahealth",
+  "name": "athenahealth",
+  "description": "athenahealth Open API for patients, appointments, providers.",
+  "category": "Healthcare",
+  "iconName": "LuHeartPulse",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": { "type": "oauth2", "credentialType": "oauth2" },
+  "baseUrl": "https://api.platform.athenahealth.com/v1/{practice_id}",
+  "endpoints": [
+    { "id": "list_patients", "label": "List patients", "method": "GET", "path": "/patients", "fields": [{ "id": "practice_id", "type": "text", "required": true, "in": "path" }, { "id": "firstname", "type": "text", "in": "query" }, { "id": "lastname", "type": "text", "in": "query" }, { "id": "dob", "type": "text", "in": "query" }] },
+    { "id": "get_patient", "label": "Get patient", "method": "GET", "path": "/patients/{patient_id}", "fields": [{ "id": "practice_id", "type": "text", "required": true, "in": "path" }, { "id": "patient_id", "type": "text", "required": true, "in": "path" }] },
+    { "id": "create_patient", "label": "Create patient", "method": "POST", "path": "/patients", "fields": [{ "id": "practice_id", "type": "text", "required": true, "in": "path" }, { "id": "firstname", "type": "text", "required": true, "in": "body" }, { "id": "lastname", "type": "text", "required": true, "in": "body" }, { "id": "dob", "type": "text", "required": true, "in": "body" }, { "id": "departmentid", "type": "text", "required": true, "in": "body" }] },
+    { "id": "update_patient", "label": "Update patient", "method": "PUT", "path": "/patients/{patient_id}", "fields": [{ "id": "practice_id", "type": "text", "required": true, "in": "path" }, { "id": "patient_id", "type": "text", "required": true, "in": "path" }] },
+    { "id": "list_appointments", "label": "List appointments", "method": "GET", "path": "/appointments", "fields": [{ "id": "practice_id", "type": "text", "required": true, "in": "path" }, { "id": "startdate", "type": "text", "in": "query" }, { "id": "enddate", "type": "text", "in": "query" }] },
+    { "id": "create_appointment", "label": "Create open appointment slot", "method": "POST", "path": "/appointments/open", "fields": [{ "id": "practice_id", "type": "text", "required": true, "in": "path" }, { "id": "appointmenttypeid", "type": "text", "required": true, "in": "body" }, { "id": "departmentid", "type": "text", "required": true, "in": "body" }, { "id": "providerid", "type": "text", "required": true, "in": "body" }, { "id": "appointmentdate", "type": "text", "required": true, "in": "body" }, { "id": "appointmenttime", "type": "text", "required": true, "in": "body" }] },
+    { "id": "book_appointment", "label": "Book appointment", "method": "PUT", "path": "/appointments/{appointmentid}", "fields": [{ "id": "practice_id", "type": "text", "required": true, "in": "path" }, { "id": "appointmentid", "type": "text", "required": true, "in": "path" }, { "id": "patientid", "type": "text", "required": true, "in": "body" }, { "id": "appointmenttypeid", "type": "text", "in": "body" }] },
+    { "id": "cancel_appointment", "label": "Cancel appointment", "method": "PUT", "path": "/appointments/{appointmentid}/cancel", "fields": [{ "id": "practice_id", "type": "text", "required": true, "in": "path" }, { "id": "appointmentid", "type": "text", "required": true, "in": "path" }, { "id": "cancellationreason", "type": "text", "in": "body" }] },
+    { "id": "list_providers", "label": "List providers", "method": "GET", "path": "/providers", "fields": [{ "id": "practice_id", "type": "text", "required": true, "in": "path" }] },
+    { "id": "list_departments", "label": "List departments", "method": "GET", "path": "/departments", "fields": [{ "id": "practice_id", "type": "text", "required": true, "in": "path" }] }
+  ]
+}

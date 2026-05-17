@@ -1,0 +1,59 @@
+{
+  "id": "n8n-wise",
+  "name": "Wise",
+  "description": "Consume the Wise API",
+  "category": "Transform",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "account_default",
+      "label": "List Account",
+      "method": "GET",
+      "path": "/account",
+      "fields": []
+    },
+    {
+      "id": "exchange_rate_default",
+      "label": "List ExchangeRate",
+      "method": "GET",
+      "path": "/exchangeRate",
+      "fields": []
+    },
+    {
+      "id": "profile_default",
+      "label": "List Profile",
+      "method": "GET",
+      "path": "/profile",
+      "fields": []
+    },
+    {
+      "id": "quote_default",
+      "label": "List Quote",
+      "method": "GET",
+      "path": "/quote",
+      "fields": []
+    },
+    {
+      "id": "recipient_default",
+      "label": "List Recipient",
+      "method": "GET",
+      "path": "/recipient",
+      "fields": []
+    },
+    {
+      "id": "transfer_default",
+      "label": "List Transfer",
+      "method": "GET",
+      "path": "/transfer",
+      "fields": []
+    }
+  ]
+}

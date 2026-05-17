@@ -1,0 +1,100 @@
+{
+  "id": "convertkit",
+  "name": "ConvertKit",
+  "description": "ConvertKit (Kit) email marketing API.",
+  "category": "Email marketing",
+  "iconName": "LuMail",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "query_token",
+    "queryParam": "api_secret",
+    "credentialType": "convertkit"
+  },
+  "baseUrl": "https://api.convertkit.com/v3",
+  "endpoints": [
+    {
+      "id": "list_forms",
+      "label": "List forms",
+      "method": "GET",
+      "path": "/forms",
+      "fields": []
+    },
+    {
+      "id": "subscribe_to_form",
+      "label": "Subscribe to form",
+      "method": "POST",
+      "path": "/forms/{id}/subscribe",
+      "fields": [
+        { "id": "id", "label": "Form ID", "type": "text", "required": true, "in": "path" },
+        { "id": "email", "label": "Email", "type": "text", "required": true, "in": "body" },
+        { "id": "first_name", "label": "First name", "type": "text", "in": "body" },
+        { "id": "fields", "label": "Custom fields", "type": "json", "in": "body" }
+      ]
+    },
+    {
+      "id": "list_subscribers",
+      "label": "List subscribers",
+      "method": "GET",
+      "path": "/subscribers",
+      "fields": [
+        { "id": "page", "label": "Page", "type": "number", "defaultValue": 1, "in": "query" },
+        { "id": "from", "label": "From date", "type": "text", "in": "query" },
+        { "id": "to", "label": "To date", "type": "text", "in": "query" }
+      ]
+    },
+    {
+      "id": "get_subscriber",
+      "label": "Get subscriber",
+      "method": "GET",
+      "path": "/subscribers/{id}",
+      "fields": [
+        { "id": "id", "label": "Subscriber ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "add_tag_to_subscriber",
+      "label": "Add tag to subscriber",
+      "method": "POST",
+      "path": "/tags/{tag_id}/subscribe",
+      "fields": [
+        { "id": "tag_id", "label": "Tag ID", "type": "text", "required": true, "in": "path" },
+        { "id": "email", "label": "Email", "type": "text", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "list_tags",
+      "label": "List tags",
+      "method": "GET",
+      "path": "/tags",
+      "fields": []
+    },
+    {
+      "id": "create_tag",
+      "label": "Create tag",
+      "method": "POST",
+      "path": "/tags",
+      "fields": [
+        { "id": "tag", "label": "Tag", "type": "json", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "list_sequences",
+      "label": "List sequences",
+      "method": "GET",
+      "path": "/sequences",
+      "fields": []
+    },
+    {
+      "id": "add_subscriber_to_sequence",
+      "label": "Add subscriber to sequence",
+      "method": "POST",
+      "path": "/sequences/{id}/subscribe",
+      "fields": [
+        { "id": "id", "label": "Sequence ID", "type": "text", "required": true, "in": "path" },
+        { "id": "email", "label": "Email", "type": "text", "required": true, "in": "body" }
+      ]
+    }
+  ]
+}

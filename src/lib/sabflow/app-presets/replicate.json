@@ -1,0 +1,56 @@
+{
+  "id": "replicate",
+  "name": "Replicate",
+  "description": "Replicate AI model inference platform.",
+  "category": "AI",
+  "iconName": "LuSparkles",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "bearer",
+    "credentialType": "replicate",
+    "header": "Authorization",
+    "scheme": "Token"
+  },
+  "baseUrl": "https://api.replicate.com/v1",
+  "endpoints": [
+    {
+      "id": "run_prediction",
+      "label": "Run prediction",
+      "method": "POST",
+      "path": "/predictions",
+      "fields": [
+        { "id": "version", "label": "Version", "type": "text", "required": true, "in": "body" },
+        { "id": "input", "label": "Input", "type": "json", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "get_prediction",
+      "label": "Get prediction",
+      "method": "GET",
+      "path": "/predictions/{id}",
+      "fields": [
+        { "id": "id", "label": "Prediction ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "cancel_prediction",
+      "label": "Cancel prediction",
+      "method": "POST",
+      "path": "/predictions/{id}/cancel",
+      "fields": [
+        { "id": "id", "label": "Prediction ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_models",
+      "label": "List models",
+      "method": "GET",
+      "path": "/models",
+      "fields": [
+        { "id": "cursor", "label": "Cursor", "type": "text", "in": "query" }
+      ]
+    }
+  ]
+}

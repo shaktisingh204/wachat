@@ -1,0 +1,105 @@
+{
+  "id": "postmark",
+  "name": "Postmark",
+  "description": "Postmark transactional email API.",
+  "category": "Email",
+  "iconName": "LuMail",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "header",
+    "header": "X-Postmark-Server-Token",
+    "credentialType": "postmark"
+  },
+  "baseUrl": "https://api.postmarkapp.com",
+  "endpoints": [
+    {
+      "id": "send_email",
+      "label": "Send email",
+      "method": "POST",
+      "path": "/email",
+      "fields": [
+        { "id": "From", "label": "From", "type": "text", "required": true, "in": "body" },
+        { "id": "To", "label": "To", "type": "text", "required": true, "in": "body" },
+        { "id": "Subject", "label": "Subject", "type": "text", "required": true, "in": "body" },
+        { "id": "TextBody", "label": "Text body", "type": "textarea", "in": "body" },
+        { "id": "HtmlBody", "label": "HTML body", "type": "textarea", "in": "body" },
+        { "id": "Cc", "label": "Cc", "type": "text", "in": "body" },
+        { "id": "Bcc", "label": "Bcc", "type": "text", "in": "body" },
+        { "id": "MessageStream", "label": "Message stream", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "send_with_template",
+      "label": "Send with template",
+      "method": "POST",
+      "path": "/email/withTemplate",
+      "fields": [
+        { "id": "From", "label": "From", "type": "text", "required": true, "in": "body" },
+        { "id": "To", "label": "To", "type": "text", "required": true, "in": "body" },
+        { "id": "TemplateId", "label": "Template ID", "type": "number", "required": true, "in": "body" },
+        { "id": "TemplateModel", "label": "Template model", "type": "json", "required": true, "in": "body" },
+        { "id": "MessageStream", "label": "Message stream", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "send_batch",
+      "label": "Send batch",
+      "method": "POST",
+      "path": "/email/batch",
+      "fields": [
+        { "id": "Messages", "label": "Messages", "type": "json", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "get_server",
+      "label": "Get server",
+      "method": "GET",
+      "path": "/server",
+      "fields": []
+    },
+    {
+      "id": "list_templates",
+      "label": "List templates",
+      "method": "GET",
+      "path": "/templates",
+      "fields": [
+        { "id": "count", "label": "Count", "type": "number", "defaultValue": 25, "in": "query" },
+        { "id": "offset", "label": "Offset", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "get_template",
+      "label": "Get template",
+      "method": "GET",
+      "path": "/templates/{id}",
+      "fields": [
+        { "id": "id", "label": "Template ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "create_template",
+      "label": "Create template",
+      "method": "POST",
+      "path": "/templates",
+      "fields": [
+        { "id": "Name", "label": "Name", "type": "text", "required": true, "in": "body" },
+        { "id": "Subject", "label": "Subject", "type": "text", "required": true, "in": "body" },
+        { "id": "HtmlBody", "label": "HTML body", "type": "textarea", "in": "body" },
+        { "id": "TextBody", "label": "Text body", "type": "textarea", "in": "body" },
+        { "id": "Alias", "label": "Alias", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "bounce_list",
+      "label": "List bounces",
+      "method": "GET",
+      "path": "/bounces",
+      "fields": [
+        { "id": "count", "label": "Count", "type": "number", "defaultValue": 25, "in": "query" },
+        { "id": "offset", "label": "Offset", "type": "number", "in": "query" }
+      ]
+    }
+  ]
+}

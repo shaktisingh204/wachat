@@ -1,0 +1,91 @@
+{
+  "id": "n8n-snowflake",
+  "name": "Snowflake",
+  "description": "Get, add and update data in Snowflake",
+  "category": "Input",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "default_execute_query",
+      "label": "Execute Query",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "query",
+          "label": "Query",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "SELECT id, name FROM product WHERE id < 40",
+          "description": "The SQL query to execute"
+        }
+      ]
+    },
+    {
+      "id": "default_insert",
+      "label": "Insert",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "table",
+          "label": "Table",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "Name of the table in which to insert data to"
+        },
+        {
+          "id": "columns",
+          "label": "Columns",
+          "type": "text",
+          "in": "query",
+          "placeholder": "id,name,description",
+          "description": "Comma-separated list of the properties which should used as columns for the new rows"
+        }
+      ]
+    },
+    {
+      "id": "default_update",
+      "label": "Update",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "table",
+          "label": "Table",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "Name of the table in which to update data in"
+        },
+        {
+          "id": "updateKey",
+          "label": "Update Key",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "Name of the property which decides which rows in the database should be updated. Normally that would be \"id\".",
+          "defaultValue": "id"
+        },
+        {
+          "id": "columns",
+          "label": "Columns",
+          "type": "text",
+          "in": "query",
+          "placeholder": "name,description",
+          "description": "Comma-separated list of the properties which should used as columns for rows to update"
+        }
+      ]
+    }
+  ]
+}

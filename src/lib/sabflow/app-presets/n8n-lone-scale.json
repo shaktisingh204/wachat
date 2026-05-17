@@ -1,0 +1,125 @@
+{
+  "id": "n8n-lone-scale",
+  "name": "LoneScale",
+  "description": "Create List, add / delete items",
+  "category": "Transform",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "list_create",
+      "label": "Create List",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "list name",
+          "description": "Name of your list"
+        },
+        {
+          "id": "type",
+          "label": "Type",
+          "type": "select",
+          "in": "query",
+          "required": true,
+          "description": "Type of your list",
+          "defaultValue": "COMPANY",
+          "options": [
+            {
+              "value": "COMPANY",
+              "label": "Company"
+            },
+            {
+              "value": "PEOPLE",
+              "label": "Contact"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "item_add",
+      "label": "Create Item",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "type",
+          "label": "Type",
+          "type": "select",
+          "in": "query",
+          "required": true,
+          "description": "Type of your list",
+          "defaultValue": "PEOPLE",
+          "options": [
+            {
+              "value": "COMPANY",
+              "label": "Company"
+            },
+            {
+              "value": "PEOPLE",
+              "label": "Contact"
+            }
+          ]
+        },
+        {
+          "id": "list",
+          "label": "List Name or ID",
+          "type": "select",
+          "in": "query",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>"
+        },
+        {
+          "id": "first_name",
+          "label": "First Name",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "Contact first name"
+        },
+        {
+          "id": "last_name",
+          "label": "Last Name",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "Contact last name"
+        },
+        {
+          "id": "company_name",
+          "label": "Company Name",
+          "type": "text",
+          "in": "query",
+          "description": "Contact company name"
+        },
+        {
+          "id": "peopleAdditionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Field"
+        },
+        {
+          "id": "companyAdditionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Field"
+        }
+      ]
+    }
+  ]
+}

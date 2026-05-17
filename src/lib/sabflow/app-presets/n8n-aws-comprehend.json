@@ -1,0 +1,192 @@
+{
+  "id": "n8n-aws-comprehend",
+  "name": "AWS Comprehend",
+  "description": "Sends data to Amazon Comprehend",
+  "category": "Output",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "none"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "text_detect_dominant_language",
+      "label": "Detect Dominant Language Text",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "text",
+          "label": "Text",
+          "type": "text",
+          "in": "query",
+          "description": "The text to send"
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "in": "query",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        }
+      ]
+    },
+    {
+      "id": "text_detect_entities",
+      "label": "Detect Entities Text",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "languageCode",
+          "label": "Language Code",
+          "type": "select",
+          "in": "query",
+          "description": "The language code for text",
+          "defaultValue": "en",
+          "options": [
+            {
+              "value": "ar",
+              "label": "Arabic"
+            },
+            {
+              "value": "zh",
+              "label": "Chinese"
+            },
+            {
+              "value": "zh-TW",
+              "label": "Chinese (T)"
+            },
+            {
+              "value": "en",
+              "label": "English"
+            },
+            {
+              "value": "fr",
+              "label": "French"
+            },
+            {
+              "value": "de",
+              "label": "German"
+            },
+            {
+              "value": "hi",
+              "label": "Hindi"
+            },
+            {
+              "value": "it",
+              "label": "Italian"
+            },
+            {
+              "value": "ja",
+              "label": "Japanese"
+            },
+            {
+              "value": "ko",
+              "label": "Korean"
+            },
+            {
+              "value": "pt",
+              "label": "Portuguese"
+            },
+            {
+              "value": "es",
+              "label": "Spanish"
+            }
+          ]
+        },
+        {
+          "id": "text",
+          "label": "Text",
+          "type": "text",
+          "in": "query",
+          "description": "The text to send"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Field"
+        }
+      ]
+    },
+    {
+      "id": "text_detect_sentiment",
+      "label": "Detect Sentiment Text",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "languageCode",
+          "label": "Language Code",
+          "type": "select",
+          "in": "query",
+          "description": "The language code for text",
+          "defaultValue": "en",
+          "options": [
+            {
+              "value": "ar",
+              "label": "Arabic"
+            },
+            {
+              "value": "zh",
+              "label": "Chinese"
+            },
+            {
+              "value": "zh-TW",
+              "label": "Chinese (T)"
+            },
+            {
+              "value": "en",
+              "label": "English"
+            },
+            {
+              "value": "fr",
+              "label": "French"
+            },
+            {
+              "value": "de",
+              "label": "German"
+            },
+            {
+              "value": "hi",
+              "label": "Hindi"
+            },
+            {
+              "value": "it",
+              "label": "Italian"
+            },
+            {
+              "value": "ja",
+              "label": "Japanese"
+            },
+            {
+              "value": "ko",
+              "label": "Korean"
+            },
+            {
+              "value": "pt",
+              "label": "Portuguese"
+            },
+            {
+              "value": "es",
+              "label": "Spanish"
+            }
+          ]
+        },
+        {
+          "id": "text",
+          "label": "Text",
+          "type": "text",
+          "in": "query",
+          "description": "The text to send"
+        }
+      ]
+    }
+  ]
+}

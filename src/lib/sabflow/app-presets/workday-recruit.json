@@ -1,0 +1,87 @@
+{
+  "id": "workday-recruit",
+  "name": "Workday Recruiting",
+  "description": "Workday Recruiting REST: jobs, candidates, applications, offers, and locations.",
+  "category": "HR",
+  "iconName": "LuUsers",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "oauth2",
+    "credentialType": "oauth2"
+  },
+  "baseUrl": "https://wd2-impl-services1.workday.com/ccx/api/recruiting/v6/{tenant}",
+  "endpoints": [
+    {
+      "id": "list_jobs",
+      "label": "List jobs",
+      "method": "GET",
+      "path": "/jobs",
+      "fields": [
+        { "id": "limit", "label": "Limit", "type": "number", "defaultValue": 20, "in": "query" },
+        { "id": "offset", "label": "Offset", "type": "number", "defaultValue": 0, "in": "query" }
+      ]
+    },
+    {
+      "id": "get_job",
+      "label": "Get job",
+      "method": "GET",
+      "path": "/jobs/{id}",
+      "fields": [
+        { "id": "id", "label": "Job ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_candidates_for_job",
+      "label": "List candidates for job",
+      "method": "GET",
+      "path": "/jobs/{id}/candidates",
+      "fields": [
+        { "id": "id", "label": "Job ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "get_candidate",
+      "label": "Get candidate",
+      "method": "GET",
+      "path": "/candidates/{id}",
+      "fields": [
+        { "id": "id", "label": "Candidate ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "create_candidate",
+      "label": "Create candidate",
+      "method": "POST",
+      "path": "/candidates",
+      "fields": [
+        { "id": "body", "label": "Candidate payload (JSON)", "type": "json", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "update_application_status",
+      "label": "Update application status",
+      "method": "PATCH",
+      "path": "/applications/{id}/status",
+      "fields": [
+        { "id": "id", "label": "Application ID", "type": "text", "required": true, "in": "path" },
+        { "id": "status", "label": "Status", "type": "text", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "list_locations",
+      "label": "List locations",
+      "method": "GET",
+      "path": "/locations",
+      "fields": []
+    },
+    {
+      "id": "list_offers",
+      "label": "List offers",
+      "method": "GET",
+      "path": "/offers",
+      "fields": []
+    }
+  ]
+}

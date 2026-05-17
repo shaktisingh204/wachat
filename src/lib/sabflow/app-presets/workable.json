@@ -1,0 +1,23 @@
+{
+  "id": "workable",
+  "name": "Workable",
+  "description": "Workable ATS API.",
+  "category": "HR",
+  "iconName": "LuUsers",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": { "type": "bearer", "credentialType": "workable" },
+  "baseUrl": "https://www.workable.com/spi/v3/accounts/{subdomain}",
+  "endpoints": [
+    { "id": "list_candidates", "label": "List candidates", "method": "GET", "path": "/candidates", "fields": [{ "id": "subdomain", "type": "text", "required": true, "in": "path" }] },
+    { "id": "get_candidate", "label": "Get candidate", "method": "GET", "path": "/candidates/{id}", "fields": [{ "id": "subdomain", "type": "text", "required": true, "in": "path" }, { "id": "id", "type": "text", "required": true, "in": "path" }] },
+    { "id": "create_candidate", "label": "Create candidate", "method": "POST", "path": "/jobs/{shortcode}/candidates", "fields": [{ "id": "subdomain", "type": "text", "required": true, "in": "path" }, { "id": "shortcode", "type": "text", "required": true, "in": "path" }, { "id": "candidate", "type": "json", "required": true, "in": "body", "defaultValue": { "name": "", "firstname": "", "lastname": "", "email": "" } }] },
+    { "id": "move_candidate", "label": "Move candidate", "method": "PUT", "path": "/candidates/{id}/move", "fields": [{ "id": "subdomain", "type": "text", "required": true, "in": "path" }, { "id": "id", "type": "text", "required": true, "in": "path" }, { "id": "target_stage", "type": "text", "required": true, "in": "body" }] },
+    { "id": "disqualify_candidate", "label": "Disqualify candidate", "method": "POST", "path": "/candidates/{id}/disqualify", "fields": [{ "id": "subdomain", "type": "text", "required": true, "in": "path" }, { "id": "id", "type": "text", "required": true, "in": "path" }, { "id": "disqualification_reason", "type": "text", "required": true, "in": "body" }] },
+    { "id": "list_jobs", "label": "List jobs", "method": "GET", "path": "/jobs", "fields": [{ "id": "subdomain", "type": "text", "required": true, "in": "path" }] },
+    { "id": "list_recruiters", "label": "List recruiters/members", "method": "GET", "path": "/members", "fields": [{ "id": "subdomain", "type": "text", "required": true, "in": "path" }] },
+    { "id": "list_stages", "label": "List stages", "method": "GET", "path": "/stages", "fields": [{ "id": "subdomain", "type": "text", "required": true, "in": "path" }] },
+    { "id": "list_questions", "label": "List job questions", "method": "GET", "path": "/jobs/{shortcode}/questions", "fields": [{ "id": "subdomain", "type": "text", "required": true, "in": "path" }, { "id": "shortcode", "type": "text", "required": true, "in": "path" }] }
+  ]
+}

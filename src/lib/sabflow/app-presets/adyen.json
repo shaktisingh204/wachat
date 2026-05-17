@@ -1,0 +1,65 @@
+{
+  "id": "adyen",
+  "name": "Adyen",
+  "description": "Global payments platform.",
+  "category": "Fintech",
+  "iconName": "LuCreditCard",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "header",
+    "credentialType": "adyen",
+    "header": "X-API-Key"
+  },
+  "baseUrl": "https://checkout-test.adyen.com/v71",
+  "endpoints": [
+    {
+      "id": "create_payment_session",
+      "label": "Create payment session",
+      "method": "POST",
+      "path": "/sessions",
+      "fields": [
+        { "id": "amount", "label": "Amount", "type": "json", "required": true, "in": "body" },
+        { "id": "reference", "label": "Reference", "type": "text", "required": true, "in": "body" },
+        { "id": "returnUrl", "label": "Return URL", "type": "text", "required": true, "in": "body" },
+        { "id": "merchantAccount", "label": "Merchant account", "type": "text", "required": true, "in": "body" },
+        { "id": "countryCode", "label": "Country code", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "payment_methods",
+      "label": "Payment methods",
+      "method": "POST",
+      "path": "/paymentMethods",
+      "fields": [
+        { "id": "merchantAccount", "label": "Merchant account", "type": "text", "required": true, "in": "body" },
+        { "id": "countryCode", "label": "Country code", "type": "text", "in": "body" },
+        { "id": "amount", "label": "Amount", "type": "json", "in": "body" }
+      ]
+    },
+    {
+      "id": "payments",
+      "label": "Create payment",
+      "method": "POST",
+      "path": "/payments",
+      "fields": [
+        { "id": "amount", "label": "Amount", "type": "json", "required": true, "in": "body" },
+        { "id": "paymentMethod", "label": "Payment method", "type": "json", "required": true, "in": "body" },
+        { "id": "reference", "label": "Reference", "type": "text", "required": true, "in": "body" },
+        { "id": "merchantAccount", "label": "Merchant account", "type": "text", "required": true, "in": "body" },
+        { "id": "returnUrl", "label": "Return URL", "type": "text", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "payment_details",
+      "label": "Submit payment details",
+      "method": "POST",
+      "path": "/payments/details",
+      "fields": [
+        { "id": "paymentData", "label": "Payment data", "type": "text", "in": "body" },
+        { "id": "details", "label": "Details", "type": "json", "required": true, "in": "body" }
+      ]
+    }
+  ]
+}

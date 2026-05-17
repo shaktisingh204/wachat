@@ -1,0 +1,24 @@
+{
+  "id": "docusign-extras",
+  "name": "DocuSign (extras)",
+  "description": "DocuSign eSignature REST API — extras beyond core sign send.",
+  "category": "Legal",
+  "iconName": "LuFileSignature",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": { "type": "bearer", "credentialType": "docusign" },
+  "baseUrl": "https://{server}.docusign.net/restapi/v2.1/accounts/{account_id}",
+  "endpoints": [
+    { "id": "create_envelope_from_template", "label": "Create envelope from template", "method": "POST", "path": "/envelopes", "fields": [{ "id": "server", "type": "text", "required": true, "in": "path" }, { "id": "account_id", "type": "text", "required": true, "in": "path" }, { "id": "templateId", "type": "text", "required": true, "in": "body" }, { "id": "templateRoles", "type": "json", "required": true, "in": "body" }, { "id": "status", "type": "text", "defaultValue": "sent", "in": "body" }] },
+    { "id": "list_recipients", "label": "List recipients", "method": "GET", "path": "/envelopes/{envelopeId}/recipients", "fields": [{ "id": "server", "type": "text", "required": true, "in": "path" }, { "id": "account_id", "type": "text", "required": true, "in": "path" }, { "id": "envelopeId", "type": "text", "required": true, "in": "path" }] },
+    { "id": "update_recipients", "label": "Update recipients", "method": "PUT", "path": "/envelopes/{envelopeId}/recipients", "fields": [{ "id": "server", "type": "text", "required": true, "in": "path" }, { "id": "account_id", "type": "text", "required": true, "in": "path" }, { "id": "envelopeId", "type": "text", "required": true, "in": "path" }, { "id": "signers", "type": "json", "in": "body" }] },
+    { "id": "void_envelope", "label": "Void envelope", "method": "PUT", "path": "/envelopes/{envelopeId}", "fields": [{ "id": "server", "type": "text", "required": true, "in": "path" }, { "id": "account_id", "type": "text", "required": true, "in": "path" }, { "id": "envelopeId", "type": "text", "required": true, "in": "path" }, { "id": "status", "type": "text", "defaultValue": "voided", "required": true, "in": "body" }, { "id": "voidedReason", "type": "text", "required": true, "in": "body" }] },
+    { "id": "resend_envelope", "label": "Resend envelope", "method": "PUT", "path": "/envelopes/{envelopeId}/recipients", "fields": [{ "id": "server", "type": "text", "required": true, "in": "path" }, { "id": "account_id", "type": "text", "required": true, "in": "path" }, { "id": "envelopeId", "type": "text", "required": true, "in": "path" }, { "id": "resend_envelope", "type": "toggle", "defaultValue": true, "in": "query" }, { "id": "signers", "type": "json", "required": true, "in": "body" }] },
+    { "id": "list_templates", "label": "List templates", "method": "GET", "path": "/templates", "fields": [{ "id": "server", "type": "text", "required": true, "in": "path" }, { "id": "account_id", "type": "text", "required": true, "in": "path" }] },
+    { "id": "get_template", "label": "Get template", "method": "GET", "path": "/templates/{templateId}", "fields": [{ "id": "server", "type": "text", "required": true, "in": "path" }, { "id": "account_id", "type": "text", "required": true, "in": "path" }, { "id": "templateId", "type": "text", "required": true, "in": "path" }] },
+    { "id": "list_folders", "label": "List folders", "method": "GET", "path": "/folders", "fields": [{ "id": "server", "type": "text", "required": true, "in": "path" }, { "id": "account_id", "type": "text", "required": true, "in": "path" }] },
+    { "id": "move_envelope", "label": "Move envelope to folder", "method": "PUT", "path": "/folders/{folderId}", "fields": [{ "id": "server", "type": "text", "required": true, "in": "path" }, { "id": "account_id", "type": "text", "required": true, "in": "path" }, { "id": "folderId", "type": "text", "required": true, "in": "path" }, { "id": "envelopeIds", "type": "json", "required": true, "in": "body" }] },
+    { "id": "download_combined", "label": "Download combined PDF", "method": "GET", "path": "/envelopes/{envelopeId}/documents/combined", "fields": [{ "id": "server", "type": "text", "required": true, "in": "path" }, { "id": "account_id", "type": "text", "required": true, "in": "path" }, { "id": "envelopeId", "type": "text", "required": true, "in": "path" }] }
+  ]
+}

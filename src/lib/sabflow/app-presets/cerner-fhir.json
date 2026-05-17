@@ -1,0 +1,23 @@
+{
+  "id": "cerner-fhir",
+  "name": "Oracle Cerner FHIR",
+  "description": "Cerner Millennium FHIR R4 API.",
+  "category": "Healthcare",
+  "iconName": "LuHeartPulse",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": { "type": "oauth2", "credentialType": "oauth2" },
+  "baseUrl": "https://fhir-myrecord.cerner.com/r4/{tenant}",
+  "endpoints": [
+    { "id": "read_patient", "label": "Read patient", "method": "GET", "path": "/Patient/{id}", "fields": [{ "id": "tenant", "type": "text", "required": true, "in": "path" }, { "id": "id", "type": "text", "required": true, "in": "path" }] },
+    { "id": "search_patients", "label": "Search patients", "method": "GET", "path": "/Patient", "fields": [{ "id": "tenant", "type": "text", "required": true, "in": "path" }, { "id": "identifier", "type": "text", "in": "query" }, { "id": "family", "type": "text", "in": "query" }, { "id": "given", "type": "text", "in": "query" }, { "id": "birthdate", "type": "text", "in": "query" }] },
+    { "id": "read_encounter", "label": "Read encounter", "method": "GET", "path": "/Encounter/{id}", "fields": [{ "id": "tenant", "type": "text", "required": true, "in": "path" }, { "id": "id", "type": "text", "required": true, "in": "path" }] },
+    { "id": "search_encounters", "label": "Search encounters", "method": "GET", "path": "/Encounter", "fields": [{ "id": "tenant", "type": "text", "required": true, "in": "path" }, { "id": "patient", "type": "text", "in": "query" }, { "id": "date", "type": "text", "in": "query" }] },
+    { "id": "read_diagnostic_report", "label": "Read diagnostic report", "method": "GET", "path": "/DiagnosticReport/{id}", "fields": [{ "id": "tenant", "type": "text", "required": true, "in": "path" }, { "id": "id", "type": "text", "required": true, "in": "path" }] },
+    { "id": "search_diagnostic_reports", "label": "Search diagnostic reports", "method": "GET", "path": "/DiagnosticReport", "fields": [{ "id": "tenant", "type": "text", "required": true, "in": "path" }, { "id": "patient", "type": "text", "in": "query" }, { "id": "category", "type": "text", "in": "query" }, { "id": "date", "type": "text", "in": "query" }] },
+    { "id": "read_allergy_intolerance", "label": "Read allergy intolerance", "method": "GET", "path": "/AllergyIntolerance/{id}", "fields": [{ "id": "tenant", "type": "text", "required": true, "in": "path" }, { "id": "id", "type": "text", "required": true, "in": "path" }] },
+    { "id": "search_allergies", "label": "Search allergies", "method": "GET", "path": "/AllergyIntolerance", "fields": [{ "id": "tenant", "type": "text", "required": true, "in": "path" }, { "id": "patient", "type": "text", "in": "query" }] },
+    { "id": "metadata", "label": "Capability statement", "method": "GET", "path": "/metadata", "fields": [{ "id": "tenant", "type": "text", "required": true, "in": "path" }] }
+  ]
+}

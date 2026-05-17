@@ -1,0 +1,43 @@
+{
+  "id": "n8n-ghost",
+  "name": "Ghost",
+  "description": "Consume Ghost API",
+  "category": "Input",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "post_default",
+      "label": "List Post",
+      "method": "GET",
+      "path": "/post",
+      "fields": [
+        {
+          "id": "source",
+          "label": "Source",
+          "type": "select",
+          "in": "query",
+          "description": "Pick where your data comes from, Content or Admin API",
+          "defaultValue": "contentApi",
+          "options": [
+            {
+              "value": "adminApi",
+              "label": "Admin API"
+            },
+            {
+              "value": "contentApi",
+              "label": "Content API"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

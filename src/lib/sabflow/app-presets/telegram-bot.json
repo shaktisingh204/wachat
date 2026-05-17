@@ -1,0 +1,148 @@
+{
+  "id": "telegram-bot",
+  "name": "Telegram Bot",
+  "description": "Telegram Bot API for sending messages, media, and managing webhooks.",
+  "category": "Community",
+  "iconName": "LuSend",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "none"
+  },
+  "baseUrl": "https://api.telegram.org",
+  "endpoints": [
+    {
+      "id": "get_me",
+      "label": "Get me",
+      "method": "GET",
+      "path": "/bot{bot_token}/getMe",
+      "fields": [
+        { "id": "bot_token", "label": "Bot token", "type": "password", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "send_message",
+      "label": "Send message",
+      "method": "POST",
+      "path": "/bot{bot_token}/sendMessage",
+      "fields": [
+        { "id": "bot_token", "label": "Bot token", "type": "password", "required": true, "in": "path" },
+        { "id": "chat_id", "label": "Chat ID", "type": "text", "required": true, "in": "body" },
+        { "id": "text", "label": "Text", "type": "textarea", "required": true, "in": "body" },
+        { "id": "parse_mode", "label": "Parse mode", "type": "select", "in": "body" },
+        { "id": "reply_markup", "label": "Reply markup", "type": "json", "in": "body" },
+        { "id": "disable_web_page_preview", "label": "Disable web page preview", "type": "toggle", "in": "body" }
+      ]
+    },
+    {
+      "id": "send_photo",
+      "label": "Send photo",
+      "method": "POST",
+      "path": "/bot{bot_token}/sendPhoto",
+      "fields": [
+        { "id": "bot_token", "label": "Bot token", "type": "password", "required": true, "in": "path" },
+        { "id": "chat_id", "label": "Chat ID", "type": "text", "required": true, "in": "body" },
+        { "id": "photo", "label": "Photo URL or file ID", "type": "text", "required": true, "in": "body" },
+        { "id": "caption", "label": "Caption", "type": "textarea", "in": "body" },
+        { "id": "parse_mode", "label": "Parse mode", "type": "select", "in": "body" }
+      ]
+    },
+    {
+      "id": "send_document",
+      "label": "Send document",
+      "method": "POST",
+      "path": "/bot{bot_token}/sendDocument",
+      "fields": [
+        { "id": "bot_token", "label": "Bot token", "type": "password", "required": true, "in": "path" },
+        { "id": "chat_id", "label": "Chat ID", "type": "text", "required": true, "in": "body" },
+        { "id": "document", "label": "Document URL or file ID", "type": "text", "required": true, "in": "body" },
+        { "id": "caption", "label": "Caption", "type": "textarea", "in": "body" }
+      ]
+    },
+    {
+      "id": "send_video",
+      "label": "Send video",
+      "method": "POST",
+      "path": "/bot{bot_token}/sendVideo",
+      "fields": [
+        { "id": "bot_token", "label": "Bot token", "type": "password", "required": true, "in": "path" },
+        { "id": "chat_id", "label": "Chat ID", "type": "text", "required": true, "in": "body" },
+        { "id": "video", "label": "Video URL or file ID", "type": "text", "required": true, "in": "body" },
+        { "id": "caption", "label": "Caption", "type": "textarea", "in": "body" }
+      ]
+    },
+    {
+      "id": "send_audio",
+      "label": "Send audio",
+      "method": "POST",
+      "path": "/bot{bot_token}/sendAudio",
+      "fields": [
+        { "id": "bot_token", "label": "Bot token", "type": "password", "required": true, "in": "path" },
+        { "id": "chat_id", "label": "Chat ID", "type": "text", "required": true, "in": "body" },
+        { "id": "audio", "label": "Audio URL or file ID", "type": "text", "required": true, "in": "body" },
+        { "id": "caption", "label": "Caption", "type": "textarea", "in": "body" }
+      ]
+    },
+    {
+      "id": "edit_message_text",
+      "label": "Edit message text",
+      "method": "POST",
+      "path": "/bot{bot_token}/editMessageText",
+      "fields": [
+        { "id": "bot_token", "label": "Bot token", "type": "password", "required": true, "in": "path" },
+        { "id": "chat_id", "label": "Chat ID", "type": "text", "required": true, "in": "body" },
+        { "id": "message_id", "label": "Message ID", "type": "number", "required": true, "in": "body" },
+        { "id": "text", "label": "Text", "type": "textarea", "required": true, "in": "body" },
+        { "id": "parse_mode", "label": "Parse mode", "type": "select", "in": "body" }
+      ]
+    },
+    {
+      "id": "delete_message",
+      "label": "Delete message",
+      "method": "POST",
+      "path": "/bot{bot_token}/deleteMessage",
+      "fields": [
+        { "id": "bot_token", "label": "Bot token", "type": "password", "required": true, "in": "path" },
+        { "id": "chat_id", "label": "Chat ID", "type": "text", "required": true, "in": "body" },
+        { "id": "message_id", "label": "Message ID", "type": "number", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "set_webhook",
+      "label": "Set webhook",
+      "method": "POST",
+      "path": "/bot{bot_token}/setWebhook",
+      "fields": [
+        { "id": "bot_token", "label": "Bot token", "type": "password", "required": true, "in": "path" },
+        { "id": "url", "label": "URL", "type": "text", "required": true, "in": "body" },
+        { "id": "secret_token", "label": "Secret token", "type": "password", "in": "body" },
+        { "id": "allowed_updates", "label": "Allowed updates", "type": "json", "in": "body" }
+      ]
+    },
+    {
+      "id": "get_updates",
+      "label": "Get updates",
+      "method": "GET",
+      "path": "/bot{bot_token}/getUpdates",
+      "fields": [
+        { "id": "bot_token", "label": "Bot token", "type": "password", "required": true, "in": "path" },
+        { "id": "offset", "label": "Offset", "type": "number", "in": "query" },
+        { "id": "limit", "label": "Limit", "type": "number", "defaultValue": 100, "in": "query" },
+        { "id": "timeout", "label": "Timeout (seconds)", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "answer_callback_query",
+      "label": "Answer callback query",
+      "method": "POST",
+      "path": "/bot{bot_token}/answerCallbackQuery",
+      "fields": [
+        { "id": "bot_token", "label": "Bot token", "type": "password", "required": true, "in": "path" },
+        { "id": "callback_query_id", "label": "Callback query ID", "type": "text", "required": true, "in": "body" },
+        { "id": "text", "label": "Text", "type": "text", "in": "body" },
+        { "id": "show_alert", "label": "Show alert", "type": "toggle", "in": "body" }
+      ]
+    }
+  ]
+}

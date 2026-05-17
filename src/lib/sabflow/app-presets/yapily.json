@@ -1,0 +1,68 @@
+{
+  "id": "yapily",
+  "name": "Yapily",
+  "description": "Open banking infrastructure across Europe.",
+  "category": "Fintech",
+  "iconName": "LuLandmark",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "basic",
+    "credentialType": "yapily"
+  },
+  "baseUrl": "https://api.yapily.com",
+  "endpoints": [
+    {
+      "id": "institutions",
+      "label": "List institutions",
+      "method": "GET",
+      "path": "/institutions",
+      "fields": []
+    },
+    {
+      "id": "account_authorisation",
+      "label": "Create account authorisation",
+      "method": "POST",
+      "path": "/account-auth-requests",
+      "fields": [
+        { "id": "applicationUserId", "label": "Application user ID", "type": "text", "required": true, "in": "body" },
+        { "id": "institutionId", "label": "Institution ID", "type": "text", "required": true, "in": "body" },
+        { "id": "callback", "label": "Callback URL", "type": "text", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "accounts",
+      "label": "List accounts",
+      "method": "GET",
+      "path": "/accounts",
+      "fields": [
+        { "id": "consent", "label": "Consent token", "type": "text", "in": "header" }
+      ]
+    },
+    {
+      "id": "account_transactions",
+      "label": "List account transactions",
+      "method": "GET",
+      "path": "/accounts/{accountId}/transactions",
+      "fields": [
+        { "id": "accountId", "label": "Account ID", "type": "text", "required": true, "in": "path" },
+        { "id": "consent", "label": "Consent token", "type": "text", "in": "header" },
+        { "id": "from", "label": "From (ISO date)", "type": "text", "in": "query" },
+        { "id": "before", "label": "Before (ISO date)", "type": "text", "in": "query" }
+      ]
+    },
+    {
+      "id": "payment_initiation",
+      "label": "Create payment authorisation",
+      "method": "POST",
+      "path": "/payment-auth-requests",
+      "fields": [
+        { "id": "applicationUserId", "label": "Application user ID", "type": "text", "required": true, "in": "body" },
+        { "id": "institutionId", "label": "Institution ID", "type": "text", "required": true, "in": "body" },
+        { "id": "callback", "label": "Callback URL", "type": "text", "required": true, "in": "body" },
+        { "id": "paymentRequest", "label": "Payment request", "type": "json", "required": true, "in": "body" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "id": "ipstack",
+  "name": "ipstack",
+  "description": "IP geolocation API.",
+  "category": "Geo",
+  "iconName": "LuGlobe",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": { "type": "query_token", "credentialType": "ipstack", "queryParam": "access_key" },
+  "baseUrl": "http://api.ipstack.com",
+  "endpoints": [
+    { "id": "lookup_single", "label": "Lookup single IP", "method": "GET", "path": "/{ip}", "fields": [{ "id": "ip", "type": "text", "required": true, "in": "path" }, { "id": "fields", "type": "text", "in": "query" }, { "id": "hostname", "type": "toggle", "in": "query" }, { "id": "security", "type": "toggle", "in": "query" }, { "id": "language", "type": "text", "in": "query" }] },
+    { "id": "lookup_bulk", "label": "Lookup bulk IPs", "method": "GET", "path": "/{ip_list}", "fields": [{ "id": "ip_list", "type": "text", "required": true, "in": "path" }, { "id": "fields", "type": "text", "in": "query" }] },
+    { "id": "requester_ip", "label": "Requester IP", "method": "GET", "path": "/check", "fields": [{ "id": "fields", "type": "text", "in": "query" }, { "id": "hostname", "type": "toggle", "in": "query" }] },
+    { "id": "country_list", "label": "Country list", "method": "GET", "path": "/countries", "fields": [] }
+  ]
+}

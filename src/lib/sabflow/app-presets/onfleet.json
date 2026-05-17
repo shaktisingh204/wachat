@@ -1,0 +1,24 @@
+{
+  "id": "onfleet",
+  "name": "Onfleet",
+  "description": "Onfleet last-mile delivery dispatch.",
+  "category": "Logistics",
+  "iconName": "LuTruck",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": { "type": "basic", "credentialType": "onfleet" },
+  "baseUrl": "https://onfleet.com/api/v2",
+  "endpoints": [
+    { "id": "list_tasks", "label": "List tasks", "method": "GET", "path": "/tasks", "fields": [{ "id": "from", "type": "number", "in": "query" }, { "id": "to", "type": "number", "in": "query" }, { "id": "state", "type": "text", "in": "query" }] },
+    { "id": "get_task", "label": "Get task", "method": "GET", "path": "/tasks/{id}", "fields": [{ "id": "id", "type": "text", "required": true, "in": "path" }] },
+    { "id": "create_task", "label": "Create task", "method": "POST", "path": "/tasks", "fields": [{ "id": "destination", "type": "json", "required": true, "in": "body" }, { "id": "recipients", "type": "json", "required": true, "in": "body" }, { "id": "completeAfter", "type": "number", "in": "body" }, { "id": "completeBefore", "type": "number", "in": "body" }, { "id": "notes", "type": "textarea", "in": "body" }] },
+    { "id": "complete_task", "label": "Complete task", "method": "POST", "path": "/tasks/{id}/complete", "fields": [{ "id": "id", "type": "text", "required": true, "in": "path" }, { "id": "completionDetails", "type": "json", "required": true, "in": "body", "defaultValue": { "success": true, "notes": "" } }] },
+    { "id": "delete_task", "label": "Delete task", "method": "DELETE", "path": "/tasks/{id}", "fields": [{ "id": "id", "type": "text", "required": true, "in": "path" }] },
+    { "id": "list_workers", "label": "List workers", "method": "GET", "path": "/workers", "fields": [] },
+    { "id": "create_worker", "label": "Create worker", "method": "POST", "path": "/workers", "fields": [{ "id": "name", "type": "text", "required": true, "in": "body" }, { "id": "phone", "type": "text", "required": true, "in": "body" }, { "id": "teams", "type": "json", "in": "body" }] },
+    { "id": "list_teams", "label": "List teams", "method": "GET", "path": "/teams", "fields": [] },
+    { "id": "list_organizations", "label": "List organizations", "method": "GET", "path": "/organization", "fields": [] },
+    { "id": "list_administrators", "label": "List administrators", "method": "GET", "path": "/admins", "fields": [] }
+  ]
+}

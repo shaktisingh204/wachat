@@ -1,0 +1,24 @@
+{
+  "id": "shippo",
+  "name": "Shippo",
+  "description": "Shippo multi-carrier shipping API.",
+  "category": "Shipping",
+  "iconName": "LuTruck",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": { "type": "header", "credentialType": "shippo", "header": "Authorization", "scheme": "ShippoToken" },
+  "baseUrl": "https://api.goshippo.com",
+  "endpoints": [
+    { "id": "create_shipment", "label": "Create shipment", "method": "POST", "path": "/shipments/", "fields": [{ "id": "address_from", "type": "json", "required": true, "in": "body" }, { "id": "address_to", "type": "json", "required": true, "in": "body" }, { "id": "parcels", "type": "json", "required": true, "in": "body" }, { "id": "async", "type": "toggle", "defaultValue": false, "in": "body" }] },
+    { "id": "get_shipment", "label": "Get shipment", "method": "GET", "path": "/shipments/{object_id}", "fields": [{ "id": "object_id", "type": "text", "required": true, "in": "path" }] },
+    { "id": "list_shipments", "label": "List shipments", "method": "GET", "path": "/shipments/", "fields": [] },
+    { "id": "get_rates_for_shipment", "label": "Get rates for shipment", "method": "GET", "path": "/shipments/{object_id}/rates", "fields": [{ "id": "object_id", "type": "text", "required": true, "in": "path" }] },
+    { "id": "create_transaction", "label": "Create transaction (buy label)", "method": "POST", "path": "/transactions/", "fields": [{ "id": "rate", "type": "text", "required": true, "in": "body" }, { "id": "label_file_type", "type": "text", "in": "body" }, { "id": "async", "type": "toggle", "defaultValue": false, "in": "body" }] },
+    { "id": "track", "label": "Track", "method": "GET", "path": "/tracks/{carrier}/{tracking_number}", "fields": [{ "id": "carrier", "type": "text", "required": true, "in": "path" }, { "id": "tracking_number", "type": "text", "required": true, "in": "path" }] },
+    { "id": "create_address", "label": "Create address", "method": "POST", "path": "/addresses/", "fields": [{ "id": "name", "type": "text", "required": true, "in": "body" }, { "id": "street1", "type": "text", "required": true, "in": "body" }, { "id": "city", "type": "text", "required": true, "in": "body" }, { "id": "state", "type": "text", "required": true, "in": "body" }, { "id": "zip", "type": "text", "required": true, "in": "body" }, { "id": "country", "type": "text", "required": true, "in": "body" }, { "id": "phone", "type": "text", "in": "body" }] },
+    { "id": "validate_address", "label": "Validate address", "method": "GET", "path": "/addresses/{object_id}/validate", "fields": [{ "id": "object_id", "type": "text", "required": true, "in": "path" }] },
+    { "id": "create_pickup", "label": "Create pickup", "method": "POST", "path": "/pickups/", "fields": [{ "id": "carrier_account", "type": "text", "required": true, "in": "body" }, { "id": "location", "type": "json", "required": true, "in": "body" }, { "id": "transactions", "type": "json", "required": true, "in": "body" }, { "id": "requested_start_time", "type": "text", "required": true, "in": "body" }, { "id": "requested_end_time", "type": "text", "required": true, "in": "body" }] },
+    { "id": "create_refund", "label": "Create refund", "method": "POST", "path": "/refunds/", "fields": [{ "id": "transaction", "type": "text", "required": true, "in": "body" }] }
+  ]
+}

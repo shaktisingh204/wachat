@@ -1,0 +1,19 @@
+{
+  "id": "doximity",
+  "name": "Doximity",
+  "description": "US medical professional network API.",
+  "category": "Healthcare",
+  "iconName": "LuHeartPulse",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": { "type": "bearer", "credentialType": "doximity" },
+  "baseUrl": "https://www.doximity.com/api/v1",
+  "endpoints": [
+    { "id": "me", "label": "Me", "method": "GET", "path": "/me", "fields": [] },
+    { "id": "search_users", "label": "Search users", "method": "GET", "path": "/users", "fields": [{ "id": "query", "type": "text", "required": true, "in": "query" }] },
+    { "id": "get_user", "label": "Get user", "method": "GET", "path": "/users/{id}", "fields": [{ "id": "id", "type": "text", "required": true, "in": "path" }] },
+    { "id": "list_contacts", "label": "List contacts", "method": "GET", "path": "/contacts", "fields": [] },
+    { "id": "send_message", "label": "Send message", "method": "POST", "path": "/messages", "fields": [{ "id": "recipient_id", "type": "text", "required": true, "in": "body" }, { "id": "body", "type": "textarea", "required": true, "in": "body" }] }
+  ]
+}

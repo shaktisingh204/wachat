@@ -1,0 +1,38 @@
+{
+  "id": "n8n-cortex",
+  "name": "Cortex",
+  "description": "Apply the Cortex analyzer/responder on the given entity",
+  "category": "Transform",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "analyzer_default",
+      "label": "List Analyzer",
+      "method": "GET",
+      "path": "/analyzer",
+      "fields": []
+    },
+    {
+      "id": "job_default",
+      "label": "List Job",
+      "method": "GET",
+      "path": "/job",
+      "fields": []
+    },
+    {
+      "id": "responder_default",
+      "label": "List Responder",
+      "method": "GET",
+      "path": "/responder",
+      "fields": []
+    }
+  ]
+}

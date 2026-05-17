@@ -1,0 +1,100 @@
+{
+  "id": "mailgun",
+  "name": "Mailgun",
+  "description": "Mailgun transactional email API.",
+  "category": "Email",
+  "iconName": "LuMail",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "basic",
+    "credentialType": "mailgun"
+  },
+  "baseUrl": "https://api.mailgun.net/v3",
+  "endpoints": [
+    {
+      "id": "send_email",
+      "label": "Send email",
+      "method": "POST",
+      "path": "/{domain}/messages",
+      "fields": [
+        { "id": "domain", "label": "Domain", "type": "text", "required": true, "in": "path" },
+        { "id": "from", "label": "From", "type": "text", "required": true, "in": "body" },
+        { "id": "to", "label": "To", "type": "text", "required": true, "in": "body" },
+        { "id": "subject", "label": "Subject", "type": "text", "required": true, "in": "body" },
+        { "id": "text", "label": "Text body", "type": "textarea", "in": "body" },
+        { "id": "html", "label": "HTML body", "type": "textarea", "in": "body" },
+        { "id": "cc", "label": "Cc", "type": "text", "in": "body" },
+        { "id": "bcc", "label": "Bcc", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "list_events",
+      "label": "List events",
+      "method": "GET",
+      "path": "/{domain}/events",
+      "fields": [
+        { "id": "domain", "label": "Domain", "type": "text", "required": true, "in": "path" },
+        { "id": "limit", "label": "Limit", "type": "number", "defaultValue": 25, "in": "query" },
+        { "id": "event", "label": "Event type", "type": "text", "in": "query" }
+      ]
+    },
+    {
+      "id": "list_tags",
+      "label": "List tags",
+      "method": "GET",
+      "path": "/{domain}/tags",
+      "fields": [
+        { "id": "domain", "label": "Domain", "type": "text", "required": true, "in": "path" },
+        { "id": "limit", "label": "Limit", "type": "number", "defaultValue": 25, "in": "query" }
+      ]
+    },
+    {
+      "id": "create_route",
+      "label": "Create route",
+      "method": "POST",
+      "path": "/routes",
+      "fields": [
+        { "id": "priority", "label": "Priority", "type": "number", "required": true, "in": "body" },
+        { "id": "expression", "label": "Expression", "type": "text", "required": true, "in": "body" },
+        { "id": "action", "label": "Action", "type": "text", "required": true, "in": "body" },
+        { "id": "description", "label": "Description", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "list_routes",
+      "label": "List routes",
+      "method": "GET",
+      "path": "/routes",
+      "fields": [
+        { "id": "limit", "label": "Limit", "type": "number", "defaultValue": 25, "in": "query" },
+        { "id": "skip", "label": "Skip", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "create_mailing_list",
+      "label": "Create mailing list",
+      "method": "POST",
+      "path": "/lists",
+      "fields": [
+        { "id": "address", "label": "Address", "type": "text", "required": true, "in": "body" },
+        { "id": "name", "label": "Name", "type": "text", "in": "body" },
+        { "id": "description", "label": "Description", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "add_list_member",
+      "label": "Add list member",
+      "method": "POST",
+      "path": "/lists/{address}/members",
+      "fields": [
+        { "id": "address", "label": "List address", "type": "text", "required": true, "in": "path" },
+        { "id": "address", "label": "Member address", "type": "text", "required": true, "in": "body" },
+        { "id": "name", "label": "Name", "type": "text", "in": "body" },
+        { "id": "vars", "label": "Vars", "type": "json", "in": "body" },
+        { "id": "subscribed", "label": "Subscribed", "type": "toggle", "defaultValue": true, "in": "body" }
+      ]
+    }
+  ]
+}

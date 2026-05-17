@@ -1,0 +1,104 @@
+{
+  "id": "emailoctopus",
+  "name": "EmailOctopus",
+  "description": "EmailOctopus email marketing API.",
+  "category": "Email marketing",
+  "iconName": "LuMail",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "query_token",
+    "queryParam": "api_key",
+    "credentialType": "emailoctopus"
+  },
+  "baseUrl": "https://emailoctopus.com/api/1.6",
+  "endpoints": [
+    {
+      "id": "list_lists",
+      "label": "List lists",
+      "method": "GET",
+      "path": "/lists",
+      "fields": [
+        { "id": "limit", "label": "Limit", "type": "number", "defaultValue": 100, "in": "query" },
+        { "id": "page", "label": "Page", "type": "number", "defaultValue": 1, "in": "query" }
+      ]
+    },
+    {
+      "id": "get_list",
+      "label": "Get list",
+      "method": "GET",
+      "path": "/lists/{list_id}",
+      "fields": [
+        { "id": "list_id", "label": "List ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "create_list",
+      "label": "Create list",
+      "method": "POST",
+      "path": "/lists",
+      "fields": [
+        { "id": "name", "label": "Name", "type": "text", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "list_contacts",
+      "label": "List contacts",
+      "method": "GET",
+      "path": "/lists/{list_id}/contacts",
+      "fields": [
+        { "id": "list_id", "label": "List ID", "type": "text", "required": true, "in": "path" },
+        { "id": "limit", "label": "Limit", "type": "number", "defaultValue": 100, "in": "query" },
+        { "id": "page", "label": "Page", "type": "number", "defaultValue": 1, "in": "query" }
+      ]
+    },
+    {
+      "id": "create_contact",
+      "label": "Create contact",
+      "method": "POST",
+      "path": "/lists/{list_id}/contacts",
+      "fields": [
+        { "id": "list_id", "label": "List ID", "type": "text", "required": true, "in": "path" },
+        { "id": "email_address", "label": "Email address", "type": "text", "required": true, "in": "body" },
+        { "id": "fields", "label": "Fields", "type": "json", "in": "body" },
+        { "id": "tags", "label": "Tags", "type": "json", "in": "body" },
+        { "id": "status", "label": "Status", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "update_contact",
+      "label": "Update contact",
+      "method": "PUT",
+      "path": "/lists/{list_id}/contacts/{member_id}",
+      "fields": [
+        { "id": "list_id", "label": "List ID", "type": "text", "required": true, "in": "path" },
+        { "id": "member_id", "label": "Member ID", "type": "text", "required": true, "in": "path" },
+        { "id": "email_address", "label": "Email address", "type": "text", "in": "body" },
+        { "id": "fields", "label": "Fields", "type": "json", "in": "body" },
+        { "id": "tags", "label": "Tags", "type": "json", "in": "body" },
+        { "id": "status", "label": "Status", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "delete_contact",
+      "label": "Delete contact",
+      "method": "DELETE",
+      "path": "/lists/{list_id}/contacts/{member_id}",
+      "fields": [
+        { "id": "list_id", "label": "List ID", "type": "text", "required": true, "in": "path" },
+        { "id": "member_id", "label": "Member ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_campaigns",
+      "label": "List campaigns",
+      "method": "GET",
+      "path": "/campaigns",
+      "fields": [
+        { "id": "limit", "label": "Limit", "type": "number", "defaultValue": 100, "in": "query" },
+        { "id": "page", "label": "Page", "type": "number", "defaultValue": 1, "in": "query" }
+      ]
+    }
+  ]
+}

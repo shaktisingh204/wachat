@@ -1,0 +1,97 @@
+{
+  "id": "beehiiv",
+  "name": "Beehiiv",
+  "description": "Beehiiv newsletter publication API.",
+  "category": "Newsletter",
+  "iconName": "LuMail",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "bearer",
+    "credentialType": "beehiiv"
+  },
+  "baseUrl": "https://api.beehiiv.com/v2",
+  "endpoints": [
+    {
+      "id": "list_publications",
+      "label": "List publications",
+      "method": "GET",
+      "path": "/publications",
+      "fields": [
+        { "id": "limit", "label": "Limit", "type": "number", "defaultValue": 25, "in": "query" },
+        { "id": "page", "label": "Page", "type": "number", "defaultValue": 1, "in": "query" }
+      ]
+    },
+    {
+      "id": "list_subscriptions",
+      "label": "List subscriptions",
+      "method": "GET",
+      "path": "/publications/{publication_id}/subscriptions",
+      "fields": [
+        { "id": "publication_id", "label": "Publication ID", "type": "text", "required": true, "in": "path" },
+        { "id": "limit", "label": "Limit", "type": "number", "defaultValue": 25, "in": "query" },
+        { "id": "page", "label": "Page", "type": "number", "defaultValue": 1, "in": "query" }
+      ]
+    },
+    {
+      "id": "create_subscription",
+      "label": "Create subscription",
+      "method": "POST",
+      "path": "/publications/{publication_id}/subscriptions",
+      "fields": [
+        { "id": "publication_id", "label": "Publication ID", "type": "text", "required": true, "in": "path" },
+        { "id": "email", "label": "Email", "type": "text", "required": true, "in": "body" },
+        { "id": "reactivate_existing", "label": "Reactivate existing", "type": "toggle", "in": "body" },
+        { "id": "send_welcome_email", "label": "Send welcome email", "type": "toggle", "in": "body" },
+        { "id": "utm_source", "label": "UTM source", "type": "text", "in": "body" },
+        { "id": "utm_medium", "label": "UTM medium", "type": "text", "in": "body" },
+        { "id": "utm_campaign", "label": "UTM campaign", "type": "text", "in": "body" },
+        { "id": "referring_site", "label": "Referring site", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "update_subscription",
+      "label": "Update subscription",
+      "method": "PATCH",
+      "path": "/publications/{publication_id}/subscriptions/{subscription_id}",
+      "fields": [
+        { "id": "publication_id", "label": "Publication ID", "type": "text", "required": true, "in": "path" },
+        { "id": "subscription_id", "label": "Subscription ID", "type": "text", "required": true, "in": "path" },
+        { "id": "tier", "label": "Tier", "type": "text", "in": "body" },
+        { "id": "stripe_customer_id", "label": "Stripe customer ID", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "delete_subscription",
+      "label": "Delete subscription",
+      "method": "DELETE",
+      "path": "/publications/{publication_id}/subscriptions/{subscription_id}",
+      "fields": [
+        { "id": "publication_id", "label": "Publication ID", "type": "text", "required": true, "in": "path" },
+        { "id": "subscription_id", "label": "Subscription ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_posts",
+      "label": "List posts",
+      "method": "GET",
+      "path": "/publications/{publication_id}/posts",
+      "fields": [
+        { "id": "publication_id", "label": "Publication ID", "type": "text", "required": true, "in": "path" },
+        { "id": "limit", "label": "Limit", "type": "number", "defaultValue": 25, "in": "query" },
+        { "id": "page", "label": "Page", "type": "number", "defaultValue": 1, "in": "query" }
+      ]
+    },
+    {
+      "id": "list_segments",
+      "label": "List segments",
+      "method": "GET",
+      "path": "/publications/{publication_id}/segments",
+      "fields": [
+        { "id": "publication_id", "label": "Publication ID", "type": "text", "required": true, "in": "path" },
+        { "id": "limit", "label": "Limit", "type": "number", "defaultValue": 25, "in": "query" }
+      ]
+    }
+  ]
+}

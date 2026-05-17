@@ -1,0 +1,42 @@
+{
+  "id": "n8n-strapi",
+  "name": "Strapi",
+  "description": "Consume Strapi API",
+  "category": "Input",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "entry_default",
+      "label": "List Entry",
+      "method": "GET",
+      "path": "/entry",
+      "fields": [
+        {
+          "id": "authentication",
+          "label": "Authentication",
+          "type": "select",
+          "in": "query",
+          "defaultValue": "password",
+          "options": [
+            {
+              "value": "password",
+              "label": "Username & Password"
+            },
+            {
+              "value": "token",
+              "label": "API Token"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "id": "n8n-i-cal",
+  "name": "iCalendar",
+  "description": "Create iCalendar file",
+  "category": "Input",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "none"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "default_create_event_file",
+      "label": "Create Event File",
+      "method": "GET",
+      "path": "/",
+      "fields": []
+    }
+  ]
+}

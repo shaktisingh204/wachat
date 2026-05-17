@@ -1,0 +1,22 @@
+{
+  "id": "openfda",
+  "name": "OpenFDA",
+  "description": "US FDA public datasets (drugs, devices, food).",
+  "category": "Healthcare",
+  "iconName": "LuShield",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": { "type": "query_token", "credentialType": "openfda", "queryParam": "api_key" },
+  "baseUrl": "https://api.fda.gov",
+  "endpoints": [
+    { "id": "drug_adverse_events", "label": "Drug adverse events", "method": "GET", "path": "/drug/event.json", "fields": [{ "id": "search", "type": "text", "in": "query" }, { "id": "count", "type": "text", "in": "query" }, { "id": "limit", "type": "number", "defaultValue": 10, "in": "query" }] },
+    { "id": "drug_label", "label": "Drug label", "method": "GET", "path": "/drug/label.json", "fields": [{ "id": "search", "type": "text", "in": "query" }, { "id": "limit", "type": "number", "defaultValue": 10, "in": "query" }] },
+    { "id": "drug_ndc", "label": "Drug NDC", "method": "GET", "path": "/drug/ndc.json", "fields": [{ "id": "search", "type": "text", "in": "query" }, { "id": "limit", "type": "number", "defaultValue": 10, "in": "query" }] },
+    { "id": "drug_enforcement", "label": "Drug enforcement", "method": "GET", "path": "/drug/enforcement.json", "fields": [{ "id": "search", "type": "text", "in": "query" }, { "id": "limit", "type": "number", "defaultValue": 10, "in": "query" }] },
+    { "id": "device_adverse_events", "label": "Device adverse events", "method": "GET", "path": "/device/event.json", "fields": [{ "id": "search", "type": "text", "in": "query" }, { "id": "limit", "type": "number", "defaultValue": 10, "in": "query" }] },
+    { "id": "device_recall", "label": "Device recall", "method": "GET", "path": "/device/recall.json", "fields": [{ "id": "search", "type": "text", "in": "query" }, { "id": "limit", "type": "number", "defaultValue": 10, "in": "query" }] },
+    { "id": "food_recall", "label": "Food enforcement (recall)", "method": "GET", "path": "/food/enforcement.json", "fields": [{ "id": "search", "type": "text", "in": "query" }, { "id": "limit", "type": "number", "defaultValue": 10, "in": "query" }] },
+    { "id": "food_events", "label": "Food events", "method": "GET", "path": "/food/event.json", "fields": [{ "id": "search", "type": "text", "in": "query" }, { "id": "limit", "type": "number", "defaultValue": 10, "in": "query" }] }
+  ]
+}

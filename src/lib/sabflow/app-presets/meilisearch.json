@@ -1,0 +1,133 @@
+{
+  "id": "meilisearch",
+  "name": "Meilisearch",
+  "description": "Meilisearch open-source search engine (self-hosted or cloud).",
+  "category": "Search",
+  "iconName": "LuSearch",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "bearer",
+    "credentialType": "meilisearch"
+  },
+  "baseUrl": "https://ms-{instance}.meilisearch.io",
+  "endpoints": [
+    {
+      "id": "health",
+      "label": "Health check",
+      "method": "GET",
+      "path": "/health",
+      "fields": []
+    },
+    {
+      "id": "list_indexes",
+      "label": "List indexes",
+      "method": "GET",
+      "path": "/indexes",
+      "fields": [
+        { "id": "limit", "label": "Limit", "type": "number", "in": "query" },
+        { "id": "offset", "label": "Offset", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "get_index",
+      "label": "Get index",
+      "method": "GET",
+      "path": "/indexes/{index_uid}",
+      "fields": [
+        { "id": "index_uid", "label": "Index UID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "create_index",
+      "label": "Create index",
+      "method": "POST",
+      "path": "/indexes",
+      "fields": [
+        { "id": "uid", "label": "UID", "type": "text", "required": true, "in": "body" },
+        { "id": "primaryKey", "label": "Primary key", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "delete_index",
+      "label": "Delete index",
+      "method": "DELETE",
+      "path": "/indexes/{index_uid}",
+      "fields": [
+        { "id": "index_uid", "label": "Index UID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "add_documents",
+      "label": "Add documents",
+      "method": "POST",
+      "path": "/indexes/{index_uid}/documents",
+      "fields": [
+        { "id": "index_uid", "label": "Index UID", "type": "text", "required": true, "in": "path" },
+        { "id": "documents", "label": "Documents JSON array", "type": "json", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "delete_document",
+      "label": "Delete document",
+      "method": "DELETE",
+      "path": "/indexes/{index_uid}/documents/{document_id}",
+      "fields": [
+        { "id": "index_uid", "label": "Index UID", "type": "text", "required": true, "in": "path" },
+        { "id": "document_id", "label": "Document ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "search",
+      "label": "Search",
+      "method": "POST",
+      "path": "/indexes/{index_uid}/search",
+      "fields": [
+        { "id": "index_uid", "label": "Index UID", "type": "text", "required": true, "in": "path" },
+        { "id": "q", "label": "Query", "type": "text", "required": true, "in": "body" },
+        { "id": "limit", "label": "Limit", "type": "number", "in": "body" },
+        { "id": "offset", "label": "Offset", "type": "number", "in": "body" },
+        { "id": "filter", "label": "Filter", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "list_keys",
+      "label": "List API keys",
+      "method": "GET",
+      "path": "/keys",
+      "fields": []
+    },
+    {
+      "id": "create_key",
+      "label": "Create API key",
+      "method": "POST",
+      "path": "/keys",
+      "fields": [
+        { "id": "description", "label": "Description", "type": "text", "required": true, "in": "body" },
+        { "id": "actions", "label": "Actions JSON array", "type": "json", "required": true, "in": "body" },
+        { "id": "indexes", "label": "Indexes JSON array", "type": "json", "required": true, "in": "body" },
+        { "id": "expiresAt", "label": "Expires at (ISO)", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "get_settings",
+      "label": "Get index settings",
+      "method": "GET",
+      "path": "/indexes/{index_uid}/settings",
+      "fields": [
+        { "id": "index_uid", "label": "Index UID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "update_settings",
+      "label": "Update index settings",
+      "method": "PATCH",
+      "path": "/indexes/{index_uid}/settings",
+      "fields": [
+        { "id": "index_uid", "label": "Index UID", "type": "text", "required": true, "in": "path" },
+        { "id": "settings", "label": "Settings JSON", "type": "json", "required": true, "in": "body" }
+      ]
+    }
+  ]
+}

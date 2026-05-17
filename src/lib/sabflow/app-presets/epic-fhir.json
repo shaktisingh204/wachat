@@ -1,0 +1,23 @@
+{
+  "id": "epic-fhir",
+  "name": "Epic on FHIR",
+  "description": "Epic Systems EHR FHIR R4 API.",
+  "category": "Healthcare",
+  "iconName": "LuHeartPulse",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": { "type": "oauth2", "credentialType": "oauth2" },
+  "baseUrl": "https://fhir.epic.com/interconnect-fhir-oauth/api/FHIR/R4",
+  "endpoints": [
+    { "id": "read_patient", "label": "Read patient", "method": "GET", "path": "/Patient/{id}", "fields": [{ "id": "id", "type": "text", "required": true, "in": "path" }] },
+    { "id": "search_patients", "label": "Search patients", "method": "GET", "path": "/Patient", "fields": [{ "id": "family", "type": "text", "in": "query" }, { "id": "given", "type": "text", "in": "query" }, { "id": "birthdate", "type": "text", "in": "query" }] },
+    { "id": "read_observation", "label": "Read observation", "method": "GET", "path": "/Observation/{id}", "fields": [{ "id": "id", "type": "text", "required": true, "in": "path" }] },
+    { "id": "search_observations", "label": "Search observations", "method": "GET", "path": "/Observation", "fields": [{ "id": "patient", "type": "text", "in": "query" }, { "id": "category", "type": "text", "in": "query" }, { "id": "code", "type": "text", "in": "query" }, { "id": "date", "type": "text", "in": "query" }] },
+    { "id": "read_appointment", "label": "Read appointment", "method": "GET", "path": "/Appointment/{id}", "fields": [{ "id": "id", "type": "text", "required": true, "in": "path" }] },
+    { "id": "search_appointments", "label": "Search appointments", "method": "GET", "path": "/Appointment", "fields": [{ "id": "patient", "type": "text", "in": "query" }, { "id": "date", "type": "text", "in": "query" }] },
+    { "id": "read_medication_request", "label": "Read medication request", "method": "GET", "path": "/MedicationRequest/{id}", "fields": [{ "id": "id", "type": "text", "required": true, "in": "path" }] },
+    { "id": "search_medication_requests", "label": "Search medication requests", "method": "GET", "path": "/MedicationRequest", "fields": [{ "id": "patient", "type": "text", "in": "query" }, { "id": "status", "type": "text", "in": "query" }] },
+    { "id": "metadata", "label": "Capability statement", "method": "GET", "path": "/metadata", "fields": [] }
+  ]
+}

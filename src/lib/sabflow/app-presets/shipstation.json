@@ -1,0 +1,24 @@
+{
+  "id": "shipstation",
+  "name": "ShipStation",
+  "description": "ShipStation order/shipment management.",
+  "category": "Shipping",
+  "iconName": "LuTruck",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": { "type": "basic", "credentialType": "shipstation" },
+  "baseUrl": "https://ssapi.shipstation.com",
+  "endpoints": [
+    { "id": "list_orders", "label": "List orders", "method": "GET", "path": "/orders", "fields": [{ "id": "orderStatus", "type": "text", "in": "query" }, { "id": "pageSize", "type": "number", "defaultValue": 100, "in": "query" }, { "id": "page", "type": "number", "in": "query" }] },
+    { "id": "get_order", "label": "Get order", "method": "GET", "path": "/orders/{orderId}", "fields": [{ "id": "orderId", "type": "text", "required": true, "in": "path" }] },
+    { "id": "create_or_update_order", "label": "Create / update order", "method": "POST", "path": "/orders/createorder", "fields": [{ "id": "orderNumber", "type": "text", "required": true, "in": "body" }, { "id": "orderDate", "type": "text", "required": true, "in": "body" }, { "id": "orderStatus", "type": "text", "required": true, "in": "body" }, { "id": "billTo", "type": "json", "required": true, "in": "body" }, { "id": "shipTo", "type": "json", "required": true, "in": "body" }, { "id": "items", "type": "json", "in": "body" }] },
+    { "id": "mark_order_shipped", "label": "Mark order shipped", "method": "POST", "path": "/orders/markasshipped", "fields": [{ "id": "orderId", "type": "text", "required": true, "in": "body" }, { "id": "carrierCode", "type": "text", "required": true, "in": "body" }, { "id": "trackingNumber", "type": "text", "required": true, "in": "body" }, { "id": "shipDate", "type": "text", "required": true, "in": "body" }, { "id": "notifyCustomer", "type": "toggle", "in": "body" }] },
+    { "id": "list_shipments", "label": "List shipments", "method": "GET", "path": "/shipments", "fields": [{ "id": "orderId", "type": "text", "in": "query" }, { "id": "trackingNumber", "type": "text", "in": "query" }] },
+    { "id": "create_label", "label": "Create label", "method": "POST", "path": "/shipments/createlabel", "fields": [{ "id": "orderId", "type": "text", "required": true, "in": "body" }, { "id": "carrierCode", "type": "text", "required": true, "in": "body" }, { "id": "serviceCode", "type": "text", "required": true, "in": "body" }, { "id": "packageCode", "type": "text", "required": true, "in": "body" }, { "id": "confirmation", "type": "text", "required": true, "in": "body" }, { "id": "shipDate", "type": "text", "required": true, "in": "body" }, { "id": "weight", "type": "json", "required": true, "in": "body" }, { "id": "dimensions", "type": "json", "in": "body" }] },
+    { "id": "void_label", "label": "Void label", "method": "POST", "path": "/shipments/voidlabel", "fields": [{ "id": "shipmentId", "type": "text", "required": true, "in": "body" }] },
+    { "id": "list_stores", "label": "List stores", "method": "GET", "path": "/stores", "fields": [{ "id": "showInactive", "type": "toggle", "in": "query" }] },
+    { "id": "list_carriers", "label": "List carriers", "method": "GET", "path": "/carriers", "fields": [] },
+    { "id": "list_customers", "label": "List customers", "method": "GET", "path": "/customers", "fields": [] }
+  ]
+}

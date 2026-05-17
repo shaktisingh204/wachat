@@ -1,0 +1,31 @@
+{
+  "id": "n8n-xero",
+  "name": "Xero",
+  "description": "Consume Xero API",
+  "category": "Output",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "oauth2",
+    "credentialType": "oauth2"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "contact_default",
+      "label": "List Contact",
+      "method": "GET",
+      "path": "/contact",
+      "fields": []
+    },
+    {
+      "id": "invoice_default",
+      "label": "List Invoice",
+      "method": "GET",
+      "path": "/invoice",
+      "fields": []
+    }
+  ]
+}

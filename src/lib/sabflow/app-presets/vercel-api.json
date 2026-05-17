@@ -1,0 +1,112 @@
+{
+  "id": "vercel-api",
+  "name": "Vercel",
+  "description": "Vercel REST API for deployments, projects, env vars, and domains.",
+  "category": "DevOps",
+  "iconName": "LuTriangle",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "bearer",
+    "credentialType": "vercel"
+  },
+  "baseUrl": "https://api.vercel.com",
+  "endpoints": [
+    {
+      "id": "list_deployments",
+      "label": "List deployments",
+      "method": "GET",
+      "path": "/v6/deployments",
+      "fields": [
+        { "id": "limit", "label": "Limit", "type": "number", "in": "query" },
+        { "id": "projectId", "label": "Project ID", "type": "text", "in": "query" }
+      ]
+    },
+    {
+      "id": "get_deployment",
+      "label": "Get deployment",
+      "method": "GET",
+      "path": "/v13/deployments/{id_or_url}",
+      "fields": [
+        { "id": "id_or_url", "label": "Deployment ID or URL", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "cancel_deployment",
+      "label": "Cancel deployment",
+      "method": "PATCH",
+      "path": "/v12/deployments/{id}/cancel",
+      "fields": [
+        { "id": "id", "label": "Deployment ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_projects",
+      "label": "List projects",
+      "method": "GET",
+      "path": "/v9/projects",
+      "fields": [
+        { "id": "limit", "label": "Limit", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "get_project",
+      "label": "Get project",
+      "method": "GET",
+      "path": "/v9/projects/{idOrName}",
+      "fields": [
+        { "id": "idOrName", "label": "Project ID or name", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "create_deployment",
+      "label": "Create deployment",
+      "method": "POST",
+      "path": "/v13/deployments",
+      "fields": [
+        { "id": "name", "label": "Name", "type": "text", "required": true, "in": "body" },
+        { "id": "files", "label": "Files JSON", "type": "json", "required": true, "in": "body" },
+        { "id": "projectSettings", "label": "Project settings JSON", "type": "json", "in": "body" }
+      ]
+    },
+    {
+      "id": "list_env_vars",
+      "label": "List environment variables",
+      "method": "GET",
+      "path": "/v9/projects/{idOrName}/env",
+      "fields": [
+        { "id": "idOrName", "label": "Project ID or name", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "create_env_var",
+      "label": "Create environment variable",
+      "method": "POST",
+      "path": "/v9/projects/{idOrName}/env",
+      "fields": [
+        { "id": "idOrName", "label": "Project ID or name", "type": "text", "required": true, "in": "path" },
+        { "id": "key", "label": "Key", "type": "text", "required": true, "in": "body" },
+        { "id": "value", "label": "Value", "type": "text", "required": true, "in": "body" },
+        { "id": "type", "label": "Type", "type": "select", "required": true, "in": "body" },
+        { "id": "target", "label": "Target JSON array", "type": "json", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "list_domains",
+      "label": "List domains",
+      "method": "GET",
+      "path": "/v5/domains",
+      "fields": [
+        { "id": "limit", "label": "Limit", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "purge_data_cache",
+      "label": "Purge data cache",
+      "method": "POST",
+      "path": "/v1/data-cache/purge-all",
+      "fields": []
+    }
+  ]
+}

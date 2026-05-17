@@ -1,0 +1,73 @@
+{
+  "id": "n8n-freshworks-crm",
+  "name": "Freshworks CRM",
+  "description": "Consume the Freshworks CRM API",
+  "category": "Transform",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "account_default",
+      "label": "List Account",
+      "method": "GET",
+      "path": "/account",
+      "fields": []
+    },
+    {
+      "id": "appointment_default",
+      "label": "List Appointment",
+      "method": "GET",
+      "path": "/appointment",
+      "fields": []
+    },
+    {
+      "id": "contact_default",
+      "label": "List Contact",
+      "method": "GET",
+      "path": "/contact",
+      "fields": []
+    },
+    {
+      "id": "deal_default",
+      "label": "List Deal",
+      "method": "GET",
+      "path": "/deal",
+      "fields": []
+    },
+    {
+      "id": "note_default",
+      "label": "List Note",
+      "method": "GET",
+      "path": "/note",
+      "fields": []
+    },
+    {
+      "id": "sales_activity_default",
+      "label": "List SalesActivity",
+      "method": "GET",
+      "path": "/salesActivity",
+      "fields": []
+    },
+    {
+      "id": "search_default",
+      "label": "List Search",
+      "method": "GET",
+      "path": "/search",
+      "fields": []
+    },
+    {
+      "id": "task_default",
+      "label": "List Task",
+      "method": "GET",
+      "path": "/task",
+      "fields": []
+    }
+  ]
+}

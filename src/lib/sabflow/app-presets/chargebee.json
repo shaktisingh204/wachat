@@ -1,0 +1,151 @@
+{
+  "id": "chargebee",
+  "name": "Chargebee",
+  "description": "Chargebee subscription billing: customers, subscriptions, invoices, credit notes, items, and item prices.",
+  "category": "Billing",
+  "iconName": "LuCreditCard",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "basic",
+    "credentialType": "chargebee"
+  },
+  "baseUrl": "https://{site}.chargebee.com/api/v2",
+  "endpoints": [
+    {
+      "id": "list_customers",
+      "label": "List Customers",
+      "method": "GET",
+      "path": "/customers",
+      "fields": [
+        { "id": "limit", "label": "Limit", "type": "number", "in": "query" },
+        { "id": "offset", "label": "Offset", "type": "text", "in": "query" }
+      ]
+    },
+    {
+      "id": "get_customer",
+      "label": "Get Customer",
+      "method": "GET",
+      "path": "/customers/{id}",
+      "fields": [
+        { "id": "id", "label": "Customer ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "create_customer",
+      "label": "Create Customer",
+      "method": "POST",
+      "path": "/customers",
+      "fields": [
+        { "id": "email", "label": "Email", "type": "text", "in": "body" },
+        { "id": "first_name", "label": "First Name", "type": "text", "in": "body" },
+        { "id": "last_name", "label": "Last Name", "type": "text", "in": "body" },
+        { "id": "company", "label": "Company", "type": "text", "in": "body" },
+        { "id": "phone", "label": "Phone", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "update_customer",
+      "label": "Update Customer",
+      "method": "POST",
+      "path": "/customers/{id}",
+      "fields": [
+        { "id": "id", "label": "Customer ID", "type": "text", "required": true, "in": "path" },
+        { "id": "email", "label": "Email", "type": "text", "in": "body" },
+        { "id": "first_name", "label": "First Name", "type": "text", "in": "body" },
+        { "id": "last_name", "label": "Last Name", "type": "text", "in": "body" },
+        { "id": "company", "label": "Company", "type": "text", "in": "body" },
+        { "id": "phone", "label": "Phone", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "list_subscriptions",
+      "label": "List Subscriptions",
+      "method": "GET",
+      "path": "/subscriptions",
+      "fields": [
+        { "id": "limit", "label": "Limit", "type": "number", "in": "query" },
+        { "id": "offset", "label": "Offset", "type": "text", "in": "query" }
+      ]
+    },
+    {
+      "id": "create_subscription",
+      "label": "Create Subscription",
+      "method": "POST",
+      "path": "/subscriptions",
+      "fields": [
+        { "id": "plan_id", "label": "Plan ID", "type": "text", "required": true, "in": "body" },
+        { "id": "customer_id", "label": "Customer ID", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "cancel_subscription",
+      "label": "Cancel Subscription",
+      "method": "POST",
+      "path": "/subscriptions/{id}/cancel",
+      "fields": [
+        { "id": "id", "label": "Subscription ID", "type": "text", "required": true, "in": "path" },
+        { "id": "end_of_term", "label": "End of Term", "type": "toggle", "in": "body" },
+        { "id": "cancel_reason_code", "label": "Cancel Reason Code", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "pause_subscription",
+      "label": "Pause Subscription",
+      "method": "POST",
+      "path": "/subscriptions/{id}/pause",
+      "fields": [
+        { "id": "id", "label": "Subscription ID", "type": "text", "required": true, "in": "path" },
+        { "id": "pause_option", "label": "Pause Option", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "resume_subscription",
+      "label": "Resume Subscription",
+      "method": "POST",
+      "path": "/subscriptions/{id}/resume",
+      "fields": [
+        { "id": "id", "label": "Subscription ID", "type": "text", "required": true, "in": "path" },
+        { "id": "resume_option", "label": "Resume Option", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "list_invoices",
+      "label": "List Invoices",
+      "method": "GET",
+      "path": "/invoices",
+      "fields": [
+        { "id": "limit", "label": "Limit", "type": "number", "in": "query" },
+        { "id": "offset", "label": "Offset", "type": "text", "in": "query" }
+      ]
+    },
+    {
+      "id": "list_credit_notes",
+      "label": "List Credit Notes",
+      "method": "GET",
+      "path": "/credit_notes",
+      "fields": [
+        { "id": "limit", "label": "Limit", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "list_items",
+      "label": "List Items",
+      "method": "GET",
+      "path": "/items",
+      "fields": [
+        { "id": "limit", "label": "Limit", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "list_item_prices",
+      "label": "List Item Prices",
+      "method": "GET",
+      "path": "/item_prices",
+      "fields": [
+        { "id": "limit", "label": "Limit", "type": "number", "in": "query" }
+      ]
+    }
+  ]
+}

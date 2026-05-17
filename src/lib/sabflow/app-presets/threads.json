@@ -1,0 +1,95 @@
+{
+  "id": "threads",
+  "name": "Threads",
+  "description": "Meta Threads Graph API for publishing and reading threads.",
+  "category": "Social",
+  "iconName": "LuMessageCircle",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "bearer",
+    "credentialType": "threads"
+  },
+  "baseUrl": "https://graph.threads.net/v1.0",
+  "endpoints": [
+    {
+      "id": "me",
+      "label": "Get my profile",
+      "method": "GET",
+      "path": "/me",
+      "fields": [
+        { "id": "fields", "label": "Fields", "type": "text", "defaultValue": "id,username,name,threads_profile_picture_url,threads_biography", "in": "query" }
+      ]
+    },
+    {
+      "id": "create_container",
+      "label": "Create media container",
+      "method": "POST",
+      "path": "/me/threads",
+      "fields": [
+        { "id": "media_type", "label": "Media type", "type": "select", "required": true, "in": "body" },
+        { "id": "text", "label": "Text", "type": "textarea", "in": "body" },
+        { "id": "image_url", "label": "Image URL", "type": "text", "in": "body" },
+        { "id": "video_url", "label": "Video URL", "type": "text", "in": "body" }
+      ]
+    },
+    {
+      "id": "publish_container",
+      "label": "Publish container",
+      "method": "POST",
+      "path": "/me/threads_publish",
+      "fields": [
+        { "id": "creation_id", "label": "Creation ID", "type": "text", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "list_my_threads",
+      "label": "List my threads",
+      "method": "GET",
+      "path": "/me/threads",
+      "fields": [
+        { "id": "fields", "label": "Fields", "type": "text", "defaultValue": "id,media_product_type,media_type,permalink,owner,username,text,timestamp", "in": "query" },
+        { "id": "limit", "label": "Limit", "type": "number", "defaultValue": 25, "in": "query" }
+      ]
+    },
+    {
+      "id": "get_thread",
+      "label": "Get thread",
+      "method": "GET",
+      "path": "/{thread_id}",
+      "fields": [
+        { "id": "thread_id", "label": "Thread ID", "type": "text", "required": true, "in": "path" },
+        { "id": "fields", "label": "Fields", "type": "text", "defaultValue": "id,media_product_type,media_type,permalink,text,timestamp,username", "in": "query" }
+      ]
+    },
+    {
+      "id": "list_replies",
+      "label": "List replies",
+      "method": "GET",
+      "path": "/{thread_id}/replies",
+      "fields": [
+        { "id": "thread_id", "label": "Thread ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_conversation",
+      "label": "List conversation",
+      "method": "GET",
+      "path": "/{thread_id}/conversation",
+      "fields": [
+        { "id": "thread_id", "label": "Thread ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "insights",
+      "label": "Get insights",
+      "method": "GET",
+      "path": "/{thread_id}/insights",
+      "fields": [
+        { "id": "thread_id", "label": "Thread ID", "type": "text", "required": true, "in": "path" },
+        { "id": "metric", "label": "Metric", "type": "text", "in": "query" }
+      ]
+    }
+  ]
+}

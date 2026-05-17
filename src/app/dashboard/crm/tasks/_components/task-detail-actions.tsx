@@ -1,0 +1,80 @@
+'use client';
+
+/**
+ * <TaskDetailActions> — Complete · Delete.
+ */
+
+import * as React from 'react';
+import { useRouter } from 'next/navigation';
+import { CheckCircle2, Trash2 } from 'lucide-react';
+
+import { ZoruButton, useZoruToast } from '@/components/zoruui';
+import { ConfirmDialog } from '@/components/crm/confirm-dialog';
+import {
+    completeTask,
+    deleteTaskRust,
+} from '@/app/actions/crm-tasks-rust.actions';
+
+interface TaskDetailActionsProps {
+    taskId: string;
+    status?: string;
+}
+
+export function TaskDetailActions({ taskId, status }: TaskDetailActionsProps) {
+    const router = useRouter();
+    const { toast } = useZoruToast();
+    const [, startTransition] = React.useTransition();
+    const [deleteOpen, setDeleteOpen] = React.useState(false);
+
+    const handleComplete = () => {
+        startTransition(async () => {
+            const res = await completeTask(taskId);
+            if (res.success) {
+                toast({ title: 'Task completed' });
+                router.refresh();
+            } else {
+                toast({
+                    title: 'Complete failed',
+                    description: res.error,
+                    variant: 'destructive',
+                });
+            }
+        });
+    };
+
+    return (
+        <>
+            {status !== 'Completed' ? (
+                <ZoruButton variant="outline" onClick={handleComplete}>
+                    <CheckCircle2 className="mr-2 h-4 w-4" /> Complete
+                </ZoruButton>
+            ) : null}
+            <ZoruButton variant="outline" onClick={() => setDeleteOpen(true)}>
+                <Trash2 className="mr-2 h-4 w-4 text-destructive" /> Delete
+            </ZoruButton>
+
+            <ConfirmDialog
+                open={deleteOpen}
+                onOpenChange={setDeleteOpen}
+                title="Delete this task?"
+                description="The task and its checklist/attachments are removed permanently."
+                requireTyped="DELETE"
+                confirmLabel="Delete"
+                onConfirm={async () => {
+                    const res = await deleteTaskRust(taskId);
+                    if (res.success) {
+                        toast({ title: 'Task deleted' });
+                        router.push('/dashboard/crm/tasks');
+                    } else {
+                        toast({
+                            title: 'Delete failed',
+                            description: res.error,
+                            variant: 'destructive',
+                        });
+                        throw new Error(res.error ?? 'Failed');
+                    }
+                }}
+            />
+        </>
+    );
+}

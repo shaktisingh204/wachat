@@ -1,0 +1,45 @@
+{
+  "id": "n8n-help-scout",
+  "name": "Help Scout",
+  "description": "Consume Help Scout API",
+  "category": "Input",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "oauth2",
+    "credentialType": "oauth2"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "conversation_default",
+      "label": "List Conversation",
+      "method": "GET",
+      "path": "/conversation",
+      "fields": []
+    },
+    {
+      "id": "customer_default",
+      "label": "List Customer",
+      "method": "GET",
+      "path": "/customer",
+      "fields": []
+    },
+    {
+      "id": "mailbox_default",
+      "label": "List Mailbox",
+      "method": "GET",
+      "path": "/mailbox",
+      "fields": []
+    },
+    {
+      "id": "thread_default",
+      "label": "List Thread",
+      "method": "GET",
+      "path": "/thread",
+      "fields": []
+    }
+  ]
+}

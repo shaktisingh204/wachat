@@ -1,0 +1,23 @@
+{
+  "id": "dropbox-sign",
+  "name": "Dropbox Sign",
+  "description": "Dropbox Sign (formerly HelloSign) eSignature.",
+  "category": "Legal",
+  "iconName": "LuFileSignature",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": { "type": "basic", "credentialType": "dropbox_sign" },
+  "baseUrl": "https://api.hellosign.com/v3",
+  "endpoints": [
+    { "id": "send_signature_request", "label": "Send signature request", "method": "POST", "path": "/signature_request/send", "fields": [{ "id": "title", "type": "text", "required": true, "in": "body" }, { "id": "subject", "type": "text", "in": "body" }, { "id": "message", "type": "textarea", "in": "body" }, { "id": "signers", "type": "json", "required": true, "in": "body" }, { "id": "files", "type": "json", "in": "body" }] },
+    { "id": "get_signature_request", "label": "Get signature request", "method": "GET", "path": "/signature_request/{signature_request_id}", "fields": [{ "id": "signature_request_id", "type": "text", "required": true, "in": "path" }] },
+    { "id": "list_signature_requests", "label": "List signature requests", "method": "GET", "path": "/signature_request/list", "fields": [] },
+    { "id": "cancel_signature_request", "label": "Cancel signature request", "method": "POST", "path": "/signature_request/cancel/{signature_request_id}", "fields": [{ "id": "signature_request_id", "type": "text", "required": true, "in": "path" }] },
+    { "id": "remind_signature_request", "label": "Remind signature request", "method": "POST", "path": "/signature_request/remind/{signature_request_id}", "fields": [{ "id": "signature_request_id", "type": "text", "required": true, "in": "path" }, { "id": "email_address", "type": "text", "required": true, "in": "body" }] },
+    { "id": "send_with_template", "label": "Send with template", "method": "POST", "path": "/signature_request/send_with_template", "fields": [{ "id": "template_id", "type": "text", "required": true, "in": "body" }, { "id": "title", "type": "text", "in": "body" }, { "id": "signers", "type": "json", "required": true, "in": "body" }] },
+    { "id": "list_templates", "label": "List templates", "method": "GET", "path": "/template/list", "fields": [] },
+    { "id": "get_template", "label": "Get template", "method": "GET", "path": "/template/{template_id}", "fields": [{ "id": "template_id", "type": "text", "required": true, "in": "path" }] },
+    { "id": "create_embedded_signing_url", "label": "Create embedded signing URL", "method": "POST", "path": "/embedded/sign_url/{signature_id}", "fields": [{ "id": "signature_id", "type": "text", "required": true, "in": "path" }] }
+  ]
+}

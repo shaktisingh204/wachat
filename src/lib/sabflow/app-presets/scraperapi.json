@@ -1,0 +1,57 @@
+{
+  "id": "scraperapi",
+  "name": "ScraperAPI",
+  "description": "ScraperAPI proxy and rendering scraping service with async jobs.",
+  "category": "Scraping",
+  "iconName": "LuSearch",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "query_token",
+    "credentialType": "scraperapi",
+    "queryParam": "api_key"
+  },
+  "baseUrl": "https://api.scraperapi.com",
+  "endpoints": [
+    {
+      "id": "scrape",
+      "label": "Scrape URL",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        { "id": "url", "label": "URL", "type": "text", "required": true, "in": "query" },
+        { "id": "render", "label": "Render JS", "type": "toggle", "in": "query" },
+        { "id": "country_code", "label": "Country code", "type": "text", "in": "query" },
+        { "id": "premium", "label": "Premium", "type": "toggle", "in": "query" },
+        { "id": "session_number", "label": "Session number", "type": "number", "in": "query" }
+      ]
+    },
+    {
+      "id": "async_scrape",
+      "label": "Async scrape",
+      "method": "POST",
+      "path": "/jobs",
+      "fields": [
+        { "id": "url", "label": "URL", "type": "text", "required": true, "in": "body" },
+        { "id": "apiParams", "label": "API params JSON", "type": "json", "in": "body" }
+      ]
+    },
+    {
+      "id": "get_async_status",
+      "label": "Get async status",
+      "method": "GET",
+      "path": "/jobs/{id}",
+      "fields": [
+        { "id": "id", "label": "Job ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "account_info",
+      "label": "Account info",
+      "method": "GET",
+      "path": "/account",
+      "fields": []
+    }
+  ]
+}

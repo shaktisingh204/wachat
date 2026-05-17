@@ -1,0 +1,40 @@
+# Read-side analytics over `apiRequestLog`. Powers /dashboard/api/usage
+# and /dashboard/api/logs as well as the public `/v1/usage/*` API surface.
+#
+# Writes come from the Next.js `withApiV1` wrapper via the
+# `logApiRequest` helper in `src/lib/api-platform/usage-log.ts`. This
+# crate is read-only.
+[package]
+name = "developer-api-usage"
+version = "0.1.0"
+edition = "2024"
+description = "Read-side analytics over the SabNode developer-API request log: per-key counters, top endpoints, error rate, latency percentiles, log explorer."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "developer_api_usage"
+path = "src/lib.rs"
+
+[dependencies]
+axum = { version = "0.8", default-features = false, features = ["json", "http1", "tokio", "macros", "query"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+bson = { version = "2", features = ["chrono-0_4"] }
+mongodb = { version = "3" }
+
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+futures = "0.3"
+
+tracing = "0.1"
+anyhow = "1"
+
+sabnode-common = { path = "../common" }
+sabnode-auth = { path = "../auth" }
+sabnode-db = { path = "../db" }
+
+[lints]
+workspace = true

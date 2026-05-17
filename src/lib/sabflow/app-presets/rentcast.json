@@ -1,0 +1,22 @@
+{
+  "id": "rentcast",
+  "name": "Rentcast",
+  "description": "Real estate AVM + rental data.",
+  "category": "Real estate",
+  "iconName": "LuHome",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": { "type": "header", "credentialType": "rentcast", "header": "X-Api-Key" },
+  "baseUrl": "https://api.rentcast.io/v1",
+  "endpoints": [
+    { "id": "properties", "label": "Properties", "method": "GET", "path": "/properties", "fields": [{ "id": "address", "type": "text", "in": "query" }, { "id": "city", "type": "text", "in": "query" }, { "id": "state", "type": "text", "in": "query" }, { "id": "zipCode", "type": "text", "in": "query" }] },
+    { "id": "property_records_by_address", "label": "Property records by address", "method": "GET", "path": "/properties", "fields": [{ "id": "address", "type": "text", "required": true, "in": "query" }] },
+    { "id": "value_estimate", "label": "AVM value estimate", "method": "GET", "path": "/avm/value", "fields": [{ "id": "address", "type": "text", "required": true, "in": "query" }] },
+    { "id": "rent_estimate", "label": "AVM rent estimate (long-term)", "method": "GET", "path": "/avm/rent/long-term", "fields": [{ "id": "address", "type": "text", "required": true, "in": "query" }] },
+    { "id": "listings_sale", "label": "Listings for sale", "method": "GET", "path": "/listings/sale", "fields": [{ "id": "city", "type": "text", "in": "query" }, { "id": "state", "type": "text", "in": "query" }, { "id": "zipCode", "type": "text", "in": "query" }, { "id": "status", "type": "text", "in": "query" }] },
+    { "id": "listings_rental", "label": "Rental listings (long-term)", "method": "GET", "path": "/listings/rental/long-term", "fields": [{ "id": "city", "type": "text", "in": "query" }, { "id": "state", "type": "text", "in": "query" }, { "id": "zipCode", "type": "text", "in": "query" }, { "id": "status", "type": "text", "in": "query" }] },
+    { "id": "markets_statistics", "label": "Market statistics", "method": "GET", "path": "/markets", "fields": [{ "id": "zipCode", "type": "text", "required": true, "in": "query" }, { "id": "dataType", "type": "text", "in": "query" }] },
+    { "id": "properties_random", "label": "Random properties", "method": "GET", "path": "/properties/random", "fields": [{ "id": "limit", "type": "number", "defaultValue": 10, "in": "query" }] }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "id": "tomorrow-io",
+  "name": "Tomorrow.io",
+  "description": "Tomorrow.io weather + climate timelines.",
+  "category": "Weather",
+  "iconName": "LuCloud",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": { "type": "query_token", "credentialType": "tomorrow_io", "queryParam": "apikey" },
+  "baseUrl": "https://api.tomorrow.io/v4",
+  "endpoints": [
+    { "id": "realtime", "label": "Realtime", "method": "GET", "path": "/weather/realtime", "fields": [{ "id": "location", "type": "text", "required": true, "in": "query" }, { "id": "units", "type": "text", "in": "query" }] },
+    { "id": "forecast", "label": "Forecast", "method": "GET", "path": "/weather/forecast", "fields": [{ "id": "location", "type": "text", "required": true, "in": "query" }, { "id": "timesteps", "type": "text", "in": "query" }, { "id": "units", "type": "text", "in": "query" }] },
+    { "id": "history", "label": "Recent history", "method": "GET", "path": "/weather/history/recent", "fields": [{ "id": "location", "type": "text", "required": true, "in": "query" }, { "id": "fields", "type": "text", "in": "query" }, { "id": "timesteps", "type": "text", "in": "query" }, { "id": "units", "type": "text", "in": "query" }] },
+    { "id": "timelines", "label": "Timelines (POST)", "method": "POST", "path": "/timelines", "fields": [{ "id": "location", "type": "text", "required": true, "in": "body" }, { "id": "fields", "type": "json", "required": true, "in": "body" }, { "id": "timesteps", "type": "json", "required": true, "in": "body" }, { "id": "startTime", "type": "text", "in": "body" }, { "id": "endTime", "type": "text", "in": "body" }, { "id": "units", "type": "text", "in": "body" }] },
+    { "id": "route", "label": "Route weather", "method": "POST", "path": "/route", "fields": [{ "id": "route", "type": "json", "required": true, "in": "body" }, { "id": "units", "type": "text", "in": "body" }] },
+    { "id": "events", "label": "Events", "method": "GET", "path": "/events", "fields": [{ "id": "location", "type": "text", "required": true, "in": "query" }, { "id": "insights", "type": "text", "in": "query" }] }
+  ]
+}

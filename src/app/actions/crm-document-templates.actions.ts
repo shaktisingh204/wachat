@@ -21,6 +21,46 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
 import { requirePermission } from '@/lib/rbac-server';
 import { writeAuditEntry } from '@/lib/audit-log';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+import {
+    crmDocumentTemplatesApi,
+    type CrmDocumentTemplateDoc as RustCrmDocumentTemplateDoc,
+} from '@/lib/rust-client/crm-document-templates';
+import { RustApiError } from '@/lib/rust-client/fetcher';
+
+function useRustCrm(): boolean {
+    return process.env.USE_RUST_CRM === 'true';
+}
+
+const ENTITY_KIND = 'document_template';
+
+/**
+ * Coerces a Rust-shaped template doc (variables as objects) into the
+ * legacy TS shape (variables as bare strings). Existing callers expect
+ * `variables: string[]`; the rust path projects each `{ name, ... }` to
+ * its `name`.
+ */
+function rustToLegacy(
+    doc: RustCrmDocumentTemplateDoc,
+): CrmDocumentTemplateDoc {
+    return {
+        _id: String(doc._id),
+        userId: doc.userId,
+        name: doc.name,
+        category: doc.category,
+        body: doc.body,
+        variables: Array.isArray(doc.variables)
+            ? doc.variables
+                  .map((v) => (typeof v === 'string' ? v : v?.name))
+                  .filter((v): v is string => typeof v === 'string' && v.length > 0)
+            : [],
+        templateFileUrl: doc.templateFileUrl,
+        isActive: doc.isActive === true,
+        status: (doc.status ?? 'draft') as CrmDocumentTemplateStatus,
+        createdAt: doc.createdAt,
+        updatedAt: doc.updatedAt,
+    };
+}
 
 /* ─── Types ──────────────────────────────────────────────────────────── */
 
@@ -127,6 +167,31 @@ export async function getDocumentTemplates(
     const guard = await requirePermission('crm_document_template', 'view');
     if (!guard.ok) return empty;
 
+    if (useRustCrm()) {
+        try {
+            const res = await crmDocumentTemplatesApi.list({
+                q: filters?.q,
+                status: filters?.status,
+                category: filters?.category,
+                limit: filters?.limit,
+            });
+            return {
+                items: (res.items ?? []).map(rustToLegacy),
+            };
+        } catch (e) {
+            console.error(
+                '[getDocumentTemplates] rust path failed; falling back:',
+                e,
+            );
+            recordRustFallback({
+                entity: ENTITY_KIND,
+                op: 'list',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+        }
+    }
+
     try {
         const { db } = await connectToDatabase();
         const filter: Record<string, unknown> = {
@@ -167,6 +232,24 @@ export async function getDocumentTemplateById(
 
     const guard = await requirePermission('crm_document_template', 'view');
     if (!guard.ok) return null;
+
+    if (useRustCrm()) {
+        try {
+            const doc = await crmDocumentTemplatesApi.getById(id);
+            return rustToLegacy(doc);
+        } catch (e) {
+            console.error(
+                '[getDocumentTemplateById] rust path failed; falling back:',
+                e,
+            );
+            recordRustFallback({
+                entity: ENTITY_KIND,
+                op: 'get',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+        }
+    }
 
     try {
         const { db } = await connectToDatabase();

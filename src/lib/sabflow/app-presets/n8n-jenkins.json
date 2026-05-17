@@ -1,0 +1,241 @@
+{
+  "id": "n8n-jenkins",
+  "name": "Jenkins",
+  "description": "Consume Jenkins API",
+  "category": "Output",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "job_copy",
+      "label": "Copy Job",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "job",
+          "label": "Job Name or ID",
+          "type": "select",
+          "in": "query",
+          "required": true,
+          "description": "Name of the job. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>."
+        },
+        {
+          "id": "newJob",
+          "label": "New Job Name",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "Name of the new Jenkins job"
+        }
+      ]
+    },
+    {
+      "id": "job_create",
+      "label": "Create Job",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "newJob",
+          "label": "New Job Name",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "Name of the new Jenkins job"
+        },
+        {
+          "id": "xml",
+          "label": "XML",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "XML of Jenkins config"
+        },
+        {
+          "id": "createNotice",
+          "label": "To get the XML of an existing job, add ‘config.xml’ to the end of the job URL",
+          "type": "text",
+          "in": "query"
+        }
+      ]
+    },
+    {
+      "id": "job_trigger",
+      "label": "Trigger Job",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "job",
+          "label": "Job Name or ID",
+          "type": "select",
+          "in": "query",
+          "required": true,
+          "description": "Name of the job. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>."
+        }
+      ]
+    },
+    {
+      "id": "job_trigger_params",
+      "label": "Trigger with Parameters Job",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "triggerParamsNotice",
+          "label": "Make sure the job is setup to support triggering with parameters. <a href=\"https://wiki.jenkins.io/display/JENKINS/Parameterized+Build\" target=\"_blank\">More info</a>",
+          "type": "text",
+          "in": "query"
+        },
+        {
+          "id": "job",
+          "label": "Job Name or ID",
+          "type": "select",
+          "in": "query",
+          "required": true,
+          "description": "Name of the job. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>."
+        },
+        {
+          "id": "param",
+          "label": "Parameters",
+          "type": "json",
+          "in": "query",
+          "required": true,
+          "placeholder": "Add Parameter",
+          "description": "Parameters for Jenkins job"
+        }
+      ]
+    },
+    {
+      "id": "instance_cancel_quiet_down",
+      "label": "Cancel Quiet Down Instance",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "instanceNotice",
+          "label": "Instance operation can shutdown Jenkins instance and make it unresponsive. Some commands may not be available depending on instance implementation.",
+          "type": "text",
+          "in": "query"
+        }
+      ]
+    },
+    {
+      "id": "instance_quiet_down",
+      "label": "Quiet Down Instance",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "reason",
+          "label": "Reason",
+          "type": "text",
+          "in": "query",
+          "description": "Freeform reason for quiet down mode"
+        },
+        {
+          "id": "instanceNotice",
+          "label": "Instance operation can shutdown Jenkins instance and make it unresponsive. Some commands may not be available depending on instance implementation.",
+          "type": "text",
+          "in": "query"
+        }
+      ]
+    },
+    {
+      "id": "instance_restart",
+      "label": "Restart Instance",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "instanceNotice",
+          "label": "Instance operation can shutdown Jenkins instance and make it unresponsive. Some commands may not be available depending on instance implementation.",
+          "type": "text",
+          "in": "query"
+        }
+      ]
+    },
+    {
+      "id": "instance_safe_restart",
+      "label": "Safely Restart Instance",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "instanceNotice",
+          "label": "Instance operation can shutdown Jenkins instance and make it unresponsive. Some commands may not be available depending on instance implementation.",
+          "type": "text",
+          "in": "query"
+        }
+      ]
+    },
+    {
+      "id": "instance_safe_exit",
+      "label": "Safely Shutdown Instance",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "instanceNotice",
+          "label": "Instance operation can shutdown Jenkins instance and make it unresponsive. Some commands may not be available depending on instance implementation.",
+          "type": "text",
+          "in": "query"
+        }
+      ]
+    },
+    {
+      "id": "instance_exit",
+      "label": "Shutdown Instance",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "instanceNotice",
+          "label": "Instance operation can shutdown Jenkins instance and make it unresponsive. Some commands may not be available depending on instance implementation.",
+          "type": "text",
+          "in": "query"
+        }
+      ]
+    },
+    {
+      "id": "build_get_all",
+      "label": "Get Many Build",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "job",
+          "label": "Job Name or ID",
+          "type": "select",
+          "in": "query",
+          "required": true,
+          "description": "Name of the job. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>."
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "in": "query",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "in": "query",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ]
+    }
+  ]
+}

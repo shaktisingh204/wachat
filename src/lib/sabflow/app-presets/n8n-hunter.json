@@ -1,0 +1,113 @@
+{
+  "id": "n8n-hunter",
+  "name": "Hunter",
+  "description": "Consume Hunter API",
+  "category": "Output",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "default_domain_search",
+      "label": "Domain Search",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "Domain name from which you want to find the email addresses. For example, \"stripe.com\"."
+        },
+        {
+          "id": "onlyEmails",
+          "label": "Only Emails",
+          "type": "toggle",
+          "in": "query",
+          "description": "Whether to return only the found emails",
+          "defaultValue": true
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "in": "query",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "in": "query",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Filter"
+        }
+      ]
+    },
+    {
+      "id": "default_email_finder",
+      "label": "Email Finder",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "Domain name from which you want to find the email addresses. For example, \"stripe.com\"."
+        },
+        {
+          "id": "firstname",
+          "label": "First Name",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The person's first name. It doesn't need to be in lowercase."
+        },
+        {
+          "id": "lastname",
+          "label": "Last Name",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "description": "The person's last name. It doesn't need to be in lowercase."
+        }
+      ]
+    },
+    {
+      "id": "default_email_verifier",
+      "label": "Email Verifier",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "in": "query",
+          "required": true,
+          "placeholder": "name@email.com",
+          "description": "The email address you want to verify"
+        }
+      ]
+    }
+  ]
+}

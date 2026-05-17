@@ -1,0 +1,73 @@
+{
+  "id": "n8n-stripe",
+  "name": "Stripe",
+  "description": "Consume the Stripe API",
+  "category": "Transform",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "balance_default",
+      "label": "List Balance",
+      "method": "GET",
+      "path": "/balance",
+      "fields": []
+    },
+    {
+      "id": "charge_default",
+      "label": "List Charge",
+      "method": "GET",
+      "path": "/charge",
+      "fields": []
+    },
+    {
+      "id": "coupon_default",
+      "label": "List Coupon",
+      "method": "GET",
+      "path": "/coupon",
+      "fields": []
+    },
+    {
+      "id": "customer_default",
+      "label": "List Customer",
+      "method": "GET",
+      "path": "/customer",
+      "fields": []
+    },
+    {
+      "id": "customer_card_default",
+      "label": "List CustomerCard",
+      "method": "GET",
+      "path": "/customerCard",
+      "fields": []
+    },
+    {
+      "id": "meter_event_default",
+      "label": "List MeterEvent",
+      "method": "GET",
+      "path": "/meterEvent",
+      "fields": []
+    },
+    {
+      "id": "source_default",
+      "label": "List Source",
+      "method": "GET",
+      "path": "/source",
+      "fields": []
+    },
+    {
+      "id": "token_default",
+      "label": "List Token",
+      "method": "GET",
+      "path": "/token",
+      "fields": []
+    }
+  ]
+}

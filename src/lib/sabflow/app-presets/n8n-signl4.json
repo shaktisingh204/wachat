@@ -1,0 +1,54 @@
+{
+  "id": "n8n-signl4",
+  "name": "SIGNL4",
+  "description": "Consume SIGNL4 API",
+  "category": "Transform",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "alert_send",
+      "label": "Send Alert",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "message",
+          "label": "Message",
+          "type": "text",
+          "in": "query",
+          "description": "A more detailed description for the alert"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Field"
+        }
+      ]
+    },
+    {
+      "id": "alert_resolve",
+      "label": "Resolve Alert",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "externalId",
+          "label": "External ID",
+          "type": "text",
+          "in": "query",
+          "description": "If the event originates from a record in a 3rd party system, use this parameter to pass the unique ID of that record. That ID will be communicated in outbound webhook notifications from SIGNL4, which is great for correlation/synchronization of that record with the alert. If you resolve / close an alert you must use the same External ID as in the original alert."
+        }
+      ]
+    }
+  ]
+}

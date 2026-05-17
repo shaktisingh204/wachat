@@ -1,0 +1,169 @@
+{
+  "id": "n8n-aws-transcribe",
+  "name": "AWS Transcribe",
+  "description": "Sends data to AWS Transcribe",
+  "category": "Output",
+  "iconName": "LuPackage",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "draft",
+  "auth": {
+    "type": "header",
+    "credentialType": "http_header_auth"
+  },
+  "baseUrl": "",
+  "endpoints": [
+    {
+      "id": "transcription_job_create",
+      "label": "Create TranscriptionJob",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "transcriptionJobName",
+          "label": "Job Name",
+          "type": "text",
+          "in": "query",
+          "description": "The name of the job"
+        },
+        {
+          "id": "mediaFileUri",
+          "label": "Media File URI",
+          "type": "text",
+          "in": "query",
+          "description": "The S3 object location of the input media file"
+        },
+        {
+          "id": "detectLanguage",
+          "label": "Detect Language",
+          "type": "toggle",
+          "in": "query",
+          "description": "Whether to set this field to true to enable automatic language identification",
+          "defaultValue": false
+        },
+        {
+          "id": "languageCode",
+          "label": "Language",
+          "type": "select",
+          "in": "query",
+          "description": "Language used in the input media file",
+          "defaultValue": "en-US",
+          "options": [
+            {
+              "value": "en-US",
+              "label": "American English"
+            },
+            {
+              "value": "en-GB",
+              "label": "British English"
+            },
+            {
+              "value": "de-DE",
+              "label": "German"
+            },
+            {
+              "value": "en-IN",
+              "label": "Indian English"
+            },
+            {
+              "value": "en-IE",
+              "label": "Irish English"
+            },
+            {
+              "value": "ru-RU",
+              "label": "Russian"
+            },
+            {
+              "value": "es-ES",
+              "label": "Spanish"
+            }
+          ]
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add option"
+        }
+      ]
+    },
+    {
+      "id": "transcription_job_delete",
+      "label": "Delete TranscriptionJob",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "transcriptionJobName",
+          "label": "Job Name",
+          "type": "text",
+          "in": "query",
+          "description": "The name of the job"
+        }
+      ]
+    },
+    {
+      "id": "transcription_job_get",
+      "label": "Get TranscriptionJob",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "transcriptionJobName",
+          "label": "Job Name",
+          "type": "text",
+          "in": "query",
+          "description": "The name of the job"
+        },
+        {
+          "id": "returnTranscript",
+          "label": "Return Transcript",
+          "type": "toggle",
+          "in": "query",
+          "description": "By default, the response only contains metadata about the transcript. Enable this option to retrieve the transcript instead.",
+          "defaultValue": true
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "in": "query",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        }
+      ]
+    },
+    {
+      "id": "transcription_job_get_all",
+      "label": "Get Many TranscriptionJob",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "in": "query",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "in": "query",
+          "description": "Max number of results to return",
+          "defaultValue": 20
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "in": "query",
+          "placeholder": "Add Filter"
+        }
+      ]
+    }
+  ]
+}

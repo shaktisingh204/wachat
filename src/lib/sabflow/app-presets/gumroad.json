@@ -1,0 +1,106 @@
+{
+  "id": "gumroad",
+  "name": "Gumroad",
+  "description": "Gumroad creator commerce API: products, sales, subscribers, and license verification.",
+  "category": "Commerce",
+  "iconName": "LuShoppingCart",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": {
+    "type": "query_token",
+    "queryParam": "access_token",
+    "credentialType": "gumroad"
+  },
+  "baseUrl": "https://api.gumroad.com/v2",
+  "endpoints": [
+    {
+      "id": "list_products",
+      "label": "List Products",
+      "method": "GET",
+      "path": "/products",
+      "fields": []
+    },
+    {
+      "id": "get_product",
+      "label": "Get Product",
+      "method": "GET",
+      "path": "/products/{product_id}",
+      "fields": [
+        { "id": "product_id", "label": "Product ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_sales",
+      "label": "List Sales",
+      "method": "GET",
+      "path": "/sales",
+      "fields": [
+        { "id": "after", "label": "After (date)", "type": "text", "in": "query" },
+        { "id": "before", "label": "Before (date)", "type": "text", "in": "query" },
+        { "id": "product_id", "label": "Product ID", "type": "text", "in": "query" },
+        { "id": "email", "label": "Email", "type": "text", "in": "query" },
+        { "id": "page_key", "label": "Page Key", "type": "text", "in": "query" }
+      ]
+    },
+    {
+      "id": "get_sale",
+      "label": "Get Sale",
+      "method": "GET",
+      "path": "/sales/{id}",
+      "fields": [
+        { "id": "id", "label": "Sale ID", "type": "text", "required": true, "in": "path" }
+      ]
+    },
+    {
+      "id": "list_subscribers",
+      "label": "List Product Subscribers",
+      "method": "GET",
+      "path": "/products/{product_id}/subscribers",
+      "fields": [
+        { "id": "product_id", "label": "Product ID", "type": "text", "required": true, "in": "path" },
+        { "id": "email", "label": "Email Filter", "type": "text", "in": "query" }
+      ]
+    },
+    {
+      "id": "verify_license",
+      "label": "Verify License",
+      "method": "POST",
+      "path": "/licenses/verify",
+      "fields": [
+        { "id": "product_id", "label": "Product ID", "type": "text", "required": true, "in": "body" },
+        { "id": "license_key", "label": "License Key", "type": "text", "required": true, "in": "body" },
+        { "id": "increment_uses_count", "label": "Increment Uses Count", "type": "toggle", "in": "body" }
+      ]
+    },
+    {
+      "id": "disable_license",
+      "label": "Disable License",
+      "method": "PUT",
+      "path": "/licenses/disable",
+      "fields": [
+        { "id": "product_id", "label": "Product ID", "type": "text", "required": true, "in": "body" },
+        { "id": "license_key", "label": "License Key", "type": "text", "required": true, "in": "body" }
+      ]
+    },
+    {
+      "id": "list_resource_subscriptions",
+      "label": "List Resource Subscriptions (Webhooks)",
+      "method": "GET",
+      "path": "/resource_subscriptions",
+      "fields": [
+        { "id": "resource_name", "label": "Resource Name", "type": "text", "in": "query" }
+      ]
+    },
+    {
+      "id": "create_resource_subscription",
+      "label": "Create Resource Subscription (Webhook)",
+      "method": "PUT",
+      "path": "/resource_subscriptions",
+      "fields": [
+        { "id": "resource_name", "label": "Resource Name", "type": "text", "required": true, "in": "body" },
+        { "id": "post_url", "label": "Post URL", "type": "text", "required": true, "in": "body" }
+      ]
+    }
+  ]
+}

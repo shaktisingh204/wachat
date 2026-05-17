@@ -1,0 +1,20 @@
+{
+  "id": "openweather",
+  "name": "OpenWeather",
+  "description": "OpenWeatherMap current weather, forecast, air pollution.",
+  "category": "Weather",
+  "iconName": "LuCloud",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": { "type": "query_token", "credentialType": "openweather", "queryParam": "appid" },
+  "baseUrl": "https://api.openweathermap.org/data/2.5",
+  "endpoints": [
+    { "id": "current_weather", "label": "Current weather", "method": "GET", "path": "/weather", "fields": [{ "id": "lat", "type": "number", "in": "query" }, { "id": "lon", "type": "number", "in": "query" }, { "id": "q", "type": "text", "in": "query" }, { "id": "units", "type": "text", "in": "query" }, { "id": "lang", "type": "text", "in": "query" }] },
+    { "id": "forecast_5day", "label": "5-day forecast", "method": "GET", "path": "/forecast", "fields": [{ "id": "lat", "type": "number", "in": "query" }, { "id": "lon", "type": "number", "in": "query" }, { "id": "q", "type": "text", "in": "query" }, { "id": "units", "type": "text", "in": "query" }, { "id": "lang", "type": "text", "in": "query" }, { "id": "cnt", "type": "number", "in": "query" }] },
+    { "id": "onecall", "label": "One Call 3.0", "method": "GET", "path": "https://api.openweathermap.org/data/3.0/onecall", "fields": [{ "id": "lat", "type": "number", "required": true, "in": "query" }, { "id": "lon", "type": "number", "required": true, "in": "query" }, { "id": "exclude", "type": "text", "in": "query" }, { "id": "units", "type": "text", "in": "query" }, { "id": "lang", "type": "text", "in": "query" }] },
+    { "id": "air_pollution_current", "label": "Air pollution (current)", "method": "GET", "path": "/air_pollution", "fields": [{ "id": "lat", "type": "number", "required": true, "in": "query" }, { "id": "lon", "type": "number", "required": true, "in": "query" }] },
+    { "id": "air_pollution_forecast", "label": "Air pollution (forecast)", "method": "GET", "path": "/air_pollution/forecast", "fields": [{ "id": "lat", "type": "number", "required": true, "in": "query" }, { "id": "lon", "type": "number", "required": true, "in": "query" }] },
+    { "id": "geocoding", "label": "Geocoding (direct)", "method": "GET", "path": "https://api.openweathermap.org/geo/1.0/direct", "fields": [{ "id": "q", "type": "text", "required": true, "in": "query" }, { "id": "limit", "type": "number", "defaultValue": 5, "in": "query" }] }
+  ]
+}

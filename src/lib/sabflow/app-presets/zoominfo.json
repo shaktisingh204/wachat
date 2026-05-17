@@ -1,0 +1,21 @@
+{
+  "id": "zoominfo",
+  "name": "ZoomInfo",
+  "description": "B2B contact intelligence platform.",
+  "category": "Sales",
+  "iconName": "LuSearch",
+  "version": 1,
+  "lastVerified": "2026-05-17",
+  "status": "verified",
+  "auth": { "type": "bearer", "credentialType": "zoominfo" },
+  "baseUrl": "https://api.zoominfo.com",
+  "endpoints": [
+    { "id": "authenticate", "label": "Authenticate", "method": "POST", "path": "/authenticate", "fields": [{ "id": "username", "type": "text", "required": true, "in": "body" }, { "id": "password", "type": "password", "required": true, "in": "body" }, { "id": "privateKey", "type": "textarea", "in": "body" }] },
+    { "id": "enrich_contact", "label": "Enrich contact", "method": "POST", "path": "/enrich/contact", "fields": [{ "id": "matchPersonInput", "type": "json", "required": true, "in": "body", "defaultValue": [{ "firstName": "", "lastName": "", "companyName": "" }] }, { "id": "outputFields", "type": "json", "required": true, "in": "body", "defaultValue": [] }] },
+    { "id": "enrich_company", "label": "Enrich company", "method": "POST", "path": "/enrich/company", "fields": [{ "id": "matchCompanyInput", "type": "json", "required": true, "in": "body", "defaultValue": [{ "companyName": "", "domain": "" }] }, { "id": "outputFields", "type": "json", "required": true, "in": "body", "defaultValue": [] }] },
+    { "id": "search_contact", "label": "Search contact", "method": "POST", "path": "/search/contact", "fields": [{ "id": "jobTitle", "type": "text", "in": "body" }, { "id": "company", "type": "text", "in": "body" }, { "id": "page", "type": "number", "in": "body" }, { "id": "rpp", "type": "number", "in": "body" }] },
+    { "id": "search_company", "label": "Search company", "method": "POST", "path": "/search/company", "fields": [{ "id": "companyName", "type": "text", "in": "body" }, { "id": "domain", "type": "text", "in": "body" }, { "id": "page", "type": "number", "in": "body" }, { "id": "rpp", "type": "number", "in": "body" }] },
+    { "id": "usage", "label": "Usage", "method": "GET", "path": "/lookup/usage", "fields": [] },
+    { "id": "output_fields_contact", "label": "Output fields (contact)", "method": "GET", "path": "/lookup/outputfields/contact", "fields": [] }
+  ]
+}
