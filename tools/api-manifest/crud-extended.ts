@@ -212,14 +212,23 @@ export function crudExtendedResource(opts: CrudExtendedOptions): EndpointSpec[] 
     );
   }
 
-  /* ── Sub-resources: notes / attachments / comments / etc. ──────────── */
+  /* ── Sub-resources: notes / attachments / comments / etc. ────────────
+   *
+   * Skip the sub-resource entirely when its path segment matches the
+   * parent resource's name — Next.js rejects two same-name slugs in one
+   * route (e.g. `/tags/[tagId]/tags/[tagId]`), and emitting
+   * `/tags/[tagId]/tags` is semantically meaningless anyway (tags on a
+   * tag). Also auto-deconflict the sub-id-param when it collides with
+   * the parent idParam by prefixing with `sub`. */
   const sub = (
     key: CrudExtendedOptions['exclude'] extends ReadonlyArray<infer T> ? T : never,
     seg: string,
     label: string,
-    subIdParam: string,
+    subIdParamRaw: string,
   ): void => {
     if (exclude.has(key)) return;
+    if (seg === opts.resource) return; // self-collision, skip
+    const subIdParam = subIdParamRaw === idParam ? `sub${subIdParamRaw[0].toUpperCase()}${subIdParamRaw.slice(1)}` : subIdParamRaw;
     out.push(
       endpoint(opts, 'list', `${idPath}/${seg}`, `${rustIdPath}/${seg}`, 'GET', opts.scopeRead, `List ${label} on a ${singular(display)}`, {
         pathParams: [pathParam],
