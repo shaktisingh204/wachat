@@ -86,6 +86,8 @@ export const globalModules = [
 
     // CRM - Tax Reports
     'crm_gstr1', 'crm_gstr2b',
+    // CRM - Tax: India MSMED Act §6.10 (45-day MSME payment alerts) + unified GST
+    'crm_msme', 'crm_gst',
 
     // CRM - Settings
     'crm_settings', 'crm_currency',
@@ -153,7 +155,7 @@ export const moduleCategories = {
     'CRM Finance': ['crm_budget', 'crm_loan', 'crm_petty_cash', 'crm_payment_account', 'crm_time_log'],
     'CRM Cross-cutting': ['crm_booking', 'crm_fixed_asset', 'crm_saved_view'],
     'CRM Support': ['crm_ticket', 'crm_agent_group', 'crm_ticket_group'],
-    'CRM Tax': ['crm_gstr1', 'crm_gstr2b'],
+    'CRM Tax': ['crm_gstr1', 'crm_gstr2b', 'crm_msme', 'crm_gst'],
     'CRM Settings': ['crm_settings', 'crm_currency', 'crm_portal_user', 'crm_integration', 'crm_email_template', 'crm_custom_field'],
     'Team': ['team_users', 'team_roles', 'team_tasks', 'team_chat'],
     'Facebook': ['facebook_dashboard', 'facebook_posts', 'facebook_scheduled', 'facebook_live', 'facebook_randomizer', 'facebook_messages', 'facebook_kanban', 'facebook_automation', 'facebook_shops', 'facebook_products', 'facebook_shop_setup', 'facebook_orders'],

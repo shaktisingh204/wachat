@@ -29,3 +29,5 @@ import './newsletter-signup';
 import './customer-feedback-survey';
 import './appointment-scheduler';
 import './support-escalation';
+// Step 35 — second seed-pack (10 more templates → total of 20).
+import './seed-pack-2';

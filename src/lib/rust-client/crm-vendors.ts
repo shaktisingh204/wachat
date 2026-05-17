@@ -59,6 +59,17 @@ export interface CrmVendorDoc {
 
     attachments?: string[];
 
+    /**
+     * MSME / IT §43B(h) compliance fields — see §6.10 of
+     * CRM_REBUILD_PLAN.md and `src/lib/india-tax/msme-45-day.ts`.
+     * Additive: round-tripped through the Rust BFF until the DTO catches
+     * up; legacy vendor docs without these read as non-MSME.
+     */
+    isMsme?: boolean;
+    udyamRegistrationNumber?: string;
+    msmeCategory?: 'Micro' | 'Small' | 'Medium';
+    msmePaymentTermsDays?: number;
+
     createdAt: string;
     updatedAt?: string;
 }
@@ -90,6 +101,11 @@ export interface CrmVendorCreateInput {
     showEmailInInvoice?: boolean;
     showPhoneInInvoice?: boolean;
     attachments?: string[];
+    /** MSME compliance — see CrmVendorDoc. */
+    isMsme?: boolean;
+    udyamRegistrationNumber?: string;
+    msmeCategory?: 'Micro' | 'Small' | 'Medium';
+    msmePaymentTermsDays?: number;
 }
 
 /**

@@ -1430,6 +1430,13 @@ export type SabFlowDoc = {
    * collection — when null/undefined the flow is at the workspace root.
    */
   folderId?: string;
+  /**
+   * Monotonically-increasing revision counter for optimistic locking.
+   * Step 34: every successful save bumps this by 1.  Clients pass
+   * `expectedVersion` on save; mismatch → 409 with the server snapshot
+   * so the editor can prompt a reload instead of silently overwriting.
+   */
+  version?: number;
   createdAt: Date;
   updatedAt: Date;
 };

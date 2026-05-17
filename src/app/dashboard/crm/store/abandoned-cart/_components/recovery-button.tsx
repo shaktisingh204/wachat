@@ -1,0 +1,47 @@
+'use client';
+
+/**
+ * Recovery-email dispatcher — small client island that calls
+ * `dispatchRecoveryEmail` and shows a toast.
+ *
+ * The actual mail dispatch is stubbed in the action (see structured log).
+ */
+
+import { useTransition } from 'react';
+import { Send } from 'lucide-react';
+
+import { ZoruButton, useZoruToast } from '@/components/zoruui';
+import { dispatchRecoveryEmail } from '@/app/actions/crm-store.actions';
+
+export function RecoveryButton({ cartId }: { cartId: string }) {
+    const { toast } = useZoruToast();
+    const [pending, startTransition] = useTransition();
+
+    return (
+        <ZoruButton
+            size="sm"
+            variant="outline"
+            disabled={pending}
+            onClick={() => {
+                startTransition(async () => {
+                    const res = await dispatchRecoveryEmail(cartId);
+                    if (res.ok) {
+                        toast({
+                            title: 'Recovery email queued',
+                            description: 'The mail worker will pick it up shortly.',
+                        });
+                    } else {
+                        toast({
+                            title: 'Error',
+                            description: res.error,
+                            variant: 'destructive',
+                        });
+                    }
+                });
+            }}
+        >
+            <Send className="h-3.5 w-3.5" />
+            Send recovery email
+        </ZoruButton>
+    );
+}

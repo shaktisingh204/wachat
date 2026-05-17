@@ -39,13 +39,69 @@ git pull origin main
 
 # ── 1) Next.js web -----------------------------------------------------
 step "Installing root deps (npm ci)"
-# Use ci when lockfile exists for reproducible builds; fall back to install otherwise.
 if [ -f package-lock.json ]; then
   npm ci --no-audit --no-fund
 else
   npm install --no-audit --no-fund
 fi
 
+# ── 1a) Developer-API codegen --------------------------------------------
+# Regenerates the 9k+ route handlers, the OpenAPI doc, the per-endpoint
+# docs pages, and the TS SDK from `tools/api-manifest/`. Must run before
+# `next build` because the generated files live under `src/` and Next.js
+# compiles them as part of the app.
+#
+# Also prunes orphan @generated route files (e.g. after a spec is
+# removed) so stale paths can't reappear and clash with current ones.
+step "Regenerating /api/v1 surface (api:gen)"
+npm run api:gen
+
+# ── 1b) Drift-tests + collision guard ----------------------------------
+# Cheap sanity checks: every manifest endpoint has a matching file, every
+# generated file maps back to a manifest entry, the OpenAPI doc is in
+# sync. Fails the deploy fast if codegen is broken.
+step "Running api drift tests"
+npm run api:test
+
+# Next.js 16 rejects same-name dynamic slugs in one path and ambiguous
+# sibling [a]/[b] patterns. Catch both classes BEFORE next build so the
+# error surfaces with context instead of a one-liner inside turbopack.
+step "Sanity-checking route patterns"
+python3 - <<'PY'
+import os, sys
+from collections import defaultdict
+
+root = "src/app"
+problems = []
+
+# A) repeated slug inside one path (e.g. /tags/[tagId]/tags/[tagId])
+for dirpath, _, _ in os.walk(root):
+    parts = dirpath.split(os.sep)
+    ids = [p for p in parts if p.startswith("[") and p.endswith("]")]
+    if len(ids) != len(set(ids)):
+        problems.append(("repeat", dirpath))
+
+# B) two different dynamic siblings under the same parent
+#    (e.g. /flows/[id] and /flows/[flowId])
+by_parent = defaultdict(set)
+for dirpath, _, _ in os.walk(root):
+    parts = dirpath.split(os.sep)
+    for i, p in enumerate(parts):
+        if p.startswith("[") and p.endswith("]"):
+            by_parent[os.sep.join(parts[:i])].add(p)
+for parent, ids in by_parent.items():
+    if len(ids) > 1:
+        problems.append(("ambiguous", f"{parent} -> {sorted(ids)}"))
+
+if problems:
+    print(f"✖ Found {len(problems)} route pattern problem(s):", file=sys.stderr)
+    for kind, msg in problems[:20]:
+        print(f"  [{kind}] {msg}", file=sys.stderr)
+    sys.exit(1)
+print("✓ No route-pattern conflicts.")
+PY
+
+# ── 1c) Build the Next.js app ------------------------------------------
 step "Building Next.js app (sabnode-web)"
 npx next build
 
@@ -71,7 +127,6 @@ step "Building SabWa Node.js engine (sabwa-node)"
   cd "$REPO_DIR/services/sabwa-node"
 
   # Use npm — pnpm isn't guaranteed on PATH in production.
-  # Use ci when a lockfile is present, fall back to install otherwise.
   if [ -f package-lock.json ]; then
     npm ci --no-audit --no-fund
   else
@@ -87,14 +142,14 @@ step "Building SabWa Node.js engine (sabwa-node)"
 )
 
 # ── 4) PM2 reload ------------------------------------------------------
-# `delete sabwa-engine` is best-effort — silently ignored if the legacy
-# app isn't registered (e.g. on a fresh box or after the first run).
-step "Stopping deprecated sabwa-engine (if present)"
+step "Stopping deprecated processes (best-effort)"
+# Legacy SabWa Rust crate sidecar — replaced by services/sabwa-node.
 pm2 delete sabwa-engine >/dev/null 2>&1 || true
+# Legacy webhook dispatcher worker — replaced by the Vercel-style cron
+# handler at /api/cron/webhook-dispatcher fired by ops cron.
+pm2 delete webhook-worker >/dev/null 2>&1 || true
 
 step "Reloading PM2 apps with fresh env + new binaries"
-# Use `startOrReload` semantics — if an app isn't running it'll be
-# started; if it is, it'll be reloaded (zero-downtime where possible).
 pm2 startOrReload ecosystem.config.js --update-env
 
 step "Persisting PM2 state"
@@ -111,5 +166,11 @@ Quick health checks (run these on the box):
   curl -fsS http://127.0.0.1:8080/health >/dev/null && echo "sabnode-api ✓"
   curl -fsS http://127.0.0.1:4001/health >/dev/null && echo "sabwa-node  ✓"
 
-If sabwa-node fails: pm2 logs sabwa-node --lines 80
+Developer-API health:
+  curl -fsS http://127.0.0.1:3002/api/v1 | head
+  curl -fsS http://127.0.0.1:3002/api/v1/openapi | head -c 200
+
+If sabnode-web fails: pm2 logs sabnode-web --lines 80
+If sabwa-node fails:  pm2 logs sabwa-node  --lines 80
+If api:gen fails:     npm run api:gen 2>&1 | tail -40
 EOF

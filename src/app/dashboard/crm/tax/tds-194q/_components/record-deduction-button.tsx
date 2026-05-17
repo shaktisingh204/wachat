@@ -1,0 +1,119 @@
+'use client';
+
+/**
+ * Inline "Record deduction" control for the §194Q vendor tracker.
+ *
+ * Keeps the page itself a server component — this client island just
+ * wraps the small form that calls `markTds194qDeducted` and refreshes
+ * the route.
+ */
+
+import * as React from 'react';
+import { useRouter } from 'next/navigation';
+
+import { markTds194qDeducted } from '@/app/actions/crm-india-tds194q.actions';
+
+export function RecordDeductionButton({
+    suggestedAmount,
+    vendorName,
+}: {
+    suggestedAmount: number;
+    vendorName: string;
+}) {
+    const router = useRouter();
+    const [open, setOpen] = React.useState(false);
+    const [billId, setBillId] = React.useState('');
+    const [amount, setAmount] = React.useState(String(Math.round(suggestedAmount * 100) / 100));
+    const [submitting, setSubmitting] = React.useState(false);
+    const [error, setError] = React.useState<string | null>(null);
+
+    async function onSubmit(e: React.FormEvent) {
+        e.preventDefault();
+        if (!billId.trim()) {
+            setError('Bill id is required.');
+            return;
+        }
+        const n = Number(amount);
+        if (!Number.isFinite(n) || n <= 0) {
+            setError('Amount must be a positive number.');
+            return;
+        }
+        setSubmitting(true);
+        setError(null);
+        const res = await markTds194qDeducted(billId.trim(), n);
+        setSubmitting(false);
+        if (!res.ok) {
+            setError(res.error);
+            return;
+        }
+        setOpen(false);
+        router.refresh();
+    }
+
+    if (!open) {
+        return (
+            <button
+                type="button"
+                className="inline-flex h-8 items-center rounded-md border border-border bg-card px-3 text-[12.5px] font-medium text-foreground hover:bg-secondary"
+                onClick={() => setOpen(true)}
+                disabled={suggestedAmount <= 0}
+                title={
+                    suggestedAmount <= 0
+                        ? 'No deduction required yet.'
+                        : `Record §194Q TDS for ${vendorName}`
+                }
+            >
+                Record deduction
+            </button>
+        );
+    }
+
+    return (
+        <form
+            onSubmit={onSubmit}
+            className="flex flex-col gap-2 rounded-md border border-border bg-card p-2"
+        >
+            <label className="flex flex-col gap-1 text-[11px] uppercase tracking-wide text-muted-foreground">
+                Bill id
+                <input
+                    type="text"
+                    value={billId}
+                    onChange={(e) => setBillId(e.target.value)}
+                    placeholder="ObjectId"
+                    className="h-8 rounded-md border border-border bg-background px-2 text-[12.5px] text-foreground"
+                    autoFocus
+                />
+            </label>
+            <label className="flex flex-col gap-1 text-[11px] uppercase tracking-wide text-muted-foreground">
+                Amount (INR)
+                <input
+                    type="number"
+                    step="0.01"
+                    min="0.01"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    className="h-8 rounded-md border border-border bg-background px-2 text-[12.5px] text-foreground"
+                />
+            </label>
+            {error ? (
+                <p className="text-[11.5px] text-destructive">{error}</p>
+            ) : null}
+            <div className="flex gap-2">
+                <button
+                    type="submit"
+                    disabled={submitting}
+                    className="h-8 flex-1 rounded-md bg-primary px-3 text-[12.5px] font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50"
+                >
+                    {submitting ? 'Saving…' : 'Save'}
+                </button>
+                <button
+                    type="button"
+                    onClick={() => setOpen(false)}
+                    className="h-8 rounded-md border border-border bg-card px-3 text-[12.5px] text-foreground hover:bg-secondary"
+                >
+                    Cancel
+                </button>
+            </div>
+        </form>
+    );
+}

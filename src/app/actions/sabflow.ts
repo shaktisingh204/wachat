@@ -122,22 +122,60 @@ export async function createSabFlow(name: string, projectId?: string) {
 
 // ── saveSabFlow ────────────────────────────────────────────────────────────
 
-export async function saveSabFlow(flowId: string, updates: Partial<SabFlowDoc>) {
+export async function saveSabFlow(
+  flowId: string,
+  updates: Partial<SabFlowDoc>,
+  options?: { expectedVersion?: number },
+) {
   const session = await getSession();
   if (!session?.user) return { error: 'Authentication required' };
   if (!ObjectId.isValid(flowId)) return { error: 'Invalid flow ID' };
 
   // Never let a caller overwrite ownership / audit fields via this function.
-  const { _id, userId, createdAt, ...safeUpdates } = updates as any;
+  // Also strip `version` from updates — managed server-side via $inc (Step 34).
+  const { _id, userId, createdAt, version: _ignoreVersion, ...safeUpdates } =
+    updates as any;
 
   try {
     const col = await getSabFlowCollection();
-    const result = await col.updateOne(
-      { _id: new ObjectId(flowId), userId: session.user._id.toString() },
-      { $set: { ...safeUpdates, updatedAt: new Date() } },
-    );
+    const filter: Record<string, unknown> = {
+      _id: new ObjectId(flowId),
+      userId: session.user._id.toString(),
+    };
+    if (typeof options?.expectedVersion === 'number') {
+      // Match the current version OR a missing field (legacy docs).
+      filter.$or = [
+        { version: options.expectedVersion },
+        ...(options.expectedVersion === 0
+          ? [{ version: { $exists: false } }]
+          : []),
+      ];
+    }
 
-    if (result.matchedCount === 0) return { error: 'Flow not found or access denied' };
+    const result = await col.updateOne(filter, {
+      $set: { ...safeUpdates, updatedAt: new Date() },
+      $inc: { version: 1 },
+    });
+
+    if (result.matchedCount === 0) {
+      // Distinguish "wrong version" from "doesn't exist / not yours".
+      const exists = await col.findOne(
+        {
+          _id: new ObjectId(flowId),
+          userId: session.user._id.toString(),
+        },
+        { projection: { version: 1, updatedAt: 1 } },
+      );
+      if (exists) {
+        return {
+          error: 'Version conflict — another editor changed this flow.',
+          code: 'version_conflict' as const,
+          currentVersion: exists.version ?? 0,
+          updatedAt: exists.updatedAt,
+        };
+      }
+      return { error: 'Flow not found or access denied' };
+    }
 
     revalidatePath(`/dashboard/sabflow/flow-builder/${flowId}`);
     revalidatePath('/dashboard/sabflow/flow-builder');

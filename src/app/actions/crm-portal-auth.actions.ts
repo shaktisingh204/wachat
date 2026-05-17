@@ -125,12 +125,13 @@ export async function requestPortalMagicLink(
     // ── Look up the portal user (don't leak existence) ─────────────
     let portalUser: { _id: ObjectId; name?: string; portalType?: string } | null = null;
     try {
-        portalUser = (await db
+        const doc = await db
             .collection('crm_portal_users')
             .findOne(
                 { userId: new ObjectId(ownerId), email: normEmail, status: { $ne: 'suspended' } } as never,
                 { projection: { _id: 1, name: 1, portalType: 1 } },
-            )) as never;
+            );
+        portalUser = doc as unknown as { _id: ObjectId; name?: string; portalType?: string } | null;
     } catch {
         portalUser = null;
     }
