@@ -7,6 +7,7 @@ import { AlertCircle, PlusCircle, ShoppingBag } from 'lucide-react';
 
 import { getCrmProducts } from '@/app/actions/crm-products.actions';
 import { getSession } from '@/app/actions/user.actions';
+import { useT } from '@/lib/i18n/client';
 import type { WithId, CrmProduct, User, Plan } from '@/lib/definitions';
 import { CrmProductCard } from '@/components/wabasimplify/crm-product-card';
 
@@ -38,6 +39,7 @@ function PageSkeleton() {
 }
 
 export default function CrmProductsPage() {
+  const { t } = useT();
   const router = useRouter();
   const [user, setUser] = useState<
     (Omit<User, 'password'> & { _id: string; plan?: WithId<Plan> | null }) | null
@@ -66,8 +68,8 @@ export default function CrmProductsPage() {
     return (
       <ZoruAlert variant="destructive">
         <AlertCircle className="h-4 w-4" />
-        <ZoruAlertTitle>Not Logged In</ZoruAlertTitle>
-        <ZoruAlertDescription>Please log in to manage your CRM products.</ZoruAlertDescription>
+        <ZoruAlertTitle>{t('crm.products.list.notLoggedIn.title')}</ZoruAlertTitle>
+        <ZoruAlertDescription>{t('crm.products.list.notLoggedIn.description')}</ZoruAlertDescription>
       </ZoruAlert>
     );
   }
@@ -77,14 +79,14 @@ export default function CrmProductsPage() {
   return (
     <div className="flex w-full flex-col gap-6">
       <CrmPageHeader
-        title="Product Catalog"
-        subtitle="Manage products for your CRM and sales pipeline."
+        title={t('crm.products.list.title')}
+        subtitle={t('crm.products.list.subtitle')}
         icon={ShoppingBag}
         actions={
           <Link href="/dashboard/crm/products/new">
             <ZoruButton>
               <PlusCircle className="h-4 w-4" strokeWidth={1.75} />
-              Add Product
+              {t('crm.products.list.action.add')}
             </ZoruButton>
           </Link>
         }
@@ -110,9 +112,9 @@ export default function CrmProductsPage() {
             <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-accent">
               <ShoppingBag className="h-6 w-6 text-accent-foreground" strokeWidth={1.75} />
             </div>
-            <h3 className="text-[15px] font-semibold text-zoru-ink">No Products Yet</h3>
+            <h3 className="text-[15px] font-semibold text-zoru-ink">{t('crm.products.list.empty.title')}</h3>
             <p className="text-[12.5px] text-zoru-ink-muted">
-              Click &ldquo;Add Product&rdquo; to get started.
+              {t('crm.products.list.empty.subtitle')}
             </p>
           </div>
         </ZoruCard>

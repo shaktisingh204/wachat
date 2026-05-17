@@ -399,3 +399,80 @@ export async function deleteCustomField(
     return { success: false, error: rustErr(e) };
   }
 }
+
+/* ─── Lifecycle toggles used by the field-detail action group ───────── */
+
+/**
+ * Archive (or restore) a custom field by flipping its `isActive` flag.
+ * Existing values on records are NOT touched — the field simply stops
+ * appearing in forms / list views.
+ */
+export async function archiveCustomField(
+  id: string,
+  archive: boolean,
+): Promise<{ success: boolean; error?: string }> {
+  if (!id) return { success: false, error: 'Missing custom-field id.' };
+
+  const session = await getSession();
+  if (!session?.user) return { success: false, error: 'Unauthorized' };
+
+  const guard = await requirePermission('crm_custom_field', 'edit');
+  if (!guard.ok) return { success: false, error: guard.error };
+
+  try {
+    await crmCustomFieldsApi.update(id, { isActive: !archive });
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action: archive ? 'archive' : 'restore',
+        entityKind: 'crm_custom_field',
+        entityId: id,
+      });
+    } catch {
+      /* non-fatal */
+    }
+    revalidatePath(LIST_PATH);
+    revalidatePath(`${LIST_PATH}/${id}`);
+    return { success: true };
+  } catch (e) {
+    console.error('[archiveCustomField] rust path failed:', e);
+    recordRustFallback({
+      entity: 'crm_custom_field',
+      op: 'update',
+      errorCode: e instanceof RustApiError ? e.code : undefined,
+      status: e instanceof RustApiError ? e.status : undefined,
+    });
+    return { success: false, error: rustErr(e) };
+  }
+}
+
+/** Toggle the `required` flag on a custom field. */
+export async function toggleCustomFieldRequired(
+  id: string,
+  required: boolean,
+): Promise<{ success: boolean; error?: string }> {
+  if (!id) return { success: false, error: 'Missing custom-field id.' };
+
+  const session = await getSession();
+  if (!session?.user) return { success: false, error: 'Unauthorized' };
+
+  const guard = await requirePermission('crm_custom_field', 'edit');
+  if (!guard.ok) return { success: false, error: guard.error };
+
+  try {
+    await crmCustomFieldsApi.update(id, { required });
+    revalidatePath(LIST_PATH);
+    revalidatePath(`${LIST_PATH}/${id}`);
+    return { success: true };
+  } catch (e) {
+    console.error('[toggleCustomFieldRequired] rust path failed:', e);
+    recordRustFallback({
+      entity: 'crm_custom_field',
+      op: 'update',
+      errorCode: e instanceof RustApiError ? e.code : undefined,
+      status: e instanceof RustApiError ? e.status : undefined,
+    });
+    return { success: false, error: rustErr(e) };
+  }
+}

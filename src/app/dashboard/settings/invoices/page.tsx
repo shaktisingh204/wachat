@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { ArrowUpRight, Calendar, Download, Receipt } from 'lucide-react';
 
 import { getSession } from '@/app/actions/user.actions';
+import { useT } from '@/lib/i18n/client';
 import type { User, WalletTransaction, WithId } from '@/lib/definitions';
 import {
   ZoruBadge,
@@ -25,6 +26,7 @@ import {
 } from '@/components/zoruui';
 
 export default function InvoicesPage() {
+  const { t, locale } = useT();
   const [rows, setRows] = useState<WalletTransaction[]>([]);
   const [loading, startLoading] = useTransition();
 
@@ -42,11 +44,11 @@ export default function InvoicesPage() {
       <ZoruBreadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard/settings">Settings</ZoruBreadcrumbLink>
+            <ZoruBreadcrumbLink href="/dashboard/settings">{t('settings.overview.title')}</ZoruBreadcrumbLink>
           </ZoruBreadcrumbItem>
           <ZoruBreadcrumbSeparator />
           <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Invoices</ZoruBreadcrumbPage>
+            <ZoruBreadcrumbPage>{t('settings.invoices.title')}</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
       </ZoruBreadcrumb>
@@ -54,15 +56,15 @@ export default function InvoicesPage() {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <ZoruPageHeader>
           <ZoruPageHeading>
-            <ZoruPageTitle>Invoices</ZoruPageTitle>
+            <ZoruPageTitle>{t('settings.invoices.title')}</ZoruPageTitle>
             <ZoruPageDescription>
-              Download receipts and past billing statements.
+              {t('settings.invoices.subtitle')}
             </ZoruPageDescription>
           </ZoruPageHeading>
         </ZoruPageHeader>
         <ZoruButton variant="ghost" size="sm" asChild>
           <Link href="/dashboard/user/billing">
-            Billing home <ArrowUpRight className="h-4 w-4" />
+            {t('settings.invoices.billingHome')} <ArrowUpRight className="h-4 w-4" />
           </Link>
         </ZoruButton>
       </div>
@@ -77,20 +79,20 @@ export default function InvoicesPage() {
         ) : rows.length === 0 ? (
           <ZoruEmptyState
             icon={<Receipt className="h-10 w-10" />}
-            title="No invoices yet"
-            description="Invoices appear here after your first plan purchase or wallet top-up."
+            title={t('settings.invoices.empty.title')}
+            description={t('settings.invoices.empty.description')}
           />
         ) : (
           <ul className="divide-y divide-zoru-line">
             {rows.map((tx, idx) => {
-              const t = tx as any;
-              const amount = Number(t.amount ?? 0) / 100;
-              const currency = (t.currency ?? 'INR') as string;
-              const status = (t.status ?? 'completed') as string;
-              const type = (t.type ?? 'top_up') as string;
+              const r = tx as any;
+              const amount = Number(r.amount ?? 0) / 100;
+              const currency = (r.currency ?? 'INR') as string;
+              const status = (r.status ?? 'completed') as string;
+              const type = (r.type ?? 'top_up') as string;
               return (
                 <li
-                  key={t._id?.toString?.() ?? idx}
+                  key={r._id?.toString?.() ?? idx}
                   className="flex flex-wrap items-center justify-between gap-3 px-5 py-4"
                 >
                   <div className="min-w-0 flex-1">
@@ -100,17 +102,17 @@ export default function InvoicesPage() {
                     </div>
                     <p className="mt-1 flex items-center gap-1.5 text-xs text-zoru-ink-muted">
                       <Calendar className="h-3 w-3" />
-                      {formatDate(t.createdAt ?? t.date ?? new Date())}
-                      {t.description && ` · ${t.description}`}
+                      {formatDate(r.createdAt ?? r.date ?? new Date(), locale)}
+                      {r.description && ` · ${r.description}`}
                     </p>
                   </div>
                   <div className="flex items-center gap-3">
                     <span className="text-sm text-zoru-ink">
-                      {formatCurrency(amount, currency)}
+                      {formatCurrency(amount, currency, locale)}
                     </span>
                     <ZoruButton variant="ghost" size="sm">
                       <Download className="h-4 w-4" />
-                      Receipt
+                      {t('settings.invoices.receipt')}
                     </ZoruButton>
                   </div>
                 </li>
@@ -124,13 +126,14 @@ export default function InvoicesPage() {
 }
 
 function StatusBadge({ status }: { status: string }) {
+  const { t } = useT();
   const s = status.toLowerCase();
   if (s === 'completed' || s === 'paid' || s === 'success')
-    return <ZoruBadge variant="success">Paid</ZoruBadge>;
+    return <ZoruBadge variant="success">{t('settings.invoices.status.paid')}</ZoruBadge>;
   if (s === 'pending' || s === 'processing')
-    return <ZoruBadge variant="warning">Pending</ZoruBadge>;
+    return <ZoruBadge variant="warning">{t('settings.invoices.status.pending')}</ZoruBadge>;
   if (s === 'failed' || s === 'declined')
-    return <ZoruBadge variant="danger">Failed</ZoruBadge>;
+    return <ZoruBadge variant="danger">{t('settings.invoices.status.failed')}</ZoruBadge>;
   return <ZoruBadge variant="ghost">{status}</ZoruBadge>;
 }
 
@@ -142,14 +145,14 @@ function prettyLabel(key: string): string {
     .replace(/^\w/, (c) => c.toUpperCase());
 }
 
-function formatDate(d: Date | string): string {
+function formatDate(d: Date | string, locale?: string): string {
   const date = typeof d === 'string' ? new Date(d) : d;
-  return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+  return date.toLocaleDateString(locale, { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
-function formatCurrency(value: number, currency = 'INR'): string {
+function formatCurrency(value: number, currency = 'INR', locale?: string): string {
   try {
-    return new Intl.NumberFormat(undefined, {
+    return new Intl.NumberFormat(locale, {
       style: 'currency',
       currency,
       maximumFractionDigits: 2,

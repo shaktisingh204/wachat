@@ -12,15 +12,17 @@ import { getSession } from '@/app/actions/user.actions';
 import { getSabFlowsByUserId } from '@/lib/sabflow/db';
 import { buildCallGraph, type LinkEdge, type LinkNode } from '@/lib/sabflow/links/buildCallGraph';
 import { cn } from '@/lib/utils';
+import { getT } from '@/lib/i18n/server';
 
 export const dynamic = 'force-dynamic';
 
 export default async function LinksPage() {
+  const t = await getT();
   const session = await getSession();
   if (!session?.user) {
     return (
       <div className="p-8 text-[13px] text-zinc-400">
-        Sign in to view the flow link graph.
+        {t('sabflow.links.signInRequired')}
       </div>
     );
   }
@@ -38,36 +40,38 @@ export default async function LinksPage() {
         </div>
         <div className="flex flex-col leading-tight min-w-0">
           <h1 className="text-sm sm:text-[15px] font-semibold text-[var(--gray-12)]">
-            Flow links
+            {t('sabflow.links.title')}
           </h1>
           <p className="hidden sm:block text-[11.5px] text-[var(--gray-9)]">
-            Workspace-wide call graph of <code className="font-mono">typebot_link</code> blocks
+            {t('sabflow.links.subtitle.before')}<code className="font-mono">typebot_link</code>{t('sabflow.links.subtitle.after')}
           </p>
           <p className="sm:hidden text-[11px] text-[var(--gray-9)] truncate">
-            Workspace call graph
+            {t('sabflow.links.subtitleShort')}
           </p>
         </div>
         <span className="ml-auto text-[10.5px] tabular-nums text-[var(--gray-9)] text-right shrink-0">
-          {graph.nodes.length} {graph.nodes.length === 1 ? 'flow' : 'flows'} ·{' '}
-          {graph.edges.length} {graph.edges.length === 1 ? 'link' : 'links'}
+          {graph.nodes.length} {graph.nodes.length === 1 ? t('sabflow.links.flow') : t('sabflow.links.flows')} ·{' '}
+          {graph.edges.length} {graph.edges.length === 1 ? t('sabflow.links.link') : t('sabflow.links.linksWord')}
         </span>
       </div>
 
       {graph.nodes.length === 0 ? (
-        <EmptyState />
+        <EmptyState t={t} />
       ) : (
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 sm:space-y-8">
-          <NodesSection nodes={graph.nodes} />
-          <EdgesSection edges={graph.edges} byId={byId} />
+          <NodesSection nodes={graph.nodes} t={t} />
+          <EdgesSection edges={graph.edges} byId={byId} t={t} />
         </div>
       )}
     </div>
   );
 }
 
+type Translator = (key: string, params?: Record<string, string | number>) => string;
+
 /* ── Sections ────────────────────────────────────────── */
 
-function NodesSection({ nodes }: { nodes: LinkNode[] }) {
+function NodesSection({ nodes, t }: { nodes: LinkNode[]; t: Translator }) {
   // Sort by total degree (in + out) descending so the central "hub" flows
   // appear at the top.
   const sorted = [...nodes].sort(
@@ -77,7 +81,7 @@ function NodesSection({ nodes }: { nodes: LinkNode[] }) {
   return (
     <section>
       <h2 className="mb-2 text-[10.5px] font-semibold uppercase tracking-wide text-[var(--gray-9)]">
-        Flows in the graph
+        {t('sabflow.links.section.flows')}
       </h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {sorted.map((node) => (
@@ -93,8 +97,8 @@ function NodesSection({ nodes }: { nodes: LinkNode[] }) {
               <StatusPill status={node.status} />
             </div>
             <div className="flex items-center gap-3 text-[10.5px] text-[var(--gray-9)]">
-              <DegreeBadge label="Calls" count={node.outDegree} tone="out" />
-              <DegreeBadge label="Called by" count={node.inDegree} tone="in" />
+              <DegreeBadge label={t('sabflow.links.degree.calls')} count={node.outDegree} tone="out" />
+              <DegreeBadge label={t('sabflow.links.degree.calledBy')} count={node.inDegree} tone="in" />
             </div>
           </Link>
         ))}
@@ -106,17 +110,19 @@ function NodesSection({ nodes }: { nodes: LinkNode[] }) {
 function EdgesSection({
   edges,
   byId,
+  t,
 }: {
   edges: LinkEdge[];
   byId: Map<string, LinkNode>;
+  t: Translator;
 }) {
   return (
     <section>
       <h2 className="mb-2 text-[10.5px] font-semibold uppercase tracking-wide text-[var(--gray-9)]">
-        Links
+        {t('sabflow.links.section.links')}
       </h2>
       {edges.length === 0 ? (
-        <p className="text-[12px] text-[var(--gray-9)]">No edges.</p>
+        <p className="text-[12px] text-[var(--gray-9)]">{t('sabflow.links.noEdges')}</p>
       ) : (
         <div className="space-y-1.5">
           {edges.map((e, idx) => {
@@ -137,7 +143,7 @@ function EdgesSection({
                 {e.isDangling ? (
                   <span className="inline-flex items-center gap-1 text-amber-600 dark:text-amber-400 min-w-0 truncate max-w-[45%] sm:max-w-none">
                     <LuTriangleAlert className="h-3 w-3 shrink-0" />
-                    Dangling ({e.to.slice(0, 12)}…)
+                    {t('sabflow.links.dangling', { id: e.to.slice(0, 12) })}
                   </span>
                 ) : (
                   <Link
@@ -198,18 +204,17 @@ function StatusPill({ status }: { status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED' }) 
   );
 }
 
-function EmptyState() {
+function EmptyState({ t }: { t: Translator }) {
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-2 px-6 py-12 text-center">
       <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--gray-3)] text-[var(--gray-8)]">
         <LuWorkflow className="h-5 w-5" strokeWidth={1.5} />
       </div>
       <p className="text-[13px] font-medium text-[var(--gray-12)]">
-        No flow links yet
+        {t('sabflow.links.empty.title')}
       </p>
       <p className="max-w-md text-[11.5px] text-[var(--gray-9)] leading-relaxed">
-        Add a <code className="font-mono">Typebot link</code> block to a flow and point it at
-        another one — the graph appears here automatically.
+        {t('sabflow.links.empty.before')}<code className="font-mono">Typebot link</code>{t('sabflow.links.empty.after')}
       </p>
     </div>
   );

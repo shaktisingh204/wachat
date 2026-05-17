@@ -23,6 +23,7 @@ import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import { ZoruButton, useZoruToast } from '@/components/zoruui';
+import { useT } from '@/lib/i18n/client';
 
 import {
     deleteTicketAction,
@@ -63,6 +64,7 @@ export function TicketsListClient({
     initialError,
 }: TicketsListClientProps) {
     const { toast } = useZoruToast();
+    const { t } = useT();
 
     const [tickets, setTickets] = React.useState<CrmTicketDoc[]>(initialTickets);
     const [page, setPage] = React.useState(1);
@@ -373,8 +375,8 @@ export function TicketsListClient({
     return (
         <>
             <EntityListShell
-                title="Tickets"
-                subtitle="Track customer issues, route them to the right agent, and resolve them on SLA."
+                title={t('crm.tickets.list.title')}
+                subtitle={t('crm.tickets.list.subtitle')}
                 viewSwitcher={
                     <TicketsHeaderTools
                         view={view}
@@ -386,12 +388,12 @@ export function TicketsListClient({
                 search={{
                     value: search,
                     onChange: (v) => handleSearch(v),
-                    placeholder: 'Search subject or category…',
+                    placeholder: t('crm.tickets.list.search.placeholder'),
                 }}
                 primaryAction={
                     <ZoruButton asChild>
                         <Link href="/dashboard/crm/tickets/new">
-                            <Plus className="h-4 w-4" /> New ticket
+                            <Plus className="h-4 w-4" /> {t('crm.tickets.list.action.new')}
                         </Link>
                     </ZoruButton>
                 }

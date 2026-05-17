@@ -25,6 +25,7 @@ import {
   LuTriangleAlert,
 } from 'react-icons/lu';
 import { cn } from '@/lib/utils';
+import { useT } from '@/lib/i18n/client';
 
 type UsageResponse = {
   windowDays: number;
@@ -44,13 +45,14 @@ type UsageResponse = {
   topFailing: { flowId: string; name: string; errors: number }[];
 };
 
-const WINDOWS: Array<{ days: number; label: string }> = [
-  { days: 7, label: '7 days' },
-  { days: 30, label: '30 days' },
-  { days: 90, label: '90 days' },
+const WINDOWS: Array<{ days: number; labelKey: string }> = [
+  { days: 7, labelKey: 'sabflow.usage.window.7days' },
+  { days: 30, labelKey: 'sabflow.usage.window.30days' },
+  { days: 90, labelKey: 'sabflow.usage.window.90days' },
 ];
 
 export function UsageClient() {
+  const { t, locale } = useT();
   const [data, setData] = useState<UsageResponse | null>(null);
   const [days, setDays] = useState(7);
   const [loading, setLoading] = useState(true);
@@ -63,15 +65,15 @@ export function UsageClient() {
       const res = await fetch(`/api/sabflow/usage?days=${days}`, {
         cache: 'no-store',
       });
-      if (!res.ok) throw new Error(`Failed to load usage (${res.status})`);
+      if (!res.ok) throw new Error(t('sabflow.usage.error.loadFailedStatus', { status: res.status }));
       const json = (await res.json()) as UsageResponse;
       setData(json);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to load');
+      setError(e instanceof Error ? e.message : t('sabflow.usage.error.loadFailed'));
     } finally {
       setLoading(false);
     }
-  }, [days]);
+  }, [days, t]);
 
   useEffect(() => {
     void load();
@@ -85,10 +87,10 @@ export function UsageClient() {
         </div>
         <div className="flex flex-col leading-tight min-w-0">
           <h1 className="text-sm sm:text-[15px] font-semibold text-[var(--gray-12)]">
-            Usage
+            {t('sabflow.usage.title')}
           </h1>
           <p className="text-[11px] sm:text-[11.5px] text-[var(--gray-9)] truncate">
-            Past {days} day{days === 1 ? '' : 's'}
+            {t('sabflow.usage.pastDays', { days })}
           </p>
         </div>
         <div className="ml-auto flex items-center gap-2 w-full sm:w-auto justify-end flex-wrap">
@@ -105,7 +107,7 @@ export function UsageClient() {
                     : 'text-[var(--gray-9)] hover:text-[var(--gray-12)]',
                 )}
               >
-                {w.label}
+                {t(w.labelKey)}
               </button>
             ))}
           </div>
@@ -116,7 +118,7 @@ export function UsageClient() {
             className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-2.5 py-1.5 text-[12px] font-medium text-[var(--gray-11)] hover:border-[var(--gray-7)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)] disabled:opacity-50"
           >
             <LuRefreshCw className={cn('h-3.5 w-3.5', loading && 'animate-spin')} />
-            <span className="hidden sm:inline">Refresh</span>
+            <span className="hidden sm:inline">{t('action.refresh')}</span>
           </button>
         </div>
       </div>
@@ -125,7 +127,7 @@ export function UsageClient() {
         {loading && !data ? (
           <div className="flex h-40 items-center justify-center gap-2 text-[var(--gray-9)]">
             <LuLoader className="h-4 w-4 animate-spin" />
-            <span className="text-[12px]">Loading usage…</span>
+            <span className="text-[12px]">{t('sabflow.usage.loading')}</span>
           </div>
         ) : error ? (
           <div className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-[12px] text-red-700">
@@ -150,30 +152,31 @@ export function UsageClient() {
 /* ── KPI cards ───────────────────────────────────────────────────────────── */
 
 function KpiCards({ data }: { data: UsageResponse }) {
+  const { t, locale } = useT();
   const { summary } = data;
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3">
       <Kpi
         icon={<LuActivity className="h-3.5 w-3.5" />}
-        label="Total runs"
-        value={summary.total.toLocaleString()}
+        label={t('sabflow.usage.kpi.totalRuns')}
+        value={summary.total.toLocaleString(locale)}
         accent="text-blue-600 dark:text-blue-400"
       />
       <Kpi
         icon={<LuAward className="h-3.5 w-3.5" />}
-        label="Success rate"
+        label={t('sabflow.usage.kpi.successRate')}
         value={`${(summary.successRate * 100).toFixed(1)}%`}
         accent="text-emerald-600 dark:text-emerald-400"
       />
       <Kpi
         icon={<LuTriangleAlert className="h-3.5 w-3.5" />}
-        label="Errors"
-        value={summary.errored.toLocaleString()}
+        label={t('sabflow.usage.kpi.errors')}
+        value={summary.errored.toLocaleString(locale)}
         accent="text-red-600 dark:text-red-400"
       />
       <Kpi
         icon={<LuTimer className="h-3.5 w-3.5" />}
-        label="p95 duration"
+        label={t('sabflow.usage.kpi.p95Duration')}
         value={formatDuration(summary.p95DurationMs)}
         accent="text-amber-600 dark:text-amber-400"
       />
@@ -208,10 +211,11 @@ function Kpi({
 /* ── Daily sparkline ─────────────────────────────────────────────────────── */
 
 function DailyChart({ data }: { data: UsageResponse }) {
+  const { t } = useT();
   if (data.daily.length === 0) {
     return (
       <div className="flex h-32 items-center justify-center rounded-xl border border-dashed border-[var(--gray-5)] text-[12px] text-[var(--gray-9)]">
-        No runs in this window yet.
+        {t('sabflow.usage.dailyChart.empty')}
       </div>
     );
   }
@@ -220,7 +224,7 @@ function DailyChart({ data }: { data: UsageResponse }) {
     <div className="rounded-xl border border-[var(--gray-5)] bg-[var(--gray-2)] p-3 sm:p-4">
       <div className="flex items-center gap-1.5 text-[11px] font-medium text-[var(--gray-9)] uppercase tracking-wide mb-2 sm:mb-3">
         <LuChartNoAxesColumn className="h-3 w-3" />
-        Daily runs
+        {t('sabflow.usage.dailyChart.title')}
       </div>
       <div className="flex items-end gap-0.5 sm:gap-1 h-24 sm:h-32">
         {data.daily.map((d) => {
@@ -231,7 +235,7 @@ function DailyChart({ data }: { data: UsageResponse }) {
             <div
               key={d.date}
               className="flex flex-1 flex-col items-center gap-1 group"
-              title={`${d.date}: ${d.count} run(s), ${d.errors} error(s)`}
+              title={t('sabflow.usage.dailyChart.tooltip', { date: d.date, count: d.count, errors: d.errors })}
             >
               <div className="relative w-full flex-1 flex items-end">
                 <div
@@ -259,13 +263,14 @@ function DailyChart({ data }: { data: UsageResponse }) {
 /* ── Top flows ───────────────────────────────────────────────────────────── */
 
 function TopFlowsCard({ data }: { data: UsageResponse }) {
+  const { t, locale } = useT();
   return (
     <div className="rounded-xl border border-[var(--gray-5)] bg-[var(--gray-2)] p-4">
       <div className="flex items-center gap-1.5 text-[11px] font-medium text-[var(--gray-9)] uppercase tracking-wide mb-3">
-        Top flows by runs
+        {t('sabflow.usage.topFlows.title')}
       </div>
       {data.topFlows.length === 0 ? (
-        <p className="text-[12px] text-[var(--gray-9)]">No data.</p>
+        <p className="text-[12px] text-[var(--gray-9)]">{t('sabflow.usage.topFlows.empty')}</p>
       ) : (
         <ul className="space-y-1.5">
           {data.topFlows.map((f, idx) => (
@@ -280,7 +285,7 @@ function TopFlowsCard({ data }: { data: UsageResponse }) {
                 {f.name}
               </Link>
               <span className="tabular-nums text-[11.5px] text-[var(--gray-10)]">
-                {f.runs.toLocaleString()}
+                {f.runs.toLocaleString(locale)}
               </span>
             </li>
           ))}
@@ -291,13 +296,14 @@ function TopFlowsCard({ data }: { data: UsageResponse }) {
 }
 
 function TopFailingCard({ data }: { data: UsageResponse }) {
+  const { t } = useT();
   return (
     <div className="rounded-xl border border-[var(--gray-5)] bg-[var(--gray-2)] p-4">
       <div className="flex items-center gap-1.5 text-[11px] font-medium text-red-600 dark:text-red-400 uppercase tracking-wide mb-3">
-        Top failing flows
+        {t('sabflow.usage.topFailing.title')}
       </div>
       {data.topFailing.length === 0 ? (
-        <p className="text-[12px] text-[var(--gray-9)]">No failures in window — nice.</p>
+        <p className="text-[12px] text-[var(--gray-9)]">{t('sabflow.usage.topFailing.empty')}</p>
       ) : (
         <ul className="space-y-1.5">
           {data.topFailing.map((f, idx) => (

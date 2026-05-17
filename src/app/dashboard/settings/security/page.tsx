@@ -39,6 +39,7 @@ import {
     signOutEverywhere,
     type ActiveSession,
 } from '@/app/actions/account.actions';
+import { useT } from '@/lib/i18n/client';
 
 const initialState = { message: undefined, error: undefined } as {
     message?: string;
@@ -47,15 +48,17 @@ const initialState = { message: undefined, error: undefined } as {
 
 function SaveBtn() {
     const { pending } = useFormStatus();
+    const { t } = useT();
     return (
         <ZoruButton type="submit" size="md" disabled={pending}>
             {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-            {pending ? 'Saving…' : 'Update password'}
+            {pending ? t('common.saving') : t('settings.security.updatePassword')}
         </ZoruButton>
     );
 }
 
 export default function SecuritySettingsPage() {
+    const { t } = useT();
     const [state, formAction] = useActionState(handleChangePassword, initialState);
     const [twoFactor, setTwoFactor] = useState(false);
     const [loginAlerts, setLoginAlerts] = useState(true);
@@ -66,7 +69,7 @@ export default function SecuritySettingsPage() {
 
     useEffect(() => {
         if (state.message) toast({ title: state.message });
-        if (state.error) toast({ title: 'Error', description: state.error, variant: 'destructive' });
+        if (state.error) toast({ title: t('common.error'), description: state.error, variant: 'destructive' });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [state]);
 
@@ -94,7 +97,7 @@ export default function SecuritySettingsPage() {
                 await setLoginAlertsAction(next);
             } catch {
                 setLoginAlerts(!next);
-                toast({ title: 'Could not save preference', variant: 'destructive' });
+                toast({ title: t('settings.security.toast.savePrefFailed'), variant: 'destructive' });
             }
         });
     };
@@ -105,8 +108,8 @@ export default function SecuritySettingsPage() {
         // aren't tricked into thinking 2FA is live.
         if (next) {
             toast({
-                title: '2FA setup coming soon',
-                description: 'Authenticator-app enrollment is being rolled out — stay tuned.',
+                title: t('settings.security.toast.twoFactorSoon'),
+                description: t('settings.security.toast.twoFactorSoonDesc'),
             });
             return;
         }
@@ -117,12 +120,12 @@ export default function SecuritySettingsPage() {
         startRevokeAll(async () => {
             try {
                 await signOutEverywhere();
-                toast({ title: 'Signed out on every device' });
+                toast({ title: t('settings.security.toast.signedOutEverywhere') });
                 window.location.href = '/login';
             } catch (e: any) {
                 toast({
-                    title: 'Could not sign out everywhere',
-                    description: e?.message ?? 'Try again.',
+                    title: t('settings.security.toast.signOutEverywhereFailed'),
+                    description: e?.message ?? t('common.tryAgain'),
                     variant: 'destructive',
                 });
             }
@@ -134,20 +137,20 @@ export default function SecuritySettingsPage() {
             <ZoruBreadcrumb>
                 <ZoruBreadcrumbList>
                     <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbLink href="/dashboard/settings">Settings</ZoruBreadcrumbLink>
+                        <ZoruBreadcrumbLink href="/dashboard/settings">{t('settings.overview.title')}</ZoruBreadcrumbLink>
                     </ZoruBreadcrumbItem>
                     <ZoruBreadcrumbSeparator />
                     <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbPage>Security</ZoruBreadcrumbPage>
+                        <ZoruBreadcrumbPage>{t('settings.security.title')}</ZoruBreadcrumbPage>
                     </ZoruBreadcrumbItem>
                 </ZoruBreadcrumbList>
             </ZoruBreadcrumb>
 
             <ZoruPageHeader>
                 <ZoruPageHeading>
-                    <ZoruPageTitle>Security</ZoruPageTitle>
+                    <ZoruPageTitle>{t('settings.security.title')}</ZoruPageTitle>
                     <ZoruPageDescription>
-                        Manage your password, two-factor authentication, and active sessions.
+                        {t('settings.security.subtitle')}
                     </ZoruPageDescription>
                 </ZoruPageHeading>
             </ZoruPageHeader>
@@ -159,20 +162,20 @@ export default function SecuritySettingsPage() {
                         <Lock className="h-4 w-4" />
                     </div>
                     <div>
-                        <p className="text-sm text-zoru-ink">Password</p>
+                        <p className="text-sm text-zoru-ink">{t('settings.security.password.title')}</p>
                         <p className="text-xs text-zoru-ink-muted">
-                            Use a unique password at least 12 characters long.
+                            {t('settings.security.password.hint')}
                         </p>
                     </div>
                 </div>
                 <form action={formAction} className="grid gap-4 sm:grid-cols-3">
-                    <Field label="Current password">
+                    <Field label={t('settings.security.password.current')}>
                         <ZoruInput type="password" name="currentPassword" required />
                     </Field>
-                    <Field label="New password">
+                    <Field label={t('settings.security.password.new')}>
                         <ZoruInput type="password" name="newPassword" required minLength={12} />
                     </Field>
-                    <Field label="Confirm new password">
+                    <Field label={t('settings.security.password.confirm')}>
                         <ZoruInput type="password" name="confirmPassword" required minLength={12} />
                     </Field>
                     <div className="sm:col-span-3 flex justify-end">
@@ -190,23 +193,23 @@ export default function SecuritySettingsPage() {
                     <div className="flex-1">
                         <div className="flex items-center gap-2">
                             <p className="text-sm text-zoru-ink">
-                                Two-factor authentication
+                                {t('settings.security.twoFactor.title')}
                             </p>
                             <ZoruBadge variant={twoFactor ? 'success' : 'ghost'}>
-                                {twoFactor ? 'Enabled' : 'Disabled'}
+                                {twoFactor ? t('common.enabled') : t('common.disabled')}
                             </ZoruBadge>
                         </div>
                         <p className="text-xs text-zoru-ink-muted">
-                            Add a second verification step using an authenticator app.
+                            {t('settings.security.twoFactor.hint')}
                         </p>
                     </div>
                     <ZoruSwitch checked={twoFactor} onCheckedChange={persistTwoFactor} />
                 </div>
                 <div className="flex items-start justify-between gap-4 rounded-xl border border-zoru-line bg-zoru-surface-2 p-3">
                     <div>
-                        <ZoruLabel className="text-[13px]">Alert on new sign-ins</ZoruLabel>
+                        <ZoruLabel className="text-[13px]">{t('settings.security.alerts.label')}</ZoruLabel>
                         <p className="mt-0.5 text-xs text-zoru-ink-muted">
-                            Email you whenever a new device signs in to your account.
+                            {t('settings.security.alerts.hint')}
                         </p>
                     </div>
                     <ZoruSwitch
@@ -224,9 +227,9 @@ export default function SecuritySettingsPage() {
                         <Laptop className="h-4 w-4" />
                     </div>
                     <div className="flex-1">
-                        <p className="text-sm text-zoru-ink">Active sessions</p>
+                        <p className="text-sm text-zoru-ink">{t('settings.security.sessions.title')}</p>
                         <p className="text-xs text-zoru-ink-muted">
-                            Devices currently signed in to your account.
+                            {t('settings.security.sessions.hint')}
                         </p>
                     </div>
                     <ZoruButton
@@ -240,17 +243,17 @@ export default function SecuritySettingsPage() {
                         ) : (
                             <LogOut className="h-4 w-4" />
                         )}
-                        Sign out everywhere
+                        {t('settings.security.sessions.signOutEverywhere')}
                     </ZoruButton>
                 </div>
                 <div className="divide-y divide-zoru-line rounded-xl border border-zoru-line">
                     {sessions.length === 0 ? (
-                        <SessionRow label="Current session" device="This browser" location="—" current />
+                        <SessionRow label={t('settings.security.sessions.current')} device={t('settings.security.sessions.thisBrowser')} location="—" current />
                     ) : (
                         sessions.map((s) => (
                             <SessionRow
                                 key={s.id}
-                                label={s.current ? 'Current session' : 'Session'}
+                                label={s.current ? t('settings.security.sessions.current') : t('settings.security.sessions.session')}
                                 device={s.device}
                                 location={s.location ?? '—'}
                                 current={s.current}
@@ -267,13 +270,13 @@ export default function SecuritySettingsPage() {
                         <Key className="h-4 w-4" />
                     </div>
                     <div className="flex-1">
-                        <p className="text-sm text-zoru-ink">Recovery codes</p>
+                        <p className="text-sm text-zoru-ink">{t('settings.security.recovery.title')}</p>
                         <p className="text-xs text-zoru-ink-muted">
-                            Generate a new set of backup codes if you lose access to your authenticator.
+                            {t('settings.security.recovery.hint')}
                         </p>
                     </div>
                     <ZoruButton variant="outline" size="sm">
-                        Generate codes
+                        {t('settings.security.recovery.generate')}
                     </ZoruButton>
                 </div>
             </ZoruCard>
@@ -301,12 +304,13 @@ function SessionRow({
     location: string;
     current?: boolean;
 }) {
+    const { t } = useT();
     return (
         <div className="flex items-center justify-between px-4 py-3 text-[13px]">
             <div>
                 <div className="flex items-center gap-2">
                     <p className="text-zoru-ink">{label}</p>
-                    {current && <ZoruBadge variant="success">This device</ZoruBadge>}
+                    {current && <ZoruBadge variant="success">{t('settings.security.sessions.thisDevice')}</ZoruBadge>}
                 </div>
                 <p className="mt-0.5 text-xs text-zoru-ink-muted">
                     {device} · {location}
@@ -314,7 +318,7 @@ function SessionRow({
             </div>
             {!current && (
                 <ZoruButton variant="ghost" size="sm">
-                    Sign out
+                    {t('settings.security.sessions.signOut')}
                 </ZoruButton>
             )}
         </div>

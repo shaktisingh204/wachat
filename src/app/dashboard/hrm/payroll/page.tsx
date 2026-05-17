@@ -17,25 +17,29 @@ import {
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { getPayslips } from '@/app/actions/crm-payroll.actions';
 import { getCrmEmployees } from '@/app/actions/crm-employees.actions';
+import { useT } from '@/lib/i18n/client';
 import type { WithId, CrmEmployee } from '@/lib/definitions';
 
 const currentYear = new Date().getFullYear();
 const years = Array.from({ length: 5 }, (_, i) => currentYear - i);
-const months = [
-    { value: 0, label: 'January' }, { value: 1, label: 'February' }, { value: 2, label: 'March' },
-    { value: 3, label: 'April' }, { value: 4, label: 'May' }, { value: 5, label: 'June' },
-    { value: 6, label: 'July' }, { value: 7, label: 'August' }, { value: 8, label: 'September' },
-    { value: 9, label: 'October' }, { value: 10, label: 'November' }, { value: 11, label: 'December' },
+const monthKeys = [
+    'hrm.payroll.month.jan', 'hrm.payroll.month.feb', 'hrm.payroll.month.mar',
+    'hrm.payroll.month.apr', 'hrm.payroll.month.may', 'hrm.payroll.month.jun',
+    'hrm.payroll.month.jul', 'hrm.payroll.month.aug', 'hrm.payroll.month.sep',
+    'hrm.payroll.month.oct', 'hrm.payroll.month.nov', 'hrm.payroll.month.dec',
 ];
 
-function statusBadge(status: string) {
-    if (status === 'paid') return <ZoruBadge variant="success">Paid</ZoruBadge>;
-    if (status === 'pending') return <ZoruBadge variant="warning">Pending</ZoruBadge>;
-    if (status === 'processing') return <ZoruBadge variant="info">Processing</ZoruBadge>;
-    return <ZoruBadge variant="secondary">{status}</ZoruBadge>;
-}
-
 export default function PayrollRunPage() {
+    const { t } = useT();
+    const months = monthKeys.map((key, value) => ({ value, label: t(key) }));
+
+    function statusBadge(status: string) {
+        if (status === 'paid') return <ZoruBadge variant="success">{t('hrm.payroll.run.status.paid')}</ZoruBadge>;
+        if (status === 'pending') return <ZoruBadge variant="warning">{t('hrm.payroll.run.status.pending')}</ZoruBadge>;
+        if (status === 'processing') return <ZoruBadge variant="info">{t('hrm.payroll.run.status.processing')}</ZoruBadge>;
+        return <ZoruBadge variant="secondary">{status}</ZoruBadge>;
+    }
+
     const [payslips, setPayslips] = useState<any[]>([]);
     const [, setEmployees] = useState<WithId<CrmEmployee>[]>([]);
     const [month, setMonth] = useState(new Date().getMonth());
@@ -69,8 +73,8 @@ export default function PayrollRunPage() {
     return (
         <div className="flex w-full flex-col gap-6">
             <CrmPageHeader
-                title="Payroll Run"
-                subtitle={`Manage and disburse salaries for ${periodLabel}.`}
+                title={t('hrm.payroll.run.title')}
+                subtitle={t('hrm.payroll.run.subtitle', { period: periodLabel })}
                 icon={DollarSign}
                 actions={
                     <>
@@ -92,7 +96,7 @@ export default function PayrollRunPage() {
                         </ZoruSelect>
                         <ZoruButton disabled={isLoading}>
                             <Play className="h-4 w-4" />
-                            Run Payroll
+                            {t('hrm.payroll.run.action.run')}
                         </ZoruButton>
                     </>
                 }
@@ -100,44 +104,44 @@ export default function PayrollRunPage() {
 
             <div className="grid gap-4 md:grid-cols-3">
                 <ZoruCard className="p-6">
-                    <p className="text-[12.5px] font-medium text-zoru-ink-muted">Total Gross Salary</p>
+                    <p className="text-[12.5px] font-medium text-zoru-ink-muted">{t('hrm.payroll.run.stat.gross')}</p>
                     <div className="mt-2 text-2xl text-zoru-ink">₹{totalGross.toLocaleString('en-IN')}</div>
-                    <p className="mt-1 text-[11.5px] text-zoru-ink-muted">{payslips.length} employees</p>
+                    <p className="mt-1 text-[11.5px] text-zoru-ink-muted">{t('hrm.payroll.run.stat.employees', { count: payslips.length })}</p>
                 </ZoruCard>
                 <ZoruCard className="p-6">
-                    <p className="text-[12.5px] font-medium text-zoru-ink-muted">Total Deductions</p>
+                    <p className="text-[12.5px] font-medium text-zoru-ink-muted">{t('hrm.payroll.run.stat.deductions')}</p>
                     <div className="mt-2 text-2xl text-zoru-ink">₹{totalDeductions.toLocaleString('en-IN')}</div>
-                    <p className="mt-1 text-[11.5px] text-zoru-ink-muted">PF + ESI + TDS + PT</p>
+                    <p className="mt-1 text-[11.5px] text-zoru-ink-muted">{t('hrm.payroll.run.stat.deductionsSummary')}</p>
                 </ZoruCard>
                 <ZoruCard className="p-6">
-                    <p className="text-[12.5px] font-medium text-zoru-ink-muted">Total Net Pay</p>
+                    <p className="text-[12.5px] font-medium text-zoru-ink-muted">{t('hrm.payroll.run.stat.netPay')}</p>
                     <div className="mt-2 text-2xl text-zoru-ink">₹{totalNet.toLocaleString('en-IN')}</div>
-                    <p className="mt-1 text-[11.5px] text-zoru-ink-muted">Amount to be disbursed</p>
+                    <p className="mt-1 text-[11.5px] text-zoru-ink-muted">{t('hrm.payroll.run.stat.netPaySummary')}</p>
                 </ZoruCard>
             </div>
 
             <ZoruCard className="p-6">
                 <div className="mb-4 flex items-center justify-between">
                     <div>
-                        <h2 className="text-[16px] text-zoru-ink">Payroll Register — {periodLabel}</h2>
-                        <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">Review each employee&apos;s salary breakdown before disbursement.</p>
+                        <h2 className="text-[16px] text-zoru-ink">{t('hrm.payroll.run.register.title', { period: periodLabel })}</h2>
+                        <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">{t('hrm.payroll.run.register.subtitle')}</p>
                     </div>
                     <ZoruButton variant="outline" size="sm" disabled>
                         <CheckCircle className="h-3.5 w-3.5" />
-                        Mark All Paid
+                        {t('hrm.payroll.run.action.markAllPaid')}
                     </ZoruButton>
                 </div>
                 <div className="overflow-x-auto rounded-lg border border-zoru-line">
                     <table className="w-full text-left text-[13px]">
                         <thead>
                             <tr className="border-b border-zoru-line bg-zoru-surface-2">
-                                <th className="px-4 py-3 text-[12px] uppercase text-zoru-ink-muted">Employee</th>
-                                <th className="px-4 py-3 text-[12px] uppercase text-zoru-ink-muted">Designation</th>
-                                <th className="px-4 py-3 text-right text-[12px] uppercase text-zoru-ink-muted">Basic Salary</th>
-                                <th className="px-4 py-3 text-right text-[12px] uppercase text-zoru-ink-muted">Allowances</th>
-                                <th className="px-4 py-3 text-right text-[12px] uppercase text-zoru-ink-muted">Deductions</th>
-                                <th className="px-4 py-3 text-right text-[12px] uppercase text-zoru-ink-muted">Net Pay</th>
-                                <th className="px-4 py-3 text-center text-[12px] uppercase text-zoru-ink-muted">Status</th>
+                                <th className="px-4 py-3 text-[12px] uppercase text-zoru-ink-muted">{t('hrm.payroll.run.col.employee')}</th>
+                                <th className="px-4 py-3 text-[12px] uppercase text-zoru-ink-muted">{t('hrm.payroll.run.col.designation')}</th>
+                                <th className="px-4 py-3 text-right text-[12px] uppercase text-zoru-ink-muted">{t('hrm.payroll.run.col.basic')}</th>
+                                <th className="px-4 py-3 text-right text-[12px] uppercase text-zoru-ink-muted">{t('hrm.payroll.run.col.allowances')}</th>
+                                <th className="px-4 py-3 text-right text-[12px] uppercase text-zoru-ink-muted">{t('hrm.payroll.run.col.deductions')}</th>
+                                <th className="px-4 py-3 text-right text-[12px] uppercase text-zoru-ink-muted">{t('hrm.payroll.run.col.net')}</th>
+                                <th className="px-4 py-3 text-center text-[12px] uppercase text-zoru-ink-muted">{t('hrm.payroll.run.col.status')}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -171,7 +175,7 @@ export default function PayrollRunPage() {
                             ) : (
                                 <tr>
                                     <td colSpan={7} className="h-24 text-center text-zoru-ink-muted">
-                                        No payroll data for {periodLabel}. Click &ldquo;Run Payroll&rdquo; to generate.
+                                        {t('hrm.payroll.run.empty', { period: periodLabel })}
                                     </td>
                                 </tr>
                             )}
@@ -179,7 +183,7 @@ export default function PayrollRunPage() {
                         {payslips.length > 0 && (
                             <tfoot>
                                 <tr className="border-t-2 border-zoru-line bg-zoru-surface-2">
-                                    <td colSpan={2} className="px-4 py-3 text-[12.5px] text-zoru-ink">Totals</td>
+                                    <td colSpan={2} className="px-4 py-3 text-[12.5px] text-zoru-ink">{t('hrm.payroll.run.totals')}</td>
                                     <td className="px-4 py-3 text-right font-mono text-[12.5px] text-zoru-ink">
                                         ₹{payslips.reduce((s, p) => s + (p.earnings?.find((e: any) => e.name?.toLowerCase().includes('basic'))?.amount ?? 0), 0).toLocaleString('en-IN')}
                                     </td>

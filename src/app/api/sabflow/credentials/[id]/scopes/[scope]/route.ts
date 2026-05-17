@@ -172,6 +172,19 @@ export async function DELETE(req: NextRequest, { params }: RouteContext) {
       request: req,
     });
 
+    if (hard && outcome.kind === 'remote') {
+      void recordFlowAction('credential.oauth.revoked', {
+        userId,
+        target: id,
+        metadata: {
+          provider: providerId,
+          scope,
+          statusCode: outcome.statusCode,
+        },
+        request: req,
+      });
+    }
+
     return NextResponse.json({
       ok: true,
       outcome: outcome.kind,

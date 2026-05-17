@@ -21,11 +21,13 @@ import {
     ZoruSkeleton,
 } from '@/components/zoruui';
 import { getSession } from '@/app/actions/user.actions';
+import { useT } from '@/lib/i18n/client';
 import type { User, Plan, WithId } from '@/lib/definitions';
 
 type LoadedPlan = Partial<WithId<Plan>> | null;
 
 export default function BillingPage() {
+    const { t, locale } = useT();
     const [user, setUser] = useState<WithId<User> | null>(null);
     const [plan, setPlan] = useState<LoadedPlan>(null);
     const [loading, startLoading] = useTransition();
@@ -39,7 +41,7 @@ export default function BillingPage() {
         });
     }, []);
 
-    const planName = plan?.name ?? 'Free';
+    const planName = plan?.name ?? t('settings.billing.freePlan');
     const price = plan?.price ?? 0;
     const currency = (plan as any)?.currency ?? 'USD';
     const features = (plan as any)?.features ?? {};
@@ -52,11 +54,11 @@ export default function BillingPage() {
             <ZoruBreadcrumb>
                 <ZoruBreadcrumbList>
                     <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbLink href="/dashboard/settings">Settings</ZoruBreadcrumbLink>
+                        <ZoruBreadcrumbLink href="/dashboard/settings">{t('settings.overview.title')}</ZoruBreadcrumbLink>
                     </ZoruBreadcrumbItem>
                     <ZoruBreadcrumbSeparator />
                     <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbPage>Billing &amp; Plan</ZoruBreadcrumbPage>
+                        <ZoruBreadcrumbPage>{t('settings.billing.title')}</ZoruBreadcrumbPage>
                     </ZoruBreadcrumbItem>
                 </ZoruBreadcrumbList>
             </ZoruBreadcrumb>
@@ -64,15 +66,15 @@ export default function BillingPage() {
             <div className="flex flex-wrap items-center justify-between gap-4">
                 <ZoruPageHeader>
                     <ZoruPageHeading>
-                        <ZoruPageTitle>Billing &amp; Plan</ZoruPageTitle>
+                        <ZoruPageTitle>{t('settings.billing.title')}</ZoruPageTitle>
                         <ZoruPageDescription>
-                            Your active plan, included features, and upgrade path.
+                            {t('settings.billing.subtitle')}
                         </ZoruPageDescription>
                     </ZoruPageHeading>
                 </ZoruPageHeader>
                 <ZoruButton size="sm" asChild>
                     <Link href="/dashboard/user/billing">
-                        Manage billing
+                        {t('settings.billing.manageBilling')}
                         <ArrowUpRight className="h-4 w-4" />
                     </Link>
                 </ZoruButton>
@@ -91,21 +93,21 @@ export default function BillingPage() {
                             <div>
                                 <div className="flex items-center gap-2">
                                     <p className="text-base text-zoru-ink">{planName}</p>
-                                    <ZoruBadge variant="info">Current plan</ZoruBadge>
+                                    <ZoruBadge variant="info">{t('settings.billing.currentPlan')}</ZoruBadge>
                                 </div>
                                 <p className="mt-1 text-xs text-zoru-ink-muted">
                                     {price > 0
-                                        ? `${formatCurrency(price, currency)} billed monthly`
-                                        : 'Free — upgrade anytime to unlock more seats and features.'}
+                                        ? t('settings.billing.billedMonthly', { price: formatCurrency(price, currency, locale) })
+                                        : t('settings.billing.freeUpgradeHint')}
                                 </p>
                             </div>
                         </div>
                         <div className="flex gap-2">
                             <ZoruButton variant="outline" size="sm" asChild>
-                                <Link href="/dashboard/user/billing">Change plan</Link>
+                                <Link href="/dashboard/user/billing">{t('settings.billing.changePlan')}</Link>
                             </ZoruButton>
                             <ZoruButton variant="ghost" size="sm" asChild>
-                                <Link href="/dashboard/settings/invoices">Invoices</Link>
+                                <Link href="/dashboard/settings/invoices">{t('settings.billing.invoices')}</Link>
                             </ZoruButton>
                         </div>
                     </div>
@@ -115,16 +117,16 @@ export default function BillingPage() {
             {/* Features */}
             <ZoruCard className="p-6">
                 <div className="mb-4">
-                    <p className="text-sm text-zoru-ink">What&apos;s included</p>
+                    <p className="text-sm text-zoru-ink">{t('settings.billing.whatsIncluded')}</p>
                     <p className="text-xs text-zoru-ink-muted">
-                        Feature entitlements that come with your current plan.
+                        {t('settings.billing.featuresHint')}
                     </p>
                 </div>
                 {loading ? (
                     <ZoruSkeleton className="h-40 w-full" />
                 ) : featureEntries.length === 0 ? (
                     <div className="rounded-xl border border-dashed border-zoru-line bg-zoru-surface-2 p-6 text-center text-xs text-zoru-ink-muted">
-                        Your plan does not expose a feature matrix. Contact sales for custom entitlements.
+                        {t('settings.billing.noFeatureMatrix')}
                     </div>
                 ) : (
                     <div className="grid gap-x-6 gap-y-2 sm:grid-cols-2 lg:grid-cols-3">
@@ -155,18 +157,21 @@ export default function BillingPage() {
                         <CreditCard className="h-4 w-4" />
                     </div>
                     <div className="flex-1">
-                        <p className="text-sm text-zoru-ink">Payment method</p>
+                        <p className="text-sm text-zoru-ink">{t('settings.billing.paymentMethod')}</p>
                         <p className="text-xs text-zoru-ink-muted">
                             {user?.wallet?.balance
-                                ? `Wallet balance ${formatCurrency(
-                                      (user.wallet.balance ?? 0) / 100,
-                                      user.wallet.currency ?? 'INR',
-                                  )} — auto-debit enabled`
-                                : 'No saved card. You’ll be prompted on your next upgrade.'}
+                                ? t('settings.billing.walletBalance', {
+                                      balance: formatCurrency(
+                                          (user.wallet.balance ?? 0) / 100,
+                                          user.wallet.currency ?? 'INR',
+                                          locale,
+                                      ),
+                                  })
+                                : t('settings.billing.noSavedCard')}
                         </p>
                     </div>
                     <ZoruButton variant="outline" size="sm" asChild>
-                        <Link href="/dashboard/user/billing">Update</Link>
+                        <Link href="/dashboard/user/billing">{t('settings.billing.update')}</Link>
                     </ZoruButton>
                 </div>
             </ZoruCard>
@@ -174,9 +179,9 @@ export default function BillingPage() {
     );
 }
 
-function formatCurrency(value: number, currency = 'USD'): string {
+function formatCurrency(value: number, currency = 'USD', locale?: string): string {
     try {
-        return new Intl.NumberFormat(undefined, {
+        return new Intl.NumberFormat(locale, {
             style: 'currency',
             currency,
             maximumFractionDigits: 2,

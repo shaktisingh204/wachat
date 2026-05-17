@@ -17,6 +17,7 @@ import {
   canViewFlow,
 } from '@/lib/sabflow/workspaces/permissions';
 import type { WorkspaceRole } from '@/lib/sabflow/workspaces/types';
+import { recordFlowAction } from '@/lib/sabflow/audit/middleware';
 
 export const dynamic = 'force-dynamic';
 
@@ -78,25 +79,54 @@ export async function PATCH(
     iconUrl?: unknown;
     plan?: unknown;
   };
+  const nextName = typeof body.name === 'string' ? body.name : undefined;
+  const nextSlug = typeof body.slug === 'string' ? body.slug : undefined;
+  const nextIconUrl = typeof body.iconUrl === 'string' ? body.iconUrl : undefined;
+  const nextPlan =
+    body.plan === 'free' ||
+    body.plan === 'starter' ||
+    body.plan === 'pro' ||
+    body.plan === 'enterprise'
+      ? body.plan
+      : undefined;
+
   await updateWorkspace(workspaceId, {
-    name: typeof body.name === 'string' ? body.name : undefined,
-    slug: typeof body.slug === 'string' ? body.slug : undefined,
-    iconUrl: typeof body.iconUrl === 'string' ? body.iconUrl : undefined,
-    plan:
-      body.plan === 'free' ||
-      body.plan === 'starter' ||
-      body.plan === 'pro' ||
-      body.plan === 'enterprise'
-        ? body.plan
-        : undefined,
+    name: nextName,
+    slug: nextSlug,
+    iconUrl: nextIconUrl,
+    plan: nextPlan,
   });
 
   const workspace = await getWorkspaceById(workspaceId);
+
+  if (nextPlan !== undefined) {
+    void recordFlowAction('workspace.plan.changed', {
+      userId: authz.userId,
+      workspaceId,
+      target: workspaceId,
+      metadata: { plan: nextPlan },
+      request,
+    });
+  }
+  if (
+    nextName !== undefined ||
+    nextSlug !== undefined ||
+    nextIconUrl !== undefined
+  ) {
+    void recordFlowAction('workspace.settings.updated', {
+      userId: authz.userId,
+      workspaceId,
+      target: workspaceId,
+      metadata: { name: nextName, slug: nextSlug, iconUrl: nextIconUrl },
+      request,
+    });
+  }
+
   return NextResponse.json({ workspace });
 }
 
 export async function DELETE(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ workspaceId: string }> },
 ) {
   const { workspaceId } = await params;
@@ -111,5 +141,11 @@ export async function DELETE(
     );
   }
   await deleteWorkspace(workspaceId);
+  void recordFlowAction('workspace.deleted', {
+    userId: authz.userId,
+    workspaceId,
+    target: workspaceId,
+    request,
+  });
   return NextResponse.json({ ok: true });
 }

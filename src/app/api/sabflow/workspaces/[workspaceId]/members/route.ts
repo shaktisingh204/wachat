@@ -19,6 +19,7 @@ import {
   canViewFlow,
 } from '@/lib/sabflow/workspaces/permissions';
 import type { WorkspaceRole } from '@/lib/sabflow/workspaces/types';
+import { recordFlowAction } from '@/lib/sabflow/audit/middleware';
 
 export const dynamic = 'force-dynamic';
 
@@ -90,5 +91,14 @@ export async function POST(
     role: newRole,
     invitedBy: session.user._id.toString(),
   });
+
+  void recordFlowAction('workspace.member.added', {
+    userId: session.user._id.toString(),
+    workspaceId,
+    target: userId,
+    metadata: { addedUserId: userId, role: newRole },
+    request,
+  });
+
   return NextResponse.json({ ok: true }, { status: 201 });
 }

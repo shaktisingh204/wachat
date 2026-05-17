@@ -110,3 +110,85 @@ export const __internals = {
     POLICIES_COLLECTION,
     HOLDS_COLLECTION,
 };
+
+/* ─── Audit-log retention sweep (consumed by /api/cron/audit-retention) ── */
+
+const AUDIT_COLLECTION = 'crm_audit_log';
+const DEFAULT_AUDIT_RETENTION_DAYS = 90;
+
+export interface PurgeAuditLogResult {
+    tenantUserId: string;
+    retentionDays: number;
+    /** Count of rows that would be deleted (dry-run) or were eligible. */
+    wouldDelete: number;
+    /** Count of rows actually deleted; 0 in dry-run mode. */
+    deleted: number;
+    /** ISO timestamp — rows older than this are eligible. */
+    cutoff: string;
+}
+
+/**
+ * Enforce the configured audit-log retention window for a single
+ * tenant. Tombstoned by the cron handler at `/api/cron/audit-retention`.
+ *
+ * `dryRun` (default `true`) counts eligible rows without deleting them
+ * so operators can eyeball the report before flipping the switch.
+ */
+export async function purgeAuditLogForTenant(
+    tenantUserId: string,
+    opts: { dryRun?: boolean } = {},
+): Promise<PurgeAuditLogResult> {
+    const dryRun = opts.dryRun ?? true;
+
+    const mod: typeof import('../mongodb') = await import('../mongodb');
+    const { db } = await mod.connectToDatabase();
+
+    // Per-tenant override lives on the user doc; fall back to platform
+    // default if nothing is set.
+    const { ObjectId } = await import('mongodb');
+    let retentionDays = DEFAULT_AUDIT_RETENTION_DAYS;
+    if (ObjectId.isValid(tenantUserId)) {
+        const userDoc = await db
+            .collection('users')
+            .findOne(
+                { _id: new ObjectId(tenantUserId) },
+                { projection: { crmAuditLogRetentionDays: 1 } },
+            );
+        const override = (userDoc as any)?.crmAuditLogRetentionDays;
+        if (typeof override === 'number' && override > 0) {
+            retentionDays = override;
+        }
+    }
+
+    const cutoffDate = new Date(Date.now() - retentionDays * 86_400_000);
+    const cutoff = cutoffDate.toISOString();
+
+    const userIdFilter: any = ObjectId.isValid(tenantUserId)
+        ? new ObjectId(tenantUserId)
+        : tenantUserId;
+
+    const filter = {
+        userId: userIdFilter,
+        createdAt: { $lt: cutoffDate },
+    } as Record<string, unknown>;
+
+    const wouldDelete = await db
+        .collection(AUDIT_COLLECTION)
+        .countDocuments(filter as any);
+
+    let deleted = 0;
+    if (!dryRun && wouldDelete > 0) {
+        const res = await db
+            .collection(AUDIT_COLLECTION)
+            .deleteMany(filter as any);
+        deleted = res.deletedCount ?? 0;
+    }
+
+    return {
+        tenantUserId,
+        retentionDays,
+        wouldDelete,
+        deleted,
+        cutoff,
+    };
+}

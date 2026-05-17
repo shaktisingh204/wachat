@@ -13,6 +13,7 @@ import {
   createWorkspace,
   getWorkspacesByUser,
 } from '@/lib/sabflow/workspaces/db';
+import { recordFlowAction } from '@/lib/sabflow/audit/middleware';
 
 export const dynamic = 'force-dynamic';
 
@@ -52,6 +53,18 @@ export async function POST(request: NextRequest) {
       slug: typeof body.slug === 'string' ? body.slug : undefined,
       iconUrl: typeof body.iconUrl === 'string' ? body.iconUrl : undefined,
       ownerId: session.user._id.toString(),
+    });
+
+    const ownerId = session.user._id.toString();
+    const workspaceId =
+      (workspace as { _id?: { toString(): string }; id?: string })._id?.toString() ??
+      (workspace as { id?: string }).id;
+    void recordFlowAction('workspace.created', {
+      userId: ownerId,
+      workspaceId,
+      target: workspaceId,
+      metadata: { name, slug: body.slug, iconUrl: body.iconUrl },
+      request,
     });
 
     return NextResponse.json({ workspace }, { status: 201 });

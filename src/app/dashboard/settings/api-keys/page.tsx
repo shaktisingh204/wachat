@@ -43,11 +43,13 @@ import {
     getApiKeysForUser,
     revokeApiKey,
 } from '@/app/actions/api-keys.actions';
+import { useT } from '@/lib/i18n/client';
 import type { ApiKey } from '@/lib/definitions';
 
 type KeyRow = Omit<ApiKey, 'key'> & { _id: string };
 
 export default function ApiKeysPage() {
+    const { t, locale } = useT();
     const [keys, setKeys] = useState<KeyRow[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -72,11 +74,11 @@ export default function ApiKeysPage() {
             <ZoruBreadcrumb>
                 <ZoruBreadcrumbList>
                     <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbLink href="/dashboard/settings">Settings</ZoruBreadcrumbLink>
+                        <ZoruBreadcrumbLink href="/dashboard/settings">{t('settings.overview.title')}</ZoruBreadcrumbLink>
                     </ZoruBreadcrumbItem>
                     <ZoruBreadcrumbSeparator />
                     <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbPage>API Keys</ZoruBreadcrumbPage>
+                        <ZoruBreadcrumbPage>{t('settings.apiKeys.title')}</ZoruBreadcrumbPage>
                     </ZoruBreadcrumbItem>
                 </ZoruBreadcrumbList>
             </ZoruBreadcrumb>
@@ -84,9 +86,9 @@ export default function ApiKeysPage() {
             <div className="flex flex-wrap items-center justify-between gap-4">
                 <ZoruPageHeader>
                     <ZoruPageHeading>
-                        <ZoruPageTitle>API keys</ZoruPageTitle>
+                        <ZoruPageTitle>{t('settings.apiKeys.title')}</ZoruPageTitle>
                         <ZoruPageDescription>
-                            Use these keys to authenticate programmatic access to SabNode APIs.
+                            {t('settings.apiKeys.subtitle')}
                         </ZoruPageDescription>
                     </ZoruPageHeading>
                 </ZoruPageHeader>
@@ -94,9 +96,9 @@ export default function ApiKeysPage() {
             </div>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                <StatCard label="Total keys" value={keys.length} />
-                <StatCard label="Active" value={activeCount} tone="green" />
-                <StatCard label="Revoked" value={keys.length - activeCount} tone="red" />
+                <StatCard label={t('settings.apiKeys.stats.total')} value={keys.length} />
+                <StatCard label={t('settings.apiKeys.stats.active')} value={activeCount} tone="green" />
+                <StatCard label={t('settings.apiKeys.stats.revoked')} value={keys.length - activeCount} tone="red" />
             </div>
 
             <ZoruCard className="p-0">
@@ -123,10 +125,9 @@ export default function ApiKeysPage() {
                         <Key className="h-4 w-4" />
                     </div>
                     <div>
-                        <p className="text-sm text-zoru-ink">Using your API key</p>
+                        <p className="text-sm text-zoru-ink">{t('settings.apiKeys.usingKey.title')}</p>
                         <p className="mt-1 text-xs text-zoru-ink-muted">
-                            Include the key in the <code className="rounded bg-zoru-surface-2 px-1">X-Api-Key</code> request
-                            header. Keys scope to your workspace — never expose them client-side.
+                            {t('settings.apiKeys.usingKey.descBefore')}<code className="rounded bg-zoru-surface-2 px-1">X-Api-Key</code>{t('settings.apiKeys.usingKey.descAfter')}
                         </p>
                     </div>
                 </div>
@@ -136,6 +137,7 @@ export default function ApiKeysPage() {
 }
 
 function CreateKeyDialog({ onCreated }: { onCreated: () => void }) {
+    const { t } = useT();
     const [open, setOpen] = useState(false);
     const [name, setName] = useState('');
     const [newKey, setNewKey] = useState<string | null>(null);
@@ -145,7 +147,7 @@ function CreateKeyDialog({ onCreated }: { onCreated: () => void }) {
 
     const handleCreate = () => {
         if (!name.trim()) {
-            toast({ title: 'Name required', variant: 'destructive' });
+            toast({ title: t('settings.apiKeys.toast.nameRequired'), variant: 'destructive' });
             return;
         }
         startTransition(async () => {
@@ -154,7 +156,7 @@ function CreateKeyDialog({ onCreated }: { onCreated: () => void }) {
                 setNewKey(res.apiKey);
                 onCreated();
             } else {
-                toast({ title: 'Error', description: res.error, variant: 'destructive' });
+                toast({ title: t('common.error'), description: res.error, variant: 'destructive' });
             }
         });
     };
@@ -182,23 +184,23 @@ function CreateKeyDialog({ onCreated }: { onCreated: () => void }) {
             <ZoruDialogTrigger asChild>
                 <ZoruButton size="sm">
                     <Plus className="h-4 w-4" />
-                    New API key
+                    {t('settings.apiKeys.newApiKey')}
                 </ZoruButton>
             </ZoruDialogTrigger>
             <ZoruDialogContent>
                 <ZoruDialogHeader>
-                    <ZoruDialogTitle>{newKey ? 'Key generated' : 'Generate API key'}</ZoruDialogTitle>
+                    <ZoruDialogTitle>{newKey ? t('settings.apiKeys.dialog.generated.title') : t('settings.apiKeys.dialog.generate.title')}</ZoruDialogTitle>
                     <ZoruDialogDescription>
                         {newKey
-                            ? 'Copy the key now — you won’t see it again.'
-                            : 'Give the key a descriptive name so you can identify it later.'}
+                            ? t('settings.apiKeys.dialog.generated.description')
+                            : t('settings.apiKeys.dialog.generate.description')}
                     </ZoruDialogDescription>
                 </ZoruDialogHeader>
 
                 {newKey ? (
                     <div className="py-2">
                         <ZoruLabel className="mb-1.5 block text-xs">
-                            Your new API key
+                            {t('settings.apiKeys.dialog.generated.label')}
                         </ZoruLabel>
                         <ZoruInput
                             readOnly
@@ -210,16 +212,16 @@ function CreateKeyDialog({ onCreated }: { onCreated: () => void }) {
                                     className="flex items-center gap-1 rounded-md px-2 py-1 text-xs text-zoru-ink-muted hover:text-zoru-ink"
                                 >
                                     {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-                                    {copied ? 'Copied' : 'Copy'}
+                                    {copied ? t('settings.apiKeys.copied') : t('action.copy')}
                                 </button>
                             }
                         />
                     </div>
                 ) : (
                     <div className="py-2">
-                        <ZoruLabel className="mb-1.5 block text-xs">Key name</ZoruLabel>
+                        <ZoruLabel className="mb-1.5 block text-xs">{t('settings.apiKeys.dialog.generate.label')}</ZoruLabel>
                         <ZoruInput
-                            placeholder="e.g. Production backend"
+                            placeholder={t('settings.apiKeys.dialog.generate.placeholder')}
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                         />
@@ -229,12 +231,12 @@ function CreateKeyDialog({ onCreated }: { onCreated: () => void }) {
                 <ZoruDialogFooter>
                     {newKey ? (
                         <ZoruButton size="sm" onClick={() => setOpen(false)}>
-                            Done
+                            {t('settings.apiKeys.done')}
                         </ZoruButton>
                     ) : (
                         <>
                             <ZoruButton variant="ghost" size="sm" onClick={() => setOpen(false)}>
-                                Cancel
+                                {t('action.cancel')}
                             </ZoruButton>
                             <ZoruButton
                                 size="sm"
@@ -242,7 +244,7 @@ function CreateKeyDialog({ onCreated }: { onCreated: () => void }) {
                                 disabled={pending}
                             >
                                 {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
-                                Generate
+                                {t('settings.apiKeys.generate')}
                             </ZoruButton>
                         </>
                     )}
@@ -253,6 +255,7 @@ function CreateKeyDialog({ onCreated }: { onCreated: () => void }) {
 }
 
 function KeyRowItem({ row, onRevoked }: { row: KeyRow; onRevoked: () => void }) {
+    const { t, locale } = useT();
     const [pending, startTransition] = useTransition();
     const { toast } = useZoruToast();
 
@@ -260,10 +263,10 @@ function KeyRowItem({ row, onRevoked }: { row: KeyRow; onRevoked: () => void }) 
         startTransition(async () => {
             const res = await revokeApiKey(row._id.toString());
             if (res.success) {
-                toast({ title: 'Key revoked' });
+                toast({ title: t('settings.apiKeys.toast.revoked') });
                 onRevoked();
             } else {
-                toast({ title: 'Error', description: res.error, variant: 'destructive' });
+                toast({ title: t('common.error'), description: res.error, variant: 'destructive' });
             }
         });
     };
@@ -274,15 +277,14 @@ function KeyRowItem({ row, onRevoked }: { row: KeyRow; onRevoked: () => void }) 
                 <div className="flex items-center gap-2">
                     <p className="truncate text-sm text-zoru-ink">{row.name}</p>
                     {row.revoked ? (
-                        <ZoruBadge variant="danger">Revoked</ZoruBadge>
+                        <ZoruBadge variant="danger">{t('settings.apiKeys.status.revoked')}</ZoruBadge>
                     ) : (
-                        <ZoruBadge variant="success">Active</ZoruBadge>
+                        <ZoruBadge variant="success">{t('settings.apiKeys.status.active')}</ZoruBadge>
                     )}
                 </div>
                 <p className="mt-1 text-xs text-zoru-ink-muted">
-                    {row.requestCount.toLocaleString()} requests ·
-                    {row.lastUsed ? ` last used ${formatDate(row.lastUsed)}` : ' never used'} · created{' '}
-                    {formatDate(row.createdAt)}
+                    {t('settings.apiKeys.row.requests', { count: row.requestCount.toLocaleString(locale) })} ·
+                    {row.lastUsed ? ` ${t('settings.apiKeys.row.lastUsed', { date: formatDate(row.lastUsed, locale) })}` : ` ${t('settings.apiKeys.row.neverUsed')}`} · {t('settings.apiKeys.row.created', { date: formatDate(row.createdAt, locale) })}
                 </p>
             </div>
             {!row.revoked && (
@@ -290,24 +292,23 @@ function KeyRowItem({ row, onRevoked }: { row: KeyRow; onRevoked: () => void }) 
                     <ZoruAlertDialogTrigger asChild>
                         <ZoruButton variant="ghost" size="sm" disabled={pending}>
                             <Trash2 className="h-4 w-4" />
-                            Revoke
+                            {t('settings.apiKeys.revoke')}
                         </ZoruButton>
                     </ZoruAlertDialogTrigger>
                     <ZoruAlertDialogContent>
                         <ZoruAlertDialogHeader>
-                            <ZoruAlertDialogTitle>Revoke this API key?</ZoruAlertDialogTitle>
+                            <ZoruAlertDialogTitle>{t('settings.apiKeys.confirmRevoke.title')}</ZoruAlertDialogTitle>
                             <ZoruAlertDialogDescription>
-                                Any application using &ldquo;{row.name}&rdquo; will start receiving 401 responses
-                                immediately. This cannot be undone.
+                                {t('settings.apiKeys.confirmRevoke.description', { name: row.name })}
                             </ZoruAlertDialogDescription>
                         </ZoruAlertDialogHeader>
                         <ZoruAlertDialogFooter>
-                            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+                            <ZoruAlertDialogCancel>{t('action.cancel')}</ZoruAlertDialogCancel>
                             <ZoruAlertDialogAction
                                 onClick={handleRevoke}
                                 className="bg-zoru-danger text-zoru-danger-foreground hover:bg-zoru-danger/90"
                             >
-                                Revoke key
+                                {t('settings.apiKeys.revokeKey')}
                             </ZoruAlertDialogAction>
                         </ZoruAlertDialogFooter>
                     </ZoruAlertDialogContent>
@@ -318,14 +319,15 @@ function KeyRowItem({ row, onRevoked }: { row: KeyRow; onRevoked: () => void }) 
 }
 
 function EmptyState({ onCreated }: { onCreated: () => void }) {
+    const { t } = useT();
     return (
         <div className="p-10 text-center">
             <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted">
                 <Key className="h-5 w-5" />
             </div>
-            <p className="text-sm text-zoru-ink">No API keys yet</p>
+            <p className="text-sm text-zoru-ink">{t('settings.apiKeys.empty.title')}</p>
             <p className="mt-1 text-xs text-zoru-ink-muted">
-                Generate your first key to start calling the SabNode APIs.
+                {t('settings.apiKeys.empty.description')}
             </p>
             <div className="mt-4 inline-flex">
                 <CreateKeyDialog onCreated={onCreated} />
@@ -343,19 +345,20 @@ function StatCard({
     value: number;
     tone?: 'neutral' | 'green' | 'red';
 }) {
+    const { t } = useT();
     return (
         <ZoruCard className="p-6">
             <p className="text-xs uppercase tracking-wide text-zoru-ink-muted">{label}</p>
             <div className="mt-1 flex items-baseline gap-2">
                 <p className="text-[26px] leading-none text-zoru-ink">{value}</p>
-                {tone === 'green' && value > 0 && <ZoruBadge variant="success">In use</ZoruBadge>}
-                {tone === 'red' && value > 0 && <ZoruBadge variant="danger">Revoked</ZoruBadge>}
+                {tone === 'green' && value > 0 && <ZoruBadge variant="success">{t('settings.apiKeys.inUse')}</ZoruBadge>}
+                {tone === 'red' && value > 0 && <ZoruBadge variant="danger">{t('settings.apiKeys.status.revoked')}</ZoruBadge>}
             </div>
         </ZoruCard>
     );
 }
 
-function formatDate(d: Date | string): string {
+function formatDate(d: Date | string, locale?: string): string {
     const date = typeof d === 'string' ? new Date(d) : d;
-    return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+    return date.toLocaleDateString(locale, { year: 'numeric', month: 'short', day: 'numeric' });
 }

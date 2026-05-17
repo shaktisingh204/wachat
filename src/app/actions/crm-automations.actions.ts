@@ -175,3 +175,54 @@ export async function generateCrmAutomation(input: z.infer<typeof GenerateCrmAut
     if (!guard.ok) return { error: guard.error };
     return await generateFlow(input);
 }
+
+/* ─── Legacy-name aliases used by the AutomationForm UI ─────────────── */
+
+export async function getAutomationById(
+    automationId: string,
+): Promise<WithId<CrmAutomation> | null> {
+    return getCrmAutomationById(automationId);
+}
+
+/**
+ * `useActionState`-compatible wrapper around `saveCrmAutomation`. Reads
+ * the form fields posted by `<AutomationForm />` and feeds them to the
+ * canonical action.
+ */
+export async function saveAutomation(
+    _prevState: { message?: string; error?: string; id?: string } | undefined,
+    formData: FormData,
+): Promise<{ message?: string; error?: string; id?: string }> {
+    const flowId = (formData.get('automationId') as string | null) || undefined;
+    const name = (formData.get('name') as string | null)?.trim() || '';
+    if (!name) return { error: 'Automation name is required.' };
+
+    const trigger = (formData.get('trigger') as string | null) || 'manual';
+    const conditions = (formData.get('conditions') as string | null) || '';
+
+    let nodes: CrmAutomationNode[] = [];
+    try {
+        const raw = formData.get('nodes') as string | null;
+        if (raw) nodes = JSON.parse(raw) as CrmAutomationNode[];
+    } catch {
+        return { error: 'Invalid nodes payload.' };
+    }
+
+    const triggerNode: CrmAutomationNode = {
+        id: 'trigger',
+        type: `trigger_${trigger}`,
+        data: { conditions } as any,
+    } as CrmAutomationNode;
+
+    const result = await saveCrmAutomation({
+        flowId,
+        name,
+        nodes: [triggerNode, ...nodes],
+        edges: [] as CrmAutomationEdge[],
+    });
+    return {
+        message: result.message,
+        error: result.error,
+        id: result.flowId,
+    };
+}

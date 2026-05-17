@@ -291,4 +291,6 @@ export async function deleteCrmItemBatch(
     }
 }
 
-export type { WithId };
+// NOTE: `WithId` is not re-exported — Server Action files may only
+// export async functions. Consumers should import the type directly
+// from `mongodb` instead.

@@ -30,11 +30,12 @@ import {
   ZoruPageTitle,
   cn,
 } from '@/components/zoruui';
+import { useT } from '@/lib/i18n/client';
 
 type Integration = {
   id: string;
   name: string;
-  description: string;
+  descriptionKey: string;
   icon: React.ComponentType<{ className?: string }>;
   category: 'messaging' | 'data' | 'automation' | 'commerce' | 'dev';
   connected: boolean;
@@ -44,7 +45,7 @@ const INTEGRATIONS: Integration[] = [
   {
     id: 'slack',
     name: 'Slack',
-    description: 'Stream inbox events into a Slack channel for fast team triage.',
+    descriptionKey: 'settings.integrations.items.slack.description',
     icon: Slack,
     category: 'messaging',
     connected: false,
@@ -52,7 +53,7 @@ const INTEGRATIONS: Integration[] = [
   {
     id: 'zapier',
     name: 'Zapier',
-    description: 'Connect SabNode to 6,000+ apps with no-code automations.',
+    descriptionKey: 'settings.integrations.items.zapier.description',
     icon: Zap,
     category: 'automation',
     connected: true,
@@ -60,7 +61,7 @@ const INTEGRATIONS: Integration[] = [
   {
     id: 'github',
     name: 'GitHub',
-    description: 'Mirror your SabNode release notes to a GitHub repo.',
+    descriptionKey: 'settings.integrations.items.github.description',
     icon: Github,
     category: 'dev',
     connected: false,
@@ -68,7 +69,7 @@ const INTEGRATIONS: Integration[] = [
   {
     id: 'shopify',
     name: 'Shopify',
-    description: 'Sync order events into WhatsApp broadcasts and abandoned-cart flows.',
+    descriptionKey: 'settings.integrations.items.shopify.description',
     icon: ShoppingCart,
     category: 'commerce',
     connected: false,
@@ -76,7 +77,7 @@ const INTEGRATIONS: Integration[] = [
   {
     id: 'bigquery',
     name: 'BigQuery',
-    description: 'Stream raw message logs into your BigQuery warehouse for analysis.',
+    descriptionKey: 'settings.integrations.items.bigquery.description',
     icon: Database,
     category: 'data',
     connected: false,
@@ -84,23 +85,24 @@ const INTEGRATIONS: Integration[] = [
   {
     id: 'mailchimp',
     name: 'Mailchimp',
-    description: 'Sync contact lists and segments between SabNode and Mailchimp.',
+    descriptionKey: 'settings.integrations.items.mailchimp.description',
     icon: Mail,
     category: 'messaging',
     connected: false,
   },
 ];
 
-const CATEGORIES: Array<{ id: Integration['category'] | 'all'; label: string }> = [
-  { id: 'all', label: 'All' },
-  { id: 'messaging', label: 'Messaging' },
-  { id: 'automation', label: 'Automation' },
-  { id: 'commerce', label: 'Commerce' },
-  { id: 'data', label: 'Data' },
-  { id: 'dev', label: 'Developer' },
+const CATEGORIES: Array<{ id: Integration['category'] | 'all'; labelKey: string }> = [
+  { id: 'all', labelKey: 'settings.integrations.categories.all' },
+  { id: 'messaging', labelKey: 'settings.integrations.categories.messaging' },
+  { id: 'automation', labelKey: 'settings.integrations.categories.automation' },
+  { id: 'commerce', labelKey: 'settings.integrations.categories.commerce' },
+  { id: 'data', labelKey: 'settings.integrations.categories.data' },
+  { id: 'dev', labelKey: 'settings.integrations.categories.dev' },
 ];
 
 export default function IntegrationsPage() {
+  const { t } = useT();
   const [filter, setFilter] = useState<Integration['category'] | 'all'>('all');
   const [search, setSearch] = useState('');
 
@@ -115,20 +117,20 @@ export default function IntegrationsPage() {
       <ZoruBreadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard/settings">Settings</ZoruBreadcrumbLink>
+            <ZoruBreadcrumbLink href="/dashboard/settings">{t('settings.overview.title')}</ZoruBreadcrumbLink>
           </ZoruBreadcrumbItem>
           <ZoruBreadcrumbSeparator />
           <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Integrations</ZoruBreadcrumbPage>
+            <ZoruBreadcrumbPage>{t('settings.integrations.title')}</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
       </ZoruBreadcrumb>
 
       <ZoruPageHeader>
         <ZoruPageHeading>
-          <ZoruPageTitle>Integrations</ZoruPageTitle>
+          <ZoruPageTitle>{t('settings.integrations.title')}</ZoruPageTitle>
           <ZoruPageDescription>
-            Plug SabNode into the tools your team already uses.
+            {t('settings.integrations.subtitle')}
           </ZoruPageDescription>
         </ZoruPageHeading>
       </ZoruPageHeader>
@@ -147,13 +149,13 @@ export default function IntegrationsPage() {
                   : 'text-zoru-ink-muted hover:text-zoru-ink',
               )}
             >
-              {c.label}
+              {t(c.labelKey)}
             </button>
           ))}
         </div>
         <div className="ml-auto w-full sm:w-64">
           <ZoruInput
-            placeholder="Search integrations…"
+            placeholder={t('settings.integrations.searchPlaceholder')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             leadingSlot={<Search />}
@@ -171,24 +173,24 @@ export default function IntegrationsPage() {
                   <Icon className="h-5 w-5" />
                 </div>
                 {i.connected ? (
-                  <ZoruBadge variant="success">Connected</ZoruBadge>
+                  <ZoruBadge variant="success">{t('settings.integrations.status.connected')}</ZoruBadge>
                 ) : (
-                  <ZoruBadge variant="ghost">Available</ZoruBadge>
+                  <ZoruBadge variant="ghost">{t('settings.integrations.status.available')}</ZoruBadge>
                 )}
               </div>
               <div>
                 <p className="text-[14px] text-zoru-ink">{i.name}</p>
                 <p className="mt-1 text-[12.5px] leading-relaxed text-zoru-ink-muted">
-                  {i.description}
+                  {t(i.descriptionKey)}
                 </p>
               </div>
               <div className="mt-auto">
                 {i.connected ? (
                   <ZoruButton variant="ghost" size="sm">
-                    <Check className="h-4 w-4" /> Manage
+                    <Check className="h-4 w-4" /> {t('settings.integrations.manage')}
                   </ZoruButton>
                 ) : (
-                  <ZoruButton size="sm">Connect</ZoruButton>
+                  <ZoruButton size="sm">{t('action.connect')}</ZoruButton>
                 )}
               </div>
             </ZoruCard>
@@ -198,8 +200,8 @@ export default function IntegrationsPage() {
 
       {visible.length === 0 && (
         <ZoruEmptyState
-          title="No integrations match"
-          description="Try a different search or category."
+          title={t('settings.integrations.empty.title')}
+          description={t('settings.integrations.empty.description')}
         />
       )}
     </div>

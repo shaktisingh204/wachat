@@ -41,6 +41,7 @@ import {
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import { SavedViewsBar } from '@/components/crm/SavedViewsBar';
 import { deleteLeadAction } from '@/app/actions/crm/leads.actions';
+import { useT } from '@/lib/i18n/client';
 import type { CrmLeadDoc } from '@/lib/rust-client/crm-leads';
 import type { SavedView } from '@/lib/saved-views/types';
 
@@ -53,14 +54,14 @@ interface LeadListClientProps {
   error?: string;
 }
 
-function fullName(l: CrmLeadDoc): string {
-  return [l.firstName, l.lastName].filter(Boolean).join(' ') || l.email || 'Unnamed';
+function fullName(l: CrmLeadDoc, unnamedLabel: string): string {
+  return [l.firstName, l.lastName].filter(Boolean).join(' ') || l.email || unnamedLabel;
 }
 
-function fmtMoney(value?: number, currency?: string): string {
+function fmtMoney(value: number | undefined, currency: string | undefined, locale: string): string {
   if (typeof value !== 'number') return '—';
   try {
-    return new Intl.NumberFormat('en-IN', {
+    return new Intl.NumberFormat(locale, {
       style: 'currency',
       currency: currency || 'INR',
       maximumFractionDigits: 0,
@@ -70,10 +71,10 @@ function fmtMoney(value?: number, currency?: string): string {
   }
 }
 
-function fmtDate(v?: string): string {
+function fmtDate(v: string | undefined, locale: string): string {
   if (!v) return '—';
   const d = new Date(v);
-  return isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
+  return isNaN(d.getTime()) ? '—' : d.toLocaleDateString(locale);
 }
 
 export function LeadListClient({
@@ -85,9 +86,11 @@ export function LeadListClient({
   error,
 }: LeadListClientProps) {
   const { toast } = useZoruToast();
+  const { t, locale } = useT();
   const router = useRouter();
   const pathname = usePathname();
   const sp = useSearchParams();
+  const unnamedLabel = t('crm.leads.list.unnamed');
 
   const [query, setQuery] = React.useState(initialQuery);
   const [pendingDelete, setPendingDelete] = React.useState<CrmLeadDoc | null>(null);
@@ -96,7 +99,7 @@ export function LeadListClient({
   // Debounce search → URL.
   React.useEffect(() => {
     if (query === initialQuery) return;
-    const t = setTimeout(() => {
+    const handle = setTimeout(() => {
       const params = new URLSearchParams(sp?.toString() ?? '');
       if (query.trim()) params.set('q', query.trim());
       else params.delete('q');
@@ -104,21 +107,28 @@ export function LeadListClient({
       const qs = params.toString();
       router.push(qs ? `${pathname}?${qs}` : pathname);
     }, 300);
-    return () => clearTimeout(t);
+    return () => clearTimeout(handle);
   }, [query, initialQuery, sp, pathname, router]);
 
   const confirmDelete = () => {
     if (!pendingDelete?._id) return;
     const id = String(pendingDelete._id);
-    const name = fullName(pendingDelete);
+    const name = fullName(pendingDelete, unnamedLabel);
     startDelete(async () => {
       const res = await deleteLeadAction(id);
       if (res.success) {
-        toast({ title: 'Deleted', description: `${name} removed.` });
+        toast({
+          title: t('crm.leads.list.toast.deleted'),
+          description: t('crm.leads.list.toast.deletedDescription', { name }),
+        });
         setPendingDelete(null);
         router.refresh();
       } else {
-        toast({ title: 'Delete failed', description: res.error, variant: 'destructive' });
+        toast({
+          title: t('crm.leads.list.toast.deleteFailed'),
+          description: res.error,
+          variant: 'destructive',
+        });
       }
     });
   };
@@ -146,7 +156,7 @@ export function LeadListClient({
           <ZoruInput
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search by name, email, company…"
+            placeholder={t('crm.leads.list.search.placeholder')}
             className="h-9 pl-9 text-[13px]"
           />
         </div>
@@ -162,21 +172,21 @@ export function LeadListClient({
       <ZoruTable>
         <ZoruTableHeader>
           <ZoruTableRow>
-            <ZoruTableHead>Name</ZoruTableHead>
-            <ZoruTableHead>Contact</ZoruTableHead>
-            <ZoruTableHead>Company / Title</ZoruTableHead>
-            <ZoruTableHead>Status</ZoruTableHead>
-            <ZoruTableHead>Source</ZoruTableHead>
-            <ZoruTableHead>Value</ZoruTableHead>
-            <ZoruTableHead>Created</ZoruTableHead>
-            <ZoruTableHead className="text-right">Actions</ZoruTableHead>
+            <ZoruTableHead>{t('crm.leads.list.col.name')}</ZoruTableHead>
+            <ZoruTableHead>{t('crm.leads.list.col.contact')}</ZoruTableHead>
+            <ZoruTableHead>{t('crm.leads.list.col.companyTitle')}</ZoruTableHead>
+            <ZoruTableHead>{t('crm.leads.list.col.status')}</ZoruTableHead>
+            <ZoruTableHead>{t('crm.leads.list.col.source')}</ZoruTableHead>
+            <ZoruTableHead>{t('crm.leads.list.col.value')}</ZoruTableHead>
+            <ZoruTableHead>{t('crm.leads.list.col.created')}</ZoruTableHead>
+            <ZoruTableHead className="text-right">{t('crm.leads.list.col.actions')}</ZoruTableHead>
           </ZoruTableRow>
         </ZoruTableHeader>
         <ZoruTableBody>
           {leads.length === 0 ? (
             <ZoruTableRow>
               <ZoruTableCell colSpan={8} className="h-24 text-center text-[13px] text-zoru-ink-muted">
-                {initialQuery ? 'No leads match this search.' : 'No leads yet — click "New lead" to add one.'}
+                {initialQuery ? t('crm.leads.list.empty.search') : t('crm.leads.list.empty.default')}
               </ZoruTableCell>
             </ZoruTableRow>
           ) : (
@@ -189,7 +199,7 @@ export function LeadListClient({
                       href={`/dashboard/crm/leads/${id}`}
                       className="font-medium text-zoru-ink hover:underline"
                     >
-                      {fullName(lead)}
+                      {fullName(lead, unnamedLabel)}
                     </Link>
                   </ZoruTableCell>
                   <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
@@ -217,10 +227,10 @@ export function LeadListClient({
                     {lead.attribution?.source || lead.subSource || '—'}
                   </ZoruTableCell>
                   <ZoruTableCell className="text-[12.5px] tabular-nums text-zoru-ink">
-                    {fmtMoney(lead.estimatedValue, lead.currency)}
+                    {fmtMoney(lead.estimatedValue, lead.currency, locale)}
                   </ZoruTableCell>
                   <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
-                    {fmtDate(lead.createdAt || lead.audit?.createdAt)}
+                    {fmtDate(lead.createdAt || lead.audit?.createdAt, locale)}
                   </ZoruTableCell>
                   <ZoruTableCell className="text-right">
                     <div className="flex justify-end gap-1">
@@ -254,14 +264,15 @@ export function LeadListClient({
       >
         <ZoruAlertDialogContent>
           <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>Delete lead?</ZoruAlertDialogTitle>
+            <ZoruAlertDialogTitle>{t('crm.leads.list.delete.title')}</ZoruAlertDialogTitle>
             <ZoruAlertDialogDescription>
-              This permanently removes <strong>{pendingDelete ? fullName(pendingDelete) : ''}</strong>{' '}
-              from the database. The action cannot be undone.
+              {t('crm.leads.list.delete.description', {
+                name: pendingDelete ? fullName(pendingDelete, unnamedLabel) : '',
+              })}
             </ZoruAlertDialogDescription>
           </ZoruAlertDialogHeader>
           <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel disabled={deleting}>Cancel</ZoruAlertDialogCancel>
+            <ZoruAlertDialogCancel disabled={deleting}>{t('crm.leads.list.delete.cancel')}</ZoruAlertDialogCancel>
             <ZoruAlertDialogAction
               onClick={(e) => {
                 e.preventDefault();
@@ -271,7 +282,7 @@ export function LeadListClient({
               className="bg-zoru-danger text-white hover:bg-zoru-danger/90"
             >
               {deleting ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : null}
-              Delete permanently
+              {t('crm.leads.list.delete.confirm')}
             </ZoruAlertDialogAction>
           </ZoruAlertDialogFooter>
         </ZoruAlertDialogContent>

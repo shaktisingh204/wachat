@@ -301,3 +301,215 @@ export async function createCrmPipeline(
         return { success: false, error: getErrorMessage(e) };
     }
 }
+
+/* ─── UI-shape types + per-pipeline get/save (PipelineForm) ─────────── */
+
+/**
+ * UI-shape stage row used by `<PipelineForm />`. Superset of the
+ * `CrmPipeline['stages'][n]` shape — adds `color`, `order`,
+ * `probability` (instead of `chance`) and `conditions`. The legacy
+ * `chance` field is mirrored from `probability` on save so existing
+ * read-only callers keep working.
+ */
+export interface PipelineUiStage {
+    _id?: string;
+    id?: string;
+    name: string;
+    color?: string;
+    order: number;
+    probability?: number;
+    conditions?: string;
+}
+
+/**
+ * UI-shape pipeline doc used by `<PipelineForm />` and the detail page.
+ * Extends the legacy `CrmPipeline` shape with the UI-only metadata
+ * (description, color, entityKind, status, isDefault) that the form
+ * captures.
+ */
+export interface PipelineUiDoc {
+    _id?: string;
+    id?: string;
+    name: string;
+    description?: string;
+    color?: string;
+    entityKind?: 'lead' | 'deal' | 'opportunity';
+    status?: 'active' | 'archived' | 'draft';
+    isDefault?: boolean;
+    stages?: PipelineUiStage[];
+    createdAt?: string | Date;
+    updatedAt?: string | Date;
+}
+
+/**
+ * Fetch a single pipeline by id, mapped into the UI-shape. Returns
+ * `null` if the id doesn't match any of the user's pipelines.
+ *
+ * The lookup goes straight to `users.crmPipelines[]` because the UI
+ * fields (description / color / status / etc.) only round-trip via the
+ * embedded shape — the Rust BFF doesn't surface them yet.
+ */
+export async function getPipelineById(
+    pipelineId: string,
+): Promise<PipelineUiDoc | null> {
+    const session = await getSession();
+    if (!session?.user) return null;
+    if (!pipelineId) return null;
+
+    try {
+        const { db } = await connectToDatabase();
+        const user = await db
+            .collection('users')
+            .findOne(
+                { _id: new ObjectId(session.user._id) },
+                { projection: { crmPipelines: 1 } },
+            );
+        const list: any[] = user?.crmPipelines ?? [];
+        const match = list.find(
+            (p) =>
+                String(p?.id ?? '') === pipelineId ||
+                String(p?._id ?? '') === pipelineId,
+        );
+        if (!match) return null;
+
+        const stages: PipelineUiStage[] = (match.stages ?? []).map(
+            (s: any, i: number) => ({
+                _id: s._id ? String(s._id) : undefined,
+                id: s.id ? String(s.id) : undefined,
+                name: s.name ?? '',
+                color: s.color,
+                order: typeof s.order === 'number' ? s.order : i,
+                probability:
+                    typeof s.probability === 'number'
+                        ? s.probability
+                        : typeof s.chance === 'number'
+                          ? s.chance
+                          : undefined,
+                conditions: s.conditions,
+            }),
+        );
+
+        return {
+            _id: String(match._id ?? match.id ?? pipelineId),
+            id: match.id ? String(match.id) : undefined,
+            name: match.name ?? '',
+            description: match.description,
+            color: match.color,
+            entityKind: match.entityKind,
+            status: match.status,
+            isDefault: !!match.isDefault,
+            stages,
+            createdAt: match.createdAt,
+            updatedAt: match.updatedAt,
+        };
+    } catch (e) {
+        console.error('[getPipelineById] failed:', e);
+        return null;
+    }
+}
+
+/**
+ * `useActionState`-compatible per-pipeline save used by
+ * `<PipelineForm />`. Writes through the embedded `users.crmPipelines[]`
+ * array — replaces the matching entry on edit, appends on create.
+ */
+export async function savePipeline(
+    _prevState: { message?: string; error?: string; id?: string } | undefined,
+    formData: FormData,
+): Promise<{ message?: string; error?: string; id?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { error: 'Access denied' };
+
+    const pipelineId =
+        (formData.get('pipelineId') as string | null) || undefined;
+    const name = (formData.get('name') as string | null)?.trim() || '';
+    if (!name) return { error: 'Pipeline name is required.' };
+
+    const color = (formData.get('color') as string | null) || undefined;
+    const description =
+        (formData.get('description') as string | null) || undefined;
+    const entityKind =
+        ((formData.get('entityKind') as string | null) ?? 'lead') as
+            | 'lead'
+            | 'deal'
+            | 'opportunity';
+    const status =
+        ((formData.get('status') as string | null) ?? 'active') as
+            | 'active'
+            | 'archived'
+            | 'draft';
+    const isDefault = formData.get('isDefault') === 'on';
+
+    let stagesRaw: PipelineUiStage[] = [];
+    try {
+        const raw = formData.get('stages') as string | null;
+        if (raw) stagesRaw = JSON.parse(raw) as PipelineUiStage[];
+    } catch {
+        return { error: 'Invalid stages payload.' };
+    }
+
+    const stages = stagesRaw.map((s, i) => ({
+        id: s.id || uuidv4(),
+        _id: s._id,
+        name: (s.name || '').trim(),
+        color: s.color,
+        order: typeof s.order === 'number' ? s.order : i,
+        probability: typeof s.probability === 'number' ? s.probability : 0,
+        // Mirror probability into the legacy `chance` field so old
+        // read-only consumers keep working.
+        chance: typeof s.probability === 'number' ? s.probability : 0,
+        conditions: s.conditions,
+    }));
+
+    const id = pipelineId || uuidv4();
+    const now = new Date();
+    const merged = {
+        id,
+        name,
+        color,
+        description,
+        entityKind,
+        status,
+        isDefault,
+        stages,
+        updatedAt: now,
+    } as Record<string, unknown>;
+
+    try {
+        const { db } = await connectToDatabase();
+        const userFilter = { _id: new ObjectId(session.user._id) };
+        const user = await db
+            .collection('users')
+            .findOne(userFilter, { projection: { crmPipelines: 1 } });
+        const list: any[] = (user?.crmPipelines as any[]) ?? [];
+
+        const idx = list.findIndex(
+            (p) =>
+                String(p?.id ?? '') === id || String(p?._id ?? '') === id,
+        );
+        if (idx === -1) {
+            merged.createdAt = now;
+            list.push(merged);
+        } else {
+            list[idx] = { ...list[idx], ...merged };
+        }
+
+        // If `isDefault` was checked, clear it on every other pipeline so
+        // there is only ever one default at a time.
+        if (isDefault) {
+            for (const p of list) {
+                if (String(p?.id ?? '') !== id) p.isDefault = false;
+            }
+        }
+
+        await db
+            .collection('users')
+            .updateOne(userFilter, { $set: { crmPipelines: list } });
+
+        revalidatePath('/dashboard/crm/sales-crm/pipelines');
+        revalidatePath(`/dashboard/crm/sales-crm/pipelines/${id}`);
+        return { message: 'Pipeline saved.', id };
+    } catch (e) {
+        return { error: getErrorMessage(e) };
+    }
+}

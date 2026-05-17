@@ -28,6 +28,7 @@ import {
     ZoruPageTitle,
     useZoruToast,
 } from '@/components/zoruui';
+import { useT } from '@/lib/i18n/client';
 
 type WebhookRow = {
     id: string;
@@ -49,6 +50,7 @@ const ALL_EVENTS = [
 ];
 
 export default function WebhooksPage() {
+    const { t } = useT();
     const [rows, setRows] = useState<WebhookRow[]>([]);
 
     useEffect(() => {
@@ -73,11 +75,11 @@ export default function WebhooksPage() {
             <ZoruBreadcrumb>
                 <ZoruBreadcrumbList>
                     <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbLink href="/dashboard/settings">Settings</ZoruBreadcrumbLink>
+                        <ZoruBreadcrumbLink href="/dashboard/settings">{t('settings.overview.title')}</ZoruBreadcrumbLink>
                     </ZoruBreadcrumbItem>
                     <ZoruBreadcrumbSeparator />
                     <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbPage>Webhooks</ZoruBreadcrumbPage>
+                        <ZoruBreadcrumbPage>{t('settings.webhooks.title')}</ZoruBreadcrumbPage>
                     </ZoruBreadcrumbItem>
                 </ZoruBreadcrumbList>
             </ZoruBreadcrumb>
@@ -85,9 +87,9 @@ export default function WebhooksPage() {
             <div className="flex flex-wrap items-center justify-between gap-4">
                 <ZoruPageHeader>
                     <ZoruPageHeading>
-                        <ZoruPageTitle>Webhooks</ZoruPageTitle>
+                        <ZoruPageTitle>{t('settings.webhooks.title')}</ZoruPageTitle>
                         <ZoruPageDescription>
-                            Deliver SabNode events to your servers as soon as they happen.
+                            {t('settings.webhooks.subtitle')}
                         </ZoruPageDescription>
                     </ZoruPageHeading>
                 </ZoruPageHeader>
@@ -99,9 +101,9 @@ export default function WebhooksPage() {
                     <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted">
                         <Webhook className="h-5 w-5" />
                     </div>
-                    <p className="text-sm text-zoru-ink">No webhooks yet</p>
+                    <p className="text-sm text-zoru-ink">{t('settings.webhooks.empty.title')}</p>
                     <p className="mt-1 text-xs text-zoru-ink-muted">
-                        Add your first endpoint to start receiving event callbacks.
+                        {t('settings.webhooks.empty.description')}
                     </p>
                 </ZoruCard>
             ) : (
@@ -125,11 +127,11 @@ export default function WebhooksPage() {
                         <CircleAlert className="h-4 w-4" />
                     </div>
                     <div>
-                        <p className="text-sm text-zoru-ink">Verifying the signature</p>
+                        <p className="text-sm text-zoru-ink">{t('settings.webhooks.verify.title')}</p>
                         <p className="mt-1 text-xs text-zoru-ink-muted">
-                            Every request is signed with your webhook secret in the
+                            {t('settings.webhooks.verify.before')}
                             <code className="mx-1 rounded bg-zoru-surface-2 px-1">X-SabNode-Signature</code>
-                            header. HMAC-SHA256 over the raw body.
+                            {t('settings.webhooks.verify.after')}
                         </p>
                     </div>
                 </div>
@@ -139,6 +141,7 @@ export default function WebhooksPage() {
 }
 
 function AddWebhookDialog({ onAdd }: { onAdd: (row: WebhookRow) => void }) {
+    const { t } = useT();
     const [open, setOpen] = useState(false);
     const [url, setUrl] = useState('');
     const [selected, setSelected] = useState<Set<string>>(new Set(['message.received']));
@@ -146,11 +149,11 @@ function AddWebhookDialog({ onAdd }: { onAdd: (row: WebhookRow) => void }) {
 
     const handleSave = () => {
         if (!/^https:\/\//.test(url)) {
-            toast({ title: 'URL must start with https://', variant: 'destructive' });
+            toast({ title: t('settings.webhooks.toast.urlInvalid'), variant: 'destructive' });
             return;
         }
         if (selected.size === 0) {
-            toast({ title: 'Pick at least one event', variant: 'destructive' });
+            toast({ title: t('settings.webhooks.toast.pickEvent'), variant: 'destructive' });
             return;
         }
         onAdd({
@@ -171,29 +174,29 @@ function AddWebhookDialog({ onAdd }: { onAdd: (row: WebhookRow) => void }) {
             <ZoruDialogTrigger asChild>
                 <ZoruButton size="sm">
                     <Plus className="h-4 w-4" />
-                    Add webhook
+                    {t('settings.webhooks.addWebhook')}
                 </ZoruButton>
             </ZoruDialogTrigger>
             <ZoruDialogContent>
                 <ZoruDialogHeader>
-                    <ZoruDialogTitle>Add webhook endpoint</ZoruDialogTitle>
+                    <ZoruDialogTitle>{t('settings.webhooks.dialog.title')}</ZoruDialogTitle>
                     <ZoruDialogDescription>
-                        Pick which events to deliver and where to send them.
+                        {t('settings.webhooks.dialog.description')}
                     </ZoruDialogDescription>
                 </ZoruDialogHeader>
                 <div className="space-y-4 py-2">
                     <div>
                         <ZoruLabel className="mb-1.5 block text-xs">
-                            Endpoint URL
+                            {t('settings.webhooks.dialog.endpointUrl')}
                         </ZoruLabel>
                         <ZoruInput
-                            placeholder="https://example.com/webhooks/sabnode"
+                            placeholder={t('settings.webhooks.dialog.endpointPlaceholder')}
                             value={url}
                             onChange={(e) => setUrl(e.target.value)}
                         />
                     </div>
                     <div>
-                        <ZoruLabel className="mb-1.5 block text-xs">Events</ZoruLabel>
+                        <ZoruLabel className="mb-1.5 block text-xs">{t('settings.webhooks.dialog.events')}</ZoruLabel>
                         <div className="flex flex-wrap gap-2">
                             {ALL_EVENTS.map((ev) => {
                                 const on = selected.has(ev);
@@ -222,10 +225,10 @@ function AddWebhookDialog({ onAdd }: { onAdd: (row: WebhookRow) => void }) {
                 </div>
                 <ZoruDialogFooter>
                     <ZoruButton variant="ghost" size="sm" onClick={() => setOpen(false)}>
-                        Cancel
+                        {t('action.cancel')}
                     </ZoruButton>
                     <ZoruButton size="sm" onClick={handleSave}>
-                        Create
+                        {t('action.create')}
                     </ZoruButton>
                 </ZoruDialogFooter>
             </ZoruDialogContent>
@@ -242,6 +245,7 @@ function WebhookRowItem({
     onToggle: () => void;
     onRemove: () => void;
 }) {
+    const { t } = useT();
     const [copied, setCopied] = useState(false);
 
     const copySecret = () => {
@@ -257,27 +261,27 @@ function WebhookRowItem({
                 <div className="flex items-center gap-2">
                     <p className="truncate text-sm text-zoru-ink">{row.url}</p>
                     {row.active ? (
-                        <ZoruBadge variant="success">Active</ZoruBadge>
+                        <ZoruBadge variant="success">{t('settings.webhooks.status.active')}</ZoruBadge>
                     ) : (
-                        <ZoruBadge variant="ghost">Paused</ZoruBadge>
+                        <ZoruBadge variant="ghost">{t('settings.webhooks.status.paused')}</ZoruBadge>
                     )}
                 </div>
                 <p className="mt-1 truncate text-xs text-zoru-ink-muted">
-                    {row.events.join(', ')} · secret{' '}
+                    {row.events.join(', ')} · {t('settings.webhooks.row.secret')}{' '}
                     <code className="rounded bg-zoru-surface-2 px-1">{row.secret.slice(0, 8)}…</code>
                 </p>
             </div>
             <div className="flex gap-2">
                 <ZoruButton variant="ghost" size="sm" onClick={copySecret}>
                     {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                    {copied ? 'Copied' : 'Copy secret'}
+                    {copied ? t('settings.webhooks.row.copied') : t('settings.webhooks.row.copySecret')}
                 </ZoruButton>
                 <ZoruButton variant="ghost" size="sm" onClick={onToggle}>
-                    {row.active ? 'Pause' : 'Resume'}
+                    {row.active ? t('settings.webhooks.row.pause') : t('settings.webhooks.row.resume')}
                 </ZoruButton>
                 <ZoruButton variant="ghost" size="sm" onClick={onRemove}>
                     <Trash2 className="h-4 w-4" />
-                    Remove
+                    {t('settings.webhooks.row.remove')}
                 </ZoruButton>
             </div>
         </li>

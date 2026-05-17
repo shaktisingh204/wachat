@@ -11,11 +11,12 @@ import {
   getMemberRole,
 } from '@/lib/sabflow/workspaces/db';
 import { canManageMembers } from '@/lib/sabflow/workspaces/permissions';
+import { recordFlowAction } from '@/lib/sabflow/audit/middleware';
 
 export const dynamic = 'force-dynamic';
 
 export async function DELETE(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ workspaceId: string; inviteId: string }> },
 ) {
   const session = await getSession();
@@ -32,5 +33,18 @@ export async function DELETE(
     return NextResponse.json({ error: 'Invite not found' }, { status: 404 });
   }
   await deleteInvite(inviteId);
+
+  void recordFlowAction('workspace.invite.revoked', {
+    userId: session.user._id.toString(),
+    workspaceId,
+    target: inviteId,
+    metadata: {
+      inviteId,
+      email: (invite as { email?: string }).email,
+      role: (invite as { role?: string }).role,
+    },
+    request,
+  });
+
   return NextResponse.json({ ok: true });
 }

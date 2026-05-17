@@ -259,3 +259,56 @@ export async function getFormSubmissionById(
         return null;
     }
 }
+
+/* ─── Legacy-name aliases used by the CustomFormForm UI ─────────────── */
+
+export interface SaveFormState {
+    message?: string;
+    error?: string;
+    id?: string;
+}
+
+export async function getFormById(
+    formId: string,
+): Promise<WithId<CrmForm> | null> {
+    return getCrmFormById(formId);
+}
+
+/**
+ * `useActionState`-compatible wrapper around `saveCrmForm`. Decodes the
+ * form fields posted by `<CustomFormForm />` (name, slug, status,
+ * captcha, successMessage, redirectUrl) into the `data` shape that
+ * `saveCrmForm` expects.
+ */
+export async function saveForm(
+    _prevState: SaveFormState | undefined,
+    formData: FormData,
+): Promise<SaveFormState> {
+    const formId = (formData.get('formId') as string | null) || undefined;
+    const name = (formData.get('name') as string | null)?.trim() || '';
+    if (!name) return { error: 'Form name is required.' };
+
+    const slug = (formData.get('slug') as string | null) || undefined;
+    const status = (formData.get('status') as string | null) || 'draft';
+    const captcha = formData.get('captcha') === 'true';
+    const successMessage =
+        (formData.get('successMessage') as string | null) || undefined;
+    const redirectUrl =
+        (formData.get('redirectUrl') as string | null) || undefined;
+
+    const settings: Record<string, unknown> = {
+        slug,
+        status,
+        captcha,
+        successMessage,
+        redirectUrl,
+        fields: [],
+    };
+
+    const result = await saveCrmForm({ formId, name, settings });
+    return {
+        message: result.message,
+        error: result.error,
+        id: result.formId,
+    };
+}

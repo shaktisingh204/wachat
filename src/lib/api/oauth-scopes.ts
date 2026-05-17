@@ -17,7 +17,11 @@
  * below — the rest of the codebase reads the list from here.
  */
 
-import 'server-only';
+// NOTE: do NOT add `import 'server-only'` here. This module exposes pure
+// types, constants and predicates that are reused by the OAuth-token
+// admin UI (`/dashboard/crm/settings/api-tokens/new`) — a client
+// component. The scope catalogue itself is not a secret; the runtime
+// enforcement lives in `crm-rest-handler.ts`, which IS server-only.
 
 /** The 10 top-level CRM entities exposed via the public REST API. */
 export const CRM_API_ENTITIES = [

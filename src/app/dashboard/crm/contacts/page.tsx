@@ -11,6 +11,7 @@ import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
 import { getCrmPipelines } from '@/app/actions/crm-pipelines.actions';
 import { getSession } from '@/app/actions/user.actions';
 import { getDealStagesForIndustry } from '@/lib/crm-industry-stages';
+import { useT } from '@/lib/i18n/client';
 import type { CrmContact, CrmAccount, CrmPipeline } from '@/lib/definitions';
 import { CrmAddContactDialog } from '@/components/wabasimplify/crm-add-contact-dialog';
 import { CreateDealDialog } from '@/components/wabasimplify/crm-create-deal-dialog';
@@ -64,6 +65,7 @@ function ContactsPageSkeleton() {
 
 export default function CrmContactsPage() {
   const { toast } = useZoruToast();
+  const { t, locale } = useT();
   const [contacts, setContacts] = useState<WithId<CrmContact>[]>([]);
   const [accounts, setAccounts] = useState<WithId<CrmAccount>[]>([]);
   const [pipelines, setPipelines] = useState<CrmPipeline[]>([]);
@@ -100,11 +102,11 @@ export default function CrmContactsPage() {
     const res = await deleteCrmContact(deleteContactId);
     setIsDeleting(false);
     if (res.success) {
-      toast({ title: 'Contact deleted' });
+      toast({ title: t('crm.contacts.list.toast.deleted') });
       setDeleteContactId(null);
       fetchData();
     } else {
-      toast({ title: 'Error', description: res.error, variant: 'destructive' });
+      toast({ title: t('crm.contacts.list.toast.error'), description: res.error, variant: 'destructive' });
     }
   };
 
@@ -133,8 +135,8 @@ export default function CrmContactsPage() {
   return (
     <div className="flex w-full flex-col gap-6">
       <CrmPageHeader
-        title="Contacts"
-        subtitle="Manage your customer database and personal interactions."
+        title={t('crm.contacts.list.title')}
+        subtitle={t('crm.contacts.list.subtitle')}
         icon={Users}
         actions={<CrmAddContactDialog onAdded={fetchData} accounts={accounts} />}
       />
@@ -142,15 +144,15 @@ export default function CrmContactsPage() {
       <ZoruCard className="p-6">
         <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h2 className="text-[16px] font-semibold text-zoru-ink">Contacts Directory</h2>
+            <h2 className="text-[16px] font-semibold text-zoru-ink">{t('crm.contacts.list.directoryTitle')}</h2>
             <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
-              A list of all individuals in your CRM.
+              {t('crm.contacts.list.directorySubtitle')}
             </p>
           </div>
           <div className="relative w-full max-w-sm">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
             <ZoruInput
-              placeholder="Search by name, email, or phone..."
+              placeholder={t('crm.contacts.list.search.placeholder')}
               className="h-10 rounded-lg border-zoru-line bg-zoru-bg pl-9 text-[13px]"
               onChange={(e) => handleSearch(e.target.value)}
             />
@@ -161,12 +163,12 @@ export default function CrmContactsPage() {
           <ZoruTable>
             <ZoruTableHeader>
               <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                <ZoruTableHead className="text-zoru-ink-muted">Name</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Contact Info</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Job Title</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Lead Score</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Last Activity</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">{t('crm.contacts.list.col.name')}</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">{t('crm.contacts.list.col.contactInfo')}</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">{t('crm.contacts.list.col.jobTitle')}</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">{t('crm.contacts.list.col.leadScore')}</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">{t('crm.contacts.list.col.status')}</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">{t('crm.contacts.list.col.lastActivity')}</ZoruTableHead>
                 <ZoruTableHead className="w-[50px]" />
               </ZoruTableRow>
             </ZoruTableHeader>
@@ -198,7 +200,9 @@ export default function CrmContactsPage() {
                             {contact.name}
                           </Link>
                           <p className="text-[11.5px] text-zoru-ink-muted">
-                            Added {new Date(contact.createdAt).toLocaleDateString()}
+                            {t('crm.contacts.list.added', {
+                              date: new Date(contact.createdAt).toLocaleDateString(locale),
+                            })}
                           </p>
                         </div>
                       </div>
@@ -220,7 +224,7 @@ export default function CrmContactsPage() {
                       </div>
                     </ZoruTableCell>
                     <ZoruTableCell className="text-[13px] text-zoru-ink">
-                      {contact.jobTitle || 'N/A'}
+                      {contact.jobTitle || t('crm.contacts.list.notAvailable')}
                     </ZoruTableCell>
                     <ZoruTableCell>
                       <ZoruBadge variant={leadScoreVariant(contact.leadScore || 0)}>
@@ -232,8 +236,8 @@ export default function CrmContactsPage() {
                     </ZoruTableCell>
                     <ZoruTableCell className="text-[13px] text-zoru-ink">
                       {contact.lastActivity
-                        ? new Date(contact.lastActivity).toLocaleDateString()
-                        : 'Never'}
+                        ? new Date(contact.lastActivity).toLocaleDateString(locale)
+                        : t('crm.contacts.list.never')}
                     </ZoruTableCell>
                     <ZoruTableCell>
                       <ZoruDropdownMenu>
@@ -245,17 +249,17 @@ export default function CrmContactsPage() {
                         <ZoruDropdownMenuContent align="end">
                           <ZoruDropdownMenuItem asChild>
                             <Link href={`/dashboard/crm/contacts/${contact._id.toString()}`}>
-                              View Details
+                              {t('crm.contacts.list.action.viewDetails')}
                             </Link>
                           </ZoruDropdownMenuItem>
                           <ZoruDropdownMenuItem onSelect={() => setDealForContact(contact)}>
-                            Create Deal
+                            {t('crm.contacts.list.action.createDeal')}
                           </ZoruDropdownMenuItem>
                           <ZoruDropdownMenuItem
                             className="text-zoru-danger-ink"
                             onSelect={() => setDeleteContactId(contact._id.toString())}
                           >
-                            Delete
+                            {t('crm.contacts.list.action.delete')}
                           </ZoruDropdownMenuItem>
                         </ZoruDropdownMenuContent>
                       </ZoruDropdownMenu>
@@ -265,7 +269,7 @@ export default function CrmContactsPage() {
               ) : (
                 <ZoruTableRow className="border-zoru-line">
                   <ZoruTableCell colSpan={7} className="h-24 text-center text-[13px] text-zoru-ink-muted">
-                    No contacts found.
+                    {t('crm.contacts.list.empty')}
                   </ZoruTableCell>
                 </ZoruTableRow>
               )}
@@ -280,15 +284,15 @@ export default function CrmContactsPage() {
       >
         <ZoruAlertDialogContent>
           <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>Delete this contact?</ZoruAlertDialogTitle>
+            <ZoruAlertDialogTitle>{t('crm.contacts.list.delete.title')}</ZoruAlertDialogTitle>
             <ZoruAlertDialogDescription>
-              This action cannot be undone. The contact will be permanently removed.
+              {t('crm.contacts.list.delete.description')}
             </ZoruAlertDialogDescription>
           </ZoruAlertDialogHeader>
           <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel disabled={isDeleting}>Cancel</ZoruAlertDialogCancel>
+            <ZoruAlertDialogCancel disabled={isDeleting}>{t('crm.contacts.list.delete.cancel')}</ZoruAlertDialogCancel>
             <ZoruAlertDialogAction onClick={handleDelete} disabled={isDeleting}>
-              {isDeleting ? 'Deleting…' : 'Delete'}
+              {isDeleting ? t('crm.contacts.list.delete.confirmInProgress') : t('crm.contacts.list.delete.confirm')}
             </ZoruAlertDialogAction>
           </ZoruAlertDialogFooter>
         </ZoruAlertDialogContent>
