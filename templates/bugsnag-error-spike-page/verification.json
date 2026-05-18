@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "templateId": "bugsnag-error-spike-page",
+  "cases": [
+    {
+      "id": "spike-fans-out",
+      "description": "Bugsnag spike webhook extracts release+trace and fans out PagerDuty, Slack, and Linear, then audits to Mongo.",
+      "triggerPayload": {},
+      "expect": {
+        "finalStatus": "success"
+      }
+    }
+  ]
+}
