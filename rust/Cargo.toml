@@ -140,6 +140,7 @@ members = [
     "crates/sabflow-engine",
     "crates/sabflow-webhooks",
     "crates/sabflow-nodes",
+    "crates/sabflow-node-derive",
     "crates/sabflow-engine-runtime",
     "crates/sabflow-executor/core",
     "crates/sabflow-executor/nodes",

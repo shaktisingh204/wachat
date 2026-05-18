@@ -36,6 +36,10 @@ base64 = "0.22"
 sabnode-common = { path = "../common" }
 sabnode-db = { path = "../db" }
 
+# Author-facing attribute macro `#[node(...)]`. Re-exported from this crate's
+# root so authors only need `use sabflow_nodes::node` (the macro).
+sabflow-node-derive = { path = "../sabflow-node-derive" }
+
 urlencoding = "2"
 md-5 = "0.10"
 

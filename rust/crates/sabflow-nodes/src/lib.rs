@@ -27,3 +27,12 @@ pub use descriptor::{
 pub use error::{NodeError, NodeResult};
 pub use node::Node;
 pub use registry::{default_registry, NodeRegistry};
+
+/// Author-facing attribute macro `#[node(...)]`. Generates the
+/// `impl sabflow_nodes::Node for ...` block so a typical node file shrinks
+/// from ~80 lines to ~15. See `AUTHORING.md` for the full guide.
+///
+/// Module-name `node` (the trait module) and macro-name `node` (this re-export)
+/// live in different namespaces, so `use sabflow_nodes::node;` resolves to the
+/// macro at the attribute-position call site without shadowing the module.
+pub use sabflow_node_derive::node;
