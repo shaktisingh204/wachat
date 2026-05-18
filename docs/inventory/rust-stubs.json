@@ -1,11 +1,11 @@
 {
   "$schema": "https://sabflow.dev/schemas/rust-stubs-inventory.v1.json",
-  "generatedAt": "2026-05-18T15:35:13Z",
+  "generatedAt": "2026-05-18T15:40:18Z",
   "generator": "scripts/sabflow/gen-rust-stub-inventory.py",
   "summary": {
-    "totalNodes": 310,
-    "implementedCount": 81,
-    "stubCount": 229,
+    "totalNodes": 318,
+    "implementedCount": 96,
+    "stubCount": 222,
     "referenceNode": "n8n-nodes-base.httpRequest",
     "phase": "C.3.9"
   },
@@ -59,6 +59,15 @@
       "description": "Relationship intelligence CRM",
       "isStub": true,
       "implFile": null
+    },
+    {
+      "n8nType": "n8n-nodes-base.aggregate",
+      "name": "aggregate",
+      "displayName": "Aggregate",
+      "category": "Transform",
+      "description": "Roll a list of items into a single payload",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/aggregate.rs"
     },
     {
       "n8nType": "n8n-nodes-base.agileCrm",
@@ -353,9 +362,9 @@
       "name": "code",
       "displayName": "Code",
       "category": "Developer",
-      "description": "Evaluate a small expression DSL against incoming items",
+      "description": "Run JavaScript, Python, or an expression DSL against incoming items",
       "isStub": false,
-      "implFile": "rust/crates/sabflow-nodes/src/nodes/code_node.rs"
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/code.rs"
     },
     {
       "n8nType": "n8n-nodes-base.coinGecko",
@@ -401,6 +410,24 @@
       "description": "Manage subscribers, tags, and forms in ConvertKit",
       "isStub": false,
       "implFile": "rust/crates/sabflow-nodes/src/nodes/convert_kit.rs"
+    },
+    {
+      "n8nType": "n8n-nodes-base.convertToFile",
+      "name": "convertToFile",
+      "displayName": "Convert to File",
+      "category": "Transform",
+      "description": "Convert input items into a binary file (CSV, JSON, TSV, XML, HTML, iCal, RTF)",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/convert_to_file.rs"
+    },
+    {
+      "n8nType": "n8n-nodes-base.convertToText",
+      "name": "convertToText",
+      "displayName": "Convert to Text",
+      "category": "Transform",
+      "description": "Parse a binary file (JSON / CSV / TSV / XML / RTF / Plain) back into items",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/convert_to_text.rs"
     },
     {
       "n8nType": "n8n-nodes-base.copper",
@@ -601,6 +628,15 @@
       "implFile": null
     },
     {
+      "n8nType": "n8n-nodes-base.editFields",
+      "name": "editFields",
+      "displayName": "Edit Fields (Set)",
+      "category": "Transform",
+      "description": "Assign or replace fields on each item \u2014 Set V3",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/edit_fields.rs"
+    },
+    {
       "n8nType": "n8n-nodes-base.editImage",
       "name": "editImage",
       "displayName": "Edit Image",
@@ -704,9 +740,18 @@
       "name": "executeWorkflow",
       "displayName": "Execute Sub-workflow",
       "category": "Logic",
-      "description": "Run a sub-workflow",
-      "isStub": true,
-      "implFile": null
+      "description": "Invoke another workflow as a sub-routine",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/execute_workflow.rs"
+    },
+    {
+      "n8nType": "n8n-nodes-base.executeWorkflowTrigger",
+      "name": "executeWorkflowTrigger",
+      "displayName": "Execute Workflow Trigger",
+      "category": "Trigger",
+      "description": "Entry point when this workflow is invoked as a sub-workflow by another flow.",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/execute_workflow_trigger.rs"
     },
     {
       "n8nType": "n8n-nodes-base.executionData",
@@ -767,9 +812,9 @@
       "name": "filter",
       "displayName": "Filter",
       "category": "Transform",
-      "description": "Filter items by condition",
-      "isStub": true,
-      "implFile": null
+      "description": "Drop items that don't match a condition",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/filter.rs"
     },
     {
       "n8nType": "n8n-nodes-base.flow",
@@ -848,18 +893,18 @@
       "name": "function",
       "displayName": "Function (legacy)",
       "category": "Logic",
-      "description": "Legacy code node",
-      "isStub": true,
-      "implFile": null
+      "description": "Run a JavaScript snippet that receives `items` and returns the transformed array.",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/function.rs"
     },
     {
       "n8nType": "n8n-nodes-base.functionItem",
       "name": "functionItem",
       "displayName": "Function Item (legacy)",
-      "category": "Logic",
-      "description": "Legacy per-item code",
-      "isStub": true,
-      "implFile": null
+      "category": "Developer",
+      "description": "Run JavaScript once per input item (sandbox not yet implemented)",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/function_item.rs"
     },
     {
       "n8nType": "n8n-nodes-base.getResponse",
@@ -1150,15 +1195,6 @@
       "implFile": null
     },
     {
-      "n8nType": "n8n-nodes-base.itemLists",
-      "name": "itemLists",
-      "displayName": "Item Lists",
-      "category": "Transform",
-      "description": "Aggregate items into lists",
-      "isStub": true,
-      "implFile": null
-    },
-    {
       "n8nType": "n8n-nodes-base.iterable",
       "name": "iterable",
       "displayName": "Iterable",
@@ -1256,6 +1292,15 @@
       "description": "Cold email outreach",
       "isStub": true,
       "implFile": null
+    },
+    {
+      "n8nType": "n8n-nodes-base.limit",
+      "name": "limit",
+      "displayName": "Limit",
+      "category": "Transform",
+      "description": "Keep only the first or last N items",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/limit.rs"
     },
     {
       "n8nType": "n8n-nodes-base.line",
@@ -1371,15 +1416,6 @@
       "displayName": "Mandrill",
       "category": "Communication",
       "description": "Transactional email",
-      "isStub": true,
-      "implFile": null
-    },
-    {
-      "n8nType": "n8n-nodes-base.manualTrigger",
-      "name": "manualTrigger",
-      "displayName": "Manual Trigger",
-      "category": "Trigger",
-      "description": "Run manually from the editor",
       "isStub": true,
       "implFile": null
     },
@@ -2023,6 +2059,15 @@
       "implFile": "rust/crates/sabflow-nodes/src/nodes/redis_node.rs"
     },
     {
+      "n8nType": "n8n-nodes-base.removeDuplicates",
+      "name": "removeDuplicates",
+      "displayName": "Remove Duplicates",
+      "category": "Transform",
+      "description": "Drop duplicate items, keeping the first occurrence",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/remove_duplicates.rs"
+    },
+    {
       "n8nType": "n8n-nodes-base.renameKeys",
       "name": "renameKeys",
       "displayName": "Rename Keys",
@@ -2108,7 +2153,7 @@
       "name": "scheduleTrigger",
       "displayName": "Schedule Trigger",
       "category": "Trigger",
-      "description": "Fire on a schedule",
+      "description": "Fire the workflow on a recurring schedule (powered by Vercel Cron).",
       "isStub": false,
       "implFile": "rust/crates/sabflow-nodes/src/nodes/schedule_trigger.rs"
     },
@@ -2182,7 +2227,7 @@
       "category": "Transform",
       "description": "Set or modify item fields",
       "isStub": false,
-      "implFile": "rust/crates/sabflow-nodes/src/nodes/set_node.rs"
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/set.rs"
     },
     {
       "n8nType": "n8n-nodes-base.shopify",
@@ -2239,6 +2284,15 @@
       "implFile": null
     },
     {
+      "n8nType": "n8n-nodes-base.sort",
+      "name": "sort",
+      "displayName": "Sort",
+      "category": "Transform",
+      "description": "Sort items by one or more key paths",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/sort.rs"
+    },
+    {
       "n8nType": "n8n-nodes-base.splitInBatches",
       "name": "splitInBatches",
       "displayName": "Split In Batches",
@@ -2246,6 +2300,15 @@
       "description": "Loop over items in batches",
       "isStub": true,
       "implFile": null
+    },
+    {
+      "n8nType": "n8n-nodes-base.splitOut",
+      "name": "splitOut",
+      "displayName": "Split Out",
+      "category": "Transform",
+      "description": "Fan out an array field into one item per entry",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/split_out.rs"
     },
     {
       "n8nType": "n8n-nodes-base.splunk",
@@ -2315,9 +2378,9 @@
       "name": "stopAndError",
       "displayName": "Stop and Error",
       "category": "Logic",
-      "description": "Halt execution with error",
-      "isStub": true,
-      "implFile": null
+      "description": "Halt the workflow with an error message",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/stop_and_error.rs"
     },
     {
       "n8nType": "n8n-nodes-base.storyblok",
@@ -2354,6 +2417,15 @@
       "description": "Stripe payments, customers, subscriptions, products and invoices",
       "isStub": false,
       "implFile": "rust/crates/sabflow-nodes/src/nodes/stripe.rs"
+    },
+    {
+      "n8nType": "n8n-nodes-base.summarize",
+      "name": "summarize",
+      "displayName": "Summarize",
+      "category": "Transform",
+      "description": "Group items and compute per-group aggregate stats",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/summarize.rs"
     },
     {
       "n8nType": "n8n-nodes-base.supabase",
@@ -2630,9 +2702,9 @@
       "name": "wait",
       "displayName": "Wait",
       "category": "Logic",
-      "description": "Pause for a duration",
+      "description": "Pause flow execution",
       "isStub": false,
-      "implFile": "rust/crates/sabflow-nodes/src/nodes/wait_node.rs"
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/wait.rs"
     },
     {
       "n8nType": "n8n-nodes-base.webflow",
@@ -2650,7 +2722,7 @@
       "category": "Trigger",
       "description": "HTTP webhook trigger",
       "isStub": false,
-      "implFile": "rust/crates/sabflow-nodes/src/nodes/webhook_trigger.rs"
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/webhook.rs"
     },
     {
       "n8nType": "n8n-nodes-base.wekan",
