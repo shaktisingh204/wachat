@@ -1,0 +1,130 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_cron_hourly",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": { "schedule": "0 * * * *", "enabled": true }
+  },
+  "nodes": [
+    {
+      "id": "n_cron_hourly",
+      "name": "Every Hour",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "rule": { "interval": [{ "field": "hours", "hoursInterval": 1 }] } }
+    },
+    {
+      "id": "n_gcp_dlq",
+      "name": "Check DLQ Depth",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.GCP_API }}/v1/projects/{{ $vars.GCP_PROJECT }}/subscriptions/{{ $vars.DLQ_SUB }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleApi"
+      },
+      "credentials": { "googleApi": { "id": "gcp-cred", "name": "GCP Service Account" } }
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Depth",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "depth", "value": "={{ $json.numUndeliveredMessages || 0 }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_route",
+      "name": "Breach?",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            { "conditions": { "number": [{ "value1": "={{ $json.depth }}", "operation": "larger", "value2": 100 }] }, "outputKey": "breach" }
+          ]
+        },
+        "fallbackOutput": "ok"
+      }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack #ops",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [960, -100],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.OPS_SLACK }}",
+        "text": ":mailbox_with_mail: DLQ depth = {{ $json.depth }} on {{ $vars.DLQ_SUB }}"
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    },
+    {
+      "id": "n_linear",
+      "name": "Open Linear Ticket",
+      "type": "n8n-nodes-base.linear",
+      "typeVersion": 1,
+      "position": [960, 100],
+      "parameters": {
+        "resource": "issue",
+        "operation": "create",
+        "teamId": "={{ $vars.LINEAR_TEAM_ID }}",
+        "title": "DLQ breach on {{ $vars.DLQ_SUB }} ({{ $json.depth }} msgs)"
+      },
+      "credentials": { "linearApi": { "id": "linear-cred", "name": "Linear" } }
+    },
+    {
+      "id": "n_noop",
+      "name": "All Clear",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [960, 250],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "n_cron_hourly": { "main": [[{ "node": "n_gcp_dlq", "type": "main", "index": 0 }]] },
+    "n_gcp_dlq": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": { "main": [[{ "node": "n_route", "type": "main", "index": 0 }]] },
+    "n_route": {
+      "breach": [[
+        { "node": "n_slack", "type": "main", "index": 0 },
+        { "node": "n_linear", "type": "main", "index": 0 }
+      ]],
+      "ok": [[{ "node": "n_noop", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cron_hourly", "n_gcp_dlq", "n_extract", "n_route", "n_slack", "n_linear", "n_noop"]
+    }
+  ],
+  "variables": [
+    { "id": "v_g", "name": "GCP_API", "defaultValue": "https://pubsub.googleapis.com" },
+    { "id": "v_p", "name": "GCP_PROJECT", "defaultValue": "" },
+    { "id": "v_d", "name": "DLQ_SUB", "defaultValue": "" },
+    { "id": "v_s", "name": "OPS_SLACK", "defaultValue": "#ops" },
+    { "id": "v_t", "name": "LINEAR_TEAM_ID", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
