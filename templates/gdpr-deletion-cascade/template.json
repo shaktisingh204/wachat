@@ -1,0 +1,10 @@
+{
+  "id": "gdpr-deletion-cascade",
+  "name": "GDPR Deletion Cascade",
+  "description": "Captures a verified GDPR right-to-be-forgotten request, deletes the subject's records from MongoDB, Stripe (anonymise), Intercom, Mailchimp, and Algolia, signs each deletion timestamp into an immutable audit log, and emails the subject confirmation. Replaces a multi-tab DPO checklist.",
+  "category": "Internal Tools",
+  "complexity": "advanced",
+  "authorName": "SabNode",
+  "tags": ["gdpr", "compliance", "deletion", "mongodb", "stripe", "intercom", "audit"],
+  "version": "0.1.0"
+}
