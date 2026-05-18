@@ -1,0 +1,131 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_weekly_velocity",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": { "schedule": "0 8 * * 1", "enabled": true }
+  },
+  "nodes": [
+    {
+      "id": "n_cron",
+      "name": "Monday 08:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 8 * * 1" }] }
+      }
+    },
+    {
+      "id": "n_deals",
+      "name": "Pipedrive Deals",
+      "type": "n8n-nodes-base.pipedrive",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "resource": "deal",
+        "operation": "getAll",
+        "additionalFields": { "status": "open" }
+      },
+      "credentials": {
+        "pipedriveApi": { "id": "pipedrive-cred", "name": "Pipedrive API" }
+      }
+    },
+    {
+      "id": "n_velocity",
+      "name": "Compute Velocity",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const deals = $input.all().map(i=>i.json); const byStage = {}; const now = Date.now(); for (const d of deals) { const days = (now - new Date(d.stage_change_time || d.add_time).getTime())/86400000; (byStage[d.stage_id] ||= []).push(days); } const avg = Object.entries(byStage).map(([s, arr]) => ({ stage: s, avgDays: arr.reduce((a,b)=>a+b,0)/arr.length })); const breaches = avg.filter(a => a.avgDays > Number($vars.VELOCITY_THRESHOLD || 14)); return [{ json: { breaches, hasBreach: breaches.length > 0 } }];"
+      }
+    },
+    {
+      "id": "n_if_breach",
+      "name": "Any Breach?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            { "value1": "={{ $json.hasBreach }}", "value2": true }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack #sales-leadership",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [960, -100],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.LEADERSHIP_CHANNEL }}",
+        "text": ":turtle: {{ $json.breaches.length }} stages exceeding velocity threshold"
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    },
+    {
+      "id": "n_airtable",
+      "name": "Airtable QBR Log",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [1200, -100],
+      "parameters": {
+        "operation": "create",
+        "application": "={{ $vars.AIRTABLE_BASE }}",
+        "table": "Velocity Breaches",
+        "fields": {
+          "Date": "={{ $now }}",
+          "Breaches JSON": "={{ JSON.stringify($json.breaches) }}"
+        }
+      },
+      "credentials": {
+        "airtableApi": { "id": "airtable-cred", "name": "Airtable API" }
+      }
+    },
+    {
+      "id": "n_noop",
+      "name": "All Healthy",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [960, 100],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "n_cron": { "main": [[{ "node": "n_deals", "type": "main", "index": 0 }]] },
+    "n_deals": { "main": [[{ "node": "n_velocity", "type": "main", "index": 0 }]] },
+    "n_velocity": { "main": [[{ "node": "n_if_breach", "type": "main", "index": 0 }]] },
+    "n_if_breach": {
+      "true": [[{ "node": "n_slack", "type": "main", "index": 0 }]],
+      "false": [[{ "node": "n_noop", "type": "main", "index": 0 }]]
+    },
+    "n_slack": { "main": [[{ "node": "n_airtable", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cron", "n_deals", "n_velocity", "n_if_breach", "n_slack", "n_airtable", "n_noop"]
+    }
+  ],
+  "variables": [
+    { "id": "v_thr", "name": "VELOCITY_THRESHOLD", "defaultValue": "14" },
+    { "id": "v_chan", "name": "LEADERSHIP_CHANNEL", "defaultValue": "#sales-leadership" },
+    { "id": "v_at", "name": "AIRTABLE_BASE", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
