@@ -1,0 +1,10 @@
+{
+  "id": "linear-sprint-digest",
+  "name": "Linear Sprint Digest",
+  "description": "Every Friday at 16:00 the flow asks Linear for issues completed in the current cycle, summarizes them, and asks GPT-4o to turn the raw list into a team-friendly recap. The polished digest lands in Slack #engineering so leadership sees the wins without poking around.",
+  "category": "Developer",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["linear", "slack", "openai", "sprint", "digest", "engineering"],
+  "version": "0.1.0"
+}
