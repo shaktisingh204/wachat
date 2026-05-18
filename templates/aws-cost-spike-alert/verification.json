@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "aws-cost-spike-alert",
+  "cases": [
+    {
+      "id": "daily",
+      "description": "Daily cron pulls Cost Explorer and routes by spike threshold.",
+      "triggerPayload": { "tick": "2026-05-19T09:00:00Z" },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
