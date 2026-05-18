@@ -1,0 +1,44 @@
+{
+  "name": "example-template",
+  "events": [
+    { "id": "ev1", "type": "manual", "graphCoordinates": { "x": 0, "y": 0 } }
+  ],
+  "variables": [
+    { "id": "v1", "name": "customer.name", "defaultValue": "Friend" }
+  ],
+  "groups": [
+    {
+      "id": "g1",
+      "blocks": [
+        {
+          "id": "b1",
+          "type": "text",
+          "options": { "content": "Hello {{customer.name}}!" }
+        },
+        {
+          "id": "b2",
+          "type": "set_variable",
+          "options": { "variable": "greeted", "value": "true" }
+        },
+        {
+          "id": "b3",
+          "type": "webhook",
+          "options": {
+            "url": "https://api.example.com/notify",
+            "method": "POST"
+          }
+        },
+        {
+          "id": "b4",
+          "type": "send_email",
+          "options": {
+            "to": "user@example.com",
+            "subject": "Welcome",
+            "body": "Hi {{customer.name}}"
+          }
+        }
+      ]
+    }
+  ],
+  "edges": []
+}

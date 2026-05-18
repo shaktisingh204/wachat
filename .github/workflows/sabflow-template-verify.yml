@@ -1,0 +1,91 @@
+name: sabflow-template-verify
+
+# Phase C.10.2 — Marketplace / template verification pipeline.
+#
+# Every PR that touches `templates/**` or `marketplace/**` runs the submitted
+# template flows in an empty-workspace sandbox via
+# `scripts/sabflow/template-verify.mjs`.  The harness asserts every block
+# exits with `status: success` inside a 60-second budget.  Marked required
+# for merge so a broken template can't ship.
+
+on:
+  pull_request:
+    paths:
+      - "templates/**"
+      - "marketplace/**"
+      - "scripts/sabflow/template-verify.mjs"
+      - ".github/workflows/sabflow-template-verify.yml"
+  push:
+    branches: [main]
+    paths:
+      - "templates/**"
+      - "marketplace/**"
+      - "scripts/sabflow/template-verify.mjs"
+      - ".github/workflows/sabflow-template-verify.yml"
+
+# Cancel superseded runs on the same branch / PR to save CI minutes.
+concurrency:
+  group: sabflow-template-verify-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: verify submitted templates
+    runs-on: ubuntu-latest
+    # Per-job ceiling: the harness enforces 60s per template, this guards
+    # against runaway disk / IO bugs at the job level.
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Discover changed template directories
+        id: changed
+        shell: bash
+        run: |
+          set -euo pipefail
+          base_ref="${{ github.event.pull_request.base.sha || github.event.before }}"
+          head_ref="${{ github.event.pull_request.head.sha || github.sha }}"
+          if [ -z "$base_ref" ] || [ "$base_ref" = "0000000000000000000000000000000000000000" ]; then
+            echo "[verify] no base ref — verifying every template under templates/ + marketplace/"
+            echo "mode=all" >> "$GITHUB_OUTPUT"
+          else
+            echo "[verify] diff $base_ref..$head_ref"
+            changed=$(git diff --name-only "$base_ref" "$head_ref" -- templates marketplace || true)
+            echo "$changed"
+            # Collect each template directory (the one containing verification.json).
+            dirs=$(echo "$changed" | awk -F/ 'NF>1{print $1"/"$2}' | sort -u)
+            echo "dirs<<EOF" >> "$GITHUB_OUTPUT"
+            echo "$dirs" >> "$GITHUB_OUTPUT"
+            echo "EOF" >> "$GITHUB_OUTPUT"
+            echo "mode=diff" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run template verification (changed)
+        if: steps.changed.outputs.mode == 'diff'
+        shell: bash
+        run: |
+          set -euo pipefail
+          targets=()
+          while IFS= read -r d; do
+            [ -z "$d" ] && continue
+            if [ -f "$d/verification.json" ]; then
+              targets+=("$d")
+            fi
+          done <<< "${{ steps.changed.outputs.dirs }}"
+          if [ ${#targets[@]} -eq 0 ]; then
+            echo "[verify] no template dirs with verification.json were changed — running full sweep instead"
+            node scripts/sabflow/template-verify.mjs --all templates --all marketplace
+          else
+            echo "[verify] verifying ${#targets[@]} changed template(s):"
+            printf '  - %s\n' "${targets[@]}"
+            node scripts/sabflow/template-verify.mjs "${targets[@]}"
+          fi
+
+      - name: Run template verification (full sweep)
+        if: steps.changed.outputs.mode == 'all'
+        run: node scripts/sabflow/template-verify.mjs --all templates --all marketplace

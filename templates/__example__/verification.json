@@ -1,0 +1,9 @@
+{
+  "input": { "customer.name": "Ada" },
+  "fixtures": {
+    "https://api.example.com/notify": {
+      "status": 200,
+      "body": { "ok": true }
+    }
+  }
+}
