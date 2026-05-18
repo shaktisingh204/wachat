@@ -1,0 +1,120 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_ext",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "extension.profile_capture",
+    "options": {
+      "path": "/webhooks/linkedin-lead-scraper",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Extension-Token",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_trigger",
+      "name": "Chrome Ext Capture",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "linkedin-lead-scraper",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "linkedin-lead-scraper"
+    },
+    {
+      "id": "n_clearbit",
+      "name": "Clearbit Enrich",
+      "type": "n8n-nodes-base.clearbit",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": { "resource": "person", "operation": "enrich", "email": "={{ $json.email }}" },
+      "credentials": { "clearbitApi": { "id": "clearbit-cred", "name": "Clearbit" } }
+    },
+    {
+      "id": "n_icp",
+      "name": "ICP Match?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "conditions": {
+          "string": [{ "value1": "={{ $json.employment.title }}", "operation": "contains", "value2": "VP" }]
+        }
+      }
+    },
+    {
+      "id": "n_hubspot",
+      "name": "HubSpot Upsert",
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2,
+      "position": [720, -200],
+      "parameters": { "resource": "contact", "operation": "upsert" },
+      "credentials": { "hubspotApi": { "id": "hubspot-cred", "name": "HubSpot" } }
+    },
+    {
+      "id": "n_sf",
+      "name": "Salesforce Upsert",
+      "type": "n8n-nodes-base.salesforce",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": { "resource": "lead", "operation": "upsert" },
+      "credentials": { "salesforceOAuth2Api": { "id": "sf-cred", "name": "Salesforce" } }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack #sdr",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [720, 200],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": "#sdr",
+        "text": "New ICP-match lead captured."
+      },
+      "credentials": { "slackApi": { "id": "slack-cred", "name": "Slack" } }
+    },
+    {
+      "id": "n_cold",
+      "name": "Airtable Cold List",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [720, 360],
+      "parameters": { "operation": "create", "application": "={{ $vars.AIRTABLE_BASE }}", "table": "cold_leads" },
+      "credentials": { "airtableTokenApi": { "id": "airtable-cred", "name": "Airtable" } }
+    }
+  ],
+  "connections": {
+    "n_trigger": { "main": [[{ "node": "n_clearbit", "type": "main", "index": 0 }]] },
+    "n_clearbit": { "main": [[{ "node": "n_icp", "type": "main", "index": 0 }]] },
+    "n_icp": {
+      "true": [[
+        { "node": "n_hubspot", "type": "main", "index": 0 },
+        { "node": "n_sf", "type": "main", "index": 0 },
+        { "node": "n_slack", "type": "main", "index": 0 }
+      ]],
+      "false": [[{ "node": "n_cold", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_trigger", "n_clearbit", "n_icp", "n_hubspot", "n_sf", "n_slack", "n_cold"]
+    }
+  ],
+  "variables": [
+    { "id": "v_base", "name": "AIRTABLE_BASE", "defaultValue": "appXXXXX" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
