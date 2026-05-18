@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "pipedrive-deal-velocity",
+  "cases": [
+    {
+      "id": "weekly-velocity",
+      "description": "Weekly cron computes Pipedrive deal velocity and alerts when stages stall.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
