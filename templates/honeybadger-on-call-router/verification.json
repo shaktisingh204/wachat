@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "honeybadger-on-call-router",
+  "cases": [
+    {
+      "id": "fault-routed",
+      "description": "Honeybadger fault DMs the active on-call user.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
