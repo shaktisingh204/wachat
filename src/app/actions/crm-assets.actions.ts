@@ -173,7 +173,7 @@ export async function saveAsset(
     const assetId = asString(formData.get('assetId'));
     const isEditing = !!assetId;
 
-    const guard = await requirePermission(RBAC_KEY, isEditing ? 'update' : 'create');
+    const guard = await requirePermission(RBAC_KEY, isEditing ? 'edit' : 'create');
     if (!guard.ok) return { error: guard.error };
 
     const { payload, error } = readPayload(formData);

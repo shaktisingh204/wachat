@@ -4,10 +4,36 @@
  * Groups every registered recipe by its `category`, producing the
  * structure the template-picker UI expects.  Recipes themselves live in
  * `src/lib/sabflow/recipes/` — this module is a thin presentation layer.
+ *
+ * Phase C.10.8 #8 — this module now also re-exports the unified marketplace
+ * registry so consumers can migrate to the canonical `Template` shape at
+ * their own pace.  The `listTemplateCategories()` API is preserved verbatim.
  */
 
 import { listRecipes } from '@/lib/sabflow/recipes';
 import type { Recipe, RecipeCategory } from '@/lib/sabflow/recipes/types';
+
+// Re-export the unified registry surface for new code paths.
+export {
+  registerTemplate,
+  listTemplates,
+  listChatbotTemplates,
+  listRecipeTemplates,
+  listTemplatesByCategory,
+  getTemplate,
+  instantiateRecipeTemplate,
+  normaliseCategory,
+  extractRequiredCredentials,
+  TEMPLATE_CATEGORIES,
+  FIRST_PARTY_PUBLISHER,
+} from '@/lib/sabflow/marketplace/registry';
+export type {
+  Template,
+  TemplateCategory,
+  TemplateChrome,
+  TemplateInstance,
+  TemplatePublisher,
+} from '@/lib/sabflow/marketplace/registry';
 
 export type TemplateCategoryGroup = {
   /** Stable category id, e.g. "ecommerce". */

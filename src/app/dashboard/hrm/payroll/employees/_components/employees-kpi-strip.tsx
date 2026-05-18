@@ -3,9 +3,10 @@
 /**
  * <EmployeesKpiStrip> — KPI strip for the canonical Employees list.
  *
- * 5 cards: total · active · on leave · terminated/resigned · avg tenure
- * months. Each clickable card pivots the list filter to the matching
- * preset.
+ * Per §1D.1: Total · Active · On leave · On notice · New this month.
+ * Each clickable card pivots the list filter to the matching preset.
+ * `terminated` lives behind the secondary "Terminated" toolbar preset
+ * (the strip prioritises the headline counters above).
  */
 
 import * as React from 'react';
@@ -14,7 +15,7 @@ import {
   UserCheck,
   PlaneTakeoff,
   UserMinus,
-  Hourglass,
+  UserPlus,
 } from 'lucide-react';
 
 import { ZoruStatCard } from '@/components/zoruui';
@@ -36,7 +37,7 @@ export function EmployeesKpiStrip({
   return (
     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
       <KpiButton
-        active={active === 'all-active' || active == null}
+        active={active == null}
         onClick={() => onSelect('reset')}
         ariaLabel="Show all employees"
       >
@@ -60,8 +61,8 @@ export function EmployeesKpiStrip({
         />
       </KpiButton>
       <KpiButton
-        active={false}
-        onClick={() => onSelect('all-active')}
+        active={active === 'on-leave'}
+        onClick={() => onSelect('on-leave')}
         ariaLabel="Show employees on leave"
       >
         <ZoruStatCard
@@ -72,28 +73,29 @@ export function EmployeesKpiStrip({
         />
       </KpiButton>
       <KpiButton
-        active={active === 'terminated'}
-        onClick={() => onSelect('terminated')}
-        ariaLabel="Show terminated or resigned employees"
+        active={active === 'on-notice'}
+        onClick={() => onSelect('on-notice')}
+        ariaLabel="Show employees on notice"
       >
         <ZoruStatCard
-          label="Terminated / Resigned"
-          value={kpi.terminated.toLocaleString()}
-          period="left the company"
+          label="On notice"
+          value={kpi.onNotice.toLocaleString()}
+          period="serving notice period"
           icon={<UserMinus />}
-          invertDelta
         />
       </KpiButton>
-      <ZoruStatCard
-        label="Avg tenure"
-        value={
-          kpi.avgTenureMonths != null
-            ? `${kpi.avgTenureMonths.toFixed(1)} mo`
-            : '—'
-        }
-        period="active employees"
-        icon={<Hourglass />}
-      />
+      <KpiButton
+        active={active === 'joined-this-month'}
+        onClick={() => onSelect('joined-this-month')}
+        ariaLabel="Show employees joined this month"
+      >
+        <ZoruStatCard
+          label="New this month"
+          value={kpi.newThisMonth.toLocaleString()}
+          period="joined this month"
+          icon={<UserPlus />}
+        />
+      </KpiButton>
     </div>
   );
 }

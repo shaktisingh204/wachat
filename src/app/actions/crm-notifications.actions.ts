@@ -143,7 +143,7 @@ export async function getCrmNotifications(
     const session = await getSession();
     if (!session?.user?._id) return { error: 'Authentication required.' };
 
-    const guard = await requirePermission('crm_lead', 'view');
+    const guard = await requirePermission('crm_notification', 'view');
     if (!guard.ok) return { error: guard.error };
 
     const userId = String(session.user._id);
@@ -281,7 +281,7 @@ export async function markNotificationRead(
     const session = await getSession();
     if (!session?.user?._id) return { success: false, error: 'Authentication required.' };
 
-    const guard = await requirePermission('crm_lead', 'view');
+    const guard = await requirePermission('crm_notification', 'edit');
     if (!guard.ok) return { success: false, error: guard.error };
 
     if (!ObjectId.isValid(notificationId)) {
@@ -337,7 +337,7 @@ export async function markAllNotificationsRead(): Promise<
     const session = await getSession();
     if (!session?.user?._id) return { success: false, error: 'Authentication required.' };
 
-    const guard = await requirePermission('crm_lead', 'view');
+    const guard = await requirePermission('crm_notification', 'edit');
     if (!guard.ok) return { success: false, error: guard.error };
 
     const userId = String(session.user._id);

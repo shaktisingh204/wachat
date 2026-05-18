@@ -42,6 +42,7 @@ import {
 } from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { EntityMultiFormField } from '@/components/crm/entity-multi-form-field';
+import { EnumFilterField } from '@/components/crm/enum-filter-field';
 
 export type LeadsStatusFilter =
     | 'all'
@@ -79,23 +80,12 @@ export function LeadsFiltersRow(props: LeadsFiltersRowProps) {
                     <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                         Status
                     </ZoruLabel>
-                    <ZoruSelect
+                    <EnumFilterField
+                        enumName="leadStatusListFilter"
                         value={props.statusFilter}
-                        onValueChange={(v) => props.onStatusChange(v as LeadsStatusFilter)}
-                    >
-                        <ZoruSelectTrigger>
-                            <ZoruSelectValue />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                            <ZoruSelectItem value="all">All</ZoruSelectItem>
-                            <ZoruSelectItem value="New">New</ZoruSelectItem>
-                            <ZoruSelectItem value="Contacted">Contacted</ZoruSelectItem>
-                            <ZoruSelectItem value="Qualified">Qualified</ZoruSelectItem>
-                            <ZoruSelectItem value="Won">Won</ZoruSelectItem>
-                            <ZoruSelectItem value="Converted">Converted</ZoruSelectItem>
-                            <ZoruSelectItem value="archived">Archived</ZoruSelectItem>
-                        </ZoruSelectContent>
-                    </ZoruSelect>
+                        onChange={(v) => props.onStatusChange(v as LeadsStatusFilter)}
+                        allLabel="All statuses"
+                    />
                 </div>
 
                 <div className="space-y-1">

@@ -336,3 +336,166 @@ export async function resumeSubscription(id: string) {
 export async function cancelSubscription(id: string) {
   return setSubscriptionStatus(id, 'cancelled' as CrmSubStatus);
 }
+
+/* ─── KPI strip aggregate (§1D.1) ─────────────────────────────── */
+
+export interface SubscriptionKpiSnapshot {
+  /** Active subscriptions (status === 'active'). */
+  activeCount: number;
+  /** Trial subscriptions (status === 'trial'). */
+  trialCount: number;
+  /** Past-due subscriptions (status === 'past_due'). */
+  pastDueCount: number;
+  /** Churned subscriptions (status ∈ {'cancelled','expired'}). */
+  churnedCount: number;
+  /**
+   * Monthly recurring revenue across active + trial subscriptions, in the
+   * default tenant currency. Trial subscriptions contribute at full plan
+   * price — adjust if/when a tenant ever wants ARR-style tiering.
+   */
+  mrr: number;
+  /** Default currency for the MRR figure. Picked from the first row. */
+  currency: string;
+}
+
+function annualizationFactor(f: CrmSubBillingFrequency): number {
+  switch (f) {
+    case 'daily':
+      return 30; // approximate months
+    case 'weekly':
+      return 52 / 12;
+    case 'monthly':
+      return 1;
+    case 'quarterly':
+      return 1 / 3;
+    case 'yearly':
+      return 1 / 12;
+    case 'custom':
+    default:
+      return 1; // best-effort — treat as monthly
+  }
+}
+
+/**
+ * Aggregate the §1D.1 KPI strip from a representative window of
+ * subscriptions. Mirrors `computeInvoiceKpis` — pulls a wider list-page
+ * window (capped at 200) and runs a pure-in-memory tally so the strip
+ * doesn't reflect a single 20-row page.
+ *
+ * TODO 1D.1: replace with a dedicated Rust aggregate once tenants
+ * routinely exceed 200 subscriptions.
+ */
+export async function getSubscriptionKpis(): Promise<{
+  kpi: SubscriptionKpiSnapshot;
+  error?: string;
+}> {
+  const empty: SubscriptionKpiSnapshot = {
+    activeCount: 0,
+    trialCount: 0,
+    pastDueCount: 0,
+    churnedCount: 0,
+    mrr: 0,
+    currency: 'INR',
+  };
+  const session = await getSession();
+  if (!session?.user) return { kpi: empty, error: 'Unauthorized' };
+  const guard = await requirePermission('crm_subscription', 'view');
+  if (!guard.ok) return { kpi: empty, error: guard.error };
+  try {
+    const rows = await crmSubscriptionsApi.list({ page: 1, limit: 200 });
+    let activeCount = 0;
+    let trialCount = 0;
+    let pastDueCount = 0;
+    let churnedCount = 0;
+    let mrr = 0;
+    let currency: string | undefined;
+    for (const r of rows) {
+      const s = r.status;
+      if (s === 'active') activeCount += 1;
+      else if (s === 'trial') trialCount += 1;
+      else if (s === 'past_due') pastDueCount += 1;
+      else if (s === 'cancelled' || s === 'expired') churnedCount += 1;
+      if (s === 'active' || s === 'trial') {
+        const item = r.items?.[0];
+        if (item && typeof item.qty === 'number' && typeof item.rate === 'number') {
+          mrr += item.qty * item.rate * annualizationFactor(r.frequency);
+          if (!currency && item.currency) currency = item.currency;
+        }
+      }
+    }
+    return {
+      kpi: {
+        activeCount,
+        trialCount,
+        pastDueCount,
+        churnedCount,
+        mrr,
+        currency: currency ?? 'INR',
+      },
+    };
+  } catch (e) {
+    console.error('[getSubscriptionKpis] rust path failed; falling back:', e);
+    recordRustFallback({
+      entity: 'subscription',
+      op: 'list',
+      errorCode: e instanceof RustApiError ? e.code : undefined,
+      status: e instanceof RustApiError ? e.status : undefined,
+    });
+    return { kpi: empty, error: rustErr(e) };
+  }
+}
+
+/* ─── Related-counts (§1D.2 right rail) ───────────────────────── */
+
+export interface SubscriptionRelatedCounts {
+  invoices: number;
+  receipts: number;
+}
+
+/**
+ * Live-count of downstream documents linked to a subscription. The Rust
+ * BFF has no dedicated lineage-count endpoint for subscriptions yet, so
+ * we fall back to lightweight Mongo reads — same pattern the other §1D
+ * detail pages use until the Rust API ships counts.
+ *
+ * TODO 1D.2: ship `crm_subscriptions::related_counts` on the Rust side
+ * so the page doesn't double-hit Mongo + Rust.
+ */
+export async function getSubscriptionRelatedCounts(
+  id: string,
+): Promise<SubscriptionRelatedCounts> {
+  const zero: SubscriptionRelatedCounts = { invoices: 0, receipts: 0 };
+  if (!id) return zero;
+  const session = await getSession();
+  if (!session?.user) return zero;
+  try {
+    const { ObjectId } = await import('mongodb');
+    const { connectToDatabase } = await import('@/lib/mongodb');
+    if (!ObjectId.isValid(id)) return zero;
+    const { db } = await connectToDatabase();
+    const userId = new ObjectId(String(session.user._id));
+    const subOid = new ObjectId(id);
+    const [invoices, receipts] = await Promise.all([
+      db.collection('crm_invoices').countDocuments({
+        userId,
+        $or: [
+          { subscriptionId: id },
+          { subscriptionId: subOid },
+          { 'lineage.kind': 'subscription', 'lineage.id': id },
+        ],
+      }),
+      db.collection('crm_payment_receipts').countDocuments({
+        userId,
+        $or: [
+          { subscriptionId: id },
+          { subscriptionId: subOid },
+          { 'lineage.kind': 'subscription', 'lineage.id': id },
+        ],
+      }),
+    ]);
+    return { invoices, receipts };
+  } catch (e) {
+    console.error('[getSubscriptionRelatedCounts] failed:', e);
+    return zero;
+  }
+}

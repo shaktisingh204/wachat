@@ -20,13 +20,9 @@ import {
     ZoruCardContent,
     ZoruDateRangePicker,
     ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
 } from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EnumFilterField } from '@/components/crm/enum-filter-field';
 import type { TaskLinkedKind } from '@/app/actions/crm-tasks.actions';
 
 export type TaskStatusFilter =
@@ -71,67 +67,40 @@ export function TasksFiltersRow(props: TasksFiltersRowProps) {
                     <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                         Status
                     </ZoruLabel>
-                    <ZoruSelect
+                    <EnumFilterField
+                        enumName="taskStatusLegacy"
                         value={props.statusFilter}
-                        onValueChange={(v) => props.onStatusChange(v as TaskStatusFilter)}
-                    >
-                        <ZoruSelectTrigger>
-                            <ZoruSelectValue />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                            <ZoruSelectItem value="all">All</ZoruSelectItem>
-                            <ZoruSelectItem value="To-Do">To-Do</ZoruSelectItem>
-                            <ZoruSelectItem value="In Progress">In Progress</ZoruSelectItem>
-                            <ZoruSelectItem value="Completed">Completed</ZoruSelectItem>
-                        </ZoruSelectContent>
-                    </ZoruSelect>
+                        onChange={(v) => props.onStatusChange(v as TaskStatusFilter)}
+                        allLabel="All statuses"
+                    />
                 </div>
 
                 <div className="space-y-1">
                     <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                         Priority
                     </ZoruLabel>
-                    <ZoruSelect
+                    <EnumFilterField
+                        enumName="priorityLegacy"
                         value={props.priorityFilter || 'all'}
-                        onValueChange={(v) =>
+                        onChange={(v) =>
                             props.onPriorityChange((v === 'all' ? '' : v) as TaskPriorityFilter)
                         }
-                    >
-                        <ZoruSelectTrigger>
-                            <ZoruSelectValue />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                            <ZoruSelectItem value="all">Any</ZoruSelectItem>
-                            <ZoruSelectItem value="High">High</ZoruSelectItem>
-                            <ZoruSelectItem value="Medium">Medium</ZoruSelectItem>
-                            <ZoruSelectItem value="Low">Low</ZoruSelectItem>
-                        </ZoruSelectContent>
-                    </ZoruSelect>
+                        allLabel="Any priority"
+                    />
                 </div>
 
                 <div className="space-y-1">
                     <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                         Type
                     </ZoruLabel>
-                    <ZoruSelect
+                    <EnumFilterField
+                        enumName="taskType"
                         value={props.typeFilter || 'all'}
-                        onValueChange={(v) =>
+                        onChange={(v) =>
                             props.onTypeChange((v === 'all' ? '' : v) as TaskTypeFilter)
                         }
-                    >
-                        <ZoruSelectTrigger>
-                            <ZoruSelectValue />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                            <ZoruSelectItem value="all">Any</ZoruSelectItem>
-                            <ZoruSelectItem value="Call">Call</ZoruSelectItem>
-                            <ZoruSelectItem value="Email">Email</ZoruSelectItem>
-                            <ZoruSelectItem value="Meeting">Meeting</ZoruSelectItem>
-                            <ZoruSelectItem value="Follow-up">Follow-up</ZoruSelectItem>
-                            <ZoruSelectItem value="Demo">Demo</ZoruSelectItem>
-                            <ZoruSelectItem value="Other">Other</ZoruSelectItem>
-                        </ZoruSelectContent>
-                    </ZoruSelect>
+                        allLabel="Any type"
+                    />
                 </div>
 
                 <div className="space-y-1">
@@ -151,28 +120,16 @@ export function TasksFiltersRow(props: TasksFiltersRowProps) {
                     <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                         Linked to
                     </ZoruLabel>
-                    <ZoruSelect
+                    <EnumFilterField
+                        enumName="linkedEntityKind"
                         value={props.linkedKindFilter || 'all'}
-                        onValueChange={(v) =>
+                        onChange={(v) =>
                             props.onLinkedKindChange(
                                 (v === 'all' ? '' : v) as TaskLinkedKind | '',
                             )
                         }
-                    >
-                        <ZoruSelectTrigger>
-                            <ZoruSelectValue />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                            <ZoruSelectItem value="all">Any</ZoruSelectItem>
-                            <ZoruSelectItem value="lead">Leads</ZoruSelectItem>
-                            <ZoruSelectItem value="deal">Deals</ZoruSelectItem>
-                            <ZoruSelectItem value="client">Clients</ZoruSelectItem>
-                            <ZoruSelectItem value="contact">Contacts</ZoruSelectItem>
-                            <ZoruSelectItem value="ticket">Tickets</ZoruSelectItem>
-                            <ZoruSelectItem value="invoice">Invoices</ZoruSelectItem>
-                            <ZoruSelectItem value="none">No link</ZoruSelectItem>
-                        </ZoruSelectContent>
-                    </ZoruSelect>
+                        allLabel="Any link"
+                    />
                 </div>
 
                 <div className="space-y-1">

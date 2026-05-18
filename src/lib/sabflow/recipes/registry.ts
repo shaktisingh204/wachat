@@ -5,163 +5,123 @@
  * import time).  `instantiateRecipe()` clones a recipe into a fresh
  * `SabFlowDoc` ready to be persisted by `saveSabFlow()`.
  *
- * The registry is an in-memory map — because recipes are code-defined this
- * is fine for cluster deployments (every Node process has the same set).
+ * Phase C.10.8 #8 — this module is now a **backwards-compat wrapper** around
+ * the unified marketplace registry at `@/lib/sabflow/marketplace/registry`.
+ * Existing call-sites (the seed-pack files, the API route, the recipes API)
+ * continue to import from here unchanged; under the hood we adapt each
+ * `Recipe` into a canonical `Template` and store it in the single map.
  */
 
-import type {
-  SabFlowDoc,
-  Block,
-  Group,
-  Edge,
-  SabFlowEvent,
-  Coordinates,
-} from '@/lib/sabflow/types';
+import type { SabFlowDoc } from '@/lib/sabflow/types';
 import type { Recipe } from './types';
+import {
+  registerTemplate,
+  getTemplate,
+  listTemplates,
+  instantiateRecipeTemplate,
+  normaliseCategory,
+  extractRequiredCredentials,
+  FIRST_PARTY_PUBLISHER,
+  type Template,
+} from '@/lib/sabflow/marketplace/registry';
 
-/* ── Registry storage ───────────────────────────────────── */
+/* ── Adapters ───────────────────────────────────────────── */
 
-const recipeMap = new Map<string, Recipe>();
+/** Convert a legacy `Recipe` into the canonical `Template` shape. */
+function recipeToTemplate(recipe: Recipe): Template {
+  return {
+    id: recipe.id,
+    slug: recipe.id,
+    displayName: recipe.name,
+    description: recipe.description,
+    category: normaliseCategory(recipe.category),
+    tags: [...recipe.tags],
+    requiredCredentials: extractRequiredCredentials(recipe.blocks),
+    screenshots: [],
+    version: '1.0.0',
+    publisher: FIRST_PARTY_PUBLISHER,
+    installCount: 0,
+    kind: 'recipe',
+    flow: {
+      trigger: recipe.trigger,
+      blocks: recipe.blocks,
+      variables: recipe.variables,
+    },
+  };
+}
+
+/** Re-derive the legacy `Recipe` shape from a stored `Template`.  Keeps the
+ *  public API of `listRecipes()` / `getRecipe()` byte-compatible with what
+ *  the API route + the seed-pack tests expect today. */
+function templateToRecipe(t: Template): Recipe | undefined {
+  if (t.kind !== 'recipe' || !t.flow) return undefined;
+  return {
+    id: t.id,
+    name: t.displayName,
+    // Down-cast: the legacy enum is a closed string union; the unified
+    // categories are a superset.  Callers that compare against the recipe
+    // enum still get a string that matches one of the legacy values (the
+    // chatbot-only buckets like `'Health'` never apply to recipes).
+    category: legacyRecipeCategory(t.category),
+    description: t.description,
+    trigger: t.flow.trigger,
+    blocks: t.flow.blocks,
+    variables: t.flow.variables,
+    tags: t.tags,
+  };
+}
+
+/** Map canonical category back to the legacy `RecipeCategory` string. */
+function legacyRecipeCategory(c: string): Recipe['category'] {
+  const back: Record<string, Recipe['category']> = {
+    Sales: 'sales',
+    Marketing: 'marketing',
+    Support: 'support',
+    Ops: 'ops',
+    Finance: 'finance',
+    CRM: 'crm',
+    WhatsApp: 'whatsapp',
+    'E-commerce': 'ecommerce',
+    Ads: 'ads',
+    Onboarding: 'onboarding',
+  };
+  return back[c] ?? 'ops';
+}
+
+/* ── Public API (backwards-compatible) ──────────────────── */
 
 /** Register a recipe.  Re-registering the same id silently overwrites. */
 export function registerRecipe(recipe: Recipe): void {
-  recipeMap.set(recipe.id, recipe);
+  registerTemplate(recipeToTemplate(recipe));
 }
 
 /** Returns every registered recipe in insertion order. */
 export function listRecipes(): Recipe[] {
-  return Array.from(recipeMap.values());
+  const out: Recipe[] = [];
+  for (const t of listTemplates()) {
+    const r = templateToRecipe(t);
+    if (r) out.push(r);
+  }
+  return out;
 }
 
 /** Returns a recipe by id, or `undefined` when not found. */
 export function getRecipe(id: string): Recipe | undefined {
-  return recipeMap.get(id);
-}
-
-/* ── Helpers ────────────────────────────────────────────── */
-
-/**
- * Generates a short random id suffix.  Recipes intentionally use stable ids
- * inside their definition so we can freely re-clone them — but every
- * instantiation needs *fresh* block/group/edge ids so two flows built from
- * the same recipe don't collide in storage.
- */
-function shortId(): string {
-  return Math.random().toString(36).slice(2, 10);
-}
-
-/**
- * Lays groups out left-to-right on the canvas with a fixed horizontal
- * stride.  This matches the n8n-style canvas the engine ports use today.
- */
-function layoutCoords(index: number): Coordinates {
-  return { x: 200 + index * 320, y: 200 };
+  const t = getTemplate(id);
+  if (!t) return undefined;
+  return templateToRecipe(t);
 }
 
 /**
  * Materialise a recipe into a `SabFlowDoc` for the given tenant.
- *
- * - Every block / group / edge id is regenerated to avoid collisions.
- * - The trigger event keeps its options but gets a fresh id and an outgoing
- *   edge wired to the first group.
- * - `userId` is the tenant identifier used by the rest of the SabFlow code
- *   (see `getSabFlowsByUserId`).  Multi-tenancy lives one layer up — we
- *   simply stamp it onto the document.
+ * Delegates to the unified registry — identical id-rekeying semantics as
+ * before.
  */
 export function instantiateRecipe(
   recipeId: string,
   tenantId: string,
 ): SabFlowDoc | null {
-  const recipe = recipeMap.get(recipeId);
-  if (!recipe) return null;
-
-  // Map old groupId → new groupId so edges remain consistent.
-  const groupIdMap = new Map<string, string>();
-  // Map old blockId → new blockId for edge translation.
-  const blockIdMap = new Map<string, string>();
-
-  // Collect the distinct groupIds in the order they first appear.
-  const orderedGroupIds: string[] = [];
-  for (const block of recipe.blocks) {
-    if (!groupIdMap.has(block.groupId)) {
-      const newId = `g_${shortId()}`;
-      groupIdMap.set(block.groupId, newId);
-      orderedGroupIds.push(block.groupId);
-    }
-  }
-
-  // Build groups with re-keyed blocks.
-  const groups: Group[] = orderedGroupIds.map((oldId, idx) => {
-    const newGroupId = groupIdMap.get(oldId)!;
-    const blocks: Block[] = recipe.blocks
-      .filter((b) => b.groupId === oldId)
-      .map((b) => {
-        const newBlockId = `b_${shortId()}`;
-        blockIdMap.set(b.id, newBlockId);
-        return {
-          ...b,
-          id: newBlockId,
-          groupId: newGroupId,
-        } as Block;
-      });
-
-    return {
-      id: newGroupId,
-      title: `Step ${idx + 1}`,
-      graphCoordinates: layoutCoords(idx),
-      blocks,
-    };
-  });
-
-  // Wire sequential edges between groups (first-block → next-group).
-  // Recipes describe a linear pipeline; for branchy recipes, authors can
-  // supply additional edges via a follow-up extension point.
-  const edges: Edge[] = [];
-  for (let i = 0; i < orderedGroupIds.length - 1; i++) {
-    const fromGroupId = groupIdMap.get(orderedGroupIds[i])!;
-    const toGroupId = groupIdMap.get(orderedGroupIds[i + 1])!;
-    edges.push({
-      id: `e_${shortId()}`,
-      from: { groupId: fromGroupId },
-      to: { groupId: toGroupId },
-    });
-  }
-
-  // Re-key trigger and wire its outgoing edge to the first group.
-  const newTriggerId = `t_${shortId()}`;
-  const trigger: SabFlowEvent = {
-    ...recipe.trigger,
-    id: newTriggerId,
-    graphCoordinates: { x: 80, y: 200 },
-  };
-  if (orderedGroupIds.length > 0) {
-    const firstGroupId = groupIdMap.get(orderedGroupIds[0])!;
-    edges.unshift({
-      id: `e_${shortId()}`,
-      from: { eventId: newTriggerId },
-      to: { groupId: firstGroupId },
-    });
-  }
-
-  const now = new Date();
-  const doc: SabFlowDoc = {
-    userId: tenantId,
-    name: recipe.name,
-    events: [trigger],
-    groups,
-    edges,
-    variables: recipe.variables.map((v) => ({ ...v })),
-    annotations: [],
-    theme: {},
-    settings: {
-      description: recipe.description,
-    },
-    status: 'DRAFT',
-    createdAt: now,
-    updatedAt: now,
-  };
-
-  return doc;
+  return instantiateRecipeTemplate(recipeId, tenantId);
 }
 
 // Built-in recipe modules used to be side-effect-imported here. That created

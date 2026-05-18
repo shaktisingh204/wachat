@@ -209,7 +209,7 @@ export async function saveWelcomeKit(
     const kitId = asString(formData.get('kitId'));
     const isEditing = !!kitId;
 
-    const guard = await requirePermission(RBAC_KEY, isEditing ? 'update' : 'create');
+    const guard = await requirePermission(RBAC_KEY, isEditing ? 'edit' : 'create');
     if (!guard.ok) return { error: guard.error };
 
     const { payload, error } = readPayload(formData);

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { badgeVariants } from '@/components/zoruui';
+import { zoruBadgeVariants } from '@/components/zoruui';
 import { cn } from '@/lib/utils';
 
 type Tone =
@@ -24,7 +24,7 @@ export interface ClayBadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
  */
 const toneToVariant: Record<
   Tone,
-  'default' | 'secondary' | 'destructive' | 'success' | 'warning' | 'info' | 'outline'
+  'default' | 'secondary' | 'danger' | 'success' | 'warning' | 'info' | 'outline'
 > = {
   neutral: 'secondary',
   rose: 'default',
@@ -32,7 +32,7 @@ const toneToVariant: Record<
   obsidian: 'default',
   green: 'success',
   amber: 'warning',
-  red: 'destructive',
+  red: 'danger',
   blue: 'info',
 };
 
@@ -55,7 +55,7 @@ const dotTones: Record<Tone, string> = {
 };
 
 /**
- * ClayBadge — delegates visual styling to shadcn `badgeVariants` while
+ * ClayBadge — delegates visual styling to `zoruBadgeVariants` while
  * keeping the original `<span>` element + `HTMLSpanElement` ref contract
  * that callers depend on.
  */
@@ -64,7 +64,7 @@ export const ClayBadge = React.forwardRef<HTMLSpanElement, ClayBadgeProps>(
     <span
       ref={ref}
       className={cn(
-        badgeVariants({ variant: toneToVariant[tone] }),
+        zoruBadgeVariants({ variant: toneToVariant[tone] }),
         // ClayBadge's traditional sizing: 24px tall, slightly larger horizontal pad.
         'h-6 px-2.5 text-[11.5px] gap-1.5 leading-none whitespace-nowrap',
         toneOverride[tone],

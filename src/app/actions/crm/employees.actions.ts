@@ -157,7 +157,7 @@ export async function saveEmployeeAction(
     return { error: 'First name and last name are required.' };
   }
 
-  const guard = await requirePermission('crm_employee', id ? 'update' : 'create');
+  const guard = await requirePermission('crm_employee', id ? 'edit' : 'create');
   if (!guard.ok) return { error: guard.error };
 
   // Create path — Rust enforces dob / joiningDate / departmentId /
@@ -400,4 +400,126 @@ export async function getCrmEmployeeRelatedCounts(employeeId: string): Promise<{
     console.error('[getCrmEmployeeRelatedCounts] failed:', e);
     return empty;
   }
+}
+
+/* ─── Aliases for §1D parity ─── */
+export const getEmployeeRelatedCounts = getCrmEmployeeRelatedCounts;
+
+/* ─── KPI snapshot ───────────────────────────────────────────────
+ * Aggregates a window of employees (capped at 500 — the Rust endpoint
+ * enforces its own upper bound) into the §1D KPI vocabulary:
+ *   - total, active, onLeave, onNotice, newThisMonth, terminated
+ *
+ * `onNotice` is approximated from `status === 'resigned'` (notice
+ * period in progress) — once the Rust DTO exposes a dedicated flag
+ * we will swap this branch over. */
+export interface EmployeeKpiBundle {
+  total: number;
+  active: number;
+  onLeave: number;
+  onNotice: number;
+  newThisMonth: number;
+  terminated: number;
+  avgTenureMonths: number | null;
+}
+
+export async function getEmployeeKpis(): Promise<EmployeeKpiBundle> {
+  const empty: EmployeeKpiBundle = {
+    total: 0,
+    active: 0,
+    onLeave: 0,
+    onNotice: 0,
+    newThisMonth: 0,
+    terminated: 0,
+    avgTenureMonths: null,
+  };
+  try {
+    const docs = await crmEmployeesApi.list({ page: 1, limit: 500 });
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+    let total = 0;
+    let active = 0;
+    let onLeave = 0;
+    let onNotice = 0;
+    let newThisMonth = 0;
+    let terminated = 0;
+    let tenureSum = 0;
+    let tenureCount = 0;
+    for (const e of docs) {
+      if (e.archived) continue;
+      total += 1;
+      const status = e.status;
+      if (status === 'active') {
+        active += 1;
+        if (e.joiningDate) {
+          const t = new Date(e.joiningDate).getTime();
+          if (Number.isFinite(t) && t <= now.getTime()) {
+            const months =
+              (now.getTime() - t) / (1000 * 60 * 60 * 24 * 30.4375);
+            if (Number.isFinite(months) && months >= 0) {
+              tenureSum += months;
+              tenureCount += 1;
+            }
+          }
+        }
+      } else if (status === 'on_leave') {
+        onLeave += 1;
+      } else if (status === 'resigned') {
+        onNotice += 1;
+      } else if (status === 'terminated') {
+        terminated += 1;
+      }
+      if (e.joiningDate) {
+        const t = new Date(e.joiningDate).getTime();
+        if (Number.isFinite(t) && t >= monthStart) {
+          newThisMonth += 1;
+        }
+      }
+    }
+    return {
+      total,
+      active,
+      onLeave,
+      onNotice,
+      newThisMonth,
+      terminated,
+      avgTenureMonths:
+        tenureCount > 0
+          ? Math.round((tenureSum / tenureCount) * 10) / 10
+          : null,
+    };
+  } catch (e) {
+    console.error('[getEmployeeKpis] failed:', e);
+    return empty;
+  }
+}
+
+/* ─── Bulk status mutation ───────────────────────────────────────
+ * `setEmployeeStatus` flips one or more employees to the supplied
+ * status atomically per-row via the Rust PATCH endpoint. RBAC is
+ * enforced once at the start; per-row errors are accumulated and
+ * returned so the UI can surface partial failures. */
+export async function setEmployeeStatus(
+  ids: string[],
+  status: CrmEmployeeStatus,
+): Promise<{ ok: number; failed: number; errors: string[] }> {
+  if (!ids?.length) return { ok: 0, failed: 0, errors: [] };
+  const guard = await requirePermission('crm_employee', 'edit');
+  if (!guard.ok) return { ok: 0, failed: ids.length, errors: [guard.error ?? 'Forbidden'] };
+
+  let ok = 0;
+  let failed = 0;
+  const errors: string[] = [];
+  for (const id of ids) {
+    try {
+      await crmEmployeesApi.update(id, { status });
+      ok += 1;
+    } catch (e) {
+      failed += 1;
+      errors.push(`${id}: ${rustErr(e)}`);
+    }
+  }
+  revalidatePath(LIST_PATH);
+  revalidatePath('/dashboard/hrm/payroll/employees');
+  return { ok, failed, errors };
 }
