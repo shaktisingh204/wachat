@@ -1,0 +1,10 @@
+{
+  "id": "gitlab-mr-auto-label",
+  "name": "GitLab MR Auto-Label",
+  "description": "On every GitLab merge-request `opened` webhook, fetches the changed-file list, asks GPT-4o to suggest semantic labels from the diff, and applies them through the GitLab API. The team gets consistent triage labels without the author having to remember each repo's taxonomy.",
+  "category": "Developer",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["gitlab", "openai", "labels", "ai", "review", "webhook"],
+  "version": "0.1.0"
+}
