@@ -19,6 +19,8 @@ pub use retry::{
     EXECUTION_DEFAULT, WEBHOOK_DEFAULT,
 };
 
+pub mod shutdown;
+
 pub fn placeholder() -> &'static str {
     "sabflow-executor-queue: phase 2"
 }
