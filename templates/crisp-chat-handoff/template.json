@@ -1,0 +1,10 @@
+{
+  "id": "crisp-chat-handoff",
+  "name": "Crisp Chat Handoff",
+  "description": "Listens for Crisp bot-failure events and counts the visitor's recent failures in Mongo. After three strikes the flow assigns the conversation to a live agent, alerts Slack #live-support with full context, tags the contact in HubSpot for follow-up, and emails the visitor an ETA. Below the threshold the flow is a no-op.",
+  "category": "Support",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["crisp", "support", "slack", "hubspot", "sendgrid", "mongo"],
+  "version": "0.1.0"
+}
