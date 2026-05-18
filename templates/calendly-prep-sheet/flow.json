@@ -1,0 +1,196 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_calendly_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "calendly.invitee.created",
+    "options": {
+      "path": "/webhooks/calendly-prep-sheet",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "Calendly-Webhook-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_calendly_trigger",
+      "name": "Calendly Invitee Created",
+      "type": "n8n-nodes-base.calendlyTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "events": ["invitee.created"]
+      },
+      "credentials": {
+        "calendlyApi": { "id": "calendly-cred", "name": "Calendly API" }
+      }
+    },
+    {
+      "id": "n_extract_invitee",
+      "name": "Extract Invitee Info",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "inviteeEmail", "value": "={{ $json.payload.email }}" },
+            { "name": "inviteeName", "value": "={{ $json.payload.name }}" },
+            { "name": "eventName", "value": "={{ $json.payload.event_type.name }}" },
+            { "name": "startTime", "value": "={{ $json.payload.scheduled_event.start_time }}" },
+            { "name": "repEmail", "value": "={{ $json.payload.scheduled_event.event_memberships[0].user_email }}" },
+            { "name": "companyDomain", "value": "={{ $json.payload.email.split('@')[1] }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_clearbit_lookup",
+      "name": "Clearbit Company Lookup",
+      "type": "n8n-nodes-base.clearbit",
+      "typeVersion": 1,
+      "position": [480, -120],
+      "parameters": {
+        "resource": "company",
+        "operation": "get",
+        "domain": "={{ $node['Extract Invitee Info'].json.companyDomain }}"
+      },
+      "credentials": {
+        "clearbitApi": { "id": "clearbit-cred", "name": "Clearbit API" }
+      }
+    },
+    {
+      "id": "n_hubspot_deal_search",
+      "name": "HubSpot Recent Deal",
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2,
+      "position": [480, 120],
+      "parameters": {
+        "resource": "deal",
+        "operation": "search",
+        "filters": {
+          "filterGroups": [
+            {
+              "filters": [
+                {
+                  "propertyName": "associated_contact_email",
+                  "operator": "EQ",
+                  "value": "={{ $node['Extract Invitee Info'].json.inviteeEmail }}"
+                }
+              ]
+            }
+          ]
+        },
+        "sort": "lastmodifieddate",
+        "sortDirection": "DESCENDING",
+        "limit": 1
+      },
+      "credentials": {
+        "hubspotOAuth2Api": { "id": "hubspot-cred", "name": "HubSpot OAuth2" }
+      }
+    },
+    {
+      "id": "n_merge_context",
+      "name": "Merge Company + Deal",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "mode": "mergeByPosition"
+      }
+    },
+    {
+      "id": "n_gpt_talktracks",
+      "name": "GPT-4o Talk Tracks",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "authentication": "apiKey",
+        "resource": "chat",
+        "operation": "complete",
+        "model": "gpt-4o",
+        "messages": {
+          "values": [
+            { "role": "system", "content": "You are a senior sales coach. Given a company profile and an in-flight deal stage, output JSON with: company_facts (3 bullets), deal_context (2 sentences), and talk_tracks (exactly 3 concrete opener+question pairs the rep can use)." },
+            { "role": "user", "content": "Company: {{ $json[0] }}\n\nDeal: {{ $json[1] }}\n\nMeeting: {{ $node['Extract Invitee Info'].json.eventName }} with {{ $node['Extract Invitee Info'].json.inviteeName }}." }
+          ]
+        },
+        "options": { "responseFormat": "json_object", "temperature": 0.3 }
+      },
+      "credentials": {
+        "openAiApi": { "id": "openai-cred", "name": "OpenAI API" }
+      }
+    },
+    {
+      "id": "n_email_rep",
+      "name": "Email Prep Sheet to Rep",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [1200, 0],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "={{ $vars.PREP_FROM_EMAIL }}",
+        "toEmail": "={{ $node['Extract Invitee Info'].json.repEmail }}",
+        "subject": "Prep sheet — {{ $node['Extract Invitee Info'].json.inviteeName }} ({{ $node['Extract Invitee Info'].json.eventName }})",
+        "contentType": "text/html",
+        "content": "={{ $json.message.content }}"
+      },
+      "credentials": {
+        "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid API" }
+      }
+    }
+  ],
+  "connections": {
+    "n_calendly_trigger": {
+      "main": [[{ "node": "n_extract_invitee", "type": "main", "index": 0 }]]
+    },
+    "n_extract_invitee": {
+      "main": [
+        [
+          { "node": "n_clearbit_lookup", "type": "main", "index": 0 },
+          { "node": "n_hubspot_deal_search", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "n_clearbit_lookup": {
+      "main": [[{ "node": "n_merge_context", "type": "main", "index": 0 }]]
+    },
+    "n_hubspot_deal_search": {
+      "main": [[{ "node": "n_merge_context", "type": "main", "index": 1 }]]
+    },
+    "n_merge_context": {
+      "main": [[{ "node": "n_gpt_talktracks", "type": "main", "index": 0 }]]
+    },
+    "n_gpt_talktracks": {
+      "main": [[{ "node": "n_email_rep", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_calendly_trigger",
+        "n_extract_invitee",
+        "n_clearbit_lookup",
+        "n_hubspot_deal_search",
+        "n_merge_context",
+        "n_gpt_talktracks",
+        "n_email_rep"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_prep_from", "name": "PREP_FROM_EMAIL", "defaultValue": "prep@example.com" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
