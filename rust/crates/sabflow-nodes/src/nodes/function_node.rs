@@ -1,18 +1,21 @@
-//! Function Item (legacy) node.
+//! Function (legacy) node.
 //!
-//! n8n's old `FunctionItem` node ran a JavaScript snippet **once per input
-//! item** with `item` in scope and expected a single replacement object
-//! back. We don't ship a JS sandbox today (see `code_node.rs` for the
-//! rationale), so this node downgrades transparently to the safe expression
-//! DSL evaluated per item:
+//! n8n's old `Function` node ran a JavaScript snippet against the entire
+//! input batch — `items` was bound to the input array and the snippet
+//! returned a new array. We don't ship a JS sandbox today (see
+//! `code_node.rs` for the rationale), so this node downgrades transparently
+//! to the same safe expression DSL:
 //!
-//!   - For each incoming item, `{{ $json }}` and `{{ $json.path }}` bind
-//!     to **that item**.
-//!   - `{{ $node.<name>[.path] }}` still references upstream node outputs,
-//!     and `{{ varName }}` resolves flow variables.
-//!   - The rendered string is parsed as JSON when possible. Non-JSON output
-//!     is wrapped as `{ "value": "<rendered>" }` so the output stream stays
-//!     well-formed.
+//!   - The full source is treated as a template.
+//!   - `{{ $json }}`, `{{ $json.path }}`, `{{ $node.<name>[.path] }}`, and
+//!     plain `{{ varName }}` tokens are substituted.
+//!   - For `Function (legacy)`, `$json` binds to the **first input item** —
+//!     run-once-for-all-items semantics, matching the historic behaviour
+//!     where the snippet ran once with the whole `items` array in scope.
+//!
+//! The rendered string is parsed as JSON when possible. If the result is a
+//! JSON array, every element becomes an output item. Otherwise the rendered
+//! value is wrapped as a single item (`{ "value": ... }` when non-object).
 
 use async_trait::async_trait;
 use serde_json::{Value, json};
@@ -24,15 +27,15 @@ use crate::{
     node::Node,
 };
 
-pub struct FunctionItemNode;
+pub struct FunctionNode;
 
 #[async_trait]
-impl Node for FunctionItemNode {
+impl Node for FunctionNode {
     fn descriptor(&self) -> NodeDescriptor {
         NodeDescriptor::new(
-            "functionItem",
-            "Function Item (legacy)",
-            "Legacy per-item code node — downgrades to the safe expression DSL",
+            "function",
+            "Function (legacy)",
+            "Legacy code node — downgrades to the safe expression DSL",
             NodeCategory::Logic,
         )
         .icon("braces")
@@ -41,8 +44,9 @@ impl Node for FunctionItemNode {
             NodeProperty::new("functionCode", "Function Code", NodePropertyType::Code)
                 .default(json!("{{ $json }}"))
                 .description(
-                    "Legacy per-item JS source. Today this is evaluated as the safe expression \
-                     DSL once per input item. {{ $json[.path] }} binds to the current item.",
+                    "Legacy JS source. Today this is evaluated as the safe expression DSL: \
+                     {{ $json[.path] }}, {{ $node.<name>[.path] }}, and {{ varName }}. \
+                     If the rendered result is a JSON array, each element becomes an output item.",
                 )
                 .required(),
         ])
@@ -61,32 +65,23 @@ impl Node for FunctionItemNode {
             .unwrap_or("")
             .to_string();
 
-        if input.items.is_empty() {
-            // Same edge-case treatment as Set/Code: produce a single empty
-            // evaluation so a Function Item at the start of a manual run
-            // still emits output.
-            let rendered = render(ctx, &raw_code, &Value::Null);
-            let value = parse_or_wrap(&rendered);
-            return Ok(NodeOutput::single(vec![value]));
+        // Bind $json to the first input item to mirror legacy `items[0]` access.
+        // The snippet has no way to enumerate the full input array under the DSL —
+        // users wanting per-item behaviour should switch to `functionItem`.
+        let first = input.items.first().cloned().unwrap_or(Value::Null);
+
+        let rendered = render(ctx, &raw_code, &first);
+        let trimmed = rendered.trim();
+
+        if trimmed.is_empty() {
+            return Ok(NodeOutput::single(vec![json!({ "value": "" })]));
         }
 
-        let mut out: Vec<Value> = Vec::with_capacity(input.items.len());
-        for item in input.items.iter() {
-            let rendered = render(ctx, &raw_code, item);
-            out.push(parse_or_wrap(&rendered));
+        match serde_json::from_str::<Value>(trimmed) {
+            Ok(Value::Array(arr)) => Ok(NodeOutput::single(arr)),
+            Ok(v) => Ok(NodeOutput::single(vec![v])),
+            Err(_) => Ok(NodeOutput::single(vec![json!({ "value": rendered })])),
         }
-        Ok(NodeOutput::single(out))
-    }
-}
-
-fn parse_or_wrap(rendered: &str) -> Value {
-    let trimmed = rendered.trim();
-    if trimmed.is_empty() {
-        return json!({ "value": "" });
-    }
-    match serde_json::from_str::<Value>(trimmed) {
-        Ok(v) => v,
-        Err(_) => json!({ "value": rendered }),
     }
 }
 

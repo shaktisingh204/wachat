@@ -1,12 +1,15 @@
-//! Rename Keys node — rename top-level object keys on each item.
+//! Rename Keys node.
 //!
-//! Mirrors n8n's `n8n-nodes-base.renameKeys`. The `keys` parameter is a
-//! collection of `{ currentKey, newKey }` pairs. Renaming preserves insertion
-//! order using `serde_json::Map` (BTreeMap-backed by default, but with
-//! `preserve_order` feature `IndexMap` — either way, the rebuild walks the
-//! source in order so output is stable for downstream nodes that care).
+//! For every incoming item, rewrites top-level object keys according to a
+//! list of `{ from, to }` mappings.  Non-object items are passed through
+//! untouched.  Mappings with empty `from` or `to` strings are silently
+//! ignored.  When two mappings collide on the same target key, the **last**
+//! mapping wins (so users can override earlier entries explicitly).
 //!
-//! Pure local computation; no HTTP.
+//! Optional flags:
+//!   - `caseInsensitive` : matches `from` against keys case-insensitively.
+//!   - `keepUnmapped`    : when false, only the renamed keys survive — every
+//!                         other field on the source item is dropped.
 
 use async_trait::async_trait;
 use serde_json::{Map, Value, json};
@@ -20,35 +23,138 @@ use crate::{
 
 pub struct RenameKeysNode;
 
+#[derive(Debug, Clone)]
+struct Rename {
+    from: String,
+    to: String,
+}
+
+fn extract_pairs(params: &Value) -> Vec<Rename> {
+    let raw = match params.get("keys") {
+        Some(Value::Array(arr)) => arr.clone(),
+        Some(Value::Object(map)) => vec![Value::Object(map.clone())],
+        _ => return vec![],
+    };
+    raw.into_iter()
+        .filter_map(|entry| {
+            let from = entry
+                .get("from")
+                .or_else(|| entry.get("currentKey"))
+                .or_else(|| entry.get("oldKey"))
+                .and_then(|v| v.as_str())?
+                .to_string();
+            let to = entry
+                .get("to")
+                .or_else(|| entry.get("newKey"))
+                .and_then(|v| v.as_str())?
+                .to_string();
+            if from.is_empty() || to.is_empty() {
+                return None;
+            }
+            Some(Rename { from, to })
+        })
+        .collect()
+}
+
+fn rewrite_object(
+    obj: Map<String, Value>,
+    pairs: &[Rename],
+    case_insensitive: bool,
+    keep_unmapped: bool,
+) -> Map<String, Value> {
+    if pairs.is_empty() {
+        return obj;
+    }
+    let mut out: Map<String, Value> = Map::new();
+
+    // First, optionally copy through unmapped keys. We need to know which
+    // source keys participate as a `from` so we can suppress them when
+    // keep_unmapped=false. With case_insensitive, the match is on lower-case
+    // comparison.
+    let from_set: Vec<String> = pairs
+        .iter()
+        .map(|p| {
+            if case_insensitive {
+                p.from.to_ascii_lowercase()
+            } else {
+                p.from.clone()
+            }
+        })
+        .collect();
+
+    if keep_unmapped {
+        for (k, v) in obj.iter() {
+            let needle = if case_insensitive {
+                k.to_ascii_lowercase()
+            } else {
+                k.clone()
+            };
+            if !from_set.iter().any(|f| *f == needle) {
+                out.insert(k.clone(), v.clone());
+            }
+        }
+    }
+
+    // Apply renames in declared order. Last writer wins on `to` collisions.
+    for pair in pairs {
+        let needle = if case_insensitive {
+            pair.from.to_ascii_lowercase()
+        } else {
+            pair.from.clone()
+        };
+        // Find the matching source key in `obj`.
+        let source_key = obj.keys().find(|k| {
+            if case_insensitive {
+                k.to_ascii_lowercase() == needle
+            } else {
+                **k == needle
+            }
+        });
+        if let Some(src) = source_key {
+            if let Some(v) = obj.get(src) {
+                out.insert(pair.to.clone(), v.clone());
+            }
+        }
+    }
+
+    out
+}
+
 #[async_trait]
 impl Node for RenameKeysNode {
     fn descriptor(&self) -> NodeDescriptor {
         let key_children = vec![
-            NodeProperty::new("currentKey", "Current Key", NodePropertyType::String)
+            NodeProperty::new("from", "Current Key", NodePropertyType::String)
                 .placeholder("oldName")
                 .required(),
-            NodeProperty::new("newKey", "New Key", NodePropertyType::String)
+            NodeProperty::new("to", "New Key", NodePropertyType::String)
                 .placeholder("newName")
                 .required(),
         ];
 
-        let mut keys_prop =
-            NodeProperty::new("keys", "Keys to Rename", NodePropertyType::Collection)
-                .description("Pairs of (current key, new key) to apply to every item");
+        let mut keys_prop = NodeProperty::new("keys", "Renames", NodePropertyType::Collection)
+            .description("Pairs of { from, to } describing each rename");
         keys_prop.children = key_children;
 
         NodeDescriptor::new(
             "renameKeys",
             "Rename Keys",
-            "Rename top-level object keys on each item",
+            "Rename top-level keys on each item",
             NodeCategory::Transform,
         )
-        .icon("edit")
+        .icon("text-cursor-input")
         .color("#0ea5e9")
         .properties(vec![
             keys_prop,
-            NodeProperty::new("keepUnmatched", "Keep Unmatched Keys", NodePropertyType::Boolean)
-                .description("Keep keys that aren't in the rename list (otherwise drop them)")
+            NodeProperty::new(
+                "caseInsensitive",
+                "Case Insensitive",
+                NodePropertyType::Boolean,
+            )
+            .description("Match source keys regardless of casing")
+            .default(json!(false)),
+            NodeProperty::new("keepUnmapped", "Keep Unmapped Keys", NodePropertyType::Boolean)
+                .description("If false, only the renamed keys survive in the output")
                 .default(json!(true)),
         ])
     }
@@ -59,43 +165,26 @@ impl Node for RenameKeysNode {
         input: NodeInput,
         params: &Value,
     ) -> NodeResult<NodeOutput> {
-        let keep_unmatched = ctx.param_bool(params, "keepUnmatched", true);
+        let pairs = extract_pairs(params);
+        let case_insensitive = ctx.param_bool(params, "caseInsensitive", false);
+        let keep_unmapped = ctx.param_bool(params, "keepUnmapped", true);
 
-        let pairs: Vec<(String, String)> = params
-            .get("keys")
-            .and_then(|v| v.as_array())
-            .map(|arr| {
-                arr.iter()
-                    .filter_map(|entry| {
-                        let current = entry.get("currentKey").and_then(|v| v.as_str())?;
-                        let new_key = entry.get("newKey").and_then(|v| v.as_str())?;
-                        if current.is_empty() || new_key.is_empty() {
-                            return None;
-                        }
-                        Some((current.to_string(), new_key.to_string()))
-                    })
-                    .collect()
-            })
-            .unwrap_or_default();
+        if pairs.is_empty() {
+            // No-op: pass items through untouched so misconfigured nodes don't
+            // silently nuke their input.
+            return Ok(NodeOutput::single(input.items));
+        }
 
-        let mut out_items: Vec<Value> = Vec::with_capacity(input.items.len());
+        let mut out: Vec<Value> = Vec::with_capacity(input.items.len());
         for item in input.items.into_iter() {
             match item {
                 Value::Object(map) => {
-                    let mut new_map = Map::new();
-                    for (k, v) in map.into_iter() {
-                        if let Some((_, new_key)) = pairs.iter().find(|(cur, _)| cur == &k) {
-                            new_map.insert(new_key.clone(), v);
-                        } else if keep_unmatched {
-                            new_map.insert(k, v);
-                        }
-                    }
-                    out_items.push(Value::Object(new_map));
+                    let rewritten = rewrite_object(map, &pairs, case_insensitive, keep_unmapped);
+                    out.push(Value::Object(rewritten));
                 }
-                other => out_items.push(other),
+                other => out.push(other),
             }
         }
-
-        Ok(NodeOutput::single(out_items))
+        Ok(NodeOutput::single(out))
     }
 }
