@@ -109,13 +109,13 @@ pub mod my_sql;
 pub mod supabase;
 pub mod noco_db;
 
-// ── Phase C.5.8: 6 developer-tool node implementations ──────────────────────
-pub mod sentry_io;
-pub mod circle_ci;
-pub mod jenkins;
-pub mod bitbucket;
-pub mod npm;
-pub mod travis_ci;
+// ── Phase C.5: misc-business integrations ───────────────────────────────────
+pub mod eventbrite;
+pub mod zendesk;
+pub mod freshdesk;
+pub mod help_scout;
+pub mod xero;
+pub mod quick_books;
 
 use crate::{descriptor::NodeCategory, registry::NodeRegistry};
 
@@ -232,13 +232,13 @@ fn register_implemented(r: &mut NodeRegistry) {
     r.register(my_sql::MySqlNode);
     r.register(supabase::SupabaseNode);
     r.register(noco_db::NocoDbNode);
-    // Phase C.5.8 — 6 developer-tool nodes
-    r.register(sentry_io::SentryIoNode);
-    r.register(circle_ci::CircleCiNode);
-    r.register(jenkins::JenkinsNode);
-    r.register(bitbucket::BitbucketNode);
-    r.register(npm::NpmNode);
-    r.register(travis_ci::TravisCiNode);
+    // Phase C.5 — misc-business integrations
+    r.register(eventbrite::EventbriteNode);
+    r.register(zendesk::ZendeskNode);
+    r.register(freshdesk::FreshdeskNode);
+    r.register(help_scout::HelpScoutNode);
+    r.register(xero::XeroNode);
+    r.register(quick_books::QuickBooksNode);
 }
 
 /// Register stubs only when the name isn't already populated by an implemented node.
