@@ -1,0 +1,111 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_eb",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "eventbrite.order.placed",
+    "options": {
+      "path": "/webhooks/eventbrite-rsvp-confirmer",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Eventbrite-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_trigger",
+      "name": "Eventbrite Order",
+      "type": "n8n-nodes-base.eventbriteTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "event": "order.placed" },
+      "credentials": { "eventbriteOAuth2Api": { "id": "eb-cred", "name": "Eventbrite" } }
+    },
+    {
+      "id": "n_fetch",
+      "name": "Fetch Attendee",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "=https://www.eventbriteapi.com/v3/orders/{{ $json.api_url }}/attendees/",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "eventbriteOAuth2Api"
+      },
+      "credentials": { "eventbriteOAuth2Api": { "id": "eb-cred", "name": "Eventbrite" } }
+    },
+    {
+      "id": "n_hubspot",
+      "name": "HubSpot Upsert",
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2,
+      "position": [480, -200],
+      "parameters": { "resource": "contact", "operation": "upsert" },
+      "credentials": { "hubspotApi": { "id": "hubspot-cred", "name": "HubSpot" } }
+    },
+    {
+      "id": "n_mailchimp",
+      "name": "Mailchimp Tag",
+      "type": "n8n-nodes-base.mailchimp",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": { "resource": "memberTag", "operation": "create", "list": "={{ $vars.MAILCHIMP_LIST_ID }}" },
+      "credentials": { "mailchimpApi": { "id": "mailchimp-cred", "name": "Mailchimp" } }
+    },
+    {
+      "id": "n_email",
+      "name": "ICS Confirmation Email",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [480, 200],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "events@example.com",
+        "toEmail": "={{ $json.profile.email }}",
+        "subject": "Your event ticket",
+        "content": "See ICS attached."
+      },
+      "credentials": { "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid" } }
+    },
+    {
+      "id": "n_mongo",
+      "name": "Mongo Log",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [800, 0],
+      "parameters": { "operation": "insert", "collection": "eventbrite_orders", "fields": "orderId,email" },
+      "credentials": { "mongoDb": { "id": "mongo-cred", "name": "Mongo" } }
+    }
+  ],
+  "connections": {
+    "n_trigger": { "main": [[{ "node": "n_fetch", "type": "main", "index": 0 }]] },
+    "n_fetch": {
+      "main": [[
+        { "node": "n_hubspot", "type": "main", "index": 0 },
+        { "node": "n_mailchimp", "type": "main", "index": 0 },
+        { "node": "n_email", "type": "main", "index": 0 }
+      ]]
+    },
+    "n_hubspot": { "main": [[{ "node": "n_mongo", "type": "main", "index": 0 }]] },
+    "n_mailchimp": { "main": [[{ "node": "n_mongo", "type": "main", "index": 0 }]] },
+    "n_email": { "main": [[{ "node": "n_mongo", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_trigger", "n_fetch", "n_hubspot", "n_mailchimp", "n_email", "n_mongo"]
+    }
+  ],
+  "variables": [
+    { "id": "v_list", "name": "MAILCHIMP_LIST_ID", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

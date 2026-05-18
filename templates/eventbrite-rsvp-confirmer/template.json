@@ -1,0 +1,10 @@
+{
+  "id": "eventbrite-rsvp-confirmer",
+  "name": "Eventbrite RSVP Confirmer",
+  "description": "Fires on Eventbrite order.placed, fetches the attendee, and fans out to HubSpot upsert, Mailchimp tag, and a SendGrid email with an ICS calendar attachment. Every confirmation is mirrored to Mongo for downstream reporting.",
+  "category": "Marketing",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["eventbrite", "hubspot", "mailchimp", "sendgrid", "events", "mongo"],
+  "version": "0.1.0"
+}
