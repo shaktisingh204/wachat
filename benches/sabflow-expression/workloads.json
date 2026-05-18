@@ -1,0 +1,103 @@
+{
+  "$schema": "./workloads.schema.json",
+  "version": 1,
+  "description": "12 representative SabFlow expressions of increasing complexity. Consumed by run.js. Do not reorder — CSV column ordering and historical comparison rely on insertion order.",
+  "fixture": {
+    "json": {
+      "id": "ord_01HZX9K7N3Q2W5RP8VTBM4FHCY",
+      "foo": "bar",
+      "name": "harsh",
+      "email": "harsh@example.com",
+      "price": 1299.5,
+      "qty": 25,
+      "user": {
+        "profile": {
+          "email": "harsh@example.com",
+          "tier": "pro"
+        }
+      },
+      "items": [
+        { "id": "i_1", "qty": 1 },
+        { "id": "i_2", "qty": 3 },
+        { "id": "i_3", "qty": 7 },
+        { "id": "i_4", "qty": 2 },
+        { "id": "i_5", "qty": 4 }
+      ]
+    }
+  },
+  "workloads": [
+    {
+      "id": "simple",
+      "complexity": 1,
+      "expression": "{{ $json.foo }}",
+      "notes": "Single property access. Floor for parse+eval cost."
+    },
+    {
+      "id": "dotted",
+      "complexity": 2,
+      "expression": "{{ $json.user.profile.email }}",
+      "notes": "3-level dotted member access."
+    },
+    {
+      "id": "method",
+      "complexity": 2,
+      "expression": "{{ $json.name.toUpperCase() }}",
+      "notes": "String method call."
+    },
+    {
+      "id": "arithmetic",
+      "complexity": 3,
+      "expression": "{{ ($json.price * 1.18).toFixed(2) }}",
+      "notes": "Arithmetic + numeric method (e.g. GST calc)."
+    },
+    {
+      "id": "ternary",
+      "complexity": 3,
+      "expression": "{{ $json.qty > 10 ? 'bulk' : 'retail' }}",
+      "notes": "Comparison + ternary."
+    },
+    {
+      "id": "array_map",
+      "complexity": 4,
+      "expression": "{{ $json.items.map(i => i.id).join(',') }}",
+      "notes": "Array.map with arrow callback + join."
+    },
+    {
+      "id": "object_keys",
+      "complexity": 4,
+      "expression": "{{ Object.keys($json).length }}",
+      "notes": "Global Object.keys access."
+    },
+    {
+      "id": "nested_object",
+      "complexity": 5,
+      "expression": "{{ { id: $json.id, name: $json.name + ' (active)' } }}",
+      "notes": "Object literal construction + string concat."
+    },
+    {
+      "id": "regex",
+      "complexity": 5,
+      "expression": "{{ $json.email.replace(/@.*/, '') }}",
+      "notes": "Regex literal + String.replace."
+    },
+    {
+      "id": "datetime",
+      "complexity": 6,
+      "expression": "{{ $now.minus({days: 7}).toISO() }}",
+      "notes": "DateTime helper (Luxon-style). $now is injected by host."
+    },
+    {
+      "id": "long_text_template",
+      "complexity": 6,
+      "expression": "Order {{ $json.id }} for {{ $json.name }} totals {{ ($json.price * $json.qty).toFixed(2) }} INR ({{ $json.qty }} units at {{ $json.price }}) — confirmation has been emailed.",
+      "notes": "~200-char template with 5 interleaved expressions. Exercises tokenizer template-splitting + repeat resolves."
+    },
+    {
+      "id": "cold_parse",
+      "complexity": 1,
+      "expression": "{{ $json.foo + $json.qty * ($json.price + 1) - $json.items.length }}",
+      "parseOnly": true,
+      "notes": "Parse-only metric: tokenize + parse, never evaluate. Recorded separately from the eval workloads."
+    }
+  ]
+}
