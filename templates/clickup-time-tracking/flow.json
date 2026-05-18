@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_monday_8am",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": { "schedule": "0 8 * * 1", "enabled": true }
+  },
+  "nodes": [
+    {
+      "id": "n_cron",
+      "name": "Monday 08:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 8 * * 1" }] }
+      }
+    },
+    {
+      "id": "n_clickup",
+      "name": "Pull Time Entries",
+      "type": "n8n-nodes-base.clickUp",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "resource": "timeEntry",
+        "operation": "getAll",
+        "team": "={{ $vars.CLICKUP_TEAM }}",
+        "filters": {
+          "startDate": "={{ $vars.WINDOW_START }}",
+          "endDate": "={{ $vars.WINDOW_END }}"
+        }
+      },
+      "credentials": {
+        "clickUpApi": { "id": "clickup-cred", "name": "ClickUp API" }
+      }
+    },
+    {
+      "id": "n_rollup",
+      "name": "Rollup per Manager",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const items = $input.all().map(i => i.json); const byManager = {}; for (const e of items) { const m = e.task?.assignees?.[0]?.email || 'unknown'; byManager[m] = (byManager[m] || 0) + (e.duration || 0); } return Object.entries(byManager).map(([email, ms]) => ({ json: { email, hours: ms / 3600000 } }));"
+      }
+    },
+    {
+      "id": "n_split",
+      "name": "One Per Manager",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": { "batchSize": 1 }
+    },
+    {
+      "id": "n_sendgrid",
+      "name": "Manager Digest Email",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "={{ $vars.FROM_EMAIL }}",
+        "toEmail": "={{ $json.email }}",
+        "subject": "Weekly time-tracking digest",
+        "contentType": "text/plain",
+        "content": "Total team hours last week: {{ $json.hours }}"
+      },
+      "credentials": {
+        "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid" }
+      }
+    }
+  ],
+  "connections": {
+    "n_cron": { "main": [[{ "node": "n_clickup", "type": "main", "index": 0 }]] },
+    "n_clickup": { "main": [[{ "node": "n_rollup", "type": "main", "index": 0 }]] },
+    "n_rollup": { "main": [[{ "node": "n_split", "type": "main", "index": 0 }]] },
+    "n_split": { "main": [[{ "node": "n_sendgrid", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cron", "n_clickup", "n_rollup", "n_split", "n_sendgrid"]
+    }
+  ],
+  "variables": [
+    { "id": "v_team", "name": "CLICKUP_TEAM", "defaultValue": "" },
+    { "id": "v_start", "name": "WINDOW_START", "defaultValue": "1747000000000" },
+    { "id": "v_end", "name": "WINDOW_END", "defaultValue": "1747604800000" },
+    { "id": "v_from", "name": "FROM_EMAIL", "defaultValue": "ops@example.com" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

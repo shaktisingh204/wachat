@@ -1,0 +1,10 @@
+{
+  "id": "clickup-time-tracking",
+  "name": "ClickUp Time Tracking Digest",
+  "description": "Weekly cron pulls the previous week's ClickUp time entries and assembles them into an Airtable timesheet base. A per-manager digest email is sent via SendGrid so leads can review their team's hours without opening ClickUp.",
+  "category": "Ops",
+  "complexity": "beginner",
+  "authorName": "SabNode",
+  "tags": ["clickup", "time-tracking", "airtable", "sendgrid", "ops", "reporting"],
+  "version": "0.1.0"
+}
