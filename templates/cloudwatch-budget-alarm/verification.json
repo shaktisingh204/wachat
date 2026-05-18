@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "cloudwatch-budget-alarm",
+  "cases": [
+    {
+      "id": "severity-routing",
+      "description": "Budget alarm routed by severity.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
