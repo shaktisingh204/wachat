@@ -1,0 +1,25 @@
+[package]
+name = "sabflow-ws-bench"
+version = "0.1.0"
+edition = "2021"
+publish = false
+description = "Track A Phase 1 bench: Rust WS gateway baseline vs Node. Not part of the workspace."
+
+# Intentionally NOT a member of the SabNode rust/ workspace. The bench is
+# self-contained so that adopting / rejecting Rust here has zero blast radius
+# on the rest of the repo.
+[workspace]
+
+[[bin]]
+name = "sabflow-ws-bench"
+path = "src/main.rs"
+
+[dependencies]
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "net", "sync", "signal", "time", "io-util"] }
+tokio-tungstenite = "0.24"
+futures-util = { version = "0.3", default-features = false, features = ["sink", "std"] }
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+opt-level = 3
