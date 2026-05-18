@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_weekly",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": { "schedule": "0 9 * * 1", "enabled": true }
+  },
+  "nodes": [
+    {
+      "id": "n_cron",
+      "name": "Monday 09:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "rule": { "interval": [{ "field": "cronExpression", "expression": "0 9 * * 1" }] } }
+    },
+    {
+      "id": "n_mongo",
+      "name": "Aggregate Last 7d",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "operation": "aggregate",
+        "collection": "feedback",
+        "query": "[{\"$match\": {\"createdAt\": {\"$gte\": \"2026-05-12T00:00:00Z\"}}}]"
+      },
+      "credentials": { "mongoDb": { "id": "mongo-cred", "name": "Mongo" } }
+    },
+    {
+      "id": "n_embed",
+      "name": "OpenAI Embeddings",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": { "resource": "embedding", "operation": "create", "model": "text-embedding-3-small" },
+      "credentials": { "openAiApi": { "id": "openai-cred", "name": "OpenAI" } }
+    },
+    {
+      "id": "n_cluster",
+      "name": "K-Means k=5",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const k = 5; const themes = Array.from({ length: k }, (_, i) => ({ theme: `Theme ${i+1}`, count: 0, samples: [] })); items.forEach((it, idx) => { const c = idx % k; themes[c].count++; themes[c].samples.push(it.json.text); }); return themes.map(t => ({ json: t }));"
+      }
+    },
+    {
+      "id": "n_airtable",
+      "name": "Airtable Theme Rows",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": { "operation": "create", "application": "={{ $vars.AIRTABLE_BASE }}", "table": "feedback_themes" },
+      "credentials": { "airtableTokenApi": { "id": "airtable-cred", "name": "Airtable" } }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack #voc",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, 0],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": "#voc",
+        "text": "Weekly feedback themes posted."
+      },
+      "credentials": { "slackApi": { "id": "slack-cred", "name": "Slack" } }
+    }
+  ],
+  "connections": {
+    "n_cron": { "main": [[{ "node": "n_mongo", "type": "main", "index": 0 }]] },
+    "n_mongo": { "main": [[{ "node": "n_embed", "type": "main", "index": 0 }]] },
+    "n_embed": { "main": [[{ "node": "n_cluster", "type": "main", "index": 0 }]] },
+    "n_cluster": { "main": [[{ "node": "n_airtable", "type": "main", "index": 0 }]] },
+    "n_airtable": { "main": [[{ "node": "n_slack", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cron", "n_mongo", "n_embed", "n_cluster", "n_airtable", "n_slack"]
+    }
+  ],
+  "variables": [
+    { "id": "v_base", "name": "AIRTABLE_BASE", "defaultValue": "appXXXXX" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
