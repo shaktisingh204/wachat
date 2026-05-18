@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_jenkins_failed",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "jenkins.job.failed",
+    "options": {
+      "path": "/webhooks/jenkins-build-broken-channel",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Jenkins-Token",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_jenkins_webhook",
+      "name": "Jenkins Failed",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "httpMethod": "POST", "path": "jenkins-build-broken-channel", "responseMode": "onReceived" },
+      "webhookId": "jenkins-build-broken-channel-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Job",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "jobName", "value": "={{ $json.name }}" },
+            { "name": "buildUrl", "value": "={{ $json.build.full_url }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_jenkins_lkg",
+      "name": "Fetch Last Good Build",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.JENKINS_URL }}/job/{{ $json.jobName }}/lastSuccessfulBuild/api/json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpBasicAuth"
+      },
+      "credentials": { "httpBasicAuth": { "id": "jenkins-cred", "name": "Jenkins" } }
+    },
+    {
+      "id": "n_extract_blame",
+      "name": "Extract Blame",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "lastGoodSha", "value": "={{ $json.actions[0].lastBuiltRevision.SHA1 }}" },
+            { "name": "culpritEmail", "value": "={{ $json.culprits[0].email }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_slack",
+      "name": "Post #builds",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.BUILDS_SLACK }}",
+        "text": ":no_entry: Build *{{ $node['Extract Job'].json.jobName }}* broken. Last good: `{{ $json.lastGoodSha }}`. <{{ $node['Extract Job'].json.buildUrl }}|see build>. cc: {{ $json.culpritEmail }}"
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    }
+  ],
+  "connections": {
+    "n_jenkins_webhook": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": { "main": [[{ "node": "n_jenkins_lkg", "type": "main", "index": 0 }]] },
+    "n_jenkins_lkg": { "main": [[{ "node": "n_extract_blame", "type": "main", "index": 0 }]] },
+    "n_extract_blame": { "main": [[{ "node": "n_slack", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_jenkins_webhook", "n_extract", "n_jenkins_lkg", "n_extract_blame", "n_slack"]
+    }
+  ],
+  "variables": [
+    { "id": "v_j", "name": "JENKINS_URL", "defaultValue": "https://jenkins.example.com" },
+    { "id": "v_s", "name": "BUILDS_SLACK", "defaultValue": "#builds" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
