@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "gcp-billing-export-warehouse",
+  "cases": [
+    {
+      "id": "billing-load",
+      "description": "Daily billing CSV is loaded into BigQuery.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

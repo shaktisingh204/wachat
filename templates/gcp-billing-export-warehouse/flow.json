@@ -1,0 +1,114 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_cron_daily",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": { "schedule": "0 5 * * *", "enabled": true }
+  },
+  "nodes": [
+    {
+      "id": "n_cron",
+      "name": "Daily 5am",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "rule": { "interval": [{ "field": "hours", "hoursInterval": 24 }] } }
+    },
+    {
+      "id": "n_gcs_get",
+      "name": "Fetch GCS CSV",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.GCS_API }}/storage/v1/b/{{ $vars.GCS_BUCKET }}/o/billing%2F{{ $vars.YESTERDAY }}.csv?alt=media",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleApi"
+      },
+      "credentials": { "googleApi": { "id": "gcp-cred", "name": "GCP SA" } }
+    },
+    {
+      "id": "n_parse",
+      "name": "Parse CSV",
+      "type": "n8n-nodes-base.spreadsheetFile",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": { "operation": "fromFile", "fileFormat": "csv" }
+    },
+    {
+      "id": "n_bq_load",
+      "name": "Load BigQuery",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.BQ_API }}/bigquery/v2/projects/{{ $vars.GCP_PROJECT }}/jobs",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "configuration.load.destinationTable.datasetId", "value": "={{ $vars.BQ_DATASET }}" },
+            { "name": "configuration.load.destinationTable.tableId", "value": "billing${{ $vars.YESTERDAY }}" }
+          ]
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleApi"
+      },
+      "credentials": { "googleApi": { "id": "gcp-cred", "name": "GCP SA" } }
+    },
+    {
+      "id": "n_count",
+      "name": "Compute Row Count",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "jsCode": "return [{ json: { rows: ($input.first().json.statistics?.load?.outputRows) || 0 } }];"
+      }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack #data",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.DATA_SLACK }}",
+        "text": ":file_folder: Loaded {{ $json.rows }} GCP billing rows for {{ $vars.YESTERDAY }}"
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    }
+  ],
+  "connections": {
+    "n_cron": { "main": [[{ "node": "n_gcs_get", "type": "main", "index": 0 }]] },
+    "n_gcs_get": { "main": [[{ "node": "n_parse", "type": "main", "index": 0 }]] },
+    "n_parse": { "main": [[{ "node": "n_bq_load", "type": "main", "index": 0 }]] },
+    "n_bq_load": { "main": [[{ "node": "n_count", "type": "main", "index": 0 }]] },
+    "n_count": { "main": [[{ "node": "n_slack", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cron", "n_gcs_get", "n_parse", "n_bq_load", "n_count", "n_slack"]
+    }
+  ],
+  "variables": [
+    { "id": "v_gcs", "name": "GCS_API", "defaultValue": "https://storage.googleapis.com" },
+    { "id": "v_b", "name": "GCS_BUCKET", "defaultValue": "" },
+    { "id": "v_p", "name": "GCP_PROJECT", "defaultValue": "" },
+    { "id": "v_bq", "name": "BQ_API", "defaultValue": "https://bigquery.googleapis.com" },
+    { "id": "v_d", "name": "BQ_DATASET", "defaultValue": "finops" },
+    { "id": "v_y", "name": "YESTERDAY", "defaultValue": "20260101" },
+    { "id": "v_s", "name": "DATA_SLACK", "defaultValue": "#data" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
