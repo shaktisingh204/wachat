@@ -1,0 +1,158 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_sunday_evening",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": {
+      "schedule": "0 18 * * 0",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_cron",
+      "name": "Sunday 18:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 18 * * 0" }] }
+      }
+    },
+    {
+      "id": "n_linear_issues",
+      "name": "List Cycle Issues",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.linear.app/graphql",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "query", "value": "query($teamId: String!) { team(id: $teamId) { activeCycle { issues { nodes { id title state { name } assignee { name } estimate completedAt } } } } }" },
+            { "name": "variables.teamId", "value": "={{ $vars.LINEAR_TEAM_ID }}" }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "linear-cred", "name": "Linear API Token" }
+      }
+    },
+    {
+      "id": "n_rollup",
+      "name": "Compute Velocity Rollup",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const issues = $input.first().json.data.team.activeCycle.issues.nodes; const done = issues.filter(i => i.completedAt); const open = issues.filter(i => !i.completedAt); const byOwner = {}; for (const i of done) { const k = i.assignee?.name || 'unassigned'; byOwner[k] = (byOwner[k] || 0) + (i.estimate || 1); } return [{ json: { completed: done.length, incomplete: open.length, velocity: done.reduce((s,i)=>s+(i.estimate||1),0), topContributors: Object.entries(byOwner).sort((a,b)=>b[1]-a[1]).slice(0,5) } }];"
+      }
+    },
+    {
+      "id": "n_openai_narrative",
+      "name": "GPT-4o Narrative",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "resource": "chat",
+        "operation": "complete",
+        "model": "gpt-4o",
+        "messages": {
+          "values": [
+            { "role": "system", "content": "You are an engineering manager. Write a 4-sentence cycle wrap-up." },
+            { "role": "user", "content": "Stats: completed={{ $json.completed }}, incomplete={{ $json.incomplete }}, velocity={{ $json.velocity }}. Top: {{ JSON.stringify($json.topContributors) }}" }
+          ]
+        },
+        "options": { "temperature": 0.4 }
+      },
+      "credentials": {
+        "openAiApi": { "id": "openai-cred", "name": "OpenAI API" }
+      }
+    },
+    {
+      "id": "n_slack_eng",
+      "name": "Post to #engineering",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [960, -120],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.ENG_CHANNEL }}",
+        "text": ":bar_chart: Cycle wrap-up\n{{ $json.message.content }}"
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    },
+    {
+      "id": "n_notion_archive",
+      "name": "Archive in Notion",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2,
+      "position": [960, 120],
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "create",
+        "databaseId": "={{ $vars.NOTION_REPORTS_DB }}",
+        "propertiesUi": {
+          "propertyValues": [
+            { "key": "Title", "title": "=Cycle wrap-up {{ $now }}" },
+            { "key": "Body", "richText": "={{ $json.message.content }}" }
+          ]
+        }
+      },
+      "credentials": {
+        "notionApi": { "id": "notion-cred", "name": "Notion API" }
+      }
+    }
+  ],
+  "connections": {
+    "n_cron": {
+      "main": [[{ "node": "n_linear_issues", "type": "main", "index": 0 }]]
+    },
+    "n_linear_issues": {
+      "main": [[{ "node": "n_rollup", "type": "main", "index": 0 }]]
+    },
+    "n_rollup": {
+      "main": [[{ "node": "n_openai_narrative", "type": "main", "index": 0 }]]
+    },
+    "n_openai_narrative": {
+      "main": [
+        [
+          { "node": "n_slack_eng", "type": "main", "index": 0 },
+          { "node": "n_notion_archive", "type": "main", "index": 0 }
+        ]
+      ]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_cron",
+        "n_linear_issues",
+        "n_rollup",
+        "n_openai_narrative",
+        "n_slack_eng",
+        "n_notion_archive"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_team", "name": "LINEAR_TEAM_ID", "defaultValue": "" },
+    { "id": "v_eng", "name": "ENG_CHANNEL", "defaultValue": "#engineering" },
+    { "id": "v_notion_db", "name": "NOTION_REPORTS_DB", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
