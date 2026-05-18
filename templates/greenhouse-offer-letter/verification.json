@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "templateId": "greenhouse-offer-letter",
+  "cases": [
+    {
+      "id": "extended",
+      "description": "Offer extended in Greenhouse triggers GPT-4o draft, DocuSign envelope, email, archive, and Slack ping.",
+      "triggerPayload": {
+        "candidate": { "name": "Robin Park", "email": "robin@example.com" },
+        "job": { "title": "Senior Designer" },
+        "offer": { "salary": "120000", "startDate": "2026-06-15" }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
