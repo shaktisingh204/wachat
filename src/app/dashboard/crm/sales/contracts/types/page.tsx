@@ -18,11 +18,6 @@ import {
   ZoruDialogTitle,
   ZoruInput,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruTable,
   ZoruTableBody,
   ZoruTableCell,
@@ -55,6 +50,7 @@ import { useFormStatus } from 'react-dom';
 import * as React from 'react';
 
 import { EnumFormField } from '@/components/crm/enum-form-field';
+import { EnumFilterField } from '@/components/crm/enum-filter-field';
 
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
@@ -67,15 +63,6 @@ import {
     type CrmContractTypeDoc,
     type CrmContractTypeStatus,
 } from '@/app/actions/crm-contract-types.actions';
-
-const STATUS_OPTIONS: Array<{
-    value: CrmContractTypeStatus | 'all';
-    label: string;
-}> = [
-    { value: 'all', label: 'All statuses' },
-    { value: 'active', label: 'Active' },
-    { value: 'archived', label: 'Archived' },
-];
 
 const STATUS_TONE: Record<CrmContractTypeStatus, StatusTone> = {
     active: 'green',
@@ -370,29 +357,14 @@ export default function ContractTypesPage() {
                         placeholder: 'Search contract types…',
                     }}
                     filters={
-                        {/* TODO 1E.filter: convert to EnumFilterField once that wrapper exists */}
-                        <ZoruSelect
+                        <EnumFilterField
+                            enumName="contractTypeStatus"
                             value={statusFilter}
-                            onValueChange={(v) =>
-                                setStatusFilter(
-                                    v as CrmContractTypeStatus | 'all',
-                                )
+                            onChange={(v) =>
+                                setStatusFilter(v as CrmContractTypeStatus | 'all')
                             }
-                        >
-                            <ZoruSelectTrigger className="h-9 w-[180px]">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem
-                                        key={o.value}
-                                        value={o.value}
-                                    >
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                            placeholder="All statuses"
+                        />
                     }
                     loading={isLoading && items.length === 0}
                 >

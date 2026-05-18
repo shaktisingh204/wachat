@@ -1,3 +1,5 @@
+'use client';
+
 import { ZoruAvatar, ZoruAvatarFallback, ZoruAvatarImage, ZoruButton, ZoruScrollArea } from '@/components/zoruui';
 import {
   Archive,
@@ -21,8 +23,6 @@ import {
  * by the parent. Once the engine exposes a dedicated `/chats/:jid/media`
  * endpoint we can swap that source without changing the public API.
  */
-
-'use client';
 
 import * as React from 'react';
 

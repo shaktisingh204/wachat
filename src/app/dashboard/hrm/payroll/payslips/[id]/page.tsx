@@ -1,18 +1,13 @@
-import { ZoruButton, ZoruCard } from '@/components/zoruui';
+import { ZoruCard } from '@/components/zoruui';
 import {
   notFound,
   redirect } from 'next/navigation';
-import { ArrowLeft,
-  Receipt } from 'lucide-react';
 
 /**
  * Payslip detail page — per-employee breakdown card.
  */
 
-import Link from 'next/link';
-
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
-import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
+import { EntityDetailShell, type EntityStatusTone } from '@/components/crm/entity-detail-shell';
 
 import { getSession } from '@/app/actions/user.actions';
 import { getPayslipDoc } from '@/app/actions/crm-payslips.actions';
@@ -22,7 +17,7 @@ export const dynamic = 'force-dynamic';
 
 const BASE = '/dashboard/hrm/payroll/payslips';
 
-const STATUS_TONE: Record<CrmPayslipStatus, StatusTone> = {
+const STATUS_TONE: Record<CrmPayslipStatus, EntityStatusTone> = {
     draft: 'amber',
     issued: 'blue',
     paid: 'green',
@@ -66,32 +61,17 @@ export default async function PayslipDetailPage({
     const tone = STATUS_TONE[status] ?? 'neutral';
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'Payroll', href: '/dashboard/hrm/payroll' },
-                    { label: 'Payslips', href: BASE },
-                    { label: payslip.employeeName ?? payslip._id },
-                ]}
-                title={`Payslip · ${payslip.employeeName ?? payslip.employeeId}`}
-                subtitle={`Pay period ${fmtPeriod(payslip.payPeriod)}`}
-                icon={Receipt}
-                actions={
-                    <ZoruButton variant="ghost" asChild>
-                        <Link href={BASE}>
-                            <ArrowLeft className="mr-2 h-4 w-4" />
-                            Back to list
-                        </Link>
-                    </ZoruButton>
-                }
-            />
-
+        <EntityDetailShell
+            eyebrow="PAYSLIP"
+            title={`Payslip · ${payslip.employeeName ?? payslip.employeeId}`}
+            status={{ label: status, tone }}
+            back={{ href: BASE, label: 'Payslips' }}
+        >
             <ZoruCard className="p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
                     <div className="text-[14px] font-medium text-zoru-ink">
                         Breakdown
                     </div>
-                    <StatusPill label={status} tone={tone} />
                 </div>
 
                 <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-2">
@@ -211,6 +191,6 @@ export default async function PayslipDetailPage({
                     </div>
                 </div>
             </ZoruCard>
-        </div>
+        </EntityDetailShell>
     );
 }

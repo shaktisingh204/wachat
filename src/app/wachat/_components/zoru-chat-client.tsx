@@ -1,3 +1,5 @@
+"use client";
+
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -81,8 +83,6 @@ import { countryCodes } from "@/lib/country-codes";
 // Black-box children — preserve their server-action wiring untouched.
 import { ChatWindow } from "@/components/wabasimplify/chat-window";
 import { ContactInfoPanel } from "@/components/wabasimplify/contact-info-panel";
-
-"use client";
 
 /**
  * /wachat/chat — ZoruUI rebuild of `ChatClient`.

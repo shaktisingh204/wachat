@@ -2,9 +2,7 @@ import { ZoruButton, ZoruCard, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTabl
 import {
   notFound,
   redirect } from 'next/navigation';
-import { ArrowLeft,
-  Pencil,
-  Wallet } from 'lucide-react';
+import { Pencil } from 'lucide-react';
 
 /**
  * Payroll run detail page — summary card + per-employee payslip list.
@@ -12,8 +10,8 @@ import { ArrowLeft,
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
-import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
+import type { EntityStatusTone } from '@/components/crm/entity-detail-shell';
 
 import { getSession } from '@/app/actions/user.actions';
 import {
@@ -26,7 +24,7 @@ export const dynamic = 'force-dynamic';
 
 const BASE = '/dashboard/hrm/payroll/payroll';
 
-const STATUS_TONE: Record<CrmPayrollRunStatus, StatusTone> = {
+const STATUS_TONE: Record<CrmPayrollRunStatus, EntityStatusTone> = {
     draft: 'amber',
     in_progress: 'blue',
     processed: 'green',
@@ -92,39 +90,24 @@ export default async function PayrollRunDetailPage({
         );
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'Payroll', href: '/dashboard/hrm/payroll' },
-                    { label: 'Payroll runs', href: BASE },
-                    { label: periodLabel },
-                ]}
-                title={`Run · ${periodLabel}`}
-                subtitle="Per-period payroll execution and payslip ledger."
-                icon={Wallet}
-                actions={
-                    <div className="flex items-center gap-2">
-                        <ZoruButton variant="outline" asChild>
-                            <Link href={BASE}>
-                                <ArrowLeft className="mr-2 h-4 w-4" />
-                                Back
-                            </Link>
-                        </ZoruButton>
-                        <ZoruButton asChild>
-                            <Link href={`${BASE}/${runId}/edit`}>
-                                <Pencil className="mr-2 h-4 w-4" />
-                                Edit / finalize
-                            </Link>
-                        </ZoruButton>
-                    </div>
-                }
-            />
-
+        <EntityDetailShell
+            eyebrow="PAYROLL RUN"
+            title={`Run · ${periodLabel}`}
+            status={{ label: status.replace(/_/g, ' '), tone }}
+            back={{ href: BASE, label: 'Payroll runs' }}
+            actions={
+                <ZoruButton asChild>
+                    <Link href={`${BASE}/${runId}/edit`}>
+                        <Pencil className="mr-2 h-4 w-4" />
+                        Edit / finalize
+                    </Link>
+                </ZoruButton>
+            }
+        >
             {/* Summary card */}
             <ZoruCard className="p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
                     <div className="text-[14px] font-medium text-zoru-ink">Summary</div>
-                    <StatusPill label={status.replace(/_/g, ' ')} tone={tone} />
                 </div>
                 <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-3">
                     <div>
@@ -223,6 +206,6 @@ export default async function PayrollRunDetailPage({
                     </ZoruTable>
                 </div>
             </ZoruCard>
-        </div>
+        </EntityDetailShell>
     );
 }

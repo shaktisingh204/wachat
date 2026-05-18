@@ -4,11 +4,6 @@ import {
   ZoruBadge,
   ZoruButton,
   ZoruCheckbox,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruStatCard,
   ZoruTable,
   ZoruTableBody,
@@ -53,17 +48,9 @@ import Link from 'next/link';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
+import { EnumFilterField } from '@/components/crm/enum-filter-field';
 
 const BASE = '/dashboard/crm/purchases/hire';
-
-const STAGE_OPTIONS: Array<{ value: string; label: string }> = [
-    { value: 'all', label: 'All stages' },
-    { value: 'sourcing', label: 'Sourcing' },
-    { value: 'shortlisted', label: 'Shortlisted' },
-    { value: 'negotiation', label: 'Negotiation' },
-    { value: 'awarded', label: 'Awarded' },
-    { value: 'closed', label: 'Closed' },
-];
 
 const STAGE_TONE: Record<string, StatusTone> = {
     sourcing: 'neutral',
@@ -245,21 +232,12 @@ export function HireListClient({ rows, error, newHref }: HireListClientProps) {
                     placeholder: 'Search hire requests…',
                 }}
                 filters={
-                    <ZoruSelect
+                    <EnumFilterField
+                        enumName="hireStage"
                         value={stageFilter}
-                        onValueChange={setStageFilter}
-                    >
-                        <ZoruSelectTrigger className="h-9 w-[180px]">
-                            <ZoruSelectValue placeholder="Stage" />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                            {STAGE_OPTIONS.map((o) => (
-                                <ZoruSelectItem key={o.value} value={o.value}>
-                                    {o.label}
-                                </ZoruSelectItem>
-                            ))}
-                        </ZoruSelectContent>
-                    </ZoruSelect>
+                        onChange={(v) => setStageFilter(v)}
+                        placeholder="All stages"
+                    />
                 }
                 bulkBar={
                     selected.size > 0 ? (

@@ -2159,19 +2159,6 @@ export const REMINDER_UNIT: EnumValue[] = [
   v('day', 'Day'),
 ];
 
-/* Leave application form enums. */
-export const LEAVE_DURATION: EnumValue[] = [
-  v('full-day', 'Full day'),
-  v('half-day', 'Half day'),
-  v('multiple', 'Multiple days'),
-  v('hours', 'Hours'),
-];
-
-export const HALF_DAY_TYPE: EnumValue[] = [
-  v('first-half', 'First half'),
-  v('second-half', 'Second half'),
-];
-
 export const CURRENCY_POSITION: EnumValue[] = [
   v('front', 'Symbol before amount (e.g. $1,000)'),
   v('back', 'Symbol after amount (e.g. 1,000 $)'),
@@ -2537,6 +2524,125 @@ export const SUB_RENEWAL_MODE: EnumValue[] = [
 
 /* ------------------------------------------------------------------ */
 /* Catalogue                                                           */
+/* ─── §1E sweep — banking + inventory + loans + bookings + portal ──── */
+
+export const LOAN_DIRECTION: EnumValue[] = [
+  v('taken', 'Taken (received)'),
+  v('given', 'Given (issued)'),
+];
+
+export const LOAN_STATUS: EnumValue[] = [
+  v('active', 'Active', { tone: 'success' }),
+  v('closed', 'Closed', { tone: 'neutral' }),
+  v('defaulted', 'Defaulted', { tone: 'destructive' }),
+  v('archived', 'Archived', { tone: 'neutral' }),
+];
+
+export const LOAN_TYPE: EnumValue[] = [
+  v('employee_advance', 'Employee Advance'),
+  v('customer_loan', 'Customer Loan'),
+  v('vendor_advance', 'Vendor Advance'),
+];
+
+export const BORROWER_TYPE: EnumValue[] = [
+  v('employee', 'Employee'),
+  v('customer', 'Customer'),
+  v('vendor', 'Vendor'),
+];
+
+export const BANK_FILE_FORMAT: EnumValue[] = [
+  v('neft', 'NEFT'),
+  v('imps', 'IMPS'),
+  v('rtgs', 'RTGS'),
+  v('upi_bulk', 'UPI Bulk'),
+];
+
+export const BANK_TRANSACTION_TYPE_EXT: EnumValue[] = [
+  v('deposit', 'Deposit'),
+  v('withdrawal', 'Withdrawal'),
+  v('transfer', 'Transfer'),
+  v('adjustment', 'Adjustment'),
+];
+
+export const ITEM_TYPE: EnumValue[] = [
+  v('goods', 'Goods'),
+  v('service', 'Service'),
+  v('bundle', 'Bundle'),
+  v('digital', 'Digital'),
+];
+
+export const INVENTORY_TRANSACTION_TYPE: EnumValue[] = [
+  v('sale', 'Sale'),
+  v('sale_return', 'Sales Return'),
+  v('purchase', 'Purchase'),
+  v('purchase_return', 'Purchase Return'),
+  v('stock_adjustment', 'Stock Adjustment'),
+  v('transfer', 'Transfer'),
+];
+
+export const INVENTORY_TRACKING_FILTER: EnumValue[] = [
+  v('tracked', 'Tracked'),
+  v('untracked', 'Untracked'),
+];
+
+export const GRN_QC_STATUS: EnumValue[] = [
+  v('pending', 'Pending QC', { tone: 'warning' }),
+  v('accepted', 'Accepted', { tone: 'success' }),
+  v('partial', 'Partially Accepted', { tone: 'warning' }),
+  v('rejected', 'Rejected', { tone: 'destructive' }),
+];
+
+export const ATTENDANCE_FORM_STATUS: EnumValue[] = [
+  v('present', 'Present', { tone: 'success' }),
+  v('absent', 'Absent', { tone: 'destructive' }),
+  v('half_day', 'Half Day', { tone: 'warning' }),
+  v('leave', 'On Leave', { tone: 'info' }),
+  v('holiday', 'Holiday', { tone: 'neutral' }),
+  v('wfh', 'Work From Home', { tone: 'info' }),
+  v('week_off', 'Week Off', { tone: 'neutral' }),
+];
+
+export const ATTENDANCE_SOURCE: EnumValue[] = [
+  v('manual', 'Manual'),
+  v('biometric', 'Biometric'),
+  v('web', 'Web Clock-in'),
+  v('mobile', 'Mobile App'),
+];
+
+export const PARTY_TYPE_REPORT: EnumValue[] = [
+  v('customer', 'Customer'),
+  v('vendor', 'Vendor'),
+];
+
+export const BOOKING_STATUS: EnumValue[] = [
+  v('pending', 'Pending', { tone: 'warning' }),
+  v('confirmed', 'Confirmed', { tone: 'success' }),
+  v('cancelled', 'Cancelled', { tone: 'destructive' }),
+  v('completed', 'Completed', { tone: 'success' }),
+  v('no_show', 'No Show', { tone: 'destructive' }),
+  v('rescheduled', 'Rescheduled', { tone: 'info' }),
+];
+
+export const BOOKING_PAYMENT_STATUS: EnumValue[] = [
+  v('unpaid', 'Unpaid', { tone: 'destructive' }),
+  v('partial', 'Partial', { tone: 'warning' }),
+  v('paid', 'Paid', { tone: 'success' }),
+  v('refunded', 'Refunded', { tone: 'info' }),
+];
+
+export const PORTAL_TYPE: EnumValue[] = [
+  v('customer', 'Customer Portal'),
+  v('vendor', 'Vendor Portal'),
+  v('employee', 'Employee Portal'),
+];
+
+export const AWARD_FREQUENCY: EnumValue[] = [
+  v('one-time', 'One-time'),
+  v('monthly', 'Monthly'),
+  v('quarterly', 'Quarterly'),
+  v('annual', 'Annual'),
+];
+
 /* ------------------------------------------------------------------ */
 
 /**
@@ -2849,6 +2955,39 @@ export const CRM_ENUMS = {
   recurringInvoiceStatus: RECURRING_INVOICE_STATUS,
   subBillingFrequency: SUB_BILLING_FREQUENCY,
   subRenewalMode: SUB_RENEWAL_MODE,
+
+  // Loans module (§1E sweep)
+  loanDirection: LOAN_DIRECTION,
+  loanStatus: LOAN_STATUS,
+  loanType: LOAN_TYPE,
+  borrowerType: BORROWER_TYPE,
+
+  // Banking extended (§1E sweep)
+  bankFileFormat: BANK_FILE_FORMAT,
+  bankTransactionTypeExt: BANK_TRANSACTION_TYPE_EXT,
+
+  // Inventory types (§1E sweep)
+  itemType: ITEM_TYPE,
+  inventoryTransactionType: INVENTORY_TRANSACTION_TYPE,
+  inventoryTrackingFilter: INVENTORY_TRACKING_FILTER,
+  grnQcStatus: GRN_QC_STATUS,
+
+  // Attendance extended (§1E sweep)
+  attendanceFormStatus: ATTENDANCE_FORM_STATUS,
+  attendanceSource: ATTENDANCE_SOURCE,
+
+  // Reports (§1E sweep)
+  partyTypeReport: PARTY_TYPE_REPORT,
+
+  // Bookings (§1E sweep)
+  bookingStatus: BOOKING_STATUS,
+  bookingPaymentStatus: BOOKING_PAYMENT_STATUS,
+
+  // Portal (§1E sweep)
+  portalType: PORTAL_TYPE,
+
+  // Workspace awards (§1E sweep)
+  awardFrequency: AWARD_FREQUENCY,
 
   // §1E HRM payroll ZoruSelect migration
   holidayType: HOLIDAY_TYPE,

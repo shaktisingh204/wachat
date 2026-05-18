@@ -15,7 +15,7 @@ import {
 import { ObjectId } from 'mongodb';
 import Link from 'next/link';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 import { getSession } from '@/app/actions/user.actions';
 import { connectToDatabase } from '@/lib/mongodb';
@@ -105,19 +105,17 @@ export default async function DisciplinaryPage() {
   })();
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Disciplinary Cases"
-        subtitle="Record warnings, investigations and outcomes of disciplinary action."
-        icon={Gavel}
-        actions={
-          <ZoruButton variant="outline" size="sm" asChild>
-            <Link href="/dashboard/hrm/hr/disciplinary/new">
-              <Plus className="h-4 w-4" /> New case
-            </Link>
-          </ZoruButton>
-        }
-      />
+    <EntityListShell
+      title="Disciplinary Cases"
+      subtitle="Record warnings, investigations and outcomes of disciplinary action."
+      primaryAction={
+        <ZoruButton variant="outline" size="sm" asChild>
+          <Link href="/dashboard/hrm/hr/disciplinary/new">
+            <Plus className="h-4 w-4" /> New case
+          </Link>
+        </ZoruButton>
+      }
+    >
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
         <ZoruCard className="p-3">
@@ -254,6 +252,6 @@ export default async function DisciplinaryPage() {
           </ZoruTable>
         </div>
       </ZoruCard>
-    </div>
+    </EntityListShell>
   );
 }

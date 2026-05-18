@@ -19,11 +19,6 @@ import {
   ZoruDialogTitle,
   ZoruInput,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruTable,
   ZoruTableBody,
   ZoruTableCell,
@@ -55,6 +50,8 @@ import * as React from 'react';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
+import { EnumFormField } from '@/components/crm/enum-form-field';
+import { EnumFilterField } from '@/components/crm/enum-filter-field';
 
 import {
     deleteShift,
@@ -76,12 +73,6 @@ const WEEKDAYS: Array<{ value: string; label: string }> = [
     { value: 'friday', label: 'Fri' },
     { value: 'saturday', label: 'Sat' },
     { value: 'sunday', label: 'Sun' },
-];
-
-const STATUS_OPTIONS: Array<{ value: CrmShiftStatus | 'all'; label: string }> = [
-    { value: 'all', label: 'All statuses' },
-    { value: 'active', label: 'Active' },
-    { value: 'archived', label: 'Archived' },
 ];
 
 const STATUS_TONE: Record<CrmShiftStatus, StatusTone> = {
@@ -344,24 +335,15 @@ function ShiftDialog({
                         </label>
                         {isEditing ? (
                             <div className="ml-auto flex items-center gap-2">
-                                <ZoruLabel htmlFor="status-trigger" className="text-[12.5px]">
+                                <ZoruLabel className="text-[12.5px]">
                                     Status
                                 </ZoruLabel>
-                                <ZoruSelect
-                                    value={status}
-                                    onValueChange={(v) => setStatus(v as CrmShiftStatus)}
-                                >
-                                    <ZoruSelectTrigger
-                                        id="status-trigger"
-                                        className="h-9 w-[140px]"
-                                    >
-                                        <ZoruSelectValue placeholder="Status" />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="active">Active</ZoruSelectItem>
-                                        <ZoruSelectItem value="archived">Archived</ZoruSelectItem>
-                                    </ZoruSelectContent>
-                                </ZoruSelect>
+                                <EnumFormField
+                                    enumName="activeArchived"
+                                    name="__status_picker"
+                                    initialId={status}
+                                    onChange={(v) => setStatus((v ?? 'active') as CrmShiftStatus)}
+                                />
                             </div>
                         ) : null}
                     </div>
@@ -494,23 +476,14 @@ export default function ShiftsListPage() {
                         placeholder: 'Search shifts…',
                     }}
                     filters={
-                        <ZoruSelect
+                        <EnumFilterField
+                            enumName="activeArchived"
                             value={statusFilter}
-                            onValueChange={(v) =>
+                            onChange={(v) =>
                                 setStatusFilter(v as CrmShiftStatus | 'all')
                             }
-                        >
-                            <ZoruSelectTrigger className="h-9 w-[180px]">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                            placeholder="All statuses"
+                        />
                     }
                     loading={isLoading && shifts.length === 0}
                 >

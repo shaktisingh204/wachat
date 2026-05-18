@@ -23,12 +23,12 @@ import {
   ZoruTableRow,
   useZoruToast,
 } from '@/components/zoruui';
+import { EnumFilterField } from '@/components/crm/enum-filter-field';
 import {
   Edit,
   LoaderCircle,
   Plus,
   Trash2,
-  Wallet,
   } from 'lucide-react';
 
 /**
@@ -42,7 +42,6 @@ import {
 import * as React from 'react';
 import Link from 'next/link';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 
@@ -56,18 +55,6 @@ import type {
 } from '@/app/actions/crm-payroll-runs.actions';
 
 const BASE = '/dashboard/hrm/payroll/payroll';
-
-const STATUS_OPTIONS: ReadonlyArray<{
-    value: CrmPayrollRunStatus | 'all';
-    label: string;
-}> = [
-    { value: 'all', label: 'All statuses' },
-    { value: 'draft', label: 'Draft' },
-    { value: 'in_progress', label: 'In progress' },
-    { value: 'processed', label: 'Processed' },
-    { value: 'paid', label: 'Paid' },
-    { value: 'archived', label: 'Archived' },
-];
 
 const STATUS_TONE: Record<CrmPayrollRunStatus, StatusTone> = {
     draft: 'amber',
@@ -176,26 +163,16 @@ export default function PayrollRunsListPage() {
 
     return (
         <>
-            <div className="flex w-full flex-col gap-6">
-                <CrmPageHeader
-                    breadcrumbs={[
-                        { label: 'Payroll', href: '/dashboard/hrm/payroll' },
-                        { label: 'Payroll runs' },
-                    ]}
+            <EntityListShell
                     title="Payroll runs"
                     subtitle="One run per pay period — generate, finalize, and archive."
-                    icon={Wallet}
-                    actions={
+                    primaryAction={
                         <ZoruButton asChild>
                             <Link href={`${BASE}/new`}>
                                 <Plus className="mr-1.5 h-3.5 w-3.5" /> New payroll run
                             </Link>
                         </ZoruButton>
                     }
-                />
-
-                <EntityListShell
-                    title=""
                     search={{
                         value: search,
                         onChange: setSearch,
@@ -203,23 +180,14 @@ export default function PayrollRunsListPage() {
                     }}
                     filters={
                         <>
-                            <ZoruSelect
+                            <EnumFilterField
+                                enumName="payrollRunStatus"
                                 value={statusFilter}
-                                onValueChange={(v) =>
+                                onChange={(v) =>
                                     setStatusFilter(v as CrmPayrollRunStatus | 'all')
                                 }
-                            >
-                                <ZoruSelectTrigger className="h-9 w-[180px]">
-                                    <ZoruSelectValue placeholder="Status" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    {STATUS_OPTIONS.map((o) => (
-                                        <ZoruSelectItem key={o.value} value={o.value}>
-                                            {o.label}
-                                        </ZoruSelectItem>
-                                    ))}
-                                </ZoruSelectContent>
-                            </ZoruSelect>
+                                placeholder="All statuses"
+                            />
                             <ZoruSelect
                                 value={yearFilter}
                                 onValueChange={setYearFilter}
@@ -317,8 +285,7 @@ export default function PayrollRunsListPage() {
                             </ZoruTableBody>
                         </ZoruTable>
                     </div>
-                </EntityListShell>
-            </div>
+            </EntityListShell>
 
             <ZoruAlertDialog
                 open={!!pendingDelete}

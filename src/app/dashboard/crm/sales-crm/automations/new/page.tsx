@@ -5,14 +5,10 @@ import {
   ZoruCard,
   ZoruInput,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import {
   useState } from 'react';
 import { ArrowLeft,
@@ -27,15 +23,6 @@ import { saveCrmAutomation } from '@/app/actions/crm-automations.actions';
 
 export const dynamic = 'force-dynamic';
 
-const TRIGGER_OPTIONS = [
-  { value: 'lead_created', label: 'Lead Created' },
-  { value: 'deal_stage_changed', label: 'Deal Stage Changed' },
-  { value: 'contact_created', label: 'Contact Created' },
-  { value: 'task_overdue', label: 'Task Overdue' },
-  { value: 'invoice_overdue', label: 'Invoice Overdue' },
-  { value: 'form_submitted', label: 'Form Submitted' },
-  { value: 'manual', label: 'Manual Trigger' },
-];
 
 export default function NewAutomationPage() {
   const router = useRouter();
@@ -108,19 +95,12 @@ export default function NewAutomationPage() {
 
           {/* Trigger */}
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="trigger">Trigger Event</ZoruLabel>
-            <ZoruSelect name="trigger">
-              <ZoruSelectTrigger id="trigger">
-                <ZoruSelectValue placeholder="Select a trigger" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                {TRIGGER_OPTIONS.map((opt) => (
-                  <ZoruSelectItem key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </ZoruSelectItem>
-                ))}
-              </ZoruSelectContent>
-            </ZoruSelect>
+            <ZoruLabel>Trigger Event</ZoruLabel>
+            <EnumFormField
+              enumName="automationTrigger"
+              name="trigger"
+              placeholder="Select a trigger"
+            />
           </div>
 
           {/* Description */}

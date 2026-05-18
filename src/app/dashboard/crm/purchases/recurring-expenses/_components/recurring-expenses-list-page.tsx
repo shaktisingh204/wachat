@@ -10,11 +10,6 @@ import {
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
   ZoruButton,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruTable,
   ZoruTableBody,
   ZoruTableCell,
@@ -40,6 +35,7 @@ import Link from 'next/link';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
+import { EnumFilterField } from '@/components/crm/enum-filter-field';
 
 import {
     deleteRecurringExpense,
@@ -49,14 +45,6 @@ import {
 } from '@/app/actions/crm-recurring-expenses-v2.actions';
 
 const BASE = '/dashboard/crm/purchases/recurring-expenses';
-
-const STATUS_OPTIONS: Array<{ value: RecurringExpenseStatus | 'all'; label: string }> = [
-    { value: 'all', label: 'All statuses' },
-    { value: 'active', label: 'Active' },
-    { value: 'paused', label: 'Paused' },
-    { value: 'completed', label: 'Completed' },
-    { value: 'cancelled', label: 'Cancelled' },
-];
 
 const STATUS_TONE: Record<RecurringExpenseStatus, StatusTone> = {
     active: 'green',
@@ -162,23 +150,14 @@ export function RecurringExpensesListPage() {
                         placeholder: 'Search schedules…',
                     }}
                     filters={
-                        <ZoruSelect
+                        <EnumFilterField
+                            enumName="recurringExpenseStatus"
                             value={statusFilter}
-                            onValueChange={(v) =>
+                            onChange={(v) =>
                                 setStatusFilter(v as RecurringExpenseStatus | 'all')
                             }
-                        >
-                            <ZoruSelectTrigger className="h-9 w-[180px]">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                            placeholder="All statuses"
+                        />
                     }
                     loading={isLoading && rows.length === 0}
                 >

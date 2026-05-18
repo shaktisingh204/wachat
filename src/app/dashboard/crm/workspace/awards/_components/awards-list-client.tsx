@@ -4,14 +4,10 @@ import {
   ZoruBadge,
   ZoruButton,
   ZoruInput,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruStatCard,
   useZoruToast,
 } from '@/components/zoruui';
+import { EnumFilterField } from '@/components/crm/enum-filter-field';
 import {
   useDebouncedCallback } from 'use-debounce';
 import {
@@ -186,23 +182,14 @@ export function AwardsListClient(): React.JSX.Element {
                 }
                 filters={
                     <div className="flex flex-wrap items-center gap-2">
-                        <ZoruSelect
+                        <EnumFilterField
+                            enumName="awardFrequency"
                             value={filters.frequency}
-                            onValueChange={(v) =>
+                            onChange={(v) =>
                                 setFilters((p) => ({ ...p, frequency: v as FrequencyFilter }))
                             }
-                        >
-                            <ZoruSelectTrigger className="h-9 w-[160px]">
-                                <ZoruSelectValue placeholder="Frequency" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="all">Any frequency</ZoruSelectItem>
-                                <ZoruSelectItem value="one-time">One-time</ZoruSelectItem>
-                                <ZoruSelectItem value="monthly">Monthly</ZoruSelectItem>
-                                <ZoruSelectItem value="quarterly">Quarterly</ZoruSelectItem>
-                                <ZoruSelectItem value="annual">Annual</ZoruSelectItem>
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                            allLabel="Any frequency"
+                        />
                         {filters.frequency !== 'all' || filters.search !== '' ? (
                             <ZoruButton
                                 variant="ghost"

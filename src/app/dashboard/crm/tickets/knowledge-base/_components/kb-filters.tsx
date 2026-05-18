@@ -7,12 +7,8 @@ import {
   ZoruCardContent,
   ZoruDateRangePicker,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
 } from '@/components/zoruui';
+import { EnumFilterField } from '@/components/crm/enum-filter-field';
 import {
   X } from 'lucide-react';
 
@@ -55,20 +51,12 @@ export function KbFiltersRow(props: KbFiltersRowProps) {
         <ZoruCard>
             <ZoruCardContent className="grid grid-cols-1 gap-3 pt-4 md:grid-cols-3 lg:grid-cols-6">
                 <FilterField label="Status">
-                    <ZoruSelect
+                    <EnumFilterField
+                        enumName="kbStatus"
                         value={props.statusFilter}
-                        onValueChange={(v) => props.onStatusChange(v as KbStatusFilter)}
-                    >
-                        <ZoruSelectTrigger>
-                            <ZoruSelectValue />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                            <ZoruSelectItem value="all">All</ZoruSelectItem>
-                            <ZoruSelectItem value="published">Published</ZoruSelectItem>
-                            <ZoruSelectItem value="draft">Draft</ZoruSelectItem>
-                            <ZoruSelectItem value="archived">Archived</ZoruSelectItem>
-                        </ZoruSelectContent>
-                    </ZoruSelect>
+                        onChange={(v) => props.onStatusChange(v as KbStatusFilter)}
+                        allLabel="All"
+                    />
                 </FilterField>
 
                 <FilterField label="Category">
@@ -82,22 +70,12 @@ export function KbFiltersRow(props: KbFiltersRowProps) {
                 </FilterField>
 
                 <FilterField label="Visibility">
-                    <ZoruSelect
+                    <EnumFilterField
+                        enumName="kbVisibility"
                         value={props.visibilityFilter}
-                        onValueChange={(v) =>
-                            props.onVisibilityChange(v as KbVisibilityFilter)
-                        }
-                    >
-                        <ZoruSelectTrigger>
-                            <ZoruSelectValue />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                            <ZoruSelectItem value="all">Any</ZoruSelectItem>
-                            <ZoruSelectItem value="public">Public</ZoruSelectItem>
-                            <ZoruSelectItem value="portal">Portal</ZoruSelectItem>
-                            <ZoruSelectItem value="internal">Internal</ZoruSelectItem>
-                        </ZoruSelectContent>
-                    </ZoruSelect>
+                        onChange={(v) => props.onVisibilityChange(v as KbVisibilityFilter)}
+                        allLabel="Any"
+                    />
                 </FilterField>
 
                 <FilterField label="Tag">

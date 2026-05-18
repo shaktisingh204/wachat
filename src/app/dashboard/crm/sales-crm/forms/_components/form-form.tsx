@@ -6,14 +6,10 @@ import {
   ZoruCheckbox,
   ZoruInput,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import {
   useActionState,
   useEffect,
@@ -45,25 +41,6 @@ import type {
 
 const BASE = '/dashboard/crm/sales-crm/forms';
 
-const FIELD_TYPE_OPTIONS: Array<{ value: string; label: string }> = [
-    { value: 'text', label: 'Text' },
-    { value: 'textarea', label: 'Textarea' },
-    { value: 'email', label: 'Email' },
-    { value: 'url', label: 'URL' },
-    { value: 'number', label: 'Number' },
-    { value: 'date', label: 'Date' },
-    { value: 'phone', label: 'Phone' },
-    { value: 'select', label: 'Select' },
-    { value: 'radio', label: 'Radio' },
-    { value: 'checkbox', label: 'Checkbox' },
-    { value: 'file', label: 'File' },
-];
-
-const STATUS_OPTIONS: Array<{ value: CrmFormStatus; label: string }> = [
-    { value: 'draft', label: 'Draft' },
-    { value: 'published', label: 'Published' },
-    { value: 'archived', label: 'Archived' },
-];
 
 interface FieldRow extends CrmFormFieldDef {
     rowKey: string;
@@ -212,22 +189,13 @@ export function CrmFormForm({ initialData }: CrmFormFormProps) {
                 {/* Status */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
-                        <ZoruSelect
-                            value={status}
-                            onValueChange={(v) => setStatus(v as CrmFormStatus)}
-                        >
-                            <ZoruSelectTrigger id="status-trigger">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <ZoruLabel>Status</ZoruLabel>
+                        <EnumFormField
+                            enumName="activeDraftArchived"
+                            name="status"
+                            initialId={status}
+                            onChange={(v) => setStatus((v ?? 'draft') as CrmFormStatus)}
+                        />
                     </div>
                 </div>
 
@@ -287,26 +255,13 @@ export function CrmFormForm({ initialData }: CrmFormFormProps) {
                                             updateField(idx, 'label', e.target.value)
                                         }
                                     />
-                                    <ZoruSelect
-                                        value={f.type ?? 'text'}
-                                        onValueChange={(v) =>
-                                            updateField(idx, 'type', v)
+                                    <EnumFormField
+                                        enumName="formFieldType"
+                                        initialId={f.type ?? 'text'}
+                                        onChange={(v) =>
+                                            updateField(idx, 'type', v ?? 'text')
                                         }
-                                    >
-                                        <ZoruSelectTrigger>
-                                            <ZoruSelectValue placeholder="Type" />
-                                        </ZoruSelectTrigger>
-                                        <ZoruSelectContent>
-                                            {FIELD_TYPE_OPTIONS.map((o) => (
-                                                <ZoruSelectItem
-                                                    key={o.value}
-                                                    value={o.value}
-                                                >
-                                                    {o.label}
-                                                </ZoruSelectItem>
-                                            ))}
-                                        </ZoruSelectContent>
-                                    </ZoruSelect>
+                                    />
                                     {/* hidden inputs for the controlled values */}
                                     <input
                                         type="hidden"

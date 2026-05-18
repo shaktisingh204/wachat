@@ -1,3 +1,5 @@
+'use client';
+
 import {
   ZoruEmptyState,
   ZoruInput,
@@ -21,8 +23,6 @@ import {
  * search live entirely in this component; the parent only needs to know
  * which chat got selected.
  */
-
-'use client';
 
 import * as React from 'react';
 

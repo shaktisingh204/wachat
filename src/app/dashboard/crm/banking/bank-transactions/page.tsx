@@ -33,6 +33,7 @@ import {
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import {
   useCallback,
   useEffect,
@@ -298,20 +299,12 @@ export default function BankTransactionsExtPage() {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <ZoruLabel htmlFor="type">Type</ZoruLabel>
-                <ZoruSelect name="type" defaultValue={editing?.type || 'deposit'}>
-                  <ZoruSelectTrigger
-                    id="type"
-                    className="h-10 rounded-lg border-border bg-card text-[13px]"
-                  >
-                    <ZoruSelectValue />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
-                    <ZoruSelectItem value="deposit">deposit</ZoruSelectItem>
-                    <ZoruSelectItem value="withdrawal">withdrawal</ZoruSelectItem>
-                    <ZoruSelectItem value="transfer">transfer</ZoruSelectItem>
-                  </ZoruSelectContent>
-                </ZoruSelect>
+                <ZoruLabel>Type</ZoruLabel>
+                <EnumFormField
+                  enumName="bankTransactionTypeExt"
+                  name="type"
+                  initialId={editing?.type || 'deposit'}
+                />
               </div>
               <div>
                 <ZoruLabel htmlFor="date">Date</ZoruLabel>

@@ -11,6 +11,7 @@ import {
   ZoruStatCard,
   useZoruToast,
 } from '@/components/zoruui';
+import { EnumFilterField } from '@/components/crm/enum-filter-field';
 import {
   useDebouncedCallback } from 'use-debounce';
 import { Megaphone,
@@ -167,23 +168,14 @@ export function AnnouncementsListClient({
                 }
                 filters={
                     <div className="flex flex-wrap items-center gap-2">
-                        <ZoruSelect
+                        <EnumFilterField
+                            enumName="announcementStatus"
                             value={statusFilter}
-                            onValueChange={(v) =>
+                            onChange={(v) =>
                                 setStatusFilter(v as CrmAnnouncementStatus | 'all')
                             }
-                        >
-                            <ZoruSelectTrigger className="h-9 w-[150px]">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
-                                <ZoruSelectItem value="draft">Draft</ZoruSelectItem>
-                                <ZoruSelectItem value="scheduled">Scheduled</ZoruSelectItem>
-                                <ZoruSelectItem value="published">Published</ZoruSelectItem>
-                                <ZoruSelectItem value="archived">Archived</ZoruSelectItem>
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                            allLabel="All statuses"
+                        />
                         <ZoruSelect
                             value={audienceFilter}
                             onValueChange={(v) => setAudienceFilter(v)}

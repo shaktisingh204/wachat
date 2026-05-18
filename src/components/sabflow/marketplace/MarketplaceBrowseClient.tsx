@@ -17,7 +17,7 @@
  */
 
 import * as React from 'react';
-import { LuShoppingBag, LuSortAsc } from 'react-icons/lu';
+import { LuShoppingBag, LuArrowUpDown } from 'react-icons/lu';
 import { cn } from '@/lib/utils';
 import { MarketplaceFilters, type MarketplaceFilterState, type MarketplaceCategory, type MarketplaceComplexity } from './MarketplaceFilters';
 import { TemplateCard, type TemplateCardData } from './TemplateCard';
@@ -156,7 +156,7 @@ export function MarketplaceBrowseClient({ templates }: Props) {
         </p>
 
         <div className="flex items-center gap-2">
-          <LuSortAsc className="h-3.5 w-3.5 text-zinc-500 flex-shrink-0" />
+          <LuArrowUpDown className="h-3.5 w-3.5 text-zinc-500 flex-shrink-0" />
           <select
             aria-label="Sort templates"
             value={sort}

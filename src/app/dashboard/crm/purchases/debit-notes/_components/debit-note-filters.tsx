@@ -4,11 +4,6 @@ import {
   ZoruBadge,
   ZoruButton,
   ZoruDateRangePicker,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
 } from '@/components/zoruui';
 import {
   X } from 'lucide-react';
@@ -25,28 +20,10 @@ import type { DateRange } from 'react-day-picker';
 import * as React from 'react';
 
 import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EnumFilterField } from '@/components/crm/enum-filter-field';
 
 import type { DebitNoteKpiFilter } from './debit-note-kpi-strip';
 
-const STATUSES: Array<{ value: DebitNoteKpiFilter; label: string }> = [
-    { value: 'all', label: 'All' },
-    { value: 'refunded', label: 'Refunded' },
-    { value: 'pending', label: 'Pending' },
-];
-
-const REASONS: Array<{ value: string; label: string }> = [
-    { value: 'return', label: 'Return' },
-    { value: 'discount', label: 'Discount' },
-    { value: 'price_adjust', label: 'Price adjustment' },
-    { value: 'cancel', label: 'Cancellation' },
-    { value: 'other', label: 'Other' },
-];
-
-const REFUND_MODES: Array<{ value: string; label: string }> = [
-    { value: 'cash', label: 'Cash / bank' },
-    { value: 'credit', label: 'Vendor credit' },
-    { value: 'replacement', label: 'Replacement' },
-];
 
 interface DebitNoteFiltersRowProps {
     statusFilter: DebitNoteKpiFilter;
@@ -67,21 +44,12 @@ export function DebitNoteFiltersRow(props: DebitNoteFiltersRowProps) {
     return (
         <div className="flex flex-wrap items-center gap-2">
             <div className="w-36">
-                <ZoruSelect
+                <EnumFilterField
+                    enumName="debitNoteStatusV2"
                     value={props.statusFilter}
-                    onValueChange={(v) => props.onStatusChange(v as DebitNoteKpiFilter)}
-                >
-                    <ZoruSelectTrigger>
-                        <ZoruSelectValue placeholder="Status" />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                        {STATUSES.map((s) => (
-                            <ZoruSelectItem key={s.value} value={s.value}>
-                                {s.label}
-                            </ZoruSelectItem>
-                        ))}
-                    </ZoruSelectContent>
-                </ZoruSelect>
+                    onChange={(v) => props.onStatusChange(v as DebitNoteKpiFilter)}
+                    placeholder="All statuses"
+                />
             </div>
             <div className="w-56">
                 <EntityFormField
@@ -93,40 +61,20 @@ export function DebitNoteFiltersRow(props: DebitNoteFiltersRowProps) {
                 />
             </div>
             <div className="w-44">
-                <ZoruSelect
+                <EnumFilterField
+                    enumName="debitNoteReason"
                     value={props.reasonFilter || 'all'}
-                    onValueChange={(v) => props.onReasonChange(v === 'all' ? '' : v)}
-                >
-                    <ZoruSelectTrigger>
-                        <ZoruSelectValue placeholder="Reason" />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                        <ZoruSelectItem value="all">All reasons</ZoruSelectItem>
-                        {REASONS.map((r) => (
-                            <ZoruSelectItem key={r.value} value={r.value}>
-                                {r.label}
-                            </ZoruSelectItem>
-                        ))}
-                    </ZoruSelectContent>
-                </ZoruSelect>
+                    onChange={(v) => props.onReasonChange(v === 'all' ? '' : v)}
+                    placeholder="All reasons"
+                />
             </div>
             <div className="w-44">
-                <ZoruSelect
+                <EnumFilterField
+                    enumName="debitNoteRefundMode"
                     value={props.refundModeFilter || 'all'}
-                    onValueChange={(v) => props.onRefundModeChange(v === 'all' ? '' : v)}
-                >
-                    <ZoruSelectTrigger>
-                        <ZoruSelectValue placeholder="Refund mode" />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                        <ZoruSelectItem value="all">All modes</ZoruSelectItem>
-                        {REFUND_MODES.map((r) => (
-                            <ZoruSelectItem key={r.value} value={r.value}>
-                                {r.label}
-                            </ZoruSelectItem>
-                        ))}
-                    </ZoruSelectContent>
-                </ZoruSelect>
+                    onChange={(v) => props.onRefundModeChange(v === 'all' ? '' : v)}
+                    placeholder="All modes"
+                />
             </div>
             <div className="w-72">
                 <ZoruDateRangePicker

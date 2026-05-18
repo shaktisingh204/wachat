@@ -5,15 +5,11 @@ import {
   ZoruCard,
   ZoruInput,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruSwitch,
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import {
   useActionState,
   useEffect,
@@ -46,18 +42,6 @@ import type {
 } from '@/lib/rust-client/crm-slas';
 
 const BASE = '/dashboard/crm/tickets/sla';
-
-const PRIORITY_OPTIONS: Array<{ value: CrmSlaPriority; label: string }> = [
-  { value: 'low', label: 'Low' },
-  { value: 'medium', label: 'Medium' },
-  { value: 'high', label: 'High' },
-  { value: 'urgent', label: 'Urgent' },
-];
-
-const STATUS_OPTIONS: Array<{ value: CrmSlaStatus; label: string }> = [
-  { value: 'active', label: 'Active' },
-  { value: 'archived', label: 'Archived' },
-];
 
 const initialState: SaveSlaState = {};
 
@@ -142,41 +126,21 @@ export function SlaForm({ initialData }: SlaFormProps) {
             />
           </div>
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="priority-trigger">Applies to priority</ZoruLabel>
-            <ZoruSelect
-              value={priority}
-              onValueChange={(v) => setPriority(v as CrmSlaPriority)}
-            >
-              <ZoruSelectTrigger id="priority-trigger">
-                <ZoruSelectValue placeholder="Priority" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                {PRIORITY_OPTIONS.map((o) => (
-                  <ZoruSelectItem key={o.value} value={o.value}>
-                    {o.label}
-                  </ZoruSelectItem>
-                ))}
-              </ZoruSelectContent>
-            </ZoruSelect>
+            <ZoruLabel>Applies to priority</ZoruLabel>
+            <EnumFormField
+              enumName="ticketPriority"
+              initialId={priority}
+              onChange={(v) => setPriority((v ?? 'medium') as CrmSlaPriority)}
+            />
           </div>
           {isEditing ? (
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
-              <ZoruSelect
-                value={status}
-                onValueChange={(v) => setStatus(v as CrmSlaStatus)}
-              >
-                <ZoruSelectTrigger id="status-trigger">
-                  <ZoruSelectValue placeholder="Status" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  {STATUS_OPTIONS.map((o) => (
-                    <ZoruSelectItem key={o.value} value={o.value}>
-                      {o.label}
-                    </ZoruSelectItem>
-                  ))}
-                </ZoruSelectContent>
-              </ZoruSelect>
+              <ZoruLabel>Status</ZoruLabel>
+              <EnumFormField
+                enumName="replyTemplateStatus"
+                initialId={status}
+                onChange={(v) => setStatus((v ?? 'active') as CrmSlaStatus)}
+              />
             </div>
           ) : null}
         </div>

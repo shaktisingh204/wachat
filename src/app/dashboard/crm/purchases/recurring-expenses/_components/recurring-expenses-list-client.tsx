@@ -5,11 +5,6 @@ import {
   ZoruCard,
   ZoruInput,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   useZoruToast,
 } from '@/components/zoruui';
 import {
@@ -42,6 +37,7 @@ import Link from 'next/link';
 
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
+import { EnumFilterField } from '@/components/crm/enum-filter-field';
 import {
   deleteRecurringExpense,
   pauseRecurringExpense,
@@ -56,21 +52,6 @@ interface ListClientProps {
   kpi: RecurringExpenseKpiSnapshot;
   defaultCurrency: string;
 }
-
-const STATUS_OPTIONS = [
-  { value: 'all', label: 'All statuses' },
-  { value: 'active', label: 'Active' },
-  { value: 'paused', label: 'Paused' },
-  { value: 'stopped', label: 'Stopped' },
-];
-
-const FREQUENCY_OPTIONS = [
-  { value: 'all', label: 'All frequencies' },
-  { value: 'days', label: 'Days' },
-  { value: 'weeks', label: 'Weeks' },
-  { value: 'months', label: 'Months' },
-  { value: 'years', label: 'Years' },
-];
 
 function fmtMoney(value: number, currency: string): string {
   try {
@@ -311,36 +292,21 @@ export function RecurringExpensesListClient({
           <div className="grid gap-3 px-3 pb-3 md:grid-cols-2 lg:grid-cols-4">
             <div className="space-y-1">
               <ZoruLabel>Status</ZoruLabel>
-              <ZoruSelect value={statusFilter} onValueChange={setStatusFilter}>
-                <ZoruSelectTrigger>
-                  <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  {STATUS_OPTIONS.map((o) => (
-                    <ZoruSelectItem key={o.value} value={o.value}>
-                      {o.label}
-                    </ZoruSelectItem>
-                  ))}
-                </ZoruSelectContent>
-              </ZoruSelect>
+              <EnumFilterField
+                enumName="recurringExpenseStatus"
+                value={statusFilter}
+                onChange={(v) => setStatusFilter(v)}
+                placeholder="All statuses"
+              />
             </div>
             <div className="space-y-1">
               <ZoruLabel>Frequency</ZoruLabel>
-              <ZoruSelect
+              <EnumFilterField
+                enumName="recurringFrequency"
                 value={frequencyFilter}
-                onValueChange={setFrequencyFilter}
-              >
-                <ZoruSelectTrigger>
-                  <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  {FREQUENCY_OPTIONS.map((o) => (
-                    <ZoruSelectItem key={o.value} value={o.value}>
-                      {o.label}
-                    </ZoruSelectItem>
-                  ))}
-                </ZoruSelectContent>
-              </ZoruSelect>
+                onChange={(v) => setFrequencyFilter(v)}
+                placeholder="All frequencies"
+              />
             </div>
             <div className="space-y-1">
               <ZoruLabel>Next run — from</ZoruLabel>

@@ -1,3 +1,5 @@
+"use client";
+
 import { ZoruButton, ZoruInput, ZoruLabel, ZoruSelect } from '@/components/zoruui';
 import {
   useEditor } from '@/components/builder/editor-provider';
@@ -6,8 +8,6 @@ import { DraggableSidebarItem } from './draggable-item';
 import { StylePanel } from './style-panel';
 import { ThemePanel } from './theme-panel';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'; // Assuming these exist usually
-
-"use client";
 
 import React from 'react';
 

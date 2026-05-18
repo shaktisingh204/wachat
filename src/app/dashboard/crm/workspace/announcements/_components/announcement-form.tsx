@@ -5,15 +5,11 @@ import {
   ZoruButton,
   ZoruInput,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruSwitch,
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import {
   useActionState,
   useEffect,
@@ -189,23 +185,14 @@ export function AnnouncementForm({
                     children: (
                         <div className="grid gap-4 md:grid-cols-2">
                             <div>
-                                <ZoruLabel htmlFor="audience">Audience</ZoruLabel>
-                                <ZoruSelect
-                                    name="audience"
-                                    defaultValue={announcement?.audience ?? 'all'}
-                                >
-                                    <ZoruSelectTrigger id="audience" className="mt-1.5 h-10">
-                                        <ZoruSelectValue />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="all">Everyone</ZoruSelectItem>
-                                        <ZoruSelectItem value="department">
-                                            Department
-                                        </ZoruSelectItem>
-                                        <ZoruSelectItem value="team">Team</ZoruSelectItem>
-                                        <ZoruSelectItem value="role">Role</ZoruSelectItem>
-                                    </ZoruSelectContent>
-                                </ZoruSelect>
+                                <ZoruLabel>Audience</ZoruLabel>
+                                <div className="mt-1.5">
+                                    <EnumFormField
+                                        enumName="announcementAudience"
+                                        name="audience"
+                                        initialId={announcement?.audience ?? 'all'}
+                                    />
+                                </div>
                             </div>
                             <div>
                                 <ZoruLabel htmlFor="audienceIds">
@@ -248,69 +235,34 @@ export function AnnouncementForm({
                     children: (
                         <div className="grid gap-4 md:grid-cols-3">
                             <div>
-                                <ZoruLabel htmlFor="status">Status</ZoruLabel>
-                                <ZoruSelect
-                                    name="status"
-                                    defaultValue={announcement?.status ?? 'draft'}
-                                >
-                                    <ZoruSelectTrigger id="status" className="mt-1.5 h-10">
-                                        <ZoruSelectValue />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="draft">Draft</ZoruSelectItem>
-                                        <ZoruSelectItem value="scheduled">
-                                            Scheduled
-                                        </ZoruSelectItem>
-                                        <ZoruSelectItem value="published">
-                                            Published
-                                        </ZoruSelectItem>
-                                        <ZoruSelectItem value="archived">
-                                            Archived
-                                        </ZoruSelectItem>
-                                    </ZoruSelectContent>
-                                </ZoruSelect>
+                                <ZoruLabel>Status</ZoruLabel>
+                                <div className="mt-1.5">
+                                    <EnumFormField
+                                        enumName="announcementStatus"
+                                        name="status"
+                                        initialId={announcement?.status ?? 'draft'}
+                                    />
+                                </div>
                             </div>
                             <div>
-                                <ZoruLabel htmlFor="category">Category</ZoruLabel>
-                                <ZoruSelect
-                                    name="category"
-                                    defaultValue={
-                                        (announcement?.category as string) ?? 'general'
-                                    }
-                                >
-                                    <ZoruSelectTrigger id="category" className="mt-1.5 h-10">
-                                        <ZoruSelectValue />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="general">General</ZoruSelectItem>
-                                        <ZoruSelectItem value="hr">HR</ZoruSelectItem>
-                                        <ZoruSelectItem value="policy">Policy</ZoruSelectItem>
-                                        <ZoruSelectItem value="event">Event</ZoruSelectItem>
-                                        <ZoruSelectItem value="celebration">
-                                            Celebration
-                                        </ZoruSelectItem>
-                                        <ZoruSelectItem value="urgent">Urgent</ZoruSelectItem>
-                                    </ZoruSelectContent>
-                                </ZoruSelect>
+                                <ZoruLabel>Category</ZoruLabel>
+                                <div className="mt-1.5">
+                                    <EnumFormField
+                                        enumName="announcementCategory"
+                                        name="category"
+                                        initialId={(announcement?.category as string) ?? 'general'}
+                                    />
+                                </div>
                             </div>
                             <div>
-                                <ZoruLabel htmlFor="priority">Priority</ZoruLabel>
-                                <ZoruSelect
-                                    name="priority"
-                                    defaultValue={
-                                        (announcement?.priority as string) ?? 'normal'
-                                    }
-                                >
-                                    <ZoruSelectTrigger id="priority" className="mt-1.5 h-10">
-                                        <ZoruSelectValue />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="low">Low</ZoruSelectItem>
-                                        <ZoruSelectItem value="normal">Normal</ZoruSelectItem>
-                                        <ZoruSelectItem value="high">High</ZoruSelectItem>
-                                        <ZoruSelectItem value="urgent">Urgent</ZoruSelectItem>
-                                    </ZoruSelectContent>
-                                </ZoruSelect>
+                                <ZoruLabel>Priority</ZoruLabel>
+                                <div className="mt-1.5">
+                                    <EnumFormField
+                                        enumName="priority"
+                                        name="priority"
+                                        initialId={(announcement?.priority as string) ?? 'normal'}
+                                    />
+                                </div>
                             </div>
                             <div>
                                 <ZoruLabel htmlFor="tags">Tags</ZoruLabel>
