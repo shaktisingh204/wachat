@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_daily_9am",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": { "schedule": "0 9 * * *", "enabled": true }
+  },
+  "nodes": [
+    {
+      "id": "n_cron",
+      "name": "Daily 09:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 9 * * *" }] }
+      }
+    },
+    {
+      "id": "n_trello",
+      "name": "List Overdue Cards",
+      "type": "n8n-nodes-base.trello",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "resource": "card",
+        "operation": "getAll",
+        "boardId": "={{ $vars.TRELLO_BOARD }}",
+        "filters": { "due": "overdue" }
+      },
+      "credentials": {
+        "trelloApi": { "id": "trello-cred", "name": "Trello API" }
+      }
+    },
+    {
+      "id": "n_split",
+      "name": "One Card Each",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": { "batchSize": 1 }
+    },
+    {
+      "id": "n_slack_dm",
+      "name": "DM Owner",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ ($json.idMembers || [])[0] }}",
+        "text": ":alarm_clock: Heads up — your Trello card is overdue: {{ $json.shortUrl }}"
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    },
+    {
+      "id": "n_tag_overdue",
+      "name": "Tag Card Overdue",
+      "type": "n8n-nodes-base.trello",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "resource": "card",
+        "operation": "update",
+        "id": "={{ $json.id }}",
+        "updateFields": {
+          "idLabels": "={{ $vars.OVERDUE_LABEL_ID }}"
+        }
+      },
+      "credentials": {
+        "trelloApi": { "id": "trello-cred", "name": "Trello API" }
+      }
+    }
+  ],
+  "connections": {
+    "n_cron": { "main": [[{ "node": "n_trello", "type": "main", "index": 0 }]] },
+    "n_trello": { "main": [[{ "node": "n_split", "type": "main", "index": 0 }]] },
+    "n_split": { "main": [[{ "node": "n_slack_dm", "type": "main", "index": 0 }]] },
+    "n_slack_dm": { "main": [[{ "node": "n_tag_overdue", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cron", "n_trello", "n_split", "n_slack_dm", "n_tag_overdue"]
+    }
+  ],
+  "variables": [
+    { "id": "v_board", "name": "TRELLO_BOARD", "defaultValue": "" },
+    { "id": "v_label", "name": "OVERDUE_LABEL_ID", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

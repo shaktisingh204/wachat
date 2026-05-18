@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "trello-card-overdue",
+  "cases": [
+    {
+      "id": "daily-nudge",
+      "description": "Daily cron lists overdue Trello cards, DMs owners, tags cards.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
