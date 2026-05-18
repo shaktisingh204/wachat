@@ -15,6 +15,11 @@ import { ThemePanel } from '@/components/sabflow/panels/ThemePanel';
 import { VersionHistoryPanel } from '@/components/sabflow/panels/VersionHistoryPanel';
 import { FlowEditorHeader } from './FlowEditorHeader';
 import { ValidationPanel } from '@/components/sabflow/panels/ValidationPanel';
+import {
+  CollabProvider,
+  CollabAvatarStack,
+  CollabRemoteCursors,
+} from './chrome/EditorCollabMount';
 import { saveSabFlow, activateSabFlow, deactivateSabFlow } from '@/app/actions/sabflow';
 import { toJsonSafe } from '@/lib/sabflow/toJsonSafe';
 import type { SabFlowDoc } from '@/lib/sabflow/types';
@@ -343,6 +348,17 @@ function EditorContent({ flow: initialFlow }: Props) {
       >
         {/* Panel toggle buttons rendered after the divider in the header */}
 
+        {/* Presence avatar stack — active collaborators (Phase C.8.2).
+            Gated behind NEXT_PUBLIC_SABFLOW_COLLAB_ENABLED; renders nothing
+            when the flag is off or no peers are connected. Sits before the
+            panel toggles so it doesn't get pushed off-screen on narrow
+            viewports as the right-side toolbar grows. The `mr-1` keeps a
+            tiny gap from the variables button so the avatars don't visually
+            collide with the icon row. */}
+        <div className="mr-1 flex items-center">
+          <CollabAvatarStack />
+        </div>
+
         {/* Variables panel toggle */}
         <button
           type="button"
@@ -432,12 +448,27 @@ function EditorContent({ flow: initialFlow }: Props) {
 
         {/* Centre: n8n-style WorkflowCanvas. Replaces the Typebot-style Graph
            while preserving the BlocksSideBar drag-in flow and the right-rail
-           BlockSettingsPanel wiring via `openedNodeId`. */}
-        <WorkflowCanvas
-          flow={flow}
-          onFlowChange={handleDocChange}
-          containerRef={containerRef}
-        />
+           BlockSettingsPanel wiring via `openedNodeId`.
+
+           Wrapped in a relatively-positioned div so the remote-cursor overlay
+           (Phase C.8.2) can absolutely-position over the canvas surface
+           without bleeding onto the sidebars. The wrapper is `flex-1` so the
+           canvas keeps its existing fill behaviour. `min-w-0` prevents the
+           canvas's intrinsic min-content from blowing the flex row out when
+           a side panel opens. */}
+        <div className="relative flex flex-1 min-w-0 overflow-hidden">
+          <WorkflowCanvas
+            flow={flow}
+            onFlowChange={handleDocChange}
+            containerRef={containerRef}
+          />
+
+          {/* Remote cursors overlay — sibling of the canvas so cursors render
+             on top of the workflow surface but underneath any side panels.
+             Gated behind NEXT_PUBLIC_SABFLOW_COLLAB_ENABLED. Renders null
+             when collab is disabled or no remote peers are connected. */}
+          <CollabRemoteCursors />
+        </div>
 
         {/* Right rail: one panel at a time */}
 
@@ -521,11 +552,14 @@ export function EditorPage({ flow }: Props) {
   return (
     <GraphProvider>
       <GraphDndProvider>
-        {SABFLOW_COLLAB_ENABLED ? (
-          <EditorContentCollab flow={flow} />
-        ) : (
+        {/* CollabProvider runs the presence beacon once and fans the result
+           out to the header avatar stack and the canvas cursor overlay via
+           React context. When NEXT_PUBLIC_SABFLOW_COLLAB_ENABLED is unset
+           (default) the provider passes an empty flowId to `usePresence`,
+           short-circuiting its polling effect so no network beacons fire. */}
+        <CollabProvider flowId={flow._id}>
           <EditorContent flow={flow} />
-        )}
+        </CollabProvider>
       </GraphDndProvider>
     </GraphProvider>
   );
