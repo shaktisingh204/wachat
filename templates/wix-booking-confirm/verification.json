@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "wix-booking-confirm",
+  "cases": [
+    {
+      "id": "booking-confirmed",
+      "description": "Booking confirms via email + GCal.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
