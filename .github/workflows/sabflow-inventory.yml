@@ -1,0 +1,51 @@
+name: sabflow-inventory
+
+# Phase C.1.9 — Inventory drift gate.
+#
+# Fails any PR that touches the SabFlow node surface
+# (`rust/crates/sabflow-nodes/**` or `src/lib/sabflow/forge/**`)
+# without updating the corresponding manifest in `docs/inventory/`.
+#
+# NOTE for repo admins: this job is intended to be a REQUIRED status check.
+# After this workflow has run at least once on `main`, go to
+# Settings -> Branches -> Branch protection rule for `main` (and any release
+# branches) and add `sabflow-inventory / check` to the required checks list.
+
+on:
+  pull_request:
+    paths:
+      - "rust/crates/sabflow-nodes/**"
+      - "src/lib/sabflow/forge/**"
+      - "docs/inventory/**"
+      - "scripts/sabflow-inventory-check.mjs"
+      - ".github/workflows/sabflow-inventory.yml"
+
+concurrency:
+  group: sabflow-inventory-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: inventory drift check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (with full history)
+        uses: actions/checkout@v4
+        with:
+          # Full history so we can diff against the PR base ref.
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          # No engines field in package.json; default to the latest LTS-track
+          # major used by the project (Node 24). The script is plain ESM and
+          # uses only the Node standard library, so it works on Node 20+ too.
+          node-version: "24"
+
+      - name: Run inventory drift checker
+        env:
+          GITHUB_BASE_REF: ${{ github.base_ref }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          GITHUB_EVENT_PATH: ${{ github.event_path }}
+        run: node scripts/sabflow-inventory-check.mjs
