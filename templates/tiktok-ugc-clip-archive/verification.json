@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "templateId": "tiktok-ugc-clip-archive",
+  "cases": [
+    {
+      "id": "new-mention",
+      "description": "Brand mention webhook archives the clip to R2 and opens a Frame.io review.",
+      "triggerPayload": {
+        "video": { "id": "tk-789", "download_url": "https://cdn.tiktok.example/tk-789.mp4", "author": "creator99" }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
