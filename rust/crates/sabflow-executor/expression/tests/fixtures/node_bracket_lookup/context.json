@@ -1,0 +1,5 @@
+{
+  "$node": {
+    "HTTP Request": { "json": { "id": "req-42" } }
+  }
+}

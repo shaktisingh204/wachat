@@ -1,0 +1,9 @@
+{
+  "$json": {
+    "items": [
+      { "name": "alpha" },
+      { "name": "beta" },
+      { "name": "gamma" }
+    ]
+  }
+}

@@ -1,0 +1,1 @@
+Hello {{ $json.name }}! You are item #{{ $itemIndex }}.

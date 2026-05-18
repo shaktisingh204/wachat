@@ -1,0 +1,6 @@
+{
+  "kind": "error",
+  "errorCode": "E_FORBIDDEN_KW",
+  "errorMessageSubstring": "Function",
+  "notes": "Per ADR §4 the identifier `Function` is forbidden at tokenize time. The parser must NEVER see a `new Function(...)` form succeed."
+}

@@ -1,0 +1,5 @@
+{
+  "kind": "value",
+  "value": "2026-05-18T12:00:00.000Z",
+  "notes": "Per ADR §2 $now is a DateTime pinned at run start. The evaluator MUST pull the timestamp from the host context (here: $now in context.json) rather than calling the system clock, so this fixture is deterministic."
+}

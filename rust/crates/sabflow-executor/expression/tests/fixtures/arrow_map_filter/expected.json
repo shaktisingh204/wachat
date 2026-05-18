@@ -1,0 +1,5 @@
+{
+  "kind": "value",
+  "value": 12,
+  "notes": "Per ADR §3 expression-bodied arrows are the ONLY arrow form allowed. Required for chained .filter/.map/.reduce."
+}
