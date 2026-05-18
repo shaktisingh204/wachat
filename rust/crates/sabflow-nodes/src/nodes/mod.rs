@@ -109,13 +109,13 @@ pub mod my_sql;
 pub mod supabase;
 pub mod noco_db;
 
-// ── Phase C.5.6: Marketing & analytics integrations ─────────────────────────
-pub mod mautic;
-pub mod intercom;
-pub mod bitly;
-pub mod hunter;
-pub mod drift;
+// ── Phase C.5.7: 6 comms-tail nodes ─────────────────────────────────────────
+pub mod vonage;
+pub mod twist;
+pub mod message_bird;
 pub mod clearbit;
+pub mod mastodon;
+pub mod bluesky;
 
 use crate::{descriptor::NodeCategory, registry::NodeRegistry};
 
@@ -232,13 +232,13 @@ fn register_implemented(r: &mut NodeRegistry) {
     r.register(my_sql::MySqlNode);
     r.register(supabase::SupabaseNode);
     r.register(noco_db::NocoDbNode);
-    // Phase C.5.6 — marketing & analytics
-    r.register(mautic::MauticNode);
-    r.register(intercom::IntercomNode);
-    r.register(bitly::BitlyNode);
-    r.register(hunter::HunterNode);
-    r.register(drift::DriftNode);
+    // Phase C.5.7 — 6 comms-tail node implementations
+    r.register(vonage::VonageNode);
+    r.register(twist::TwistNode);
+    r.register(message_bird::MessageBirdNode);
     r.register(clearbit::ClearbitNode);
+    r.register(mastodon::MastodonNode);
+    r.register(bluesky::BlueskyNode);
 }
 
 /// Register stubs only when the name isn't already populated by an implemented node.
@@ -274,7 +274,6 @@ fn register_stubs(r: &mut NodeRegistry) {
         ("chargebee", "Chargebee", NodeCategory::Finance, "Subscription billing"),
         ("circleCi", "CircleCI", NodeCategory::Developer, "Continuous integration"),
         ("cisco", "Cisco", NodeCategory::Developer, "Cisco Webex meetings"),
-        ("clearbit", "Clearbit", NodeCategory::Marketing, "Business intelligence APIs"),
         ("clickUp", "ClickUp", NodeCategory::Productivity, "Project management"),
         ("clockify", "Clockify", NodeCategory::Productivity, "Time tracking"),
         ("closeIo", "Close", NodeCategory::Sales, "Close (close.io) sales CRM"),
@@ -393,7 +392,6 @@ fn register_stubs(r: &mut NodeRegistry) {
         ("mattermost", "Mattermost", NodeCategory::Communication, "Team chat"),
         ("mautic", "Mautic", NodeCategory::Marketing, "Marketing automation"),
         ("medium", "Medium", NodeCategory::Marketing, "Publishing platform"),
-        ("messageBird", "MessageBird", NodeCategory::Communication, "Omnichannel messaging"),
         ("metabase", "Metabase", NodeCategory::Analytics, "Business intelligence"),
         ("microsoft", "Microsoft", NodeCategory::Productivity, "Microsoft 365 services"),
         ("mindee", "Mindee", NodeCategory::Ai, "Document OCR"),
@@ -496,7 +494,6 @@ fn register_stubs(r: &mut NodeRegistry) {
         ("travisCi", "Travis CI", NodeCategory::Developer, "CI builds"),
         ("trello", "Trello", NodeCategory::Productivity, "Kanban boards"),
         ("twake", "Twake", NodeCategory::Communication, "Open-source workplace"),
-        ("twist", "Twist", NodeCategory::Communication, "Async team messaging"),
         ("twitter", "Twitter / X", NodeCategory::Marketing, "Twitter API"),
         ("typeform", "Typeform", NodeCategory::Productivity, "Online forms"),
         ("uProc", "uProc", NodeCategory::Developer, "Data processing toolset"),
@@ -506,7 +503,6 @@ fn register_stubs(r: &mut NodeRegistry) {
         ("urlScanIo", "urlscan.io", NodeCategory::Developer, "Website scanner"),
         ("venafi", "Venafi", NodeCategory::Developer, "Machine identity"),
         ("vero", "Vero", NodeCategory::Marketing, "Customer messaging"),
-        ("vonage", "Vonage", NodeCategory::Communication, "Voice and SMS"),
         ("webflow", "Webflow", NodeCategory::Developer, "Website builder API"),
         ("wekan", "Wekan", NodeCategory::Productivity, "Open-source Kanban"),
         ("whatsApp", "WhatsApp Business", NodeCategory::Communication, "WhatsApp Business API"),
