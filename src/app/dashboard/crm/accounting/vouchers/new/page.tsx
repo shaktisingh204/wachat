@@ -1,6 +1,4 @@
-import { Receipt } from 'lucide-react';
-
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { VoucherBookForm } from '../_components/voucher-book-form';
 import { NewVoucherEntryClient } from './voucher-entry-client';
 
@@ -23,18 +21,12 @@ export default async function NewVoucherRoute(props: {
     }
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'Accounting', href: '/dashboard/crm/accounting' },
-                    { label: 'Voucher Books', href: '/dashboard/crm/accounting/vouchers' },
-                    { label: 'New' },
-                ]}
-                title="New Voucher Book"
-                subtitle="Create a new voucher book for a transaction type."
-                icon={Receipt}
-            />
+        <EntityDetailShell
+            eyebrow="VOUCHER BOOK"
+            title="New Voucher Book"
+            back={{ href: '/dashboard/crm/accounting/vouchers', label: 'Voucher Books' }}
+        >
             <VoucherBookForm />
-        </div>
+        </EntityDetailShell>
     );
 }

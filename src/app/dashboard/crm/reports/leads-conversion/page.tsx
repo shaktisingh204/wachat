@@ -1,9 +1,7 @@
 import { ZoruCard } from '@/components/zoruui';
 export const dynamic = 'force-dynamic';
 
-import { ArrowRightLeft } from 'lucide-react';
-
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { ReportToolbar, StatCard } from '../_components/report-toolbar';
 import { getLeadConversion } from '@/app/actions/worksuite/reports.actions';
 
@@ -14,13 +12,11 @@ export default async function LeadsConversionPage(props: {
   const stats = await getLeadConversion(sp.from, sp.to);
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Leads Conversion"
-        subtitle="Conversion rate and average cycle time for leads."
-        icon={ArrowRightLeft}
-        actions={<ReportToolbar from={sp.from} to={sp.to} />}
-      />
+    <EntityListShell
+      title="Leads Conversion"
+      subtitle="Conversion rate and average cycle time for leads."
+      primaryAction={<ReportToolbar from={sp.from} to={sp.to} />}
+    >
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-4">
         <StatCard label="Total leads" value={String(stats.total)} />
@@ -44,6 +40,6 @@ export default async function LeadsConversionPage(props: {
           <code className="rounded bg-secondary px-1">updatedAt</code>).
         </p>
       </ZoruCard>
-    </div>
+    </EntityListShell>
   );
 }

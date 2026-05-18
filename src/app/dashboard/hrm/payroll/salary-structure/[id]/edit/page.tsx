@@ -1,17 +1,12 @@
-import { ZoruButton } from '@/components/zoruui';
 import {
   notFound,
   redirect } from 'next/navigation';
-import { ArrowLeft,
-  Wallet } from 'lucide-react';
 
 /**
  * Edit salary structure page — wrap `<SalaryStructureForm initialData=… />`.
  */
 
-import Link from 'next/link';
-
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { getSession } from '@/app/actions/user.actions';
 import { getSalaryStructureDoc } from '@/app/actions/crm-salary-structures.actions';
 

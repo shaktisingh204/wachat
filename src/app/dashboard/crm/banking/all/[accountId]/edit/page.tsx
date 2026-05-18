@@ -1,7 +1,6 @@
 import { notFound } from 'next/navigation';
-import { Landmark } from 'lucide-react';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getCrmPaymentAccountById } from '@/app/actions/crm-payment-accounts.actions';
 
 import { PaymentAccountFormClient } from '../../_components/payment-account-form-client';
@@ -14,22 +13,12 @@ export default async function EditPaymentAccountPage(props: {
     if (!account) notFound();
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'Banking', href: '/dashboard/crm/banking' },
-                    { label: 'Payment Accounts', href: '/dashboard/crm/banking/all' },
-                    {
-                        label: account.accountName,
-                        href: `/dashboard/crm/banking/all/${accountId}`,
-                    },
-                    { label: 'Edit' },
-                ]}
-                title={`Edit ${account.accountName}`}
-                subtitle="Update payment account details."
-                icon={Landmark}
-            />
+        <EntityDetailShell
+            eyebrow="PAYMENT ACCOUNT"
+            title={`Edit ${account.accountName}`}
+            back={{ href: `/dashboard/crm/banking/all/${accountId}`, label: 'Back to account' }}
+        >
             <PaymentAccountFormClient initial={account} />
-        </div>
+        </EntityDetailShell>
     );
 }

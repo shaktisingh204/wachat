@@ -17,11 +17,10 @@ import {
   useState,
   useTransition } from 'react';
 import Link from 'next/link';
-import { LayoutTemplate,
-  LoaderCircle,
+import { LoaderCircle,
   Trash2 } from 'lucide-react';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   deleteEstimateTemplate,
   getEstimateTemplates,
@@ -72,17 +71,15 @@ export default function EstimateTemplatesPage() {
   };
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Estimate Templates"
-        subtitle="Reusable estimate templates for quick quoting."
-        icon={LayoutTemplate}
-        actions={
-          <Link href="/dashboard/crm/sales/proposals/templates">
-            <ZoruButton variant="outline">Proposal Templates</ZoruButton>
-          </Link>
-        }
-      />
+    <EntityListShell
+      title="Estimate Templates"
+      subtitle="Reusable estimate templates for quick quoting."
+      primaryAction={
+        <Link href="/dashboard/crm/sales/proposals/templates">
+          <ZoruButton variant="outline">Proposal Templates</ZoruButton>
+        </Link>
+      }
+    >
 
       <ZoruCard className="p-6">
         <div className="overflow-x-auto rounded-lg border border-zoru-line">
@@ -147,6 +144,6 @@ export default function EstimateTemplatesPage() {
           </ZoruTable>
         </div>
       </ZoruCard>
-    </div>
+    </EntityListShell>
   );
 }

@@ -1,9 +1,7 @@
 import { ZoruCard, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/zoruui';
 export const dynamic = 'force-dynamic';
 
-import { PlaneTakeoff } from 'lucide-react';
-
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { ReportToolbar, StatCard } from '../_components/report-toolbar';
 
 import { getLeavesReport } from '@/app/actions/worksuite/reports.actions';
@@ -19,13 +17,11 @@ export default async function LeaveReportPage(props: {
   const totalRejected = rows.reduce((s, r) => s + r.rejectedDays, 0);
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Leave Report"
-        subtitle="Leaves taken by employee and leave type."
-        icon={PlaneTakeoff}
-        actions={<ReportToolbar from={sp.from} to={sp.to} />}
-      />
+    <EntityListShell
+      title="Leave Report"
+      subtitle="Leaves taken by employee and leave type."
+      primaryAction={<ReportToolbar from={sp.from} to={sp.to} />}
+    >
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <StatCard label="Approved days" value={String(totalApproved)} tone="green" />
@@ -89,6 +85,6 @@ export default async function LeaveReportPage(props: {
           </ZoruTable>
         </div>
       </ZoruCard>
-    </div>
+    </EntityListShell>
   );
 }

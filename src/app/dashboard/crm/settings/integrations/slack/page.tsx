@@ -9,10 +9,9 @@ import {
   useTransition,
   } from 'react';
 import { LoaderCircle,
-  Play,
-  Slack } from 'lucide-react';
+  Play } from 'lucide-react';
 
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   getSlackSetting,
   saveSlackSetting,
@@ -86,12 +85,10 @@ export default function SlackIntegrationPage() {
   };
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Slack"
-        subtitle="Post notifications to a Slack channel via incoming webhook."
-        icon={Slack}
-      />
+    <EntityListShell
+      title="Slack"
+      subtitle="Post notifications to a Slack channel via incoming webhook."
+    >
 
       <ZoruCard className="p-6">
         {!doc && !id ? (
@@ -182,6 +179,6 @@ export default function SlackIntegrationPage() {
           </div>
         </form>
       </ZoruCard>
-    </div>
+    </EntityListShell>
   );
 }

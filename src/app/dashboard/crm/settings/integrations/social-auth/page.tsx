@@ -161,6 +161,6 @@ export default function SocialAuthIntegrationPage() {
           </div>
         </form>
       </ZoruCard>
-    </div>
+    </EntityListShell>
   );
 }

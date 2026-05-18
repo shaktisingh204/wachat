@@ -14,13 +14,11 @@ export default async function LateReportPage(props: {
   const max = rows.reduce((m, r) => Math.max(m, r.lateCount), 0);
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Late Arrivals"
-        subtitle="Employees arriving after the shift start (9:15am grace)."
-        icon={Timer}
-        actions={<ReportToolbar from={sp.from} to={sp.to} />}
-      />
+    <EntityListShell
+      title="Late Arrivals"
+      subtitle="Employees arriving after the shift start (9:15am grace)."
+      primaryAction={<ReportToolbar from={sp.from} to={sp.to} />}
+    >
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <StatCard label="Late instances" value={String(totalLate)} tone="red" />
@@ -50,6 +48,6 @@ export default async function LateReportPage(props: {
           ))
         )}
       </ZoruCard>
-    </div>
+    </EntityListShell>
   );
 }

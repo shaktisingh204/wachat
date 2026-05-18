@@ -23,7 +23,6 @@ import * as React from 'react';
 import Link from 'next/link';
 import Papa from 'papaparse';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 import {
@@ -205,15 +204,12 @@ export function VoucherBooksListClient(): React.JSX.Element {
     return (
         <>
             <div className="flex w-full flex-col gap-6">
-                <CrmPageHeader
-                    breadcrumbs={[
-                        { label: 'Accounting', href: '/dashboard/crm/accounting' },
-                        { label: 'Voucher Books' },
-                    ]}
+                <VoucherBooksKpiStrip kpi={kpi} />
+
+                <EntityListShell
                     title="Voucher Books"
                     subtitle="Manage your accounting voucher books and numbering schemes."
-                    icon={Receipt}
-                    actions={
+                    primaryAction={
                         <>
                             <ZoruButton variant="outline" onClick={handleExport}>
                                 Export CSV
@@ -225,12 +221,6 @@ export function VoucherBooksListClient(): React.JSX.Element {
                             </ZoruButton>
                         </>
                     }
-                />
-
-                <VoucherBooksKpiStrip kpi={kpi} />
-
-                <EntityListShell
-                    title=""
                     search={{ value: search, onChange: setSearch, placeholder: 'Search voucher books…' }}
                     filters={<VoucherBooksFilters value={filters} onChange={setFilters} />}
                     bulkBar={

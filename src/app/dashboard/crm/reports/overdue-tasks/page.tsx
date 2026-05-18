@@ -1,10 +1,9 @@
 import { ZoruBadge, ZoruCard, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/zoruui';
 export const dynamic = 'force-dynamic';
 
-import { AlertTriangle } from 'lucide-react';
 import { format } from 'date-fns';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatCard } from '../_components/report-toolbar';
 
 import { getOverdueTasks } from '@/app/actions/worksuite/reports.actions';
