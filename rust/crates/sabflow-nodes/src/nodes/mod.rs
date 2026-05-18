@@ -107,13 +107,16 @@ pub mod my_sql;
 pub mod supabase;
 pub mod noco_db;
 
-// ── Phase C.4.5 — 6 additional comms/email nodes ────────────────────────────
-pub mod pushbullet;
-pub mod pushover;
-pub mod pager_duty;
-pub mod gotify;
-pub mod zulip;
-pub mod signl4;
+// ── Phase C.4.6 — crypto/utility siblings ───────────────────────────────────
+// `crypto` (umbrella for hash/hmac/randomString) and `jwt` are already
+// implemented above. The remaining six in this batch are crypto/utility
+// sibling stubs being promoted to real implementations.
+pub mod totp;
+pub mod filter;
+pub mod rename_keys;
+pub mod item_lists;
+pub mod split_in_batches;
+pub mod compare_datasets;
 
 use crate::{descriptor::NodeCategory, registry::NodeRegistry};
 
@@ -214,13 +217,13 @@ fn register_implemented(r: &mut NodeRegistry) {
     r.register(my_sql::MySqlNode);
     r.register(supabase::SupabaseNode);
     r.register(noco_db::NocoDbNode);
-    // Phase C.4.5 — comms/email expansion
-    r.register(pushbullet::PushbulletNode);
-    r.register(pushover::PushoverNode);
-    r.register(pager_duty::PagerDutyNode);
-    r.register(gotify::GotifyNode);
-    r.register(zulip::ZulipNode);
-    r.register(signl4::Signl4Node);
+    // Phase C.4.6 — crypto/utility siblings (6)
+    r.register(totp::TotpNode);
+    r.register(filter::FilterNode);
+    r.register(rename_keys::RenameKeysNode);
+    r.register(item_lists::ItemListsNode);
+    r.register(split_in_batches::SplitInBatchesNode);
+    r.register(compare_datasets::CompareDatasetsNode);
 }
 
 /// Register stubs only when the name isn't already populated by an implemented node.

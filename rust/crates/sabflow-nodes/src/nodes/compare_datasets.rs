@@ -1,35 +1,65 @@
-//! Compare Datasets node — diff upstream items into add/remove/update sets.
+//! Compare Datasets node — diff two arrays of records by a join key.
 //!
-//! Mirrors n8n's `compareDatasets` node: takes a flat list of items (the
-//! engine flattens both upstream branches into `input.items`), splits them by
-//! a discriminator field (`leftSourceField` / `rightSourceField`), and joins
-//! the two halves by `keyField`.
+//! Mirrors n8n's `n8n-nodes-base.compareDatasets`. Both datasets come in
+//! through the same input branch — convention is that upstream nodes write
+//! `dataset1` and `dataset2` as array fields on the first item, OR send a
+//! single item with two arrays under named fields. To stay flexible we read
+//! both arrays from explicit field paths (`leftPath`, `rightPath`) on the
+//! first incoming item.
 //!
-//! Emits four output branches in this order:
-//!   1. `added`     — keys present on the right but not the left.
-//!   2. `removed`   — keys present on the left but not the right.
-//!   3. `changed`   — keys present on both with a different shape.
-//!   4. `unchanged` — keys present on both with the same shape.
+//! Output is a single item containing four arrays:
+//!   - `same`:     rows whose join keys match (paired left/right)
+//!   - `differs`:  rows whose join keys match but whose row content differs
+//!   - `onlyLeft`:  rows present only in dataset1
+//!   - `onlyRight`: rows present only in dataset2
 //!
-//! Items without a `keyField` value are dropped from comparison so they don't
-//! collapse into a single "" bucket.
-//!
-//! Local-only; no HTTP.
+//! Pure local computation; no HTTP.
 
 use async_trait::async_trait;
-use serde_json::{Map, Value, json};
 use std::collections::HashMap;
+
+use serde_json::{Map, Value, json};
 
 use crate::{
     context::{ExecutionContext, NodeInput, NodeOutput},
-    descriptor::{
-        NodeCategory, NodeDescriptor, NodeProperty, NodePropertyType,
-    },
+    descriptor::{NodeCategory, NodeDescriptor, NodeProperty, NodePropertyType},
     error::{NodeError, NodeResult},
     node::Node,
 };
 
 pub struct CompareDatasetsNode;
+
+fn value_at_path<'a>(root: &'a Value, path: &str) -> Option<&'a Value> {
+    if path.is_empty() {
+        return Some(root);
+    }
+    let mut cur = root;
+    for segment in path.split('.') {
+        if segment.is_empty() {
+            continue;
+        }
+        cur = cur.get(segment)?;
+    }
+    Some(cur)
+}
+
+fn key_of(record: &Value, key_path: &str) -> String {
+    value_at_path(record, key_path)
+        .map(|v| match v {
+            Value::String(s) => s.clone(),
+            Value::Null => "__null__".to_string(),
+            other => other.to_string(),
+        })
+        .unwrap_or_else(|| "__missing__".to_string())
+}
+
+fn as_array(v: Option<&Value>) -> Vec<Value> {
+    match v {
+        Some(Value::Array(a)) => a.clone(),
+        Some(other) => vec![other.clone()],
+        None => vec![],
+    }
+}
 
 #[async_trait]
 impl Node for CompareDatasetsNode {
@@ -37,29 +67,26 @@ impl Node for CompareDatasetsNode {
         NodeDescriptor::new(
             "compareDatasets",
             "Compare Datasets",
-            "Diff two datasets keyed by a common field",
+            "Diff two arrays of records by a join key",
             NodeCategory::Transform,
         )
-        .icon("scale")
-        .color("#a855f7")
-        .outputs(4)
-        .output_names(&["added", "removed", "changed", "unchanged"])
+        .icon("git-compare")
+        .color("#0ea5e9")
         .properties(vec![
-            NodeProperty::new("keyField", "Key Field", NodePropertyType::String)
-                .description("Field used to pair items across the two datasets")
+            NodeProperty::new("leftPath", "Left Dataset Path", NodePropertyType::String)
+                .description("Field on the first input item containing dataset1 (array)")
+                .placeholder("dataset1")
+                .default(json!("dataset1"))
+                .required(),
+            NodeProperty::new("rightPath", "Right Dataset Path", NodePropertyType::String)
+                .description("Field on the first input item containing dataset2 (array)")
+                .placeholder("dataset2")
+                .default(json!("dataset2"))
+                .required(),
+            NodeProperty::new("joinKey", "Join Key", NodePropertyType::String)
+                .description("Field within each record used to match left and right rows")
                 .placeholder("id")
                 .required(),
-            NodeProperty::new("sourceField", "Source Marker Field", NodePropertyType::String)
-                .description(
-                    "Field on each item that identifies which dataset it came from",
-                )
-                .placeholder("source"),
-            NodeProperty::new("leftSourceValue", "Left Value", NodePropertyType::String)
-                .description("`sourceField` value that marks dataset A")
-                .placeholder("left"),
-            NodeProperty::new("rightSourceValue", "Right Value", NodePropertyType::String)
-                .description("`sourceField` value that marks dataset B")
-                .placeholder("right"),
         ])
     }
 
@@ -69,198 +96,56 @@ impl Node for CompareDatasetsNode {
         input: NodeInput,
         params: &Value,
     ) -> NodeResult<NodeOutput> {
-        let key_field = ctx.param_str(params, "keyField")?;
-        if key_field.is_empty() {
-            return Err(NodeError::MissingParameter("keyField".into()));
-        }
-        let source_field = ctx
-            .param_str_opt(params, "sourceField")
-            .filter(|s| !s.is_empty());
-        let left_value = ctx
-            .param_str_opt(params, "leftSourceValue")
-            .filter(|s| !s.is_empty());
-        let right_value = ctx
-            .param_str_opt(params, "rightSourceValue")
-            .filter(|s| !s.is_empty());
+        let left_path = ctx.param_str(params, "leftPath")?;
+        let right_path = ctx.param_str(params, "rightPath")?;
+        let join_key = ctx.param_str(params, "joinKey")?;
 
-        // Bucket each item into left/right.  Two routing strategies:
-        //  - If `sourceField` is set, use that field's value (compared against
-        //    `leftValue` / `rightValue`).
-        //  - Otherwise, split the input list in half (first half = left,
-        //    second half = right). Useful when upstream branches arrive
-        //    already partitioned.
-        let mut lefts: HashMap<String, Value> = HashMap::new();
-        let mut rights: HashMap<String, Value> = HashMap::new();
+        let root = input.items.first().cloned().unwrap_or(Value::Null);
+        let left = as_array(value_at_path(&root, &left_path));
+        let right = as_array(value_at_path(&root, &right_path));
 
-        if let Some(field) = source_field.as_ref() {
-            for item in input.items.into_iter() {
-                let bucket = item.get(field).and_then(|v| v.as_str()).map(|s| s.to_string());
-                let key = item.get(&key_field).map(stringify_key);
-
-                let Some(key) = key else { continue };
-
-                match bucket.as_deref() {
-                    Some(b) if Some(b) == left_value.as_deref() => {
-                        lefts.insert(key, item);
-                    }
-                    Some(b) if Some(b) == right_value.as_deref() => {
-                        rights.insert(key, item);
-                    }
-                    // No explicit match — try a sensible fallback when only
-                    // one side is configured.
-                    Some(_) | None => {
-                        if right_value.is_none() {
-                            rights.insert(key, item);
-                        } else if left_value.is_none() {
-                            lefts.insert(key, item);
-                        }
-                    }
-                }
-            }
-        } else {
-            let items = input.items;
-            let half = items.len() / 2;
-            for (idx, item) in items.into_iter().enumerate() {
-                let key = item.get(&key_field).map(stringify_key);
-                let Some(key) = key else { continue };
-                if idx < half {
-                    lefts.insert(key, item);
-                } else {
-                    rights.insert(key, item);
-                }
-            }
+        if left.is_empty() && right.is_empty() {
+            return Err(NodeError::InvalidParameter {
+                name: "leftPath/rightPath".into(),
+                reason: "both datasets are empty or missing".into(),
+            });
         }
 
-        let mut added: Vec<Value> = Vec::new();
-        let mut removed: Vec<Value> = Vec::new();
-        let mut changed: Vec<Value> = Vec::new();
-        let mut unchanged: Vec<Value> = Vec::new();
+        let mut right_index: HashMap<String, Value> = HashMap::with_capacity(right.len());
+        for record in right.iter() {
+            right_index.insert(key_of(record, &join_key), record.clone());
+        }
 
-        // Walk right side: matched → unchanged/changed, unmatched → added.
-        for (key, right_item) in rights.iter() {
-            match lefts.get(key) {
-                Some(left_item) => {
-                    if items_equivalent(left_item, right_item) {
-                        unchanged.push(right_item.clone());
+        let mut same: Vec<Value> = Vec::new();
+        let mut differs: Vec<Value> = Vec::new();
+        let mut only_left: Vec<Value> = Vec::new();
+
+        for record in left.into_iter() {
+            let k = key_of(&record, &join_key);
+            match right_index.remove(&k) {
+                Some(rhs) => {
+                    let mut paired = Map::new();
+                    paired.insert("key".into(), Value::String(k.clone()));
+                    paired.insert("left".into(), record.clone());
+                    paired.insert("right".into(), rhs.clone());
+                    if record == rhs {
+                        same.push(Value::Object(paired));
                     } else {
-                        let mut diff = Map::new();
-                        diff.insert("key".into(), Value::String(key.clone()));
-                        diff.insert("left".into(), left_item.clone());
-                        diff.insert("right".into(), right_item.clone());
-                        diff.insert(
-                            "changedFields".into(),
-                            Value::Array(diff_fields(left_item, right_item)),
-                        );
-                        changed.push(Value::Object(diff));
+                        differs.push(Value::Object(paired));
                     }
                 }
-                None => added.push(right_item.clone()),
+                None => only_left.push(record),
             }
         }
 
-        // Walk left side for removed.
-        for (key, left_item) in lefts.iter() {
-            if !rights.contains_key(key) {
-                removed.push(left_item.clone());
-            }
-        }
+        let only_right: Vec<Value> = right_index.into_values().collect();
 
-        // Stable-ish ordering — sort by key for deterministic output.
-        sort_by_key(&mut added, &key_field);
-        sort_by_key(&mut removed, &key_field);
-        changed.sort_by_key(|v| {
-            v.get("key").and_then(|v| v.as_str()).unwrap_or("").to_string()
-        });
-        sort_by_key(&mut unchanged, &key_field);
+        let mut body = Map::new();
+        body.insert("same".into(), Value::Array(same));
+        body.insert("differs".into(), Value::Array(differs));
+        body.insert("onlyLeft".into(), Value::Array(only_left));
+        body.insert("onlyRight".into(), Value::Array(only_right));
 
-        Ok(NodeOutput::multi(vec![added, removed, changed, unchanged]))
-    }
-}
-
-fn stringify_key(v: &Value) -> String {
-    match v {
-        Value::String(s) => s.clone(),
-        Value::Null => String::new(),
-        other => other.to_string(),
-    }
-}
-
-fn items_equivalent(a: &Value, b: &Value) -> bool {
-    // Comparing via canonicalised JSON: sort keys, then string-compare.
-    canonicalize(a) == canonicalize(b)
-}
-
-fn canonicalize(v: &Value) -> String {
-    match v {
-        Value::Object(map) => {
-            let mut entries: Vec<(&String, &Value)> = map.iter().collect();
-            entries.sort_by(|a, b| a.0.cmp(b.0));
-            let inner: Vec<String> = entries
-                .into_iter()
-                .map(|(k, v)| format!("{k:?}:{}", canonicalize(v)))
-                .collect();
-            format!("{{{}}}", inner.join(","))
-        }
-        Value::Array(arr) => {
-            let inner: Vec<String> = arr.iter().map(canonicalize).collect();
-            format!("[{}]", inner.join(","))
-        }
-        other => other.to_string(),
-    }
-}
-
-fn diff_fields(a: &Value, b: &Value) -> Vec<Value> {
-    let mut out: Vec<Value> = Vec::new();
-    let empty = Map::new();
-    let a_obj = a.as_object().unwrap_or(&empty);
-    let b_obj = b.as_object().unwrap_or(&empty);
-    let mut keys: Vec<&String> = a_obj.keys().chain(b_obj.keys()).collect();
-    keys.sort();
-    keys.dedup();
-    for k in keys {
-        let av = a_obj.get(k);
-        let bv = b_obj.get(k);
-        if av != bv {
-            out.push(Value::String(k.clone()));
-        }
-    }
-    out
-}
-
-fn sort_by_key(items: &mut [Value], key_field: &str) {
-    items.sort_by_key(|v| {
-        v.get(key_field).map(stringify_key).unwrap_or_default()
-    });
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn canonicalize_is_key_order_independent() {
-        let a = json!({"b": 1, "a": 2});
-        let b = json!({"a": 2, "b": 1});
-        assert_eq!(canonicalize(&a), canonicalize(&b));
-    }
-
-    #[test]
-    fn diff_fields_reports_changed_keys() {
-        let a = json!({"name": "Alice", "age": 30});
-        let b = json!({"name": "Alice", "age": 31});
-        let d = diff_fields(&a, &b);
-        assert_eq!(d, vec![Value::String("age".into())]);
-    }
-
-    #[test]
-    fn items_equivalent_handles_object_order() {
-        assert!(items_equivalent(
-            &json!({"a": 1, "b": 2}),
-            &json!({"b": 2, "a": 1})
-        ));
-        assert!(!items_equivalent(
-            &json!({"a": 1, "b": 2}),
-            &json!({"a": 1, "b": 3})
-        ));
+        Ok(NodeOutput::single(vec![Value::Object(body)]))
     }
 }
