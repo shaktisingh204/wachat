@@ -1,0 +1,263 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_sar_form",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "form.submitted",
+    "options": {
+      "path": "/webhooks/gdpr-data-export",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Sar-Token",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_sar_trigger",
+      "name": "SAR Form",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "gdpr-data-export",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "gdpr-sar-webhook"
+    },
+    {
+      "id": "n_extract_subject",
+      "name": "Extract Subject",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "subjectId", "value": "={{ $json.subjectId }}" },
+            { "name": "subjectEmail", "value": "={{ $json.email.toLowerCase().trim() }}" },
+            { "name": "requestId", "value": "={{ $json.requestId }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_query_mongo",
+      "name": "Query MongoDB",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [480, -150],
+      "parameters": {
+        "operation": "find",
+        "collection": "users",
+        "query": "={\"email\":\"{{ $json.subjectEmail }}\"}"
+      },
+      "credentials": {
+        "mongoDb": { "id": "mongo-cred", "name": "Application Mongo" }
+      }
+    },
+    {
+      "id": "n_query_stripe",
+      "name": "Query Stripe",
+      "type": "n8n-nodes-base.stripe",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "resource": "customer",
+        "operation": "getAll",
+        "additionalFields": { "email": "={{ $json.subjectEmail }}" }
+      },
+      "credentials": {
+        "stripeApi": { "id": "stripe-cred", "name": "Stripe API" }
+      }
+    },
+    {
+      "id": "n_query_intercom",
+      "name": "Query Intercom",
+      "type": "n8n-nodes-base.intercom",
+      "typeVersion": 1,
+      "position": [480, 150],
+      "parameters": {
+        "resource": "user",
+        "operation": "getAll",
+        "additionalFields": { "email": "={{ $json.subjectEmail }}" }
+      },
+      "credentials": {
+        "intercomApi": { "id": "intercom-cred", "name": "Intercom API" }
+      }
+    },
+    {
+      "id": "n_merge_sources",
+      "name": "Merge Sources",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "mode": "mergeByPosition"
+      }
+    },
+    {
+      "id": "n_zip",
+      "name": "Build ZIP Archive",
+      "type": "n8n-nodes-base.compression",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "operation": "compress",
+        "outputFormat": "zip",
+        "fileName": "gdpr-export-{{ $node['Extract Subject'].json.requestId }}.zip"
+      }
+    },
+    {
+      "id": "n_upload_r2",
+      "name": "Upload to R2",
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [1200, 0],
+      "parameters": {
+        "operation": "upload",
+        "bucketName": "={{ $vars.R2_BUCKET }}",
+        "fileName": "gdpr/{{ $node['Extract Subject'].json.requestId }}/export.zip",
+        "binaryPropertyName": "data"
+      },
+      "credentials": {
+        "s3": { "id": "r2-cred", "name": "R2 (S3-compatible)" }
+      }
+    },
+    {
+      "id": "n_sign_url",
+      "name": "Sign 24h Download URL",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1440, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.SIGNED_LINK_SERVICE }}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "objectKey", "value": "gdpr/{{ $node['Extract Subject'].json.requestId }}/export.zip" },
+            { "name": "ttlHours", "value": "24" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_email_subject",
+      "name": "Email Subject",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [1680, -100],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "={{ $vars.DPO_FROM_EMAIL }}",
+        "toEmail": "={{ $node['Extract Subject'].json.subjectEmail }}",
+        "subject": "Your data export is ready ({{ $node['Extract Subject'].json.requestId }})",
+        "contentType": "text/html",
+        "content": "<p><a href=\"{{ $json.signedUrl }}\">Download your data</a> — link expires in 24 hours.</p>"
+      },
+      "credentials": {
+        "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid API" }
+      }
+    },
+    {
+      "id": "n_audit_log",
+      "name": "Write Audit Log",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1680, 100],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.AUDIT_LOG_URL }}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "event", "value": "gdpr.export.delivered" },
+            { "name": "requestId", "value": "={{ $node['Extract Subject'].json.requestId }}" },
+            { "name": "subjectEmail", "value": "={{ $node['Extract Subject'].json.subjectEmail }}" }
+          ]
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "audit-cred", "name": "Audit API Token" }
+      }
+    }
+  ],
+  "connections": {
+    "n_sar_trigger": {
+      "main": [[{ "node": "n_extract_subject", "type": "main", "index": 0 }]]
+    },
+    "n_extract_subject": {
+      "main": [
+        [
+          { "node": "n_query_mongo", "type": "main", "index": 0 },
+          { "node": "n_query_stripe", "type": "main", "index": 0 },
+          { "node": "n_query_intercom", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "n_query_mongo": {
+      "main": [[{ "node": "n_merge_sources", "type": "main", "index": 0 }]]
+    },
+    "n_query_stripe": {
+      "main": [[{ "node": "n_merge_sources", "type": "main", "index": 1 }]]
+    },
+    "n_query_intercom": {
+      "main": [[{ "node": "n_merge_sources", "type": "main", "index": 2 }]]
+    },
+    "n_merge_sources": {
+      "main": [[{ "node": "n_zip", "type": "main", "index": 0 }]]
+    },
+    "n_zip": {
+      "main": [[{ "node": "n_upload_r2", "type": "main", "index": 0 }]]
+    },
+    "n_upload_r2": {
+      "main": [[{ "node": "n_sign_url", "type": "main", "index": 0 }]]
+    },
+    "n_sign_url": {
+      "main": [
+        [
+          { "node": "n_email_subject", "type": "main", "index": 0 },
+          { "node": "n_audit_log", "type": "main", "index": 0 }
+        ]
+      ]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_sar_trigger",
+        "n_extract_subject",
+        "n_query_mongo",
+        "n_query_stripe",
+        "n_query_intercom",
+        "n_merge_sources",
+        "n_zip",
+        "n_upload_r2",
+        "n_sign_url",
+        "n_email_subject",
+        "n_audit_log"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_r2_bucket", "name": "R2_BUCKET", "defaultValue": "" },
+    { "id": "v_signed_svc", "name": "SIGNED_LINK_SERVICE", "defaultValue": "https://files.example.com/sign" },
+    { "id": "v_dpo_from", "name": "DPO_FROM_EMAIL", "defaultValue": "privacy@example.com" },
+    { "id": "v_audit_log", "name": "AUDIT_LOG_URL", "defaultValue": "https://audit.example.com/events" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

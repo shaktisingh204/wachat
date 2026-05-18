@@ -1,0 +1,10 @@
+{
+  "id": "deal-stage-to-slack",
+  "name": "Deal Stage to Slack",
+  "description": "Subscribes to HubSpot deal property-change webhooks for the deal stage, posts a formatted summary to your sales channel, and mirrors the latest stage into an Airtable pipeline view. Keeps sales leadership and ops on the same page in real time.",
+  "category": "CRM",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["hubspot", "crm", "slack", "airtable", "deals", "pipeline"],
+  "version": "0.1.0"
+}

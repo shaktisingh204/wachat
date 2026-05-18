@@ -1,0 +1,166 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_otp_request",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "auth.otp.requested",
+    "options": {
+      "path": "/webhooks/whatsapp-otp-verification",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Internal-Token",
+      "responseMode": "lastNode",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_otp_trigger",
+      "name": "OTP Request",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "whatsapp-otp-verification",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "webhookId": "whatsapp-otp-webhook"
+    },
+    {
+      "id": "n_validate_phone",
+      "name": "Validate Phone",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "conditions": {
+          "string": [
+            { "value1": "={{ $json.phone }}", "operation": "regex", "value2": "^\\+[1-9][0-9]{6,14}$" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_generate_code",
+      "name": "Generate Code + Verification ID",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, -80],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const code = String(Math.floor(100000 + Math.random() * 900000));\nconst verificationId = require('crypto').randomBytes(16).toString('hex');\nreturn [{ json: { phone: $json.phone, code, verificationId } }];"
+      }
+    },
+    {
+      "id": "n_redis_set",
+      "name": "Store in Redis (5m TTL)",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [720, -80],
+      "parameters": {
+        "operation": "set",
+        "key": "otp:{{ $json.verificationId }}",
+        "value": "={{ $json.code }}",
+        "expire": true,
+        "ttl": 300
+      },
+      "credentials": {
+        "redis": { "id": "redis-cred", "name": "Upstash Redis" }
+      }
+    },
+    {
+      "id": "n_whatsapp_send",
+      "name": "Send WhatsApp Template",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [960, -80],
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "={{ $vars.WHATSAPP_PHONE_NUMBER_ID }}",
+        "recipientPhoneNumber": "={{ $node['Generate Code + Verification ID'].json.phone }}",
+        "messageType": "template",
+        "template": "otp_code",
+        "components": [
+          {
+            "type": "body",
+            "parameters": [
+              { "type": "text", "text": "={{ $node['Generate Code + Verification ID'].json.code }}" }
+            ]
+          }
+        ]
+      },
+      "credentials": {
+        "whatsAppApi": { "id": "whatsapp-cred", "name": "WhatsApp Business API" }
+      }
+    },
+    {
+      "id": "n_respond_id",
+      "name": "Return Verification ID",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1200, -80],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"verificationId\":\"{{ $node['Generate Code + Verification ID'].json.verificationId }}\",\"expiresIn\":300}"
+      }
+    },
+    {
+      "id": "n_respond_bad",
+      "name": "Return 400 Invalid Phone",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [480, 120],
+      "parameters": {
+        "respondWith": "json",
+        "responseCode": 400,
+        "responseBody": "={\"error\":\"invalid_phone\"}"
+      }
+    }
+  ],
+  "connections": {
+    "n_otp_trigger": {
+      "main": [[{ "node": "n_validate_phone", "type": "main", "index": 0 }]]
+    },
+    "n_validate_phone": {
+      "main": [
+        [{ "node": "n_generate_code", "type": "main", "index": 0 }],
+        [{ "node": "n_respond_bad", "type": "main", "index": 0 }]
+      ]
+    },
+    "n_generate_code": {
+      "main": [[{ "node": "n_redis_set", "type": "main", "index": 0 }]]
+    },
+    "n_redis_set": {
+      "main": [[{ "node": "n_whatsapp_send", "type": "main", "index": 0 }]]
+    },
+    "n_whatsapp_send": {
+      "main": [[{ "node": "n_respond_id", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_otp_trigger",
+        "n_validate_phone",
+        "n_generate_code",
+        "n_redis_set",
+        "n_whatsapp_send",
+        "n_respond_id",
+        "n_respond_bad"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_phone_id", "name": "WHATSAPP_PHONE_NUMBER_ID", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

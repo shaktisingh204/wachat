@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "templateId": "invoice-overdue-collector",
+  "cases": [
+    {
+      "id": "final-stage",
+      "description": "An invoice 20+ days overdue routes to the final-notice branch with HubSpot tagging.",
+      "triggerPayload": {},
+      "expect": {
+        "finalStatus": "success"
+      }
+    }
+  ]
+}

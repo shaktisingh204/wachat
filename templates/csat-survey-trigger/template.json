@@ -1,0 +1,10 @@
+{
+  "id": "csat-survey-trigger",
+  "name": "CSAT Survey Trigger",
+  "description": "When a Zendesk ticket is closed, waits an hour so the resolution settles, emails the requester a Typeform CSAT survey, and stores the eventual response back in MongoDB under the ticket's customer record. Replaces hand-rolled survey scripts with one auditable flow.",
+  "category": "Support",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["zendesk", "csat", "typeform", "support", "mongodb", "feedback"],
+  "version": "0.1.0"
+}

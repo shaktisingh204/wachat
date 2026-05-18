@@ -1,0 +1,10 @@
+{
+  "id": "customer-health-score",
+  "name": "Customer Health Score",
+  "description": "Every night, walks every active HubSpot company, pulls last-7-day usage from Mixpanel and current MRR from Stripe, blends them into a 0–100 health score, writes the result back to HubSpot, and pings the CSM in Slack when a customer drops below an at-risk threshold. Replaces a manual weekly QBR sheet.",
+  "category": "CRM",
+  "complexity": "advanced",
+  "authorName": "SabNode",
+  "tags": ["hubspot", "mixpanel", "stripe", "customer-health", "crm", "csm", "slack"],
+  "version": "0.1.0"
+}

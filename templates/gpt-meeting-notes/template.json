@@ -1,0 +1,10 @@
+{
+  "id": "gpt-meeting-notes",
+  "name": "GPT Meeting Notes",
+  "description": "When a Calendly meeting ends, fetches the latest matching Otter.ai transcript, asks GPT-4o for a structured summary + action items, emails the summary to the participants, and files a copy as a Notion page tagged by attendee. Turns calls into searchable knowledge automatically.",
+  "category": "AI",
+  "complexity": "advanced",
+  "authorName": "SabNode",
+  "tags": ["ai", "openai", "gpt-4", "calendly", "otter", "notion", "meetings"],
+  "version": "0.1.0"
+}

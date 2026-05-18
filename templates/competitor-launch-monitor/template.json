@@ -1,0 +1,10 @@
+{
+  "id": "competitor-launch-monitor",
+  "name": "Competitor Launch Monitor",
+  "description": "Hourly polls the Product Hunt RSS feed, asks GPT-4o whether each post overlaps with your product (taking a list of competitor keywords as input), and alerts the growth Slack channel only when the model flags it as relevant. Replaces brittle keyword-only watchers.",
+  "category": "Marketing",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["product-hunt", "competitor", "rss", "openai", "slack", "marketing"],
+  "version": "0.1.0"
+}

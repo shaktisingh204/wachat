@@ -1,0 +1,135 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_evening_cron",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": {
+      "schedule": "0 18 * * *",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_cron_trigger",
+      "name": "Every Evening 18:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 18 * * *" }] }
+      }
+    },
+    {
+      "id": "n_compute_tomorrow",
+      "name": "Compute Tomorrow",
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 2,
+      "position": [240, 0],
+      "parameters": {
+        "operation": "add",
+        "duration": 1,
+        "timeUnit": "day"
+      }
+    },
+    {
+      "id": "n_mongo_find",
+      "name": "Find Tomorrow's Appointments",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "operation": "find",
+        "collection": "appointments",
+        "query": "={\"date\":\"{{ $json.date }}\",\"smsOptOut\":{\"$ne\":true}}"
+      },
+      "credentials": {
+        "mongoDb": { "id": "mongo-cred", "name": "Clinic Mongo" }
+      }
+    },
+    {
+      "id": "n_split",
+      "name": "One Per Appointment",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "batchSize": 1
+      }
+    },
+    {
+      "id": "n_send_sms",
+      "name": "Twilio Reminder SMS",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "resource": "sms",
+        "operation": "send",
+        "from": "={{ $vars.TWILIO_FROM }}",
+        "to": "={{ $json.patientPhone }}",
+        "message": "Hi {{ $json.patientName }}, this is a reminder for your appointment tomorrow at {{ $json.time }} with Dr. {{ $json.doctorName }}. Reply C to confirm or R to reschedule."
+      },
+      "credentials": {
+        "twilioApi": { "id": "twilio-cred", "name": "Twilio API" }
+      }
+    },
+    {
+      "id": "n_mark_reminded",
+      "name": "Mark Reminded in Mongo",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [1200, 0],
+      "parameters": {
+        "operation": "update",
+        "collection": "appointments",
+        "updateKey": "_id",
+        "fields": "reminderSentAt",
+        "options": {}
+      },
+      "credentials": {
+        "mongoDb": { "id": "mongo-cred", "name": "Clinic Mongo" }
+      }
+    }
+  ],
+  "connections": {
+    "n_cron_trigger": {
+      "main": [[{ "node": "n_compute_tomorrow", "type": "main", "index": 0 }]]
+    },
+    "n_compute_tomorrow": {
+      "main": [[{ "node": "n_mongo_find", "type": "main", "index": 0 }]]
+    },
+    "n_mongo_find": {
+      "main": [[{ "node": "n_split", "type": "main", "index": 0 }]]
+    },
+    "n_split": {
+      "main": [[{ "node": "n_send_sms", "type": "main", "index": 0 }]]
+    },
+    "n_send_sms": {
+      "main": [[{ "node": "n_mark_reminded", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_cron_trigger",
+        "n_compute_tomorrow",
+        "n_mongo_find",
+        "n_split",
+        "n_send_sms",
+        "n_mark_reminded"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_twilio_from", "name": "TWILIO_FROM", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

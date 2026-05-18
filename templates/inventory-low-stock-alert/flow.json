@@ -1,0 +1,202 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_morning_cron",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": {
+      "schedule": "0 6 * * *",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_cron_trigger",
+      "name": "Daily 06:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 6 * * *" }] }
+      }
+    },
+    {
+      "id": "n_shopify_inventory",
+      "name": "Fetch Inventory Levels",
+      "type": "n8n-nodes-base.shopify",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "resource": "product",
+        "operation": "getAll",
+        "returnAll": true,
+        "additionalFields": {
+          "fields": "id,title,variants"
+        }
+      },
+      "credentials": {
+        "shopifyApi": { "id": "shopify-cred", "name": "Shopify API" }
+      }
+    },
+    {
+      "id": "n_flatten_variants",
+      "name": "Flatten Variants",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "return items.flatMap(it => (it.json.variants || []).map(v => ({ json: { productId: it.json.id, productTitle: it.json.title, sku: v.sku, qty: v.inventory_quantity, threshold: v.metafields?.reorder_threshold ?? 10 } })))"
+      }
+    },
+    {
+      "id": "n_low_stock",
+      "name": "Low Stock Filter",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "conditions": {
+          "number": [{ "value1": "={{ $json.qty }}", "operation": "smaller", "value2": "={{ $json.threshold }}" }]
+        }
+      }
+    },
+    {
+      "id": "n_has_shortfall",
+      "name": "Any Shortfall?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "conditions": {
+          "number": [{ "value1": "={{ $items().length }}", "operation": "larger", "value2": 0 }]
+        }
+      }
+    },
+    {
+      "id": "n_csv_build",
+      "name": "Build CSV",
+      "type": "n8n-nodes-base.spreadsheetFile",
+      "typeVersion": 2,
+      "position": [1200, -80],
+      "parameters": {
+        "operation": "toFile",
+        "fileFormat": "csv",
+        "options": {
+          "fileName": "low-stock-{{ $now.toISODate() }}.csv"
+        }
+      }
+    },
+    {
+      "id": "n_email_procurement",
+      "name": "Email Procurement",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [1440, -80],
+      "parameters": {
+        "fromEmail": "={{ $vars.FROM_EMAIL }}",
+        "toEmail": "={{ $vars.PROCUREMENT_EMAIL }}",
+        "subject": "Low stock report — {{ $now.toISODate() }}",
+        "html": "<p>Attached: SKUs below reorder threshold.</p>",
+        "attachments": "data"
+      },
+      "credentials": {
+        "smtp": { "id": "smtp-cred", "name": "Workspace SMTP" }
+      }
+    },
+    {
+      "id": "n_split_for_ticket",
+      "name": "One Per SKU",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 2,
+      "position": [1200, 80],
+      "parameters": {
+        "batchSize": 1
+      }
+    },
+    {
+      "id": "n_linear_ticket",
+      "name": "Create Linear Ticket",
+      "type": "n8n-nodes-base.linear",
+      "typeVersion": 1,
+      "position": [1440, 80],
+      "parameters": {
+        "resource": "issue",
+        "operation": "create",
+        "teamId": "={{ $vars.LINEAR_TEAM_ID }}",
+        "title": "Reorder — {{ $json.productTitle }} ({{ $json.sku }})",
+        "description": "Stock at {{ $json.qty }} (threshold {{ $json.threshold }}).",
+        "additionalFields": { "labels": ["reorder", "inventory"] }
+      },
+      "credentials": {
+        "linearApi": { "id": "linear-cred", "name": "Linear API" }
+      }
+    },
+    {
+      "id": "n_no_shortfall",
+      "name": "All Stocked (No-Op)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1200, 240],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "n_cron_trigger": {
+      "main": [[{ "node": "n_shopify_inventory", "type": "main", "index": 0 }]]
+    },
+    "n_shopify_inventory": {
+      "main": [[{ "node": "n_flatten_variants", "type": "main", "index": 0 }]]
+    },
+    "n_flatten_variants": {
+      "main": [[{ "node": "n_low_stock", "type": "main", "index": 0 }]]
+    },
+    "n_low_stock": {
+      "main": [[{ "node": "n_has_shortfall", "type": "main", "index": 0 }]]
+    },
+    "n_has_shortfall": {
+      "main": [
+        [
+          { "node": "n_csv_build", "type": "main", "index": 0 },
+          { "node": "n_split_for_ticket", "type": "main", "index": 0 }
+        ],
+        [{ "node": "n_no_shortfall", "type": "main", "index": 0 }]
+      ]
+    },
+    "n_csv_build": {
+      "main": [[{ "node": "n_email_procurement", "type": "main", "index": 0 }]]
+    },
+    "n_split_for_ticket": {
+      "main": [[{ "node": "n_linear_ticket", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_cron_trigger",
+        "n_shopify_inventory",
+        "n_flatten_variants",
+        "n_low_stock",
+        "n_has_shortfall",
+        "n_csv_build",
+        "n_email_procurement",
+        "n_split_for_ticket",
+        "n_linear_ticket",
+        "n_no_shortfall"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_from", "name": "FROM_EMAIL", "defaultValue": "ops@example.com" },
+    { "id": "v_procurement", "name": "PROCUREMENT_EMAIL", "defaultValue": "procurement@example.com" },
+    { "id": "v_linear_team", "name": "LINEAR_TEAM_ID", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

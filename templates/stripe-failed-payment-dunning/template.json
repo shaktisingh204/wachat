@@ -1,0 +1,10 @@
+{
+  "id": "stripe-failed-payment-dunning",
+  "name": "Stripe Failed Payment Dunning",
+  "description": "On a Stripe payment_intent.payment_failed webhook, looks the customer up, emails them a retry-friendly notice, posts a finance Slack alert, and — if the customer is on an Enterprise plan — pings the assigned CSM. Keeps churn-risk events in front of the people who can save the account.",
+  "category": "Finance",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["stripe", "dunning", "payments", "retention", "slack", "csm"],
+  "version": "0.1.0"
+}

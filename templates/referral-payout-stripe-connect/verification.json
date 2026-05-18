@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "templateId": "referral-payout-stripe-connect",
+  "cases": [
+    {
+      "id": "gold-tier-payout",
+      "description": "A gold-tier referrer earns 15% commission via a Stripe Connect transfer with finance receipts.",
+      "triggerPayload": {
+        "referrerId": "ref_9001",
+        "referredEmail": "buyer@example.com",
+        "saleAmount": 1500.00,
+        "currency": "usd"
+      },
+      "expect": {
+        "finalStatus": "success"
+      }
+    }
+  ]
+}

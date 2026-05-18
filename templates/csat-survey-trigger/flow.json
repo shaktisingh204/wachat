@@ -1,0 +1,150 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_zendesk_closed",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "zendesk.ticket.closed",
+    "options": {
+      "path": "/webhooks/csat-survey-trigger",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Zendesk-Webhook-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_zendesk_trigger",
+      "name": "Zendesk Ticket Closed",
+      "type": "n8n-nodes-base.zendeskTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "service": "supportApi",
+        "events": ["ticket.closed"]
+      },
+      "credentials": {
+        "zendeskApi": { "id": "zendesk-cred", "name": "Zendesk API" }
+      }
+    },
+    {
+      "id": "n_extract_ticket",
+      "name": "Extract Ticket Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "ticketId", "value": "={{ $json.ticket.id }}" },
+            { "name": "requesterEmail", "value": "={{ $json.ticket.requester.email }}" },
+            { "name": "requesterName", "value": "={{ $json.ticket.requester.name }}" },
+            { "name": "assigneeName", "value": "={{ $json.ticket.assignee.name }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_wait_1h",
+      "name": "Cool-Off 1h",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "amount": 1,
+        "unit": "hours"
+      }
+    },
+    {
+      "id": "n_sign_survey_url",
+      "name": "Build Survey URL",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "surveyUrl", "value": "={{ $vars.TYPEFORM_BASE_URL }}?ticket={{ $node['Extract Ticket Fields'].json.ticketId }}&email={{ $node['Extract Ticket Fields'].json.requesterEmail }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_email_survey",
+      "name": "Email CSAT Survey",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "={{ $vars.SUPPORT_FROM_EMAIL }}",
+        "toEmail": "={{ $node['Extract Ticket Fields'].json.requesterEmail }}",
+        "subject": "How did we do, {{ $node['Extract Ticket Fields'].json.requesterName }}?",
+        "contentType": "text/html",
+        "content": "<p>Thanks for your patience with ticket #{{ $node['Extract Ticket Fields'].json.ticketId }}. <a href=\"{{ $json.surveyUrl }}\">Share quick feedback</a> — it takes under a minute.</p>"
+      },
+      "credentials": {
+        "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid API" }
+      }
+    },
+    {
+      "id": "n_record_pending",
+      "name": "Record Pending Survey",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [1200, 0],
+      "parameters": {
+        "operation": "insert",
+        "collection": "csat_pending",
+        "fields": "ticketId,requesterEmail,assigneeName,sentAt",
+        "options": {}
+      },
+      "credentials": {
+        "mongoDb": { "id": "mongo-cred", "name": "Support Mongo" }
+      }
+    }
+  ],
+  "connections": {
+    "n_zendesk_trigger": {
+      "main": [[{ "node": "n_extract_ticket", "type": "main", "index": 0 }]]
+    },
+    "n_extract_ticket": {
+      "main": [[{ "node": "n_wait_1h", "type": "main", "index": 0 }]]
+    },
+    "n_wait_1h": {
+      "main": [[{ "node": "n_sign_survey_url", "type": "main", "index": 0 }]]
+    },
+    "n_sign_survey_url": {
+      "main": [[{ "node": "n_email_survey", "type": "main", "index": 0 }]]
+    },
+    "n_email_survey": {
+      "main": [[{ "node": "n_record_pending", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_zendesk_trigger",
+        "n_extract_ticket",
+        "n_wait_1h",
+        "n_sign_survey_url",
+        "n_email_survey",
+        "n_record_pending"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_typeform_base", "name": "TYPEFORM_BASE_URL", "defaultValue": "https://example.typeform.com/to/csat" },
+    { "id": "v_support_from", "name": "SUPPORT_FROM_EMAIL", "defaultValue": "support@example.com" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

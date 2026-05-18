@@ -1,0 +1,167 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_morning_cron",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": {
+      "schedule": "0 6 * * MON-FRI",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_cron_trigger",
+      "name": "Weekday 06:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 6 * * MON-FRI" }] }
+      }
+    },
+    {
+      "id": "n_compute_window",
+      "name": "Compute Today 09–11",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [240, 0],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const today = new Date();\nconst start = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 9, 0, 0).toISOString();\nconst end = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 11, 0, 0).toISOString();\nreturn [{ json: { start, end } }];"
+      }
+    },
+    {
+      "id": "n_freebusy",
+      "name": "Google Calendar Free/Busy",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "resource": "event",
+        "operation": "getAll",
+        "calendar": "={{ $vars.CALENDAR_ID }}",
+        "timeMin": "={{ $json.start }}",
+        "timeMax": "={{ $json.end }}",
+        "additionalFields": { "singleEvents": true }
+      },
+      "credentials": {
+        "googleCalendarOAuth2Api": { "id": "gcal-cred", "name": "Google Calendar OAuth2" }
+      }
+    },
+    {
+      "id": "n_is_free",
+      "name": "Slot Free?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "conditions": {
+          "number": [{ "value1": "={{ $items().length }}", "operation": "equal", "value2": 0 }]
+        }
+      }
+    },
+    {
+      "id": "n_create_block",
+      "name": "Create Deep Work Event",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1,
+      "position": [960, -80],
+      "parameters": {
+        "resource": "event",
+        "operation": "create",
+        "calendar": "={{ $vars.CALENDAR_ID }}",
+        "summary": "🧠 Deep Work",
+        "start": "={{ $node['Compute Today 09–11'].json.start }}",
+        "end": "={{ $node['Compute Today 09–11'].json.end }}",
+        "additionalFields": {
+          "description": "Auto-blocked by SabFlow — defend your maker hours.",
+          "visibility": "private",
+          "transparency": "opaque"
+        }
+      },
+      "credentials": {
+        "googleCalendarOAuth2Api": { "id": "gcal-cred", "name": "Google Calendar OAuth2" }
+      }
+    },
+    {
+      "id": "n_slack_defended",
+      "name": "Slack Confirm Block",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, -80],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SELF_DM_CHANNEL }}",
+        "text": ":brain: Deep Work blocked from 09:00–11:00 today."
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    },
+    {
+      "id": "n_slack_defend_tomorrow",
+      "name": "Slack Defend Tomorrow",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [960, 80],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SELF_DM_CHANNEL }}",
+        "text": ":calendar: A meeting already took today's 09:00–11:00 slot. Consider defending tomorrow instead."
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    }
+  ],
+  "connections": {
+    "n_cron_trigger": {
+      "main": [[{ "node": "n_compute_window", "type": "main", "index": 0 }]]
+    },
+    "n_compute_window": {
+      "main": [[{ "node": "n_freebusy", "type": "main", "index": 0 }]]
+    },
+    "n_freebusy": {
+      "main": [[{ "node": "n_is_free", "type": "main", "index": 0 }]]
+    },
+    "n_is_free": {
+      "main": [
+        [{ "node": "n_create_block", "type": "main", "index": 0 }],
+        [{ "node": "n_slack_defend_tomorrow", "type": "main", "index": 0 }]
+      ]
+    },
+    "n_create_block": {
+      "main": [[{ "node": "n_slack_defended", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_cron_trigger",
+        "n_compute_window",
+        "n_freebusy",
+        "n_is_free",
+        "n_create_block",
+        "n_slack_defended",
+        "n_slack_defend_tomorrow"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_calendar", "name": "CALENDAR_ID", "defaultValue": "primary" },
+    { "id": "v_dm", "name": "SELF_DM_CHANNEL", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

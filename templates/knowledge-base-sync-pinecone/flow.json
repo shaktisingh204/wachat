@@ -1,0 +1,148 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_notion_updated",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "notion.page.updated",
+    "options": {
+      "path": "/webhooks/knowledge-base-sync-pinecone",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Notion-Webhook-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_notion_trigger",
+      "name": "Notion Page Updated",
+      "type": "n8n-nodes-base.notionTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "event": "pageUpdatedInDatabase",
+        "databaseId": "={{ $vars.NOTION_KB_DB }}"
+      },
+      "credentials": {
+        "notionApi": { "id": "notion-cred", "name": "Notion API" }
+      }
+    },
+    {
+      "id": "n_fetch_blocks",
+      "name": "Fetch Page Blocks",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2,
+      "position": [240, 0],
+      "parameters": {
+        "resource": "block",
+        "operation": "getAll",
+        "blockId": "={{ $json.id }}",
+        "returnAll": true
+      },
+      "credentials": {
+        "notionApi": { "id": "notion-cred", "name": "Notion API" }
+      }
+    },
+    {
+      "id": "n_to_text",
+      "name": "Flatten Blocks to Text",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const text = items.map(it => (it.json[(it.json.type ?? 'paragraph')]?.rich_text ?? []).map(r => r.plain_text).join('')).join('\\n');\nreturn [{ json: { fullText: text, pageId: $('Notion Page Updated').first().json.id } }];"
+      }
+    },
+    {
+      "id": "n_chunk",
+      "name": "Chunk to 1k tokens",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const text = $json.fullText;\nconst CHUNK = 4000;\nconst out = [];\nfor (let i = 0; i < text.length; i += CHUNK) out.push({ json: { pageId: $json.pageId, chunkIndex: out.length, content: text.slice(i, i + CHUNK) } });\nreturn out;"
+      }
+    },
+    {
+      "id": "n_embed",
+      "name": "OpenAI Embeddings",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "authentication": "apiKey",
+        "resource": "embedding",
+        "operation": "create",
+        "model": "text-embedding-3-small",
+        "input": "={{ $json.content }}"
+      },
+      "credentials": {
+        "openAiApi": { "id": "openai-cred", "name": "OpenAI API" }
+      }
+    },
+    {
+      "id": "n_pinecone_upsert",
+      "name": "Upsert to Pinecone",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1200, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.PINECONE_INDEX_URL }}/vectors/upsert",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"vectors\":[{\"id\":\"{{ $node['Chunk to 1k tokens'].json.pageId }}-{{ $node['Chunk to 1k tokens'].json.chunkIndex }}\",\"values\":{{ JSON.stringify($json.data[0].embedding) }},\"metadata\":{\"pageId\":\"{{ $node['Chunk to 1k tokens'].json.pageId }}\",\"chunk\":{{ $node['Chunk to 1k tokens'].json.chunkIndex }}}}],\"namespace\":\"{{ $vars.PINECONE_NAMESPACE }}\"}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "pinecone-cred", "name": "Pinecone API Key" }
+      }
+    }
+  ],
+  "connections": {
+    "n_notion_trigger": {
+      "main": [[{ "node": "n_fetch_blocks", "type": "main", "index": 0 }]]
+    },
+    "n_fetch_blocks": {
+      "main": [[{ "node": "n_to_text", "type": "main", "index": 0 }]]
+    },
+    "n_to_text": {
+      "main": [[{ "node": "n_chunk", "type": "main", "index": 0 }]]
+    },
+    "n_chunk": {
+      "main": [[{ "node": "n_embed", "type": "main", "index": 0 }]]
+    },
+    "n_embed": {
+      "main": [[{ "node": "n_pinecone_upsert", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_notion_trigger",
+        "n_fetch_blocks",
+        "n_to_text",
+        "n_chunk",
+        "n_embed",
+        "n_pinecone_upsert"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_notion_db", "name": "NOTION_KB_DB", "defaultValue": "" },
+    { "id": "v_pinecone_url", "name": "PINECONE_INDEX_URL", "defaultValue": "" },
+    { "id": "v_pinecone_ns", "name": "PINECONE_NAMESPACE", "defaultValue": "knowledge-base" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

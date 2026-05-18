@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "templateId": "csat-survey-trigger",
+  "cases": [
+    {
+      "id": "happy-path",
+      "description": "Closed ticket triggers a delayed CSAT email and records a pending-survey row.",
+      "triggerPayload": {
+        "ticket": {
+          "id": 4471,
+          "requester": { "email": "lina@example.com", "name": "Lina" },
+          "assignee": { "name": "Mara" }
+        }
+      },
+      "expect": {
+        "finalStatus": "success"
+      }
+    }
+  ]
+}

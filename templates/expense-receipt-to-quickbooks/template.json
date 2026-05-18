@@ -1,0 +1,10 @@
+{
+  "id": "expense-receipt-to-quickbooks",
+  "name": "Expense Receipt to QuickBooks",
+  "description": "When a team member forwards a receipt to your expense inbox, this flow extracts the vendor, date, and total with GPT-4o vision, creates a QuickBooks bill, archives the receipt PDF to R2 with a stable path, and posts a confirmation back to the submitter. Replaces manual bookkeeping for AP teams.",
+  "category": "Ops",
+  "complexity": "advanced",
+  "authorName": "SabNode",
+  "tags": ["expenses", "quickbooks", "openai", "ocr", "ap-automation", "finance"],
+  "version": "0.1.0"
+}

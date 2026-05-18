@@ -1,0 +1,10 @@
+{
+  "id": "podcast-clip-distributor",
+  "name": "Podcast Clip Distributor",
+  "description": "When a new podcast episode lands in your show's RSS, downloads the MP3 to R2, kicks off an AssemblyAI transcript, polls until the transcript is ready, asks GPT-4o for three clip-worthy moments with timestamps, saves the clip metadata to an Airtable production board, and pings the social team in Slack. Replaces a manual clip-picking step in the show pipeline.",
+  "category": "Marketing",
+  "complexity": "advanced",
+  "authorName": "SabNode",
+  "tags": ["podcast", "rss", "assemblyai", "openai", "clips", "marketing", "airtable"],
+  "version": "0.1.0"
+}

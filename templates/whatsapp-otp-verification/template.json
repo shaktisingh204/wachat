@@ -1,0 +1,10 @@
+{
+  "id": "whatsapp-otp-verification",
+  "name": "WhatsApp OTP Verification",
+  "description": "Captures an OTP-request webhook from your front-end, generates a 6-digit code, stores it in Upstash Redis with a five-minute TTL, sends the code via a pre-approved WhatsApp Business template, and returns a verification id back to the caller. Replaces SMS-based OTP with cheaper WhatsApp delivery.",
+  "category": "WhatsApp",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["whatsapp", "otp", "verification", "redis", "security", "auth"],
+  "version": "0.1.0"
+}

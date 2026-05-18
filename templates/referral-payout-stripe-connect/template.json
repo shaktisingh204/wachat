@@ -1,0 +1,10 @@
+{
+  "id": "referral-payout-stripe-connect",
+  "name": "Referral Payout via Stripe Connect",
+  "description": "When your billing system fires a referral.converted webhook, looks up the referrer's commission tier in MongoDB, calculates the payout amount, executes a Stripe Connect transfer to the referrer's connected account, logs the row to Airtable for finance, and posts a confirmation in Slack. Replaces a finance ticket for every payout.",
+  "category": "Sales",
+  "complexity": "advanced",
+  "authorName": "SabNode",
+  "tags": ["referral", "stripe-connect", "payout", "commission", "airtable", "slack"],
+  "version": "0.1.0"
+}

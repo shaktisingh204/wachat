@@ -1,0 +1,172 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_pr_opened",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "github.pull_request.opened",
+    "options": {
+      "path": "/webhooks/github-pr-ai-reviewer",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Hub-Signature-256",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_pr_trigger",
+      "name": "PR Opened/Synced",
+      "type": "n8n-nodes-base.githubTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "events": ["pull_request"]
+      },
+      "credentials": {
+        "githubApi": { "id": "github-cred", "name": "GitHub API" }
+      }
+    },
+    {
+      "id": "n_filter_pr",
+      "name": "Skip Drafts and Bots",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "conditions": {
+          "combinator": "and",
+          "boolean": [{ "value1": "={{ $json.pull_request.draft }}", "value2": false }],
+          "string": [{ "value1": "={{ $json.pull_request.user.type }}", "operation": "notEqual", "value2": "Bot" }]
+        }
+      }
+    },
+    {
+      "id": "n_extract_pr",
+      "name": "Extract PR Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [480, -80],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "owner", "value": "={{ $json.repository.owner.login }}" },
+            { "name": "repo", "value": "={{ $json.repository.name }}" },
+            { "name": "number", "value": "={{ $json.pull_request.number }}" },
+            { "name": "title", "value": "={{ $json.pull_request.title }}" },
+            { "name": "diffUrl", "value": "={{ $json.pull_request.diff_url }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_fetch_diff",
+      "name": "Fetch Diff",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, -80],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $json.diffUrl }}",
+        "responseFormat": "text",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "github-token", "name": "GitHub Token" }
+      }
+    },
+    {
+      "id": "n_gpt_review",
+      "name": "GPT-4o Code Review",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [960, -80],
+      "parameters": {
+        "authentication": "apiKey",
+        "resource": "chat",
+        "operation": "complete",
+        "model": "gpt-4o",
+        "messages": {
+          "values": [
+            { "role": "system", "content": "You are a senior code reviewer. Given a unified diff, output JSON {summary: string, comments: [{path: string, line: number, body: string, severity: 'nit'|'suggestion'|'must-fix'}]}." },
+            { "role": "user", "content": "Title: {{ $node['Extract PR Fields'].json.title }}\n\nDiff:\n{{ $json }}" }
+          ]
+        },
+        "options": { "responseFormat": "json_object", "temperature": 0.1 }
+      },
+      "credentials": {
+        "openAiApi": { "id": "openai-cred", "name": "OpenAI API" }
+      }
+    },
+    {
+      "id": "n_post_review",
+      "name": "Post Review",
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1,
+      "position": [1200, -80],
+      "parameters": {
+        "resource": "review",
+        "operation": "create",
+        "owner": "={{ $node['Extract PR Fields'].json.owner }}",
+        "repository": "={{ $node['Extract PR Fields'].json.repo }}",
+        "pullRequestNumber": "={{ $node['Extract PR Fields'].json.number }}",
+        "event": "COMMENT",
+        "body": "={{ JSON.parse($json.message.content).summary }}"
+      },
+      "credentials": {
+        "githubApi": { "id": "github-cred", "name": "GitHub API" }
+      }
+    },
+    {
+      "id": "n_skip_draft",
+      "name": "Draft/Bot Skip",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [480, 80],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "n_pr_trigger": {
+      "main": [[{ "node": "n_filter_pr", "type": "main", "index": 0 }]]
+    },
+    "n_filter_pr": {
+      "main": [
+        [{ "node": "n_extract_pr", "type": "main", "index": 0 }],
+        [{ "node": "n_skip_draft", "type": "main", "index": 0 }]
+      ]
+    },
+    "n_extract_pr": {
+      "main": [[{ "node": "n_fetch_diff", "type": "main", "index": 0 }]]
+    },
+    "n_fetch_diff": {
+      "main": [[{ "node": "n_gpt_review", "type": "main", "index": 0 }]]
+    },
+    "n_gpt_review": {
+      "main": [[{ "node": "n_post_review", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_pr_trigger",
+        "n_filter_pr",
+        "n_extract_pr",
+        "n_fetch_diff",
+        "n_gpt_review",
+        "n_post_review",
+        "n_skip_draft"
+      ]
+    }
+  ],
+  "variables": [],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

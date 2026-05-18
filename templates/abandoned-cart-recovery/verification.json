@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "templateId": "abandoned-cart-recovery",
+  "cases": [
+    {
+      "id": "happy-path",
+      "description": "Abandoned checkout triggers email + WhatsApp nudge and (if unresolved) retargeting.",
+      "triggerPayload": {
+        "id": 998877,
+        "email": "shopper@example.com",
+        "phone": "+14155550111",
+        "total_price": "149.00",
+        "currency": "USD",
+        "abandoned_checkout_url": "https://shop.example.com/c/abc"
+      },
+      "expect": {
+        "finalStatus": "success"
+      }
+    }
+  ]
+}

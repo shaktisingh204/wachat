@@ -1,0 +1,10 @@
+{
+  "id": "abandoned-cart-recovery",
+  "name": "Abandoned Cart Recovery",
+  "description": "Listens for Shopify checkout-abandoned events, waits an hour to let real buyers come back, then nudges the shopper with an email and a WhatsApp template. After 24 hours without a checkout, adds the shopper to a Meta retargeting custom audience. Replaces brittle one-off cart flows.",
+  "category": "E-commerce",
+  "complexity": "advanced",
+  "authorName": "SabNode",
+  "tags": ["shopify", "abandoned-cart", "email", "whatsapp", "retargeting", "ecommerce"],
+  "version": "0.1.0"
+}

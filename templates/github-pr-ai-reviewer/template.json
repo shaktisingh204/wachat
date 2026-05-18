@@ -1,0 +1,10 @@
+{
+  "id": "github-pr-ai-reviewer",
+  "name": "GitHub PR AI Reviewer",
+  "description": "Listens for GitHub pull-request opened/synchronised webhooks, fetches the unified diff, asks GPT-4o for inline review comments (correctness, security, style), and posts them as a review on the PR. A safety filter drops drafts and bot-authored PRs.",
+  "category": "Developer",
+  "complexity": "advanced",
+  "authorName": "SabNode",
+  "tags": ["github", "ai", "code-review", "openai", "pr", "developer"],
+  "version": "0.1.0"
+}

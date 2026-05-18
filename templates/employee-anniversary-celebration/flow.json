@@ -1,0 +1,190 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_morning_cron",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": {
+      "schedule": "0 9 * * *",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_cron_trigger",
+      "name": "Every Morning 09:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 9 * * *" }] }
+      }
+    },
+    {
+      "id": "n_bamboo_employees",
+      "name": "BambooHR Active Employees",
+      "type": "n8n-nodes-base.bambooHr",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "resource": "employee",
+        "operation": "getAll",
+        "additionalFields": { "fields": "firstName,lastName,workEmail,hireDate,department" }
+      },
+      "credentials": {
+        "bambooHr": { "id": "bamboohr-cred", "name": "BambooHR API" }
+      }
+    },
+    {
+      "id": "n_filter_today",
+      "name": "Anniversary Today",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "conditions": {
+          "string": [
+            { "value1": "={{ $json.hireDate ? new Date($json.hireDate).toISOString().slice(5,10) : '' }}", "operation": "equal", "value2": "={{ $now.toFormat('MM-dd') }}" }
+          ],
+          "number": [
+            { "value1": "={{ $json.hireDate ? Math.floor((Date.now() - new Date($json.hireDate)) / (365.25*86400000)) : 0 }}", "operation": "larger", "value2": 0 }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_split",
+      "name": "One Per Employee",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "batchSize": 1
+      }
+    },
+    {
+      "id": "n_compute_years",
+      "name": "Compute Years",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const years = Math.floor((Date.now() - new Date($json.hireDate)) / (365.25*86400000));\nreturn [{ json: { ...$json, years } }];"
+      }
+    },
+    {
+      "id": "n_slack_celebrate",
+      "name": "Slack Celebration",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, -100],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.CELEBRATIONS_CHANNEL }}",
+        "text": ":tada: Happy {{ $json.years }}-year SabBirthday to *{{ $json.firstName }} {{ $json.lastName }}* ({{ $json.department }})! Thanks for everything."
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    },
+    {
+      "id": "n_send_gift",
+      "name": "Send Tremendous Gift",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1200, 100],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.tremendous.com/api/v2/orders",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"payment\":{\"funding_source_id\":\"{{ $vars.TREMENDOUS_FUNDING_SOURCE }}\"},\"reward\":{\"value\":{\"denomination\":{{ $vars.GIFT_USD }},\"currency_code\":\"USD\"},\"recipient\":{\"name\":\"{{ $json.firstName }} {{ $json.lastName }}\",\"email\":\"{{ $json.workEmail }}\"},\"delivery\":{\"method\":\"EMAIL\"}}}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "tremendous-cred", "name": "Tremendous API Key" }
+      }
+    },
+    {
+      "id": "n_log_airtable",
+      "name": "Log to Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [1440, 0],
+      "parameters": {
+        "operation": "create",
+        "application": "={{ $vars.AIRTABLE_BASE_ID }}",
+        "table": "Recognition Ledger",
+        "fields": [
+          { "name": "Employee", "value": "={{ $node['Compute Years'].json.firstName }} {{ $node['Compute Years'].json.lastName }}" },
+          { "name": "Years", "value": "={{ $node['Compute Years'].json.years }}" },
+          { "name": "Department", "value": "={{ $node['Compute Years'].json.department }}" },
+          { "name": "Date", "value": "={{ $now.toISODate() }}" }
+        ]
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "airtable-cred", "name": "Airtable API" }
+      }
+    }
+  ],
+  "connections": {
+    "n_cron_trigger": {
+      "main": [[{ "node": "n_bamboo_employees", "type": "main", "index": 0 }]]
+    },
+    "n_bamboo_employees": {
+      "main": [[{ "node": "n_filter_today", "type": "main", "index": 0 }]]
+    },
+    "n_filter_today": {
+      "main": [[{ "node": "n_split", "type": "main", "index": 0 }]]
+    },
+    "n_split": {
+      "main": [[{ "node": "n_compute_years", "type": "main", "index": 0 }]]
+    },
+    "n_compute_years": {
+      "main": [
+        [
+          { "node": "n_slack_celebrate", "type": "main", "index": 0 },
+          { "node": "n_send_gift", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "n_slack_celebrate": {
+      "main": [[{ "node": "n_log_airtable", "type": "main", "index": 0 }]]
+    },
+    "n_send_gift": {
+      "main": [[{ "node": "n_log_airtable", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_cron_trigger",
+        "n_bamboo_employees",
+        "n_filter_today",
+        "n_split",
+        "n_compute_years",
+        "n_slack_celebrate",
+        "n_send_gift",
+        "n_log_airtable"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_celebrations", "name": "CELEBRATIONS_CHANNEL", "defaultValue": "#celebrations" },
+    { "id": "v_tremendous_funding", "name": "TREMENDOUS_FUNDING_SOURCE", "defaultValue": "" },
+    { "id": "v_gift_usd", "name": "GIFT_USD", "defaultValue": "50" },
+    { "id": "v_airtable_base", "name": "AIRTABLE_BASE_ID", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

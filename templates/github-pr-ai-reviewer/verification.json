@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "templateId": "github-pr-ai-reviewer",
+  "cases": [
+    {
+      "id": "happy-path",
+      "description": "Non-draft, human-authored PR is fetched, reviewed with GPT-4o, and a review is posted.",
+      "triggerPayload": {
+        "action": "opened",
+        "repository": { "name": "sabnode", "owner": { "login": "shaktisingh204" } },
+        "pull_request": {
+          "number": 4242,
+          "title": "feat: PR AI reviewer template",
+          "draft": false,
+          "diff_url": "https://github.com/example/repo/pull/4242.diff",
+          "user": { "login": "alice", "type": "User" }
+        }
+      },
+      "expect": {
+        "finalStatus": "success"
+      }
+    }
+  ]
+}

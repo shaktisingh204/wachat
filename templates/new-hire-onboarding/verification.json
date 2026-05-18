@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "templateId": "new-hire-onboarding",
+  "cases": [
+    {
+      "id": "happy-path",
+      "description": "New hire webhook fans out to Slack + Notion and converges on a welcome email.",
+      "triggerPayload": {
+        "firstName": "Maya",
+        "lastName": "Chen",
+        "email": "maya.chen@example.com",
+        "managerEmail": "ops-lead@example.com",
+        "title": "Senior Designer",
+        "startDate": "2026-06-01"
+      },
+      "expect": {
+        "finalStatus": "success",
+        "executedBlocks": [
+          "n_hris_trigger",
+          "n_extract_hire",
+          "n_slack_create_channel",
+          "n_notion_create_doc",
+          "n_send_welcome"
+        ]
+      }
+    }
+  ]
+}

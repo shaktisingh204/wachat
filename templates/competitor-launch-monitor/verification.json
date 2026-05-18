@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "templateId": "competitor-launch-monitor",
+  "cases": [
+    {
+      "id": "relevant-launch",
+      "description": "Hourly run picks up a relevant Product Hunt post and posts a Slack alert.",
+      "triggerPayload": {},
+      "expect": {
+        "finalStatus": "success"
+      }
+    }
+  ]
+}

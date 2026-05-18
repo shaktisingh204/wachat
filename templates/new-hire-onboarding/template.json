@@ -1,0 +1,10 @@
+{
+  "id": "new-hire-onboarding",
+  "name": "New Hire Onboarding",
+  "description": "When your HRIS posts a new-hire webhook, this flow provisions a Slack channel for the hire, creates a personalised Notion onboarding doc from a template, and emails the hire a welcome message with day-one logistics. Removes manual setup from People Ops.",
+  "category": "HR",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["hr", "onboarding", "slack", "notion", "welcome", "people-ops"],
+  "version": "0.1.0"
+}

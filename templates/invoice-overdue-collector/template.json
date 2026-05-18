@@ -1,0 +1,10 @@
+{
+  "id": "invoice-overdue-collector",
+  "name": "Invoice Overdue Collector",
+  "description": "Runs every morning, pulls overdue Stripe invoices, buckets each one by age (1–7 / 8–14 / 15+ days), sends an escalating dunning email matched to the bucket, mirrors the action into your finance ledger Slack channel, and tags long-overdue accounts in HubSpot so AE follow-up isn't manual.",
+  "category": "Finance",
+  "complexity": "advanced",
+  "authorName": "SabNode",
+  "tags": ["stripe", "invoices", "dunning", "collections", "finance", "hubspot", "slack"],
+  "version": "0.1.0"
+}

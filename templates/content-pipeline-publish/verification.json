@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "templateId": "content-pipeline-publish",
+  "cases": [
+    {
+      "id": "happy-path",
+      "description": "Status=Ready row publishes to WP + LinkedIn + Twitter and writes URLs back.",
+      "triggerPayload": {
+        "id": "recAB123",
+        "fields": {
+          "Status": "Ready to Publish",
+          "Title": "How we shipped CRDT collab",
+          "Summary": "Inside the SabFlow real-time stack.",
+          "Body": "<p>Long post body…</p>",
+          "Twitter Thread": "1/ Threadpost…"
+        }
+      },
+      "expect": {
+        "finalStatus": "success"
+      }
+    }
+  ]
+}

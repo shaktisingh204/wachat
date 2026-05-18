@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "podcast-clip-distributor",
+  "cases": [
+    {
+      "id": "happy-path",
+      "description": "Episode → MP3 archived → AssemblyAI → GPT clips → Airtable + Slack.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

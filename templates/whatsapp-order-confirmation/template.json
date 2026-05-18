@@ -1,0 +1,10 @@
+{
+  "id": "whatsapp-order-confirmation",
+  "name": "WhatsApp Order Confirmation",
+  "description": "Listens for Shopify order.created webhooks and immediately sends the customer a WhatsApp Business message containing the order number, items, total, and estimated delivery window. Cuts post-purchase support tickets by surfacing order status proactively.",
+  "category": "WhatsApp",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["whatsapp", "shopify", "ecommerce", "order-confirmation", "post-purchase"],
+  "version": "0.1.0"
+}

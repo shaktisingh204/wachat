@@ -1,0 +1,10 @@
+{
+  "id": "ad-spend-daily-digest",
+  "name": "Ad Spend Daily Digest",
+  "description": "Runs every morning, pulls yesterday's spend and conversion figures from Google Ads and Meta Ads, formats a one-screen email digest, and posts the same numbers to a Slack channel for fast-glance review. Gives growth + finance the same source of truth.",
+  "category": "Ads",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["ads", "google-ads", "facebook-ads", "digest", "marketing", "growth"],
+  "version": "0.1.0"
+}

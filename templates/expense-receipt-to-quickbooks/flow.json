@@ -1,0 +1,208 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_email_inbound",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "email.received",
+    "options": {
+      "path": "/webhooks/expense-receipt-to-quickbooks",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Inbound-Token",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_email_trigger",
+      "name": "Inbound Receipt Email",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "expense-receipt-to-quickbooks",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "expense-receipt-webhook"
+    },
+    {
+      "id": "n_pick_attachment",
+      "name": "Pick First PDF Attachment",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "submitter", "value": "={{ $json.from }}" },
+            { "name": "attachmentUrl", "value": "={{ $json.attachments[0].url }}" },
+            { "name": "attachmentName", "value": "={{ $json.attachments[0].filename }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_download_pdf",
+      "name": "Download Receipt PDF",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $json.attachmentUrl }}",
+        "options": { "response": { "response": { "responseFormat": "file" } } }
+      }
+    },
+    {
+      "id": "n_gpt_extract",
+      "name": "GPT-4o Vision Extract",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "authentication": "apiKey",
+        "resource": "chat",
+        "operation": "complete",
+        "model": "gpt-4o",
+        "messages": {
+          "values": [
+            { "role": "system", "content": "You extract vendor, date (ISO), total amount, currency, and a one-line category from a receipt. Respond with JSON only." },
+            { "role": "user", "content": "={{ $binary.data }}" }
+          ]
+        },
+        "options": { "responseFormat": "json_object", "temperature": 0 }
+      },
+      "credentials": {
+        "openAiApi": { "id": "openai-cred", "name": "OpenAI API" }
+      }
+    },
+    {
+      "id": "n_parse_json",
+      "name": "Parse Extraction",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "vendor", "value": "={{ JSON.parse($json.message.content).vendor }}" },
+            { "name": "date", "value": "={{ JSON.parse($json.message.content).date }}" },
+            { "name": "total", "value": "={{ JSON.parse($json.message.content).total }}" },
+            { "name": "currency", "value": "={{ JSON.parse($json.message.content).currency }}" },
+            { "name": "category", "value": "={{ JSON.parse($json.message.content).category }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_archive_r2",
+      "name": "Archive to R2",
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [1200, -100],
+      "parameters": {
+        "operation": "upload",
+        "bucketName": "={{ $vars.R2_BUCKET }}",
+        "fileName": "receipts/{{ $node['Parse Extraction'].json.date }}/{{ $node['Pick First PDF Attachment'].json.attachmentName }}",
+        "binaryPropertyName": "data"
+      },
+      "credentials": {
+        "s3": { "id": "r2-cred", "name": "R2 (S3-compatible)" }
+      }
+    },
+    {
+      "id": "n_quickbooks_bill",
+      "name": "Create QuickBooks Bill",
+      "type": "n8n-nodes-base.quickBooks",
+      "typeVersion": 1,
+      "position": [1200, 100],
+      "parameters": {
+        "resource": "bill",
+        "operation": "create",
+        "vendorRef": "={{ $node['Parse Extraction'].json.vendor }}",
+        "txnDate": "={{ $node['Parse Extraction'].json.date }}",
+        "additionalFields": {
+          "currencyRef": "={{ $node['Parse Extraction'].json.currency }}",
+          "totalAmt": "={{ $node['Parse Extraction'].json.total }}",
+          "memo": "Auto-imported from {{ $node['Pick First PDF Attachment'].json.submitter }} ({{ $node['Parse Extraction'].json.category }})"
+        }
+      },
+      "credentials": {
+        "quickBooksOAuth2Api": { "id": "qbo-cred", "name": "QuickBooks OAuth2" }
+      }
+    },
+    {
+      "id": "n_confirm_email",
+      "name": "Reply to Submitter",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [1440, 0],
+      "parameters": {
+        "fromEmail": "={{ $vars.AP_FROM_EMAIL }}",
+        "toEmail": "={{ $node['Pick First PDF Attachment'].json.submitter }}",
+        "subject": "Receipt logged: {{ $node['Parse Extraction'].json.vendor }} — {{ $node['Parse Extraction'].json.total }} {{ $node['Parse Extraction'].json.currency }}",
+        "html": "<p>Your receipt has been filed and a QuickBooks bill was created. Category: {{ $node['Parse Extraction'].json.category }}.</p>"
+      },
+      "credentials": {
+        "smtp": { "id": "smtp-cred", "name": "Workspace SMTP" }
+      }
+    }
+  ],
+  "connections": {
+    "n_email_trigger": {
+      "main": [[{ "node": "n_pick_attachment", "type": "main", "index": 0 }]]
+    },
+    "n_pick_attachment": {
+      "main": [[{ "node": "n_download_pdf", "type": "main", "index": 0 }]]
+    },
+    "n_download_pdf": {
+      "main": [[{ "node": "n_gpt_extract", "type": "main", "index": 0 }]]
+    },
+    "n_gpt_extract": {
+      "main": [[{ "node": "n_parse_json", "type": "main", "index": 0 }]]
+    },
+    "n_parse_json": {
+      "main": [
+        [
+          { "node": "n_archive_r2", "type": "main", "index": 0 },
+          { "node": "n_quickbooks_bill", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "n_archive_r2": {
+      "main": [[{ "node": "n_confirm_email", "type": "main", "index": 0 }]]
+    },
+    "n_quickbooks_bill": {
+      "main": [[{ "node": "n_confirm_email", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_email_trigger",
+        "n_pick_attachment",
+        "n_download_pdf",
+        "n_gpt_extract",
+        "n_parse_json",
+        "n_archive_r2",
+        "n_quickbooks_bill",
+        "n_confirm_email"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_r2_bucket", "name": "R2_BUCKET", "defaultValue": "" },
+    { "id": "v_ap_email", "name": "AP_FROM_EMAIL", "defaultValue": "ap@example.com" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

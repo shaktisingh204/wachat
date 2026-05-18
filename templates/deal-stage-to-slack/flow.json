@@ -1,0 +1,175 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_hubspot_deal",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "hubspot.deal.propertyChange",
+    "options": {
+      "path": "/webhooks/deal-stage-to-slack",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-HubSpot-Signature-v3",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_hubspot_trigger",
+      "name": "Deal Property Changed",
+      "type": "n8n-nodes-base.hubspotTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "eventsUi": {
+          "values": [{ "name": "deal.propertyChange", "subscriptionDetails": { "property": "dealstage" } }]
+        }
+      },
+      "credentials": {
+        "hubspotDeveloperApi": { "id": "hubspot-cred", "name": "HubSpot Developer API" }
+      }
+    },
+    {
+      "id": "n_only_stage_change",
+      "name": "Filter Stage Changes",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "conditions": {
+          "string": [
+            { "value1": "={{ $json.propertyName }}", "operation": "equal", "value2": "dealstage" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_fetch_deal",
+      "name": "Fetch Deal Detail",
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2,
+      "position": [480, -80],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "deal",
+        "operation": "get",
+        "dealId": "={{ $json.objectId }}",
+        "additionalFields": {
+          "propertiesCollection": {
+            "properties": ["dealname", "amount", "hubspot_owner_id", "dealstage"]
+          }
+        }
+      },
+      "credentials": {
+        "hubspotOAuth2Api": { "id": "hubspot-oauth", "name": "HubSpot OAuth2" }
+      }
+    },
+    {
+      "id": "n_format_summary",
+      "name": "Format Summary",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, -80],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "summary", "value": "Deal *{{ $json.properties.dealname }}* moved to *{{ $json.properties.dealstage }}* — amount {{ $json.properties.amount }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_slack_post",
+      "name": "Slack Sales Channel",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [960, -160],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SALES_SLACK_CHANNEL }}",
+        "text": "={{ $json.summary }}"
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    },
+    {
+      "id": "n_airtable_upsert",
+      "name": "Mirror to Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "operation": "upsert",
+        "application": "={{ $vars.AIRTABLE_BASE_ID }}",
+        "table": "Pipeline",
+        "matchingColumns": ["Deal ID"],
+        "fields": [
+          { "name": "Deal ID", "value": "={{ $node['Fetch Deal Detail'].json.id }}" },
+          { "name": "Stage", "value": "={{ $node['Fetch Deal Detail'].json.properties.dealstage }}" },
+          { "name": "Amount", "value": "={{ $node['Fetch Deal Detail'].json.properties.amount }}" }
+        ]
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "airtable-cred", "name": "Airtable API" }
+      }
+    },
+    {
+      "id": "n_noop_ignored",
+      "name": "Ignored (Not Stage)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [480, 80],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "n_hubspot_trigger": {
+      "main": [[{ "node": "n_only_stage_change", "type": "main", "index": 0 }]]
+    },
+    "n_only_stage_change": {
+      "main": [
+        [{ "node": "n_fetch_deal", "type": "main", "index": 0 }],
+        [{ "node": "n_noop_ignored", "type": "main", "index": 0 }]
+      ]
+    },
+    "n_fetch_deal": {
+      "main": [[{ "node": "n_format_summary", "type": "main", "index": 0 }]]
+    },
+    "n_format_summary": {
+      "main": [
+        [
+          { "node": "n_slack_post", "type": "main", "index": 0 },
+          { "node": "n_airtable_upsert", "type": "main", "index": 0 }
+        ]
+      ]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_hubspot_trigger",
+        "n_only_stage_change",
+        "n_fetch_deal",
+        "n_format_summary",
+        "n_slack_post",
+        "n_airtable_upsert",
+        "n_noop_ignored"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_airtable_base", "name": "AIRTABLE_BASE_ID", "defaultValue": "" },
+    { "id": "v_sales_channel", "name": "SALES_SLACK_CHANNEL", "defaultValue": "#sales" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

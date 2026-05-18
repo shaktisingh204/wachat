@@ -1,0 +1,169 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_cron_15m",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": {
+      "schedule": "*/15 * * * *",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_cron_trigger",
+      "name": "Every 15 Minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "rule": { "interval": [{ "field": "minutes", "minutesInterval": 15 }] }
+      }
+    },
+    {
+      "id": "n_zendesk_search",
+      "name": "Search SLA-Risk Tickets",
+      "type": "n8n-nodes-base.zendesk",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "resource": "ticket",
+        "operation": "search",
+        "query": "type:ticket status:open sla_breaching:true -tags:paged"
+      },
+      "credentials": {
+        "zendeskApi": { "id": "zendesk-cred", "name": "Zendesk API" }
+      }
+    },
+    {
+      "id": "n_split",
+      "name": "One Per Ticket",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "batchSize": 1
+      }
+    },
+    {
+      "id": "n_extract_ticket",
+      "name": "Extract Ticket Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "ticketId", "value": "={{ $json.id }}" },
+            { "name": "subject", "value": "={{ $json.subject }}" },
+            { "name": "priority", "value": "={{ $json.priority }}" },
+            { "name": "requester", "value": "={{ $json.requester_id }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_pagerduty_inc",
+      "name": "Page On-Call",
+      "type": "n8n-nodes-base.pagerDuty",
+      "typeVersion": 1,
+      "position": [960, -100],
+      "parameters": {
+        "resource": "incident",
+        "operation": "create",
+        "title": "SLA breaching — ticket #{{ $json.ticketId }}: {{ $json.subject }}",
+        "serviceId": "={{ $vars.PAGERDUTY_SERVICE_ID }}",
+        "urgency": "high"
+      },
+      "credentials": {
+        "pagerDutyApi": { "id": "pagerduty-cred", "name": "PagerDuty API" }
+      }
+    },
+    {
+      "id": "n_slack_oncall",
+      "name": "Slack On-Call Mention",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [960, 100],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.ONCALL_SLACK_CHANNEL }}",
+        "text": ":hourglass_flowing_sand: SLA breaching: <https://{{ $vars.ZENDESK_SUBDOMAIN }}.zendesk.com/agent/tickets/{{ $json.ticketId }}|#{{ $json.ticketId }}> — {{ $json.subject }} (priority: {{ $json.priority }})"
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    },
+    {
+      "id": "n_tag_paged",
+      "name": "Tag Ticket Paged",
+      "type": "n8n-nodes-base.zendesk",
+      "typeVersion": 1,
+      "position": [1200, 0],
+      "parameters": {
+        "resource": "ticket",
+        "operation": "update",
+        "id": "={{ $node['Extract Ticket Fields'].json.ticketId }}",
+        "updateFields": {
+          "tags": "paged"
+        }
+      },
+      "credentials": {
+        "zendeskApi": { "id": "zendesk-cred", "name": "Zendesk API" }
+      }
+    }
+  ],
+  "connections": {
+    "n_cron_trigger": {
+      "main": [[{ "node": "n_zendesk_search", "type": "main", "index": 0 }]]
+    },
+    "n_zendesk_search": {
+      "main": [[{ "node": "n_split", "type": "main", "index": 0 }]]
+    },
+    "n_split": {
+      "main": [[{ "node": "n_extract_ticket", "type": "main", "index": 0 }]]
+    },
+    "n_extract_ticket": {
+      "main": [
+        [
+          { "node": "n_pagerduty_inc", "type": "main", "index": 0 },
+          { "node": "n_slack_oncall", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "n_pagerduty_inc": {
+      "main": [[{ "node": "n_tag_paged", "type": "main", "index": 0 }]]
+    },
+    "n_slack_oncall": {
+      "main": [[{ "node": "n_tag_paged", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_cron_trigger",
+        "n_zendesk_search",
+        "n_split",
+        "n_extract_ticket",
+        "n_pagerduty_inc",
+        "n_slack_oncall",
+        "n_tag_paged"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_pd_service", "name": "PAGERDUTY_SERVICE_ID", "defaultValue": "" },
+    { "id": "v_oncall_channel", "name": "ONCALL_SLACK_CHANNEL", "defaultValue": "#oncall" },
+    { "id": "v_zendesk_sub", "name": "ZENDESK_SUBDOMAIN", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

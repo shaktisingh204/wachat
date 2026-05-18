@@ -1,0 +1,173 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_form_submit",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "form.submitted",
+    "options": {
+      "path": "/webhooks/lead-magnet-pdf-delivery",
+      "method": "POST",
+      "authentication": "none",
+      "responseMode": "lastNode",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_form_trigger",
+      "name": "Form Submission",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lead-magnet-pdf-delivery",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "webhookId": "lead-magnet-webhook"
+    },
+    {
+      "id": "n_normalise",
+      "name": "Normalise Lead Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "email", "value": "={{ $json.email.toLowerCase().trim() }}" },
+            { "name": "firstName", "value": "={{ $json.firstName }}" },
+            { "name": "source", "value": "={{ $json.utm_source || 'organic' }}" }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "n_mailchimp_subscribe",
+      "name": "Subscribe in Mailchimp",
+      "type": "n8n-nodes-base.mailchimp",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "resource": "listMember",
+        "operation": "create",
+        "list": "={{ $vars.MAILCHIMP_AUDIENCE_ID }}",
+        "email": "={{ $json.email }}",
+        "status": "subscribed",
+        "additionalFields": {
+          "mergeFieldsUi": {
+            "mergeFieldsValues": [
+              { "name": "FNAME", "value": "={{ $json.firstName }}" }
+            ]
+          },
+          "tags": ["lead-magnet", "={{ $json.source }}"]
+        }
+      },
+      "credentials": {
+        "mailchimpApi": { "id": "mailchimp-cred", "name": "Mailchimp API" }
+      }
+    },
+    {
+      "id": "n_sign_link",
+      "name": "Sign Download Link",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.SIGNED_LINK_SERVICE }}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "objectKey", "value": "={{ $vars.PDF_OBJECT_KEY }}" },
+            { "name": "email", "value": "={{ $node['Normalise Lead Fields'].json.email }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_send_email",
+      "name": "Email Download Link",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [960, -80],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "={{ $vars.FROM_EMAIL }}",
+        "toEmail": "={{ $node['Normalise Lead Fields'].json.email }}",
+        "subject": "Your download is ready, {{ $node['Normalise Lead Fields'].json.firstName }}",
+        "contentType": "text/html",
+        "content": "<p>Thanks! <a href=\"{{ $json.signedUrl }}\">Download the PDF</a> (valid 24 hours).</p>"
+      },
+      "credentials": {
+        "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid API" }
+      }
+    },
+    {
+      "id": "n_slack_growth",
+      "name": "Slack Growth",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [960, 80],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.GROWTH_SLACK_CHANNEL }}",
+        "text": ":seedling: New lead-magnet signup: {{ $node['Normalise Lead Fields'].json.email }} via {{ $node['Normalise Lead Fields'].json.source }}"
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    }
+  ],
+  "connections": {
+    "n_form_trigger": {
+      "main": [[{ "node": "n_normalise", "type": "main", "index": 0 }]]
+    },
+    "n_normalise": {
+      "main": [[{ "node": "n_mailchimp_subscribe", "type": "main", "index": 0 }]]
+    },
+    "n_mailchimp_subscribe": {
+      "main": [[{ "node": "n_sign_link", "type": "main", "index": 0 }]]
+    },
+    "n_sign_link": {
+      "main": [
+        [
+          { "node": "n_send_email", "type": "main", "index": 0 },
+          { "node": "n_slack_growth", "type": "main", "index": 0 }
+        ]
+      ]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_form_trigger",
+        "n_normalise",
+        "n_mailchimp_subscribe",
+        "n_sign_link",
+        "n_send_email",
+        "n_slack_growth"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_audience", "name": "MAILCHIMP_AUDIENCE_ID", "defaultValue": "" },
+    { "id": "v_signed_svc", "name": "SIGNED_LINK_SERVICE", "defaultValue": "https://files.example.com/sign" },
+    { "id": "v_pdf_key", "name": "PDF_OBJECT_KEY", "defaultValue": "lead-magnets/playbook.pdf" },
+    { "id": "v_from", "name": "FROM_EMAIL", "defaultValue": "hello@example.com" },
+    { "id": "v_growth", "name": "GROWTH_SLACK_CHANNEL", "defaultValue": "#growth" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

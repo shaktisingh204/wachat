@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "whatsapp-otp-verification",
+  "cases": [
+    {
+      "id": "happy-path",
+      "description": "Valid phone produces an OTP, stores it in Redis with TTL, and sends a WhatsApp template.",
+      "triggerPayload": { "phone": "+14155550182" },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
