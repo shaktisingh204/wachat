@@ -1,0 +1,33 @@
+{
+  "$schema": "https://sabflow.dev/schemas/node-parity-fixture.v1.json",
+  "name": "rules-mode",
+  "description": "Switch in rules mode routes by the first matching rule. Item whose status is `open` lands on output 0; nothing else matches, fallbackOutput (2) collects the leftovers.",
+  "node": "n8n-nodes-base.switch",
+  "params": {
+    "mode": "rules",
+    "value": "{{$json.status}}",
+    "fallbackOutput": 2,
+    "rules": [
+      { "operator": "equals", "value": "open",   "output": 0 },
+      { "operator": "equals", "value": "closed", "output": 1 }
+    ]
+  },
+  "trigger": { "status": "open" },
+  "input": {
+    "items": [
+      { "id": "a" }
+    ]
+  },
+  "expected": {
+    "branches": [
+      { "items": [ { "id": "a" } ] },
+      { "items": [] },
+      { "items": [] }
+    ]
+  },
+  "expectedFields": [
+    "branches[0].items[0].id",
+    "branches[1].items",
+    "branches[2].items"
+  ]
+}

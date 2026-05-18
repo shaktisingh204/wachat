@@ -1,0 +1,29 @@
+{
+  "$schema": "https://sabflow.dev/schemas/node-parity-fixture.v1.json",
+  "name": "routes-true-and-false-and",
+  "description": "AND combinator with two conditions on $json — items where both pass land on the true branch, the rest on the false branch.",
+  "node": "n8n-nodes-base.if",
+  "params": {
+    "combinator": "AND",
+    "conditions": [
+      { "left": "{{$json.status}}", "operator": "equals", "right": "open" },
+      { "left": "{{$json.score}}", "operator": "greaterThan", "right": "5" }
+    ]
+  },
+  "trigger": { "status": "open", "score": "10" },
+  "input": {
+    "items": [
+      { "id": "a" }
+    ]
+  },
+  "expected": {
+    "branches": [
+      { "items": [ { "id": "a" } ] },
+      { "items": [] }
+    ]
+  },
+  "expectedFields": [
+    "branches[0].items[0].id",
+    "branches[1].items"
+  ]
+}

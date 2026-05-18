@@ -1,0 +1,37 @@
+{
+  "$schema": "https://sabflow.dev/schemas/node-parity-fixture.v1.json",
+  "name": "merge-by-key",
+  "description": "Two upstream branches share an `id` field. Branch 0 carries names, branch 1 carries scores. mergeByKey outer-joins them on `id` so each merged row holds both name and score, with lineage stamped via `pairedItem`.",
+  "node": "n8n-nodes-base.merge",
+  "params": {
+    "mode": "mergeByKey",
+    "mergeByField": "id",
+    "includeUnpaired": false
+  },
+  "input": {
+    "items": [
+      { "id": 1, "name": "alice", "pairedItem": { "item": 0, "input": 0 } },
+      { "id": 2, "name": "bob",   "pairedItem": { "item": 1, "input": 0 } },
+      { "id": 2, "score": 99,     "pairedItem": { "item": 0, "input": 1 } },
+      { "id": 1, "score": 42,     "pairedItem": { "item": 1, "input": 1 } }
+    ]
+  },
+  "expected": {
+    "branches": [
+      {
+        "items": [
+          { "id": 1, "name": "alice", "score": 42 },
+          { "id": 2, "name": "bob",   "score": 99 }
+        ]
+      }
+    ]
+  },
+  "expectedFields": [
+    "branches[0].items[0].id",
+    "branches[0].items[0].name",
+    "branches[0].items[0].score",
+    "branches[0].items[1].id",
+    "branches[0].items[1].name",
+    "branches[0].items[1].score"
+  ]
+}
