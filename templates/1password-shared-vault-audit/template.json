@@ -1,0 +1,10 @@
+{
+  "id": "1password-shared-vault-audit",
+  "name": "1Password Shared Vault Audit",
+  "description": "Every Monday, walks the membership of each shared 1Password vault, flags users who have not signed in in 90 days, and posts the names to the #security Slack channel for revocation review. Replaces a calendar reminder that gets snoozed forever.",
+  "category": "Internal Tools",
+  "complexity": "beginner",
+  "authorName": "SabNode",
+  "tags": ["1password", "security", "slack", "audit", "compliance", "cron"],
+  "version": "0.1.0"
+}
