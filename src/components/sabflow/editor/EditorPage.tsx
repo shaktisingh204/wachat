@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
+import dynamic from 'next/dynamic';
 import { GraphProvider, useGraph } from '@/components/sabflow/graph/providers/GraphProvider';
 import { GraphDndProvider } from '@/components/sabflow/graph/providers/GraphDndProvider';
 import { WorkflowCanvas } from '@/components/sabflow/canvas/WorkflowCanvas';
@@ -35,6 +36,23 @@ import {
 
 const MAX_HISTORY = 50;
 
+/**
+ * Phase C.8.1 feature flag — when truthy, the editor swaps its in-memory
+ * `useState(initialFlow)` for `useSabFlowDoc(flowId)` and rewires every
+ * mutation handler to a Yjs transaction. Default is OFF so production keeps
+ * the legacy REST-save path; the CRDT path lands behind this flag per the
+ * rollback plan in `docs/adr/sabflow-state-management.md` §4.1.
+ *
+ * `NEXT_PUBLIC_*` env vars are inlined at build time — this expression
+ * collapses to a literal boolean and the legacy branch tree-shakes cleanly
+ * when the flag is unset.
+ */
+const COLLAB_FLAG_RAW = process.env.NEXT_PUBLIC_SABFLOW_COLLAB_ENABLED;
+const SABFLOW_COLLAB_ENABLED =
+  COLLAB_FLAG_RAW === '1' ||
+  COLLAB_FLAG_RAW === 'true' ||
+  COLLAB_FLAG_RAW === 'TRUE';
+
 /* ── Types ───────────────────────────────────────────────────────────────── */
 
 type Props = {
@@ -42,6 +60,19 @@ type Props = {
 };
 
 type RightPanel = 'settings' | 'preview' | 'variables' | 'theme' | 'validation' | 'versions' | null;
+
+/* ── Lazy collab branch (only loaded when the flag is on) ────────────────── */
+
+/**
+ * The collab branch is dynamically imported so its dependency chain (Yjs,
+ * `useSabFlowDoc`, `SabFlowUndoManager`) is excluded from the bundle when
+ * the flag is off. `ssr: false` is required because the underlying hook
+ * opens a WebSocket and reads `window`.
+ */
+const EditorContentCollab = dynamic(
+  () => import('./EditorContentCollab').then((m) => m.EditorContentCollab),
+  { ssr: false },
+);
 
 /* ── EditorContent (must be inside GraphProvider) ────────────────────────── */
 
@@ -490,7 +521,11 @@ export function EditorPage({ flow }: Props) {
   return (
     <GraphProvider>
       <GraphDndProvider>
-        <EditorContent flow={flow} />
+        {SABFLOW_COLLAB_ENABLED ? (
+          <EditorContentCollab flow={flow} />
+        ) : (
+          <EditorContent flow={flow} />
+        )}
       </GraphDndProvider>
     </GraphProvider>
   );
