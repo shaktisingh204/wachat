@@ -4,13 +4,9 @@ import {
   ZoruBadge,
   ZoruButton,
   ZoruCard,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   useZoruToast,
 } from '@/components/zoruui';
+import { EnumFilterField } from '@/components/crm/enum-filter-field';
 import {
   useEffect,
   useMemo,
@@ -140,18 +136,12 @@ export default function WeeklyTimesheetsPage() {
               {filtered.length} timesheet{filtered.length === 1 ? '' : 's'}
             </p>
           </div>
-          <ZoruSelect value={statusFilter} onValueChange={(v) => setStatusFilter(v as any)}>
-            <ZoruSelectTrigger className="h-9 w-[160px] rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
-              <ZoruSelectValue />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
-              <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
-              <ZoruSelectItem value="draft">Draft</ZoruSelectItem>
-              <ZoruSelectItem value="submitted">Submitted</ZoruSelectItem>
-              <ZoruSelectItem value="approved">Approved</ZoruSelectItem>
-              <ZoruSelectItem value="rejected">Rejected</ZoruSelectItem>
-            </ZoruSelectContent>
-          </ZoruSelect>
+          <EnumFilterField
+            enumName="timesheetStatus"
+            value={statusFilter}
+            onChange={(v) => setStatusFilter(v as any)}
+            allLabel="All statuses"
+          />
         </div>
 
         <div className="overflow-x-auto rounded-lg border border-zoru-line">

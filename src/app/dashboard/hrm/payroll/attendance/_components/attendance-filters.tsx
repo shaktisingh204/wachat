@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruInput, ZoruLabel, ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
+import { ZoruInput, ZoruLabel } from '@/components/zoruui';
 /**
  * <AttendanceFilters> — collapsible filter row for the attendance list.
  *
@@ -11,24 +11,7 @@ import { ZoruInput, ZoruLabel, ZoruSelect, ZoruSelectContent, ZoruSelectItem, Zo
 import * as React from 'react';
 
 import { EntityFormField } from '@/components/crm/entity-form-field';
-
-const STATUS_OPTIONS = [
-  { value: 'all', label: 'All statuses' },
-  { value: 'present', label: 'Present' },
-  { value: 'absent', label: 'Absent' },
-  { value: 'half_day', label: 'Half day' },
-  { value: 'leave', label: 'Leave' },
-  { value: 'holiday', label: 'Holiday' },
-  { value: 'wfh', label: 'Work from home' },
-];
-
-const SOURCE_OPTIONS = [
-  { value: 'all', label: 'All sources' },
-  { value: 'manual', label: 'Manual' },
-  { value: 'biometric', label: 'Biometric' },
-  { value: 'web', label: 'Web' },
-  { value: 'mobile', label: 'Mobile' },
-];
+import { EnumFilterField } from '@/components/crm/enum-filter-field';
 
 interface AttendanceFiltersProps {
   filtersActive: boolean;
@@ -90,18 +73,12 @@ export function AttendanceFilters({
       <div className="grid gap-3 px-3 pb-3 md:grid-cols-3 lg:grid-cols-4">
         <div className="space-y-1">
           <ZoruLabel>Status</ZoruLabel>
-          <ZoruSelect value={statusFilter} onValueChange={onStatusFilter}>
-            <ZoruSelectTrigger>
-              <ZoruSelectValue />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
-              {STATUS_OPTIONS.map((o) => (
-                <ZoruSelectItem key={o.value} value={o.value}>
-                  {o.label}
-                </ZoruSelectItem>
-              ))}
-            </ZoruSelectContent>
-          </ZoruSelect>
+          <EnumFilterField
+            enumName="attendanceStatus"
+            value={statusFilter}
+            onChange={onStatusFilter}
+            allLabel="All statuses"
+          />
         </div>
         <div className="space-y-1">
           <ZoruLabel>Employee</ZoruLabel>
@@ -131,18 +108,12 @@ export function AttendanceFilters({
         </div>
         <div className="space-y-1">
           <ZoruLabel>Source</ZoruLabel>
-          <ZoruSelect value={sourceFilter} onValueChange={onSourceFilter}>
-            <ZoruSelectTrigger>
-              <ZoruSelectValue />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
-              {SOURCE_OPTIONS.map((o) => (
-                <ZoruSelectItem key={o.value} value={o.value}>
-                  {o.label}
-                </ZoruSelectItem>
-              ))}
-            </ZoruSelectContent>
-          </ZoruSelect>
+          <EnumFilterField
+            enumName="attendanceMode"
+            value={sourceFilter}
+            onChange={onSourceFilter}
+            allLabel="All sources"
+          />
         </div>
         <div className="space-y-1">
           <ZoruLabel>Date — from</ZoruLabel>

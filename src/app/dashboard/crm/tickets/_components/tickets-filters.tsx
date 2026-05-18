@@ -59,27 +59,13 @@ export type TicketStatusFilter =
     | 'closed'
     | 'reopened';
 
-export const CHANNEL_OPTIONS = [
-    { value: 'email', label: 'Email' },
-    { value: 'web', label: 'Web' },
-    { value: 'whatsapp', label: 'WhatsApp' },
-    { value: 'chat', label: 'Chat' },
-    { value: 'phone', label: 'Phone' },
-    { value: 'portal', label: 'Portal' },
-] as const;
+// CHANNEL_OPTIONS and SEVERITY_OPTIONS removed — filter row uses EnumFilterField now.
 
 export const PRIORITY_OPTIONS = [
     { value: 'low', label: 'Low' },
     { value: 'medium', label: 'Medium' },
     { value: 'high', label: 'High' },
     { value: 'critical', label: 'Critical' },
-] as const;
-
-export const SEVERITY_OPTIONS = [
-    { value: 'sev1', label: 'Sev 1' },
-    { value: 'sev2', label: 'Sev 2' },
-    { value: 'sev3', label: 'Sev 3' },
-    { value: 'sev4', label: 'Sev 4' },
 ] as const;
 
 export const STATUS_OPTIONS = [

@@ -3,6 +3,7 @@
 import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
 import * as React from 'react';
 
+import { EnumFilterField } from '@/components/crm/enum-filter-field';
 import type { CoaNature } from './types';
 
 export interface CoaFilterState {
@@ -37,22 +38,13 @@ export function CoaFilters({ value, onChange, groups, subNatures, currencies }: 
 
     return (
         <div className="flex flex-wrap items-center gap-2">
-            <ZoruSelect
+            <EnumFilterField
+                enumName="accountNature"
                 value={value.nature}
-                onValueChange={(v) => onChange({ ...value, nature: v as CoaFilterState['nature'], subNature: 'all', groupId: 'all' })}
-            >
-                <ZoruSelectTrigger className="h-9 w-[150px]">
-                    <ZoruSelectValue placeholder="Nature" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                    <ZoruSelectItem value="all">All natures</ZoruSelectItem>
-                    <ZoruSelectItem value="Asset">Assets</ZoruSelectItem>
-                    <ZoruSelectItem value="Liability">Liabilities</ZoruSelectItem>
-                    <ZoruSelectItem value="Income">Income</ZoruSelectItem>
-                    <ZoruSelectItem value="Expense">Expense</ZoruSelectItem>
-                    <ZoruSelectItem value="Capital">Capital</ZoruSelectItem>
-                </ZoruSelectContent>
-            </ZoruSelect>
+                onChange={(v) => onChange({ ...value, nature: v as CoaFilterState['nature'], subNature: 'all', groupId: 'all' })}
+                allLabel="All natures"
+                placeholder="Nature"
+            />
 
             <ZoruSelect value={value.subNature} onValueChange={(v) => onChange({ ...value, subNature: v })}>
                 <ZoruSelectTrigger className="h-9 w-[180px]">
@@ -96,19 +88,13 @@ export function CoaFilters({ value, onChange, groups, subNatures, currencies }: 
                 </ZoruSelectContent>
             </ZoruSelect>
 
-            <ZoruSelect
+            <EnumFilterField
+                enumName="accountActiveStatus"
                 value={value.status}
-                onValueChange={(v) => onChange({ ...value, status: v as CoaFilterState['status'] })}
-            >
-                <ZoruSelectTrigger className="h-9 w-[130px]">
-                    <ZoruSelectValue placeholder="Status" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                    <ZoruSelectItem value="all">All status</ZoruSelectItem>
-                    <ZoruSelectItem value="Active">Active</ZoruSelectItem>
-                    <ZoruSelectItem value="Inactive">Inactive</ZoruSelectItem>
-                </ZoruSelectContent>
-            </ZoruSelect>
+                onChange={(v) => onChange({ ...value, status: v as CoaFilterState['status'] })}
+                allLabel="All statuses"
+                placeholder="Status"
+            />
         </div>
     );
 }

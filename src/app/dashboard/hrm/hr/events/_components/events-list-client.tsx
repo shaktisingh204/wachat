@@ -57,6 +57,7 @@ import type {
     CrmEventType,
 } from '@/lib/rust-client/crm-events';
 
+// TODO §1E: replace EVENT_TYPE_OPTIONS ZoruSelect with <EnumFilterField enumName="eventType"> once eventType is added to CRM_ENUMS
 const EVENT_TYPE_OPTIONS: { value: CrmEventType | 'all'; label: string }[] = [
     { value: 'all', label: 'All types' },
     { value: 'meeting', label: 'Meeting' },
@@ -69,6 +70,7 @@ const EVENT_TYPE_OPTIONS: { value: CrmEventType | 'all'; label: string }[] = [
     { value: 'other', label: 'Other' },
 ];
 
+// TODO §1E: replace STATUS_OPTIONS ZoruSelect with <EnumFilterField enumName="eventStatus"> once eventStatus is added to CRM_ENUMS
 const STATUS_OPTIONS: { value: CrmEventStatus | 'all'; label: string }[] = [
     { value: 'all', label: 'All statuses' },
     { value: 'draft', label: 'Draft' },

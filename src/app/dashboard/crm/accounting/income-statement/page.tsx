@@ -169,6 +169,7 @@ export default function IncomeStatementPage() {
                 icon={TrendingUp}
                 actions={
                     <div className="flex items-center gap-2">
+                        {/* TODO §1E: fiscal year picker — static year list, no matching enum; needs fiscalYearRange enum or date-range input */}
                         <ZoruSelect defaultValue="fy2526">
                             <ZoruSelectTrigger className="w-[180px]"><ZoruSelectValue /></ZoruSelectTrigger>
                             <ZoruSelectContent>

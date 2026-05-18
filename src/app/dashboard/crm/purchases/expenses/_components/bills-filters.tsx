@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruInput, ZoruLabel, ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
+import { ZoruInput, ZoruLabel } from '@/components/zoruui';
 /**
  * <BillsFilters> — collapsible filter row for the bills list (§1D).
  *
@@ -12,17 +12,7 @@ import { ZoruInput, ZoruLabel, ZoruSelect, ZoruSelectContent, ZoruSelectItem, Zo
 import * as React from 'react';
 
 import { EntityFormField } from '@/components/crm/entity-form-field';
-
-const STATUS_OPTIONS = [
-  { value: 'all', label: 'All statuses' },
-  { value: 'draft', label: 'Draft' },
-  { value: 'submitted', label: 'Submitted' },
-  { value: 'approved', label: 'Approved' },
-  { value: 'paid', label: 'Paid' },
-  { value: 'partially_paid', label: 'Partially paid' },
-  { value: 'overdue', label: 'Overdue' },
-  { value: 'cancelled', label: 'Cancelled' },
-];
+import { EnumFilterField } from '@/components/crm/enum-filter-field';
 
 interface BillsFiltersProps {
   filtersActive: boolean;
@@ -100,18 +90,12 @@ export function BillsFilters({
       <div className="grid gap-3 px-3 pb-3 md:grid-cols-3 lg:grid-cols-4">
         <div className="space-y-1">
           <ZoruLabel>Status</ZoruLabel>
-          <ZoruSelect value={statusFilter} onValueChange={onStatusFilter}>
-            <ZoruSelectTrigger>
-              <ZoruSelectValue />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
-              {STATUS_OPTIONS.map((o) => (
-                <ZoruSelectItem key={o.value} value={o.value}>
-                  {o.label}
-                </ZoruSelectItem>
-              ))}
-            </ZoruSelectContent>
-          </ZoruSelect>
+          <EnumFilterField
+            enumName="billStatus"
+            value={statusFilter}
+            onChange={onStatusFilter}
+            allLabel="All statuses"
+          />
         </div>
         <div className="space-y-1">
           <ZoruLabel>Vendor</ZoruLabel>

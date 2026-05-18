@@ -46,6 +46,7 @@ function SubmitButton() {
   );
 }
 
+// TODO §1E: loanType needs enumName="loanType" once that enum is registered in CRM_ENUMS
 const LOAN_TYPES = [
   { value: 'employee_advance', label: 'Employee Advance' },
   { value: 'customer_loan', label: 'Customer Loan' },

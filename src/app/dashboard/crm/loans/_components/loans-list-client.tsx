@@ -280,6 +280,7 @@ export function LoansListClient({ loans }: LoansListClientProps) {
             ))}
           </ZoruSelectContent>
         </ZoruSelect>
+        {/* TODO §1E: borrowerType needs enumName="borrowerType" once that enum is registered in CRM_ENUMS */}
         <ZoruSelect
           value={borrowerTypeFilter}
           onValueChange={setBorrowerTypeFilter}

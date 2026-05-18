@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "templateId": "welcome-email-sequence",
+  "cases": [
+    {
+      "id": "full-sequence",
+      "description": "User signup triggers all 3 drip emails with waits between them.",
+      "triggerPayload": {
+        "email": "newuser@example.com",
+        "firstName": "Sarah",
+        "userId": "usr_abc123"
+      },
+      "fixtures": {
+        "smtp.sendMail.1": { "status": 200, "body": { "accepted": ["newuser@example.com"] } },
+        "smtp.sendMail.2": { "status": 200, "body": { "accepted": ["newuser@example.com"] } },
+        "smtp.sendMail.3": { "status": 200, "body": { "accepted": ["newuser@example.com"] } }
+      },
+      "expect": {
+        "finalStatus": "success",
+        "executedBlocks": [
+          "n_signup_webhook",
+          "n_email_welcome",
+          "n_wait_3_days",
+          "n_email_tips",
+          "n_wait_4_more_days",
+          "n_email_upgrade"
+        ],
+        "variables": {}
+      }
+    }
+  ]
+}

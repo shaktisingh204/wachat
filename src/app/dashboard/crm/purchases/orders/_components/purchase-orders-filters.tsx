@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruInput, ZoruLabel, ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
+import { ZoruInput, ZoruLabel } from '@/components/zoruui';
 /**
  * <PurchaseOrdersFilters> — collapsible filter row for the PO list.
  *
@@ -12,25 +12,7 @@ import { ZoruInput, ZoruLabel, ZoruSelect, ZoruSelectContent, ZoruSelectItem, Zo
 import * as React from 'react';
 
 import { EntityFormField } from '@/components/crm/entity-form-field';
-
-const STATUS_OPTIONS = [
-  { value: 'all', label: 'All statuses' },
-  { value: 'draft', label: 'Draft' },
-  { value: 'awaiting_approval', label: 'Awaiting approval' },
-  { value: 'approved', label: 'Approved' },
-  { value: 'sent', label: 'Sent' },
-  { value: 'partial', label: 'Partial' },
-  { value: 'received', label: 'Received' },
-  { value: 'closed', label: 'Closed' },
-  { value: 'cancelled', label: 'Cancelled' },
-  { value: 'overdue', label: 'Overdue (delivery)' },
-];
-
-const APPROVAL_STATUS_OPTIONS = [
-  { value: 'any', label: 'Any approval' },
-  { value: 'pending', label: 'Pending approval' },
-  { value: 'approved', label: 'Approved' },
-];
+import { EnumFilterField } from '@/components/crm/enum-filter-field';
 
 interface PurchaseOrdersFiltersProps {
   filtersActive: boolean;
@@ -108,18 +90,12 @@ export function PurchaseOrdersFilters({
       <div className="grid gap-3 px-3 pb-3 md:grid-cols-3 lg:grid-cols-4">
         <div className="space-y-1">
           <ZoruLabel>Status</ZoruLabel>
-          <ZoruSelect value={statusFilter} onValueChange={onStatusFilter}>
-            <ZoruSelectTrigger>
-              <ZoruSelectValue />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
-              {STATUS_OPTIONS.map((o) => (
-                <ZoruSelectItem key={o.value} value={o.value}>
-                  {o.label}
-                </ZoruSelectItem>
-              ))}
-            </ZoruSelectContent>
-          </ZoruSelect>
+          <EnumFilterField
+            enumName="purchaseOrderStatus"
+            value={statusFilter}
+            onChange={onStatusFilter}
+            allLabel="All statuses"
+          />
         </div>
         <div className="space-y-1">
           <ZoruLabel>Vendor</ZoruLabel>
@@ -150,18 +126,12 @@ export function PurchaseOrdersFilters({
         </div>
         <div className="space-y-1">
           <ZoruLabel>Approval status</ZoruLabel>
-          <ZoruSelect value={approvalFilter} onValueChange={onApprovalFilter}>
-            <ZoruSelectTrigger>
-              <ZoruSelectValue />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
-              {APPROVAL_STATUS_OPTIONS.map((o) => (
-                <ZoruSelectItem key={o.value} value={o.value}>
-                  {o.label}
-                </ZoruSelectItem>
-              ))}
-            </ZoruSelectContent>
-          </ZoruSelect>
+          <EnumFilterField
+            enumName="approvalStatus"
+            value={approvalFilter}
+            onChange={onApprovalFilter}
+            allLabel="Any approval"
+          />
         </div>
         <div className="space-y-1">
           <ZoruLabel>PO date — from</ZoruLabel>

@@ -43,7 +43,9 @@ import {
 
 import * as React from 'react';
 import Link from 'next/link';
+import { Plus, Truck } from 'lucide-react';
 
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
@@ -231,41 +233,78 @@ export function DeliveryListClient({
     !!initialDateTo;
 
   return (
-    <div className="flex flex-col gap-4">
-      <DcKpiStrip
-        kpis={kpis}
-        currentStatus={initialStatus}
-        onClick={(s) => pushParams({ status: initialStatus === s ? undefined : s, page: '1' })}
-      />
-
-      <ZoruCard className="overflow-hidden p-0">
-        <DcFiltersBar
-          filters={filters}
-          onQueryChange={setQuery}
-          onUpdate={pushParams}
-          hasActive={hasActive}
-          onClear={clearAllFilters}
-        />
-
-        <DcActiveFilterChips
-          filters={filters}
-          onRemove={(k) => pushParams({ [k]: undefined, page: '1' })}
+    <>
+    <EntityListShell
+      title="Delivery Challans"
+      subtitle="Create, share, and track delivery challans."
+      search={{
+        value: query,
+        onChange: setQuery,
+        placeholder: 'Search challans…',
+      }}
+      primaryAction={
+        <ZoruButton asChild>
+          <Link href="/dashboard/crm/sales/delivery/new">
+            <Plus className="h-4 w-4" /> New challan
+          </Link>
+        </ZoruButton>
+      }
+      bulkBar={
+        selected.size > 0 ? (
+          <DcBulkBar
+            count={selected.size}
+            onClear={clearSelection}
+            onExport={bulkExport}
+            onConvertToInvoice={bulkConvertToInvoice}
+            onDelete={() => setPendingBulkDelete(true)}
+          />
+        ) : null
+      }
+      empty={
+        rows.length === 0 && !initialQuery && !hasActive ? (
+          <div className="flex flex-col items-center gap-3 p-4">
+            <Truck className="h-8 w-8 text-zoru-ink-muted" />
+            <h3 className="text-base font-medium text-zoru-ink">No delivery challans yet</h3>
+            <p className="max-w-sm text-sm text-zoru-ink-muted">
+              Create a delivery challan to track goods dispatched to customers.
+            </p>
+            <ZoruButton asChild>
+              <Link href="/dashboard/crm/sales/delivery/new">
+                <Plus className="h-4 w-4" /> New challan
+              </Link>
+            </ZoruButton>
+          </div>
+        ) : null
+      }
+      pagination={<PaginationBar page={page} limit={limit} hasMore={hasMore} />}
+    >
+      <div className="flex flex-col gap-5">
+        <DcKpiStrip
+          kpis={kpis}
+          currentStatus={initialStatus}
+          onClick={(s) => pushParams({ status: initialStatus === s ? undefined : s, page: '1' })}
         />
 
         {error ? (
-          <div className="flex items-center gap-2 border-b border-amber-500/40 bg-amber-500/10 px-4 py-2.5 text-[13px] text-amber-600">
+          <div className="flex items-center gap-2 rounded border border-amber-500/40 bg-amber-500/10 px-4 py-2.5 text-[13px] text-amber-600">
             <AlertCircle className="h-4 w-4 shrink-0" />
             {error}
           </div>
         ) : null}
 
-        <DcBulkBar
-          count={selected.size}
-          onClear={clearSelection}
-          onExport={bulkExport}
-          onConvertToInvoice={bulkConvertToInvoice}
-          onDelete={() => setPendingBulkDelete(true)}
-        />
+        <ZoruCard className="overflow-hidden p-0">
+          <DcFiltersBar
+            filters={filters}
+            onQueryChange={setQuery}
+            onUpdate={pushParams}
+            hasActive={hasActive}
+            onClear={clearAllFilters}
+          />
+
+          <DcActiveFilterChips
+            filters={filters}
+            onRemove={(k) => pushParams({ [k]: undefined, page: '1' })}
+          />
 
         <ZoruTable>
           <ZoruTableHeader>
@@ -394,67 +433,71 @@ export function DeliveryListClient({
             )}
           </ZoruTableBody>
         </ZoruTable>
+        </ZoruCard>
+      </div>
+    </EntityListShell>
 
-        <PaginationBar page={page} limit={limit} hasMore={hasMore} />
+    {/* Single delete */}
+    <ZoruAlertDialog
+      open={pendingDelete !== null}
+      onOpenChange={(o) => !o && setPendingDelete(null)}
+    >
+      <ZoruAlertDialogContent>
+        <ZoruAlertDialogHeader>
+          <ZoruAlertDialogTitle>Delete delivery challan?</ZoruAlertDialogTitle>
+          <ZoruAlertDialogDescription>
+            This permanently removes <strong>{pendingDelete?.challanNumber ?? ''}</strong>{' '}
+            from the database. The action cannot be undone.
+          </ZoruAlertDialogDescription>
+        </ZoruAlertDialogHeader>
+        <ZoruAlertDialogFooter>
+          <ZoruAlertDialogCancel disabled={busy}>Cancel</ZoruAlertDialogCancel>
+          <ZoruAlertDialogAction
+            onClick={(e) => {
+              e.preventDefault();
+              confirmDelete();
+            }}
+            disabled={busy}
+            className="bg-zoru-danger text-white hover:bg-zoru-danger/90"
+          >
+            {busy ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : null}
+            Delete permanently
+          </ZoruAlertDialogAction>
+        </ZoruAlertDialogFooter>
+      </ZoruAlertDialogContent>
+    </ZoruAlertDialog>
 
-        <ZoruAlertDialog
-          open={pendingDelete !== null}
-          onOpenChange={(o) => !o && setPendingDelete(null)}
-        >
-          <ZoruAlertDialogContent>
-            <ZoruAlertDialogHeader>
-              <ZoruAlertDialogTitle>Delete delivery challan?</ZoruAlertDialogTitle>
-              <ZoruAlertDialogDescription>
-                This permanently removes <strong>{pendingDelete?.challanNumber ?? ''}</strong>{' '}
-                from the database. The action cannot be undone.
-              </ZoruAlertDialogDescription>
-            </ZoruAlertDialogHeader>
-            <ZoruAlertDialogFooter>
-              <ZoruAlertDialogCancel disabled={busy}>Cancel</ZoruAlertDialogCancel>
-              <ZoruAlertDialogAction
-                onClick={(e) => {
-                  e.preventDefault();
-                  confirmDelete();
-                }}
-                disabled={busy}
-                className="bg-zoru-danger text-white hover:bg-zoru-danger/90"
-              >
-                {busy ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : null}
-                Delete permanently
-              </ZoruAlertDialogAction>
-            </ZoruAlertDialogFooter>
-          </ZoruAlertDialogContent>
-        </ZoruAlertDialog>
+    {/* Bulk delete */}
+    <ZoruAlertDialog
+      open={pendingBulkDelete}
+      onOpenChange={(o) => !o && setPendingBulkDelete(false)}
+    >
+      <ZoruAlertDialogContent>
+        <ZoruAlertDialogHeader>
+          <ZoruAlertDialogTitle>Delete {selected.size} delivery challans?</ZoruAlertDialogTitle>
+          <ZoruAlertDialogDescription>
+            This permanently removes the selected delivery challans. The
+            action cannot be undone.
+          </ZoruAlertDialogDescription>
+        </ZoruAlertDialogHeader>
+        <ZoruAlertDialogFooter>
+          <ZoruAlertDialogCancel disabled={busy}>Cancel</ZoruAlertDialogCancel>
+          <ZoruAlertDialogAction
+            onClick={(e) => {
+              e.preventDefault();
+              confirmBulkDelete();
+            }}
+            disabled={busy}
+            className="bg-zoru-danger text-white hover:bg-zoru-danger/90"
+          >
+            {busy ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : null}
+            Delete permanently
+          </ZoruAlertDialogAction>
+        </ZoruAlertDialogFooter>
+      </ZoruAlertDialogContent>
+    </ZoruAlertDialog>
 
-        <ZoruAlertDialog
-          open={pendingBulkDelete}
-          onOpenChange={(o) => !o && setPendingBulkDelete(false)}
-        >
-          <ZoruAlertDialogContent>
-            <ZoruAlertDialogHeader>
-              <ZoruAlertDialogTitle>Delete {selected.size} delivery challans?</ZoruAlertDialogTitle>
-              <ZoruAlertDialogDescription>
-                This permanently removes the selected delivery challans. The
-                action cannot be undone.
-              </ZoruAlertDialogDescription>
-            </ZoruAlertDialogHeader>
-            <ZoruAlertDialogFooter>
-              <ZoruAlertDialogCancel disabled={busy}>Cancel</ZoruAlertDialogCancel>
-              <ZoruAlertDialogAction
-                onClick={(e) => {
-                  e.preventDefault();
-                  confirmBulkDelete();
-                }}
-                disabled={busy}
-                className="bg-zoru-danger text-white hover:bg-zoru-danger/90"
-              >
-                {busy ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : null}
-                Delete permanently
-              </ZoruAlertDialogAction>
-            </ZoruAlertDialogFooter>
-          </ZoruAlertDialogContent>
-        </ZoruAlertDialog>
-      </ZoruCard>
-    </div>
+    {busy ? <span className="sr-only">Working…</span> : null}
+    </>
   );
 }

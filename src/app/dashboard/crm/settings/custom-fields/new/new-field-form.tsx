@@ -204,6 +204,8 @@ export function NewCustomFieldForm() {
             <ZoruLabel htmlFor="type" className="text-foreground">
               Type
             </ZoruLabel>
+            {/* TODO §1E: type needs enumName="customFieldType" — pending label/value alignment
+                between this form (radio, checkbox) and the CRM_ENUMS set (boolean, multiselect, etc.) */}
             <ZoruSelect name="type" value={type} onValueChange={setType}>
               <ZoruSelectTrigger
                 id="type"
@@ -213,10 +215,10 @@ export function NewCustomFieldForm() {
               </ZoruSelectTrigger>
               <ZoruSelectContent>
                 <ZoruSelectItem value="text">Text</ZoruSelectItem>
-                <ZoruSelectItem value="textarea">ZoruTextarea</ZoruSelectItem>
-                <ZoruSelectItem value="select">ZoruSelect</ZoruSelectItem>
+                <ZoruSelectItem value="textarea">Long text</ZoruSelectItem>
+                <ZoruSelectItem value="select">Select (single)</ZoruSelectItem>
                 <ZoruSelectItem value="radio">Radio</ZoruSelectItem>
-                <ZoruSelectItem value="checkbox">ZoruCheckbox</ZoruSelectItem>
+                <ZoruSelectItem value="checkbox">Checkbox</ZoruSelectItem>
                 <ZoruSelectItem value="number">Number</ZoruSelectItem>
                 <ZoruSelectItem value="date">Date</ZoruSelectItem>
                 <ZoruSelectItem value="email">Email</ZoruSelectItem>
