@@ -24,12 +24,14 @@ pub mod schedule_trigger;
 pub mod manual_trigger;
 pub mod execute_workflow_trigger;
 pub mod webhook_trigger;
-pub mod no_op;
-pub mod compression;
-
-// ── Phase C.3.8 — sub-flow / wait / halt control-flow nodes ──────────────────
-pub mod execute_workflow;
-pub mod stop_and_error;
+pub mod noop_node;
+// ── Phase C.4.9: trigger variants ───────────────────────────────────────────
+pub mod form_trigger;
+pub mod interval_trigger;
+pub mod cron_trigger;
+pub mod local_file_trigger;
+pub mod email_trigger;
+pub mod mqtt_trigger;
 
 // ── Fully-implemented integration nodes ─────────────────────────────────────
 pub mod slack;
@@ -230,13 +232,13 @@ fn register_implemented(r: &mut NodeRegistry) {
     r.register(my_sql::MySqlNode);
     r.register(supabase::SupabaseNode);
     r.register(noco_db::NocoDbNode);
-    // Phase C.4.8 — misc A-band stubs un-stubbed (6 nodes)
-    r.register(compare_datasets::CompareDatasetsNode);
-    r.register(rename_keys::RenameKeysNode);
-    r.register(function_node::FunctionNode);
-    r.register(function_item::FunctionItemNode);
-    r.register(spreadsheet_file::SpreadsheetFileNode);
-    r.register(edit_image::EditImageNode);
+    // Phase C.4.9 — trigger variants (6)
+    r.register(form_trigger::FormTriggerNode);
+    r.register(interval_trigger::IntervalTriggerNode);
+    r.register(cron_trigger::CronTriggerNode);
+    r.register(local_file_trigger::LocalFileTriggerNode);
+    r.register(email_trigger::EmailTriggerNode);
+    r.register(mqtt_trigger::MqttTriggerNode);
 }
 
 /// Register stubs only when the name isn't already populated by an implemented node.
