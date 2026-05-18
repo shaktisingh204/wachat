@@ -534,3 +534,132 @@ export async function saveCrmVendorType(
         return { error: getErrorMessage(e) };
     }
 }
+
+/* ─── Related counts (vendor detail right rail) ──────────────────── */
+
+/**
+ * Live related-entity counts for the vendor detail page right rail
+ * (P1.1B Wave 3 — Purchases rebuild · §1D.2). Reads directly from
+ * Mongo: POs, bills, payouts, debit-notes, RFQs, vendor-bids, items
+ * supplied, tickets raised against the vendor.
+ *
+ * Mirrors `getCrmAccountRelatedCounts` for the customer side — one
+ * `Promise.all` of `countDocuments` queries (async-parallel best
+ * practice). All counts are scoped to the current tenant via `userId`.
+ */
+export async function getCrmVendorRelatedCounts(vendorId: string): Promise<{
+    purchaseOrders: number;
+    bills: number;
+    payouts: number;
+    debitNotes: number;
+    rfqs: number;
+    vendorBids: number;
+    items: number;
+    tickets: number;
+}> {
+    const empty = {
+        purchaseOrders: 0,
+        bills: 0,
+        payouts: 0,
+        debitNotes: 0,
+        rfqs: 0,
+        vendorBids: 0,
+        items: 0,
+        tickets: 0,
+    };
+    if (!vendorId) return empty;
+    const session = await getSession();
+    if (!session?.user) return empty;
+
+    try {
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(String(session.user._id));
+        const idCandidates: unknown[] = [vendorId];
+        if (ObjectId.isValid(vendorId)) idCandidates.push(new ObjectId(vendorId));
+
+        const [
+            purchaseOrders,
+            bills,
+            payouts,
+            debitNotes,
+            rfqs,
+            vendorBids,
+            items,
+            tickets,
+        ] = await Promise.all([
+            db
+                .collection('crm_purchase_orders')
+                .countDocuments({
+                    userId,
+                    vendorId: { $in: idCandidates },
+                } as Record<string, unknown>)
+                .catch(() => 0),
+            db
+                .collection('crm_bills')
+                .countDocuments({
+                    userId,
+                    vendorId: { $in: idCandidates },
+                } as Record<string, unknown>)
+                .catch(() => 0),
+            db
+                .collection('crm_payouts')
+                .countDocuments({
+                    userId,
+                    vendorId: { $in: idCandidates },
+                } as Record<string, unknown>)
+                .catch(() => 0),
+            db
+                .collection('crm_debit_notes')
+                .countDocuments({
+                    userId,
+                    vendorId: { $in: idCandidates },
+                } as Record<string, unknown>)
+                .catch(() => 0),
+            db
+                .collection('crm_rfqs')
+                .countDocuments({
+                    userId,
+                    vendorsInvited: { $in: idCandidates as string[] },
+                } as Record<string, unknown>)
+                .catch(() => 0),
+            db
+                .collection('crm_vendor_bids')
+                .countDocuments({
+                    userId,
+                    vendorId: { $in: idCandidates },
+                } as Record<string, unknown>)
+                .catch(() => 0),
+            db
+                .collection('crm_items')
+                .countDocuments({
+                    userId,
+                    $or: [
+                        { defaultVendorId: { $in: idCandidates } },
+                        { preferredVendorId: { $in: idCandidates } },
+                    ],
+                } as Record<string, unknown>)
+                .catch(() => 0),
+            db
+                .collection('crm_tickets')
+                .countDocuments({
+                    userId,
+                    vendorId: { $in: idCandidates },
+                } as Record<string, unknown>)
+                .catch(() => 0),
+        ]);
+
+        return {
+            purchaseOrders: Number(purchaseOrders) || 0,
+            bills: Number(bills) || 0,
+            payouts: Number(payouts) || 0,
+            debitNotes: Number(debitNotes) || 0,
+            rfqs: Number(rfqs) || 0,
+            vendorBids: Number(vendorBids) || 0,
+            items: Number(items) || 0,
+            tickets: Number(tickets) || 0,
+        };
+    } catch (e) {
+        console.error('[getCrmVendorRelatedCounts] failed:', e);
+        return empty;
+    }
+}

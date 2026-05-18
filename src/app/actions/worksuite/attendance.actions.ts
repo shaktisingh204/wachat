@@ -3,6 +3,23 @@
 /**
  * Worksuite Attendance (Extended) — server actions.
  * Collection: crm_attendance_ext
+ *
+ * **Dual-impl status — Phase 3 sweep (2026-05-18):**
+ *  - RBAC: all mutators now require `crm_attendance` permissions.
+ *  - Rust delegation: the worksuite shape (`crm_attendance_ext` —
+ *    `user_id`, `clock_in_time`/`clock_out_time` as ISO strings,
+ *    `working_from`, `latitude`/`longitude` as strings) is structurally
+ *    incompatible with the Rust `Attendance` DTO (`employeeId`,
+ *    `punchIn{at,lat,lng,…}`, `status` enum, `totalHours`, `source`).
+ *    The clean Rust path for the new HR-payroll surface lives at
+ *    `src/app/actions/crm/attendance.actions.ts`; this legacy file
+ *    stays Mongo-only until the worksuite UI is migrated off
+ *    `crm_attendance_ext`.
+ *
+ * TODO 1.P3: replace this collection with the unified Rust attendance
+ * crate (`/v1/crm/attendance`) once the worksuite shift-pivot pages
+ * migrate to camelCase + status enums; until then, route new code
+ * through `src/app/actions/crm/attendance.actions.ts`.
  */
 
 import { revalidatePath } from 'next/cache';
@@ -10,6 +27,8 @@ import { ObjectId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
 import { getErrorMessage } from '@/lib/utils';
+import { requirePermission } from '@/lib/rbac-server';
+import { writeAuditEntry } from '@/lib/audit-log';
 import type { WsAttendanceExt } from '@/lib/worksuite/shifts-types';
 
 type ActionResult<T = unknown> = { success: boolean; error?: string; data?: T; id?: string };
@@ -42,6 +61,8 @@ export async function getAttendanceExt(
 ): Promise<WsAttendanceExt[]> {
   const t = await requireTenant();
   if (!t.ok) return [];
+  const guard = await requirePermission('crm_attendance', 'view');
+  if (!guard.ok) return [];
   try {
     const { db } = await connectToDatabase();
     const query: Record<string, unknown> = { userId: t.userId };
@@ -64,6 +85,8 @@ export async function getAttendanceExt(
 export async function getAttendanceExtById(id: string): Promise<WsAttendanceExt | null> {
   const t = await requireTenant();
   if (!t.ok) return null;
+  const guard = await requirePermission('crm_attendance', 'view');
+  if (!guard.ok) return null;
   const oid = tryObjectId(id);
   if (!oid) return null;
   try {
@@ -84,6 +107,8 @@ export async function saveAttendanceExt(
 ): Promise<ActionResult<WsAttendanceExt>> {
   const t = await requireTenant();
   if (!t.ok) return { success: false, error: t.error };
+  const guard = await requirePermission('crm_attendance', input._id ? 'edit' : 'create');
+  if (!guard.ok) return { success: false, error: guard.error };
   if (!input.user_id || !input.date) {
     return { success: false, error: 'user_id and date are required' };
   }
@@ -119,6 +144,17 @@ export async function saveAttendanceExt(
       const oid = tryObjectId(input._id);
       if (!oid) return { success: false, error: 'Invalid id' };
       await db.collection(COLL).updateOne({ _id: oid, userId: t.userId }, { $set: doc });
+      try {
+        await writeAuditEntry({
+          tenantUserId: String(t.userId),
+          actorId: String(t.userId),
+          action: 'update',
+          entityKind: 'attendance',
+          entityId: input._id,
+        });
+      } catch {
+        /* non-fatal */
+      }
       revalidatePath(ROUTE);
       return { success: true, id: input._id };
     }
@@ -129,10 +165,24 @@ export async function saveAttendanceExt(
       { $set: doc, $setOnInsert: { createdAt: now } },
       { upsert: true },
     );
+    const upsertedId = res.upsertedId ? res.upsertedId.toString() : input._id;
+    if (upsertedId) {
+      try {
+        await writeAuditEntry({
+          tenantUserId: String(t.userId),
+          actorId: String(t.userId),
+          action: res.upsertedId ? 'create' : 'update',
+          entityKind: 'attendance',
+          entityId: upsertedId,
+        });
+      } catch {
+        /* non-fatal */
+      }
+    }
     revalidatePath(ROUTE);
     return {
       success: true,
-      id: res.upsertedId ? res.upsertedId.toString() : input._id,
+      id: upsertedId,
     };
   } catch (e) {
     return { success: false, error: getErrorMessage(e) };
@@ -153,6 +203,8 @@ export async function clockIn(
     overwrite?: boolean;
   },
 ): Promise<ActionResult> {
+  const guard = await requirePermission('crm_attendance', 'create');
+  if (!guard.ok) return { success: false, error: guard.error };
   const now = new Date();
   return saveAttendanceExt({
     user_id: employeeId,
@@ -174,6 +226,8 @@ export async function clockOut(
 ): Promise<ActionResult> {
   const t = await requireTenant();
   if (!t.ok) return { success: false, error: t.error };
+  const guard = await requirePermission('crm_attendance', 'edit');
+  if (!guard.ok) return { success: false, error: guard.error };
 
   const d = date ?? new Date();
   const dayStart = new Date(d);
@@ -220,11 +274,24 @@ export async function clockOut(
 export async function deleteAttendanceExt(id: string): Promise<ActionResult> {
   const t = await requireTenant();
   if (!t.ok) return { success: false, error: t.error };
+  const guard = await requirePermission('crm_attendance', 'delete');
+  if (!guard.ok) return { success: false, error: guard.error };
   const oid = tryObjectId(id);
   if (!oid) return { success: false, error: 'Invalid id' };
   try {
     const { db } = await connectToDatabase();
     await db.collection(COLL).deleteOne({ _id: oid, userId: t.userId });
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(t.userId),
+        actorId: String(t.userId),
+        action: 'delete',
+        entityKind: 'attendance',
+        entityId: id,
+      });
+    } catch {
+      /* non-fatal */
+    }
     revalidatePath(ROUTE);
     return { success: true };
   } catch (e) {

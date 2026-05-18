@@ -15,6 +15,10 @@
  */
 
 import { revalidatePath } from 'next/cache';
+import { getSession } from '@/app/actions/user.actions';
+import { requirePermission } from '@/lib/rbac-server';
+import { writeAuditEntry } from '@/lib/audit-log';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
 import { RustApiError } from '@/lib/rust-client';
 import {
   crmGrnsApi,
@@ -51,10 +55,18 @@ export async function listGrns(
 ): Promise<GrnListResult> {
   const page = Math.max(1, params.page ?? 1);
   const limit = Math.min(Math.max(1, params.limit ?? 20), 100);
+  const session = await getSession();
+  if (!session?.user) {
+    return { grns: [], page, limit, hasMore: false, error: 'Unauthorized' };
+  }
+  const guard = await requirePermission('crm_grn', 'view');
+  if (!guard.ok) return { grns: [], page, limit, hasMore: false, error: guard.error };
   try {
     const grns = await crmGrnsApi.list({ ...params, page, limit });
     return { grns, page, limit, hasMore: grns.length === limit };
   } catch (e) {
+    console.error('[listGrns] rust path failed; falling back:', e);
+    recordRustFallback({ entity: 'grn', op: 'list', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
     return { grns: [], page, limit, hasMore: false, error: rustErr(e) };
   }
 }
@@ -63,6 +75,10 @@ export async function getGrn(
   id: string,
 ): Promise<{ grn: CrmGrnDoc | null; error?: string }> {
   if (!id) return { grn: null, error: 'Missing GRN id.' };
+  const session = await getSession();
+  if (!session?.user) return { grn: null, error: 'Unauthorized' };
+  const guard = await requirePermission('crm_grn', 'view');
+  if (!guard.ok) return { grn: null, error: guard.error };
   try {
     const grn = await crmGrnsApi.getById(id);
     return { grn };
@@ -70,6 +86,8 @@ export async function getGrn(
     if (e instanceof RustApiError && e.status === 404) {
       return { grn: null, error: 'GRN not found.' };
     }
+    console.error('[getGrn] rust path failed; falling back:', e);
+    recordRustFallback({ entity: 'grn', op: 'get', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
     return { grn: null, error: rustErr(e) };
   }
 }
@@ -207,7 +225,13 @@ export async function saveGrnAction(
   _prev: unknown,
   formData: FormData,
 ): Promise<{ message?: string; error?: string; id?: string }> {
+  const session = await getSession();
+  if (!session?.user) return { error: 'Unauthorized' };
+
   const id = pickString(formData, '_id');
+  const guard = await requirePermission('crm_grn', id ? 'edit' : 'create');
+  if (!guard.ok) return { error: guard.error };
+
   const grnNo = pickString(formData, 'grnNo');
   const date = pickString(formData, 'date');
   const vendorId = pickString(formData, 'vendorId');
@@ -257,6 +281,18 @@ export async function saveGrnAction(
       result = await crmGrnsApi.create(draft);
     }
 
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action: id ? 'update' : 'create',
+        entityKind: 'grn',
+        entityId: String(result._id),
+      });
+    } catch {
+      /* non-fatal */
+    }
+
     revalidatePath(LIST_PATH);
     revalidatePath(`${LIST_PATH}/${String(result._id)}`);
     return {
@@ -264,6 +300,8 @@ export async function saveGrnAction(
       id: String(result._id),
     };
   } catch (e) {
+    console.error('[saveGrnAction] rust path failed; falling back:', e);
+    recordRustFallback({ entity: 'grn', op: id ? 'update' : 'create', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
     return { error: rustErr(e) };
   }
 }
@@ -276,14 +314,31 @@ export async function deleteGrnAction(
   id: string,
 ): Promise<{ success: boolean; error?: string }> {
   if (!id) return { success: false, error: 'Missing GRN id.' };
+  const session = await getSession();
+  if (!session?.user) return { success: false, error: 'Unauthorized' };
+  const guard = await requirePermission('crm_grn', 'delete');
+  if (!guard.ok) return { success: false, error: guard.error };
   try {
     await crmGrnsApi.delete(id);
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action: 'delete',
+        entityKind: 'grn',
+        entityId: id,
+      });
+    } catch {
+      /* non-fatal */
+    }
     revalidatePath(LIST_PATH);
     return { success: true };
   } catch (e) {
     if (e instanceof RustApiError && e.status === 404) {
       return { success: false, error: 'GRN not found.' };
     }
+    console.error('[deleteGrnAction] rust path failed; falling back:', e);
+    recordRustFallback({ entity: 'grn', op: 'delete', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
     return { success: false, error: rustErr(e) };
   }
 }
@@ -377,12 +432,30 @@ export async function setGrnStatus(
   if (!isGrnStatus(status)) {
     return { success: false, error: 'Invalid status.' };
   }
+  const session = await getSession();
+  if (!session?.user) return { success: false, error: 'Unauthorized' };
+  const guard = await requirePermission('crm_grn', 'edit');
+  if (!guard.ok) return { success: false, error: guard.error };
   try {
     await crmGrnsApi.update(id, { status });
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action: 'status_change',
+        entityKind: 'grn',
+        entityId: id,
+        diff: { status: { after: status } },
+      });
+    } catch {
+      /* non-fatal */
+    }
     revalidatePath(LIST_PATH);
     revalidatePath(`${LIST_PATH}/${id}`);
     return { success: true };
   } catch (e) {
+    console.error('[setGrnStatus] rust path failed; falling back:', e);
+    recordRustFallback({ entity: 'grn', op: 'update', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
     return { success: false, error: rustErr(e) };
   }
 }
@@ -396,6 +469,10 @@ export async function bulkGrnAction(
   if (!Array.isArray(ids) || ids.length === 0) {
     return { success: false, processed: 0, error: 'No GRNs selected.' };
   }
+  const session = await getSession();
+  if (!session?.user) return { success: false, processed: 0, error: 'Unauthorized' };
+  const guard = await requirePermission('crm_grn', op === 'delete' ? 'delete' : 'edit');
+  if (!guard.ok) return { success: false, processed: 0, error: guard.error };
   try {
     let processed = 0;
     for (const id of ids) {
@@ -408,8 +485,25 @@ export async function bulkGrnAction(
           await crmGrnsApi.update(id, { status: s });
         }
         processed += 1;
+      } catch (e) {
+        console.error('[bulkGrnAction] per-row failure:', e);
+        recordRustFallback({ entity: 'grn', op: op === 'delete' ? 'delete' : 'update', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
+      }
+    }
+    if (processed > 0) {
+      try {
+        for (const id of ids.slice(0, processed)) {
+          await writeAuditEntry({
+            tenantUserId: String(session.user._id),
+            actorId: String(session.user._id),
+            action: op === 'delete' ? 'delete' : 'status_change',
+            entityKind: 'grn',
+            entityId: id,
+            reason: op === 'status' ? `bulk:status=${payload}` : 'bulk:delete',
+          });
+        }
       } catch {
-        // continue on per-row failure
+        /* non-fatal */
       }
     }
     revalidatePath(LIST_PATH);

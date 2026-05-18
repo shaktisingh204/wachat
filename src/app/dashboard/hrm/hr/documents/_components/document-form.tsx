@@ -1,6 +1,10 @@
 'use client';
 
-// TODO 1E.sweep: visibility/access -> <EnumFormField enumName="documentVisibility">; category/type left ambiguous (extend catalogue first); employee owner -> <EntityFormField entity="employee">. See plan §1E.
+// 1E.sweep done — category/entityKind/status converted to <EnumFormField>
+// using `documentCategory` / `documentEntityKind` / `documentStatus`.
+// TODO 1E.sweep: employeeId/candidateId/entityId still raw text — convert
+// to <EntityFormField entity="employee" /> etc. once the entity registry
+// supports polymorphic lookup.
 
 /**
  * <DocumentForm /> — create + edit form for HR Documents.
@@ -22,52 +26,19 @@ import {
     ZoruCheckbox,
     ZoruInput,
     ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
     ZoruTextarea,
     useZoruToast,
 } from '@/components/zoruui';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 
 import { saveDocument } from '@/app/actions/crm-documents.actions';
 import type {
-    CrmDocumentCategory,
     CrmDocumentDoc,
-    CrmDocumentEntityKind,
     CrmDocumentStatus,
 } from '@/lib/rust-client/crm-documents';
 
 const BASE = '/dashboard/hrm/hr/documents';
-
-const CATEGORY_OPTIONS: Array<{ value: CrmDocumentCategory; label: string }> = [
-    { value: 'id_proof', label: 'ID proof' },
-    { value: 'address_proof', label: 'Address proof' },
-    { value: 'qualification', label: 'Qualification' },
-    { value: 'experience', label: 'Experience' },
-    { value: 'contract', label: 'Contract' },
-    { value: 'appointment', label: 'Appointment' },
-    { value: 'resignation', label: 'Resignation' },
-    { value: 'other', label: 'Other' },
-];
-
-const ENTITY_KIND_OPTIONS: Array<{ value: CrmDocumentEntityKind; label: string }> = [
-    { value: 'employee', label: 'Employee' },
-    { value: 'candidate', label: 'Candidate' },
-    { value: 'contact', label: 'Contact' },
-    { value: 'account', label: 'Account' },
-    { value: 'vendor', label: 'Vendor' },
-];
-
-const STATUS_OPTIONS: Array<{ value: CrmDocumentStatus; label: string }> = [
-    { value: 'pending', label: 'Pending' },
-    { value: 'verified', label: 'Verified' },
-    { value: 'expired', label: 'Expired' },
-    { value: 'rejected', label: 'Rejected' },
-    { value: 'archived', label: 'Archived' },
-];
 
 function toDateInput(value: unknown): string {
     if (!value) return '';
@@ -195,19 +166,15 @@ export function DocumentForm({ initialData }: DocumentFormProps) {
                 {/* Row 2: Category + Document number */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="category-trigger">Category</ZoruLabel>
-                        <ZoruSelect value={category} onValueChange={setCategory}>
-                            <ZoruSelectTrigger id="category-trigger">
-                                <ZoruSelectValue placeholder="Pick a category…" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {CATEGORY_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <ZoruLabel>Category</ZoruLabel>
+                        <EnumFormField
+                            name="category-picker"
+                            enumName="documentCategory"
+                            initialId={category}
+                            onChange={(id) => setCategory(id ?? 'other')}
+                            allowInlineCreate={false}
+                            placeholder="Pick a category…"
+                        />
                     </div>
                     <div className="space-y-1.5">
                         <ZoruLabel htmlFor="documentNumber">Document number</ZoruLabel>
@@ -274,19 +241,15 @@ export function DocumentForm({ initialData }: DocumentFormProps) {
                 {/* Row 5: Linked entity */}
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="entityKind-trigger">Entity kind</ZoruLabel>
-                        <ZoruSelect value={entityKind} onValueChange={setEntityKind}>
-                            <ZoruSelectTrigger id="entityKind-trigger">
-                                <ZoruSelectValue placeholder="Linked to…" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {ENTITY_KIND_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <ZoruLabel>Entity kind</ZoruLabel>
+                        <EnumFormField
+                            name="entityKind-picker"
+                            enumName="documentEntityKind"
+                            initialId={entityKind}
+                            onChange={(id) => setEntityKind(id ?? 'employee')}
+                            allowInlineCreate={false}
+                            placeholder="Linked to…"
+                        />
                     </div>
                     <div className="space-y-1.5">
                         <ZoruLabel htmlFor="entityId">Entity id</ZoruLabel>
@@ -364,24 +327,17 @@ export function DocumentForm({ initialData }: DocumentFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
-                        <ZoruSelect
-                            value={status}
-                            onValueChange={(v) =>
-                                setStatus(v as CrmDocumentStatus)
+                        <ZoruLabel>Status</ZoruLabel>
+                        <EnumFormField
+                            name="status-picker"
+                            enumName="documentStatus"
+                            initialId={status}
+                            onChange={(id) =>
+                                setStatus((id as CrmDocumentStatus) ?? 'pending')
                             }
-                        >
-                            <ZoruSelectTrigger id="status-trigger">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                            allowInlineCreate={false}
+                            placeholder="Status"
+                        />
                     </div>
                 </div>
 

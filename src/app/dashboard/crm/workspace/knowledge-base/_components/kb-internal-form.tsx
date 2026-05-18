@@ -12,6 +12,7 @@ import { useActionState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { EntityFormShell } from '@/components/crm/entity-form-shell';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import {
     ZoruInput,
     ZoruLabel,
@@ -119,6 +120,7 @@ export function KbInternalForm({
                         <div className="grid gap-4 md:grid-cols-2">
                             <div>
                                 <ZoruLabel htmlFor="category_id">Category</ZoruLabel>
+                                {/* TODO 1E.sweep: dynamic list — needs EntityKey "knowledgeBaseCategory" */}
                                 <ZoruSelect
                                     name="category_id"
                                     defaultValue={article?.category_id ?? ''}
@@ -137,45 +139,36 @@ export function KbInternalForm({
                             </div>
                             <div>
                                 <ZoruLabel htmlFor="type">Type *</ZoruLabel>
-                                <ZoruSelect name="type" defaultValue={article?.type ?? 'article'}>
-                                    <ZoruSelectTrigger id="type" className="mt-1.5 h-10">
-                                        <ZoruSelectValue />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="article">Article</ZoruSelectItem>
-                                        <ZoruSelectItem value="video">Video</ZoruSelectItem>
-                                        <ZoruSelectItem value="audio">Audio</ZoruSelectItem>
-                                        <ZoruSelectItem value="image">Image</ZoruSelectItem>
-                                        <ZoruSelectItem value="document">Document</ZoruSelectItem>
-                                    </ZoruSelectContent>
-                                </ZoruSelect>
+                                <div className="mt-1.5">
+                                    <EnumFormField
+                                        name="type"
+                                        enumName="kbArticleType"
+                                        initialId={article?.type ?? 'article'}
+                                        allowInlineCreate={false}
+                                    />
+                                </div>
                             </div>
                             <div>
                                 <ZoruLabel htmlFor="to_do">To-do</ZoruLabel>
-                                <ZoruSelect name="to_do" defaultValue={article?.to_do ?? 'no'}>
-                                    <ZoruSelectTrigger id="to_do" className="mt-1.5 h-10">
-                                        <ZoruSelectValue />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="no">No</ZoruSelectItem>
-                                        <ZoruSelectItem value="yes">Yes</ZoruSelectItem>
-                                    </ZoruSelectContent>
-                                </ZoruSelect>
+                                <div className="mt-1.5">
+                                    <EnumFormField
+                                        name="to_do"
+                                        enumName="yesNo"
+                                        initialId={article?.to_do ?? 'no'}
+                                        allowInlineCreate={false}
+                                    />
+                                </div>
                             </div>
                             <div>
                                 <ZoruLabel htmlFor="pinned">Pinned (published)</ZoruLabel>
-                                <ZoruSelect
-                                    name="pinned"
-                                    defaultValue={article?.pinned ? 'true' : 'false'}
-                                >
-                                    <ZoruSelectTrigger id="pinned" className="mt-1.5 h-10">
-                                        <ZoruSelectValue />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="false">No</ZoruSelectItem>
-                                        <ZoruSelectItem value="true">Yes</ZoruSelectItem>
-                                    </ZoruSelectContent>
-                                </ZoruSelect>
+                                <div className="mt-1.5">
+                                    <EnumFormField
+                                        name="pinned"
+                                        enumName="yesNo"
+                                        initialId={article?.pinned ? 'yes' : 'no'}
+                                        allowInlineCreate={false}
+                                    />
+                                </div>
                             </div>
                         </div>
                     ),

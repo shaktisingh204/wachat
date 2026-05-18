@@ -1,15 +1,21 @@
 /**
- * Bill detail — `/dashboard/crm/purchases/expenses/[id]`.
+ * Bill (vendor invoice) detail — `/dashboard/crm/purchases/expenses/[id]`
+ * (P1.1B Wave 3 — Purchases rebuild · §1D.2).
  *
- * Server component per CRM_REBUILD_PLAN §1D. Composes:
- *   - Header: status pill (click → status change) + 10 action buttons.
- *   - Body cards via `<BillDetailBody>`: Overview, Vendor, Line items /
- *     Expense lines, Money summary (CGST/SGST/IGST/cess/TDS), Notes,
- *     Tags, custom fields.
- *   - Right rail: LineageRail · Vendor chip + outstanding · quick-edit
- *     chips · related entities (Payouts, Debit notes, PO, GRN).
- *   - Audit footer via `<EntityAuditTimeline>`.
- *   - `?print=1` renders the standalone print layout.
+ * Server component. Lifted onto the canonical `<EntityDetailShell>` so
+ * the header / body / right-rail / audit-footer composition matches the
+ * Invoices template at `/dashboard/crm/sales/invoices/[id]`. The body
+ * composition is unchanged (`<BillDetailBody>` already met the §1D.2
+ * bar) — this rebuild only swaps the page chrome.
+ *
+ * Header: back link + eyebrow + status pill + 8+ action group
+ * (Record payment / Mark paid / Approve / Email / Print / Duplicate /
+ * Archive / Delete / Status change, see <BillDetailActions>).
+ * Body: overview, vendor, line items / expense lines, money summary,
+ * payment history, linked PO / GRN cards, custom fields, notes, tags.
+ * Right rail: LineageRail (PO→GRN→bill→payout) · vendor chip with
+ * outstanding · quick-edit chips · related-counts · activity link.
+ * Audit footer: <EntityAuditTimeline entityKind="bill">.
  */
 
 import Link from 'next/link';
@@ -17,12 +23,19 @@ import { notFound } from 'next/navigation';
 import { ObjectId } from 'mongodb';
 import { ArrowLeft, ClipboardList } from 'lucide-react';
 
-import { ZoruButton, ZoruCard } from '@/components/zoruui';
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import {
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardHeader,
+  ZoruCardTitle,
+} from '@/components/zoruui';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { LineageRail } from '@/components/crm/lineage-rail';
 import { CustomFieldDisplay } from '@/components/crm/custom-field-input';
+import { statusToTone } from '@/components/crm/status-pill';
 import {
   getBill,
   getCrmBillRelatedCounts,
@@ -115,6 +128,7 @@ export default async function BillDetailPage({
 
   const session = await getSession();
 
+  // Parallel fan-out — bill fetch + custom-field schema are independent.
   const [{ bill, error }, customFields] = await Promise.all([
     getBill(id),
     getCustomFieldsFor('expense') as Promise<WsCustomField[]>,
@@ -156,199 +170,103 @@ export default async function BillDetailPage({
 
   if (printMode) {
     return (
-      <BillPrintView
-        bill={bill}
-        vendorLabel={vendor.name ?? bill.vendorId}
-      />
+      <BillPrintView bill={bill} vendorLabel={vendor.name ?? bill.vendorId} />
     );
   }
 
+  const title = bill.billNo || `Bill ${billId.slice(-6)}`;
+  const subtitleParts = [
+    `Issued ${fmtDate(bill.billDate)}`,
+    `Due ${fmtDate(bill.dueDate)}`,
+    fmtMoney(totals.total, currency),
+  ];
+
   return (
-    <div className="flex w-full flex-col gap-6">
-      <div className="flex flex-col gap-3">
-        <Link
-          href="/dashboard/crm/purchases/expenses"
-          className="inline-flex items-center gap-1.5 text-[12.5px] text-zoru-ink-muted hover:text-zoru-ink"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" /> Back to Bills
-        </Link>
-        <CrmPageHeader
-          title={bill.billNo || 'Bill'}
-          subtitle={`Issued ${fmtDate(bill.billDate)} · Due ${fmtDate(bill.dueDate)} · ${fmtMoney(totals.total, currency)}`}
-          breadcrumbs={[
-            { label: 'CRM', href: '/dashboard/crm' },
-            { label: 'Purchases', href: '/dashboard/crm/purchases' },
-            { label: 'Bills', href: '/dashboard/crm/purchases/expenses' },
-            { label: bill.billNo || 'Bill' },
-          ]}
-        />
+    <EntityDetailShell
+      title={title}
+      eyebrow={`BILL ${bill.billNo ?? billId.slice(-6)}`}
+      status={{ label: String(status), tone: statusToTone(String(status)) }}
+      back={{
+        href: '/dashboard/crm/purchases/expenses',
+        label: 'All bills',
+      }}
+      actions={
         <BillDetailActions
           billId={billId}
           billNo={bill.billNo ?? ''}
           status={status}
           vendorEmail={vendor.email}
         />
-      </div>
-
-      <div className="flex flex-col gap-6 md:flex-row md:items-start">
-        <main className="min-w-0 flex-1 space-y-6">
-          <BillDetailBody
-            bill={bill}
-            vendorContact={{ email: vendor.email, phone: vendor.phone }}
+      }
+      rightRail={
+        <>
+          <LineageRail
+            current={{
+              kind: 'bill',
+              id: billId,
+              no: bill.billNo,
+              status: bill.status,
+            }}
+            lineage={
+              (bill.lineage ?? []) as Array<{
+                kind: LineageKind;
+                id: string;
+                no?: string;
+                status?: string;
+              }>
+            }
           />
 
-          {/* Payment history (payouts applied) */}
-          <ZoruCard className="p-6">
-            <h2 className="mb-3 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
-              Payment history
-            </h2>
-            {related.payouts === 0 ? (
-              <p className="text-[13px] text-zoru-ink-muted">
-                No payouts applied yet.{' '}
-                <Link
-                  href={`/dashboard/crm/purchases/payouts/new?fromKind=bill&fromId=${billId}`}
-                  className="text-zoru-primary hover:underline"
+          {/* Vendor chip + outstanding */}
+          <ZoruCard>
+            <ZoruCardHeader>
+              <ZoruCardTitle>Vendor</ZoruCardTitle>
+            </ZoruCardHeader>
+            <ZoruCardContent className="space-y-2 text-[12.5px]">
+              {bill.vendorId ? (
+                <EntityPickerChip entity="vendor" id={bill.vendorId} />
+              ) : (
+                <span className="text-zoru-ink-muted">No vendor linked</span>
+              )}
+              <div className="flex items-center justify-between gap-2 border-t border-zoru-line pt-2">
+                <span className="text-zoru-ink-muted">Outstanding</span>
+                <span
+                  className={`font-mono tabular-nums ${
+                    (bill.balance ?? totals.total) > 0
+                      ? 'text-zoru-danger-ink'
+                      : 'text-zoru-ink'
+                  }`}
                 >
-                  Record a payout
-                </Link>
-              </p>
-            ) : (
-              <Link
-                href={`/dashboard/crm/purchases/payouts?billId=${billId}`}
-                className="text-[13px] text-zoru-primary hover:underline"
-              >
-                View {related.payouts} payout
-                {related.payouts === 1 ? '' : 's'} applied to this bill →
-              </Link>
-            )}
+                  {fmtMoney(bill.balance ?? totals.total, currency)}
+                </span>
+              </div>
+            </ZoruCardContent>
           </ZoruCard>
 
-          {/* Linked PO / GRN cards */}
-          {bill.linkedPoId || (bill.linkedGrnIds && bill.linkedGrnIds.length) ? (
-            <ZoruCard className="p-6">
-              <h2 className="mb-3 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
-                Linked documents
-              </h2>
-              <div className="grid gap-3 md:grid-cols-2 text-[13px]">
-                {bill.linkedPoId ? (
-                  <div>
-                    <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
-                      Purchase order
-                    </div>
-                    <Link
-                      href={`/dashboard/crm/purchases/orders/${bill.linkedPoId}`}
-                      className="mt-1 inline-block text-zoru-primary hover:underline"
-                    >
-                      {bill.linkedPoId}
-                    </Link>
-                  </div>
-                ) : null}
-                {bill.linkedGrnIds && bill.linkedGrnIds.length ? (
-                  <div>
-                    <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
-                      GRNs
-                    </div>
-                    <ul className="mt-1 space-y-1">
-                      {bill.linkedGrnIds.map((gid) => (
-                        <li key={gid}>
-                          <Link
-                            href={`/dashboard/crm/inventory/grn/${gid}`}
-                            className="text-zoru-primary hover:underline"
-                          >
-                            {gid}
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ) : null}
-              </div>
-            </ZoruCard>
-          ) : null}
-
-          {/* Custom fields */}
-          {customFields.length > 0 ? (
-            <ZoruCard className="p-6">
-              <h2 className="mb-3 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
-                Custom fields
-              </h2>
-              <div className="grid gap-4 md:grid-cols-2">
-                {customFields.map((field) => (
-                  <div key={String(field._id ?? field.name)}>
-                    <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
-                      {field.label || field.name}
-                    </div>
-                    <div className="mt-1 text-[13px] text-zoru-ink">
-                      <CustomFieldDisplay
-                        field={field}
-                        value={
-                          cfValues[field.name] as Parameters<
-                            typeof CustomFieldDisplay
-                          >[0]['value']
-                        }
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </ZoruCard>
-          ) : null}
-        </main>
-
-        <aside className="w-full md:w-80 md:shrink-0">
-          <div className="space-y-4 md:sticky md:top-4">
-            <LineageRail
-              current={{
-                kind: 'bill',
-                id: billId,
-                no: bill.billNo,
-                status: bill.status,
-              }}
-              lineage={
-                (bill.lineage ?? []) as Array<{
-                  kind: LineageKind;
-                  id: string;
-                  no?: string;
-                  status?: string;
-                }>
-              }
-            />
-
-            <ZoruCard className="p-4">
-              <h3 className="mb-3 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
-                Vendor
-              </h3>
-              <div className="space-y-2 text-[12.5px]">
-                {bill.vendorId ? (
-                  <EntityPickerChip entity="vendor" id={bill.vendorId} />
-                ) : (
-                  <span className="text-zoru-ink-muted">No vendor linked</span>
-                )}
-                <div className="flex items-center justify-between gap-2 border-t border-zoru-line pt-2">
-                  <span className="text-zoru-ink-muted">Outstanding</span>
-                  <span
-                    className={`font-mono tabular-nums ${
-                      (bill.balance ?? totals.total) > 0
-                        ? 'text-zoru-danger-ink'
-                        : 'text-zoru-ink'
-                    }`}
-                  >
-                    {fmtMoney(bill.balance ?? totals.total, currency)}
-                  </span>
-                </div>
-              </div>
-            </ZoruCard>
-
-            <ZoruCard className="p-4">
-              <h3 className="mb-3 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
-                At a glance
-              </h3>
+          {/* At a glance + inline status / vendor */}
+          <ZoruCard>
+            <ZoruCardHeader>
+              <ZoruCardTitle>At a glance</ZoruCardTitle>
+            </ZoruCardHeader>
+            <ZoruCardContent>
               <BillQuickEdits
                 billId={billId}
                 status={status}
                 vendorId={bill.vendorId}
               />
               <div className="mt-3 space-y-1.5 text-[12.5px]">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-zoru-ink-muted">Subtotal</span>
+                  <span className="font-mono tabular-nums">
+                    {fmtMoney(totals.subTotal, currency)}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-zoru-ink-muted">Total</span>
+                  <span className="font-mono tabular-nums">
+                    {fmtMoney(totals.total, currency)}
+                  </span>
+                </div>
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-zoru-ink-muted">Created</span>
                   <span>
@@ -362,23 +280,136 @@ export default async function BillDetailPage({
                   </span>
                 </div>
               </div>
-            </ZoruCard>
+            </ZoruCardContent>
+          </ZoruCard>
 
-            <BillRelatedRail billId={billId} initial={related} />
+          {/* Live-poll wrapper — refreshes related counts when a downstream
+              doc (payout / debit-note) lands. */}
+          <BillRelatedRail billId={billId} initial={related} />
 
-            <ZoruButton size="sm" variant="ghost" asChild className="w-full">
+          <ZoruButton size="sm" variant="ghost" asChild className="w-full">
+            <Link
+              href={`/dashboard/crm/purchases/expenses/${billId}/activity`}
+            >
+              <ClipboardList className="h-3.5 w-3.5" />
+              View full activity log
+            </Link>
+          </ZoruButton>
+        </>
+      }
+      audit={<EntityAuditTimeline entityKind="bill" entityId={billId} />}
+    >
+      <p className="text-[12.5px] text-zoru-ink-muted">
+        {subtitleParts.join(' · ')}
+      </p>
+
+      <BillDetailBody
+        bill={bill}
+        vendorContact={{ email: vendor.email, phone: vendor.phone }}
+      />
+
+      {/* Payment history (payouts applied) */}
+      <ZoruCard>
+        <ZoruCardHeader>
+          <ZoruCardTitle>Payment history</ZoruCardTitle>
+        </ZoruCardHeader>
+        <ZoruCardContent>
+          {related.payouts === 0 ? (
+            <p className="text-[13px] text-zoru-ink-muted">
+              No payouts applied yet.{' '}
               <Link
-                href={`/dashboard/crm/purchases/expenses/${billId}/activity`}
+                href={`/dashboard/crm/purchases/payouts/new?fromKind=bill&fromId=${billId}`}
+                className="text-zoru-primary hover:underline"
               >
-                <ClipboardList className="h-3.5 w-3.5" />
-                View full activity log
+                Record a payout
               </Link>
-            </ZoruButton>
-          </div>
-        </aside>
-      </div>
+            </p>
+          ) : (
+            <Link
+              href={`/dashboard/crm/purchases/payouts?billId=${billId}`}
+              className="text-[13px] text-zoru-primary hover:underline"
+            >
+              View {related.payouts} payout
+              {related.payouts === 1 ? '' : 's'} applied to this bill →
+            </Link>
+          )}
+        </ZoruCardContent>
+      </ZoruCard>
 
-      <EntityAuditTimeline entityKind="bill" entityId={billId} />
-    </div>
+      {/* Linked PO / GRN cards */}
+      {bill.linkedPoId || (bill.linkedGrnIds && bill.linkedGrnIds.length) ? (
+        <ZoruCard>
+          <ZoruCardHeader>
+            <ZoruCardTitle>Linked documents</ZoruCardTitle>
+          </ZoruCardHeader>
+          <ZoruCardContent>
+            <div className="grid gap-3 md:grid-cols-2 text-[13px]">
+              {bill.linkedPoId ? (
+                <div>
+                  <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+                    Purchase order
+                  </div>
+                  <Link
+                    href={`/dashboard/crm/purchases/orders/${bill.linkedPoId}`}
+                    className="mt-1 inline-block text-zoru-primary hover:underline"
+                  >
+                    {bill.linkedPoId}
+                  </Link>
+                </div>
+              ) : null}
+              {bill.linkedGrnIds && bill.linkedGrnIds.length ? (
+                <div>
+                  <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+                    GRNs
+                  </div>
+                  <ul className="mt-1 space-y-1">
+                    {bill.linkedGrnIds.map((gid) => (
+                      <li key={gid}>
+                        <Link
+                          href={`/dashboard/crm/inventory/grn/${gid}`}
+                          className="text-zoru-primary hover:underline"
+                        >
+                          {gid}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+            </div>
+          </ZoruCardContent>
+        </ZoruCard>
+      ) : null}
+
+      {/* Custom fields */}
+      {customFields.length > 0 ? (
+        <ZoruCard>
+          <ZoruCardHeader>
+            <ZoruCardTitle>Custom fields</ZoruCardTitle>
+          </ZoruCardHeader>
+          <ZoruCardContent>
+            <div className="grid gap-4 md:grid-cols-2">
+              {customFields.map((field) => (
+                <div key={String(field._id ?? field.name)}>
+                  <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+                    {field.label || field.name}
+                  </div>
+                  <div className="mt-1 text-[13px] text-zoru-ink">
+                    <CustomFieldDisplay
+                      field={field}
+                      value={
+                        cfValues[field.name] as Parameters<
+                          typeof CustomFieldDisplay
+                        >[0]['value']
+                      }
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </ZoruCardContent>
+        </ZoruCard>
+      ) : null}
+    </EntityDetailShell>
   );
 }

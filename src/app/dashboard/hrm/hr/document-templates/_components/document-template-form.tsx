@@ -1,6 +1,7 @@
 'use client';
 
-// TODO 1E.sweep: type/category dropdowns -> <EnumFormField>. See plan §1E.
+// 1E.sweep done — category/status converted to <EnumFormField> using
+// `documentTemplateCategory` / `documentTemplateStatus`.
 
 /**
  * <DocumentTemplateForm /> — create + edit form for HR Document Templates.
@@ -22,15 +23,11 @@ import {
     ZoruCheckbox,
     ZoruInput,
     ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
     ZoruTextarea,
     useZoruToast,
 } from '@/components/zoruui';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 
 import {
     saveDocumentTemplate,
@@ -39,23 +36,6 @@ import {
 } from '@/app/actions/crm-document-templates.actions';
 
 const BASE = '/dashboard/hrm/hr/document-templates';
-
-const STATUS_OPTIONS: Array<{ value: CrmDocumentTemplateStatus; label: string }> = [
-    { value: 'draft', label: 'Draft' },
-    { value: 'active', label: 'Active' },
-    { value: 'archived', label: 'Archived' },
-];
-
-const CATEGORY_OPTIONS = [
-    { value: 'offer_letter', label: 'Offer letter' },
-    { value: 'appointment_letter', label: 'Appointment letter' },
-    { value: 'contract', label: 'Contract' },
-    { value: 'nda', label: 'NDA' },
-    { value: 'relieving_letter', label: 'Relieving letter' },
-    { value: 'experience_letter', label: 'Experience letter' },
-    { value: 'warning_letter', label: 'Warning letter' },
-    { value: 'other', label: 'Other' },
-];
 
 function nameFromUrl(url: string): string {
     if (!url) return '';
@@ -168,39 +148,28 @@ export function DocumentTemplateForm({ initialData }: DocumentTemplateFormProps)
                 {/* Row 2: Category + Status */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="category-trigger">Category</ZoruLabel>
-                        <ZoruSelect value={category} onValueChange={setCategory}>
-                            <ZoruSelectTrigger id="category-trigger">
-                                <ZoruSelectValue placeholder="Pick a category…" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {CATEGORY_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <ZoruLabel>Category</ZoruLabel>
+                        <EnumFormField
+                            name="category-picker"
+                            enumName="documentTemplateCategory"
+                            initialId={category}
+                            onChange={(id) => setCategory(id ?? 'other')}
+                            allowInlineCreate={false}
+                            placeholder="Pick a category…"
+                        />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
-                        <ZoruSelect
-                            value={status}
-                            onValueChange={(v) =>
-                                setStatus(v as CrmDocumentTemplateStatus)
+                        <ZoruLabel>Status</ZoruLabel>
+                        <EnumFormField
+                            name="status-picker"
+                            enumName="documentTemplateStatus"
+                            initialId={status}
+                            onChange={(id) =>
+                                setStatus((id as CrmDocumentTemplateStatus) ?? 'draft')
                             }
-                        >
-                            <ZoruSelectTrigger id="status-trigger">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                            allowInlineCreate={false}
+                            placeholder="Status"
+                        />
                     </div>
                 </div>
 

@@ -33,6 +33,10 @@ import {
     type CrmDepartmentDoc,
     type CrmDesignationDoc,
 } from '@/lib/rust-client/crm-departments';
+import {
+    crmEmployeesApi,
+    type CrmEmployeeDoc,
+} from '@/lib/rust-client/crm-employees';
 import { RustApiError } from '@/lib/rust-client/fetcher';
 import { requirePermission } from '@/lib/rbac-server';
 import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
@@ -70,6 +74,32 @@ function rustDesigToLegacy(doc: CrmDesignationDoc): WithId<CrmDesignation> {
         department_id: doc.departmentId,
     };
     return out as unknown as WithId<CrmDesignation>;
+}
+
+/**
+ * Adapt a Rust `CrmEmployeeDoc` (flattened camelCase) to the loose shape
+ * `getCrmEmployees` consumers expect. The legacy aggregate pipeline joined
+ * `crm_departments` / `crm_designations` to attach `departmentName` and
+ * `designationName` — those name lookups happen inline here after the
+ * Rust list returns.
+ */
+function rustEmpToLegacy(
+    doc: CrmEmployeeDoc,
+    deptNameById: Map<string, string>,
+    desigNameById: Map<string, string>,
+): WithId<unknown> {
+    const departmentName = doc.departmentId
+        ? deptNameById.get(String(doc.departmentId))
+        : undefined;
+    const designationName = doc.designationId
+        ? desigNameById.get(String(doc.designationId))
+        : undefined;
+    return {
+        ...doc,
+        _id: doc._id as unknown as ObjectId,
+        departmentName,
+        designationName,
+    } as unknown as WithId<unknown>;
 }
 
 // --- Departments ---
@@ -451,6 +481,35 @@ export async function getCrmEmployees(): Promise<WithId<any>[]> {
     const session = await getSession();
     if (!session?.user) return [];
 
+    const guard = await requirePermission('crm_employee', 'view');
+    if (!guard.ok) return [];
+
+    if (useRustCrm()) {
+        try {
+            // The Rust list endpoint returns a flat array; we hydrate
+            // departmentName/designationName client-side via parallel reads
+            // against the (already Rust-backed) catalog endpoints.
+            const [employees, departments, designations] = await Promise.all([
+                crmEmployeesApi.list({ limit: 200 }),
+                crmDepartmentsApi.list({ limit: 200 }).catch(() => [] as CrmDepartmentDoc[]),
+                crmDesignationsApi.list({ limit: 200 }).catch(() => [] as CrmDesignationDoc[]),
+            ]);
+            const deptMap = new Map<string, string>();
+            for (const d of departments) {
+                if (d._id) deptMap.set(String(d._id), d.name ?? '');
+            }
+            const desigMap = new Map<string, string>();
+            for (const d of designations) {
+                if (d._id) desigMap.set(String(d._id), d.name ?? '');
+            }
+            return employees.map((e) => rustEmpToLegacy(e, deptMap, desigMap));
+        } catch (e) {
+            console.error('[getCrmEmployees] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'employee', op: 'list', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
+            // fall through to legacy
+        }
+    }
+
     try {
         const { db } = await connectToDatabase();
         const employees = await db.collection('crm_employees').aggregate([
@@ -479,6 +538,16 @@ export async function saveCrmEmployee(_prev: any, formData: FormData): Promise<{
 
     const guard = await requirePermission('crm_employee', isEditing ? 'edit' : 'create');
     if (!guard.ok) return { error: guard.error };
+
+    // `'employee'` is registered as a `WsCustomFieldBelongsTo` value
+    // (handled below) — the rust path doesn't yet accept the full §1.P3
+    // legacy detail bag (about_me, marital_status, bank_account…), so
+    // saveCrmEmployee stays Mongo-only for now. The simple Rust-shaped
+    // create/edit lives in `src/app/actions/crm/employees.actions.ts`
+    // and is delegated to from the new HrEntityPage flow.
+    // TODO 1.P3: dual-impl saveCrmEmployee once the Rust DTO grows the
+    // detail-bag mirror (employee_details collection equivalent).
+    void useRustCrm();
 
     const data: Partial<CrmEmployee> = {
         userId: new ObjectId(session.user._id),
@@ -602,5 +671,80 @@ export async function saveCrmEmployee(_prev: any, formData: FormData): Promise<{
         return { message: `Employee ${isEditing ? 'updated' : 'added'} successfully.` };
     } catch (e: any) {
         return { error: getErrorMessage(e) };
+    }
+}
+
+/**
+ * Hard-delete an employee. Dual-implemented: when `USE_RUST_CRM === 'true'`
+ * we delegate to the `/v1/crm/employees/:id` handler and fall back to the
+ * legacy Mongo path on any `RustApiError`.
+ *
+ * The legacy fallback also clears the side-table `crm_employee_details`
+ * row keyed on `employee_id` to keep the two collections consistent.
+ */
+export async function deleteCrmEmployee(id: string): Promise<{ success: boolean; error?: string }> {
+    if (!id) return { success: false, error: 'Missing employee id.' };
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied' };
+
+    const guard = await requirePermission('crm_employee', 'delete');
+    if (!guard.ok) return { success: false, error: guard.error };
+
+    if (useRustCrm()) {
+        try {
+            await crmEmployeesApi.delete(id);
+            try {
+                await writeAuditEntry({
+                    tenantUserId: String(session.user._id),
+                    actorId: String(session.user._id),
+                    action: 'delete',
+                    entityKind: 'employee',
+                    entityId: id,
+                });
+            } catch {
+                /* non-fatal */
+            }
+            revalidatePath('/dashboard/hrm/payroll/employees');
+            return { success: true };
+        } catch (e) {
+            if (e instanceof RustApiError && e.status === 404) {
+                return { success: false, error: 'Employee not found.' };
+            }
+            console.error('[deleteCrmEmployee] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'employee', op: 'delete', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
+            // fall through
+        }
+    }
+
+    if (!ObjectId.isValid(id)) return { success: false, error: 'Invalid id' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const userObjectId = new ObjectId(session.user._id);
+        await db.collection('crm_employees').deleteOne({ _id: new ObjectId(id), userId: userObjectId });
+        // Side table — best-effort.
+        try {
+            await db.collection('crm_employee_details').deleteOne({
+                employee_id: id,
+                userId: userObjectId,
+            });
+        } catch {
+            /* non-fatal */
+        }
+        try {
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'delete',
+                entityKind: 'employee',
+                entityId: id,
+            });
+        } catch {
+            /* non-fatal */
+        }
+        revalidatePath('/dashboard/hrm/payroll/employees');
+        return { success: true };
+    } catch (e) {
+        return { success: false, error: getErrorMessage(e) };
     }
 }

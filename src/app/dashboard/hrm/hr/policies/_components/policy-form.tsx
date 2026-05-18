@@ -20,11 +20,6 @@ import {
     ZoruCheckbox,
     ZoruInput,
     ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
     ZoruTextarea,
     useZoruToast,
 } from '@/components/zoruui';
@@ -40,24 +35,6 @@ import type {
 } from '@/lib/rust-client/crm-policies';
 
 const BASE = '/dashboard/hrm/hr/policies';
-
-const CATEGORY_OPTIONS: Array<{ value: CrmPolicyCategory; label: string }> = [
-    { value: 'leave', label: 'Leave' },
-    { value: 'travel', label: 'Travel' },
-    { value: 'code_of_conduct', label: 'Code of conduct' },
-    { value: 'it_security', label: 'IT security' },
-    { value: 'hr', label: 'HR' },
-    { value: 'finance', label: 'Finance' },
-    { value: 'other', label: 'Other' },
-];
-
-const STATUS_OPTIONS: Array<{ value: CrmPolicyStatus; label: string }> = [
-    { value: 'draft', label: 'Draft' },
-    { value: 'under_review', label: 'Under review' },
-    { value: 'published', label: 'Published' },
-    { value: 'archived', label: 'Archived' },
-    { value: 'obsolete', label: 'Obsolete' },
-];
 
 /**
  * Convert an ISO date string (or BSON-shaped datetime) into the
@@ -195,19 +172,16 @@ export function PolicyForm({ initialData }: PolicyFormProps) {
                     </div>
                     <div className="space-y-1.5">
                         <ZoruLabel>Category</ZoruLabel>
-                        {/* TODO 1E.sweep: policy category here uses leave/travel/code_of_conduct/it_security etc which differ from catalogued `policyCategory` slugs — bridge or extend before swapping to <EnumFormField>. */}
-                        <ZoruSelect value={category} onValueChange={setCategory}>
-                            <ZoruSelectTrigger id="category-trigger">
-                                <ZoruSelectValue placeholder="Pick a category…" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {CATEGORY_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <EnumFormField
+                            name="category-picker"
+                            enumName="policyDocCategory"
+                            initialId={category}
+                            onChange={(id) =>
+                                setCategory((id as CrmPolicyCategory) ?? 'other')
+                            }
+                            allowInlineCreate={false}
+                            placeholder="Pick a category…"
+                        />
                     </div>
                 </div>
 
@@ -321,22 +295,16 @@ export function PolicyForm({ initialData }: PolicyFormProps) {
                     </div>
                     <div className="space-y-1.5">
                         <ZoruLabel>Status</ZoruLabel>
-                        {/* TODO 1E.sweep: catalogued policyStatus has draft/published/archived only — policy form adds 'under_review' and 'obsolete'. Bridge or extend before swapping. */}
-                        <ZoruSelect
-                            value={status}
-                            onValueChange={(v) => setStatus(v as CrmPolicyStatus)}
-                        >
-                            <ZoruSelectTrigger id="status-trigger">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <EnumFormField
+                            name="status-picker"
+                            enumName="policyDocStatus"
+                            initialId={status}
+                            onChange={(id) =>
+                                setStatus((id as CrmPolicyStatus) ?? 'draft')
+                            }
+                            allowInlineCreate={false}
+                            placeholder="Status"
+                        />
                     </div>
                 </div>
 

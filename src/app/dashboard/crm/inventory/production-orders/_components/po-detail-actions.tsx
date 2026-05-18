@@ -10,7 +10,18 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Archive, CheckCircle2, Edit, Play, Printer, RefreshCw, Send } from 'lucide-react';
+import {
+    Activity,
+    Archive,
+    CheckCircle2,
+    ClipboardCheck,
+    Edit,
+    Pause,
+    Play,
+    Printer,
+    RefreshCw,
+    Send,
+} from 'lucide-react';
 
 import { ZoruButton, useZoruToast } from '@/components/zoruui';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
@@ -22,37 +33,50 @@ export interface PoDetailActionsProps {
     currentStatus: string;
 }
 
+type PoStatus =
+    | 'planned'
+    | 'released'
+    | 'in_progress'
+    | 'paused'
+    | 'qa_check'
+    | 'completed'
+    | 'closed'
+    | 'cancelled';
+
 export function PoDetailActions({ orderId, orderNo, currentStatus }: PoDetailActionsProps) {
     const router = useRouter();
     const { toast } = useZoruToast();
     const [archiveOpen, setArchiveOpen] = React.useState(false);
+    const [pending, startTransition] = React.useTransition();
 
-    const onStatus = async (
-        status: 'released' | 'in_progress' | 'completed' | 'cancelled',
-    ) => {
-        const res = await setProductionOrderStatus(orderId, status);
-        if (res.success) {
-            toast({ title: `Status → ${status}` });
-            router.refresh();
-        } else {
-            toast({
-                title: 'Status update failed',
-                description: res.error,
-                variant: 'destructive',
-            });
-        }
+    const onStatus = (status: PoStatus) => {
+        startTransition(async () => {
+            const res = await setProductionOrderStatus(orderId, status);
+            if (res.success) {
+                toast({ title: `Status → ${status}` });
+                router.refresh();
+            } else {
+                toast({
+                    title: 'Status update failed',
+                    description: res.error,
+                    variant: 'destructive',
+                });
+            }
+        });
     };
 
     const onPrint = () => {
         if (typeof window !== 'undefined') window.print();
     };
 
-    const onConfirmCancel = async () => {
-        await onStatus('cancelled');
+    const onConfirmCancel = () => {
+        onStatus('cancelled');
         setArchiveOpen(false);
     };
 
     const s = (currentStatus || '').toLowerCase();
+    const isRunning = s === 'in_progress';
+    const isTerminal = s === 'completed' || s === 'closed' || s === 'cancelled';
 
     return (
         <>
@@ -66,7 +90,12 @@ export function PoDetailActions({ orderId, orderNo, currentStatus }: PoDetailAct
                     size="sm"
                     variant="outline"
                     onClick={() => onStatus('released')}
-                    disabled={s === 'released' || s === 'in_progress' || s === 'completed'}
+                    disabled={
+                        pending ||
+                        s === 'released' ||
+                        s === 'in_progress' ||
+                        isTerminal
+                    }
                 >
                     <Send className="h-3.5 w-3.5" /> Release
                 </ZoruButton>
@@ -74,9 +103,25 @@ export function PoDetailActions({ orderId, orderNo, currentStatus }: PoDetailAct
                     size="sm"
                     variant="outline"
                     onClick={() => onStatus('in_progress')}
-                    disabled={s === 'in_progress' || s === 'completed'}
+                    disabled={pending || isRunning || isTerminal}
                 >
                     <Play className="h-3.5 w-3.5" /> Start
+                </ZoruButton>
+                <ZoruButton
+                    size="sm"
+                    variant="outline"
+                    onClick={() => onStatus('paused')}
+                    disabled={pending || !isRunning}
+                >
+                    <Pause className="h-3.5 w-3.5" /> Pause
+                </ZoruButton>
+                <ZoruButton
+                    size="sm"
+                    variant="outline"
+                    onClick={() => onStatus('qa_check')}
+                    disabled={pending || isTerminal}
+                >
+                    <ClipboardCheck className="h-3.5 w-3.5" /> QC
                 </ZoruButton>
                 <ZoruButton size="sm" variant="outline" asChild>
                     <Link
@@ -95,8 +140,20 @@ export function PoDetailActions({ orderId, orderNo, currentStatus }: PoDetailAct
                 <ZoruButton size="sm" variant="outline" onClick={onPrint}>
                     <Printer className="h-3.5 w-3.5" /> Print
                 </ZoruButton>
-                <ZoruButton size="sm" variant="outline" onClick={() => setArchiveOpen(true)}>
+                <ZoruButton
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setArchiveOpen(true)}
+                    disabled={pending}
+                >
                     <Archive className="h-3.5 w-3.5" /> Cancel order
+                </ZoruButton>
+                <ZoruButton size="sm" variant="ghost" asChild>
+                    <Link
+                        href={`/dashboard/crm/inventory/production-orders/${orderId}/activity`}
+                    >
+                        <Activity className="h-3.5 w-3.5" /> Activity
+                    </Link>
                 </ZoruButton>
             </div>
 

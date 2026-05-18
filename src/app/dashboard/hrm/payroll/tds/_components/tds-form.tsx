@@ -1,6 +1,10 @@
 'use client';
 
-// TODO 1E.sweep: month/financial-year dropdowns -> <EnumFormField>; employee -> <EntityFormField entity="employee">. See plan §1E.
+// 1E.sweep: quarter/status converted to <EnumFormField> using
+// `tdsQuarter` / `tdsStatus`. TODOs remaining:
+// - financial-year is a dynamically-generated list (fyOptions(6)) — leave
+//   as ZoruSelect until an <EnumFieldYearRange> variant exists.
+// - employee → <EntityFormField entity="employee">.
 
 /**
  * <TdsForm /> — create + edit form for TDS records.
@@ -26,6 +30,7 @@ import {
     ZoruTextarea,
     useZoruToast,
 } from '@/components/zoruui';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 
 import {
     saveTdsRecord,
@@ -34,20 +39,6 @@ import {
 } from '@/app/actions/crm-tds.actions';
 
 const BASE = '/dashboard/hrm/payroll/tds';
-
-const STATUS_OPTIONS: Array<{ value: CrmTdsStatus; label: string }> = [
-    { value: 'pending', label: 'Pending' },
-    { value: 'deposited', label: 'Deposited' },
-    { value: 'filed', label: 'Filed' },
-    { value: 'archived', label: 'Archived' },
-];
-
-const QUARTER_OPTIONS: Array<{ value: CrmTdsQuarter; label: string }> = [
-    { value: 'Q1', label: 'Q1 (Apr – Jun)' },
-    { value: 'Q2', label: 'Q2 (Jul – Sep)' },
-    { value: 'Q3', label: 'Q3 (Oct – Dec)' },
-    { value: 'Q4', label: 'Q4 (Jan – Mar)' },
-];
 
 function currentFY(): string {
     const now = new Date();
@@ -163,6 +154,7 @@ export function TdsForm({ initialData }: TdsFormProps) {
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
                         <ZoruLabel htmlFor="fy-trigger">Financial year</ZoruLabel>
+                        {/* TODO 1E.sweep: dynamic list — needs <EnumFieldYearRange> variant (rolling 6-FY window) */}
                         <ZoruSelect value={financialYear} onValueChange={setFinancialYear}>
                             <ZoruSelectTrigger id="fy-trigger">
                                 <ZoruSelectValue placeholder="FY" />
@@ -177,40 +169,26 @@ export function TdsForm({ initialData }: TdsFormProps) {
                         </ZoruSelect>
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="q-trigger">Quarter</ZoruLabel>
-                        <ZoruSelect
-                            value={quarter}
-                            onValueChange={(v) => setQuarter(v as CrmTdsQuarter)}
-                        >
-                            <ZoruSelectTrigger id="q-trigger">
-                                <ZoruSelectValue placeholder="Quarter" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {QUARTER_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <ZoruLabel>Quarter</ZoruLabel>
+                        <EnumFormField
+                            name="quarter-picker"
+                            enumName="tdsQuarter"
+                            initialId={quarter}
+                            onChange={(id) => setQuarter((id as CrmTdsQuarter) ?? 'Q1')}
+                            allowInlineCreate={false}
+                            placeholder="Quarter"
+                        />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
-                        <ZoruSelect
-                            value={status}
-                            onValueChange={(v) => setStatus(v as CrmTdsStatus)}
-                        >
-                            <ZoruSelectTrigger id="status-trigger">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <ZoruLabel>Status</ZoruLabel>
+                        <EnumFormField
+                            name="status-picker"
+                            enumName="tdsStatus"
+                            initialId={status}
+                            onChange={(id) => setStatus((id as CrmTdsStatus) ?? 'pending')}
+                            allowInlineCreate={false}
+                            placeholder="Status"
+                        />
                     </div>
                 </div>
 

@@ -1,6 +1,9 @@
 'use client';
 
-// TODO 1E.sweep: convert ZoruSelects (status, condition, type) -> <EnumFormField> using catalogued assetStatus/assetCondition. Convert assignedTo/department -> <EntityFormField>. See plan §1E.
+// 1E.sweep done — category/condition/status converted to <EnumFormField>
+// using `assetCategory` / `assetCondition` / `assetStatus`. assignee
+// fields stay as text inputs for now — TODO 1E.sweep: convert
+// `currentAssigneeId` -> <EntityFormField entity="employee">.
 
 /**
  * <AssetForm /> — create + edit form for HR assets.
@@ -21,50 +24,18 @@ import {
     ZoruCard,
     ZoruInput,
     ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
     ZoruTextarea,
     useZoruToast,
 } from '@/components/zoruui';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 
 import { saveAsset } from '@/app/actions/crm-assets.actions';
 import type {
-    CrmAssetCategory,
-    CrmAssetCondition,
     CrmAssetDoc,
     CrmAssetStatus,
 } from '@/lib/rust-client/crm-assets';
 
 const BASE = '/dashboard/hrm/hr/assets';
-
-const CATEGORY_OPTIONS: Array<{ value: CrmAssetCategory; label: string }> = [
-    { value: 'laptop', label: 'Laptop' },
-    { value: 'phone', label: 'Phone' },
-    { value: 'monitor', label: 'Monitor' },
-    { value: 'badge', label: 'Badge' },
-    { value: 'keys', label: 'Keys' },
-    { value: 'vehicle', label: 'Vehicle' },
-    { value: 'other', label: 'Other' },
-];
-
-const CONDITION_OPTIONS: Array<{ value: CrmAssetCondition; label: string }> = [
-    { value: 'new', label: 'New' },
-    { value: 'good', label: 'Good' },
-    { value: 'fair', label: 'Fair' },
-    { value: 'poor', label: 'Poor' },
-    { value: 'damaged', label: 'Damaged' },
-];
-
-const STATUS_OPTIONS: Array<{ value: CrmAssetStatus; label: string }> = [
-    { value: 'available', label: 'Available' },
-    { value: 'assigned', label: 'Assigned' },
-    { value: 'in_repair', label: 'In repair' },
-    { value: 'retired', label: 'Retired' },
-    { value: 'archived', label: 'Archived' },
-];
 
 function toDateInput(value: unknown): string {
     if (!value) return '';
@@ -163,19 +134,14 @@ export function AssetForm({ initialData }: AssetFormProps) {
                 {/* Row 2: Category + Brand + Model */}
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="category-trigger">Category</ZoruLabel>
-                        <ZoruSelect value={category} onValueChange={setCategory}>
-                            <ZoruSelectTrigger id="category-trigger">
-                                <ZoruSelectValue placeholder="Pick a category" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {CATEGORY_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <ZoruLabel>Category</ZoruLabel>
+                        <EnumFormField
+                            name="category-picker"
+                            enumName="assetCategory"
+                            initialId={category}
+                            onChange={(id) => setCategory(id ?? 'laptop')}
+                            placeholder="Pick a category"
+                        />
                     </div>
                     <div className="space-y-1.5">
                         <ZoruLabel htmlFor="brand">Brand</ZoruLabel>
@@ -259,37 +225,28 @@ export function AssetForm({ initialData }: AssetFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="condition-trigger">Condition</ZoruLabel>
-                        <ZoruSelect value={condition} onValueChange={setCondition}>
-                            <ZoruSelectTrigger id="condition-trigger">
-                                <ZoruSelectValue placeholder="Condition" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {CONDITION_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <ZoruLabel>Condition</ZoruLabel>
+                        <EnumFormField
+                            name="condition-picker"
+                            enumName="assetCondition"
+                            initialId={condition}
+                            onChange={(id) => setCondition(id ?? 'good')}
+                            allowInlineCreate={false}
+                            placeholder="Condition"
+                        />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
-                        <ZoruSelect
-                            value={status}
-                            onValueChange={(v) => setStatus(v as CrmAssetStatus)}
-                        >
-                            <ZoruSelectTrigger id="status-trigger">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <ZoruLabel>Status</ZoruLabel>
+                        <EnumFormField
+                            name="status-picker"
+                            enumName="assetStatus"
+                            initialId={status}
+                            onChange={(id) =>
+                                setStatus((id as CrmAssetStatus) ?? 'available')
+                            }
+                            allowInlineCreate={false}
+                            placeholder="Status"
+                        />
                     </div>
                 </div>
 

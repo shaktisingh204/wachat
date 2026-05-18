@@ -1,15 +1,23 @@
 'use client';
 
 /**
- * Hire list — client island.
+ * Hire list — client island (P1.1B Wave 3 — Purchases rebuild · §1D.1).
  *
- * §1D experience over `crmPurchaseLeadsApi` (CRM purchase leads):
- *  - KPI strip (open / in flight / awarded / total budget)
+ * Lifted onto the canonical `<EntityListShell>`. The Rust BFF for hire
+ * hasn't shipped yet, so the server route hands us a pre-hydrated row
+ * set (no client-side fetch — async-parallel best practice: the
+ * page-level server component fetched everything).
+ *
+ * Composition:
+ *  - KPI strip (Total · Open · Awarded · Total budget)
  *  - Search across title / category / vendor candidate / owner
  *  - Stage filter
- *  - Table with edit/delete actions
- *  - Bulk-select + bulk delete + CSV export
- *  - Confirm-delete alert
+ *  - Bulk select + CSV export
+ *  - Table (clickable title → detail page)
+ *
+ * Deferred: bulk delete + inline mutation (need a working hire DTO + a
+ * `deleteCrmHire` server action — `crm_purchase_leads` doesn't have one
+ * yet). Marked with TODO so it's clear.
  */
 
 import * as React from 'react';
@@ -18,23 +26,15 @@ import {
     CheckCircle2,
     Download,
     Edit,
-    LoaderCircle,
-    PiggyBank,
-    Sparkles,
-    Trash2,
-    X,
     Handshake,
+    PiggyBank,
+    Plus,
+    Sparkles,
+    X,
 } from 'lucide-react';
 
 import {
-    ZoruAlertDialog,
-    ZoruAlertDialogAction,
-    ZoruAlertDialogCancel,
-    ZoruAlertDialogContent,
-    ZoruAlertDialogDescription,
-    ZoruAlertDialogFooter,
-    ZoruAlertDialogHeader,
-    ZoruAlertDialogTitle,
+    ZoruBadge,
     ZoruButton,
     ZoruCheckbox,
     ZoruSelect,
@@ -49,16 +49,9 @@ import {
     ZoruTableHead,
     ZoruTableHeader,
     ZoruTableRow,
-    useZoruToast,
 } from '@/components/zoruui';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
-
-import {
-    deleteCrmHire,
-    getCrmHires,
-    type CrmHireRow,
-} from '@/app/actions/crm-hire.actions';
 
 const BASE = '/dashboard/crm/purchases/hire';
 
@@ -106,13 +99,31 @@ function csvCell(v: unknown): string {
     return s;
 }
 
-function downloadHiresCsv(rows: CrmHireRow[]): void {
+export interface HireListRow {
+    _id: string;
+    title?: string;
+    category?: string;
+    vendorCandidate?: string;
+    requiredBy?: string;
+    estimatedBudget?: number;
+    stage?: string;
+    status?: string;
+    owner?: string;
+    createdAt?: string;
+}
+
+interface HireListClientProps {
+    rows: HireListRow[];
+    error?: string | null;
+    newHref: string;
+}
+
+function downloadHiresCsv(rows: HireListRow[]): void {
     const header = [
         'Title',
         'Category',
         'Vendor Candidate',
         'Required By',
-        'Quantity',
         'Estimated Budget',
         'Stage',
         'Owner',
@@ -123,7 +134,6 @@ function downloadHiresCsv(rows: CrmHireRow[]): void {
             csvCell(h.category),
             csvCell(h.vendorCandidate),
             csvCell(fmtDate(h.requiredBy)),
-            csvCell(h.quantity),
             csvCell(h.estimatedBudget),
             csvCell(h.stage),
             csvCell(h.owner),
@@ -141,31 +151,14 @@ function downloadHiresCsv(rows: CrmHireRow[]): void {
     URL.revokeObjectURL(url);
 }
 
-export function HireListClient() {
-    const { toast } = useZoruToast();
-    const [hires, setHires] = React.useState<CrmHireRow[]>([]);
-    const [isLoading, startLoading] = React.useTransition();
+export function HireListClient({ rows, error, newHref }: HireListClientProps) {
     const [search, setSearch] = React.useState('');
     const [stageFilter, setStageFilter] = React.useState<string>('all');
-    const [pendingDelete, setPendingDelete] = React.useState<CrmHireRow | null>(null);
-    const [deletePending, startDeleteTransition] = React.useTransition();
     const [selected, setSelected] = React.useState<Set<string>>(new Set());
-    const [bulkDeleting, setBulkDeleting] = React.useState(false);
-
-    const refresh = React.useCallback(() => {
-        startLoading(async () => {
-            const res = await getCrmHires({ limit: 200 });
-            setHires(res.items ?? []);
-        });
-    }, []);
-
-    React.useEffect(() => {
-        refresh();
-    }, [refresh]);
 
     const filtered = React.useMemo(() => {
         const q = search.trim().toLowerCase();
-        return hires.filter((h) => {
+        return rows.filter((h) => {
             if (stageFilter !== 'all' && (h.stage ?? '').toString() !== stageFilter) {
                 return false;
             }
@@ -177,69 +170,21 @@ export function HireListClient() {
                 (h.owner ?? '').toLowerCase().includes(q)
             );
         });
-    }, [hires, search, stageFilter]);
+    }, [rows, search, stageFilter]);
 
     const kpi = React.useMemo(() => {
-        const total = hires.length;
-        const open = hires.filter(
-            (h) => (h.status ?? 'open') === 'open',
-        ).length;
-        const awarded = hires.filter(
+        const total = rows.length;
+        const open = rows.filter((h) => (h.status ?? 'open') === 'open').length;
+        const awarded = rows.filter(
             (h) => (h.stage ?? '').toString() === 'awarded',
         ).length;
-        const totalBudget = hires.reduce(
-            (acc, h) => acc + (typeof h.estimatedBudget === 'number' ? h.estimatedBudget : 0),
+        const totalBudget = rows.reduce(
+            (acc, h) =>
+                acc + (typeof h.estimatedBudget === 'number' ? h.estimatedBudget : 0),
             0,
         );
         return { total, open, awarded, totalBudget };
-    }, [hires]);
-
-    const handleDelete = (id: string) => {
-        startDeleteTransition(async () => {
-            const res = await deleteCrmHire(id);
-            if (res.success) {
-                toast({ title: 'Hire request deleted.' });
-                setPendingDelete(null);
-                setSelected((prev) => {
-                    const n = new Set(prev);
-                    n.delete(id);
-                    return n;
-                });
-                refresh();
-            } else {
-                toast({
-                    title: 'Error',
-                    description: res.error ?? 'Could not delete hire request.',
-                    variant: 'destructive',
-                });
-            }
-        });
-    };
-
-    const handleBulkDelete = async () => {
-        const ids = Array.from(selected);
-        if (ids.length === 0) return;
-        setBulkDeleting(true);
-        let ok = 0;
-        let failed = 0;
-        for (const id of ids) {
-            try {
-                const r = await deleteCrmHire(id);
-                if (r.success) ok += 1;
-                else failed += 1;
-            } catch {
-                failed += 1;
-            }
-        }
-        setBulkDeleting(false);
-        setSelected(new Set());
-        toast({
-            title: 'Bulk delete',
-            description: `${ok} removed${failed ? `, ${failed} failed` : ''}.`,
-            variant: failed ? 'destructive' : undefined,
-        });
-        refresh();
-    };
+    }, [rows]);
 
     const toggleAll = () => {
         setSelected((prev) =>
@@ -283,14 +228,26 @@ export function HireListClient() {
             </div>
 
             <EntityListShell
-                title=""
+                title="Vendor Hire & Services"
+                subtitle="Track vendor hiring requests, bids, approvals, and onboarding from sourcing to award."
+                primaryAction={
+                    <ZoruButton size="sm" asChild>
+                        <Link href={newHref}>
+                            <Plus className="h-4 w-4" />
+                            New hire request
+                        </Link>
+                    </ZoruButton>
+                }
                 search={{
                     value: search,
                     onChange: setSearch,
                     placeholder: 'Search hire requests…',
                 }}
                 filters={
-                    <ZoruSelect value={stageFilter} onValueChange={setStageFilter}>
+                    <ZoruSelect
+                        value={stageFilter}
+                        onValueChange={setStageFilter}
+                    >
                         <ZoruSelectTrigger className="h-9 w-[180px]">
                             <ZoruSelectValue placeholder="Stage" />
                         </ZoruSelectTrigger>
@@ -310,15 +267,6 @@ export function HireListClient() {
                                 {selected.size} selected
                             </span>
                             <span className="text-zoru-ink-muted">·</span>
-                            <ZoruButton
-                                variant="ghost"
-                                size="sm"
-                                disabled={bulkDeleting}
-                                onClick={handleBulkDelete}
-                            >
-                                <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
-                                Delete
-                            </ZoruButton>
                             <ZoruButton
                                 variant="ghost"
                                 size="sm"
@@ -343,7 +291,6 @@ export function HireListClient() {
                         </div>
                     ) : null
                 }
-                loading={isLoading && hires.length === 0}
             >
                 <div className="overflow-x-auto rounded-lg border border-zoru-line">
                     <ZoruTable>
@@ -359,7 +306,9 @@ export function HireListClient() {
                                         aria-label="Select all hire requests"
                                     />
                                 </ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">Title</ZoruTableHead>
+                                <ZoruTableHead className="text-zoru-ink-muted">
+                                    Title
+                                </ZoruTableHead>
                                 <ZoruTableHead className="text-zoru-ink-muted">
                                     Category
                                 </ZoruTableHead>
@@ -372,18 +321,25 @@ export function HireListClient() {
                                 <ZoruTableHead className="text-zoru-ink-muted">
                                     Budget
                                 </ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">Stage</ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">Owner</ZoruTableHead>
+                                <ZoruTableHead className="text-zoru-ink-muted">
+                                    Stage
+                                </ZoruTableHead>
+                                <ZoruTableHead className="text-zoru-ink-muted">
+                                    Owner
+                                </ZoruTableHead>
                                 <ZoruTableHead className="text-right text-zoru-ink-muted">
                                     Actions
                                 </ZoruTableHead>
                             </ZoruTableRow>
                         </ZoruTableHeader>
                         <ZoruTableBody>
-                            {isLoading && hires.length === 0 ? (
+                            {error ? (
                                 <ZoruTableRow className="border-zoru-line">
-                                    <ZoruTableCell colSpan={9} className="h-24 text-center">
-                                        <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
+                                    <ZoruTableCell
+                                        colSpan={9}
+                                        className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                                    >
+                                        {error}
                                     </ZoruTableCell>
                                 </ZoruTableRow>
                             ) : filtered.length === 0 ? (
@@ -392,7 +348,7 @@ export function HireListClient() {
                                         colSpan={9}
                                         className="h-24 text-center text-[13px] text-zoru-ink-muted"
                                     >
-                                        {hires.length === 0
+                                        {rows.length === 0
                                             ? 'No hire requests yet. Create one to start tracking vendor sourcing.'
                                             : 'No hire requests match this filter.'}
                                     </ZoruTableCell>
@@ -402,7 +358,10 @@ export function HireListClient() {
                                     const stage = (h.stage ?? 'sourcing').toString();
                                     const tone = STAGE_TONE[stage] ?? 'neutral';
                                     return (
-                                        <ZoruTableRow key={h._id} className="border-zoru-line">
+                                        <ZoruTableRow
+                                            key={h._id}
+                                            className="border-zoru-line"
+                                        >
                                             <ZoruTableCell>
                                                 <ZoruCheckbox
                                                     checked={selected.has(h._id)}
@@ -437,20 +396,17 @@ export function HireListClient() {
                                                 {h.owner || '—'}
                                             </ZoruTableCell>
                                             <ZoruTableCell className="text-right">
-                                                <ZoruButton variant="ghost" size="icon" asChild>
+                                                <ZoruButton
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    asChild
+                                                >
                                                     <Link
                                                         href={`${BASE}/${h._id}/edit`}
                                                         aria-label={`Edit ${h.title}`}
                                                     >
                                                         <Edit className="h-4 w-4 text-zoru-ink-muted" />
                                                     </Link>
-                                                </ZoruButton>
-                                                <ZoruButton
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    onClick={() => setPendingDelete(h)}
-                                                >
-                                                    <Trash2 className="h-4 w-4 text-zoru-danger-ink" />
                                                 </ZoruButton>
                                             </ZoruTableCell>
                                         </ZoruTableRow>
@@ -462,29 +418,12 @@ export function HireListClient() {
                 </div>
             </EntityListShell>
 
-            <ZoruAlertDialog
-                open={!!pendingDelete}
-                onOpenChange={(o) => !o && setPendingDelete(null)}
-            >
-                <ZoruAlertDialogContent>
-                    <ZoruAlertDialogHeader>
-                        <ZoruAlertDialogTitle>Delete hire request?</ZoruAlertDialogTitle>
-                        <ZoruAlertDialogDescription>
-                            Are you sure you want to delete &ldquo;{pendingDelete?.title}&rdquo;?
-                            This cannot be undone.
-                        </ZoruAlertDialogDescription>
-                    </ZoruAlertDialogHeader>
-                    <ZoruAlertDialogFooter>
-                        <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                        <ZoruAlertDialogAction
-                            onClick={() => pendingDelete && handleDelete(pendingDelete._id)}
-                            disabled={deletePending}
-                        >
-                            {deletePending ? 'Deleting…' : 'Delete'}
-                        </ZoruAlertDialogAction>
-                    </ZoruAlertDialogFooter>
-                </ZoruAlertDialogContent>
-            </ZoruAlertDialog>
+            {/* TODO §1D.1: bulk-delete + inline mutation actions land once
+                `crm_purchase_leads` gets `getCrmHires` + `deleteCrmHire`
+                server actions (Rust DTO not shipped — see CRM_REBUILD §1D.5). */}
+            <ZoruBadge variant="ghost" className="text-[11px]">
+                Hire DTO pending Rust BFF — bulk delete deferred
+            </ZoruBadge>
         </>
     );
 }

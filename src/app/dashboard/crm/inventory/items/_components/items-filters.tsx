@@ -103,6 +103,7 @@ export function ItemsFilters({
       <div className="grid gap-3 px-3 pb-3 md:grid-cols-3 lg:grid-cols-4">
         <div className="space-y-1">
           <ZoruLabel>Status</ZoruLabel>
+          {/* TODO 1E.sweep: filter-with-all — needs <EnumFilterField> variant (sentinel 'all' + clearable) */}
           <ZoruSelect value={statusFilter} onValueChange={onStatusFilter}>
             <ZoruSelectTrigger>
               <ZoruSelectValue />
@@ -118,6 +119,7 @@ export function ItemsFilters({
         </div>
         <div className="space-y-1">
           <ZoruLabel>Type</ZoruLabel>
+          {/* TODO 1E.sweep: filter-with-all — needs <EnumFilterField> variant */}
           <ZoruSelect value={typeFilter} onValueChange={onTypeFilter}>
             <ZoruSelectTrigger>
               <ZoruSelectValue />
@@ -178,6 +180,7 @@ export function ItemsFilters({
         </div>
         <div className="space-y-1">
           <ZoruLabel>Inventory tracking</ZoruLabel>
+          {/* TODO 1E.sweep: filter-with-all — needs <EnumFilterField> variant */}
           <ZoruSelect value={trackFilter} onValueChange={onTrackFilter}>
             <ZoruSelectTrigger>
               <ZoruSelectValue />

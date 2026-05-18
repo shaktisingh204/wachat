@@ -1,15 +1,18 @@
 /**
- * Purchase order detail — `/dashboard/crm/purchases/orders/[id]`.
+ * Purchase order detail — `/dashboard/crm/purchases/orders/[id]`
+ * (P1.1B Wave 3 — Purchases rebuild · §1D.2).
  *
- * Server component per CRM_REBUILD_PLAN §1D.2. Composes:
- *   - Header: status pill (click → status change) + 10+ action buttons.
- *   - Body cards via `<PurchaseOrderDetailBody>`: Overview, Approval
- *     workflow, Vendor, Line items, Money summary. Plus inline cards
- *     for notes, attachments, tags.
- *   - Right rail: LineageRail · Vendor chip + outstanding balance ·
- *     quick-edit chips · related entities.
- *   - Audit footer via `<EntityAuditTimeline>`.
- *   - `?print=1` renders the standalone print layout.
+ * Server component. Lifted onto the canonical `<EntityDetailShell>` so
+ * the header / body / right-rail / audit-footer composition matches the
+ * Invoices template at `/dashboard/crm/sales/invoices/[id]`. Body
+ * composition is unchanged (`<PurchaseOrderDetailBody>` already met the
+ * §1D.2 bar) — this rebuild only swaps the page chrome.
+ *
+ * Header: back link + eyebrow + status pill + 9-button action group.
+ * Body: overview, vendor, line items, money summary, notes, tags.
+ * Right rail: LineageRail (RFQ→bid→PO→GRN→bill→payout) · vendor chip
+ * with outstanding · quick-edit chips · related-counts · activity link.
+ * Audit footer: <EntityAuditTimeline entityKind="purchaseOrder">.
  */
 
 import Link from 'next/link';
@@ -17,11 +20,19 @@ import { notFound } from 'next/navigation';
 import { ObjectId } from 'mongodb';
 import { ArrowLeft, ClipboardList } from 'lucide-react';
 
-import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import {
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruBadge,
+} from '@/components/zoruui';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { LineageRail } from '@/components/crm/lineage-rail';
+import { statusToTone } from '@/components/crm/status-pill';
 import {
   getCrmPurchaseOrderRelatedCounts,
   getPurchaseOrder,
@@ -156,6 +167,8 @@ export default async function PurchaseOrderDetailPage({
   const userObjectId = session?.user?._id
     ? new ObjectId(String(session.user._id))
     : null;
+  // Parallel fan-out — vendor hydration + related counts share zero state,
+  // so kick them off together (async-parallel best practice).
   const [vendor, related] = await Promise.all([
     userObjectId
       ? hydrateVendor(order.vendorId, userObjectId)
@@ -186,28 +199,23 @@ export default async function PurchaseOrderDetailPage({
       ? String(order.approval.requestedBy)
       : null;
 
+  const title = order.poNo || `Purchase order ${poId.slice(-6)}`;
+  const subtitleParts = [
+    `Issued ${fmtDate(order.date)}`,
+    `Expected ${fmtDate(order.expectedDelivery)}`,
+    fmtMoney(totals.total, currency),
+  ];
+
   return (
-    <div className="flex w-full flex-col gap-6">
-      <div className="flex flex-col gap-3">
-        <Link
-          href="/dashboard/crm/purchases/orders"
-          className="inline-flex items-center gap-1.5 text-[12.5px] text-zoru-ink-muted hover:text-zoru-ink"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" /> Back to Purchase Orders
-        </Link>
-        <CrmPageHeader
-          title={order.poNo || 'Purchase order'}
-          subtitle={`Issued ${fmtDate(order.date)} · Expected ${fmtDate(order.expectedDelivery)} · ${fmtMoney(totals.total, currency)}`}
-          breadcrumbs={[
-            { label: 'CRM', href: '/dashboard/crm' },
-            { label: 'Purchases', href: '/dashboard/crm/purchases' },
-            {
-              label: 'Purchase Orders',
-              href: '/dashboard/crm/purchases/orders',
-            },
-            { label: order.poNo || 'Purchase order' },
-          ]}
-        />
+    <EntityDetailShell
+      title={title}
+      eyebrow={`PURCHASE ORDER ${order.poNo ?? poId.slice(-6)}`}
+      status={{ label: status, tone: statusToTone(status) }}
+      back={{
+        href: '/dashboard/crm/purchases/orders',
+        label: 'All purchase orders',
+      }}
+      actions={
         <PurchaseOrderDetailActions
           poId={poId}
           poNo={order.poNo ?? ''}
@@ -215,116 +223,61 @@ export default async function PurchaseOrderDetailPage({
           contactEmail={vendor.email}
           contactPhone={vendor.phone}
         />
-      </div>
-
-      <div className="flex flex-col gap-6 md:flex-row md:items-start">
-        <main className="min-w-0 flex-1 space-y-6">
-          <PurchaseOrderDetailBody
-            order={order}
-            vendor={{
-              name: vendor.name,
-              email: vendor.email,
-              phone: vendor.phone,
+      }
+      rightRail={
+        <>
+          <LineageRail
+            current={{
+              kind: 'purchaseOrder',
+              id: poId,
+              no: order.poNo,
+              status:
+                typeof order.status === 'string' ? order.status : undefined,
             }}
+            lineage={
+              (order.lineage ?? []) as Array<{
+                kind: LineageKind;
+                id: string;
+                no?: string;
+                status?: string;
+              }>
+            }
           />
 
-          {/* Notes */}
-          {order.notes || order.termsAndConditions ? (
-            <ZoruCard className="p-6">
-              <h2 className="mb-3 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
-                Notes
-              </h2>
-              <div className="grid gap-4 md:grid-cols-2 text-[13px]">
-                {order.notes ? (
-                  <div>
-                    <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
-                      Internal notes
-                    </div>
-                    <p className="mt-1 whitespace-pre-wrap">{order.notes}</p>
-                  </div>
-                ) : null}
-                {order.termsAndConditions ? (
-                  <div>
-                    <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
-                      Terms &amp; conditions
-                    </div>
-                    <p className="mt-1 whitespace-pre-wrap">
-                      {order.termsAndConditions}
-                    </p>
-                  </div>
-                ) : null}
-              </div>
-            </ZoruCard>
-          ) : null}
+          {/* Vendor chip + outstanding */}
+          <ZoruCard>
+            <ZoruCardHeader>
+              <ZoruCardTitle>Vendor</ZoruCardTitle>
+            </ZoruCardHeader>
+            <ZoruCardContent className="space-y-2 text-[12.5px]">
+              {order.vendorId ? (
+                <EntityPickerChip entity="vendor" id={order.vendorId} />
+              ) : (
+                <span className="text-zoru-ink-muted">No vendor linked</span>
+              )}
+              {vendor.outstanding != null ? (
+                <div className="flex items-center justify-between gap-2 border-t border-zoru-line pt-2">
+                  <span className="text-zoru-ink-muted">Outstanding</span>
+                  <span
+                    className={`font-mono tabular-nums ${
+                      vendor.outstanding > 0
+                        ? 'text-zoru-danger-ink'
+                        : 'text-zoru-ink'
+                    }`}
+                  >
+                    {fmtMoney(vendor.outstanding, currency)}
+                  </span>
+                </div>
+              ) : null}
+            </ZoruCardContent>
+          </ZoruCard>
 
-          {/* Tags */}
-          {Array.isArray((order as { tags?: string[] }).tags) &&
-          (order as { tags?: string[] }).tags!.length > 0 ? (
-            <ZoruCard className="p-6">
-              <h2 className="mb-3 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
-                Tags
-              </h2>
-              <div className="flex flex-wrap gap-2">
-                {(order as { tags?: string[] }).tags!.map((t) => (
-                  <ZoruBadge key={t} variant="outline">
-                    {t}
-                  </ZoruBadge>
-                ))}
-              </div>
-            </ZoruCard>
-          ) : null}
-        </main>
-
-        <aside className="w-full md:w-80 md:shrink-0">
-          <div className="space-y-4 md:sticky md:top-4">
-            <LineageRail
-              current={{
-                kind: 'purchaseOrder',
-                id: poId,
-                no: order.poNo,
-                status: typeof order.status === 'string' ? order.status : undefined,
-              }}
-              lineage={
-                (order.lineage ?? []) as Array<{
-                  kind: LineageKind;
-                  id: string;
-                  no?: string;
-                  status?: string;
-                }>
-              }
-            />
-
-            <ZoruCard className="p-4">
-              <h3 className="mb-3 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
-                Vendor
-              </h3>
-              <div className="space-y-2 text-[12.5px]">
-                {order.vendorId ? (
-                  <EntityPickerChip entity="vendor" id={order.vendorId} />
-                ) : (
-                  <span className="text-zoru-ink-muted">No vendor linked</span>
-                )}
-                {vendor.outstanding != null ? (
-                  <div className="flex items-center justify-between gap-2 border-t border-zoru-line pt-2">
-                    <span className="text-zoru-ink-muted">Outstanding</span>
-                    <span
-                      className={`font-mono tabular-nums ${
-                        vendor.outstanding > 0
-                          ? 'text-zoru-danger-ink'
-                          : 'text-zoru-ink'
-                      }`}
-                    >
-                      {fmtMoney(vendor.outstanding, currency)}
-                    </span>
-                  </div>
-                ) : null}
-              </div>
-            </ZoruCard>
-
-            <ZoruCard className="p-4">
-              <h3 className="mb-3 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
-                At a glance
-              </h3>
+          {/* At a glance + inline status / vendor / buyer / approver */}
+          <ZoruCard>
+            <ZoruCardHeader>
+              <ZoruCardTitle>At a glance</ZoruCardTitle>
+            </ZoruCardHeader>
+            <ZoruCardContent>
               <PurchaseOrderQuickEdits
                 poId={poId}
                 status={status}
@@ -333,6 +286,18 @@ export default async function PurchaseOrderDetailPage({
                 approverId={approverId}
               />
               <div className="mt-3 space-y-1.5 text-[12.5px]">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-zoru-ink-muted">Subtotal</span>
+                  <span className="font-mono tabular-nums">
+                    {fmtMoney(totals.subTotal, currency)}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-zoru-ink-muted">Total</span>
+                  <span className="font-mono tabular-nums">
+                    {fmtMoney(totals.total, currency)}
+                  </span>
+                </div>
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-zoru-ink-muted">Created</span>
                   <span>
@@ -346,21 +311,90 @@ export default async function PurchaseOrderDetailPage({
                   </span>
                 </div>
               </div>
-            </ZoruCard>
+            </ZoruCardContent>
+          </ZoruCard>
 
-            <PurchaseOrderRelatedRail poId={poId} initial={related} />
+          {/* Live-poll wrapper — refreshes related counts when a
+              downstream doc (GRN, bill, payout) lands. */}
+          <PurchaseOrderRelatedRail poId={poId} initial={related} />
 
-            <ZoruButton size="sm" variant="ghost" asChild className="w-full">
-              <Link href={`/dashboard/crm/purchases/orders/${poId}/activity`}>
-                <ClipboardList className="h-3.5 w-3.5" />
-                View full activity log
-              </Link>
-            </ZoruButton>
-          </div>
-        </aside>
-      </div>
+          <ZoruButton size="sm" variant="ghost" asChild className="w-full">
+            <Link
+              href={`/dashboard/crm/purchases/orders/${poId}/activity`}
+            >
+              <ClipboardList className="h-3.5 w-3.5" />
+              View full activity log
+            </Link>
+          </ZoruButton>
+        </>
+      }
+      audit={
+        <EntityAuditTimeline entityKind="purchaseOrder" entityId={poId} />
+      }
+    >
+      {/* Subtitle banner — narrow row below the shell header. */}
+      <p className="text-[12.5px] text-zoru-ink-muted">
+        {subtitleParts.join(' · ')}
+      </p>
 
-      <EntityAuditTimeline entityKind="purchaseOrder" entityId={poId} />
-    </div>
+      <PurchaseOrderDetailBody
+        order={order}
+        vendor={{
+          name: vendor.name,
+          email: vendor.email,
+          phone: vendor.phone,
+        }}
+      />
+
+      {/* Notes (internal + T&C) */}
+      {order.notes || order.termsAndConditions ? (
+        <ZoruCard>
+          <ZoruCardHeader>
+            <ZoruCardTitle>Notes</ZoruCardTitle>
+          </ZoruCardHeader>
+          <ZoruCardContent>
+            <div className="grid gap-4 md:grid-cols-2 text-[13px]">
+              {order.notes ? (
+                <div>
+                  <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+                    Internal notes
+                  </div>
+                  <p className="mt-1 whitespace-pre-wrap">{order.notes}</p>
+                </div>
+              ) : null}
+              {order.termsAndConditions ? (
+                <div>
+                  <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+                    Terms &amp; conditions
+                  </div>
+                  <p className="mt-1 whitespace-pre-wrap">
+                    {order.termsAndConditions}
+                  </p>
+                </div>
+              ) : null}
+            </div>
+          </ZoruCardContent>
+        </ZoruCard>
+      ) : null}
+
+      {/* Tags */}
+      {Array.isArray((order as { tags?: string[] }).tags) &&
+      (order as { tags?: string[] }).tags!.length > 0 ? (
+        <ZoruCard>
+          <ZoruCardHeader>
+            <ZoruCardTitle>Tags</ZoruCardTitle>
+          </ZoruCardHeader>
+          <ZoruCardContent>
+            <div className="flex flex-wrap gap-2">
+              {(order as { tags?: string[] }).tags!.map((t) => (
+                <ZoruBadge key={t} variant="outline">
+                  {t}
+                </ZoruBadge>
+              ))}
+            </div>
+          </ZoruCardContent>
+        </ZoruCard>
+      ) : null}
+    </EntityDetailShell>
   );
 }

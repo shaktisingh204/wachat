@@ -8,7 +8,7 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { Archive, CheckCircle2, LoaderCircle } from 'lucide-react';
+import { Archive, CheckCircle2, ClipboardCheck, LoaderCircle } from 'lucide-react';
 
 import { ZoruButton, useZoruToast } from '@/components/zoruui';
 import { bulkGrnAction, setGrnStatus } from '@/app/actions/crm/grns.actions';
@@ -18,13 +18,15 @@ interface GrnDetailActionsProps {
     currentStatus: string;
 }
 
+type Op = 'qc' | 'accept' | 'archive';
+
 export function GrnDetailActions({ id, currentStatus }: GrnDetailActionsProps) {
     const router = useRouter();
     const { toast } = useZoruToast();
     const [pending, startTransition] = React.useTransition();
-    const [busy, setBusy] = React.useState<'accept' | 'archive' | null>(null);
+    const [busy, setBusy] = React.useState<Op | null>(null);
 
-    const run = (op: 'accept' | 'archive') => {
+    const run = (op: Op) => {
         setBusy(op);
         startTransition(async () => {
             if (op === 'archive') {
@@ -44,10 +46,14 @@ export function GrnDetailActions({ id, currentStatus }: GrnDetailActionsProps) {
                 }
                 return;
             }
-            const res = await setGrnStatus(id, 'posted');
+            // QC check → inspected ; Accept → posted
+            const nextStatus = op === 'qc' ? 'inspected' : 'posted';
+            const res = await setGrnStatus(id, nextStatus);
             setBusy(null);
             if (res.success) {
-                toast({ title: 'GRN accepted' });
+                toast({
+                    title: op === 'qc' ? 'QC check recorded' : 'GRN accepted',
+                });
                 router.refresh();
             } else {
                 toast({
@@ -59,10 +65,26 @@ export function GrnDetailActions({ id, currentStatus }: GrnDetailActionsProps) {
         });
     };
 
-    const isLoading = (op: 'accept' | 'archive') => pending && busy === op;
+    const isLoading = (op: Op) => pending && busy === op;
 
     return (
         <>
+            <ZoruButton
+                variant="outline"
+                onClick={() => run('qc')}
+                disabled={
+                    pending ||
+                    currentStatus === 'inspected' ||
+                    currentStatus === 'posted'
+                }
+            >
+                {isLoading('qc') ? (
+                    <LoaderCircle className="h-4 w-4 animate-spin" />
+                ) : (
+                    <ClipboardCheck className="h-4 w-4" />
+                )}
+                QC check
+            </ZoruButton>
             <ZoruButton
                 variant="outline"
                 onClick={() => run('accept')}
