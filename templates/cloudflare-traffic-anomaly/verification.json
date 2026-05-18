@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "cloudflare-traffic-anomaly",
+  "cases": [
+    {
+      "id": "spike",
+      "description": "Spike webhook triggers analytics pull and conditional page.",
+      "triggerPayload": { "zone": "example.com", "spike": true },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
