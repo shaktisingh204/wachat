@@ -41,6 +41,10 @@ export const config: VercelConfig = {
       schedule: '* * * * *',
     },
     {
+      path: '/api/cron/sabflow-gc',
+      schedule: '0 */6 * * *',
+    },
+    {
       path: '/api/cron/webhook-dispatcher',
       schedule: '* * * * *',
     },
