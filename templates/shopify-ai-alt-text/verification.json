@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "templateId": "shopify-ai-alt-text",
+  "cases": [
+    {
+      "id": "happy-path",
+      "description": "A new Shopify product fires the trigger; each image is downloaded, described by GPT-4o vision, written back to the Shopify image record, and logged to Airtable.",
+      "triggerPayload": {
+        "id": 9876543210,
+        "title": "Ceramic Pour-Over Kettle",
+        "locale": "en",
+        "images": [
+          { "id": 111, "src": "https://cdn.shopify.example/products/kettle-front.jpg", "alt": null },
+          { "id": 112, "src": "https://cdn.shopify.example/products/kettle-side.jpg", "alt": null }
+        ]
+      },
+      "expect": {
+        "finalStatus": "success"
+      }
+    }
+  ]
+}
