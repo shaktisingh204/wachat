@@ -7,6 +7,8 @@
 
 pub mod dispatcher;
 
+pub mod concurrency;
+
 pub fn placeholder() -> &'static str {
     "sabflow-executor-queue: scaffold"
 }

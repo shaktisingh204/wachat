@@ -12,23 +12,15 @@ path = "src/lib.rs"
 
 [dependencies]
 # Async stack — matches the workspace standard (sabflow-executor-rust-stack ADR §5).
-tokio = { version = "1", features = ["macros", "rt-multi-thread", "time", "sync", "signal"] }
+tokio = { version = "1", features = ["macros", "rt", "rt-multi-thread", "time", "sync", "signal"] }
 # CancellationToken lives in tokio-util's `rt` feature.
 tokio-util = { version = "0.7", features = ["rt"] }
-
-# Redis client — Track B Phase 2 §3 mandates the `redis` crate (BullMQ-compat
-# Lua + native Hash/List/Sorted-Set commands). Async via tokio.
+# Redis client — Track B Phase 2 §3 mandates the `redis` crate (BullMQ-compat).
 redis = { version = "0.27", default-features = false, features = ["tokio-comp", "script", "aio"] }
-
-# Serialization — Job hash fields parse via serde_json from BullMQ's HASH shape.
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-
-# `async_trait` is needed because ExecutorHandler must be object-safe so
-# Dispatcher can hold `Arc<dyn ExecutorHandler>` without coercion contortions.
+# `async_trait` for dyn ExecutorHandler + LuaExecutor traits.
 async-trait = "0.1"
-
-# Standard error / logging plumbing — workspace baseline.
 thiserror = "2"
 anyhow = "1"
 tracing = "0.1"
