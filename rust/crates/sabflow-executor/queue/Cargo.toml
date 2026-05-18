@@ -1,0 +1,67 @@
+# Standalone-package marker. Track B Phase 2 ships the executor crates as
+# isolated units (Phase 1 §6 scaffold spec); the empty `[workspace]` table
+# tells cargo "I'm intentionally not a member of the enclosing workspace"
+# so `cargo check -p sabflow-executor-queue` works against this manifest
+# directly without first having to wire the path into rust/Cargo.toml. The
+# orchestrator batch-merges the executor sub-crates into the workspace
+# `members` list when Phase 2 closes.
+[workspace]
+
+[package]
+name = "sabflow-executor-queue"
+version = "0.1.0"
+edition = "2024"
+license = "UNLICENSED"
+publish = false
+description = "SabFlow executor queue + dispatcher (Track B Phase 2). BullMQ-compatible job pump on Redis plus the dead-letter queue surface."
+
+[lib]
+name = "sabflow_executor_queue"
+path = "src/lib.rs"
+
+[dependencies]
+# Async runtime — every Redis call goes through `fred`'s async API.
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+# Serialization. DLQ entries carry the original job's `data` blob as opaque
+# JSON plus a small set of structured fields (`reason`, `attemptsMade`,
+# timestamps), so we serialize via `serde_json::Value` rather than a typed
+# DTO — the consumer (Node admin API / Rust requeuer) reads what it needs.
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Time. `chrono::Utc::now()` for the `dlqedAt` ISO-8601 stamp; the Node side
+# uses `Date.now()` (millis-since-epoch) and we want the two surfaces to
+# overlap on the millisecond field for cross-language sorts.
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+# Errors. `thiserror` for the local `DlqError` enum; `anyhow` for upstream
+# integration points that funnel into `ApiError::Internal`.
+thiserror = "2"
+anyhow = "1"
+
+# Tracing. The DLQ deposit path MUST be fail-soft — a missing alert listener
+# or a flaky Redis pub/sub leg should still let the LPUSH + HSET succeed —
+# so every leg logs via tracing rather than returning an error.
+tracing = "0.1"
+
+# Redis client. Same `fred` major as `wachat-queue` so the producer / DLQ
+# surfaces share one connection type. We need:
+#   - `i-keys`     for HSET / EXPIRE / DEL
+#   - `i-hashes`   for the job-hash mutations (`dlqedAt`, `dlqReason`)
+#   - `i-lists`    for LPUSH / LRANGE / LTRIM on the DLQ list
+#   - `i-pubsub`   for PUBLISH on `sabflow:dlq:<name>`
+#   - `i-server`   reserved for the cap-check (LLEN doubles as a probe)
+fred = { version = "10.1", default-features = true, features = [
+    "enable-rustls",
+    "i-keys",
+    "i-hashes",
+    "i-lists",
+    "i-pubsub",
+] }
+
+[dev-dependencies]
+# `tokio::test` macros for the in-process unit tests. No Redis fixture here —
+# the LPUSH / LTRIM / PUBLISH plumbing is integration-tested by the Node
+# admin surface under `src/lib/sabflow/queue/dlq.ts`.
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
