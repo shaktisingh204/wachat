@@ -109,13 +109,13 @@ pub mod my_sql;
 pub mod supabase;
 pub mod noco_db;
 
-// ── Phase C.5.2: Google Cloud integration nodes ─────────────────────────────
-pub mod google_big_query;
-pub mod google_translate;
-pub mod google_cloud_storage;
-pub mod google_cloud_pub_sub;
-pub mod google_cloud_tasks;
-pub mod google_vision;
+// ── Phase C.5.3: 6 Microsoft Graph nodes ────────────────────────────────────
+pub mod microsoft_outlook;
+pub mod microsoft_teams;
+pub mod microsoft_one_drive;
+pub mod microsoft_excel_365;
+pub mod microsoft_share_point;
+pub mod microsoft_to_do;
 
 use crate::{descriptor::NodeCategory, registry::NodeRegistry};
 
@@ -232,13 +232,13 @@ fn register_implemented(r: &mut NodeRegistry) {
     r.register(my_sql::MySqlNode);
     r.register(supabase::SupabaseNode);
     r.register(noco_db::NocoDbNode);
-    // Phase C.5.2 — Google Cloud nodes
-    r.register(google_big_query::GoogleBigQueryNode);
-    r.register(google_translate::GoogleTranslateNode);
-    r.register(google_cloud_storage::GoogleCloudStorageNode);
-    r.register(google_cloud_pub_sub::GoogleCloudPubSubNode);
-    r.register(google_cloud_tasks::GoogleCloudTasksNode);
-    r.register(google_vision::GoogleVisionNode);
+    // Phase C.5.3 — 6 Microsoft Graph nodes
+    r.register(microsoft_outlook::MicrosoftOutlookNode);
+    r.register(microsoft_teams::MicrosoftTeamsNode);
+    r.register(microsoft_one_drive::MicrosoftOneDriveNode);
+    r.register(microsoft_excel_365::MicrosoftExcel365Node);
+    r.register(microsoft_share_point::MicrosoftSharePointNode);
+    r.register(microsoft_to_do::MicrosoftToDoNode);
 }
 
 /// Register stubs only when the name isn't already populated by an implemented node.
