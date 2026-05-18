@@ -1,0 +1,20 @@
+{
+  "_comment": "Hand-rolled smoke fixture for the 'Set' node. Mirrored verbatim into fixtures/set/{input,expected-output}.json. This file is the canonical reference authors copy from when adding new fixtures — see README.md > 'Adding a fixture'. The shape here matches the harness wire contract: { nodeType, params, items } -> { items }.",
+  "input": {
+    "nodeType": "set",
+    "params": {
+      "keepOnlySet": false,
+      "values": [
+        { "name": "added", "value": 1 }
+      ]
+    },
+    "items": [
+      { "name": "a" }
+    ]
+  },
+  "expected": {
+    "items": [
+      { "name": "a", "added": 1 }
+    ]
+  }
+}
