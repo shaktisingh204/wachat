@@ -1,0 +1,303 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_typeform_demo",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "typeform.form_response",
+    "options": {
+      "path": "/webhooks/typeform-lead-router",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "Typeform-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_typeform_trigger",
+      "name": "Typeform Demo Request",
+      "type": "n8n-nodes-base.typeformTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "formId": "={{ $vars.TYPEFORM_FORM_ID }}",
+        "simplifyAnswers": true,
+        "onlyAnswers": true
+      },
+      "credentials": {
+        "typeformApi": { "id": "typeform-cred", "name": "Typeform API" }
+      }
+    },
+    {
+      "id": "n_extract_lead",
+      "name": "Extract Lead Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "email", "value": "={{ $json.answers['email'] }}" },
+            { "name": "firstName", "value": "={{ $json.answers['first_name'] }}" },
+            { "name": "lastName", "value": "={{ $json.answers['last_name'] }}" },
+            { "name": "company", "value": "={{ $json.answers['company'] }}" },
+            { "name": "companyDomain", "value": "={{ $json.answers['work_email'].split('@')[1] }}" },
+            { "name": "phone", "value": "={{ $json.answers['phone'] }}" }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "n_clearbit_enrich",
+      "name": "Clearbit Company Lookup",
+      "type": "n8n-nodes-base.clearbit",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "resource": "company",
+        "operation": "get",
+        "domain": "={{ $json.companyDomain }}"
+      },
+      "credentials": {
+        "clearbitApi": { "id": "clearbit-cred", "name": "Clearbit API" }
+      }
+    },
+    {
+      "id": "n_enrich_summarize",
+      "name": "Normalize Enrichment",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "industry", "value": "={{ $json.category && $json.category.industry }}" },
+            { "name": "country", "value": "={{ $json.geo && $json.geo.country }}" }
+          ],
+          "number": [
+            { "name": "employees", "value": "={{ $json.metrics && $json.metrics.employees }}" }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "n_size_switch",
+      "name": "Route by Company Size",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            { "conditions": { "number": [{ "value1": "={{ $json.employees }}", "operation": "smallerEqual", "value2": 50 }] }, "outputKey": "smb" },
+            { "conditions": { "number": [{ "value1": "={{ $json.employees }}", "operation": "smallerEqual", "value2": 500 }] }, "outputKey": "mid" }
+          ]
+        },
+        "fallbackOutput": "ent"
+      }
+    },
+    {
+      "id": "n_airtable_smb",
+      "name": "Airtable Upsert — SMB",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [1200, -200],
+      "parameters": {
+        "operation": "upsert",
+        "application": "={{ $vars.AIRTABLE_BASE_ID }}",
+        "table": "={{ $vars.AIRTABLE_TABLE_NAME }}",
+        "matchingColumns": ["Email"],
+        "fields": {
+          "Email": "={{ $node['Extract Lead Fields'].json.email }}",
+          "Name": "={{ $node['Extract Lead Fields'].json.firstName }} {{ $node['Extract Lead Fields'].json.lastName }}",
+          "Company": "={{ $node['Extract Lead Fields'].json.company }}",
+          "Phone": "={{ $node['Extract Lead Fields'].json.phone }}",
+          "Industry": "={{ $node['Normalize Enrichment'].json.industry }}",
+          "Country": "={{ $node['Normalize Enrichment'].json.country }}",
+          "Employees": "={{ $node['Normalize Enrichment'].json.employees }}",
+          "Segment": "SMB",
+          "View": "={{ $vars.AIRTABLE_VIEW_SMB }}"
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "airtable-cred", "name": "Airtable PAT" }
+      }
+    },
+    {
+      "id": "n_airtable_mid",
+      "name": "Airtable Upsert — Mid-Market",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [1200, 0],
+      "parameters": {
+        "operation": "upsert",
+        "application": "={{ $vars.AIRTABLE_BASE_ID }}",
+        "table": "={{ $vars.AIRTABLE_TABLE_NAME }}",
+        "matchingColumns": ["Email"],
+        "fields": {
+          "Email": "={{ $node['Extract Lead Fields'].json.email }}",
+          "Name": "={{ $node['Extract Lead Fields'].json.firstName }} {{ $node['Extract Lead Fields'].json.lastName }}",
+          "Company": "={{ $node['Extract Lead Fields'].json.company }}",
+          "Phone": "={{ $node['Extract Lead Fields'].json.phone }}",
+          "Industry": "={{ $node['Normalize Enrichment'].json.industry }}",
+          "Country": "={{ $node['Normalize Enrichment'].json.country }}",
+          "Employees": "={{ $node['Normalize Enrichment'].json.employees }}",
+          "Segment": "Mid-Market",
+          "View": "={{ $vars.AIRTABLE_VIEW_MID }}"
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "airtable-cred", "name": "Airtable PAT" }
+      }
+    },
+    {
+      "id": "n_airtable_ent",
+      "name": "Airtable Upsert — Enterprise",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [1200, 200],
+      "parameters": {
+        "operation": "upsert",
+        "application": "={{ $vars.AIRTABLE_BASE_ID }}",
+        "table": "={{ $vars.AIRTABLE_TABLE_NAME }}",
+        "matchingColumns": ["Email"],
+        "fields": {
+          "Email": "={{ $node['Extract Lead Fields'].json.email }}",
+          "Name": "={{ $node['Extract Lead Fields'].json.firstName }} {{ $node['Extract Lead Fields'].json.lastName }}",
+          "Company": "={{ $node['Extract Lead Fields'].json.company }}",
+          "Phone": "={{ $node['Extract Lead Fields'].json.phone }}",
+          "Industry": "={{ $node['Normalize Enrichment'].json.industry }}",
+          "Country": "={{ $node['Normalize Enrichment'].json.country }}",
+          "Employees": "={{ $node['Normalize Enrichment'].json.employees }}",
+          "Segment": "Enterprise",
+          "View": "={{ $vars.AIRTABLE_VIEW_ENT }}"
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "airtable-cred", "name": "Airtable PAT" }
+      }
+    },
+    {
+      "id": "n_slack_ae_smb",
+      "name": "Slack — Ping SMB AE",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1440, -200],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SLACK_AE_CHANNEL_SMB }}",
+        "text": ":seedling: *New SMB lead*: {{ $node['Extract Lead Fields'].json.firstName }} {{ $node['Extract Lead Fields'].json.lastName }} — {{ $node['Extract Lead Fields'].json.company }} ({{ $node['Normalize Enrichment'].json.employees }} employees). Airtable record: {{ $json.id }}",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    },
+    {
+      "id": "n_slack_ae_mid",
+      "name": "Slack — Ping Mid-Market AE",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1440, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SLACK_AE_CHANNEL_MID }}",
+        "text": ":evergreen_tree: *New Mid-Market lead*: {{ $node['Extract Lead Fields'].json.firstName }} {{ $node['Extract Lead Fields'].json.lastName }} — {{ $node['Extract Lead Fields'].json.company }} ({{ $node['Normalize Enrichment'].json.employees }} employees). Airtable record: {{ $json.id }}",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    },
+    {
+      "id": "n_slack_ae_ent",
+      "name": "Slack — Ping Enterprise AE",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1440, 200],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SLACK_AE_CHANNEL_ENT }}",
+        "text": ":deciduous_tree: *New Enterprise lead*: {{ $node['Extract Lead Fields'].json.firstName }} {{ $node['Extract Lead Fields'].json.lastName }} — {{ $node['Extract Lead Fields'].json.company }} ({{ $node['Normalize Enrichment'].json.employees }} employees). Airtable record: {{ $json.id }}",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    }
+  ],
+  "connections": {
+    "n_typeform_trigger": {
+      "main": [[{ "node": "n_extract_lead", "type": "main", "index": 0 }]]
+    },
+    "n_extract_lead": {
+      "main": [[{ "node": "n_clearbit_enrich", "type": "main", "index": 0 }]]
+    },
+    "n_clearbit_enrich": {
+      "main": [[{ "node": "n_enrich_summarize", "type": "main", "index": 0 }]]
+    },
+    "n_enrich_summarize": {
+      "main": [[{ "node": "n_size_switch", "type": "main", "index": 0 }]]
+    },
+    "n_size_switch": {
+      "smb": [[{ "node": "n_airtable_smb", "type": "main", "index": 0 }]],
+      "mid": [[{ "node": "n_airtable_mid", "type": "main", "index": 0 }]],
+      "ent": [[{ "node": "n_airtable_ent", "type": "main", "index": 0 }]]
+    },
+    "n_airtable_smb": {
+      "main": [[{ "node": "n_slack_ae_smb", "type": "main", "index": 0 }]]
+    },
+    "n_airtable_mid": {
+      "main": [[{ "node": "n_slack_ae_mid", "type": "main", "index": 0 }]]
+    },
+    "n_airtable_ent": {
+      "main": [[{ "node": "n_slack_ae_ent", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_typeform_trigger",
+        "n_extract_lead",
+        "n_clearbit_enrich",
+        "n_enrich_summarize",
+        "n_size_switch",
+        "n_airtable_smb",
+        "n_airtable_mid",
+        "n_airtable_ent",
+        "n_slack_ae_smb",
+        "n_slack_ae_mid",
+        "n_slack_ae_ent"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_typeform_id", "name": "TYPEFORM_FORM_ID", "defaultValue": "" },
+    { "id": "v_airtable_base", "name": "AIRTABLE_BASE_ID", "defaultValue": "" },
+    { "id": "v_airtable_table", "name": "AIRTABLE_TABLE_NAME", "defaultValue": "Leads" },
+    { "id": "v_airtable_view_smb", "name": "AIRTABLE_VIEW_SMB", "defaultValue": "SMB Inbound" },
+    { "id": "v_airtable_view_mid", "name": "AIRTABLE_VIEW_MID", "defaultValue": "Mid-Market Inbound" },
+    { "id": "v_airtable_view_ent", "name": "AIRTABLE_VIEW_ENT", "defaultValue": "Enterprise Inbound" },
+    { "id": "v_slack_ae_smb", "name": "SLACK_AE_CHANNEL_SMB", "defaultValue": "#ae-smb" },
+    { "id": "v_slack_ae_mid", "name": "SLACK_AE_CHANNEL_MID", "defaultValue": "#ae-mid-market" },
+    { "id": "v_slack_ae_ent", "name": "SLACK_AE_CHANNEL_ENT", "defaultValue": "#ae-enterprise" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

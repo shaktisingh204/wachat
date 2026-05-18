@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "templateId": "typeform-lead-router",
+  "cases": [
+    {
+      "id": "smb-lead",
+      "description": "A 25-person startup submits the demo form; lead is routed to the SMB Airtable view and the SMB AE channel is pinged.",
+      "triggerPayload": {
+        "answers": {
+          "email": "pat@acme.io",
+          "work_email": "pat@acme.io",
+          "first_name": "Pat",
+          "last_name": "Singh",
+          "company": "Acme",
+          "phone": "+1-415-555-0101"
+        }
+      },
+      "expect": {
+        "finalStatus": "success"
+      }
+    },
+    {
+      "id": "mid-market-lead",
+      "description": "A ~250-employee company submits the demo form; lead lands in the Mid-Market view and the Mid-Market AE channel is pinged.",
+      "triggerPayload": {
+        "answers": {
+          "email": "dana@midcorp.com",
+          "work_email": "dana@midcorp.com",
+          "first_name": "Dana",
+          "last_name": "Lee",
+          "company": "MidCorp",
+          "phone": "+1-415-555-0202"
+        }
+      },
+      "expect": {
+        "finalStatus": "success"
+      }
+    },
+    {
+      "id": "enterprise-lead",
+      "description": "A 5,000-employee company submits the demo form; lead is routed to the Enterprise view and the Enterprise AE channel is pinged.",
+      "triggerPayload": {
+        "answers": {
+          "email": "alex@globex.com",
+          "work_email": "alex@globex.com",
+          "first_name": "Alex",
+          "last_name": "Rivera",
+          "company": "Globex",
+          "phone": "+1-415-555-0303"
+        }
+      },
+      "expect": {
+        "finalStatus": "success"
+      }
+    }
+  ]
+}
