@@ -109,13 +109,13 @@ pub mod my_sql;
 pub mod supabase;
 pub mod noco_db;
 
-// ── Phase C.5.3: 6 Microsoft Graph nodes ────────────────────────────────────
-pub mod microsoft_outlook;
-pub mod microsoft_teams;
-pub mod microsoft_one_drive;
-pub mod microsoft_excel_365;
-pub mod microsoft_share_point;
-pub mod microsoft_to_do;
+// ── Phase C.5.4: CRM/sales nodes ────────────────────────────────────────────
+pub mod copper;
+pub mod agile_crm;
+pub mod close_io;
+pub mod freshworks_crm;
+pub mod affinity;
+pub mod kommo;
 
 use crate::{descriptor::NodeCategory, registry::NodeRegistry};
 
@@ -232,13 +232,13 @@ fn register_implemented(r: &mut NodeRegistry) {
     r.register(my_sql::MySqlNode);
     r.register(supabase::SupabaseNode);
     r.register(noco_db::NocoDbNode);
-    // Phase C.5.3 — 6 Microsoft Graph nodes
-    r.register(microsoft_outlook::MicrosoftOutlookNode);
-    r.register(microsoft_teams::MicrosoftTeamsNode);
-    r.register(microsoft_one_drive::MicrosoftOneDriveNode);
-    r.register(microsoft_excel_365::MicrosoftExcel365Node);
-    r.register(microsoft_share_point::MicrosoftSharePointNode);
-    r.register(microsoft_to_do::MicrosoftToDoNode);
+    // Phase C.5.4 — CRM / sales (6)
+    r.register(copper::CopperNode);
+    r.register(agile_crm::AgileCrmNode);
+    r.register(close_io::CloseIoNode);
+    r.register(freshworks_crm::FreshworksCrmNode);
+    r.register(affinity::AffinityNode);
+    r.register(kommo::KommoNode);
 }
 
 /// Register stubs only when the name isn't already populated by an implemented node.
@@ -277,6 +277,7 @@ fn register_stubs(r: &mut NodeRegistry) {
         ("clearbit", "Clearbit", NodeCategory::Marketing, "Business intelligence APIs"),
         ("clickUp", "ClickUp", NodeCategory::Productivity, "Project management"),
         ("clockify", "Clockify", NodeCategory::Productivity, "Time tracking"),
+        ("closeIo", "Close", NodeCategory::Sales, "Close (close.io) sales CRM"),
         ("cloudflare", "Cloudflare", NodeCategory::Developer, "DNS and CDN management"),
         ("cockpit", "Cockpit", NodeCategory::Developer, "Headless CMS"),
         ("coda", "Coda", NodeCategory::Productivity, "All-in-one doc"),
@@ -370,6 +371,7 @@ fn register_stubs(r: &mut NodeRegistry) {
         ("kafka", "Kafka", NodeCategory::Developer, "Apache Kafka producer/consumer"),
         ("keap", "Keap", NodeCategory::Crm, "Small-business CRM"),
         ("koBoToolbox", "KoBoToolbox", NodeCategory::Productivity, "Data collection forms"),
+        ("kommo", "Kommo", NodeCategory::Crm, "Kommo (amoCRM) sales CRM"),
         ("ldap", "LDAP", NodeCategory::Developer, "Directory operations"),
         ("lemlist", "Lemlist", NodeCategory::Marketing, "Cold email outreach"),
         ("line", "LINE", NodeCategory::Communication, "LINE messaging"),
