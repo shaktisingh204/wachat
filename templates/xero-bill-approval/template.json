@@ -1,0 +1,10 @@
+{
+  "id": "xero-bill-approval",
+  "name": "Xero Bill Approval",
+  "description": "New Xero bills above the configured threshold pause for human approval through a Slack interactive prompt; below-threshold bills are auto-approved on the spot. Approved bills are marked paid in Xero, rejected ones notify the original creator by email.",
+  "category": "Finance",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["xero", "approval", "slack", "sendgrid", "finance", "billing"],
+  "version": "0.1.0"
+}
