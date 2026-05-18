@@ -37,7 +37,6 @@ import {
 import Link from 'next/link';
 import { useDebouncedCallback } from 'use-debounce';
 import { Search,
-  Users,
   Mail,
   Phone,
   MoreHorizontal } from 'lucide-react';
@@ -56,7 +55,7 @@ import type { CrmContact,
 import { CrmAddContactDialog } from '@/components/wabasimplify/crm-add-contact-dialog';
 import { CreateDealDialog } from '@/components/wabasimplify/crm-create-deal-dialog';
 
-import { CrmPageHeader } from '../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 const CONTACTS_PER_PAGE = 15;
 
@@ -144,13 +143,11 @@ export default function CrmContactsPage() {
   if (isLoading && contacts.length === 0) return <ContactsPageSkeleton />;
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title={t('crm.contacts.list.title')}
-        subtitle={t('crm.contacts.list.subtitle')}
-        icon={Users}
-        actions={<CrmAddContactDialog onAdded={fetchData} accounts={accounts} />}
-      />
+    <EntityListShell
+      title={t('crm.contacts.list.title')}
+      subtitle={t('crm.contacts.list.subtitle')}
+      primaryAction={<CrmAddContactDialog onAdded={fetchData} accounts={accounts} />}
+    >
 
       <ZoruCard className="p-6">
         <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
@@ -325,6 +322,6 @@ export default function CrmContactsPage() {
           }}
         />
       ) : null}
-    </div>
+    </EntityListShell>
   );
 }

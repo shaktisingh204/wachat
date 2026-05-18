@@ -23,14 +23,14 @@ import {
   useEffect,
   useState,
   useTransition } from 'react';
-import { BarChart3,
+import {
   Download,
   Filter,
   RotateCcw } from 'lucide-react';
 
 import * as React from 'react';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { getTimeReport } from '@/app/actions/worksuite/time.actions';
 import type { WsTimeReportRow } from '@/lib/worksuite/time-types';
 
@@ -86,26 +86,24 @@ export default function TimeTrackingReportsPage() {
   );
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Time Report"
-        subtitle="Group logged time by employee, project, or date. Export as CSV."
-        icon={BarChart3}
-        actions={
-          <ZoruButton
-            onClick={() =>
-              downloadCsv(
-                `time-report-${group}-${new Date().toISOString().slice(0, 10)}.csv`,
-                toCsv(rows, groupLabel),
-              )
-            }
-            disabled={rows.length === 0}
-          >
-            <Download className="h-4 w-4" strokeWidth={1.75} />
-            Export CSV
-          </ZoruButton>
-        }
-      />
+    <EntityListShell
+      title="Time Report"
+      subtitle="Group logged time by employee, project, or date. Export as CSV."
+      primaryAction={
+        <ZoruButton
+          onClick={() =>
+            downloadCsv(
+              `time-report-${group}-${new Date().toISOString().slice(0, 10)}.csv`,
+              toCsv(rows, groupLabel),
+            )
+          }
+          disabled={rows.length === 0}
+        >
+          <Download className="h-4 w-4" strokeWidth={1.75} />
+          Export CSV
+        </ZoruButton>
+      }
+    >
 
       <ZoruCard className="p-6">
         <div className="flex flex-wrap items-end gap-3">
@@ -228,6 +226,6 @@ export default function TimeTrackingReportsPage() {
           ) : null}
         </div>
       </ZoruCard>
-    </div>
+    </EntityListShell>
   );
 }

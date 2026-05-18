@@ -10,11 +10,9 @@
  */
 
 import * as React from 'react';
-import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { ArrowLeft, Building2 } from 'lucide-react';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import {
     AccountForm,
     type AccountFormPrefill,
@@ -67,24 +65,12 @@ export default function NewAccountPage() {
             : 'Add a company to your CRM. Contacts, deals, quotes and invoices will hang off this record.';
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <div>
-                <Link
-                    href="/dashboard/crm/accounts"
-                    className="inline-flex items-center gap-1.5 text-[12.5px] text-zoru-ink-muted hover:text-zoru-ink"
-                >
-                    <ArrowLeft className="h-3.5 w-3.5" />
-                    Back to Accounts
-                </Link>
-            </div>
-
-            <CrmPageHeader
-                title="New Account"
-                subtitle={subtitle}
-                icon={Building2}
-            />
-
+        <EntityDetailShell
+            eyebrow="ACCOUNT"
+            title="New Account"
+            back={{ href: '/dashboard/crm/accounts', label: 'Accounts' }}
+        >
             <AccountForm mode="create" prefill={prefill} />
-        </div>
+        </EntityDetailShell>
     );
 }

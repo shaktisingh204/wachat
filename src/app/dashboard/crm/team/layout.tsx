@@ -27,8 +27,7 @@ import {
 import { useState, useEffect, useRef, useActionState, useTransition } from 'react';
 import { Plus,
   Trash2,
-  LoaderCircle,
-  Users } from 'lucide-react';
+  LoaderCircle } from 'lucide-react';
 
 import type { WithId,
   User } from '@/lib/definitions';
@@ -40,7 +39,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 
 import { ClayCard } from '@/components/clay';
-import { CrmPageHeader } from '../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 const removeAgentInitialState: any = { message: null, error: null };
 const inviteAgentInitialState: any = { message: null, error: null };
@@ -207,12 +206,10 @@ export default function ManageUsersPage() {
   }, []);
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Manage Team"
-        subtitle="Invite and manage users for your account."
-        icon={Users}
-      />
+    <EntityListShell
+      title="Manage Team"
+      subtitle="Invite and manage users for your account."
+    >
 
       <InviteAgentForm onAgentInvited={fetchData} />
       <ZoruSeparator className="bg-border" />
@@ -273,6 +270,6 @@ export default function ManageUsersPage() {
           )}
         </div>
       </ClayCard>
-    </div>
+    </EntityListShell>
   );
 }

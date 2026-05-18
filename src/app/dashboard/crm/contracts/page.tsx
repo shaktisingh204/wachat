@@ -37,7 +37,6 @@ import {
 } from 'react';
 import Link from 'next/link';
 import {
-  FileSignature,
   ListChecks,
   Pencil,
   Search,
@@ -51,7 +50,7 @@ import {
 } from '@/app/actions/crm-services.actions';
 import type { HrContract } from '@/lib/hr-types';
 
-import { CrmPageHeader } from '../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import {
   ContractsKpiStrip,

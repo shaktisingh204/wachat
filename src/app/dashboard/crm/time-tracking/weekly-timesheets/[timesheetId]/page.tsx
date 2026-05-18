@@ -25,8 +25,6 @@ import {
   use,
   } from 'react';
 import {
-  ArrowLeft,
-  CalendarRange,
   Plus,
   Save,
   Send,
@@ -37,9 +35,8 @@ import {
   } from 'lucide-react';
 
 import * as React from 'react';
-import Link from 'next/link';
 
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import {
   getWeeklyTimesheetById,
   getWeeklyEntries,
@@ -237,68 +234,49 @@ export default function WeeklyTimesheetDetailPage({
   };
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <div>
-        <Link
-          href="/dashboard/crm/time-tracking/weekly-timesheets"
-          className="inline-flex items-center gap-1.5 text-[12.5px] text-zoru-ink-muted hover:text-zoru-ink"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" strokeWidth={1.75} />
-          Back to Weekly Timesheets
-        </Link>
-      </div>
-
-      <CrmPageHeader
-        title="Weekly Timesheet"
-        subtitle={
-          ts
-            ? `Week of ${new Date(ts.week_start_date).toISOString().slice(0, 10)} — ${new Date(
-                ts.week_end_date,
-              )
-                .toISOString()
-                .slice(0, 10)}`
-            : 'Loading…'
-        }
-        icon={CalendarRange}
-        actions={
-          <div className="flex flex-wrap items-center gap-2">
-            {ts ? (
-              <ZoruBadge variant={STATUS_VARIANTS[ts.status] || 'ghost'}>
-                {ts.status}
-              </ZoruBadge>
-            ) : null}
-            <ZoruButton variant="outline" disabled={isSaving} onClick={saveAll}>
-              {isSaving ? (
-                <LoaderCircle
-                  className="h-4 w-4 animate-spin"
-                  strokeWidth={1.75}
-                />
-              ) : (
-                <Save className="h-4 w-4" strokeWidth={1.75} />
-              )}
-              Save
+    <EntityDetailShell
+      eyebrow="TIMESHEET"
+      title="Weekly Timesheet"
+      back={{ href: '/dashboard/crm/time-tracking/weekly-timesheets', label: 'Weekly Timesheets' }}
+      actions={
+        <div className="flex flex-wrap items-center gap-2">
+          {ts ? (
+            <ZoruBadge variant={STATUS_VARIANTS[ts.status] || 'ghost'}>
+              {ts.status}
+            </ZoruBadge>
+          ) : null}
+          <ZoruButton variant="outline" disabled={isSaving} onClick={saveAll}>
+            {isSaving ? (
+              <LoaderCircle
+                className="h-4 w-4 animate-spin"
+                strokeWidth={1.75}
+              />
+            ) : (
+              <Save className="h-4 w-4" strokeWidth={1.75} />
+            )}
+            Save
+          </ZoruButton>
+          {ts?.status === 'draft' || ts?.status === 'rejected' ? (
+            <ZoruButton onClick={handleSubmit}>
+              <Send className="h-4 w-4" strokeWidth={1.75} />
+              Submit
             </ZoruButton>
-            {ts?.status === 'draft' || ts?.status === 'rejected' ? (
-              <ZoruButton onClick={handleSubmit}>
-                <Send className="h-4 w-4" strokeWidth={1.75} />
-                Submit
+          ) : null}
+          {ts?.status === 'submitted' ? (
+            <>
+              <ZoruButton onClick={handleApprove}>
+                <Check className="h-4 w-4" strokeWidth={1.75} />
+                Approve
               </ZoruButton>
-            ) : null}
-            {ts?.status === 'submitted' ? (
-              <>
-                <ZoruButton onClick={handleApprove}>
-                  <Check className="h-4 w-4" strokeWidth={1.75} />
-                  Approve
-                </ZoruButton>
-                <ZoruButton variant="outline" onClick={() => setRejecting(true)}>
-                  <X className="h-4 w-4 text-zoru-danger-ink" strokeWidth={1.75} />
-                  Reject
-                </ZoruButton>
-              </>
-            ) : null}
-          </div>
-        }
-      />
+              <ZoruButton variant="outline" onClick={() => setRejecting(true)}>
+                <X className="h-4 w-4 text-zoru-danger-ink" strokeWidth={1.75} />
+                Reject
+              </ZoruButton>
+            </>
+          ) : null}
+        </div>
+      }
+    >
 
       {isLoading && !ts ? (
         <ZoruCard className="p-6">
@@ -490,6 +468,6 @@ export default function WeeklyTimesheetDetailPage({
           </ZoruDialogFooter>
         </ZoruDialogContent>
       </ZoruDialog>
-    </div>
+    </EntityDetailShell>
   );
 }
