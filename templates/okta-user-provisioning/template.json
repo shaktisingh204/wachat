@@ -1,0 +1,10 @@
+{
+  "id": "okta-user-provisioning",
+  "name": "BambooHR to Okta Provisioning",
+  "description": "Catches new-hire webhooks from BambooHR and provisions Okta in one shot: user record created, department-specific groups attached, and a 1Password vault invite generated. The IT team is informed in #it-onboarding so any manual follow-ups can happen the same day.",
+  "category": "HR",
+  "complexity": "advanced",
+  "authorName": "SabNode",
+  "tags": ["okta", "bamboohr", "1password", "onboarding", "iam", "hr"],
+  "version": "0.1.0"
+}

@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "templateId": "okta-user-provisioning",
+  "cases": [
+    {
+      "id": "engineering-hire",
+      "description": "An Engineering hire is created in Okta, added to the Eng group, granted 1Password access, and announced in Slack.",
+      "triggerPayload": {
+        "employee": { "firstName": "Jamie", "lastName": "Reed", "workEmail": "jamie@example.com", "department": "Engineering" }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
