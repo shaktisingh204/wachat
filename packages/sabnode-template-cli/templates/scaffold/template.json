@@ -1,0 +1,11 @@
+{
+  "id": "__NAME__",
+  "displayName": "__DISPLAY_NAME__",
+  "description": "TODO — short marketing-style description of \"__DISPLAY_NAME__\". 1–3 sentences.",
+  "category": "__CATEGORY__",
+  "requiredCredentials": [],
+  "screenshots": [],
+  "tags": [],
+  "version": "0.1.0",
+  "author": "TODO"
+}

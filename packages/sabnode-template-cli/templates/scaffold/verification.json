@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "templateId": "__NAME__",
+  "cases": [
+    {
+      "id": "happy-path",
+      "description": "Default trigger payload — should run to completion.",
+      "triggerPayload": { "input": "hello world" },
+      "expect": {
+        "finalStatus": "success",
+        "executedBlocks": ["b___NAME_UNDERSCORE___step1"],
+        "variables": {}
+      }
+    }
+  ]
+}
