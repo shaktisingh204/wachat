@@ -1,0 +1,10 @@
+{
+  "id": "bitcoin-payment-confirm",
+  "name": "Bitcoin Payment Confirmation",
+  "description": "Listens for BlockCypher confirmation webhooks on Bitcoin addresses tied to Shopify orders. When a transaction confirms, the Shopify order is marked paid, the crypto-orders channel gets a Slack notice, and the customer is emailed a receipt.",
+  "category": "Finance",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["bitcoin", "blockcypher", "shopify", "slack", "sendgrid", "crypto"],
+  "version": "0.1.0"
+}
