@@ -1,0 +1,57 @@
+# Standalone-package marker for the Track B / Phase 2 SabFlow executor
+# queue. The Phase-2 slices ship one crate at a time and the orchestrator
+# wires them into `rust/Cargo.toml` as a batch — until then this empty
+# `[workspace]` table tells cargo "I'm intentionally NOT a member of the
+# enclosing workspace" so `cargo check -p sabflow-executor-queue` succeeds
+# in isolation (no other Phase-2 sibling needs to be present yet).
+[workspace]
+
+[package]
+name = "sabflow-executor-queue"
+version = "0.1.0"
+edition = "2024"
+description = "Worker-side cancellation honour for SabFlow executor: dispatch-level CancellationToken, Redis pubsub subscriber, per-node lifecycle checks, mid-node abort plumbing for in-flight reqwest calls. Pair with src/lib/sabflow/queue/cancel.ts on the admin/editor side."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "sabflow_executor_queue"
+path = "src/lib.rs"
+
+[dependencies]
+# Async stack — `sync` brings `RwLock` / `Notify`, `time` brings `sleep`
+# for the watchdog, `macros` brings `tokio::select!` for mid-node aborts.
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "time", "sync"] }
+
+# `CancellationToken` — the canonical cooperative-cancel primitive in the
+# tokio ecosystem. Child tokens cascade so the dispatcher can hand a fresh
+# token to each running job and cancel it without touching siblings.
+tokio-util = { version = "0.7", default-features = false, features = ["rt"] }
+
+# Used by the Redis pubsub subscriber to drive `sub.on_message().next()`
+# inside the dispatcher task.
+futures = "0.3"
+
+# Standard logging / error plumbing used everywhere in this workspace.
+tracing = "0.1"
+thiserror = "2"
+
+# Redis client — re-using the same `fred` crate the rest of the workspace
+# uses (see `wachat-queue`). `i-pubsub` is needed for the `sabflow:cancel:*`
+# subscriber; `i-keys` / `i-hashes` cover the watchdog's lock cleanup.
+fred = { version = "10.1", default-features = true, features = [
+    "enable-rustls",
+    "i-pubsub",
+    "i-keys",
+    "i-hashes",
+] }
+
+# Standalone — when this crate is later folded into the top-level
+# workspace by sibling #10, swap this block for `[lints] workspace = true`
+# so we share the same allow-list as the rest of the Rust tree.
+[lints.clippy]
+collapsible_if = "allow"
+type_complexity = "allow"
+needless_borrow = "allow"
+needless_lifetimes = "allow"
+needless_return = "allow"
