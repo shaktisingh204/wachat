@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "circle-ci-flaky-test-tracker",
+  "cases": [
+    {
+      "id": "flaky-detected",
+      "description": "CircleCI workflow fails, flakies are ticketed.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

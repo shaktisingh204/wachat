@@ -1,0 +1,10 @@
+{
+  "id": "circle-ci-flaky-test-tracker",
+  "name": "CircleCI Flaky Test Tracker",
+  "description": "On a CircleCI `workflow.failed` webhook, downloads the JUnit test report from the run's artifacts, scans it for tests that pass on rerun (the classic flaky signature), and opens a Linear ticket plus posts a #flaky-tests Slack note. Stops flakies from rotting in CI.",
+  "category": "Developer",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["circleci", "linear", "slack", "ci", "tests", "webhook"],
+  "version": "0.1.0"
+}
