@@ -1,0 +1,179 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_bugsnag_webhook",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "bugsnag.error_rate.spike",
+    "options": {
+      "path": "/webhooks/bugsnag-error-spike",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "Bugsnag-Webhook-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_bugsnag_trigger",
+      "name": "Bugsnag Spike Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "path": "bugsnag-error-spike",
+        "httpMethod": "POST",
+        "responseMode": "onReceived",
+        "options": {
+          "rawBody": true
+        }
+      }
+    },
+    {
+      "id": "n_extract_release_trace",
+      "name": "Extract Release + Trace",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "projectId", "value": "={{ $json.project.id }}" },
+            { "name": "projectName", "value": "={{ $json.project.name }}" },
+            { "name": "errorId", "value": "={{ $json.error.errorId }}" },
+            { "name": "errorClass", "value": "={{ $json.error.exceptionClass }}" },
+            { "name": "errorMessage", "value": "={{ $json.error.message }}" },
+            { "name": "errorUrl", "value": "={{ $json.error.url }}" },
+            { "name": "releaseSha", "value": "={{ $json.error.appVersion || $json.release.revision }}" },
+            { "name": "releaseStage", "value": "={{ $json.error.releaseStage }}" },
+            { "name": "spikeRate", "value": "={{ $json.trigger.rate }}" },
+            { "name": "spikeBaseline", "value": "={{ $json.trigger.baseline }}" },
+            { "name": "stackTrace", "value": "={{ $json.error.stackTrace }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_pagerduty_incident",
+      "name": "Open PagerDuty Incident",
+      "type": "n8n-nodes-base.pagerDuty",
+      "typeVersion": 1,
+      "position": [520, -180],
+      "parameters": {
+        "resource": "incident",
+        "operation": "create",
+        "title": "Bugsnag error-rate spike on {{ $node['Extract Release + Trace'].json.projectName }} ({{ $node['Extract Release + Trace'].json.errorClass }})",
+        "serviceId": "={{ $vars.PAGERDUTY_SERVICE_ID }}",
+        "urgency": "high",
+        "incidentDetails": "Error spike at {{ $node['Extract Release + Trace'].json.spikeRate }}x baseline ({{ $node['Extract Release + Trace'].json.spikeBaseline }}). Release {{ $node['Extract Release + Trace'].json.releaseSha }} on {{ $node['Extract Release + Trace'].json.releaseStage }}. Dashboard: {{ $node['Extract Release + Trace'].json.errorUrl }}"
+      },
+      "credentials": {
+        "pagerDutyApi": { "id": "pagerduty-cred", "name": "PagerDuty API" }
+      }
+    },
+    {
+      "id": "n_slack_oncall_post",
+      "name": "Slack #oncall Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [520, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.ONCALL_SLACK_CHANNEL }}",
+        "text": ":rotating_light: *Bugsnag spike — {{ $node['Extract Release + Trace'].json.projectName }}*\n*Error:* `{{ $node['Extract Release + Trace'].json.errorClass }}` — {{ $node['Extract Release + Trace'].json.errorMessage }}\n*Release:* `{{ $node['Extract Release + Trace'].json.releaseSha }}` ({{ $node['Extract Release + Trace'].json.releaseStage }})\n*Rate:* {{ $node['Extract Release + Trace'].json.spikeRate }}x baseline\n*Bugsnag:* <{{ $node['Extract Release + Trace'].json.errorUrl }}|open>\n```{{ $node['Extract Release + Trace'].json.stackTrace }}```"
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    },
+    {
+      "id": "n_linear_bug",
+      "name": "Create Linear Bug",
+      "type": "n8n-nodes-base.linear",
+      "typeVersion": 1,
+      "position": [520, 180],
+      "parameters": {
+        "resource": "issue",
+        "operation": "create",
+        "teamId": "={{ $vars.LINEAR_TEAM_ID }}",
+        "title": "[spike] {{ $node['Extract Release + Trace'].json.errorClass }} on {{ $node['Extract Release + Trace'].json.projectName }}",
+        "description": "Bugsnag error spiked at {{ $node['Extract Release + Trace'].json.spikeRate }}x baseline.\n\n**Release:** {{ $node['Extract Release + Trace'].json.releaseSha }} ({{ $node['Extract Release + Trace'].json.releaseStage }})\n**Error:** {{ $node['Extract Release + Trace'].json.errorClass }} — {{ $node['Extract Release + Trace'].json.errorMessage }}\n**Bugsnag link:** {{ $node['Extract Release + Trace'].json.errorUrl }}\n\n```\n{{ $node['Extract Release + Trace'].json.stackTrace }}\n```",
+        "additionalFields": {
+          "assigneeId": "={{ $vars.LINEAR_ONCALL_USER_ID }}",
+          "labels": ["bug", "bugsnag", "spike"],
+          "priority": 1
+        }
+      },
+      "credentials": {
+        "linearApi": { "id": "linear-cred", "name": "Linear API" }
+      }
+    },
+    {
+      "id": "n_audit_mongo",
+      "name": "Audit to Mongo",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [800, 0],
+      "parameters": {
+        "operation": "insert",
+        "collection": "bugsnag_spike_audit",
+        "fields": "projectId,errorId,errorClass,releaseSha,releaseStage,spikeRate,spikeBaseline,errorUrl"
+      },
+      "credentials": {
+        "mongoDb": { "id": "mongo-cred", "name": "Application Mongo" }
+      }
+    }
+  ],
+  "connections": {
+    "n_bugsnag_trigger": {
+      "main": [[{ "node": "n_extract_release_trace", "type": "main", "index": 0 }]]
+    },
+    "n_extract_release_trace": {
+      "main": [
+        [
+          { "node": "n_pagerduty_incident", "type": "main", "index": 0 },
+          { "node": "n_slack_oncall_post", "type": "main", "index": 0 },
+          { "node": "n_linear_bug", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "n_pagerduty_incident": {
+      "main": [[{ "node": "n_audit_mongo", "type": "main", "index": 0 }]]
+    },
+    "n_slack_oncall_post": {
+      "main": [[{ "node": "n_audit_mongo", "type": "main", "index": 0 }]]
+    },
+    "n_linear_bug": {
+      "main": [[{ "node": "n_audit_mongo", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_bugsnag_trigger",
+        "n_extract_release_trace",
+        "n_pagerduty_incident",
+        "n_slack_oncall_post",
+        "n_linear_bug",
+        "n_audit_mongo"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_pd_service", "name": "PAGERDUTY_SERVICE_ID", "defaultValue": "" },
+    { "id": "v_oncall_channel", "name": "ONCALL_SLACK_CHANNEL", "defaultValue": "#oncall" },
+    { "id": "v_linear_team", "name": "LINEAR_TEAM_ID", "defaultValue": "" },
+    { "id": "v_linear_oncall_user", "name": "LINEAR_ONCALL_USER_ID", "defaultValue": "" },
+    { "id": "v_spike_threshold", "name": "SPIKE_THRESHOLD_MULTIPLIER", "defaultValue": "5" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
