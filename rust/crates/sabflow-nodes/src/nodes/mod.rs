@@ -24,9 +24,9 @@ pub mod schedule_trigger;
 pub mod manual_trigger;
 pub mod execute_workflow_trigger;
 pub mod webhook_trigger;
-pub mod discord_trigger;
-pub mod discord_interactions_trigger;
-pub mod telegram_trigger;
+pub mod gmail_trigger;
+pub mod google_sheets_trigger;
+pub mod google_drive_trigger;
 pub mod noop_node;
 // ── Phase C.4.9: trigger variants ───────────────────────────────────────────
 pub mod form_trigger;
@@ -170,9 +170,9 @@ fn register_implemented(r: &mut NodeRegistry) {
     r.register(manual_trigger::ManualTriggerNode);
     r.register(execute_workflow_trigger::ExecuteWorkflowTriggerNode);
     r.register(webhook_trigger::WebhookTriggerNode);
-    r.register(discord_trigger::DiscordTriggerNode);
-    r.register(discord_interactions_trigger::DiscordInteractionsTriggerNode);
-    r.register(telegram_trigger::TelegramTriggerNode);
+    r.register(gmail_trigger::GmailTriggerNode);
+    r.register(google_sheets_trigger::GoogleSheetsTriggerNode);
+    r.register(google_drive_trigger::GoogleDriveTriggerNode);
     r.register(noop_node::NoOpNode);
     // Commerce-webhook triggers (Phase C.6.4) — must register before stubs.
     r.register(stripe_trigger::StripeTriggerNode);
