@@ -54,6 +54,7 @@ import type {
 
 const BASE = '/dashboard/hrm/hr/asset-assignments';
 
+// §1E.sweep: assetAssignmentStatus ZoruSelect kept — filter uses 'assigned' slug but enum uses 'active'; resolve Rust DTO first.
 const STATUS_OPTIONS: Array<{ value: CrmAssetAssignmentStatus | 'all'; label: string }> = [
     { value: 'all', label: 'All statuses' },
     { value: 'assigned', label: 'Assigned' },

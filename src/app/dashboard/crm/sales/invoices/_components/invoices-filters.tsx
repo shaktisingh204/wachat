@@ -99,6 +99,7 @@ export function InvoicesFilters({
       <div className="grid gap-3 px-3 pb-3 md:grid-cols-3 lg:grid-cols-4">
         <div className="space-y-1">
           <ZoruLabel>Status</ZoruLabel>
+          {/* TODO 1E.filter: convert to EnumFilterField once that wrapper exists */}
           <ZoruSelect value={statusFilter} onValueChange={onStatusFilter}>
             <ZoruSelectTrigger>
               <ZoruSelectValue />

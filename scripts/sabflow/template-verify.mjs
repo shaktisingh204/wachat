@@ -14,6 +14,14 @@
  *   4. Assert that every executed block exits with `status: 'success'`.
  *   5. Fail if the run exceeds the 60-second wall-clock budget.
  *
+ * Two flow shapes are supported:
+ *   - Engine-style: `flow.groups[].blocks[]` is walked via the in-memory
+ *     executor in this file (full block execution + fixture matching).
+ *   - n8n-style:    `flow.nodes[]` + `flow.connections{}` is walked as a
+ *     structural BFS from the trigger node; each reached node emits one
+ *     `success` step, and the harness asserts there are no dangling
+ *     references, duplicate ids, or missing credential declarations.
+ *
  * Usage:
  *   node scripts/sabflow/template-verify.mjs <template-dir> [<template-dir> ...]
  *   node scripts/sabflow/template-verify.mjs --all templates marketplace
@@ -510,6 +518,19 @@ async function runFlow(flow, envelope, abortSignal, steps) {
 
   const groups = flow.groups ?? [];
   const edges = flow.edges ?? [];
+
+  // Engine-style flows embed blocks under groups. n8n-style flows keep nodes
+  // at the top level and reference them via groups[].blockIds + connections.
+  // If no group has embedded blocks but the doc carries nodes, switch to the
+  // structural walker so the harness still actually exercises the graph.
+  const hasEmbeddedBlocks = groups.some(
+    (g) => Array.isArray(g?.blocks) && g.blocks.length > 0,
+  );
+  if (!hasEmbeddedBlocks && Array.isArray(flow.nodes) && flow.nodes.length > 0) {
+    await runStructuralWalk(flow, abortSignal, steps);
+    return { steps, variables };
+  }
+
   if (!groups.length) {
     return { steps, variables };
   }
@@ -624,6 +645,281 @@ async function runFlow(flow, envelope, abortSignal, steps) {
 }
 
 /* ──────────────────────────────────────────────────────────────────────────
+ * Structural walker (n8n-shaped flows)
+ *
+ * Used for templates that keep nodes flat at `flow.nodes` and wire them up
+ * with `flow.connections`. The harness can't execute live integrations
+ * (Slack, HubSpot, etc.) in-process, so we instead BFS the connection graph
+ * from the trigger and assert structural integrity:
+ *   - every connection source and target references an existing node
+ *   - every groups[].blockIds reference exists in flow.nodes
+ *   - node ids are unique
+ *   - any node declaring `credentials` declares non-empty credential refs
+ *   - the trigger reaches at least one downstream node (no dead trigger)
+ *   - no cycles (the BFS marks visited nodes and tolerates re-encounters,
+ *     but emits one step per node so the run is bounded)
+ * ──────────────────────────────────────────────────────────────────────── */
+
+/**
+ * @param {any} flow
+ * @param {AbortSignal} abortSignal
+ * @param {StepRecord[]} steps
+ */
+async function runStructuralWalk(flow, abortSignal, steps) {
+  /** @type {any[]} */
+  const nodes = Array.isArray(flow.nodes) ? flow.nodes : [];
+  /** @type {Record<string, any>} */
+  const byId = Object.create(null);
+  /** @type {Set<string>} */
+  const dupeIds = new Set();
+  for (const n of nodes) {
+    const id = n?.id;
+    if (!id || typeof id !== 'string') {
+      throw new Error(`flow.nodes contains a node without a string id`);
+    }
+    if (byId[id]) dupeIds.add(id);
+    byId[id] = n;
+  }
+  if (dupeIds.size) {
+    throw new Error(
+      `duplicate node id(s) in flow.nodes: ${[...dupeIds].join(', ')}`,
+    );
+  }
+
+  /** @type {Record<string, any>} */
+  const connections = flow.connections && typeof flow.connections === 'object'
+    ? flow.connections
+    : {};
+
+  // Validate connection topology before walking. n8n nodes can emit on
+  // multiple named channels (e.g. switch nodes expose one channel per
+  // rule), so we iterate every channel — not just `main`.
+  for (const [source, channels] of Object.entries(connections)) {
+    if (!byId[source]) {
+      throw new Error(`connections reference unknown source node "${source}"`);
+    }
+    if (!channels || typeof channels !== 'object') continue;
+    for (const lanes of Object.values(channels)) {
+      if (!Array.isArray(lanes)) continue;
+      for (const lane of lanes) {
+        if (!Array.isArray(lane)) continue;
+        for (const edge of lane) {
+          const target = edge?.node;
+          if (!target || !byId[target]) {
+            throw new Error(
+              `connections[${source}] points to unknown node "${target}"`,
+            );
+          }
+        }
+      }
+    }
+  }
+
+  // Validate groups[].blockIds, when present, reference real nodes.
+  for (const g of flow.groups ?? []) {
+    if (Array.isArray(g?.blockIds)) {
+      for (const bid of g.blockIds) {
+        if (!byId[bid]) {
+          throw new Error(
+            `groups[${g.id ?? '?'}].blockIds references unknown node "${bid}"`,
+          );
+        }
+      }
+    }
+  }
+
+  // Pick the start node. Prefer flow.trigger.id when it matches a node;
+  // otherwise pick the first node that is never a connection target.
+  /** @type {string|undefined} */
+  let startId;
+  if (flow.trigger?.id && byId[flow.trigger.id]) {
+    startId = flow.trigger.id;
+  }
+  if (!startId) {
+    /** @type {Set<string>} */
+    const targets = new Set();
+    for (const channels of Object.values(connections)) {
+      if (!channels || typeof channels !== 'object') continue;
+      for (const lanes of Object.values(channels)) {
+        if (!Array.isArray(lanes)) continue;
+        for (const lane of lanes) {
+          if (!Array.isArray(lane)) continue;
+          for (const edge of lane) {
+            if (edge?.node) targets.add(edge.node);
+          }
+        }
+      }
+    }
+    startId = nodes.find((n) => !targets.has(n.id))?.id ?? nodes[0]?.id;
+  }
+  if (!startId) {
+    throw new Error('no start node could be inferred for structural walk');
+  }
+
+  /** @type {Set<string>} */
+  const visited = new Set();
+  /** @type {string[]} */
+  const queue = [startId];
+  const MAX_VISITS = 500;
+  let visits = 0;
+
+  while (queue.length > 0) {
+    if (abortSignal.aborted) throw new Error('time budget exceeded');
+    if (++visits > MAX_VISITS) {
+      throw new Error(`structural walk exceeded ${MAX_VISITS} visits`);
+    }
+    const id = queue.shift();
+    if (!id || visited.has(id)) continue;
+    visited.add(id);
+    const node = byId[id];
+    const startedAt = Date.now();
+
+    // Per-node assertions.
+    if (node.credentials && typeof node.credentials === 'object') {
+      for (const [credType, credRef] of Object.entries(node.credentials)) {
+        if (!credRef || typeof credRef !== 'object') {
+          steps.push({
+            groupId: 'main',
+            blockId: id,
+            blockType: String(node.type ?? 'unknown'),
+            status: 'error',
+            durationMs: Date.now() - startedAt,
+            error: `credentials.${credType} on node "${id}" is not an object`,
+          });
+          throw new Error(
+            `node "${id}" credentials.${credType} must be an object`,
+          );
+        }
+      }
+    }
+
+    steps.push({
+      groupId: 'main',
+      blockId: id,
+      blockType: String(node.type ?? 'unknown'),
+      status: 'success',
+      durationMs: Date.now() - startedAt,
+    });
+
+    const outChannels = connections[id];
+    if (outChannels && typeof outChannels === 'object') {
+      for (const lanes of Object.values(outChannels)) {
+        if (!Array.isArray(lanes)) continue;
+        for (const lane of lanes) {
+          if (!Array.isArray(lane)) continue;
+          for (const edge of lane) {
+            if (edge?.node && !visited.has(edge.node)) {
+              queue.push(edge.node);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  if (visited.size === 1 && Object.keys(connections).length > 0) {
+    throw new Error(
+      `trigger "${startId}" reached no downstream nodes — connections may be disconnected`,
+    );
+  }
+
+  // Surface unreachable nodes as a hard failure: an authored template should
+  // not ship dead code.
+  const unreached = nodes.filter((n) => !visited.has(n.id));
+  if (unreached.length > 0) {
+    throw new Error(
+      `unreachable node(s) from trigger: ${unreached.map((n) => n.id).join(', ')}`,
+    );
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+ * template.json metadata lint
+ * ──────────────────────────────────────────────────────────────────────── */
+
+// Mirrors `TEMPLATE_CATEGORIES` in src/lib/sabflow/marketplace/registry.ts.
+// Templates must declare a canonical bucket so the marketplace browse UI
+// can filter consistently.
+const ALLOWED_CATEGORIES = new Set([
+  'Sales',
+  'Marketing',
+  'Support',
+  'Ops',
+  'AI',
+  'Internal Tools',
+  'Developer',
+  'CRM',
+  'E-commerce',
+  'Finance',
+  'HR',
+  'Health',
+  'WhatsApp',
+  'Ads',
+  'Onboarding',
+  'Other',
+]);
+
+const SEMVER_RE = /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/;
+
+/**
+ * Validates the template.json metadata file alongside a template directory.
+ * Returns nothing on success; throws with a descriptive message on failure.
+ *
+ * @param {string} dir
+ */
+async function lintTemplateMeta(dir) {
+  const metaPath = path.join(dir, 'template.json');
+  if (!existsSync(metaPath)) {
+    // template.json is not strictly required (the harness itself only needs
+    // verification.json), so we silently skip when it is absent. The seed
+    // and scaffold flows always emit one.
+    return;
+  }
+  let meta;
+  try {
+    meta = JSON.parse(await readFile(metaPath, 'utf8'));
+  } catch (err) {
+    throw new VerifyError(
+      `template.json is not valid JSON in ${dir}: ${err.message}`,
+    );
+  }
+  const required = ['id', 'name', 'description', 'category', 'version'];
+  for (const k of required) {
+    if (!meta[k] || typeof meta[k] !== 'string') {
+      throw new VerifyError(`template.json missing required string "${k}"`);
+    }
+  }
+  if (!ALLOWED_CATEGORIES.has(meta.category)) {
+    throw new VerifyError(
+      `template.json category "${meta.category}" is not one of: ${
+        [...ALLOWED_CATEGORIES].join(', ')
+      }`,
+    );
+  }
+  if (!SEMVER_RE.test(meta.version)) {
+    throw new VerifyError(
+      `template.json version "${meta.version}" is not a semver-shaped string`,
+    );
+  }
+  const dirName = path.basename(dir);
+  // Allow the __example__ scaffold to keep its own id; otherwise the id and
+  // directory name must match so install paths are stable.
+  if (dirName !== '__example__' && meta.id !== dirName) {
+    throw new VerifyError(
+      `template.json id "${meta.id}" must match directory name "${dirName}"`,
+    );
+  }
+  if (meta.screenshot && typeof meta.screenshot === 'string') {
+    const shot = path.resolve(dir, meta.screenshot);
+    if (!existsSync(shot)) {
+      throw new VerifyError(
+        `template.json screenshot "${meta.screenshot}" not found at ${shot}`,
+      );
+    }
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
  * Driver
  * ──────────────────────────────────────────────────────────────────────── */
 
@@ -649,6 +945,7 @@ async function verifyOne(dir) {
   let steps = [];
 
   try {
+    await lintTemplateMeta(dir);
     const { flow, envelope } = await loadTemplate(dir);
     const budget = envelope.timeBudgetMs ?? TIME_BUDGET_MS;
     if (budget > TIME_BUDGET_MS) {

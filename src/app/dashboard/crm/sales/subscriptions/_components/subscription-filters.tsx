@@ -99,6 +99,7 @@ export function SubscriptionFilters({
         </div>
         <div className="space-y-1">
           <ZoruLabel>Billing cadence</ZoruLabel>
+          {/* TODO 1E.filter: convert to EnumFilterField once that wrapper exists */}
           <ZoruSelect value={frequencyFilter} onValueChange={onFrequencyFilter}>
             <ZoruSelectTrigger>
               <ZoruSelectValue />
@@ -114,6 +115,7 @@ export function SubscriptionFilters({
         </div>
         <div className="space-y-1">
           <ZoruLabel>Renewal</ZoruLabel>
+          {/* TODO 1E.filter: convert to EnumFilterField once that wrapper exists */}
           <ZoruSelect value={renewalFilter} onValueChange={onRenewalFilter}>
             <ZoruSelectTrigger>
               <ZoruSelectValue />

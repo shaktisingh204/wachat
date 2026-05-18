@@ -6,11 +6,6 @@ import {
   ZoruCheckbox,
   ZoruInput,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
@@ -27,7 +22,7 @@ import { ArrowLeft,
   Save,
   Trash2 } from 'lucide-react';
 
-// TODO 1E.sweep: status/type -> <EnumFormField>; assignee/department -> <EntityFormField>. See plan §1E.
+// §1E.sweep: status migrated to <EnumFormField enumName="welcomeKitStatus">.
 
 /**
  * <WelcomeKitForm /> — create + edit form for HR welcome kits.
@@ -37,6 +32,8 @@ import { ArrowLeft,
  * and posted as `itemsJson` so the server action can parse it.
  */
 
+import { EnumFormField } from '@/components/crm/enum-form-field';
+
 import { saveWelcomeKit } from '@/app/actions/crm-welcome-kits.actions';
 import type {
     CrmWelcomeKitDoc,
@@ -45,13 +42,6 @@ import type {
 } from '@/app/actions/crm-welcome-kits.actions';
 
 const BASE = '/dashboard/hrm/hr/welcome-kit';
-
-const STATUS_OPTIONS: Array<{ value: CrmWelcomeKitStatus; label: string }> = [
-    { value: 'pending', label: 'Pending' },
-    { value: 'shipped', label: 'Shipped' },
-    { value: 'delivered', label: 'Delivered' },
-    { value: 'archived', label: 'Archived' },
-];
 
 interface WelcomeKitFormProps {
     initialData?: CrmWelcomeKitDoc | null;
@@ -188,22 +178,15 @@ export function WelcomeKitForm({ initialData }: WelcomeKitFormProps) {
                 {/* Row 3: Status */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
-                        <ZoruSelect
-                            value={status}
-                            onValueChange={(v) => setStatus(v as CrmWelcomeKitStatus)}
-                        >
-                            <ZoruSelectTrigger id="status-trigger">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <ZoruLabel>Status</ZoruLabel>
+                        <EnumFormField
+                            name="status-picker"
+                            enumName="welcomeKitStatus"
+                            initialId={status}
+                            onChange={(id) => setStatus((id as CrmWelcomeKitStatus) ?? 'pending')}
+                            allowInlineCreate={false}
+                            placeholder="Status"
+                        />
                     </div>
                 </div>
 

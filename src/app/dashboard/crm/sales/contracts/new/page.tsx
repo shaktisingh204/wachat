@@ -5,11 +5,6 @@ import {
   ZoruCard,
   ZoruInput,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
@@ -27,6 +22,7 @@ import { useRouter } from 'next/navigation';
 
 import { CrmPageHeader } from '../../../_components/crm-page-header';
 import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import { saveContract } from '@/app/actions/crm-contracts.actions';
 
 export const dynamic = 'force-dynamic';
@@ -96,22 +92,13 @@ export default function NewContractPage() {
               />
             </div>
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="type">Contract Type</ZoruLabel>
-              <ZoruSelect name="type" defaultValue="nda">
-                <ZoruSelectTrigger id="type">
-                  <ZoruSelectValue placeholder="Select type" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="nda">NDA</ZoruSelectItem>
-                  <ZoruSelectItem value="msa">MSA</ZoruSelectItem>
-                  <ZoruSelectItem value="sow">SOW</ZoruSelectItem>
-                  <ZoruSelectItem value="amc">AMC</ZoruSelectItem>
-                  <ZoruSelectItem value="employment">Employment</ZoruSelectItem>
-                  <ZoruSelectItem value="vendor">Vendor</ZoruSelectItem>
-                  <ZoruSelectItem value="service">Service</ZoruSelectItem>
-                  <ZoruSelectItem value="lease">Lease</ZoruSelectItem>
-                </ZoruSelectContent>
-              </ZoruSelect>
+              <ZoruLabel>Contract Type</ZoruLabel>
+              <EnumFormField
+                enumName="contractTypeExtended"
+                name="type"
+                initialId="nda"
+                placeholder="Select type"
+              />
             </div>
           </div>
 
@@ -163,19 +150,13 @@ export default function NewContractPage() {
               />
             </div>
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="esignProvider">E-Signature Provider</ZoruLabel>
-              <ZoruSelect name="esignProvider" defaultValue="none">
-                <ZoruSelectTrigger id="esignProvider">
-                  <ZoruSelectValue placeholder="Select provider" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="none">None</ZoruSelectItem>
-                  <ZoruSelectItem value="internal">Internal</ZoruSelectItem>
-                  <ZoruSelectItem value="digio">Digio</ZoruSelectItem>
-                  <ZoruSelectItem value="docusign">DocuSign</ZoruSelectItem>
-                  <ZoruSelectItem value="aadhaar">Aadhaar e-Sign</ZoruSelectItem>
-                </ZoruSelectContent>
-              </ZoruSelect>
+              <ZoruLabel>E-Signature Provider</ZoruLabel>
+              <EnumFormField
+                enumName="esignProviderExtended"
+                name="esignProvider"
+                initialId="none"
+                placeholder="Select provider"
+              />
             </div>
           </div>
 

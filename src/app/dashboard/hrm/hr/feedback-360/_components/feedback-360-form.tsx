@@ -27,7 +27,8 @@ import { ArrowLeft,
   Save,
   Trash2 } from 'lucide-react';
 
-// TODO 1E.sweep: status -> <EnumFormField enumName="feedback360Status">; subject/reviewers -> <EntityFormField entity="employee"> + <EntityMultiFormField>. See plan §1E.
+// §1E.sweep: status migrated to <EnumFormField enumName="feedback360Status">.
+// reviewer role ZoruSelect kept — no dedicated enum in catalogue yet (values: self/peer/manager/direct_report).
 
 /**
  * <Feedback360Form /> — create + edit form for 360° feedback.
@@ -42,6 +43,8 @@ import { ArrowLeft,
  * never trust client maths.
  */
 
+import { EnumFormField } from '@/components/crm/enum-form-field';
+
 import { saveFeedback360 } from '@/app/actions/crm-feedback-360.actions';
 import type {
     Feedback360Doc,
@@ -53,7 +56,6 @@ import type {
 import {
     REVIEWER_ROLE_OPTIONS,
     SCORE_CATEGORIES,
-    STATUS_OPTIONS,
 } from '../_config';
 
 const BASE = '/dashboard/hrm/hr/feedback-360';
@@ -251,22 +253,15 @@ export function Feedback360Form({ initialData }: Feedback360FormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
-                        <ZoruSelect
-                            value={status}
-                            onValueChange={(v) => setStatus(v as Feedback360Status)}
-                        >
-                            <ZoruSelectTrigger id="status-trigger">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <ZoruLabel>Status</ZoruLabel>
+                        <EnumFormField
+                            name="status-picker"
+                            enumName="feedback360Status"
+                            initialId={status}
+                            onChange={(id) => setStatus((id as Feedback360Status) ?? 'draft')}
+                            allowInlineCreate={false}
+                            placeholder="Status"
+                        />
                     </div>
                 </div>
 

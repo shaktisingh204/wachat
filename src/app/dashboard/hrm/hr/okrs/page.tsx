@@ -51,6 +51,7 @@ import type { CrmOkrDoc, CrmOkrStatus } from '@/lib/rust-client/crm-okrs';
 
 const BASE = '/dashboard/hrm/hr/okrs';
 
+// §1E.sweep: OKR status ZoruSelect kept — page uses 'behind'/'missed' slugs; okrStatus enum has 'off_track'/'cancelled'. Resolve Rust DTO first.
 const STATUS_OPTIONS: Array<{ value: CrmOkrStatus | 'all'; label: string }> = [
     { value: 'all', label: 'All statuses' },
     { value: 'draft', label: 'Draft' },

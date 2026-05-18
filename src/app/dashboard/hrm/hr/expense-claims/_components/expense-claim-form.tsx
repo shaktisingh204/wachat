@@ -25,7 +25,7 @@ import { ArrowLeft,
   LoaderCircle,
   Save } from 'lucide-react';
 
-// TODO 1E.sweep: status -> <EnumFormField enumName="expenseClaimStatus">; paymentMethod -> paymentMethod; currency -> <EntityFormField entity="currency">; employee/approver -> <EntityFormField entity="employee">. See plan §1E.
+// §1E.sweep: status ZoruSelect kept — form has cancelled/archived slugs missing from expenseClaimStatus enum; extend enum once Rust DTO is confirmed.
 
 /**
  * <ExpenseClaimForm /> — create + edit form for HR expense claims.

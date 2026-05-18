@@ -5,11 +5,6 @@ import {
   ZoruCard,
   ZoruInput,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
@@ -30,6 +25,7 @@ import {
 
 import { CrmPageHeader } from '../../../_components/crm-page-header';
 import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import { EntityPicker } from '@/components/crm/entity-picker';
 import type { LookupItem } from '@/lib/lookup-registry';
 import { saveRecurringInvoice } from '@/app/actions/worksuite/billing.actions';
@@ -186,17 +182,12 @@ export default function NewRecurringInvoicePage() {
           </div>
           <div className="space-y-1.5">
             <ZoruLabel className="text-zoru-ink">Frequency</ZoruLabel>
-            <ZoruSelect value={frequency} onValueChange={(v) => setFrequency(v as any)}>
-              <ZoruSelectTrigger>
-                <ZoruSelectValue />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="days">Days</ZoruSelectItem>
-                <ZoruSelectItem value="weeks">Weeks</ZoruSelectItem>
-                <ZoruSelectItem value="months">Months</ZoruSelectItem>
-                <ZoruSelectItem value="years">Years</ZoruSelectItem>
-              </ZoruSelectContent>
-            </ZoruSelect>
+            <EnumFormField
+              enumName="recurringInvoiceFrequency"
+              name="__frequency_picker"
+              initialId={frequency}
+              onChange={(v) => setFrequency((v ?? 'months') as 'days' | 'weeks' | 'months' | 'years')}
+            />
           </div>
           <div className="space-y-1.5">
             <ZoruLabel className="text-zoru-ink">Start Date</ZoruLabel>

@@ -74,3 +74,15 @@ export const sections = [
     fieldNames: ['period', 'target_value', 'actual_value', 'unit', 'status'],
   },
 ];
+
+// §1E ZoruSelect migration — consumed by kpi-form.tsx until <EnumFormField> is wired up
+export const FREQUENCY_OPTIONS: Array<{ value: string; label: string }> = [
+  { value: 'monthly', label: 'Monthly' },
+  { value: 'quarterly', label: 'Quarterly' },
+  { value: 'annual', label: 'Annual' },
+];
+
+export const STATUS_OPTIONS: Array<{ value: string; label: string }> = [
+  { value: 'active', label: 'Active' },
+  { value: 'archived', label: 'Archived' },
+];

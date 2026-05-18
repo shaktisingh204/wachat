@@ -5,11 +5,6 @@ import {
   ZoruCard,
   ZoruInput,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
@@ -27,6 +22,7 @@ import { useRouter } from 'next/navigation';
 
 import { CrmPageHeader } from '../../../_components/crm-page-header';
 import { saveCoupon } from '@/app/actions/crm-coupons.actions';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 
 export const dynamic = 'force-dynamic';
 
@@ -121,22 +117,16 @@ export default function NewCouponPage() {
 
           {/* Type */}
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="type-select">Type</ZoruLabel>
-            <ZoruSelect
-              value={couponType}
-              onValueChange={(v) => setCouponType(v as CouponType)}
-            >
-              <ZoruSelectTrigger id="type-select" className="w-full max-w-xs">
-                <ZoruSelectValue placeholder="Select type" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                {COUPON_TYPES.map((t) => (
-                  <ZoruSelectItem key={t.value} value={t.value}>
-                    {t.label}
-                  </ZoruSelectItem>
-                ))}
-              </ZoruSelectContent>
-            </ZoruSelect>
+            <ZoruLabel>Type</ZoruLabel>
+            <div className="w-full max-w-xs">
+              <EnumFormField
+                enumName="couponType"
+                name="__type_picker"
+                initialId={couponType}
+                placeholder="Select type"
+                onChange={(v) => setCouponType((v ?? 'percent') as CouponType)}
+              />
+            </div>
           </div>
 
           {/* Value — only shown for percent / flat */}

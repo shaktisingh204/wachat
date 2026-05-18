@@ -65,6 +65,7 @@ export function CreditNoteFiltersRow(props: CreditNoteFiltersRowProps) {
     return (
         <div className="flex flex-wrap items-center gap-2">
             <div className="w-36">
+                {/* TODO 1E.filter: convert to EnumFilterField once that wrapper exists */}
                 <ZoruSelect
                     value={props.statusFilter}
                     onValueChange={(v) => props.onStatusChange(v as CreditNoteKpiFilter)}
@@ -91,6 +92,7 @@ export function CreditNoteFiltersRow(props: CreditNoteFiltersRowProps) {
                 />
             </div>
             <div className="w-44">
+                {/* TODO 1E.filter: convert to EnumFilterField once that wrapper exists */}
                 <ZoruSelect
                     value={props.reasonFilter || 'all'}
                     onValueChange={(v) => props.onReasonChange(v === 'all' ? '' : v)}
@@ -109,6 +111,7 @@ export function CreditNoteFiltersRow(props: CreditNoteFiltersRowProps) {
                 </ZoruSelect>
             </div>
             <div className="w-44">
+                {/* TODO 1E.filter: convert to EnumFilterField once that wrapper exists */}
                 <ZoruSelect
                     value={props.refundModeFilter || 'all'}
                     onValueChange={(v) => props.onRefundModeChange(v === 'all' ? '' : v)}

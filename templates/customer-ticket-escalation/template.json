@@ -2,7 +2,7 @@
   "id": "customer-ticket-escalation",
   "name": "Customer Ticket Escalation",
   "description": "Receives a support ticket via webhook, runs sentiment analysis using an AI model, and automatically escalates negative tickets to a Slack channel and assigns a priority label in your helpdesk. Prevents unhappy customers from slipping through the cracks.",
-  "category": "Customer Support",
+  "category": "Support",
   "complexity": "intermediate",
   "authorName": "SabNode",
   "tags": ["support", "ai", "sentiment", "escalation", "slack", "helpdesk"],

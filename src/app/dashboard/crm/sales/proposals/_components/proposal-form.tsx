@@ -5,11 +5,6 @@ import {
   ZoruCard,
   ZoruInput,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
@@ -51,6 +46,7 @@ import {
     type CrmProposalAttachment,
     type CrmProposalStatus,
 } from '@/app/actions/crm-proposals.actions';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 
 const BASE = '/dashboard/crm/sales/proposals';
 
@@ -222,24 +218,13 @@ export function ProposalForm({ initialData }: ProposalFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor={`${reactId}-status`}>Status</ZoruLabel>
-                        <ZoruSelect
-                            value={status}
-                            onValueChange={(v) =>
-                                setStatus(v as CrmProposalStatus)
-                            }
-                        >
-                            <ZoruSelectTrigger id={`${reactId}-status`}>
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <ZoruLabel>Status</ZoruLabel>
+                        <EnumFormField
+                            enumName="proposalStatus"
+                            name="__status_picker"
+                            initialId={status}
+                            onChange={(v) => setStatus((v ?? 'draft') as CrmProposalStatus)}
+                        />
                     </div>
                 </div>
 

@@ -5,11 +5,6 @@ import {
   ZoruCard,
   ZoruInput,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
@@ -34,6 +29,8 @@ import { ArrowLeft,
  * so the server action reads them as plain FormData fields.
  */
 
+import { EnumFormField } from '@/components/crm/enum-form-field';
+
 import { saveKpi } from '@/app/actions/crm-kpis.actions';
 import type {
     CrmKpiDoc,
@@ -41,7 +38,7 @@ import type {
     CrmKpiStatus,
 } from '@/lib/rust-client/crm-kpis';
 
-import { FREQUENCY_OPTIONS, STATUS_OPTIONS } from '../_config';
+
 
 const BASE = '/dashboard/hrm/payroll/kpi-tracking';
 
@@ -101,8 +98,6 @@ export function KpiForm({ initialData }: KpiFormProps) {
                 {isEditing ? (
                     <input type="hidden" name="kpiId" value={initialData!._id} />
                 ) : null}
-                <input type="hidden" name="frequency" value={frequency} />
-                <input type="hidden" name="status" value={status} />
 
                 {/* Row 1: Name */}
                 <div className="space-y-1.5">
@@ -171,22 +166,15 @@ export function KpiForm({ initialData }: KpiFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="frequency-trigger">Frequency</ZoruLabel>
-                        <ZoruSelect
-                            value={frequency}
-                            onValueChange={(v) => setFrequency(v as CrmKpiFrequency)}
-                        >
-                            <ZoruSelectTrigger id="frequency-trigger">
-                                <ZoruSelectValue placeholder="Pick a cadence…" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {FREQUENCY_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <ZoruLabel>Frequency</ZoruLabel>
+                        <EnumFormField
+                            name="frequency"
+                            enumName="kpiFrequency"
+                            initialId={frequency}
+                            onChange={(id) => setFrequency(id ?? '')}
+                            allowInlineCreate={false}
+                            placeholder="Pick a cadence…"
+                        />
                     </div>
                 </div>
 
@@ -219,22 +207,15 @@ export function KpiForm({ initialData }: KpiFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
-                        <ZoruSelect
-                            value={status}
-                            onValueChange={(v) => setStatus(v as CrmKpiStatus)}
-                        >
-                            <ZoruSelectTrigger id="status-trigger">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <ZoruLabel>Status</ZoruLabel>
+                        <EnumFormField
+                            name="status"
+                            enumName="kpiFormStatus"
+                            initialId={status}
+                            onChange={(id) => setStatus((id as CrmKpiStatus) ?? 'active')}
+                            allowInlineCreate={false}
+                            placeholder="Status"
+                        />
                     </div>
                 </div>
 

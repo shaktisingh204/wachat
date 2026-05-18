@@ -1,4 +1,5 @@
 import type { HrField } from '../_components/hr-entity-page';
+import type { Feedback360ReviewerRole, Feedback360Status } from '@/app/actions/crm-feedback-360.actions';
 
 export const fields: HrField[] = [
   { name: 'reviewer_id', label: 'Reviewer', required: true, type: 'entity', entity: 'employee' },
@@ -100,4 +101,31 @@ export const sections = [
     title: 'Qualitative Feedback',
     fieldNames: ['feedback', 'strengths', 'improvements'],
   },
+];
+
+// ---------------------------------------------------------------------------
+// Exports consumed by <Feedback360Form /> (§1E — not using HrEntityPage)
+// ---------------------------------------------------------------------------
+
+
+export const STATUS_OPTIONS: Array<{ value: Feedback360Status; label: string }> = [
+  { value: 'draft', label: 'Draft' },
+  { value: 'in_progress', label: 'In progress' },
+  { value: 'completed', label: 'Completed' },
+  { value: 'cancelled', label: 'Cancelled' },
+];
+
+export const REVIEWER_ROLE_OPTIONS: Array<{ value: Feedback360ReviewerRole; label: string }> = [
+  { value: 'self', label: 'Self' },
+  { value: 'peer', label: 'Peer' },
+  { value: 'manager', label: 'Manager' },
+  { value: 'direct_report', label: 'Direct report' },
+];
+
+export const SCORE_CATEGORIES: Array<{ key: string; label: string }> = [
+  { key: 'communication', label: 'Communication' },
+  { key: 'teamwork', label: 'Teamwork' },
+  { key: 'leadership', label: 'Leadership' },
+  { key: 'technical', label: 'Technical' },
+  { key: 'initiative', label: 'Initiative' },
 ];

@@ -5,11 +5,6 @@ import {
   ZoruCard,
   ZoruInput,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
@@ -39,6 +34,7 @@ import {
     type CrmEstimateRequestSource,
     type CrmEstimateRequestStatus,
 } from '@/app/actions/crm-estimate-requests.actions';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 
 const BASE = '/dashboard/crm/sales/estimate-requests';
 
@@ -203,44 +199,23 @@ export function EstimateRequestForm({ initialData }: EstimateRequestFormProps) {
                 {/* Source + Status */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor={`${reactId}-source`}>Source</ZoruLabel>
-                        <ZoruSelect
-                            value={source}
-                            onValueChange={(v) =>
-                                setSource(v as CrmEstimateRequestSource)
-                            }
-                        >
-                            <ZoruSelectTrigger id={`${reactId}-source`}>
-                                <ZoruSelectValue placeholder="Source" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {SOURCE_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <ZoruLabel>Source</ZoruLabel>
+                        <EnumFormField
+                            enumName="estimateRequestSource"
+                            name="__source_picker"
+                            initialId={source}
+                            placeholder="Source"
+                            onChange={(v) => setSource((v ?? 'web') as CrmEstimateRequestSource)}
+                        />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor={`${reactId}-status`}>Status</ZoruLabel>
-                        <ZoruSelect
-                            value={status}
-                            onValueChange={(v) =>
-                                setStatus(v as CrmEstimateRequestStatus)
-                            }
-                        >
-                            <ZoruSelectTrigger id={`${reactId}-status`}>
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <ZoruLabel>Status</ZoruLabel>
+                        <EnumFormField
+                            enumName="estimateRequestStatus"
+                            name="__status_picker"
+                            initialId={status}
+                            onChange={(v) => setStatus((v ?? 'pending') as CrmEstimateRequestStatus)}
+                        />
                     </div>
                 </div>
 

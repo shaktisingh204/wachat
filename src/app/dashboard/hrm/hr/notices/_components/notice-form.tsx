@@ -71,11 +71,8 @@ const NOTICE_CATEGORIES = [
     { value: 'emergency', label: 'Emergency' },
 ] as const;
 
-const NOTICE_SEVERITIES = [
-    { value: 'info', label: 'Info' },
-    { value: 'warning', label: 'Warning' },
-    { value: 'critical', label: 'Critical' },
-] as const;
+// §1E.sweep: NOTICE_SEVERITIES removed — severity field already uses <EnumFormField enumName="announcementSeverity">.
+// §1E.sweep: NOTICE_CATEGORIES/NOTICE_AUDIENCES/NOTICE_STATUSES kept — slugs differ from any CRM_ENUMS entry; resolve Rust DTO first.
 
 const NOTICE_AUDIENCES = [
     { value: 'all', label: 'All employees' },

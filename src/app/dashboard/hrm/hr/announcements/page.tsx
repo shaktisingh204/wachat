@@ -10,11 +10,6 @@ import {
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
   ZoruButton,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruTable,
   ZoruTableBody,
   ZoruTableCell,
@@ -50,6 +45,8 @@ import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 
+import { EnumFilterField } from '@/components/crm/enum-filter-field';
+
 import {
     deleteAnnouncement,
     getAnnouncements,
@@ -66,31 +63,6 @@ const BASE = '/dashboard/hrm/hr/announcements';
 type StatusFilter = 'all' | CrmAnnouncementStatus;
 type CategoryFilter = 'all' | CrmAnnouncementCategory;
 type AudienceFilter = 'all' | CrmAnnouncementAudience;
-
-const STATUS_OPTIONS: { value: StatusFilter; label: string }[] = [
-    { value: 'all', label: 'All statuses' },
-    { value: 'draft', label: 'Draft' },
-    { value: 'scheduled', label: 'Scheduled' },
-    { value: 'published', label: 'Published' },
-    { value: 'archived', label: 'Archived' },
-];
-
-const CATEGORY_OPTIONS: { value: CategoryFilter; label: string }[] = [
-    { value: 'all', label: 'All categories' },
-    { value: 'general', label: 'General' },
-    { value: 'hr', label: 'HR' },
-    { value: 'policy', label: 'Policy' },
-    { value: 'event', label: 'Event' },
-    { value: 'celebration', label: 'Celebration' },
-    { value: 'urgent', label: 'Urgent' },
-];
-
-const AUDIENCE_OPTIONS: { value: AudienceFilter; label: string }[] = [
-    { value: 'all', label: 'All audiences' },
-    { value: 'department', label: 'Department' },
-    { value: 'team', label: 'Team' },
-    { value: 'role', label: 'Role' },
-];
 
 const STATUS_TONE: Record<string, StatusTone> = {
     draft: 'neutral',
@@ -213,66 +185,24 @@ export default function AnnouncementsListPage() {
                     }}
                     filters={
                         <>
-                            <ZoruSelect
+                            <EnumFilterField
+                                enumName="announcementStatus"
                                 value={statusFilter}
-                                onValueChange={(v) =>
-                                    setStatusFilter(v as StatusFilter)
-                                }
-                            >
-                                <ZoruSelectTrigger className="h-9 w-[170px]">
-                                    <ZoruSelectValue placeholder="Status" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    {STATUS_OPTIONS.map((o) => (
-                                        <ZoruSelectItem
-                                            key={o.value}
-                                            value={o.value}
-                                        >
-                                            {o.label}
-                                        </ZoruSelectItem>
-                                    ))}
-                                </ZoruSelectContent>
-                            </ZoruSelect>
-                            <ZoruSelect
+                                onChange={(v) => setStatusFilter(v as StatusFilter)}
+                                allLabel="All statuses"
+                            />
+                            <EnumFilterField
+                                enumName="announcementCategory"
                                 value={categoryFilter}
-                                onValueChange={(v) =>
-                                    setCategoryFilter(v as CategoryFilter)
-                                }
-                            >
-                                <ZoruSelectTrigger className="h-9 w-[170px]">
-                                    <ZoruSelectValue placeholder="Category" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    {CATEGORY_OPTIONS.map((o) => (
-                                        <ZoruSelectItem
-                                            key={o.value}
-                                            value={o.value}
-                                        >
-                                            {o.label}
-                                        </ZoruSelectItem>
-                                    ))}
-                                </ZoruSelectContent>
-                            </ZoruSelect>
-                            <ZoruSelect
+                                onChange={(v) => setCategoryFilter(v as CategoryFilter)}
+                                allLabel="All categories"
+                            />
+                            <EnumFilterField
+                                enumName="announcementAudience"
                                 value={audienceFilter}
-                                onValueChange={(v) =>
-                                    setAudienceFilter(v as AudienceFilter)
-                                }
-                            >
-                                <ZoruSelectTrigger className="h-9 w-[170px]">
-                                    <ZoruSelectValue placeholder="Audience" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    {AUDIENCE_OPTIONS.map((o) => (
-                                        <ZoruSelectItem
-                                            key={o.value}
-                                            value={o.value}
-                                        >
-                                            {o.label}
-                                        </ZoruSelectItem>
-                                    ))}
-                                </ZoruSelectContent>
-                            </ZoruSelect>
+                                onChange={(v) => setAudienceFilter(v as AudienceFilter)}
+                                allLabel="All audiences"
+                            />
                         </>
                     }
                     loading={isLoading && items.length === 0}

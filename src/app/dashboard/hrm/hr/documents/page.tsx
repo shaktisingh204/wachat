@@ -10,11 +10,6 @@ import {
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
   ZoruButton,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruTable,
   ZoruTableBody,
   ZoruTableCell,
@@ -45,6 +40,8 @@ import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 
+import { EnumFilterField } from '@/components/crm/enum-filter-field';
+
 import {
     deleteDocument,
     getDocuments,
@@ -56,27 +53,6 @@ import type {
 } from '@/lib/rust-client/crm-documents';
 
 const BASE = '/dashboard/hrm/hr/documents';
-
-const STATUS_OPTIONS: Array<{ value: CrmDocumentStatus | 'all'; label: string }> = [
-    { value: 'all', label: 'All statuses' },
-    { value: 'pending', label: 'Pending' },
-    { value: 'verified', label: 'Verified' },
-    { value: 'expired', label: 'Expired' },
-    { value: 'rejected', label: 'Rejected' },
-    { value: 'archived', label: 'Archived' },
-];
-
-const CATEGORY_OPTIONS: Array<{ value: CrmDocumentCategory | 'all'; label: string }> = [
-    { value: 'all', label: 'All categories' },
-    { value: 'id_proof', label: 'ID proof' },
-    { value: 'address_proof', label: 'Address proof' },
-    { value: 'qualification', label: 'Qualification' },
-    { value: 'experience', label: 'Experience' },
-    { value: 'contract', label: 'Contract' },
-    { value: 'appointment', label: 'Appointment' },
-    { value: 'resignation', label: 'Resignation' },
-    { value: 'other', label: 'Other' },
-];
 
 const STATUS_TONE: Record<CrmDocumentStatus, StatusTone> = {
     pending: 'amber',
@@ -183,40 +159,18 @@ export default function DocumentsListPage() {
                     }}
                     filters={
                         <>
-                            <ZoruSelect
+                            <EnumFilterField
+                                enumName="documentStatus"
                                 value={statusFilter}
-                                onValueChange={(v) =>
-                                    setStatusFilter(v as CrmDocumentStatus | 'all')
-                                }
-                            >
-                                <ZoruSelectTrigger className="h-9 w-[180px]">
-                                    <ZoruSelectValue placeholder="Status" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    {STATUS_OPTIONS.map((o) => (
-                                        <ZoruSelectItem key={o.value} value={o.value}>
-                                            {o.label}
-                                        </ZoruSelectItem>
-                                    ))}
-                                </ZoruSelectContent>
-                            </ZoruSelect>
-                            <ZoruSelect
+                                onChange={(v) => setStatusFilter(v as CrmDocumentStatus | 'all')}
+                                allLabel="All statuses"
+                            />
+                            <EnumFilterField
+                                enumName="documentCategory"
                                 value={categoryFilter}
-                                onValueChange={(v) =>
-                                    setCategoryFilter(v as CrmDocumentCategory | 'all')
-                                }
-                            >
-                                <ZoruSelectTrigger className="h-9 w-[200px]">
-                                    <ZoruSelectValue placeholder="Category" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    {CATEGORY_OPTIONS.map((o) => (
-                                        <ZoruSelectItem key={o.value} value={o.value}>
-                                            {o.label}
-                                        </ZoruSelectItem>
-                                    ))}
-                                </ZoruSelectContent>
-                            </ZoruSelect>
+                                onChange={(v) => setCategoryFilter(v as CrmDocumentCategory | 'all')}
+                                allLabel="All categories"
+                            />
                         </>
                     }
                     loading={isLoading && documents.length === 0}

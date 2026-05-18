@@ -185,6 +185,7 @@ export default function ContractTemplatesListPage() {
                     }}
                     filters={
                         <>
+                            {/* TODO 1E.filter: convert to EnumFilterField once that wrapper exists */}
                             <ZoruSelect
                                 value={statusFilter}
                                 onValueChange={(v) =>
@@ -207,6 +208,7 @@ export default function ContractTemplatesListPage() {
                                     ))}
                                 </ZoruSelectContent>
                             </ZoruSelect>
+                            {/* TODO 1E.filter: convert to EnumFilterField once that wrapper exists */}
                             <ZoruSelect
                                 value={typeFilter}
                                 onValueChange={(v) =>

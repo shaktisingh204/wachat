@@ -11,11 +11,6 @@ import {
   ZoruAlertDialogTitle,
   ZoruButton,
   ZoruInput,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruTable,
   ZoruTableBody,
   ZoruTableCell,
@@ -42,21 +37,12 @@ import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 
+import { EnumFilterField } from '@/components/crm/enum-filter-field';
+
 import { deleteOffer, getOffers } from '@/app/actions/crm-offers.actions';
 import type { CrmOfferDoc, CrmOfferStatus } from '@/lib/rust-client/crm-offers';
 
 const BASE = '/dashboard/hrm/hr/offers';
-
-const STATUS_OPTIONS: Array<{ value: CrmOfferStatus | 'all'; label: string }> = [
-    { value: 'all', label: 'All statuses' },
-    { value: 'draft', label: 'Draft' },
-    { value: 'sent', label: 'Sent' },
-    { value: 'accepted', label: 'Accepted' },
-    { value: 'rejected', label: 'Rejected' },
-    { value: 'expired', label: 'Expired' },
-    { value: 'withdrawn', label: 'Withdrawn' },
-    { value: 'archived', label: 'Archived' },
-];
 
 const STATUS_TONE: Record<CrmOfferStatus, StatusTone> = {
     draft: 'amber',
@@ -179,23 +165,12 @@ export default function OffersListPage() {
                     }}
                     filters={
                         <>
-                            <ZoruSelect
+                            <EnumFilterField
+                                enumName="offerStatus"
                                 value={statusFilter}
-                                onValueChange={(v) =>
-                                    setStatusFilter(v as CrmOfferStatus | 'all')
-                                }
-                            >
-                                <ZoruSelectTrigger className="h-9 w-[180px]">
-                                    <ZoruSelectValue placeholder="Status" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    {STATUS_OPTIONS.map((o) => (
-                                        <ZoruSelectItem key={o.value} value={o.value}>
-                                            {o.label}
-                                        </ZoruSelectItem>
-                                    ))}
-                                </ZoruSelectContent>
-                            </ZoruSelect>
+                                onChange={(v) => setStatusFilter(v as CrmOfferStatus | 'all')}
+                                allLabel="All statuses"
+                            />
                             <ZoruInput
                                 value={jobFilter}
                                 onChange={(e) => setJobFilter(e.target.value)}

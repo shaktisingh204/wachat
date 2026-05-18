@@ -5,11 +5,6 @@ import {
   ZoruCard,
   ZoruInput,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
@@ -37,6 +32,7 @@ import {
     type CrmPromotionStatus,
     type CrmPromotionType,
 } from '@/app/actions/crm-promotions.actions';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 
 const BASE = '/dashboard/crm/sales/promotions';
 
@@ -180,44 +176,23 @@ export function PromotionForm({ initialData }: PromotionFormProps) {
                 {/* Type + Status */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="type-trigger">Type</ZoruLabel>
-                        <ZoruSelect
-                            value={type}
-                            onValueChange={(v) =>
-                                setType(v as CrmPromotionType)
-                            }
-                        >
-                            <ZoruSelectTrigger id="type-trigger">
-                                <ZoruSelectValue placeholder="Pick a type…" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {TYPE_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <ZoruLabel>Type</ZoruLabel>
+                        <EnumFormField
+                            enumName="promotionType"
+                            name="__type_picker"
+                            initialId={type}
+                            placeholder="Pick a type…"
+                            onChange={(v) => setType((v ?? 'flat') as CrmPromotionType)}
+                        />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
-                        <ZoruSelect
-                            value={status}
-                            onValueChange={(v) =>
-                                setStatus(v as CrmPromotionStatus)
-                            }
-                        >
-                            <ZoruSelectTrigger id="status-trigger">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <ZoruLabel>Status</ZoruLabel>
+                        <EnumFormField
+                            enumName="promotionStatus"
+                            name="__status_picker"
+                            initialId={status}
+                            onChange={(v) => setStatus((v ?? 'draft') as CrmPromotionStatus)}
+                        />
                     </div>
                 </div>
 

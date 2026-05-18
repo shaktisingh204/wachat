@@ -6,11 +6,6 @@ import {
   ZoruCheckbox,
   ZoruInput,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
@@ -45,6 +40,7 @@ import {
     type CrmEstimateTemplateItem,
     type CrmEstimateTemplateStatus,
 } from '@/app/actions/crm-estimate-templates.actions';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 
 const BASE = '/dashboard/crm/sales/estimates-templates';
 
@@ -207,21 +203,14 @@ export function EstimateTemplateForm({
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor={`${reactId}-category`}>
-                            Category
-                        </ZoruLabel>
-                        <ZoruSelect value={category} onValueChange={setCategory}>
-                            <ZoruSelectTrigger id={`${reactId}-category`}>
-                                <ZoruSelectValue placeholder="Category" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {CATEGORY_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <ZoruLabel>Category</ZoruLabel>
+                        <EnumFormField
+                            enumName="estimateTemplateCategory"
+                            name="__category_picker"
+                            initialId={category}
+                            placeholder="Category"
+                            onChange={(v) => setCategory(v ?? 'general')}
+                        />
                     </div>
                 </div>
 
@@ -379,29 +368,13 @@ export function EstimateTemplateForm({
                 {/* Status + active */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor={`${reactId}-status`}>
-                            Status
-                        </ZoruLabel>
-                        <ZoruSelect
-                            value={status}
-                            onValueChange={(v) =>
-                                setStatus(v as CrmEstimateTemplateStatus)
-                            }
-                        >
-                            <ZoruSelectTrigger id={`${reactId}-status`}>
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem
-                                        key={o.value}
-                                        value={o.value}
-                                    >
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <ZoruLabel>Status</ZoruLabel>
+                        <EnumFormField
+                            enumName="estimateTemplateStatus"
+                            name="__status_picker"
+                            initialId={status}
+                            onChange={(v) => setStatus((v ?? 'draft') as CrmEstimateTemplateStatus)}
+                        />
                     </div>
                     <div className="flex items-center gap-2 self-end pb-1.5">
                         <ZoruCheckbox

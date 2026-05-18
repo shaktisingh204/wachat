@@ -5,11 +5,6 @@ import {
   ZoruCard,
   ZoruInput,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
@@ -31,6 +26,8 @@ import { ArrowLeft,
  * Binds to `savePfEsiRecord` via `useActionState`.
  */
 
+import { EnumFormField } from '@/components/crm/enum-form-field';
+
 import {
     savePfEsiRecord,
     type CrmPfEsiStatus,
@@ -38,12 +35,6 @@ import {
 
 const BASE = '/dashboard/hrm/payroll/pf-esi';
 
-const STATUS_OPTIONS: Array<{ value: CrmPfEsiStatus; label: string }> = [
-    { value: 'pending', label: 'Pending' },
-    { value: 'deposited', label: 'Deposited' },
-    { value: 'filed', label: 'Filed' },
-    { value: 'archived', label: 'Archived' },
-];
 
 function currentMonth(): string {
     const d = new Date();
@@ -114,8 +105,6 @@ export function PfEsiForm({ initialData }: PfEsiFormProps) {
                         value={String(initialData!._id)}
                     />
                 ) : null}
-                <input type="hidden" name="status" value={status} />
-
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
                         <ZoruLabel htmlFor="employeeName">Employee name *</ZoruLabel>
@@ -150,22 +139,15 @@ export function PfEsiForm({ initialData }: PfEsiFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
-                        <ZoruSelect
-                            value={status}
-                            onValueChange={(v) => setStatus(v as CrmPfEsiStatus)}
-                        >
-                            <ZoruSelectTrigger id="status-trigger">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <ZoruLabel>Status</ZoruLabel>
+                        <EnumFormField
+                            name="status"
+                            enumName="pfEsiStatus"
+                            initialId={status}
+                            onChange={(id) => setStatus((id as CrmPfEsiStatus) ?? 'pending')}
+                            allowInlineCreate={false}
+                            placeholder="Status"
+                        />
                     </div>
                 </div>
 

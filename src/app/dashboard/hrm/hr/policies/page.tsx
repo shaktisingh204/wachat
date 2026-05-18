@@ -10,11 +10,6 @@ import {
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
   ZoruButton,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruTable,
   ZoruTableBody,
   ZoruTableCell,
@@ -55,27 +50,9 @@ import type {
     CrmPolicyCategory,
 } from '@/lib/rust-client/crm-policies';
 
+import { EnumFilterField } from '@/components/crm/enum-filter-field';
+
 const BASE = '/dashboard/hrm/hr/policies';
-
-const STATUS_OPTIONS: Array<{ value: CrmPolicyStatus | 'all'; label: string }> = [
-    { value: 'all', label: 'All statuses' },
-    { value: 'draft', label: 'Draft' },
-    { value: 'published', label: 'Published' },
-    { value: 'under_review', label: 'Under review' },
-    { value: 'archived', label: 'Archived' },
-    { value: 'obsolete', label: 'Obsolete' },
-];
-
-const CATEGORY_OPTIONS: Array<{ value: CrmPolicyCategory | 'all'; label: string }> = [
-    { value: 'all', label: 'All categories' },
-    { value: 'leave', label: 'Leave' },
-    { value: 'travel', label: 'Travel' },
-    { value: 'code_of_conduct', label: 'Code of conduct' },
-    { value: 'it_security', label: 'IT security' },
-    { value: 'hr', label: 'HR' },
-    { value: 'finance', label: 'Finance' },
-    { value: 'other', label: 'Other' },
-];
 
 const STATUS_TONE: Record<CrmPolicyStatus, StatusTone> = {
     draft: 'amber',
@@ -184,40 +161,18 @@ export default function PoliciesListPage() {
                     }}
                     filters={
                         <>
-                            <ZoruSelect
+                            <EnumFilterField
+                                enumName="policyDocStatus"
                                 value={statusFilter}
-                                onValueChange={(v) =>
-                                    setStatusFilter(v as CrmPolicyStatus | 'all')
-                                }
-                            >
-                                <ZoruSelectTrigger className="h-9 w-[180px]">
-                                    <ZoruSelectValue placeholder="Status" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    {STATUS_OPTIONS.map((o) => (
-                                        <ZoruSelectItem key={o.value} value={o.value}>
-                                            {o.label}
-                                        </ZoruSelectItem>
-                                    ))}
-                                </ZoruSelectContent>
-                            </ZoruSelect>
-                            <ZoruSelect
+                                onChange={(v) => setStatusFilter(v as CrmPolicyStatus | 'all')}
+                                allLabel="All statuses"
+                            />
+                            <EnumFilterField
+                                enumName="policyDocCategory"
                                 value={categoryFilter}
-                                onValueChange={(v) =>
-                                    setCategoryFilter(v as CrmPolicyCategory | 'all')
-                                }
-                            >
-                                <ZoruSelectTrigger className="h-9 w-[200px]">
-                                    <ZoruSelectValue placeholder="Category" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    {CATEGORY_OPTIONS.map((o) => (
-                                        <ZoruSelectItem key={o.value} value={o.value}>
-                                            {o.label}
-                                        </ZoruSelectItem>
-                                    ))}
-                                </ZoruSelectContent>
-                            </ZoruSelect>
+                                onChange={(v) => setCategoryFilter(v as CrmPolicyCategory | 'all')}
+                                allLabel="All categories"
+                            />
                         </>
                     }
                     loading={isLoading && policies.length === 0}

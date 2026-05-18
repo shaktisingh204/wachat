@@ -27,7 +27,8 @@ import { ArrowLeft,
   Save,
   Trash2 } from 'lucide-react';
 
-// TODO 1E.sweep: readiness -> <EnumFormField enumName="successionReadiness">; incumbent/successors -> <EntityFormField entity="employee">. See plan §1E.
+// §1E.sweep: readinessOverall ZoruSelect kept — form slugs (ready_now/1_year/2_3_years) differ from successionReadiness enum (ready_1_2y/ready_3_5y); resolve Rust DTO first.
+// §1E.sweep: status ZoruSelect kept — no successionStatus enum in catalogue.
 
 /**
  * <SuccessionForm /> — create + edit form for HR succession plans.
