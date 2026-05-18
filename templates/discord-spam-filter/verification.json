@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "discord-spam-filter",
+  "cases": [
+    {
+      "id": "msg",
+      "description": "Message arrives, gets moderated and routed.",
+      "triggerPayload": { "id": "msg1", "author": { "id": "u1" }, "content": "hi" },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
