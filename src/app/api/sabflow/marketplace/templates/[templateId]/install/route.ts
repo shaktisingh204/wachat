@@ -35,6 +35,7 @@ import {
   type MarketplaceTemplateFlow,
 } from '@/lib/sabflow/marketplace/templates';
 import { remapFlowIds } from '@/lib/sabflow/marketplace/install';
+import { trackTemplateInstall } from '@/lib/sabflow/marketplace/telemetry';
 import type { SabFlowDoc } from '@/lib/sabflow/types';
 
 export const dynamic = 'force-dynamic';
@@ -247,6 +248,9 @@ export async function POST(
       }),
       incrementInstallCountById(templateId),
     ]);
+
+    /* ── 8. Telemetry — fire-and-forget, never blocks the response ──── */
+    trackTemplateInstall(templateId, userId);
 
     const editorUrl = `/dashboard/sabflow/flow-builder/${docId}`;
     return NextResponse.json({ docId, editorUrl }, { status: 201 });
