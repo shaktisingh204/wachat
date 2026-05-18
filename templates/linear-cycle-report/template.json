@@ -1,0 +1,10 @@
+{
+  "id": "linear-cycle-report",
+  "name": "Linear Cycle Report",
+  "description": "Runs every Sunday evening to summarize the Linear cycle that is closing: velocity, completed vs incomplete issues, and the top contributors. GPT-4o turns the rollup into a narrative report that is posted to #engineering and filed in Notion for the record.",
+  "category": "Developer",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["linear", "openai", "slack", "notion", "weekly-report", "engineering"],
+  "version": "0.1.0"
+}
