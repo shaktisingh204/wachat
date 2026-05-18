@@ -1,0 +1,29 @@
+# Standalone-package marker. Track B Phase 2 ships this crate as an
+# isolated slice — the orchestrator wires it into `rust/Cargo.toml` as a
+# batch once the matching dispatcher consumer lands. Until then this empty
+# `[workspace]` table tells cargo "I'm intentionally not a member of the
+# enclosing workspace" so `cargo check -p sabflow-executor-queue` works in
+# isolation.
+[workspace]
+
+[package]
+name = "sabflow-executor-queue"
+version = "0.1.0"
+edition = "2024"
+description = "SabFlow executor queue primitives — retry policy + full-jitter exponential backoff for the Rust dispatcher. Mirrors src/lib/sabflow/executor/errors.ts and src/lib/sabflow/queue/retry.ts."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "sabflow_executor_queue"
+path = "src/lib.rs"
+
+[dependencies]
+# Serde so callers can log/emit `RetrySpec` and `RetryAction` over IPC and
+# admin UI surfaces, and so the policy stays wire-compatible with the TS
+# dual in `src/lib/sabflow/queue/retry.ts`.
+serde = { version = "1", features = ["derive"] }
+
+# `rand 0.8` matches the rest of the workspace. Used only for the
+# full-jitter PRNG in `delay_for`.
+rand = "0.8"
