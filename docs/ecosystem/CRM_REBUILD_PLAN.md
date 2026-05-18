@@ -198,6 +198,41 @@ The last entity in W1 (leads, deals, contacts, tasks were already done) was acco
 
 **Wave 1 (Sales-CRM core) is now done — leads · deals · contacts · tasks · accounts all on the §1D bar.**
 
+### 2026-05-19 — W2 remainder + W5/W6 HRM + §1E agent batch
+
+**W2 remainder (delivery challans + recurring invoices):**
+- ✅ `delivery/[challanId]/page.tsx` — migrated to `<EntityDetailShell>` (eyebrow DELIVERY CHALLAN, status pill via `statusToTone`, back link, 9-button action group). `<LineageRail>` in rightRail; `<EntityAuditTimeline>` in audit slot.
+- ✅ `recurring-invoices/[id]/page.tsx` — converted from `'use client'` monolith to server component + `<RecurringInvoiceDetailActions>` client island (pause / resume / stop / run-now / delete with `router.refresh()` for optimistic reload). Wraps `<EntityDetailShell>`.
+
+**W5 — HRM Payroll module (EntityDetailShell + EntityListShell on list/detail pages):**
+- ✅ `salary-structure/page.tsx` — drops `<CrmPageHeader>`; uses `<EntityListShell>` with title/subtitle/primaryAction.
+- ✅ `salary-structure/[id]/page.tsx` — `<CrmPageHeader>` replaced with `<EntityDetailShell>` (status tone via STATUS_TONE map). Edit button in actions.
+- ✅ `payroll/payroll/page.tsx` — drops `<CrmPageHeader>`; passes title/subtitle/primaryAction into `<EntityListShell>`. Already had EntityListShell body; outer wrapper eliminated.
+- ✅ `payroll/payroll/[id]/page.tsx` — `<CrmPageHeader>` replaced with `<EntityDetailShell>` (status pill, "Edit / finalize" action).
+- ✅ `payslips/page.tsx` — drops `<CrmPageHeader>`; title/subtitle into `<EntityListShell>`. ZoruSelect → EnumFilterField for status filter (by a prior §1E agent sweep already on disk).
+- ✅ `payslips/[id]/page.tsx` — `<CrmPageHeader>` + `<StatusPill>` replaced with `<EntityDetailShell>`.
+
+**W6 — HRM People-Ops (jobs, offers, disciplinary):**
+- ✅ `hr/jobs/page.tsx` — drops `<CrmPageHeader>`; title/primaryAction into `<EntityListShell>`.
+- ✅ `hr/jobs/[id]/page.tsx` — `<CrmPageHeader>` → `<EntityDetailShell>` with status pill (STATUS_TONE map) + Edit action.
+- ✅ `hr/offers/page.tsx` — drops `<CrmPageHeader>`; title/primaryAction into `<EntityListShell>`.
+- ✅ `hr/disciplinary/page.tsx` — wraps KPI strip + table in `<EntityListShell>` (title, subtitle, primaryAction); `<CrmPageHeader>` removed.
+- ✅ `hr/disciplinary/[caseId]/page.tsx` — `<CrmPageHeader>` → `<EntityDetailShell>` (status via STATUS_TONE, "Add Hearing" + `<HrActionButtons>` cluster in actions slot).
+
+**§1E batch (parallel agent sweep committed in this session):**
+- ✅ voucher-books-filters, bank-transactions, loans, debit-notes, hire, payouts, recurring-expenses, vendors/new, leads-filters, automations/new, contacts-filters, deals, form-form, contracts/types, email-templates, kb-filters, sla-form, time-logs, announcements, awards, kb-internal, payroll-runs-filters, holidays-filters, shifts page+form, sabflow-coverage, embed/crm-form, sabwa shell, wachat, builder sidebar, marketplace, wabasimplify — ZoruSelect → EnumFormField/EnumFilterField; crm-enums.ts extended with new enum constants (loanDirection, loanStatus, loanType, borrowerType, bankFileFormat, bankTransactionTypeExt, itemType, inventoryTransactionType, inventoryTrackingFilter, grnQcStatus, attendanceFormStatus, attendanceSource, partyTypeReport, bookingStatus, bookingPaymentStatus, portalType, awardFrequency).
+
+**Commit:** `4cfc61c19`
+
+#### Deferred / queued for the next session (in priority order)
+
+1. **§1E continuation** — background agents still running on ~29 + ~34 more file batches; commit those when agents complete.
+2. **W7/W8** — Workspace + Projects + Tickets + Accounting + Banking + Settings + Master data + Reports + Integrations.
+3. **Rust DTO widening** — GRN status enum + SO fulfillment states.
+4. **`cargo +stable check`** for the 2026-05-18 field additions.
+
+---
+
 ### 2026-05-18 — P1.1B Wave 2 partial — INVOICES + QUOTATIONS rebuilt on the shared shells
 
 **Phase 1.1B Wave 2 partial** — the line-item-doc head of Wave 2 is now wrapped in the canonical shells (`<EntityListShell>` + `<EntityDetailShell>`). Invoice + Quotation modules already met most of the §1D content bar from the earlier Wave 2-A landing; this rebuild lifts them onto the same shell composition as ACCOUNTS so the header / right rail / audit-footer layout is now identical across Wave 1 + the first two Wave 2 entities.
