@@ -91,6 +91,24 @@ export const SABFLOW_TRIGGER_PERMISSION_KEYS = [
 ] as const;
 
 /**
+ * Marketplace keys — template submission and moderation.
+ *
+ * | Key                              | Intent                                          |
+ * |----------------------------------|-------------------------------------------------|
+ * | `sabflow:marketplace:submit`     | Submit a flow to the public marketplace queue.  |
+ * | `sabflow:marketplace:review`     | Review, approve, or reject pending submissions. |
+ *
+ * `review` is an admin/owner-only key; `submit` is granted to editors and
+ * above. Dot-notation is intentionally broken here: the colon separator
+ * matches the external RBAC style used for marketplace keys across modules
+ * (see `src/lib/permission-modules.ts`).
+ */
+export const SABFLOW_MARKETPLACE_PERMISSION_KEYS = [
+    'sabflow:marketplace:submit',
+    'sabflow:marketplace:review',
+] as const;
+
+/**
  * Execution-management keys (read / pin / unpin individual execution rows).
  *
  * | Key                          | Intent                                              |
@@ -119,6 +137,7 @@ export const SABFLOW_PERMISSION_KEYS = [
     ...SABFLOW_WORKFLOW_PERMISSION_KEYS,
     ...SABFLOW_TRIGGER_PERMISSION_KEYS,
     ...SABFLOW_EXECUTION_PERMISSION_KEYS,
+    ...SABFLOW_MARKETPLACE_PERMISSION_KEYS,
 ] as const;
 
 export type SabflowPermissionKey = (typeof SABFLOW_PERMISSION_KEYS)[number];
@@ -159,6 +178,7 @@ export const DEFAULT_SABFLOW_ROLE_GRANTS: Record<
         'sabflow.workflow.read',
         'sabflow.workflow.write',
         'sabflow.workflow.execute',
+        'sabflow:marketplace:submit',
     ],
     admin: [
         'sabflow.doc.read',
@@ -181,6 +201,8 @@ export const DEFAULT_SABFLOW_ROLE_GRANTS: Record<
         'sabflow.execution.pin',
         'sabflow.execution.unpin',
         'sabflow.execution.admin',
+        'sabflow:marketplace:submit',
+        'sabflow:marketplace:review',
     ],
     owner: [
         'sabflow.doc.read',
@@ -201,5 +223,7 @@ export const DEFAULT_SABFLOW_ROLE_GRANTS: Record<
         'sabflow.execution.pin',
         'sabflow.execution.unpin',
         'sabflow.execution.admin',
+        'sabflow:marketplace:submit',
+        'sabflow:marketplace:review',
     ],
 } as const;
