@@ -1,0 +1,10 @@
+{
+  "id": "honeybadger-on-call-router",
+  "name": "Honeybadger On-Call Router",
+  "description": "When Honeybadger fires a fault webhook, the flow asks PagerDuty who is currently on-call for the application schedule, formats a context block with the error fingerprint and link, and DMs the on-call engineer on Slack so the incident lands in front of one person — fast.",
+  "category": "Ops",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["honeybadger", "pagerduty", "slack", "oncall", "routing", "webhook"],
+  "version": "0.1.0"
+}
