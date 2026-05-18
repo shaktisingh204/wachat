@@ -1,0 +1,211 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_figma_comment_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "figma.file_comment",
+    "options": {
+      "path": "/webhooks/figma-design-handoff",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Figma-Signature",
+      "responseMode": "immediately",
+      "enabled": true,
+      "textMatch": "READY FOR DEV"
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_figma_comment_trigger",
+      "name": "Figma Comment (READY FOR DEV)",
+      "type": "n8n-nodes-base.figmaTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "event": "file_comment",
+        "teamId": "={{ $vars.FIGMA_TEAM_ID }}",
+        "fileKey": "={{ $vars.FIGMA_FILE_KEY }}",
+        "textMatch": "READY FOR DEV"
+      },
+      "credentials": {
+        "figmaApi": { "id": "figma-cred", "name": "Figma API" }
+      }
+    },
+    {
+      "id": "n_fetch_thumbnail",
+      "name": "Fetch Frame Thumbnail",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "=https://api.figma.com/v1/images/{{ $json.file_key }}?ids={{ $json.node_id }}&format=png&scale=2",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "figma-header-cred", "name": "Figma X-Figma-Token" }
+      }
+    },
+    {
+      "id": "n_extract_handoff",
+      "name": "Extract Handoff Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "frameId", "value": "={{ $node['Figma Comment (READY FOR DEV)'].json.node_id }}" },
+            { "name": "frameName", "value": "={{ $node['Figma Comment (READY FOR DEV)'].json.node_name }}" },
+            { "name": "fileKey", "value": "={{ $node['Figma Comment (READY FOR DEV)'].json.file_key }}" },
+            { "name": "fileName", "value": "={{ $node['Figma Comment (READY FOR DEV)'].json.file_name }}" },
+            { "name": "designer", "value": "={{ $node['Figma Comment (READY FOR DEV)'].json.user.handle }}" },
+            { "name": "commentBody", "value": "={{ $node['Figma Comment (READY FOR DEV)'].json.message }}" },
+            { "name": "thumbnailUrl", "value": "={{ $json.images[$node['Figma Comment (READY FOR DEV)'].json.node_id] }}" },
+            { "name": "figmaUrl", "value": "=https://www.figma.com/file/{{ $node['Figma Comment (READY FOR DEV)'].json.file_key }}?node-id={{ $node['Figma Comment (READY FOR DEV)'].json.node_id }}" }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "n_slack_post",
+      "name": "Post to #design-handoff",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [720, -180],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "#design-handoff",
+        "text": "=:art: *{{ $json.frameName }}* is ready for dev — handed off by @{{ $json.designer }}\n<{{ $json.figmaUrl }}|Open in Figma>",
+        "otherOptions": {
+          "attachments": [
+            {
+              "fields": {
+                "item": [
+                  { "title": "File", "value": "={{ $json.fileName }}", "short": true },
+                  { "title": "Designer", "value": "=@{{ $json.designer }}", "short": true }
+                ]
+              },
+              "imageUrl": "={{ $json.thumbnailUrl }}",
+              "color": "#a259ff"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    },
+    {
+      "id": "n_linear_create",
+      "name": "Open Linear Task",
+      "type": "n8n-nodes-base.linear",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "authentication": "apiKey",
+        "resource": "issue",
+        "operation": "create",
+        "teamId": "={{ $vars.LINEAR_ENG_TEAM_ID }}",
+        "title": "=[Design] {{ $node['Extract Handoff Fields'].json.frameName }}",
+        "additionalFields": {
+          "projectId": "={{ $vars.LINEAR_ENG_PROJECT_ID }}",
+          "description": "=Design handoff from @{{ $node['Extract Handoff Fields'].json.designer }}.\n\nFrame: **{{ $node['Extract Handoff Fields'].json.frameName }}**\nFile: {{ $node['Extract Handoff Fields'].json.fileName }}\n\nDesigner note:\n> {{ $node['Extract Handoff Fields'].json.commentBody }}\n\n[Open in Figma]({{ $node['Extract Handoff Fields'].json.figmaUrl }})\n\n![Thumbnail]({{ $node['Extract Handoff Fields'].json.thumbnailUrl }})",
+          "labelIds": ["={{ $vars.LINEAR_DESIGN_LABEL_ID }}"]
+        }
+      },
+      "credentials": {
+        "linearApi": { "id": "linear-cred", "name": "Linear API" }
+      }
+    },
+    {
+      "id": "n_airtable_log",
+      "name": "Log to Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [720, 180],
+      "parameters": {
+        "operation": "create",
+        "application": "={{ $vars.AIRTABLE_BASE_ID }}",
+        "table": "={{ $vars.AIRTABLE_HANDOFF_TABLE }}",
+        "fields": "Frame,File,Designer,Figma URL,Thumbnail,Status",
+        "addAllFields": false,
+        "options": {
+          "typecast": true
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "airtable-cred", "name": "Airtable Token" }
+      }
+    },
+    {
+      "id": "n_done",
+      "name": "Done",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "n_figma_comment_trigger": {
+      "main": [[{ "node": "n_fetch_thumbnail", "type": "main", "index": 0 }]]
+    },
+    "n_fetch_thumbnail": {
+      "main": [[{ "node": "n_extract_handoff", "type": "main", "index": 0 }]]
+    },
+    "n_extract_handoff": {
+      "main": [
+        [
+          { "node": "n_slack_post", "type": "main", "index": 0 },
+          { "node": "n_linear_create", "type": "main", "index": 0 },
+          { "node": "n_airtable_log", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "n_slack_post": {
+      "main": [[{ "node": "n_done", "type": "main", "index": 0 }]]
+    },
+    "n_linear_create": {
+      "main": [[{ "node": "n_done", "type": "main", "index": 0 }]]
+    },
+    "n_airtable_log": {
+      "main": [[{ "node": "n_done", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_figma_comment_trigger",
+        "n_fetch_thumbnail",
+        "n_extract_handoff",
+        "n_slack_post",
+        "n_linear_create",
+        "n_airtable_log",
+        "n_done"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_figma_team", "name": "FIGMA_TEAM_ID", "defaultValue": "" },
+    { "id": "v_figma_file", "name": "FIGMA_FILE_KEY", "defaultValue": "" },
+    { "id": "v_linear_team", "name": "LINEAR_ENG_TEAM_ID", "defaultValue": "" },
+    { "id": "v_linear_project", "name": "LINEAR_ENG_PROJECT_ID", "defaultValue": "" },
+    { "id": "v_linear_label", "name": "LINEAR_DESIGN_LABEL_ID", "defaultValue": "" },
+    { "id": "v_airtable_base", "name": "AIRTABLE_BASE_ID", "defaultValue": "" },
+    { "id": "v_airtable_table", "name": "AIRTABLE_HANDOFF_TABLE", "defaultValue": "Design Handoffs" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
