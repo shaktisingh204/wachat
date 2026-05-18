@@ -1,4 +1,3 @@
-
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/app/actions/user.actions';
 import { nanoid } from 'nanoid';

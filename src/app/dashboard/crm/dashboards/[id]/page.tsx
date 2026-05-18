@@ -1,8 +1,10 @@
-import { notFound } from 'next/navigation';
+import { ZoruButton, ZoruCard, ZoruCardContent } from '@/components/zoruui';
+import {
+  notFound } from 'next/navigation';
 import Link from 'next/link';
 
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { ZoruButton, ZoruCard, ZoruCardContent } from '@/components/zoruui';
+
 import {
     getDashboardById,
     resolveWidgetData,

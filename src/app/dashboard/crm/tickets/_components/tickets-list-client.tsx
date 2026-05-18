@@ -1,5 +1,15 @@
 'use client';
 
+import { ZoruButton, useZoruToast } from '@/components/zoruui';
+import {
+  useDebouncedCallback } from 'use-debounce';
+import { Plus } from 'lucide-react';
+import type { DateRange } from 'react-day-picker';
+
+import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { ConfirmDialog } from '@/components/crm/confirm-dialog';
+import { PaginationBar } from '@/components/crm/pagination-bar';
+
 /**
  * <TicketsListClient> — interactive shell for `/dashboard/crm/tickets`.
  *
@@ -15,14 +25,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useDebouncedCallback } from 'use-debounce';
-import { Plus } from 'lucide-react';
-import type { DateRange } from 'react-day-picker';
 
-import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { ConfirmDialog } from '@/components/crm/confirm-dialog';
-import { PaginationBar } from '@/components/crm/pagination-bar';
-import { ZoruButton, useZoruToast } from '@/components/zoruui';
 import { useT } from '@/lib/i18n/client';
 
 import {

@@ -1,11 +1,20 @@
-
 'use client';
 
-import { useRouter } from 'next/navigation';
-import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardFooter, ZoruCardHeader, ZoruCardTitle, ZoruButton } from '@/components/zoruui';
-import { ZoruAvatar, ZoruAvatarFallback } from '@/components/zoruui';
-import { ZoruBadge } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
+import {
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardDescription,
+  ZoruCardFooter,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruButton,
+  ZoruAvatar,
+  ZoruAvatarFallback,
+  ZoruBadge,
+} from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+
 import { MessageSquare } from 'lucide-react';
 import type { WithId, Contact } from '@/lib/definitions';
 import { useDraggable } from '@dnd-kit/core';
@@ -15,7 +24,6 @@ interface KanbanCardProps {
     contact: WithId<Contact>;
     index: number;
 }
-
 
 export function KanbanCard({ contact, index }: KanbanCardProps) {
     const router = useRouter();

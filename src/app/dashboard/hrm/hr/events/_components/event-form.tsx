@@ -1,5 +1,32 @@
 'use client';
 
+import {
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCheckbox,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruTextarea,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+import { useActionState } from 'react';
+import { useFormStatus } from 'react-dom';
+import {
+    ArrowLeft,
+  Image as ImageIcon,
+  LoaderCircle,
+  Save,
+  X,
+  } from 'lucide-react';
+
 // TODO 1E.sweep: visibility/type/status dropdowns -> <EnumFormField>; organizer/department -> <EntityFormField>. See plan §1E.
 
 /**
@@ -13,32 +40,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useActionState } from 'react';
-import { useFormStatus } from 'react-dom';
-import {
-    ArrowLeft,
-    Image as ImageIcon,
-    LoaderCircle,
-    Save,
-    X,
-} from 'lucide-react';
 
-import {
-    ZoruButton,
-    ZoruCard,
-    ZoruCardContent,
-    ZoruCheckbox,
-    ZoruInput,
-    ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    ZoruTextarea,
-    useZoruToast,
-} from '@/components/zoruui';
 import { SabFilePickerButton } from '@/components/sabfiles';
 
 import {

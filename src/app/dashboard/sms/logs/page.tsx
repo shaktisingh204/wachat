@@ -1,10 +1,5 @@
-
+import { ZoruPageHeader, ZoruPageHeading, ZoruPageTitle } from '@/components/zoruui';
 import SmsLogsTable from "./sms-logs-table";
-import {
-    ZoruPageHeader,
-    ZoruPageHeading,
-    ZoruPageTitle,
-} from '@/components/zoruui';
 
 export default function SmsLogsPage() {
     return (

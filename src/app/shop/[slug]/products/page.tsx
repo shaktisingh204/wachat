@@ -1,5 +1,3 @@
-
-
 import { notFound } from 'next/navigation';
 import { getEcommShopBySlug, getPublicEcommProducts } from '@/app/actions/custom-ecommerce.actions';
 import { Canvas } from '@/components/wabasimplify/website-builder/canvas';
@@ -34,5 +32,4 @@ export default async function AllProductsPage(props: { params: Promise<{ slug: s
         </main>
     );
 }
-
 

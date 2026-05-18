@@ -1,12 +1,16 @@
 'use client';
 
-import * as React from 'react';
-import { use } from 'react';
+import { ZoruSkeleton } from '@/components/zoruui';
+import {
+  use } from 'react';
 import { Target } from 'lucide-react';
 import { HrFormPage } from '../../../../hr/_components/hr-form-page';
-import { getCrmGoals, saveCrmGoal } from '@/app/actions/crm-hr.actions';
-import { fields, sections } from '../../_config';
-import { ZoruSkeleton } from '@/components/zoruui';
+import { getCrmGoals,
+  saveCrmGoal } from '@/app/actions/crm-hr.actions';
+import { fields,
+  sections } from '../../_config';
+
+import * as React from 'react';
 
 export default function EditGoalPage({
   params,

@@ -1,17 +1,5 @@
 'use client';
 
-/**
- * /dashboard/facebook/flow-builder/docs — inline reference (ZoruUI).
- *
- * Replaces the @/components/ui/* version. Same content (block reference
- * + variables guide), now rendered in the neutral Zoru palette using
- * ZoruAccordion. No tab UI.
- */
-
-import * as React from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import { ArrowLeft, BookOpen, ChevronRight } from 'lucide-react';
-
 import {
   ZoruAccordion,
   ZoruAccordionContent,
@@ -34,6 +22,22 @@ import {
   ZoruPageTitle,
   ZoruSeparator,
 } from '@/components/zoruui';
+import {
+  useParams,
+  useRouter } from 'next/navigation';
+import { ArrowLeft,
+  BookOpen,
+  ChevronRight } from 'lucide-react';
+
+/**
+ * /dashboard/facebook/flow-builder/docs — inline reference (ZoruUI).
+ *
+ * Replaces the @/components/ui/* version. Same content (block reference
+ * + variables guide), now rendered in the neutral Zoru palette using
+ * ZoruAccordion. No tab UI.
+ */
+
+import * as React from 'react';
 
 const blockDocs = [
   {

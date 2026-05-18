@@ -1,5 +1,15 @@
 'use client';
 
+import { useZoruToast } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+import { LoaderCircle,
+  X } from 'lucide-react';
+
+import { StatusPill,
+  statusToTone } from '@/components/crm/status-pill';
+import { EnumFormField } from '@/components/crm/enum-form-field';
+
 /**
  * <ReceiptInlineStatus> — clickable status pill on the receipt detail
  * page. Opens an inline `<EnumFormField enumName="paymentReceiptStatus">`
@@ -13,12 +23,7 @@
  */
 
 import * as React from 'react';
-import { useRouter } from 'next/navigation';
-import { LoaderCircle, X } from 'lucide-react';
 
-import { StatusPill, statusToTone } from '@/components/crm/status-pill';
-import { EnumFormField } from '@/components/crm/enum-form-field';
-import { useZoruToast } from '@/components/zoruui';
 import { setPaymentReceiptStatus } from '@/app/actions/crm/payment-receipts.actions';
 import type { CrmReceiptStatus } from '@/lib/rust-client/crm-payment-receipts';
 

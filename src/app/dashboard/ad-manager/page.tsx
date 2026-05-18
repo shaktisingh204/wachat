@@ -1,15 +1,8 @@
 'use client';
 
-/**
- * /dashboard/ad-manager — Meta Suite overview built on ZoruUI primitives.
- *
- * Shows account-level KPIs, top campaigns, and quick actions.
- * All data is real — pulled from Meta Graph API via server actions.
- */
-
-import * as React from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { ZoruButton, ZoruCard, ZoruCardContent } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
 import {
   DollarSign,
   Eye,
@@ -25,18 +18,27 @@ import {
   Play,
   RefreshCw,
   Download,
-} from 'lucide-react';
+  } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 import { useAdManager } from '@/context/ad-manager-context';
 import { useAdManagerShell } from '@/context/ad-manager-shell-context';
-import { getInsights, listCampaigns } from '@/app/actions/ad-manager.actions';
-import { formatMoney, formatNumber, formatPercent } from '@/components/wabasimplify/ad-manager/constants';
-import {
-  ZoruButton,
-  ZoruCard,
-  ZoruCardContent,
-} from '@/components/zoruui';
+import { getInsights,
+  listCampaigns } from '@/app/actions/ad-manager.actions';
+import { formatMoney,
+  formatNumber,
+  formatPercent } from '@/components/wabasimplify/ad-manager/constants';
+
+/**
+ * /dashboard/ad-manager — Meta Suite overview built on ZoruUI primitives.
+ *
+ * Shows account-level KPIs, top campaigns, and quick actions.
+ * All data is real — pulled from Meta Graph API via server actions.
+ */
+
+import * as React from 'react';
+import Link from 'next/link';
+
 import { AmBreadcrumb, AmHeader } from './_components/am-page-shell';
 
 /* ── types ──────────────────────────────────────────────────────── */

@@ -1,3 +1,11 @@
+import { ZoruBadge, ZoruButton, ZoruCard, ZoruProgress } from '@/components/zoruui';
+import {
+  notFound,
+  redirect } from 'next/navigation';
+import { ArrowLeft,
+  Flag,
+  Pencil } from 'lucide-react';
+
 /**
  * Milestone detail page.
  *
@@ -6,15 +14,7 @@
  */
 
 import Link from 'next/link';
-import { notFound, redirect } from 'next/navigation';
-import { ArrowLeft, Flag, Pencil } from 'lucide-react';
 
-import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruProgress,
-} from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { StatusPill, statusToTone, type StatusTone } from '@/components/crm/status-pill';
 import { EntityPickerChip } from '@/components/crm/entity-picker';

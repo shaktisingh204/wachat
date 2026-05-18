@@ -1,35 +1,5 @@
 "use client";
 
-/**
- * /sabwa/labels — Manage chat labels.
- *
- * CRUD over `SabwaLabelRow` via the server actions in
- * `@/app/actions/sabwa.actions`:
- *  - `listLabels(sessionId)`          — fetch
- *  - `upsertLabel({ sessionId, ... })` — create or rename / recolour
- *  - `deleteLabel(id)`                — destroy (chats keep tag refs)
- *
- * Layout: header + "New label" button + grid of label cards (swatch +
- * name + chat count + Rename/Recolour/Delete actions). Edit/create
- * open a ZoruDialog with a name input and a 10-swatch colour picker.
- * Delete opens a ZoruAlertDialog that warns the user that chats keep
- * their tag references.
- *
- * Rendered with ZoruUI primitives — no shadcn `/ui/*` imports.
- */
-
-import * as React from "react";
-import Link from "next/link";
-import {
-  Check,
-  MoreHorizontal,
-  Pencil,
-  Plus,
-  Smartphone,
-  Tag as TagIcon,
-  Trash2,
-} from "lucide-react";
-
 import {
   ZoruAlertDialog,
   ZoruAlertDialogAction,
@@ -68,7 +38,37 @@ import {
   ZoruSkeleton,
   cn,
   useZoruToast,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  Check,
+  MoreHorizontal,
+  Pencil,
+  Plus,
+  Smartphone,
+  Tag as TagIcon,
+  Trash2,
+  } from "lucide-react";
+
+/**
+ * /sabwa/labels — Manage chat labels.
+ *
+ * CRUD over `SabwaLabelRow` via the server actions in
+ * `@/app/actions/sabwa.actions`:
+ *  - `listLabels(sessionId)`          — fetch
+ *  - `upsertLabel({ sessionId, ... })` — create or rename / recolour
+ *  - `deleteLabel(id)`                — destroy (chats keep tag refs)
+ *
+ * Layout: header + "New label" button + grid of label cards (swatch +
+ * name + chat count + Rename/Recolour/Delete actions). Edit/create
+ * open a ZoruDialog with a name input and a 10-swatch colour picker.
+ * Delete opens a ZoruAlertDialog that warns the user that chats keep
+ * their tag references.
+ *
+ * Rendered with ZoruUI primitives — no shadcn `/ui/*` imports.
+ */
+
+import * as React from "react";
+import Link from "next/link";
 
 import { useLabels } from "@/lib/sabwa/use-sabwa-data";
 import { useSabwaSession } from "@/lib/sabwa/session-context";

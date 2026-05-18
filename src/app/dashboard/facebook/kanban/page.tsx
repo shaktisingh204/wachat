@@ -1,18 +1,5 @@
 "use client";
 
-/**
- * /dashboard/facebook/kanban — Workflow kanban board (ZoruUI).
- *
- * Mirrors `src/app/wachat/_components/zoru-kanban-board.tsx` —
- * conversations grouped by status, status moves via per-row dropdown
- * (no drag-and-drop yet). Same server-action wiring as the legacy
- * `FacebookKanbanBoard`. Page chrome is a ZoruBreadcrumb +
- * ZoruPageHeader on top of the board.
- */
-
-import * as React from "react";
-import { Suspense } from "react";
-
 import {
   ZoruBreadcrumb,
   ZoruBreadcrumbItem,
@@ -25,9 +12,22 @@ import {
   ZoruPageHeading,
   ZoruPageTitle,
   ZoruSkeleton,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import { ZoruFacebookKanbanBoard } from '../_components/zoru-facebook-kanban-board';
+import {
+  Suspense } from "react";
 
-import { ZoruFacebookKanbanBoard } from "../_components/zoru-facebook-kanban-board";
+/**
+ * /dashboard/facebook/kanban — Workflow kanban board (ZoruUI).
+ *
+ * Mirrors `src/app/wachat/_components/zoru-kanban-board.tsx` —
+ * conversations grouped by status, status moves via per-row dropdown
+ * (no drag-and-drop yet). Same server-action wiring as the legacy
+ * `FacebookKanbanBoard`. Page chrome is a ZoruBreadcrumb +
+ * ZoruPageHeader on top of the board.
+ */
+
+import * as React from "react";
 
 export default function FacebookKanbanPage() {
   return (

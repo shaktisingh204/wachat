@@ -1,3 +1,4 @@
+import { ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
 /**
  * Right-rail for the BOM detail page. Lists sibling versions / variants
  * for the same finished good and related production orders. Pure
@@ -5,12 +6,6 @@
  */
 import Link from 'next/link';
 
-import {
-    ZoruCard,
-    ZoruCardContent,
-    ZoruCardHeader,
-    ZoruCardTitle,
-} from '@/components/zoruui';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 
 export interface BomVersionEntry {

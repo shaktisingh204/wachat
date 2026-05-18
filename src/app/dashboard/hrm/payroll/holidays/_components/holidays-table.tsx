@@ -1,16 +1,5 @@
 'use client';
 
-/**
- * <HolidaysTable> — 8-column canonical table for the holidays list
- * (per §1D.1). Columns: select · Date · Name · Type · Recurring ·
- * Applicable locations · Notes · Actions.
- */
-
-import * as React from 'react';
-import Link from 'next/link';
-import { format } from 'date-fns';
-import { Eye, Pencil, Trash2 } from 'lucide-react';
-
 import {
   ZoruButton,
   ZoruCheckbox,
@@ -21,6 +10,21 @@ import {
   ZoruTableHeader,
   ZoruTableRow,
 } from '@/components/zoruui';
+import {
+  format } from 'date-fns';
+import { Eye,
+  Pencil,
+  Trash2 } from 'lucide-react';
+
+/**
+ * <HolidaysTable> — 8-column canonical table for the holidays list
+ * (per §1D.1). Columns: select · Date · Name · Type · Recurring ·
+ * Applicable locations · Notes · Actions.
+ */
+
+import * as React from 'react';
+import Link from 'next/link';
+
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import type { CrmHoliday } from '@/lib/definitions';
 import type { WithId } from 'mongodb';

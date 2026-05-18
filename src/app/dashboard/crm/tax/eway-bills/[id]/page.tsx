@@ -1,3 +1,9 @@
+import { ZoruBadge, ZoruButton, ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import {
+  notFound } from 'next/navigation';
+import { ArrowLeft,
+  Truck } from 'lucide-react';
+
 /**
  * E-way bill detail — `/dashboard/crm/tax/eway-bills/[id]`.
  *
@@ -6,17 +12,7 @@
  */
 
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import { ArrowLeft, Truck } from 'lucide-react';
 
-import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruCardContent,
-    ZoruCardHeader,
-    ZoruCardTitle,
-} from '@/components/zoruui';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
 import { getEWayBill } from '@/app/actions/crm-india-eway.actions';
 import { EWayBillRowActions } from '../_components/row-actions';

@@ -1,3 +1,4 @@
+import { ZoruBadge, ZoruCard } from '@/components/zoruui';
 /**
  * <BillDetailBody> — body cards on the bill detail page.
  *
@@ -6,7 +7,6 @@
  * (payouts), Linked PO/GRN, Notes, Tags.
  */
 
-import { ZoruBadge, ZoruCard } from '@/components/zoruui';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import type { CrmBillDoc } from '@/lib/rust-client/crm-bills';

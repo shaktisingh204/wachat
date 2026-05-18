@@ -1,5 +1,64 @@
 'use client';
 
+import {
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruEmptyState,
+  ZoruInput,
+  ZoruPageHeader,
+  ZoruPageTitle,
+  ZoruPageDescription,
+  ZoruPageEyebrow,
+  ZoruPageActions,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruSkeleton,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  DndContext,
+  PointerSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+  } from '@dnd-kit/core';
+import {
+    SortableContext,
+  arrayMove,
+  verticalListSortingStrategy,
+  } from '@dnd-kit/sortable';
+import {
+    AlertTriangle,
+  MessageSquareReply,
+  Plus,
+  RefreshCw,
+  Search,
+  } from 'lucide-react';
+
 /**
  * Telegram Auto-Reply rule manager.
  *
@@ -10,65 +69,7 @@
  */
 
 import * as React from 'react';
-import {
-    DndContext,
-    PointerSensor,
-    closestCenter,
-    useSensor,
-    useSensors,
-    type DragEndEvent,
-} from '@dnd-kit/core';
-import {
-    SortableContext,
-    arrayMove,
-    verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
-import {
-    AlertTriangle,
-    MessageSquareReply,
-    Plus,
-    RefreshCw,
-    Search,
-} from 'lucide-react';
 
-import {
-    ZoruAlertDialog,
-    ZoruAlertDialogAction,
-    ZoruAlertDialogCancel,
-    ZoruAlertDialogContent,
-    ZoruAlertDialogDescription,
-    ZoruAlertDialogFooter,
-    ZoruAlertDialogHeader,
-    ZoruAlertDialogTitle,
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruCardContent,
-    ZoruDialog,
-    ZoruDialogContent,
-    ZoruDialogDescription,
-    ZoruDialogHeader,
-    ZoruDialogTitle,
-    ZoruEmptyState,
-    ZoruInput,
-    ZoruPageHeader,
-    ZoruPageTitle,
-    ZoruPageDescription,
-    ZoruPageEyebrow,
-    ZoruPageActions,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    ZoruSkeleton,
-    ZoruTable,
-    ZoruTableBody,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-    useZoruToast,
-} from '@/components/zoruui';
 import { useProject } from '@/context/project-context';
 import { TelegramProjectGate } from '../_components/telegram-project-gate';
 

@@ -1,7 +1,5 @@
-
 'use client';
 
-import { useRouter } from 'next/navigation';
 import {
   ZoruDropdownMenu,
   ZoruDropdownMenuContent,
@@ -9,9 +7,14 @@ import {
   ZoruDropdownMenuLabel,
   ZoruDropdownMenuSeparator,
   ZoruDropdownMenuTrigger,
+  ZoruButton,
+  ZoruAvatar,
+  ZoruAvatarFallback,
+  ZoruSwitch,
 } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
-import { ZoruAvatar, ZoruAvatarFallback } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+
 import { Briefcase, Check, ChevronsUpDown } from 'lucide-react';
 import type { WithId, Project } from '@/lib/definitions';
 import { useProject } from '@/context/project-context';

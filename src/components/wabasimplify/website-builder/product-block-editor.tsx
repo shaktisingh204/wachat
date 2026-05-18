@@ -1,9 +1,17 @@
 'use client';
 
-import { ZoruLabel } from '@/components/zoruui';
-import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
-import { ZoruAccordion, ZoruAccordionContent, ZoruAccordionItem, ZoruAccordionTrigger } from '@/components/zoruui';
-
+import {
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruAccordion,
+  ZoruAccordionContent,
+  ZoruAccordionItem,
+  ZoruAccordionTrigger,
+} from '@/components/zoruui';
 export function ProductBlockEditor({ settings, onUpdate, blockType }: { settings: any, onUpdate: (newSettings: any) => void, blockType: string }) {
     const handleUpdate = (field: string, value: any) => {
         onUpdate({ ...settings, [field]: value });

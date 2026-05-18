@@ -1,23 +1,5 @@
 'use client';
 
-/**
- * AutoReplyForm (wachat-local, ZoruUI).
- *
- * Replaces @/components/wabasimplify/auto-reply-form. Same server
- * action (handleUpdateAutoReplySettings), same hidden form fields,
- * same per-type behavior (welcome / general / inactiveHours / aiAssistant).
- */
-
-import * as React from 'react';
-import { useActionState, useEffect, useRef, useState } from 'react';
-import { useFormStatus } from 'react-dom';
-import { Loader2, PlusCircle, Save, Trash2 } from 'lucide-react';
-import { v4 as uuidv4 } from 'uuid';
-
-import { handleUpdateAutoReplySettings } from '@/app/actions/project.actions';
-import type { GeneralReplyRule, Project, WithId } from '@/lib/definitions';
-import { timezones } from '@/lib/timezones';
-
 import {
   ZoruButton,
   ZoruCard,
@@ -38,6 +20,33 @@ import {
   cn,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect,
+  useRef,
+  useState } from 'react';
+import { useFormStatus } from 'react-dom';
+import { Loader2,
+  PlusCircle,
+  Save,
+  Trash2 } from 'lucide-react';
+import { v4 as uuidv4 } from 'uuid';
+
+import { handleUpdateAutoReplySettings } from '@/app/actions/project.actions';
+import type { GeneralReplyRule,
+  Project,
+  WithId } from '@/lib/definitions';
+import { timezones } from '@/lib/timezones';
+
+/**
+ * AutoReplyForm (wachat-local, ZoruUI).
+ *
+ * Replaces @/components/wabasimplify/auto-reply-form. Same server
+ * action (handleUpdateAutoReplySettings), same hidden form fields,
+ * same per-type behavior (welcome / general / inactiveHours / aiAssistant).
+ */
+
+import * as React from 'react';
 
 const initialState: { message: string | null; error: string | null } = {
   message: null,

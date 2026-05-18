@@ -1,13 +1,17 @@
+import { ZoruButton } from '@/components/zoruui';
+import {
+  notFound,
+  redirect } from 'next/navigation';
+import { ArrowLeft,
+  Landmark } from 'lucide-react';
+
 /**
  * Edit bank account — server wrapper that loads the account and passes
  * it to the shared <PaymentAccountFormClient> as `initial`.
  */
 
 import Link from 'next/link';
-import { notFound, redirect } from 'next/navigation';
-import { ArrowLeft, Landmark } from 'lucide-react';
 
-import { ZoruButton } from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { getCrmPaymentAccountById } from '@/app/actions/crm-payment-accounts.actions';
 import { getSession } from '@/app/actions/user.actions';

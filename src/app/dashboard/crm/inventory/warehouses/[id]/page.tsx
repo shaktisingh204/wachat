@@ -1,3 +1,14 @@
+import { ZoruBadge, ZoruButton, ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import {
+  notFound } from 'next/navigation';
+import {
+    Archive,
+  BadgeCheck,
+  History,
+  Pencil,
+  Snowflake,
+  } from 'lucide-react';
+
 /**
  * Warehouse detail — server route per §1D.
  *
@@ -15,23 +26,7 @@
  *     └── Audit footer (entityKind: 'warehouse')
  */
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import {
-    Archive,
-    BadgeCheck,
-    History,
-    Pencil,
-    Snowflake,
-} from 'lucide-react';
 
-import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruCardContent,
-    ZoruCardHeader,
-    ZoruCardTitle,
-} from '@/components/zoruui';
 import {
     EntityDetailShell,
     type EntityStatusTone,

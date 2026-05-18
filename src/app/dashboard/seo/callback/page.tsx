@@ -1,9 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
-import { exchangeGscCode } from '@/app/actions/seo-gsc.actions';
 import { ZoruCard, useZoruToast } from '@/components/zoruui';
+import {
+  useEffect,
+  useState } from 'react';
+import { useSearchParams,
+  useRouter } from 'next/navigation';
+import { exchangeGscCode } from '@/app/actions/seo-gsc.actions';
+
 import { Loader2 } from 'lucide-react';
 
 export default function SeoCallbackPage() {

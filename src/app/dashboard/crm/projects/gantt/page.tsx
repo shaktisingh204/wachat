@@ -1,22 +1,25 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
+import { ZoruBadge, ZoruButton, ZoruCard, ZoruSkeleton } from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useTransition } from 'react';
 import Link from 'next/link';
-import { GanttChart, ArrowLeft, Flag } from 'lucide-react';
+import { GanttChart,
+  ArrowLeft,
+  Flag } from 'lucide-react';
 import {
   getWsProjects,
   getWsProjectMilestones,
-} from '@/app/actions/worksuite/projects.actions';
+  } from '@/app/actions/worksuite/projects.actions';
 import type {
   WsProject,
   WsProjectMilestone,
-} from '@/lib/worksuite/project-types';
-import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
-  ZoruSkeleton,
-} from '@/components/zoruui';
+  } from '@/lib/worksuite/project-types';
+
 import { CrmPageHeader } from '../../_components/crm-page-header';
 
 type Project = WsProject & { _id: string };

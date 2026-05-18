@@ -1,25 +1,7 @@
 'use client';
 
-/**
- * /wachat/conversation-kanban — Real contacts grouped by status,
- * rebuilt on ZoruUI primitives. Neutral palette only — column dots
- * use ink shades instead of green/blue/amber.
- */
-
-import * as React from 'react';
-import { useEffect, useState, useTransition, useCallback } from 'react';
 import {
-  MessageCircle,
-  User,
-  Loader2,
-  RefreshCw,
-} from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-import { useZoruToast } from '@/components/zoruui';
-import { getContactsPageData } from '@/app/actions/contact.actions';
-
-import {
+  useZoruToast,
   ZoruBreadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
@@ -32,6 +14,28 @@ import {
   ZoruScrollArea,
   cn,
 } from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition,
+  useCallback } from 'react';
+import {
+  MessageCircle,
+  User,
+  Loader2,
+  RefreshCw,
+  } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import { getContactsPageData } from '@/app/actions/contact.actions';
+
+/**
+ * /wachat/conversation-kanban — Real contacts grouped by status,
+ * rebuilt on ZoruUI primitives. Neutral palette only — column dots
+ * use ink shades instead of green/blue/amber.
+ */
+
+import * as React from 'react';
 
 type Column = {
   id: string;

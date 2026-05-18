@@ -1,5 +1,53 @@
 'use client';
 
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSheet,
+  ZoruSheetContent,
+  ZoruSheetDescription,
+  ZoruSheetFooter,
+  ZoruSheetHeader,
+  ZoruSheetTitle,
+  ZoruTextarea,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useTransition } from 'react';
+import { useRouter } from 'next/navigation';
+import {
+  ArrowLeft,
+  CheckCircle2,
+  Cloud,
+  CloudOff,
+  LoaderCircle,
+  PlayCircle,
+  Rocket,
+  Workflow,
+  } from 'lucide-react';
+
+import {
+  getTelegramFlow,
+  publishTelegramFlow,
+  testTelegramFlow,
+  updateTelegramFlow,
+  } from '@/app/actions/telegram-flows.actions';
+import type {
+  FlowEdge,
+  FlowNode,
+  FlowRow,
+  FlowTrigger,
+  ValidationError,
+  } from '@/lib/rust-client/telegram-flows';
+import { useProject } from '@/context/project-context';
+
 /**
  * Top-level Telegram flow editor.
  *
@@ -18,48 +66,6 @@
  *   - Published flows are rendered read-only (the API enforces this too).
  */
 
-import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
-import {
-  ArrowLeft,
-  CheckCircle2,
-  Cloud,
-  CloudOff,
-  LoaderCircle,
-  PlayCircle,
-  Rocket,
-  Workflow,
-} from 'lucide-react';
-
-import {
-  getTelegramFlow,
-  publishTelegramFlow,
-  testTelegramFlow,
-  updateTelegramFlow,
-} from '@/app/actions/telegram-flows.actions';
-import type {
-  FlowEdge,
-  FlowNode,
-  FlowRow,
-  FlowTrigger,
-  ValidationError,
-} from '@/lib/rust-client/telegram-flows';
-import { useProject } from '@/context/project-context';
-
-import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSheet,
-  ZoruSheetContent,
-  ZoruSheetDescription,
-  ZoruSheetFooter,
-  ZoruSheetHeader,
-  ZoruSheetTitle,
-  ZoruTextarea,
-  useZoruToast,
-} from '@/components/zoruui';
 import { cn } from '@/lib/utils';
 
 import { FlowCanvas } from './FlowCanvas';

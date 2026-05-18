@@ -1,5 +1,44 @@
 'use client';
 
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSheet,
+  ZoruSheetContent,
+  ZoruSheetHeader,
+  ZoruSheetTitle,
+  ZoruSheetDescription,
+  ZoruStatCard,
+  ZoruEmptyState,
+  ZoruSkeleton,
+  useZoruToast,
+  cn,
+} from '@/components/zoruui';
+import {
+  Sticker as StickerIcon,
+  Plus,
+  Image as ImageIcon,
+  Layers,
+  Smile,
+  Trash2,
+  Pencil,
+  ArrowUp,
+  ArrowDown,
+  Replace,
+  X,
+  Loader2,
+  RefreshCw,
+  Archive,
+  } from 'lucide-react';
+
 /**
  * /dashboard/telegram/stickers
  *
@@ -17,45 +56,7 @@
  */
 
 import * as React from 'react';
-import {
-    Sticker as StickerIcon,
-    Plus,
-    Image as ImageIcon,
-    Layers,
-    Smile,
-    Trash2,
-    Pencil,
-    ArrowUp,
-    ArrowDown,
-    Replace,
-    X,
-    Loader2,
-    RefreshCw,
-    Archive,
-} from 'lucide-react';
 
-import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruInput,
-    ZoruLabel,
-    ZoruSelect,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSheet,
-    ZoruSheetContent,
-    ZoruSheetHeader,
-    ZoruSheetTitle,
-    ZoruSheetDescription,
-    ZoruStatCard,
-    ZoruEmptyState,
-    ZoruSkeleton,
-    useZoruToast,
-    cn,
-} from '@/components/zoruui';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
 import { useProject } from '@/context/project-context';
 import { TelegramProjectGate } from '../_components/telegram-project-gate';

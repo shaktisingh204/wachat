@@ -1,3 +1,4 @@
+import { ZoruCard } from '@/components/zoruui';
 /**
  * <ItemPrintView> — A4 label sheet for an item barcode or QR.
  *
@@ -10,8 +11,6 @@
  * Google Chart API stub so it works without extra deps; swap to a
  * locally-bundled QR generator when one ships.
  */
-
-import { ZoruCard } from '@/components/zoruui';
 
 interface ItemPrintViewProps {
   variant: 'barcode' | 'qr';

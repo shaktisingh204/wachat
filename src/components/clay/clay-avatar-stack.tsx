@@ -1,5 +1,6 @@
-import * as React from 'react';
 import { ZoruAvatar, ZoruAvatarFallback, ZoruAvatarImage } from '@/components/zoruui';
+import * as React from 'react';
+
 import { cn } from '@/lib/utils';
 
 export interface ClayAvatarStackItem {

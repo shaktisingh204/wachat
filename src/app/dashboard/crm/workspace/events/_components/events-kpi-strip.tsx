@@ -1,14 +1,14 @@
 'use client';
 
+import { ZoruStatCard } from '@/components/zoruui';
+import { CalendarClock, CalendarDays, CalendarRange, History, Repeat } from 'lucide-react';
+
 /**
  * KPI strip for the events list page — 5 cards (§1D bar).
  * Each card is a button that toggles the corresponding filter slice.
  */
 
 import * as React from 'react';
-import { CalendarClock, CalendarDays, CalendarRange, History, Repeat } from 'lucide-react';
-
-import { ZoruStatCard } from '@/components/zoruui';
 
 import type { EventsKpiCounts, EventsKpiKey } from './events-shared';
 

@@ -1,17 +1,27 @@
 'use client';
 
-/**
- * Flow Builder Canvas — per-flow editor, rebuilt on Clay primitives.
- *
- * Full-bleed layout with:
- *   - Clay header bar (back link, flow name input, status switch, save CTA)
- *   - React Flow canvas (dotted background, custom nodes, drop-to-add)
- *   - Floating Clay FAB for opening the Add Block palette
- *   - Clay ZoruSheet on mobile / pinned Properties panel on desktop
- *   - Clay-styled Settings dialog for name + trigger keywords
- */
-
-import * as React from 'react';
+import {
+  ZoruButton,
+  ZoruCard,
+  ZoruEmptyState,
+  ZoruPopover,
+  ZoruPopoverContent,
+  ZoruPopoverTrigger,
+  ZoruScrollArea,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSwitch,
+  ZoruSheet,
+  ZoruSheetContent,
+  ZoruSheetHeader,
+  ZoruSheetTitle,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+} from '@/components/zoruui';
 import {
   useState,
   useCallback,
@@ -19,7 +29,7 @@ import {
   useEffect,
   useTransition,
   use,
-} from 'react';
+  } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -37,7 +47,7 @@ import {
   type Edge,
   type Node,
   type OnConnect,
-} from '@xyflow/react';
+  } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
 import {
@@ -48,45 +58,30 @@ import {
   LuBookOpen,
   LuPlus,
   LuCircleAlert,
-} from 'react-icons/lu';
+  } from 'react-icons/lu';
 
 import { useToast } from '@/hooks/use-toast';
 import { useProject } from '@/context/project-context';
-import { getFlowById, saveFlow } from '@/app/actions/flow.actions';
+import { getFlowById,
+  saveFlow } from '@/app/actions/flow.actions';
 import { Sidebar } from '@/components/flow-builder/Sidebar';
 import CustomNode from '@/components/flow-builder/CustomNode';
 import { PropertiesPanel } from '@/components/wabasimplify/properties-panel';
 
 import { cn } from '@/lib/utils';
-import {
-  ZoruButton,
-  ZoruCard,
-  ZoruEmptyState,
-} from '@/components/zoruui';
 
-import {
-  ZoruPopover,
-  ZoruPopoverContent,
-  ZoruPopoverTrigger,
-} from '@/components/zoruui';
-import { ZoruScrollArea } from '@/components/zoruui';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruLabel } from '@/components/zoruui';
-import { ZoruSwitch } from '@/components/zoruui';
-import {
-  ZoruSheet,
-  ZoruSheetContent,
-  ZoruSheetHeader,
-  ZoruSheetTitle,
-} from '@/components/zoruui';
-import {
-  ZoruDialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-} from '@/components/zoruui';
+/**
+ * Flow Builder Canvas — per-flow editor, rebuilt on Clay primitives.
+ *
+ * Full-bleed layout with:
+ *   - Clay header bar (back link, flow name input, status switch, save CTA)
+ *   - React Flow canvas (dotted background, custom nodes, drop-to-add)
+ *   - Floating Clay FAB for opening the Add Block palette
+ *   - Clay ZoruSheet on mobile / pinned Properties panel on desktop
+ *   - Clay-styled Settings dialog for name + trigger keywords
+ */
+
+import * as React from 'react';
 
 /* ── node type registry ─────────────────────────────────────────── */
 

@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruButton, ZoruCard, ZoruInput } from '@/components/zoruui';
+import { Plus, Trash2 } from 'lucide-react';
+
 /**
  * <BillLineItems> — the inventory-style line-items table for `<BillForm>`.
  *
@@ -9,9 +12,7 @@
  */
 
 import * as React from 'react';
-import { Plus, Trash2 } from 'lucide-react';
 
-import { ZoruButton, ZoruCard, ZoruInput } from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import type { CrmBillLineItem } from '@/lib/rust-client/crm-bills';
 

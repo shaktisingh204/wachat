@@ -1,21 +1,5 @@
 'use client';
 
-/**
- * /wachat/away-messages — auto-reply for offline / outside-hours.
- * ZoruUI: header + breadcrumb, ZoruSwitch + ZoruRadioCard for schedule,
- * ZoruTextarea for body. Skeleton on initial load.
- */
-
-import * as React from 'react';
-import { useEffect, useState, useTransition, useCallback } from 'react';
-import { Save } from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-import {
-  getAwayMessage,
-  saveAwayMessage,
-} from '@/app/actions/wachat-features.actions';
-
 import {
   ZoruBreadcrumb,
   ZoruBreadcrumbItem,
@@ -40,6 +24,26 @@ import {
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition,
+  useCallback } from 'react';
+import { Save } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import {
+  getAwayMessage,
+  saveAwayMessage,
+  } from '@/app/actions/wachat-features.actions';
+
+/**
+ * /wachat/away-messages — auto-reply for offline / outside-hours.
+ * ZoruUI: header + breadcrumb, ZoruSwitch + ZoruRadioCard for schedule,
+ * ZoruTextarea for body. Skeleton on initial load.
+ */
+
+import * as React from 'react';
 
 type Schedule = 'always' | 'outside_hours' | 'custom';
 

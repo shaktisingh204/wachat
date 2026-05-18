@@ -1,12 +1,17 @@
 'use client';
 
-import { use, useEffect, useState } from 'react';
+import { ZoruSkeleton } from '@/components/zoruui';
+import {
+  use,
+  useEffect,
+  useState } from 'react';
 import { Award } from 'lucide-react';
 import { HrFormPage } from '../../../_components/hr-form-page';
-import { getCertifications, saveCertification } from '@/app/actions/hr.actions';
+import { getCertifications,
+  saveCertification } from '@/app/actions/hr.actions';
 import type { HrCertification } from '@/lib/hr-types';
-import { fields, sections } from '../../_config';
-import { ZoruSkeleton } from '@/components/zoruui';
+import { fields,
+  sections } from '../../_config';
 
 export default function EditCertificationPage({
   params,

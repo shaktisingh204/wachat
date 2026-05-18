@@ -1,3 +1,4 @@
+import { ZoruBadge, ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
 /**
  * <ContractRelatedRail> — server-rendered right rail. Status card, party
  * chips, and a "Related" stub listing renewal/amendment counts. The
@@ -6,14 +7,6 @@
  */
 
 import Link from 'next/link';
-
-import {
-  ZoruBadge,
-  ZoruCard,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-} from '@/components/zoruui';
 
 function daysBetween(start: unknown, end: unknown): number | null {
   if (!end) return null;

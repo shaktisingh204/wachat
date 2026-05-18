@@ -1,5 +1,3 @@
-
-
 'use server';
 
 import { revalidatePath, unstable_noStore as noStore } from 'next/cache';
@@ -12,7 +10,6 @@ import * as Papa from 'papaparse';
 import { recordFlowAction } from '@/lib/sabflow/audit/middleware';
 
 const CONTACTS_PER_PAGE = 20;
-
 
 export async function handleAddNewContact(
     prevState: any,
@@ -126,7 +123,6 @@ export async function handleImportContacts(prevState: any, formData: FormData): 
     }
 }
 
-
 export async function getContactsPageData(
     projectId: string,
     phoneNumberId?: string,
@@ -236,7 +232,6 @@ export async function updateContactTags(contactId: string, tagIds: string[]) {
         return { success: false, error: getErrorMessage(e) };
     }
 }
-
 
 export async function deleteContact(contactId: string): Promise<{ success: boolean; error?: string }> {
     const session = await getSession();

@@ -1,5 +1,11 @@
 'use client';
 
+import { ZoruButton, useZoruToast } from '@/components/zoruui';
+import {
+  useDebouncedCallback } from 'use-debounce';
+import { Plus,
+  Warehouse as WarehouseIcon } from 'lucide-react';
+
 /**
  * §1D Warehouses list client.
  *
@@ -19,10 +25,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useDebouncedCallback } from 'use-debounce';
-import { Plus, Warehouse as WarehouseIcon } from 'lucide-react';
 
-import { ZoruButton, useZoruToast } from '@/components/zoruui';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import { PaginationBar } from '@/components/crm/pagination-bar';

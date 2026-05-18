@@ -1,25 +1,28 @@
-
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
 import {
-    ZoruButton,
-    ZoruDialog,
-    ZoruDialogContent,
-    ZoruDialogDescription,
-    ZoruDialogFooter,
-    ZoruDialogHeader,
-    ZoruDialogTitle,
-    ZoruInput,
-    ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    ZoruSwitch,
-    useZoruToast,
+  ZoruButton,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruSwitch,
+  useZoruToast,
 } from '@/components/zoruui';
+import {
+  useEffect,
+  useRef,
+  useState } from 'react';
+
 import type { BankAccountDetails } from '@/lib/definitions';
 
 interface CrmAddBankAccountDialogProps {

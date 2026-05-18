@@ -1,3 +1,7 @@
+import { ZoruButton, ZoruCard } from '@/components/zoruui';
+import { Package, Pencil } from 'lucide-react';
+import type { WithId } from 'mongodb';
+
 /**
  * <ItemDetailBody> — body cards on the item detail page.
  *
@@ -18,13 +22,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { Package, Pencil } from 'lucide-react';
-import type { WithId } from 'mongodb';
 
-import {
-  ZoruButton,
-  ZoruCard,
-} from '@/components/zoruui';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import type { CrmProduct } from '@/lib/definitions';

@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruButton, ZoruBadge, cn } from '@/components/zoruui';
+import { Loader2, RefreshCw, Smartphone } from 'lucide-react';
+
 /**
  * PairingFlow — visualises a SabWa session moving through
  * Waiting → Pairing → Syncing → Ready by subscribing to
@@ -19,9 +22,7 @@
 
 import * as React from 'react';
 import QRCode from 'react-qr-code';
-import { Loader2, RefreshCw, Smartphone } from 'lucide-react';
 
-import { ZoruButton, ZoruBadge, cn } from '@/components/zoruui';
 import { useSabwaStream } from '@/lib/sabwa/use-sabwa-stream';
 
 import { StatusBadge } from './status-badge';

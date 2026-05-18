@@ -1,5 +1,6 @@
-import * as React from 'react';
 import { zoruBadgeVariants } from '@/components/zoruui';
+import * as React from 'react';
+
 import { cn } from '@/lib/utils';
 
 type Tone =

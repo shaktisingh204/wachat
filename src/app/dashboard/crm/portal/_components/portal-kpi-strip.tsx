@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruStatCard } from '@/components/zoruui';
+import { Activity, Eye, Layers, Users } from 'lucide-react';
+
 /**
  * KPI strip for the Portal Users list (§1D.1).
  *
@@ -10,9 +13,7 @@
  */
 
 import * as React from 'react';
-import { Activity, Eye, Layers, Users } from 'lucide-react';
 
-import { ZoruStatCard } from '@/components/zoruui';
 import type { PortalUserRow } from './portal-types';
 
 export type PortalKpiKey = 'all' | 'active' | 'recent';

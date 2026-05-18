@@ -1,5 +1,17 @@
 'use client';
 
+import {
+  ZoruButton,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectValue,
+  ZoruSelectTrigger,
+  ZoruSelectContent,
+  ZoruSelectItem,
+} from '@/components/zoruui';
+import { Plus, Trash2, Upload, X } from 'lucide-react';
+
 /**
  * Section primitives for the canonical Item form — part 2.
  *
@@ -9,13 +21,7 @@
  */
 
 import * as React from 'react';
-import { Plus, Trash2, Upload, X } from 'lucide-react';
 
-import {
-  ZoruButton,
-  ZoruInput,
-  ZoruLabel,
-} from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { EnumFormField } from '@/components/crm/enum-form-field';
 import { SabFilePickerButton } from '@/components/sabfiles';

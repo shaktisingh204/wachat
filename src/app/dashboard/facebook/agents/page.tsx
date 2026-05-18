@@ -1,24 +1,5 @@
 'use client';
 
-/**
- * /dashboard/facebook/agents — Facebook chatbot agents.
- *
- * Lists chatbot agents for the active project and supports create / toggle
- * active / delete via the `wachat-facebook-agents` Rust crate.
- */
-
-import * as React from 'react';
-import { useCallback, useEffect, useState, useTransition } from 'react';
-import { AlertCircle, Bot, Pause, Play, Plus, RefreshCw, Trash2 } from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-import {
-  createFacebookAgent,
-  deleteFacebookAgent,
-  getFacebookAgents,
-  updateFacebookAgent,
-} from '@/app/actions/facebook.actions';
-
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -50,6 +31,35 @@ import {
   ZoruTextarea,
   zoruSonnerToast,
 } from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useState,
+  useTransition } from 'react';
+import { AlertCircle,
+  Bot,
+  Pause,
+  Play,
+  Plus,
+  RefreshCw,
+  Trash2 } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import {
+  createFacebookAgent,
+  deleteFacebookAgent,
+  getFacebookAgents,
+  updateFacebookAgent,
+  } from '@/app/actions/facebook.actions';
+
+/**
+ * /dashboard/facebook/agents — Facebook chatbot agents.
+ *
+ * Lists chatbot agents for the active project and supports create / toggle
+ * active / delete via the `wachat-facebook-agents` Rust crate.
+ */
+
+import * as React from 'react';
 
 interface Agent {
   _id?: string;

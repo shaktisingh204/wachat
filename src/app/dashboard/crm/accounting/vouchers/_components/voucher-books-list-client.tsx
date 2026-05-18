@@ -1,5 +1,21 @@
 'use client';
 
+import {
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruButton,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  Plus,
+  Receipt } from 'lucide-react';
+
 /**
  * <VoucherBooksListClient> — orchestrates the Voucher Books list (§1D.1 bar):
  * KPI strip + filters + bulk bar + table + per-row delete confirm.
@@ -8,20 +24,6 @@
 import * as React from 'react';
 import Link from 'next/link';
 import Papa from 'papaparse';
-import { Plus, Receipt } from 'lucide-react';
-
-import {
-    ZoruAlertDialog,
-    ZoruAlertDialogAction,
-    ZoruAlertDialogCancel,
-    ZoruAlertDialogContent,
-    ZoruAlertDialogDescription,
-    ZoruAlertDialogFooter,
-    ZoruAlertDialogHeader,
-    ZoruAlertDialogTitle,
-    ZoruButton,
-    useZoruToast,
-} from '@/components/zoruui';
 
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { EntityListShell } from '@/components/crm/entity-list-shell';

@@ -1,5 +1,3 @@
-
-
 'use server';
 
 import { getProjectById } from '@/app/actions';
@@ -74,7 +72,6 @@ export async function getPublicEcommShopById(shopId: string): Promise<WithId<Eco
         return null;
     }
 }
-
 
 export async function createEcommShop(prevState: any, formData: FormData): Promise<{ message?: string, error?: string, shopId?: string }> {
     const session = await getSession();
@@ -449,7 +446,6 @@ export async function applyEcommShopTheme(shopId: string): Promise<{ message?: s
     }
 }
 
-
 // --- Page Actions ---
 
 export async function getEcommPages(shopId: string): Promise<WithId<EcommPage>[]> {
@@ -560,7 +556,6 @@ export async function setAsHomepage(pageId: string, shopId: string): Promise<{ m
      }
 }
 
-
 // --- Product Actions ---
 
 export async function getEcommProducts(shopId: string, { category, subcategory, searchQuery }: { category?: string, subcategory?: string, searchQuery?: string } = {}): Promise<WithId<EcommProduct>[]> {
@@ -631,7 +626,6 @@ export async function getPublicEcommProductById(productId: string): Promise<With
     }
 }
 
-
 export async function saveEcommProduct(prevState: any, formData: FormData): Promise<{ message?: string, error?: string }> {
     const shopId = formData.get('shopId') as string;
     const productId = formData.get('productId') as string | null;
@@ -671,7 +665,6 @@ export async function saveEcommProduct(prevState: any, formData: FormData): Prom
             productData.imageUrl = formData.get('imageUrl') as string;
         }
 
-
         const { db } = await connectToDatabase();
 
         if (productId && ObjectId.isValid(productId)) {
@@ -709,7 +702,6 @@ export async function deleteEcommProduct(productId: string): Promise<{ success: 
         return { success: false, error: getErrorMessage(e) };
     }
 }
-
 
 export async function getEcommOrders(shopId: string): Promise<WithId<EcommOrder>[]> {
     if (!ObjectId.isValid(shopId)) return [];
@@ -810,7 +802,6 @@ export async function getEcommOrdersForCustomer(customerId: string): Promise<Wit
     ];
 }
 
-
 export async function syncProductsToMetaCatalog(projectId: string, shopId: string, metaCatalogId: string): Promise<{ message?: string; error?: string }> {
     const project = await getProjectById(projectId);
     if (!project || !project.accessToken) return { error: 'Project not found or access token missing.' };
@@ -888,7 +879,6 @@ export async function syncProductsToMetaCatalog(projectId: string, shopId: strin
         return { error: getErrorMessage(e) };
     }
 }
-
 
 // --- Theme Actions ---
 

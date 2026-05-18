@@ -1,5 +1,13 @@
 'use client';
 
+import { ZoruButton, useZoruToast } from '@/components/zoruui';
+import {
+  useTransition } from 'react';
+import { useRouter } from 'next/navigation';
+import { Archive,
+  ArchiveRestore,
+  Star } from 'lucide-react';
+
 /**
  * Client islands for the custom-field detail page action group:
  *   - <CustomFieldFlagToggle /> flips the `required` flag in one click.
@@ -9,11 +17,6 @@
  * stay async and pull from the Rust BFF directly.
  */
 
-import { useTransition } from 'react';
-import { useRouter } from 'next/navigation';
-import { Archive, ArchiveRestore, Star } from 'lucide-react';
-
-import { ZoruButton, useZoruToast } from '@/components/zoruui';
 import {
   archiveCustomField,
   toggleCustomFieldRequired,

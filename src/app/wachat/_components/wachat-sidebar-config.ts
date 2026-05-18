@@ -1,13 +1,4 @@
-/**
- * Wachat sidebar — grouped menu configuration.
- *
- * Drives the per-section nav inside the wachat shell. All hrefs live
- * under `/wachat/*`.
- *
- * Returned shape matches `ZoruSidebarGroup` so the wachat layout can
- * pass it straight to `<ZoruHomeShell sidebarGroups={…} />`.
- */
-import * as React from "react";
+import { type ZoruSidebarGroup } from '@/components/zoruui';
 import {
   Activity,
   BarChart,
@@ -37,9 +28,18 @@ import {
   Timer,
   Users,
   Webhook,
-} from "lucide-react";
+  } from "lucide-react";
 
-import type { ZoruSidebarGroup } from "@/components/zoruui";
+/**
+ * Wachat sidebar — grouped menu configuration.
+ *
+ * Drives the per-section nav inside the wachat shell. All hrefs live
+ * under `/wachat/*`.
+ *
+ * Returned shape matches `ZoruSidebarGroup` so the wachat layout can
+ * pass it straight to `<ZoruHomeShell sidebarGroups={…} />`.
+ */
+import * as React from "react";
 
 export function buildWachatSidebarGroups(
   pathname: string | null,

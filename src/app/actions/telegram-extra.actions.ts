@@ -1290,7 +1290,6 @@ export async function getTelegramMiniAppAnalyticsAction(
   }
 }
 
-
 // -- Ads ---------------------------------------------------------------
 
 /**

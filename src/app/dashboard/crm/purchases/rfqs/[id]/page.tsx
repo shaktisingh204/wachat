@@ -1,3 +1,9 @@
+import { ZoruBadge, ZoruButton, ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import {
+  notFound } from 'next/navigation';
+import { ArrowLeft,
+  ClipboardList } from 'lucide-react';
+
 /**
  * RFQ detail — `/dashboard/crm/purchases/rfqs/[id]`
  * (P1.1B Wave 3 — Purchases rebuild · §1D.2).
@@ -17,17 +23,7 @@
  */
 
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import { ArrowLeft, ClipboardList } from 'lucide-react';
 
-import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-} from '@/components/zoruui';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { EntityPickerChip } from '@/components/crm/entity-picker';

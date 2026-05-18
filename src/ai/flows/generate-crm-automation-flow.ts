@@ -1,4 +1,3 @@
-
 'use server';
 /**
  * @fileOverview Generates a complete automation workflow (nodes and edges) for the CRM from a user prompt.

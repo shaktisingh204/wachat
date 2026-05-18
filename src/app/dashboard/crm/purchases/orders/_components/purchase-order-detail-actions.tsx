@@ -1,5 +1,30 @@
 'use client';
 
+import {
+  ZoruButton,
+  ZoruDropdownMenu,
+  ZoruDropdownMenuContent,
+  ZoruDropdownMenuItem,
+  ZoruDropdownMenuTrigger,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+import {
+  Activity,
+  Archive,
+  CheckCheck,
+  CircleX,
+  Copy,
+  FileText,
+  Mail,
+  MessageCircle,
+  PackageCheck,
+  Pencil,
+  Printer,
+  Trash2,
+  } from 'lucide-react';
+
 /**
  * <PurchaseOrderDetailActions> — top-right action group on the PO
  * detail page. Renders 10+ actions: Edit · Approve (when awaiting) ·
@@ -22,30 +47,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import {
-  Activity,
-  Archive,
-  CheckCheck,
-  CircleX,
-  Copy,
-  FileText,
-  Mail,
-  MessageCircle,
-  PackageCheck,
-  Pencil,
-  Printer,
-  Trash2,
-} from 'lucide-react';
 
-import {
-  ZoruButton,
-  ZoruDropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
-  useZoruToast,
-} from '@/components/zoruui';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import {

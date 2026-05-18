@@ -1,3 +1,18 @@
+import { ZoruBadge, ZoruButton, ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import {
+  notFound } from 'next/navigation';
+import { ObjectId } from 'mongodb';
+import {
+  ArrowLeft,
+  CheckSquare,
+  ClipboardList,
+  CreditCard,
+  FileMinus,
+  FileText,
+  ShoppingCart,
+  Truck,
+  } from 'lucide-react';
+
 /**
  * Invoice detail — `/dashboard/crm/sales/invoices/[id]` (§1D.2 rebuild).
  *
@@ -12,27 +27,7 @@
  * `src/app/dashboard/crm/accounts/[accountId]/page.tsx`.
  */
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import { ObjectId } from 'mongodb';
-import {
-  ArrowLeft,
-  CheckSquare,
-  ClipboardList,
-  CreditCard,
-  FileMinus,
-  FileText,
-  ShoppingCart,
-  Truck,
-} from 'lucide-react';
 
-import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-} from '@/components/zoruui';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { EntityPickerChip } from '@/components/crm/entity-picker';

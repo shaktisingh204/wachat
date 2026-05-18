@@ -1,5 +1,3 @@
-
-
 import { NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId, WithId } from 'mongodb';
@@ -70,7 +68,6 @@ async function submitTemplateToMeta(project: WithId<Project>, template: WithId<T
         throw error;
     }
 }
-
 
 async function handleSync() {
     let db;
@@ -163,7 +160,6 @@ async function handleSync() {
         return new NextResponse(`Internal Server Error: ${getErrorMessage(error)}`, { status: 500 });
     }
 }
-
 
 export async function POST(request: Request) {
     return handleSync();

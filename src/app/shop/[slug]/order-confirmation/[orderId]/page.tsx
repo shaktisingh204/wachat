@@ -1,10 +1,18 @@
-
 'use client';
 
-import { getEcommOrderById } from '@/app/actions/custom-ecommerce.actions';
-import { ZoruButton, ZoruButton } from '@/components/zoruui';
-import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardFooter, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
-import { ZoruSeparator } from '@/components/zoruui';
+import {
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardDescription,
+  ZoruCardFooter,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruSeparator,
+} from '@/components/zoruui';
+import {
+  getEcommOrderById } from '@/app/actions/custom-ecommerce.actions';
+
 import type { WithId, EcommOrder } from '@/lib/definitions';
 import { CheckCircle, Package } from 'lucide-react';
 import Link from 'next/link';
@@ -21,11 +29,9 @@ export default function OrderConfirmationPage(props: { params: Promise<{ orderId
         }
     }, [params.orderId]);
 
-
     if (!order) {
         return  <div className="flex items-center justify-center min-h-[50vh]">Loading...</div>; // Or a skeleton loader
     }
-
 
     return (
          <div className="container mx-auto px-4 py-12 flex justify-center">

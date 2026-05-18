@@ -1,3 +1,9 @@
+import { ZoruCard } from '@/components/zoruui';
+import {
+  Search as SearchIcon } from 'lucide-react';
+
+import { CrmPageHeader } from '../_components/crm-page-header';
+
 /**
  * CRM Global Search — server component per CRM_REBUILD_PLAN §5.2.
  *
@@ -10,11 +16,6 @@
  * list + keyboard nav live in `./_components/search-results-client.tsx`.
  * The server side just does the data fetch and renders the shell.
  */
-
-import { Search as SearchIcon } from 'lucide-react';
-
-import { CrmPageHeader } from '../_components/crm-page-header';
-import { ZoruCard } from '@/components/zoruui';
 
 import { searchCrmEntities, type SearchResultGroup } from '@/app/actions/crm-search.actions';
 

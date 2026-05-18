@@ -1,3 +1,10 @@
+import { ZoruButton } from '@/components/zoruui';
+import {
+  notFound,
+  redirect } from 'next/navigation';
+import { ArrowLeft,
+  Webhook } from 'lucide-react';
+
 /**
  * Edit integration page — loads the doc by id and passes it to
  * `<IntegrationForm />`. Credentials are stripped server-side; the form
@@ -6,10 +13,7 @@
  */
 
 import Link from 'next/link';
-import { notFound, redirect } from 'next/navigation';
-import { ArrowLeft, Webhook } from 'lucide-react';
 
-import { ZoruButton } from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { getSession } from '@/app/actions/user.actions';
 import { getIntegrationById } from '@/app/actions/crm-integrations.actions';

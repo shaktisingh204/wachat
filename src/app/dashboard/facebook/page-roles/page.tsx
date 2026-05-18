@@ -1,23 +1,5 @@
 "use client";
 
-/**
- * /dashboard/facebook/page-roles — page-roles + blocked profiles.
- *
- * Rebuilt on ZoruUI primitives. Same `getPageRoles`, `getBlockedProfiles`,
- * `blockProfile`, `unblockProfile` server actions — no behavioral changes.
- * Pure zoru tokens, neutral palette.
- */
-
-import * as React from "react";
-import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
-import type { ColumnDef } from "@tanstack/react-table";
-import { AlertCircle, Ban, RefreshCw, ShieldCheck } from "lucide-react";
-
-import {
-  getBlockedProfiles,
-  getPageRoles,
-} from "@/app/actions/facebook.actions";
-
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -38,7 +20,33 @@ import {
   ZoruPageHeading,
   ZoruPageTitle,
   ZoruSkeleton,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useTransition } from "react";
+import type { ColumnDef } from "@tanstack/react-table";
+import { AlertCircle,
+  Ban,
+  RefreshCw,
+  ShieldCheck } from "lucide-react";
+
+import {
+  getBlockedProfiles,
+  getPageRoles,
+  } from "@/app/actions/facebook.actions";
+
+/**
+ * /dashboard/facebook/page-roles — page-roles + blocked profiles.
+ *
+ * Rebuilt on ZoruUI primitives. Same `getPageRoles`, `getBlockedProfiles`,
+ * `blockProfile`, `unblockProfile` server actions — no behavioral changes.
+ * Pure zoru tokens, neutral palette.
+ */
+
+import * as React from "react";
 
 import { NoProjectState } from "../_components/no-project-state";
 import { BlockProfileDialog } from "../_components/block-profile-dialog";

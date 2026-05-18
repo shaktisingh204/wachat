@@ -1,10 +1,16 @@
+import { ZoruTooltipProvider } from '@/components/zoruui';
+import {
+  Toaster } from "@/components/ui/toaster"
+import { Plus_Jakarta_Sans,
+  Geist,
+  Geist_Mono,
+  Hanken_Grotesk,
+  Onest } from 'next/font/google';
 
 import "@/react-shim";
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
-import { Toaster } from "@/components/ui/toaster"
-import { Plus_Jakarta_Sans, Geist, Geist_Mono, Hanken_Grotesk, Onest } from 'next/font/google';
-import { ZoruTooltipProvider } from '@/components/zoruui';
+
 import SessionProvider from '@/components/wabasimplify/session-provider';
 import { MotionProvider } from '@/components/motion';
 

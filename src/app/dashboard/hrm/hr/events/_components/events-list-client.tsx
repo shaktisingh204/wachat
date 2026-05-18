@@ -1,5 +1,35 @@
 'use client';
 
+import {
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruButton,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+import { Edit,
+  LoaderCircle,
+  Trash2,
+  Video } from 'lucide-react';
+
 /**
  * <EventsListClient /> — the interactive layer of the Workplace
  * Events list. The server page hands us the seed list + current
@@ -13,32 +43,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { Edit, LoaderCircle, Trash2, Video } from 'lucide-react';
 
-import {
-    ZoruAlertDialog,
-    ZoruAlertDialogAction,
-    ZoruAlertDialogCancel,
-    ZoruAlertDialogContent,
-    ZoruAlertDialogDescription,
-    ZoruAlertDialogFooter,
-    ZoruAlertDialogHeader,
-    ZoruAlertDialogTitle,
-    ZoruButton,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    ZoruTable,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-    useZoruToast,
-} from '@/components/zoruui';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 

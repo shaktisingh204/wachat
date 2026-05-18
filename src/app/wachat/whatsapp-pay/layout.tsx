@@ -1,18 +1,5 @@
 'use client';
 
-/**
- * Wachat WhatsApp Pay — ZoruUI tab layout.
- *
- * Two tabs: Transactions · Setup. Each tab's content is rendered
- * by its child route.
- */
-
-import * as React from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { CreditCard, History, Settings } from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
 import {
   ZoruBreadcrumb,
   ZoruBreadcrumbItem,
@@ -22,6 +9,23 @@ import {
   ZoruBreadcrumbSeparator,
   cn,
 } from '@/components/zoruui';
+import {
+  usePathname } from 'next/navigation';
+import { CreditCard,
+  History,
+  Settings } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+
+/**
+ * Wachat WhatsApp Pay — ZoruUI tab layout.
+ *
+ * Two tabs: Transactions · Setup. Each tab's content is rendered
+ * by its child route.
+ */
+
+import * as React from 'react';
+import Link from 'next/link';
 
 const TABS = [
   {

@@ -1,20 +1,19 @@
+import { ZoruButton, ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import {
+  notFound,
+  redirect } from 'next/navigation';
+import Link from 'next/link';
+import { ArrowLeft,
+  GitCompare,
+  Paperclip,
+  Pencil } from 'lucide-react';
+
 /**
  * Reconciliation detail — `/dashboard/crm/banking/reconciliation/[id]`.
  *
  * Server component. Hits `getReconciliationById` (Rust-backed).
  */
 
-import { notFound, redirect } from 'next/navigation';
-import Link from 'next/link';
-import { ArrowLeft, GitCompare, Paperclip, Pencil } from 'lucide-react';
-
-import {
-    ZoruButton,
-    ZoruCard,
-    ZoruCardContent,
-    ZoruCardHeader,
-    ZoruCardTitle,
-} from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 import { getSession } from '@/app/actions/user.actions';

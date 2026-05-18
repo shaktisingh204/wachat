@@ -1,7 +1,5 @@
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
-import { Play, RotateCw } from 'lucide-react';
 import {
   ZoruBadge,
   ZoruButton,
@@ -15,6 +13,13 @@ import {
   ZoruSelectTrigger,
   ZoruSelectValue,
 } from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition } from 'react';
+import { Play,
+  RotateCw } from 'lucide-react';
+
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { getCrmEmployees } from '@/app/actions/crm-employees.actions';
 import type { WithId, CrmEmployee } from '@/lib/definitions';

@@ -1,20 +1,21 @@
-
-
 'use client';
 
-import { useState, useEffect, useCallback, useTransition, useMemo } from 'react';
-import type { WithId } from 'mongodb';
-import { getCannedMessages, deleteCannedMessage } from '@/app/actions/project.actions';
-import type { CannedMessage, Project } from '@/lib/definitions';
-import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardHeader, ZoruCardTitle, ZoruCardFooter, ZoruButton } from '@/components/zoruui';
-import { ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
-import { ZoruSkeleton } from '@/components/zoruui';
-import { PlusCircle, Search, Star, Trash2, Edit, LoaderCircle } from 'lucide-react';
-import { ZoruInput } from '@/components/zoruui';
-import { useDebouncedCallback } from 'use-debounce';
-import { useToast } from '@/hooks/use-toast';
 import {
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardDescription,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruCardFooter,
+  ZoruButton,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  ZoruSkeleton,
+  ZoruInput,
   ZoruAlertDialog,
   ZoruAlertDialogAction,
   ZoruAlertDialogCancel,
@@ -24,9 +25,23 @@ import {
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
   ZoruAlertDialogTrigger,
+  ZoruBadge,
 } from '@/components/zoruui';
+import {
+  useState,
+  useEffect,
+  useCallback,
+  useTransition,
+  useMemo } from 'react';
+import type { WithId } from 'mongodb';
+import { getCannedMessages,
+  deleteCannedMessage } from '@/app/actions/project.actions';
+import type { CannedMessage,
+  Project } from '@/lib/definitions';
+import { PlusCircle, Search, Star, Trash2, Edit, LoaderCircle } from 'lucide-react';
+import { useDebouncedCallback } from 'use-debounce';
+import { useToast } from '@/hooks/use-toast';
 import { CannedMessageFormDialog } from '@/components/wabasimplify/canned-message-form-dialog';
-import { ZoruBadge } from '@/components/zoruui';
 
 interface CannedMessagesSettingsTabProps {
   project: WithId<Project>;

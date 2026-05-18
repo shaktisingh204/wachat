@@ -1,5 +1,21 @@
 'use client';
 
+import { ZoruButton, ZoruCard, ZoruInput, ZoruLabel, ZoruSkeleton, cn, useZoruToast } from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition } from 'react';
+import {
+  AlertTriangle,
+  CheckCircle,
+  Copy,
+  Loader2,
+  RefreshCw,
+  } from 'lucide-react';
+
+import { getWebhookSubscriptionStatus } from '@/app/actions/whatsapp.actions';
+import { getProjectById } from '@/app/actions/index.ts';
+
 /**
  * WebhookInfo (wachat-local, ZoruUI).
  *
@@ -9,27 +25,6 @@
  */
 
 import * as React from 'react';
-import { useEffect, useState, useTransition } from 'react';
-import {
-  AlertTriangle,
-  CheckCircle,
-  Copy,
-  Loader2,
-  RefreshCw,
-} from 'lucide-react';
-
-import { getWebhookSubscriptionStatus } from '@/app/actions/whatsapp.actions';
-import { getProjectById } from '@/app/actions/index.ts';
-
-import {
-  ZoruButton,
-  ZoruCard,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSkeleton,
-  cn,
-  useZoruToast,
-} from '@/components/zoruui';
 
 import { SubscribeProjectButton } from './subscribe-project-button';
 

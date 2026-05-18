@@ -1,5 +1,3 @@
-
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -15,7 +13,6 @@ import { checkRateLimit } from '@/lib/rate-limiter';
 import { processBroadcastJob } from '@/lib/cron-scheduler';
 import { handleSubscribeProjectWebhook, handleSyncPhoneNumbers } from '@/app/actions/whatsapp.actions';
 import axios from 'axios';
-
 
 export async function getProjectById(projectId?: string | null, userId?: string | null): Promise<WithId<Project> | null> {
     if (!projectId || !ObjectId.isValid(projectId)) {
@@ -72,7 +69,6 @@ export async function getProjectById(projectId?: string | null, userId?: string 
         return null;
     }
 }
-
 
 export async function getProjects(query?: string, type?: 'whatsapp' | 'facebook'): Promise<{ projects: WithId<Project>[] }> {
     console.log(`[getProjects] Fetching projects. Type: ${type}, Query: ${query}`);
@@ -376,7 +372,6 @@ export async function handleSyncWabas(prevState: any, formData: FormData): Promi
     }
 }
 
-
 export async function handleForgotPassword(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
     // This is a placeholder. In a real app, you would generate a secure token,
     // save it to the user's record with an expiration, and send an email.
@@ -578,6 +573,4 @@ export async function handleChangePassword(prevState: any, formData: FormData): 
         return { error: getErrorMessage(e) };
     }
 }
-
-
 

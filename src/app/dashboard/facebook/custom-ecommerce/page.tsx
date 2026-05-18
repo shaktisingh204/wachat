@@ -1,33 +1,5 @@
 "use client";
 
-/**
- * /dashboard/facebook/custom-ecommerce — Custom E-commerce shop list.
- *
- * Lists every connected Facebook page as a manageable shop tile and
- * exposes a create-shop dialog. Pure ZoruUI — no clay-*, no
- * @/components/ui/*, no wabasimplify visuals. Same data + handlers.
- */
-
-import * as React from "react";
-import { useCallback, useEffect, useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { useFormStatus } from "react-dom";
-import { useActionState } from "react";
-import {
-  ArrowRight,
-  LoaderCircle,
-  Plus,
-  ShoppingBag,
-  Store,
-} from "lucide-react";
-
-import { getProjects } from "@/app/actions/project.actions";
-import { createEcommShop } from "@/app/actions/custom-ecommerce.actions";
-import type { Project } from "@/lib/definitions";
-import type { WithId } from "mongodb";
-import { useProject } from "@/context/project-context";
-
 import {
   ZoruBreadcrumb,
   ZoruBreadcrumbItem,
@@ -59,7 +31,39 @@ import {
   ZoruSelectValue,
   ZoruSkeleton,
   useZoruToast,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useState,
+  useTransition } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useFormStatus } from "react-dom";
+import { useActionState } from "react";
+import {
+  ArrowRight,
+  LoaderCircle,
+  Plus,
+  ShoppingBag,
+  Store,
+  } from "lucide-react";
+
+import { getProjects } from "@/app/actions/project.actions";
+import { createEcommShop } from "@/app/actions/custom-ecommerce.actions";
+import type { Project } from "@/lib/definitions";
+import type { WithId } from "mongodb";
+import { useProject } from "@/context/project-context";
+
+/**
+ * /dashboard/facebook/custom-ecommerce — Custom E-commerce shop list.
+ *
+ * Lists every connected Facebook page as a manageable shop tile and
+ * exposes a create-shop dialog. Pure ZoruUI — no clay-*, no
+ * @/components/ui/*, no wabasimplify visuals. Same data + handlers.
+ */
+
+import * as React from "react";
 
 import {
   FeatureLock,

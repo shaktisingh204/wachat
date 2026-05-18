@@ -1,13 +1,8 @@
 'use client';
 
-/**
- * <PettyCashDetailActions> — 8 actions: Edit · Top up · Record voucher ·
- * Reconcile · Print register · Archive · Audit · Activity.
- */
-
-import * as React from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { ZoruButton, useZoruToast } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
 import {
   Activity,
   Archive,
@@ -17,12 +12,16 @@ import {
   Printer,
   Receipt,
   Wallet,
-} from 'lucide-react';
+  } from 'lucide-react';
 
-import {
-  ZoruButton,
-  useZoruToast,
-} from '@/components/zoruui';
+/**
+ * <PettyCashDetailActions> — 8 actions: Edit · Top up · Record voucher ·
+ * Reconcile · Print register · Archive · Audit · Activity.
+ */
+
+import * as React from 'react';
+import Link from 'next/link';
+
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import { deletePettyCash } from '@/app/actions/crm-petty-cash.actions';
 

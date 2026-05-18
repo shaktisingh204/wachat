@@ -1,3 +1,6 @@
+import { ZoruButton } from '@/components/zoruui';
+import { CalendarClock, Plus } from 'lucide-react';
+
 /**
  * CRM Bookings list — `/dashboard/crm/bookings`.
  *
@@ -10,9 +13,7 @@
  */
 
 import Link from 'next/link';
-import { CalendarClock, Plus } from 'lucide-react';
 
-import { ZoruButton } from '@/components/zoruui';
 import { CrmPageHeader } from '../_components/crm-page-header';
 import { listBookings } from '@/app/actions/crm/bookings.actions';
 import { BookingListClient } from './_components/booking-list-client';

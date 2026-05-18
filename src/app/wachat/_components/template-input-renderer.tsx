@@ -1,27 +1,5 @@
 'use client';
 
-/**
- * TemplateInputRenderer (wachat-local, ZoruUI)
- *
- * Renders the dynamic per-template variable inputs (header text vars,
- * media file/URL, location header, body vars, button params, carousel
- * card media). Same form-field names + behavior as the wabasimplify
- * version — only the visual layer is on Zoru primitives.
- */
-
-import * as React from 'react';
-import { useState } from 'react';
-import {
-  Check,
-  ChevronsUpDown,
-  Link as LinkIcon,
-  MapPin,
-  UploadCloud,
-} from 'lucide-react';
-import type { WithId } from 'mongodb';
-
-import type { Template } from '@/lib/definitions';
-
 import {
   ZoruButton,
   ZoruCommand,
@@ -39,6 +17,30 @@ import {
   ZoruRadioGroupItem,
   cn,
 } from '@/components/zoruui';
+import {
+  useState } from 'react';
+import {
+  Check,
+  ChevronsUpDown,
+  Link as LinkIcon,
+  MapPin,
+  UploadCloud,
+  } from 'lucide-react';
+import type { WithId } from 'mongodb';
+
+import type { Template } from '@/lib/definitions';
+
+/**
+ * TemplateInputRenderer (wachat-local, ZoruUI)
+ *
+ * Renders the dynamic per-template variable inputs (header text vars,
+ * media file/URL, location header, body vars, button params, carousel
+ * card media). Same form-field names + behavior as the wabasimplify
+ * version — only the visual layer is on Zoru primitives.
+ */
+
+import * as React from 'react';
+
 import { SabFileToFileButton, SabFileUrlInput } from '@/components/sabfiles';
 
 interface SmartVariableInputProps {

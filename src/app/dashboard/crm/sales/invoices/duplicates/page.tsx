@@ -1,3 +1,6 @@
+import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
+import { ArrowLeft, Copy } from 'lucide-react';
+
 /**
  * Invoice duplicates — `/dashboard/crm/sales/invoices/duplicates`.
  *
@@ -7,13 +10,7 @@
  */
 
 import Link from 'next/link';
-import { ArrowLeft, Copy } from 'lucide-react';
 
-import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
-} from '@/components/zoruui';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
 import { findInvoiceDuplicates } from '@/app/actions/crm/invoices.actions';
 import { EntityPickerChip } from '@/components/crm/entity-picker';

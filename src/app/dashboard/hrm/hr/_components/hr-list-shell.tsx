@@ -1,5 +1,29 @@
 'use client';
 
+import {
+  ZoruButton,
+  ZoruCard,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  ZoruBadge,
+  useZoruToast,
+  ZoruCheckbox,
+} from '@/components/zoruui';
+import {
+  Plus,
+  Pencil,
+  Trash2 } from 'lucide-react';
+
+import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { ConfirmDialog } from '@/components/crm/confirm-dialog';
+import { StatusPill,
+  statusToTone,
+  type StatusTone } from '@/components/crm/status-pill';
+
 /**
  * <HrListShell /> — shared §1D-bar list page chrome for HR & Performance
  * entities.
@@ -24,24 +48,6 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
-
-import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { ConfirmDialog } from '@/components/crm/confirm-dialog';
-import { StatusPill, statusToTone, type StatusTone } from '@/components/crm/status-pill';
-import {
-  ZoruButton,
-  ZoruCard,
-  ZoruTable,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  ZoruBadge,
-  useZoruToast,
-  ZoruCheckbox,
-} from '@/components/zoruui';
 
 export interface HrListColumn<T> {
   key: string;

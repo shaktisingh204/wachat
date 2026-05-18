@@ -1,19 +1,5 @@
 'use client';
 
-/**
- * Wachat WhatsApp Link Generator (ZoruUI).
- *
- * Generate wa.me links with pre-filled messages. Self-contained
- * client-side tool. Uses project phone number as default. Includes
- * copy-link confirmation alert dialog and live QR preview.
- */
-
-import * as React from 'react';
-import { useEffect, useMemo, useState } from 'react';
-import { Link as LinkIcon, Copy, Check, QrCode } from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-
 import {
   ZoruAlertDialog,
   ZoruAlertDialogAction,
@@ -41,6 +27,26 @@ import {
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useEffect,
+  useMemo,
+  useState } from 'react';
+import { Link as LinkIcon,
+  Copy,
+  Check,
+  QrCode } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+
+/**
+ * Wachat WhatsApp Link Generator (ZoruUI).
+ *
+ * Generate wa.me links with pre-filled messages. Self-contained
+ * client-side tool. Uses project phone number as default. Includes
+ * copy-link confirmation alert dialog and live QR preview.
+ */
+
+import * as React from 'react';
 
 export default function WhatsAppLinkGeneratorPage() {
   const { activeProject } = useProject();

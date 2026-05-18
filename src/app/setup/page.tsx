@@ -1,13 +1,3 @@
-'use client';
-
-import { useState } from 'react';
-
-/**
- * ✅ FIX: EmbeddedSignup is a DEFAULT export
- * DO NOT use `{ EmbeddedSignup }`
- */
-import EmbeddedSignup from '@/components/wabasimplify/embedded-signup';
-
 import {
   ZoruCard,
   ZoruCardContent,
@@ -15,17 +5,24 @@ import {
   ZoruCardTitle,
   ZoruCardDescription,
   ZoruCardFooter,
-} from '@/components/zoruui';
-
-import {
   ZoruAlert,
   ZoruAlertDescription,
   ZoruAlertTitle,
+  ZoruCheckbox,
+  ZoruLabel,
 } from '@/components/zoruui';
+import {
+  useState } from 'react';
+
+/**
+ * ✅ FIX: EmbeddedSignup is a DEFAULT export
+ * DO NOT use `{ EmbeddedSignup }`
+ */
+import EmbeddedSignup from '@/components/wabasimplify/embedded-signup';
 
 import { AlertCircle } from 'lucide-react';
-import { ZoruCheckbox } from '@/components/zoruui';
-import { ZoruLabel } from '@/components/zoruui';
+
+'use client';
 
 export default function SetupPage() {
   const appId = process.env.NEXT_PUBLIC_META_ONBOARDING_APP_ID;

@@ -1,17 +1,5 @@
 'use client';
 
-import { useState } from 'react';
-import {
-  Check,
-  Database,
-  Github,
-  Mail,
-  Search,
-  ShoppingCart,
-  Slack,
-  Zap,
-} from 'lucide-react';
-
 import {
   ZoruBadge,
   ZoruBreadcrumb,
@@ -30,6 +18,19 @@ import {
   ZoruPageTitle,
   cn,
 } from '@/components/zoruui';
+import {
+  useState } from 'react';
+import {
+  Check,
+  Database,
+  Github,
+  Mail,
+  Search,
+  ShoppingCart,
+  Slack,
+  Zap,
+  } from 'lucide-react';
+
 import { useT } from '@/lib/i18n/client';
 
 type Integration = {

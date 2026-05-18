@@ -1,18 +1,28 @@
-
 'use client';
 
-import { ZoruLabel, ZoruButton } from '@/components/zoruui';
-import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
-import { ZoruAccordion, ZoruAccordionContent, ZoruAccordionItem, ZoruAccordionTrigger } from '@/components/zoruui';
-import { ZoruInput } from '@/components/zoruui';
-import type { WithId, CrmEmailTemplate } from '@/lib/definitions';
+import {
+  ZoruLabel,
+  ZoruButton,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruAccordion,
+  ZoruAccordionContent,
+  ZoruAccordionItem,
+  ZoruAccordionTrigger,
+  ZoruInput,
+  ZoruRadioGroup,
+  ZoruRadioGroupItem,
+  ZoruSeparator,
+  ZoruScrollArea,
+} from '@/components/zoruui';
 import { useEffect, useState } from 'react';
 import { getCrmEmailTemplates } from '@/app/actions/crm-email-templates.actions';
-import { ZoruButton } from '@/components/zoruui';
 import { Plus, Trash2 } from 'lucide-react';
-import { ZoruRadioGroup, ZoruRadioGroupItem } from '@/components/zoruui';
-import { ZoruSeparator } from '@/components/zoruui';
-import { ZoruScrollArea } from '@/components/zoruui';
+
+import type { WithId, CrmEmailTemplate } from '@/lib/definitions';
 
 interface CrmAutomationBlockEditorProps {
     node: any;
@@ -89,7 +99,6 @@ const AddTagEditor = ({ data, onUpdate }: { data: any, onUpdate: (data: any) => 
     </div>
 );
 
-
 const CreateTaskEditor = ({ data, onUpdate }: { data: any, onUpdate: (data: any) => void }) => (
      <div className="space-y-2">
         <ZoruLabel>Task Title</ZoruLabel>
@@ -147,7 +156,6 @@ const ConditionEditor = ({ data, onUpdate }: { data: any, onUpdate: (data: any) 
         </div>
     );
 };
-
 
 export function CrmAutomationBlockEditor({ node, onUpdate }: { node: any, onUpdate: (data: any) => void }) {
     if (!node) return null;

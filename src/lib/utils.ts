@@ -53,7 +53,6 @@ export const getErrorMessage = (error: any): string => {
     return String(error) || 'An unknown error occurred';
 };
 
-
 export const VALIDATION_MESSAGES = {
     unsupportedType: (fileName: string) => `File '${fileName}' has an unsupported file type.`,
     sizeExceeded: (fileName: string, maxSizeMB: number) => `File '${fileName}' exceeds the size limit of ${maxSizeMB}MB.`,

@@ -1,52 +1,5 @@
 "use client";
 
-/**
- * /dashboard/facebook/live-studio — Live broadcast launcher, ZoruUI rebuild.
- *
- * Same handlers + server actions as before
- * (getScheduledLiveStreams, handleScheduleLiveStream).
- *
- * The original page only schedules a premiere from a pre-recorded video.
- * This rebuild keeps that flow intact and layers on a neutral pre-broadcast
- * checklist (`ZoruAlert`s + completion state) plus start/stop confirm
- * `ZoruAlertDialog`s as required by Phase 3.
- */
-
-import * as React from "react";
-import {
-  useActionState,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  useTransition,
-} from "react";
-import Link from "next/link";
-import { format } from "date-fns";
-import { useFormStatus } from "react-dom";
-import {
-  AlertTriangle,
-  Calendar as CalendarIcon,
-  CheckCircle2,
-  Circle,
-  Clock,
-  ExternalLink,
-  LoaderCircle,
-  PlayCircle,
-  Radio,
-  StopCircle,
-  Upload,
-  Video,
-} from "lucide-react";
-
-import {
-  getScheduledLiveStreams,
-  handleScheduleLiveStream,
-} from "@/app/actions/facebook.actions";
-import { useProject } from "@/context/project-context";
-import type { FacebookLiveStream, WithId } from "@/lib/definitions";
-
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -88,7 +41,55 @@ import {
   ZoruTextarea,
   cn,
   useZoruToast,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  useActionState,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useTransition,
+  } from "react";
+import Link from "next/link";
+import { format } from "date-fns";
+import { useFormStatus } from "react-dom";
+import {
+  AlertTriangle,
+  Calendar as CalendarIcon,
+  CheckCircle2,
+  Circle,
+  Clock,
+  ExternalLink,
+  LoaderCircle,
+  PlayCircle,
+  Radio,
+  StopCircle,
+  Upload,
+  Video,
+  } from "lucide-react";
+
+import {
+  getScheduledLiveStreams,
+  handleScheduleLiveStream,
+  } from "@/app/actions/facebook.actions";
+import { useProject } from "@/context/project-context";
+import type { FacebookLiveStream,
+  WithId } from "@/lib/definitions";
+
+/**
+ * /dashboard/facebook/live-studio — Live broadcast launcher, ZoruUI rebuild.
+ *
+ * Same handlers + server actions as before
+ * (getScheduledLiveStreams, handleScheduleLiveStream).
+ *
+ * The original page only schedules a premiere from a pre-recorded video.
+ * This rebuild keeps that flow intact and layers on a neutral pre-broadcast
+ * checklist (`ZoruAlert`s + completion state) plus start/stop confirm
+ * `ZoruAlertDialog`s as required by Phase 3.
+ */
+
+import * as React from "react";
 
 import { NoProjectState } from "../_components/no-project-state";
 

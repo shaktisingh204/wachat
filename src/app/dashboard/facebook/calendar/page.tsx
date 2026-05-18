@@ -1,35 +1,5 @@
 "use client";
 
-/**
- * /dashboard/facebook/calendar — Post calendar, ZoruUI rebuild.
- *
- * Same handlers + server actions (`getFacebookPosts`, `getScheduledPosts`).
- * Visual layer: ZoruPageHeader + ZoruBreadcrumb, ZoruFullscreenCalendar
- * showing both published and scheduled posts as events.
- */
-
-import * as React from "react";
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-  useTransition,
-} from "react";
-import Link from "next/link";
-import { format } from "date-fns";
-import {
-  CalendarDays,
-  Newspaper,
-  Plus,
-  RefreshCw,
-} from "lucide-react";
-
-import {
-  getFacebookPosts,
-  getScheduledPosts,
-} from "@/app/actions/facebook.actions";
-
 import {
   ZoruBadge,
   ZoruBreadcrumb,
@@ -41,7 +11,6 @@ import {
   ZoruButton,
   ZoruEmptyState,
   ZoruFullscreenCalendar,
-  type ZoruFullscreenCalendarEvent,
   ZoruPageActions,
   ZoruPageDescription,
   ZoruPageEyebrow,
@@ -49,7 +18,38 @@ import {
   ZoruPageHeading,
   ZoruPageTitle,
   ZoruSkeleton,
-} from "@/components/zoruui";
+  type ZoruFullscreenCalendarEvent,
+} from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useTransition,
+  } from "react";
+import Link from "next/link";
+import { format } from "date-fns";
+import {
+  CalendarDays,
+  Newspaper,
+  Plus,
+  RefreshCw,
+  } from "lucide-react";
+
+import {
+  getFacebookPosts,
+  getScheduledPosts,
+  } from "@/app/actions/facebook.actions";
+
+/**
+ * /dashboard/facebook/calendar — Post calendar, ZoruUI rebuild.
+ *
+ * Same handlers + server actions (`getFacebookPosts`, `getScheduledPosts`).
+ * Visual layer: ZoruPageHeader + ZoruBreadcrumb, ZoruFullscreenCalendar
+ * showing both published and scheduled posts as events.
+ */
+
+import * as React from "react";
 
 import {
   ErrorState,

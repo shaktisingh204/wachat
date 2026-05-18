@@ -1,9 +1,9 @@
 'use client';
 
+import { ZoruCard } from '@/components/zoruui';
 import * as React from 'react';
 import Link from 'next/link';
 
-import { ZoruCard } from '@/components/zoruui';
 import { statusToTone } from '@/components/crm/status-pill';
 import { fmtDate, type ProjectRow } from './projects-table';
 

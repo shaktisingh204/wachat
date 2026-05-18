@@ -1,8 +1,5 @@
 'use client';
 
-import * as React from 'react';
-import { LoaderCircle, Play } from 'lucide-react';
-
 import {
   ZoruButton,
   ZoruDialog,
@@ -15,6 +12,12 @@ import {
   ZoruLabel,
   ZoruTextarea,
 } from '@/components/zoruui';
+import {
+  LoaderCircle,
+  Play } from 'lucide-react';
+
+import * as React from 'react';
+
 import { EntityFormField } from '@/components/crm/entity-form-field';
 
 export interface StartTimerForm {

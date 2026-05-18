@@ -1,12 +1,13 @@
+import { ZoruButton } from '@/components/zoruui';
+import { redirect } from 'next/navigation';
+import { ArrowLeft, ShieldCheck } from 'lucide-react';
+
 /**
  * New probation page — server wrapper around `<ProbationForm />`.
  */
 
 import Link from 'next/link';
-import { redirect } from 'next/navigation';
-import { ArrowLeft, ShieldCheck } from 'lucide-react';
 
-import { ZoruButton } from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { getSession } from '@/app/actions/user.actions';
 

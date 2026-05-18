@@ -1,5 +1,3 @@
-
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -204,7 +202,6 @@ export async function deleteCrmAccountGroup(groupId: string): Promise<{ success:
     }
 }
 
-
 export async function getCrmChartOfAccounts(): Promise<WithId<any>[]> {
     const session = await getSession();
     if (!session?.user) return [];
@@ -322,7 +319,6 @@ export async function getVoucherEntriesForAccount(accountId: string, startDate?:
         return [];
     }
 }
-
 
 export async function saveCrmChartOfAccount(prevState: any, formData: FormData): Promise<{ message?: string, error?: string }> {
     const session = await getSession();
@@ -704,7 +700,6 @@ export async function generateProfitAndLossData(startDate?: Date, endDate?: Date
         return null;
     }
 }
-
 
 export async function generateIncomeStatementData(startDate?: Date, endDate?: Date) {
     const session = await getSession();

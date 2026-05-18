@@ -1,21 +1,42 @@
-
-
 'use client';
 
-import { useEffect, useState, useRef, useActionState } from 'react';
+import {
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardDescription,
+  ZoruCardFooter,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruButton,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSkeleton,
+  ZoruSeparator,
+  ZoruTextarea,
+  ZoruBadge,
+} from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useRef,
+  useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
-import { handleUpdateUserProfile, handleChangePassword, getSession } from '@/app/actions/user.actions';
+import { handleUpdateUserProfile,
+  handleChangePassword,
+  getSession } from '@/app/actions/user.actions';
 import type { User } from '@/lib/definitions';
-import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardFooter, ZoruCardHeader, ZoruCardTitle, ZoruButton } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruLabel } from '@/components/zoruui';
-import { ZoruSkeleton } from '@/components/zoruui';
 import { useToast } from '@/hooks/use-toast';
-import { AlertCircle, LoaderCircle, Save, KeyRound, User as UserIcon, Building, CheckCircle2, Clock, Briefcase, Globe, Layers } from 'lucide-react';
-import { ZoruSeparator } from '@/components/zoruui';
-import { ZoruTextarea } from '@/components/zoruui';
-import { ZoruBadge } from '@/components/zoruui';
+import { AlertCircle,
+  LoaderCircle,
+  Save,
+  KeyRound,
+  User as UserIcon,
+  Building,
+  CheckCircle2,
+  Clock,
+  Briefcase,
+  Globe,
+  Layers } from 'lucide-react';
 
 const profileInitialState = { message: undefined, error: undefined };
 const passwordInitialState = { message: undefined, error: undefined };
@@ -332,7 +353,6 @@ function ProfilePageSkeleton() {
         </div>
     );
 }
-
 
 export default function ProfilePage() {
     const [user, setUser] = useState<(Omit<User, 'password'>) | null>(null);

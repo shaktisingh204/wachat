@@ -1,23 +1,45 @@
 'use client';
 
-import { useEffect, useState, useRef, useTransition } from 'react';
+import {
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardDescription,
+  ZoruCardFooter,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruButton,
+  ZoruLabel,
+  ZoruInput,
+  ZoruRadioGroup,
+  ZoruRadioGroupItem,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruTextarea,
+  ZoruSeparator,
+} from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useRef,
+  useTransition } from 'react';
 import { useFormStatus } from 'react-dom';
 import { useRouter } from 'next/navigation';
-import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardFooter, ZoruCardHeader, ZoruCardTitle, ZoruButton } from '@/components/zoruui';
-import { ZoruLabel } from '@/components/zoruui';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruRadioGroup, ZoruRadioGroupItem } from '@/components/zoruui';
-import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
-import { ZoruTextarea } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
 import { LoaderCircle, FileUp, Plus, Trash2, Copy, Save, ShoppingBag, LayoutGrid, MessageSquare } from 'lucide-react';
-import { handleCreateTemplate, saveLibraryTemplate, handleBulkCreateTemplate } from '@/app/actions/template.actions';
+import { handleCreateTemplate,
+  saveLibraryTemplate,
+  handleBulkCreateTemplate } from '@/app/actions/template.actions';
 import { getTemplateCategories } from '@/app/actions/plan.actions';
-import { getCatalogs, type Catalog } from '@/app/actions/catalog.actions';
+import { getCatalogs,
+  type Catalog } from '@/app/actions/catalog.actions';
 import { useToast } from '@/hooks/use-toast';
 import type { WithId } from 'mongodb';
-import type { Project, Template, CreateTemplateState } from '@/lib/definitions';
-import { ZoruSeparator } from '../ui/separator';
+import type { Project,
+  Template,
+  CreateTemplateState } from '@/lib/definitions';
+
 import { createTemplateSchema } from '@/lib/template-schema';
 
 // New Components
@@ -231,7 +253,6 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
       }
     }
   }, [initialTemplate, isCloning]);
-
 
   const formAction = (formData: FormData) => {
     // 1. Prepare JSON Data for Complex Types

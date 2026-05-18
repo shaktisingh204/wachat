@@ -1,26 +1,5 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
-import {
-  AlertCircle,
-  Check,
-  ChevronLeft,
-  ChevronRight,
-  Copy,
-  Download,
-  Eye,
-  LoaderCircle,
-  QrCode,
-  Search,
-  Trash2,
-} from 'lucide-react';
-import Link from 'next/link';
-import { getSession } from '@/app/actions/index';
-import { deleteManyQrCodes, deleteQrCode, getQrCodes } from '@/app/actions/qr-code.actions';
-import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
-import { QrCodeGenerator } from '@/components/wabasimplify/qr-code-generator';
-import { QrCodeDialog } from '@/components/wabasimplify/qr-code-dialog';
-import { normalizeQrWebsiteUrl } from '@/lib/qr-utils';
 import {
   ZoruAlertDialog,
   ZoruAlertDialogAction,
@@ -53,6 +32,34 @@ import {
   cn,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useTransition } from 'react';
+import {
+  AlertCircle,
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  Copy,
+  Download,
+  Eye,
+  LoaderCircle,
+  QrCode,
+  Search,
+  Trash2,
+  } from 'lucide-react';
+import Link from 'next/link';
+import { getSession } from '@/app/actions/index';
+import { deleteManyQrCodes,
+  deleteQrCode,
+  getQrCodes } from '@/app/actions/qr-code.actions';
+import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
+import { QrCodeGenerator } from '@/components/wabasimplify/qr-code-generator';
+import { QrCodeDialog } from '@/components/wabasimplify/qr-code-dialog';
+import { normalizeQrWebsiteUrl } from '@/lib/qr-utils';
 
 export const dynamic = 'force-dynamic';
 

@@ -1,3 +1,7 @@
+import { ZoruButton } from '@/components/zoruui';
+import { redirect } from 'next/navigation';
+import { ArrowLeft, Bell } from 'lucide-react';
+
 /**
  * HR Notice — edit page.
  *
@@ -7,10 +11,7 @@
  */
 
 import Link from 'next/link';
-import { redirect } from 'next/navigation';
-import { ArrowLeft, Bell } from 'lucide-react';
 
-import { ZoruButton } from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { getNoticeById } from '@/app/actions/crm-notices.actions';
 import { getSession } from '@/app/actions/user.actions';

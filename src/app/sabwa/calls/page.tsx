@@ -1,32 +1,5 @@
 "use client";
 
-/**
- * /sabwa/calls — Read-only call log.
- *
- * Surfaces a chronological list of incoming, outgoing, missed and video
- * calls captured from the active WhatsApp session. No outbound dial UI
- * — calls happen on the phone, this view is for audit and visibility.
- *
- * Rendered with ZoruUI primitives — no shadcn `/ui/*` imports.
- */
-
-import * as React from "react";
-import Link from "next/link";
-import {
-  ArrowDownLeft,
-  ArrowUpRight,
-  CalendarDays,
-  Filter,
-  Phone,
-  PhoneIncoming,
-  PhoneMissed,
-  PhoneOutgoing,
-  RefreshCw,
-  Search,
-  Smartphone,
-  Video,
-} from "lucide-react";
-
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -57,7 +30,35 @@ import {
   ZoruTableHeader,
   ZoruTableRow,
   useZoruToast,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  ArrowDownLeft,
+  ArrowUpRight,
+  CalendarDays,
+  Filter,
+  Phone,
+  PhoneIncoming,
+  PhoneMissed,
+  PhoneOutgoing,
+  RefreshCw,
+  Search,
+  Smartphone,
+  Video,
+  } from "lucide-react";
+
+/**
+ * /sabwa/calls — Read-only call log.
+ *
+ * Surfaces a chronological list of incoming, outgoing, missed and video
+ * calls captured from the active WhatsApp session. No outbound dial UI
+ * — calls happen on the phone, this view is for audit and visibility.
+ *
+ * Rendered with ZoruUI primitives — no shadcn `/ui/*` imports.
+ */
+
+import * as React from "react";
+import Link from "next/link";
+
 import { useChats } from "@/lib/sabwa/use-sabwa-data";
 import { useSabwaSession } from "@/lib/sabwa/session-context";
 

@@ -1,5 +1,34 @@
 'use client';
 
+import {
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruInput,
+  ZoruLabel,
+  ZoruTextarea,
+  zoruSonnerToast,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruDialogFooter,
+} from '@/components/zoruui';
+import {
+  Banknote,
+  CreditCard,
+  Plus,
+  Minus,
+  PauseCircle,
+  Printer,
+  Search,
+  ShoppingCart,
+  Smartphone,
+  Trash2,
+  UserPlus,
+  X,
+  } from 'lucide-react';
+
 /**
  * POS terminal — client island.
  *
@@ -18,35 +47,7 @@
  */
 
 import * as React from 'react';
-import {
-    Banknote,
-    CreditCard,
-    Plus,
-    Minus,
-    PauseCircle,
-    Printer,
-    Search,
-    ShoppingCart,
-    Smartphone,
-    Trash2,
-    UserPlus,
-    X,
-} from 'lucide-react';
 
-import {
-    ZoruButton,
-    ZoruCard,
-    ZoruCardContent,
-    ZoruInput,
-    ZoruLabel,
-    ZoruTextarea,
-    zoruSonnerToast,
-    ZoruDialog,
-    ZoruDialogContent,
-    ZoruDialogHeader,
-    ZoruDialogTitle,
-    ZoruDialogFooter,
-} from '@/components/zoruui';
 import {
     createPosTransaction,
     createPosHold,

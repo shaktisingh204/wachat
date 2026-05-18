@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruStatCard } from '@/components/zoruui';
+import { CalendarHeart, Layers, Repeat, Sparkles, } from 'lucide-react';
+
 /**
  * <HolidaysKpiStrip> — KPI strip for the canonical holidays list
  * (per §1D.1). 4 cards: Total this year · By type breakdown ·
@@ -7,14 +10,6 @@
  */
 
 import * as React from 'react';
-import {
-  CalendarHeart,
-  Layers,
-  Repeat,
-  Sparkles,
-} from 'lucide-react';
-
-import { ZoruStatCard } from '@/components/zoruui';
 
 export interface HolidaysKpiSnapshot {
   totalThisYear: number;

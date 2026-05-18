@@ -1,9 +1,9 @@
-
 'use client';
 
-import Link from 'next/link';
+import { ZoruButton } from '@/components/zoruui';
 import { Lock } from 'lucide-react';
-import { ZoruButton, ZoruButton } from '@/components/zoruui';
+
+import Link from 'next/link';
 
 export function FeatureLock({ isAllowed, children }: { isAllowed: boolean; children: React.ReactNode }) {
     if (isAllowed) {

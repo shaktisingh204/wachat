@@ -1,8 +1,6 @@
-
 'use client';
 
 import { ZoruTextarea } from '@/components/zoruui';
-
 interface EditorProps {
   node: any;
   onUpdate: (data: Partial<{ text: string }>) => void;

@@ -1,5 +1,28 @@
 'use client';
 
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruStatCard,
+} from '@/components/zoruui';
+import {
+  useRouter,
+  usePathname } from 'next/navigation';
+import { Activity,
+  Filter,
+  X } from 'lucide-react';
+
+import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { EntityPicker } from '@/components/crm/entity-picker';
+
 /**
  * <ActivityFeedClient> — client shell for the CRM tenant-wide activity
  * feed at `/dashboard/crm/activity` (CRM_REBUILD_PLAN.md §5.4).
@@ -17,24 +40,6 @@
  */
 
 import * as React from 'react';
-import { useRouter, usePathname } from 'next/navigation';
-import { Activity, Filter, X } from 'lucide-react';
-
-import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { EntityPicker } from '@/components/crm/entity-picker';
-import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruInput,
-    ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    ZoruStatCard,
-} from '@/components/zoruui';
 
 import {
     getCrmActivityFeed,

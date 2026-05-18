@@ -1,21 +1,18 @@
 'use client';
 
-import * as React from 'react';
+import { ZoruButton, ZoruAlert, ZoruAlertDescription, ZoruAlertTitle, ZoruSelect } from '@/components/zoruui';
 import {
-    AlertCircle,
-    Check,
-    LoaderCircle,
-    Sparkles,
-    ShieldCheck,
-} from 'lucide-react';
+  AlertCircle,
+  Check,
+  LoaderCircle,
+  Sparkles,
+  ShieldCheck,
+  } from 'lucide-react';
 
 import type { Plan } from '@/lib/definitions';
-import { ZoruButton, ZoruButton } from '@/components/zoruui';
-import {
-    ZoruAlert,
-    ZoruAlertDescription,
-    ZoruAlertTitle,
-} from '@/components/zoruui';
+
+import * as React from 'react';
+
 import { cn } from '@/lib/utils';
 import { createPayuPlanCheckout } from '@/app/actions/payu.actions';
 import {

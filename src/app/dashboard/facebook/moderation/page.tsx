@@ -1,25 +1,5 @@
 'use client';
 
-/**
- * /dashboard/facebook/moderation — Page-comment moderation rules.
- *
- * CRUD over moderation rules for the active project's Facebook Page via
- * `getModerationRules` / `saveModerationRule` / `deleteModerationRule`.
- * Each rule matches one or more keywords / patterns and applies an action
- * (hide, delete, flag) plus an optional auto-reply.
- */
-
-import * as React from 'react';
-import { useCallback, useEffect, useState, useTransition } from 'react';
-import { AlertCircle, Plus, RefreshCw, ShieldCheck, Trash2 } from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-import {
-  deleteModerationRule,
-  getModerationRules,
-  saveModerationRule,
-} from '@/app/actions/facebook.actions';
-
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -52,6 +32,34 @@ import {
   ZoruTextarea,
   zoruSonnerToast,
 } from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useState,
+  useTransition } from 'react';
+import { AlertCircle,
+  Plus,
+  RefreshCw,
+  ShieldCheck,
+  Trash2 } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import {
+  deleteModerationRule,
+  getModerationRules,
+  saveModerationRule,
+  } from '@/app/actions/facebook.actions';
+
+/**
+ * /dashboard/facebook/moderation — Page-comment moderation rules.
+ *
+ * CRUD over moderation rules for the active project's Facebook Page via
+ * `getModerationRules` / `saveModerationRule` / `deleteModerationRule`.
+ * Each rule matches one or more keywords / patterns and applies an action
+ * (hide, delete, flag) plus an optional auto-reply.
+ */
+
+import * as React from 'react';
 
 type RuleAction = 'hide' | 'delete' | 'flag';
 

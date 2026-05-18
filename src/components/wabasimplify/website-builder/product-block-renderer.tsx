@@ -1,9 +1,9 @@
-
 'use client';
 
+import { ZoruButton } from '@/components/zoruui';
 import React from 'react';
 import Image from 'next/image';
-import { ZoruButton, ZoruButton } from '@/components/zoruui';
+
 import { cn } from '@/lib/utils';
 import type { WithId, EcommProduct } from '@/lib/definitions';
 import { AddToCartButton } from './add-to-cart-button';

@@ -1,14 +1,11 @@
 'use client';
 
-import React from 'react';
-import { EmailLayout } from '@/components/wabasimplify/email-new/email-layout';
-import { EmailSuiteLayout } from '@/components/wabasimplify/email-suite-layout';
+import { ZoruPageHeader, ZoruPageHeading, ZoruPageTitle, ZoruPageDescription } from '@/components/zoruui';
 import {
-    ZoruPageHeader,
-    ZoruPageHeading,
-    ZoruPageTitle,
-    ZoruPageDescription,
-} from '@/components/zoruui';
+  EmailLayout } from '@/components/wabasimplify/email-new/email-layout';
+import { EmailSuiteLayout } from '@/components/wabasimplify/email-suite-layout';
+
+import React from 'react';
 
 export default function EmailInboxPage() {
     return (

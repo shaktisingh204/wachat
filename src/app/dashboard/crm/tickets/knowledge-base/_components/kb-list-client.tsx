@@ -1,5 +1,26 @@
 'use client';
 
+import {
+  ZoruButton,
+  ZoruDropdownMenu,
+  ZoruDropdownMenuContent,
+  ZoruDropdownMenuItem,
+  ZoruDropdownMenuLabel,
+  ZoruDropdownMenuSeparator,
+  ZoruDropdownMenuTrigger,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  useDebouncedCallback } from 'use-debounce';
+import { ChevronDown,
+  LayoutList,
+  ListChecks,
+  Plus } from 'lucide-react';
+import type { DateRange } from 'react-day-picker';
+
+import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { ConfirmDialog } from '@/components/crm/confirm-dialog';
+
 /**
  * <KbListClient> — interactive shell for the KB list page (§1D.1).
  *
@@ -10,22 +31,6 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useDebouncedCallback } from 'use-debounce';
-import { ChevronDown, LayoutList, ListChecks, Plus } from 'lucide-react';
-import type { DateRange } from 'react-day-picker';
-
-import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { ConfirmDialog } from '@/components/crm/confirm-dialog';
-import {
-    ZoruButton,
-    ZoruDropdownMenu,
-    ZoruDropdownMenuContent,
-    ZoruDropdownMenuItem,
-    ZoruDropdownMenuLabel,
-    ZoruDropdownMenuSeparator,
-    ZoruDropdownMenuTrigger,
-    useZoruToast,
-} from '@/components/zoruui';
 
 import {
     bulkKbAction,

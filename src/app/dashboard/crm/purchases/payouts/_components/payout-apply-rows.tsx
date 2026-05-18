@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruButton, ZoruInput } from '@/components/zoruui';
+import { PlusCircle, Trash2 } from 'lucide-react';
+
 /**
  * Multi-bill apply-rows sub-component for `<PayoutForm>`. Extracted to
  * its own file to keep the parent form under the 600-line cap.
@@ -11,9 +14,7 @@
  */
 
 import * as React from 'react';
-import { PlusCircle, Trash2 } from 'lucide-react';
 
-import { ZoruButton, ZoruInput } from '@/components/zoruui';
 import type { UnpaidBillRow } from '@/app/actions/crm/payouts.actions';
 
 export interface PayoutApplyRow {

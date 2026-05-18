@@ -1,7 +1,10 @@
-import { getPlans } from '@/app/actions/plan.actions';
-import type { Plan, WithId } from '@/lib/definitions';
-import Link from 'next/link';
 import { ZoruButton } from '@/components/zoruui';
+import {
+  getPlans } from '@/app/actions/plan.actions';
+import type { Plan,
+  WithId } from '@/lib/definitions';
+import Link from 'next/link';
+
 import { AdminDeletePlanButton } from '@/components/wabasimplify/admin-delete-plan-button';
 import { AdminPlanPermissionsDialog } from '@/components/wabasimplify/admin-plan-permissions-dialog';
 import { PlusCircle, Edit, CheckCircle2, XCircle, CreditCard } from 'lucide-react';

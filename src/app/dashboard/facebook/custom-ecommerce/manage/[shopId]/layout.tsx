@@ -1,5 +1,33 @@
 "use client";
 
+import { ZoruAlert, ZoruAlertDescription, ZoruAlertTitle, ZoruButton, ZoruSkeleton, useZoruToast } from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition } from "react";
+import Link from "next/link";
+import { useParams,
+  usePathname,
+  useRouter } from "next/navigation";
+import {
+  AlertCircle,
+  ArrowLeft,
+  Bot,
+  Brush,
+  LoaderCircle,
+  Package,
+  Settings,
+  ShoppingBag,
+  Wand,
+  } from "lucide-react";
+
+import {
+  applyEcommShopTheme,
+  getEcommShopById,
+  } from "@/app/actions/custom-ecommerce.actions";
+import type { EcommShop } from "@/lib/definitions";
+import type { WithId } from "mongodb";
+
 /**
  * /dashboard/facebook/custom-ecommerce/manage/[shopId]/layout.tsx
  *
@@ -13,36 +41,6 @@
  */
 
 import * as React from "react";
-import { useEffect, useState, useTransition } from "react";
-import Link from "next/link";
-import { useParams, usePathname, useRouter } from "next/navigation";
-import {
-  AlertCircle,
-  ArrowLeft,
-  Bot,
-  Brush,
-  LoaderCircle,
-  Package,
-  Settings,
-  ShoppingBag,
-  Wand,
-} from "lucide-react";
-
-import {
-  applyEcommShopTheme,
-  getEcommShopById,
-} from "@/app/actions/custom-ecommerce.actions";
-import type { EcommShop } from "@/lib/definitions";
-import type { WithId } from "mongodb";
-
-import {
-  ZoruAlert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  ZoruButton,
-  ZoruSkeleton,
-  useZoruToast,
-} from "@/components/zoruui";
 
 import {
   ShopBreadcrumb,

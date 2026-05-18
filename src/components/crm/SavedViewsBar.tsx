@@ -1,5 +1,34 @@
 'use client';
 
+import {
+  ZoruButton,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  cn,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  useRouter,
+  useSearchParams } from 'next/navigation';
+import { Star,
+  StarOff,
+  Trash2,
+  Plus,
+  Eye,
+  Share2,
+  Lock } from 'lucide-react';
+
 /**
  * SavedViewsBar — horizontal chip-row of saved views for any list page.
  *
@@ -20,27 +49,6 @@
  */
 
 import * as React from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { Star, StarOff, Trash2, Plus, Eye, Share2, Lock } from 'lucide-react';
-
-import {
-    ZoruButton,
-    ZoruDialog,
-    ZoruDialogContent,
-    ZoruDialogDescription,
-    ZoruDialogFooter,
-    ZoruDialogHeader,
-    ZoruDialogTitle,
-    ZoruInput,
-    ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    cn,
-    useZoruToast,
-} from '@/components/zoruui';
 
 import {
     deleteSavedView,

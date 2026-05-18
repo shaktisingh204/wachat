@@ -1,14 +1,9 @@
 'use client';
 
-import { use } from 'react';
+import { ZoruButton, ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
 import {
-    ZoruButton,
-    ZoruCard,
-    ZoruCardContent,
-    ZoruCardDescription,
-    ZoruCardHeader,
-    ZoruCardTitle,
-} from '@/components/zoruui';
+  use } from 'react';
+
 import { Radar, Bell } from 'lucide-react';
 
 export default function BrandPage({ params }: { params: Promise<{ projectId: string }> }) {

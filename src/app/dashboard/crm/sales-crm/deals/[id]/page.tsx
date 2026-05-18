@@ -1,3 +1,10 @@
+import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
+import {
+  notFound } from 'next/navigation';
+import { ObjectId } from 'mongodb';
+import { ArrowLeft,
+  ClipboardList } from 'lucide-react';
+
 /**
  * Deal detail — `/dashboard/crm/sales-crm/deals/[id]`.
  *
@@ -16,15 +23,7 @@
  */
 
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import { ObjectId } from 'mongodb';
-import { ArrowLeft, ClipboardList } from 'lucide-react';
 
-import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
-} from '@/components/zoruui';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { EntityPickerChip } from '@/components/crm/entity-picker';

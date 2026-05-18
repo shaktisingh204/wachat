@@ -1,12 +1,10 @@
-import { ZoruButton, ZoruButton } from '@/components/zoruui';
-
 'use client';
 
+import { ZoruButton, ZoruTextarea, ZoruAvatar, ZoruAvatarFallback } from '@/components/zoruui';
 import { useActionState, useEffect, useRef, useState, useTransition } from 'react';
 import { useFormStatus } from 'react-dom';
 import { ClayCard } from '@/components/clay';
-import { ZoruTextarea } from '@/components/zoruui';
-import { ZoruAvatar, ZoruAvatarFallback } from '@/components/zoruui';
+
 import { LoaderCircle, Send } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { addCrmNote } from '@/app/actions/crm.actions';

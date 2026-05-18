@@ -1,21 +1,53 @@
-
 'use client';
 
-import React from 'react';
-import { ZoruButton, ZoruButton } from '@/components/zoruui';
-import Link from 'next/link';
 import {
-    Send, Megaphone, Newspaper, MessageSquare, ArrowRight, Star, ChevronDown, Check, Users, Settings, Edit, Trash2, Calendar, ThumbsUp, Share2, Facebook as FacebookIcon, Instagram as InstagramIcon, Bot, LayoutDashboard, Wrench, LayoutGrid, Brush, ShoppingBag
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardFooter,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruCardDescription,
+  ZoruAvatar,
+  ZoruAvatarFallback,
+  ZoruAvatarImage,
+  ZoruInput,
+  ZoruTextarea,
+  ZoruLabel,
+  ZoruSwitch,
+  ZoruSeparator,
+} from '@/components/zoruui';
+import {
+  Send,
+  Megaphone,
+  Newspaper,
+  MessageSquare,
+  ArrowRight,
+  Star,
+  ChevronDown,
+  Check,
+  Users,
+  Settings,
+  Edit,
+  Trash2,
+  Calendar,
+  ThumbsUp,
+  Share2,
+  Facebook as FacebookIcon,
+  Instagram as InstagramIcon,
+  Bot,
+  LayoutDashboard,
+  Wrench,
+  LayoutGrid,
+  Brush,
+  ShoppingBag,
 } from 'lucide-react';
 import Image from 'next/image';
-import { ZoruCard, ZoruCardContent, ZoruCardFooter, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription } from '@/components/zoruui';
-import { ZoruAvatar, ZoruAvatarFallback, ZoruAvatarImage } from '@/components/zoruui';
 import { cn } from '@/lib/utils';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruTextarea } from '@/components/zoruui';
-import { ZoruLabel } from '../ui/label';
-import { ZoruSwitch } from '../ui/switch';
-import { ZoruSeparator } from '../ui/separator';
+
+import React from 'react';
+
+import Link from 'next/link';
 
 const OverviewFeatureCard = ({ icon: Icon, title, description, gradient }: { icon: React.ElementType, title: string, description: string, gradient?: string }) => (
     <ZoruCard className={cn("hover:shadow-lg hover:-translate-y-1 transition-transform flex flex-col card-gradient", gradient)}>

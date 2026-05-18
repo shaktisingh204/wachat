@@ -1,17 +1,28 @@
-
 'use client';
 
-import { useActionState, useEffect, useState } from 'react';
+import {
+  ZoruCard,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruCardDescription,
+  ZoruCardContent,
+  ZoruCardFooter,
+  ZoruButton,
+  ZoruLabel,
+  ZoruRadioGroup,
+  ZoruRadioGroupItem,
+  ZoruSkeleton,
+} from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect,
+  useState } from 'react';
 import { useFormStatus } from 'react-dom';
-import { ZoruCard, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription, ZoruCardContent, ZoruCardFooter, ZoruButton } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
-import { ZoruLabel } from '@/components/zoruui';
-import { ZoruRadioGroup, ZoruRadioGroupItem } from '@/components/zoruui';
 import { handleUpdateUserProfile, getSession } from '@/app/actions/user.actions';
 import type { User } from '@/lib/definitions';
 import { useToast } from '@/hooks/use-toast';
-import { LoaderCircle, Save } from 'lucide-react';
-import { ZoruSkeleton } from '@/components/zoruui';
+import { LoaderCircle,
+  Save } from 'lucide-react';
 
 const initialState = { message: undefined, error: undefined };
 

@@ -1,12 +1,12 @@
-import { ZoruButton, ZoruButton } from '@/components/zoruui';
 'use client';
 
-import * as React from 'react';
+import { ZoruButton, ZoruTextarea, ZoruInput } from '@/components/zoruui';
 import { Paperclip, Send, LoaderCircle, Download } from 'lucide-react';
 
 import { ClayCard } from '@/components/clay';
-import { ZoruTextarea } from '@/components/zoruui';
-import { ZoruInput } from '@/components/zoruui';
+
+import * as React from 'react';
+
 import { SabFileUrlInput } from '@/components/sabfiles';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';

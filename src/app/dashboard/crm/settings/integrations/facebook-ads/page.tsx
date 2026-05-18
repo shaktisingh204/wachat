@@ -1,6 +1,11 @@
 'use client';
 
-import { useCallback, useEffect, useState, useTransition } from 'react';
+import { ZoruButton, ZoruCard, ZoruInput, ZoruLabel, ZoruSkeleton, useZoruToast } from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useState,
+  useTransition } from 'react';
 import {
   Megaphone,
   LoaderCircle,
@@ -13,16 +18,8 @@ import {
   Sparkles,
   Facebook,
   PowerOff,
-} from 'lucide-react';
+  } from 'lucide-react';
 
-import {
-  ZoruButton,
-  ZoruCard,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSkeleton,
-  useZoruToast,
-} from '@/components/zoruui';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
 import {
   getLeadGenConfig,

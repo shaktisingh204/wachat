@@ -1,11 +1,16 @@
 'use client';
 
-import { use, useEffect, useState } from 'react';
+import { ZoruSkeleton } from '@/components/zoruui';
+import {
+  use,
+  useEffect,
+  useState } from 'react';
 import { Heart } from 'lucide-react';
 import { HrFormPage } from '../../../_components/hr-form-page';
-import { fields, sections } from '../../_config';
-import { getWelcomeKits, saveWelcomeKit } from '@/app/actions/hr.actions';
-import { ZoruSkeleton } from '@/components/zoruui';
+import { fields,
+  sections } from '../../_config';
+import { getWelcomeKits,
+  saveWelcomeKit } from '@/app/actions/hr.actions';
 
 export default function EditWelcomeKitPage({
   params,

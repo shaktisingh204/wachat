@@ -1,19 +1,26 @@
 'use client';
 
-import * as React from 'react';
-import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
-import { useProject } from '@/context/project-context';
 import {
-    ZoruBreadcrumb,
-    ZoruBreadcrumbItem,
-    ZoruBreadcrumbLink,
-    ZoruBreadcrumbList,
-    ZoruBreadcrumbPage,
-    ZoruBreadcrumbSeparator,
-    ZoruButton,
-    ZoruCard,
-    useZoruToast,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  useZoruToast,
 } from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useTransition } from 'react';
+import { useProject } from '@/context/project-context';
+
+import * as React from 'react';
+
 import { Loader, Package, RefreshCw, Store } from 'lucide-react';
 
 interface InstalledAppRow {

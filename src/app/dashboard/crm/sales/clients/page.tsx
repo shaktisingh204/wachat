@@ -1,29 +1,5 @@
 'use client';
 
-import { useState, useEffect, useCallback, useTransition } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useDebouncedCallback } from 'use-debounce';
-import {
-  Search,
-  Users,
-  MoreVertical,
-  Archive,
-  Edit,
-  ArchiveRestore,
-  Building,
-} from 'lucide-react';
-import type { WithId } from 'mongodb';
-
-import {
-  getCrmAccounts,
-  archiveCrmAccount,
-  unarchiveCrmAccount,
-} from '@/app/actions/crm-accounts.actions';
-import type { CrmAccount } from '@/lib/definitions';
-import { CrmAddClientDialog } from '@/components/wabasimplify/crm-add-client-dialog';
-import { ClientReportButton } from '@/components/wabasimplify/client-report-button';
-
 import {
   ZoruAlertDialog,
   ZoruAlertDialogAction,
@@ -51,6 +27,34 @@ import {
   ZoruTableRow,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useState,
+  useEffect,
+  useCallback,
+  useTransition } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useDebouncedCallback } from 'use-debounce';
+import {
+  Search,
+  Users,
+  MoreVertical,
+  Archive,
+  Edit,
+  ArchiveRestore,
+  Building,
+  } from 'lucide-react';
+import type { WithId } from 'mongodb';
+
+import {
+  getCrmAccounts,
+  archiveCrmAccount,
+  unarchiveCrmAccount,
+  } from '@/app/actions/crm-accounts.actions';
+import type { CrmAccount } from '@/lib/definitions';
+import { CrmAddClientDialog } from '@/components/wabasimplify/crm-add-client-dialog';
+import { ClientReportButton } from '@/components/wabasimplify/client-report-button';
+
 import { CrmPageHeader } from '../../_components/crm-page-header';
 
 const ACCOUNTS_PER_PAGE = 20;

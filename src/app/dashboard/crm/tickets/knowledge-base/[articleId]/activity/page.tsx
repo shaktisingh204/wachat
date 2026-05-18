@@ -1,3 +1,14 @@
+import { ZoruButton, ZoruCard } from '@/components/zoruui';
+import {
+  redirect } from 'next/navigation';
+import { Activity,
+  ArrowLeft,
+  BookOpen,
+  Eye,
+  ThumbsDown,
+  ThumbsUp } from 'lucide-react';
+import { ObjectId } from 'mongodb';
+
 /**
  * KB article activity — minimal audit timeline.
  *
@@ -8,11 +19,7 @@
  */
 
 import Link from 'next/link';
-import { redirect } from 'next/navigation';
-import { Activity, ArrowLeft, BookOpen, Eye, ThumbsDown, ThumbsUp } from 'lucide-react';
-import { ObjectId } from 'mongodb';
 
-import { ZoruButton, ZoruCard } from '@/components/zoruui';
 import { CrmPageHeader } from '../../../../_components/crm-page-header';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';

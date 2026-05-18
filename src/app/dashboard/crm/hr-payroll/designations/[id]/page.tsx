@@ -1,3 +1,9 @@
+import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
+import {
+  notFound } from 'next/navigation';
+import { Pencil,
+  ArrowLeft } from 'lucide-react';
+
 /**
  * Designation detail — `/dashboard/crm/hr-payroll/designations/[id]` (canonical).
  *
@@ -6,10 +12,7 @@
  */
 
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import { Pencil, ArrowLeft } from 'lucide-react';
 
-import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { getDesignation } from '@/app/actions/crm/departments.actions';

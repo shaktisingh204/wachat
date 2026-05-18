@@ -1,23 +1,5 @@
 "use client";
 
-/**
- * /dashboard/facebook/custom-ecommerce/appearance
- *
- * Account-level theme picker for Custom E-commerce. Lets the operator
- * pick a neutral preset and a primary accent that becomes the default
- * starting palette for every newly-created shop. Uses ZoruColorPicker
- * with neutral presets and a ZoruCard preview pane.
- *
- * NOTE: in the legacy app this route was a redirect because per-shop
- * appearance lives at /manage/[shopId]/appearance. We keep both: this
- * page surfaces the *account* default, the per-shop page overrides it.
- */
-
-import * as React from "react";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { Brush, Save } from "lucide-react";
-
 import {
   ZoruBreadcrumb,
   ZoruBreadcrumbItem,
@@ -43,7 +25,28 @@ import {
   ZoruPageHeading,
   ZoruPageTitle,
   useZoruToast,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  useEffect,
+  useState } from "react";
+import { useRouter } from "next/navigation";
+import { Brush,
+  Save } from "lucide-react";
+
+/**
+ * /dashboard/facebook/custom-ecommerce/appearance
+ *
+ * Account-level theme picker for Custom E-commerce. Lets the operator
+ * pick a neutral preset and a primary accent that becomes the default
+ * starting palette for every newly-created shop. Uses ZoruColorPicker
+ * with neutral presets and a ZoruCard preview pane.
+ *
+ * NOTE: in the legacy app this route was a redirect because per-shop
+ * appearance lives at /manage/[shopId]/appearance. We keep both: this
+ * page surfaces the *account* default, the per-shop page overrides it.
+ */
+
+import * as React from "react";
 
 const NEUTRAL_PRESETS = [
   "#0F0F10",

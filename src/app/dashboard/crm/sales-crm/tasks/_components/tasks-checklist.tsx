@@ -1,5 +1,6 @@
 'use client';
 
+import { ZoruCheckbox, useZoruToast } from '@/components/zoruui';
 /**
  * <TaskChecklist> — interactive checklist for the task detail page.
  *
@@ -10,7 +11,6 @@
 
 import * as React from 'react';
 
-import { ZoruCheckbox, useZoruToast } from '@/components/zoruui';
 import { toggleCrmTaskChecklist } from '@/app/actions/crm-tasks.actions';
 
 export interface ChecklistItem {

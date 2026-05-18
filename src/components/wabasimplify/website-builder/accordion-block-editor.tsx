@@ -1,19 +1,29 @@
-
 'use client';
 
-import React from 'react';
-import { ZoruLabel, ZoruButton } from '@/components/zoruui';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruTextarea } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
+import {
+  ZoruLabel,
+  ZoruButton,
+  ZoruInput,
+  ZoruTextarea,
+  ZoruAccordion,
+  ZoruAccordionContent,
+  ZoruAccordionItem,
+  ZoruAccordionTrigger,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruSwitch,
+  ZoruSeparator,
+} from '@/components/zoruui';
 import { Plus, Trash2, TrendingUp } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
-import { ZoruAccordion, ZoruAccordionContent, ZoruAccordionItem, ZoruAccordionTrigger } from '@/components/zoruui';
-import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ZoruSwitch } from '@/components/zoruui';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
+import React from 'react';
+
 import * as LucideIcons from 'lucide-react';
-import { ZoruSeparator } from '@/components/zoruui';
 
 const iconNames = Object.keys(LucideIcons).filter(key => typeof (LucideIcons as any)[key] === 'object' && /^[A-Z]/.test(key));
 

@@ -1,21 +1,5 @@
 "use client";
 
-/**
- * Zoru-only replacement for
- * `@/components/wabasimplify/sync-custom-products-dialog`. Same external
- * props (`projectId`, `shopId`) and the same `syncProductsToMetaCatalog`
- * server action — only visuals change.
- */
-
-import * as React from "react";
-import { useEffect, useState, useTransition } from "react";
-import { Facebook, LoaderCircle, RefreshCw } from "lucide-react";
-
-import { getCatalogs, syncCatalogs } from "@/app/actions/catalog.actions";
-import { syncProductsToMetaCatalog } from "@/app/actions/custom-ecommerce.actions";
-import type { Catalog } from "@/lib/definitions";
-import type { WithId } from "mongodb";
-
 import {
   ZoruButton,
   ZoruDialog,
@@ -32,7 +16,29 @@ import {
   ZoruSelectTrigger,
   ZoruSelectValue,
   useZoruToast,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition } from "react";
+import { Facebook,
+  LoaderCircle,
+  RefreshCw } from "lucide-react";
+
+import { getCatalogs,
+  syncCatalogs } from "@/app/actions/catalog.actions";
+import { syncProductsToMetaCatalog } from "@/app/actions/custom-ecommerce.actions";
+import type { Catalog } from "@/lib/definitions";
+import type { WithId } from "mongodb";
+
+/**
+ * Zoru-only replacement for
+ * `@/components/wabasimplify/sync-custom-products-dialog`. Same external
+ * props (`projectId`, `shopId`) and the same `syncProductsToMetaCatalog`
+ * server action — only visuals change.
+ */
+
+import * as React from "react";
 
 interface SyncCustomProductsDialogProps {
   projectId: string;

@@ -1,5 +1,31 @@
 'use client';
 
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruCheckbox,
+  ZoruDropdownMenu,
+  ZoruDropdownMenuContent,
+  ZoruDropdownMenuItem,
+  ZoruDropdownMenuTrigger,
+  ZoruDropdownMenuSeparator,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  Pencil,
+  Trash2,
+  MoreHorizontal,
+  CheckCircle2,
+  XCircle,
+  FileText } from 'lucide-react';
+
 /**
  * Payouts table — 11 columns per §1D.1:
  *
@@ -13,26 +39,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { Pencil, Trash2, MoreHorizontal, CheckCircle2, XCircle, FileText } from 'lucide-react';
 
-import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruCheckbox,
-    ZoruDropdownMenu,
-    ZoruDropdownMenuContent,
-    ZoruDropdownMenuItem,
-    ZoruDropdownMenuTrigger,
-    ZoruDropdownMenuSeparator,
-    ZoruTable,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-    useZoruToast,
-} from '@/components/zoruui';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import { setPayoutStatus } from '@/app/actions/crm/payouts.actions';

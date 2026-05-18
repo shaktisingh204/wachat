@@ -1,19 +1,5 @@
 "use client";
 
-/**
- * /dashboard/sabchat/widget — widget configuration & embed code.
- *
- * Same `getSession` flow. Visual layer fully Zoru — delegates to local
- * `ZoruSabChatWidgetGenerator` to avoid pulling visual primitives from
- * `@/components/wabasimplify`.
- */
-
-import { useEffect, useState } from "react";
-import { MessageCircle } from "lucide-react";
-
-import { getSession } from "@/app/actions/user.actions";
-import type { WithId, User } from "@/lib/definitions";
-
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -29,9 +15,24 @@ import {
   ZoruPageHeading,
   ZoruPageTitle,
   ZoruSkeleton,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import { ZoruSabChatWidgetGenerator } from '../_components/zoru-sabchat-widget-generator';
+import {
+  useEffect,
+  useState } from "react";
+import { MessageCircle } from "lucide-react";
 
-import { ZoruSabChatWidgetGenerator } from "../_components/zoru-sabchat-widget-generator";
+import { getSession } from "@/app/actions/user.actions";
+import type { WithId,
+  User } from "@/lib/definitions";
+
+/**
+ * /dashboard/sabchat/widget — widget configuration & embed code.
+ *
+ * Same `getSession` flow. Visual layer fully Zoru — delegates to local
+ * `ZoruSabChatWidgetGenerator` to avoid pulling visual primitives from
+ * `@/components/wabasimplify`.
+ */
 
 function WidgetSkeleton() {
   return <ZoruSkeleton className="h-[600px] w-full" />;

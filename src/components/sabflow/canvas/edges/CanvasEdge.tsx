@@ -1,4 +1,5 @@
 'use client';
+
 /**
  * CanvasEdge — port of n8n's CanvasEdge.vue.
  *

@@ -1,25 +1,28 @@
 'use client';
 
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+} from '@/components/zoruui';
+import {
+  Download,
+  Trash2,
+  X } from 'lucide-react';
+
 /**
  * Filter row + bulk bar for the production-orders list. Pure
  * presentation — parent owns state and forwards changes.
  */
 
-import { Download, Trash2, X } from 'lucide-react';
-
-import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruCardContent,
-    ZoruInput,
-    ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-} from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 
 import type { PoStatusFilter } from './po-kpi-strip';

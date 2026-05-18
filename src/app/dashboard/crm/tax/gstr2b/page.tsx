@@ -1,5 +1,27 @@
 'use client';
 
+import {
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  FileText,
+  LoaderCircle,
+  FileInput } from 'lucide-react';
+
 /**
  * GSTR-2B viewer — `CRM_REBUILD_PLAN.md` §6.10.
  *
@@ -14,25 +36,7 @@
  */
 
 import * as React from 'react';
-import { FileText, LoaderCircle, FileInput } from 'lucide-react';
 
-import {
-    ZoruButton,
-    ZoruCard,
-    ZoruInput,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    ZoruTable,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-    useZoruToast,
-} from '@/components/zoruui';
 import { SabFilePickerButton } from '@/components/sabfiles';
 
 import { CrmPageHeader } from '../../_components/crm-page-header';

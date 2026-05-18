@@ -1,8 +1,10 @@
 'use client';
 
-import * as React from 'react';
-import { LuEllipsis } from 'react-icons/lu';
 import { ZoruAvatar, ZoruAvatarFallback, ZoruAvatarImage } from '@/components/zoruui';
+import { LuEllipsis } from 'react-icons/lu';
+
+import * as React from 'react';
+
 import { cn } from '@/lib/utils';
 
 export interface ClayUserCardProps {

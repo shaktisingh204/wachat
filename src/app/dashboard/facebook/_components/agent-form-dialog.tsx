@@ -1,19 +1,5 @@
 "use client";
 
-/**
- * AgentFormDialog (Meta Suite local, zoru-only).
- *
- * Wraps `createFacebookAgent` server action in a zoru dialog. Same fields
- * as the legacy inline card — name, personality, welcome / fallback
- * messages, active toggle.
- */
-
-import * as React from "react";
-import { useActionState, useEffect, useRef } from "react";
-import { useFormStatus } from "react-dom";
-import { Loader2, Plus } from "lucide-react";
-
-import { createFacebookAgent } from "@/app/actions/facebook.actions";
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -29,7 +15,26 @@ import {
   ZoruSwitch,
   ZoruTextarea,
   useZoruToast,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect,
+  useRef } from "react";
+import { useFormStatus } from "react-dom";
+import { Loader2,
+  Plus } from "lucide-react";
+
+import { createFacebookAgent } from "@/app/actions/facebook.actions";
+
+/**
+ * AgentFormDialog (Meta Suite local, zoru-only).
+ *
+ * Wraps `createFacebookAgent` server action in a zoru dialog. Same fields
+ * as the legacy inline card — name, personality, welcome / fallback
+ * messages, active toggle.
+ */
+
+import * as React from "react";
 
 const initialFormState = { message: "", error: "" };
 

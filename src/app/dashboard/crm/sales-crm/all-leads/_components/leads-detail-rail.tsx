@@ -1,5 +1,9 @@
 'use client';
 
+import { ZoruBadge, ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import {
+  formatDistanceToNow } from 'date-fns';
+
 /**
  * Right-rail composition for the lead detail page. Renders the three
  * stacked cards (Pipeline · Activity stats · Related entities with
@@ -8,15 +12,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { formatDistanceToNow } from 'date-fns';
 
-import {
-    ZoruBadge,
-    ZoruCard,
-    ZoruCardContent,
-    ZoruCardHeader,
-    ZoruCardTitle,
-} from '@/components/zoruui';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 
 import {

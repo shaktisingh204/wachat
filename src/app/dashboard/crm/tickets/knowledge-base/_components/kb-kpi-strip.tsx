@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruStatCard } from '@/components/zoruui';
+import { BookOpen, CheckCircle2, Eye, FileText, ThumbsUp } from 'lucide-react';
+
 /**
  * KPI strip for the Knowledge Base list (§1D.1).
  *
@@ -8,9 +11,7 @@
  */
 
 import * as React from 'react';
-import { BookOpen, CheckCircle2, Eye, FileText, ThumbsUp } from 'lucide-react';
 
-import { ZoruStatCard } from '@/components/zoruui';
 import type { KbArticleDoc } from '@/app/actions/crm-knowledge-base.actions';
 
 export interface KbKpiCounts {

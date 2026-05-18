@@ -1,9 +1,9 @@
-
 'use client';
 
+import { ZoruButton } from '@/components/zoruui';
 import { useTransition } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { ZoruButton, ZoruButton } from '@/components/zoruui';
+
 import { Play, LoaderCircle } from 'lucide-react';
 
 async function triggerAllCrons() {

@@ -1,15 +1,15 @@
 'use client';
 
-/**
- * <BillDetailActions> — top-right action group on the bill detail page.
- * Renders 10 actions per CRM_REBUILD_PLAN §1D: Edit, Mark Paid, Record
- * Payout, Convert to Debit Note, Email, Print, Duplicate, Archive,
- * Delete, Activity. Status pill is a clickable dropdown.
- */
-
-import * as React from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import {
+  ZoruButton,
+  ZoruDropdownMenu,
+  ZoruDropdownMenuContent,
+  ZoruDropdownMenuItem,
+  ZoruDropdownMenuTrigger,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
 import {
   Activity,
   Archive,
@@ -22,16 +22,18 @@ import {
   Printer,
   Receipt,
   Trash2,
-} from 'lucide-react';
+  } from 'lucide-react';
 
-import {
-  ZoruButton,
-  ZoruDropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
-  useZoruToast,
-} from '@/components/zoruui';
+/**
+ * <BillDetailActions> — top-right action group on the bill detail page.
+ * Renders 10 actions per CRM_REBUILD_PLAN §1D: Edit, Mark Paid, Record
+ * Payout, Convert to Debit Note, Email, Print, Duplicate, Archive,
+ * Delete, Activity. Status pill is a clickable dropdown.
+ */
+
+import * as React from 'react';
+import Link from 'next/link';
+
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import {

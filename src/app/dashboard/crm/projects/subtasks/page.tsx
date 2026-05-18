@@ -1,30 +1,5 @@
 'use client';
 
-/**
- * Subtasks — list page (rebuilt per §1D.1).
- *
- * Composition:
- *   <EntityListShell>
- *     • KPI strip (3 cards: Open · Completed · Overdue)
- *     • Filter row (status · parent task)
- *     • Table columns: title · parent task · assignee · due · status · actions
- */
-
-import * as React from 'react';
-import Link from 'next/link';
-import { useDebouncedCallback } from 'use-debounce';
-import {
-  AlertTriangle,
-  CheckCircle2,
-  Edit,
-  ListChecks,
-  MoreHorizontal,
-  Plus,
-  Trash2,
-  Eye,
-} from 'lucide-react';
-import { useActionState } from 'react';
-
 import {
   ZoruButton,
   ZoruStatCard,
@@ -54,6 +29,33 @@ import {
   ZoruDialogTitle,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useDebouncedCallback } from 'use-debounce';
+import {
+  AlertTriangle,
+  CheckCircle2,
+  Edit,
+  ListChecks,
+  MoreHorizontal,
+  Plus,
+  Trash2,
+  Eye,
+  } from 'lucide-react';
+import { useActionState } from 'react';
+
+/**
+ * Subtasks — list page (rebuilt per §1D.1).
+ *
+ * Composition:
+ *   <EntityListShell>
+ *     • KPI strip (3 cards: Open · Completed · Overdue)
+ *     • Filter row (status · parent task)
+ *     • Table columns: title · parent task · assignee · due · status · actions
+ */
+
+import * as React from 'react';
+import Link from 'next/link';
+
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { EntityPickerChip } from '@/components/crm/entity-picker';

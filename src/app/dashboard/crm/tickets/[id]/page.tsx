@@ -1,3 +1,12 @@
+import { ZoruBadge, ZoruButton, ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import {
+  notFound } from 'next/navigation';
+import { LifeBuoy,
+  ArrowLeft,
+  MessageSquare,
+  Paperclip,
+  Ticket } from 'lucide-react';
+
 /**
  * Ticket detail — `/dashboard/crm/tickets/[id]` (§1D.2 bar).
  *
@@ -11,17 +20,7 @@
  */
 
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import { LifeBuoy, ArrowLeft, MessageSquare, Paperclip, Ticket } from 'lucide-react';
 
-import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruCardContent,
-    ZoruCardHeader,
-    ZoruCardTitle,
-} from '@/components/zoruui';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { CustomFieldDisplay } from '@/components/crm/custom-field-input';

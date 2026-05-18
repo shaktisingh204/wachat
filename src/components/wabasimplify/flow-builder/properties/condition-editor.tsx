@@ -1,11 +1,16 @@
-
 'use client';
 
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruLabel } from '@/components/zoruui';
-import { ZoruRadioGroup, ZoruRadioGroupItem } from '@/components/zoruui';
-import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
-
+import {
+  ZoruInput,
+  ZoruLabel,
+  ZoruRadioGroup,
+  ZoruRadioGroupItem,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+} from '@/components/zoruui';
 interface EditorProps {
   node: any;
   onUpdate: (data: any) => void;

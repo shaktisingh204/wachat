@@ -1,5 +1,27 @@
 'use client';
 
+import {
+  ZoruButton,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruStatCard,
+} from '@/components/zoruui';
+import {
+  BadgeCheck,
+  CheckCircle2,
+  CircleX,
+  Download,
+  HourglassIcon,
+  Trash2,
+  Wallet,
+  X,
+  } from 'lucide-react';
+
 /**
  * Presentational bits for the §1D Stock Adjustments list — KPI strip,
  * filter row and bulk-bar. Kept separate so the list client stays
@@ -7,28 +29,7 @@
  */
 
 import * as React from 'react';
-import {
-    BadgeCheck,
-    CheckCircle2,
-    CircleX,
-    Download,
-    HourglassIcon,
-    Trash2,
-    Wallet,
-    X,
-} from 'lucide-react';
 
-import {
-    ZoruButton,
-    ZoruInput,
-    ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    ZoruStatCard,
-} from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 
 import type {

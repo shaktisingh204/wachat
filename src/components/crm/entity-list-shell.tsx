@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruCard, ZoruInput, ZoruSkeleton } from '@/components/zoruui';
+import { Search } from 'lucide-react';
+
 /**
  * <EntityListShell /> — reusable list-page chrome for every CRM / HRM list
  * (per Phase 1A of the CRM frontend rebuild).
@@ -38,13 +41,6 @@
  */
 
 import * as React from 'react';
-import { Search } from 'lucide-react';
-
-import {
-    ZoruCard,
-    ZoruInput,
-    ZoruSkeleton,
-} from '@/components/zoruui';
 
 /* ─── Types ──────────────────────────────────────────────────────────── */
 

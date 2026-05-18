@@ -1,12 +1,11 @@
 'use client';
 
+import { ZoruButton } from '@/components/zoruui';
+import { Archive, BadgeDollarSign, Download, Trash2, X } from 'lucide-react';
+
 /**
  * Bulk action bar for the Credit Notes list per §1D.1.
  */
-
-import { Archive, BadgeDollarSign, Download, Trash2, X } from 'lucide-react';
-
-import { ZoruButton } from '@/components/zoruui';
 
 interface CreditNoteBulkBarProps {
     count: number;

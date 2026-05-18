@@ -1,15 +1,5 @@
 'use client';
 
-/**
- * Petty cash detail dialogs:
- *   • <PettyCashTopUpDialog>     — capture top-up amount + notes.
- *   • <PettyCashVoucherDialog>   — capture voucher category/amount/payee.
- *   • <PettyCashReconcileDialog> — capture counted amount + notes.
- */
-
-import * as React from 'react';
-import { useRouter } from 'next/navigation';
-
 import {
   ZoruButton,
   ZoruDialog,
@@ -23,6 +13,18 @@ import {
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+
+/**
+ * Petty cash detail dialogs:
+ *   • <PettyCashTopUpDialog>     — capture top-up amount + notes.
+ *   • <PettyCashVoucherDialog>   — capture voucher category/amount/payee.
+ *   • <PettyCashReconcileDialog> — capture counted amount + notes.
+ */
+
+import * as React from 'react';
+
 import {
   reconcilePettyCash,
   recordPettyCashVoucher,

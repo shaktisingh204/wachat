@@ -1,6 +1,16 @@
 'use client';
 
-import Link from 'next/link';
+import {
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruCard,
+  ZoruPageDescription,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+} from '@/components/zoruui';
 import {
   ArrowUpRight,
   Bell,
@@ -13,20 +23,11 @@ import {
   Star,
   User,
   Webhook,
-} from 'lucide-react';
+  } from 'lucide-react';
 
 import { useT } from '@/lib/i18n/client';
-import {
-  ZoruBreadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruCard,
-  ZoruPageDescription,
-  ZoruPageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-} from '@/components/zoruui';
+
+import Link from 'next/link';
 
 type Tile = {
   href: string;

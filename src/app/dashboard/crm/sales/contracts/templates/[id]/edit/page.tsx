@@ -1,13 +1,17 @@
+import { ZoruButton } from '@/components/zoruui';
+import {
+  notFound,
+  redirect } from 'next/navigation';
+import { ArrowLeft,
+  FileSignature } from 'lucide-react';
+
 /**
  * Edit contract template page — server wrapper. Loads the template
  * by id and forwards it as `initialData` to `<ContractTemplateForm />`.
  */
 
 import Link from 'next/link';
-import { notFound, redirect } from 'next/navigation';
-import { ArrowLeft, FileSignature } from 'lucide-react';
 
-import { ZoruButton } from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { getSession } from '@/app/actions/user.actions';
 import { getContractTemplateById } from '@/app/actions/crm-contract-templates.actions';

@@ -1,3 +1,16 @@
+import { ZoruButton, ZoruCard } from '@/components/zoruui';
+import {
+  notFound,
+  redirect } from 'next/navigation';
+import {
+    ArrowLeft,
+  Briefcase,
+  PenLine,
+  PhoneCall,
+  User,
+  UserCircle,
+  } from 'lucide-react';
+
 /**
  * Employee profile sub-tab —
  *   `/dashboard/hrm/payroll/employees/[employeeId]/profile`.
@@ -14,17 +27,7 @@
  */
 
 import Link from 'next/link';
-import { notFound, redirect } from 'next/navigation';
-import {
-    ArrowLeft,
-    Briefcase,
-    PenLine,
-    PhoneCall,
-    User,
-    UserCircle,
-} from 'lucide-react';
 
-import { ZoruButton, ZoruCard } from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';

@@ -1,4 +1,3 @@
-
 import { NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { PageData } from '@/lib/builder/builder-types';

@@ -1,26 +1,7 @@
 'use client';
 
-/**
- * Wachat Contact Import History — rebuilt on ZoruUI primitives (phase 2).
- *
- * Same data, same handlers. Visual primitives swapped to ZoruUI.
- */
-
-import * as React from 'react';
-import { useEffect, useState, useTransition, useCallback } from 'react';
 import {
-  FileSpreadsheet,
-  CircleCheck,
-  CircleX,
-  Clock,
-  Eye,
-} from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-import { useZoruToast } from '@/components/zoruui';
-import { getImportHistory } from '@/app/actions/wachat-features.actions';
-
-import {
+  useZoruToast,
   ZoruBadge,
   ZoruBreadcrumb,
   ZoruBreadcrumbItem,
@@ -39,6 +20,29 @@ import {
   ZoruSheetTrigger,
   ZoruSkeleton,
 } from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition,
+  useCallback } from 'react';
+import {
+  FileSpreadsheet,
+  CircleCheck,
+  CircleX,
+  Clock,
+  Eye,
+  } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import { getImportHistory } from '@/app/actions/wachat-features.actions';
+
+/**
+ * Wachat Contact Import History — rebuilt on ZoruUI primitives (phase 2).
+ *
+ * Same data, same handlers. Visual primitives swapped to ZoruUI.
+ */
+
+import * as React from 'react';
 
 function StatusBadge({ status }: { status: string }) {
   switch (status) {

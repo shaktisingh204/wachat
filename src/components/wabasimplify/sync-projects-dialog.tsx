@@ -1,7 +1,5 @@
-
 'use client';
 
-import { useEffect, useRef, useState, useTransition } from 'react';
 import {
   ZoruDialog,
   ZoruDialogContent,
@@ -10,10 +8,16 @@ import {
   ZoruDialogHeader,
   ZoruDialogTitle,
   ZoruDialogTrigger,
+  ZoruButton,
+  ZoruInput,
+  ZoruLabel,
 } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruLabel } from '@/components/zoruui';
+import {
+  useEffect,
+  useRef,
+  useState,
+  useTransition } from 'react';
+
 import { LoaderCircle, RefreshCw } from 'lucide-react';
 import { handleSyncWabas } from '@/app/actions/index.ts';
 import { useToast } from '@/hooks/use-toast';

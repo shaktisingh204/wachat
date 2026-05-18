@@ -1,4 +1,3 @@
-
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 import { getEcommShopBySlug, getPublicEcommProducts } from '@/app/actions/custom-ecommerce.actions';

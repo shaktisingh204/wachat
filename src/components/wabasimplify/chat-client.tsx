@@ -1,23 +1,35 @@
-
 'use client';
 
-import { useEffect, useState, useCallback, useTransition, useMemo, useRef } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
-import { getInitialChatData, getConversation, markConversationAsRead, findOrCreateContact } from '@/app/actions/index';
+import { ZoruButton, ZoruSkeleton, ZoruAlert, ZoruAlertDescription, ZoruAlertTitle, ZoruCard, ZoruSelect } from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useCallback,
+  useTransition,
+  useMemo,
+  useRef } from 'react';
+import { useSearchParams,
+  useRouter } from 'next/navigation';
+import { getInitialChatData,
+  getConversation,
+  markConversationAsRead,
+  findOrCreateContact } from '@/app/actions/index';
 import { getContactsPageData } from '@/app/actions/contact.actions';
 import type { WithId } from 'mongodb';
-import type { Project, Contact, AnyMessage, Template, User, Plan } from '@/lib/definitions';
+import type { Project,
+  Contact,
+  AnyMessage,
+  Template,
+  User,
+  Plan } from '@/lib/definitions';
 import { ChatContactList } from './chat-contact-list';
 import { ChatWindow } from './chat-window';
 import { ContactInfoPanel } from './contact-info-panel';
-import { ZoruButton, ZoruButton } from '@/components/zoruui';
-import { ZoruSkeleton } from '@/components/zoruui';
-import { ZoruAlert, ZoruAlertDescription, ZoruAlertTitle } from '@/components/zoruui';
 import { AlertCircle, MessageSquare } from 'lucide-react';
 import { NewChatDialog } from './new-chat-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import { ZoruCard } from '../ui/card';
+
 import { useProject } from '@/context/project-context';
 
 const CONTACTS_PER_PAGE = 30;
@@ -25,7 +37,6 @@ const CONTACTS_PER_PAGE = 30;
 function ChatPageSkeleton() {
     return <ZoruSkeleton className="h-full w-full rounded-xl" />;
 }
-
 
 export function ChatClient() {
     const searchParams = useSearchParams();
@@ -39,7 +50,6 @@ export function ChatClient() {
     const [selectedContact, setSelectedContact] = useState<WithId<Contact> | null>(null);
     const [conversation, setConversation] = useState<AnyMessage[]>([]);
     const [templates, setTemplates] = useState<WithId<Template>[]>([]);
-
 
     const [isLoading, startLoadingTransition] = useTransition();
     const [loadingConversation, startConversationLoadTransition] = useTransition();

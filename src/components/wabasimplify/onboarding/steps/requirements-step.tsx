@@ -1,33 +1,26 @@
 'use client';
 
-import * as React from 'react';
+import { ZoruButton, ZoruInput, ZoruLabel, ZoruTextarea, ZoruAlert, ZoruAlertDescription, ZoruAlertTitle } from '@/components/zoruui';
 import {
-    AlertCircle,
-    BarChart3,
-    Bot,
-    Briefcase,
-    Brush,
-    GitFork,
-    Link2,
-    LoaderCircle,
-    Mail,
-    MessageSquare,
-    QrCode,
-    Send,
-    ShoppingBag,
-    TrendingUp,
-    Users,
-} from 'lucide-react';
+  AlertCircle,
+  BarChart3,
+  Bot,
+  Briefcase,
+  Brush,
+  GitFork,
+  Link2,
+  LoaderCircle,
+  Mail,
+  MessageSquare,
+  QrCode,
+  Send,
+  ShoppingBag,
+  TrendingUp,
+  Users,
+  } from 'lucide-react';
 
-import { ZoruButton, ZoruButton } from '@/components/zoruui';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruLabel } from '@/components/zoruui';
-import { ZoruTextarea } from '@/components/zoruui';
-import {
-    ZoruAlert,
-    ZoruAlertDescription,
-    ZoruAlertTitle,
-} from '@/components/zoruui';
+import * as React from 'react';
+
 import { cn } from '@/lib/utils';
 
 import { saveOnboardingRequirements } from '@/app/actions/onboarding-flow.actions';

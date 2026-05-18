@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruButton, ZoruCard, useZoruToast } from '@/components/zoruui';
+import { Plus, Receipt } from 'lucide-react';
+
 /**
  * <InvoiceListClient> — canonical Invoices list view per CRM_REBUILD_PLAN §1D.
  *
@@ -18,13 +21,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { Plus, Receipt } from 'lucide-react';
 
-import {
-  ZoruButton,
-  ZoruCard,
-  useZoruToast,
-} from '@/components/zoruui';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';

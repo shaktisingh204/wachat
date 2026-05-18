@@ -1,6 +1,27 @@
 'use client';
 
-import { ZoruBadge, ZoruButton, ZoruCard, ZoruDatePicker, ZoruLabel, ZoruPopover, ZoruPopoverContent, ZoruPopoverTrigger, ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow, useZoruToast } from '@/components/zoruui';
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruDatePicker,
+  ZoruLabel,
+  ZoruPopover,
+  ZoruPopoverContent,
+  ZoruPopoverTrigger,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  useZoruToast,
+} from '@/components/zoruui';
 import { Download, SlidersHorizontal, LoaderCircle, ArrowLeftRight } from "lucide-react";
 import { useState, useEffect, useTransition, useCallback } from 'react';
 import { generateAllTransactionsReport } from "@/app/actions/crm-reports.actions";

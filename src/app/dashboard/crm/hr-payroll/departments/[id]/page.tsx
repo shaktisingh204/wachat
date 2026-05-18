@@ -1,3 +1,9 @@
+import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
+import {
+  notFound } from 'next/navigation';
+import { Pencil,
+  ArrowLeft } from 'lucide-react';
+
 /**
  * Department detail — `/dashboard/crm/hr-payroll/departments/[id]` (canonical).
  *
@@ -8,10 +14,7 @@
  */
 
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import { Pencil, ArrowLeft } from 'lucide-react';
 
-import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import {

@@ -1,4 +1,3 @@
-
 import { SignJWT, jwtVerify } from 'jose';
 import { nanoid } from 'nanoid';
 import type { SessionPayload, AdminSessionPayload } from './definitions';
@@ -23,7 +22,6 @@ async function isTokenRevoked(jti: string): Promise<boolean> {
     }
 }
 
-
 export async function verifyJwt(token: string): Promise<SessionPayload | null> {
     try {
         const { payload } = await jwtVerify(token, getJwtSecretKey());
@@ -45,7 +43,6 @@ export async function verifyJwt(token: string): Promise<SessionPayload | null> {
     }
 }
 
-
 export async function verifyAdminJwt(token: string): Promise<AdminSessionPayload | null> {
     try {
         const { payload } = await jwtVerify(token, getJwtSecretKey());
@@ -65,7 +62,6 @@ export async function verifyAdminJwt(token: string): Promise<AdminSessionPayload
         return null;
     }
 }
-
 
 export async function createSessionToken(payload: Omit<SessionPayload, 'expires' | 'jti'>): Promise<string> {
     const jti = nanoid();

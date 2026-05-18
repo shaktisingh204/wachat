@@ -1,7 +1,3 @@
-
-import { TemplateInputRenderer } from './template-input-renderer';
-import { useActionState, useEffect, useRef, useState, useTransition } from 'react';
-import { useFormStatus } from 'react-dom';
 import {
   ZoruDialog,
   ZoruDialogContent,
@@ -9,10 +5,19 @@ import {
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
+  ZoruButton,
+  ZoruInput,
+  ZoruLabel,
 } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruLabel } from '@/components/zoruui';
+import {
+  TemplateInputRenderer } from './template-input-renderer';
+import { useActionState,
+  useEffect,
+  useRef,
+  useState,
+  useTransition } from 'react';
+import { useFormStatus } from 'react-dom';
+
 import { LoaderCircle, Send, UploadCloud, Link as LinkIcon } from 'lucide-react';
 import { handleSendTemplateMessage } from '@/app/actions/send-template.actions';
 import { useToast } from '@/hooks/use-toast';
@@ -52,13 +57,11 @@ const fileToBase64 = (file: File): Promise<string> => {
   });
 };
 
-
 export function SendTemplateDialog({ isOpen, onOpenChange, contact, template }: SendTemplateDialogProps) {
   const [state, setState] = useState(initialState);
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
-
 
   useEffect(() => {
     if (state.message) {

@@ -1,15 +1,22 @@
-
-
 'use client';
 
-import { useState } from 'react';
-import { ZoruButton, ZoruButton } from '@/components/zoruui';
-import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruLabel } from '@/components/zoruui';
+import {
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardDescription,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruInput,
+  ZoruLabel,
+  ZoruAlert,
+  ZoruAlertDescription,
+  ZoruAlertTitle,
+} from '@/components/zoruui';
+import {
+  useState } from 'react';
 import { Wand2, LoaderCircle, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { ZoruAlert, ZoruAlertDescription, ZoruAlertTitle } from '@/components/zoruui';
 
 interface AiSuggestionsProps {
   onSuggestionSelect: (suggestion: string) => void;

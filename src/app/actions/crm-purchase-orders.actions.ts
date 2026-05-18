@@ -35,7 +35,6 @@ async function getNextPurchaseOrderNumber(db: Db, userId: ObjectId): Promise<str
     return `PO-${Date.now().toString().slice(-5)}`;
 }
 
-
 export async function getPurchaseOrders(
     page: number = 1,
     limit: number = 20,

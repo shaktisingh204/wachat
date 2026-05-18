@@ -1,10 +1,10 @@
-
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import { ZoruSkeleton, ZoruAlert, ZoruAlertTitle, ZoruAlertDescription } from '@/components/zoruui';
 import { cn } from '@/lib/utils';
-import { ZoruSkeleton } from '@/components/zoruui';
-import { ZoruAlert, ZoruAlertTitle, ZoruAlertDescription } from '@/components/zoruui';
+
+import React, { useEffect, useState } from 'react';
+
 import { MapPin } from 'lucide-react';
 
 interface MapBlockRendererProps {

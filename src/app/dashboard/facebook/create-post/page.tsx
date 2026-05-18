@@ -1,48 +1,5 @@
 "use client";
 
-/**
- * /dashboard/facebook/create-post — Composer, ZoruUI rebuild.
- *
- * Two-pane layout:
- *  - Left  : multi-section ZoruCard form (page identity, message, media,
- *             scheduling). Files now flow through SabFiles first, so the
- *             form submits a `mediaUrl` instead of a binary `mediaFile`.
- *             Hidden fields: projectId, postType, message, mediaUrl,
- *             isScheduled, scheduledDate, scheduledTime.
- *  - Right : elevated preview pane mimicking the published Facebook card.
- *
- * Server action: `handleCreateFacebookPost` (unchanged).
- */
-
-import * as React from "react";
-import {
-  useActionState,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import { useFormStatus } from "react-dom";
-import Image from "next/image";
-import Link from "next/link";
-import { format } from "date-fns";
-import {
-  CalendarClock,
-  Image as ImageIcon,
-  Loader2,
-  Send,
-  Upload,
-  Video,
-  X,
-} from "lucide-react";
-
-import {
-  getPageDetails,
-  handleCreateFacebookPost,
-} from "@/app/actions/facebook.actions";
-import type { FacebookPageDetails } from "@/lib/definitions";
-import { SabFilePickerButton } from "@/components/sabfiles";
-
 import {
   ZoruAvatar,
   ZoruAvatarFallback,
@@ -72,7 +29,50 @@ import {
   ZoruSwitch,
   ZoruTextarea,
   useZoruToast,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  } from "react";
+import { useFormStatus } from "react-dom";
+import Image from "next/image";
+import Link from "next/link";
+import { format } from "date-fns";
+import {
+  CalendarClock,
+  Image as ImageIcon,
+  Loader2,
+  Send,
+  Upload,
+  Video,
+  X,
+  } from "lucide-react";
+
+import {
+  getPageDetails,
+  handleCreateFacebookPost,
+  } from "@/app/actions/facebook.actions";
+import type { FacebookPageDetails } from "@/lib/definitions";
+import { SabFilePickerButton } from "@/components/sabfiles";
+
+/**
+ * /dashboard/facebook/create-post — Composer, ZoruUI rebuild.
+ *
+ * Two-pane layout:
+ *  - Left  : multi-section ZoruCard form (page identity, message, media,
+ *             scheduling). Files now flow through SabFiles first, so the
+ *             form submits a `mediaUrl` instead of a binary `mediaFile`.
+ *             Hidden fields: projectId, postType, message, mediaUrl,
+ *             isScheduled, scheduledDate, scheduledTime.
+ *  - Right : elevated preview pane mimicking the published Facebook card.
+ *
+ * Server action: `handleCreateFacebookPost` (unchanged).
+ */
+
+import * as React from "react";
 
 import { NoProjectState } from "../_components/no-project-state";
 

@@ -1,34 +1,26 @@
 'use client';
 
-import * as React from 'react';
+import { ZoruBadge, ZoruButton, ZoruCard, ZoruCardContent, ZoruInput, ZoruLabel, cn, useZoruToast } from '@/components/zoruui';
 import {
-    Check,
-    Copy,
-    Download,
-    Eye,
-    ExternalLink,
-    FileAudio,
-    File as FileIcon,
-    FileImage,
-    FileText,
-    FileVideo,
-    Info,
-    KeyRound,
-    Link2,
-    Lock,
-    ShieldCheck,
-} from 'lucide-react';
+  Check,
+  Copy,
+  Download,
+  Eye,
+  ExternalLink,
+  FileAudio,
+  File as FileIcon,
+  FileImage,
+  FileText,
+  FileVideo,
+  Info,
+  KeyRound,
+  Link2,
+  Lock,
+  ShieldCheck,
+  } from 'lucide-react';
 
-import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruCardContent,
-    ZoruInput,
-    ZoruLabel,
-    cn,
-    useZoruToast,
-} from '@/components/zoruui';
+import * as React from 'react';
+
 import { fetchPublicDownloadUrl, fetchPublicPreviewUrl } from './actions';
 import type { PublicShareView } from '@/lib/rust-client/sabfiles';
 import {

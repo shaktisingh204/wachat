@@ -1,4 +1,3 @@
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -98,7 +97,6 @@ export async function deleteCrmAccountGroup(groupId: string): Promise<{ success:
         return { success: false, error: getErrorMessage(e) };
     }
 }
-
 
 export async function getCrmChartOfAccounts(): Promise<WithId<any>[]> {
     const session = await getSession();

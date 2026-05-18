@@ -1,5 +1,15 @@
 'use client';
 
+import { ZoruButton, useZoruToast } from '@/components/zoruui';
+import {
+  CalendarHeart,
+  PartyPopper,
+  Plus,
+  Trash2 } from 'lucide-react';
+
+import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { ConfirmDialog } from '@/components/crm/confirm-dialog';
+
 /**
  * Holidays — list page (rebuilt per §1D.1, thin upgrade).
  *
@@ -21,11 +31,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { CalendarHeart, PartyPopper, Plus, Trash2 } from 'lucide-react';
 
-import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { ConfirmDialog } from '@/components/crm/confirm-dialog';
-import { ZoruButton, useZoruToast } from '@/components/zoruui';
 import { useT } from '@/lib/i18n/client';
 
 import {

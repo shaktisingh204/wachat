@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -15,7 +14,6 @@ const TimeCard = ({ value, label }: { value: number; label: string }) => (
         <div className="mt-1 text-xs text-white/70 uppercase tracking-widest">{label}</div>
     </div>
 );
-
 
 const CountdownTimer = ({ targetDate }: CountdownTimerProps) => {
   const calculateTimeLeft = () => {

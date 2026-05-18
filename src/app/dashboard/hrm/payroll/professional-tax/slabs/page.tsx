@@ -1,5 +1,52 @@
 'use client';
 
+import {
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruAlertDialogTrigger,
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruDialogTrigger,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  useActionState,
+  useCallback,
+  useEffect,
+  useState,
+  useTransition,
+  } from 'react';
+import Link from 'next/link';
+import { useFormStatus } from 'react-dom';
+import {
+    ArrowLeft,
+  Edit,
+  Landmark,
+  LoaderCircle,
+  Plus,
+  Save,
+  Trash2,
+  } from 'lucide-react';
+
 /**
  * Professional Tax — Slabs configuration.
  *
@@ -8,53 +55,6 @@
  * are not affected when slabs are later edited.
  */
 
-import {
-    useActionState,
-    useCallback,
-    useEffect,
-    useState,
-    useTransition,
-} from 'react';
-import Link from 'next/link';
-import { useFormStatus } from 'react-dom';
-import {
-    ArrowLeft,
-    Edit,
-    Landmark,
-    LoaderCircle,
-    Plus,
-    Save,
-    Trash2,
-} from 'lucide-react';
-
-import {
-    ZoruAlertDialog,
-    ZoruAlertDialogAction,
-    ZoruAlertDialogCancel,
-    ZoruAlertDialogContent,
-    ZoruAlertDialogDescription,
-    ZoruAlertDialogFooter,
-    ZoruAlertDialogHeader,
-    ZoruAlertDialogTitle,
-    ZoruAlertDialogTrigger,
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruDialog,
-    ZoruDialogContent,
-    ZoruDialogFooter,
-    ZoruDialogHeader,
-    ZoruDialogTitle,
-    ZoruDialogTrigger,
-    ZoruInput,
-    ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    useZoruToast,
-} from '@/components/zoruui';
 import {
     deleteCrmPtSlab,
     generateProfessionalTaxReport,

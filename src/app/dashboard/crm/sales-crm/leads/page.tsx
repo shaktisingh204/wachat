@@ -1,5 +1,16 @@
 'use client';
 
+import { ZoruButton, useZoruToast } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+import { useDebouncedCallback } from 'use-debounce';
+import { Plus,
+  Sparkles } from 'lucide-react';
+
+import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { ConfirmDialog } from '@/components/crm/confirm-dialog';
+import { PaginationBar } from '@/components/crm/pagination-bar';
+
 /**
  * Leads — list page (rebuilt per §1D.1, follow-up additions wire in
  * funnel chart, saved views, duplicates link, and bulk pickers).
@@ -16,14 +27,6 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useDebouncedCallback } from 'use-debounce';
-import { Plus, Sparkles } from 'lucide-react';
-
-import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { ConfirmDialog } from '@/components/crm/confirm-dialog';
-import { PaginationBar } from '@/components/crm/pagination-bar';
-import { ZoruButton, useZoruToast } from '@/components/zoruui';
 
 import {
     archiveCrmLead,

@@ -1,8 +1,8 @@
-
 'use client';
 
+import { ZoruButton } from '@/components/zoruui';
 import { useState } from 'react';
-import { ZoruButton, ZoruButton } from '@/components/zoruui';
+
 import { Copy, Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';

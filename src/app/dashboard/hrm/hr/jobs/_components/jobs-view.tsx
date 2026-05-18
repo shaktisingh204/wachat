@@ -1,5 +1,23 @@
 'use client';
 
+import { useZoruToast } from '@/components/zoruui';
+import {
+  CheckCircle2,
+  XCircle,
+  Clock,
+  Briefcase,
+  } from 'lucide-react';
+import { useDebouncedCallback } from 'use-debounce';
+
+import {
+  RecruitmentListShell,
+  renderStatusCell,
+  type RecruitmentColumn,
+  type RecruitmentFilter,
+  type RecruitmentKpi,
+  } from '../../_components/recruitment-list-shell';
+import { deleteJobPosting } from '@/app/actions/hr.actions';
+
 /**
  * Jobs list — §1D.1 rebuild.
  *
@@ -11,23 +29,6 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import {
-  CheckCircle2,
-  XCircle,
-  Clock,
-  Briefcase,
-} from 'lucide-react';
-import { useDebouncedCallback } from 'use-debounce';
-
-import {
-  RecruitmentListShell,
-  renderStatusCell,
-  type RecruitmentColumn,
-  type RecruitmentFilter,
-  type RecruitmentKpi,
-} from '../../_components/recruitment-list-shell';
-import { deleteJobPosting } from '@/app/actions/hr.actions';
-import { useZoruToast } from '@/components/zoruui';
 
 interface Job {
   _id: string;

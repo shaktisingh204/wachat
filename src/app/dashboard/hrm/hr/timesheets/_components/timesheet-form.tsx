@@ -1,5 +1,25 @@
 'use client';
 
+import {
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruTextarea,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+import { LoaderCircle,
+  Plus,
+  Save,
+  Trash2 } from 'lucide-react';
+
 // TODO 1E.sweep: status/billable dropdowns -> <EnumFormField>; project -> <EntityFormField entity="project">; employee -> <EntityFormField entity="employee">. See plan §1E.
 
 /**
@@ -10,22 +30,6 @@
  */
 
 import * as React from 'react';
-import { useRouter } from 'next/navigation';
-import { LoaderCircle, Plus, Save, Trash2 } from 'lucide-react';
-
-import {
-    ZoruButton,
-    ZoruCard,
-    ZoruInput,
-    ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    ZoruTextarea,
-    useZoruToast,
-} from '@/components/zoruui';
 
 import { EnumFormField } from '@/components/crm/enum-form-field';
 

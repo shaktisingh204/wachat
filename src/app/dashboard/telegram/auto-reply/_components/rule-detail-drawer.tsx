@@ -1,5 +1,33 @@
 'use client';
 
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruDrawer,
+  ZoruDrawerContent,
+  ZoruDrawerDescription,
+  ZoruDrawerHeader,
+  ZoruDrawerTitle,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruSwitch,
+  ZoruTextarea,
+  cn,
+} from '@/components/zoruui';
+import {
+  Loader2,
+  RefreshCw,
+  Play,
+  Activity,
+  FileText } from 'lucide-react';
+
 /**
  * Read-only detail drawer for an auto-reply rule with three view
  * "modes": Overview, Test, and Runs. We avoid the `Tabs` primitive
@@ -7,29 +35,6 @@
  */
 
 import * as React from 'react';
-import { Loader2, RefreshCw, Play, Activity, FileText } from 'lucide-react';
-
-import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruCardContent,
-    ZoruDrawer,
-    ZoruDrawerContent,
-    ZoruDrawerDescription,
-    ZoruDrawerHeader,
-    ZoruDrawerTitle,
-    ZoruInput,
-    ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    ZoruSwitch,
-    ZoruTextarea,
-    cn,
-} from '@/components/zoruui';
 
 import {
     listAutoReplyRunsAction,

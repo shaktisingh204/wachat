@@ -1,5 +1,16 @@
 'use client';
 
+import { ZoruButton, ZoruCard, ZoruInput, ZoruLabel, ZoruTextarea, useZoruToast } from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect } from 'react';
+import { useFormStatus } from 'react-dom';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { ArrowLeft,
+  LoaderCircle,
+  Save } from 'lucide-react';
+
 /**
  * <KbArticleForm> — shared form for KB new / edit (§1D.3 bar).
  *
@@ -11,20 +22,7 @@
  */
 
 import * as React from 'react';
-import { useActionState, useEffect } from 'react';
-import { useFormStatus } from 'react-dom';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { ArrowLeft, LoaderCircle, Save } from 'lucide-react';
 
-import {
-    ZoruButton,
-    ZoruCard,
-    ZoruInput,
-    ZoruLabel,
-    ZoruTextarea,
-    useZoruToast,
-} from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { EnumFormField } from '@/components/crm/enum-form-field';
 import {

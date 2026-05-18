@@ -1,3 +1,11 @@
+import { ZoruBadge, ZoruButton, ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import {
+  notFound } from 'next/navigation';
+import { ArrowLeft,
+  ClipboardList,
+  Receipt,
+  ShoppingCart } from 'lucide-react';
+
 /**
  * Canonical Quotation detail — `/dashboard/crm/sales/quotations/[id]`
  * (§1D.2 rebuild — Phase 1.1B Wave 2 partial).
@@ -15,17 +23,7 @@
  */
 
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import { ArrowLeft, ClipboardList, Receipt, ShoppingCart } from 'lucide-react';
 
-import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-} from '@/components/zoruui';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { EntityPickerChip } from '@/components/crm/entity-picker';

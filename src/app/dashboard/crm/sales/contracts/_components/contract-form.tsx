@@ -1,5 +1,19 @@
 'use client';
 
+import { ZoruButton, ZoruCard, ZoruCheckbox, ZoruInput, ZoruLabel, ZoruTextarea, useZoruToast } from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect,
+  useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useFormStatus } from 'react-dom';
+import { ArrowLeft,
+  FileUp,
+  LoaderCircle,
+  Save,
+  X } from 'lucide-react';
+
 /**
  * <ContractForm /> — canonical create/edit form for CRM contracts.
  *
@@ -10,21 +24,6 @@
  * JSON-array input.
  */
 
-import { useActionState, useEffect, useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useFormStatus } from 'react-dom';
-import { ArrowLeft, FileUp, LoaderCircle, Save, X } from 'lucide-react';
-
-import {
-    ZoruButton,
-    ZoruCard,
-    ZoruCheckbox,
-    ZoruInput,
-    ZoruLabel,
-    ZoruTextarea,
-    useZoruToast,
-} from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { EnumFormField } from '@/components/crm/enum-form-field';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';

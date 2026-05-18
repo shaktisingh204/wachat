@@ -1,5 +1,21 @@
 'use client';
 
+import {
+  ZoruButton,
+  ZoruCard,
+  ZoruCheckbox,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+} from '@/components/zoruui';
+import {
+  Pencil,
+  Trash2,
+  LoaderCircle } from 'lucide-react';
+
 /**
  * Table portion of <SettingsEntityShell> — extracted to keep the
  * shell under the 600-line budget. Renders the bordered table with
@@ -8,19 +24,7 @@
  */
 
 import * as React from 'react';
-import { Pencil, Trash2, LoaderCircle } from 'lucide-react';
 
-import {
-    ZoruButton,
-    ZoruCard,
-    ZoruCheckbox,
-    ZoruTable,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-} from '@/components/zoruui';
 import type { SettingsColumn } from '@/components/crm/settings-entity-shell-field';
 
 export interface SettingsEntityTableProps<T extends { _id: string }> {

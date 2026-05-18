@@ -1,3 +1,10 @@
+import { ZoruButton } from '@/components/zoruui';
+import {
+  Store,
+  Plus } from 'lucide-react';
+
+import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+
 /**
  * POS sessions list — `/dashboard/crm/pos/sessions`.
  *
@@ -6,10 +13,7 @@
  */
 
 import Link from 'next/link';
-import { Store, Plus } from 'lucide-react';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
-import { ZoruButton } from '@/components/zoruui';
 import {
     getPosSessions,
     type PosSessionStatus,

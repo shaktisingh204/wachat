@@ -1,5 +1,41 @@
 'use client';
 
+import {
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruButton,
+  ZoruCheckbox,
+  ZoruInput,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  ArrowDownLeft,
+  ArrowUpRight,
+  CheckCircle2,
+  Eye,
+  FileUp,
+  LoaderCircle,
+  Trash2,
+  Upload,
+  } from 'lucide-react';
+
 /**
  * <BankTransactionsListClient> — list of `crm_bank_transactions` rows.
  *
@@ -12,42 +48,6 @@
 import * as React from 'react';
 import Link from 'next/link';
 import Papa from 'papaparse';
-import {
-    ArrowDownLeft,
-    ArrowUpRight,
-    CheckCircle2,
-    Eye,
-    FileUp,
-    LoaderCircle,
-    Trash2,
-    Upload,
-} from 'lucide-react';
-
-import {
-    ZoruAlertDialog,
-    ZoruAlertDialogAction,
-    ZoruAlertDialogCancel,
-    ZoruAlertDialogContent,
-    ZoruAlertDialogDescription,
-    ZoruAlertDialogFooter,
-    ZoruAlertDialogHeader,
-    ZoruAlertDialogTitle,
-    ZoruButton,
-    ZoruCheckbox,
-    ZoruInput,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    ZoruTable,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-    useZoruToast,
-} from '@/components/zoruui';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';

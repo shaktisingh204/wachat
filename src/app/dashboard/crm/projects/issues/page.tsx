@@ -1,34 +1,5 @@
 'use client';
 
-/**
- * Issues — list page (rebuilt per §1D.1).
- *
- * Composition:
- *   <EntityListShell>
- *     • KPI strip (4 cards: Open · Critical (urgent priority) · Resolved this month · Avg resolution days)
- *     • Filter row (status · priority · project)
- *     • View switcher (Table / Kanban)
- *     • Table columns: title · project · priority · assignee · status · created · actions
- */
-
-import * as React from 'react';
-import Link from 'next/link';
-import { useDebouncedCallback } from 'use-debounce';
-import {
-  AlertTriangle,
-  Bug,
-  CheckCircle2,
-  Clock,
-  Edit,
-  Eye,
-  LayoutGrid,
-  List,
-  MoreHorizontal,
-  Plus,
-  Trash2,
-  Zap,
-} from 'lucide-react';
-
 import {
   ZoruButton,
   ZoruStatCard,
@@ -51,6 +22,37 @@ import {
   ZoruDropdownMenuTrigger,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useDebouncedCallback } from 'use-debounce';
+import {
+  AlertTriangle,
+  Bug,
+  CheckCircle2,
+  Clock,
+  Edit,
+  Eye,
+  LayoutGrid,
+  List,
+  MoreHorizontal,
+  Plus,
+  Trash2,
+  Zap,
+  } from 'lucide-react';
+
+/**
+ * Issues — list page (rebuilt per §1D.1).
+ *
+ * Composition:
+ *   <EntityListShell>
+ *     • KPI strip (4 cards: Open · Critical (urgent priority) · Resolved this month · Avg resolution days)
+ *     • Filter row (status · priority · project)
+ *     • View switcher (Table / Kanban)
+ *     • Table columns: title · project · priority · assignee · status · created · actions
+ */
+
+import * as React from 'react';
+import Link from 'next/link';
+
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';

@@ -1,5 +1,21 @@
 'use client';
 
+import {
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruButton,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+} from '@/components/zoruui';
 /**
  * §6.5 Add-widget modal.
  *
@@ -10,22 +26,7 @@
  */
 
 import * as React from 'react';
-import {
-    ZoruDialog,
-    ZoruDialogContent,
-    ZoruDialogDescription,
-    ZoruDialogFooter,
-    ZoruDialogHeader,
-    ZoruDialogTitle,
-    ZoruButton,
-    ZoruInput,
-    ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-} from '@/components/zoruui';
+
 import type {
     DashboardWidget,
     WidgetDataSourceType,

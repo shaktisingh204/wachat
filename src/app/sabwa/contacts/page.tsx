@@ -1,38 +1,5 @@
 'use client';
 
-/**
- * SabWa — Contacts (Page 14)
- *
- * Unified contact book for a SabWa session. DataTable with avatar / name /
- * phone / last-interaction / tags / source columns, plus a right-side
- * drawer showing profile + tags + custom fields + notes + mutual groups +
- * last 5 messages + scheduled messages for the selected contact.
- *
- * Migrated to ZoruUI primitives. The drawer's tab strip is replaced with
- * a segmented ZoruButton group (no tab UI per the ZoruUI design rules).
- * No server actions, prop shapes, or data flow changed.
- *
- * Source of truth: SABWA_PLAN.md § 6 — Page 14.
- */
-
-import * as React from 'react';
-import Link from 'next/link';
-import {
-  BookUser,
-  Ban,
-  CheckSquare,
-  Download,
-  MessageSquare,
-  Plus,
-  Search,
-  Smartphone,
-  Square,
-  Tag as TagIcon,
-  Upload,
-  Users,
-  X,
-} from 'lucide-react';
-
 import {
   ZoruAvatar,
   ZoruAvatarFallback,
@@ -78,6 +45,40 @@ import {
   ZoruTextarea,
   cn,
 } from '@/components/zoruui';
+import {
+  BookUser,
+  Ban,
+  CheckSquare,
+  Download,
+  MessageSquare,
+  Plus,
+  Search,
+  Smartphone,
+  Square,
+  Tag as TagIcon,
+  Upload,
+  Users,
+  X,
+  } from 'lucide-react';
+
+/**
+ * SabWa — Contacts (Page 14)
+ *
+ * Unified contact book for a SabWa session. DataTable with avatar / name /
+ * phone / last-interaction / tags / source columns, plus a right-side
+ * drawer showing profile + tags + custom fields + notes + mutual groups +
+ * last 5 messages + scheduled messages for the selected contact.
+ *
+ * Migrated to ZoruUI primitives. The drawer's tab strip is replaced with
+ * a segmented ZoruButton group (no tab UI per the ZoruUI design rules).
+ * No server actions, prop shapes, or data flow changed.
+ *
+ * Source of truth: SABWA_PLAN.md § 6 — Page 14.
+ */
+
+import * as React from 'react';
+import Link from 'next/link';
+
 import {
   listContacts,
   getContact,

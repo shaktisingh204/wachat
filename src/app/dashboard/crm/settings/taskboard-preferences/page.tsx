@@ -1,5 +1,37 @@
 'use client';
 
+import {
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruCheckbox,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruStatCard,
+  ZoruTextarea,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  KanbanSquare,
+  Save,
+  Trash2,
+  Layers3,
+  EyeOff,
+  } from 'lucide-react';
+
 /**
  * Taskboard Preferences — per-project view presets.
  *
@@ -16,38 +48,7 @@
  */
 
 import * as React from 'react';
-import {
-    KanbanSquare,
-    Save,
-    Trash2,
-    Layers3,
-    EyeOff,
-} from 'lucide-react';
 
-import {
-    ZoruAlertDialog,
-    ZoruAlertDialogAction,
-    ZoruAlertDialogCancel,
-    ZoruAlertDialogContent,
-    ZoruAlertDialogDescription,
-    ZoruAlertDialogFooter,
-    ZoruAlertDialogHeader,
-    ZoruAlertDialogTitle,
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruCheckbox,
-    ZoruInput,
-    ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    ZoruStatCard,
-    ZoruTextarea,
-    useZoruToast,
-} from '@/components/zoruui';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 import {
     getMyTaskboardSettings,

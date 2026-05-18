@@ -1,20 +1,21 @@
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
+import { ZoruCard, ZoruSkeleton, cn } from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition } from 'react';
 import { FolderKanban } from 'lucide-react';
 
 import { getCrmTasks } from '@/app/actions/crm-tasks.actions';
 import { getSession } from '@/app/actions/user.actions';
 import { useT } from '@/lib/i18n/client';
-import type { WithId, CrmTask, User } from '@/lib/definitions';
+import type { WithId,
+  CrmTask,
+  User } from '@/lib/definitions';
 import { CrmTaskList } from '@/components/wabasimplify/crm-task-list';
 import { CreateTaskDialog } from '@/components/wabasimplify/crm-create-task-dialog';
 
-import {
-  ZoruCard,
-  ZoruSkeleton,
-  cn,
-} from '@/components/zoruui';
 import { CrmPageHeader } from '../_components/crm-page-header';
 
 type TabId = 'todo' | 'inProgress' | 'completed';

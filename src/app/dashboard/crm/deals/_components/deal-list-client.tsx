@@ -1,16 +1,5 @@
 'use client';
 
-import * as React from 'react';
-import Link from 'next/link';
-import { useRouter, useSearchParams, usePathname } from 'next/navigation';
-import {
-  AlertCircle,
-  Pencil,
-  Search,
-  Trash2,
-  LoaderCircle,
-} from 'lucide-react';
-
 import {
   ZoruAlertDialog,
   ZoruAlertDialogAction,
@@ -32,6 +21,21 @@ import {
   ZoruTableRow,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useRouter,
+  useSearchParams,
+  usePathname } from 'next/navigation';
+import {
+  AlertCircle,
+  Pencil,
+  Search,
+  Trash2,
+  LoaderCircle,
+  } from 'lucide-react';
+
+import * as React from 'react';
+import Link from 'next/link';
+
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { deleteDealAction } from '@/app/actions/crm/deals.actions';

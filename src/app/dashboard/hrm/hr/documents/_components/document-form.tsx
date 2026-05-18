@@ -1,5 +1,18 @@
 'use client';
 
+import { ZoruButton, ZoruCard, ZoruCheckbox, ZoruInput, ZoruLabel, ZoruTextarea, useZoruToast } from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect,
+  useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useFormStatus } from 'react-dom';
+import { ArrowLeft,
+  FileUp,
+  LoaderCircle,
+  Save } from 'lucide-react';
+
 // 1E.sweep done — category/entityKind/status converted to <EnumFormField>
 // using `documentCategory` / `documentEntityKind` / `documentStatus`.
 // TODO 1E.sweep: employeeId/candidateId/entityId still raw text — convert
@@ -14,21 +27,6 @@
  * any free-text URL paste for file inputs.
  */
 
-import { useActionState, useEffect, useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useFormStatus } from 'react-dom';
-import { ArrowLeft, FileUp, LoaderCircle, Save } from 'lucide-react';
-
-import {
-    ZoruButton,
-    ZoruCard,
-    ZoruCheckbox,
-    ZoruInput,
-    ZoruLabel,
-    ZoruTextarea,
-    useZoruToast,
-} from '@/components/zoruui';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
 import { EnumFormField } from '@/components/crm/enum-form-field';
 

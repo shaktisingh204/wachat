@@ -1,27 +1,31 @@
 'use client';
 
+import {
+  ZoruCheckbox,
+  ZoruDropdownMenu,
+  ZoruDropdownMenuContent,
+  ZoruDropdownMenuItem,
+  ZoruDropdownMenuSeparator,
+  ZoruDropdownMenuTrigger,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+} from '@/components/zoruui';
+import {
+  Archive,
+  MoreHorizontal,
+  Trash2 } from 'lucide-react';
+
 /**
  * <PoTable> — 11-column dense table per §1D.1 for production orders.
  */
 
 import * as React from 'react';
 import Link from 'next/link';
-import { Archive, MoreHorizontal, Trash2 } from 'lucide-react';
 
-import {
-    ZoruCheckbox,
-    ZoruDropdownMenu,
-    ZoruDropdownMenuContent,
-    ZoruDropdownMenuItem,
-    ZoruDropdownMenuSeparator,
-    ZoruDropdownMenuTrigger,
-    ZoruTable,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-} from '@/components/zoruui';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 

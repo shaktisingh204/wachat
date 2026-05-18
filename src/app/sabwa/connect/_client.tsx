@@ -1,33 +1,5 @@
 'use client';
 
-/**
- * ConnectClient — interactive shell for `/sabwa/connect`.
- *
- * Two-mode pairing flow (QR / phone-number → 8-char code) with a
- * first-time Terms-of-Service acknowledgement gate, status pill,
- * 5-step indicator, and a collapsible FAQ.
- *
- * Rebuilt on ZoruUI primitives. The QR/Phone mode picker is rendered
- * as a segmented ZoruButton group (no tab UI per the ZoruUI design
- * rules).
- */
-
-import * as React from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import {
-  AlertTriangle,
-  ArrowRight,
-  Briefcase,
-  Check,
-  CheckCircle2,
-  ChevronRight,
-  Loader2,
-  QrCode,
-  ShieldCheck,
-  Smartphone,
-} from 'lucide-react';
-
 import {
   ZoruAccordion,
   ZoruAccordionContent,
@@ -65,6 +37,35 @@ import {
   cn,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+import {
+  AlertTriangle,
+  ArrowRight,
+  Briefcase,
+  Check,
+  CheckCircle2,
+  ChevronRight,
+  Loader2,
+  QrCode,
+  ShieldCheck,
+  Smartphone,
+  } from 'lucide-react';
+
+/**
+ * ConnectClient — interactive shell for `/sabwa/connect`.
+ *
+ * Two-mode pairing flow (QR / phone-number → 8-char code) with a
+ * first-time Terms-of-Service acknowledgement gate, status pill,
+ * 5-step indicator, and a collapsible FAQ.
+ *
+ * Rebuilt on ZoruUI primitives. The QR/Phone mode picker is rendered
+ * as a segmented ZoruButton group (no tab UI per the ZoruUI design
+ * rules).
+ */
+
+import * as React from 'react';
+import Link from 'next/link';
 
 import { useProject } from '@/context/project-context';
 import { pairSession } from '@/app/actions/sabwa.actions';

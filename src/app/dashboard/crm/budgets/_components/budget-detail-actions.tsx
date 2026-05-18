@@ -1,13 +1,8 @@
 'use client';
 
-/**
- * <BudgetDetailActions> — 8 actions: Edit · Approve · Reject · Lock ·
- * Compare scenarios · Export variance · Archive · Activity.
- */
-
-import * as React from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { ZoruButton, useZoruToast } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
 import {
   Activity,
   Archive,
@@ -17,12 +12,16 @@ import {
   Lock,
   Pencil,
   XCircle,
-} from 'lucide-react';
+  } from 'lucide-react';
 
-import {
-  ZoruButton,
-  useZoruToast,
-} from '@/components/zoruui';
+/**
+ * <BudgetDetailActions> — 8 actions: Edit · Approve · Reject · Lock ·
+ * Compare scenarios · Export variance · Archive · Activity.
+ */
+
+import * as React from 'react';
+import Link from 'next/link';
+
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import {
   approveBudget,

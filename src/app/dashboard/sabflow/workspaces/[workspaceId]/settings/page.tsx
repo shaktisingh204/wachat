@@ -1,22 +1,3 @@
-/**
- * /dashboard/sabflow/workspaces/[workspaceId]/settings
- *
- * Server page that loads the workspace and the viewer's role, then mounts
- * the client `WorkspaceSettingsPage` (shared composite — kept opaque).
- * Unauthenticated users are redirected to sign-in. Non-members get a 403
- * stub rendered with ZoruUI primitives.
- */
-
-import { notFound, redirect } from "next/navigation";
-import { ShieldOff } from "lucide-react";
-
-import { getSession } from "@/app/actions/user.actions";
-import {
-  getMemberRole,
-  getWorkspaceById,
-} from "@/lib/sabflow/workspaces/db";
-import { WorkspaceSettingsPage } from "@/components/sabflow/workspaces/WorkspaceSettingsPage";
-
 import {
   ZoruBreadcrumb,
   ZoruBreadcrumbItem,
@@ -25,7 +6,27 @@ import {
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
   ZoruEmptyState,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  notFound,
+  redirect } from "next/navigation";
+import { ShieldOff } from "lucide-react";
+
+import { getSession } from "@/app/actions/user.actions";
+import {
+  getMemberRole,
+  getWorkspaceById,
+  } from "@/lib/sabflow/workspaces/db";
+import { WorkspaceSettingsPage } from "@/components/sabflow/workspaces/WorkspaceSettingsPage";
+
+/**
+ * /dashboard/sabflow/workspaces/[workspaceId]/settings
+ *
+ * Server page that loads the workspace and the viewer's role, then mounts
+ * the client `WorkspaceSettingsPage` (shared composite — kept opaque).
+ * Unauthenticated users are redirected to sign-in. Non-members get a 403
+ * stub rendered with ZoruUI primitives.
+ */
 
 export const dynamic = "force-dynamic";
 

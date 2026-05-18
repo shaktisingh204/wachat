@@ -1,5 +1,10 @@
 'use client';
 
+import { ZoruInput, ZoruLabel, ZoruSwitch, ZoruTextarea, useZoruToast } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+import { useActionState } from 'react';
+
 /**
  * Shared <ProjectForm> — used by /projects/new and /projects/[projectId]/edit
  * (§1B W7). Extracted from new/page.tsx so both surfaces can re-use it
@@ -12,15 +17,6 @@
  */
 
 import * as React from 'react';
-import { useRouter } from 'next/navigation';
-import { useActionState } from 'react';
-import {
-    ZoruInput,
-    ZoruLabel,
-    ZoruSwitch,
-    ZoruTextarea,
-    useZoruToast,
-} from '@/components/zoruui';
 
 import { EntityFormShell } from '@/components/crm/entity-form-shell';
 import { EntityFormField } from '@/components/crm/entity-form-field';

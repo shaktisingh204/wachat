@@ -1,5 +1,47 @@
 'use client';
 
+import {
+  ZoruAlert,
+  ZoruAlertDescription,
+  ZoruAlertTitle,
+  ZoruBadge,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruLabel,
+  ZoruPageDescription,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  ZoruSeparator,
+  ZoruSkeleton,
+  ZoruSwitch,
+  zoruSonnerToast,
+} from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition } from 'react';
+import { Save,
+  Send,
+  Plus,
+  Trash2,
+  AlertCircle } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import {
+    getSabflowSettings,
+  saveSabflowSettings,
+  type SabflowSettings,
+  type SabflowVariableEntry,
+  } from '@/app/actions/sabflow-settings.actions';
+
 /**
  * /dashboard/sabflow/settings — module-level SabFlow settings.
  *
@@ -11,41 +53,6 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useEffect, useState, useTransition } from 'react';
-import { Save, Send, Plus, Trash2, AlertCircle } from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-import {
-    getSabflowSettings,
-    saveSabflowSettings,
-    type SabflowSettings,
-    type SabflowVariableEntry,
-} from '@/app/actions/sabflow-settings.actions';
-
-import {
-    ZoruAlert,
-    ZoruAlertDescription,
-    ZoruAlertTitle,
-    ZoruBadge,
-    ZoruBreadcrumb,
-    ZoruBreadcrumbItem,
-    ZoruBreadcrumbLink,
-    ZoruBreadcrumbList,
-    ZoruBreadcrumbPage,
-    ZoruBreadcrumbSeparator,
-    ZoruButton,
-    ZoruCard,
-    ZoruInput,
-    ZoruLabel,
-    ZoruPageDescription,
-    ZoruPageHeader,
-    ZoruPageHeading,
-    ZoruPageTitle,
-    ZoruSeparator,
-    ZoruSkeleton,
-    ZoruSwitch,
-    zoruSonnerToast,
-} from '@/components/zoruui';
 
 function formatTimestamp(iso?: string): string {
     if (!iso) return 'Never';

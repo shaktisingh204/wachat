@@ -1,5 +1,29 @@
 'use client';
 
+import {
+  ZoruButton,
+  ZoruDropdownMenu,
+  ZoruDropdownMenuContent,
+  ZoruDropdownMenuItem,
+  ZoruDropdownMenuLabel,
+  ZoruDropdownMenuSeparator,
+  ZoruDropdownMenuTrigger,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  Activity,
+  CalendarX,
+  Check,
+  ChevronDown,
+  Copy,
+  Pencil,
+  Send,
+  Trash2,
+  X as XIcon,
+  } from 'lucide-react';
+
+import { ConfirmDialog } from '@/components/crm/confirm-dialog';
+
 /**
  * Event detail action group (§1D.2) — Edit · RSVP · Send invite · Cancel ·
  * Reschedule · Delete · Activity. Renders inline in the page header.
@@ -10,29 +34,6 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import {
-    Activity,
-    CalendarX,
-    Check,
-    ChevronDown,
-    Copy,
-    Pencil,
-    Send,
-    Trash2,
-    X as XIcon,
-} from 'lucide-react';
-
-import { ConfirmDialog } from '@/components/crm/confirm-dialog';
-import {
-    ZoruButton,
-    ZoruDropdownMenu,
-    ZoruDropdownMenuContent,
-    ZoruDropdownMenuItem,
-    ZoruDropdownMenuLabel,
-    ZoruDropdownMenuSeparator,
-    ZoruDropdownMenuTrigger,
-    useZoruToast,
-} from '@/components/zoruui';
 
 import { deleteEvent, rsvpEvent } from '@/app/actions/worksuite/knowledge.actions';
 import type { WsEventAttendeeStatus } from '@/lib/worksuite/knowledge-types';

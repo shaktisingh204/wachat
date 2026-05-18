@@ -1,5 +1,26 @@
 'use client';
 
+import {
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruButton,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { LayoutGrid,
+  Network,
+  Plus,
+  TreePine } from 'lucide-react';
+import Papa from 'papaparse';
+
 /**
  * <CoaListClient> — orchestrates the Chart of Accounts list (§1D.1 bar):
  * KPI strip + filters + bulk bar + table/tree switcher + per-row delete.
@@ -10,23 +31,6 @@
  */
 
 import * as React from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { LayoutGrid, Network, Plus, TreePine } from 'lucide-react';
-import Papa from 'papaparse';
-
-import {
-    ZoruAlertDialog,
-    ZoruAlertDialogAction,
-    ZoruAlertDialogCancel,
-    ZoruAlertDialogContent,
-    ZoruAlertDialogDescription,
-    ZoruAlertDialogFooter,
-    ZoruAlertDialogHeader,
-    ZoruAlertDialogTitle,
-    ZoruButton,
-    useZoruToast,
-} from '@/components/zoruui';
 
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { EntityListShell } from '@/components/crm/entity-list-shell';

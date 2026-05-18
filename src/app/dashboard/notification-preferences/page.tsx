@@ -1,22 +1,5 @@
 'use client';
 
-import * as React from 'react';
-import { useEffect, useState, useTransition, useCallback } from 'react';
-import {
-  Coins,
-  FileCheck,
-  Loader2,
-  MessageSquare,
-  Radio,
-  TriangleAlert,
-  UserPlus,
-} from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-import {
-  getNotificationPreferences,
-  saveNotificationPreferences,
-} from '@/app/actions/wachat-features.actions';
 import {
   ZoruBreadcrumb,
   ZoruBreadcrumbItem,
@@ -34,6 +17,28 @@ import {
   cn,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition,
+  useCallback } from 'react';
+import {
+  Coins,
+  FileCheck,
+  Loader2,
+  MessageSquare,
+  Radio,
+  TriangleAlert,
+  UserPlus,
+  } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import {
+  getNotificationPreferences,
+  saveNotificationPreferences,
+  } from '@/app/actions/wachat-features.actions';
+
+import * as React from 'react';
 
 type NotifDef = {
   id: string;

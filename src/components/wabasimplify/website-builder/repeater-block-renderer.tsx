@@ -1,6 +1,8 @@
-
-
 'use client';
+
+import { ZoruCard, ZoruCardContent, ZoruCardFooter, ZoruCardHeader, ZoruCardTitle, ZoruButton } from '@/components/zoruui';
+import {
+  cn } from '@/lib/utils';
 
 import React from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
@@ -8,9 +10,7 @@ type EmblaOptionsType = Parameters<typeof useEmblaCarousel>[0];
 import Autoplay from 'embla-carousel-autoplay';
 import Image from 'next/image';
 import Link from 'next/link';
-import { cn } from '@/lib/utils';
-import { ZoruCard, ZoruCardContent, ZoruCardFooter, ZoruCardHeader, ZoruCardTitle, ZoruButton } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
+
 import { ShoppingBag } from 'lucide-react';
 import { DotButton, useDotButton } from './embla-carousel-dot-button';
 import { PrevButton, NextButton, usePrevNextButtons } from './embla-carousel-arrow-buttons';

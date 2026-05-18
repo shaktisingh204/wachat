@@ -1,5 +1,47 @@
 "use client";
 
+import {
+  ZoruAccordion,
+  ZoruAccordionContent,
+  ZoruAccordionItem,
+  ZoruAccordionTrigger,
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruLabel,
+  ZoruRadioGroup,
+  ZoruRadioGroupItem,
+  ZoruSeparator,
+  ZoruSkeleton,
+  ZoruSwitch,
+  ZoruTextarea,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect,
+  useState } from "react";
+import { useFormStatus } from "react-dom";
+import {
+  Bot,
+  Loader2,
+  MessageSquareHeart,
+  MessageSquareReply,
+  Plus,
+  Save,
+  ShieldX,
+  Trash2,
+  } from "lucide-react";
+
+import { handleUpdateFacebookAutomationSettings } from "@/app/actions/facebook.actions";
+import { useProject } from "@/context/project-context";
+import type {
+  FacebookCommentAutoReplySettings,
+  FacebookWelcomeMessageSettings,
+  Project,
+  WithId,
+  } from "@/lib/definitions";
+
 /**
  * /dashboard/facebook/auto-reply — ZoruUI rebuild.
  *
@@ -18,45 +60,6 @@
  */
 
 import * as React from "react";
-import { useActionState, useEffect, useState } from "react";
-import { useFormStatus } from "react-dom";
-import {
-  Bot,
-  Loader2,
-  MessageSquareHeart,
-  MessageSquareReply,
-  Plus,
-  Save,
-  ShieldX,
-  Trash2,
-} from "lucide-react";
-
-import { handleUpdateFacebookAutomationSettings } from "@/app/actions/facebook.actions";
-import { useProject } from "@/context/project-context";
-import type {
-  FacebookCommentAutoReplySettings,
-  FacebookWelcomeMessageSettings,
-  Project,
-  WithId,
-} from "@/lib/definitions";
-
-import {
-  ZoruAccordion,
-  ZoruAccordionContent,
-  ZoruAccordionItem,
-  ZoruAccordionTrigger,
-  ZoruButton,
-  ZoruCard,
-  ZoruInput,
-  ZoruLabel,
-  ZoruRadioGroup,
-  ZoruRadioGroupItem,
-  ZoruSeparator,
-  ZoruSkeleton,
-  ZoruSwitch,
-  ZoruTextarea,
-  useZoruToast,
-} from "@/components/zoruui";
 
 import {
   FbBreadcrumb,

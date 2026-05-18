@@ -1,3 +1,10 @@
+import { ZoruCard } from '@/components/zoruui';
+import {
+  AlertTriangle,
+  ShieldAlert } from 'lucide-react';
+
+import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+
 /**
  * MSME 45-day delayed-payment alerts dashboard — §6.10 of
  * CRM_REBUILD_PLAN.md. Server-rendered, refreshed daily by the
@@ -18,10 +25,7 @@
 export const dynamic = 'force-dynamic';
 
 import Link from 'next/link';
-import { AlertTriangle, ShieldAlert } from 'lucide-react';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
-import { ZoruCard } from '@/components/zoruui';
 import { getMsmeOverdueBills } from '@/app/actions/crm-msme-alerts.actions';
 
 import { MsmeAlertsTable } from './_components/msme-alerts-table';

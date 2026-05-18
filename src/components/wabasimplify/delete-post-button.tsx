@@ -1,8 +1,5 @@
-
-
 'use client';
 
-import { useTransition } from 'react';
 import {
   ZoruAlertDialog,
   ZoruAlertDialogAction,
@@ -13,8 +10,11 @@ import {
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
   ZoruAlertDialogTrigger,
+  ZoruButton,
 } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
+import {
+  useTransition } from 'react';
+
 import { LoaderCircle, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { handleDeletePost } from '@/app/actions/facebook.actions';

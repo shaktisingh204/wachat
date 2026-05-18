@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
@@ -140,7 +139,6 @@ export const CountdownBlockRenderer: React.FC<CountdownBlockRendererProps> = ({ 
         return timeLeft;
     }, [getEndDate]);
 
-
     const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
     const [isFinished, setIsFinished] = useState(false);
     const router = useRouter();
@@ -165,7 +163,6 @@ export const CountdownBlockRenderer: React.FC<CountdownBlockRendererProps> = ({ 
             }
         }
     }, [isFinished, actionOnEnd, redirectUrl, router]);
-
 
     if (isFinished) {
         if (actionOnEnd === 'showMessage') {

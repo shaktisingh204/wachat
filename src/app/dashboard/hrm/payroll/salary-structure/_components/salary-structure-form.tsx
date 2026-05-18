@@ -1,5 +1,29 @@
 'use client';
 
+import {
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect,
+  useMemo,
+  useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useFormStatus } from 'react-dom';
+import { ArrowLeft,
+  LoaderCircle,
+  Save } from 'lucide-react';
+
 // TODO 1E.sweep: frequency/component-type dropdowns -> <EnumFormField>; currency -> <EntityFormField entity="currency">; employee -> <EntityFormField entity="employee">. See plan §1E.
 
 /**
@@ -10,25 +34,6 @@
  * action. Computes a live gross/net preview but final calculation is
  * delegated to the backend (which mirrors the same arithmetic).
  */
-
-import { useActionState, useEffect, useMemo, useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useFormStatus } from 'react-dom';
-import { ArrowLeft, LoaderCircle, Save } from 'lucide-react';
-
-import {
-    ZoruButton,
-    ZoruCard,
-    ZoruInput,
-    ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    useZoruToast,
-} from '@/components/zoruui';
 
 import { saveSalaryStructureDoc } from '@/app/actions/crm-salary-structures.actions';
 import type {

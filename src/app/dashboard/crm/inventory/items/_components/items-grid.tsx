@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruCard } from '@/components/zoruui';
+import { Package } from 'lucide-react';
+
 /**
  * <ItemsGrid> — card-grid view for the items list. Designed for browsing
  * catalogues where thumbnails matter more than column alignment.
@@ -8,9 +11,7 @@
 import * as React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Package } from 'lucide-react';
 
-import { ZoruCard } from '@/components/zoruui';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 

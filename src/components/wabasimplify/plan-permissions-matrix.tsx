@@ -1,12 +1,12 @@
 'use client';
 
+import { ZoruInput, ZoruButton, ZoruSwitch, ZoruBadge, ZoruLabel } from '@/components/zoruui';
+import {
+  moduleCategories,
+  permissionActions } from '@/lib/permission-modules';
+
 import * as React from 'react';
-import { moduleCategories, permissionActions } from '@/lib/permission-modules';
-import { ZoruInput, ZoruButton } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
-import { ZoruSwitch } from '@/components/zoruui';
-import { ZoruBadge } from '@/components/zoruui';
-import { ZoruLabel } from '@/components/zoruui';
+
 import {
     ChevronDown,
     Search,

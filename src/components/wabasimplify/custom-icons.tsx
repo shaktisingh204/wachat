@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -13,7 +12,6 @@ export const OutlookIcon = (props: React.SVGProps<SVGSVGElement>) => (
         <path fill="currentColor" d="M228 64a12 12 0 0 0-12 12v56a12 12 0 0 1-12 12H76a12 12 0 0 1-12-12V88h60.46a12 12 0 0 0 10.7-5.83l24-40A12 12 0 0 0 148.46 28H104a12 12 0 0 0-10.7 5.83l-32 53.33A12 12 0 0 0 64 96H28a12 12 0 0 0-12 12v68a12 12 0 0 0 12 12h188a12 12 0 0 0 12-12v-56a12 12 0 0 1 12-12h12a12 12 0 0 0 0-24zm-12 92H28v-68h36v20a12 12 0 0 0 12 12h140z"/>
     </svg>
 );
-
 
 export const MetaIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg viewBox="0 0 290 191" {...props}>
@@ -85,7 +83,6 @@ export const InstagramIcon = (props: React.SVGProps<SVGSVGElement>) => (
 export const CustomEcommerceIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <ShoppingBag {...props} />
 );
-
 
 export const WachatSidebarTopLogo = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" {...props}>

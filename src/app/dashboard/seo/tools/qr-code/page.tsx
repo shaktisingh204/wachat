@@ -1,12 +1,11 @@
 'use client';
 
-import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
+import { ZoruButton, ZoruInput, cn } from '@/components/zoruui';
+import { cn as _zoruCn, useRef, useState } from 'react';
+import QRCode from 'react-qr-code';
+
 void _zoruCn;
 
-import { useRef, useState } from 'react';
-import QRCode from 'react-qr-code';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
 export default function QrCodePage() {

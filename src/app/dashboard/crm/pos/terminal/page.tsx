@@ -1,3 +1,10 @@
+import { ZoruButton, ZoruCard, ZoruCardContent } from '@/components/zoruui';
+import {
+  Store,
+  Plus } from 'lucide-react';
+
+import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+
 /**
  * POS terminal — `/dashboard/crm/pos/terminal`.
  *
@@ -11,14 +18,7 @@
  */
 
 import Link from 'next/link';
-import { Store, Plus } from 'lucide-react';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
-import {
-    ZoruButton,
-    ZoruCard,
-    ZoruCardContent,
-} from '@/components/zoruui';
 import {
     getPosSessions,
     getPosHolds,

@@ -1,5 +1,36 @@
 'use client';
 
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruCheckbox,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruTextarea,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect,
+  useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useFormStatus } from 'react-dom';
+import {
+    ArrowLeft,
+  BookOpen,
+  LoaderCircle,
+  Plus,
+  Save,
+  X,
+  } from 'lucide-react';
+
 // TODO 1E.sweep: status/level -> <EnumFormField>; mode/format -> trainingDeliveryMode (after slug bridge); owner/department -> <EntityFormField>. See plan §1E.
 
 /**
@@ -13,34 +44,6 @@
  */
 
 import * as React from 'react';
-import { useActionState, useEffect, useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useFormStatus } from 'react-dom';
-import {
-    ArrowLeft,
-    BookOpen,
-    LoaderCircle,
-    Plus,
-    Save,
-    X,
-} from 'lucide-react';
-
-import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruCheckbox,
-    ZoruInput,
-    ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    ZoruTextarea,
-    useZoruToast,
-} from '@/components/zoruui';
 
 import {
     saveLearningPath,

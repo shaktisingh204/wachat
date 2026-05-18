@@ -1,5 +1,42 @@
 'use client';
 
+import {
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruBadge,
+  ZoruButton,
+  ZoruCheckbox,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruStatCard,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  Banknote,
+  Download,
+  Edit,
+  LoaderCircle,
+  Paperclip,
+  Trash2,
+  Truck,
+  X,
+  } from 'lucide-react';
+
 /**
  * Vendors list — client island.
  *
@@ -15,43 +52,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import {
-    Banknote,
-    Download,
-    Edit,
-    LoaderCircle,
-    Paperclip,
-    Trash2,
-    Truck,
-    X,
-} from 'lucide-react';
 
-import {
-    ZoruAlertDialog,
-    ZoruAlertDialogAction,
-    ZoruAlertDialogCancel,
-    ZoruAlertDialogContent,
-    ZoruAlertDialogDescription,
-    ZoruAlertDialogFooter,
-    ZoruAlertDialogHeader,
-    ZoruAlertDialogTitle,
-    ZoruBadge,
-    ZoruButton,
-    ZoruCheckbox,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    ZoruStatCard,
-    ZoruTable,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-    useZoruToast,
-} from '@/components/zoruui';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
     deleteCrmVendor,

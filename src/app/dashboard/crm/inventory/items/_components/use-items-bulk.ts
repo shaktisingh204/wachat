@@ -1,5 +1,6 @@
 'use client';
 
+import { useZoruToast } from '@/components/zoruui';
 /**
  * useItemsBulk — bulk-action runner for the items list.
  *
@@ -11,7 +12,6 @@
 
 import * as React from 'react';
 
-import { useZoruToast } from '@/components/zoruui';
 import { deleteCrmProduct } from '@/app/actions/crm-products.actions';
 import { useRouter } from 'next/navigation';
 

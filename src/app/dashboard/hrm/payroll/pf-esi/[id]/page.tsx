@@ -1,12 +1,17 @@
+import { ZoruButton, ZoruCard } from '@/components/zoruui';
+import {
+  notFound,
+  redirect } from 'next/navigation';
+import { ArrowLeft,
+  Pencil,
+  ShieldCheck } from 'lucide-react';
+
 /**
  * PF/ESI record detail page — server component.
  */
 
 import Link from 'next/link';
-import { notFound, redirect } from 'next/navigation';
-import { ArrowLeft, Pencil, ShieldCheck } from 'lucide-react';
 
-import { ZoruButton, ZoruCard } from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 import { getSession } from '@/app/actions/user.actions';

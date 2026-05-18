@@ -1,3 +1,11 @@
+import { ZoruBadge, ZoruCard, ZoruCardContent } from '@/components/zoruui';
+import {
+  ObjectId } from 'mongodb';
+import { CheckCircle2,
+  MailCheck } from 'lucide-react';
+
+import { connectToDatabase } from '@/lib/mongodb';
+
 /**
  * Sign-flow confirmation — `/sign/[contractId]/[signerToken]/done`.
  *
@@ -6,16 +14,6 @@
  * We re-load the contract by id so we can show whether more signers
  * are still pending.
  */
-
-import { ObjectId } from 'mongodb';
-import { CheckCircle2, MailCheck } from 'lucide-react';
-
-import { connectToDatabase } from '@/lib/mongodb';
-import {
-    ZoruBadge,
-    ZoruCard,
-    ZoruCardContent,
-} from '@/components/zoruui';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;

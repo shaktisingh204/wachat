@@ -1,5 +1,13 @@
 'use client';
 
+import { ZoruButton, ZoruDropdownMenu, ZoruDropdownMenuContent, ZoruDropdownMenuItem, ZoruDropdownMenuTrigger } from '@/components/zoruui';
+import {
+  Banknote,
+  Download,
+  ListChecks,
+  Trash2,
+  X } from 'lucide-react';
+
 /**
  * <BillsBulkBar> — sticky bulk-action ribbon for the bill list (§1D).
  *
@@ -8,15 +16,7 @@
  */
 
 import * as React from 'react';
-import { Banknote, Download, ListChecks, Trash2, X } from 'lucide-react';
 
-import {
-  ZoruButton,
-  ZoruDropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
-} from '@/components/zoruui';
 import type { CrmBillStatus } from '@/lib/rust-client/crm-bills';
 
 const STATUS_OPTIONS: { value: CrmBillStatus; label: string }[] = [

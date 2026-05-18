@@ -1,48 +1,5 @@
 'use client';
 
-/**
- * Wachat Templates — list, rebuilt on ZoruUI primitives.
- *
- * Same data + handlers as before. Only the visual layer is swapped:
- * Clay → Zoru. Status badges use neutral zoru variants, no rainbow
- * accents. Delete uses ZoruAlertDialog.
- */
-
-import * as React from 'react';
-import {
-  useState,
-  useEffect,
-  useCallback,
-  useMemo,
-  useTransition,
-} from 'react';
-import type { WithId } from 'mongodb';
-import { useRouter } from 'next/navigation';
-
-import {
-  RefreshCw,
-  BookCopy,
-  CirclePlus,
-  Search,
-  FileText,
-  CircleAlert,
-  ChevronDown,
-  Filter,
-  CircleCheck,
-  Clock,
-  CircleX,
-  MoreHorizontal,
-  Pencil,
-  Trash2,
-} from 'lucide-react';
-
-import {
-  getTemplates,
-  handleSyncTemplates,
-} from '@/app/actions/template.actions';
-import type { Template } from '@/lib/definitions';
-import { useProject } from '@/context/project-context';
-
 import {
   ZoruAlertDialog,
   ZoruAlertDialogAction,
@@ -81,6 +38,49 @@ import {
   useZoruToast,
   type ZoruBadgeProps,
 } from '@/components/zoruui';
+import {
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  useTransition,
+  } from 'react';
+import type { WithId } from 'mongodb';
+import { useRouter } from 'next/navigation';
+
+import {
+  RefreshCw,
+  BookCopy,
+  CirclePlus,
+  Search,
+  FileText,
+  CircleAlert,
+  ChevronDown,
+  Filter,
+  CircleCheck,
+  Clock,
+  CircleX,
+  MoreHorizontal,
+  Pencil,
+  Trash2,
+  } from 'lucide-react';
+
+import {
+  getTemplates,
+  handleSyncTemplates,
+  } from '@/app/actions/template.actions';
+import type { Template } from '@/lib/definitions';
+import { useProject } from '@/context/project-context';
+
+/**
+ * Wachat Templates — list, rebuilt on ZoruUI primitives.
+ *
+ * Same data + handlers as before. Only the visual layer is swapped:
+ * Clay → Zoru. Status badges use neutral zoru variants, no rainbow
+ * accents. Delete uses ZoruAlertDialog.
+ */
+
+import * as React from 'react';
 
 /* ── helpers ────────────────────────────────────────────────────── */
 

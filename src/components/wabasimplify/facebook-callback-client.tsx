@@ -1,12 +1,13 @@
-
 'use client';
 
-import { useEffect, useTransition } from 'react';
+import { ZoruCard, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription } from '@/components/zoruui';
+import {
+  useEffect,
+  useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { handleWabaOnboarding } from '@/app/actions/onboarding.actions';
 import { LoaderCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { ZoruCard, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription } from '@/components/zoruui';
 
 // This is the Client Component that handles effects and state
 export function FacebookCallbackClient({ code, error, stateFromUrl }: { code?: string, error?: string, stateFromUrl?: string }) {

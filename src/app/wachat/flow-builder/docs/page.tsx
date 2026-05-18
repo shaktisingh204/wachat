@@ -1,8 +1,5 @@
 'use client';
 
-import Link from 'next/link';
-import { ChevronLeft } from 'lucide-react';
-
 import {
   ZoruAccordion,
   ZoruAccordionContent,
@@ -21,6 +18,10 @@ import {
   ZoruPageTitle,
   ZoruSeparator,
 } from '@/components/zoruui';
+import {
+  ChevronLeft } from 'lucide-react';
+
+import Link from 'next/link';
 
 const blockDocs = [
   {

@@ -1,41 +1,5 @@
 'use client';
 
-/**
- * SabWa Group Categories — management page (SABWA_PLAN.md §6 page 7).
- *
- * - List existing categories with name + colour + icon + group-count.
- * - Reorder via up / down arrows (kept dependency-free; @dnd-kit is not a
- *   guaranteed install in this monorepo).
- * - Edit dialog: name, colour picker, curated lucide-icon picker.
- * - Bulk-assign mode: pick uncategorised groups and assign them to a
- *   category in one call.
- *
- * ZoruUI migration — visual swap only; data flow, server actions and
- * prop shapes are unchanged.
- */
-
-import * as React from 'react';
-import {
-  Award,
-  Bell,
-  Briefcase,
-  ChevronDown,
-  ChevronUp,
-  CheckSquare,
-  Edit,
-  FolderTree,
-  Heart,
-  Home,
-  Megaphone,
-  Pencil,
-  Plus,
-  Smile,
-  Star,
-  Tag,
-  Trash2,
-  Users,
-} from 'lucide-react';
-
 import {
   ZoruAlertDialog,
   ZoruAlertDialogAction,
@@ -70,6 +34,42 @@ import {
   cn,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  Award,
+  Bell,
+  Briefcase,
+  ChevronDown,
+  ChevronUp,
+  CheckSquare,
+  Edit,
+  FolderTree,
+  Heart,
+  Home,
+  Megaphone,
+  Pencil,
+  Plus,
+  Smile,
+  Star,
+  Tag,
+  Trash2,
+  Users,
+  } from 'lucide-react';
+
+/**
+ * SabWa Group Categories — management page (SABWA_PLAN.md §6 page 7).
+ *
+ * - List existing categories with name + colour + icon + group-count.
+ * - Reorder via up / down arrows (kept dependency-free; @dnd-kit is not a
+ *   guaranteed install in this monorepo).
+ * - Edit dialog: name, colour picker, curated lucide-icon picker.
+ * - Bulk-assign mode: pick uncategorised groups and assign them to a
+ *   category in one call.
+ *
+ * ZoruUI migration — visual swap only; data flow, server actions and
+ * prop shapes are unchanged.
+ */
+
+import * as React from 'react';
 
 import {
   deleteGroupCategory,

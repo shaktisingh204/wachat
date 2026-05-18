@@ -1,24 +1,5 @@
 "use client";
 
-/**
- * /dashboard/sabchat/analytics — KPI cards + chart.
- *
- * Same `getSabChatAnalytics` server action. Visual layer fully Zoru —
- * stat cards via ZoruStatCard, chart via ZoruChart family with the
- * greyscale palette (no rainbow).
- */
-
-import { useEffect, useState, useTransition } from "react";
-import {
-  CheckCircle,
-  Clock,
-  Inbox,
-  MessageSquare,
-  Smile,
-} from "lucide-react";
-
-import { getSabChatAnalytics } from "@/app/actions/sabchat.actions";
-
 import {
   ZORU_CHART_PALETTE,
   ZoruBreadcrumb,
@@ -40,7 +21,28 @@ import {
   ZoruPageTitle,
   ZoruSkeleton,
   ZoruStatCard,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition } from "react";
+import {
+  CheckCircle,
+  Clock,
+  Inbox,
+  MessageSquare,
+  Smile,
+  } from "lucide-react";
+
+import { getSabChatAnalytics } from "@/app/actions/sabchat.actions";
+
+/**
+ * /dashboard/sabchat/analytics — KPI cards + chart.
+ *
+ * Same `getSabChatAnalytics` server action. Visual layer fully Zoru —
+ * stat cards via ZoruStatCard, chart via ZoruChart family with the
+ * greyscale palette (no rainbow).
+ */
 
 interface AnalyticsData {
   totalChats: number;

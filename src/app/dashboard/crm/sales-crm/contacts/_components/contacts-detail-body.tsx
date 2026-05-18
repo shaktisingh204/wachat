@@ -1,5 +1,6 @@
 'use client';
 
+import { ZoruBadge, ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
 /**
  * Body cards for the contact detail page (extracted to keep
  * `[contactId]/page.tsx` under the 600-line scope cap).
@@ -12,13 +13,6 @@
 import * as React from 'react';
 import Link from 'next/link';
 
-import {
-    ZoruBadge,
-    ZoruCard,
-    ZoruCardContent,
-    ZoruCardHeader,
-    ZoruCardTitle,
-} from '@/components/zoruui';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import type { CrmContact } from '@/lib/definitions';

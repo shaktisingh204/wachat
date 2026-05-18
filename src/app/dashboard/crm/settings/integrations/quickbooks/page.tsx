@@ -1,29 +1,21 @@
 'use client';
 
+import { ZoruBadge, ZoruButton, ZoruCard, ZoruInput, ZoruLabel, ZoruSkeleton, useZoruToast } from '@/components/zoruui';
 import {
   useActionState,
   useCallback,
   useEffect,
   useState,
   useTransition,
-} from 'react';
+  } from 'react';
 import {
   FileSpreadsheet,
   LoaderCircle,
   Plug,
   RefreshCw,
   Unplug,
-} from 'lucide-react';
+  } from 'lucide-react';
 
-import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSkeleton,
-  useZoruToast,
-} from '@/components/zoruui';
 import { EnumFormField } from '@/components/crm/enum-form-field';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
 import {

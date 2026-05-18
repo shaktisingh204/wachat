@@ -1,11 +1,3 @@
-/**
- * App Marketplace — browse page.
- *
- * Renders a server-side cards grid of published apps. Filters live in the
- * URL search params so back/forward navigation works without state.
- */
-
-import Link from 'next/link';
 import {
   ZoruBadge,
   ZoruBreadcrumb,
@@ -25,6 +17,15 @@ import {
   ZoruPageHeading,
   ZoruPageTitle,
 } from '@/components/zoruui';
+/**
+ * App Marketplace — browse page.
+ *
+ * Renders a server-side cards grid of published apps. Filters live in the
+ * URL search params so back/forward navigation works without state.
+ */
+
+import Link from 'next/link';
+
 import { Store } from 'lucide-react';
 import { listApps } from '@/lib/marketplace';
 import type { AppListFilter, AppPricing } from '@/lib/marketplace';

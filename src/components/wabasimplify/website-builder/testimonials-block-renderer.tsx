@@ -1,8 +1,15 @@
-
 'use client';
 
-import { ZoruCard, ZoruCardContent, ZoruCardFooter, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
-import { ZoruAvatar, ZoruAvatarImage, ZoruAvatarFallback } from '@/components/zoruui';
+import {
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardFooter,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruAvatar,
+  ZoruAvatarImage,
+  ZoruAvatarFallback,
+} from '@/components/zoruui';
 import Image from 'next/image';
 import React from 'react';
 

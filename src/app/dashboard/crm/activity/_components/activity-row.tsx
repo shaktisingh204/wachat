@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruAvatar, ZoruAvatarFallback, ZoruBadge } from '@/components/zoruui';
+import { User as UserIcon } from 'lucide-react';
+
 /**
  * <ActivityRow> — one row in the CRM tenant-wide activity feed.
  *
@@ -17,13 +20,6 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { User as UserIcon } from 'lucide-react';
-
-import {
-    ZoruAvatar,
-    ZoruAvatarFallback,
-    ZoruBadge,
-} from '@/components/zoruui';
 
 /* ─── Public types ───────────────────────────────────────────────────── */
 

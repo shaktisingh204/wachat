@@ -1,20 +1,31 @@
-
 'use client';
 
-import { ZoruLabel, ZoruButton } from '@/components/zoruui';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
-import { ZoruAccordion, ZoruAccordionContent, ZoruAccordionItem, ZoruAccordionTrigger } from '@/components/zoruui';
-import { ZoruCheckbox } from '@/components/zoruui';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ZoruButton } from '@/components/zoruui';
+import {
+  ZoruLabel,
+  ZoruButton,
+  ZoruInput,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruAccordion,
+  ZoruAccordionContent,
+  ZoruAccordionItem,
+  ZoruAccordionTrigger,
+  ZoruCheckbox,
+  ZoruSwitch,
+  ZoruTextarea,
+  ZoruSeparator,
+  ZoruAlert,
+  ZoruAlertDescription,
+  ZoruAlertTitle,
+} from '@/components/zoruui';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Plus, Trash2 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
-import { ZoruSwitch } from '@/components/zoruui';
-import { ZoruTextarea } from '@/components/zoruui';
 import { Slider } from '@/components/ui/slider';
-import { ZoruSeparator } from '@/components/zoruui';
-import { ZoruAlert, ZoruAlertDescription, ZoruAlertTitle } from '@/components/zoruui';
+
 import { Lightbulb } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
 

@@ -1,29 +1,41 @@
 'use client';
 
-import { useState } from 'react';
+import {
+  ZoruAlert,
+  ZoruAlertDescription,
+  ZoruAlertTitle,
+  ZoruCheckbox,
+  ZoruLabel,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruDialogTrigger,
+  ZoruButton,
+  ZoruBadge,
+  ZoruSelect,
+} from '@/components/zoruui';
+import {
+  useState } from 'react';
 import EmbeddedSignup from '@/components/wabasimplify/embedded-signup';
 import {
     AlertCircle,
-    ArrowRight,
-    BadgeCheck,
-    Bot,
-    Briefcase,
-    CheckCircle2,
-    Lock,
-    MessageCircle,
-    Send,
-    ShieldCheck,
-    Sparkles,
-    Users,
-    Workflow,
-    Zap,
-} from 'lucide-react';
-import { ZoruAlert, ZoruAlertDescription, ZoruAlertTitle } from '@/components/zoruui';
-import { ZoruCheckbox } from '@/components/zoruui';
-import { ZoruLabel } from '@/components/zoruui';
-import { ZoruDialog, ZoruDialogContent, ZoruDialogDescription, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogTrigger } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
-import { ZoruBadge } from '@/components/zoruui';
+  ArrowRight,
+  BadgeCheck,
+  Bot,
+  Briefcase,
+  CheckCircle2,
+  Lock,
+  MessageCircle,
+  Send,
+  ShieldCheck,
+  Sparkles,
+  Users,
+  Workflow,
+  Zap,
+  } from 'lucide-react';
+
 import { cn } from '@/lib/utils';
 
 /* ------------------------------------------------------------------ */

@@ -1,5 +1,16 @@
 'use client';
 
+import { ZoruButton, useZoruToast } from '@/components/zoruui';
+import {
+  useDebouncedCallback } from 'use-debounce';
+import { LayoutGrid,
+  LayoutList,
+  Plus,
+  Trash2 } from 'lucide-react';
+
+import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { ConfirmDialog } from '@/components/crm/confirm-dialog';
+
 /**
  * Events list client (§1D.1) — KPI strip, filter chips, table or
  * calendar view, bulk delete, CSV export. Hands off to <EntityListShell>.
@@ -7,15 +18,6 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useDebouncedCallback } from 'use-debounce';
-import { LayoutGrid, LayoutList, Plus, Trash2 } from 'lucide-react';
-
-import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { ConfirmDialog } from '@/components/crm/confirm-dialog';
-import {
-    ZoruButton,
-    useZoruToast,
-} from '@/components/zoruui';
 
 import {
     getEvents,

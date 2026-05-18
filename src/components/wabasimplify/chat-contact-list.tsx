@@ -1,18 +1,30 @@
-
 'use client';
 
-import type { WithId, Contact, Project, User, Plan } from '@/lib/definitions';
-import { ZoruScrollArea, ZoruButton } from '@/components/zoruui';
-import { ZoruAvatar, ZoruAvatarFallback, ZoruAvatarImage } from '@/components/zoruui';
-import { ZoruBadge } from '@/components/zoruui';
-import { ZoruSkeleton } from '@/components/zoruui';
+import {
+  ZoruScrollArea,
+  ZoruButton,
+  ZoruAvatar,
+  ZoruAvatarFallback,
+  ZoruAvatarImage,
+  ZoruBadge,
+  ZoruSkeleton,
+  ZoruInput,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+} from '@/components/zoruui';
 import { cn } from '@/lib/utils';
-import { ZoruButton } from '../ui/button';
 import { LoaderCircle, MessageSquarePlus, Search, Users } from 'lucide-react';
-import React, { useMemo, useState } from 'react';
-import { ZoruInput } from '../ui/input';
+import React,
+  { useMemo,
+  useState } from 'react';
+
+import type { WithId, Contact, Project, User, Plan } from '@/lib/definitions';
+
 import Link from 'next/link';
-import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '../ui/select';
+
 import { format } from 'date-fns';
 import { useDebouncedCallback } from 'use-debounce';
 
@@ -80,7 +92,6 @@ export function ChatContactList({
         if (s === 'resolved') return 'outline';
         return 'secondary';
     }
-
 
     const ContactSkeleton = () => (
         <div className="flex items-center gap-3 p-3">

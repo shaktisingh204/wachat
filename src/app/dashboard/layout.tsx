@@ -1,3 +1,11 @@
+import { ZoruHomeShell } from '@/components/zoruui';
+import {
+  redirect } from "next/navigation";
+
+import { getCachedSession,
+  getCachedProjects } from "@/lib/server-cache";
+import { RBACGuard } from "@/components/wabasimplify/rbac-guard";
+
 /**
  * /dashboard layout — the SabNode account dashboard, on ZoruUI.
  *
@@ -14,11 +22,7 @@
 import "@/styles/zoruui.css";
 
 import React from "react";
-import { redirect } from "next/navigation";
 
-import { getCachedSession, getCachedProjects } from "@/lib/server-cache";
-import { RBACGuard } from "@/components/wabasimplify/rbac-guard";
-import { ZoruHomeShell } from "@/components/zoruui";
 import { ProjectProvider } from "@/context/project-context";
 import { LocaleProvider } from "@/lib/i18n/client";
 import { getCurrentLocale } from "@/lib/i18n/server";

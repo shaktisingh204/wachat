@@ -1,5 +1,14 @@
 'use client';
 
+import { ZoruStatCard } from '@/components/zoruui';
+import {
+  AlertCircle,
+  CircleDollarSign,
+  PauseCircle,
+  PlayCircle,
+  Sparkles,
+  } from 'lucide-react';
+
 /**
  * <SubscriptionKpiStrip> — KPI strip for the canonical subscriptions list.
  *
@@ -11,15 +20,6 @@
  */
 
 import * as React from 'react';
-import {
-  AlertCircle,
-  CircleDollarSign,
-  PauseCircle,
-  PlayCircle,
-  Sparkles,
-} from 'lucide-react';
-
-import { ZoruStatCard } from '@/components/zoruui';
 
 import type { SubscriptionKpiSnapshot } from '@/app/actions/crm/subscriptions.actions';
 

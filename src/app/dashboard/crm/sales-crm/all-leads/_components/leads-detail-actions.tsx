@@ -1,5 +1,19 @@
 'use client';
 
+import { ZoruButton } from '@/components/zoruui';
+import {
+  Activity,
+  Archive,
+  Building,
+  Edit,
+  LoaderCircle,
+  Mail,
+  MessageCircle,
+  Phone,
+  Printer,
+  Trash2,
+  } from 'lucide-react';
+
 /**
  * Header action group for the lead detail page (extracted to keep
  * `[id]/page.tsx` under the 600-line scope cap).
@@ -12,20 +26,6 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import {
-    Activity,
-    Archive,
-    Building,
-    Edit,
-    LoaderCircle,
-    Mail,
-    MessageCircle,
-    Phone,
-    Printer,
-    Trash2,
-} from 'lucide-react';
-
-import { ZoruButton } from '@/components/zoruui';
 
 export interface LeadDetailActionsProps {
     leadId: string;

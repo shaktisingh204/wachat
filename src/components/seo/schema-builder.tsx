@@ -1,12 +1,23 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, ZoruButton } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruLabel } from '@/components/zoruui';
+import {
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruButton,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+} from '@/components/zoruui';
+import {
+  useState,
+  useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
 
 export default function SchemaBuilder() {
     const [type, setType] = useState('LocalBusiness');

@@ -1,5 +1,14 @@
 'use client';
 
+import { ZoruStatCard } from '@/components/zoruui';
+import {
+  CheckCircle2,
+  ChevronDown,
+  IndianRupee,
+  TrendingDown,
+  TrendingUp,
+  } from 'lucide-react';
+
 /**
  * KPI strip for the Budgets list (§1D.1).
  *
@@ -10,15 +19,7 @@
  */
 
 import * as React from 'react';
-import {
-  CheckCircle2,
-  ChevronDown,
-  IndianRupee,
-  TrendingDown,
-  TrendingUp,
-} from 'lucide-react';
 
-import { ZoruStatCard } from '@/components/zoruui';
 import type { BudgetRow } from './budgets-types';
 
 export type BudgetsKpiKey = 'all' | 'active' | 'over' | 'under';

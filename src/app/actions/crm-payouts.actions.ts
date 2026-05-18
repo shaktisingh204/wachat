@@ -10,7 +10,6 @@ import { appendLineage, buildLineageFromParent } from '@/lib/lineage';
 import { writeAuditEntry } from '@/lib/audit-log';
 import { requirePermission } from '@/lib/rbac-server';
 
-
 export async function getPayoutById(payoutId: string): Promise<WithId<CrmPayout> | null> {
     const session = await getSession();
     if (!session?.user) return null;

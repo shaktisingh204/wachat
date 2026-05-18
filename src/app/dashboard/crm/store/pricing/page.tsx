@@ -1,22 +1,26 @@
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+} from '@/components/zoruui';
+import {
+  Plus,
+  Tag } from 'lucide-react';
+
+import { CrmPageHeader } from '../../_components/crm-page-header';
+
 /**
  * Pricing rules list — `/dashboard/crm/store/pricing`.
  */
 
 import Link from 'next/link';
-import { Plus, Tag } from 'lucide-react';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
-import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruTable,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-} from '@/components/zoruui';
 import {
     getPricingRuleList,
     getStorefrontList,

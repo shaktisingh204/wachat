@@ -1,4 +1,3 @@
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -24,7 +23,6 @@ export async function createQrCode(_prevState: any, formData: FormData): Promise
         return { error: msg };
     }
 }
-
 
 /**
  * List the current user's saved QR codes joined with their short-URL rows.

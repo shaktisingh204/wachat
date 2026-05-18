@@ -1,14 +1,59 @@
 'use client';
 
-import { Suspense, useEffect, useState } from 'react';
-import { useSearchParams, useRouter } from "next/navigation";
+import {
+  ZoruAlert,
+  ZoruAlertTitle,
+  ZoruAlertDescription,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruCardDescription,
+  ZoruCardFooter,
+  ZoruButton,
+  ZoruInput,
+  ZoruLabel,
+  ZoruTextarea,
+  ZoruSwitch,
+  ZoruBadge,
+  ZoruSkeleton,
+  ZoruSeparator,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  ZoruPageDescription,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  Suspense,
+  useEffect,
+  useState } from 'react';
+import { useSearchParams,
+  useRouter } from "next/navigation";
 import { CrmSmtpForm } from '@/components/wabasimplify/crm-smtp-form';
 import { EmailTemplatesManager } from '@/components/wabasimplify/email-templates-manager';
-import { AlertCircle, Mail, FileText, Settings, ShieldCheck, Zap, BarChart3, Plus, ArrowLeft, Trash2, CheckCircle, LoaderCircle, Save } from 'lucide-react';
-import { getEmailSettings, saveEmailComplianceSettings, disconnectEmailSettings } from '@/app/actions/email.actions';
+import { AlertCircle,
+  Mail,
+  FileText,
+  Settings,
+  ShieldCheck,
+  Zap,
+  BarChart3,
+  Plus,
+  ArrowLeft,
+  Trash2,
+  CheckCircle,
+  LoaderCircle,
+  Save } from 'lucide-react';
+import { getEmailSettings,
+  saveEmailComplianceSettings,
+  disconnectEmailSettings } from '@/app/actions/email.actions';
 import { getSession } from '@/app/actions/user.actions';
-import type { EmailSettings as CrmEmailSettings, User, WithId } from '@/lib/definitions';
-import { GoogleIcon, OutlookIcon } from '@/components/wabasimplify/custom-sidebar-components';
+import type { EmailSettings as CrmEmailSettings,
+  User,
+  WithId } from '@/lib/definitions';
+import { GoogleIcon,
+  OutlookIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import Link from "next/link";
 import { ModuleLayout } from '@/components/wabasimplify/module-layout';
 import { ModuleSidebar } from '@/components/wabasimplify/module-sidebar';
@@ -16,30 +61,6 @@ import { CodeBlock } from '@/components/wabasimplify/code-block';
 import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { EmailSuiteLayout } from '@/components/wabasimplify/email-suite-layout';
-import {
-    ZoruAlert,
-    ZoruAlertTitle,
-    ZoruAlertDescription,
-    ZoruCard,
-    ZoruCardContent,
-    ZoruCardHeader,
-    ZoruCardTitle,
-    ZoruCardDescription,
-    ZoruCardFooter,
-    ZoruButton,
-    ZoruInput,
-    ZoruLabel,
-    ZoruTextarea,
-    ZoruSwitch,
-    ZoruBadge,
-    ZoruSkeleton,
-    ZoruSeparator,
-    ZoruPageHeader,
-    ZoruPageHeading,
-    ZoruPageTitle,
-    ZoruPageDescription,
-    useZoruToast,
-} from '@/components/zoruui';
 
 function PageSkeleton() {
     return (

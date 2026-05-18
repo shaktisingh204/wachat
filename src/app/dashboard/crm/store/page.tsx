@@ -1,3 +1,16 @@
+import { ZoruButton, ZoruCard, ZoruStatCard } from '@/components/zoruui';
+import {
+  Store,
+  Package,
+  Tag,
+  Truck,
+  ShoppingBag,
+  AlertTriangle,
+  ArrowRight,
+  } from 'lucide-react';
+
+import { CrmPageHeader } from '../_components/crm-page-header';
+
 /**
  * Store overview — `/dashboard/crm/store`.
  *
@@ -8,22 +21,7 @@
  */
 
 import Link from 'next/link';
-import {
-    Store,
-    Package,
-    Tag,
-    Truck,
-    ShoppingBag,
-    AlertTriangle,
-    ArrowRight,
-} from 'lucide-react';
 
-import { CrmPageHeader } from '../_components/crm-page-header';
-import {
-    ZoruButton,
-    ZoruCard,
-    ZoruStatCard,
-} from '@/components/zoruui';
 import { getStoreOverviewKpis } from '@/app/actions/crm-store.actions';
 
 export const dynamic = 'force-dynamic';

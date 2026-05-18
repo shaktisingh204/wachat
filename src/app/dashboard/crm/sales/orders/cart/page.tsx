@@ -1,12 +1,13 @@
 'use client';
 
+import { ZoruButton, ZoruCard, ZoruInput, ZoruLabel, ZoruSkeleton, ZoruTextarea, useZoruToast } from '@/components/zoruui';
 import {
   useCallback,
   useEffect,
   useState,
   useTransition,
   useActionState,
-} from 'react';
+  } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -18,17 +19,8 @@ import {
   Eraser,
   Send,
   LoaderCircle,
-} from 'lucide-react';
+  } from 'lucide-react';
 
-import {
-  ZoruButton,
-  ZoruCard,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSkeleton,
-  ZoruTextarea,
-  useZoruToast,
-} from '@/components/zoruui';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
 
 import {

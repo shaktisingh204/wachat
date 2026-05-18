@@ -1,12 +1,5 @@
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
-import { BarChart3, Eye, RefreshCw, Users } from 'lucide-react';
-import type { WithId, Project } from '@/lib/definitions';
-
-import { getProjectById } from '@/app/actions/project.actions';
-import { useProject } from '@/context/project-context';
-import { WhatsAppWidgetGenerator } from '@/components/wabasimplify/whatsapp-widget-generator';
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -21,6 +14,20 @@ import {
   ZoruCard,
   ZoruSkeleton,
 } from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition } from 'react';
+import { BarChart3,
+  Eye,
+  RefreshCw,
+  Users } from 'lucide-react';
+import type { WithId,
+  Project } from '@/lib/definitions';
+
+import { getProjectById } from '@/app/actions/project.actions';
+import { useProject } from '@/context/project-context';
+import { WhatsAppWidgetGenerator } from '@/components/wabasimplify/whatsapp-widget-generator';
 
 function PageSkeleton() {
   return (

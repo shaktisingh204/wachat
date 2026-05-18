@@ -1,8 +1,8 @@
-
 'use client';
 
-import Link from 'next/link';
 import { ZoruAvatar, ZoruAvatarFallback } from '@/components/zoruui';
+import Link from 'next/link';
+
 import { User, Building, FolderKanban } from 'lucide-react';
 import type { WithId, CrmDeal, CrmContact, CrmAccount } from '@/lib/definitions';
 import { useDraggable } from '@dnd-kit/core';

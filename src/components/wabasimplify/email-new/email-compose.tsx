@@ -1,13 +1,25 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { ZoruButton } from '@/components/zoruui';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruTextarea } from '@/components/zoruui';
-import { ZoruDialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogFooter } from '@/components/zoruui';
+import {
+  ZoruButton,
+  ZoruInput,
+  ZoruTextarea,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruDialogFooter,
+  ZoruLabel,
+} from '@/components/zoruui';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { X, Minimize2, Maximize2, LoaderCircle, Send } from 'lucide-react';
-import { ZoruLabel } from '@/components/zoruui';
+import { X,
+  Minimize2,
+  Maximize2,
+  LoaderCircle,
+  Send } from 'lucide-react';
+
+import React, { useState, useEffect } from 'react';
+
 import { useToast } from '@/hooks/use-toast';
 
 export function EmailCompose() {

@@ -1,45 +1,5 @@
 'use client';
 
-/**
- * /dashboard/facebook/insights — Page-level performance metrics.
- *
- * KPI strip (reach, engagement, impressions, page views) sits above a
- * detailed time-series chart driven by `getDetailedPageInsights`. A
- * date-preset selector switches the `since` window (7/30/90 days).
- *
- * Data shape: Graph Insights returns `[{ name, period, values:
- * [{value, end_time}] }]`. We pivot the first time-series metric into a
- * recharts dataset.
- */
-
-import * as React from 'react';
-import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
-import {
-  Activity,
-  AlertCircle,
-  BarChart3,
-  Eye,
-  Heart,
-  RefreshCw,
-  Users,
-} from 'lucide-react';
-import { format, subDays } from 'date-fns';
-import {
-  Area,
-  AreaChart,
-  CartesianGrid,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts';
-
-import { useProject } from '@/context/project-context';
-import {
-  getDetailedPageInsights,
-  getPageInsights,
-} from '@/app/actions/facebook.actions';
-
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -67,6 +27,52 @@ import {
   ZoruSkeleton,
   ZoruStatCard,
 } from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useTransition } from 'react';
+import {
+  Activity,
+  AlertCircle,
+  BarChart3,
+  Eye,
+  Heart,
+  RefreshCw,
+  Users,
+  } from 'lucide-react';
+import { format,
+  subDays } from 'date-fns';
+import {
+  Area,
+  AreaChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+  } from 'recharts';
+
+import { useProject } from '@/context/project-context';
+import {
+  getDetailedPageInsights,
+  getPageInsights,
+  } from '@/app/actions/facebook.actions';
+
+/**
+ * /dashboard/facebook/insights — Page-level performance metrics.
+ *
+ * KPI strip (reach, engagement, impressions, page views) sits above a
+ * detailed time-series chart driven by `getDetailedPageInsights`. A
+ * date-preset selector switches the `since` window (7/30/90 days).
+ *
+ * Data shape: Graph Insights returns `[{ name, period, values:
+ * [{value, end_time}] }]`. We pivot the first time-series metric into a
+ * recharts dataset.
+ */
+
+import * as React from 'react';
 
 type Preset = '7d' | '30d' | '90d';
 

@@ -1,5 +1,20 @@
 'use client';
 
+import {
+  ZoruInput,
+  ZoruPopover,
+  ZoruPopoverContent,
+  ZoruPopoverTrigger,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  ChevronDown } from 'lucide-react';
+
 /**
  * Inline quick-edit popovers for the lead detail page right-rail.
  *
@@ -11,20 +26,7 @@
  */
 
 import * as React from 'react';
-import { ChevronDown } from 'lucide-react';
 
-import {
-    ZoruInput,
-    ZoruPopover,
-    ZoruPopoverContent,
-    ZoruPopoverTrigger,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    useZoruToast,
-} from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';

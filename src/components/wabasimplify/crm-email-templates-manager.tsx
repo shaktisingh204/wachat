@@ -1,9 +1,5 @@
-
 'use client';
 
-import { useState, useEffect, useTransition } from 'react';
-import { getCrmEmailTemplates, deleteCrmEmailTemplate } from '@/app/actions/crm-email-templates.actions';
-import type { WithId, CrmEmailTemplate } from '@/lib/definitions';
 import {
   ZoruAlertDialog,
   ZoruAlertDialogAction,
@@ -19,6 +15,15 @@ import {
   ZoruSkeleton,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useState,
+  useEffect,
+  useTransition } from 'react';
+import { getCrmEmailTemplates,
+  deleteCrmEmailTemplate } from '@/app/actions/crm-email-templates.actions';
+import type { WithId,
+  CrmEmailTemplate } from '@/lib/definitions';
+
 import { LoaderCircle, Plus, Trash2, Edit } from 'lucide-react';
 import { CrmEmailTemplateDialog } from './crm-email-template-dialog';
 

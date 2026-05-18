@@ -1,7 +1,8 @@
 'use client';
 
-import { use } from 'react';
 import { ZoruButton, ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import { use } from 'react';
+
 import { MapPin, Search } from 'lucide-react';
 
 const MOCK_GRID = [

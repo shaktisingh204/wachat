@@ -1,16 +1,36 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import {
+  ZoruSkeleton,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruButton,
+  ZoruBadge,
+} from '@/components/zoruui';
+import {
+  useState,
+  useEffect } from 'react';
 import { ModuleLayout } from '@/components/wabasimplify/module-layout';
 import { ModuleSidebar } from '@/components/wabasimplify/module-sidebar';
-import { Mail, Send, Users, FileText, Settings, Inbox, ChevronDown, PlusCircle, BarChart3 } from 'lucide-react';
-import { useRouter, useSearchParams, usePathname } from 'next/navigation';
-import type { WithId, EmailSettings } from '@/lib/definitions';
+import { Mail,
+  Send,
+  Users,
+  FileText,
+  Settings,
+  Inbox,
+  ChevronDown,
+  PlusCircle,
+  BarChart3 } from 'lucide-react';
+import { useRouter,
+  useSearchParams,
+  usePathname } from 'next/navigation';
+import type { WithId,
+  EmailSettings } from '@/lib/definitions';
 import { getEmailSettings } from '@/app/actions/email.actions';
-import { ZoruSkeleton } from '@/components/zoruui';
-import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from "@/components/ui/select";
-import { ZoruButton } from '@/components/zoruui';
-import { ZoruBadge } from '@/components/zoruui';
+
 import Link from 'next/link';
 
 interface EmailSuiteLayoutProps {

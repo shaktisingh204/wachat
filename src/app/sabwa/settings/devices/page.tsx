@@ -1,9 +1,11 @@
+import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardHeader, ZoruCardTitle, ZoruButton } from '@/components/zoruui';
+import {
+  Smartphone,
+  ArrowRight } from 'lucide-react';
+
 import * as React from 'react';
 import Link from 'next/link';
-import { Smartphone, ArrowRight } from 'lucide-react';
 
-import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardHeader, ZoruCardTitle, ZoruButton } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
 import { SettingsTabs } from '../_components/settings-tabs';
 
 export const metadata = { title: 'Settings — Devices — SabWa' };

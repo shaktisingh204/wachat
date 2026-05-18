@@ -1,32 +1,5 @@
 'use client';
 
-/**
- * Wachat Credit Usage — billing and credit usage dashboard.
- */
-
-import * as React from 'react';
-import { useEffect, useState, useTransition, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
-import {
-  Calendar,
-  Coins,
-  CreditCard,
-  Loader2,
-  TrendingUp,
-  TriangleAlert,
-} from 'lucide-react';
-import {
-  CartesianGrid,
-  Line,
-  LineChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts';
-
-import { useProject } from '@/context/project-context';
-import { getCreditUsage } from '@/app/actions/wachat-features.actions';
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -45,6 +18,38 @@ import {
   ZoruPageTitle,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition,
+  useCallback } from 'react';
+import { useRouter } from 'next/navigation';
+import {
+  Calendar,
+  Coins,
+  CreditCard,
+  Loader2,
+  TrendingUp,
+  TriangleAlert,
+  } from 'lucide-react';
+import {
+  CartesianGrid,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+  } from 'recharts';
+
+import { useProject } from '@/context/project-context';
+import { getCreditUsage } from '@/app/actions/wachat-features.actions';
+
+/**
+ * Wachat Credit Usage — billing and credit usage dashboard.
+ */
+
+import * as React from 'react';
 
 export default function CreditUsagePage() {
   const router = useRouter();

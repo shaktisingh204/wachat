@@ -1,5 +1,3 @@
-
-
 import { notFound } from 'next/navigation';
 import { getSiteBySlug } from '@/app/actions/portfolio.actions';
 import { Canvas } from '@/components/wabasimplify/website-builder/canvas';

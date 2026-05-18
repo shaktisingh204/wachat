@@ -1,12 +1,6 @@
 'use client';
 
-/**
- * Presentational bits for `<DeliveryListClient>` — KPI strip, filter
- * toolbar, active-filter chips, bulk-bar, CSV helpers. Split out to
- * keep the parent file under the 600-line per-file cap.
- */
-
-import * as React from 'react';
+import { ZoruButton, ZoruInput, ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
 import {
   ArrowRightCircle,
   CalendarRange,
@@ -14,17 +8,16 @@ import {
   Search,
   Trash2,
   X,
-} from 'lucide-react';
+  } from 'lucide-react';
 
-import {
-  ZoruButton,
-  ZoruInput,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-} from '@/components/zoruui';
+/**
+ * Presentational bits for `<DeliveryListClient>` — KPI strip, filter
+ * toolbar, active-filter chips, bulk-bar, CSV helpers. Split out to
+ * keep the parent file under the 600-line per-file cap.
+ */
+
+import * as React from 'react';
+
 import { EntityPicker } from '@/components/crm/entity-picker';
 
 /* ─── Types ───────────────────────────────────────────────────────── */

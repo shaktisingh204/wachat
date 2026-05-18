@@ -1,3 +1,6 @@
+import { ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import { notFound } from 'next/navigation';
+
 /**
  * BOM detail page (server component) — §1D.2 bar.
  *
@@ -6,14 +9,7 @@
  * Right rail: versions/variants list + related production orders.
  * Footer: audit timeline via `audit` prop on <EntityDetailShell>.
  */
-import { notFound } from 'next/navigation';
 
-import {
-  ZoruCard,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-} from '@/components/zoruui';
 import { EntityDetailShell, type EntityStatusTone } from '@/components/crm/entity-detail-shell';
 import {
   getBomVersionsForFinishedGood,

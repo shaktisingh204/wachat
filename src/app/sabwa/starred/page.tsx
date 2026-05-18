@@ -1,5 +1,31 @@
 "use client";
 
+import {
+  ZoruBadge,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruEmptyState,
+  ZoruInput,
+  ZoruSkeleton,
+  cn,
+} from '@/components/zoruui';
+import {
+  ChevronDown,
+  ChevronUp,
+  ExternalLink,
+  Search,
+  Smartphone,
+  Star } from "lucide-react";
+
 /**
  * /sabwa/starred — Cross-chat starred-message view.
  *
@@ -18,26 +44,6 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { ChevronDown, ChevronUp, ExternalLink, Search, Smartphone, Star } from "lucide-react";
-
-import {
-  ZoruBadge,
-  ZoruBreadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  ZoruButton,
-  ZoruCard,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruEmptyState,
-  ZoruInput,
-  ZoruSkeleton,
-  cn,
-} from "@/components/zoruui";
 
 import { MessageBubble } from "@/app/sabwa/_components/message-bubble";
 import { useStarred } from "@/lib/sabwa/use-sabwa-data";

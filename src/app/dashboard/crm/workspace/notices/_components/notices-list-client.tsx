@@ -1,5 +1,33 @@
 'use client';
 
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruInput,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruStatCard,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  useDebouncedCallback } from 'use-debounce';
+import {
+    BellRing,
+  CheckCircle2,
+  Megaphone,
+  Pin,
+  Plus,
+  Trash2,
+  X,
+  } from 'lucide-react';
+
+import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { ConfirmDialog } from '@/components/crm/confirm-dialog';
+import { StatusPill } from '@/components/crm/status-pill';
+
 /**
  * Notices list client (§1D.1) — KPI strip (4), filters (status, author,
  * audience, date range), table with columns title · author · audience ·
@@ -8,32 +36,6 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useDebouncedCallback } from 'use-debounce';
-import {
-    BellRing,
-    CheckCircle2,
-    Megaphone,
-    Pin,
-    Plus,
-    Trash2,
-    X,
-} from 'lucide-react';
-
-import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { ConfirmDialog } from '@/components/crm/confirm-dialog';
-import { StatusPill } from '@/components/crm/status-pill';
-import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruInput,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    ZoruStatCard,
-    useZoruToast,
-} from '@/components/zoruui';
 
 import {
     deleteNotice,

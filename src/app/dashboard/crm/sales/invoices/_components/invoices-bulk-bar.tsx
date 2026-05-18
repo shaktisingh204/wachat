@@ -1,5 +1,14 @@
 'use client';
 
+import { ZoruButton, ZoruDropdownMenu, ZoruDropdownMenuContent, ZoruDropdownMenuItem, ZoruDropdownMenuTrigger } from '@/components/zoruui';
+import {
+  Banknote,
+  Download,
+  ListChecks,
+  Mail,
+  Trash2,
+  X } from 'lucide-react';
+
 /**
  * <InvoicesBulkBar> — sticky bulk-action ribbon for the invoice list.
  *
@@ -9,15 +18,7 @@
  */
 
 import * as React from 'react';
-import { Banknote, Download, ListChecks, Mail, Trash2, X } from 'lucide-react';
 
-import {
-  ZoruButton,
-  ZoruDropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
-} from '@/components/zoruui';
 import type { CrmInvoiceStatus } from '@/lib/rust-client/crm-invoices';
 
 const STATUS_OPTIONS: { value: CrmInvoiceStatus; label: string }[] = [

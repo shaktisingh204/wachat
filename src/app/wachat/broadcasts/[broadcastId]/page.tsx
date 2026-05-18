@@ -1,16 +1,29 @@
 'use client';
 
-/**
- * Broadcast Report — per-campaign detail, ZoruUI rebuild.
- *
- * Same data + handlers as before (getBroadcastById, getBroadcastAttempts,
- * getBroadcastAttemptsForExport, getBroadcastLogs). Visual layer fully
- * on Zoru primitives — neutral palette, no rainbow.
- */
-
-import * as React from 'react';
-import { useState, useEffect, useTransition, useCallback } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import {
+  useZoruToast,
+  ZoruBadge,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  ZoruEmptyState,
+  ZoruProgress,
+  ZoruSkeleton,
+  ZoruStatCard,
+  cn,
+} from '@/components/zoruui';
+import {
+  useState,
+  useEffect,
+  useTransition,
+  useCallback } from 'react';
+import { useParams,
+  useRouter } from 'next/navigation';
 import Link from 'next/link';
 import type { WithId } from 'mongodb';
 import Papa from 'papaparse';
@@ -30,33 +43,26 @@ import {
   Send,
   TriangleAlert,
   Users,
-} from 'lucide-react';
+  } from 'lucide-react';
 
 import {
   getBroadcastById,
   getBroadcastAttempts,
   getBroadcastAttemptsForExport,
   getBroadcastLogs,
-} from '@/app/actions/broadcast.actions';
-import type { BroadcastAttempt, BroadcastLog } from '@/lib/definitions';
-import { useZoruToast } from '@/components/zoruui';
+  } from '@/app/actions/broadcast.actions';
+import type { BroadcastAttempt,
+  BroadcastLog } from '@/lib/definitions';
 
-import {
-  ZoruBadge,
-  ZoruBreadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  ZoruButton,
-  ZoruCard,
-  ZoruEmptyState,
-  ZoruProgress,
-  ZoruSkeleton,
-  ZoruStatCard,
-  cn,
-} from '@/components/zoruui';
+/**
+ * Broadcast Report — per-campaign detail, ZoruUI rebuild.
+ *
+ * Same data + handlers as before (getBroadcastById, getBroadcastAttempts,
+ * getBroadcastAttemptsForExport, getBroadcastLogs). Visual layer fully
+ * on Zoru primitives — neutral palette, no rainbow.
+ */
+
+import * as React from 'react';
 
 /* ── types ──────────────────────────────────────────────────────── */
 

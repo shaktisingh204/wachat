@@ -1,5 +1,23 @@
 'use client';
 
+import {
+  ZoruButton,
+  ZoruInput,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruStatCard,
+} from '@/components/zoruui';
+import {
+  ClipboardList,
+  Download,
+  Plus,
+  Search,
+  Table as TableIcon,
+  } from 'lucide-react';
+
 /**
  * <RfqKpiStrip> + <RfqListToolbar> — KPI strip and top toolbar for the
  * canonical RFQs list. Extracted from `<RfqListClient>` to keep that
@@ -13,24 +31,6 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import {
-  ClipboardList,
-  Download,
-  Plus,
-  Search,
-  Table as TableIcon,
-} from 'lucide-react';
-
-import {
-  ZoruButton,
-  ZoruInput,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  ZoruStatCard,
-} from '@/components/zoruui';
 
 import type { RfqKpiSummary } from './types';
 

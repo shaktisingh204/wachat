@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruButton, ZoruInput, ZoruLabel } from '@/components/zoruui';
+import { PlusCircle, Trash2 } from 'lucide-react';
+
 /**
  * <QuotationLineItemsEditor> — rich line-item editor extracted from
  * `<QuotationForm>` so neither file blows past the 600-line cap.
@@ -10,13 +13,7 @@
  */
 
 import * as React from 'react';
-import { PlusCircle, Trash2 } from 'lucide-react';
 
-import {
-  ZoruButton,
-  ZoruInput,
-  ZoruLabel,
-} from '@/components/zoruui';
 import { EntityPicker } from '@/components/crm/entity-picker';
 import type { CrmQuotationLineItem } from '@/lib/rust-client/crm-quotations';
 import type { LookupItem } from '@/lib/lookup-registry';

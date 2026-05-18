@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruStatCard } from '@/components/zoruui';
+import { Banknote, CheckCircle2, CircleDollarSign, FileEdit, Loader2, } from 'lucide-react';
+
 /**
  * <PayrollRunsKpiStrip> — KPI strip for the canonical payroll-runs list
  * (per §1D.1). 5 cards: Drafts · Processing · Approved · Disbursed ·
@@ -7,15 +10,6 @@
  */
 
 import * as React from 'react';
-import {
-  Banknote,
-  CheckCircle2,
-  CircleDollarSign,
-  FileEdit,
-  Loader2,
-} from 'lucide-react';
-
-import { ZoruStatCard } from '@/components/zoruui';
 
 export interface PayrollRunsKpiSnapshot {
   drafts: number;

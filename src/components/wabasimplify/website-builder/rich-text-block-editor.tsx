@@ -1,18 +1,25 @@
-
-
 'use client';
 
-import { ZoruLabel, ZoruButton } from '@/components/zoruui';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruTextarea } from '@/components/zoruui';
-import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
-import { ZoruAccordion, ZoruAccordionContent, ZoruAccordionItem, ZoruAccordionTrigger } from '@/components/zoruui';
+import {
+  ZoruLabel,
+  ZoruButton,
+  ZoruInput,
+  ZoruTextarea,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruAccordion,
+  ZoruAccordionContent,
+  ZoruAccordionItem,
+  ZoruAccordionTrigger,
+  ZoruSwitch,
+  ZoruSeparator,
+} from '@/components/zoruui';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ZoruButton } from '@/components/zoruui';
 import { Plus, Trash2 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
-import { ZoruSwitch } from '@/components/zoruui';
-import { ZoruSeparator } from '@/components/zoruui';
 
 export function RichTextBlockEditor({ settings, onUpdate }: { settings: any, onUpdate: (newSettings: any) => void }) {
     const handleUpdate = (field: string, value: any) => {

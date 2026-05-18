@@ -1,4 +1,3 @@
-
 'use server';
 
 import { connectToDatabase } from '@/lib/mongodb';
@@ -48,7 +47,6 @@ export async function saveSabChatSettings(prevState: any, formData: FormData) {
         return { error: getErrorMessage(e) };
     }
 }
-
 
 export async function saveSabChatFaq(prevState: any, formData: FormData) {
     const session = await getSession();
@@ -103,7 +101,6 @@ export async function deleteSabChatFaq(faqId: string) {
     }
 }
 
-
 export async function saveSabChatQuickReply(prevState: any, formData: FormData) {
     const session = await getSession();
     if (!session?.user) return { error: 'Authentication required' };
@@ -157,7 +154,6 @@ export async function deleteSabChatQuickReply(replyId: string) {
         return { success: false, error: getErrorMessage(e) };
     }
 }
-
 
 export async function getChatSessionsForUser() {
     const session = await getSession();
@@ -224,7 +220,6 @@ export async function getOrCreateChatSession(userId: string, email: string, name
         } else {
             validVisitorId = new ObjectId();
         }
-
 
         const result = await db.collection<SabChatSession>('sabchat_sessions').findOneAndUpdate(
             { userId: new ObjectId(userId), visitorId: validVisitorId.toString() } as any,
@@ -331,7 +326,6 @@ export async function getSabChatAnalytics() {
             { $sort: { _id: 1 } },
             { $project: { _id: 0, date: "$_id", count: "$count" } }
         ]).toArray();
-
 
         const stats = await db.collection('sabchat_sessions').aggregate([
             { $match: { userId: userId } },

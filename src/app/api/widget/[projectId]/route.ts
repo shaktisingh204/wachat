@@ -1,4 +1,3 @@
-
 import { NextRequest, NextResponse } from 'next/server';
 import { getPublicProjectById } from '@/app/actions/whatsapp.actions';
 import { connectToDatabase } from '@/lib/mongodb';

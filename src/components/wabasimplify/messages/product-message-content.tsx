@@ -1,9 +1,7 @@
-
 'use client';
 
 import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardFooter, ZoruCardHeader, ZoruCardTitle, ZoruButton } from '@/components/zoruui';
 import { ShoppingBag } from 'lucide-react';
-import { ZoruButton } from '@/components/zoruui';
 
 interface ProductMessageContentProps {
   catalogId: string;

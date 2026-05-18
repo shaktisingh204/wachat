@@ -1,6 +1,16 @@
 'use client';
 
-import { ZoruButton, ZoruCard, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow, useZoruToast } from '@/components/zoruui';
+import {
+  ZoruButton,
+  ZoruCard,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  useZoruToast,
+} from '@/components/zoruui';
 import { Download, TrendingUp, LoaderCircle, ArrowUpDown } from 'lucide-react';
 import { useState, useEffect, useTransition, useCallback, useMemo } from 'react';
 import { generateProductPnlData } from '@/app/actions/crm-reports.actions';

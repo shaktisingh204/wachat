@@ -1,39 +1,5 @@
 "use client";
 
-/**
- * /sabwa/chats — Individual chats view with bulk-action selection mode.
- *
- * Re-uses the inbox's `<ChatListRow>` and `useChats(sessionId, { type:
- * 'individual' })` from `@/lib/sabwa/use-sabwa-data`. Layered on top:
- *
- *  - Toolbar: search, filter (All / Unread / Read), sort (Recent / Name),
- *    bulk-select toggle.
- *  - Bulk-mode: each row prefixed with a Checkbox; sticky footer with
- *    Mark read, Mark unread, Archive, Mute (popover), Add label
- *    (popover).
- *  - Actions loop over selected jids and call `updateChatState`.
- *  - Tablet/mobile: toolbar collapses into a hamburger menu.
- *
- * The page does not re-render the SabWa rail — that comes from the
- * parent layout.
- */
-
-import * as React from "react";
-import Link from "next/link";
-import {
-  CheckCheck,
-  CheckSquare,
-  EyeOff,
-  Archive,
-  BellOff,
-  MessageSquare,
-  Menu as MenuIcon,
-  Search,
-  Smartphone,
-  Tag as TagIcon,
-  X,
-} from "lucide-react";
-
 import {
   ZoruBadge,
   ZoruBreadcrumb,
@@ -58,7 +24,41 @@ import {
   ZoruSelectValue,
   ZoruSkeleton,
   useZoruToast,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  CheckCheck,
+  CheckSquare,
+  EyeOff,
+  Archive,
+  BellOff,
+  MessageSquare,
+  Menu as MenuIcon,
+  Search,
+  Smartphone,
+  Tag as TagIcon,
+  X,
+  } from "lucide-react";
+
+/**
+ * /sabwa/chats — Individual chats view with bulk-action selection mode.
+ *
+ * Re-uses the inbox's `<ChatListRow>` and `useChats(sessionId, { type:
+ * 'individual' })` from `@/lib/sabwa/use-sabwa-data`. Layered on top:
+ *
+ *  - Toolbar: search, filter (All / Unread / Read), sort (Recent / Name),
+ *    bulk-select toggle.
+ *  - Bulk-mode: each row prefixed with a Checkbox; sticky footer with
+ *    Mark read, Mark unread, Archive, Mute (popover), Add label
+ *    (popover).
+ *  - Actions loop over selected jids and call `updateChatState`.
+ *  - Tablet/mobile: toolbar collapses into a hamburger menu.
+ *
+ * The page does not re-render the SabWa rail — that comes from the
+ * parent layout.
+ */
+
+import * as React from "react";
+import Link from "next/link";
 
 import { ChatListRow } from "@/app/sabwa/_components/chat-list-row";
 import { useChats, useLabels } from "@/lib/sabwa/use-sabwa-data";

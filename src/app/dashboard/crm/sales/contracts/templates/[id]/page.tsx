@@ -1,3 +1,11 @@
+import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
+import {
+  notFound,
+  redirect } from 'next/navigation';
+import { ArrowLeft,
+  FileSignature,
+  Pencil } from 'lucide-react';
+
 /**
  * Contract template detail page — server component.
  *
@@ -6,10 +14,7 @@
  */
 
 import Link from 'next/link';
-import { notFound, redirect } from 'next/navigation';
-import { ArrowLeft, FileSignature, Pencil } from 'lucide-react';
 
-import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 import { getSession } from '@/app/actions/user.actions';

@@ -1,31 +1,5 @@
 'use client';
 
-/**
- * /sabwa/audit — Append-only audit log with rich filters and CSV export.
- *
- * Click a row to expand the full metadata JSON. Filters: session, date
- * range, action prefix (e.g. `message.*`), free-text search.
- *
- * Visual layer migrated to ZoruUI.
- */
-
-import * as React from 'react';
-import { format } from 'date-fns';
-import {
-  ChevronDown,
-  ChevronRight,
-  Download,
-  Loader2,
-  RefreshCw,
-  ScrollText,
-  Search,
-} from 'lucide-react';
-
-import {
-  listAuditEntries,
-  type SabwaAuditEntryRow,
-} from '@/app/actions/sabwa.actions';
-
 import {
   ZoruBadge,
   ZoruBreadcrumb,
@@ -52,6 +26,33 @@ import {
   cn,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  format } from 'date-fns';
+import {
+  ChevronDown,
+  ChevronRight,
+  Download,
+  Loader2,
+  RefreshCw,
+  ScrollText,
+  Search,
+  } from 'lucide-react';
+
+import {
+  listAuditEntries,
+  type SabwaAuditEntryRow,
+  } from '@/app/actions/sabwa.actions';
+
+/**
+ * /sabwa/audit — Append-only audit log with rich filters and CSV export.
+ *
+ * Click a row to expand the full metadata JSON. Filters: session, date
+ * range, action prefix (e.g. `message.*`), free-text search.
+ *
+ * Visual layer migrated to ZoruUI.
+ */
+
+import * as React from 'react';
 
 import { EmptyState } from '@/app/sabwa/_components/empty-state';
 import { formatJid, useResolveJid } from '@/lib/sabwa/format-jid';

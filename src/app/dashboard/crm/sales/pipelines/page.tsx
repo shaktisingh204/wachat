@@ -1,7 +1,7 @@
+import { ZoruButton, ZoruCard } from '@/components/zoruui';
 import { Plus, Columns3 } from 'lucide-react';
 import Link from 'next/link';
 
-import { ZoruButton, ZoruCard } from '@/components/zoruui';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 
 export default function PipelinesPage() {

@@ -1,12 +1,8 @@
 'use client';
 
+import { ZoruButton, ZoruCard, ZoruSkeleton, useZoruToast, ZoruChartContainer, ZoruChartTooltip } from '@/components/zoruui';
 import { useEffect, useState, use } from 'react';
-import {
-    ZoruButton,
-    ZoruCard,
-    ZoruSkeleton,
-    useZoruToast,
-} from '@/components/zoruui';
+
 import { Star, Link as LinkIcon, BarChart, Globe, Target, Map } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { getSeoProject, getSiteMetrics } from '@/app/actions/seo.actions';

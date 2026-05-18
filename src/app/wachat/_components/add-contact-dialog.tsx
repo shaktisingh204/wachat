@@ -1,23 +1,5 @@
 'use client';
 
-/**
- * AddContactDialog (wachat-local, ZoruUI).
- *
- * Replaces @/components/wabasimplify/add-contact-dialog. Same server
- * action (handleAddNewContact), same hidden form fields, same project
- * + tag selection behaviour.
- */
-
-import * as React from 'react';
-import { useActionState, useEffect, useRef, useState } from 'react';
-import { useFormStatus } from 'react-dom';
-import { Loader2, UserPlus } from 'lucide-react';
-import type { WithId } from 'mongodb';
-
-import { handleAddNewContact } from '@/app/actions/contact.actions';
-import { countryCodes } from '@/lib/country-codes';
-import type { Project, Tag } from '@/lib/definitions';
-
 import {
   ZoruButton,
   ZoruDialog,
@@ -37,6 +19,30 @@ import {
   ZoruSelectValue,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect,
+  useRef,
+  useState } from 'react';
+import { useFormStatus } from 'react-dom';
+import { Loader2,
+  UserPlus } from 'lucide-react';
+import type { WithId } from 'mongodb';
+
+import { handleAddNewContact } from '@/app/actions/contact.actions';
+import { countryCodes } from '@/lib/country-codes';
+import type { Project,
+  Tag } from '@/lib/definitions';
+
+/**
+ * AddContactDialog (wachat-local, ZoruUI).
+ *
+ * Replaces @/components/wabasimplify/add-contact-dialog. Same server
+ * action (handleAddNewContact), same hidden form fields, same project
+ * + tag selection behaviour.
+ */
+
+import * as React from 'react';
 
 import { MultiSelectCombobox } from './multi-select-combobox';
 

@@ -1,19 +1,15 @@
 'use client';
 
+import { ZoruBadge, ZoruButton, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/zoruui';
+import {
+  Check,
+  Square,
+  Trash2,
+  X } from 'lucide-react';
+
 import * as React from 'react';
 import Link from 'next/link';
-import { Check, Square, Trash2, X } from 'lucide-react';
 
-import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruTable,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from '@/components/zoruui';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import {
   wsFormatDuration,

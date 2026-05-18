@@ -1,16 +1,28 @@
-
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
-import { getFacebookKanbanData, handleUpdateFacebookSubscriberStatus, saveFacebookKanbanStatuses } from '@/app/actions/facebook.actions';
-import type { WithId, FacebookSubscriber, Project } from '@/lib/definitions';
+import {
+  ZoruSkeleton,
+  ZoruButton,
+  ZoruAlert,
+  ZoruAlertDescription,
+  ZoruAlertTitle,
+  ZoruScrollArea,
+  ZoruScrollBar,
+  ZoruInput,
+} from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition } from 'react';
+import { getFacebookKanbanData,
+  handleUpdateFacebookSubscriberStatus,
+  saveFacebookKanbanStatuses } from '@/app/actions/facebook.actions';
+import type { WithId,
+  FacebookSubscriber,
+  Project } from '@/lib/definitions';
 import { FacebookKanbanColumn } from '@/components/wabasimplify/facebook-kanban-column';
-import { ZoruSkeleton, ZoruButton } from '@/components/zoruui';
-import { ZoruAlert, ZoruAlertDescription, ZoruAlertTitle } from '@/components/zoruui';
 import { AlertCircle, Plus } from 'lucide-react';
-import { ZoruScrollArea, ZoruScrollBar } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
-import { ZoruInput } from '@/components/zoruui';
+
 import { useToast } from '@/hooks/use-toast';
 import { DndContext, DragEndEvent, PointerSensor, useSensor, useSensors, closestCorners } from '@dnd-kit/core';
 

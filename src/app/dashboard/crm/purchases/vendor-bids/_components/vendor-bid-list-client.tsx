@@ -1,5 +1,6 @@
 'use client';
 
+import { ZoruCard, useZoruToast } from '@/components/zoruui';
 /**
  * <VendorBidListClient> — canonical Vendor Bids list view per
  * `docs/ecosystem/CRM_REBUILD_PLAN.md` §1D (thin spec).
@@ -19,10 +20,6 @@
 
 import * as React from 'react';
 
-import {
-  ZoruCard,
-  useZoruToast,
-} from '@/components/zoruui';
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import type { CrmVendorBidStatus } from '@/lib/rust-client/crm-vendor-bids';

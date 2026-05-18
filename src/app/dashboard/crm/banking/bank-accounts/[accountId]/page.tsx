@@ -1,3 +1,16 @@
+import { ZoruButton, ZoruCard } from '@/components/zoruui';
+import {
+  notFound,
+  redirect } from 'next/navigation';
+import {
+    ArrowLeft,
+  ArrowLeftRight,
+  Edit,
+  FileText,
+  Landmark,
+  RotateCw,
+  } from 'lucide-react';
+
 /**
  * Bank Account detail — server component scoped to `accountType === 'bank'`.
  *
@@ -7,17 +20,7 @@
  */
 
 import Link from 'next/link';
-import { notFound, redirect } from 'next/navigation';
-import {
-    ArrowLeft,
-    ArrowLeftRight,
-    Edit,
-    FileText,
-    Landmark,
-    RotateCw,
-} from 'lucide-react';
 
-import { ZoruButton, ZoruCard } from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { StatusPill } from '@/components/crm/status-pill';
 

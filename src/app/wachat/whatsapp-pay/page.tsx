@@ -1,35 +1,5 @@
 'use client';
 
-/**
- * Wachat WhatsApp Pay — Transactions tab (ZoruUI).
- *
- * KPI strip + transaction chart + transaction table with refund-confirm
- * alert dialog.
- */
-
-import * as React from 'react';
-import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
-import type { WithId } from 'mongodb';
-import { subDays, format } from 'date-fns';
-import { DateRange } from 'react-day-picker';
-import Papa from 'papaparse';
-import {
-  IndianRupee,
-  CheckCircle2,
-  XCircle,
-  Download,
-  RefreshCw,
-  MoreHorizontal,
-  Receipt,
-} from 'lucide-react';
-import type { ColumnDef } from '@tanstack/react-table';
-
-import { getProjectById } from '@/app/actions/index';
-import { getTransactionsForProject } from '@/app/actions/whatsapp.actions';
-import type { Project, Transaction } from '@/lib/definitions';
-import { useProject } from '@/context/project-context';
-import { TransactionChart } from '@/app/wachat/_components/transaction-chart';
-
 import {
   ZoruAlertDialog,
   ZoruAlertDialogAction,
@@ -54,6 +24,43 @@ import {
   ZoruSkeleton,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useTransition } from 'react';
+import type { WithId } from 'mongodb';
+import { subDays,
+  format } from 'date-fns';
+import { DateRange } from 'react-day-picker';
+import Papa from 'papaparse';
+import {
+  IndianRupee,
+  CheckCircle2,
+  XCircle,
+  Download,
+  RefreshCw,
+  MoreHorizontal,
+  Receipt,
+  } from 'lucide-react';
+import type { ColumnDef } from '@tanstack/react-table';
+
+import { getProjectById } from '@/app/actions/index';
+import { getTransactionsForProject } from '@/app/actions/whatsapp.actions';
+import type { Project,
+  Transaction } from '@/lib/definitions';
+import { useProject } from '@/context/project-context';
+import { TransactionChart } from '@/app/wachat/_components/transaction-chart';
+
+/**
+ * Wachat WhatsApp Pay — Transactions tab (ZoruUI).
+ *
+ * KPI strip + transaction chart + transaction table with refund-confirm
+ * alert dialog.
+ */
+
+import * as React from 'react';
 
 type PaymentRow = {
   id: string;

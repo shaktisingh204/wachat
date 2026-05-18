@@ -1,5 +1,13 @@
 'use client';
 
+import { ZoruButton, useZoruToast } from '@/components/zoruui';
+import {
+  useTransition } from 'react';
+import { CheckSquare,
+  Loader2 } from 'lucide-react';
+
+import { registerPhoneNumber } from '@/app/actions/whatsapp.actions';
+
 /**
  * RegisterPhoneButton (wachat-local, ZoruUI).
  *
@@ -8,11 +16,6 @@
  */
 
 import * as React from 'react';
-import { useTransition } from 'react';
-import { CheckSquare, Loader2 } from 'lucide-react';
-
-import { registerPhoneNumber } from '@/app/actions/whatsapp.actions';
-import { ZoruButton, useZoruToast } from '@/components/zoruui';
 
 interface RegisterPhoneButtonProps {
   projectId: string;

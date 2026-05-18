@@ -1,15 +1,32 @@
 'use client';
 
-import React from 'react';
-import { Mail, Reply, ReplyAll, Forward, MoreVertical, Trash2, Archive, Paperclip } from 'lucide-react';
+import {
+  ZoruAvatar,
+  ZoruAvatarFallback,
+  ZoruAvatarImage,
+  ZoruButton,
+  ZoruSeparator,
+  ZoruTooltip,
+  ZoruTooltipContent,
+  ZoruTooltipTrigger,
+  ZoruTooltipProvider,
+  ZoruTextarea,
+  ZoruSelect,
+} from '@/components/zoruui';
+import {
+  Mail,
+  Reply,
+  ReplyAll,
+  Forward,
+  MoreVertical,
+  Trash2,
+  Archive,
+  Paperclip } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import { mockConversations } from './email-data';
-import { ZoruAvatar, ZoruAvatarFallback, ZoruAvatarImage, ZoruButton } from '@/components/zoruui';
 import { format } from 'date-fns';
-import { ZoruSeparator } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
-import { ZoruTooltip, ZoruTooltipContent, ZoruTooltipTrigger, ZoruTooltipProvider } from '@/components/zoruui';
-import { ZoruTextarea } from '@/components/zoruui';
+
+import React from 'react';
 
 export function EmailDisplay({ initialAccountId }: { initialAccountId?: string }) {
     const searchParams = useSearchParams();
@@ -38,7 +55,6 @@ export function EmailDisplay({ initialAccountId }: { initialAccountId?: string }
             setConversation(null);
         }
     }, [selectedId, accountId]);
-
 
     if (!selectedId) {
         return (

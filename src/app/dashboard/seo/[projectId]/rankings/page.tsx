@@ -1,14 +1,11 @@
 'use client';
 
-import { use, useEffect, useState } from 'react';
+import { ZoruButton, ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, ZoruSkeleton } from '@/components/zoruui';
 import {
-    ZoruButton,
-    ZoruCard,
-    ZoruCardContent,
-    ZoruCardHeader,
-    ZoruCardTitle,
-    ZoruSkeleton,
-} from '@/components/zoruui';
+  use,
+  useEffect,
+  useState } from 'react';
+
 import { TrendingUp, RefreshCw } from 'lucide-react';
 import { getKeywords } from '@/app/actions/seo-rank.actions';
 import { RankingsTable } from '@/components/wabasimplify/seo/rankings-table';

@@ -1,13 +1,5 @@
 'use client';
 
-/**
- * Delete confirmations used by the bookings list — extracted out of
- * <BookingListClient> to keep that file under 600 lines.
- */
-
-import * as React from 'react';
-import { LoaderCircle } from 'lucide-react';
-
 import {
   ZoruAlertDialog,
   ZoruAlertDialogAction,
@@ -18,6 +10,15 @@ import {
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
 } from '@/components/zoruui';
+import {
+  LoaderCircle } from 'lucide-react';
+
+/**
+ * Delete confirmations used by the bookings list — extracted out of
+ * <BookingListClient> to keep that file under 600 lines.
+ */
+
+import * as React from 'react';
 
 interface SingleDeleteDialogProps {
   open: boolean;

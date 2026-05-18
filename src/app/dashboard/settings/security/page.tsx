@@ -1,36 +1,40 @@
 'use client';
 
-import { useActionState, useEffect, useState, useTransition } from 'react';
+import {
+  ZoruBadge,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruLabel,
+  ZoruPageDescription,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  ZoruSwitch,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect,
+  useState,
+  useTransition } from 'react';
 import { useFormStatus } from 'react-dom';
 import {
     Key,
-    Laptop,
-    LoaderCircle,
-    Lock,
-    LogOut,
-    Save,
-    Shield,
-} from 'lucide-react';
+  Laptop,
+  LoaderCircle,
+  Lock,
+  LogOut,
+  Save,
+  Shield,
+  } from 'lucide-react';
 
-import {
-    ZoruBadge,
-    ZoruBreadcrumb,
-    ZoruBreadcrumbItem,
-    ZoruBreadcrumbLink,
-    ZoruBreadcrumbList,
-    ZoruBreadcrumbPage,
-    ZoruBreadcrumbSeparator,
-    ZoruButton,
-    ZoruCard,
-    ZoruInput,
-    ZoruLabel,
-    ZoruPageDescription,
-    ZoruPageHeader,
-    ZoruPageHeading,
-    ZoruPageTitle,
-    ZoruSwitch,
-    useZoruToast,
-} from '@/components/zoruui';
 import { handleChangePassword } from '@/app/actions/user.actions';
 import {
     getAccountPreferences,

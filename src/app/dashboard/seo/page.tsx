@@ -1,14 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { ZoruCard, ZoruPageDescription, ZoruPageHeader, ZoruPageHeading, ZoruPageTitle, ZoruSkeleton } from '@/components/zoruui';
 import {
-    ZoruCard,
-    ZoruPageDescription,
-    ZoruPageHeader,
-    ZoruPageHeading,
-    ZoruPageTitle,
-    ZoruSkeleton,
-} from '@/components/zoruui';
+  useEffect,
+  useState } from 'react';
+
 import { SeoProjectCard } from '@/components/wabasimplify/seo-project-card';
 import { BarChart } from 'lucide-react';
 import { getSeoProjects } from '@/app/actions/seo.actions';

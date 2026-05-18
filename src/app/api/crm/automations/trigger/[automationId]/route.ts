@@ -6,7 +6,6 @@ import { addCrmContact } from '@/app/actions/crm.actions';
 import type { CrmContact, CrmAutomation } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 
-
 export async function POST(request: NextRequest, props: { params: Promise<{ automationId: string }> }) {
     const params = await props.params;
     const { automationId } = params;

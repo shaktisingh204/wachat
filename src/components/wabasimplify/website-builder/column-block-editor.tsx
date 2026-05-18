@@ -1,17 +1,34 @@
-
 'use client';
 
-import { ZoruLabel, ZoruButton } from '@/components/zoruui';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
-import { ZoruAccordion, ZoruAccordionContent, ZoruAccordionItem, ZoruAccordionTrigger } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
+import {
+  ZoruLabel,
+  ZoruButton,
+  ZoruInput,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruAccordion,
+  ZoruAccordionContent,
+  ZoruAccordionItem,
+  ZoruAccordionTrigger,
+  ZoruSwitch,
+  ZoruSeparator,
+  ZoruAlert,
+  ZoruAlertDescription,
+  ZoruAlertTitle,
+} from '@/components/zoruui';
 import { v4 as uuidv4 } from 'uuid';
-import { Plus, Trash2, Lightbulb, Upload } from 'lucide-react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ZoruSwitch } from '@/components/zoruui';
-import { ZoruSeparator } from '@/components/zoruui';
-import { ZoruAlert, ZoruAlertDescription, ZoruAlertTitle } from '@/components/zoruui';
+import { Plus,
+  Trash2,
+  Lightbulb,
+  Upload } from 'lucide-react';
+import { Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger } from "@/components/ui/tabs";
+
 import { SabFilePickerButton, SabFileUrlInput } from '@/components/sabfiles';
 
 export function ColumnBlockEditor({ settings, onUpdate }: { settings: any, onUpdate: (newSettings: any) => void }) {

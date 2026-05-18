@@ -1,5 +1,11 @@
 'use client';
 
+import { ZoruCard } from '@/components/zoruui';
+import {
+  useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { Loader2 } from 'lucide-react';
+
 /**
  * Wachat WhatsApp Ads Setup — deprecated wizard entry point.
  *
@@ -10,11 +16,6 @@
  */
 
 import * as React from 'react';
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { Loader2 } from 'lucide-react';
-
-import { ZoruCard } from '@/components/zoruui';
 
 const STEPS = [
   {

@@ -1,14 +1,7 @@
-import { AtSign } from 'lucide-react';
-
+import { ZoruBadge, ZoruCard, ZoruPageActions, ZoruPageDescription, ZoruPageHeader, ZoruPageHeading, ZoruPageTitle } from '@/components/zoruui';
 import {
-  ZoruBadge,
-  ZoruCard,
-  ZoruPageActions,
-  ZoruPageDescription,
-  ZoruPageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-} from '@/components/zoruui';
+  AtSign } from 'lucide-react';
+
 import { getMentionsForMe } from '@/app/actions/worksuite/chat.actions';
 import type { WsMentionUser } from '@/lib/worksuite/chat-types';
 import { MentionRow } from './_components/mention-row';

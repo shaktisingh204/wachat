@@ -1,20 +1,23 @@
 'use client';
 
-import { Download, SlidersHorizontal, CalendarX, LoaderCircle, Users, CheckCircle2, Clock } from 'lucide-react';
-import { useState, useEffect, useTransition, useCallback } from 'react';
-import { generateLeaveReportData, getReportEmployees, getReportLeaveTypes } from '@/app/actions/crm-hr-reports.actions';
+import { ZoruBadge, ZoruButton, ZoruCard, ZoruLabel, ZoruPopover, ZoruPopoverContent, ZoruPopoverTrigger, useZoruToast } from '@/components/zoruui';
+import {
+  Download,
+  SlidersHorizontal,
+  CalendarX,
+  LoaderCircle,
+  Users,
+  CheckCircle2,
+  Clock } from 'lucide-react';
+import { useState,
+  useEffect,
+  useTransition,
+  useCallback } from 'react';
+import { generateLeaveReportData,
+  getReportEmployees,
+  getReportLeaveTypes } from '@/app/actions/crm-hr-reports.actions';
 import Papa from 'papaparse';
 
-import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruLabel,
-    ZoruPopover,
-    ZoruPopoverContent,
-    ZoruPopoverTrigger,
-    useZoruToast,
-} from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 
 type LeaveRow = {

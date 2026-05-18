@@ -1,10 +1,4 @@
-/**
- * HR module overview — tile grid linking every sub-feature.
- *
- * Was a `redirect('/dashboard/crm/hr/directory')` shim.
- */
-
-import Link from 'next/link';
+import { ZoruCard, ZoruPageDescription, ZoruPageHeader, ZoruPageHeading, ZoruPageTitle } from '@/components/zoruui';
 import {
   ArrowUpRight,
   Award,
@@ -36,15 +30,15 @@ import {
   TrendingUp,
   UserPlus,
   Users,
-} from 'lucide-react';
+  } from 'lucide-react';
 
-import {
-  ZoruCard,
-  ZoruPageDescription,
-  ZoruPageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-} from '@/components/zoruui';
+/**
+ * HR module overview — tile grid linking every sub-feature.
+ *
+ * Was a `redirect('/dashboard/crm/hr/directory')` shim.
+ */
+
+import Link from 'next/link';
 
 interface NavTile {
   href: string;

@@ -1,5 +1,25 @@
 'use client';
 
+import {
+  ZoruButton,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruTextarea,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect,
+  useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Plus,
+  Trash2 } from 'lucide-react';
+
 /**
  * HrFormPage — sectioned full-page form for HR entities, now composed on
  * top of `<EntityFormShell>` to satisfy §1D.3 of the CRM rebuild bar.
@@ -15,22 +35,7 @@
  */
 
 import * as React from 'react';
-import { useActionState, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Plus, Trash2 } from 'lucide-react';
 
-import {
-  ZoruButton,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  ZoruTextarea,
-  useZoruToast,
-} from '@/components/zoruui';
 import {
   EntityFormShell,
   type EntityFormShellSection,

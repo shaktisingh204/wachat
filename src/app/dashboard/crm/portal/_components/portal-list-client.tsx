@@ -1,14 +1,5 @@
 'use client';
 
-/**
- * Portal users list client — §1D.1 upgrade. Adds KPI strip, filter
- * chips, and client-side bulk selection (CSV export).
- */
-
-import * as React from 'react';
-import Link from 'next/link';
-import { ListChecks, Search, X } from 'lucide-react';
-
 import {
   ZoruBadge,
   ZoruButton,
@@ -27,6 +18,19 @@ import {
   ZoruTableHeader,
   ZoruTableRow,
 } from '@/components/zoruui';
+import {
+  ListChecks,
+  Search,
+  X } from 'lucide-react';
+
+/**
+ * Portal users list client — §1D.1 upgrade. Adds KPI strip, filter
+ * chips, and client-side bulk selection (CSV export).
+ */
+
+import * as React from 'react';
+import Link from 'next/link';
+
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 
 import {

@@ -1,53 +1,55 @@
 'use client';
 
-import * as React from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruDropdownMenu,
+  ZoruDropdownMenuContent,
+  ZoruDropdownMenuItem,
+  ZoruDropdownMenuSeparator,
+  ZoruDropdownMenuTrigger,
+  ZoruInput,
+  ZoruLabel,
+  ZoruProgress,
+  ZoruSwitch,
+  cn,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
 import {
     ChevronRight,
-    Copy,
-    Download,
-    ExternalLink,
-    File as FileIcon,
-    FileImage,
-    FileText,
-    FileVideo,
-    Folder,
-    FolderPlus,
-    Loader2,
-    MoreVertical,
-    Pencil,
-    Search,
-    Share2,
-    Star,
-    Trash2,
-    Upload,
-    X,
-} from 'lucide-react';
+  Copy,
+  Download,
+  ExternalLink,
+  File as FileIcon,
+  FileImage,
+  FileText,
+  FileVideo,
+  Folder,
+  FolderPlus,
+  Loader2,
+  MoreVertical,
+  Pencil,
+  Search,
+  Share2,
+  Star,
+  Trash2,
+  Upload,
+  X,
+  } from 'lucide-react';
 
-import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruCardContent,
-    ZoruDialog,
-    ZoruDialogContent,
-    ZoruDialogDescription,
-    ZoruDialogFooter,
-    ZoruDialogHeader,
-    ZoruDialogTitle,
-    ZoruDropdownMenu,
-    ZoruDropdownMenuContent,
-    ZoruDropdownMenuItem,
-    ZoruDropdownMenuSeparator,
-    ZoruDropdownMenuTrigger,
-    ZoruInput,
-    ZoruLabel,
-    ZoruProgress,
-    ZoruSwitch,
-    cn,
-    useZoruToast,
-} from '@/components/zoruui';
+import * as React from 'react';
+import Link from 'next/link';
+
 import {
     confirmUpload,
     createFolder,

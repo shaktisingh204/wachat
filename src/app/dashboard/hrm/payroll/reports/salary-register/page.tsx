@@ -1,19 +1,22 @@
 'use client';
 
-import { Download, SlidersHorizontal, BookOpen, LoaderCircle, IndianRupee, Users, TrendingDown, Wallet } from 'lucide-react';
-import { useState, useEffect, useTransition, useCallback } from 'react';
+import { ZoruButton, ZoruCard, ZoruLabel, ZoruPopover, ZoruPopoverContent, ZoruPopoverTrigger, useZoruToast } from '@/components/zoruui';
+import {
+  Download,
+  SlidersHorizontal,
+  BookOpen,
+  LoaderCircle,
+  IndianRupee,
+  Users,
+  TrendingDown,
+  Wallet } from 'lucide-react';
+import { useState,
+  useEffect,
+  useTransition,
+  useCallback } from 'react';
 import { generateSalaryRegisterData } from '@/app/actions/crm-hr-reports.actions';
 import Papa from 'papaparse';
 
-import {
-    ZoruButton,
-    ZoruCard,
-    ZoruLabel,
-    ZoruPopover,
-    ZoruPopoverContent,
-    ZoruPopoverTrigger,
-    useZoruToast,
-} from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 
 type SalaryRow = {

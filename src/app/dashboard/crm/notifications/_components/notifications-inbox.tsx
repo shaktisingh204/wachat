@@ -1,6 +1,6 @@
-import { ZoruButton } from '@/components/zoruui';
 'use client';
 
+import { ZoruButton } from '@/components/zoruui';
 import * as React from 'react';
 import { Bell, CheckCheck, Check } from 'lucide-react';
 

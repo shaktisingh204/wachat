@@ -1,13 +1,10 @@
 'use client';
 
-import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
+import { ZoruButton, ZoruInput, ZoruLabel, ZoruTextarea, cn } from '@/components/zoruui';
+import { cn as _zoruCn, useMemo, useState } from 'react';
+
 void _zoruCn;
 
-import { useMemo, useState } from 'react';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruLabel } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
-import { ZoruTextarea } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
 export default function OgTagGeneratorPage() {

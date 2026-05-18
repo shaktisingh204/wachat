@@ -1,16 +1,5 @@
 'use client';
 
-/**
- * Contract create/edit dialog — extracted out of the contracts list
- * page to keep page.tsx under 600 lines.
- *
- * Preserves every FormData key the original `saveContract` server
- * action reads (`_id`, `title`, `clientId`, `clientName`, `status`,
- * `value`, `currency`, `startDate`, `endDate`, `body`).
- */
-
-import * as React from 'react';
-
 import {
   ZoruButton,
   ZoruDialog,
@@ -28,6 +17,17 @@ import {
   ZoruSelectValue,
   ZoruTextarea,
 } from '@/components/zoruui';
+/**
+ * Contract create/edit dialog — extracted out of the contracts list
+ * page to keep page.tsx under 600 lines.
+ *
+ * Preserves every FormData key the original `saveContract` server
+ * action reads (`_id`, `title`, `clientId`, `clientName`, `status`,
+ * `value`, `currency`, `startDate`, `endDate`, `body`).
+ */
+
+import * as React from 'react';
+
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import type { HrContract } from '@/lib/hr-types';
 

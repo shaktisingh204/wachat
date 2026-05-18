@@ -1,21 +1,5 @@
 "use client";
 
-/**
- * ZoruUI rebuild of the SabChat widget generator.
- *
- * Same `saveSabChatSettings` server action wired through `useActionState`.
- * Pure visual swap — local component lives under `_components/` to avoid
- * importing visual primitives from `@/components/wabasimplify`.
- */
-
-import { useEffect, useMemo, useState } from "react";
-import { useActionState } from "react";
-import { useFormStatus } from "react-dom";
-import { Code, Copy, LoaderCircle, MessageSquare, Save } from "lucide-react";
-
-import { saveSabChatSettings } from "@/app/actions/sabchat.actions";
-import type { WithId, User, SabChatSettings } from "@/lib/definitions";
-
 import {
   ZoruAvatar,
   ZoruAvatarFallback,
@@ -32,7 +16,32 @@ import {
   ZoruSwitch,
   ZoruTextarea,
   useZoruToast,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  useEffect,
+  useMemo,
+  useState } from "react";
+import { useActionState } from "react";
+import { useFormStatus } from "react-dom";
+import { Code,
+  Copy,
+  LoaderCircle,
+  MessageSquare,
+  Save } from "lucide-react";
+
+import { saveSabChatSettings } from "@/app/actions/sabchat.actions";
+import type { WithId,
+  User,
+  SabChatSettings } from "@/lib/definitions";
+
+/**
+ * ZoruUI rebuild of the SabChat widget generator.
+ *
+ * Same `saveSabChatSettings` server action wired through `useActionState`.
+ * Pure visual swap — local component lives under `_components/` to avoid
+ * importing visual primitives from `@/components/wabasimplify`.
+ */
+
 import { SabFileUrlInput } from "@/components/sabfiles";
 
 const initialState: { message: string | null; error?: string } = {

@@ -1,25 +1,5 @@
 "use client";
 
-/**
- * Commerce › Collection dialogs (zoru-only).
- *
- * Wraps the existing server actions:
- *   - createProductSet (`createProductSet`)
- *   - deleteProductSet (`deleteProductSet`)
- *
- * Pure ZoruUI primitives.
- */
-
-import * as React from "react";
-import { useActionState, useEffect, useRef, useTransition } from "react";
-import { useFormStatus } from "react-dom";
-import { AlertCircle, Loader2, PlusCircle, Trash2 } from "lucide-react";
-
-import {
-  createProductSet,
-  deleteProductSet,
-} from "@/app/actions/catalog.actions";
-
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -41,7 +21,34 @@ import {
   ZoruInput,
   ZoruLabel,
   useZoruToast,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect,
+  useRef,
+  useTransition } from "react";
+import { useFormStatus } from "react-dom";
+import { AlertCircle,
+  Loader2,
+  PlusCircle,
+  Trash2 } from "lucide-react";
+
+import {
+  createProductSet,
+  deleteProductSet,
+  } from "@/app/actions/catalog.actions";
+
+/**
+ * Commerce › Collection dialogs (zoru-only).
+ *
+ * Wraps the existing server actions:
+ *   - createProductSet (`createProductSet`)
+ *   - deleteProductSet (`deleteProductSet`)
+ *
+ * Pure ZoruUI primitives.
+ */
+
+import * as React from "react";
 
 /* ------------------------------------------------------------------ */
 /* Create collection                                                  */

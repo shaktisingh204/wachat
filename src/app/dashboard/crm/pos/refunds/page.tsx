@@ -1,3 +1,9 @@
+import { ZoruCard, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/zoruui';
+import {
+  ScrollText } from 'lucide-react';
+
+import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+
 /**
  * POS refunds list — `/dashboard/crm/pos/refunds`.
  *
@@ -7,18 +13,7 @@
  */
 
 import Link from 'next/link';
-import { ScrollText } from 'lucide-react';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
-import {
-    ZoruCard,
-    ZoruTable,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-} from '@/components/zoruui';
 import { StatusPill, type StatusPillProps } from '@/components/crm/status-pill';
 import { getPosRefunds, type PosRefundStatus } from '@/app/actions/crm-pos.actions';
 

@@ -1,9 +1,5 @@
 'use client';
 
-import * as React from 'react';
-import { useEffect, useState, useTransition } from 'react';
-import { ScrollText } from 'lucide-react';
-
 import {
   ZoruBadge,
   ZoruCard,
@@ -17,6 +13,14 @@ import {
   ZoruTableRow,
   cn,
 } from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition } from 'react';
+import { ScrollText } from 'lucide-react';
+
+import * as React from 'react';
+
 import { CrmPageHeader } from '../../../_components/crm-page-header';
 import {
   getPurposeConsentLeads,

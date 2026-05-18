@@ -1,42 +1,5 @@
 'use client';
 
-/**
- * Wachat → WhatsApp Ads.
- *
- * Click-to-WhatsApp workspace. Wraps the Meta Marketing API surface
- * (`@/app/actions/ad-manager.actions`) and shows a CTW-focused
- * dashboard: ad-account selector, last-30d KPIs, campaign list with
- * pause/resume, and shortcuts into the full Ad Manager. Heavy
- * creation flows route to `/dashboard/ad-manager/create` with a
- * destination/objective preset.
- */
-
-import * as React from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import {
-  ArrowUpRight,
-  ChevronDown,
-  DollarSign,
-  ExternalLink,
-  Eye,
-  Megaphone,
-  MessagesSquare,
-  MousePointerClick,
-  Pause,
-  Play,
-  Plus,
-  RefreshCw,
-  Target,
-} from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-import {
-  getAdAccounts,
-  getInsights,
-  listCampaigns,
-  updateEntityStatus,
-} from '@/app/actions/ad-manager.actions';
 import {
   ZoruBadge,
   ZoruBreadcrumb,
@@ -68,6 +31,45 @@ import {
   cn,
   zoruSonnerToast,
 } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+import {
+  ArrowUpRight,
+  ChevronDown,
+  DollarSign,
+  ExternalLink,
+  Eye,
+  Megaphone,
+  MessagesSquare,
+  MousePointerClick,
+  Pause,
+  Play,
+  Plus,
+  RefreshCw,
+  Target,
+  } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import {
+  getAdAccounts,
+  getInsights,
+  listCampaigns,
+  updateEntityStatus,
+  } from '@/app/actions/ad-manager.actions';
+
+/**
+ * Wachat → WhatsApp Ads.
+ *
+ * Click-to-WhatsApp workspace. Wraps the Meta Marketing API surface
+ * (`@/app/actions/ad-manager.actions`) and shows a CTW-focused
+ * dashboard: ad-account selector, last-30d KPIs, campaign list with
+ * pause/resume, and shortcuts into the full Ad Manager. Heavy
+ * creation flows route to `/dashboard/ad-manager/create` with a
+ * destination/objective preset.
+ */
+
+import * as React from 'react';
+import Link from 'next/link';
 
 const STORAGE_KEY = 'wachat:whatsapp-ads:adAccountId';
 // Heuristic: the objectives that can carry a click-to-WhatsApp adset

@@ -1,5 +1,32 @@
 'use client';
 
+import {
+  ZoruBadge,
+  ZoruCheckbox,
+  ZoruDropdownMenu,
+  ZoruDropdownMenuContent,
+  ZoruDropdownMenuItem,
+  ZoruDropdownMenuSeparator,
+  ZoruDropdownMenuTrigger,
+  ZoruSkeleton,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+} from '@/components/zoruui';
+import {
+  formatDistanceToNow } from 'date-fns';
+import {
+    BookOpen,
+  ChevronDown,
+  Edit,
+  Eye,
+  MoreHorizontal,
+  Trash2,
+  } from 'lucide-react';
+
 /**
  * <KbTable> — 10-column dense table for the KB list (§1D.1).
  *
@@ -9,32 +36,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { formatDistanceToNow } from 'date-fns';
-import {
-    BookOpen,
-    ChevronDown,
-    Edit,
-    Eye,
-    MoreHorizontal,
-    Trash2,
-} from 'lucide-react';
 
-import {
-    ZoruBadge,
-    ZoruCheckbox,
-    ZoruDropdownMenu,
-    ZoruDropdownMenuContent,
-    ZoruDropdownMenuItem,
-    ZoruDropdownMenuSeparator,
-    ZoruDropdownMenuTrigger,
-    ZoruSkeleton,
-    ZoruTable,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-} from '@/components/zoruui';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import type { KbArticleDoc } from '@/app/actions/crm-knowledge-base.actions';

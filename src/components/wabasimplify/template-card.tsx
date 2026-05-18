@@ -1,20 +1,26 @@
-
-
 'use client';
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { ZoruBadge } from '@/components/zoruui';
-import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardFooter, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
-import { Languages, Edit, FilePlus2, ShoppingCart, View, FileText } from 'lucide-react';
 import {
+  ZoruBadge,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardDescription,
+  ZoruCardFooter,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruButton,
   ZoruDialog,
   ZoruDialogContent,
   ZoruDialogHeader,
   ZoruDialogTitle,
   ZoruDialogDescription,
 } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+import { Languages, Edit, FilePlus2, ShoppingCart, View, FileText } from 'lucide-react';
+
+import React, { useState } from 'react';
+
 import type { WithId } from 'mongodb';
 import type { Template } from '@/lib/definitions';
 import { cn } from '@/lib/utils';

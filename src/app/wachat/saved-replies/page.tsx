@@ -1,28 +1,5 @@
 'use client';
 
-/**
- * /wachat/saved-replies — manage shortcut replies for conversations.
- * ZoruUI: ZoruPageHeader + ZoruBreadcrumb, ZoruDataTable per category,
- * dialog for create/edit, ZoruEmptyState for zero rows.
- */
-
-import * as React from 'react';
-import { useEffect, useState, useTransition, useCallback, useMemo } from 'react';
-import {
-  Plus,
-  Pencil,
-  Trash2,
-  MessageSquare,
-} from 'lucide-react';
-import type { ColumnDef } from '@tanstack/react-table';
-
-import { useProject } from '@/context/project-context';
-import {
-  getSavedReplies,
-  saveSavedReply,
-  deleteSavedReply,
-} from '@/app/actions/wachat-features.actions';
-
 import {
   ZoruBadge,
   ZoruBreadcrumb,
@@ -58,6 +35,35 @@ import {
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition,
+  useCallback,
+  useMemo } from 'react';
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  MessageSquare,
+  } from 'lucide-react';
+import type { ColumnDef } from '@tanstack/react-table';
+
+import { useProject } from '@/context/project-context';
+import {
+  getSavedReplies,
+  saveSavedReply,
+  deleteSavedReply,
+  } from '@/app/actions/wachat-features.actions';
+
+/**
+ * /wachat/saved-replies — manage shortcut replies for conversations.
+ * ZoruUI: ZoruPageHeader + ZoruBreadcrumb, ZoruDataTable per category,
+ * dialog for create/edit, ZoruEmptyState for zero rows.
+ */
+
+import * as React from 'react';
+
 import { SabFileUrlInput } from '@/components/sabfiles';
 
 const CATEGORIES = [

@@ -1,5 +1,18 @@
 'use client';
 
+import {
+  ZoruButton,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruKbd,
+} from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+
 /**
  * <KeyboardShortcuts/> — page-level keyboard layer for the CRM.
  *
@@ -32,18 +45,6 @@
  */
 
 import * as React from 'react';
-import { useRouter } from 'next/navigation';
-
-import {
-  ZoruButton,
-  ZoruDialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruKbd,
-} from '@/components/zoruui';
 
 export interface KeyboardShortcutsProps {
   /** Disable when a modal owns the keyboard, etc. */

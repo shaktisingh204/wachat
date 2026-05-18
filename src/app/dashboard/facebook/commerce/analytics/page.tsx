@@ -1,35 +1,5 @@
 "use client";
 
-/**
- * /dashboard/facebook/commerce/analytics — Meta Suite Commerce
- * analytics.
- *
- * Same data source as the orders page (`getFacebookOrders`). We derive
- * a 30-day order/revenue trend, status mix and a top-buyers breakdown
- * client-side — no separate analytics endpoint.
- *
- * Pure ZoruUI primitives. Charts use ZORU_CHART_PALETTE and series are
- * differentiated by stroke-dasharray (no hue).
- */
-
-import * as React from "react";
-import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
-import { format, subDays } from "date-fns";
-import type { ColumnDef } from "@tanstack/react-table";
-import {
-  AlertCircle,
-  BarChart3,
-  Coins,
-  LoaderCircle,
-  Package,
-  RefreshCw,
-  ShoppingBag,
-  Users,
-} from "lucide-react";
-
-import { getFacebookOrders } from "@/app/actions/facebook.actions";
-import type { FacebookOrder } from "@/lib/definitions";
-
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -49,7 +19,43 @@ import {
   ZoruEmptyState,
   ZoruSkeleton,
   ZoruStatCard,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useTransition } from "react";
+import { format,
+  subDays } from "date-fns";
+import type { ColumnDef } from "@tanstack/react-table";
+import {
+  AlertCircle,
+  BarChart3,
+  Coins,
+  LoaderCircle,
+  Package,
+  RefreshCw,
+  ShoppingBag,
+  Users,
+  } from "lucide-react";
+
+import { getFacebookOrders } from "@/app/actions/facebook.actions";
+import type { FacebookOrder } from "@/lib/definitions";
+
+/**
+ * /dashboard/facebook/commerce/analytics — Meta Suite Commerce
+ * analytics.
+ *
+ * Same data source as the orders page (`getFacebookOrders`). We derive
+ * a 30-day order/revenue trend, status mix and a top-buyers breakdown
+ * client-side — no separate analytics endpoint.
+ *
+ * Pure ZoruUI primitives. Charts use ZORU_CHART_PALETTE and series are
+ * differentiated by stroke-dasharray (no hue).
+ */
+
+import * as React from "react";
 
 import {
   CommerceBreadcrumb,

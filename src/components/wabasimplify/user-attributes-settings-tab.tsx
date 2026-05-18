@@ -1,14 +1,26 @@
-
 'use client';
 
-import { useActionState, useEffect, useState } from 'react';
+import {
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardDescription,
+  ZoruCardFooter,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruButton,
+  ZoruInput,
+} from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect,
+  useState } from 'react';
 import { useFormStatus } from 'react-dom';
-import type { WithId, Project, UserAttribute } from '@/lib/definitions';
+import type { WithId,
+  Project,
+  UserAttribute } from '@/lib/definitions';
 import { handleSaveUserAttributes } from '@/app/actions/project.actions';
 import { useToast } from '@/hooks/use-toast';
-import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardFooter, ZoruCardHeader, ZoruCardTitle, ZoruButton } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
-import { ZoruInput } from '@/components/zoruui';
+
 import { LoaderCircle, Plus, Save, Trash2 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 

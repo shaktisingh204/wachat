@@ -1,14 +1,18 @@
 'use client';
 
-import { use, useEffect, useState } from 'react';
+import { ZoruSkeleton } from '@/components/zoruui';
+import {
+  use,
+  useEffect,
+  useState } from 'react';
 import { Plane } from 'lucide-react';
 import { HrFormPage } from '../../../_components/hr-form-page';
-import { fields, sections } from '../../_config';
+import { fields,
+  sections } from '../../_config';
 import {
   getTravelRequests,
   saveTravelRequest,
-} from '@/app/actions/hr.actions';
-import { ZoruSkeleton } from '@/components/zoruui';
+  } from '@/app/actions/hr.actions';
 
 export default function EditTravelRequestPage({
   params,

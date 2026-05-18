@@ -1,8 +1,8 @@
-
 'use client';
 
+import { ZoruButton } from '@/components/zoruui';
 import { useTransition } from 'react';
-import { ZoruButton, ZoruButton } from '@/components/zoruui';
+
 import { LoaderCircle, CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { approveUser } from '@/app/actions/admin.actions';

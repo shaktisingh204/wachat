@@ -1,31 +1,5 @@
 'use client';
 
-/**
- * Payment configuration dialogs (wachat-local, ZoruUI).
- *
- * - CreatePaymentConfigDialog
- * - RegenerateOauthDialog
- * - UpdateDataEndpointDialog
- * - DeletePaymentConfigButton
- *
- * All preserve the original server-action wiring and prop signatures so
- * the whatsapp-pay/settings page can swap imports without behavior
- * change.
- */
-
-import * as React from 'react';
-import { useActionState, useEffect, useRef, useState, useTransition } from 'react';
-import { useFormStatus } from 'react-dom';
-import { AlertCircle, Link as LinkIcon, Loader2, Settings, Trash2 } from 'lucide-react';
-
-import {
-  handleCreatePaymentConfiguration,
-  handleDeletePaymentConfiguration,
-  handleRegenerateOauthLink,
-  handleUpdateDataEndpoint,
-} from '@/app/actions/whatsapp-pay.actions';
-import type { PaymentConfiguration, Project, WithId } from '@/lib/definitions';
-
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -57,6 +31,43 @@ import {
   ZoruSelectValue,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect,
+  useRef,
+  useState,
+  useTransition } from 'react';
+import { useFormStatus } from 'react-dom';
+import { AlertCircle,
+  Link as LinkIcon,
+  Loader2,
+  Settings,
+  Trash2 } from 'lucide-react';
+
+import {
+  handleCreatePaymentConfiguration,
+  handleDeletePaymentConfiguration,
+  handleRegenerateOauthLink,
+  handleUpdateDataEndpoint,
+  } from '@/app/actions/whatsapp-pay.actions';
+import type { PaymentConfiguration,
+  Project,
+  WithId } from '@/lib/definitions';
+
+/**
+ * Payment configuration dialogs (wachat-local, ZoruUI).
+ *
+ * - CreatePaymentConfigDialog
+ * - RegenerateOauthDialog
+ * - UpdateDataEndpointDialog
+ * - DeletePaymentConfigButton
+ *
+ * All preserve the original server-action wiring and prop signatures so
+ * the whatsapp-pay/settings page can swap imports without behavior
+ * change.
+ */
+
+import * as React from 'react';
 
 /* ── shared submit button ─────────────────────────────────────── */
 

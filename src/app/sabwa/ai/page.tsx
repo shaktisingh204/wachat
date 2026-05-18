@@ -1,47 +1,5 @@
 "use client";
 
-/**
- * /sabwa/ai — Per-chat AI tools + Auto-pilot.
- *
- * Two main panels:
- *  1. Per-chat AI tools — Suggest reply, Summarise chat, Translate, Tone.
- *     Each section calls the corresponding server action
- *     (`suggestReply`, `summariseChat`, `translateMessage`, plus a local
- *     tone-rewrite via `suggestReply` until a dedicated action exists).
- *     If the action returns "not implemented", we surface a Phase 2
- *     banner with a waitlist toast — UI is fully built and ready.
- *
- *  2. Auto-pilot — Big switch + whitelist editor + audit log.
- *     State is local for now; flipping the switch toasts a credit warning.
- *
- * Credits counter in the header reads from `getSabwaLimits(plan)`. The
- * plan string would come from `useProject().activeProject.plan` once
- * wired through — for Phase 1 we fall back to 'free'.
- *
- * Rebuilt on ZoruUI primitives. No tab UI — the four per-chat tools live
- * in a segmented ZoruButton switcher.
- */
-
-import * as React from "react";
-import Link from "next/link";
-import {
-  Bot,
-  Check,
-  CircleSlash,
-  Copy,
-  Languages,
-  Loader2,
-  MessageCirclePlus,
-  Pencil,
-  Plus,
-  ScrollText,
-  Send,
-  Smartphone,
-  Sparkles,
-  Trash2,
-  Wand2,
-} from "lucide-react";
-
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -82,7 +40,50 @@ import {
   ZoruTextarea,
   cn,
   useZoruToast,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  Bot,
+  Check,
+  CircleSlash,
+  Copy,
+  Languages,
+  Loader2,
+  MessageCirclePlus,
+  Pencil,
+  Plus,
+  ScrollText,
+  Send,
+  Smartphone,
+  Sparkles,
+  Trash2,
+  Wand2,
+  } from "lucide-react";
+
+/**
+ * /sabwa/ai — Per-chat AI tools + Auto-pilot.
+ *
+ * Two main panels:
+ *  1. Per-chat AI tools — Suggest reply, Summarise chat, Translate, Tone.
+ *     Each section calls the corresponding server action
+ *     (`suggestReply`, `summariseChat`, `translateMessage`, plus a local
+ *     tone-rewrite via `suggestReply` until a dedicated action exists).
+ *     If the action returns "not implemented", we surface a Phase 2
+ *     banner with a waitlist toast — UI is fully built and ready.
+ *
+ *  2. Auto-pilot — Big switch + whitelist editor + audit log.
+ *     State is local for now; flipping the switch toasts a credit warning.
+ *
+ * Credits counter in the header reads from `getSabwaLimits(plan)`. The
+ * plan string would come from `useProject().activeProject.plan` once
+ * wired through — for Phase 1 we fall back to 'free'.
+ *
+ * Rebuilt on ZoruUI primitives. No tab UI — the four per-chat tools live
+ * in a segmented ZoruButton switcher.
+ */
+
+import * as React from "react";
+import Link from "next/link";
+
 import { useProject } from "@/context/project-context";
 
 import {

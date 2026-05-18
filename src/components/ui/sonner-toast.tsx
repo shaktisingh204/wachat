@@ -1,20 +1,23 @@
-'use client'
+'use client';
 
-import { forwardRef, useImperativeHandle, useRef } from 'react';
+import { ZoruButton } from '@/components/zoruui';
+import {
+  forwardRef,
+  useImperativeHandle,
+  useRef } from 'react';
 import { motion } from 'framer-motion';
 import {
   Toaster as SonnerToaster,
   toast as sonnerToast,
-} from 'sonner';
+  } from 'sonner';
 import {
   CheckCircle,
   AlertCircle,
   Info,
   AlertTriangle,
   X,
-} from 'lucide-react';
+  } from 'lucide-react';
 
-import { ZoruButton } from '@/components/zoruui';
 import { cn } from '@/lib/utils';
 
 type Variant = 'default' | 'success' | 'error' | 'warning';

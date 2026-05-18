@@ -1,5 +1,23 @@
 'use client';
 
+import {
+  ZoruButton,
+  ZoruInput,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruStatCard,
+} from '@/components/zoruui';
+import {
+  Download,
+  Gavel,
+  Plus,
+  Search,
+  Table as TableIcon,
+  } from 'lucide-react';
+
 /**
  * <VendorBidKpiStrip> + <VendorBidListToolbar> — KPI strip and top
  * toolbar for the canonical Vendor Bids list. Extracted from
@@ -13,24 +31,6 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import {
-  Download,
-  Gavel,
-  Plus,
-  Search,
-  Table as TableIcon,
-} from 'lucide-react';
-
-import {
-  ZoruButton,
-  ZoruInput,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  ZoruStatCard,
-} from '@/components/zoruui';
 
 import type { VendorBidKpiSummary } from './types';
 

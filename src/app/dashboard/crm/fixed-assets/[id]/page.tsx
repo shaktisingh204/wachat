@@ -1,3 +1,8 @@
+import { ZoruBadge, ZoruButton, ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import {
+  notFound } from 'next/navigation';
+import { ArrowLeft } from 'lucide-react';
+
 /**
  * Fixed-asset detail — `/dashboard/crm/fixed-assets/[id]`.
  *
@@ -12,17 +17,7 @@
  */
 
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import { ArrowLeft } from 'lucide-react';
 
-import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-} from '@/components/zoruui';
 import { EntityDetailShell, type EntityStatusTone } from '@/components/crm/entity-detail-shell';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { getFixedAsset } from '@/app/actions/crm/fixed-assets.actions';

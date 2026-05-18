@@ -1,20 +1,5 @@
 'use client';
 
-import * as React from 'react';
-import {
-  Activity,
-  CheckCircle2,
-  Download,
-  ExternalLink,
-  Plus,
-  RefreshCw,
-  Save,
-  Search,
-  Settings,
-  Trash2,
-  type LucideIcon,
-} from 'lucide-react';
-
 import {
   ZoruBadge,
   ZoruButton,
@@ -36,6 +21,21 @@ import {
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  Activity,
+  CheckCircle2,
+  Download,
+  ExternalLink,
+  Plus,
+  RefreshCw,
+  Save,
+  Search,
+  Settings,
+  Trash2,
+  type LucideIcon,
+  } from 'lucide-react';
+
+import * as React from 'react';
 
 type FeatureRecord = {
   id: string;

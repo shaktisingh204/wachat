@@ -1,18 +1,31 @@
-
 'use client';
 
-import { useEffect, useRef, useState, useMemo } from 'react';
+import {
+  ZoruAvatar,
+  ZoruAvatarFallback,
+  ZoruAvatarImage,
+  ZoruButton,
+  ZoruScrollArea,
+  ZoruAlert,
+  ZoruAlertDescription,
+  ZoruAlertTitle,
+} from '@/components/zoruui';
+import {
+  useEffect,
+  useRef,
+  useState,
+  useMemo } from 'react';
 import type { WithId } from 'mongodb';
-import type { Contact, AnyMessage, Project, Template } from '@/lib/definitions';
-import { ZoruAvatar, ZoruAvatarFallback, ZoruAvatarImage, ZoruButton } from '@/components/zoruui';
-import { ZoruScrollArea } from '@/components/zoruui';
+import type { Contact,
+  AnyMessage,
+  Project,
+  Template } from '@/lib/definitions';
 import { ChatMessage } from './chat-message';
 import { ChatMessageInput } from './chat-message-input';
-import { ZoruButton } from '../ui/button';
 import { ArrowLeft, Info, LoaderCircle, Phone, Video, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useProject } from '@/context/project-context';
-import { ZoruAlert, ZoruAlertDescription, ZoruAlertTitle } from '../ui/alert';
+
 import { AlertCircle } from 'lucide-react';
 
 interface ChatWindowProps {

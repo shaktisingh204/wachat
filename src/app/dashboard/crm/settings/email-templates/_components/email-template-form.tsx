@@ -1,5 +1,17 @@
 'use client';
 
+import { ZoruButton, ZoruCard, ZoruInput, ZoruLabel, ZoruSwitch, ZoruTextarea, useZoruToast } from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect,
+  useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useFormStatus } from 'react-dom';
+import { ArrowLeft,
+  LoaderCircle,
+  Save } from 'lucide-react';
+
 /**
  * <EmailTemplateForm /> — create + edit form for CRM email templates.
  *
@@ -8,21 +20,6 @@
  * (`{{contact.name}}`, etc.); a rich-text editor can come later.
  */
 
-import { useActionState, useEffect, useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useFormStatus } from 'react-dom';
-import { ArrowLeft, LoaderCircle, Save } from 'lucide-react';
-
-import {
-    ZoruButton,
-    ZoruCard,
-    ZoruInput,
-    ZoruLabel,
-    ZoruSwitch,
-    ZoruTextarea,
-    useZoruToast,
-} from '@/components/zoruui';
 import { EnumFormField } from '@/components/crm/enum-form-field';
 
 import { saveEmailTemplate } from '@/app/actions/crm-email-templates.actions';

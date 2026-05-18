@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruStatCard } from '@/components/zoruui';
+import { CheckCircle2, Crown, Star, UserPlus, Users, } from 'lucide-react';
+
 /**
  * KPI strip for the contacts list (extracted to keep `page.tsx` under
  * the 600-line scope cap). Each card toggles a status / lifecycle
@@ -7,15 +10,7 @@
  */
 
 import * as React from 'react';
-import {
-    CheckCircle2,
-    Crown,
-    Star,
-    UserPlus,
-    Users,
-} from 'lucide-react';
 
-import { ZoruStatCard } from '@/components/zoruui';
 import type {
     ContactLifecycleFilter,
     ContactStatusFilter,

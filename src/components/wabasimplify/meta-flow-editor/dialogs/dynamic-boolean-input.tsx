@@ -1,10 +1,6 @@
-
 'use client';
 
-import { ZoruLabel } from '@/components/zoruui';
-import { ZoruRadioGroup, ZoruRadioGroupItem } from '@/components/zoruui';
-import { ZoruInput } from '@/components/zoruui';
-
+import { ZoruLabel, ZoruRadioGroup, ZoruRadioGroupItem, ZoruInput } from '@/components/zoruui';
 export const DynamicBooleanInput = ({ label, value, onChange, placeholder = "e.g. ${data.is_visible}" }: { label: string, value: any, onChange: (newValue: any) => void, placeholder?: string }) => {
     const currentMode = typeof value === 'boolean' ? 'boolean' : 'dynamic';
     

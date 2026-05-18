@@ -1,11 +1,15 @@
 'use client';
 
+import { ZoruButton } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+import { ArrowRight,
+  CheckCircle2,
+  Sparkles } from 'lucide-react';
+
 import * as React from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { ArrowRight, CheckCircle2, Sparkles } from 'lucide-react';
 
-import { ZoruButton, ZoruButton } from '@/components/zoruui';
 import { cn } from '@/lib/utils';
 import { AVAILABLE_MODULES } from './requirements-step';
 

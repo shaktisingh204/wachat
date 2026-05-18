@@ -1,28 +1,5 @@
 'use client';
 
-/**
- * Wachat Opt-Out / DND — ZoruUI migration.
- * Single-add form, bulk-paste, list, export CSV, per-keyword stats.
- */
-
-import * as React from 'react';
-import { useEffect, useState, useTransition, useCallback } from 'react';
-import {
-  Download,
-  Loader2,
-  Plus,
-  ShieldOff,
-  Trash2,
-  Upload,
-} from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-import {
-  addToOptOut,
-  getOptOutList,
-  removeFromOptOut,
-} from '@/app/actions/wachat-features.actions';
-
 import {
   ZoruBreadcrumb,
   ZoruBreadcrumbItem,
@@ -39,6 +16,33 @@ import {
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition,
+  useCallback } from 'react';
+import {
+  Download,
+  Loader2,
+  Plus,
+  ShieldOff,
+  Trash2,
+  Upload,
+  } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import {
+  addToOptOut,
+  getOptOutList,
+  removeFromOptOut,
+  } from '@/app/actions/wachat-features.actions';
+
+/**
+ * Wachat Opt-Out / DND — ZoruUI migration.
+ * Single-add form, bulk-paste, list, export CSV, per-keyword stats.
+ */
+
+import * as React from 'react';
 
 type OptOutItem = {
   _id: string;

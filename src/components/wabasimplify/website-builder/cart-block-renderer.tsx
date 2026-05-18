@@ -1,4 +1,3 @@
-
 'use client';
 
 import { CartView } from './cart-view';

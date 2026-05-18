@@ -1,15 +1,17 @@
 'use client';
 
+import { ZoruButton, ZoruInput, ZoruLabel } from '@/components/zoruui';
+import {
+  useState,
+  useTransition } from 'react';
+import { useRouter } from 'next/navigation';
+import { Loader2 } from 'lucide-react';
+
 /**
  * Client form for generating an e-way bill. Drives the
  * `generateEWayBill` server action.
  */
 
-import { useState, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
-import { Loader2 } from 'lucide-react';
-
-import { ZoruButton, ZoruInput, ZoruLabel } from '@/components/zoruui';
 import { generateEWayBill } from '@/app/actions/crm-india-eway.actions';
 
 export function NewEWayBillForm() {

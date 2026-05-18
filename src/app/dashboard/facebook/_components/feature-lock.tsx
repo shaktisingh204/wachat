@@ -1,5 +1,8 @@
 "use client";
 
+import { ZoruButton } from '@/components/zoruui';
+import { Lock } from "lucide-react";
+
 /**
  * Local zoru replacement for `@/components/wabasimplify/feature-lock`.
  *
@@ -8,9 +11,6 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Lock } from "lucide-react";
-
-import { ZoruButton } from "@/components/zoruui";
 
 export function FeatureLock({
   isAllowed,

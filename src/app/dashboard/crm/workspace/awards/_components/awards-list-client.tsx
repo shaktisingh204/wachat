@@ -1,5 +1,33 @@
 'use client';
 
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruInput,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruStatCard,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  useDebouncedCallback } from 'use-debounce';
+import {
+    Award as AwardIcon,
+  Heart,
+  Plus,
+  Trash2,
+  Trophy,
+  Users,
+  X,
+  } from 'lucide-react';
+
+import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { ConfirmDialog } from '@/components/crm/confirm-dialog';
+import { StatusPill } from '@/components/crm/status-pill';
+
 /**
  * Awards list (§1D.1) — KPI strip (4) · filter chips · table.
  *
@@ -10,32 +38,6 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useDebouncedCallback } from 'use-debounce';
-import {
-    Award as AwardIcon,
-    Heart,
-    Plus,
-    Trash2,
-    Trophy,
-    Users,
-    X,
-} from 'lucide-react';
-
-import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { ConfirmDialog } from '@/components/crm/confirm-dialog';
-import { StatusPill } from '@/components/crm/status-pill';
-import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruInput,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    ZoruStatCard,
-    useZoruToast,
-} from '@/components/zoruui';
 
 import {
     deleteAward,

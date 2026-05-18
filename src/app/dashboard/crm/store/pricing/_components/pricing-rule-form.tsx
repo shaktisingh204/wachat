@@ -1,5 +1,29 @@
 'use client';
 
+import {
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruTextarea,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect,
+  useState } from 'react';
+import { useFormStatus } from 'react-dom';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { ArrowLeft,
+  LoaderCircle,
+  Save } from 'lucide-react';
+
 /**
  * Shared client form for create + edit pricing rule.
  *
@@ -7,25 +31,6 @@
  * editor will land alongside the storefront runtime.
  */
 
-import { useActionState, useEffect, useState } from 'react';
-import { useFormStatus } from 'react-dom';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { ArrowLeft, LoaderCircle, Save } from 'lucide-react';
-
-import {
-    ZoruButton,
-    ZoruCard,
-    ZoruInput,
-    ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    ZoruTextarea,
-    useZoruToast,
-} from '@/components/zoruui';
 import { savePricingRule } from '@/app/actions/crm-store.actions';
 
 const initialState: { message?: string; error?: string; id?: string } = {};

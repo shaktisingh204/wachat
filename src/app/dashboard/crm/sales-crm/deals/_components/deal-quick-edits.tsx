@@ -1,14 +1,5 @@
 'use client';
 
-/**
- * <DealQuickEdits> — inline owner/stage/status chips on the deal detail
- * "At a glance" card. Each chip opens a small popover, mutates via
- * `updateCrmDeal` / `updateCrmDealStage`, and refreshes the page.
- */
-
-import * as React from 'react';
-import { useRouter } from 'next/navigation';
-
 import {
   ZoruButton,
   ZoruDropdownMenu,
@@ -23,6 +14,17 @@ import {
   ZoruLabel,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+
+/**
+ * <DealQuickEdits> — inline owner/stage/status chips on the deal detail
+ * "At a glance" card. Each chip opens a small popover, mutates via
+ * `updateCrmDeal` / `updateCrmDealStage`, and refreshes the page.
+ */
+
+import * as React from 'react';
+
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';

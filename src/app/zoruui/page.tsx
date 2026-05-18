@@ -1,40 +1,5 @@
 "use client";
 
-import * as React from "react";
-import {
-  ArrowRight,
-  Activity,
-  Bell,
-  BookOpen,
-  Briefcase,
-  Calendar,
-  Check,
-  CheckCircle2,
-  Heart,
-  Lightbulb,
-  Shield,
-  Zap,
-  CircleAlert,
-  CircleCheck,
-  Compass,
-  Copy,
-  FolderOpen,
-  Home as HomeIcon,
-  Inbox,
-  Info,
-  LayoutDashboard,
-  Loader2,
-  Mail,
-  MoreHorizontal,
-  PlusCircle,
-  Search,
-  Settings,
-  Sparkles,
-  Trash2,
-  User,
-  Workflow,
-} from "lucide-react";
-
 import {
   ZORU_CHART_PALETTE,
   ZoruAccordion,
@@ -182,7 +147,43 @@ import {
   ZoruTooltipProvider,
   ZoruTooltipTrigger,
   zoruToast,
-} from "@/components/zoruui";
+  ZoruProvider,
+} from '@/components/zoruui';
+import {
+  ArrowRight,
+  Activity,
+  Bell,
+  BookOpen,
+  Briefcase,
+  Calendar,
+  Check,
+  CheckCircle2,
+  Heart,
+  Lightbulb,
+  Shield,
+  Zap,
+  CircleAlert,
+  CircleCheck,
+  Compass,
+  Copy,
+  FolderOpen,
+  Home as HomeIcon,
+  Inbox,
+  Info,
+  LayoutDashboard,
+  Loader2,
+  Mail,
+  MoreHorizontal,
+  PlusCircle,
+  Search,
+  Settings,
+  Sparkles,
+  Trash2,
+  User,
+  Workflow,
+  } from "lucide-react";
+
+import * as React from "react";
 
 export default function ZoruuiGalleryPage() {
   return (

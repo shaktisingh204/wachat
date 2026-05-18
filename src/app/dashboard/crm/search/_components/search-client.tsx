@@ -1,5 +1,11 @@
 'use client';
 
+import { ZoruInput, ZoruStatCard } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+import { Search as SearchIcon } from 'lucide-react';
+import { useDebouncedCallback } from 'use-debounce';
+
 /**
  * `<SearchClient>` — controlled search input for `/dashboard/crm/search`.
  *
@@ -15,11 +21,6 @@
  */
 
 import * as React from 'react';
-import { useRouter } from 'next/navigation';
-import { Search as SearchIcon } from 'lucide-react';
-import { useDebouncedCallback } from 'use-debounce';
-
-import { ZoruInput, ZoruStatCard } from '@/components/zoruui';
 
 interface SearchClientProps {
   initialQuery: string;

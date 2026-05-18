@@ -1,10 +1,19 @@
-
 'use client';
 
-import { ZoruLabel } from '@/components/zoruui';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
-import { ZoruAccordion, ZoruAccordionContent, ZoruAccordionItem, ZoruAccordionTrigger } from '@/components/zoruui';
+import {
+  ZoruLabel,
+  ZoruInput,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruAccordion,
+  ZoruAccordionContent,
+  ZoruAccordionItem,
+  ZoruAccordionTrigger,
+  ZoruButton,
+} from '@/components/zoruui';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import * as LucideIcons from 'lucide-react';
 
@@ -14,7 +23,6 @@ const hoverAnimationOptions = [
     { value: 'none', label: 'None' }, { value: 'grow', label: 'Grow' }, { value: 'shrink', label: 'Shrink' },
     { value: 'pulse', label: 'Pulse' }, { value: 'bob', label: 'Bob' }, { value: 'wobbleHorizontal', label: 'Wobble Horizontal' },
 ];
-
 
 export function StyleSettingsPanel({ settings, onUpdate }: { settings: any, onUpdate: (newSettings: any) => void }) {
      const handleUpdate = (field: string, value: any) => {

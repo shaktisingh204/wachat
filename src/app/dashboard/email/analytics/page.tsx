@@ -1,30 +1,39 @@
-
 'use client';
 
-import { useEffect, useState, useMemo, useTransition } from 'react';
-import { getEmailCampaigns } from '@/app/actions/email.actions';
-import type { WithId, EmailCampaign } from '@/lib/definitions';
-import { BarChart, Users, Send, MousePointerClick, Eye } from 'lucide-react';
-import { format, formatDistanceToNow } from 'date-fns';
 import {
-    ZoruCard,
-    ZoruCardContent,
-    ZoruCardHeader,
-    ZoruCardTitle,
-    ZoruCardDescription,
-    ZoruTable,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-    ZoruBadge,
-    ZoruSkeleton,
-    ZoruPageHeader,
-    ZoruPageHeading,
-    ZoruPageTitle,
-    ZoruPageDescription,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruCardDescription,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  ZoruBadge,
+  ZoruSkeleton,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  ZoruPageDescription,
 } from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useMemo,
+  useTransition } from 'react';
+import { getEmailCampaigns } from '@/app/actions/email.actions';
+import type { WithId,
+  EmailCampaign } from '@/lib/definitions';
+import { BarChart,
+  Users,
+  Send,
+  MousePointerClick,
+  Eye } from 'lucide-react';
+import { format,
+  formatDistanceToNow } from 'date-fns';
 
 const StatCard = ({ title, value, icon: Icon, description }: { title: string, value: string | number, icon: React.ElementType, description?: string }) => (
     <ZoruCard className="p-0">

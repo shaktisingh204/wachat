@@ -1,16 +1,5 @@
 "use client";
 
-/**
- * Cancel-schedule alert dialog for Meta Suite scheduled posts.
- *
- * Server action: `handleDeletePost` (canceling a scheduled post on
- * Facebook is the same as deleting the unpublished post entity).
- */
-
-import * as React from "react";
-import { Loader2, XCircle } from "lucide-react";
-
-import { handleDeletePost } from "@/app/actions/facebook.actions";
 import {
   ZoruAlertDialog,
   ZoruAlertDialogAction,
@@ -23,7 +12,21 @@ import {
   ZoruAlertDialogTrigger,
   ZoruButton,
   useZoruToast,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  Loader2,
+  XCircle } from "lucide-react";
+
+import { handleDeletePost } from "@/app/actions/facebook.actions";
+
+/**
+ * Cancel-schedule alert dialog for Meta Suite scheduled posts.
+ *
+ * Server action: `handleDeletePost` (canceling a scheduled post on
+ * Facebook is the same as deleting the unpublished post entity).
+ */
+
+import * as React from "react";
 
 interface CancelScheduleDialogProps {
   postId: string;

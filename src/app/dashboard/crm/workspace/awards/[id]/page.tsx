@@ -1,3 +1,15 @@
+import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
+import {
+  notFound } from 'next/navigation';
+import Link from 'next/link';
+import { Activity,
+  Pencil,
+  Plus,
+  Trash2,
+  Trophy } from 'lucide-react';
+
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
+
 /**
  * Award detail — §1D.2 bar.
  *
@@ -5,13 +17,6 @@
  * this award). Voting / winner-select are deferred (TODO 1D.2 — needs
  * a `vote_count` and `winner_id` extension on appreciations).
  */
-
-import { notFound } from 'next/navigation';
-import Link from 'next/link';
-import { Activity, Pencil, Plus, Trash2, Trophy } from 'lucide-react';
-
-import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
 
 import {
     getAppreciations,

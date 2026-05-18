@@ -1,5 +1,20 @@
 'use client';
 
+import {
+  ZoruButton,
+  ZoruCheckbox,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+} from '@/components/zoruui';
+import {
+  format } from 'date-fns';
+import { Eye,
+  Pencil } from 'lucide-react';
+
 /**
  * <LeaveTable> — canonical leave-list table (per §1D.1).
  *
@@ -11,19 +26,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { format } from 'date-fns';
-import { Eye, Pencil } from 'lucide-react';
 
-import {
-  ZoruButton,
-  ZoruCheckbox,
-  ZoruTable,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from '@/components/zoruui';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import type { LeaveListRow } from './types';
 

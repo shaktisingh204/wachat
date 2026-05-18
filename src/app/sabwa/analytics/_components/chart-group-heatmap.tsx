@@ -1,5 +1,13 @@
 'use client';
 
+import { cn } from '@/components/zoruui';
+import {
+  Activity } from 'lucide-react';
+
+import type { SabwaAnalyticsHeatCell } from '@/app/actions/sabwa.actions';
+
+import { EmptyState } from '@/app/sabwa/_components/empty-state';
+
 /**
  * ChartGroupHeatmap — custom 24 × 7 grid (hour × day) coloured by activity
  * intensity. Pure CSS — no Recharts. Uses the neutral zoru-ink scale for
@@ -7,12 +15,6 @@
  */
 
 import * as React from 'react';
-import { Activity } from 'lucide-react';
-
-import type { SabwaAnalyticsHeatCell } from '@/app/actions/sabwa.actions';
-
-import { EmptyState } from '@/app/sabwa/_components/empty-state';
-import { cn } from '@/components/zoruui';
 
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 

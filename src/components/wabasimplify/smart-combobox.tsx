@@ -1,23 +1,27 @@
 'use client';
 
-import * as React from 'react';
-import { Check, ChevronsUpDown, LoaderCircle, Plus } from 'lucide-react';
+import {
+  ZoruButton,
+  ZoruCommand,
+  ZoruCommandEmpty,
+  ZoruCommandGroup,
+  ZoruCommandInput,
+  ZoruCommandItem,
+  ZoruCommandList,
+  ZoruCommandSeparator,
+  ZoruPopover,
+  ZoruPopoverContent,
+  ZoruPopoverTrigger,
+  ZoruSelect,
+} from '@/components/zoruui';
+import {
+  Check,
+  ChevronsUpDown,
+  LoaderCircle,
+  Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { ZoruButton, ZoruButton } from '@/components/zoruui';
-import {
-    ZoruCommand,
-    ZoruCommandEmpty,
-    ZoruCommandGroup,
-    ZoruCommandInput,
-    ZoruCommandItem,
-    ZoruCommandList,
-    ZoruCommandSeparator,
-} from '@/components/zoruui';
-import {
-    ZoruPopover,
-    ZoruPopoverContent,
-    ZoruPopoverTrigger,
-} from '@/components/zoruui';
+
+import * as React from 'react';
 
 interface Option {
     value: string;

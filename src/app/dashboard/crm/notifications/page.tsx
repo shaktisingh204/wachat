@@ -1,3 +1,6 @@
+import { ZoruCard } from '@/components/zoruui';
+import { getCrmNotifications } from '@/app/actions/crm-notifications.actions';
+
 /**
  * §5.3 — CRM Notifications Hub page.
  *
@@ -15,9 +18,6 @@
  * primary and we'd rather pay the per-request cost than serve a stale
  * cached page.
  */
-
-import { getCrmNotifications } from '@/app/actions/crm-notifications.actions';
-import { ZoruCard } from '@/components/zoruui';
 
 import { NotificationsClient } from './_components/notifications-client';
 

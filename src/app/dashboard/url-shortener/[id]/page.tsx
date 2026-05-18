@@ -1,24 +1,30 @@
-import { getShortUrlById, getCustomDomains } from '@/app/actions/url-shortener.actions';
+import {
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardDescription,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+} from '@/components/zoruui';
+import {
+  getShortUrlById,
+  getCustomDomains } from '@/app/actions/url-shortener.actions';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, BarChart2, Calendar, Link as LinkIcon, NotebookPen } from 'lucide-react';
+import { ArrowLeft,
+  BarChart2,
+  Calendar,
+  Link as LinkIcon,
+  NotebookPen } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import type { ShortUrl } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
-import {
-    ZoruButton,
-    ZoruCard,
-    ZoruCardContent,
-    ZoruCardDescription,
-    ZoruCardHeader,
-    ZoruCardTitle,
-    ZoruTable,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-} from '@/components/zoruui';
 
 export const dynamic = 'force-dynamic';
 

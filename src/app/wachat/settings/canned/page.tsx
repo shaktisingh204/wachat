@@ -1,11 +1,5 @@
 'use client';
 
-import * as React from 'react';
-import { useRouter } from 'next/navigation';
-import { CircleAlert } from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-import { CannedMessagesSettingsTab } from '@/components/wabasimplify/canned-messages-settings-tab';
 import {
   ZoruBreadcrumb,
   ZoruBreadcrumbItem,
@@ -23,6 +17,14 @@ import {
   ZoruPageTitle,
   ZoruSkeleton,
 } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+import { CircleAlert } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import { CannedMessagesSettingsTab } from '@/components/wabasimplify/canned-messages-settings-tab';
+
+import * as React from 'react';
 
 export const dynamic = 'force-dynamic';
 

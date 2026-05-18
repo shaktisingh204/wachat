@@ -1,10 +1,5 @@
 'use client';
 
-import { useState, useEffect, useRef, useActionState, useTransition } from 'react';
-import type { WithId, User } from '@/lib/definitions';
-import { handleInviteAgent, handleRemoveAgent, getInvitedUsers } from '@/app/actions/team.actions';
-import { Plus, Trash2, LoaderCircle, UserCog } from 'lucide-react';
-
 import {
   ZoruAlertDialog,
   ZoruAlertDialogAction,
@@ -31,6 +26,22 @@ import {
   ZoruSkeleton,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useState,
+  useEffect,
+  useRef,
+  useActionState,
+  useTransition } from 'react';
+import type { WithId,
+  User } from '@/lib/definitions';
+import { handleInviteAgent,
+  handleRemoveAgent,
+  getInvitedUsers } from '@/app/actions/team.actions';
+import { Plus,
+  Trash2,
+  LoaderCircle,
+  UserCog } from 'lucide-react';
+
 import { CrmPageHeader } from '../../_components/crm-page-header';
 
 const removeAgentInitialState: any = { message: null, error: null };

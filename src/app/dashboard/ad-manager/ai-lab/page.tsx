@@ -1,18 +1,17 @@
 'use client';
 
+import { ZoruBadge, ZoruButton, ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, ZoruLabel, ZoruTextarea } from '@/components/zoruui';
+import {
+  Sparkles,
+  Wand2,
+  Clapperboard,
+  Type,
+  BarChart3,
+  Zap } from 'lucide-react';
+
 import * as React from 'react';
 import Link from 'next/link';
-import { Sparkles, Wand2, Clapperboard, Type, BarChart3, Zap } from 'lucide-react';
-import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruCardContent,
-    ZoruCardHeader,
-    ZoruCardTitle,
-    ZoruLabel,
-    ZoruTextarea,
-} from '@/components/zoruui';
+
 import {
     AmBreadcrumb,
     AmHeader,

@@ -1,4 +1,3 @@
-
 const defaultStages = ['New', 'Qualified', 'Proposal Sent', 'Negotiation', 'Won', 'Lost'];
 
 const industryStages: Record<string, string[]> = {

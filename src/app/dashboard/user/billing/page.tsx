@@ -1,25 +1,44 @@
-
-
 'use client';
 
-import { Check, X, History, Lock, IndianRupee, CheckCircle2, AlertCircle } from 'lucide-react';
-import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardFooter, ZoruCardHeader, ZoruCardTitle, ZoruButton } from '@/components/zoruui';
+import {
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardDescription,
+  ZoruCardFooter,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruButton,
+  ZoruSeparator,
+  ZoruScrollArea,
+  ZoruScrollBar,
+  ZoruAccordion,
+  ZoruAccordionContent,
+  ZoruAccordionItem,
+  ZoruAccordionTrigger,
+  ZoruAlert,
+  ZoruAlertDescription,
+  ZoruAlertTitle,
+} from '@/components/zoruui';
+import {
+  Check,
+  X,
+  History,
+  Lock,
+  IndianRupee,
+  CheckCircle2,
+  AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getPlans } from '@/app/actions/plan.actions';
 import { planFeatureMap } from '@/lib/plans';
-import { ZoruSeparator } from '@/components/zoruui';
 import { PlanPurchaseButton } from '@/components/wabasimplify/plan-purchase-button';
 import Link from 'next/link';
-import { ZoruButton } from '@/components/zoruui';
 import { useEffect, useState, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
-import type { Plan, WithId, User } from '@/lib/definitions';
+import type { Plan,
+  WithId,
+  User } from '@/lib/definitions';
 import { useProject } from '@/context/project-context';
-import { ZoruScrollArea, ZoruScrollBar } from '@/components/zoruui';
-import { ZoruAccordion, ZoruAccordionContent, ZoruAccordionItem, ZoruAccordionTrigger } from "@/components/ui/accordion"
 import { WalletCard } from '@/components/wabasimplify/wallet-card';
-import { ZoruAlert, ZoruAlertDescription, ZoruAlertTitle } from '@/components/zoruui';
-
 
 const PlanFeature = ({ children, included }: { children: React.ReactNode, included: boolean }) => (
     <li className="flex items-center gap-3">

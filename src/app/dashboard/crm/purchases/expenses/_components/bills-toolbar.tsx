@@ -1,5 +1,14 @@
 'use client';
 
+import { ZoruButton, ZoruInput, ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
+import {
+  CalendarRange,
+  Download,
+  Plus,
+  Search,
+  Table as TableIcon,
+  } from 'lucide-react';
+
 /**
  * <BillsToolbar> — top toolbar above the bills list (§1D).
  *
@@ -9,23 +18,6 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import {
-  CalendarRange,
-  Download,
-  Plus,
-  Search,
-  Table as TableIcon,
-} from 'lucide-react';
-
-import {
-  ZoruButton,
-  ZoruInput,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-} from '@/components/zoruui';
 
 import type {
   BillDensity,

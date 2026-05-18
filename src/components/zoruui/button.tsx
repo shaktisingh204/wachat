@@ -20,12 +20,22 @@ export const zoruButtonVariants = cva(
       variant: {
         default:
           "border-zoru-primary bg-zoru-primary text-zoru-primary-foreground shadow-[var(--zoru-shadow-sm)] hover:bg-zoru-primary-hover hover:shadow-[var(--zoru-shadow-md)] active:bg-zoru-primary-active",
+        primary:
+          "border-zoru-primary bg-zoru-primary text-zoru-primary-foreground shadow-[var(--zoru-shadow-sm)] hover:bg-zoru-primary-hover hover:shadow-[var(--zoru-shadow-md)] active:bg-zoru-primary-active",
+        rose:
+          "border-zoru-primary bg-zoru-primary text-zoru-primary-foreground shadow-[var(--zoru-shadow-sm)] hover:bg-zoru-primary-hover hover:shadow-[var(--zoru-shadow-md)] active:bg-zoru-primary-active",
+        obsidian:
+          "border-zoru-ink bg-zoru-ink text-zoru-bg shadow-[var(--zoru-shadow-sm)] hover:bg-zoru-ink-muted hover:shadow-[var(--zoru-shadow-md)]",
+        pill:
+          "rounded-full border-zoru-primary bg-zoru-primary text-zoru-primary-foreground shadow-[var(--zoru-shadow-sm)] hover:bg-zoru-primary-hover hover:shadow-[var(--zoru-shadow-md)]",
         secondary:
           "border-zoru-line bg-zoru-surface text-zoru-ink shadow-[var(--zoru-shadow-sm)] hover:border-zoru-line-strong hover:bg-zoru-surface-2 hover:shadow-[var(--zoru-shadow-md)]",
         outline:
           "border-zoru-line bg-zoru-bg text-zoru-ink shadow-[var(--zoru-shadow-sm)] hover:border-zoru-line-strong hover:bg-zoru-surface hover:shadow-[var(--zoru-shadow-md)]",
         ghost: "bg-transparent text-zoru-ink hover:translate-y-0 hover:bg-zoru-surface-2",
         link: "h-auto bg-transparent px-0 text-zoru-ink underline-offset-4 hover:translate-y-0 hover:underline",
+        "sidebar-active":
+          "border-zoru-line bg-zoru-surface-2 text-zoru-ink shadow-[var(--zoru-shadow-sm)] hover:border-zoru-line-strong hover:bg-zoru-surface-2",
         destructive:
           "border-zoru-danger bg-zoru-danger text-zoru-danger-foreground shadow-[var(--zoru-shadow-sm)] hover:bg-zoru-danger/90 hover:shadow-[var(--zoru-shadow-md)]",
         success:
@@ -48,17 +58,23 @@ export interface ZoruButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof zoruButtonVariants> {
   asChild?: boolean;
+  leading?: React.ReactNode;
+  trailing?: React.ReactNode;
 }
 
 export const ZoruButton = React.forwardRef<HTMLButtonElement, ZoruButtonProps>(
-  ({ className, variant, size, block, asChild, ...props }, ref) => {
+  ({ className, variant, size, block, asChild, leading, trailing, children, ...props }, ref) => {
     const Comp = asChild ? Slot : "button";
     return (
       <Comp
         ref={ref}
         className={cn(zoruButtonVariants({ variant, size, block }), className)}
         {...props}
-      />
+      >
+        {leading}
+        {children}
+        {trailing}
+      </Comp>
     );
   },
 );

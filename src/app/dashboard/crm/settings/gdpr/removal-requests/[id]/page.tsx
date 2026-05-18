@@ -1,5 +1,47 @@
 'use client';
 
+import {
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruLabel,
+  ZoruSkeleton,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  ZoruTextarea,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  useParams,
+  useRouter } from 'next/navigation';
+import {
+    ArrowLeft,
+  CheckCircle2,
+  Loader2,
+  PlayCircle,
+  ShieldOff,
+  UserMinus,
+  XCircle,
+  } from 'lucide-react';
+
 /**
  * GDPR Erase Request — detail page.
  *
@@ -13,46 +55,6 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
-import {
-    ArrowLeft,
-    CheckCircle2,
-    Loader2,
-    PlayCircle,
-    ShieldOff,
-    UserMinus,
-    XCircle,
-} from 'lucide-react';
-
-import {
-    ZoruAlertDialog,
-    ZoruAlertDialogAction,
-    ZoruAlertDialogCancel,
-    ZoruAlertDialogContent,
-    ZoruAlertDialogDescription,
-    ZoruAlertDialogFooter,
-    ZoruAlertDialogHeader,
-    ZoruAlertDialogTitle,
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruDialog,
-    ZoruDialogContent,
-    ZoruDialogDescription,
-    ZoruDialogFooter,
-    ZoruDialogHeader,
-    ZoruDialogTitle,
-    ZoruLabel,
-    ZoruSkeleton,
-    ZoruTable,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-    ZoruTextarea,
-    useZoruToast,
-} from '@/components/zoruui';
 
 import { CrmPageHeader } from '../../../../_components/crm-page-header';
 

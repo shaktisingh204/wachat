@@ -1,14 +1,17 @@
 'use client';
 
+import { ZoruButton, useZoruToast } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+import { CheckCircle2,
+  Trash2 } from 'lucide-react';
+
 /**
  * <TaskDetailActions> — Complete · Delete.
  */
 
 import * as React from 'react';
-import { useRouter } from 'next/navigation';
-import { CheckCircle2, Trash2 } from 'lucide-react';
 
-import { ZoruButton, useZoruToast } from '@/components/zoruui';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import {
     completeTask,

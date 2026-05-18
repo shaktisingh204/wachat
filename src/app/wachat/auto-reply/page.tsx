@@ -1,22 +1,5 @@
 'use client';
 
-/**
- * /wachat/auto-reply — Auto-Reply settings page (ZoruUI).
- *
- * Master switch + per-rule-type accordion (welcome, away, general, AI).
- * Visual layer only — server actions and same data flow are unchanged.
- */
-
-import * as React from 'react';
-import { useState, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
-import { CircleAlert, ListFilter, Loader, Sparkles, MessageCircle, Clock, Bot } from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-import { handleUpdateMasterSwitch } from '@/app/actions/project.actions';
-import { AutoReplyForm } from '@/app/wachat/_components/auto-reply-form';
-import { OptInOutForm } from '@/app/wachat/_components/opt-in-out-form';
-
 import {
   ZoruAccordion,
   ZoruAccordionContent,
@@ -41,6 +24,31 @@ import {
   ZoruSwitch,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useState,
+  useTransition } from 'react';
+import { useRouter } from 'next/navigation';
+import { CircleAlert,
+  ListFilter,
+  Loader,
+  Sparkles,
+  MessageCircle,
+  Clock,
+  Bot } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import { handleUpdateMasterSwitch } from '@/app/actions/project.actions';
+import { AutoReplyForm } from '@/app/wachat/_components/auto-reply-form';
+import { OptInOutForm } from '@/app/wachat/_components/opt-in-out-form';
+
+/**
+ * /wachat/auto-reply — Auto-Reply settings page (ZoruUI).
+ *
+ * Master switch + per-rule-type accordion (welcome, away, general, AI).
+ * Visual layer only — server actions and same data flow are unchanged.
+ */
+
+import * as React from 'react';
 
 export const dynamic = 'force-dynamic';
 

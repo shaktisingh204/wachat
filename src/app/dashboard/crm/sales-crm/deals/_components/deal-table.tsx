@@ -1,5 +1,13 @@
 'use client';
 
+import {
+  ZoruButton,
+  ZoruDropdownMenu,
+  ZoruDropdownMenuContent,
+  ZoruDropdownMenuItem,
+  ZoruDropdownMenuSeparator,
+  ZoruDropdownMenuTrigger,
+} from '@/components/zoruui';
 /**
  * <DealTable> — the table-view body of the canonical deals list.
  *
@@ -10,14 +18,6 @@
 import * as React from 'react';
 import Link from 'next/link';
 
-import {
-  ZoruButton,
-  ZoruDropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-} from '@/components/zoruui';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 

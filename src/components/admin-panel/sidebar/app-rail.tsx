@@ -1,11 +1,13 @@
 'use client';
 
+import { ZoruTooltip, ZoruTooltipContent, ZoruTooltipTrigger, ZoruAvatar, ZoruAvatarFallback, ZoruAvatarImage } from '@/components/zoruui';
+import {
+  usePathname } from 'next/navigation';
+import { cn } from '@/lib/utils';
+
 import * as React from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { cn } from '@/lib/utils';
-import { ZoruTooltip, ZoruTooltipContent, ZoruTooltipTrigger } from '@/components/zoruui';
-import { ZoruAvatar, ZoruAvatarFallback, ZoruAvatarImage } from '@/components/zoruui';
+
 import {
     Home,
     Settings,

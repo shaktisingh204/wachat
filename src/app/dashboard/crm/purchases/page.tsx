@@ -1,10 +1,4 @@
-/**
- * Purchases module overview — tile grid linking every sub-feature.
- *
- * Was a `redirect('/dashboard/crm/purchases/vendors')` shim.
- */
-
-import Link from 'next/link';
+import { ZoruCard, ZoruPageDescription, ZoruPageHeader, ZoruPageHeading, ZoruPageTitle } from '@/components/zoruui';
 import {
   ArrowUpRight,
   Banknote,
@@ -18,15 +12,15 @@ import {
   ShoppingBag,
   Store,
   TrendingDown,
-} from 'lucide-react';
+  } from 'lucide-react';
 
-import {
-  ZoruCard,
-  ZoruPageDescription,
-  ZoruPageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-} from '@/components/zoruui';
+/**
+ * Purchases module overview — tile grid linking every sub-feature.
+ *
+ * Was a `redirect('/dashboard/crm/purchases/vendors')` shim.
+ */
+
+import Link from 'next/link';
 
 interface NavTile {
   href: string;

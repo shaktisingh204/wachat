@@ -1,8 +1,6 @@
-
-
 'use client';
 
-import { ZoruButton, ZoruButton } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
 import { useCart } from '@/context/cart-context';
 import type { EcommProduct, WithId } from '@/lib/definitions';
 import { ShoppingCart } from 'lucide-react';

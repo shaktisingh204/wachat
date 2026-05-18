@@ -1,13 +1,17 @@
 'use client';
 
-import * as React from 'react';
-import { use } from 'react';
+import { ZoruSkeleton } from '@/components/zoruui';
+import {
+  use } from 'react';
 import { LineChart } from 'lucide-react';
 
 import { HrFormPage } from '../../../../hr/_components/hr-form-page';
-import { getCrmKpis, saveCrmKpi } from '@/app/actions/crm-hr-appraisals.actions';
-import { fields, sections } from '../../_config';
-import { ZoruSkeleton } from '@/components/zoruui';
+import { getCrmKpis,
+  saveCrmKpi } from '@/app/actions/crm-hr-appraisals.actions';
+import { fields,
+  sections } from '../../_config';
+
+import * as React from 'react';
 
 export default function EditKpiPage({
   params,

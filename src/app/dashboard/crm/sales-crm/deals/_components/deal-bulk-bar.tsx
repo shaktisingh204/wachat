@@ -1,16 +1,5 @@
 'use client';
 
-/**
- * <DealBulkBar> — sticky bulk-action ribbon for the deals list.
- *
- * Extracted from <DealListClient> for size + composition reasons. Wires
- * real server actions for archive / delete / assign / change-stage; the
- * parent owns confirmation flows for destructive operations.
- */
-
-import * as React from 'react';
-import { Download, ListChecks, Trash2, X } from 'lucide-react';
-
 import {
   ZoruButton,
   ZoruDropdownMenu,
@@ -25,6 +14,22 @@ import {
   ZoruDialogTitle,
   ZoruLabel,
 } from '@/components/zoruui';
+import {
+  Download,
+  ListChecks,
+  Trash2,
+  X } from 'lucide-react';
+
+/**
+ * <DealBulkBar> — sticky bulk-action ribbon for the deals list.
+ *
+ * Extracted from <DealListClient> for size + composition reasons. Wires
+ * real server actions for archive / delete / assign / change-stage; the
+ * parent owns confirmation flows for destructive operations.
+ */
+
+import * as React from 'react';
+
 import { EntityFormField } from '@/components/crm/entity-form-field';
 
 interface DealBulkBarProps {

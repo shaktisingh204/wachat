@@ -1,3 +1,7 @@
+import { ZoruButton, ZoruCard } from '@/components/zoruui';
+import { notFound } from 'next/navigation';
+import { Pencil } from 'lucide-react';
+
 /**
  * Hire request detail — `/dashboard/crm/purchases/hire/[id]`.
  *
@@ -8,10 +12,7 @@
  */
 
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import { Pencil } from 'lucide-react';
 
-import { ZoruButton, ZoruCard } from '@/components/zoruui';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { getCrmHireById } from '@/app/actions/crm-hire.actions';

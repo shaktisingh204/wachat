@@ -1,12 +1,14 @@
+import { ZoruBadge, ZoruCard } from '@/components/zoruui';
+import {
+  notFound } from 'next/navigation';
+import { CheckSquare,
+  Pin } from 'lucide-react';
+
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
+
 /**
  * Internal KB article detail — §1D.2 bar.
  */
-
-import { notFound } from 'next/navigation';
-import { CheckSquare, Pin } from 'lucide-react';
-
-import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { ZoruBadge, ZoruCard } from '@/components/zoruui';
 
 import {
     getKnowledgeBaseById,

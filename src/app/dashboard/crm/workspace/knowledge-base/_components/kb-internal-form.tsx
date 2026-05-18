@@ -1,5 +1,24 @@
 'use client';
 
+import {
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruTextarea,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+
+import { EntityFormShell } from '@/components/crm/entity-form-shell';
+import { EnumFormField } from '@/components/crm/enum-form-field';
+
 /**
  * Internal KB form (§1D.3) — shared by /new and /[id]/edit.
  *
@@ -8,22 +27,6 @@
  */
 
 import * as React from 'react';
-import { useActionState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-
-import { EntityFormShell } from '@/components/crm/entity-form-shell';
-import { EnumFormField } from '@/components/crm/enum-form-field';
-import {
-    ZoruInput,
-    ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    ZoruTextarea,
-    useZoruToast,
-} from '@/components/zoruui';
 
 import {
     getKnowledgeBaseCategories,

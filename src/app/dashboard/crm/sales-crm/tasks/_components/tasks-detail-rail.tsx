@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import { ExternalLink } from 'lucide-react';
+
 /**
  * <TaskDetailRail> — right-rail content for the task detail page.
  *
@@ -9,14 +12,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { ExternalLink } from 'lucide-react';
 
-import {
-    ZoruCard,
-    ZoruCardContent,
-    ZoruCardHeader,
-    ZoruCardTitle,
-} from '@/components/zoruui';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import type { EntityKey } from '@/lib/lookup-registry';

@@ -1,11 +1,24 @@
-import { ZoruButton, ZoruButton } from '@/components/zoruui';
-
 'use client';
 
-import Image from 'next/image';
+import {
+  ZoruButton,
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruAlertDialogTrigger,
+} from '@/components/zoruui';
 import { Edit, Trash2, ShoppingBag } from 'lucide-react';
-import type { WithId, EcommProduct, CrmProduct } from '@/lib/definitions';
-import { ZoruAlertDialog, ZoruAlertDialogAction, ZoruAlertDialogCancel, ZoruAlertDialogContent, ZoruAlertDialogDescription, ZoruAlertDialogFooter, ZoruAlertDialogHeader, ZoruAlertDialogTitle, ZoruAlertDialogTrigger } from '@/components/zoruui';
+import type { WithId,
+  EcommProduct,
+  CrmProduct } from '@/lib/definitions';
+
+import Image from 'next/image';
+
 import { deleteCrmProduct } from '@/app/actions/crm-products.actions';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';

@@ -61,7 +61,6 @@ async function getNextSalesOrderNumber(db: Db, userId: ObjectId): Promise<string
     return `SO-${Date.now().toString().slice(-5)}`;
 }
 
-
 export async function getSalesOrderById(orderId: string): Promise<WithId<CrmSalesOrder> | null> {
     const session = await getSession();
     if (!session?.user) return null;
@@ -97,7 +96,6 @@ export async function getSalesOrderById(orderId: string): Promise<WithId<CrmSale
         return null;
     }
 }
-
 
 export async function getSalesOrders(
     page: number = 1,

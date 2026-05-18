@@ -1,16 +1,5 @@
 'use client';
 
-/**
- * Fixed-asset detail-page dialogs.
- *
- *   • <FixedAssetAssignDialog> — pick an employee, call assignFixedAsset.
- *   • <FixedAssetRetireDialog> — capture retirement date, sale value, and
- *     reason; call retireFixedAsset.
- */
-
-import * as React from 'react';
-import { useRouter } from 'next/navigation';
-
 import {
   ZoruButton,
   ZoruDialog,
@@ -24,6 +13,19 @@ import {
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+
+/**
+ * Fixed-asset detail-page dialogs.
+ *
+ *   • <FixedAssetAssignDialog> — pick an employee, call assignFixedAsset.
+ *   • <FixedAssetRetireDialog> — capture retirement date, sale value, and
+ *     reason; call retireFixedAsset.
+ */
+
+import * as React from 'react';
+
 import { EntityPicker } from '@/components/crm/entity-picker';
 import {
   assignFixedAsset,

@@ -1,10 +1,4 @@
-/**
- * Sales-CRM module overview — tile grid linking every sub-feature.
- *
- * Was a `redirect('/dashboard/crm/sales-crm/leads')` shim.
- */
-
-import Link from 'next/link';
+import { ZoruCard, ZoruPageDescription, ZoruPageHeader, ZoruPageHeading, ZoruPageTitle } from '@/components/zoruui';
 import {
   ArrowUpRight,
   BadgeCheck,
@@ -31,15 +25,15 @@ import {
   TrendingUp,
   UserCog,
   Users,
-} from 'lucide-react';
+  } from 'lucide-react';
 
-import {
-  ZoruCard,
-  ZoruPageDescription,
-  ZoruPageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-} from '@/components/zoruui';
+/**
+ * Sales-CRM module overview — tile grid linking every sub-feature.
+ *
+ * Was a `redirect('/dashboard/crm/sales-crm/leads')` shim.
+ */
+
+import Link from 'next/link';
 
 interface NavTile {
   href: string;

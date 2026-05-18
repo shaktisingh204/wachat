@@ -1,21 +1,5 @@
 'use client';
 
-/**
- * /dashboard/facebook/custom-ecommerce/settings — workspace-level
- * Custom Shops settings landing. Lists every shop in the active project
- * and links into the per-shop settings page where the heavy form lives.
- */
-
-import * as React from 'react';
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { Cog, Store } from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-import { getEcommShops } from '@/app/actions/custom-ecommerce.actions';
-import type { EcommShop } from '@/lib/definitions';
-import type { WithId } from 'mongodb';
-
 import {
   ZoruBadge,
   ZoruBreadcrumb,
@@ -28,6 +12,25 @@ import {
   ZoruCard,
   ZoruEmptyState,
 } from '@/components/zoruui';
+import {
+  useEffect,
+  useState } from 'react';
+import Link from 'next/link';
+import { Cog,
+  Store } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import { getEcommShops } from '@/app/actions/custom-ecommerce.actions';
+import type { EcommShop } from '@/lib/definitions';
+import type { WithId } from 'mongodb';
+
+/**
+ * /dashboard/facebook/custom-ecommerce/settings — workspace-level
+ * Custom Shops settings landing. Lists every shop in the active project
+ * and links into the per-shop settings page where the heavy form lives.
+ */
+
+import * as React from 'react';
 
 export default function CustomEcommerceSettingsPage(): React.JSX.Element {
   const { activeProject } = useProject();

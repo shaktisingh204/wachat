@@ -1,3 +1,20 @@
+import { ZoruButton, ZoruCard } from '@/components/zoruui';
+import {
+  notFound } from 'next/navigation';
+import {
+  ArrowLeft,
+  Truck,
+  Pencil,
+  Receipt,
+  Mail,
+  Printer,
+  Share2,
+  Copy,
+  Archive,
+  Activity,
+  Trash2,
+  } from 'lucide-react';
+
 /**
  * Delivery Challan detail — `/dashboard/crm/sales/delivery/[challanId]`.
  *
@@ -19,22 +36,7 @@
  */
 
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import {
-  ArrowLeft,
-  Truck,
-  Pencil,
-  Receipt,
-  Mail,
-  Printer,
-  Share2,
-  Copy,
-  Archive,
-  Activity,
-  Trash2,
-} from 'lucide-react';
 
-import { ZoruButton, ZoruCard } from '@/components/zoruui';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { LineageRail } from '@/components/crm/lineage-rail';

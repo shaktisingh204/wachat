@@ -1,44 +1,5 @@
 'use client';
 
-/**
- * /dashboard/facebook/visitor-posts — User-submitted posts on the Page.
- *
- * Lists visitor posts with author + message preview + status, with a
- * status filter (all/published/hidden/spam). Click a row to open a
- * ZoruSheet for the full message, reply input, hide, and mark-spam
- * actions. Reply uses `handlePostComment`; delete uses `handleDeleteComment`;
- * hide/spam are queued (no dedicated server action yet) and surface a
- * toast — matches the prompt's "render the buttons but call existing
- * handlers / toast.info noting queued" requirement.
- */
-
-import * as React from 'react';
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-  useTransition,
-} from 'react';
-import {
-  AlertCircle,
-  EyeOff,
-  Flag,
-  MessageSquareReply,
-  MessagesSquare,
-  RefreshCw,
-  Trash2,
-} from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
-
-import { useProject } from '@/context/project-context';
-import {
-  getVisitorPosts,
-  handleDeleteComment,
-  handlePostComment,
-  handleLikeObject,
-} from '@/app/actions/facebook.actions';
-
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -68,6 +29,45 @@ import {
   ZoruTextarea,
   zoruSonnerToast,
 } from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useTransition,
+  } from 'react';
+import {
+  AlertCircle,
+  EyeOff,
+  Flag,
+  MessageSquareReply,
+  MessagesSquare,
+  RefreshCw,
+  Trash2,
+  } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
+
+import { useProject } from '@/context/project-context';
+import {
+  getVisitorPosts,
+  handleDeleteComment,
+  handlePostComment,
+  handleLikeObject,
+  } from '@/app/actions/facebook.actions';
+
+/**
+ * /dashboard/facebook/visitor-posts — User-submitted posts on the Page.
+ *
+ * Lists visitor posts with author + message preview + status, with a
+ * status filter (all/published/hidden/spam). Click a row to open a
+ * ZoruSheet for the full message, reply input, hide, and mark-spam
+ * actions. Reply uses `handlePostComment`; delete uses `handleDeleteComment`;
+ * hide/spam are queued (no dedicated server action yet) and surface a
+ * toast — matches the prompt's "render the buttons but call existing
+ * handlers / toast.info noting queued" requirement.
+ */
+
+import * as React from 'react';
 
 type StatusFilter = 'all' | 'published' | 'hidden' | 'spam';
 

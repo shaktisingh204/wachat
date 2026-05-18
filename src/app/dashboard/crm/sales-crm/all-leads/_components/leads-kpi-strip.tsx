@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruStatCard } from '@/components/zoruui';
+import { BarChart3, CheckCircle2, Sparkles, Trophy, Users } from 'lucide-react';
+
 /**
  * KPI strip for the leads list page — 4 stat cards plus the conversion
  * funnel chart taking the trailing two columns on lg screens.
@@ -9,9 +12,6 @@
  */
 
 import * as React from 'react';
-import { BarChart3, CheckCircle2, Sparkles, Trophy, Users } from 'lucide-react';
-
-import { ZoruStatCard } from '@/components/zoruui';
 
 import { LeadsFunnel, type LeadsFunnelStage } from './leads-funnel';
 import type { LeadsStatusFilter } from './leads-filters';

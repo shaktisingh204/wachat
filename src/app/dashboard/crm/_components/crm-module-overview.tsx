@@ -1,7 +1,8 @@
-import Link from 'next/link';
+import { ZoruCard } from '@/components/zoruui';
 import { ArrowUpRight } from 'lucide-react';
 
-import { ZoruCard } from '@/components/zoruui';
+import Link from 'next/link';
+
 import { CrmPageHeader } from './crm-page-header';
 
 export interface CrmModuleSection {

@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruCard, ZoruButton } from '@/components/zoruui';
+import { Mail, Phone, UserCircle2 } from 'lucide-react';
+
 /**
  * <EmployeesGrid> — card-grid view alternative to the table.
  *
@@ -11,9 +14,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { Mail, Phone, UserCircle2 } from 'lucide-react';
 
-import { ZoruCard, ZoruButton } from '@/components/zoruui';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 

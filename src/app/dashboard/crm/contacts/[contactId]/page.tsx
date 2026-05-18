@@ -1,33 +1,5 @@
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import {
-  getCrmContactById,
-  getCrmContactRelatedCounts,
-} from '@/app/actions/crm.actions';
-import { getCrmAccountById } from '@/app/actions/crm-accounts.actions';
-import { getCrmDeals } from '@/app/actions/crm-deals.actions';
-import type { CrmContact, WithId, CrmAccount, CrmDeal } from '@/lib/definitions';
-import {
-  ArrowLeft,
-  Briefcase,
-  Mail,
-  Phone,
-  MessageSquare,
-  Users,
-  Handshake,
-  ListChecks,
-  StickyNote,
-  LifeBuoy,
-  Receipt,
-  Paperclip,
-} from 'lucide-react';
-import { CrmNotes } from '@/components/wabasimplify/crm-notes';
-import Link from 'next/link';
-import { ComposeEmailDialog } from '@/components/wabasimplify/crm-compose-email-dialog';
-import { RelatedRail } from '@/components/crm/RelatedRail';
-
 import {
   ZoruAvatar,
   ZoruAvatarFallback,
@@ -44,6 +16,41 @@ import {
   ZoruTableHeader,
   ZoruTableRow,
 } from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition } from 'react';
+import { useParams,
+  useRouter } from 'next/navigation';
+import {
+  getCrmContactById,
+  getCrmContactRelatedCounts,
+  } from '@/app/actions/crm.actions';
+import { getCrmAccountById } from '@/app/actions/crm-accounts.actions';
+import { getCrmDeals } from '@/app/actions/crm-deals.actions';
+import type { CrmContact,
+  WithId,
+  CrmAccount,
+  CrmDeal } from '@/lib/definitions';
+import {
+  ArrowLeft,
+  Briefcase,
+  Mail,
+  Phone,
+  MessageSquare,
+  Users,
+  Handshake,
+  ListChecks,
+  StickyNote,
+  LifeBuoy,
+  Receipt,
+  Paperclip,
+  } from 'lucide-react';
+import { CrmNotes } from '@/components/wabasimplify/crm-notes';
+import Link from 'next/link';
+import { ComposeEmailDialog } from '@/components/wabasimplify/crm-compose-email-dialog';
+import { RelatedRail } from '@/components/crm/RelatedRail';
+
 import { CrmPageHeader } from '../../_components/crm-page-header';
 
 function ContactDetailPageSkeleton() {

@@ -1,69 +1,5 @@
 "use client";
 
-/**
- * /dashboard/facebook/messages — ZoruUI rebuild of FacebookChatClient.
- *
- * Three-pane workspace:
- *   1. Conversations list  (rebuilt inline with Zoru primitives)
- *   2. Message thread      (rebuilt inline; reuses sendFacebookMessage
- *                           server action via useActionState)
- *   3. Contact info panel  (Zoru-native, in a ZoruSheet on mobile)
- *
- * Same data, same handlers, same server-action calls — visual layer only.
- *
- * Server actions preserved end-to-end:
- *   - getFacebookChatInitialData(projectId)
- *   - getFacebookConversationMessages(conversationId, projectId)
- *   - markFacebookConversationAsRead(conversationId, projectId)
- *   - sendFacebookMessage(prevState, formData)
- *   - getSession()
- *
- * Polling preserves the legacy 5-second cadence.
- */
-
-import * as React from "react";
-import {
-  useEffect,
-  useState,
-  useCallback,
-  useTransition,
-  useMemo,
-  useRef,
-  useActionState,
-} from "react";
-import { useFormStatus } from "react-dom";
-import { useSearchParams, useRouter } from "next/navigation";
-import { format, formatDistanceToNow } from "date-fns";
-import {
-  AlertCircle,
-  ArrowLeft,
-  Info,
-  LoaderCircle,
-  MessageCircle,
-  MessageSquare,
-  MessageSquarePlus,
-  Phone,
-  Search,
-  Send,
-  Video,
-} from "lucide-react";
-import type { WithId } from "mongodb";
-
-import {
-  getFacebookChatInitialData,
-  getFacebookConversationMessages,
-  markFacebookConversationAsRead,
-  sendFacebookMessage,
-} from "@/app/actions/facebook.actions";
-import { getSession } from "@/app/actions/index";
-import type {
-  Project,
-  FacebookConversation,
-  FacebookMessage,
-  User,
-  Plan,
-} from "@/lib/definitions";
-
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -89,7 +25,73 @@ import {
   ZoruSkeleton,
   useZoruToast,
   cn,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useCallback,
+  useTransition,
+  useMemo,
+  useRef,
+  useActionState,
+  } from "react";
+import { useFormStatus } from "react-dom";
+import { useSearchParams,
+  useRouter } from "next/navigation";
+import { format,
+  formatDistanceToNow } from "date-fns";
+import {
+  AlertCircle,
+  ArrowLeft,
+  Info,
+  LoaderCircle,
+  MessageCircle,
+  MessageSquare,
+  MessageSquarePlus,
+  Phone,
+  Search,
+  Send,
+  Video,
+  } from "lucide-react";
+import type { WithId } from "mongodb";
+
+import {
+  getFacebookChatInitialData,
+  getFacebookConversationMessages,
+  markFacebookConversationAsRead,
+  sendFacebookMessage,
+  } from "@/app/actions/facebook.actions";
+import { getSession } from "@/app/actions/index";
+import type {
+  Project,
+  FacebookConversation,
+  FacebookMessage,
+  User,
+  Plan,
+  } from "@/lib/definitions";
+
+/**
+ * /dashboard/facebook/messages — ZoruUI rebuild of FacebookChatClient.
+ *
+ * Three-pane workspace:
+ *   1. Conversations list  (rebuilt inline with Zoru primitives)
+ *   2. Message thread      (rebuilt inline; reuses sendFacebookMessage
+ *                           server action via useActionState)
+ *   3. Contact info panel  (Zoru-native, in a ZoruSheet on mobile)
+ *
+ * Same data, same handlers, same server-action calls — visual layer only.
+ *
+ * Server actions preserved end-to-end:
+ *   - getFacebookChatInitialData(projectId)
+ *   - getFacebookConversationMessages(conversationId, projectId)
+ *   - markFacebookConversationAsRead(conversationId, projectId)
+ *   - sendFacebookMessage(prevState, formData)
+ *   - getSession()
+ *
+ * Polling preserves the legacy 5-second cadence.
+ */
+
+import * as React from "react";
 
 type SessionUser =
   | (Omit<User, "password"> & { _id: string; plan?: WithId<Plan> | null })

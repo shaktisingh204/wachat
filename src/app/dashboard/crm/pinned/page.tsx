@@ -1,7 +1,6 @@
 'use client';
 
-import * as React from 'react';
-import Link from 'next/link';
+import { ZoruBadge, ZoruButton, ZoruCard, useZoruToast } from '@/components/zoruui';
 import {
   Pin,
   PinOff,
@@ -12,14 +11,11 @@ import {
   LifeBuoy,
   BookOpen,
   StickyNote,
-} from 'lucide-react';
+  } from 'lucide-react';
 
-import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
-  useZoruToast,
-} from '@/components/zoruui';
+import * as React from 'react';
+import Link from 'next/link';
+
 import { CrmPageHeader } from '../_components/crm-page-header';
 import {
   getMyPinnedItems,

@@ -1,5 +1,55 @@
 "use client";
 
+import {
+  cn,
+  useZoruToast,
+  ZoruAlert,
+  ZoruAlertDescription,
+  ZoruAlertTitle,
+  ZoruAvatar,
+  ZoruAvatarFallback,
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruScrollArea,
+  ZoruSkeleton,
+} from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useTransition } from "react";
+import { useSearchParams,
+  useRouter } from "next/navigation";
+import { useFormStatus } from "react-dom";
+import { useActionState } from "react";
+import { format,
+  formatDistanceToNow } from "date-fns";
+import { useDebouncedCallback } from "use-debounce";
+import {
+  AlertCircle,
+  ArrowLeft,
+  LoaderCircle,
+  MessageSquare,
+  Search,
+  Send,
+  Users,
+  } from "lucide-react";
+
+import {
+  getChatSessionsForUser,
+  getFullChatSession,
+  postChatMessageAction,
+  } from "@/app/actions/sabchat.actions";
+import type {
+  WithId,
+  SabChatSession,
+  SabChatMessage,
+  } from "@/lib/definitions";
+import { useProject } from "@/context/project-context";
+
 /**
  * /dashboard/sabchat/inbox — ZoruUI rebuild of SabChatClient.
  *
@@ -19,49 +69,6 @@
  */
 
 import * as React from "react";
-import { useCallback, useEffect, useRef, useState, useTransition } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
-import { useFormStatus } from "react-dom";
-import { useActionState } from "react";
-import { format, formatDistanceToNow } from "date-fns";
-import { useDebouncedCallback } from "use-debounce";
-import {
-  AlertCircle,
-  ArrowLeft,
-  LoaderCircle,
-  MessageSquare,
-  Search,
-  Send,
-  Users,
-} from "lucide-react";
-
-import {
-  getChatSessionsForUser,
-  getFullChatSession,
-  postChatMessageAction,
-} from "@/app/actions/sabchat.actions";
-import type {
-  WithId,
-  SabChatSession,
-  SabChatMessage,
-} from "@/lib/definitions";
-import { useProject } from "@/context/project-context";
-
-import {
-  cn,
-  useZoruToast,
-  ZoruAlert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  ZoruAvatar,
-  ZoruAvatarFallback,
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
-  ZoruInput,
-  ZoruScrollArea,
-  ZoruSkeleton,
-} from "@/components/zoruui";
 
 const sendInitialState: { success: boolean; error?: string } = {
   success: false,

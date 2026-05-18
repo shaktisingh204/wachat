@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruStatCard } from '@/components/zoruui';
+import { CheckCircle2, Clock, Gauge, PlaneTakeoff, UserX, } from 'lucide-react';
+
 /**
  * <AttendanceKpiStrip> — 5 KPI cards per §1D for the canonical list:
  * Present today · On leave today · Late today · Absent today · Avg
@@ -9,15 +12,6 @@
  */
 
 import * as React from 'react';
-import {
-  CheckCircle2,
-  Clock,
-  Gauge,
-  PlaneTakeoff,
-  UserX,
-} from 'lucide-react';
-
-import { ZoruStatCard } from '@/components/zoruui';
 
 import type { AttendanceKpiSnapshot, AttendancePresetKey } from './types';
 

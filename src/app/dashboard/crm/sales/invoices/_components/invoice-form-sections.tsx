@@ -1,5 +1,6 @@
 'use client';
 
+import { ZoruCard, ZoruInput, ZoruLabel, ZoruTextarea } from '@/components/zoruui';
 /**
  * Section sub-cards for `<InvoiceForm>`. Hoisted out so the form file
  * stays under the 600-line cap. Each section is presentational —
@@ -8,12 +9,6 @@
 
 import * as React from 'react';
 
-import {
-  ZoruCard,
-  ZoruInput,
-  ZoruLabel,
-  ZoruTextarea,
-} from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { EnumFormField } from '@/components/crm/enum-form-field';
 import type {

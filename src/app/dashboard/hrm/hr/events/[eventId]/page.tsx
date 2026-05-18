@@ -1,3 +1,18 @@
+import { ZoruButton, ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import {
+  notFound } from 'next/navigation';
+import {
+    ArrowLeft,
+  CalendarDays,
+  Clock,
+  Edit,
+  MapPin,
+  Repeat,
+  User,
+  Users,
+  Video,
+  } from 'lucide-react';
+
 /**
  * Workplace Events — detail page.
  *
@@ -7,26 +22,7 @@
  */
 
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import {
-    ArrowLeft,
-    CalendarDays,
-    Clock,
-    Edit,
-    MapPin,
-    Repeat,
-    User,
-    Users,
-    Video,
-} from 'lucide-react';
 
-import {
-    ZoruButton,
-    ZoruCard,
-    ZoruCardContent,
-    ZoruCardHeader,
-    ZoruCardTitle,
-} from '@/components/zoruui';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 
 import { CrmPageHeader } from '../../../../crm/_components/crm-page-header';

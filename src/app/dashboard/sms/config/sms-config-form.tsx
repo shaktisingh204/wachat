@@ -8,7 +8,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { saveSmsConfig } from "@/app/actions/sms-config.actions";
 import { useState } from "react";
 
-
 // We pass this as props to avoid importing server-only code if any
 type ProviderOption = { id: string; name: string; type: string };
 
@@ -67,7 +66,6 @@ export default function SmsConfigForm({
                         />
                         <p className="text-xs text-muted-foreground">Required for all Indian routes (Twilio, MSG91, others).</p>
                     </div>
-
 
                     {/* Dynamic Fields */}
                     {selectedProvider === 'twilio' && (

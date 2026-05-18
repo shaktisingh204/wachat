@@ -1,5 +1,6 @@
 'use client';
 
+import { ZoruCard } from '@/components/zoruui';
 /**
  * <EntityRelatedRail> — generic right-rail "Related" card.
  *
@@ -23,8 +24,6 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-
-import { ZoruCard } from '@/components/zoruui';
 
 export interface EntityRelatedRailItem<TKey extends string = string> {
   /** Key into the `counts` record. */

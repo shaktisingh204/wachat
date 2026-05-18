@@ -1,3 +1,15 @@
+import { cn } from '@/components/zoruui';
+import {
+  notFound } from "next/navigation";
+
+import {
+  getEcommPages,
+  getEcommProducts,
+  getEcommShopById,
+  } from "@/app/actions/custom-ecommerce.actions";
+import { CartProvider } from "@/context/cart-context";
+import { WebsiteBuilder } from "@/components/wabasimplify/website-builder/website-builder";
+
 /**
  * /dashboard/facebook/custom-ecommerce/manage/[shopId]/website-builder
  *
@@ -13,17 +25,6 @@
  * primitives. The CartProvider is required by the runtime; we leave it
  * untouched.
  */
-
-import { notFound } from "next/navigation";
-
-import {
-  getEcommPages,
-  getEcommProducts,
-  getEcommShopById,
-} from "@/app/actions/custom-ecommerce.actions";
-import { CartProvider } from "@/context/cart-context";
-import { WebsiteBuilder } from "@/components/wabasimplify/website-builder/website-builder";
-import { cn } from "@/components/zoruui";
 
 export const dynamic = "force-dynamic";
 

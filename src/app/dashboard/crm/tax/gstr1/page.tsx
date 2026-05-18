@@ -1,5 +1,23 @@
 'use client';
 
+import {
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  FileText,
+  Download,
+  ChevronDown,
+  ChevronRight,
+  LoaderCircle } from 'lucide-react';
+
 /**
  * GSTR-1 generation page — `CRM_REBUILD_PLAN.md` §6.10.
  *
@@ -12,19 +30,6 @@
  */
 
 import * as React from 'react';
-import { FileText, Download, ChevronDown, ChevronRight, LoaderCircle } from 'lucide-react';
-
-import {
-    ZoruButton,
-    ZoruCard,
-    ZoruInput,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    useZoruToast,
-} from '@/components/zoruui';
 
 import { CrmPageHeader } from '../../_components/crm-page-header';
 import {

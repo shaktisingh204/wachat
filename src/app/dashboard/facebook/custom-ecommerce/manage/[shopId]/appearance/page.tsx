@@ -1,33 +1,5 @@
 "use client";
 
-/**
- * /dashboard/facebook/custom-ecommerce/manage/[shopId]/appearance
- *
- * Per-shop theme picker. Uses ZoruColorPicker with neutral presets and a
- * ZoruCard preview pane (storefront mock) — same neutral palette as the
- * account-level appearance page. Save flow goes through a confirmation
- * dialog before persisting.
- *
- * NOTE: the legacy route was a redirect; the active per-shop appearance
- * lives here so the layout sub-nav doesn't link to it. We keep the page
- * functional for direct navigation (e.g. from the account-level page's
- * footnote) and provide a "Back to settings" CTA.
- */
-
-import * as React from "react";
-import { useEffect, useState, useTransition } from "react";
-import { useParams } from "next/navigation";
-import Link from "next/link";
-import { ArrowLeft, Brush, LoaderCircle, Save } from "lucide-react";
-
-import {
-  applyEcommShopTheme,
-  getEcommShopById,
-  saveEcommShopTheme,
-} from "@/app/actions/custom-ecommerce.actions";
-import type { EcommShop } from "@/lib/definitions";
-import type { WithId } from "mongodb";
-
 import {
   ZoruAlertDialog,
   ZoruAlertDialogAction,
@@ -50,7 +22,41 @@ import {
   ZoruLabel,
   ZoruSkeleton,
   useZoruToast,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition } from "react";
+import { useParams } from "next/navigation";
+import Link from "next/link";
+import { ArrowLeft,
+  Brush,
+  LoaderCircle,
+  Save } from "lucide-react";
+
+import {
+  applyEcommShopTheme,
+  getEcommShopById,
+  saveEcommShopTheme,
+  } from "@/app/actions/custom-ecommerce.actions";
+import type { EcommShop } from "@/lib/definitions";
+import type { WithId } from "mongodb";
+
+/**
+ * /dashboard/facebook/custom-ecommerce/manage/[shopId]/appearance
+ *
+ * Per-shop theme picker. Uses ZoruColorPicker with neutral presets and a
+ * ZoruCard preview pane (storefront mock) — same neutral palette as the
+ * account-level appearance page. Save flow goes through a confirmation
+ * dialog before persisting.
+ *
+ * NOTE: the legacy route was a redirect; the active per-shop appearance
+ * lives here so the layout sub-nav doesn't link to it. We keep the page
+ * functional for direct navigation (e.g. from the account-level page's
+ * footnote) and provide a "Back to settings" CTA.
+ */
+
+import * as React from "react";
 
 const NEUTRAL_PRESETS = [
   "#0F0F10",

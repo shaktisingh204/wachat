@@ -1,3 +1,27 @@
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+} from '@/components/zoruui';
+import {
+  notFound } from 'next/navigation';
+import Link from 'next/link';
+import {
+    Users,
+  Pencil,
+  CheckCircle2,
+  ArrowUpCircle,
+  ArrowLeft,
+  } from 'lucide-react';
+
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
+
 /**
  * Succession plan detail page (§1D.2).
  *
@@ -6,28 +30,6 @@
  * Actions: Edit · Mark reviewed · Promote (stubs).
  */
 
-import { notFound } from 'next/navigation';
-import Link from 'next/link';
-import {
-    Users,
-    Pencil,
-    CheckCircle2,
-    ArrowUpCircle,
-    ArrowLeft,
-} from 'lucide-react';
-
-import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruTable,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-} from '@/components/zoruui';
 import { statusToTone } from '@/components/crm/status-pill';
 import {
     getHrEntityById,

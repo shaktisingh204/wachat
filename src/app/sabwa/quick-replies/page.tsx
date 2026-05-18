@@ -1,33 +1,5 @@
 'use client';
 
-/**
- * SabWa — Quick Replies (Page 16)
- *
- * Table of slash-command shortcuts (e.g. /thanks → "Thanks for reaching
- * out!"). Each row exposes a usage count, last-used timestamp, and an
- * enable toggle. A "New quick reply" Dialog has a live preview showing
- * what gets sent when the user types the shortcut, plus optional media.
- *
- * Migrated to ZoruUI primitives. No behaviour changes — same server
- * actions, same prop shapes.
- *
- * Source of truth: SABWA_PLAN.md § 6 — Page 16.
- */
-
-import * as React from 'react';
-import Link from 'next/link';
-import {
-  Edit3,
-  MessageSquareReply,
-  MoreHorizontal,
-  Paperclip,
-  Plus,
-  Search,
-  Smartphone,
-  Trash2,
-  X,
-} from 'lucide-react';
-
 import {
   ZoruBadge,
   ZoruBreadcrumb,
@@ -62,6 +34,35 @@ import {
   ZoruTableRow,
   ZoruTextarea,
 } from '@/components/zoruui';
+import {
+  Edit3,
+  MessageSquareReply,
+  MoreHorizontal,
+  Paperclip,
+  Plus,
+  Search,
+  Smartphone,
+  Trash2,
+  X,
+  } from 'lucide-react';
+
+/**
+ * SabWa — Quick Replies (Page 16)
+ *
+ * Table of slash-command shortcuts (e.g. /thanks → "Thanks for reaching
+ * out!"). Each row exposes a usage count, last-used timestamp, and an
+ * enable toggle. A "New quick reply" Dialog has a live preview showing
+ * what gets sent when the user types the shortcut, plus optional media.
+ *
+ * Migrated to ZoruUI primitives. No behaviour changes — same server
+ * actions, same prop shapes.
+ *
+ * Source of truth: SABWA_PLAN.md § 6 — Page 16.
+ */
+
+import * as React from 'react';
+import Link from 'next/link';
+
 import { SabFilePickerButton } from '@/components/sabfiles';
 import {
   listQuickReplies,

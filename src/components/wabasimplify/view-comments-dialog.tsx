@@ -1,10 +1,21 @@
-
 'use client';
 
-import { useEffect, useRef, useState, useTransition } from 'react';
-import { ZoruDialog, ZoruDialogContent, ZoruDialogDescription, ZoruDialogFooter, ZoruDialogHeader, ZoruDialogTitle } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
-import { ZoruTextarea } from '@/components/zoruui';
+import {
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruButton,
+  ZoruTextarea,
+} from '@/components/zoruui';
+import {
+  useEffect,
+  useRef,
+  useState,
+  useTransition } from 'react';
+
 import { LoaderCircle, Send, ThumbsUp, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { ScrollArea } from '../ui/scroll-area';

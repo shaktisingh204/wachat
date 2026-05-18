@@ -1,30 +1,5 @@
 'use client';
 
-/**
- * /dashboard/ad-manager/ad-accounts — Manage connected Meta ad accounts.
- *
- * ZoruUI rewrite.
- * Select, disconnect, or connect new Meta ad accounts.
- */
-
-import * as React from 'react';
-import { useState, useEffect, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import {
-  Trash2,
-  Plus,
-  Megaphone,
-  ExternalLink,
-  LoaderCircle,
-  TriangleAlert,
-  Info,
-  ShieldCheck,
-} from 'lucide-react';
-
-import { cn } from '@/lib/utils';
-import { useAdManager } from '@/context/ad-manager-context';
-import { getAdAccounts, deleteAdAccount } from '@/app/actions/ad-manager.actions';
 import {
   ZoruBadge,
   ZoruButton,
@@ -37,6 +12,37 @@ import {
   ZoruDialogTitle,
   ZoruDialogTrigger,
 } from '@/components/zoruui';
+import {
+  useState,
+  useEffect,
+  useTransition } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import {
+  Trash2,
+  Plus,
+  Megaphone,
+  ExternalLink,
+  LoaderCircle,
+  TriangleAlert,
+  Info,
+  ShieldCheck,
+  } from 'lucide-react';
+
+import { cn } from '@/lib/utils';
+import { useAdManager } from '@/context/ad-manager-context';
+import { getAdAccounts,
+  deleteAdAccount } from '@/app/actions/ad-manager.actions';
+
+/**
+ * /dashboard/ad-manager/ad-accounts — Manage connected Meta ad accounts.
+ *
+ * ZoruUI rewrite.
+ * Select, disconnect, or connect new Meta ad accounts.
+ */
+
+import * as React from 'react';
+
 import {
   AmBreadcrumb,
   AmHeader,

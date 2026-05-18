@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruButton } from '@/components/zoruui';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+
 /**
  * <AttendanceCalendarByDate> — month grid where each cell counts the
  * total attendance entries for that day, broken down by status. Click
@@ -7,9 +10,6 @@
  */
 
 import * as React from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-
-import { ZoruButton } from '@/components/zoruui';
 
 import type { AttendanceListRow } from './types';
 

@@ -1,12 +1,17 @@
 'use client';
 
-import { use, useEffect, useState } from 'react';
+import { ZoruSkeleton } from '@/components/zoruui';
+import {
+  use,
+  useEffect,
+  useState } from 'react';
 import { BookOpen } from 'lucide-react';
 import { HrFormPage } from '../../../_components/hr-form-page';
-import { getTrainingPrograms, saveTrainingProgram } from '@/app/actions/hr.actions';
+import { getTrainingPrograms,
+  saveTrainingProgram } from '@/app/actions/hr.actions';
 import type { HrTrainingProgram } from '@/lib/hr-types';
-import { fields, sections } from '../../_config';
-import { ZoruSkeleton } from '@/components/zoruui';
+import { fields,
+  sections } from '../../_config';
 
 export default function EditTrainingProgramPage({
   params,

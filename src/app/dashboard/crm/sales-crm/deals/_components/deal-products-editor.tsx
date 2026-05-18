@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruButton, ZoruInput, ZoruLabel } from '@/components/zoruui';
+import { Plus, Trash2 } from 'lucide-react';
+
 /**
  * <DealProductsEditor> — line-item editor for the Deal form.
  *
@@ -8,9 +11,7 @@
  */
 
 import * as React from 'react';
-import { Plus, Trash2 } from 'lucide-react';
 
-import { ZoruButton, ZoruInput, ZoruLabel } from '@/components/zoruui';
 import { EntityPicker } from '@/components/crm/entity-picker';
 
 export interface ProductRow {

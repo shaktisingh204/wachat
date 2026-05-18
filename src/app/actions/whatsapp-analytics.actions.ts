@@ -68,7 +68,6 @@ export async function getConversationAnalytics(
     }
 }
 
-
 // --- TEMPLATE ANALYTICS ---
 
 export type TemplateAnalyticsResult = {
@@ -110,7 +109,6 @@ export async function getTemplateAnalytics(
     }
 }
 
-
 // --- MESSAGING LIMIT TIER ---
 
 export async function getMessagingLimitTier(
@@ -125,7 +123,6 @@ export async function getMessagingLimitTier(
         return { error: getErrorMessage(e) };
     }
 }
-
 
 // --- LOCAL ANALYTICS (from MongoDB) ---
 

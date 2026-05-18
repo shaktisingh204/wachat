@@ -1,35 +1,45 @@
 'use client';
 
-import * as React from 'react';
-import Link from 'next/link';
-import { Gauge, AlertTriangle, Flame, Leaf, Activity, Smartphone } from 'lucide-react';
-import { toast } from 'sonner';
-
-import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardHeader, ZoruCardTitle, ZoruButton } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
-import { ZoruSwitch } from '@/components/zoruui';
-import { ZoruLabel } from '@/components/zoruui';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruBadge } from '@/components/zoruui';
-import { ZoruRadioGroup, ZoruRadioGroupItem } from '@/components/zoruui';
-import { ZoruSeparator } from '@/components/zoruui';
 import {
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardDescription,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruButton,
+  ZoruSwitch,
+  ZoruLabel,
+  ZoruInput,
+  ZoruBadge,
+  ZoruRadioGroup,
+  ZoruRadioGroupItem,
+  ZoruSeparator,
   ZoruSelect,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-} from '@/components/zoruui';
-import {
   ZoruTable,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,
   ZoruTableHeader,
   ZoruTableRow,
+  ZoruEmptyState,
 } from '@/components/zoruui';
+import {
+  Gauge,
+  AlertTriangle,
+  Flame,
+  Leaf,
+  Activity,
+  Smartphone } from 'lucide-react';
+import { toast } from 'sonner';
+
 import { cn } from '@/lib/utils';
-import { ZoruButton, ZoruEmptyState } from '@/components/zoruui';
+
+import * as React from 'react';
+import Link from 'next/link';
 
 import { SettingsTabs } from '../_components/settings-tabs';
 import { setRateLimitProfile } from '@/app/actions/sabwa.actions';

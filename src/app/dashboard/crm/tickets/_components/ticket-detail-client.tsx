@@ -1,5 +1,24 @@
 'use client';
 
+import {
+  ZoruButton,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruDropdownMenu,
+  ZoruDropdownMenuContent,
+  ZoruDropdownMenuItem,
+  ZoruDropdownMenuTrigger,
+  ZoruLabel,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+import { ChevronDown } from 'lucide-react';
+
 /**
  * <TicketDetailClient> — interactive shell on top of the server-rendered
  * detail page. Hosts:
@@ -11,24 +30,7 @@
  */
 
 import * as React from 'react';
-import { useRouter } from 'next/navigation';
-import { ChevronDown } from 'lucide-react';
 
-import {
-    ZoruButton,
-    ZoruDialog,
-    ZoruDialogContent,
-    ZoruDialogDescription,
-    ZoruDialogFooter,
-    ZoruDialogHeader,
-    ZoruDialogTitle,
-    ZoruDropdownMenu,
-    ZoruDropdownMenuContent,
-    ZoruDropdownMenuItem,
-    ZoruDropdownMenuTrigger,
-    ZoruLabel,
-    useZoruToast,
-} from '@/components/zoruui';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { updateTicket } from '@/app/actions/crm/tickets.actions';

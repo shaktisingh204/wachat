@@ -1,4 +1,3 @@
-
 'use client';
 
 import React from 'react';
@@ -56,7 +55,6 @@ const IconRenderer = ({ iconName, className }: { iconName?: string; className?: 
     if (!IconComponent) return null;
     return <IconComponent className={cn('h-4 w-4', className)} />;
 };
-
 
 export const TabsBlockRenderer: React.FC<TabsBlockRendererProps> = ({ settings }) => {
   const tabs = settings.tabs || [];

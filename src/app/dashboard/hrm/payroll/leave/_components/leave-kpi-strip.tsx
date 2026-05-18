@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruStatCard } from '@/components/zoruui';
+import { CalendarOff, CheckCircle2, Clock, Hourglass, XCircle, } from 'lucide-react';
+
 /**
  * <LeaveKpiStrip> — KPI strip for the canonical leave list (per §1D.1).
  *
@@ -9,15 +12,6 @@
  */
 
 import * as React from 'react';
-import {
-  CalendarOff,
-  CheckCircle2,
-  Clock,
-  Hourglass,
-  XCircle,
-} from 'lucide-react';
-
-import { ZoruStatCard } from '@/components/zoruui';
 
 import type { LeaveKpiKey, LeaveKpiSnapshot } from './types';
 

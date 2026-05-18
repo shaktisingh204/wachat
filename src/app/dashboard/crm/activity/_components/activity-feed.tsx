@@ -1,27 +1,5 @@
 'use client';
 
-/**
- * Activity Feed — §1D chronological feed view.
- *
- * - KPI strip (4): Events today · Events this week · Unique actors today · Top entity this week
- * - Filters (5): actor · entity kind · action · date range · involving-me toggle
- * - Cards grouped by date bucket: Today / Yesterday / This week / Earlier
- * - Each card: actor avatar + actor + action + entity chip + relative time
- * - Subscribe button (gear icon) — defers to a toast for now since the
- *   subscription store hasn't shipped yet.
- */
-
-import * as React from 'react';
-import { useRouter, usePathname } from 'next/navigation';
-import {
-  Activity,
-  Filter,
-  Settings,
-  User as UserIcon,
-  X,
-} from 'lucide-react';
-
-import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   ZoruAvatar,
   ZoruAvatarFallback,
@@ -38,6 +16,32 @@ import {
   ZoruStatCard,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useRouter,
+  usePathname } from 'next/navigation';
+import {
+  Activity,
+  Filter,
+  Settings,
+  User as UserIcon,
+  X,
+  } from 'lucide-react';
+
+import { EntityListShell } from '@/components/crm/entity-list-shell';
+
+/**
+ * Activity Feed — §1D chronological feed view.
+ *
+ * - KPI strip (4): Events today · Events this week · Unique actors today · Top entity this week
+ * - Filters (5): actor · entity kind · action · date range · involving-me toggle
+ * - Cards grouped by date bucket: Today / Yesterday / This week / Earlier
+ * - Each card: actor avatar + actor + action + entity chip + relative time
+ * - Subscribe button (gear icon) — defers to a toast for now since the
+ *   subscription store hasn't shipped yet.
+ */
+
+import * as React from 'react';
+
 import type { WsUserActivity } from '@/lib/worksuite/chat-types';
 import { ENTITY_KEYS } from '@/lib/lookup-registry';
 

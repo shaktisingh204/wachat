@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruBadge, ZoruCard } from '@/components/zoruui';
+import { AlertTriangle } from 'lucide-react';
+
 /**
  * <TicketsQueue> — queue view grouped by assignee (§1D.1 view switcher).
  *
@@ -10,9 +13,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { AlertTriangle } from 'lucide-react';
 
-import { ZoruBadge, ZoruCard } from '@/components/zoruui';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import type { CrmTicketDoc } from '@/lib/rust-client/crm-tickets';

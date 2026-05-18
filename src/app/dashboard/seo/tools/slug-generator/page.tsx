@@ -1,14 +1,11 @@
 'use client';
 
-import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
+import { ZoruButton, ZoruTextarea, ZoruCard, ZoruCardContent, ZoruLabel, cn } from '@/components/zoruui';
+import { cn as _zoruCn, useMemo, useState } from 'react';
+import { ToolShell } from '@/components/seo-tools/tool-shell';
+
 void _zoruCn;
 
-import { useMemo, useState } from 'react';
-import { ToolShell } from '@/components/seo-tools/tool-shell';
-import { ZoruTextarea } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
-import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
-import { ZoruLabel } from '@/components/zoruui';
 import { toSlug } from '@/lib/seo-tools/text-utils';
 
 export default function SlugGeneratorPage() {

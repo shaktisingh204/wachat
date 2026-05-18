@@ -1,14 +1,13 @@
 'use client';
 
+import { ZoruButton } from '@/components/zoruui';
+import { Archive, CheckCircle2, Download, Trash2, X, XCircle } from 'lucide-react';
+
 /**
  * Bulk action bar for the Payouts list. Renders only when at least one
  * row is selected. Provides Archive, Delete, Export, and status
  * mutations (Mark Cleared / Mark Failed) per §1D.1.
  */
-
-import { Archive, CheckCircle2, Download, Trash2, X, XCircle } from 'lucide-react';
-
-import { ZoruButton } from '@/components/zoruui';
 
 interface PayoutBulkBarProps {
     count: number;

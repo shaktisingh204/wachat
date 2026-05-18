@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruBadge } from '@/components/zoruui';
+import { AlertTriangle, CheckCircle2, Clock, Loader2 } from 'lucide-react';
+
 /**
  * <TicketSlaBadge> — prominent SLA countdown for the ticket detail
  * page (§1D.2 / §6.4).
@@ -23,9 +26,7 @@
  */
 
 import * as React from 'react';
-import { AlertTriangle, CheckCircle2, Clock, Loader2 } from 'lucide-react';
 
-import { ZoruBadge } from '@/components/zoruui';
 import { getApplicableSlaRule } from '@/app/actions/crm-sla.actions';
 
 interface TicketSlaBadgeProps {

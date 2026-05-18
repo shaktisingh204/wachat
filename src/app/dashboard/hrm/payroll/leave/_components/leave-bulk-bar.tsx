@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruButton } from '@/components/zoruui';
+import { Check, Download, X } from 'lucide-react';
+
 /**
  * <LeaveBulkBar> — sticky bulk-action bar for the leave list (per §1D.1).
  *
@@ -7,9 +10,6 @@
  */
 
 import * as React from 'react';
-import { Check, Download, X } from 'lucide-react';
-
-import { ZoruButton } from '@/components/zoruui';
 
 interface LeaveBulkBarProps {
   count: number;

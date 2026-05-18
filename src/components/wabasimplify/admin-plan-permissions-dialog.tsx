@@ -1,16 +1,17 @@
 'use client';
 
-import * as React from 'react';
 import {
-    ZoruDialog,
-    ZoruDialogContent,
-    ZoruDialogHeader,
-    ZoruDialogTitle,
-    ZoruDialogTrigger,
-    ZoruDialogFooter,
-    ZoruDialogDescription,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruDialogTrigger,
+  ZoruDialogFooter,
+  ZoruDialogDescription,
+  ZoruButton,
 } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
+import * as React from 'react';
+
 import { LoaderCircle, ShieldCheck } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { updatePlanPermissions } from '@/app/actions/admin.actions';

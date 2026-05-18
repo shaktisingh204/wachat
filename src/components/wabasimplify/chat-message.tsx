@@ -1,23 +1,49 @@
-
 'use client';
 
-import React, { useState, useTransition } from 'react';
-import { handleTranslateMessage } from '@/app/actions/ai-actions';
-import type { AnyMessage, OutgoingMessage, InteractiveMessageContent } from '@/lib/definitions';
+import {
+  ZoruTooltip,
+  ZoruTooltipContent,
+  ZoruTooltipTrigger,
+  ZoruTooltipProvider,
+  ZoruButton,
+  ZoruSeparator,
+  ZoruAvatar,
+  ZoruAvatarFallback,
+} from '@/components/zoruui';
+import {
+  handleTranslateMessage } from '@/app/actions/ai-actions';
+import type { AnyMessage,
+  OutgoingMessage,
+  InteractiveMessageContent } from '@/lib/definitions';
 import { cn } from '@/lib/utils';
-import { Check, CheckCheck, Clock, Download, File as FileIcon, Image as ImageIcon, XCircle, Languages, LoaderCircle, RefreshCw, ShoppingBag, Video, PlayCircle, Music, List, Bot, MapPin, CornerUpLeft } from 'lucide-react';
+import { Check,
+  CheckCheck,
+  Clock,
+  Download,
+  File as FileIcon,
+  Image as ImageIcon,
+  XCircle,
+  Languages,
+  LoaderCircle,
+  RefreshCw,
+  ShoppingBag,
+  Video,
+  PlayCircle,
+  Music,
+  List,
+  Bot,
+  MapPin,
+  CornerUpLeft } from 'lucide-react';
 import Image from 'next/image';
-import { ZoruTooltip, ZoruTooltipContent, ZoruTooltipTrigger, ZoruTooltipProvider, ZoruButton } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
 import { useToast } from '@/hooks/use-toast';
-import { ZoruSeparator } from '@/components/zoruui';
-import { ZoruAvatar, ZoruAvatarFallback } from '../ui/avatar';
+
+import React, { useState, useTransition } from 'react';
+
 import { getPaymentRequestStatus } from '@/app/actions/whatsapp.actions';
 import { TemplateMessageContent } from './messages/template-message-content';
 import { ProductMessageContent } from './messages/product-message-content';
 import { OrderMessageContent } from './messages/order-message-content';
 import { ContactMessageContent } from './messages/contact-message-content';
-
 
 interface ChatMessageProps {
     message: AnyMessage;
@@ -268,7 +294,6 @@ const QuotedMessage = ({ message }: { message: AnyMessage }) => {
     );
 };
 
-
 const MessageBody = ({ message, isOutgoing, conversation, onReply, phoneNumberId, isQuoted = false }: ChatMessageProps) => {
     // Outgoing template message
     if (isOutgoing && message.type === 'template') {
@@ -362,7 +387,6 @@ const MessageBody = ({ message, isOutgoing, conversation, onReply, phoneNumberId
     // Media and other types
     return <MediaContent message={message} />;
 };
-
 
 export const ChatMessage = React.memo(function ChatMessage({ message, conversation, onReply, phoneNumberId }: ChatMessageProps) {
     const isOutgoing = message.direction === 'out';

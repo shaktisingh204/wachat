@@ -1,5 +1,8 @@
 "use client";
 
+import { ZoruAvatar, ZoruAvatarFallback, ZoruAvatarImage } from '@/components/zoruui';
+import { Pin, UsersRound, VolumeX } from "lucide-react";
+
 /**
  * ChatListRow — single row in the SabWa chat list.
  *
@@ -12,13 +15,7 @@
  */
 
 import * as React from "react";
-import { Pin, UsersRound, VolumeX } from "lucide-react";
 
-import {
-  ZoruAvatar,
-  ZoruAvatarFallback,
-  ZoruAvatarImage,
-} from "@/components/zoruui";
 import { cn } from "@/lib/utils";
 import { useResolveJid, type JidResolver } from "@/lib/sabwa/format-jid";
 import { useSabwaSession } from "@/lib/sabwa/session-context";

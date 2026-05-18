@@ -1,5 +1,28 @@
 'use client';
 
+import {
+  ZoruPopover,
+  ZoruPopoverContent,
+  ZoruPopoverTrigger,
+  ZoruCommand,
+  ZoruCommandEmpty,
+  ZoruCommandGroup,
+  ZoruCommandInput,
+  ZoruCommandItem,
+  ZoruCommandList,
+  ZoruAvatar,
+  ZoruAvatarFallback,
+  ZoruAvatarImage,
+  ZoruSelect,
+} from '@/components/zoruui';
+import {
+  Check,
+  ChevronDown,
+  Plus,
+  X,
+  Loader2,
+  } from 'lucide-react';
+
 /**
  * <EntityPicker> — unified picker UI for any registered entity.
  *
@@ -26,31 +49,7 @@
  */
 
 import * as React from 'react';
-import {
-  Check,
-  ChevronDown,
-  Plus,
-  X,
-  Loader2,
-} from 'lucide-react';
-import {
-  ZoruPopover,
-  ZoruPopoverContent,
-  ZoruPopoverTrigger,
-} from '@/components/zoruui';
-import {
-  ZoruCommand,
-  ZoruCommandEmpty,
-  ZoruCommandGroup,
-  ZoruCommandInput,
-  ZoruCommandItem,
-  ZoruCommandList,
-} from '@/components/zoruui';
-import {
-  ZoruAvatar,
-  ZoruAvatarFallback,
-  ZoruAvatarImage,
-} from '@/components/zoruui';
+
 import { cn } from '@/lib/utils';
 import { lookupEntity } from '@/app/actions/crm-lookup.actions';
 import {

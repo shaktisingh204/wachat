@@ -1,5 +1,27 @@
 'use client';
 
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruStatCard,
+  ZoruTextarea,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  Pin,
+  Plus,
+  StickyNote as StickyIcon,
+  Trash2 } from 'lucide-react';
+
+import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { ConfirmDialog } from '@/components/crm/confirm-dialog';
+
 /**
  * Sticky Notes — card-grid view (§1D.1, no detail page).
  *
@@ -11,23 +33,6 @@
  */
 
 import * as React from 'react';
-import { Pin, Plus, StickyNote as StickyIcon, Trash2 } from 'lucide-react';
-
-import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { ConfirmDialog } from '@/components/crm/confirm-dialog';
-import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    ZoruStatCard,
-    ZoruTextarea,
-    useZoruToast,
-} from '@/components/zoruui';
 
 import {
     deleteStickyNote,

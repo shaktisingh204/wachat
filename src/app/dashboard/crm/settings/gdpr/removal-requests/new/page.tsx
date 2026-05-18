@@ -1,5 +1,13 @@
 'use client';
 
+import { ZoruButton, ZoruCard, ZoruLabel, ZoruTextarea, useZoruToast } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+import { ArrowLeft,
+  Loader2,
+  Save,
+  UserMinus } from 'lucide-react';
+
 /**
  * File a new GDPR erase request.
  *
@@ -10,16 +18,6 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { ArrowLeft, Loader2, Save, UserMinus } from 'lucide-react';
-
-import {
-    ZoruButton,
-    ZoruCard,
-    ZoruLabel,
-    ZoruTextarea,
-    useZoruToast,
-} from '@/components/zoruui';
 
 import { CrmPageHeader } from '../../../../_components/crm-page-header';
 import { EntityFormField } from '@/components/crm/entity-form-field';

@@ -1,5 +1,4 @@
-import { ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
-import { ZoruScrollArea } from '@/components/zoruui';
+import { ZoruCardHeader, ZoruCardTitle, ZoruScrollArea } from '@/components/zoruui';
 import { cn } from '@/lib/utils';
 import { useDroppable } from '@dnd-kit/core';
 import { ReactNode } from 'react';

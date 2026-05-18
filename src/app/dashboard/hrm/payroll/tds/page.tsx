@@ -1,18 +1,16 @@
 'use client';
 
-import { useState, useEffect, useTransition, useCallback } from 'react';
-import { FileMinus, LoaderCircle } from 'lucide-react';
-import { startOfMonth, format } from 'date-fns';
-
+import { ZoruBadge, ZoruCard, ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
 import {
-    ZoruBadge,
-    ZoruCard,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-} from '@/components/zoruui';
+  useState,
+  useEffect,
+  useTransition,
+  useCallback } from 'react';
+import { FileMinus,
+  LoaderCircle } from 'lucide-react';
+import { startOfMonth,
+  format } from 'date-fns';
+
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { getPayslips } from '@/app/actions/crm-payroll.actions';
 import { getCrmEmployees } from '@/app/actions/crm-employees.actions';

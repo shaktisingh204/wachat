@@ -1,24 +1,5 @@
 "use client";
 
-/**
- * /dashboard/facebook/commerce/collections — Meta Suite Commerce
- * collections.
- *
- * Aggregates product sets across every catalog on the active Facebook
- * project. Same data sources as the per-catalog detail page
- * (`getCatalogs` + `listProductSets` per catalog). Pure ZoruUI primitives.
- */
-
-import * as React from "react";
-import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
-import Link from "next/link";
-import type { ColumnDef } from "@tanstack/react-table";
-import { AlertCircle, ExternalLink, Layers, PlusCircle, RefreshCw, Trash2 } from "lucide-react";
-
-import { getCatalogs, listProductSets } from "@/app/actions/catalog.actions";
-import { useProject } from "@/context/project-context";
-import type { ProductSet } from "@/lib/definitions";
-
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -38,7 +19,37 @@ import {
   ZoruSelectValue,
   ZoruSkeleton,
   useZoruToast,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useTransition } from "react";
+import Link from "next/link";
+import type { ColumnDef } from "@tanstack/react-table";
+import { AlertCircle,
+  ExternalLink,
+  Layers,
+  PlusCircle,
+  RefreshCw,
+  Trash2 } from "lucide-react";
+
+import { getCatalogs,
+  listProductSets } from "@/app/actions/catalog.actions";
+import { useProject } from "@/context/project-context";
+import type { ProductSet } from "@/lib/definitions";
+
+/**
+ * /dashboard/facebook/commerce/collections — Meta Suite Commerce
+ * collections.
+ *
+ * Aggregates product sets across every catalog on the active Facebook
+ * project. Same data sources as the per-catalog detail page
+ * (`getCatalogs` + `listProductSets` per catalog). Pure ZoruUI primitives.
+ */
+
+import * as React from "react";
 
 import {
   CommerceBreadcrumb,

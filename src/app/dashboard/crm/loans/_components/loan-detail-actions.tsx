@@ -1,13 +1,8 @@
 'use client';
 
-/**
- * <LoanDetailActions> — 8 actions: Edit · Disburse · Record Payment ·
- * Generate EMI Schedule · Mark NPA · Print Statement · Archive · Activity.
- */
-
-import * as React from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { ZoruButton, useZoruToast } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
 import {
   Activity,
   Archive,
@@ -18,12 +13,16 @@ import {
   Printer,
   Receipt,
   Send,
-} from 'lucide-react';
+  } from 'lucide-react';
 
-import {
-  ZoruButton,
-  useZoruToast,
-} from '@/components/zoruui';
+/**
+ * <LoanDetailActions> — 8 actions: Edit · Disburse · Record Payment ·
+ * Generate EMI Schedule · Mark NPA · Print Statement · Archive · Activity.
+ */
+
+import * as React from 'react';
+import Link from 'next/link';
+
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import {
   deleteLoan,

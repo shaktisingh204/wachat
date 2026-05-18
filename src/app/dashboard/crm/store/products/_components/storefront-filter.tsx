@@ -1,21 +1,15 @@
 'use client';
 
+import { ZoruLabel, ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
+import {
+  useRouter,
+  usePathname } from 'next/navigation';
+
 /**
  * Small client filter island — routes to the same page with the new
  * `?storefrontId=` value. Used at the top of the products / pricing /
  * shipping list pages so the rest of those pages stay 100% server.
  */
-
-import { useRouter, usePathname } from 'next/navigation';
-
-import {
-    ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-} from '@/components/zoruui';
 
 export interface StorefrontFilterClientProps {
     storefronts: Array<{ id: string; name: string }>;

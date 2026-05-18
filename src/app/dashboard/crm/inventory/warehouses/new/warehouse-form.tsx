@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruCheckbox, ZoruInput, ZoruLabel, useZoruToast } from '@/components/zoruui';
+import { useRouter } from 'next/navigation';
+
 /**
  * §1D Warehouse form — reused for both `/new` and `/[id]/edit`.
  *
@@ -17,14 +20,7 @@
  */
 
 import * as React from 'react';
-import { useRouter } from 'next/navigation';
 
-import {
-    ZoruCheckbox,
-    ZoruInput,
-    ZoruLabel,
-    useZoruToast,
-} from '@/components/zoruui';
 import { EntityFormShell } from '@/components/crm/entity-form-shell';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { EnumFormField } from '@/components/crm/enum-form-field';

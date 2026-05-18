@@ -23,10 +23,12 @@ export interface ZoruChartContainerProps
   extends React.HTMLAttributes<HTMLDivElement> {
   /** Height in px or any CSS length. Defaults to 280. */
   height?: number | string;
+  config?: unknown;
 }
 
 export function ZoruChartContainer({
   className,
+  config: _config,
   height = 280,
   children,
   style,

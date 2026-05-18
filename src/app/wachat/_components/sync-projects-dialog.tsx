@@ -1,17 +1,5 @@
 'use client';
 
-/**
- * SyncProjectsDialog (wachat-local, ZoruUI).
- *
- * Replaces @/components/wabasimplify/sync-projects-dialog. Same server
- * action (handleSyncWabas), same form fields, same callback signature.
- */
-
-import * as React from 'react';
-import { useEffect, useRef, useState, useTransition } from 'react';
-import { Loader2, RefreshCw } from 'lucide-react';
-
-import { handleSyncWabas } from '@/app/actions/index.ts';
 import {
   ZoruButton,
   ZoruDialog,
@@ -25,6 +13,24 @@ import {
   ZoruLabel,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useEffect,
+  useRef,
+  useState,
+  useTransition } from 'react';
+import { Loader2,
+  RefreshCw } from 'lucide-react';
+
+import { handleSyncWabas } from '@/app/actions/index.ts';
+
+/**
+ * SyncProjectsDialog (wachat-local, ZoruUI).
+ *
+ * Replaces @/components/wabasimplify/sync-projects-dialog. Same server
+ * action (handleSyncWabas), same form fields, same callback signature.
+ */
+
+import * as React from 'react';
 
 const initialState: { message?: string | null; error?: string | null } = {
   message: null,

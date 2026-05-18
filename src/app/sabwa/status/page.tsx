@@ -1,43 +1,5 @@
 "use client";
 
-/**
- * /sabwa/status — Status / Stories.
- *
- * Two views (segmented buttons — no tab UI):
- *  - My status: list of your posted statuses with views + reposters.
- *    "Post new status" button opens a composer with two modes:
- *    text (background colour picker) or media (SabFilePickerButton).
- *    Privacy: everyone / contacts except / only share with.
- *  - Friends: card grid of contacts who posted recently, opens a
- *    swipeable viewer dialog with prev/next + tap-zone navigation.
- *
- * Data layer: until the engine ships status fetch/post endpoints,
- * we keep "My posted statuses" as in-page state (composer pushes to
- * an array). Friends' statuses are sourced from chats of
- * `type === 'status'` if any exist; otherwise we show an empty state.
- *
- * Rendered with ZoruUI primitives — no shadcn `/ui/*` imports.
- */
-
-import * as React from "react";
-import Link from "next/link";
-import {
-  ArrowLeft,
-  ArrowRight,
-  CircleDot,
-  Eye,
-  EyeOff,
-  Image as ImageIcon,
-  Lock,
-  Plus,
-  Repeat2,
-  Send,
-  Smartphone,
-  Type as TypeIcon,
-  Users,
-  X,
-} from "lucide-react";
-
 import {
   ZoruBadge,
   ZoruBreadcrumb,
@@ -65,7 +27,46 @@ import {
   ZoruSelectValue,
   ZoruTextarea,
   useZoruToast,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  ArrowLeft,
+  ArrowRight,
+  CircleDot,
+  Eye,
+  EyeOff,
+  Image as ImageIcon,
+  Lock,
+  Plus,
+  Repeat2,
+  Send,
+  Smartphone,
+  Type as TypeIcon,
+  Users,
+  X,
+  } from "lucide-react";
+
+/**
+ * /sabwa/status — Status / Stories.
+ *
+ * Two views (segmented buttons — no tab UI):
+ *  - My status: list of your posted statuses with views + reposters.
+ *    "Post new status" button opens a composer with two modes:
+ *    text (background colour picker) or media (SabFilePickerButton).
+ *    Privacy: everyone / contacts except / only share with.
+ *  - Friends: card grid of contacts who posted recently, opens a
+ *    swipeable viewer dialog with prev/next + tap-zone navigation.
+ *
+ * Data layer: until the engine ships status fetch/post endpoints,
+ * we keep "My posted statuses" as in-page state (composer pushes to
+ * an array). Friends' statuses are sourced from chats of
+ * `type === 'status'` if any exist; otherwise we show an empty state.
+ *
+ * Rendered with ZoruUI primitives — no shadcn `/ui/*` imports.
+ */
+
+import * as React from "react";
+import Link from "next/link";
+
 import { SabFilePickerButton } from "@/components/sabfiles";
 import type { SabFilePick } from "@/components/sabfiles";
 import { useChats } from "@/lib/sabwa/use-sabwa-data";

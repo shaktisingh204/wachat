@@ -1,24 +1,7 @@
 'use client';
 
-/**
- * /wachat/chat-transfer — Manual conversation reassignment, rebuilt
- * on ZoruUI primitives. Adds a confirm-transfer dialog on top of the
- * existing form.
- */
-
-import * as React from 'react';
-import { useEffect, useState, useTransition, useCallback } from 'react';
-import { ArrowRightLeft, Send, Loader2 } from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-import { useZoruToast } from '@/components/zoruui';
 import {
-  transferConversation,
-  getTransferHistory,
-  getAgentStatuses,
-} from '@/app/actions/wachat-features.actions';
-
-import {
+  useZoruToast,
   ZoruBreadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
@@ -49,6 +32,25 @@ import {
   ZoruTableHeader,
   ZoruTableRow,
 } from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition,
+  useCallback } from 'react';
+import { ArrowRightLeft,
+  Send,
+  Loader2 } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import { transferConversation, getTransferHistory, getAgentStatuses } from '@/app/actions/wachat-features.actions';
+
+/**
+ * /wachat/chat-transfer — Manual conversation reassignment, rebuilt
+ * on ZoruUI primitives. Adds a confirm-transfer dialog on top of the
+ * existing form.
+ */
+
+import * as React from 'react';
 
 export default function ChatTransferPage() {
   const { activeProject } = useProject();

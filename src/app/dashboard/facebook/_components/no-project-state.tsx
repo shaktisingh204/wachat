@@ -1,5 +1,8 @@
 "use client";
 
+import { ZoruAlert, ZoruAlertDescription, ZoruAlertTitle } from '@/components/zoruui';
+import { AlertCircle } from "lucide-react";
+
 /**
  * Shared empty state for Meta Suite pages when no project is selected.
  * Replaces the legacy `<Alert variant="destructive">` block — neutral
@@ -7,13 +10,6 @@
  */
 
 import * as React from "react";
-import { AlertCircle } from "lucide-react";
-
-import {
-  ZoruAlert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-} from "@/components/zoruui";
 
 export function NoProjectState() {
   return (

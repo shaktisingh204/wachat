@@ -1,5 +1,33 @@
 'use client';
 
+import {
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCheckbox,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruStatCard,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  ZoruInput,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+import { Plus,
+  Download,
+  Trash2,
+  Archive,
+  Search } from 'lucide-react';
+
 /**
  * RecruitmentListShell — §1D.1 list-page scaffolding shared by the
  * 7 HR recruitment pillars (Job → Candidate → Interview → Offer →
@@ -24,29 +52,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { Plus, Download, Trash2, Archive, Search } from 'lucide-react';
 
-import {
-  ZoruButton,
-  ZoruCard,
-  ZoruCardContent,
-  ZoruCheckbox,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  ZoruStatCard,
-  ZoruTable,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  ZoruInput,
-  useZoruToast,
-} from '@/components/zoruui';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import { PaginationBar } from '@/components/crm/pagination-bar';

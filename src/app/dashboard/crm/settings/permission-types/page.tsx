@@ -1,5 +1,13 @@
 'use client';
 
+import { ZoruBadge, ZoruButton, useZoruToast } from '@/components/zoruui';
+import {
+  useTransition } from 'react';
+import { ListChecks,
+  Sparkles,
+  LoaderCircle,
+  Type } from 'lucide-react';
+
 /**
  * Permission Types settings — §1D.4 bar:
  *  - KPI strip (Total · With display name)
@@ -11,10 +19,7 @@
  */
 
 import * as React from 'react';
-import { useTransition } from 'react';
-import { ListChecks, Sparkles, LoaderCircle, Type } from 'lucide-react';
 
-import { ZoruBadge, ZoruButton, useZoruToast } from '@/components/zoruui';
 import { SettingsEntityShell } from '@/components/crm/settings-entity-shell';
 import {
     getPermissionTypes,

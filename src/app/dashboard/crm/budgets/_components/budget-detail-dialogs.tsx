@@ -1,14 +1,5 @@
 'use client';
 
-/**
- * Budget detail dialogs:
- *   • <BudgetRejectDialog> — capture reason, call rejectBudget.
- *   • <BudgetRecordActualDialog> — capture actual amount, call recordBudgetActual.
- */
-
-import * as React from 'react';
-import { useRouter } from 'next/navigation';
-
 import {
   ZoruButton,
   ZoruDialog,
@@ -22,6 +13,17 @@ import {
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+
+/**
+ * Budget detail dialogs:
+ *   • <BudgetRejectDialog> — capture reason, call rejectBudget.
+ *   • <BudgetRecordActualDialog> — capture actual amount, call recordBudgetActual.
+ */
+
+import * as React from 'react';
+
 import {
   recordBudgetActual,
   rejectBudget,

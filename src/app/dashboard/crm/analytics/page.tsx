@@ -1,17 +1,12 @@
-export const dynamic = 'force-dynamic';
-
-import { BarChart } from 'lucide-react';
+import { ZoruCard, ZoruPageDescription, ZoruPageHeader, ZoruPageHeading, ZoruPageTitle } from '@/components/zoruui';
+import {
+  BarChart } from 'lucide-react';
 
 import { getAnalyticsData } from '@/app/actions/crm-analytics.actions';
 import { AnalyticsDashboard } from '@/components/crm/analytics/analytics-dashboard';
 import { getT } from '@/lib/i18n/server';
-import {
-  ZoruCard,
-  ZoruPageDescription,
-  ZoruPageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-} from '@/components/zoruui';
+
+export const dynamic = 'force-dynamic';
 
 export default async function AnalyticsPage(props: {
   searchParams: Promise<{ year?: string }>;

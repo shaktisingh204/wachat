@@ -1,18 +1,5 @@
 'use client';
 
-/**
- * Bill detail-page dialogs.
- *
- *   • <BillEmailDialog> — capture vendor reply address + remark; marks
- *     the bill `submitted` and writes an audit row. Email delivery is
- *     handled outside this action.
- *   • <BillMarkPaidDialog> — convenience for the header "Mark paid"
- *     action; sets status and toasts.
- */
-
-import * as React from 'react';
-import { useRouter } from 'next/navigation';
-
 import {
   ZoruButton,
   ZoruDialog,
@@ -26,6 +13,21 @@ import {
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+
+/**
+ * Bill detail-page dialogs.
+ *
+ *   • <BillEmailDialog> — capture vendor reply address + remark; marks
+ *     the bill `submitted` and writes an audit row. Email delivery is
+ *     handled outside this action.
+ *   • <BillMarkPaidDialog> — convenience for the header "Mark paid"
+ *     action; sets status and toasts.
+ */
+
+import * as React from 'react';
+
 import { updateBillStatus } from '@/app/actions/crm/bills.actions';
 
 interface BaseDialogProps {

@@ -1,3 +1,12 @@
+import { ZoruCard, ZoruPageDescription, ZoruPageHeader, ZoruPageHeading, ZoruPageTitle } from '@/components/zoruui';
+import {
+  ArrowUpRight,
+  Banknote,
+  Landmark,
+  RefreshCcw,
+  Repeat,
+  UserCircle } from 'lucide-react';
+
 /**
  * Banking module overview — tile grid linking every sub-feature.
  *
@@ -5,15 +14,6 @@
  */
 
 import Link from 'next/link';
-import { ArrowUpRight, Banknote, Landmark, RefreshCcw, Repeat, UserCircle } from 'lucide-react';
-
-import {
-  ZoruCard,
-  ZoruPageDescription,
-  ZoruPageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-} from '@/components/zoruui';
 
 interface NavTile {
   href: string;

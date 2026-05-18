@@ -1,3 +1,4 @@
+import { ZoruCard } from '@/components/zoruui';
 /**
  * <PurchaseOrderDetailBody> — body cards on the PO detail page.
  *
@@ -7,7 +8,6 @@
  * actions, quick-edits).
  */
 
-import { ZoruCard } from '@/components/zoruui';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import type { CrmPurchaseOrderDoc } from '@/lib/rust-client/crm-purchase-orders';

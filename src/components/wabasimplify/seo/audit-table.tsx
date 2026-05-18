@@ -55,7 +55,6 @@ export function AuditTable({ pages }: { pages: any[] }) {
     );
 }
 
-
 // ... (Previous imports kept, adding Dialog)
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { generateMetaTagsAction } from "@/app/actions/seo-ai.actions";

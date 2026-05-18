@@ -1,49 +1,5 @@
 'use client';
 
-/**
- * SabWa Group Manager — single-group admin console (SABWA_PLAN.md §6 page 8).
- *
- * Sections (segmented ZoruButton — no tab UI, per ZoruUI directive):
- *   1. Members      — table with promote / demote / remove, add by phone,
- *                     bulk-select for "Bulk DM" wizard.
- *   2. Info         — subject / description / icon (SabFilePickerButton).
- *   3. Permissions  — announcement (admins-only send) + restrict (admins-only edit).
- *   4. Invite link  — copyable URL + QR + revoke/regenerate (confirm dialog).
- *   5. Pending      — community-group join requests (approve / deny).
- *   6. Export       — member-list CSV download.
- *
- * Confirm dialogs for destructive actions: remove member, revoke link,
- * demote super-admin.
- *
- * ZoruUI migration — visual swap only; data flow, server actions and
- * prop shapes are unchanged.
- */
-
-import * as React from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import {
-  ArrowLeft,
-  Check,
-  Copy,
-  Download,
-  Image as ImageIcon,
-  Link2,
-  Loader2,
-  Lock,
-  MessageSquare,
-  Plus,
-  RefreshCcw,
-  Send,
-  Settings,
-  ShieldCheck,
-  Trash2,
-  UserMinus,
-  UserPlus,
-  Users,
-  X,
-} from 'lucide-react';
-
 import {
   ZoruAlertDialog,
   ZoruAlertDialogAction,
@@ -90,6 +46,51 @@ import {
   cn,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+import {
+  ArrowLeft,
+  Check,
+  Copy,
+  Download,
+  Image as ImageIcon,
+  Link2,
+  Loader2,
+  Lock,
+  MessageSquare,
+  Plus,
+  RefreshCcw,
+  Send,
+  Settings,
+  ShieldCheck,
+  Trash2,
+  UserMinus,
+  UserPlus,
+  Users,
+  X,
+  } from 'lucide-react';
+
+/**
+ * SabWa Group Manager — single-group admin console (SABWA_PLAN.md §6 page 8).
+ *
+ * Sections (segmented ZoruButton — no tab UI, per ZoruUI directive):
+ *   1. Members      — table with promote / demote / remove, add by phone,
+ *                     bulk-select for "Bulk DM" wizard.
+ *   2. Info         — subject / description / icon (SabFilePickerButton).
+ *   3. Permissions  — announcement (admins-only send) + restrict (admins-only edit).
+ *   4. Invite link  — copyable URL + QR + revoke/regenerate (confirm dialog).
+ *   5. Pending      — community-group join requests (approve / deny).
+ *   6. Export       — member-list CSV download.
+ *
+ * Confirm dialogs for destructive actions: remove member, revoke link,
+ * demote super-admin.
+ *
+ * ZoruUI migration — visual swap only; data flow, server actions and
+ * prop shapes are unchanged.
+ */
+
+import * as React from 'react';
+import Link from 'next/link';
 
 import { SabFilePickerButton } from '@/components/sabfiles';
 

@@ -1,46 +1,129 @@
 'use client';
 
-import React from 'react';
-import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
 import {
-    ZoruDropdownMenu,
-    ZoruDropdownMenuContent,
-    ZoruDropdownMenuItem,
-    ZoruDropdownMenuLabel,
-    ZoruDropdownMenuSeparator,
-    ZoruDropdownMenuTrigger,
+  ZoruDropdownMenu,
+  ZoruDropdownMenuContent,
+  ZoruDropdownMenuItem,
+  ZoruDropdownMenuLabel,
+  ZoruDropdownMenuSeparator,
+  ZoruDropdownMenuTrigger,
+  ZoruButton,
+  ZoruAvatar,
+  ZoruAvatarImage,
+  ZoruAvatarFallback,
+  ZoruSkeleton,
+  ZoruDrawer,
+  ZoruDrawerTrigger,
+  ZoruCollapsible,
+  ZoruCollapsibleContent,
+  ZoruCollapsibleTrigger,
+  ZoruSeparator,
+  ZoruSheet,
 } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
-import { ZoruAvatar, ZoruAvatarImage, ZoruAvatarFallback } from '@/components/zoruui';
-import { ClayBadge } from '@/components/clay';
-import { ZoruSkeleton } from '@/components/zoruui';
 import {
-    LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Repeat, Inbox, Package, Compass, Search, Star, Video, Bot, ShieldCheck, Key, BookCopy, Rss, ChevronsUpDown, TrendingUp, PanelLeft, Sparkles, ChevronRight, Calendar, Database, User as UserIcon, Wrench, Newspaper, Clapperboard, Pencil, BarChart2, Globe, Landmark, Users as UsersIcon, LifeBuoy, HelpCircle, LayoutGrid
+  usePathname,
+  useRouter } from 'next/navigation';
+import { ClayBadge } from '@/components/clay';
+import {
+  LayoutDashboard,
+  MessageSquare,
+  Users,
+  Send,
+  GitFork,
+  Settings,
+  Briefcase,
+  ChevronDown,
+  FileText,
+  Phone,
+  Webhook,
+  History,
+  LogOut,
+  CreditCard,
+  LoaderCircle,
+  Megaphone,
+  ServerCog,
+  ShoppingBag,
+  Link as LinkIcon,
+  QrCode,
+  BarChart,
+  Server,
+  Brush,
+  Handshake,
+  Building,
+  Mail,
+  Zap,
+  FolderKanban,
+  Repeat,
+  Inbox,
+  Package,
+  Compass,
+  Search,
+  Star,
+  Video,
+  Bot,
+  ShieldCheck,
+  Key,
+  BookCopy,
+  Rss,
+  ChevronsUpDown,
+  TrendingUp,
+  PanelLeft,
+  Sparkles,
+  ChevronRight,
+  Calendar,
+  Database,
+  User as UserIcon,
+  Wrench,
+  Newspaper,
+  Clapperboard,
+  Pencil,
+  BarChart2,
+  Globe,
+  Landmark,
+  Users as UsersIcon,
+  LifeBuoy,
+  HelpCircle,
+  LayoutGrid,
 } from 'lucide-react';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
-import { MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, InstagramIcon, SabChatIcon, TelegramIcon, CrmIcon, SabWaIcon } from '@/components/wabasimplify/custom-sidebar-components';
-import { Workflow, MessageSquareText, UsersRound, Target, LayoutTemplate } from 'lucide-react';
+import { MetaIcon,
+  WhatsAppIcon,
+  SeoIcon,
+  CustomEcommerceIcon,
+  InstagramIcon,
+  SabChatIcon,
+  TelegramIcon,
+  CrmIcon,
+  SabWaIcon } from '@/components/wabasimplify/custom-sidebar-components';
+import { Workflow,
+  MessageSquareText,
+  UsersRound,
+  Target,
+  LayoutTemplate } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { getSession, getProjects } from '@/app/actions/index';
+import { getSession,
+  getProjects } from '@/app/actions/index';
 import { getDiwaliThemeStatus } from '@/app/actions/admin.actions';
-import type { Plan, WithId, Project, User } from '@/lib/definitions';
+import type { Plan,
+  WithId,
+  Project,
+  User } from '@/lib/definitions';
 import { FacebookProjectSwitcher } from '@/components/wabasimplify/facebook-project-switcher';
 import {
     Sidebar,
-    SidebarContent,
-    SidebarHeader,
-    SidebarMenu,
-    SidebarMenuItem,
-    SidebarMenuButton,
-    SidebarFooter,
-    SidebarTrigger,
-    SidebarProvider,
-} from '@/components/ui/sidebar';
-import { ZoruDrawer, ZoruDrawerTrigger } from '../ui/drawer';
+  SidebarContent,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+  SidebarFooter,
+  SidebarTrigger,
+  SidebarProvider,
+  } from '@/components/ui/sidebar';
 import { ProjectProvider, useProject } from '@/context/project-context';
-import { ZoruCollapsible, ZoruCollapsibleContent, ZoruCollapsibleTrigger } from '@/components/zoruui';
-import { ZoruSeparator } from '../ui/separator';
+
+import React from 'react';
+import Link from 'next/link';
 
 const wachatMenuItems = [
     { href: '/wachat', label: 'All Projects', icon: Briefcase, roles: ['owner', 'admin', 'agent'] },
@@ -440,7 +523,6 @@ const sabChatMenuItems = [
     { href: '/dashboard/sabchat/faq', label: 'FAQ', icon: HelpCircle },
     { href: '/dashboard/sabchat/settings', label: 'Settings', icon: Settings },
 ];
-
 
 const facebookMenuGroups = [
     {

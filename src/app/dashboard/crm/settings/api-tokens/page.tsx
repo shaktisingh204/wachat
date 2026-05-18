@@ -1,5 +1,43 @@
 'use client';
 
+import {
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruAlertDialogTrigger,
+  ZoruBadge,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  ZoruPageDescription,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  ZoruSkeleton,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  Key,
+  LoaderCircle,
+  Plus,
+  Trash2 } from 'lucide-react';
+
 /**
  * CRM Settings — API Tokens list (Phase 7 foundation).
  *
@@ -10,40 +48,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { Key, LoaderCircle, Plus, Trash2 } from 'lucide-react';
 
-import {
-    ZoruAlertDialog,
-    ZoruAlertDialogAction,
-    ZoruAlertDialogCancel,
-    ZoruAlertDialogContent,
-    ZoruAlertDialogDescription,
-    ZoruAlertDialogFooter,
-    ZoruAlertDialogHeader,
-    ZoruAlertDialogTitle,
-    ZoruAlertDialogTrigger,
-    ZoruBadge,
-    ZoruBreadcrumb,
-    ZoruBreadcrumbItem,
-    ZoruBreadcrumbLink,
-    ZoruBreadcrumbList,
-    ZoruBreadcrumbPage,
-    ZoruBreadcrumbSeparator,
-    ZoruButton,
-    ZoruCard,
-    ZoruPageDescription,
-    ZoruPageHeader,
-    ZoruPageHeading,
-    ZoruPageTitle,
-    ZoruSkeleton,
-    ZoruTable,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-    useZoruToast,
-} from '@/components/zoruui';
 import {
     getApiTokens,
     revokeApiToken,

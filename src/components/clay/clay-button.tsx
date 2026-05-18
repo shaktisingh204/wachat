@@ -1,7 +1,8 @@
 'use client';
 
-import * as React from 'react';
 import { ZoruButton, type ZoruButtonProps } from '@/components/zoruui';
+import * as React from 'react';
+
 import { cn } from '@/lib/utils';
 
 type Variant =

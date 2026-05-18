@@ -1,25 +1,5 @@
 'use client';
 
-/**
- * <DealListToolbar> — KPI strip + top toolbar for the deals list.
- *
- * Extracted from <DealListClient> to keep the parent under the 600-line
- * cap. Pure presentational; the parent owns all state.
- */
-
-import * as React from 'react';
-import Link from 'next/link';
-import {
-  CalendarRange,
-  Columns3,
-  Copy,
-  Download,
-  Plus,
-  Search,
-  Table as TableIcon,
-  Trophy,
-} from 'lucide-react';
-
 import {
   ZoruButton,
   ZoruInput,
@@ -30,6 +10,26 @@ import {
   ZoruSelectValue,
   ZoruStatCard,
 } from '@/components/zoruui';
+import {
+  CalendarRange,
+  Columns3,
+  Copy,
+  Download,
+  Plus,
+  Search,
+  Table as TableIcon,
+  Trophy,
+  } from 'lucide-react';
+
+/**
+ * <DealListToolbar> — KPI strip + top toolbar for the deals list.
+ *
+ * Extracted from <DealListClient> to keep the parent under the 600-line
+ * cap. Pure presentational; the parent owns all state.
+ */
+
+import * as React from 'react';
+import Link from 'next/link';
 
 import type { DealKpiSummary } from './types';
 

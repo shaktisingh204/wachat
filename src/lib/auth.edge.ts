@@ -33,7 +33,6 @@ function isBrowserSessionPayload(payload: JWTPayload): boolean {
     );
 }
 
-
 export async function verifyAdminJwtEdge(token: string): Promise<JWTPayload | null> {
     try {
         const { payload } = await jwtVerify(token, getJwtSecretKey());

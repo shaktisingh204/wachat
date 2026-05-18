@@ -1,35 +1,49 @@
 'use client';
 
-import { useState, useEffect, useTransition, useActionState } from 'react';
-import { useFormStatus } from 'react-dom';
-import { LoaderCircle, Plus, Trash2, Edit, Save, FileText, CheckSquare, Square } from 'lucide-react';
-import { getSalaryStructures, saveSalaryStructure, deleteSalaryStructure } from '@/app/actions/crm-payroll.actions';
-import type { WithId, CrmSalaryStructure } from '@/lib/definitions';
-
 import {
-    ZoruAlertDialog,
-    ZoruAlertDialogAction,
-    ZoruAlertDialogCancel,
-    ZoruAlertDialogContent,
-    ZoruAlertDialogDescription,
-    ZoruAlertDialogFooter,
-    ZoruAlertDialogHeader,
-    ZoruAlertDialogTitle,
-    ZoruAlertDialogTrigger,
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruDialog,
-    ZoruDialogContent,
-    ZoruDialogFooter,
-    ZoruDialogHeader,
-    ZoruDialogTitle,
-    ZoruInput,
-    ZoruLabel,
-    ZoruRadioGroup,
-    ZoruRadioGroupItem,
-    useZoruToast,
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruAlertDialogTrigger,
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruInput,
+  ZoruLabel,
+  ZoruRadioGroup,
+  ZoruRadioGroupItem,
+  useZoruToast,
 } from '@/components/zoruui';
+import {
+  useState,
+  useEffect,
+  useTransition,
+  useActionState } from 'react';
+import { useFormStatus } from 'react-dom';
+import { LoaderCircle,
+  Plus,
+  Trash2,
+  Edit,
+  Save,
+  FileText,
+  CheckSquare,
+  Square } from 'lucide-react';
+import { getSalaryStructures,
+  saveSalaryStructure,
+  deleteSalaryStructure } from '@/app/actions/crm-payroll.actions';
+import type { WithId,
+  CrmSalaryStructure } from '@/lib/definitions';
+
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 
 const saveInitialState = { success: false, error: undefined };

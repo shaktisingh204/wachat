@@ -1,6 +1,6 @@
-import { notFound } from 'next/navigation';
-import { ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
-import { ZoruBadge } from '@/components/zoruui';
+import { ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, ZoruBadge } from '@/components/zoruui';
+import {
+  notFound } from 'next/navigation';
 
 // Mock Data Fetch
 async function getStatusData(shareId: string) {

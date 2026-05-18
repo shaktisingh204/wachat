@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruButton } from '@/components/zoruui';
+import { Archive, Building2, Download, ListChecks, Mail, UserCog, X, } from 'lucide-react';
+
 /**
  * <EmployeesBulkBar> — sticky bulk-action ribbon for the employee list.
  *
@@ -9,17 +12,6 @@
  */
 
 import * as React from 'react';
-import {
-  Archive,
-  Building2,
-  Download,
-  ListChecks,
-  Mail,
-  UserCog,
-  X,
-} from 'lucide-react';
-
-import { ZoruButton } from '@/components/zoruui';
 
 interface EmployeesBulkBarProps {
   count: number;

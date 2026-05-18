@@ -1,10 +1,4 @@
-/**
- * Inventory module overview — tile grid linking every sub-feature.
- *
- * Was a client-side `router.replace('/dashboard/crm/inventory/items')` shim.
- */
-
-import Link from 'next/link';
+import { ZoruCard, ZoruPageDescription, ZoruPageHeader, ZoruPageHeading, ZoruPageTitle } from '@/components/zoruui';
 import {
   ArrowUpRight,
   ArrowRightLeft,
@@ -20,15 +14,15 @@ import {
   TrendingUp,
   Truck,
   Warehouse,
-} from 'lucide-react';
+  } from 'lucide-react';
 
-import {
-  ZoruCard,
-  ZoruPageDescription,
-  ZoruPageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-} from '@/components/zoruui';
+/**
+ * Inventory module overview — tile grid linking every sub-feature.
+ *
+ * Was a client-side `router.replace('/dashboard/crm/inventory/items')` shim.
+ */
+
+import Link from 'next/link';
 
 interface NavTile {
   href: string;

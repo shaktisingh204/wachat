@@ -1,3 +1,21 @@
+import {
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruEmptyState,
+} from '@/components/zoruui';
+import {
+  redirect } from "next/navigation";
+
+import { getSession } from "@/app/actions/user.actions";
+import {
+  getInviteByToken,
+  getWorkspaceById,
+  } from "@/lib/sabflow/workspaces/db";
+
 /**
  * /dashboard/sabflow/invites/[token]
  *
@@ -7,23 +25,6 @@
  * ZoruUI rewrite — chrome only. Auth/data flow unchanged.
  */
 
-import { redirect } from "next/navigation";
-
-import { getSession } from "@/app/actions/user.actions";
-import {
-  getInviteByToken,
-  getWorkspaceById,
-} from "@/lib/sabflow/workspaces/db";
-
-import {
-  ZoruBreadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  ZoruEmptyState,
-} from "@/components/zoruui";
 import { CircleAlert, Hourglass, MailX } from "lucide-react";
 
 import { InviteAcceptClient } from "./invite-accept-client";

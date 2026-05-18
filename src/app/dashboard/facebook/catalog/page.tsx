@@ -1,22 +1,5 @@
 'use client';
 
-/**
- * /dashboard/facebook/catalog — Meta Business catalogs index.
- *
- * Lists product catalogs owned by the connected Meta Business via the
- * `meta-suite` Rust crate. Each row links into the existing
- * `/dashboard/facebook/commerce/products/[catalogId]` detail page.
- */
-
-import * as React from 'react';
-import { useCallback, useEffect, useState, useTransition } from 'react';
-import Link from 'next/link';
-import { AlertCircle, Package, RefreshCw, ShoppingBag } from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-import { getCatalogs, syncCatalogs } from '@/app/actions/catalog.actions';
-import type { MetaSuiteCatalog } from '@/lib/rust-client/meta-suite';
-
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -35,6 +18,31 @@ import {
   ZoruSkeleton,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useState,
+  useTransition } from 'react';
+import Link from 'next/link';
+import { AlertCircle,
+  Package,
+  RefreshCw,
+  ShoppingBag } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import { getCatalogs,
+  syncCatalogs } from '@/app/actions/catalog.actions';
+import type { MetaSuiteCatalog } from '@/lib/rust-client/meta-suite';
+
+/**
+ * /dashboard/facebook/catalog — Meta Business catalogs index.
+ *
+ * Lists product catalogs owned by the connected Meta Business via the
+ * `meta-suite` Rust crate. Each row links into the existing
+ * `/dashboard/facebook/commerce/products/[catalogId]` detail page.
+ */
+
+import * as React from 'react';
 
 export default function FacebookCatalogPage(): React.JSX.Element {
   const { activeProject } = useProject();

@@ -1,4 +1,3 @@
-
 import { google } from 'googleapis';
 import * as msal from '@azure/msal-node';
 

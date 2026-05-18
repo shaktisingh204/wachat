@@ -1,5 +1,18 @@
 'use client';
 
+import { ZoruButton, useZoruToast } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+import Link from 'next/link';
+import {
+    Archive as ArchiveIcon,
+  Check,
+  FileText,
+  History,
+  Mail,
+  Pencil,
+  } from 'lucide-react';
+
 /**
  * <PayslipActions> — client island for lifecycle buttons on the payslip
  * detail page. Wraps `archivePayslipAction` / `acknowledgePayslipAction`
@@ -11,18 +24,7 @@
  */
 
 import * as React from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import {
-    Archive as ArchiveIcon,
-    Check,
-    FileText,
-    History,
-    Mail,
-    Pencil,
-} from 'lucide-react';
 
-import { ZoruButton, useZoruToast } from '@/components/zoruui';
 import {
     acknowledgePayslipAction,
     archivePayslipAction,

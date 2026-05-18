@@ -1,5 +1,78 @@
 'use client';
 
+import {
+  ZoruBadge,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  ZoruDateRangePicker,
+  ZoruEmptyState,
+  ZoruPageDescription,
+  ZoruPageEyebrow,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruSkeleton,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  Legend,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+  Area,
+  AreaChart,
+  } from 'recharts';
+import {
+    BarChart3,
+  BadgeAlert,
+  BadgeCheck,
+  Bot,
+  Coins,
+  Contact,
+  Download,
+  Filter,
+  Loader2,
+  Megaphone,
+  MessageSquare,
+  Radar,
+  Send,
+  Sparkles,
+  TrendingUp,
+  Users,
+  } from 'lucide-react';
+import { useEffect,
+  useMemo,
+  useState,
+  useCallback,
+  useTransition } from 'react';
+
+import { useProject } from '@/context/project-context';
+import { TelegramProjectGate } from '../_components/telegram-project-gate';
+
 /**
  * Telegram Analytics dashboard — read-only KPIs + leaderboards + a
  * funnel, scoped to the active project and an optional bot. All data
@@ -11,74 +84,7 @@
  */
 
 import * as React from 'react';
-import {
-    Bar,
-    BarChart,
-    CartesianGrid,
-    Cell,
-    Legend,
-    Line,
-    LineChart,
-    ResponsiveContainer,
-    Tooltip,
-    XAxis,
-    YAxis,
-    Area,
-    AreaChart,
-} from 'recharts';
-import {
-    BarChart3,
-    BadgeAlert,
-    BadgeCheck,
-    Bot,
-    Coins,
-    Contact,
-    Download,
-    Filter,
-    Loader2,
-    Megaphone,
-    MessageSquare,
-    Radar,
-    Send,
-    Sparkles,
-    TrendingUp,
-    Users,
-} from 'lucide-react';
-import { useEffect, useMemo, useState, useCallback, useTransition } from 'react';
 
-import { useProject } from '@/context/project-context';
-import { TelegramProjectGate } from '../_components/telegram-project-gate';
-import {
-    ZoruBadge,
-    ZoruBreadcrumb,
-    ZoruBreadcrumbItem,
-    ZoruBreadcrumbLink,
-    ZoruBreadcrumbList,
-    ZoruBreadcrumbPage,
-    ZoruBreadcrumbSeparator,
-    ZoruButton,
-    ZoruCard,
-    ZoruDateRangePicker,
-    ZoruEmptyState,
-    ZoruPageDescription,
-    ZoruPageEyebrow,
-    ZoruPageHeader,
-    ZoruPageHeading,
-    ZoruPageTitle,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    ZoruSkeleton,
-    ZoruTable,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-    useZoruToast,
-} from '@/components/zoruui';
 import {
     getTelegramAnalyticsOverview,
     getTelegramMessagesTimeseries,

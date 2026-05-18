@@ -1,24 +1,7 @@
 'use client';
 
-/**
- * Wachat Broadcast Segments — saved audience segments, ZoruUI rebuild.
- * Save / edit segments via ZoruSheet; delete via ZoruAlertDialog.
- */
-
-import * as React from 'react';
 import {
-  useEffect,
-  useState,
-  useTransition,
-  useCallback,
-  useActionState,
-} from 'react';
-import { Loader2, Pencil, Plus, Trash2, Users } from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-import { useZoruToast } from '@/components/zoruui';
-
-import {
+  useZoruToast,
   ZoruAlertDialog,
   ZoruAlertDialogAction,
   ZoruAlertDialogCancel,
@@ -53,6 +36,27 @@ import {
   ZoruSheetTitle,
   ZoruSheetTrigger,
 } from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition,
+  useCallback,
+  useActionState,
+  } from 'react';
+import { Loader2,
+  Pencil,
+  Plus,
+  Trash2,
+  Users } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+
+/**
+ * Wachat Broadcast Segments — saved audience segments, ZoruUI rebuild.
+ * Save / edit segments via ZoruSheet; delete via ZoruAlertDialog.
+ */
+
+import * as React from 'react';
 
 import {
   getBroadcastSegments,

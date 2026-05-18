@@ -1,3 +1,6 @@
+import { ZoruButton } from '@/components/zoruui';
+import { CreditCard, Plus } from 'lucide-react';
+
 /**
  * CRM Payment Receipts list — `/dashboard/crm/sales/payments`.
  *
@@ -11,9 +14,7 @@
  */
 
 import Link from 'next/link';
-import { CreditCard, Plus } from 'lucide-react';
 
-import { ZoruButton } from '@/components/zoruui';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 import { listPaymentReceipts } from '@/app/actions/crm/payment-receipts.actions';
 import { PaymentReceiptListClient } from './_components/payment-receipt-list-client';

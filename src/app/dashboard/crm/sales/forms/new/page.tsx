@@ -1,12 +1,12 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
-
-import { Suspense } from 'react';
+import { ZoruSkeleton, cn } from '@/components/zoruui';
+import {
+  cn as _zoruCn,
+  Suspense } from 'react';
 import { CrmFormBuilder } from '@/components/wabasimplify/crm-form-builder';
-import { ZoruSkeleton } from '@/components/zoruui';
+
+void _zoruCn;
 
 function NewFormSkeleton() {
     return (

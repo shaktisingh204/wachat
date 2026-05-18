@@ -1,5 +1,32 @@
 'use client';
 
+import { ZoruAlert, ZoruAlertDescription, ZoruBadge, ZoruButton, ZoruCard, ZoruEmptyState, ZoruSkeleton, useZoruToast } from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition,
+  useCallback } from 'react';
+import {
+  ExternalLink,
+  RefreshCw,
+  Loader2,
+  CirclePlus,
+  Settings,
+  AlertCircle,
+  } from 'lucide-react';
+
+import { getPaymentConfigurations } from '@/app/actions/whatsapp-pay.actions';
+import { getProjectById } from '@/app/actions/index';
+import { useProject } from '@/context/project-context';
+import type { PaymentConfiguration,
+  Project } from '@/lib/definitions';
+import {
+  CreatePaymentConfigDialog,
+  DeletePaymentConfigButton,
+  RegenerateOauthDialog,
+  UpdateDataEndpointDialog,
+  } from '@/app/wachat/_components/payment-config-dialogs';
+
 /**
  * Wachat WhatsApp Pay — Setup tab (ZoruUI).
  *
@@ -10,37 +37,6 @@
  */
 
 import * as React from 'react';
-import { useEffect, useState, useTransition, useCallback } from 'react';
-import {
-  ExternalLink,
-  RefreshCw,
-  Loader2,
-  CirclePlus,
-  Settings,
-  AlertCircle,
-} from 'lucide-react';
-
-import { getPaymentConfigurations } from '@/app/actions/whatsapp-pay.actions';
-import { getProjectById } from '@/app/actions/index';
-import { useProject } from '@/context/project-context';
-import type { PaymentConfiguration, Project } from '@/lib/definitions';
-import {
-  CreatePaymentConfigDialog,
-  DeletePaymentConfigButton,
-  RegenerateOauthDialog,
-  UpdateDataEndpointDialog,
-} from '@/app/wachat/_components/payment-config-dialogs';
-
-import {
-  ZoruAlert,
-  ZoruAlertDescription,
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
-  ZoruEmptyState,
-  ZoruSkeleton,
-  useZoruToast,
-} from '@/components/zoruui';
 
 /* ── helpers ──────────────────────────────────────────────────── */
 

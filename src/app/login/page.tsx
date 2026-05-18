@@ -1,20 +1,22 @@
 'use client';
 
-import * as React from 'react';
-import Link from 'next/link';
-import { Suspense } from 'react';
+import { ZoruSkeleton } from '@/components/zoruui';
+import {
+  Suspense } from 'react';
 import {
     BarChart3,
-    Bot,
-    GitFork,
-    Globe,
-    MessageSquare,
-    Users,
-} from 'lucide-react';
+  Bot,
+  GitFork,
+  Globe,
+  MessageSquare,
+  Users,
+  } from 'lucide-react';
 
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { LoginForm } from '@/components/wabasimplify/login-form';
-import { ZoruSkeleton } from '@/components/zoruui';
+
+import * as React from 'react';
+import Link from 'next/link';
 
 const HIGHLIGHTS: { title: string; description: string; icon: React.ElementType }[] = [
     {

@@ -1,8 +1,8 @@
-
 'use client';
 
+import { ZoruButton } from '@/components/zoruui';
 import { useEffect, useState } from 'react';
-import { ZoruButton, ZoruButton } from '@/components/zoruui';
+
 import { InstagramIcon } from './custom-sidebar-components';
 import Link from 'next/link';
 import { LoaderCircle } from 'lucide-react';

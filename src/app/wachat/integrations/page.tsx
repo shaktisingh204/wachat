@@ -1,18 +1,5 @@
 'use client';
 
-import Link from 'next/link';
-import {
-  ArrowRight,
-  Code2,
-  FileSpreadsheet,
-  KeyRound,
-  Link as LinkIcon,
-  Puzzle,
-  ShoppingBag,
-  Store,
-  Zap,
-} from 'lucide-react';
-
 import {
   ZoruBadge,
   ZoruBreadcrumb,
@@ -28,6 +15,19 @@ import {
   ZoruPageHeading,
   ZoruPageTitle,
 } from '@/components/zoruui';
+import {
+  ArrowRight,
+  Code2,
+  FileSpreadsheet,
+  KeyRound,
+  Link as LinkIcon,
+  Puzzle,
+  ShoppingBag,
+  Store,
+  Zap,
+  } from 'lucide-react';
+
+import Link from 'next/link';
 
 type Integration = {
   title: string;

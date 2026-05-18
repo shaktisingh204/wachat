@@ -1,3 +1,10 @@
+import { ZoruButton } from '@/components/zoruui';
+import {
+  notFound,
+  redirect } from 'next/navigation';
+import { ArrowLeft,
+  FileText } from 'lucide-react';
+
 /**
  * Edit proposal page — server wrapper that loads the proposal by id and
  * passes it to `<ProposalForm initialData={...} />`.
@@ -7,10 +14,7 @@
  */
 
 import Link from 'next/link';
-import { notFound, redirect } from 'next/navigation';
-import { ArrowLeft, FileText } from 'lucide-react';
 
-import { ZoruButton } from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { getSession } from '@/app/actions/user.actions';
 import { getProposalById } from '@/app/actions/crm-proposals.actions';

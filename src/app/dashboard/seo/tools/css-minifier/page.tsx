@@ -1,10 +1,10 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { ZoruTextarea, cn } from '@/components/zoruui';
+import { cn as _zoruCn, useMemo, useState } from 'react';
+
 void _zoruCn;
 
-import { useMemo, useState } from 'react';
-import { ZoruTextarea } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
 export default function CssMinifierPage() {

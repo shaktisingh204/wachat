@@ -1,17 +1,11 @@
-
 'use client';
 
-import { Send } from 'lucide-react';
+import { ZoruSkeleton, ZoruPageHeader, ZoruPageHeading, ZoruPageTitle, ZoruPageDescription } from '@/components/zoruui';
+import {
+  Send } from 'lucide-react';
 import { EmailCampaignsClient } from '@/components/wabasimplify/email-campaigns-client';
 import { Suspense } from "react";
 import { EmailSuiteLayout } from '@/components/wabasimplify/email-suite-layout';
-import {
-    ZoruSkeleton,
-    ZoruPageHeader,
-    ZoruPageHeading,
-    ZoruPageTitle,
-    ZoruPageDescription,
-} from '@/components/zoruui';
 
 function PageSkeleton() {
     return <ZoruSkeleton className="h-full w-full" />;

@@ -1,5 +1,8 @@
 "use client";
 
+import { ZoruButton } from '@/components/zoruui';
+import { Pencil } from "lucide-react";
+
 /**
  * /dashboard/facebook layout — Meta Suite chrome.
  *
@@ -10,9 +13,6 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Pencil } from "lucide-react";
-
-import { ZoruButton } from "@/components/zoruui";
 
 export default function FacebookLayout({
   children,

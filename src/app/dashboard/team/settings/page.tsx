@@ -1,31 +1,36 @@
 'use client';
 
-import { useState } from 'react';
-import { Settings, Save, Clock, ShieldCheck, Mail, LoaderCircle } from 'lucide-react';
-
 import {
-    ZoruBreadcrumb,
-    ZoruBreadcrumbItem,
-    ZoruBreadcrumbLink,
-    ZoruBreadcrumbList,
-    ZoruBreadcrumbPage,
-    ZoruBreadcrumbSeparator,
-    ZoruButton,
-    ZoruCard,
-    ZoruInput,
-    ZoruLabel,
-    ZoruPageDescription,
-    ZoruPageHeader,
-    ZoruPageHeading,
-    ZoruPageTitle,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    ZoruSwitch,
-    useZoruToast,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruLabel,
+  ZoruPageDescription,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruSwitch,
+  useZoruToast,
 } from '@/components/zoruui';
+import {
+  useState } from 'react';
+import { Settings,
+  Save,
+  Clock,
+  ShieldCheck,
+  Mail,
+  LoaderCircle } from 'lucide-react';
 
 type Settings = {
     defaultRole: 'agent' | 'admin';

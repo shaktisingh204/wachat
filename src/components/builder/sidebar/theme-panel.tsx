@@ -1,9 +1,9 @@
 "use client";
 
-import React from 'react';
+import { ZoruInput, ZoruLabel } from '@/components/zoruui';
 import { useEditor } from '@/components/builder/editor-provider';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruLabel } from '@/components/zoruui';
+
+import React from 'react';
 
 export const ThemePanel = () => {
     const { state, dispatch } = useEditor();

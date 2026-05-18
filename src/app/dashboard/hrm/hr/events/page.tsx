@@ -1,3 +1,6 @@
+import { ZoruButton } from '@/components/zoruui';
+import { CalendarDays, Plus } from 'lucide-react';
+
 /**
  * Workplace Events — list page.
  *
@@ -9,9 +12,6 @@
  */
 
 import Link from 'next/link';
-import { CalendarDays, Plus } from 'lucide-react';
-
-import { ZoruButton } from '@/components/zoruui';
 
 import { CrmPageHeader } from '../../../crm/_components/crm-page-header';
 import { getEvents } from '@/app/actions/crm-events.actions';

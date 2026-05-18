@@ -1,32 +1,36 @@
 'use client';
 
-import React from 'react';
-import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import {
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardDescription,
+  ZoruCardFooter,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruInput,
+  ZoruLabel,
+  ZoruAlert,
+  ZoruAlertDescription,
+  ZoruAlertTitle,
+} from '@/components/zoruui';
+import {
+  useRouter,
+  useSearchParams } from 'next/navigation';
 import {
     signInWithEmailAndPassword,
-    signInWithPopup,
-    GoogleAuthProvider,
-    FacebookAuthProvider,
-} from 'firebase/auth';
-import { AlertCircle, Eye, EyeOff, LoaderCircle } from 'lucide-react';
+  signInWithPopup,
+  GoogleAuthProvider,
+  FacebookAuthProvider,
+  } from 'firebase/auth';
+import { AlertCircle,
+  Eye,
+  EyeOff,
+  LoaderCircle } from 'lucide-react';
 
-import { ZoruButton, ZoruButton } from '@/components/zoruui';
-import {
-    ZoruCard,
-    ZoruCardContent,
-    ZoruCardDescription,
-    ZoruCardFooter,
-    ZoruCardHeader,
-    ZoruCardTitle,
-} from '@/components/zoruui';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruLabel } from '@/components/zoruui';
-import {
-    ZoruAlert,
-    ZoruAlertDescription,
-    ZoruAlertTitle,
-} from '@/components/zoruui';
+import React from 'react';
+import Link from 'next/link';
+
 import { auth } from '@/lib/firebase/config';
 import { consumePendingInviteToken } from '@/app/actions/team.actions';
 

@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruStatCard } from '@/components/zoruui';
+import { Ban, CalendarClock, CalendarDays, CreditCard, UserX, } from 'lucide-react';
+
 /**
  * KPI strip for the Bookings list page (§1D.1).
  *
@@ -15,15 +18,7 @@
  */
 
 import * as React from 'react';
-import {
-  Ban,
-  CalendarClock,
-  CalendarDays,
-  CreditCard,
-  UserX,
-} from 'lucide-react';
 
-import { ZoruStatCard } from '@/components/zoruui';
 import type { CrmBookingDoc } from '@/lib/rust-client/crm-bookings';
 
 export type BookingsKpiKey =

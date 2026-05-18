@@ -1,5 +1,15 @@
 'use client';
 
+import { ZoruButton, ZoruInput, ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
+import {
+  CalendarRange,
+  Download,
+  Search,
+  Trash2,
+  Truck,
+  X,
+  } from 'lucide-react';
+
 /**
  * Pure presentational bits used by `<SalesOrdersListClient>`. Split
  * out to keep the parent file under the 600-line per-file cap.
@@ -13,24 +23,7 @@
  */
 
 import * as React from 'react';
-import {
-  CalendarRange,
-  Download,
-  Search,
-  Trash2,
-  Truck,
-  X,
-} from 'lucide-react';
 
-import {
-  ZoruButton,
-  ZoruInput,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-} from '@/components/zoruui';
 import { EntityPicker } from '@/components/crm/entity-picker';
 import type {
   CrmSalesOrderDoc,

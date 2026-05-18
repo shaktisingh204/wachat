@@ -1,4 +1,3 @@
-
 'use client';
 
 // This is a dummy component for now, as the actual trigger logic happens server-side.

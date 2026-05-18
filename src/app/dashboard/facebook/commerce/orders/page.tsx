@@ -1,31 +1,5 @@
 "use client";
 
-/**
- * /dashboard/facebook/commerce/orders — Meta Suite Commerce orders.
- *
- * Orders table via ZoruDataTable, per-order detail in a ZoruSheet, and
- * a refund confirmation via ZoruAlertDialog. Same data fetcher as before
- * (getFacebookOrders); refund handler is wired locally to a no-op until
- * a server action is connected — same pattern as the previous page,
- * which surfaced the action button without firing a request.
- */
-
-import * as React from "react";
-import { useEffect, useMemo, useState, useTransition } from "react";
-import {
-  AlertCircle,
-  Eye,
-  LoaderCircle,
-  Package,
-  RefreshCw,
-  Undo2,
-} from "lucide-react";
-import { format } from "date-fns";
-import type { ColumnDef } from "@tanstack/react-table";
-
-import { getFacebookOrders } from "@/app/actions/facebook.actions";
-import type { FacebookOrder } from "@/lib/definitions";
-
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -49,7 +23,37 @@ import {
   ZoruSheetTitle,
   ZoruSkeleton,
   useZoruToast,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  useEffect,
+  useMemo,
+  useState,
+  useTransition } from "react";
+import {
+  AlertCircle,
+  Eye,
+  LoaderCircle,
+  Package,
+  RefreshCw,
+  Undo2,
+  } from "lucide-react";
+import { format } from "date-fns";
+import type { ColumnDef } from "@tanstack/react-table";
+
+import { getFacebookOrders } from "@/app/actions/facebook.actions";
+import type { FacebookOrder } from "@/lib/definitions";
+
+/**
+ * /dashboard/facebook/commerce/orders — Meta Suite Commerce orders.
+ *
+ * Orders table via ZoruDataTable, per-order detail in a ZoruSheet, and
+ * a refund confirmation via ZoruAlertDialog. Same data fetcher as before
+ * (getFacebookOrders); refund handler is wired locally to a no-op until
+ * a server action is connected — same pattern as the previous page,
+ * which surfaced the action button without firing a request.
+ */
+
+import * as React from "react";
 
 import {
   CommerceBreadcrumb,

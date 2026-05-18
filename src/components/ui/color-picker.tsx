@@ -1,8 +1,10 @@
 'use client';
 
-import { useState } from 'react';
-import { SketchPicker } from 'react-color';
 import { ZoruPopover, ZoruPopoverContent, ZoruPopoverTrigger, ZoruButton } from '@/components/zoruui';
+import {
+  useState } from 'react';
+import { SketchPicker } from 'react-color';
+
 import { cn } from '@/lib/utils'; // Assuming utils exists, typical in shadcn
 
 interface ColorPickerProps {

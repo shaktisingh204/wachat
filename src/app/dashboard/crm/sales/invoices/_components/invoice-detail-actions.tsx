@@ -1,15 +1,15 @@
 'use client';
 
-/**
- * <InvoiceDetailActions> — top-right action group on the invoice detail
- * page. Renders 10+ actions: Edit, Send, Mark paid, Record payment,
- * Convert to credit note, Email, WhatsApp, Print, Duplicate, Archive,
- * Delete, Activity. The status pill is a clickable dropdown.
- */
-
-import * as React from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import {
+  ZoruButton,
+  ZoruDropdownMenu,
+  ZoruDropdownMenuContent,
+  ZoruDropdownMenuItem,
+  ZoruDropdownMenuTrigger,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
 import {
   Activity,
   Archive,
@@ -23,16 +23,18 @@ import {
   Printer,
   Receipt,
   Trash2,
-} from 'lucide-react';
+  } from 'lucide-react';
 
-import {
-  ZoruButton,
-  ZoruDropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
-  useZoruToast,
-} from '@/components/zoruui';
+/**
+ * <InvoiceDetailActions> — top-right action group on the invoice detail
+ * page. Renders 10+ actions: Edit, Send, Mark paid, Record payment,
+ * Convert to credit note, Email, WhatsApp, Print, Duplicate, Archive,
+ * Delete, Activity. The status pill is a clickable dropdown.
+ */
+
+import * as React from 'react';
+import Link from 'next/link';
+
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import {

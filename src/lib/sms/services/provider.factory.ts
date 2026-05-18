@@ -1,5 +1,3 @@
-
-
 import 'server-only';
 import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';

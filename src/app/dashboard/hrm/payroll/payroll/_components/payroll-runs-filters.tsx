@@ -1,5 +1,10 @@
 'use client';
 
+import { ZoruButton, ZoruLabel, ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
+import {
+  RefreshCw,
+  XCircle } from 'lucide-react';
+
 /**
  * <PayrollRunsFiltersRow> — filter row for the canonical payroll-runs
  * list (per §1D.1). 5 filters: status, month, year, department,
@@ -7,17 +12,7 @@
  */
 
 import * as React from 'react';
-import { RefreshCw, XCircle } from 'lucide-react';
 
-import {
-  ZoruButton,
-  ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-} from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import type { CrmPayrollRunStatus } from '@/lib/rust-client/crm-payroll-runs';
 

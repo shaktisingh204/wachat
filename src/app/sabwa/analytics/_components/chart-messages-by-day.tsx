@@ -1,5 +1,13 @@
 'use client';
 
+import { ZORU_CHART_PALETTE, ZoruChart, ZoruChartContainer, ZoruChartTooltip } from '@/components/zoruui';
+import {
+  MessageSquare } from 'lucide-react';
+
+import type { SabwaAnalyticsSeriesPoint } from '@/app/actions/sabwa.actions';
+
+import { EmptyState } from '@/app/sabwa/_components/empty-state';
+
 /**
  * ChartMessagesByDay — line chart showing inbound vs outbound messages by day.
  * Falls back to <EmptyState> when there is no data. Built on ZoruChart with
@@ -7,17 +15,6 @@
  */
 
 import * as React from 'react';
-import { MessageSquare } from 'lucide-react';
-
-import type { SabwaAnalyticsSeriesPoint } from '@/app/actions/sabwa.actions';
-
-import { EmptyState } from '@/app/sabwa/_components/empty-state';
-import {
-  ZORU_CHART_PALETTE,
-  ZoruChart,
-  ZoruChartContainer,
-  ZoruChartTooltip,
-} from '@/components/zoruui';
 
 export interface ChartMessagesByDayProps {
   data: SabwaAnalyticsSeriesPoint[];

@@ -1,28 +1,5 @@
 'use client';
 
-/**
- * /dashboard/instagram/discovery — Public IG Business Discovery lookup.
- *
- * Uses the Instagram Graph `business_discovery` field to look up any
- * public IG Business / Creator account by username. Returns profile
- * metadata + the latest media tiles for inspiration & competitive
- * research.
- */
-
-import * as React from 'react';
-import { useCallback, useState, useTransition } from 'react';
-import {
-  AlertCircle,
-  Compass,
-  Image as ImageIcon,
-  RefreshCw,
-  Search,
-  Users,
-} from 'lucide-react';
-
-import { discoverInstagramAccount } from '@/app/actions/instagram.actions';
-import { useProject } from '@/context/project-context';
-
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -44,6 +21,32 @@ import {
   ZoruSkeleton,
   zoruSonnerToast,
 } from '@/components/zoruui';
+import {
+  useCallback,
+  useState,
+  useTransition } from 'react';
+import {
+  AlertCircle,
+  Compass,
+  Image as ImageIcon,
+  RefreshCw,
+  Search,
+  Users,
+  } from 'lucide-react';
+
+import { discoverInstagramAccount } from '@/app/actions/instagram.actions';
+import { useProject } from '@/context/project-context';
+
+/**
+ * /dashboard/instagram/discovery — Public IG Business Discovery lookup.
+ *
+ * Uses the Instagram Graph `business_discovery` field to look up any
+ * public IG Business / Creator account by username. Returns profile
+ * metadata + the latest media tiles for inspiration & competitive
+ * research.
+ */
+
+import * as React from 'react';
 
 interface IgMedia {
   id: string;

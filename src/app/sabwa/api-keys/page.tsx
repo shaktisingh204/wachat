@@ -1,37 +1,5 @@
 'use client';
 
-/**
- * /sabwa/api-keys — Generate and revoke REST API keys scoped to SabWa.
- *
- * Table of keys with prefix, scopes, status. Generate dialog with scope
- * multi-select. After generate, full key is shown once with copy button
- * and explicit warning.
- *
- * Visual layer migrated to ZoruUI.
- */
-
-import * as React from 'react';
-import Link from 'next/link';
-import { format, formatDistanceToNow } from 'date-fns';
-import {
-  AlertTriangle,
-  Book,
-  Copy,
-  KeyRound,
-  Loader2,
-  Plus,
-  RefreshCw,
-  ShieldOff,
-} from 'lucide-react';
-
-import {
-  createApiKey,
-  listApiKeys,
-  revokeApiKey,
-  type SabwaApiKeyRow,
-  type SabwaApiKeyStatus,
-} from '@/app/actions/sabwa.actions';
-
 import {
   ZoruAlertDialog,
   ZoruAlertDialogAction,
@@ -72,6 +40,40 @@ import {
   ZoruTableRow,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  format,
+  formatDistanceToNow } from 'date-fns';
+import {
+  AlertTriangle,
+  Book,
+  Copy,
+  KeyRound,
+  Loader2,
+  Plus,
+  RefreshCw,
+  ShieldOff,
+  } from 'lucide-react';
+
+import {
+  createApiKey,
+  listApiKeys,
+  revokeApiKey,
+  type SabwaApiKeyRow,
+  type SabwaApiKeyStatus,
+  } from '@/app/actions/sabwa.actions';
+
+/**
+ * /sabwa/api-keys — Generate and revoke REST API keys scoped to SabWa.
+ *
+ * Table of keys with prefix, scopes, status. Generate dialog with scope
+ * multi-select. After generate, full key is shown once with copy button
+ * and explicit warning.
+ *
+ * Visual layer migrated to ZoruUI.
+ */
+
+import * as React from 'react';
+import Link from 'next/link';
 
 import { EmptyState } from '@/app/sabwa/_components/empty-state';
 import { useProject } from '@/context/project-context';

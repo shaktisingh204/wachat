@@ -1,17 +1,5 @@
 'use client';
 
-import * as React from 'react';
-import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
-import {
-  Shield,
-  ArrowLeft,
-  UserPlus,
-  Trash2,
-  LoaderCircle,
-} from 'lucide-react';
-import { useEffect, useState, useTransition } from 'react';
-
 import {
   ZoruAvatar,
   ZoruAvatarFallback,
@@ -28,6 +16,23 @@ import {
   ZoruTableRow,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useParams,
+  useRouter } from 'next/navigation';
+import {
+  Shield,
+  ArrowLeft,
+  UserPlus,
+  Trash2,
+  LoaderCircle,
+  } from 'lucide-react';
+import { useEffect,
+  useState,
+  useTransition } from 'react';
+
+import * as React from 'react';
+import Link from 'next/link';
+
 import { CrmPageHeader } from '../../../_components/crm-page-header';
 import {
   getRoleById,

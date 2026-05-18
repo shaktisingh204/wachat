@@ -1,5 +1,21 @@
 'use client';
 
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+} from '@/components/zoruui';
+import {
+  Archive,
+  X } from 'lucide-react';
+
 /**
  * Filter row + bulk action bar for the contacts list page.
  *
@@ -10,20 +26,7 @@
  */
 
 import * as React from 'react';
-import { Archive, X } from 'lucide-react';
 
-import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruCardContent,
-    ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-} from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 
 /* ─── Status / lifecycle filter values ────────────────────────────────── */

@@ -1,5 +1,12 @@
 'use client';
 
+import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
+import {
+  useSearchParams } from 'next/navigation';
+import { ArrowLeft,
+  CalendarCheck,
+  Pencil } from 'lucide-react';
+
 /**
  * Attendance detail — per-row view for one attendance record.
  *
@@ -14,14 +21,6 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
-import { ArrowLeft, CalendarCheck, Pencil } from 'lucide-react';
-
-import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-} from '@/components/zoruui';
 
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 

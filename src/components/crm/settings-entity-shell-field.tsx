@@ -1,5 +1,6 @@
 'use client';
 
+import { ZoruInput, ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue, ZoruTextarea } from '@/components/zoruui';
 /**
  * Internal helpers for <SettingsEntityShell>:
  *  - FieldRenderer: renders one form field by `SettingsField` shape
@@ -13,15 +14,6 @@
 
 import * as React from 'react';
 
-import {
-    ZoruInput,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    ZoruTextarea,
-} from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import type { EntityKey } from '@/lib/lookup-registry';
 

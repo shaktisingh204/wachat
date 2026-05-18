@@ -1,30 +1,5 @@
 'use client';
 
-/**
- * /dashboard/instagram/messages — Instagram DM inbox.
- *
- * Two-pane layout: conversations list on the left, selected thread
- * messages on the right. Backed by the IG Messaging Platform conversations
- * + thread endpoints, exposed via two server actions in
- * `instagram.actions.ts`.
- */
-
-import * as React from 'react';
-import { useCallback, useEffect, useState, useTransition } from 'react';
-import { formatDistanceToNow } from 'date-fns';
-import {
-  AlertCircle,
-  MessageCircle,
-  RefreshCw,
-  User,
-} from 'lucide-react';
-
-import {
-  getInstagramConversationMessages,
-  getInstagramConversations,
-} from '@/app/actions/instagram.actions';
-import { useProject } from '@/context/project-context';
-
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -44,6 +19,35 @@ import {
   ZoruSkeleton,
   cn,
 } from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useState,
+  useTransition } from 'react';
+import { formatDistanceToNow } from 'date-fns';
+import {
+  AlertCircle,
+  MessageCircle,
+  RefreshCw,
+  User,
+  } from 'lucide-react';
+
+import {
+  getInstagramConversationMessages,
+  getInstagramConversations,
+  } from '@/app/actions/instagram.actions';
+import { useProject } from '@/context/project-context';
+
+/**
+ * /dashboard/instagram/messages — Instagram DM inbox.
+ *
+ * Two-pane layout: conversations list on the left, selected thread
+ * messages on the right. Backed by the IG Messaging Platform conversations
+ * + thread endpoints, exposed via two server actions in
+ * `instagram.actions.ts`.
+ */
+
+import * as React from 'react';
 
 interface IgParticipant {
   id?: string;

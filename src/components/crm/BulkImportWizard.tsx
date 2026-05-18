@@ -1,5 +1,30 @@
 'use client';
 
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  cn,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  ArrowLeft,
+  ArrowRight,
+  Check,
+  Download,
+  FileSpreadsheet,
+  Loader2,
+  Play,
+  Upload as UploadIcon,
+  } from 'lucide-react';
+
 /**
  * BulkImportWizard — shared CSV import flow for any CRM entity (§5.9).
  *
@@ -24,31 +49,7 @@
 
 import * as React from 'react';
 import Papa from 'papaparse';
-import {
-    ArrowLeft,
-    ArrowRight,
-    Check,
-    Download,
-    FileSpreadsheet,
-    Loader2,
-    Play,
-    Upload as UploadIcon,
-} from 'lucide-react';
 
-import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruInput,
-    ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    cn,
-    useZoruToast,
-} from '@/components/zoruui';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
 
 import {

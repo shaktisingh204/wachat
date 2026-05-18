@@ -1,20 +1,25 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import {
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruButton,
+  ZoruBadge,
+  ZoruDropdownMenu,
+  ZoruDropdownMenuContent,
+  ZoruDropdownMenuItem,
+  ZoruDropdownMenuTrigger,
+} from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
 import React from 'react';
-import { ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, ZoruButton } from '@/components/zoruui';
-import { ZoruBadge } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
 import { BarChart, ArrowRight, Trash2, MoreVertical, Calendar } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import Link from 'next/link';
-import {
-    ZoruDropdownMenu,
-    ZoruDropdownMenuContent,
-    ZoruDropdownMenuItem,
-    ZoruDropdownMenuTrigger,
-} from '@/components/zoruui';
+
 import { deleteSeoProject } from '@/app/actions/seo.actions';
 
 // Define a flexible interface that can handle SEO Project data

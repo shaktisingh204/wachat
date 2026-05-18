@@ -1,14 +1,8 @@
 'use client';
 
-/**
- * <BookingDetailActions> — top-right action group on the booking detail
- * page. 8 actions per §1D.2: Edit · Check in · Check out · Cancel ·
- * Reschedule · Send confirmation · Print receipt · Activity.
- */
-
-import * as React from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { ZoruButton, useZoruToast } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
 import {
   Activity,
   CheckCircle2,
@@ -19,12 +13,17 @@ import {
   Printer,
   RefreshCcw,
   XCircle,
-} from 'lucide-react';
+  } from 'lucide-react';
 
-import {
-  ZoruButton,
-  useZoruToast,
-} from '@/components/zoruui';
+/**
+ * <BookingDetailActions> — top-right action group on the booking detail
+ * page. 8 actions per §1D.2: Edit · Check in · Check out · Cancel ·
+ * Reschedule · Send confirmation · Print receipt · Activity.
+ */
+
+import * as React from 'react';
+import Link from 'next/link';
+
 import {
   checkInBooking,
   checkOutBooking,

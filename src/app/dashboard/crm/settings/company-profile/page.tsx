@@ -1,5 +1,15 @@
 'use client';
 
+import { ZoruCard, ZoruInput, ZoruLabel, ZoruSkeleton, ZoruTextarea, useZoruToast } from '@/components/zoruui';
+import {
+  useActionState,
+  useCallback,
+  useEffect,
+  useState,
+  useTransition,
+  } from 'react';
+import { Building2 } from 'lucide-react';
+
 /**
  * Company Profile — single-doc settings form per §1D.3:
  *  - Sectioned cards via <EntityFormShell> (Identity · Address ·
@@ -17,23 +27,7 @@
  */
 
 import * as React from 'react';
-import {
-    useActionState,
-    useCallback,
-    useEffect,
-    useState,
-    useTransition,
-} from 'react';
-import { Building2 } from 'lucide-react';
 
-import {
-    ZoruCard,
-    ZoruInput,
-    ZoruLabel,
-    ZoruSkeleton,
-    ZoruTextarea,
-    useZoruToast,
-} from '@/components/zoruui';
 import { SabFileUrlInput } from '@/components/sabfiles';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { EntityFormShell } from '@/components/crm/entity-form-shell';

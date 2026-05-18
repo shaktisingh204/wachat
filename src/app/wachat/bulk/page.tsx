@@ -1,22 +1,5 @@
 'use client';
 
-/**
- * Wachat Bulk — root bulk-send page (CSV-driven).
- *
- * Keeps the existing BulkActionsClient component (it implements the
- * underlying upload/preview/dispatch flow). ZoruUI only replaces the
- * page chrome.
- */
-
-import * as React from 'react';
-import { Suspense, useEffect, useState, useTransition, useCallback } from 'react';
-
-import { getProjects } from '@/app/actions/project.actions';
-import { getTemplates } from '@/app/actions/template.actions';
-import type { WithId, Project, Template } from '@/lib/definitions';
-
-import { BulkActionsClient } from '@/app/wachat/_components/bulk-actions-client';
-
 import {
   ZoruBreadcrumb,
   ZoruBreadcrumbItem,
@@ -26,6 +9,30 @@ import {
   ZoruBreadcrumbSeparator,
   ZoruSkeleton,
 } from '@/components/zoruui';
+import {
+  Suspense,
+  useEffect,
+  useState,
+  useTransition,
+  useCallback } from 'react';
+
+import { getProjects } from '@/app/actions/project.actions';
+import { getTemplates } from '@/app/actions/template.actions';
+import type { WithId,
+  Project,
+  Template } from '@/lib/definitions';
+
+import { BulkActionsClient } from '@/app/wachat/_components/bulk-actions-client';
+
+/**
+ * Wachat Bulk — root bulk-send page (CSV-driven).
+ *
+ * Keeps the existing BulkActionsClient component (it implements the
+ * underlying upload/preview/dispatch flow). ZoruUI only replaces the
+ * page chrome.
+ */
+
+import * as React from 'react';
 
 function BulkActionsSkeleton() {
   return (

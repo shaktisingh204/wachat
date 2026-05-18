@@ -1,15 +1,5 @@
 'use client';
 
-/**
- * Service-contract detail dialogs:
- *   • <ServiceContractScheduleDialog> — pick date + technician.
- *   • <ServiceContractRenewDialog>    — pick new period.
- *   • <ServiceContractSendDialog>     — open mail-client with prefilled message.
- */
-
-import * as React from 'react';
-import { useRouter } from 'next/navigation';
-
 import {
   ZoruButton,
   ZoruDialog,
@@ -23,6 +13,18 @@ import {
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+
+/**
+ * Service-contract detail dialogs:
+ *   • <ServiceContractScheduleDialog> — pick date + technician.
+ *   • <ServiceContractRenewDialog>    — pick new period.
+ *   • <ServiceContractSendDialog>     — open mail-client with prefilled message.
+ */
+
+import * as React from 'react';
+
 import {
   renewServiceContract,
   scheduleServiceVisit,

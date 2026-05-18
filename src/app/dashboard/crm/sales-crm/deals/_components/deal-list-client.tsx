@@ -1,5 +1,16 @@
 'use client';
 
+import {
+  ZoruCard,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  useZoruToast,
+} from '@/components/zoruui';
 /**
  * <DealListClient> — canonical Deals list view per CRM_REBUILD_PLAN §1D.
  *
@@ -15,17 +26,6 @@
 
 import * as React from 'react';
 
-import {
-  ZoruCard,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  useZoruToast,
-} from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';

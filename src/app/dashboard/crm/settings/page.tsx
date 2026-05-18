@@ -1,5 +1,3 @@
-import { getCrmSettings } from '@/app/actions/crm-settings.actions';
-import { CrmSettingsForm } from '@/components/crm/settings/crm-settings-form';
 import {
   ZoruBreadcrumb,
   ZoruBreadcrumbItem,
@@ -13,6 +11,9 @@ import {
   ZoruPageHeading,
   ZoruPageTitle,
 } from '@/components/zoruui';
+import {
+  getCrmSettings } from '@/app/actions/crm-settings.actions';
+import { CrmSettingsForm } from '@/components/crm/settings/crm-settings-form';
 
 export const dynamic = 'force-dynamic';
 

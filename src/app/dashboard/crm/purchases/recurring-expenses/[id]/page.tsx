@@ -1,5 +1,24 @@
 'use client';
 
+import { ZoruButton, ZoruCard, ZoruSkeleton, useZoruToast } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+import { use,
+  useCallback,
+  useEffect,
+  useState,
+  useTransition } from 'react';
+import {
+  ArrowLeft,
+  Pause,
+  Pencil,
+  Play,
+  Repeat,
+  StopCircle,
+  Trash2,
+  Zap,
+  } from 'lucide-react';
+
 /**
  * Recurring expense detail — §1D thin slice.
  *
@@ -10,25 +29,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { use, useCallback, useEffect, useState, useTransition } from 'react';
-import {
-  ArrowLeft,
-  Pause,
-  Pencil,
-  Play,
-  Repeat,
-  StopCircle,
-  Trash2,
-  Zap,
-} from 'lucide-react';
 
-import {
-  ZoruButton,
-  ZoruCard,
-  ZoruSkeleton,
-  useZoruToast,
-} from '@/components/zoruui';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 

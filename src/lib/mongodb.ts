@@ -1,4 +1,3 @@
-
 import 'server-only';
 import { MongoClient, Db } from 'mongodb';
 

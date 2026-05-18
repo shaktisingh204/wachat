@@ -1,3 +1,8 @@
+import { ZoruBadge, ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import {
+  notFound } from 'next/navigation';
+import Link from 'next/link';
+
 /**
  * Loan detail — `/dashboard/crm/loans/[id]`.
  *
@@ -6,16 +11,6 @@
  * payment, audit footer.
  */
 
-import { notFound } from 'next/navigation';
-import Link from 'next/link';
-
-import {
-  ZoruBadge,
-  ZoruCard,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-} from '@/components/zoruui';
 import { EntityDetailShell, type EntityStatusTone } from '@/components/crm/entity-detail-shell';
 import { getLoanById } from '@/app/actions/crm-loans.actions';
 

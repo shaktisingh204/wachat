@@ -1,5 +1,3 @@
-
-
 'use server';
 
 import { getSession } from '@/app/actions/user.actions';
@@ -137,7 +135,6 @@ export async function handleUpdateProjectSettings(
         return { error: getErrorMessage(e) || 'An unexpected error occurred while saving the settings.' };
     }
 }
-
 
 export async function handleUpdateMasterSwitch(projectId: string, isEnabled: boolean) {
     const hasAccess = await getProjectById(projectId);
@@ -362,7 +359,6 @@ export async function handleRemoveAgent(prevState: any, formData: FormData): Pro
         return { error: 'An unexpected error occurred.' };
     }
 }
-
 
 export async function handleUpdateAutoReplySettings(prevState: any, formData: FormData) {
     const projectId = formData.get('projectId') as string;

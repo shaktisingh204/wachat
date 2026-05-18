@@ -1,5 +1,8 @@
 'use client';
 
+import { cn } from '@/components/zoruui';
+import { usePathname } from 'next/navigation';
+
 /**
  * SettingsTabs — segmented navigation between settings sub-routes.
  *
@@ -11,9 +14,6 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-
-import { cn } from '@/components/zoruui';
 
 const SECTIONS = [
   { href: '/sabwa/settings', label: 'Profile' },

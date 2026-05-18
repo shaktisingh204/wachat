@@ -1,14 +1,13 @@
 'use client';
 
+import { ZoruStatCard } from '@/components/zoruui';
+import { Activity, CalendarClock, PauseCircle, Wallet } from 'lucide-react';
+
 /**
  * <RecurringExpensesKpiStrip> — 4-card KPI strip for Recurring Expenses.
  *
  * Active · Paused · Next 7 days · Total monthly value. Pure presentational.
  */
-
-import { Activity, CalendarClock, PauseCircle, Wallet } from 'lucide-react';
-
-import { ZoruStatCard } from '@/components/zoruui';
 
 import type { RecurringExpenseKpiSnapshot } from './types';
 

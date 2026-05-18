@@ -1,5 +1,17 @@
 'use client';
 
+import { ZoruButton, useZoruToast } from '@/components/zoruui';
+import {
+  Activity,
+  Copy,
+  Link2,
+  Pencil,
+  Pin,
+  Trash2,
+  Eye } from 'lucide-react';
+
+import { ConfirmDialog } from '@/components/crm/confirm-dialog';
+
 /**
  * Notice detail actions — Edit · Pin · Mark read · Copy link · Delete ·
  * Activity. The pin/mark-read actions are intentionally optimistic UI
@@ -9,10 +21,6 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { Activity, Copy, Link2, Pencil, Pin, Trash2, Eye } from 'lucide-react';
-
-import { ConfirmDialog } from '@/components/crm/confirm-dialog';
-import { ZoruButton, useZoruToast } from '@/components/zoruui';
 
 import { deleteNotice, markNoticeViewed } from '@/app/actions/worksuite/knowledge.actions';
 

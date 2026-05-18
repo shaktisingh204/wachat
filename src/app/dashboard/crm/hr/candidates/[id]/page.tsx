@@ -1,3 +1,28 @@
+import { ZoruButton } from '@/components/zoruui';
+import {
+  notFound } from 'next/navigation';
+import Link from 'next/link';
+import {
+  Pencil,
+  Send,
+  CalendarPlus,
+  XCircle,
+  Mail,
+  StickyNote,
+  Activity,
+  ArrowRight,
+  } from 'lucide-react';
+
+import { getCandidateById } from '@/app/actions/hr.actions';
+import {
+  RecruitmentDetailShell,
+  DetailCard,
+  RailCard,
+  RailLink,
+  } from '../../_components/recruitment-detail-shell';
+import { StatusPill,
+  statusToTone } from '@/components/crm/status-pill';
+
 /**
  * Candidate detail — §1D.2 rebuild.
  *
@@ -11,28 +36,6 @@
  *   notes mutation action — placeholder shown).
  */
 
-import { notFound } from 'next/navigation';
-import Link from 'next/link';
-import {
-  Pencil,
-  Send,
-  CalendarPlus,
-  XCircle,
-  Mail,
-  StickyNote,
-  Activity,
-  ArrowRight,
-} from 'lucide-react';
-
-import { getCandidateById } from '@/app/actions/hr.actions';
-import {
-  RecruitmentDetailShell,
-  DetailCard,
-  RailCard,
-  RailLink,
-} from '../../_components/recruitment-detail-shell';
-import { StatusPill, statusToTone } from '@/components/crm/status-pill';
-import { ZoruButton } from '@/components/zoruui';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 
 interface PageProps {

@@ -1,35 +1,5 @@
 'use client';
 
-/**
- * /dashboard/facebook/bulk-create — Bulk Facebook post creator (ZoruUI).
- *
- * `ZoruFileUploadCard` for CSV upload, editable preview table, and a
- * confirm-send `ZoruAlertDialog` before dispatching `bulkCreatePosts`.
- * No tab UI — manual entry and CSV upload sit side by side as
- * collapsible cards.
- */
-
-import * as React from 'react';
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-  useTransition,
-} from 'react';
-import {
-  AlertCircle,
-  CheckCircle2,
-  FileUp,
-  Loader2,
-  Plus,
-  Send,
-  Trash2,
-  Upload,
-} from 'lucide-react';
-
-import { bulkCreatePosts } from '@/app/actions/facebook.actions';
-
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -73,6 +43,37 @@ import {
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useTransition,
+  } from 'react';
+import {
+  AlertCircle,
+  CheckCircle2,
+  FileUp,
+  Loader2,
+  Plus,
+  Send,
+  Trash2,
+  Upload,
+  } from 'lucide-react';
+
+import { bulkCreatePosts } from '@/app/actions/facebook.actions';
+
+/**
+ * /dashboard/facebook/bulk-create — Bulk Facebook post creator (ZoruUI).
+ *
+ * `ZoruFileUploadCard` for CSV upload, editable preview table, and a
+ * confirm-send `ZoruAlertDialog` before dispatching `bulkCreatePosts`.
+ * No tab UI — manual entry and CSV upload sit side by side as
+ * collapsible cards.
+ */
+
+import * as React from 'react';
+
 import { SabFileUrlInput } from '@/components/sabfiles';
 
 type PostRow = { message: string; imageUrl: string; scheduledTime: string };

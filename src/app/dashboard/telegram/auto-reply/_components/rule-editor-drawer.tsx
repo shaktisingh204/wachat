@@ -1,5 +1,32 @@
 'use client';
 
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruDrawer,
+  ZoruDrawerContent,
+  ZoruDrawerDescription,
+  ZoruDrawerHeader,
+  ZoruDrawerTitle,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruSwitch,
+  ZoruTextarea,
+} from '@/components/zoruui';
+import {
+  Plus,
+  Trash2,
+  ArrowUp,
+  ArrowDown,
+  Loader2 } from 'lucide-react';
+
 /**
  * Drawer-based editor for an auto-reply rule. Sections:
  *  1. Basics — name, bot scope, status, priority
@@ -13,28 +40,7 @@
  */
 
 import * as React from 'react';
-import { Plus, Trash2, ArrowUp, ArrowDown, Loader2 } from 'lucide-react';
 
-import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruCardContent,
-    ZoruDrawer,
-    ZoruDrawerContent,
-    ZoruDrawerDescription,
-    ZoruDrawerHeader,
-    ZoruDrawerTitle,
-    ZoruInput,
-    ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    ZoruSwitch,
-    ZoruTextarea,
-} from '@/components/zoruui';
 import { SabFilePickerButton } from '@/components/sabfiles';
 
 import type {

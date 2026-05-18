@@ -1,10 +1,5 @@
 'use client';
 
-import { useState, useTransition } from 'react';
-import { LoaderCircle } from 'lucide-react';
-
-import type { WithId, Project, Template } from '@/lib/definitions';
-import { handleApplyTemplateToProjects } from '@/app/actions/template.actions';
 import {
   ZoruButton,
   ZoruCard,
@@ -21,6 +16,15 @@ import {
   ZoruSelectValue,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useState,
+  useTransition } from 'react';
+import { LoaderCircle } from 'lucide-react';
+
+import type { WithId,
+  Project,
+  Template } from '@/lib/definitions';
+import { handleApplyTemplateToProjects } from '@/app/actions/template.actions';
 
 interface BulkTemplateFormProps {
   sourceProjectName: string;

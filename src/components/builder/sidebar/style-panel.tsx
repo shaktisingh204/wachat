@@ -1,16 +1,19 @@
 "use client";
 
-import React from 'react';
-import { useEditor } from '@/components/builder/editor-provider';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruLabel } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
 import {
-    ZoruAccordion,
-    ZoruAccordionContent,
-    ZoruAccordionItem,
-    ZoruAccordionTrigger
+  ZoruInput,
+  ZoruLabel,
+  ZoruButton,
+  ZoruAccordion,
+  ZoruAccordionContent,
+  ZoruAccordionItem,
+  ZoruAccordionTrigger,
+  ZoruSelect,
 } from '@/components/zoruui';
+import {
+  useEditor } from '@/components/builder/editor-provider';
+
+import React from 'react';
 
 export const StylePanel = () => {
     const { state, dispatch } = useEditor();

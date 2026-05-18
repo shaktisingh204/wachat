@@ -1,5 +1,24 @@
 'use client';
 
+import {
+  ZoruButton,
+  ZoruCard,
+  ZoruCheckbox,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  useRouter,
+  useSearchParams,
+  usePathname } from 'next/navigation';
+import { Plus,
+  Repeat } from 'lucide-react';
+
 /**
  * <SubscriptionListClient> — canonical Subscriptions list view per
  * CRM_REBUILD_PLAN §1D.1.
@@ -25,21 +44,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useRouter, useSearchParams, usePathname } from 'next/navigation';
-import { Plus, Repeat } from 'lucide-react';
 
-import {
-  ZoruButton,
-  ZoruCard,
-  ZoruCheckbox,
-  ZoruTable,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/zoruui';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { PaginationBar } from '@/components/crm/pagination-bar';

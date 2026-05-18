@@ -1,5 +1,46 @@
 'use client';
 
+import {
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruButton,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruSwitch,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  ZoruTextarea,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  useActionState } from 'react';
+import { useFormStatus } from 'react-dom';
+import { Edit,
+  LoaderCircle,
+  Plus,
+  Tags,
+  Trash2 } from 'lucide-react';
+
 /**
  * Expense Categories — settings-style list (§1D.4 specialized: settings list).
  *
@@ -14,42 +55,6 @@
  */
 
 import * as React from 'react';
-import { useActionState } from 'react';
-import { useFormStatus } from 'react-dom';
-import { Edit, LoaderCircle, Plus, Tags, Trash2 } from 'lucide-react';
-
-import {
-    ZoruAlertDialog,
-    ZoruAlertDialogAction,
-    ZoruAlertDialogCancel,
-    ZoruAlertDialogContent,
-    ZoruAlertDialogDescription,
-    ZoruAlertDialogFooter,
-    ZoruAlertDialogHeader,
-    ZoruAlertDialogTitle,
-    ZoruButton,
-    ZoruDialog,
-    ZoruDialogContent,
-    ZoruDialogFooter,
-    ZoruDialogHeader,
-    ZoruDialogTitle,
-    ZoruInput,
-    ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    ZoruSwitch,
-    ZoruTable,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-    ZoruTextarea,
-    useZoruToast,
-} from '@/components/zoruui';
 
 import { CrmPageHeader } from '../../_components/crm-page-header';
 import { EntityListShell } from '@/components/crm/entity-list-shell';

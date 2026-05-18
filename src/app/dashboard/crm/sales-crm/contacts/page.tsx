@@ -1,5 +1,17 @@
 'use client';
 
+import { ZoruButton, useZoruToast } from '@/components/zoruui';
+import {
+  useDebouncedCallback } from 'use-debounce';
+import { List,
+  Plus,
+  Sparkles } from 'lucide-react';
+
+import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { ConfirmDialog } from '@/components/crm/confirm-dialog';
+import { PaginationBar } from '@/components/crm/pagination-bar';
+import { SavedViewsBar } from '@/components/crm/SavedViewsBar';
+
 /**
  * Contacts — list page (rebuilt per §1D.1).
  *
@@ -21,14 +33,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useDebouncedCallback } from 'use-debounce';
-import { List, Plus, Sparkles } from 'lucide-react';
 
-import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { ConfirmDialog } from '@/components/crm/confirm-dialog';
-import { PaginationBar } from '@/components/crm/pagination-bar';
-import { SavedViewsBar } from '@/components/crm/SavedViewsBar';
-import { ZoruButton, useZoruToast } from '@/components/zoruui';
 import type { SavedView } from '@/lib/saved-views/types';
 
 import {

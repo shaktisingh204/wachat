@@ -1,9 +1,5 @@
-
 'use client';
 
-import { useActionState, useEffect, useRef, useState } from 'react';
-import { useFormStatus } from 'react-dom';
-import { useRouter } from 'next/navigation';
 import {
   ZoruAccordion,
   ZoruAccordionContent,
@@ -26,6 +22,14 @@ import {
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect,
+  useRef,
+  useState } from 'react';
+import { useFormStatus } from 'react-dom';
+import { useRouter } from 'next/navigation';
+
 import { LoaderCircle, Save, Plus, Trash2, Upload, X } from 'lucide-react';
 import type { WithId, EcommProduct, EcommProductVariant, User, ProductBatch } from '@/lib/definitions';
 import { saveCrmProduct } from '@/app/actions/crm-products.actions';

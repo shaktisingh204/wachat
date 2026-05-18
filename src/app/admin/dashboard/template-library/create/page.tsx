@@ -1,14 +1,15 @@
-
-
 'use client';
 
-import { Suspense, useEffect, useState } from 'react';
+import { ZoruButton, ZoruSkeleton } from '@/components/zoruui';
+import {
+  Suspense,
+  useEffect,
+  useState } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { ChevronLeft } from 'lucide-react';
-import { ZoruButton, ZoruSkeleton } from '@/components/zoruui';
-import { getProjectById } from '@/app/actions/index.ts';
 
+import { getProjectById } from '@/app/actions/index.ts';
 
 const LoadingZoruSkeleton = () => (
     <div className="flex flex-col gap-8">
@@ -28,7 +29,6 @@ const CreateTemplateForm = dynamic(
   () => import('@/components/wabasimplify/create-template-form').then(mod => mod.CreateTemplateForm),
   { loading: () => <LoadingZoruSkeleton /> }
 );
-
 
 // We can reuse the existing form component but pass a different action to it.
 // This page is a wrapper to provide the correct server action and context.

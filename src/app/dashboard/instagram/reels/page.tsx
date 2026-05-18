@@ -1,32 +1,5 @@
 'use client';
 
-/**
- * /dashboard/instagram/reels — Published Reels for the connected IG account.
- *
- * Grid of reel thumbnails with caption preview + engagement counters.
- * Clicking a tile opens a ZoruSheet with the full caption and on-demand
- * insights (impressions, reach, plays, saves).
- */
-
-import * as React from 'react';
-import { useCallback, useEffect, useState, useTransition } from 'react';
-import { formatDistanceToNow } from 'date-fns';
-import {
-  AlertCircle,
-  Clapperboard,
-  Eye,
-  Heart,
-  MessageSquare,
-  Play,
-  RefreshCw,
-} from 'lucide-react';
-
-import {
-  getInstagramReelInsights,
-  getInstagramReels,
-} from '@/app/actions/instagram.actions';
-import { useProject } from '@/context/project-context';
-
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -48,6 +21,37 @@ import {
   ZoruSheetTitle,
   ZoruSkeleton,
 } from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useState,
+  useTransition } from 'react';
+import { formatDistanceToNow } from 'date-fns';
+import {
+  AlertCircle,
+  Clapperboard,
+  Eye,
+  Heart,
+  MessageSquare,
+  Play,
+  RefreshCw,
+  } from 'lucide-react';
+
+import {
+  getInstagramReelInsights,
+  getInstagramReels,
+  } from '@/app/actions/instagram.actions';
+import { useProject } from '@/context/project-context';
+
+/**
+ * /dashboard/instagram/reels — Published Reels for the connected IG account.
+ *
+ * Grid of reel thumbnails with caption preview + engagement counters.
+ * Clicking a tile opens a ZoruSheet with the full caption and on-demand
+ * insights (impressions, reach, plays, saves).
+ */
+
+import * as React from 'react';
 
 interface Reel {
   id: string;

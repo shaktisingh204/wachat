@@ -1,5 +1,14 @@
 'use client';
 
+import { useZoruToast } from '@/components/zoruui';
+import {
+  ShieldCheck,
+  CalendarClock,
+  Award,
+  RefreshCcw,
+  } from 'lucide-react';
+import { useDebouncedCallback } from 'use-debounce';
+
 /**
  * Probation list — §1D.1 rebuild.
  *
@@ -11,15 +20,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import {
-  ShieldCheck,
-  CalendarClock,
-  Award,
-  RefreshCcw,
-} from 'lucide-react';
-import { useDebouncedCallback } from 'use-debounce';
 
-import { useZoruToast } from '@/components/zoruui';
 import {
   RecruitmentListShell,
   renderStatusCell,

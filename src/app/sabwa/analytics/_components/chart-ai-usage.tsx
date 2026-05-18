@@ -1,22 +1,19 @@
 'use client';
 
+import { ZORU_CHART_PALETTE, ZoruChart, ZoruChartContainer, ZoruChartTooltip } from '@/components/zoruui';
+import {
+  Sparkles } from 'lucide-react';
+
+import type { SabwaAnalyticsAiDay } from '@/app/actions/sabwa.actions';
+
+import { EmptyState } from '@/app/sabwa/_components/empty-state';
+
 /**
  * ChartAiUsage — stacked bar chart for daily AI calls broken down by kind
  * (suggest, summarise, translate). Greyscale palette via ZoruChart.
  */
 
 import * as React from 'react';
-import { Sparkles } from 'lucide-react';
-
-import type { SabwaAnalyticsAiDay } from '@/app/actions/sabwa.actions';
-
-import { EmptyState } from '@/app/sabwa/_components/empty-state';
-import {
-  ZORU_CHART_PALETTE,
-  ZoruChart,
-  ZoruChartContainer,
-  ZoruChartTooltip,
-} from '@/components/zoruui';
 
 export interface ChartAiUsageProps {
   data: SabwaAnalyticsAiDay[];

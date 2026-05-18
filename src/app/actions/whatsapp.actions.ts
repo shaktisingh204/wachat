@@ -1,5 +1,3 @@
-
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -137,7 +135,6 @@ async function _createProjectFromWaba(data: {
     }
 }
 
-
 export async function handleManualWachatSetup(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
     try {
         const { rustClient } = await import('@/lib/rust-client');
@@ -257,7 +254,6 @@ export async function handleSubscribeAllProjects(): Promise<{ message?: string; 
     }
 }
 
-
 export async function handleSubscribeProjectWebhook(wabaId: string, appId: string, userAccessToken: string): Promise<{ success: boolean; error?: string }> {
     try {
         // Rust `subscribeWebhook` is keyed by projectId — look it up via
@@ -323,7 +319,6 @@ export async function handleSendMessage(
     }
 }
 
-
 export async function findOrCreateContact(projectId: string, phoneNumberId: string, waId: string, projectFromAction?: WithId<Project>): Promise<{ contact?: WithId<Contact>; error?: string }> {
     if (!projectId || !phoneNumberId || !waId) {
         return { error: 'Missing required information.' };
@@ -365,7 +360,6 @@ export async function getInitialChatData(projectId: string, phoneNumberId?: stri
     }
 }
 
-
 export async function getConversation(contactId: string): Promise<AnyMessage[]> {
     try {
         const { rustClient } = await import('@/lib/rust-client');
@@ -397,7 +391,6 @@ export async function markConversationAsUnread(contactId: string): Promise<{ suc
         return { success: false };
     }
 }
-
 
 // --- PAYMENT ACTIONS ---
 
@@ -703,7 +696,6 @@ export async function registerPhoneNumber(projectId: string, phoneNumberId: stri
     }
 }
 
-
 // --- PHONE NUMBER VERIFICATION ---
 
 export async function handleRequestVerificationCode(
@@ -755,7 +747,6 @@ export async function deregisterPhoneNumber(
     }
 }
 
-
 // --- TWO-STEP VERIFICATION ---
 
 export async function handleSetTwoStepVerificationPin(
@@ -775,7 +766,6 @@ export async function handleSetTwoStepVerificationPin(
         return { success: false, error: e?.message ?? 'Set 2FA PIN failed' };
     }
 }
-
 
 // --- QR CODE MANAGEMENT ---
 
@@ -844,7 +834,6 @@ export async function handleDeleteQrCode(
     }
 }
 
-
 // --- HEALTH STATUS ---
 
 export async function getWabaHealthStatus(
@@ -899,7 +888,6 @@ export async function getPhoneNumberHealthStatus(
         return { error: getErrorMessage(e) };
     }
 }
-
 
 // --- CONVERSATIONAL AUTOMATION ---
 
@@ -1002,7 +990,6 @@ export async function handleDeleteConversationalAutomation(
     }
 }
 
-
 // --- COMMERCE SETTINGS ---
 
 export async function getCommerceSettings(
@@ -1058,7 +1045,6 @@ export async function handleUpdateCommerceSettings(
         return { error: getErrorMessage(e) };
     }
 }
-
 
 // --- INTERACTIVE MESSAGE TYPES ---
 

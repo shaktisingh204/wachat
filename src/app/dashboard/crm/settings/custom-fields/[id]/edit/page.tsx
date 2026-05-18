@@ -1,3 +1,10 @@
+import { ZoruButton } from '@/components/zoruui';
+import {
+  notFound,
+  redirect } from 'next/navigation';
+import { ArrowLeft,
+  Settings2 } from 'lucide-react';
+
 /**
  * Edit custom field page — server wrapper that loads the field via the
  * Rust-backed `getCustomFieldById` action and hands it to the shared
@@ -5,10 +12,7 @@
  */
 
 import Link from 'next/link';
-import { notFound, redirect } from 'next/navigation';
-import { ArrowLeft, Settings2 } from 'lucide-react';
 
-import { ZoruButton } from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { getSession } from '@/app/actions/user.actions';
 import { getCustomFieldById } from '@/app/actions/crm-custom-fields.actions';

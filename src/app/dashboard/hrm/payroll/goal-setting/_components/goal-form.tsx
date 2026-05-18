@@ -1,5 +1,29 @@
 'use client';
 
+import {
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruTextarea,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect,
+  useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useFormStatus } from 'react-dom';
+import { ArrowLeft,
+  LoaderCircle,
+  Save } from 'lucide-react';
+
 // TODO 1E.sweep: status -> <EnumFormField enumName="goalStatus">; owner/employee -> <EntityFormField entity="employee">. See plan §1E.
 
 /**
@@ -9,26 +33,6 @@
  * is a flat field set — no nested arrays — so it submits as plain
  * FormData with hidden inputs for the controlled `<ZoruSelect>` values.
  */
-
-import { useActionState, useEffect, useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useFormStatus } from 'react-dom';
-import { ArrowLeft, LoaderCircle, Save } from 'lucide-react';
-
-import {
-    ZoruButton,
-    ZoruCard,
-    ZoruInput,
-    ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    ZoruTextarea,
-    useZoruToast,
-} from '@/components/zoruui';
 
 import { saveGoal } from '@/app/actions/crm-goals.actions';
 import type { CrmGoalDoc, CrmGoalStatus } from '@/lib/rust-client/crm-goals';

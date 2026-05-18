@@ -1,37 +1,5 @@
 "use client";
 
-/**
- * /dashboard/facebook/reels — Meta Suite Reels manager, ZoruUI rebuild.
- *
- * Same handlers + server actions as before (getPageReels, publishPageReel).
- * Visual layer: ZoruPageHeader + ZoruBreadcrumb, neutral elevated cards
- * for the grid tiles, ZoruDialog (built on ZoruFileUploadCard) for upload.
- */
-
-import * as React from "react";
-import {
-  useActionState,
-  useCallback,
-  useEffect,
-  useState,
-  useTransition,
-} from "react";
-import Image from "next/image";
-import { formatDistanceToNow } from "date-fns";
-import {
-  Clock,
-  ExternalLink,
-  Eye,
-  Film,
-  Hash,
-  Upload,
-} from "lucide-react";
-
-import {
-  getPageReels,
-  publishPageReel,
-} from "@/app/actions/facebook.actions";
-
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -61,7 +29,39 @@ import {
   ZoruSkeleton,
   ZoruTextarea,
   useZoruToast,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  useActionState,
+  useCallback,
+  useEffect,
+  useState,
+  useTransition,
+  } from "react";
+import Image from "next/image";
+import { formatDistanceToNow } from "date-fns";
+import {
+  Clock,
+  ExternalLink,
+  Eye,
+  Film,
+  Hash,
+  Upload,
+  } from "lucide-react";
+
+import {
+  getPageReels,
+  publishPageReel,
+  } from "@/app/actions/facebook.actions";
+
+/**
+ * /dashboard/facebook/reels — Meta Suite Reels manager, ZoruUI rebuild.
+ *
+ * Same handlers + server actions as before (getPageReels, publishPageReel).
+ * Visual layer: ZoruPageHeader + ZoruBreadcrumb, neutral elevated cards
+ * for the grid tiles, ZoruDialog (built on ZoruFileUploadCard) for upload.
+ */
+
+import * as React from "react";
 
 import {
   ErrorState,

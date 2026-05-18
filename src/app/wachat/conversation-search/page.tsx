@@ -1,20 +1,7 @@
 'use client';
 
-/**
- * /wachat/conversation-search — Full-text search across conversations,
- * rebuilt on ZoruUI primitives.
- */
-
-import * as React from 'react';
-import { useState, useTransition, useCallback } from 'react';
-import Link from 'next/link';
-import { Search, MessageCircle, Loader2 } from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-import { useZoruToast } from '@/components/zoruui';
-import { searchConversations } from '@/app/actions/wachat-features.actions';
-
 import {
+  useZoruToast,
   ZoruBreadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
@@ -26,6 +13,24 @@ import {
   ZoruInput,
   ZoruEmptyState,
 } from '@/components/zoruui';
+import {
+  useState,
+  useTransition,
+  useCallback } from 'react';
+import Link from 'next/link';
+import { Search,
+  MessageCircle,
+  Loader2 } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import { searchConversations } from '@/app/actions/wachat-features.actions';
+
+/**
+ * /wachat/conversation-search — Full-text search across conversations,
+ * rebuilt on ZoruUI primitives.
+ */
+
+import * as React from 'react';
 
 export default function ConversationSearchPage() {
   const { activeProject } = useProject();

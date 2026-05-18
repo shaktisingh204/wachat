@@ -1,8 +1,10 @@
 'use client';
 
-import * as React from 'react';
-import { LuArrowUpRight } from 'react-icons/lu';
 import { ZoruCard } from '@/components/zoruui';
+import { LuArrowUpRight } from 'react-icons/lu';
+
+import * as React from 'react';
+
 import { cn } from '@/lib/utils';
 
 export interface ClayNotificationCardProps {

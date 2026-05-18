@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruCard } from '@/components/zoruui';
+import { CheckSquare, Clock } from 'lucide-react';
+
 /**
  * <TasksKanban> — read-mostly board grouped by status.
  * Drag-to-reorder deferred (see TODO 1D.4 in CRM_REBUILD_PLAN).
@@ -7,9 +10,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { CheckSquare, Clock } from 'lucide-react';
 
-import { ZoruCard } from '@/components/zoruui';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import type { CrmTask } from '@/lib/definitions';
 import type { WithId } from 'mongodb';

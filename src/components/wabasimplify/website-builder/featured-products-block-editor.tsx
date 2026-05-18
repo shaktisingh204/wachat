@@ -1,19 +1,35 @@
-
 'use client';
 
-import { ZoruLabel, ZoruButton } from '@/components/zoruui';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruCommand, ZoruCommandEmpty, ZoruCommandGroup, ZoruCommandInput, ZoruCommandItem, ZoruCommandList } from '@/components/zoruui';
-import { ZoruPopover, ZoruPopoverContent, ZoruPopoverTrigger } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
-import { ZoruBadge } from '@/components/zoruui';
+import {
+  ZoruLabel,
+  ZoruButton,
+  ZoruInput,
+  ZoruCommand,
+  ZoruCommandEmpty,
+  ZoruCommandGroup,
+  ZoruCommandInput,
+  ZoruCommandItem,
+  ZoruCommandList,
+  ZoruPopover,
+  ZoruPopoverContent,
+  ZoruPopoverTrigger,
+  ZoruBadge,
+  ZoruSelect,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruAccordion,
+  ZoruAccordionContent,
+  ZoruAccordionItem,
+  ZoruAccordionTrigger,
+  ZoruSwitch,
+} from '@/components/zoruui';
 import { Check, ChevronsUpDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
-import type { WithId, EcommProduct } from '@/lib/definitions';
-import { ZoruSelect, ZoruSelectTrigger, ZoruSelectValue, ZoruSelectContent, ZoruSelectItem } from '@/components/zoruui';
-import { ZoruAccordion, ZoruAccordionContent, ZoruAccordionItem, ZoruAccordionTrigger } from '@/components/zoruui';
-import { ZoruSwitch } from '@/components/zoruui';
+import type { WithId,
+  EcommProduct } from '@/lib/definitions';
 
 export function FeaturedProductsBlockEditor({ settings, onUpdate, availableProducts }: { settings: any, onUpdate: (newSettings: any) => void, availableProducts: WithId<EcommProduct>[] }) {
     const [open, setOpen] = useState(false);

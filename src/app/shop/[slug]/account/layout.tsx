@@ -1,6 +1,8 @@
+'use client';
 
-'use client';;
-import { use } from "react";
+import { ZoruButton } from '@/components/zoruui';
+import {
+  use } from "react";
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -18,7 +20,8 @@ import {
   Key
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { ZoruButton, ZoruButton } from '@/components/zoruui';
+
+;
 
 const navItems = [
   { href: '', label: 'Dashboard', icon: LayoutDashboard },

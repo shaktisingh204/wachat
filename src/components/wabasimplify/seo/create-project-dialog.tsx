@@ -1,17 +1,23 @@
 'use client';
 
-import { useState } from 'react';
+import {
+  ZoruButton,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruDialogTrigger,
+  ZoruInput,
+} from '@/components/zoruui';
+import {
+  useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { ZoruButton, ZoruButton } from '@/components/zoruui';
-import {
-    ZoruDialog, ZoruDialogContent, ZoruDialogDescription, ZoruDialogFooter, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogTrigger,
-} from '@/components/zoruui';
-import {
-    Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage,
-} from '@/components/ui/form';
-import { ZoruInput } from '@/components/zoruui';
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+
 import { Plus } from 'lucide-react';
 import { createSeoProject } from '@/app/actions/seo.actions';
 import { toast } from '@/hooks/use-toast';

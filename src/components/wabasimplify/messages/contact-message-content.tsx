@@ -1,10 +1,7 @@
-
-
 'use client';
 
 import { ZoruCard, ZoruCardHeader, ZoruCardTitle, ZoruCardContent, ZoruButton } from '@/components/zoruui';
 import { User, Phone, Briefcase } from 'lucide-react';
-import { ZoruButton } from '@/components/zoruui';
 
 interface ContactMessageContentProps {
   contacts: any[]; // The `contacts` array from the message payload

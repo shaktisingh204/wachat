@@ -1,11 +1,16 @@
-
-import { ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, ZoruButton } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruTextarea } from '@/components/zoruui';
-import { ZoruLabel } from '@/components/zoruui';
+import {
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruButton,
+  ZoruInput,
+  ZoruTextarea,
+  ZoruLabel,
+  ZoruSeparator,
+} from '@/components/zoruui';
 import Link from 'next/link';
-import { ZoruSeparator } from '@/components/zoruui';
+
 import { LandingHeader } from '@/components/landing/landing-header';
 
 export default function ContactPage() {

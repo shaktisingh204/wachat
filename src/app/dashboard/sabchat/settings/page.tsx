@@ -1,5 +1,51 @@
 'use client';
 
+import {
+  ZoruAlert,
+  ZoruAlertDescription,
+  ZoruAlertTitle,
+  ZoruBadge,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  ZoruCheckbox,
+  ZoruInput,
+  ZoruLabel,
+  ZoruPageDescription,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruSeparator,
+  ZoruSkeleton,
+  ZoruSwitch,
+  ZoruTextarea,
+  zoruSonnerToast,
+} from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition } from 'react';
+import { Save,
+  Send,
+  AlertCircle } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import {
+    getSabchatSettings,
+  saveSabchatSettings,
+  type SabchatSettings,
+  } from '@/app/actions/sabchat-settings.actions';
+
 /**
  * /dashboard/sabchat/settings — module-level SabChat settings.
  *
@@ -11,47 +57,6 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useEffect, useState, useTransition } from 'react';
-import { Save, Send, AlertCircle } from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-import {
-    getSabchatSettings,
-    saveSabchatSettings,
-    type SabchatSettings,
-} from '@/app/actions/sabchat-settings.actions';
-
-import {
-    ZoruAlert,
-    ZoruAlertDescription,
-    ZoruAlertTitle,
-    ZoruBadge,
-    ZoruBreadcrumb,
-    ZoruBreadcrumbItem,
-    ZoruBreadcrumbLink,
-    ZoruBreadcrumbList,
-    ZoruBreadcrumbPage,
-    ZoruBreadcrumbSeparator,
-    ZoruButton,
-    ZoruCard,
-    ZoruCheckbox,
-    ZoruInput,
-    ZoruLabel,
-    ZoruPageDescription,
-    ZoruPageHeader,
-    ZoruPageHeading,
-    ZoruPageTitle,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    ZoruSeparator,
-    ZoruSkeleton,
-    ZoruSwitch,
-    ZoruTextarea,
-    zoruSonnerToast,
-} from '@/components/zoruui';
 
 const TIMEZONES = [
     'UTC',

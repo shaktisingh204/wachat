@@ -1,25 +1,31 @@
 'use client';
 
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+} from '@/components/zoruui';
+import {
+  Archive,
+  Download,
+  ToggleLeft,
+  ToggleRight,
+  Trash2,
+  X } from 'lucide-react';
+
 /**
  * Filters + bulk bar for the BOM list. Pure presentation — parent owns
  * the filter values and forwards via `onChange`-style props.
  */
 
-import { Archive, Download, ToggleLeft, ToggleRight, Trash2, X } from 'lucide-react';
-
-import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruCardContent,
-    ZoruInput,
-    ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-} from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 
 export type BomStatusFilter = 'all' | 'active' | 'inactive' | 'draft' | 'archived';

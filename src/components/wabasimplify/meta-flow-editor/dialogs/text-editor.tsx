@@ -1,8 +1,6 @@
 'use client';
 
-import { ZoruLabel } from '@/components/zoruui';
-import { ZoruTextarea } from '@/components/zoruui';
-import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
+import { ZoruLabel, ZoruTextarea, ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
 import { DynamicBooleanInput } from '../shared/dynamic-boolean-input';
 
 /**

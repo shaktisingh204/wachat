@@ -1,23 +1,5 @@
 'use client';
 
-/**
- * Wachat Media Library — ZoruUI migration.
- * Uses the composed `ZoruFilesPage` (toolbar + grid/list + 5 dialogs:
- * preview, rename, delete, share, upload). Same data + handlers as the
- * legacy version — all wired through `wachat-features.actions`.
- */
-
-import * as React from 'react';
-import { useEffect, useState, useTransition, useCallback } from 'react';
-import { Image as ImageIcon } from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-import {
-  deleteMediaItem,
-  getMediaLibrary,
-  saveMediaItem,
-} from '@/app/actions/wachat-features.actions';
-
 import {
   ZoruBreadcrumb,
   ZoruBreadcrumbItem,
@@ -31,6 +13,28 @@ import {
   useZoruToast,
   type ZoruFileEntity,
 } from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition,
+  useCallback } from 'react';
+import { Image as ImageIcon } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import {
+  deleteMediaItem,
+  getMediaLibrary,
+  saveMediaItem,
+  } from '@/app/actions/wachat-features.actions';
+
+/**
+ * Wachat Media Library — ZoruUI migration.
+ * Uses the composed `ZoruFilesPage` (toolbar + grid/list + 5 dialogs:
+ * preview, rename, delete, share, upload). Same data + handlers as the
+ * legacy version — all wired through `wachat-features.actions`.
+ */
+
+import * as React from 'react';
 
 export const dynamic = 'force-dynamic';
 

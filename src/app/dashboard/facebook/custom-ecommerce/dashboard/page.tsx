@@ -1,5 +1,11 @@
 "use client";
 
+import { ZoruSkeleton } from '@/components/zoruui';
+import {
+  useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { LoaderCircle } from "lucide-react";
+
 /**
  * /dashboard/facebook/custom-ecommerce/dashboard
  *
@@ -7,12 +13,6 @@
  * (the new account-level overview lives at the parent route). Restyled
  * with neutral zoru tokens.
  */
-
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { LoaderCircle } from "lucide-react";
-
-import { ZoruSkeleton } from "@/components/zoruui";
 
 export default function CustomEcommerceDashboardRedirect() {
   const router = useRouter();

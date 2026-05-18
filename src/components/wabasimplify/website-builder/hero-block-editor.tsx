@@ -1,18 +1,29 @@
-
 'use client';
 
-import { ZoruLabel, ZoruButton } from '@/components/zoruui';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruTextarea } from '@/components/zoruui';
-import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
-import { ZoruAccordion, ZoruAccordionContent, ZoruAccordionItem, ZoruAccordionTrigger } from '@/components/zoruui';
-import { ZoruSwitch } from '@/components/zoruui';
-import { ZoruSeparator } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
+import {
+  ZoruLabel,
+  ZoruButton,
+  ZoruInput,
+  ZoruTextarea,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruAccordion,
+  ZoruAccordionContent,
+  ZoruAccordionItem,
+  ZoruAccordionTrigger,
+  ZoruSwitch,
+  ZoruSeparator,
+  ZoruAlert,
+  ZoruAlertTitle,
+  ZoruAlertDescription,
+} from '@/components/zoruui';
 import { Plus, Trash2, Upload } from 'lucide-react';
 import Image from 'next/image';
 import { v4 as uuidv4 } from 'uuid';
-import { ZoruAlert, ZoruAlertTitle, ZoruAlertDescription } from '@/components/zoruui';
+
 import { Lightbulb } from 'lucide-react';
 import { SabFilePickerButton, SabFileUrlInput } from '@/components/sabfiles';
 
@@ -55,7 +66,6 @@ export function HeroBlockEditor({ settings, onUpdate }: { settings: any, onUpdat
         const newImages = (settings.slideshowImages || []).filter((_: any, i: number) => i !== index);
         handleUpdate('slideshowImages', newImages);
     };
-
 
     return (
         <div className="space-y-4">

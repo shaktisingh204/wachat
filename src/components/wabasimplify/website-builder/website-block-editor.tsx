@@ -1,9 +1,19 @@
-
-
 'use client';
 
-import React from 'react';
-import { WebsiteBlock, EcommProduct, WithId } from '@/lib/definitions';
+import {
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardDescription,
+  ZoruCardFooter,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruButton,
+  ZoruSelect,
+} from '@/components/zoruui';
+import {
+  WebsiteBlock,
+  EcommProduct,
+  WithId } from '@/lib/definitions';
 import { HeroBlockEditor } from './hero-block-editor';
 import { FeaturedProductsBlockEditor } from './featured-products-block-editor';
 import { RichTextBlockEditor } from './rich-text-block-editor';
@@ -27,8 +37,9 @@ import { SectionBlockEditor } from './section-block-editor';
 import { ColumnsBlockEditor } from './columns-block-editor';
 import { ColumnBlockEditor } from './column-block-editor';
 import { CartBlockEditor } from './cart-block-editor';
-import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardFooter, ZoruCardHeader, ZoruCardTitle, ZoruButton } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
+
+import React from 'react';
+
 import { Trash2 } from 'lucide-react';
 import { FaqBlockEditor } from './faq-block-editor';
 import { ProductBlockEditor } from './product-block-editor';

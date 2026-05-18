@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruStatCard } from '@/components/zoruui';
+import { FileMinus, BadgeDollarSign, Hourglass, Link2 } from 'lucide-react';
+
 /**
  * KPI strip for the Debit Notes list page — 4 stat cards per §1D.1.
  *
@@ -9,9 +12,6 @@
  */
 
 import * as React from 'react';
-import { FileMinus, BadgeDollarSign, Hourglass, Link2 } from 'lucide-react';
-
-import { ZoruStatCard } from '@/components/zoruui';
 
 import type { DebitNoteKpis } from '@/app/actions/crm/debit-notes.actions';
 

@@ -1,8 +1,5 @@
-
 'use client';
 
-import { useActionState, useEffect, useRef } from 'react';
-import { useFormStatus } from 'react-dom';
 import {
   ZoruCard,
   ZoruCardContent,
@@ -10,15 +7,21 @@ import {
   ZoruCardFooter,
   ZoruCardHeader,
   ZoruCardTitle,
+  ZoruButton,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSeparator,
 } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruLabel } from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect,
+  useRef } from 'react';
+import { useFormStatus } from 'react-dom';
 import { LoaderCircle, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { handleUpdateProjectSettings } from '@/app/actions/project.actions';
-import type { WithId, Project } from '@/lib/definitions';
-import { ZoruSeparator } from '../ui/separator';
+import type { WithId,
+  Project } from '@/lib/definitions';
 
 const initialState = {
   message: null,

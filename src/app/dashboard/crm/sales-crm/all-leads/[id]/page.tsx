@@ -1,5 +1,23 @@
 'use client';
 
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruProgress,
+  ZoruSkeleton,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  useParams,
+  useRouter,
+  useSearchParams } from 'next/navigation';
+import { Plus,
+  Sparkles } from 'lucide-react';
+
 /**
  * Lead detail page (§1D.2 + follow-up additions).
  *
@@ -18,20 +36,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useParams, useRouter, useSearchParams } from 'next/navigation';
-import { Plus, Sparkles } from 'lucide-react';
 
-import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruCardContent,
-    ZoruCardHeader,
-    ZoruCardTitle,
-    ZoruProgress,
-    ZoruSkeleton,
-    useZoruToast,
-} from '@/components/zoruui';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import { statusToTone } from '@/components/crm/status-pill';

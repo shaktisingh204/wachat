@@ -1,45 +1,57 @@
 'use client';
 
-import { useActionState, useEffect, useState, useTransition, useCallback } from 'react';
-import { LoaderCircle, Save, Shield, Plus, Trash2 } from 'lucide-react';
-import { getSession } from '@/app/actions/user.actions';
-import { saveRolePermissions, saveRole, deleteRole } from '@/app/actions/crm-roles.actions';
-import type { WithId, User } from '@/lib/definitions';
-
 import {
-    ZoruAccordion,
-    ZoruAccordionContent,
-    ZoruAccordionItem,
-    ZoruAccordionTrigger,
-    ZoruAlertDialog,
-    ZoruAlertDialogAction,
-    ZoruAlertDialogCancel,
-    ZoruAlertDialogContent,
-    ZoruAlertDialogDescription,
-    ZoruAlertDialogFooter,
-    ZoruAlertDialogHeader,
-    ZoruAlertDialogTitle,
-    ZoruAlertDialogTrigger,
-    ZoruButton,
-    ZoruCheckbox,
-    ZoruDialog,
-    ZoruDialogContent,
-    ZoruDialogDescription,
-    ZoruDialogFooter,
-    ZoruDialogHeader,
-    ZoruDialogTitle,
-    ZoruDialogTrigger,
-    ZoruInput,
-    ZoruLabel,
-    ZoruSkeleton,
-    ZoruTable,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-    useZoruToast,
+  ZoruAccordion,
+  ZoruAccordionContent,
+  ZoruAccordionItem,
+  ZoruAccordionTrigger,
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruAlertDialogTrigger,
+  ZoruButton,
+  ZoruCheckbox,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruDialogTrigger,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSkeleton,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  useZoruToast,
 } from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect,
+  useState,
+  useTransition,
+  useCallback } from 'react';
+import { LoaderCircle,
+  Save,
+  Shield,
+  Plus,
+  Trash2 } from 'lucide-react';
+import { getSession } from '@/app/actions/user.actions';
+import { saveRolePermissions,
+  saveRole,
+  deleteRole } from '@/app/actions/crm-roles.actions';
+import type { WithId,
+  User } from '@/lib/definitions';
+
 import { CrmPageHeader } from '../../_components/crm-page-header';
 
 const initialState = { message: undefined, error: undefined };

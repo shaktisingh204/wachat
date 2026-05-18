@@ -1,5 +1,3 @@
-
-
 import React from 'react';
 import { getEcommShopBySlug } from '@/app/actions/custom-ecommerce.actions';
 import { notFound } from 'next/navigation';

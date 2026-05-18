@@ -1,7 +1,8 @@
+import { ZoruCard } from '@/components/zoruui';
+import { Receipt } from 'lucide-react';
+
 export const dynamic = 'force-dynamic';
 
-import { Receipt } from 'lucide-react';
-import { ZoruCard } from '@/components/zoruui';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 import {
   ReportToolbar,

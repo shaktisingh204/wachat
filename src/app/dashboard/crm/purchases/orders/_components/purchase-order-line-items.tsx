@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruButton, ZoruCard, ZoruInput } from '@/components/zoruui';
+import { Plus, Trash2 } from 'lucide-react';
+
 /**
  * <PurchaseOrderLineItems> — line-items table for `<PurchaseOrderForm>`.
  *
@@ -10,9 +13,7 @@
  */
 
 import * as React from 'react';
-import { Plus, Trash2 } from 'lucide-react';
 
-import { ZoruButton, ZoruCard, ZoruInput } from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import type { CrmPurchaseOrderLineItem } from '@/lib/rust-client/crm-purchase-orders';
 

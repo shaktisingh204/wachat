@@ -1,4 +1,3 @@
-
 import { NextRequest, NextResponse } from 'next/server';
 import { handleFormSubmission } from '@/app/actions/crm-forms.actions';
 import { getErrorMessage } from '@/lib/utils';

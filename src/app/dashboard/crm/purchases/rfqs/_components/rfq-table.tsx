@@ -1,5 +1,14 @@
 'use client';
 
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruDropdownMenu,
+  ZoruDropdownMenuContent,
+  ZoruDropdownMenuItem,
+  ZoruDropdownMenuSeparator,
+  ZoruDropdownMenuTrigger,
+} from '@/components/zoruui';
 /**
  * <RfqTable> — the table-view body of the canonical RFQs list. Pure
  * presentation; the parent owns filters / selection.
@@ -13,15 +22,6 @@
 import * as React from 'react';
 import Link from 'next/link';
 
-import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruDropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-} from '@/components/zoruui';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 

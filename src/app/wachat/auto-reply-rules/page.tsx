@@ -1,32 +1,5 @@
 'use client';
 
-/**
- * /wachat/auto-reply-rules — keyword-based auto-reply rules (ZoruUI).
- *
- * Rule list (with create/edit sheet + delete confirm) — server actions and
- * data are unchanged from the Clay version.
- *
- * TODO: drag-reorder. Stubbed — list renders in insertion order; reorder
- * persistence not implemented in this phase.
- */
-
-import * as React from 'react';
-import {
-  useActionState,
-  useCallback,
-  useEffect,
-  useState,
-  useTransition,
-} from 'react';
-import { Bot, Loader, Plus, Trash2 } from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-import {
-  deleteAutoReplyRule,
-  getAutoReplyRules,
-  saveAutoReplyRule,
-} from '@/app/actions/wachat-features.actions';
-
 import {
   ZoruAlertDialog,
   ZoruAlertDialogAction,
@@ -74,6 +47,36 @@ import {
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useActionState,
+  useCallback,
+  useEffect,
+  useState,
+  useTransition,
+  } from 'react';
+import { Bot,
+  Loader,
+  Plus,
+  Trash2 } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import {
+  deleteAutoReplyRule,
+  getAutoReplyRules,
+  saveAutoReplyRule,
+  } from '@/app/actions/wachat-features.actions';
+
+/**
+ * /wachat/auto-reply-rules — keyword-based auto-reply rules (ZoruUI).
+ *
+ * Rule list (with create/edit sheet + delete confirm) — server actions and
+ * data are unchanged from the Clay version.
+ *
+ * TODO: drag-reorder. Stubbed — list renders in insertion order; reorder
+ * persistence not implemented in this phase.
+ */
+
+import * as React from 'react';
 
 type AutoReplyRule = {
   _id: string;

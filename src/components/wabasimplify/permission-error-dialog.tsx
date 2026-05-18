@@ -1,4 +1,3 @@
-
 'use client';
 
 import {
@@ -7,12 +6,15 @@ import {
   ZoruDialogDescription,
   ZoruDialogHeader,
   ZoruDialogTitle,
+  ZoruAlert,
+  ZoruAlertDescription,
+  ZoruAlertTitle,
+  ZoruButton,
 } from '@/components/zoruui';
-import { ZoruAlert, ZoruAlertDescription, ZoruAlertTitle } from '@/components/zoruui';
 import { AlertCircle, Facebook } from 'lucide-react';
-import type { WithId, Project } from '@/lib/definitions';
+import type { WithId,
+  Project } from '@/lib/definitions';
 import { FacebookIcon } from './custom-sidebar-components';
-import { ZoruButton } from '../ui/button';
 
 interface PermissionErrorDialogProps {
   isOpen: boolean;

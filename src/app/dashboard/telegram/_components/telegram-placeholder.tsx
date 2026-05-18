@@ -1,7 +1,8 @@
 'use client';
 
-import * as React from 'react';
 import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
+import * as React from 'react';
+
 import { type LucideIcon } from 'lucide-react';
 
 export interface TelegramPlaceholderProps {

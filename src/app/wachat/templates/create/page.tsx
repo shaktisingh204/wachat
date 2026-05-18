@@ -1,51 +1,5 @@
 'use client';
 
-/**
- * Template Creator — full-featured WhatsApp Cloud API template builder,
- * rebuilt on ZoruUI primitives.
- *
- * Same data flow as before. Submit-for-review uses ZoruDialog confirm.
- * Live preview lives in a ZoruCard on the right pane.
- */
-
-import * as React from 'react';
-import {
-  Suspense,
-  useState,
-  useTransition,
-} from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import {
-  ArrowLeft,
-  Send,
-  Image as ImageIcon,
-  Video,
-  FileText,
-  Type,
-  Plus,
-  Trash2,
-  RefreshCw,
-  Sparkles,
-  Smartphone,
-  Globe,
-  ShoppingBag,
-  LayoutGrid,
-  MessageSquare,
-  Shield,
-  Clock,
-  MapPin,
-  Copy,
-  ExternalLink,
-  Phone,
-  Hash,
-  CircleAlert,
-  Wand,
-  Eye,
-} from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-import { handleCreateTemplate } from '@/app/actions/template.actions';
-
 import {
   ZoruBreadcrumb,
   ZoruBreadcrumbItem,
@@ -81,6 +35,53 @@ import {
   cn,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  Suspense,
+  useState,
+  useTransition,
+  } from 'react';
+import { useRouter,
+  useSearchParams } from 'next/navigation';
+import {
+  ArrowLeft,
+  Send,
+  Image as ImageIcon,
+  Video,
+  FileText,
+  Type,
+  Plus,
+  Trash2,
+  RefreshCw,
+  Sparkles,
+  Smartphone,
+  Globe,
+  ShoppingBag,
+  LayoutGrid,
+  MessageSquare,
+  Shield,
+  Clock,
+  MapPin,
+  Copy,
+  ExternalLink,
+  Phone,
+  Hash,
+  CircleAlert,
+  Wand,
+  Eye,
+  } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import { handleCreateTemplate } from '@/app/actions/template.actions';
+
+/**
+ * Template Creator — full-featured WhatsApp Cloud API template builder,
+ * rebuilt on ZoruUI primitives.
+ *
+ * Same data flow as before. Submit-for-review uses ZoruDialog confirm.
+ * Live preview lives in a ZoruCard on the right pane.
+ */
+
+import * as React from 'react';
 
 export const dynamic = 'force-dynamic';
 

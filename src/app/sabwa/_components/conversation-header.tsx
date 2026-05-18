@@ -1,3 +1,25 @@
+import {
+  ZoruAvatar,
+  ZoruAvatarFallback,
+  ZoruAvatarImage,
+  ZoruButton,
+  ZoruDropdownMenu,
+  ZoruDropdownMenuContent,
+  ZoruDropdownMenuItem,
+  ZoruDropdownMenuSeparator,
+  ZoruDropdownMenuTrigger,
+} from '@/components/zoruui';
+import {
+  ArrowLeft,
+  MoreVertical,
+  PanelRightClose,
+  PanelRightOpen,
+  Phone,
+  Search,
+  Users,
+  Video,
+  } from 'lucide-react';
+
 /**
  * ConversationHeader — top bar of the middle pane in the SabWa inbox.
  *
@@ -11,28 +33,7 @@
 'use client';
 
 import * as React from 'react';
-import {
-  ArrowLeft,
-  MoreVertical,
-  PanelRightClose,
-  PanelRightOpen,
-  Phone,
-  Search,
-  Users,
-  Video,
-} from 'lucide-react';
 
-import {
-  ZoruAvatar,
-  ZoruAvatarFallback,
-  ZoruAvatarImage,
-  ZoruButton,
-  ZoruDropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-} from '@/components/zoruui';
 import { cn } from '@/lib/utils';
 import { formatJid, useResolveJid } from '@/lib/sabwa/format-jid';
 import { useSabwaSession } from '@/lib/sabwa/session-context';

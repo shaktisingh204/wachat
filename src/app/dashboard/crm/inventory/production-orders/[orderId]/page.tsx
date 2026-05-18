@@ -1,3 +1,7 @@
+import { ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, ZoruProgress } from '@/components/zoruui';
+import {
+  notFound } from 'next/navigation';
+
 /**
  * Production-order detail page — §1D.2 bar.
  *
@@ -14,15 +18,7 @@
  * Right rail: BOM ref summary card.
  */
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
 
-import {
-  ZoruCard,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruProgress,
-} from '@/components/zoruui';
 import { EntityDetailShell, type EntityStatusTone } from '@/components/crm/entity-detail-shell';
 
 import { getProductionOrderById } from '@/app/actions/crm-production-orders.actions';

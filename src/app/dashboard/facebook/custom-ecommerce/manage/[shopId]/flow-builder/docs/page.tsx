@@ -1,18 +1,5 @@
 "use client";
 
-/**
- * /dashboard/facebook/custom-ecommerce/manage/[shopId]/flow-builder/docs
- *
- * Inline reference for the flow builder. All sections live inside a
- * `ZoruAccordion` (per the directive). Visuals are rebuilt on top of zoru
- * primitives — no clay, no @/components/ui/*, no wabasimplify visuals.
- */
-
-import * as React from "react";
-import Link from "next/link";
-import { useParams } from "next/navigation";
-import { ChevronLeft } from "lucide-react";
-
 import {
   ZoruAccordion,
   ZoruAccordionContent,
@@ -26,7 +13,21 @@ import {
   ZoruCardHeader,
   ZoruCardTitle,
   ZoruSeparator,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  useParams } from "next/navigation";
+import { ChevronLeft } from "lucide-react";
+
+/**
+ * /dashboard/facebook/custom-ecommerce/manage/[shopId]/flow-builder/docs
+ *
+ * Inline reference for the flow builder. All sections live inside a
+ * `ZoruAccordion` (per the directive). Visuals are rebuilt on top of zoru
+ * primitives — no clay, no @/components/ui/*, no wabasimplify visuals.
+ */
+
+import * as React from "react";
+import Link from "next/link";
 
 const blockDocs: Array<{
   title: string;

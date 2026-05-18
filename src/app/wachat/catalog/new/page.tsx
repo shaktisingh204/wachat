@@ -1,10 +1,5 @@
 'use client';
 
-import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
-import { useSearchParams } from 'next/navigation';
-
-import { ProductForm } from '@/components/wabasimplify/product-form';
 import {
   ZoruBreadcrumb,
   ZoruBreadcrumbItem,
@@ -18,6 +13,13 @@ import {
   ZoruPageHeading,
   ZoruPageTitle,
 } from '@/components/zoruui';
+import {
+  ArrowLeft } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
+
+import { ProductForm } from '@/components/wabasimplify/product-form';
+
+import Link from 'next/link';
 
 export default function NewProductPage() {
   const searchParams = useSearchParams();

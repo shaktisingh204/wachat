@@ -1,28 +1,5 @@
 'use client';
 
-/**
- * BulkActionsClient (wachat-local, ZoruUI)
- *
- * The bulk-operations workspace: pick targets, then either
- *   (a) replicate an existing template across all selected projects,
- *   (b) upload one CSV and round-robin a broadcast across them,
- *   (c) jump to the bulk template builder.
- *
- * Server-actions preserved 1:1:
- *   handleApplyTemplateToProjects, handleBulkBroadcast.
- */
-
-import * as React from 'react';
-import { useEffect, useRef, useState, useTransition } from 'react';
-import { useFormStatus } from 'react-dom';
-import { useRouter } from 'next/navigation';
-import { FileText, Loader2, Send } from 'lucide-react';
-import type { WithId } from 'mongodb';
-
-import type { Project, Template } from '@/lib/definitions';
-import { handleApplyTemplateToProjects } from '@/app/actions/template.actions';
-import { handleBulkBroadcast } from '@/app/actions/broadcast.actions';
-
 import {
   ZoruButton,
   ZoruCard,
@@ -40,6 +17,36 @@ import {
   ZoruSelectValue,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useEffect,
+  useRef,
+  useState,
+  useTransition } from 'react';
+import { useFormStatus } from 'react-dom';
+import { useRouter } from 'next/navigation';
+import { FileText,
+  Loader2,
+  Send } from 'lucide-react';
+import type { WithId } from 'mongodb';
+
+import type { Project,
+  Template } from '@/lib/definitions';
+import { handleApplyTemplateToProjects } from '@/app/actions/template.actions';
+import { handleBulkBroadcast } from '@/app/actions/broadcast.actions';
+
+/**
+ * BulkActionsClient (wachat-local, ZoruUI)
+ *
+ * The bulk-operations workspace: pick targets, then either
+ *   (a) replicate an existing template across all selected projects,
+ *   (b) upload one CSV and round-robin a broadcast across them,
+ *   (c) jump to the bulk template builder.
+ *
+ * Server-actions preserved 1:1:
+ *   handleApplyTemplateToProjects, handleBulkBroadcast.
+ */
+
+import * as React from 'react';
 
 interface BulkActionsClientProps {
   sourceProjectName: string;

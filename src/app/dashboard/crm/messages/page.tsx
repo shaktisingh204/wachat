@@ -1,12 +1,7 @@
-import { MessageSquare } from 'lucide-react';
-
+import { ZoruCard, ZoruPageDescription, ZoruPageHeader, ZoruPageHeading, ZoruPageTitle } from '@/components/zoruui';
 import {
-  ZoruCard,
-  ZoruPageDescription,
-  ZoruPageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-} from '@/components/zoruui';
+  MessageSquare } from 'lucide-react';
+
 import { listConversations } from '@/app/actions/worksuite/chat.actions';
 
 import { ConversationsPane } from './_components/conversations-pane';

@@ -1,42 +1,5 @@
 'use client';
 
-/**
- * /dashboard/facebook/events — Facebook Page events.
- *
- * Lists upcoming events on the connected Page, exposes a "New event" dialog
- * (name/description/place/start_time), and opens a details ZoruSheet on
- * click to surface attending counts and an attendee list. Cancel/delete is
- * a confirm-step via ZoruAlertDialog.
- *
- * Server actions live in `@/app/actions/facebook.actions`. The rust client
- * may currently return "not implemented" — in that case the page renders
- * the error inline and remains usable for the create dialog.
- */
-
-import * as React from 'react';
-import { useCallback, useEffect, useState, useTransition } from 'react';
-import { formatDistanceToNow } from 'date-fns';
-import {
-  AlertCircle,
-  CalendarDays,
-  MapPin,
-  MoreHorizontal,
-  Plus,
-  RefreshCw,
-  Trash2,
-  Users,
-} from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-import {
-  getFacebookEvents,
-  getEventDetails,
-  handleCreateFacebookEvent,
-  deleteFacebookEvent,
-  getEventAttendees,
-} from '@/app/actions/facebook.actions';
-import type { FacebookEvent } from '@/lib/definitions';
-
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -80,6 +43,47 @@ import {
   ZoruTextarea,
   zoruSonnerToast,
 } from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useState,
+  useTransition } from 'react';
+import { formatDistanceToNow } from 'date-fns';
+import {
+  AlertCircle,
+  CalendarDays,
+  MapPin,
+  MoreHorizontal,
+  Plus,
+  RefreshCw,
+  Trash2,
+  Users,
+  } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import {
+  getFacebookEvents,
+  getEventDetails,
+  handleCreateFacebookEvent,
+  deleteFacebookEvent,
+  getEventAttendees,
+  } from '@/app/actions/facebook.actions';
+import type { FacebookEvent } from '@/lib/definitions';
+
+/**
+ * /dashboard/facebook/events — Facebook Page events.
+ *
+ * Lists upcoming events on the connected Page, exposes a "New event" dialog
+ * (name/description/place/start_time), and opens a details ZoruSheet on
+ * click to surface attending counts and an attendee list. Cancel/delete is
+ * a confirm-step via ZoruAlertDialog.
+ *
+ * Server actions live in `@/app/actions/facebook.actions`. The rust client
+ * may currently return "not implemented" — in that case the page renders
+ * the error inline and remains usable for the create dialog.
+ */
+
+import * as React from 'react';
 
 interface Attendee {
   id?: string;

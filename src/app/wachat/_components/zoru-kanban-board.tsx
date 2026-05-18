@@ -1,43 +1,5 @@
 "use client";
 
-/**
- * /wachat/chat/kanban — ZoruUI rebuild of `KanbanBoard`.
- *
- * Conversations grouped by status into columns. Each column is a
- * ZoruCard, each conversation is a row card with avatar + badge.
- *
- * Server-action wiring preserved:
- *   - getKanbanData(projectId)
- *   - saveKanbanStatuses(projectId, names)
- *   - handleUpdateContactStatus(contactId, newStatus, assignedAgentId)
- *
- * Drag-and-drop is intentionally stubbed (the legacy version pulled in
- * @dnd-kit/core for cross-column reordering). Status changes happen
- * via the per-row ZoruDropdownMenu instead.
- *
- * TODO: drag-reorder — re-introduce @dnd-kit/core (DndContext +
- * useDroppable on columns + useDraggable on cards) and call
- * handleUpdateContactStatus from the drop handler. Until then the
- * dropdown menu is the only path to move a contact between lists.
- */
-
-import * as React from "react";
-import { useEffect, useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
-import { AlertCircle, MessageSquare, MoreHorizontal, Plus } from "lucide-react";
-
-import {
-  getKanbanData,
-  saveKanbanStatuses,
-} from "@/app/actions/project.actions";
-import { handleUpdateContactStatus } from "@/app/actions/contact.actions";
-import type {
-  WithId,
-  Contact,
-  Project,
-  KanbanColumnData,
-} from "@/lib/definitions";
-
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -62,7 +24,51 @@ import {
   ZoruSkeleton,
   useZoruToast,
   cn,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { AlertCircle,
+  MessageSquare,
+  MoreHorizontal,
+  Plus } from "lucide-react";
+
+import {
+  getKanbanData,
+  saveKanbanStatuses,
+  } from "@/app/actions/project.actions";
+import { handleUpdateContactStatus } from "@/app/actions/contact.actions";
+import type {
+  WithId,
+  Contact,
+  Project,
+  KanbanColumnData,
+  } from "@/lib/definitions";
+
+/**
+ * /wachat/chat/kanban — ZoruUI rebuild of `KanbanBoard`.
+ *
+ * Conversations grouped by status into columns. Each column is a
+ * ZoruCard, each conversation is a row card with avatar + badge.
+ *
+ * Server-action wiring preserved:
+ *   - getKanbanData(projectId)
+ *   - saveKanbanStatuses(projectId, names)
+ *   - handleUpdateContactStatus(contactId, newStatus, assignedAgentId)
+ *
+ * Drag-and-drop is intentionally stubbed (the legacy version pulled in
+ * @dnd-kit/core for cross-column reordering). Status changes happen
+ * via the per-row ZoruDropdownMenu instead.
+ *
+ * TODO: drag-reorder — re-introduce @dnd-kit/core (DndContext +
+ * useDroppable on columns + useDraggable on cards) and call
+ * handleUpdateContactStatus from the drop handler. Until then the
+ * dropdown menu is the only path to move a contact between lists.
+ */
+
+import * as React from "react";
 
 /* ── skeleton ─────────────────────────────────────────────────────── */
 

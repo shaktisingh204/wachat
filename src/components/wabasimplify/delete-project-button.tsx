@@ -1,8 +1,5 @@
-
 'use client';
 
-import { useActionState, useEffect, useState } from 'react';
-import { useFormStatus } from 'react-dom';
 import {
   ZoruAlertDialog,
   ZoruAlertDialogAction,
@@ -13,8 +10,14 @@ import {
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
   ZoruAlertDialogTrigger,
+  ZoruButton,
 } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect,
+  useState } from 'react';
+import { useFormStatus } from 'react-dom';
+
 import { LoaderCircle, Trash2 } from 'lucide-react';
 import { handleDeleteUserProject } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';

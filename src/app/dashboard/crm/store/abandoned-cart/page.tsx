@@ -1,25 +1,27 @@
+import {
+  ZoruBadge,
+  ZoruCard,
+  ZoruInput,
+  ZoruLabel,
+  ZoruStatCard,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+} from '@/components/zoruui';
+import {
+  AlertTriangle } from 'lucide-react';
+
+import { CrmPageHeader } from '../../_components/crm-page-header';
+
 /**
  * Abandoned carts list — `/dashboard/crm/store/abandoned-cart`.
  *
  * KPI strip + filter + per-row "Send recovery email" (stub).
  */
 
-import { AlertTriangle } from 'lucide-react';
-
-import { CrmPageHeader } from '../../_components/crm-page-header';
-import {
-    ZoruBadge,
-    ZoruCard,
-    ZoruInput,
-    ZoruLabel,
-    ZoruStatCard,
-    ZoruTable,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-} from '@/components/zoruui';
 import {
     getAbandonedCarts,
     getStorefrontList,

@@ -1,13 +1,5 @@
 'use client';
 
-import * as React from 'react';
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { CircleAlert } from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-import { AgentsRolesSettingsTab } from '@/components/wabasimplify/agents-roles-settings-tab';
-import { getSession } from '@/app/actions/index.ts';
 import {
   ZoruBreadcrumb,
   ZoruBreadcrumbItem,
@@ -25,6 +17,17 @@ import {
   ZoruPageTitle,
   ZoruSkeleton,
 } from '@/components/zoruui';
+import {
+  useEffect,
+  useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { CircleAlert } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import { AgentsRolesSettingsTab } from '@/components/wabasimplify/agents-roles-settings-tab';
+import { getSession } from '@/app/actions/index.ts';
+
+import * as React from 'react';
 
 export const dynamic = 'force-dynamic';
 

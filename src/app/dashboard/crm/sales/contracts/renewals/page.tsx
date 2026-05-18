@@ -1,3 +1,21 @@
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+} from '@/components/zoruui';
+import {
+  ObjectId } from 'mongodb';
+import { redirect } from 'next/navigation';
+import { ArrowRight,
+  CalendarClock,
+  FileSignature } from 'lucide-react';
+
 /**
  * CRM Contract Renewals — read-only renewals view.
  *
@@ -9,21 +27,6 @@
  */
 
 import Link from 'next/link';
-import { ObjectId } from 'mongodb';
-import { redirect } from 'next/navigation';
-import { ArrowRight, CalendarClock, FileSignature } from 'lucide-react';
-
-import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruTable,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-} from '@/components/zoruui';
 
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';

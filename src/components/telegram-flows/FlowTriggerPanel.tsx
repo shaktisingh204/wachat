@@ -1,5 +1,6 @@
 'use client';
 
+import { ZoruInput, ZoruLabel, ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
 /**
  * Trigger configuration panel — rendered above the canvas and inside the
  * inspector when no node is selected. The shape mirrors `FlowTrigger` on the
@@ -10,16 +11,6 @@ import type {
   FlowTrigger,
   TriggerKind,
 } from '@/lib/rust-client/telegram-flows';
-
-import {
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-} from '@/components/zoruui';
 
 const TRIGGER_KINDS: Array<{ value: TriggerKind; label: string; hint: string }> = [
   { value: 'incoming_message', label: 'Incoming message', hint: 'Any user text message' },

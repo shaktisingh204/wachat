@@ -1,27 +1,5 @@
 'use client';
 
-/**
- * Notifications Center — §1D enhanced list page.
- *
- * - KPI strip (4): Unread · Today · This week · Types count
- * - Filter row: type · read status · date range
- * - Sections: Unread first (highlighted), then Read
- * - Each card: title, body, linked entity chip, age, mark-read, dismiss, open link
- */
-
-import * as React from 'react';
-import Link from 'next/link';
-import {
-  Bell,
-  Check,
-  CheckCheck,
-  ExternalLink,
-  Filter,
-  Inbox,
-  X,
-} from 'lucide-react';
-
-import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   ZoruBadge,
   ZoruButton,
@@ -37,6 +15,30 @@ import {
   cn,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  Bell,
+  Check,
+  CheckCheck,
+  ExternalLink,
+  Filter,
+  Inbox,
+  X,
+  } from 'lucide-react';
+
+import { EntityListShell } from '@/components/crm/entity-list-shell';
+
+/**
+ * Notifications Center — §1D enhanced list page.
+ *
+ * - KPI strip (4): Unread · Today · This week · Types count
+ * - Filter row: type · read status · date range
+ * - Sections: Unread first (highlighted), then Read
+ * - Each card: title, body, linked entity chip, age, mark-read, dismiss, open link
+ */
+
+import * as React from 'react';
+import Link from 'next/link';
+
 import {
   getMyNotifications,
   markAllNotificationsRead,

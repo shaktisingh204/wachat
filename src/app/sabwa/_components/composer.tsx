@@ -1,5 +1,17 @@
 "use client";
 
+import { ZoruButton, ZoruInput, ZoruPopover, ZoruPopoverContent, ZoruPopoverTrigger, ZoruTextarea } from '@/components/zoruui';
+import {
+  CalendarClock,
+  Loader2,
+  Mic,
+  Paperclip,
+  Send,
+  Smile,
+  Square,
+  X,
+  } from "lucide-react";
+
 /**
  * Composer — bottom-of-conversation input used by SabWa Inbox / Chats /
  * Groups.
@@ -22,25 +34,7 @@
  */
 
 import * as React from "react";
-import {
-  CalendarClock,
-  Loader2,
-  Mic,
-  Paperclip,
-  Send,
-  Smile,
-  Square,
-  X,
-} from "lucide-react";
 
-import {
-  ZoruButton,
-  ZoruInput,
-  ZoruPopover,
-  ZoruPopoverContent,
-  ZoruPopoverTrigger,
-  ZoruTextarea,
-} from "@/components/zoruui";
 import { SabFilePickerButton } from "@/components/sabfiles";
 import type { SabFilePick } from "@/components/sabfiles";
 import { cn } from "@/lib/utils";

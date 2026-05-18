@@ -1,5 +1,30 @@
 'use client';
 
+import {
+  ZoruButton,
+  ZoruCard,
+  ZoruCheckbox,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruTextarea,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  useActionState } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { useFormStatus } from 'react-dom';
+import { ArrowLeft,
+  LoaderCircle,
+  Plus,
+  Save,
+  Trash2 } from 'lucide-react';
+
 // TODO 1E.sweep: frequency/weekday dropdowns -> <EnumFormField enumName="weekday|recurringFrequency">; shift -> <EntityFormField entity="...">; employees -> <EntityMultiFormField entity="employee">. See plan §1E.
 
 /**
@@ -12,26 +37,6 @@
  */
 
 import * as React from 'react';
-import { useActionState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { useFormStatus } from 'react-dom';
-import { ArrowLeft, LoaderCircle, Plus, Save, Trash2 } from 'lucide-react';
-
-import {
-    ZoruButton,
-    ZoruCard,
-    ZoruCheckbox,
-    ZoruInput,
-    ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    ZoruTextarea,
-    useZoruToast,
-} from '@/components/zoruui';
 
 import { saveShiftRotation } from '@/app/actions/crm-shift-rotations.actions';
 import type {

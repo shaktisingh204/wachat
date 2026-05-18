@@ -1,13 +1,17 @@
+import { ZoruButton } from '@/components/zoruui';
+import {
+  notFound,
+  redirect } from 'next/navigation';
+import { ArrowLeft,
+  Columns3 } from 'lucide-react';
+
 /**
  * Edit pipeline page — server wrapper that loads the pipeline by id and
  * passes it as `initialData` to `<PipelineForm />`.
  */
 
 import Link from 'next/link';
-import { notFound, redirect } from 'next/navigation';
-import { ArrowLeft, Columns3 } from 'lucide-react';
 
-import { ZoruButton } from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { getSession } from '@/app/actions/user.actions';
 import { getPipelineById } from '@/app/actions/crm-pipelines.actions';

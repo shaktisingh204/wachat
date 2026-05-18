@@ -1,13 +1,17 @@
+import { ZoruSkeleton } from '@/components/zoruui';
+import {
+  EmbeddedForm } from '@/components/wabasimplify/embedded-form';
+import { getCrmFormById } from '@/app/actions/crm-forms.actions';
+import { useEffect,
+  useState,
+  use } from 'react';
+import type { WithId,
+  CrmForm } from '@/lib/definitions';
+
 // This file is deprecated and no longer used for embedding.
 // It is kept for historical purposes or if a direct link to the form is needed in the future.
 
 'use client';
-
-import { EmbeddedForm } from '@/components/wabasimplify/embedded-form';
-import { getCrmFormById } from '@/app/actions/crm-forms.actions';
-import { useEffect, useState, use } from 'react';
-import type { WithId, CrmForm } from '@/lib/definitions';
-import { ZoruSkeleton } from '@/components/zoruui';
 
 export default function EmbeddedFormPage(props: { params: Promise<{ formId: string }> }) {
     const params = use(props.params);

@@ -1,5 +1,13 @@
 'use client';
 
+import { ZoruButton, ZoruCard, ZoruInput, ZoruLabel, ZoruTextarea, useZoruToast } from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect,
+  useState } from 'react';
+import { useRouter,
+  useSearchParams } from 'next/navigation';
+
 /**
  * <DealForm> — shared by Create + Edit flows for the canonical Deals module.
  *
@@ -12,17 +20,7 @@
  */
 
 import * as React from 'react';
-import { useActionState, useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
 
-import {
-  ZoruButton,
-  ZoruCard,
-  ZoruInput,
-  ZoruLabel,
-  ZoruTextarea,
-  useZoruToast,
-} from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { EnumFormField } from '@/components/crm/enum-form-field';
 import { EntityMultiFormField } from '@/components/crm/entity-multi-form-field';

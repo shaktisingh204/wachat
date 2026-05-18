@@ -1,4 +1,5 @@
 'use client';
+
 import { useState } from 'react';
 import type { Block } from '@/lib/sabflow/types';
 import { VariableInput } from '../VariableInput';

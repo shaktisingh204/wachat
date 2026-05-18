@@ -1,40 +1,5 @@
 "use client";
 
-/**
- * /dashboard/facebook/reviews — ZoruUI rebuild.
- *
- * Average rating + review-count stat strip, list of review cards with:
- *   - reply-review dialog (composer)
- *   - report-review alert dialog
- *
- * Same server-action wiring as the legacy page:
- *   - getPageRatings(projectId)
- *
- * (Reply / report payloads are kept client-side and forwarded to a toast —
- *  the public Graph review-write endpoint isn't exposed in
- *  facebook.actions.ts, so behaviour matches what was wired before.)
- */
-
-import * as React from "react";
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-  useTransition,
-} from "react";
-import { formatDistanceToNow } from "date-fns";
-import {
-  AlertTriangle,
-  Flag,
-  Loader2,
-  MessageSquareReply,
-  Send,
-  Star,
-} from "lucide-react";
-
-import { getPageRatings } from "@/app/actions/facebook.actions";
-
 import {
   ZoruAlertDialog,
   ZoruAlertDialogAction,
@@ -67,7 +32,42 @@ import {
   ZoruTextarea,
   cn,
   useZoruToast,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useTransition,
+  } from "react";
+import { formatDistanceToNow } from "date-fns";
+import {
+  AlertTriangle,
+  Flag,
+  Loader2,
+  MessageSquareReply,
+  Send,
+  Star,
+  } from "lucide-react";
+
+import { getPageRatings } from "@/app/actions/facebook.actions";
+
+/**
+ * /dashboard/facebook/reviews — ZoruUI rebuild.
+ *
+ * Average rating + review-count stat strip, list of review cards with:
+ *   - reply-review dialog (composer)
+ *   - report-review alert dialog
+ *
+ * Same server-action wiring as the legacy page:
+ *   - getPageRatings(projectId)
+ *
+ * (Reply / report payloads are kept client-side and forwarded to a toast —
+ *  the public Graph review-write endpoint isn't exposed in
+ *  facebook.actions.ts, so behaviour matches what was wired before.)
+ */
+
+import * as React from "react";
 
 import {
   FbBreadcrumb,

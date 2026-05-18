@@ -1,5 +1,44 @@
 'use client';
 
+import {
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruButton,
+  ZoruCard,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruTextarea,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  useParams } from 'next/navigation';
+import {
+    ArrowLeft,
+  ExternalLink,
+  FileUp,
+  LoaderCircle,
+  Pencil,
+  Plane,
+  Plus,
+  Trash2,
+  } from 'lucide-react';
+
 /**
  * Employee visa-details sub-tab —
  *   `/dashboard/hrm/payroll/employees/[employeeId]/visa-details`.
@@ -12,44 +51,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
-import {
-    ArrowLeft,
-    ExternalLink,
-    FileUp,
-    LoaderCircle,
-    Pencil,
-    Plane,
-    Plus,
-    Trash2,
-} from 'lucide-react';
 
-import {
-    ZoruAlertDialog,
-    ZoruAlertDialogAction,
-    ZoruAlertDialogCancel,
-    ZoruAlertDialogContent,
-    ZoruAlertDialogDescription,
-    ZoruAlertDialogFooter,
-    ZoruAlertDialogHeader,
-    ZoruAlertDialogTitle,
-    ZoruButton,
-    ZoruCard,
-    ZoruDialog,
-    ZoruDialogContent,
-    ZoruDialogFooter,
-    ZoruDialogHeader,
-    ZoruDialogTitle,
-    ZoruInput,
-    ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    ZoruTextarea,
-    useZoruToast,
-} from '@/components/zoruui';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';

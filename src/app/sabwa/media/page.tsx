@@ -1,46 +1,5 @@
 "use client";
 
-/**
- * /sabwa/media — Unified media library for the connected SabWa session.
- *
- * Filter strip (chat / date range / type segmented buttons), masonry grid
- * (pure CSS columns — no extra deps), lightbox dialog with prev/next
- * arrows, download, push-to-SabFiles, and open-in-chat. Bulk select for
- * batch download and batch push.
- *
- * Data layer: walks chat list via `useChats`, then for each chat fetches
- * messages via `getChatMessages` and filters to media types. Until the
- * Rust engine is wired the chat list is empty and we render the empty
- * state with full UI controls visible.
- *
- * Rendered with ZoruUI primitives — no shadcn `/ui/*` imports. Tabs UI
- * is intentionally avoided per the ZoruUI design rules; the media-type
- * switcher is a segmented ZoruButton group.
- */
-
-import * as React from "react";
-import Link from "next/link";
-import {
-  ArrowLeft,
-  ArrowRight,
-  CalendarDays,
-  CheckSquare,
-  CircleSlash,
-  Download,
-  ExternalLink,
-  FileAudio,
-  FileText,
-  FileVideo,
-  Folder,
-  Image as ImageIcon,
-  Loader2,
-  Mic,
-  RefreshCw,
-  Smartphone,
-  Upload,
-  X,
-} from "lucide-react";
-
 import {
   ZoruBadge,
   ZoruBreadcrumb,
@@ -69,7 +28,49 @@ import {
   ZoruSkeleton,
   cn,
   useZoruToast,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  ArrowLeft,
+  ArrowRight,
+  CalendarDays,
+  CheckSquare,
+  CircleSlash,
+  Download,
+  ExternalLink,
+  FileAudio,
+  FileText,
+  FileVideo,
+  Folder,
+  Image as ImageIcon,
+  Loader2,
+  Mic,
+  RefreshCw,
+  Smartphone,
+  Upload,
+  X,
+  } from "lucide-react";
+
+/**
+ * /sabwa/media — Unified media library for the connected SabWa session.
+ *
+ * Filter strip (chat / date range / type segmented buttons), masonry grid
+ * (pure CSS columns — no extra deps), lightbox dialog with prev/next
+ * arrows, download, push-to-SabFiles, and open-in-chat. Bulk select for
+ * batch download and batch push.
+ *
+ * Data layer: walks chat list via `useChats`, then for each chat fetches
+ * messages via `getChatMessages` and filters to media types. Until the
+ * Rust engine is wired the chat list is empty and we render the empty
+ * state with full UI controls visible.
+ *
+ * Rendered with ZoruUI primitives — no shadcn `/ui/*` imports. Tabs UI
+ * is intentionally avoided per the ZoruUI design rules; the media-type
+ * switcher is a segmented ZoruButton group.
+ */
+
+import * as React from "react";
+import Link from "next/link";
+
 import { getChatMessages } from "@/app/actions/sabwa.actions";
 import { useChats } from "@/lib/sabwa/use-sabwa-data";
 import { useSabwaSession } from "@/lib/sabwa/session-context";

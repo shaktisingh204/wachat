@@ -1,5 +1,42 @@
 'use client';
 
+import {
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruAlertDialogTrigger,
+  ZoruBadge,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  ZoruCheckbox,
+  ZoruInput,
+  ZoruLabel,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  ZoruSkeleton,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  useParams,
+  useRouter } from 'next/navigation';
+import { LoaderCircle,
+  Pause,
+  Play,
+  Trash2,
+  Webhook } from 'lucide-react';
+
 /**
  * CRM Settings — Webhook subscription detail (Phase 7 foundation).
  *
@@ -9,37 +46,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
-import { LoaderCircle, Pause, Play, Trash2, Webhook } from 'lucide-react';
 
-import {
-    ZoruAlertDialog,
-    ZoruAlertDialogAction,
-    ZoruAlertDialogCancel,
-    ZoruAlertDialogContent,
-    ZoruAlertDialogDescription,
-    ZoruAlertDialogFooter,
-    ZoruAlertDialogHeader,
-    ZoruAlertDialogTitle,
-    ZoruAlertDialogTrigger,
-    ZoruBadge,
-    ZoruBreadcrumb,
-    ZoruBreadcrumbItem,
-    ZoruBreadcrumbLink,
-    ZoruBreadcrumbList,
-    ZoruBreadcrumbPage,
-    ZoruBreadcrumbSeparator,
-    ZoruButton,
-    ZoruCard,
-    ZoruCheckbox,
-    ZoruInput,
-    ZoruLabel,
-    ZoruPageHeader,
-    ZoruPageHeading,
-    ZoruPageTitle,
-    ZoruSkeleton,
-    useZoruToast,
-} from '@/components/zoruui';
 import {
     deleteWebhookSubscription,
     getWebhookSubscription,

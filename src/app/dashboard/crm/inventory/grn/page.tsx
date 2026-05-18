@@ -1,3 +1,6 @@
+import { ZoruButton } from '@/components/zoruui';
+import { PackageCheck, Plus } from 'lucide-react';
+
 /**
  * CRM GRN list — `/dashboard/crm/inventory/grn`.
  *
@@ -8,9 +11,7 @@
  */
 
 import Link from 'next/link';
-import { PackageCheck, Plus } from 'lucide-react';
 
-import { ZoruButton } from '@/components/zoruui';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 import { getGrnKpis, listGrns } from '@/app/actions/crm/grns.actions';
 import { GrnListClient } from './_components/grn-list-client';

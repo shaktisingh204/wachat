@@ -1,74 +1,5 @@
 "use client";
 
-/**
- * /dashboard/facebook/custom-ecommerce/manage/[shopId]/flow-builder
- *
- * Conversational flow-builder shell. Same canvas runtime, same handlers,
- * same data flow as the legacy page — only the visual chrome (header,
- * save bar, blocks/flows sidebar, properties panel, mobile sheets) was
- * rebuilt on top of zoru primitives.
- *
- * TODO(meta-zoru phase 7): the canvas itself (node renderer, edge SVG,
- * pan/zoom math) is intentionally preserved as an opaque internal — the
- * interaction layer is too large to refactor as part of this phase. A
- * follow-up batch should also restyle the per-node card visuals.
- */
-
-import * as React from "react";
-import {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-  useTransition,
-} from "react";
-import { useParams } from "next/navigation";
-import Link from "next/link";
-import {
-  AlertCircle,
-  ArrowRightLeft,
-  BookOpen,
-  Bot,
-  Clock,
-  File as FileIcon,
-  Frame,
-  GitFork,
-  ImageIcon,
-  LoaderCircle,
-  Maximize,
-  MessageSquare,
-  Minimize,
-  PackageCheck,
-  PanelLeft,
-  Play,
-  Plus,
-  Save,
-  Settings2,
-  ShoppingCart,
-  ToggleRight,
-  Trash2,
-  Type,
-  View,
-  ZoomIn,
-  ZoomOut,
-} from "lucide-react";
-
-import { getEcommShopById } from "@/app/actions/custom-ecommerce.actions";
-import {
-  deleteEcommFlow,
-  getEcommFlowById,
-  getEcommFlows,
-  saveEcommFlow,
-} from "@/app/actions/custom-ecommerce-flow.actions";
-import type {
-  EcommFlow,
-  EcommFlowEdge,
-  EcommFlowNode,
-  EcommShop,
-} from "@/lib/definitions";
-import type { WithId } from "mongodb";
-import { cn } from "@/lib/utils";
-
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -100,7 +31,77 @@ import {
   ZoruSwitch,
   ZoruTextarea,
   useZoruToast,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useTransition,
+  } from "react";
+import { useParams } from "next/navigation";
+import Link from "next/link";
+import {
+  AlertCircle,
+  ArrowRightLeft,
+  BookOpen,
+  Bot,
+  Clock,
+  File as FileIcon,
+  Frame,
+  GitFork,
+  ImageIcon,
+  LoaderCircle,
+  Maximize,
+  MessageSquare,
+  Minimize,
+  PackageCheck,
+  PanelLeft,
+  Play,
+  Plus,
+  Save,
+  Settings2,
+  ShoppingCart,
+  ToggleRight,
+  Trash2,
+  Type,
+  View,
+  ZoomIn,
+  ZoomOut,
+  } from "lucide-react";
+
+import { getEcommShopById } from "@/app/actions/custom-ecommerce.actions";
+import {
+  deleteEcommFlow,
+  getEcommFlowById,
+  getEcommFlows,
+  saveEcommFlow,
+  } from "@/app/actions/custom-ecommerce-flow.actions";
+import type {
+  EcommFlow,
+  EcommFlowEdge,
+  EcommFlowNode,
+  EcommShop,
+  } from "@/lib/definitions";
+import type { WithId } from "mongodb";
+import { cn } from "@/lib/utils";
+
+/**
+ * /dashboard/facebook/custom-ecommerce/manage/[shopId]/flow-builder
+ *
+ * Conversational flow-builder shell. Same canvas runtime, same handlers,
+ * same data flow as the legacy page — only the visual chrome (header,
+ * save bar, blocks/flows sidebar, properties panel, mobile sheets) was
+ * rebuilt on top of zoru primitives.
+ *
+ * TODO(meta-zoru phase 7): the canvas itself (node renderer, edge SVG,
+ * pan/zoom math) is intentionally preserved as an opaque internal — the
+ * interaction layer is too large to refactor as part of this phase. A
+ * follow-up batch should also restyle the per-node card visuals.
+ */
+
+import * as React from "react";
+
 import { SabFileUrlInput } from "@/components/sabfiles";
 
 type NodeType =

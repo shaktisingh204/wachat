@@ -1,31 +1,5 @@
 "use client";
 
-/**
- * /dashboard/facebook/commerce/products — catalog grid for the active
- * Facebook project. Fetches catalogs via getCatalogs, syncs via
- * syncCatalogs, and exposes a per-catalog drill-in to
- * /commerce/products/[catalogId]. Pure ZoruUI primitives — no clay,
- * no sync-button composite.
- */
-
-import * as React from "react";
-import { useEffect, useState, useTransition, useCallback } from "react";
-import Link from "next/link";
-import {
-  AlertCircle,
-  ExternalLink,
-  Lock,
-  RefreshCw,
-  ServerCog,
-  ShoppingBag,
-} from "lucide-react";
-import type { WithId } from "mongodb";
-
-import { getCatalogs, syncCatalogs } from "@/app/actions/catalog.actions";
-import { getProjectById } from "@/app/actions/project.actions";
-import type { Catalog } from "@/lib/definitions";
-import { useProject } from "@/context/project-context";
-
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -39,7 +13,38 @@ import {
   ZoruEmptyState,
   ZoruSkeleton,
   useZoruToast,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition,
+  useCallback } from "react";
+import Link from "next/link";
+import {
+  AlertCircle,
+  ExternalLink,
+  Lock,
+  RefreshCw,
+  ServerCog,
+  ShoppingBag,
+  } from "lucide-react";
+import type { WithId } from "mongodb";
+
+import { getCatalogs,
+  syncCatalogs } from "@/app/actions/catalog.actions";
+import { getProjectById } from "@/app/actions/project.actions";
+import type { Catalog } from "@/lib/definitions";
+import { useProject } from "@/context/project-context";
+
+/**
+ * /dashboard/facebook/commerce/products — catalog grid for the active
+ * Facebook project. Fetches catalogs via getCatalogs, syncs via
+ * syncCatalogs, and exposes a per-catalog drill-in to
+ * /commerce/products/[catalogId]. Pure ZoruUI primitives — no clay,
+ * no sync-button composite.
+ */
+
+import * as React from "react";
 
 import {
   CommerceBreadcrumb,

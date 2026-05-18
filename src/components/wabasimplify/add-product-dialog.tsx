@@ -1,4 +1,3 @@
-
 'use client';
 
 // This component is deprecated and its contents have been moved to a dedicated page.

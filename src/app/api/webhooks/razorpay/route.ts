@@ -1,4 +1,3 @@
-
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { connectToDatabase } from '@/lib/mongodb';

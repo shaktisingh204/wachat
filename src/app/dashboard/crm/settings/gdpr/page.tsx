@@ -1,9 +1,5 @@
 'use client';
 
-import * as React from 'react';
-import { useActionState, useEffect, useState, useTransition } from 'react';
-import { ShieldCheck, LoaderCircle } from 'lucide-react';
-
 import {
   ZoruButton,
   ZoruCard,
@@ -18,6 +14,16 @@ import {
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect,
+  useState,
+  useTransition } from 'react';
+import { ShieldCheck,
+  LoaderCircle } from 'lucide-react';
+
+import * as React from 'react';
+
 import { CrmPageHeader } from '../../_components/crm-page-header';
 import {
   getGdprSettings,

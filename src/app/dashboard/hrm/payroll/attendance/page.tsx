@@ -1,5 +1,26 @@
 'use client';
 
+import {
+  ZoruButton,
+  ZoruInput,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+} from '@/components/zoruui';
+import {
+  CalendarCheck,
+  CheckSquare,
+  Plus,
+  Eye } from 'lucide-react';
+
 /**
  * Attendance — list page.
  *
@@ -11,23 +32,6 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { CalendarCheck, CheckSquare, Plus, Eye } from 'lucide-react';
-
-import {
-    ZoruButton,
-    ZoruInput,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    ZoruTable,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-} from '@/components/zoruui';
 
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { EntityListShell } from '@/components/crm/entity-list-shell';

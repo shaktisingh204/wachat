@@ -1,5 +1,3 @@
-
-
 'use server';
 
 import { getSession } from '@/app/actions/user.actions';
@@ -58,7 +56,6 @@ export async function getSiteBySlug(slug: string): Promise<WithId<Website> | nul
         return null;
     }
 }
-
 
 export async function createSite(prevState: any, formData: FormData): Promise<{ message?: string, error?: string, siteId?: string }> {
     const session = await getSession();

@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruButton } from '@/components/zoruui';
+import { Copy, LayoutGrid, List } from 'lucide-react';
+
 /**
  * Compound header tool group for the leads list page:
  *  • Saved-view dropdown (LeadsViewsMenu)
@@ -9,9 +12,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { Copy, LayoutGrid, List } from 'lucide-react';
 
-import { ZoruButton } from '@/components/zoruui';
 import { LeadsViewsMenu } from './leads-filters';
 
 export type LeadsViewMode = 'table' | 'kanban';

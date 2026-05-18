@@ -1,5 +1,25 @@
 'use client';
 
+import {
+  ZoruButton,
+  ZoruCheckbox,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+} from '@/components/zoruui';
+import {
+  format } from 'date-fns';
+import {
+  Banknote,
+  Check,
+  Pencil,
+  RefreshCw,
+  Trash2,
+  } from 'lucide-react';
+
 /**
  * <PayrollRunsTable> — 10-column canonical table for the payroll-runs
  * list (per §1D.1). Columns: select · Period · Pay date · Employees
@@ -12,25 +32,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { format } from 'date-fns';
-import {
-  Banknote,
-  Check,
-  Pencil,
-  RefreshCw,
-  Trash2,
-} from 'lucide-react';
 
-import {
-  ZoruButton,
-  ZoruCheckbox,
-  ZoruTable,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from '@/components/zoruui';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import type {
   CrmPayrollRunDoc,

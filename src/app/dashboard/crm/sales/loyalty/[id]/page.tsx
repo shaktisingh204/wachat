@@ -1,3 +1,7 @@
+import { ZoruButton, ZoruCard } from '@/components/zoruui';
+import { notFound } from 'next/navigation';
+import { Pencil } from 'lucide-react';
+
 /**
  * Loyalty program detail — `/dashboard/crm/sales/loyalty/[id]`.
  *
@@ -7,10 +11,7 @@
  */
 
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import { Pencil } from 'lucide-react';
 
-import { ZoruButton, ZoruCard } from '@/components/zoruui';
 import { EntityDetailShell, type EntityStatusTone } from '@/components/crm/entity-detail-shell';
 import { getLoyaltyProgramById } from '@/app/actions/crm-loyalty.actions';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';

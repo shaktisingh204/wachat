@@ -1,5 +1,6 @@
 'use client';
 
+import { ZoruCard, useZoruToast } from '@/components/zoruui';
 /**
  * <PurchaseOrdersListClient> — canonical PO list view per
  * CRM_REBUILD_PLAN §1D.1.
@@ -19,7 +20,6 @@
 
 import * as React from 'react';
 
-import { ZoruCard, useZoruToast } from '@/components/zoruui';
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import type { PurchaseOrderKpiSummary } from '@/app/actions/crm/purchase-orders.kpis';

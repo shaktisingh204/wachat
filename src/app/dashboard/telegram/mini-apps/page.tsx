@@ -1,44 +1,5 @@
 'use client';
 
-/**
- * Telegram Mini Apps — per-project registry of Web Apps.
- *
- * The page is multi-tenant: every read/write goes through the active
- * project from {@link useProject}. When there's no active project we
- * render the empty-state. All file inputs (the optional photo on a
- * mini-app's branding card) come from SabFiles via `<SabFileUrlInput>`
- * — there is no free-text URL paste anywhere on this page (project
- * policy).
- */
-
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  useTransition,
-} from 'react';
-import {
-  AppWindow,
-  Copy,
-  ExternalLink,
-  LayoutGrid,
-  MoreHorizontal,
-  Plus,
-  Search,
-  Send,
-  ShieldCheck,
-  Trash2,
-  Pencil,
-  Power,
-  Smartphone,
-  Monitor,
-  Link as LinkIcon,
-  Loader2,
-  X as XIcon,
-} from 'lucide-react';
-
 import {
   ZoruButton,
   ZoruCard,
@@ -83,6 +44,45 @@ import {
   cn,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useTransition,
+  } from 'react';
+import {
+  AppWindow,
+  Copy,
+  ExternalLink,
+  LayoutGrid,
+  MoreHorizontal,
+  Plus,
+  Search,
+  Send,
+  ShieldCheck,
+  Trash2,
+  Pencil,
+  Power,
+  Smartphone,
+  Monitor,
+  Link as LinkIcon,
+  Loader2,
+  X as XIcon,
+  } from 'lucide-react';
+
+/**
+ * Telegram Mini Apps — per-project registry of Web Apps.
+ *
+ * The page is multi-tenant: every read/write goes through the active
+ * project from {@link useProject}. When there's no active project we
+ * render the empty-state. All file inputs (the optional photo on a
+ * mini-app's branding card) come from SabFiles via `<SabFileUrlInput>`
+ * — there is no free-text URL paste anywhere on this page (project
+ * policy).
+ */
+
 import { SabFileUrlInput } from '@/components/sabfiles';
 
 import { useProject } from '@/context/project-context';

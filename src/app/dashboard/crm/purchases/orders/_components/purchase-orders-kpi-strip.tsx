@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruStatCard } from '@/components/zoruui';
+import { CheckCircle2, FileEdit, Hourglass, PackageCheck, PackageOpen, } from 'lucide-react';
+
 /**
  * <PurchaseOrdersKpiStrip> — KPI strip for the canonical PO list.
  *
@@ -9,15 +12,7 @@
  */
 
 import * as React from 'react';
-import {
-  CheckCircle2,
-  FileEdit,
-  Hourglass,
-  PackageCheck,
-  PackageOpen,
-} from 'lucide-react';
 
-import { ZoruStatCard } from '@/components/zoruui';
 import type { PurchaseOrderKpiSummary } from '@/app/actions/crm/purchase-orders.kpis';
 
 import type { PurchaseOrderPresetKey } from './types';

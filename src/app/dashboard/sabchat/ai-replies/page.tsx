@@ -1,20 +1,5 @@
 "use client";
 
-/**
- * /dashboard/sabchat/ai-replies — AI assistant configuration.
- *
- * Same `saveSabChatSettings` server action; pass-through hidden field
- * preserves all unrelated settings keys. Visual layer fully Zoru.
- */
-
-import { useEffect } from "react";
-import { useActionState } from "react";
-import { useFormStatus } from "react-dom";
-import { Bot, LoaderCircle, Save } from "lucide-react";
-
-import { saveSabChatSettings } from "@/app/actions/sabchat.actions";
-import { useProject } from "@/context/project-context";
-
 import {
   ZoruBreadcrumb,
   ZoruBreadcrumbItem,
@@ -36,7 +21,24 @@ import {
   ZoruSwitch,
   ZoruTextarea,
   useZoruToast,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  useEffect } from "react";
+import { useActionState } from "react";
+import { useFormStatus } from "react-dom";
+import { Bot,
+  LoaderCircle,
+  Save } from "lucide-react";
+
+import { saveSabChatSettings } from "@/app/actions/sabchat.actions";
+import { useProject } from "@/context/project-context";
+
+/**
+ * /dashboard/sabchat/ai-replies — AI assistant configuration.
+ *
+ * Same `saveSabChatSettings` server action; pass-through hidden field
+ * preserves all unrelated settings keys. Visual layer fully Zoru.
+ */
 
 const initialState: { message: string | null; error?: string } = {
   message: null,

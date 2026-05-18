@@ -1,3 +1,8 @@
+import { ZoruBadge, ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import {
+  notFound } from 'next/navigation';
+import Link from 'next/link';
+
 /**
  * Budget detail — `/dashboard/crm/budgets/[id]`.
  *
@@ -6,16 +11,6 @@
  * owner/approver chips, scenario switcher.
  */
 
-import { notFound } from 'next/navigation';
-import Link from 'next/link';
-
-import {
-  ZoruBadge,
-  ZoruCard,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-} from '@/components/zoruui';
 import { EntityDetailShell, type EntityStatusTone } from '@/components/crm/entity-detail-shell';
 import { getBudgetById } from '@/app/actions/crm-budgets.actions';
 

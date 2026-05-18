@@ -1,5 +1,23 @@
 'use client';
 
+import { ZoruButton, ZoruCard, ZoruInput, ZoruLabel, ZoruTextarea, useZoruToast } from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect,
+  useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useFormStatus } from 'react-dom';
+import {
+    ArrowLeft,
+  FileUp,
+  LoaderCircle,
+  Plus,
+  Save,
+  Trash2,
+  X,
+  } from 'lucide-react';
+
 // 1E.sweep done — caseType/severity/status converted to <EnumFormField> using
 // the dedicated `disciplinaryCaseType` / `disciplinarySeverity` /
 // `disciplinaryCaseStatus` enums (slugs preserved as the form's wire contract,
@@ -23,28 +41,6 @@
  * JSON input that `parseHearingsJson` decodes.
  */
 
-import { useActionState, useEffect, useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useFormStatus } from 'react-dom';
-import {
-    ArrowLeft,
-    FileUp,
-    LoaderCircle,
-    Plus,
-    Save,
-    Trash2,
-    X,
-} from 'lucide-react';
-
-import {
-    ZoruButton,
-    ZoruCard,
-    ZoruInput,
-    ZoruLabel,
-    ZoruTextarea,
-    useZoruToast,
-} from '@/components/zoruui';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
 import { EnumFormField } from '@/components/crm/enum-form-field';
 

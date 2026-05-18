@@ -1,5 +1,14 @@
 'use client';
-import { ZoruAccordion, ZoruAccordionContent, ZoruAccordionItem, ZoruAccordionTrigger, ZoruButton, ZoruCard, ZoruSkeleton } from '@/components/zoruui';
+
+import {
+  ZoruAccordion,
+  ZoruAccordionContent,
+  ZoruAccordionItem,
+  ZoruAccordionTrigger,
+  ZoruButton,
+  ZoruCard,
+  ZoruSkeleton,
+} from '@/components/zoruui';
 import { useState, useEffect, useTransition } from 'react';
 import { getCrmPipelines } from '@/app/actions/crm-pipelines.actions';
 import type { CrmPipeline } from '@/lib/definitions';

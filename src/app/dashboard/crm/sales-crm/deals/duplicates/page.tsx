@@ -1,3 +1,6 @@
+import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
+import { ArrowLeft, Copy } from 'lucide-react';
+
 /**
  * Deal duplicates — `/dashboard/crm/sales-crm/deals/duplicates`.
  *
@@ -7,13 +10,7 @@
  */
 
 import Link from 'next/link';
-import { ArrowLeft, Copy } from 'lucide-react';
 
-import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
-} from '@/components/zoruui';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
 import { findCrmDealDuplicates } from '@/app/actions/crm-deals.actions';
 

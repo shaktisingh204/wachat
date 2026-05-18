@@ -1,8 +1,6 @@
-
 'use client';
 
-import { ZoruButton, ZoruButton } from '@/components/zoruui';
-import { ZoruSeparator } from '@/components/zoruui';
+import { ZoruButton, ZoruSeparator, ZoruAccordion } from '@/components/zoruui';
 import { Type, Star, FileQuestion, Code, ShoppingBag, LayoutDashboard, Heading1, Image as ImageIcon, MousePointerClick, Video, Star as StarIcon, Minus, GalleryVertical, Rows as TabsIcon, PanelTopClose, ClipboardList, MapPin, Timer, Share2, Repeat, LayoutGrid, ShoppingCart as CartIcon, Zap } from 'lucide-react';
 import type { WebsiteBlock } from '@/lib/definitions';
 
@@ -57,7 +55,6 @@ const blockSections = [
         ]
     }
 ];
-
 
 interface BlockPaletteProps {
     onAddBlock: (type: WebsiteBlock['type']) => void;

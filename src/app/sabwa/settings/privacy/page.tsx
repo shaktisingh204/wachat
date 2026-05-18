@@ -1,41 +1,47 @@
 'use client';
 
-import * as React from 'react';
-import Link from 'next/link';
-import { ShieldCheck, KeyRound, Lock, UserX, Plus, Loader2, Smartphone } from 'lucide-react';
-import { toast } from 'sonner';
-
-import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
-import { ZoruSwitch } from '@/components/zoruui';
-import { ZoruLabel } from '@/components/zoruui';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruSeparator } from '@/components/zoruui';
 import {
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardDescription,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruButton,
+  ZoruSwitch,
+  ZoruLabel,
+  ZoruInput,
+  ZoruSeparator,
   ZoruSelect,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-} from '@/components/zoruui';
-import {
   ZoruDialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
-} from '@/components/zoruui';
-import {
   ZoruTable,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,
   ZoruTableHeader,
   ZoruTableRow,
+  ZoruEmptyState,
 } from '@/components/zoruui';
+import {
+  ShieldCheck,
+  KeyRound,
+  Lock,
+  UserX,
+  Plus,
+  Loader2,
+  Smartphone } from 'lucide-react';
+import { toast } from 'sonner';
 
-import { ZoruButton, ZoruEmptyState } from '@/components/zoruui';
+import * as React from 'react';
+import Link from 'next/link';
 
 import { SettingsTabs } from '../_components/settings-tabs';
 import {

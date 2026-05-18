@@ -1,33 +1,5 @@
 'use client';
 
-/**
- * Wachat Account Health — WABA and phone number health monitoring.
- */
-
-import * as React from 'react';
-import { useCallback, useEffect, useState, useTransition } from 'react';
-import {
-  Activity,
-  AppWindow,
-  Ban,
-  Building2,
-  CircleAlert,
-  CircleCheck,
-  Circle,
-  Lock,
-  Phone,
-  RefreshCw,
-  Smartphone,
-  TriangleAlert,
-} from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-import {
-  getWabaHealthStatus,
-  getPhoneNumberHealthStatus,
-  handleSetTwoStepVerificationPin,
-  getCommerceSettings,
-} from '@/app/actions/whatsapp.actions';
 import {
   ZoruBadge,
   ZoruBreadcrumb,
@@ -47,6 +19,39 @@ import {
   cn,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useState,
+  useTransition } from 'react';
+import {
+  Activity,
+  AppWindow,
+  Ban,
+  Building2,
+  CircleAlert,
+  CircleCheck,
+  Circle,
+  Lock,
+  Phone,
+  RefreshCw,
+  Smartphone,
+  TriangleAlert,
+  } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import {
+  getWabaHealthStatus,
+  getPhoneNumberHealthStatus,
+  handleSetTwoStepVerificationPin,
+  getCommerceSettings,
+  } from '@/app/actions/whatsapp.actions';
+
+/**
+ * Wachat Account Health — WABA and phone number health monitoring.
+ */
+
+import * as React from 'react';
 
 export const dynamic = 'force-dynamic';
 

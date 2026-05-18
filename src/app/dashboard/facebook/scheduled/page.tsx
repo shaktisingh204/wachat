@@ -1,43 +1,5 @@
 "use client";
 
-/**
- * /dashboard/facebook/scheduled — Scheduled posts queue, ZoruUI rebuild.
- *
- * Same handlers + server actions as before (`getScheduledPosts`,
- * `publishScheduledPost`, `handleUpdatePost`, `handleDeletePost`).
- * Visual layer: ZoruPageHeader + ZoruBreadcrumb, ZoruDataTable with
- * status/scheduled badges, EditScheduleSheet, CancelScheduleDialog.
- */
-
-import * as React from "react";
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-  useTransition,
-} from "react";
-import Image from "next/image";
-import Link from "next/link";
-import { format, formatDistanceToNow } from "date-fns";
-import type { ColumnDef } from "@tanstack/react-table";
-import {
-  CalendarClock,
-  CalendarRange,
-  Edit,
-  Image as ImageIcon,
-  Loader2,
-  Newspaper,
-  RefreshCw,
-  Send,
-} from "lucide-react";
-
-import {
-  getScheduledPosts,
-  publishScheduledPost,
-} from "@/app/actions/facebook.actions";
-import type { FacebookPost } from "@/lib/definitions";
-
 import {
   ZoruBadge,
   ZoruBreadcrumb,
@@ -57,7 +19,46 @@ import {
   ZoruPageTitle,
   ZoruSkeleton,
   useZoruToast,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useTransition,
+  } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { format,
+  formatDistanceToNow } from "date-fns";
+import type { ColumnDef } from "@tanstack/react-table";
+import {
+  CalendarClock,
+  CalendarRange,
+  Edit,
+  Image as ImageIcon,
+  Loader2,
+  Newspaper,
+  RefreshCw,
+  Send,
+  } from "lucide-react";
+
+import {
+  getScheduledPosts,
+  publishScheduledPost,
+  } from "@/app/actions/facebook.actions";
+import type { FacebookPost } from "@/lib/definitions";
+
+/**
+ * /dashboard/facebook/scheduled — Scheduled posts queue, ZoruUI rebuild.
+ *
+ * Same handlers + server actions as before (`getScheduledPosts`,
+ * `publishScheduledPost`, `handleUpdatePost`, `handleDeletePost`).
+ * Visual layer: ZoruPageHeader + ZoruBreadcrumb, ZoruDataTable with
+ * status/scheduled badges, EditScheduleSheet, CancelScheduleDialog.
+ */
+
+import * as React from "react";
 
 import { CancelScheduleDialog } from "../_components/cancel-schedule-dialog";
 import { EditScheduleSheet } from "../_components/edit-schedule-sheet";

@@ -1,32 +1,5 @@
 'use client';
 
-/**
- * DevicesClient — responsive Linked-Devices manager for SabWa.
- *
- * On mobile (and by default on md+) a card grid; on md+ users can flip
- * to a compact table view. Each session can be renamed or logged out via
- * dialogs; both confirm against the corresponding server action and
- * refresh the list on success.
- *
- * Rebuilt on ZoruUI primitives. The grid/table view-mode picker is a
- * segmented ZoruButton group (no tab UI per the ZoruUI design rules).
- */
-
-import * as React from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import {
-  Boxes,
-  LayoutGrid,
-  Loader2,
-  Pencil,
-  Plus,
-  RefreshCw,
-  Smartphone,
-  Table as TableIcon,
-} from 'lucide-react';
-import type { WithId } from 'mongodb';
-
 import {
   ZoruAlertDialog,
   ZoruAlertDialogAction,
@@ -71,6 +44,34 @@ import {
   cn,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+import {
+  Boxes,
+  LayoutGrid,
+  Loader2,
+  Pencil,
+  Plus,
+  RefreshCw,
+  Smartphone,
+  Table as TableIcon,
+  } from 'lucide-react';
+import type { WithId } from 'mongodb';
+
+/**
+ * DevicesClient — responsive Linked-Devices manager for SabWa.
+ *
+ * On mobile (and by default on md+) a card grid; on md+ users can flip
+ * to a compact table view. Each session can be renamed or logged out via
+ * dialogs; both confirm against the corresponding server action and
+ * refresh the list on success.
+ *
+ * Rebuilt on ZoruUI primitives. The grid/table view-mode picker is a
+ * segmented ZoruButton group (no tab UI per the ZoruUI design rules).
+ */
+
+import * as React from 'react';
+import Link from 'next/link';
 
 import { useProject } from '@/context/project-context';
 import {

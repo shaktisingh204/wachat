@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruStatCard } from '@/components/zoruui';
+import { Banknote, CheckCircle2, XCircle, Hourglass } from 'lucide-react';
+
 /**
  * KPI strip for the Payouts list page — 4 stat cards per §1D.1.
  *
@@ -11,9 +14,6 @@
  */
 
 import * as React from 'react';
-import { Banknote, CheckCircle2, XCircle, Hourglass } from 'lucide-react';
-
-import { ZoruStatCard } from '@/components/zoruui';
 
 import type { PayoutKpis } from '@/app/actions/crm/payouts.actions';
 

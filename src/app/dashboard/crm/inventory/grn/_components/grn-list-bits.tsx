@@ -1,5 +1,15 @@
 'use client';
 
+import { ZoruButton, ZoruInput, ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
+import {
+  ArrowRightCircle,
+  CalendarRange,
+  Download,
+  Search,
+  Trash2,
+  X,
+  } from 'lucide-react';
+
 /**
  * Presentational bits for the GRN list — KPI strip, filter toolbar,
  * bulk-bar, and CSV helpers. Extracted from `<GrnListClient>` to keep
@@ -9,24 +19,7 @@
  */
 
 import * as React from 'react';
-import {
-    ArrowRightCircle,
-    CalendarRange,
-    Download,
-    Search,
-    Trash2,
-    X,
-} from 'lucide-react';
 
-import {
-    ZoruButton,
-    ZoruInput,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-} from '@/components/zoruui';
 import { EntityPicker } from '@/components/crm/entity-picker';
 
 import type { CrmGrnDoc } from '@/lib/rust-client/crm-grns';

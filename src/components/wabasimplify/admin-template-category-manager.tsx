@@ -1,15 +1,30 @@
-
 'use client';
 
-import { useEffect, useState, useTransition, useRef } from 'react';
-import { getTemplateCategories, saveTemplateCategory, deleteTemplateCategory } from '@/app/actions/plan.actions';
+import {
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardDescription,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruButton,
+  ZoruInput,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableRow,
+} from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition,
+  useRef } from 'react';
+import { getTemplateCategories,
+  saveTemplateCategory,
+  deleteTemplateCategory } from '@/app/actions/plan.actions';
 import type { TemplateCategory } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
 import { useToast } from '@/hooks/use-toast';
-import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardHeader, ZoruCardTitle, ZoruButton } from '@/components/zoruui';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
-import { ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableRow } from '@/components/zoruui';
+
 import { LoaderCircle, Plus, Trash2 } from 'lucide-react';
 
 export function AdminTemplateCategoryManager() {

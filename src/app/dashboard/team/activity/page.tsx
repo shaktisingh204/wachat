@@ -1,42 +1,45 @@
 'use client';
 
-import * as React from 'react';
-import { format, formatDistanceToNow } from 'date-fns';
+import {
+  ZoruBadge,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruPageDescription,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  type ZoruBadgeProps,
+} from '@/components/zoruui';
+import {
+  format,
+  formatDistanceToNow } from 'date-fns';
 import {
     Activity,
-    ChevronLeft,
-    ChevronRight,
-    Clock,
-    FileText,
-    Loader,
-    MessageSquare,
-    Shield,
-    UserMinus,
-    UserPlus,
-} from 'lucide-react';
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  FileText,
+  Loader,
+  MessageSquare,
+  Shield,
+  UserMinus,
+  UserPlus,
+  } from 'lucide-react';
 
-import {
-    ZoruBadge,
-    ZoruBreadcrumb,
-    ZoruBreadcrumbItem,
-    ZoruBreadcrumbLink,
-    ZoruBreadcrumbList,
-    ZoruBreadcrumbPage,
-    ZoruBreadcrumbSeparator,
-    ZoruButton,
-    ZoruCard,
-    ZoruInput,
-    ZoruPageDescription,
-    ZoruPageHeader,
-    ZoruPageHeading,
-    ZoruPageTitle,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    type ZoruBadgeProps,
-} from '@/components/zoruui';
+import * as React from 'react';
+
 import { getActivityLogs } from '@/app/actions/activity.actions';
 import { getInvitedUsers } from '@/app/actions/team.actions';
 import type { ActivityLog, User, WithId } from '@/lib/definitions';

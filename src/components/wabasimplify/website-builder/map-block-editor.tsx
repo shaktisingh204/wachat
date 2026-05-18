@@ -1,21 +1,33 @@
-
 'use client';
 
-import { ZoruLabel, ZoruButton } from '@/components/zoruui';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
-import { ZoruAccordion, ZoruAccordionContent, ZoruAccordionItem, ZoruAccordionTrigger } from '@/components/zoruui';
-import { ZoruSwitch } from '@/components/zoruui';
-import { ZoruAlert, ZoruAlertTitle, ZoruAlertDescription } from '@/components/zoruui';
+import {
+  ZoruLabel,
+  ZoruButton,
+  ZoruInput,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruAccordion,
+  ZoruAccordionContent,
+  ZoruAccordionItem,
+  ZoruAccordionTrigger,
+  ZoruSwitch,
+  ZoruAlert,
+  ZoruAlertTitle,
+  ZoruAlertDescription,
+  ZoruTextarea,
+  ZoruSeparator,
+} from '@/components/zoruui';
 import { MapPin, Lightbulb } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ZoruButton } from '@/components/zoruui';
+import { Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger } from '@/components/ui/tabs';
 import { Plus, Trash2 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
-import { ZoruTextarea } from '@/components/zoruui';
-import { ZoruSeparator } from '@/components/zoruui';
-
 
 export function MapBlockEditor({ settings, onUpdate }: { settings: any, onUpdate: (newSettings: any) => void }) {
     const handleUpdate = (field: string, value: any) => {

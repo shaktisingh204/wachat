@@ -1,6 +1,5 @@
+import { ZoruProvider } from '@/components/zoruui';
 import "@/styles/zoruui.css";
-
-import { ZoruProvider } from "@/components/zoruui";
 
 export const metadata = {
   title: "ZoruUI — SabNode",

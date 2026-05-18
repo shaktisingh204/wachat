@@ -1,25 +1,7 @@
 'use client';
 
-/**
- * /wachat/conversation-summary — AI-aggregated timeline summary,
- * rebuilt on ZoruUI primitives.
- */
-
-import * as React from 'react';
-import { useEffect, useState, useTransition, useCallback } from 'react';
 import {
-  CircleX,
-  Search,
-  Loader2,
-  MessageSquare,
-} from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-import { useZoruToast } from '@/components/zoruui';
-import { getContactTimeline } from '@/app/actions/wachat-features.actions';
-import { getContactsPageData } from '@/app/actions/contact.actions';
-
-import {
+  useZoruToast,
   ZoruBreadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
@@ -32,6 +14,28 @@ import {
   ZoruBadge,
   ZoruEmptyState,
 } from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition,
+  useCallback } from 'react';
+import {
+  CircleX,
+  Search,
+  Loader2,
+  MessageSquare,
+  } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import { getContactTimeline } from '@/app/actions/wachat-features.actions';
+import { getContactsPageData } from '@/app/actions/contact.actions';
+
+/**
+ * /wachat/conversation-summary — AI-aggregated timeline summary,
+ * rebuilt on ZoruUI primitives.
+ */
+
+import * as React from 'react';
 
 export default function ConversationSummaryPage() {
   const { activeProject } = useProject();

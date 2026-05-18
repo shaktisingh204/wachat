@@ -1,15 +1,16 @@
-"use client";
-
-import React from 'react';
-import { useEditor } from '@/components/builder/editor-provider';
+import { ZoruButton, ZoruInput, ZoruLabel, ZoruSelect } from '@/components/zoruui';
+import {
+  useEditor } from '@/components/builder/editor-provider';
 import { WIDGET_REGISTRY } from '@/components/builder/registry';
 import { DraggableSidebarItem } from './draggable-item';
 import { StylePanel } from './style-panel';
 import { ThemePanel } from './theme-panel';
-import { ZoruButton, ZoruButton } from '@/components/zoruui';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'; // Assuming these exist usually
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruLabel } from '@/components/zoruui';
+
+"use client";
+
+import React from 'react';
+
 import { v4 as uuidv4 } from 'uuid';
 
 export const BuilderSidebar = () => {

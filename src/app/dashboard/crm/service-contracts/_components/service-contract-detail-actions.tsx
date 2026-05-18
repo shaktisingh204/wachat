@@ -1,13 +1,8 @@
 'use client';
 
-/**
- * <ServiceContractDetailActions> — 9 actions: Edit · Schedule visit ·
- * Renew · Mark closed · Send · Print · Archive · Delete · Activity.
- */
-
-import * as React from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { ZoruButton, useZoruToast } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
 import {
   Activity,
   Archive,
@@ -18,12 +13,16 @@ import {
   RefreshCcw,
   Send,
   Trash2,
-} from 'lucide-react';
+  } from 'lucide-react';
 
-import {
-  ZoruButton,
-  useZoruToast,
-} from '@/components/zoruui';
+/**
+ * <ServiceContractDetailActions> — 9 actions: Edit · Schedule visit ·
+ * Renew · Mark closed · Send · Print · Archive · Delete · Activity.
+ */
+
+import * as React from 'react';
+import Link from 'next/link';
+
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import {
   deleteServiceContract,

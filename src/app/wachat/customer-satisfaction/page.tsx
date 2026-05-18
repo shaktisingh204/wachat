@@ -1,28 +1,7 @@
 'use client';
 
-/**
- * Wachat Customer Satisfaction — ZoruUI rebuild.
- *
- * NPS-style dashboard: CSAT score card + rating histogram (greyscale bars)
- * + recent low-rating drawer. Differentiation by neutral fill, no hue.
- */
-
-import * as React from 'react';
-import { useEffect, useState, useTransition, useCallback, useMemo } from 'react';
 import {
-  CircleCheck,
-  CircleX,
-  Inbox,
-  RefreshCw,
-  Star,
-  TriangleAlert,
-} from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-import { useZoruToast } from '@/components/zoruui';
-import { getChatRatings } from '@/app/actions/wachat-features.actions';
-
-import {
+  useZoruToast,
   ZORU_CHART_PALETTE,
   ZoruBadge,
   ZoruBreadcrumb,
@@ -49,6 +28,32 @@ import {
   ZoruSkeleton,
   ZoruStatCard,
 } from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition,
+  useCallback,
+  useMemo } from 'react';
+import {
+  CircleCheck,
+  CircleX,
+  Inbox,
+  RefreshCw,
+  Star,
+  TriangleAlert,
+  } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import { getChatRatings } from '@/app/actions/wachat-features.actions';
+
+/**
+ * Wachat Customer Satisfaction — ZoruUI rebuild.
+ *
+ * NPS-style dashboard: CSAT score card + rating histogram (greyscale bars)
+ * + recent low-rating drawer. Differentiation by neutral fill, no hue.
+ */
+
+import * as React from 'react';
 
 function Stars({ count }: { count: number }) {
   return (

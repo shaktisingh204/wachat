@@ -1,59 +1,78 @@
-
 'use client';
 
-import { useState, useEffect, useCallback, useTransition, useRef } from 'react';
+import {
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruCardDescription,
+  ZoruInput,
+  ZoruScrollArea,
+  ZoruSeparator,
+  ZoruSkeleton,
+  ZoruAlert,
+  ZoruAlertDescription,
+  ZoruAlertTitle,
+  ZoruSheet,
+  ZoruSheetContent,
+  ZoruSheetDescription,
+  ZoruSheetTitle,
+  ZoruSheetTrigger,
+} from '@/components/zoruui';
+import {
+  useState,
+  useEffect,
+  useCallback,
+  useTransition,
+  useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { ZoruButton, ZoruButton } from '@/components/zoruui';
-import { ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription } from '@/components/zoruui';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruScrollArea } from '@/components/zoruui';
-import { ZoruSeparator } from '@/components/zoruui';
-import { 
-    MessageSquare, 
-    ToggleRight, 
-    GitFork, 
-    Play,
-    Trash2,
-    Save,
-    Plus,
-    Type,
-    LoaderCircle,
-    BookOpen,
-    PanelLeft,
-    Settings2,
-    Copy,
-    File as FileIcon,
-    ZoomIn,
-    ZoomOut,
-    Frame,
-    Maximize,
-    Minimize,
-    ImageIcon,
-    Clock,
-    Code,
-    Send,
-    Bot,
-    Mail,
-    Smartphone,
-    UserPlus,
-    QrCode,
-    Link as LinkIcon
+import {
+  MessageSquare,
+  ToggleRight,
+  GitFork,
+  Play,
+  Trash2,
+  Save,
+  Plus,
+  Type,
+  LoaderCircle,
+  BookOpen,
+  PanelLeft,
+  Settings2,
+  Copy,
+  File as FileIcon,
+  ZoomIn,
+  ZoomOut,
+  Frame,
+  Maximize,
+  Minimize,
+  ImageIcon,
+  Clock,
+  Code,
+  Send,
+  Bot,
+  Mail,
+  Smartphone,
+  UserPlus,
+  QrCode,
+  Link as LinkIcon,
 } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
-import { ZoruSkeleton } from '@/components/zoruui';
-import { ZoruAlert, ZoruAlertDescription, ZoruAlertTitle } from '@/components/zoruui';
 import { AlertCircle } from 'lucide-react';
 import {
   getFlowsForProject,
   getFlowById,
   saveFlow,
   deleteFlow,
-} from '@/app/actions/flow.actions';
-import type { Flow, FlowNode, FlowEdge } from '@/lib/definitions';
+  } from '@/app/actions/flow.actions';
+import type { Flow,
+  FlowNode,
+  FlowEdge } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
-import { ZoruSheet, ZoruSheetContent, ZoruSheetDescription, ZoruSheetTitle, ZoruSheetTrigger } from '@/components/zoruui';
+
 import { useProject } from '@/context/project-context';
 import { TestFlowDialog } from '@/components/wabasimplify/test-flow-dialog';
 import { generateFlowBuilderFlow } from '@/ai/flows/generate-flow-builder-flow';
@@ -82,7 +101,6 @@ const blockTypes = [
     { type: 'generateShortLink', label: 'Create Short Link', icon: LinkIcon },
     { type: 'generateQrCode', label: 'Generate QR Code', icon: QrCode },
 ];
-
 
 const NodePreview = ({ node }: { node: FlowNode }) => {
     const renderTextWithVariables = (text?: string) => {
@@ -292,7 +310,6 @@ const getNodeHandlePosition = (node: FlowNode, handleId: string) => {
         nodeHeight = 60 + (buttonCount * 20);
     }
 
-
     if (handleId.endsWith('-input')) {
         return { x: x, y: y + 30 };
     }
@@ -334,7 +351,6 @@ export function FlowBuilder() {
     
     const [prompt, setPrompt] = useState('');
     const [isGenerating, startGeneration] = useTransition();
-
 
     const [isBlocksSheetOpen, setIsBlocksSheetOpen] = useState(false);
     const [isPropsSheetOpen, setIsPropsSheetOpen] = useState(false);

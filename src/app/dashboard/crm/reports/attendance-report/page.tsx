@@ -1,7 +1,8 @@
+import { ZoruButton, ZoruCard } from '@/components/zoruui';
+import { CalendarDays } from 'lucide-react';
+
 export const dynamic = 'force-dynamic';
 
-import { CalendarDays } from 'lucide-react';
-import { ZoruButton, ZoruCard } from '@/components/zoruui';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 import { StatCard } from '../_components/report-toolbar';
 import { getAttendanceMatrix } from '@/app/actions/worksuite/reports.actions';

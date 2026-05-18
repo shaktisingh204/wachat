@@ -1,22 +1,19 @@
 'use client';
 
+import { ZORU_CHART_PALETTE, ZoruChart, ZoruChartContainer, ZoruChartTooltip } from '@/components/zoruui';
+import {
+  Users } from 'lucide-react';
+
+import type { SabwaAnalyticsTopContact } from '@/app/actions/sabwa.actions';
+
+import { EmptyState } from '@/app/sabwa/_components/empty-state';
+
 /**
  * ChartTopContacts — horizontal-style bar chart for top contacts by volume.
  * Greyscale palette via ZoruChart.
  */
 
 import * as React from 'react';
-import { Users } from 'lucide-react';
-
-import type { SabwaAnalyticsTopContact } from '@/app/actions/sabwa.actions';
-
-import { EmptyState } from '@/app/sabwa/_components/empty-state';
-import {
-  ZORU_CHART_PALETTE,
-  ZoruChart,
-  ZoruChartContainer,
-  ZoruChartTooltip,
-} from '@/components/zoruui';
 
 export interface ChartTopContactsProps {
   data: SabwaAnalyticsTopContact[];

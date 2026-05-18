@@ -1,5 +1,21 @@
 'use client';
 
+import {
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruInput,
+  ZoruLabel,
+  ZoruTextarea,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+import { Plus,
+  Trash2 } from 'lucide-react';
+
 /**
  * §1D Stock Adjustment form — supports both single-row (legacy) and
  * multi-line entries. The action layer accepts either shape; this UI
@@ -19,20 +35,7 @@
  */
 
 import * as React from 'react';
-import { useRouter } from 'next/navigation';
-import { Plus, Trash2 } from 'lucide-react';
 
-import {
-    ZoruButton,
-    ZoruCard,
-    ZoruCardContent,
-    ZoruCardHeader,
-    ZoruCardTitle,
-    ZoruInput,
-    ZoruLabel,
-    ZoruTextarea,
-    useZoruToast,
-} from '@/components/zoruui';
 import { EntityFormShell } from '@/components/crm/entity-form-shell';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { EnumFormField } from '@/components/crm/enum-form-field';

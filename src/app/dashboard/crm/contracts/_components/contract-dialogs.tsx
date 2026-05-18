@@ -1,17 +1,5 @@
 'use client';
 
-/**
- * Contract detail-page dialogs.
- *
- *   • <ContractSendDialog> — collect signer name/email, call
- *     sendContractForSignature.
- *   • <ContractRenewDialog> — collect new end date, call renewContract.
- *   • <ContractVoidDialog>  — collect reason, call voidContract.
- */
-
-import * as React from 'react';
-import { useRouter } from 'next/navigation';
-
 import {
   ZoruButton,
   ZoruDialog,
@@ -25,6 +13,20 @@ import {
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+
+/**
+ * Contract detail-page dialogs.
+ *
+ *   • <ContractSendDialog> — collect signer name/email, call
+ *     sendContractForSignature.
+ *   • <ContractRenewDialog> — collect new end date, call renewContract.
+ *   • <ContractVoidDialog>  — collect reason, call voidContract.
+ */
+
+import * as React from 'react';
+
 import {
   renewContract,
   sendContractForSignature,

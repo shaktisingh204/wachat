@@ -1,12 +1,7 @@
-
 'use client';
 
-import { useEffect, useState, useActionState, useRef } from 'react';
-import { useFormStatus } from 'react-dom';
-import { useToast } from '@/hooks/use-toast';
-import { handleManualWachatSetup } from '@/app/actions/whatsapp.actions';
-import { ZoruButton } from '@/components/zoruui';
 import {
+  ZoruButton,
   ZoruDialog,
   ZoruDialogContent,
   ZoruDialogDescription,
@@ -14,9 +9,18 @@ import {
   ZoruDialogHeader,
   ZoruDialogTitle,
   ZoruDialogTrigger,
+  ZoruInput,
+  ZoruLabel,
 } from '@/components/zoruui';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruLabel } from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useActionState,
+  useRef } from 'react';
+import { useFormStatus } from 'react-dom';
+import { useToast } from '@/hooks/use-toast';
+import { handleManualWachatSetup } from '@/app/actions/whatsapp.actions';
+
 import { LoaderCircle, Key } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import Link from 'next/link';

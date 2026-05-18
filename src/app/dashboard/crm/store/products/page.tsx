@@ -1,3 +1,20 @@
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+} from '@/components/zoruui';
+import {
+  Plus,
+  Package } from 'lucide-react';
+
+import { CrmPageHeader } from '../../_components/crm-page-header';
+
 /**
  * Products list — `/dashboard/crm/store/products`.
  *
@@ -7,20 +24,7 @@
  */
 
 import Link from 'next/link';
-import { Plus, Package } from 'lucide-react';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
-import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruTable,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-} from '@/components/zoruui';
 import {
     getProductList,
     getStorefrontList,

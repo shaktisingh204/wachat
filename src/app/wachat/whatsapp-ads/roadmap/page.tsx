@@ -1,14 +1,5 @@
 'use client';
 
-/**
- * Wachat WhatsApp Ads — Facebook integration roadmap (ZoruUI).
- *
- * Static grid of ZoruCard tiles, one per phase, with a status badge.
- */
-
-import * as React from 'react';
-import { Check, Route } from 'lucide-react';
-
 import {
   ZoruBadge,
   ZoruBreadcrumb,
@@ -25,6 +16,17 @@ import {
   ZoruPageHeading,
   ZoruPageTitle,
 } from '@/components/zoruui';
+import {
+  Check,
+  Route } from 'lucide-react';
+
+/**
+ * Wachat WhatsApp Ads — Facebook integration roadmap (ZoruUI).
+ *
+ * Static grid of ZoruCard tiles, one per phase, with a status badge.
+ */
+
+import * as React from 'react';
 
 type RoadmapStatus = 'Completed' | 'In Progress' | 'Planned';
 

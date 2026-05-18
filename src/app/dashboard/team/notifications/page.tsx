@@ -1,25 +1,28 @@
 'use client';
 
-import { useState } from 'react';
-import { Bell, Save, Mail, LoaderCircle } from 'lucide-react';
-
 import {
-    ZoruBreadcrumb,
-    ZoruBreadcrumbItem,
-    ZoruBreadcrumbLink,
-    ZoruBreadcrumbList,
-    ZoruBreadcrumbPage,
-    ZoruBreadcrumbSeparator,
-    ZoruButton,
-    ZoruCard,
-    ZoruLabel,
-    ZoruPageDescription,
-    ZoruPageHeader,
-    ZoruPageHeading,
-    ZoruPageTitle,
-    ZoruSwitch,
-    useZoruToast,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  ZoruLabel,
+  ZoruPageDescription,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  ZoruSwitch,
+  useZoruToast,
 } from '@/components/zoruui';
+import {
+  useState } from 'react';
+import { Bell,
+  Save,
+  Mail,
+  LoaderCircle } from 'lucide-react';
 
 type Prefs = {
     memberJoined: boolean;

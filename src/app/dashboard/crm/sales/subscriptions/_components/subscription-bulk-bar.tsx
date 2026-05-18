@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruButton } from '@/components/zoruui';
+import { Download, ListChecks, PauseCircle, PlayCircle, Trash2, X, XCircle } from 'lucide-react';
+
 /**
  * <SubscriptionBulkBar> — sticky bulk-action ribbon for the §1D
  * subscriptions list. Mirrors `<InvoicesBulkBar>`.
@@ -9,9 +12,6 @@
  */
 
 import * as React from 'react';
-import { Download, ListChecks, PauseCircle, PlayCircle, Trash2, X, XCircle } from 'lucide-react';
-
-import { ZoruButton } from '@/components/zoruui';
 
 interface SubscriptionBulkBarProps {
   count: number;

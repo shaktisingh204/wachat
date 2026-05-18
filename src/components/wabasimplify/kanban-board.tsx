@@ -1,18 +1,30 @@
-
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
-import { getKanbanData, saveKanbanStatuses } from '@/app/actions/project.actions';
+import {
+  ZoruSkeleton,
+  ZoruButton,
+  ZoruAlert,
+  ZoruAlertDescription,
+  ZoruAlertTitle,
+  ZoruScrollArea,
+  ZoruScrollBar,
+  ZoruInput,
+} from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition } from 'react';
+import { getKanbanData,
+  saveKanbanStatuses } from '@/app/actions/project.actions';
 import { handleUpdateContactStatus } from '@/app/actions/contact.actions';
-import type { WithId, Contact, Project, KanbanColumnData } from '@/lib/definitions';
+import type { WithId,
+  Contact,
+  Project,
+  KanbanColumnData } from '@/lib/definitions';
 import { KanbanColumn } from '@/components/wabasimplify/kanban-column';
 import { KanbanCard } from '@/components/wabasimplify/kanban-card';
-import { ZoruSkeleton, ZoruButton } from '@/components/zoruui';
-import { ZoruAlert, ZoruAlertDescription, ZoruAlertTitle } from '@/components/zoruui';
 import { AlertCircle, Plus } from 'lucide-react';
-import { ZoruScrollArea, ZoruScrollBar } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
-import { ZoruInput } from '@/components/zoruui';
+
 import { useToast } from '@/hooks/use-toast';
 import { DndContext, DragEndEvent, PointerSensor, useSensor, useSensors, closestCorners } from '@dnd-kit/core';
 

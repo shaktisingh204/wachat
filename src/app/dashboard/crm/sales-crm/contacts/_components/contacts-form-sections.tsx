@@ -1,5 +1,16 @@
 'use client';
 
+import {
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardDescription,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruDatePicker,
+  ZoruInput,
+  ZoruLabel,
+  ZoruTextarea,
+} from '@/components/zoruui';
 /**
  * Field-section sub-components for <ContactForm>, extracted to keep
  * `contacts-form.tsx` under the 600-line scope cap.
@@ -13,17 +24,6 @@
 
 import * as React from 'react';
 
-import {
-    ZoruCard,
-    ZoruCardContent,
-    ZoruCardDescription,
-    ZoruCardHeader,
-    ZoruCardTitle,
-    ZoruDatePicker,
-    ZoruInput,
-    ZoruLabel,
-    ZoruTextarea,
-} from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { EnumFormField } from '@/components/crm/enum-form-field';
 import type { CrmContact } from '@/lib/definitions';

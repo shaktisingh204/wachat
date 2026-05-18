@@ -1,20 +1,16 @@
 'use client';
 
-import { useActionState, useEffect, useRef, useState } from 'react';
+import { ZoruButton, ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruInput, ZoruLabel, ZoruTextarea, useZoruToast } from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect,
+  useRef,
+  useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { createInstagramImagePost } from '@/app/actions/instagram.actions';
-import {
-  ZoruButton,
-  ZoruCard,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruInput,
-  ZoruLabel,
-  ZoruTextarea,
-  useZoruToast,
-} from '@/components/zoruui';
+
 import { SabFileUrlInput } from '@/components/sabfiles';
 import { LoaderCircle, X, Instagram } from 'lucide-react';
 

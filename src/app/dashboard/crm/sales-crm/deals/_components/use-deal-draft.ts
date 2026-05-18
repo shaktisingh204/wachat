@@ -1,5 +1,6 @@
 'use client';
 
+import { useZoruToast } from '@/components/zoruui';
 /**
  * useDealDraft — localStorage-backed draft auto-save for the New Deal
  * form. Detects an existing draft on mount, persists periodically while
@@ -11,7 +12,6 @@
 
 import * as React from 'react';
 
-import { useZoruToast } from '@/components/zoruui';
 import type { ProductRow } from './deal-products-editor';
 
 export interface DealDraft {

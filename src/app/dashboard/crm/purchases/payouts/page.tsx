@@ -1,5 +1,16 @@
 'use client';
 
+import { ZoruButton, useZoruToast } from '@/components/zoruui';
+import {
+  Plus,
+  Wallet } from 'lucide-react';
+import { useDebouncedCallback } from 'use-debounce';
+import type { DateRange } from 'react-day-picker';
+
+import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { ConfirmDialog } from '@/components/crm/confirm-dialog';
+import { PaginationBar } from '@/components/crm/pagination-bar';
+
 /**
  * Payouts — list page (rebuilt per §1D.1).
  *
@@ -17,14 +28,6 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { Plus, Wallet } from 'lucide-react';
-import { useDebouncedCallback } from 'use-debounce';
-import type { DateRange } from 'react-day-picker';
-
-import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { ConfirmDialog } from '@/components/crm/confirm-dialog';
-import { PaginationBar } from '@/components/crm/pagination-bar';
-import { ZoruButton, useZoruToast } from '@/components/zoruui';
 
 import {
     listPayouts,

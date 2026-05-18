@@ -1,10 +1,4 @@
-
 'use client';
-
-import { useActionState, useEffect, useRef, useState } from 'react';
-import { useFormStatus } from 'react-dom';
-import { LuLoader, LuSave, LuUserRound, LuCamera } from 'react-icons/lu';
-import type { WithId } from 'mongodb';
 
 import {
   ZoruDialog,
@@ -13,18 +7,28 @@ import {
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
-} from '@/components/zoruui';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruLabel } from '@/components/zoruui';
-import {
+  ZoruInput,
+  ZoruLabel,
   ZoruSelect,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
+  ZoruTextarea,
+  ZoruSeparator,
+  ZoruButton,
 } from '@/components/zoruui';
-import { ZoruTextarea } from '@/components/zoruui';
-import { ZoruSeparator } from '../ui/separator';
+import {
+  useActionState,
+  useEffect,
+  useRef,
+  useState } from 'react';
+import { useFormStatus } from 'react-dom';
+import { LuLoader,
+  LuSave,
+  LuUserRound,
+  LuCamera } from 'react-icons/lu';
+import type { WithId } from 'mongodb';
 
 import { handleUpdatePhoneNumberProfile } from '@/app/actions/whatsapp.actions';
 import { useToast } from '@/hooks/use-toast';
@@ -42,7 +46,6 @@ const verticals = [
   "HOTEL", "HEALTH", "NONPROFIT", "PROF_SERVICES", "RETAIL",
   "TRAVEL", "RESTAURANT", "NOT_A_BIZ"
 ];
-
 
 function SubmitButton() {
   const { pending } = useFormStatus();

@@ -1,28 +1,41 @@
 'use client';
 
-import { Suspense, useState, useEffect } from 'react';
+import {
+  ZoruButton,
+  ZoruCard,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruCardDescription,
+  ZoruCardContent,
+  ZoruCardFooter,
+  ZoruSkeleton,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  ZoruPageDescription,
+} from '@/components/zoruui';
+import {
+  Suspense,
+  useState,
+  useEffect } from 'react';
 import { EmailAccountList } from '@/components/wabasimplify/email-account-list';
-import { PlusCircle, Activity, TrendingUp, BarChart3, Send, Users, Mail } from 'lucide-react';
+import { PlusCircle,
+  Activity,
+  TrendingUp,
+  BarChart3,
+  Send,
+  Users,
+  Mail } from 'lucide-react';
 import Link from 'next/link';
-import { getEmailSettings, getEmailCampaigns, getEmailStats } from '@/app/actions/email.actions';
-import type { WithId, EmailSettings, EmailCampaign } from '@/lib/definitions';
+import { getEmailSettings,
+  getEmailCampaigns,
+  getEmailStats } from '@/app/actions/email.actions';
+import type { WithId,
+  EmailSettings,
+  EmailCampaign } from '@/lib/definitions';
 import { EmailSuiteLayout } from '@/components/wabasimplify/email-suite-layout';
 import { useSearchParams } from 'next/navigation';
 import { formatDistanceToNow } from 'date-fns';
-import {
-    ZoruButton,
-    ZoruCard,
-    ZoruCardHeader,
-    ZoruCardTitle,
-    ZoruCardDescription,
-    ZoruCardContent,
-    ZoruCardFooter,
-    ZoruSkeleton,
-    ZoruPageHeader,
-    ZoruPageHeading,
-    ZoruPageTitle,
-    ZoruPageDescription,
-} from '@/components/zoruui';
 
 function OverviewContent() {
     const searchParams = useSearchParams();

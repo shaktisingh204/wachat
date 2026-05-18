@@ -1,5 +1,32 @@
 'use client';
 
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruEmptyState,
+  ZoruInput,
+  ZoruSkeleton,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  useRouter,
+  useSearchParams } from 'next/navigation';
+import {
+    ArrowRight,
+  CheckCircle2,
+  Loader2,
+  Plug,
+  Plus,
+  Search,
+  } from 'lucide-react';
+
 /**
  * Telegram project picker — scopes the global project list to the
  * Telegram view. Mirrors `/wachat` but counts connected Telegram bots
@@ -10,31 +37,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
-import {
-    ArrowRight,
-    CheckCircle2,
-    Loader2,
-    Plug,
-    Plus,
-    Search,
-} from 'lucide-react';
 
-import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruDialog,
-    ZoruDialogContent,
-    ZoruDialogDescription,
-    ZoruDialogFooter,
-    ZoruDialogHeader,
-    ZoruDialogTitle,
-    ZoruEmptyState,
-    ZoruInput,
-    ZoruSkeleton,
-    useZoruToast,
-} from '@/components/zoruui';
 import { useProject } from '@/context/project-context';
 import {
     addTelegramProject,

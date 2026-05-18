@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruCard, ZoruInput, ZoruLabel } from '@/components/zoruui';
+import { Paperclip, Trash2 } from 'lucide-react';
+
 /**
  * <QuotationFormExtras> — attachments, signature, template, and
  * summary sections of the `<QuotationForm>`. Extracted to keep the
@@ -9,13 +12,7 @@
  */
 
 import * as React from 'react';
-import { Paperclip, Trash2 } from 'lucide-react';
 
-import {
-  ZoruCard,
-  ZoruInput,
-  ZoruLabel,
-} from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { SabFilePickerButton } from '@/components/sabfiles';
 

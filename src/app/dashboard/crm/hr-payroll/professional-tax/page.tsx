@@ -1,36 +1,47 @@
 'use client';
 
-import { useState, useEffect, useCallback, useTransition, useActionState } from 'react';
-import { useFormStatus } from 'react-dom';
-import { Landmark, LoaderCircle, Plus, Save, Trash2, Edit } from 'lucide-react';
 import {
-    ZoruAlertDialog,
-    ZoruAlertDialogAction,
-    ZoruAlertDialogCancel,
-    ZoruAlertDialogContent,
-    ZoruAlertDialogDescription,
-    ZoruAlertDialogFooter,
-    ZoruAlertDialogHeader,
-    ZoruAlertDialogTitle,
-    ZoruAlertDialogTrigger,
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruDialog,
-    ZoruDialogContent,
-    ZoruDialogFooter,
-    ZoruDialogHeader,
-    ZoruDialogTitle,
-    ZoruDialogTrigger,
-    ZoruInput,
-    ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    useZoruToast,
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruAlertDialogTrigger,
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruDialogTrigger,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  useZoruToast,
 } from '@/components/zoruui';
+import {
+  useState,
+  useEffect,
+  useCallback,
+  useTransition,
+  useActionState } from 'react';
+import { useFormStatus } from 'react-dom';
+import { Landmark,
+  LoaderCircle,
+  Plus,
+  Save,
+  Trash2,
+  Edit } from 'lucide-react';
+
 import { getCrmPtSlabs, saveCrmPtSlab, deleteCrmPtSlab, generateProfessionalTaxReport } from '@/app/actions/crm-hr.actions';
 import type { WithId, CrmProfessionalTaxSlab } from '@/lib/definitions';
 import { indianStates } from '@/lib/states';

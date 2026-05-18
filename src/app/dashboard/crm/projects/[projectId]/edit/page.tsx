@@ -1,3 +1,7 @@
+import { ZoruButton } from '@/components/zoruui';
+import { notFound } from 'next/navigation';
+import { ArrowLeft, Briefcase } from 'lucide-react';
+
 /**
  * Edit project — §1B W7.
  *
@@ -7,10 +11,7 @@
  */
 
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import { ArrowLeft, Briefcase } from 'lucide-react';
 
-import { ZoruButton } from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 
 import { getWsProjectById } from '@/app/actions/worksuite/projects.actions';

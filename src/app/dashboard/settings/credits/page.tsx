@@ -1,25 +1,34 @@
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
-import Link from 'next/link';
-import { ArrowUpRight, Globe, Mail, MessageSquare, Send, Star, Zap } from 'lucide-react';
-
 import {
-    ZoruBadge,
-    ZoruBreadcrumb,
-    ZoruBreadcrumbItem,
-    ZoruBreadcrumbLink,
-    ZoruBreadcrumbList,
-    ZoruBreadcrumbPage,
-    ZoruBreadcrumbSeparator,
-    ZoruButton,
-    ZoruCard,
-    ZoruPageDescription,
-    ZoruPageHeader,
-    ZoruPageHeading,
-    ZoruPageTitle,
-    ZoruSkeleton,
+  ZoruBadge,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  ZoruPageDescription,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  ZoruSkeleton,
 } from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition } from 'react';
+import Link from 'next/link';
+import { ArrowUpRight,
+  Globe,
+  Mail,
+  MessageSquare,
+  Send,
+  Star,
+  Zap } from 'lucide-react';
+
 import { getSession } from '@/app/actions/user.actions';
 import { useT } from '@/lib/i18n/client';
 import type { User, WithId } from '@/lib/definitions';

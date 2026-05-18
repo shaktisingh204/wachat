@@ -1,14 +1,5 @@
 'use client';
 
-import { useActionState, useEffect, useRef, useState, useTransition } from 'react';
-import {
-  Tags,
-  Plus,
-  Pencil,
-  Trash2,
-  LoaderCircle,
-  X,
-} from 'lucide-react';
 import {
   ZoruBadge,
   ZoruButton,
@@ -22,6 +13,21 @@ import {
   ZoruSelectValue,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect,
+  useRef,
+  useState,
+  useTransition } from 'react';
+import {
+  Tags,
+  Plus,
+  Pencil,
+  Trash2,
+  LoaderCircle,
+  X,
+  } from 'lucide-react';
+
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import {
   getLeaveTypes,

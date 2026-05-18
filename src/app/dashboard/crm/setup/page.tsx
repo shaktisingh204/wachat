@@ -1,5 +1,39 @@
 'use client';
 
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruLabel,
+  ZoruProgress,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruTextarea,
+  cn,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+import {
+  ArrowLeft,
+  ArrowRight,
+  Briefcase,
+  Building,
+  Check,
+  Coins,
+  FileDigit,
+  LoaderCircle,
+  Sparkles,
+  UsersRound,
+  Wrench,
+  } from 'lucide-react';
+
+import { saveCrmIndustry } from '@/app/actions/crm.actions';
+
 /**
  * CRM Setup Wizard — §1D multi-step onboarding for new tenants.
  *
@@ -17,38 +51,6 @@
  */
 
 import * as React from 'react';
-import { useRouter } from 'next/navigation';
-import {
-  ArrowLeft,
-  ArrowRight,
-  Briefcase,
-  Building,
-  Check,
-  Coins,
-  FileDigit,
-  LoaderCircle,
-  Sparkles,
-  UsersRound,
-  Wrench,
-} from 'lucide-react';
-
-import { saveCrmIndustry } from '@/app/actions/crm.actions';
-import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
-  ZoruInput,
-  ZoruLabel,
-  ZoruProgress,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  ZoruTextarea,
-  cn,
-  useZoruToast,
-} from '@/components/zoruui';
 
 const INDUSTRIES = [
   'Manufacturing',

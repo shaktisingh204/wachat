@@ -1,17 +1,22 @@
 'use client';
 
-import { useState, useTransition } from 'react';
 import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruCardContent,
-    ZoruCardHeader,
-    ZoruCardTitle,
-    ZoruInput,
-    ZoruProgress,
-    ZoruSkeleton,
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruInput,
+  ZoruProgress,
+  ZoruSkeleton,
+  ZoruChartContainer,
+  ZoruChartTooltip,
 } from '@/components/zoruui';
+import {
+  useState,
+  useTransition } from 'react';
+
 import { Globe, Link as LinkIcon, BarChart, Search } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { getBacklinks, getSiteMetrics } from '@/app/actions/seo.actions';

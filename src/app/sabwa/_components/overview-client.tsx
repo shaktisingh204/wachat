@@ -1,47 +1,5 @@
 "use client";
 
-/**
- * Overview (Phase 1) — client surface for `/sabwa`.
- *
- * The server component (`page.tsx`) pre-fetches everything that's safe to
- * fetch with what we know server-side (sessions, plan limits). Everything
- * that depends on which session the user has *selected* in the
- * SessionSwitcher (analytics, scheduled queue, audit feed) is the
- * client's job — it knows the active sessionId via `useSabwaSession()` and
- * subscribes to live status changes through `useSabwaStream`.
- *
- * Rebuilt on ZoruUI primitives. The session-switcher popover, KPI grid,
- * ban-risk gauge, quick actions and plan-usage rows now use Zoru tokens
- * (`text-zoru-ink`, `bg-zoru-surface`, `text-zoru-success`, etc.) and
- * the neutral `--zoru-radius` / `--zoru-radius-lg` design language.
- *
- * Source of truth: SABWA_PLAN.md § 6 page 1.
- */
-
-import * as React from "react";
-import Link from "next/link";
-import {
-  Activity,
-  AlertTriangle,
-  ArrowRight,
-  CalendarClock,
-  CheckCircle2,
-  Circle,
-  ListChecks,
-  MessageSquarePlus,
-  Megaphone,
-  Phone,
-  PlusCircle,
-  QrCode,
-  Send,
-  ShieldAlert,
-  Smartphone,
-  TimerReset,
-  Users,
-  Zap,
-} from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
-
 import {
   ZoruBadge,
   ZoruBreadcrumb,
@@ -65,7 +23,49 @@ import {
   ZoruTooltipProvider,
   ZoruTooltipTrigger,
   cn,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  Activity,
+  AlertTriangle,
+  ArrowRight,
+  CalendarClock,
+  CheckCircle2,
+  Circle,
+  ListChecks,
+  MessageSquarePlus,
+  Megaphone,
+  Phone,
+  PlusCircle,
+  QrCode,
+  Send,
+  ShieldAlert,
+  Smartphone,
+  TimerReset,
+  Users,
+  Zap,
+  } from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
+
+/**
+ * Overview (Phase 1) — client surface for `/sabwa`.
+ *
+ * The server component (`page.tsx`) pre-fetches everything that's safe to
+ * fetch with what we know server-side (sessions, plan limits). Everything
+ * that depends on which session the user has *selected* in the
+ * SessionSwitcher (analytics, scheduled queue, audit feed) is the
+ * client's job — it knows the active sessionId via `useSabwaSession()` and
+ * subscribes to live status changes through `useSabwaStream`.
+ *
+ * Rebuilt on ZoruUI primitives. The session-switcher popover, KPI grid,
+ * ban-risk gauge, quick actions and plan-usage rows now use Zoru tokens
+ * (`text-zoru-ink`, `bg-zoru-surface`, `text-zoru-success`, etc.) and
+ * the neutral `--zoru-radius` / `--zoru-radius-lg` design language.
+ *
+ * Source of truth: SABWA_PLAN.md § 6 page 1.
+ */
+
+import * as React from "react";
+import Link from "next/link";
 
 import {
   getAnalytics,

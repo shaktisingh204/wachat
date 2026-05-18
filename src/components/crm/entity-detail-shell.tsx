@@ -1,3 +1,8 @@
+import { ZoruBadge, type ZoruBadgeProps } from '@/components/zoruui';
+import {
+  ArrowLeft } from 'lucide-react';
+import { type ReactNode } from 'react';
+
 /**
  * <EntityDetailShell /> — reusable detail-page layout for any CRM entity
  * (per `docs/ecosystem/CRM_PLAN.md` §A8).
@@ -15,13 +20,6 @@
  * No business logic; pure presentation.
  */
 import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
-import { type ReactNode } from 'react';
-
-import {
-    ZoruBadge,
-    type ZoruBadgeProps,
-} from '@/components/zoruui';
 
 /* ─── Types ──────────────────────────────────────────────────────────── */
 

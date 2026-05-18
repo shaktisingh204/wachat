@@ -1,3 +1,15 @@
+import { ZoruButton, ZoruCard, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/zoruui';
+import {
+  notFound } from 'next/navigation';
+import {
+    FileMinus,
+  Pencil,
+  ArrowLeft,
+  Activity,
+  Printer,
+  Mail,
+  } from 'lucide-react';
+
 /**
  * Credit note detail — `/dashboard/crm/sales/credit-notes/[id]`.
  *
@@ -7,26 +19,7 @@
  */
 
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import {
-    FileMinus,
-    Pencil,
-    ArrowLeft,
-    Activity,
-    Printer,
-    Mail,
-} from 'lucide-react';
 
-import {
-    ZoruButton,
-    ZoruCard,
-    ZoruTable,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-} from '@/components/zoruui';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';

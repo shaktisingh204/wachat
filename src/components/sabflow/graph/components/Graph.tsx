@@ -1,4 +1,5 @@
 'use client';
+
 import { useRef, useCallback, useEffect, useState } from 'react';
 import { useGesture } from '@use-gesture/react';
 import { LuKeyboard } from 'react-icons/lu';
@@ -360,7 +361,6 @@ export function Graph({ flow, onFlowChange, containerRef, onUndo, onRedo }: Prop
       setConnectingIds,
     ],
   );
-
 
   // Canvas pan + zoom gestures
   useGesture(

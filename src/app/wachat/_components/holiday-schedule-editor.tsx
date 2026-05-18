@@ -1,5 +1,12 @@
 'use client';
 
+import { ZoruButton, ZoruDatePicker, ZoruInput, ZoruLabel } from '@/components/zoruui';
+import {
+  format } from 'date-fns';
+import { Plus,
+  Trash2 } from 'lucide-react';
+import type { HolidaySchedule } from '@/lib/definitions';
+
 /**
  * HolidayScheduleEditor (wachat-local, ZoruUI).
  *
@@ -8,16 +15,6 @@
  */
 
 import * as React from 'react';
-import { format } from 'date-fns';
-import { Plus, Trash2 } from 'lucide-react';
-import type { HolidaySchedule } from '@/lib/definitions';
-
-import {
-  ZoruButton,
-  ZoruDatePicker,
-  ZoruInput,
-  ZoruLabel,
-} from '@/components/zoruui';
 
 interface HolidayScheduleEditorProps {
   schedule: HolidaySchedule[];

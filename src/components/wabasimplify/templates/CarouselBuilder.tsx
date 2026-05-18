@@ -1,31 +1,42 @@
 'use client';
 
-import { useState } from 'react';
+import {
+  ZoruButton,
+  ZoruInput,
+  ZoruTextarea,
+  ZoruLabel,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruRadioGroup,
+  ZoruRadioGroupItem,
+  ZoruBadge,
+  ZoruSelect,
+} from '@/components/zoruui';
+import {
+  useState } from 'react';
 import {
     DndContext,
-    closestCenter,
-    KeyboardSensor,
-    PointerSensor,
-    useSensor,
-    useSensors,
-    DragEndEvent
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent
 } from '@dnd-kit/core';
 import {
     arrayMove,
-    SortableContext,
-    sortableKeyboardCoordinates,
-    horizontalListSortingStrategy,
-    useSortable
+  SortableContext,
+  sortableKeyboardCoordinates,
+  horizontalListSortingStrategy,
+  useSortable
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Plus, Trash2, GripVertical, Image as ImageIcon, Video, AlertCircle } from 'lucide-react';
-import { ZoruButton, ZoruButton } from '@/components/zoruui';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruTextarea } from '@/components/zoruui';
-import { ZoruLabel } from '@/components/zoruui';
-import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
-import { ZoruRadioGroup, ZoruRadioGroupItem } from '@/components/zoruui';
-import { ZoruBadge } from '@/components/zoruui';
+import { Plus,
+  Trash2,
+  GripVertical,
+  Image as ImageIcon,
+  Video,
+  AlertCircle } from 'lucide-react';
 
 // Types
 export type CarouselCardData = {
@@ -308,7 +319,6 @@ export function CarouselBuilder({ cards, onChange }: CarouselBuilderProps) {
                                 className="min-h-[100px]"
                             />
                             <p className="text-xs text-muted-foreground text-right">{activeCard.body.length} chars</p>
-
 
                             {/* Variable Examples via helper */}
                             {(() => {

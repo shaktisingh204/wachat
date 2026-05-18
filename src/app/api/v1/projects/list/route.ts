@@ -1,4 +1,3 @@
-
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyApiKey } from '@/lib/api-platform/auth';
 import { rustFetchAsUser } from '@/lib/api-platform/rust-as-user';

@@ -1,7 +1,8 @@
 'use client';
 
-import { use } from 'react';
 import { ZoruButton, ZoruCard, ZoruCardContent } from '@/components/zoruui';
+import { use } from 'react';
+
 import { Swords, Lock } from 'lucide-react';
 
 export default function CompetitorsPage({ params }: { params: Promise<{ projectId: string }> }) {

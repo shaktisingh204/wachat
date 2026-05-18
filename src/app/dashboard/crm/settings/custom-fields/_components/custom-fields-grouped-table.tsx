@@ -1,5 +1,25 @@
 'use client';
 
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruCheckbox,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+} from '@/components/zoruui';
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  ArrowUp,
+  ArrowDown,
+  } from 'lucide-react';
+
 /**
  * Grouped-by-group table for the Custom Fields list page. Renders one
  * <ZoruCard> per group with select-all + per-row controls (move up /
@@ -9,26 +29,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import {
-    Plus,
-    Pencil,
-    Trash2,
-    ArrowUp,
-    ArrowDown,
-} from 'lucide-react';
 
-import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruCheckbox,
-    ZoruTable,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-} from '@/components/zoruui';
 import type {
     WsCustomField,
     WsCustomFieldGroup,

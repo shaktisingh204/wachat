@@ -1,43 +1,5 @@
 'use client';
 
-/**
- * /dashboard/telegram/flows — list of Telegram-scoped visual flows.
- *
- * Mirrors the SabFlow visual editor concept but scoped to Telegram triggers
- * (incoming_message, command, callback_query, schedule, business_connection).
- * Backed by the `telegram-flows` Rust crate via the server actions in
- * `@/app/actions/telegram-flows.actions`.
- */
-
-import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
-import {
-  AlertCircle,
-  CheckCircle2,
-  Copy,
-  LoaderCircle,
-  MoreHorizontal,
-  Pause,
-  Play,
-  Plus,
-  Search,
-  Trash2,
-  Workflow,
-} from 'lucide-react';
-
-import {
-  createTelegramFlow,
-  deleteTelegramFlow,
-  disableTelegramFlow,
-  duplicateTelegramFlow,
-  enableTelegramFlow,
-  listTelegramFlows,
-  publishTelegramFlow,
-} from '@/app/actions/telegram-flows.actions';
-import type { FlowRow, FlowStatus } from '@/lib/rust-client/telegram-flows';
-import { useProject } from '@/context/project-context';
-import { TelegramProjectGate } from '../_components/telegram-project-gate';
-
 import {
   ZoruAlertDialog,
   ZoruAlertDialogAction,
@@ -77,6 +39,49 @@ import {
   ZoruTableRow,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useTransition } from 'react';
+import { useRouter } from 'next/navigation';
+import {
+  AlertCircle,
+  CheckCircle2,
+  Copy,
+  LoaderCircle,
+  MoreHorizontal,
+  Pause,
+  Play,
+  Plus,
+  Search,
+  Trash2,
+  Workflow,
+  } from 'lucide-react';
+
+import {
+  createTelegramFlow,
+  deleteTelegramFlow,
+  disableTelegramFlow,
+  duplicateTelegramFlow,
+  enableTelegramFlow,
+  listTelegramFlows,
+  publishTelegramFlow,
+  } from '@/app/actions/telegram-flows.actions';
+import type { FlowRow,
+  FlowStatus } from '@/lib/rust-client/telegram-flows';
+import { useProject } from '@/context/project-context';
+import { TelegramProjectGate } from '../_components/telegram-project-gate';
+
+/**
+ * /dashboard/telegram/flows — list of Telegram-scoped visual flows.
+ *
+ * Mirrors the SabFlow visual editor concept but scoped to Telegram triggers
+ * (incoming_message, command, callback_query, schedule, business_connection).
+ * Backed by the `telegram-flows` Rust crate via the server actions in
+ * `@/app/actions/telegram-flows.actions`.
+ */
 
 const ACCENT = '#229ED9';
 

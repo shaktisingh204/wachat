@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruButton } from '@/components/zoruui';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+
 /**
  * <PurchaseOrdersCalendar> — month-view calendar grouping POs by
  * expected delivery date.
@@ -11,9 +14,6 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-
-import { ZoruButton } from '@/components/zoruui';
 
 import type { PurchaseOrderListRow } from './types';
 

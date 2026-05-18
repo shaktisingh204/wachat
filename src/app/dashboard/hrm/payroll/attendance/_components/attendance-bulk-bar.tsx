@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruButton } from '@/components/zoruui';
+import { CheckCheck, CheckCircle2, Download, ListChecks, UserX, X, } from 'lucide-react';
+
 /**
  * <AttendanceBulkBar> — sticky bulk-action ribbon for attendance.
  *
@@ -8,16 +11,6 @@
  */
 
 import * as React from 'react';
-import {
-  CheckCheck,
-  CheckCircle2,
-  Download,
-  ListChecks,
-  UserX,
-  X,
-} from 'lucide-react';
-
-import { ZoruButton } from '@/components/zoruui';
 
 interface AttendanceBulkBarProps {
   count: number;

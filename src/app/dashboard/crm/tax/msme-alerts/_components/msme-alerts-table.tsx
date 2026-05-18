@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruBadge, ZoruButton } from '@/components/zoruui';
+import { CalendarClock, Wallet } from 'lucide-react';
+
 /**
  * Per-bucket MSME alerts table. Renders the rows that
  * `computeMsmeOverduebills` returned for one bucket
@@ -14,9 +17,6 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { CalendarClock, Wallet } from 'lucide-react';
-
-import { ZoruBadge, ZoruButton } from '@/components/zoruui';
 
 interface MsmeAlertRow {
     billId: string;

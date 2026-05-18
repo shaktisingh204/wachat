@@ -1,25 +1,31 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { Bell, LoaderCircle, Mail, Save, Smartphone } from 'lucide-react';
-
 import {
-    ZoruBreadcrumb,
-    ZoruBreadcrumbItem,
-    ZoruBreadcrumbLink,
-    ZoruBreadcrumbList,
-    ZoruBreadcrumbPage,
-    ZoruBreadcrumbSeparator,
-    ZoruButton,
-    ZoruCard,
-    ZoruLabel,
-    ZoruPageDescription,
-    ZoruPageHeader,
-    ZoruPageHeading,
-    ZoruPageTitle,
-    ZoruSwitch,
-    useZoruToast,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  ZoruLabel,
+  ZoruPageDescription,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  ZoruSwitch,
+  useZoruToast,
 } from '@/components/zoruui';
+import {
+  useEffect,
+  useState } from 'react';
+import { Bell,
+  LoaderCircle,
+  Mail,
+  Save,
+  Smartphone } from 'lucide-react';
+
 import {
     getNotificationPrefs,
     setNotificationPrefs,

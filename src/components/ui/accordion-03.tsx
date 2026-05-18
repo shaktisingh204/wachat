@@ -45,7 +45,6 @@ const items = [
   },
 ];
 
-
 export function Accordion03() {
   return (
     <div className="w-full max-w-3xl shadow-sm rounded-xl bg-card">

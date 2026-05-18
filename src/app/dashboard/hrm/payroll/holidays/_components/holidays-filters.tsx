@@ -1,13 +1,5 @@
 'use client';
 
-/**
- * <HolidaysFiltersRow> — filter row for the canonical holidays list
- * (per §1D.1). 5 filters: type, year, recurring, location, date range.
- */
-
-import * as React from 'react';
-import { XCircle } from 'lucide-react';
-
 import {
   ZoruButton,
   ZoruInput,
@@ -18,6 +10,15 @@ import {
   ZoruSelectTrigger,
   ZoruSelectValue,
 } from '@/components/zoruui';
+import {
+  XCircle } from 'lucide-react';
+
+/**
+ * <HolidaysFiltersRow> — filter row for the canonical holidays list
+ * (per §1D.1). 5 filters: type, year, recurring, location, date range.
+ */
+
+import * as React from 'react';
 
 export type HolidayTypeFilter =
   | 'all'

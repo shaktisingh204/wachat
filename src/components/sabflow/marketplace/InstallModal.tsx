@@ -1,5 +1,27 @@
 'use client';
 
+import { ZoruButton, ZoruDialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogDescription } from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState } from 'react';
+import { useRouter } from 'next/navigation';
+import {
+  LuArrowUpRight,
+  LuCheck,
+  LuKey,
+  LuLoader,
+  LuRefreshCw,
+  LuX,
+  LuSparkles,
+  } from 'react-icons/lu';
+
+import {
+  CREDENTIAL_TYPE_LABEL,
+  type CredentialType,
+  } from '@/lib/sabflow/credentials/types';
+
 /**
  * SabFlow Marketplace — install modal.
  *
@@ -24,30 +46,7 @@
  */
 
 import * as React from 'react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import {
-  LuArrowUpRight,
-  LuCheck,
-  LuKey,
-  LuLoader,
-  LuRefreshCw,
-  LuX,
-  LuSparkles,
-} from 'react-icons/lu';
 
-import {
-  CREDENTIAL_TYPE_LABEL,
-  type CredentialType,
-} from '@/lib/sabflow/credentials/types';
-import {
-  ZoruButton,
-  ZoruDialog,
-  ZoruDialogContent,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogDescription,
-} from '@/components/zoruui';
 import { cn } from '@/lib/utils';
 
 /* ── Types ────────────────────────────────────────────────────────────── */

@@ -1,7 +1,8 @@
 'use client';
 
-import { useMemo, useState } from 'react';
 import { ZoruLabel, ZoruTextarea } from '@/components/zoruui';
+import { useMemo, useState } from 'react';
+
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
 type MatchType = 'broad' | 'phrase' | 'exact' | 'modified';

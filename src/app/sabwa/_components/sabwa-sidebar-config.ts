@@ -1,12 +1,4 @@
-/**
- * SabWa sidebar — grouped menu configuration.
- *
- * Drives the per-section nav inside the SabWa shell (mirrors the
- * wachat pattern). All hrefs live under `/sabwa/*`. Returned shape
- * matches `ZoruSidebarGroup` so the SabWa layout can pass it straight
- * to `<ZoruHomeShell sidebarGroups={…} />`.
- */
-import * as React from "react";
+import { type ZoruSidebarGroup } from '@/components/zoruui';
 import {
   Activity,
   BarChart3,
@@ -40,9 +32,17 @@ import {
   Webhook,
   Workflow,
   Zap,
-} from "lucide-react";
+  } from "lucide-react";
 
-import type { ZoruSidebarGroup } from "@/components/zoruui";
+/**
+ * SabWa sidebar — grouped menu configuration.
+ *
+ * Drives the per-section nav inside the SabWa shell (mirrors the
+ * wachat pattern). All hrefs live under `/sabwa/*`. Returned shape
+ * matches `ZoruSidebarGroup` so the SabWa layout can pass it straight
+ * to `<ZoruHomeShell sidebarGroups={…} />`.
+ */
+import * as React from "react";
 
 /** Groups whose leaves are gated on having an active SabWa session. */
 const SESSION_GATED_GROUPS = new Set<string>([

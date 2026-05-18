@@ -1,3 +1,6 @@
+import { ZoruButton } from '@/components/zoruui';
+import { Boxes, Plus } from 'lucide-react';
+
 /**
  * CRM Fixed Assets list — `/dashboard/crm/fixed-assets`.
  *
@@ -11,9 +14,7 @@
  */
 
 import Link from 'next/link';
-import { Boxes, Plus } from 'lucide-react';
 
-import { ZoruButton } from '@/components/zoruui';
 import { CrmPageHeader } from '../_components/crm-page-header';
 import { listFixedAssets } from '@/app/actions/crm/fixed-assets.actions';
 import { FixedAssetListClient } from './_components/fixed-asset-list-client';

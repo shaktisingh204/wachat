@@ -109,7 +109,6 @@ export async function getLocalGridRanking(keyword: string, lat: number, lng: num
     return await fetchFromDataForSeo('/google/maps/serp/live/advanced', tasks);
 }
 
-
 // 4. Site Metrics (OnPage / Domain Authority Sim)
 // DataForSEO doesn't have a direct "DA" metric like Moz.
 // We use OnPage API "Summary" or Backlinks API "Summary".
