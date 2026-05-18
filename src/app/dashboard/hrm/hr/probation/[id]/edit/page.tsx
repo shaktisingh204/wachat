@@ -1,18 +1,13 @@
-import { ZoruButton } from '@/components/zoruui';
 import {
   notFound,
   redirect } from 'next/navigation';
-import { ArrowLeft,
-  ShieldCheck } from 'lucide-react';
 
 /**
  * Edit probation page — server wrapper that loads the probation by id
  * and passes it as `initialData` to `<ProbationForm />`.
  */
 
-import Link from 'next/link';
-
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { getSession } from '@/app/actions/user.actions';
 import { getCrmProbationById } from '@/app/actions/crm-probation.actions';
 
@@ -38,36 +33,16 @@ export default async function EditProbationPage({
     const employeeRef = probation.employeeName || probation.employeeId || probationId;
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'HR', href: '/dashboard/hrm/hr' },
-                    { label: 'Probation', href: BASE },
-                    {
-                        label: String(employeeRef),
-                        href: `${BASE}/${probationId}`,
-                    },
-                    { label: 'Edit' },
-                ]}
-                title={`Edit · ${employeeRef}`}
-                subtitle="Update probation details and evaluation criteria."
-                icon={ShieldCheck}
-                actions={
-                    <ZoruButton variant="ghost" asChild>
-                        <Link href={`${BASE}/${probationId}`}>
-                            <ArrowLeft className="mr-2 h-4 w-4" />
-                            Back to detail
-                        </Link>
-                    </ZoruButton>
-                }
-            />
-
+        <EntityListShell
+            title={`Edit · ${employeeRef}`}
+            subtitle="Update probation details and evaluation criteria."
+        >
             <ProbationForm
                 initialData={{
                     ...(probation as Record<string, unknown>),
                     _id: probationId,
                 }}
             />
-        </div>
+        </EntityListShell>
     );
 }

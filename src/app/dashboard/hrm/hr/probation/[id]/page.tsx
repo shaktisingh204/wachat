@@ -12,9 +12,7 @@ import {
 import {
   notFound,
   redirect } from 'next/navigation';
-import { ArrowLeft,
-  Pencil,
-  ShieldCheck } from 'lucide-react';
+import { Pencil } from 'lucide-react';
 
 /**
  * Probation detail page.
@@ -25,7 +23,7 @@ import { ArrowLeft,
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 import { getSession } from '@/app/actions/user.actions';
 import {
@@ -76,33 +74,18 @@ export default async function ProbationDetailPage({
     const criteria = Array.isArray(probation.criteria) ? probation.criteria : [];
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'HR', href: '/dashboard/hrm/hr' },
-                    { label: 'Probation', href: BASE },
-                    { label: String(employeeRef) },
-                ]}
-                title={`Probation · ${employeeRef}`}
-                subtitle="Evaluation criteria, scores and outcome."
-                icon={ShieldCheck}
-                actions={
-                    <div className="flex items-center gap-2">
-                        <ZoruButton variant="outline" asChild>
-                            <Link href={BASE}>
-                                <ArrowLeft className="mr-2 h-4 w-4" />
-                                Back
-                            </Link>
-                        </ZoruButton>
-                        <ZoruButton asChild>
-                            <Link href={`${BASE}/${probationId}/edit`}>
-                                <Pencil className="mr-2 h-4 w-4" />
-                                Edit
-                            </Link>
-                        </ZoruButton>
-                    </div>
-                }
-            />
+        <EntityListShell
+            title={`Probation · ${employeeRef}`}
+            subtitle="Evaluation criteria, scores and outcome."
+            primaryAction={
+                <ZoruButton asChild>
+                    <Link href={`${BASE}/${probationId}/edit`}>
+                        <Pencil className="mr-2 h-4 w-4" />
+                        Edit
+                    </Link>
+                </ZoruButton>
+            }
+        >
 
             {/* Summary card */}
             <ZoruCard className="p-6">
@@ -211,6 +194,6 @@ export default async function ProbationDetailPage({
                     </div>
                 )}
             </ZoruCard>
-        </div>
+        </EntityListShell>
     );
 }

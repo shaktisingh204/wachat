@@ -33,7 +33,7 @@ import {
 /**
  * HR Jobs — list page.
  *
- * Canonical §1B contract: `EntityListShell` + `CrmPageHeader` +
+ * Canonical §1B contract: `EntityListShell` +
  * `ZoruTable` with a search box, status / employment-type / department
  * filters, and inline delete via `ZoruAlertDialog`.
  */
