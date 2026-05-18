@@ -1,0 +1,10 @@
+{
+  "id": "chargebee-to-quickbooks-sync",
+  "name": "Chargebee → QuickBooks Sync",
+  "description": "Listens for Chargebee subscription_renewed and subscription_cancelled webhooks, looks up the matching QuickBooks customer, then creates an invoice on renewals or a credit memo on cancellations. Posts a finance-ledger entry to Slack to replace a manual reconciliation pass.",
+  "category": "Finance",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["chargebee", "quickbooks", "finance", "subscriptions", "slack"],
+  "version": "0.1.0"
+}

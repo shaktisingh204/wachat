@@ -1,0 +1,240 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_chargebee_webhook",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "chargebee.subscription_event",
+    "options": {
+      "path": "/webhooks/chargebee-to-quickbooks-sync",
+      "method": "POST",
+      "authentication": "headerAuth",
+      "responseMode": "lastNode",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_chargebee_webhook",
+      "name": "Chargebee Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "chargebee-to-quickbooks-sync",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "webhookId": "chargebee-to-quickbooks-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Subscription Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [240, 0],
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            { "name": "event_type", "value": "={{ $json.event_type }}" },
+            { "name": "subscription_id", "value": "={{ $json.content.subscription.id }}" },
+            { "name": "customer_email", "value": "={{ $json.content.customer.email }}" },
+            { "name": "customer_name", "value": "={{ $json.content.customer.first_name }} {{ $json.content.customer.last_name }}" },
+            { "name": "plan_id", "value": "={{ $json.content.subscription.plan_id }}" },
+            { "name": "currency_code", "value": "={{ $json.content.subscription.currency_code }}" }
+          ],
+          "number": [
+            { "name": "plan_amount", "value": "={{ $json.content.subscription.plan_amount }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_event_switch",
+      "name": "Route by Event Type",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            { "conditions": { "string": [{ "value1": "={{ $json.event_type }}", "operation": "equal", "value2": "subscription_renewed" }] }, "outputKey": "renewed" },
+            { "conditions": { "string": [{ "value1": "={{ $json.event_type }}", "operation": "equal", "value2": "subscription_cancelled" }] }, "outputKey": "cancelled" }
+          ]
+        },
+        "fallbackOutput": "none"
+      }
+    },
+    {
+      "id": "n_qb_lookup_renewed",
+      "name": "QuickBooks: Lookup Customer (Renewed)",
+      "type": "n8n-nodes-base.quickBooks",
+      "typeVersion": 1,
+      "position": [720, -160],
+      "parameters": {
+        "resource": "customer",
+        "operation": "getAll",
+        "returnAll": false,
+        "limit": 1,
+        "filters": {
+          "query": "SELECT * FROM Customer WHERE PrimaryEmailAddr = '{{ $json.customer_email }}'"
+        }
+      },
+      "credentials": {
+        "quickBooksOAuth2Api": { "id": "quickbooks-cred", "name": "QuickBooks OAuth2" }
+      }
+    },
+    {
+      "id": "n_qb_invoice",
+      "name": "QuickBooks: Create Invoice",
+      "type": "n8n-nodes-base.quickBooks",
+      "typeVersion": 1,
+      "position": [960, -160],
+      "parameters": {
+        "resource": "invoice",
+        "operation": "create",
+        "customerId": "={{ $json.Id }}",
+        "additionalFields": {
+          "currencyRef": "={{ $('n_extract').item.json.currency_code }}",
+          "line": {
+            "amount": "={{ $('n_extract').item.json.plan_amount }}",
+            "description": "Chargebee subscription renewal — {{ $('n_extract').item.json.plan_id }} ({{ $('n_extract').item.json.subscription_id }})"
+          }
+        }
+      },
+      "credentials": {
+        "quickBooksOAuth2Api": { "id": "quickbooks-cred", "name": "QuickBooks OAuth2" }
+      }
+    },
+    {
+      "id": "n_slack_renewed",
+      "name": "Slack: Ledger Entry (Renewed)",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, -160],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": "#finance-ledger",
+        "text": ":receipt: *Renewal invoiced* — {{ $('n_extract').item.json.customer_name }} ({{ $('n_extract').item.json.customer_email }}) · plan `{{ $('n_extract').item.json.plan_id }}` · {{ $('n_extract').item.json.currency_code }} {{ $('n_extract').item.json.plan_amount }} · invoice `{{ $json.Id }}`",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": { "id": "slack-cred", "name": "Slack API" }
+      }
+    },
+    {
+      "id": "n_qb_lookup_cancelled",
+      "name": "QuickBooks: Lookup Customer (Cancelled)",
+      "type": "n8n-nodes-base.quickBooks",
+      "typeVersion": 1,
+      "position": [720, 160],
+      "parameters": {
+        "resource": "customer",
+        "operation": "getAll",
+        "returnAll": false,
+        "limit": 1,
+        "filters": {
+          "query": "SELECT * FROM Customer WHERE PrimaryEmailAddr = '{{ $json.customer_email }}'"
+        }
+      },
+      "credentials": {
+        "quickBooksOAuth2Api": { "id": "quickbooks-cred", "name": "QuickBooks OAuth2" }
+      }
+    },
+    {
+      "id": "n_qb_credit_memo",
+      "name": "QuickBooks: Create Credit Memo",
+      "type": "n8n-nodes-base.quickBooks",
+      "typeVersion": 1,
+      "position": [960, 160],
+      "parameters": {
+        "resource": "creditMemo",
+        "operation": "create",
+        "customerId": "={{ $json.Id }}",
+        "additionalFields": {
+          "currencyRef": "={{ $('n_extract').item.json.currency_code }}",
+          "line": {
+            "amount": "={{ $('n_extract').item.json.plan_amount }}",
+            "description": "Chargebee subscription cancellation — {{ $('n_extract').item.json.plan_id }} ({{ $('n_extract').item.json.subscription_id }})"
+          }
+        }
+      },
+      "credentials": {
+        "quickBooksOAuth2Api": { "id": "quickbooks-cred", "name": "QuickBooks OAuth2" }
+      }
+    },
+    {
+      "id": "n_slack_cancelled",
+      "name": "Slack: Ledger Entry (Cancelled)",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, 160],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": "#finance-ledger",
+        "text": ":wastebasket: *Cancellation credited* — {{ $('n_extract').item.json.customer_name }} ({{ $('n_extract').item.json.customer_email }}) · plan `{{ $('n_extract').item.json.plan_id }}` · {{ $('n_extract').item.json.currency_code }} {{ $('n_extract').item.json.plan_amount }} · credit memo `{{ $json.Id }}`",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": { "id": "slack-cred", "name": "Slack API" }
+      }
+    }
+  ],
+  "connections": {
+    "n_chargebee_webhook": {
+      "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]]
+    },
+    "n_extract": {
+      "main": [[{ "node": "n_event_switch", "type": "main", "index": 0 }]]
+    },
+    "n_event_switch": {
+      "renewed": [[{ "node": "n_qb_lookup_renewed", "type": "main", "index": 0 }]],
+      "cancelled": [[{ "node": "n_qb_lookup_cancelled", "type": "main", "index": 0 }]]
+    },
+    "n_qb_lookup_renewed": {
+      "main": [[{ "node": "n_qb_invoice", "type": "main", "index": 0 }]]
+    },
+    "n_qb_invoice": {
+      "main": [[{ "node": "n_slack_renewed", "type": "main", "index": 0 }]]
+    },
+    "n_qb_lookup_cancelled": {
+      "main": [[{ "node": "n_qb_credit_memo", "type": "main", "index": 0 }]]
+    },
+    "n_qb_credit_memo": {
+      "main": [[{ "node": "n_slack_cancelled", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_ingest",
+      "title": "Ingest",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_chargebee_webhook", "n_extract", "n_event_switch"]
+    },
+    {
+      "id": "g_renewed",
+      "title": "Renewed → Invoice",
+      "graphCoordinates": { "x": 720, "y": -160 },
+      "blockIds": ["n_qb_lookup_renewed", "n_qb_invoice", "n_slack_renewed"]
+    },
+    {
+      "id": "g_cancelled",
+      "title": "Cancelled → Credit Memo",
+      "graphCoordinates": { "x": 720, "y": 160 },
+      "blockIds": ["n_qb_lookup_cancelled", "n_qb_credit_memo", "n_slack_cancelled"]
+    }
+  ],
+  "variables": [
+    { "name": "slack_channel", "defaultValue": "#finance-ledger" },
+    { "name": "ledger_source", "defaultValue": "chargebee" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
