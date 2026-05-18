@@ -16,6 +16,7 @@ pub mod context;
 pub mod descriptor;
 pub mod error;
 pub mod errors;
+pub mod item_helpers;
 pub mod node;
 pub mod nodes;
 pub mod registry;
@@ -29,6 +30,10 @@ pub use error::{NodeError, NodeResult};
 pub use errors::{
     codes, CredentialFailure, ErrorContext, ExecutorError, ExecutorErrorCode, NodeOperationReason,
     WireError, WorkflowFaultKind,
+};
+pub use item_helpers::{
+    attach_paired_item, error_item, for_each_item, for_each_item_async, merge_branches,
+    pair_items, paired_rows_to_items, PairOptions, PairedItem, PairedRow, PairingMode,
 };
 pub use node::Node;
 pub use registry::{default_registry, NodeRegistry};
