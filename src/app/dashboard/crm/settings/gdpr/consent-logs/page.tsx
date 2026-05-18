@@ -17,11 +17,9 @@ import {
   useEffect,
   useState,
   useTransition } from 'react';
-import { ScrollText } from 'lucide-react';
-
 import * as React from 'react';
 
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   getPurposeConsentLeads,
   getPurposeConsentUsers,
@@ -85,12 +83,10 @@ export default function ConsentLogsPage() {
   const revokedEntries = totalEntries - grantedEntries;
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Consent Logs"
-        subtitle="Audit trail of purpose consents granted or revoked by leads and users."
-        icon={ScrollText}
-      />
+    <EntityListShell
+      title="Consent Logs"
+      subtitle="Audit trail of purpose consents granted or revoked by leads and users."
+    >
 
       <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
         <ZoruStatCard label="Total entries" value={totalEntries.toLocaleString()} />

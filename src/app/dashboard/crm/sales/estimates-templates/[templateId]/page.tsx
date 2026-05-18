@@ -2,9 +2,7 @@ import { ZoruButton, ZoruCard } from '@/components/zoruui';
 import {
   notFound,
   redirect } from 'next/navigation';
-import { ArrowLeft,
-  LayoutTemplate,
-  Pencil } from 'lucide-react';
+import { Pencil } from 'lucide-react';
 
 /**
  * Estimate template detail page.
@@ -15,7 +13,7 @@ import { ArrowLeft,
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 import { getSession } from '@/app/actions/user.actions';
 import {
@@ -75,28 +73,19 @@ export default async function EstimateTemplateDetailPage({
     }, 0);
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title={(tpl.name as string) || 'Estimate template'}
-                subtitle={(tpl.category as string) || 'Template detail'}
-                icon={LayoutTemplate}
-                actions={
-                    <div className="flex items-center gap-2">
-                        <ZoruButton variant="outline" asChild>
-                            <Link href={BASE}>
-                                <ArrowLeft className="mr-2 h-4 w-4" />
-                                Back
-                            </Link>
-                        </ZoruButton>
-                        <ZoruButton asChild>
-                            <Link href={`${BASE}/${templateId}/edit`}>
-                                <Pencil className="mr-2 h-4 w-4" />
-                                Edit
-                            </Link>
-                        </ZoruButton>
-                    </div>
-                }
-            />
+        <EntityDetailShell
+            eyebrow="ESTIMATE TEMPLATE"
+            title={(tpl.name as string) || 'Estimate template'}
+            back={{ href: BASE, label: 'Estimate Templates' }}
+            actions={
+                <ZoruButton asChild>
+                    <Link href={`${BASE}/${templateId}/edit`}>
+                        <Pencil className="mr-2 h-4 w-4" />
+                        Edit
+                    </Link>
+                </ZoruButton>
+            }
+        >
 
             {/* Summary */}
             <ZoruCard className="p-6">
@@ -233,6 +222,6 @@ export default async function EstimateTemplateDetailPage({
                     </pre>
                 </ZoruCard>
             ) : null}
-        </div>
+        </EntityDetailShell>
     );
 }

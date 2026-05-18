@@ -17,9 +17,7 @@ import {
   ZoruSelectValue,
   useZoruToast,
 } from '@/components/zoruui';
-import {
-  ArrowLeftRight,
-  Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
 /**
  * <BankingListClient> — Banking landing page (§1D bar — thin).
@@ -30,7 +28,6 @@ import * as React from 'react';
 import Link from 'next/link';
 import Papa from 'papaparse';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 import {
@@ -233,34 +230,6 @@ export function BankingListClient(): React.JSX.Element {
     return (
         <>
             <div className="flex w-full flex-col gap-6">
-                <CrmPageHeader
-                    breadcrumbs={[
-                        { label: 'Banking', href: '/dashboard/crm/banking' },
-                        { label: 'All Payment Accounts' },
-                    ]}
-                    title="Banking"
-                    subtitle="Manage your bank, employee, cash and wallet accounts."
-                    icon={ArrowLeftRight}
-                    actions={
-                        <>
-                            <ZoruButton asChild variant="outline">
-                                <Link href="/dashboard/crm/banking/bank-transactions">Transactions</Link>
-                            </ZoruButton>
-                            <ZoruButton asChild variant="outline">
-                                <Link href="/dashboard/crm/banking/reconciliation">Reconcile</Link>
-                            </ZoruButton>
-                            <ZoruButton onClick={handleExport} variant="outline">
-                                Export CSV
-                            </ZoruButton>
-                            <ZoruButton asChild>
-                                <Link href="/dashboard/crm/banking/all/new">
-                                    <Plus className="mr-1.5 h-3.5 w-3.5" /> Add Account
-                                </Link>
-                            </ZoruButton>
-                        </>
-                    }
-                />
-
                 <BankingKpiStrip kpi={kpi} />
 
                 <div className="inline-flex w-full overflow-x-auto rounded-md border border-border">
@@ -282,7 +251,26 @@ export function BankingListClient(): React.JSX.Element {
                 </div>
 
                 <EntityListShell
-                    title=""
+                    title="Banking"
+                    subtitle="Manage your bank, employee, cash and wallet accounts."
+                    primaryAction={
+                        <>
+                            <ZoruButton asChild variant="outline">
+                                <Link href="/dashboard/crm/banking/bank-transactions">Transactions</Link>
+                            </ZoruButton>
+                            <ZoruButton asChild variant="outline">
+                                <Link href="/dashboard/crm/banking/reconciliation">Reconcile</Link>
+                            </ZoruButton>
+                            <ZoruButton onClick={handleExport} variant="outline">
+                                Export CSV
+                            </ZoruButton>
+                            <ZoruButton asChild>
+                                <Link href="/dashboard/crm/banking/all/new">
+                                    <Plus className="mr-1.5 h-3.5 w-3.5" /> Add Account
+                                </Link>
+                            </ZoruButton>
+                        </>
+                    }
                     search={{ value: search, onChange: setSearch, placeholder: 'Search accounts…' }}
                     filters={
                         <div className="flex flex-wrap items-center gap-2">

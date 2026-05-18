@@ -1,9 +1,7 @@
 import { ZoruCard, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/zoruui';
 export const dynamic = 'force-dynamic';
 
-import { Scale } from 'lucide-react';
-
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatCard } from '../_components/report-toolbar';
 
 import { getLeaveBalanceReport } from '@/app/actions/worksuite/reports.actions';
@@ -15,12 +13,10 @@ export default async function LeaveBalanceReportPage() {
   const totalUsed = rows.reduce((s, r) => s + r.used, 0);
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Leave Balance"
-        subtitle="Remaining leave balance per employee and leave type."
-        icon={Scale}
-      />
+    <EntityListShell
+      title="Leave Balance"
+      subtitle="Remaining leave balance per employee and leave type."
+    >
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <StatCard label="Employees" value={String(employees)} />
         <StatCard label="Allocated days" value={String(totalAllocated)} />
@@ -83,6 +79,6 @@ export default async function LeaveBalanceReportPage() {
           </ZoruTable>
         </div>
       </ZoruCard>
-    </div>
+    </EntityListShell>
   );
 }

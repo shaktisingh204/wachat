@@ -19,12 +19,11 @@ import {
   useEffect,
   useState,
   useTransition } from 'react';
-import { ShieldCheck,
-  LoaderCircle } from 'lucide-react';
+import { LoaderCircle } from 'lucide-react';
 
 import * as React from 'react';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   getGdprSettings,
   saveGdprSettings,
@@ -120,12 +119,10 @@ export default function GdprSettingsPage() {
     config && (config as any)._id ? String((config as any)._id) : '';
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="GDPR Settings"
-        subtitle="EU compliance controls, cookie banner, and data-controller details."
-        icon={ShieldCheck}
-      />
+    <EntityListShell
+      title="GDPR Settings"
+      subtitle="EU compliance controls, cookie banner, and data-controller details."
+    >
 
       <ZoruCard className="p-6">
         {isLoading && !config ? (
@@ -275,6 +272,6 @@ export default function GdprSettingsPage() {
           </form>
         )}
       </ZoruCard>
-    </div>
+    </EntityListShell>
   );
 }

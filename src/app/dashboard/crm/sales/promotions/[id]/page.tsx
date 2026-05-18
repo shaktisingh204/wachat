@@ -2,9 +2,7 @@ import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
 import {
   notFound,
   redirect } from 'next/navigation';
-import { ArrowLeft,
-  Pencil,
-  Tag } from 'lucide-react';
+import { Pencil } from 'lucide-react';
 
 /**
  * Promotion detail page — server component.
@@ -15,7 +13,7 @@ import { ArrowLeft,
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 import { getSession } from '@/app/actions/user.actions';
 
@@ -78,33 +76,19 @@ export default async function PromotionDetailPage({
     const segments = promotion.customerSegments ?? [];
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'Sales', href: '/dashboard/crm/sales' },
-                    { label: 'Promotions', href: BASE },
-                    { label: promotion.name },
-                ]}
-                title={promotion.name}
-                subtitle={promotion.description || 'Promotion detail'}
-                icon={Tag}
-                actions={
-                    <div className="flex items-center gap-2">
-                        <ZoruButton variant="outline" asChild>
-                            <Link href={BASE}>
-                                <ArrowLeft className="mr-2 h-4 w-4" />
-                                Back
-                            </Link>
-                        </ZoruButton>
-                        <ZoruButton asChild>
-                            <Link href={`${BASE}/${id}/edit`}>
-                                <Pencil className="mr-2 h-4 w-4" />
-                                Edit
-                            </Link>
-                        </ZoruButton>
-                    </div>
-                }
-            />
+        <EntityDetailShell
+            eyebrow="PROMOTION"
+            title={promotion.name}
+            back={{ href: BASE, label: 'Promotions' }}
+            actions={
+                <ZoruButton asChild>
+                    <Link href={`${BASE}/${id}/edit`}>
+                        <Pencil className="mr-2 h-4 w-4" />
+                        Edit
+                    </Link>
+                </ZoruButton>
+            }
+        >
 
             <ZoruCard className="p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
@@ -210,6 +194,6 @@ export default async function PromotionDetailPage({
                     </div>
                 </ZoruCard>
             )}
-        </div>
+        </EntityDetailShell>
     );
 }

@@ -3,9 +3,7 @@ import {
   notFound,
   redirect } from 'next/navigation';
 import {
-    ArrowLeft,
   Download,
-  FileText,
   Paperclip,
   Pencil,
   } from 'lucide-react';
@@ -19,7 +17,7 @@ import {
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 import { getSession } from '@/app/actions/user.actions';
 import {
@@ -69,45 +67,33 @@ export default async function Form16DetailPage({
     const financialYear = (row.financialYear as string | undefined) ?? '—';
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'Payroll', href: '/dashboard/hrm/payroll' },
-                    { label: 'Form 16', href: BASE },
-                    { label: `${employeeName} · FY ${financialYear}` },
-                ]}
-                title={`${employeeName}`}
-                subtitle={`Form 16 — FY ${financialYear}`}
-                icon={FileText}
-                actions={
-                    <div className="flex items-center gap-2">
+        <EntityDetailShell
+            eyebrow="FORM 16"
+            title={`${employeeName}`}
+            back={{ href: BASE, label: 'Form 16' }}
+            actions={
+                <div className="flex items-center gap-2">
+                    {documentUrl ? (
                         <ZoruButton variant="outline" asChild>
-                            <Link href={BASE}>
-                                <ArrowLeft className="mr-2 h-4 w-4" />
-                                Back
-                            </Link>
+                            <a
+                                href={documentUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                <Download className="mr-2 h-4 w-4" />
+                                Download PDF
+                            </a>
                         </ZoruButton>
-                        {documentUrl ? (
-                            <ZoruButton variant="outline" asChild>
-                                <a
-                                    href={documentUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                >
-                                    <Download className="mr-2 h-4 w-4" />
-                                    Download PDF
-                                </a>
-                            </ZoruButton>
-                        ) : null}
-                        <ZoruButton asChild>
-                            <Link href={`${BASE}/${id}/edit`}>
-                                <Pencil className="mr-2 h-4 w-4" />
-                                Edit
-                            </Link>
-                        </ZoruButton>
-                    </div>
-                }
-            />
+                    ) : null}
+                    <ZoruButton asChild>
+                        <Link href={`${BASE}/${id}/edit`}>
+                            <Pencil className="mr-2 h-4 w-4" />
+                            Edit
+                        </Link>
+                    </ZoruButton>
+                </div>
+            }
+        >
 
             <ZoruCard className="p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
@@ -178,6 +164,6 @@ export default async function Form16DetailPage({
                     </a>
                 </ZoruCard>
             ) : null}
-        </div>
+        </EntityDetailShell>
     );
 }

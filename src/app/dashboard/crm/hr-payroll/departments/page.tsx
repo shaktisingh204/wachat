@@ -25,7 +25,6 @@ import {
   useZoruToast,
 } from '@/components/zoruui';
 import {
-  Building2,
   Edit,
   GitBranch,
   LoaderCircle,
@@ -48,7 +47,6 @@ import {
 import * as React from 'react';
 import Link from 'next/link';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill } from '@/components/crm/status-pill';
 import { useT } from '@/lib/i18n/client';
@@ -134,17 +132,10 @@ export default function DepartmentsListPage() {
 
     return (
         <>
-            <div className="flex w-full flex-col gap-6">
-                <CrmPageHeader
-                    breadcrumbs={[
-                        { label: t('hrm.breadcrumb.hrm'), href: '/dashboard/hrm' },
-                        { label: t('hrm.breadcrumb.payroll'), href: '/dashboard/crm/hr-payroll' },
-                        { label: t('hrm.breadcrumb.departments') },
-                    ]}
+            <EntityListShell
                     title={t('hrm.payroll.departments.title')}
                     subtitle={t('hrm.payroll.departments.subtitle')}
-                    icon={Building2}
-                    actions={
+                    primaryAction={
                         <div className="flex items-center gap-2">
                             <ZoruButton variant="outline" asChild>
                                 <Link href={`${BASE}/hierarchy`}>
@@ -160,10 +151,6 @@ export default function DepartmentsListPage() {
                             </ZoruButton>
                         </div>
                     }
-                />
-
-                <EntityListShell
-                    title=""
                     search={{
                         value: search,
                         onChange: setSearch,
@@ -272,8 +259,7 @@ export default function DepartmentsListPage() {
                             </ZoruTableBody>
                         </ZoruTable>
                     </div>
-                </EntityListShell>
-            </div>
+            </EntityListShell>
 
             <ZoruAlertDialog
                 open={!!pendingDelete}
