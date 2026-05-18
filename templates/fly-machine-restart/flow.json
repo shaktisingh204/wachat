@@ -1,0 +1,134 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_health_down",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "healthcheck.down",
+    "options": {
+      "path": "/webhooks/fly-machine-restart",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Health-Token",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_health_webhook",
+      "name": "Health Down",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "httpMethod": "POST", "path": "fly-machine-restart", "responseMode": "onReceived" },
+      "webhookId": "fly-machine-restart-webhook"
+    },
+    {
+      "id": "n_fly_restart",
+      "name": "Restart Fly Machines",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.FLY_API }}/v1/apps/{{ $vars.FLY_APP }}/machines/restart",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth"
+      },
+      "credentials": { "httpHeaderAuth": { "id": "fly-cred", "name": "Fly API Token" } }
+    },
+    {
+      "id": "n_wait_60",
+      "name": "Wait 60s",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": { "unit": "seconds", "amount": 60 }
+    },
+    {
+      "id": "n_probe",
+      "name": "Probe App",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.HEALTH_URL }}"
+      }
+    },
+    {
+      "id": "n_route",
+      "name": "Still Down?",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            { "conditions": { "number": [{ "value1": "={{ $json.status || 200 }}", "operation": "smaller", "value2": 500 }] }, "outputKey": "ok" }
+          ]
+        },
+        "fallbackOutput": "down"
+      }
+    },
+    {
+      "id": "n_slack_ok",
+      "name": "Slack Recovered",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, -100],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.OPS_SLACK }}",
+        "text": ":white_check_mark: Fly app {{ $vars.FLY_APP }} recovered after restart."
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    },
+    {
+      "id": "n_page",
+      "name": "Page On-Call",
+      "type": "n8n-nodes-base.pagerDuty",
+      "typeVersion": 1,
+      "position": [1200, 100],
+      "parameters": {
+        "resource": "incident",
+        "operation": "create",
+        "title": "Fly app {{ $vars.FLY_APP }} still down after restart",
+        "serviceId": "={{ $vars.PD_SERVICE }}",
+        "urgency": "high"
+      },
+      "credentials": { "pagerDutyApi": { "id": "pagerduty-cred", "name": "PagerDuty API" } }
+    }
+  ],
+  "connections": {
+    "n_health_webhook": { "main": [[{ "node": "n_fly_restart", "type": "main", "index": 0 }]] },
+    "n_fly_restart": { "main": [[{ "node": "n_wait_60", "type": "main", "index": 0 }]] },
+    "n_wait_60": { "main": [[{ "node": "n_probe", "type": "main", "index": 0 }]] },
+    "n_probe": { "main": [[{ "node": "n_route", "type": "main", "index": 0 }]] },
+    "n_route": {
+      "ok": [[{ "node": "n_slack_ok", "type": "main", "index": 0 }]],
+      "down": [[{ "node": "n_page", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_health_webhook", "n_fly_restart", "n_wait_60", "n_probe", "n_route", "n_slack_ok", "n_page"]
+    }
+  ],
+  "variables": [
+    { "id": "v_f", "name": "FLY_API", "defaultValue": "https://api.machines.dev" },
+    { "id": "v_a", "name": "FLY_APP", "defaultValue": "" },
+    { "id": "v_h", "name": "HEALTH_URL", "defaultValue": "" },
+    { "id": "v_s", "name": "OPS_SLACK", "defaultValue": "#ops" },
+    { "id": "v_p", "name": "PD_SERVICE", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
