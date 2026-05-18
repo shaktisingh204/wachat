@@ -1,0 +1,10 @@
+{
+  "id": "typeform-lead-router",
+  "name": "Typeform Lead Router",
+  "description": "Captures a Typeform demo-request submission, enriches the company with Clearbit, and routes the lead to the right Airtable view by company size (SMB / Mid / Enterprise). Pings the matching account executive in Slack so the right seller gets the lead in seconds. Replaces a manual triage shift.",
+  "category": "Sales",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["typeform", "clearbit", "airtable", "slack", "sales", "lead-routing"],
+  "version": "0.1.0"
+}
