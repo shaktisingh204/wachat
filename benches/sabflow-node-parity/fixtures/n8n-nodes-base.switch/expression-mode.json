@@ -1,0 +1,31 @@
+{
+  "$schema": "https://sabflow.dev/schemas/node-parity-fixture.v1.json",
+  "name": "expression-mode",
+  "description": "Switch in expression mode treats `value` as an integer output index. Here the trigger payload's routeIndex resolves to 1, so the item lands on output 1.",
+  "node": "n8n-nodes-base.switch",
+  "params": {
+    "mode": "expression",
+    "value": "{{$json.routeIndex}}",
+    "fallbackOutput": 3
+  },
+  "trigger": { "routeIndex": 1 },
+  "input": {
+    "items": [
+      { "id": "x" }
+    ]
+  },
+  "expected": {
+    "branches": [
+      { "items": [] },
+      { "items": [ { "id": "x" } ] },
+      { "items": [] },
+      { "items": [] }
+    ]
+  },
+  "expectedFields": [
+    "branches[0].items",
+    "branches[1].items[0].id",
+    "branches[2].items",
+    "branches[3].items"
+  ]
+}

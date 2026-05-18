@@ -1,11 +1,27 @@
-//! IF node — branches incoming items into `true` / `false` based on a set of
-//! comparisons combined with AND/OR.
+//! IF node — n8n parity (`n8n-nodes-base.if`).
 //!
-//! Properties:
-//!   - `combinator`: "AND" | "OR" (default "AND")
-//!   - `conditions`: Json array of `{ left, operator, right }` objects.
+//! Branches the incoming items into a `true` output (port 0) and a `false`
+//! output (port 1) based on one or more conditions combined with AND/OR.
+//! The left/right sides of each condition are evaluated through the
+//! expression engine (`ExecutionContext::substitute`), so node authors can
+//! write conditions like `{{$json.status}} === "open"` and have them resolve
+//! against the in-flight item.
 //!
-//! Output port 0 → items that matched. Port 1 → items that did not.
+//! ## Properties
+//!
+//! | name         | type    | description                                          |
+//! |--------------|---------|------------------------------------------------------|
+//! | `combinator` | options | `AND` (default) / `OR`                               |
+//! | `conditions` | json    | array of `{ left, operator, right }` (default `[]`)  |
+//!
+//! ## Operators
+//!
+//! `equals`, `notEquals`, `contains`, `notContains`, `startsWith`, `endsWith`,
+//! `regex`, `greaterThan`, `lessThan`, `greaterThanEquals`, `lessThanEquals`,
+//! `isEmpty`, `isNotEmpty`, `isTrue`, `isFalse`.
+//!
+//! Empty conditions list → every item routes to the `true` branch (no-op
+//! gate). Matches n8n's behaviour for an unconfigured IF.
 
 use async_trait::async_trait;
 use regex::Regex;
@@ -19,6 +35,14 @@ use crate::{
 };
 
 pub struct IfNode;
+
+fn opt(name: &str, value: &str) -> NodePropertyOption {
+    NodePropertyOption {
+        name: name.to_string(),
+        value: Value::String(value.to_string()),
+        description: None,
+    }
+}
 
 #[async_trait]
 impl Node for IfNode {
@@ -39,21 +63,17 @@ impl Node for IfNode {
             properties: vec![
                 NodeProperty::new("combinator", "Combine", NodePropertyType::Options)
                     .options(vec![
-                        NodePropertyOption {
-                            name: "AND (all must match)".into(),
-                            value: Value::String("AND".into()),
-                            description: None,
-                        },
-                        NodePropertyOption {
-                            name: "OR (any may match)".into(),
-                            value: Value::String("OR".into()),
-                            description: None,
-                        },
+                        opt("AND (all must match)", "AND"),
+                        opt("OR (any may match)", "OR"),
                     ])
                     .default(Value::String("AND".into())),
                 NodeProperty::new("conditions", "Conditions", NodePropertyType::Json)
                     .description(
-                        "Array of { left, operator, right } objects. Operators: equals, notEquals, contains, notContains, startsWith, endsWith, regex, greaterThan, lessThan, greaterThanEquals, lessThanEquals, isEmpty, isNotEmpty, isTrue, isFalse.",
+                        "Array of { left, operator, right } objects. Both sides may use \
+                         {{var}} / {{$json.path}} expressions. Operators: equals, notEquals, \
+                         contains, notContains, startsWith, endsWith, regex, greaterThan, \
+                         lessThan, greaterThanEquals, lessThanEquals, isEmpty, isNotEmpty, \
+                         isTrue, isFalse.",
                     )
                     .default(Value::Array(vec![])),
             ],
@@ -73,14 +93,10 @@ impl Node for IfNode {
             .to_uppercase();
         let is_and = combinator != "OR";
 
-        let conditions = params
-            .get("conditions")
-            .cloned()
-            .unwrap_or(Value::Array(vec![]));
-        let conditions = match conditions {
-            Value::Array(a) => a,
-            Value::Null => vec![],
-            other => {
+        let conditions = match params.get("conditions").cloned() {
+            Some(Value::Array(a)) => a,
+            Some(Value::Null) | None => vec![],
+            Some(other) => {
                 return Err(NodeError::InvalidParameter {
                     name: "conditions".into(),
                     reason: format!("expected an array, got: {other}"),
@@ -91,40 +107,13 @@ impl Node for IfNode {
         let mut true_items: Vec<Value> = Vec::new();
         let mut false_items: Vec<Value> = Vec::new();
 
-        // If there are no items to filter, still emit two empty branches.
-        if input.items.is_empty() {
-            return Ok(NodeOutput::multi(vec![true_items, false_items]));
-        }
-
         for item in input.items {
-            // With no conditions, treat as `true` (no-op gate).
-            let mut matched = if conditions.is_empty() { true } else { is_and };
-
-            for cond in &conditions {
-                let left_raw = cond.get("left").and_then(|v| v.as_str()).unwrap_or("");
-                let op_raw = cond
-                    .get("operator")
-                    .and_then(|v| v.as_str())
-                    .unwrap_or("equals");
-                let right_raw = cond.get("right").and_then(|v| v.as_str()).unwrap_or("");
-
-                let left = ctx.substitute(left_raw);
-                let right = ctx.substitute(right_raw);
-
-                let pass = evaluate(&left, op_raw, &right)?;
-
-                if is_and {
-                    if !pass {
-                        matched = false;
-                        break;
-                    }
-                } else if pass {
-                    matched = true;
-                    break;
-                } else {
-                    matched = false;
-                }
-            }
+            // No conditions configured → treat as a no-op pass-through to `true`.
+            let matched = if conditions.is_empty() {
+                true
+            } else {
+                evaluate_all(ctx, &conditions, is_and)?
+            };
 
             if matched {
                 true_items.push(item);
@@ -135,6 +124,35 @@ impl Node for IfNode {
 
         Ok(NodeOutput::multi(vec![true_items, false_items]))
     }
+}
+
+fn evaluate_all(ctx: &ExecutionContext, conditions: &[Value], is_and: bool) -> NodeResult<bool> {
+    // AND short-circuits on first false; OR short-circuits on first true.
+    let mut matched = is_and;
+    for cond in conditions {
+        let left_raw = cond.get("left").and_then(|v| v.as_str()).unwrap_or("");
+        let op_raw = cond
+            .get("operator")
+            .and_then(|v| v.as_str())
+            .unwrap_or("equals");
+        let right_raw = cond.get("right").and_then(|v| v.as_str()).unwrap_or("");
+
+        let left = ctx.substitute(left_raw);
+        let right = ctx.substitute(right_raw);
+
+        let pass = evaluate(&left, op_raw, &right)?;
+        if is_and {
+            if !pass {
+                return Ok(false);
+            }
+            matched = true;
+        } else if pass {
+            return Ok(true);
+        } else {
+            matched = false;
+        }
+    }
+    Ok(matched)
 }
 
 fn evaluate(left: &str, op: &str, right: &str) -> NodeResult<bool> {
@@ -175,4 +193,89 @@ fn evaluate(left: &str, op: &str, right: &str) -> NodeResult<bool> {
 
 fn parse_num(s: &str) -> f64 {
     s.trim().parse::<f64>().unwrap_or(f64::NAN)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::json;
+    use std::sync::Arc;
+
+    fn ctx() -> ExecutionContext {
+        ExecutionContext::new(
+            "test-exec".into(),
+            Arc::new(reqwest::Client::builder().build().unwrap()),
+        )
+    }
+
+    #[tokio::test]
+    async fn empty_conditions_route_all_to_true() {
+        let mut c = ctx();
+        let params = json!({});
+        let input = NodeInput::many(vec![json!({"a": 1}), json!({"a": 2})]);
+        let out = IfNode.execute(&mut c, input, &params).await.unwrap();
+        assert_eq!(out.branches[0].items.len(), 2);
+        assert_eq!(out.branches[1].items.len(), 0);
+    }
+
+    #[tokio::test]
+    async fn and_combinator_requires_all() {
+        let mut c = ctx();
+        c.trigger_data = Some(json!({"status": "ok", "score": "10"}));
+        let params = json!({
+            "combinator": "AND",
+            "conditions": [
+                { "left": "{{$json.status}}", "operator": "equals", "right": "ok" },
+                { "left": "{{$json.score}}", "operator": "greaterThan", "right": "5" }
+            ]
+        });
+        let input = NodeInput::one(json!({}));
+        let out = IfNode.execute(&mut c, input, &params).await.unwrap();
+        assert_eq!(out.branches[0].items.len(), 1, "matched true branch");
+        assert_eq!(out.branches[1].items.len(), 0);
+    }
+
+    #[tokio::test]
+    async fn or_combinator_passes_on_any() {
+        let mut c = ctx();
+        c.trigger_data = Some(json!({"status": "ok", "score": "1"}));
+        let params = json!({
+            "combinator": "OR",
+            "conditions": [
+                { "left": "{{$json.status}}", "operator": "equals", "right": "ok" },
+                { "left": "{{$json.score}}", "operator": "greaterThan", "right": "5" }
+            ]
+        });
+        let input = NodeInput::one(json!({}));
+        let out = IfNode.execute(&mut c, input, &params).await.unwrap();
+        assert_eq!(out.branches[0].items.len(), 1);
+    }
+
+    #[tokio::test]
+    async fn regex_operator_branches_correctly() {
+        let mut c = ctx();
+        c.trigger_data = Some(json!({"email": "alice@example.com"}));
+        let params = json!({
+            "conditions": [
+                { "left": "{{$json.email}}", "operator": "regex", "right": "^[^@]+@example\\.com$" }
+            ]
+        });
+        let input = NodeInput::one(json!({}));
+        let out = IfNode.execute(&mut c, input, &params).await.unwrap();
+        assert_eq!(out.branches[0].items.len(), 1);
+        assert_eq!(out.branches[1].items.len(), 0);
+    }
+
+    #[tokio::test]
+    async fn unknown_operator_returns_invalid_parameter() {
+        let mut c = ctx();
+        let params = json!({
+            "conditions": [
+                { "left": "x", "operator": "wat", "right": "y" }
+            ]
+        });
+        let input = NodeInput::one(json!({}));
+        let err = IfNode.execute(&mut c, input, &params).await.unwrap_err();
+        assert!(matches!(err, NodeError::InvalidParameter { ref name, .. } if name == "operator"));
+    }
 }
