@@ -109,13 +109,13 @@ pub mod my_sql;
 pub mod supabase;
 pub mod noco_db;
 
-// ── Phase C.4.8: misc A-band stubs un-stubbed (6 nodes) ─────────────────────
-pub mod compare_datasets;
-pub mod rename_keys;
-pub mod function_node;
-pub mod function_item;
-pub mod spreadsheet_file;
-pub mod edit_image;
+// ── Phase C.4.10: AI / vector-store nodes (6) ────────────────────────────────
+pub mod mistral_ai;
+pub mod cohere;
+pub mod perplexity;
+pub mod jina_ai;
+pub mod pinecone;
+pub mod qdrant;
 
 use crate::{descriptor::NodeCategory, registry::NodeRegistry};
 
@@ -232,13 +232,13 @@ fn register_implemented(r: &mut NodeRegistry) {
     r.register(my_sql::MySqlNode);
     r.register(supabase::SupabaseNode);
     r.register(noco_db::NocoDbNode);
-    // Phase C.4.9 — trigger variants (6)
-    r.register(form_trigger::FormTriggerNode);
-    r.register(interval_trigger::IntervalTriggerNode);
-    r.register(cron_trigger::CronTriggerNode);
-    r.register(local_file_trigger::LocalFileTriggerNode);
-    r.register(email_trigger::EmailTriggerNode);
-    r.register(mqtt_trigger::MqttTriggerNode);
+    // Phase C.4.10 — AI / vector-store
+    r.register(mistral_ai::MistralAiNode);
+    r.register(cohere::CohereNode);
+    r.register(perplexity::PerplexityNode);
+    r.register(jina_ai::JinaAiNode);
+    r.register(pinecone::PineconeNode);
+    r.register(qdrant::QdrantNode);
 }
 
 /// Register stubs only when the name isn't already populated by an implemented node.
@@ -280,6 +280,7 @@ fn register_stubs(r: &mut NodeRegistry) {
         ("cloudflare", "Cloudflare", NodeCategory::Developer, "DNS and CDN management"),
         ("cockpit", "Cockpit", NodeCategory::Developer, "Headless CMS"),
         ("coda", "Coda", NodeCategory::Productivity, "All-in-one doc"),
+        ("cohere", "Cohere", NodeCategory::Ai, "Cohere chat, embeddings, and reranking"),
         ("coinGecko", "CoinGecko", NodeCategory::Finance, "Cryptocurrency price data"),
         ("compareDatasets", "Compare Datasets", NodeCategory::Transform, "Diff two datasets"),
         ("contentful", "Contentful", NodeCategory::Developer, "Headless CMS"),
@@ -426,6 +427,7 @@ fn register_stubs(r: &mut NodeRegistry) {
         ("perplexity", "Perplexity", NodeCategory::Ai, "Perplexity AI search"),
         ("phantombuster", "Phantombuster", NodeCategory::Marketing, "Automated outreach"),
         ("philipsHue", "Philips Hue", NodeCategory::Misc, "Smart lighting"),
+        ("pinecone", "Pinecone", NodeCategory::Database, "Pinecone vector database"),
         ("pipedrive", "Pipedrive", NodeCategory::Sales, "Sales CRM"),
         ("plivo", "Plivo", NodeCategory::Communication, "SMS / voice"),
         ("postBin", "PostBin", NodeCategory::Developer, "HTTP request bin"),
@@ -435,6 +437,8 @@ fn register_stubs(r: &mut NodeRegistry) {
         ("pushbullet", "Pushbullet", NodeCategory::Communication, "Cross-device notifications"),
         ("pushcut", "Pushcut", NodeCategory::Communication, "iOS automation"),
         ("pushover", "Pushover", NodeCategory::Communication, "Push notifications"),
+        ("qdrant", "Qdrant", NodeCategory::Database, "Qdrant vector database"),
+        ("questDb", "QuestDB", NodeCategory::Database, "Time-series database"),
         ("quickBase", "QuickBase", NodeCategory::Database, "Low-code application database"),
         ("quickBooks", "QuickBooks", NodeCategory::Finance, "Accounting"),
         ("quickChart", "QuickChart", NodeCategory::Analytics, "Chart image generation"),
