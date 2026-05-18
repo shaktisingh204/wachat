@@ -1,0 +1,10 @@
+{
+  "id": "gusto-payroll-recap",
+  "name": "Gusto Payroll Recap",
+  "description": "When Gusto fires a payroll.processed webhook, this flow fetches the payroll detail, formats a one-page recap covering totals, headcount, and anomalies, and posts it to #people-ops Slack with a thread of per-department breakdowns. It also emails finance a CSV of the run and logs the digest to a Mongo audit row, replacing the manual end-of-payroll digest.",
+  "category": "HR",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["gusto", "hr", "payroll", "slack", "finance", "digest"],
+  "version": "0.1.0"
+}
