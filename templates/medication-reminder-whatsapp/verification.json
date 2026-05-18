@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "medication-reminder-whatsapp",
+  "cases": [
+    {
+      "id": "daily",
+      "description": "Cron finds prescriptions and sends WhatsApp reminders.",
+      "triggerPayload": { "tick": "2026-05-19T08:00:00Z" },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
