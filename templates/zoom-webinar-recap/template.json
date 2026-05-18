@@ -1,0 +1,10 @@
+{
+  "id": "zoom-webinar-recap",
+  "name": "Zoom Webinar Recap",
+  "description": "Triggered when a Zoom webinar ends, the workflow pulls the attendee list, tags attended versus no-show in Mailchimp, and sends a tailored recap email to each segment. Engagement is preserved while the topic is still warm.",
+  "category": "Marketing",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["zoom", "mailchimp", "sendgrid", "webinar", "marketing", "lifecycle"],
+  "version": "0.1.0"
+}

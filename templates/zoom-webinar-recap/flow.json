@@ -1,0 +1,123 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_zoom_end",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "zoom.webinar.ended",
+    "options": {
+      "path": "/webhooks/zoom-webinar-ended",
+      "method": "POST",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_webhook",
+      "name": "Zoom Webinar Ended",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "zoom-webinar-ended",
+        "responseMode": "onReceived"
+      },
+      "webhookId": "zoom-webinar-end-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Webinar",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "webinarId", "value": "={{ $json.payload.object.id }}" },
+            { "name": "topic", "value": "={{ $json.payload.object.topic }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_attendees",
+      "name": "Pull Attendees",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "=https://api.zoom.us/v2/report/webinars/{{ $json.webinarId }}/participants"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "zoom-cred", "name": "Zoom JWT" }
+      }
+    },
+    {
+      "id": "n_split",
+      "name": "Per Attendee",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": { "batchSize": 1 }
+    },
+    {
+      "id": "n_mailchimp_tag",
+      "name": "Mailchimp Tag",
+      "type": "n8n-nodes-base.mailchimp",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "resource": "memberTag",
+        "operation": "create",
+        "list": "={{ $vars.MAILCHIMP_LIST }}",
+        "email": "={{ $json.user_email }}",
+        "tags": "=webinar:{{ $node['Extract Webinar'].json.webinarId }}:attended"
+      },
+      "credentials": {
+        "mailchimpApi": { "id": "mailchimp-cred", "name": "Mailchimp API" }
+      }
+    },
+    {
+      "id": "n_sendgrid",
+      "name": "Recap Email",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [1200, 0],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "={{ $vars.FROM_EMAIL }}",
+        "toEmail": "={{ $json.user_email }}",
+        "subject": "Thanks for attending {{ $node['Extract Webinar'].json.topic }}",
+        "contentType": "text/html",
+        "content": "<p>Here's the recap and recording.</p>"
+      },
+      "credentials": {
+        "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid" }
+      }
+    }
+  ],
+  "connections": {
+    "n_webhook": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": { "main": [[{ "node": "n_attendees", "type": "main", "index": 0 }]] },
+    "n_attendees": { "main": [[{ "node": "n_split", "type": "main", "index": 0 }]] },
+    "n_split": { "main": [[{ "node": "n_mailchimp_tag", "type": "main", "index": 0 }]] },
+    "n_mailchimp_tag": { "main": [[{ "node": "n_sendgrid", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_webhook", "n_extract", "n_attendees", "n_split", "n_mailchimp_tag", "n_sendgrid"]
+    }
+  ],
+  "variables": [
+    { "id": "v_list", "name": "MAILCHIMP_LIST", "defaultValue": "" },
+    { "id": "v_from", "name": "FROM_EMAIL", "defaultValue": "events@example.com" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
