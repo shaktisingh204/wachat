@@ -1,0 +1,10 @@
+{
+  "id": "mongo-backup-rotation",
+  "name": "Mongo Backup Rotation",
+  "description": "Runs every night at 03:00 to take a fresh mongodump, upload the archive to S3, then prune anything older than the retention window so storage costs stay flat. A summary line lands in Slack #infra-backups so the on-call engineer can see at a glance that last night's backup is healthy.",
+  "category": "Developer",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["mongo", "backup", "s3", "rotation", "slack", "infra"],
+  "version": "0.1.0"
+}
