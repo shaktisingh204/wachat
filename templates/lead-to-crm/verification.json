@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "templateId": "lead-to-crm",
+  "cases": [
+    {
+      "id": "happy-path",
+      "description": "Typeform submission creates HubSpot contact and fires Slack alert.",
+      "triggerPayload": {
+        "answers": {
+          "email": "john.doe@acme.com",
+          "first_name": "John",
+          "last_name": "Doe",
+          "company": "Acme Inc",
+          "phone": "+1-555-0100"
+        }
+      },
+      "fixtures": {
+        "hubspot.upsertContact": { "status": 200, "body": { "id": "hs-001", "properties": {} } },
+        "slack.postMessage": { "status": 200, "body": { "ok": true } }
+      },
+      "expect": {
+        "finalStatus": "success",
+        "executedBlocks": ["n_typeform_trigger", "n_extract_lead", "n_hubspot_contact", "n_slack_alert"],
+        "variables": {
+          "email": "john.doe@acme.com",
+          "firstName": "John",
+          "company": "Acme Inc"
+        }
+      }
+    }
+  ]
+}

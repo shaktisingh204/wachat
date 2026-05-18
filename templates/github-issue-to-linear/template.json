@@ -1,0 +1,10 @@
+{
+  "id": "github-issue-to-linear",
+  "name": "GitHub Issue to Linear",
+  "description": "Listens for GitHub issue creation webhooks and automatically mirrors each issue as a Linear ticket in your engineering team's project. Keeps GitHub community feedback in sync with your sprint planning.",
+  "category": "DevOps",
+  "complexity": "beginner",
+  "authorName": "SabNode",
+  "tags": ["github", "linear", "issues", "project-management", "devops"],
+  "version": "0.1.0"
+}

@@ -1,0 +1,142 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_user_signup",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "user.signup",
+    "options": {
+      "path": "/webhooks/welcome-email-sequence",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Webhook-Secret",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_signup_webhook",
+      "name": "User Signup Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "welcome-email-sequence",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "welcome-email-webhook"
+    },
+    {
+      "id": "n_email_welcome",
+      "name": "Email 1: Welcome",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [240, 0],
+      "parameters": {
+        "fromEmail": "={{ $vars.FROM_EMAIL }}",
+        "toEmail": "={{ $json.email }}",
+        "subject": "Welcome to {{ $vars.APP_NAME }}! Here's how to get started",
+        "html": "<h1>Welcome, {{ $json.firstName }}!</h1><p>We're thrilled to have you on board. Here are 3 things to do first:</p><ol><li>Complete your profile</li><li>Connect your first integration</li><li>Run your first workflow</li></ol><p>Reply to this email with any questions.</p>",
+        "options": {}
+      },
+      "credentials": {
+        "smtp": { "id": "smtp-cred", "name": "SMTP" }
+      }
+    },
+    {
+      "id": "n_wait_3_days",
+      "name": "Wait 3 Days",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "resume": "timeInterval",
+        "unit": "days",
+        "amount": 3
+      }
+    },
+    {
+      "id": "n_email_tips",
+      "name": "Email 2: Product Tips",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "fromEmail": "={{ $vars.FROM_EMAIL }}",
+        "toEmail": "={{ $json.email }}",
+        "subject": "3 power tips to get more out of {{ $vars.APP_NAME }}",
+        "html": "<h1>Hi {{ $json.firstName }},</h1><p>You've been with us for 3 days. Here are our top tips for power users:</p><ul><li><strong>Use templates</strong> to get started faster</li><li><strong>Schedule workflows</strong> to run automatically</li><li><strong>Connect your CRM</strong> for end-to-end automation</li></ul>",
+        "options": {}
+      },
+      "credentials": {
+        "smtp": { "id": "smtp-cred", "name": "SMTP" }
+      }
+    },
+    {
+      "id": "n_wait_4_more_days",
+      "name": "Wait 4 More Days",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "resume": "timeInterval",
+        "unit": "days",
+        "amount": 4
+      }
+    },
+    {
+      "id": "n_email_upgrade",
+      "name": "Email 3: Upgrade Prompt",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [1200, 0],
+      "parameters": {
+        "fromEmail": "={{ $vars.FROM_EMAIL }}",
+        "toEmail": "={{ $json.email }}",
+        "subject": "Ready to unlock the full power of {{ $vars.APP_NAME }}?",
+        "html": "<h1>Hi {{ $json.firstName }},</h1><p>You've been exploring {{ $vars.APP_NAME }} for a week. Upgrade to Pro to unlock:</p><ul><li>Unlimited workflow executions</li><li>Priority support</li><li>Advanced AI nodes</li><li>Team collaboration</li></ul><p><a href='{{ $vars.UPGRADE_URL }}'>Upgrade to Pro →</a></p>",
+        "options": {}
+      },
+      "credentials": {
+        "smtp": { "id": "smtp-cred", "name": "SMTP" }
+      }
+    }
+  ],
+  "connections": {
+    "n_signup_webhook": {
+      "main": [[{ "node": "n_email_welcome", "type": "main", "index": 0 }]]
+    },
+    "n_email_welcome": {
+      "main": [[{ "node": "n_wait_3_days", "type": "main", "index": 0 }]]
+    },
+    "n_wait_3_days": {
+      "main": [[{ "node": "n_email_tips", "type": "main", "index": 0 }]]
+    },
+    "n_email_tips": {
+      "main": [[{ "node": "n_wait_4_more_days", "type": "main", "index": 0 }]]
+    },
+    "n_wait_4_more_days": {
+      "main": [[{ "node": "n_email_upgrade", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_sequence",
+      "title": "Drip Sequence",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_signup_webhook", "n_email_welcome", "n_wait_3_days", "n_email_tips", "n_wait_4_more_days", "n_email_upgrade"]
+    }
+  ],
+  "variables": [
+    { "id": "v_from_email", "name": "FROM_EMAIL", "defaultValue": "hello@example.com" },
+    { "id": "v_app_name", "name": "APP_NAME", "defaultValue": "SabNode" },
+    { "id": "v_upgrade_url", "name": "UPGRADE_URL", "defaultValue": "https://sabnode.com/upgrade" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

@@ -1,0 +1,168 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_ticket_webhook",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "http.post",
+    "options": {
+      "path": "/webhooks/customer-ticket-escalation",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Webhook-Secret",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_ticket_webhook",
+      "name": "Ticket Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "customer-ticket-escalation",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "ticket-escalation-webhook"
+    },
+    {
+      "id": "n_sentiment_analysis",
+      "name": "Sentiment Analysis",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "authentication": "apiKey",
+        "resource": "chat",
+        "operation": "complete",
+        "model": "gpt-4o-mini",
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "You are a sentiment classifier for customer support tickets. Analyze the ticket and respond with a JSON object: { \"sentiment\": \"positive\" | \"neutral\" | \"negative\", \"score\": number between -1.0 and 1.0, \"urgency\": \"low\" | \"medium\" | \"high\" }. Respond ONLY with the JSON object."
+            },
+            {
+              "role": "user",
+              "content": "=Ticket Subject: {{ $json.subject }}\n\nMessage: {{ $json.message }}"
+            }
+          ]
+        },
+        "options": { "maxTokens": 100, "temperature": 0 }
+      },
+      "credentials": {
+        "openAiApi": { "id": "openai-cred", "name": "OpenAI API" }
+      }
+    },
+    {
+      "id": "n_parse_sentiment",
+      "name": "Parse Sentiment",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const raw = items[0].json.message.content;\nlet parsed;\ntry { parsed = JSON.parse(raw); } catch(e) { parsed = { sentiment: 'neutral', score: 0, urgency: 'low' }; }\nconst prev = $node['Ticket Webhook'].json;\nreturn [{ json: { ...prev, ...parsed, shouldEscalate: parsed.sentiment === 'negative' || parsed.urgency === 'high' } }];"
+      }
+    },
+    {
+      "id": "n_if_escalate",
+      "name": "Should Escalate?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "conditions": {
+          "boolean": [{ "value1": "={{ $json.shouldEscalate }}", "value2": true }]
+        }
+      }
+    },
+    {
+      "id": "n_slack_escalate",
+      "name": "Slack Escalation Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [960, -100],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.ESCALATION_CHANNEL }}",
+        "text": ":rotating_light: *Escalation Required*\n*Ticket #{{ $json.ticketId }}* — {{ $json.subject }}\nSentiment: {{ $json.sentiment }} (score: {{ $json.score }}), Urgency: {{ $json.urgency }}\nFrom: {{ $json.customerEmail }}\n\n{{ $json.message }}",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    },
+    {
+      "id": "n_update_ticket_priority",
+      "name": "Update Ticket Priority",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [960, 100],
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ $vars.HELPDESK_API_URL }}/tickets/{{ $json.ticketId }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $vars.HELPDESK_API_KEY }}" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"priority\": \"high\", \"tags\": [\"escalated\", \"negative-sentiment\"] }",
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "n_ticket_webhook": {
+      "main": [[{ "node": "n_sentiment_analysis", "type": "main", "index": 0 }]]
+    },
+    "n_sentiment_analysis": {
+      "main": [[{ "node": "n_parse_sentiment", "type": "main", "index": 0 }]]
+    },
+    "n_parse_sentiment": {
+      "main": [[{ "node": "n_if_escalate", "type": "main", "index": 0 }]]
+    },
+    "n_if_escalate": {
+      "main": [
+        [
+          { "node": "n_slack_escalate", "type": "main", "index": 0 },
+          { "node": "n_update_ticket_priority", "type": "main", "index": 0 }
+        ],
+        []
+      ]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_ticket_webhook", "n_sentiment_analysis", "n_parse_sentiment", "n_if_escalate"]
+    },
+    {
+      "id": "g_escalation",
+      "title": "Escalation Actions",
+      "graphCoordinates": { "x": 960, "y": 0 },
+      "blockIds": ["n_slack_escalate", "n_update_ticket_priority"]
+    }
+  ],
+  "variables": [
+    { "id": "v_esc_channel", "name": "ESCALATION_CHANNEL", "defaultValue": "#escalations" },
+    { "id": "v_helpdesk_url", "name": "HELPDESK_API_URL", "defaultValue": "" },
+    { "id": "v_helpdesk_key", "name": "HELPDESK_API_KEY", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

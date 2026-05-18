@@ -1,0 +1,10 @@
+{
+  "id": "invoice-pdf-to-r2",
+  "name": "Invoice PDF to R2 (SabFiles)",
+  "description": "Accepts an HTTP trigger with invoice data, generates a PDF via an HTML-to-PDF service, and stores the resulting file in Cloudflare R2 through the SabFiles API. Returns a shareable download URL.",
+  "category": "Finance",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["invoice", "pdf", "r2", "sabfiles", "storage", "finance"],
+  "version": "0.1.0"
+}

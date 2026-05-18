@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "templateId": "customer-ticket-escalation",
+  "cases": [
+    {
+      "id": "negative-ticket-escalated",
+      "description": "Negative sentiment ticket → Slack alert + priority update.",
+      "triggerPayload": {
+        "ticketId": "TKT-999",
+        "subject": "This is absolutely broken and nobody cares!",
+        "message": "I have been waiting 3 weeks and nobody has helped me. This is unacceptable.",
+        "customerEmail": "angry@example.com"
+      },
+      "fixtures": {
+        "openAi.chatComplete": {
+          "status": 200,
+          "body": { "choices": [{ "message": { "content": "{\"sentiment\":\"negative\",\"score\":-0.9,\"urgency\":\"high\"}" } }] }
+        },
+        "slack.postMessage": { "status": 200, "body": { "ok": true } },
+        "helpdesk.patchTicket": { "status": 200, "body": { "id": "TKT-999", "priority": "high" } }
+      },
+      "expect": {
+        "finalStatus": "success",
+        "executedBlocks": ["n_ticket_webhook", "n_sentiment_analysis", "n_parse_sentiment", "n_if_escalate", "n_slack_escalate", "n_update_ticket_priority"],
+        "variables": { "shouldEscalate": true, "sentiment": "negative" }
+      }
+    },
+    {
+      "id": "positive-ticket-no-escalation",
+      "description": "Positive sentiment ticket → no escalation actions taken.",
+      "triggerPayload": {
+        "ticketId": "TKT-1000",
+        "subject": "Great service!",
+        "message": "Just wanted to say your team was amazing. Thank you!",
+        "customerEmail": "happy@example.com"
+      },
+      "fixtures": {
+        "openAi.chatComplete": {
+          "status": 200,
+          "body": { "choices": [{ "message": { "content": "{\"sentiment\":\"positive\",\"score\":0.9,\"urgency\":\"low\"}" } }] }
+        }
+      },
+      "expect": {
+        "finalStatus": "success",
+        "executedBlocks": ["n_ticket_webhook", "n_sentiment_analysis", "n_parse_sentiment", "n_if_escalate"],
+        "variables": { "shouldEscalate": false }
+      }
+    }
+  ]
+}

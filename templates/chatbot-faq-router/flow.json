@@ -1,0 +1,185 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_chat_input",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "http.post",
+    "options": {
+      "path": "/webhooks/chatbot-faq-router",
+      "method": "POST",
+      "authentication": "none",
+      "responseMode": "lastNode",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_chat_webhook",
+      "name": "Chat Input",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "chatbot-faq-router",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "webhookId": "chatbot-faq-webhook"
+    },
+    {
+      "id": "n_ai_classify",
+      "name": "AI Classify Intent",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "authentication": "apiKey",
+        "resource": "chat",
+        "operation": "complete",
+        "model": "gpt-4o-mini",
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "You are an intent classifier. Given a user message, respond with ONE of these categories only: billing, shipping, returns, technical, general. Respond with exactly one word."
+            },
+            {
+              "role": "user",
+              "content": "={{ $json.message }}"
+            }
+          ]
+        },
+        "options": { "maxTokens": 10, "temperature": 0 }
+      },
+      "credentials": {
+        "openAiApi": { "id": "openai-cred", "name": "OpenAI API" }
+      }
+    },
+    {
+      "id": "n_switch_intent",
+      "name": "Route by Intent",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            { "conditions": { "string": [{ "value1": "={{ $json.message.content.trim().toLowerCase() }}", "operation": "equal", "value2": "billing" }] }, "outputKey": "billing" },
+            { "conditions": { "string": [{ "value1": "={{ $json.message.content.trim().toLowerCase() }}", "operation": "equal", "value2": "shipping" }] }, "outputKey": "shipping" },
+            { "conditions": { "string": [{ "value1": "={{ $json.message.content.trim().toLowerCase() }}", "operation": "equal", "value2": "returns" }] }, "outputKey": "returns" },
+            { "conditions": { "string": [{ "value1": "={{ $json.message.content.trim().toLowerCase() }}", "operation": "equal", "value2": "technical" }] }, "outputKey": "technical" }
+          ]
+        },
+        "fallbackOutput": "none"
+      }
+    },
+    {
+      "id": "n_faq_billing",
+      "name": "FAQ: Billing",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, -200],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "answer", "value": "For billing questions, please visit our billing portal at https://billing.example.com or email billing@example.com." },
+            { "name": "category", "value": "billing" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_faq_shipping",
+      "name": "FAQ: Shipping",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "answer", "value": "Standard shipping takes 3-5 business days. Express shipping is available at checkout. Track your order at https://tracking.example.com." },
+            { "name": "category", "value": "shipping" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_faq_general",
+      "name": "FAQ: General",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, 200],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "answer", "value": "Thanks for reaching out! Our support team is available Mon-Fri 9AM-6PM UTC. Please visit https://help.example.com for self-service options." },
+            { "name": "category", "value": "general" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_respond",
+      "name": "Respond with Answer",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ answer: $json.answer, category: $json.category }) }}"
+      }
+    }
+  ],
+  "connections": {
+    "n_chat_webhook": {
+      "main": [[{ "node": "n_ai_classify", "type": "main", "index": 0 }]]
+    },
+    "n_ai_classify": {
+      "main": [[{ "node": "n_switch_intent", "type": "main", "index": 0 }]]
+    },
+    "n_switch_intent": {
+      "billing": [[{ "node": "n_faq_billing", "type": "main", "index": 0 }]],
+      "shipping": [[{ "node": "n_faq_shipping", "type": "main", "index": 0 }]],
+      "returns": [[{ "node": "n_faq_general", "type": "main", "index": 0 }]],
+      "technical": [[{ "node": "n_faq_general", "type": "main", "index": 0 }]],
+      "none": [[{ "node": "n_faq_general", "type": "main", "index": 0 }]]
+    },
+    "n_faq_billing": {
+      "main": [[{ "node": "n_respond", "type": "main", "index": 0 }]]
+    },
+    "n_faq_shipping": {
+      "main": [[{ "node": "n_respond", "type": "main", "index": 0 }]]
+    },
+    "n_faq_general": {
+      "main": [[{ "node": "n_respond", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_input",
+      "title": "Input",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_chat_webhook", "n_ai_classify", "n_switch_intent"]
+    },
+    {
+      "id": "g_answers",
+      "title": "FAQ Answers",
+      "graphCoordinates": { "x": 720, "y": 0 },
+      "blockIds": ["n_faq_billing", "n_faq_shipping", "n_faq_general"]
+    },
+    {
+      "id": "g_output",
+      "title": "Output",
+      "graphCoordinates": { "x": 960, "y": 0 },
+      "blockIds": ["n_respond"]
+    }
+  ],
+  "variables": [],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

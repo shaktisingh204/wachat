@@ -1,0 +1,143 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_cron_sync",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": {
+      "cronExpression": "*/15 * * * *",
+      "timezone": "UTC",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_cron_trigger",
+      "name": "Every 15 Minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "rule": {
+          "interval": [{ "field": "minutes", "minutesInterval": 15 }]
+        }
+      }
+    },
+    {
+      "id": "n_read_watermark",
+      "name": "Read Sync Watermark",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "operation": "findOne",
+        "collection": "_sync_watermarks",
+        "query": "{ \"syncId\": \"{{ $vars.SYNC_ID }}\" }"
+      },
+      "credentials": {
+        "mongoDb": { "id": "mongo-cred", "name": "MongoDB" }
+      }
+    },
+    {
+      "id": "n_postgres_query",
+      "name": "Query Postgres (Incremental)",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=SELECT * FROM {{ $vars.PG_TABLE }} WHERE updated_at > '{{ $json.lastSyncAt ?? '1970-01-01T00:00:00Z' }}' ORDER BY updated_at ASC LIMIT 500",
+        "options": {}
+      },
+      "credentials": {
+        "postgres": { "id": "pg-cred", "name": "Postgres" }
+      }
+    },
+    {
+      "id": "n_if_has_rows",
+      "name": "Any Rows?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "conditions": {
+          "number": [{ "value1": "={{ $items().length }}", "operation": "larger", "value2": 0 }]
+        }
+      }
+    },
+    {
+      "id": "n_upsert_mongo",
+      "name": "Upsert into MongoDB",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [960, -100],
+      "parameters": {
+        "operation": "update",
+        "collection": "={{ $vars.MONGO_COLLECTION }}",
+        "filter": "{ \"_pgId\": {{ $json.id }} }",
+        "updateKey": "_pgId",
+        "upsert": true,
+        "fields": "="
+      },
+      "credentials": {
+        "mongoDb": { "id": "mongo-cred", "name": "MongoDB" }
+      }
+    },
+    {
+      "id": "n_update_watermark",
+      "name": "Update Watermark",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [1200, -100],
+      "parameters": {
+        "operation": "update",
+        "collection": "_sync_watermarks",
+        "filter": "{ \"syncId\": \"{{ $vars.SYNC_ID }}\" }",
+        "updateKey": "syncId",
+        "upsert": true,
+        "fields": "lastSyncAt,syncId"
+      },
+      "credentials": {
+        "mongoDb": { "id": "mongo-cred", "name": "MongoDB" }
+      }
+    }
+  ],
+  "connections": {
+    "n_cron_trigger": {
+      "main": [[{ "node": "n_read_watermark", "type": "main", "index": 0 }]]
+    },
+    "n_read_watermark": {
+      "main": [[{ "node": "n_postgres_query", "type": "main", "index": 0 }]]
+    },
+    "n_postgres_query": {
+      "main": [[{ "node": "n_if_has_rows", "type": "main", "index": 0 }]]
+    },
+    "n_if_has_rows": {
+      "main": [
+        [{ "node": "n_upsert_mongo", "type": "main", "index": 0 }],
+        []
+      ]
+    },
+    "n_upsert_mongo": {
+      "main": [[{ "node": "n_update_watermark", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cron_trigger", "n_read_watermark", "n_postgres_query", "n_if_has_rows", "n_upsert_mongo", "n_update_watermark"]
+    }
+  ],
+  "variables": [
+    { "id": "v_sync_id", "name": "SYNC_ID", "defaultValue": "pg-to-mongo-default" },
+    { "id": "v_pg_table", "name": "PG_TABLE", "defaultValue": "users" },
+    { "id": "v_mongo_coll", "name": "MONGO_COLLECTION", "defaultValue": "users" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
