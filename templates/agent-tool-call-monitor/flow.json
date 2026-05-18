@@ -1,0 +1,190 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_webhook_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "tool_call.failed",
+    "options": {
+      "path": "/webhooks/agent-tool-call-monitor",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Internal-Token",
+      "responseMode": "lastNode",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_webhook_trigger",
+      "name": "Tool-Call Failed Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "agent-tool-call-monitor",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "webhookId": "agent-tool-call-monitor-webhook"
+    },
+    {
+      "id": "n_extract_failure",
+      "name": "Extract Tool + Error",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "toolName", "value": "={{ $json.tool_name }}" },
+            { "name": "errorMessage", "value": "={{ $json.error }}" },
+            { "name": "agentId", "value": "={{ $json.agent_id }}" },
+            { "name": "traceId", "value": "={{ $json.trace_id }}" },
+            { "name": "windowKey", "value": "agent:tool_fail:{{ $json.tool_name }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_redis_incr",
+      "name": "Redis INCR + 10m TTL",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "operation": "incr",
+        "key": "={{ $json.windowKey }}",
+        "expire": true,
+        "ttl": 600
+      },
+      "credentials": {
+        "redis": { "id": "redis-cred", "name": "Upstash Redis" }
+      }
+    },
+    {
+      "id": "n_if_threshold",
+      "name": "Failures Over Threshold?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "conditions": {
+          "number": [
+            { "value1": "={{ $json.value }}", "operation": "larger", "value2": "={{ $vars.THRESHOLD }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_linear_issue",
+      "name": "Open Linear Issue",
+      "type": "n8n-nodes-base.linear",
+      "typeVersion": 1,
+      "position": [960, -120],
+      "parameters": {
+        "resource": "issue",
+        "operation": "create",
+        "teamId": "={{ $vars.LINEAR_TEAM_ID }}",
+        "title": "Tool {{ $node['Extract Tool + Error'].json.toolName }} failing — {{ $json.value }} failures in 10m",
+        "description": "Agent runtime is reporting repeated failures.\n\nTool: {{ $node['Extract Tool + Error'].json.toolName }}\nLast error: {{ $node['Extract Tool + Error'].json.errorMessage }}\nLast trace: {{ $node['Extract Tool + Error'].json.traceId }}\nAgent: {{ $node['Extract Tool + Error'].json.agentId }}\n\nWindow count: {{ $json.value }} (threshold {{ $vars.THRESHOLD }})"
+      },
+      "credentials": {
+        "linearApi": { "id": "linear-cred", "name": "Linear API" }
+      }
+    },
+    {
+      "id": "n_slack_page",
+      "name": "Page AI On-Call (Slack)",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [960, 120],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.AI_ONCALL_SLACK_CHANNEL }}",
+        "text": ":rotating_light: Agent tool `{{ $node['Extract Tool + Error'].json.toolName }}` failing — {{ $json.value }} failures in 10m. Last trace `{{ $node['Extract Tool + Error'].json.traceId }}` — error: {{ $node['Extract Tool + Error'].json.errorMessage }}"
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    },
+    {
+      "id": "n_mongo_log",
+      "name": "Log Alert in Mongo",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [1200, 0],
+      "parameters": {
+        "operation": "insert",
+        "collection": "agent_tool_alerts",
+        "fields": "toolName,errorMessage,agentId,traceId,count,firedAt"
+      },
+      "credentials": {
+        "mongoDb": { "id": "mongo-cred", "name": "MongoDB" }
+      }
+    },
+    {
+      "id": "n_below_threshold",
+      "name": "Below Threshold (NoOp)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [960, 280],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "n_webhook_trigger": {
+      "main": [[{ "node": "n_extract_failure", "type": "main", "index": 0 }]]
+    },
+    "n_extract_failure": {
+      "main": [[{ "node": "n_redis_incr", "type": "main", "index": 0 }]]
+    },
+    "n_redis_incr": {
+      "main": [[{ "node": "n_if_threshold", "type": "main", "index": 0 }]]
+    },
+    "n_if_threshold": {
+      "main": [
+        [
+          { "node": "n_linear_issue", "type": "main", "index": 0 },
+          { "node": "n_slack_page", "type": "main", "index": 0 }
+        ],
+        [{ "node": "n_below_threshold", "type": "main", "index": 0 }]
+      ]
+    },
+    "n_linear_issue": {
+      "main": [[{ "node": "n_mongo_log", "type": "main", "index": 0 }]]
+    },
+    "n_slack_page": {
+      "main": [[{ "node": "n_mongo_log", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_webhook_trigger",
+        "n_extract_failure",
+        "n_redis_incr",
+        "n_if_threshold",
+        "n_linear_issue",
+        "n_slack_page",
+        "n_mongo_log",
+        "n_below_threshold"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_threshold", "name": "THRESHOLD", "defaultValue": "5" },
+    { "id": "v_linear_team", "name": "LINEAR_TEAM_ID", "defaultValue": "" },
+    { "id": "v_ai_oncall", "name": "AI_ONCALL_SLACK_CHANNEL", "defaultValue": "#ai-oncall" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

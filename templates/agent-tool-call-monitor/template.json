@@ -1,0 +1,10 @@
+{
+  "id": "agent-tool-call-monitor",
+  "name": "Agent Tool-Call Monitor",
+  "description": "Catches a webhook from your AI agent runtime whenever a tool-call fails, counts failures-per-tool over a 10-minute Redis sliding window, and — when the threshold is crossed — opens a Linear issue with the recent traces attached and pages the AI on-call channel in Slack. Stops silently degrading agents.",
+  "category": "AI",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["ai", "agent", "monitoring", "redis", "linear", "slack", "alerting"],
+  "version": "0.1.0"
+}
