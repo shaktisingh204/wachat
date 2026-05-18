@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "retention-cohort-builder",
+  "cases": [
+    {
+      "id": "weekly",
+      "description": "Monday cron rebuilds cohort and syncs to Mailchimp.",
+      "triggerPayload": { "tick": "2026-05-18T07:00:00Z" },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
