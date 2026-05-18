@@ -448,3 +448,160 @@ export function extractRequiredCredentials(blocks: Block[]): string[] {
   }
   return Array.from(ids);
 }
+
+/* ── TemplateManifest — flat, serialisable view (C.10.8) ────────────────── */
+
+/**
+ * Flat, fully serialisable view of a template manifest.  Derived from the
+ * canonical `Template` shape above but strips non-serialisable fields
+ * (`build`, `flow`, `chrome.icon`) so it is safe to return directly from
+ * a Route Handler or pass across the RSC boundary.
+ *
+ * `category` is expressed as the C.10.8 brief's narrow union
+ * (`'data'|'communication'|...|'other'`) which is a simplified mapping of
+ * the canonical `TemplateCategory`.  The `normaliseManifestCategory()`
+ * helper does the conversion so callers don't need to know the internal
+ * taxonomy.
+ */
+export type ManifestCategory =
+  | 'data'
+  | 'communication'
+  | 'devops'
+  | 'finance'
+  | 'productivity'
+  | 'chatbot'
+  | 'crm'
+  | 'other';
+
+/** Map canonical TemplateCategory → ManifestCategory. */
+const CANONICAL_TO_MANIFEST: Record<TemplateCategory, ManifestCategory> = {
+  Sales: 'communication',
+  Marketing: 'communication',
+  Support: 'communication',
+  Ops: 'productivity',
+  AI: 'data',
+  'Internal Tools': 'productivity',
+  Developer: 'devops',
+  'E-commerce': 'communication',
+  Finance: 'finance',
+  HR: 'productivity',
+  Health: 'productivity',
+  WhatsApp: 'communication',
+  Ads: 'communication',
+  CRM: 'crm',
+  Onboarding: 'productivity',
+  Other: 'other',
+};
+
+/** Coerce a `TemplateCategory` into a `ManifestCategory`. */
+export function normaliseManifestCategory(cat: TemplateCategory): ManifestCategory {
+  return CANONICAL_TO_MANIFEST[cat] ?? 'other';
+}
+
+/**
+ * Serialisable template manifest.  Used by `TEMPLATE_REGISTRY` and returned
+ * by `GET /api/sabflow/marketplace/templates`.
+ *
+ * Field names mirror the C.10.8 brief's `TemplateManifest` specification:
+ *   `{ id, name, description, category, complexity, tags, flowJsonPath,
+ *      thumbnailUrl?, authorName }`
+ *
+ * `flowJsonPath` is set to the template slug (stable, URL-safe) so future
+ * asset-pipeline scripts can locate the flow JSON file on disk.
+ */
+export type TemplateManifest = {
+  id: string;
+  name: string;
+  description: string;
+  category: ManifestCategory;
+  complexity: 'starter' | 'intermediate' | 'advanced';
+  tags: string[];
+  /** Stable path hint — defaults to `/<id>.json` for code-defined templates. */
+  flowJsonPath: string;
+  thumbnailUrl?: string;
+  authorName: string;
+  /** Discriminates chatbot from recipe entries. Not in the brief's type but
+   *  useful for filter-chip UIs that want "chatbot only". */
+  kind: 'chatbot' | 'recipe';
+};
+
+/**
+ * Derive the complexity tier from a template's tag list + kind.
+ * Heuristic: templates tagged `ai`, `webhook`, or `oauth` are 'advanced';
+ * templates with ≥ 4 tags are 'intermediate'; everything else is 'starter'.
+ */
+function deriveComplexity(
+  template: Template,
+): TemplateManifest['complexity'] {
+  const advancedTags = new Set(['ai', 'webhook', 'oauth', 'openai', 'gpt', 'llm']);
+  if (template.tags.some((t) => advancedTags.has(t.toLowerCase()))) {
+    return 'advanced';
+  }
+  if (template.tags.length >= 4) return 'intermediate';
+  return 'starter';
+}
+
+/** Convert the internal `Template` to a serialisable `TemplateManifest`. */
+export function templateToManifest(template: Template): TemplateManifest {
+  return {
+    id: template.id,
+    name: template.displayName,
+    description: template.description,
+    category: normaliseManifestCategory(template.category),
+    complexity: deriveComplexity(template),
+    tags: [...template.tags],
+    flowJsonPath: `/${template.slug}.json`,
+    thumbnailUrl: template.screenshots[0],
+    authorName: template.publisher.name,
+    kind: template.kind,
+  };
+}
+
+/**
+ * Unified, fully serialisable registry of every registered template
+ * (chatbot + recipe).  Computed lazily on first access so it reflects
+ * templates registered after module init (e.g. seed-packs loaded via
+ * dynamic import in the recipes bootstrap).
+ *
+ * **Important:** this getter returns a snapshot at call time.  For the
+ * authoritative live list use `listTemplates()` directly.
+ */
+export function getTemplateRegistry(): TemplateManifest[] {
+  return Array.from(templateMap.values()).map(templateToManifest);
+}
+
+/**
+ * Pre-computed static export of the template registry.
+ *
+ * NOTE: because both chatbot and recipe templates are registered as module
+ * side-effects at startup, this array is populated correctly when this
+ * module is imported after the bootstrapping modules have run.  In practice
+ * Next.js/Node.js module evaluation order guarantees this: recipe seed-packs
+ * run when `@/lib/sabflow/recipes` is first imported (done in the API routes
+ * that call `listRecipes()`), and chatbot templates run when
+ * `@/components/sabflow/templates` is imported (the in-builder picker).
+ *
+ * For server-only Route Handlers that need a live snapshot, prefer
+ * `getTemplateRegistry()` which always reflects the current state of
+ * `templateMap`.
+ */
+export const TEMPLATE_REGISTRY: TemplateManifest[] = new Proxy(
+  [] as TemplateManifest[],
+  {
+    get(target, prop, receiver) {
+      // Reflect length and iteration onto the live registry so this array
+      // stays current without requiring eager module evaluation at import time.
+      const live = getTemplateRegistry();
+      if (prop === 'length') return live.length;
+      if (prop === Symbol.iterator) return live[Symbol.iterator].bind(live);
+      if (typeof prop === 'string' && !isNaN(Number(prop))) {
+        return live[Number(prop)];
+      }
+      // For array methods (map, filter, find …) return the method bound to
+      // the live snapshot so they operate on up-to-date data.
+      const val = (live as unknown as Record<string | symbol, unknown>)[prop];
+      if (typeof val === 'function') return (val as Function).bind(live);
+      return Reflect.get(target, prop, receiver);
+    },
+  },
+);
