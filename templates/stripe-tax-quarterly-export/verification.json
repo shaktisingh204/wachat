@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "stripe-tax-quarterly-export",
+  "cases": [
+    {
+      "id": "quarter-end",
+      "description": "Cron fires, Stripe Tax export lands in S3, CPA is emailed.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
