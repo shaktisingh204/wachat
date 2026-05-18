@@ -1,11 +1,10 @@
-import { CrmPageHeader } from '../../../../crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { SuccessionForm } from './succession-form';
 
 export default function NewSuccessionPage() {
     return (
-        <div className="space-y-6">
-            <CrmPageHeader title="New succession plan" />
+        <EntityListShell title="New succession plan">
             <SuccessionForm />
-        </div>
+        </EntityListShell>
     );
 }

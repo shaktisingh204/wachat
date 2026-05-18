@@ -2,10 +2,7 @@ import { ZoruButton, ZoruCard } from '@/components/zoruui';
 import {
   notFound,
   redirect } from 'next/navigation';
-import { ArrowLeft,
-  Check,
-  Gift,
-  Pencil } from 'lucide-react';
+import { Check, Pencil } from 'lucide-react';
 
 /**
  * Welcome kit detail page — server component.
@@ -13,7 +10,7 @@ import { ArrowLeft,
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 import { getSession } from '@/app/actions/user.actions';
 import { getWelcomeKitById } from '@/app/actions/crm-welcome-kits.actions';
@@ -56,33 +53,18 @@ export default async function WelcomeKitDetailPage({
     const deliveredCount = items.filter((it) => it.delivered).length;
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'HR', href: '/dashboard/hrm/hr' },
-                    { label: 'Welcome kits', href: BASE },
-                    { label: title },
-                ]}
-                title={title}
-                subtitle={`Welcome kit for ${kit.employee_name || kit.employee_id}`}
-                icon={Gift}
-                actions={
-                    <div className="flex items-center gap-2">
-                        <ZoruButton variant="outline" asChild>
-                            <Link href={BASE}>
-                                <ArrowLeft className="mr-2 h-4 w-4" />
-                                Back
-                            </Link>
-                        </ZoruButton>
-                        <ZoruButton asChild>
-                            <Link href={`${BASE}/${id}/edit`}>
-                                <Pencil className="mr-2 h-4 w-4" />
-                                Edit
-                            </Link>
-                        </ZoruButton>
-                    </div>
-                }
-            />
+        <EntityListShell
+            title={title}
+            subtitle={`Welcome kit for ${kit.employee_name || kit.employee_id}`}
+            primaryAction={
+                <ZoruButton asChild>
+                    <Link href={`${BASE}/${id}/edit`}>
+                        <Pencil className="mr-2 h-4 w-4" />
+                        Edit
+                    </Link>
+                </ZoruButton>
+            }
+        >
 
             <ZoruCard className="p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
@@ -166,6 +148,6 @@ export default async function WelcomeKitDetailPage({
                     </ul>
                 )}
             </ZoruCard>
-        </div>
+        </EntityListShell>
     );
 }
