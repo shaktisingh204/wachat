@@ -107,13 +107,13 @@ pub mod my_sql;
 pub mod supabase;
 pub mod noco_db;
 
-// ── Phase C.4 — data-shaping nodes ─────────────────────────────────────────
-pub mod csv_node;
-pub mod i_calendar;
-pub mod markdown;
-pub mod compare_datasets;
-pub mod rename_keys;
-pub mod item_lists;
+// ── Phase C.4.5 — 6 additional comms/email nodes ────────────────────────────
+pub mod pushbullet;
+pub mod pushover;
+pub mod pager_duty;
+pub mod gotify;
+pub mod zulip;
+pub mod signl4;
 
 use crate::{descriptor::NodeCategory, registry::NodeRegistry};
 
@@ -214,13 +214,13 @@ fn register_implemented(r: &mut NodeRegistry) {
     r.register(my_sql::MySqlNode);
     r.register(supabase::SupabaseNode);
     r.register(noco_db::NocoDbNode);
-    // Phase C.4 — data-shaping nodes
-    r.register(csv_node::CsvNode);
-    r.register(i_calendar::ICalendarNode);
-    r.register(markdown::MarkdownNode);
-    r.register(compare_datasets::CompareDatasetsNode);
-    r.register(rename_keys::RenameKeysNode);
-    r.register(item_lists::ItemListsNode);
+    // Phase C.4.5 — comms/email expansion
+    r.register(pushbullet::PushbulletNode);
+    r.register(pushover::PushoverNode);
+    r.register(pager_duty::PagerDutyNode);
+    r.register(gotify::GotifyNode);
+    r.register(zulip::ZulipNode);
+    r.register(signl4::Signl4Node);
 }
 
 /// Register stubs only when the name isn't already populated by an implemented node.
