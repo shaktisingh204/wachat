@@ -1,0 +1,221 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_stripe_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "stripe.customer.subscription.trial_will_end",
+    "options": {
+      "path": "/webhooks/stripe-trial-ending-warm-up",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "Stripe-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_stripe_trigger",
+      "name": "Stripe Trial Will End",
+      "type": "n8n-nodes-base.stripeTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "events": ["customer.subscription.trial_will_end"]
+      },
+      "credentials": {
+        "stripeApi": { "id": "stripe-cred", "name": "Stripe API" }
+      }
+    },
+    {
+      "id": "n_extract_subscription",
+      "name": "Extract Subscription Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "subscriptionId", "value": "={{ $json.data.object.id }}" },
+            { "name": "customerId", "value": "={{ $json.data.object.customer }}" },
+            { "name": "customerEmail", "value": "={{ $json.data.object.metadata.email }}" },
+            { "name": "customerName", "value": "={{ $json.data.object.metadata.name }}" },
+            { "name": "aeSlackId", "value": "={{ $json.data.object.metadata.ae_slack_id }}" },
+            { "name": "trialEnd", "value": "={{ $json.data.object.trial_end }}" },
+            { "name": "planName", "value": "={{ $json.data.object.items.data[0].price.nickname }}" }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "n_mixpanel_usage",
+      "name": "Mixpanel Trial Usage",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.MIXPANEL_API }}/segmentation/multi",
+        "queryParameters": {
+          "parameters": [
+            { "name": "from_date", "value": "={{ $now.minus({days:14}).toISODate() }}" },
+            { "name": "to_date", "value": "={{ $now.toISODate() }}" },
+            { "name": "where", "value": "properties[\"stripe_customer_id\"] == \"{{ $json.customerId }}\"" },
+            { "name": "events", "value": "[\"feature_used\",\"action_completed\",\"report_exported\"]" },
+            { "name": "type", "value": "unique" }
+          ]
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth"
+      },
+      "credentials": {
+        "httpBasicAuth": { "id": "mixpanel-cred", "name": "Mixpanel Service Account" }
+      }
+    },
+    {
+      "id": "n_summarise_usage",
+      "name": "Summarise Top Features",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const data = $json?.data?.values ?? {};\nconst totals = Object.entries(data).map(([event, daily]) => {\n  const total = Object.values(daily).reduce((a, b) => a + Number(b || 0), 0);\n  return { event, total };\n});\nconst top = totals.filter(t => t.total > 0).sort((a, b) => b.total - a.total).slice(0, 5);\nconst sub = $('Extract Subscription Fields').first().json;\nreturn [{ json: { ...sub, topFeatures: top, totalEvents: totals.reduce((a, b) => a + b.total, 0) } }];"
+      }
+    },
+    {
+      "id": "n_openai_email",
+      "name": "GPT-4o Personalised Email",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "resource": "chat",
+        "operation": "message",
+        "model": "gpt-4o",
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "You are a friendly SaaS customer success writer. Write a short HTML email (max 180 words) that thanks the trialer by name, highlights the specific features they used the most during the trial, and nudges them to upgrade before the trial ends. Tone: warm, concrete, no fluff."
+            },
+            {
+              "role": "user",
+              "content": "Customer: {{ $json.customerName }}\nPlan: {{ $json.planName }}\nTrial ends (unix): {{ $json.trialEnd }}\nTop features used (JSON): {{ JSON.stringify($json.topFeatures) }}\nTotal trial events: {{ $json.totalEvents }}\n\nReturn ONLY the HTML body — no subject line, no markdown fences."
+            }
+          ]
+        },
+        "options": { "temperature": 0.4 }
+      },
+      "credentials": {
+        "openAiApi": { "id": "openai-cred", "name": "OpenAI API" }
+      }
+    },
+    {
+      "id": "n_send_email",
+      "name": "Send Warm-Up Email",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [1200, -80],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "={{ $vars.FROM_EMAIL }}",
+        "toEmail": "={{ $node['Summarise Top Features'].json.customerEmail }}",
+        "subject": "={{ $node['Summarise Top Features'].json.customerName }}, your trial ends soon — here's what you've unlocked",
+        "contentType": "text/html",
+        "content": "={{ $json.message.content }}"
+      },
+      "credentials": {
+        "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid API" }
+      }
+    },
+    {
+      "id": "n_slack_ae",
+      "name": "DM Assigned AE",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, 80],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $node['Summarise Top Features'].json.aeSlackId }}",
+        "text": ":hourglass_flowing_sand: Trial ending in 3d — {{ $node['Summarise Top Features'].json.customerName }} ({{ $node['Summarise Top Features'].json.customerEmail }}) on {{ $node['Summarise Top Features'].json.planName }}. {{ $node['Summarise Top Features'].json.totalEvents }} trial events. Warm-up email sent — your move."
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    },
+    {
+      "id": "n_mongo_log",
+      "name": "Log Outreach to Mongo",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [1440, 0],
+      "parameters": {
+        "operation": "insert",
+        "collection": "trial_warmup_log",
+        "fields": "subscriptionId,customerId,customerEmail,planName,totalEvents,trialEnd"
+      },
+      "credentials": {
+        "mongoDb": { "id": "mongo-cred", "name": "Mongo SabFlow" }
+      }
+    }
+  ],
+  "connections": {
+    "n_stripe_trigger": {
+      "main": [[{ "node": "n_extract_subscription", "type": "main", "index": 0 }]]
+    },
+    "n_extract_subscription": {
+      "main": [[{ "node": "n_mixpanel_usage", "type": "main", "index": 0 }]]
+    },
+    "n_mixpanel_usage": {
+      "main": [[{ "node": "n_summarise_usage", "type": "main", "index": 0 }]]
+    },
+    "n_summarise_usage": {
+      "main": [[{ "node": "n_openai_email", "type": "main", "index": 0 }]]
+    },
+    "n_openai_email": {
+      "main": [
+        [
+          { "node": "n_send_email", "type": "main", "index": 0 },
+          { "node": "n_slack_ae", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "n_send_email": {
+      "main": [[{ "node": "n_mongo_log", "type": "main", "index": 0 }]]
+    },
+    "n_slack_ae": {
+      "main": [[{ "node": "n_mongo_log", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_stripe_trigger",
+        "n_extract_subscription",
+        "n_mixpanel_usage",
+        "n_summarise_usage",
+        "n_openai_email",
+        "n_send_email",
+        "n_slack_ae",
+        "n_mongo_log"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_mixpanel_api", "name": "MIXPANEL_API", "defaultValue": "https://mixpanel.com/api/2.0" },
+    { "id": "v_from_email", "name": "FROM_EMAIL", "defaultValue": "success@example.com" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
