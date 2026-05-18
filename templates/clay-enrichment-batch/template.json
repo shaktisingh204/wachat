@@ -1,0 +1,10 @@
+{
+  "id": "clay-enrichment-batch",
+  "name": "Clay Enrichment Batch",
+  "description": "Weekly job that asks Airtable for rows missing enrichment, batches them through a Clay HTTP enrichment endpoint, and writes the enriched fields back to Airtable. A digest line in Slack #data-ops reports how many rows were enriched and how many fell through.",
+  "category": "Sales",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["clay", "airtable", "enrichment", "slack", "sales", "data-ops"],
+  "version": "0.1.0"
+}
