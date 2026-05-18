@@ -1,0 +1,10 @@
+{
+  "id": "azure-blob-retention-purge",
+  "name": "Azure Blob Retention Purge",
+  "description": "Each Sunday, lists every blob in the target Azure container, filters to objects older than the retention horizon, and deletes them in a batched loop. Posts a #ops Slack summary of how many blobs were purged and how much storage was reclaimed.",
+  "category": "Ops",
+  "complexity": "beginner",
+  "authorName": "SabNode",
+  "tags": ["azure", "blob", "retention", "slack", "ops", "cron"],
+  "version": "0.1.0"
+}

@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "azure-blob-retention-purge",
+  "cases": [
+    {
+      "id": "weekly-purge",
+      "description": "Weekly Azure Blob retention purge.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
