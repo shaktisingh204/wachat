@@ -1,0 +1,45 @@
+{
+  "$schema": "https://sabflow.dev/schemas/node-parity-fixture.v1.json",
+  "name": "GET-basic",
+  "description": "GET ${HTTPBIN_BASE_URL}/get — no auth, no body. Asserts the response shape (statusCode/statusMessage/headers/body) and that the URL echo includes our query path.",
+  "node": "n8n-nodes-base.httpRequest",
+  "env": {
+    "HTTPBIN_BASE_URL": "http://127.0.0.1:8080"
+  },
+  "params": {
+    "method": "GET",
+    "url": "${HTTPBIN_BASE_URL}/get",
+    "authentication": "none",
+    "sendQuery": false,
+    "sendHeaders": false,
+    "sendBody": false,
+    "timeout": 10000,
+    "ignoreHttpStatusErrors": false,
+    "continueOnFail": false
+  },
+  "input": {
+    "items": [
+      { "json": {} }
+    ]
+  },
+  "expected": {
+    "branches": [
+      {
+        "items": [
+          {
+            "statusCode": 200,
+            "statusMessage": "OK",
+            "body": {
+              "url": "${HTTPBIN_BASE_URL}/get"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "expectedFields": [
+    "branches[0].items[0].statusCode",
+    "branches[0].items[0].statusMessage",
+    "branches[0].items[0].body.url"
+  ]
+}
