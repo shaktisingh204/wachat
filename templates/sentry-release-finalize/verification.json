@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "sentry-release-finalize",
+  "cases": [
+    {
+      "id": "deploy-finalize",
+      "description": "Deploy webhook finalizes Sentry release and posts to Slack.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
