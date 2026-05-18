@@ -1,14 +1,13 @@
-//! FTP node — `n8n-nodes-base.ftp`.
+//! SFTP node — `n8n-nodes-base.sftp`.
 //!
-//! Descriptor is fully wired so the SabFlow editor can render this node and
-//! its settings panel, but `execute` currently returns a typed
-//! `NodeError::NotImplemented("ftp.not_yet_supported")` per the C.3 stub
+//! Mirrors the FTP node but speaks SFTP over SSH instead of the legacy FTP
+//! control/data channels. The descriptor is fully wired so the SabFlow
+//! editor can render this node, but `execute` currently returns a typed
+//! `NodeError::NotImplemented("sftp.not_yet_supported")` per the C.3 stub
 //! policy.
 //!
-//! TODO(sabflow): pull in the `suppaftp` (or `async-ftp`) crate as a
-//! workspace dep and implement the operations below. Until then the
-//! descriptor is published so users can configure / inspect the node from
-//! the picker.
+//! TODO(sabflow): pull in `russh-sftp` (preferred — already-Tokio, no C deps)
+//! or `ssh2` as a workspace dep and implement the operations below.
 
 use async_trait::async_trait;
 use serde_json::{Value, json};
@@ -23,7 +22,7 @@ use crate::{
     node::Node,
 };
 
-pub struct FtpNode;
+pub struct SftpNode;
 
 fn opt(name: &str, value: &str, description: Option<&str>) -> NodePropertyOption {
     NodePropertyOption {
@@ -34,19 +33,19 @@ fn opt(name: &str, value: &str, description: Option<&str>) -> NodePropertyOption
 }
 
 #[async_trait]
-impl Node for FtpNode {
+impl Node for SftpNode {
     fn descriptor(&self) -> NodeDescriptor {
         NodeDescriptor::new(
-            "ftp",
-            "FTP",
-            "Transfer files via FTP",
+            "sftp",
+            "SFTP",
+            "Transfer files via SFTP (SSH)",
             NodeCategory::Storage,
         )
         .icon("server")
-        .color("#94a3b8")
+        .color("#64748b")
         .credentials(vec![CredentialBinding {
-            name: "ftp".into(),
-            display_name: "FTP".into(),
+            name: "sftp".into(),
+            display_name: "SFTP".into(),
             required: true,
         }])
         .properties(vec![
@@ -108,9 +107,9 @@ impl Node for FtpNode {
         _input: NodeInput,
         _params: &Value,
     ) -> NodeResult<NodeOutput> {
-        // TODO(sabflow): wire `suppaftp` (or `async-ftp`) and dispatch on the
-        // selected operation. Today we return a typed NotImplemented so the
-        // engine can surface a stable error code to the UI.
-        Err(NodeError::NotImplemented("ftp.not_yet_supported".into()))
+        // TODO(sabflow): wire `russh-sftp` (or `ssh2`) as a workspace dep and
+        // dispatch on the selected operation. The descriptor above is the
+        // committed surface; execution is intentionally blocked.
+        Err(NodeError::NotImplemented("sftp.not_yet_supported".into()))
     }
 }
