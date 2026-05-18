@@ -1,0 +1,10 @@
+{
+  "id": "plaid-bank-reconcile",
+  "name": "Plaid + QuickBooks Reconcile",
+  "description": "Daily cron pulls yesterday's Plaid transactions and reconciles them against the QuickBooks bank feed. Anything that fails to match is filed as an Airtable exception and the finance channel gets a summary so the team can clear the unreconciled list before close.",
+  "category": "Finance",
+  "complexity": "advanced",
+  "authorName": "SabNode",
+  "tags": ["plaid", "quickbooks", "reconciliation", "airtable", "slack", "finance"],
+  "version": "0.1.0"
+}
