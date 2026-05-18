@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "terraform-cloud-plan-bot",
+  "cases": [
+    {
+      "id": "summarize-plan",
+      "description": "Plan summary posted to Slack.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
