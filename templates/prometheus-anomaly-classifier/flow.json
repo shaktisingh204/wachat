@@ -1,0 +1,162 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_prom_alert",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "prometheus.alert",
+    "options": {
+      "path": "/webhooks/prometheus-anomaly-classifier",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Alert-Token",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_prom_webhook",
+      "name": "Alertmanager Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "httpMethod": "POST", "path": "prometheus-anomaly-classifier", "responseMode": "onReceived" },
+      "webhookId": "prometheus-anomaly-classifier-webhook"
+    },
+    {
+      "id": "n_extract_alert",
+      "name": "Extract Alert",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "alertname", "value": "={{ $json.commonLabels.alertname }}" },
+            { "name": "summary", "value": "={{ $json.commonAnnotations.summary }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_gpt_classify",
+      "name": "Classify Alert",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "authentication": "apiKey",
+        "resource": "chat",
+        "operation": "complete",
+        "model": "gpt-4o-mini",
+        "messages": {
+          "values": [
+            { "role": "system", "content": "Return JSON { class: 'capacity'|'error'|'latency' }." },
+            { "role": "user", "content": "{{ $json.alertname }}: {{ $json.summary }}" }
+          ]
+        },
+        "options": { "responseFormat": "json_object", "temperature": 0 }
+      },
+      "credentials": { "openAiApi": { "id": "openai-cred", "name": "OpenAI API" } }
+    },
+    {
+      "id": "n_parse",
+      "name": "Parse Class",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "values": { "string": [{ "name": "class", "value": "={{ JSON.parse($json.message.content).class }}" }] }
+      }
+    },
+    {
+      "id": "n_route",
+      "name": "Route by Class",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            { "conditions": { "string": [{ "value1": "={{ $json.class }}", "operation": "equal", "value2": "capacity" }] }, "outputKey": "capacity" },
+            { "conditions": { "string": [{ "value1": "={{ $json.class }}", "operation": "equal", "value2": "error" }] }, "outputKey": "error" }
+          ]
+        },
+        "fallbackOutput": "latency"
+      }
+    },
+    {
+      "id": "n_capacity",
+      "name": "Notify Capacity Team",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, -200],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.CAPACITY_SLACK }}",
+        "text": ":chart_with_upwards_trend: Capacity: {{ $node['Extract Alert'].json.alertname }}"
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    },
+    {
+      "id": "n_error",
+      "name": "Notify Error Team",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.ERROR_SLACK }}",
+        "text": ":x: Error: {{ $node['Extract Alert'].json.alertname }}"
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    },
+    {
+      "id": "n_latency",
+      "name": "Notify Perf Team",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, 200],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.LATENCY_SLACK }}",
+        "text": ":hourglass: Latency: {{ $node['Extract Alert'].json.alertname }}"
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    }
+  ],
+  "connections": {
+    "n_prom_webhook": { "main": [[{ "node": "n_extract_alert", "type": "main", "index": 0 }]] },
+    "n_extract_alert": { "main": [[{ "node": "n_gpt_classify", "type": "main", "index": 0 }]] },
+    "n_gpt_classify": { "main": [[{ "node": "n_parse", "type": "main", "index": 0 }]] },
+    "n_parse": { "main": [[{ "node": "n_route", "type": "main", "index": 0 }]] },
+    "n_route": {
+      "capacity": [[{ "node": "n_capacity", "type": "main", "index": 0 }]],
+      "error": [[{ "node": "n_error", "type": "main", "index": 0 }]],
+      "latency": [[{ "node": "n_latency", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_prom_webhook", "n_extract_alert", "n_gpt_classify", "n_parse", "n_route", "n_capacity", "n_error", "n_latency"]
+    }
+  ],
+  "variables": [
+    { "id": "v_c", "name": "CAPACITY_SLACK", "defaultValue": "#capacity" },
+    { "id": "v_e", "name": "ERROR_SLACK", "defaultValue": "#errors" },
+    { "id": "v_l", "name": "LATENCY_SLACK", "defaultValue": "#latency" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

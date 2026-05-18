@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "prometheus-anomaly-classifier",
+  "cases": [
+    {
+      "id": "capacity-alert",
+      "description": "Alert classified and routed to per-class channel.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
