@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "templateId": "mailchimp-unsub-suppression",
+  "cases": [
+    {
+      "id": "happy-path",
+      "description": "Mailchimp unsubscribe fans out to HubSpot + Salesforce + Mongo and converges on a Slack confirmation in #marketing-ops.",
+      "triggerPayload": {
+        "type": "unsubscribe",
+        "fired_at": "2026-05-19T12:00:00Z",
+        "data": {
+          "email": "alex.rivera@example.com",
+          "list_id": "abc123def4",
+          "reason": "manual"
+        }
+      },
+      "expect": {
+        "finalStatus": "success",
+        "executedBlocks": [
+          "n_mailchimp_trigger",
+          "n_extract_email",
+          "n_hubspot_update",
+          "n_salesforce_update",
+          "n_mongo_upsert",
+          "n_slack_confirm"
+        ]
+      }
+    }
+  ]
+}
