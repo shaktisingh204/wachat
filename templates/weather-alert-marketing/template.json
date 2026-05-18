@@ -1,0 +1,10 @@
+{
+  "id": "weather-alert-marketing",
+  "name": "Weather Alert Marketing",
+  "description": "Daily check that pulls forecasts for the target ZIPs, filters for extreme conditions (storm, freeze, heatwave), and creates a per-ZIP segment in Klaviyo. A weather-relevant offer email goes out to each segment via SendGrid so promotions match the local climate.",
+  "category": "Marketing",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["weather", "klaviyo", "sendgrid", "marketing", "segmentation", "schedule"],
+  "version": "0.1.0"
+}

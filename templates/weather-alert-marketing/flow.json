@@ -1,0 +1,100 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_daily",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": { "schedule": "0 7 * * *", "enabled": true }
+  },
+  "nodes": [
+    {
+      "id": "n_cron",
+      "name": "Daily 07:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "rule": { "interval": [{ "field": "cronExpression", "expression": "0 7 * * *" }] } }
+    },
+    {
+      "id": "n_weather",
+      "name": "Weather Forecasts",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.WEATHER_API_URL }}/forecast"
+      }
+    },
+    {
+      "id": "n_filter",
+      "name": "Filter Extreme",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "return items.filter(i => ['storm','freeze','heat'].some(k => String(i.json.condition).includes(k)));"
+      }
+    },
+    {
+      "id": "n_split",
+      "name": "Per ZIP",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": { "batchSize": 1 }
+    },
+    {
+      "id": "n_klaviyo",
+      "name": "Klaviyo Segment",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [960, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "https://a.klaviyo.com/api/segments",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "klaviyoApi"
+      },
+      "credentials": { "klaviyoApi": { "id": "klaviyo-cred", "name": "Klaviyo" } }
+    },
+    {
+      "id": "n_email",
+      "name": "Send Offer Email",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [1200, 0],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "offers@example.com",
+        "toEmail": "list@example.com",
+        "subject": "Weather-perfect offer",
+        "content": "Local conditions, local deal."
+      },
+      "credentials": { "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid" } }
+    }
+  ],
+  "connections": {
+    "n_cron": { "main": [[{ "node": "n_weather", "type": "main", "index": 0 }]] },
+    "n_weather": { "main": [[{ "node": "n_filter", "type": "main", "index": 0 }]] },
+    "n_filter": { "main": [[{ "node": "n_split", "type": "main", "index": 0 }]] },
+    "n_split": { "main": [[{ "node": "n_klaviyo", "type": "main", "index": 0 }]] },
+    "n_klaviyo": { "main": [[{ "node": "n_email", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cron", "n_weather", "n_filter", "n_split", "n_klaviyo", "n_email"]
+    }
+  ],
+  "variables": [
+    { "id": "v_api", "name": "WEATHER_API_URL", "defaultValue": "https://api.weather.example.com" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
