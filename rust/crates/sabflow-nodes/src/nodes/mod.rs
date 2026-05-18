@@ -109,13 +109,13 @@ pub mod my_sql;
 pub mod supabase;
 pub mod noco_db;
 
-// ── Phase C.5.4: CRM/sales nodes ────────────────────────────────────────────
-pub mod copper;
-pub mod agile_crm;
-pub mod close_io;
-pub mod freshworks_crm;
-pub mod affinity;
-pub mod kommo;
+// ── Phase C.5.5 — 6 productivity-SaaS implementations ───────────────────────
+pub mod coda;
+pub mod bamboo_hr;
+pub mod todoist;
+pub mod clockify;
+pub mod workable;
+pub mod figma;
 
 use crate::{descriptor::NodeCategory, registry::NodeRegistry};
 
@@ -232,13 +232,13 @@ fn register_implemented(r: &mut NodeRegistry) {
     r.register(my_sql::MySqlNode);
     r.register(supabase::SupabaseNode);
     r.register(noco_db::NocoDbNode);
-    // Phase C.5.4 — CRM / sales (6)
-    r.register(copper::CopperNode);
-    r.register(agile_crm::AgileCrmNode);
-    r.register(close_io::CloseIoNode);
-    r.register(freshworks_crm::FreshworksCrmNode);
-    r.register(affinity::AffinityNode);
-    r.register(kommo::KommoNode);
+    // Phase C.5.5 — 6 productivity-SaaS implementations
+    r.register(coda::CodaNode);
+    r.register(bamboo_hr::BambooHrNode);
+    r.register(todoist::TodoistNode);
+    r.register(clockify::ClockifyNode);
+    r.register(workable::WorkableNode);
+    r.register(figma::FigmaNode);
 }
 
 /// Register stubs only when the name isn't already populated by an implemented node.
