@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "retool-form-to-db",
+  "cases": [
+    {
+      "id": "valid-submission",
+      "description": "A valid Retool form submission writes to Postgres and emails the user.",
+      "triggerPayload": { "email": "lead@example.com", "name": "Pat Lead" },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
