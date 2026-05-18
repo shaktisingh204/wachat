@@ -1,0 +1,261 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_rtbf_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "rtbf.requested",
+    "options": {
+      "path": "/webhooks/gdpr-deletion-cascade",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Dpo-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_rtbf_trigger",
+      "name": "RTBF Request",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "gdpr-deletion-cascade",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "gdpr-rtbf-webhook"
+    },
+    {
+      "id": "n_extract_subject",
+      "name": "Extract Subject",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "subjectId", "value": "={{ $json.subjectId }}" },
+            { "name": "subjectEmail", "value": "={{ $json.email.toLowerCase().trim() }}" },
+            { "name": "requestId", "value": "={{ $json.requestId }}" },
+            { "name": "dpoSignature", "value": "={{ $json.dpoSignature }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_delete_mongo",
+      "name": "Delete from MongoDB",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [480, -300],
+      "parameters": {
+        "operation": "delete",
+        "collection": "users",
+        "query": "={\"email\":\"{{ $json.subjectEmail }}\"}"
+      },
+      "credentials": {
+        "mongoDb": { "id": "mongo-cred", "name": "Application Mongo" }
+      }
+    },
+    {
+      "id": "n_anonymise_stripe",
+      "name": "Anonymise Stripe Customer",
+      "type": "n8n-nodes-base.stripe",
+      "typeVersion": 1,
+      "position": [480, -150],
+      "parameters": {
+        "resource": "customer",
+        "operation": "update",
+        "customerId": "={{ $json.subjectId }}",
+        "additionalFields": {
+          "email": "redacted+{{ $node['Extract Subject'].json.requestId }}@gdpr.invalid",
+          "name": "REDACTED",
+          "description": "GDPR erasure {{ $node['Extract Subject'].json.requestId }}"
+        }
+      },
+      "credentials": {
+        "stripeApi": { "id": "stripe-cred", "name": "Stripe API" }
+      }
+    },
+    {
+      "id": "n_delete_intercom",
+      "name": "Delete from Intercom",
+      "type": "n8n-nodes-base.intercom",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "resource": "user",
+        "operation": "delete",
+        "additionalFields": { "email": "={{ $json.subjectEmail }}" }
+      },
+      "credentials": {
+        "intercomApi": { "id": "intercom-cred", "name": "Intercom API" }
+      }
+    },
+    {
+      "id": "n_delete_mailchimp",
+      "name": "Delete from Mailchimp",
+      "type": "n8n-nodes-base.mailchimp",
+      "typeVersion": 1,
+      "position": [480, 150],
+      "parameters": {
+        "resource": "listMember",
+        "operation": "delete",
+        "list": "={{ $vars.MAILCHIMP_LIST_ID }}",
+        "email": "={{ $json.subjectEmail }}"
+      },
+      "credentials": {
+        "mailchimpApi": { "id": "mailchimp-cred", "name": "Mailchimp API" }
+      }
+    },
+    {
+      "id": "n_delete_algolia",
+      "name": "Delete from Algolia",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 300],
+      "parameters": {
+        "method": "POST",
+        "url": "https://{{ $vars.ALGOLIA_APP_ID }}-dsn.algolia.net/1/indexes/{{ $vars.ALGOLIA_INDEX }}/deleteByQuery",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "filters", "value": "email:{{ $node['Extract Subject'].json.subjectEmail }}" }
+          ]
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "algolia-cred", "name": "Algolia Admin Key" }
+      }
+    },
+    {
+      "id": "n_merge_deletions",
+      "name": "Merge Deletions",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "mode": "mergeByPosition"
+      }
+    },
+    {
+      "id": "n_audit_log",
+      "name": "Write Signed Audit Log",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [960, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.AUDIT_LOG_URL }}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "event", "value": "gdpr.erasure.completed" },
+            { "name": "requestId", "value": "={{ $node['Extract Subject'].json.requestId }}" },
+            { "name": "subjectEmail", "value": "={{ $node['Extract Subject'].json.subjectEmail }}" },
+            { "name": "dpoSignature", "value": "={{ $node['Extract Subject'].json.dpoSignature }}" },
+            { "name": "deletedAt", "value": "={{ $now }}" },
+            { "name": "sinks", "value": "mongo,stripe,intercom,mailchimp,algolia" }
+          ]
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "audit-cred", "name": "Audit API Token" }
+      }
+    },
+    {
+      "id": "n_email_confirm",
+      "name": "Email Confirmation",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [1200, 0],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "={{ $vars.DPO_FROM_EMAIL }}",
+        "toEmail": "={{ $node['Extract Subject'].json.subjectEmail }}",
+        "subject": "Your data has been erased ({{ $node['Extract Subject'].json.requestId }})",
+        "contentType": "text/html",
+        "content": "<p>We have completed your GDPR right-to-be-forgotten request. Your records were removed from our user database, payment provider, support inbox, marketing list, and search index. A signed audit entry has been recorded under reference {{ $node['Extract Subject'].json.requestId }}.</p>"
+      },
+      "credentials": {
+        "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid API" }
+      }
+    }
+  ],
+  "connections": {
+    "n_rtbf_trigger": {
+      "main": [[{ "node": "n_extract_subject", "type": "main", "index": 0 }]]
+    },
+    "n_extract_subject": {
+      "main": [
+        [
+          { "node": "n_delete_mongo", "type": "main", "index": 0 },
+          { "node": "n_anonymise_stripe", "type": "main", "index": 0 },
+          { "node": "n_delete_intercom", "type": "main", "index": 0 },
+          { "node": "n_delete_mailchimp", "type": "main", "index": 0 },
+          { "node": "n_delete_algolia", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "n_delete_mongo": {
+      "main": [[{ "node": "n_merge_deletions", "type": "main", "index": 0 }]]
+    },
+    "n_anonymise_stripe": {
+      "main": [[{ "node": "n_merge_deletions", "type": "main", "index": 1 }]]
+    },
+    "n_delete_intercom": {
+      "main": [[{ "node": "n_merge_deletions", "type": "main", "index": 2 }]]
+    },
+    "n_delete_mailchimp": {
+      "main": [[{ "node": "n_merge_deletions", "type": "main", "index": 3 }]]
+    },
+    "n_delete_algolia": {
+      "main": [[{ "node": "n_merge_deletions", "type": "main", "index": 4 }]]
+    },
+    "n_merge_deletions": {
+      "main": [[{ "node": "n_audit_log", "type": "main", "index": 0 }]]
+    },
+    "n_audit_log": {
+      "main": [[{ "node": "n_email_confirm", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_rtbf_trigger",
+        "n_extract_subject",
+        "n_delete_mongo",
+        "n_anonymise_stripe",
+        "n_delete_intercom",
+        "n_delete_mailchimp",
+        "n_delete_algolia",
+        "n_merge_deletions",
+        "n_audit_log",
+        "n_email_confirm"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_mailchimp_list", "name": "MAILCHIMP_LIST_ID", "defaultValue": "" },
+    { "id": "v_algolia_app", "name": "ALGOLIA_APP_ID", "defaultValue": "" },
+    { "id": "v_algolia_index", "name": "ALGOLIA_INDEX", "defaultValue": "users" },
+    { "id": "v_audit_log", "name": "AUDIT_LOG_URL", "defaultValue": "https://audit.example.com/events" },
+    { "id": "v_dpo_from", "name": "DPO_FROM_EMAIL", "defaultValue": "privacy@example.com" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
