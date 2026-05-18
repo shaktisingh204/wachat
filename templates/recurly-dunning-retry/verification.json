@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "recurly-dunning-retry",
+  "cases": [
+    {
+      "id": "all-retries-fail",
+      "description": "Recurly invoice fails, three retries are attempted on exponential backoff, finance is notified.",
+      "triggerPayload": { "invoice": { "id": "in-9999" } },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
