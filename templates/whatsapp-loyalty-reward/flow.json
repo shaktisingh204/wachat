@@ -1,0 +1,266 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_shopify_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "shopify.order.created",
+    "options": {
+      "path": "/webhooks/whatsapp-loyalty-reward",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Shopify-Hmac-Sha256",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_shopify_trigger",
+      "name": "Shopify Order",
+      "type": "n8n-nodes-base.shopifyTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "topic": "orders/create"
+      },
+      "credentials": {
+        "shopifyApi": { "id": "shopify-cred", "name": "Shopify API" }
+      }
+    },
+    {
+      "id": "n_redis_incr",
+      "name": "Redis INCR Lifetime Orders",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "operation": "incr",
+        "key": "loyalty:orders:{{ $json.customer.id }}",
+        "expire": false
+      },
+      "credentials": {
+        "redis": { "id": "redis-cred", "name": "Upstash Redis" }
+      }
+    },
+    {
+      "id": "n_tier_switch",
+      "name": "Tier Switch (10 / 25 / 50)",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            { "conditions": { "number": [{ "value1": "={{ $json.value }}", "operation": "equal", "value2": 10 }] }, "outputKey": "ten" },
+            { "conditions": { "number": [{ "value1": "={{ $json.value }}", "operation": "equal", "value2": 25 }] }, "outputKey": "twentyfive" },
+            { "conditions": { "number": [{ "value1": "={{ $json.value }}", "operation": "equal", "value2": 50 }] }, "outputKey": "fifty" }
+          ]
+        },
+        "fallbackOutput": "none"
+      }
+    },
+    {
+      "id": "n_set_tier_ten",
+      "name": "Set Tier: Bronze (10)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, -240],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "tier", "value": "bronze" },
+            { "name": "discountValue", "value": "10" },
+            { "name": "discountCode", "value": "LOYAL-BRONZE-{{ $json.customer.id }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_set_tier_twentyfive",
+      "name": "Set Tier: Silver (25)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, -80],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "tier", "value": "silver" },
+            { "name": "discountValue", "value": "20" },
+            { "name": "discountCode", "value": "LOYAL-SILVER-{{ $json.customer.id }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_set_tier_fifty",
+      "name": "Set Tier: Gold (50)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, 80],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "tier", "value": "gold" },
+            { "name": "discountValue", "value": "35" },
+            { "name": "discountCode", "value": "LOYAL-GOLD-{{ $json.customer.id }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_shopify_discount",
+      "name": "Shopify discountCode.create",
+      "type": "n8n-nodes-base.shopify",
+      "typeVersion": 1,
+      "position": [960, -160],
+      "parameters": {
+        "resource": "discountCode",
+        "operation": "create",
+        "code": "={{ $json.discountCode }}",
+        "valueType": "percentage",
+        "value": "={{ $json.discountValue }}",
+        "usageLimit": 1
+      },
+      "credentials": {
+        "shopifyApi": { "id": "shopify-cred", "name": "Shopify API" }
+      }
+    },
+    {
+      "id": "n_whatsapp_send",
+      "name": "Send WhatsApp Reward Template",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [960, -40],
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "={{ $vars.WHATSAPP_PHONE_NUMBER_ID }}",
+        "recipientPhoneNumber": "={{ $node['Shopify Order'].json.customer.phone }}",
+        "messagingProduct": "whatsapp",
+        "messageType": "template",
+        "template": "loyalty_reward",
+        "components": [
+          {
+            "type": "body",
+            "parameters": [
+              { "type": "text", "text": "={{ $node['Shopify Order'].json.customer.first_name }}" },
+              { "type": "text", "text": "={{ $json.tier }}" },
+              { "type": "text", "text": "={{ $json.discountCode }}" },
+              { "type": "text", "text": "={{ $json.discountValue }}" }
+            ]
+          }
+        ]
+      },
+      "credentials": {
+        "whatsAppApi": { "id": "whatsapp-cred", "name": "WhatsApp Business API" }
+      }
+    },
+    {
+      "id": "n_klaviyo_tag",
+      "name": "Klaviyo Segment Tag",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [960, 80],
+      "parameters": {
+        "method": "POST",
+        "url": "https://a.klaviyo.com/api/profile-subscription-bulk-create-jobs/",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"data\": {\n    \"type\": \"profile\",\n    \"attributes\": {\n      \"email\": \"{{ $node['Shopify Order'].json.customer.email }}\",\n      \"properties\": { \"loyalty_tier\": \"{{ $json.tier }}\" }\n    }\n  }\n}"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "klaviyo-cred", "name": "Klaviyo API" }
+      }
+    },
+    {
+      "id": "n_slack_post",
+      "name": "Slack #loyalty-program",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [960, 200],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": "#loyalty-program",
+        "text": "=:tada: {{ $node['Shopify Order'].json.customer.first_name }} hit the *{{ $json.tier }}* tier ({{ $node['Redis INCR Lifetime Orders'].json.value }} lifetime orders) — code `{{ $json.discountCode }}` sent."
+      },
+      "credentials": {
+        "slackApi": { "id": "slack-cred", "name": "Slack API" }
+      }
+    },
+    {
+      "id": "n_noop",
+      "name": "No Reward (between tiers)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [720, 280],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "n_shopify_trigger": {
+      "main": [[{ "node": "n_redis_incr", "type": "main", "index": 0 }]]
+    },
+    "n_redis_incr": {
+      "main": [[{ "node": "n_tier_switch", "type": "main", "index": 0 }]]
+    },
+    "n_tier_switch": {
+      "ten": [[{ "node": "n_set_tier_ten", "type": "main", "index": 0 }]],
+      "twentyfive": [[{ "node": "n_set_tier_twentyfive", "type": "main", "index": 0 }]],
+      "fifty": [[{ "node": "n_set_tier_fifty", "type": "main", "index": 0 }]],
+      "none": [[{ "node": "n_noop", "type": "main", "index": 0 }]]
+    },
+    "n_set_tier_ten": {
+      "main": [[
+        { "node": "n_shopify_discount", "type": "main", "index": 0 },
+        { "node": "n_whatsapp_send", "type": "main", "index": 0 },
+        { "node": "n_klaviyo_tag", "type": "main", "index": 0 },
+        { "node": "n_slack_post", "type": "main", "index": 0 }
+      ]]
+    },
+    "n_set_tier_twentyfive": {
+      "main": [[
+        { "node": "n_shopify_discount", "type": "main", "index": 0 },
+        { "node": "n_whatsapp_send", "type": "main", "index": 0 },
+        { "node": "n_klaviyo_tag", "type": "main", "index": 0 },
+        { "node": "n_slack_post", "type": "main", "index": 0 }
+      ]]
+    },
+    "n_set_tier_fifty": {
+      "main": [[
+        { "node": "n_shopify_discount", "type": "main", "index": 0 },
+        { "node": "n_whatsapp_send", "type": "main", "index": 0 },
+        { "node": "n_klaviyo_tag", "type": "main", "index": 0 },
+        { "node": "n_slack_post", "type": "main", "index": 0 }
+      ]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_ingest",
+      "title": "Ingest + Counter",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_shopify_trigger", "n_redis_incr", "n_tier_switch"]
+    },
+    {
+      "id": "g_tiers",
+      "title": "Tier Resolution",
+      "graphCoordinates": { "x": 720, "y": 0 },
+      "blockIds": ["n_set_tier_ten", "n_set_tier_twentyfive", "n_set_tier_fifty", "n_noop"]
+    },
+    {
+      "id": "g_actions",
+      "title": "Reward Fan-out",
+      "graphCoordinates": { "x": 960, "y": 0 },
+      "blockIds": ["n_shopify_discount", "n_whatsapp_send", "n_klaviyo_tag", "n_slack_post"]
+    }
+  ],
+  "variables": [
+    { "id": "v_phone_id", "name": "WHATSAPP_PHONE_NUMBER_ID", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
