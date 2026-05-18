@@ -1,11 +1,11 @@
 {
   "$schema": "https://sabflow.dev/schemas/rust-stubs-inventory.v1.json",
-  "generatedAt": "2026-05-18T15:40:18Z",
+  "generatedAt": "2026-05-18T16:11:23Z",
   "generator": "scripts/sabflow/gen-rust-stub-inventory.py",
   "summary": {
-    "totalNodes": 318,
-    "implementedCount": 96,
-    "stubCount": 222,
+    "totalNodes": 336,
+    "implementedCount": 144,
+    "stubCount": 192,
     "referenceNode": "n8n-nodes-base.httpRequest",
     "phase": "C.3.9"
   },
@@ -158,6 +158,24 @@
       "description": "Amazon Web Services",
       "isStub": true,
       "implFile": null
+    },
+    {
+      "n8nType": "n8n-nodes-base.awsDynamoDb",
+      "name": "awsDynamoDb",
+      "displayName": "AWS DynamoDB",
+      "category": "Database",
+      "description": "Read and write items in an Amazon DynamoDB table",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/dynamo_db.rs"
+    },
+    {
+      "n8nType": "n8n-nodes-base.awsS3",
+      "name": "awsS3",
+      "displayName": "AWS S3",
+      "category": "Storage",
+      "description": "AWS S3 object storage (buckets, objects, presigned URLs)",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/aws_s3.rs"
     },
     {
       "n8nType": "n8n-nodes-base.bambooHr",
@@ -367,6 +385,15 @@
       "implFile": "rust/crates/sabflow-nodes/src/nodes/code.rs"
     },
     {
+      "n8nType": "n8n-nodes-base.cohere",
+      "name": "cohere",
+      "displayName": "Cohere",
+      "category": "Ai",
+      "description": "Cohere chat, embeddings, and reranking",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/cohere.rs"
+    },
+    {
       "n8nType": "n8n-nodes-base.coinGecko",
       "name": "coinGecko",
       "displayName": "CoinGecko",
@@ -380,9 +407,9 @@
       "name": "compareDatasets",
       "displayName": "Compare Datasets",
       "category": "Transform",
-      "description": "Diff two datasets",
-      "isStub": true,
-      "implFile": null
+      "description": "Diff two upstream datasets by a key field",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/compare_datasets.rs"
     },
     {
       "n8nType": "n8n-nodes-base.compression",
@@ -448,22 +475,31 @@
       "implFile": null
     },
     {
+      "n8nType": "n8n-nodes-base.couchbase",
+      "name": "couchbase",
+      "displayName": "Couchbase",
+      "category": "Database",
+      "description": "Couchbase document database \u2014 KV and N1QL queries",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/couchbase.rs"
+    },
+    {
       "n8nType": "n8n-nodes-base.crateDb",
       "name": "crateDb",
       "displayName": "CrateDB",
       "category": "Database",
-      "description": "Distributed SQL database",
-      "isStub": true,
-      "implFile": null
+      "description": "Run SQL on CrateDB (distributed SQL)",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/crate_db.rs"
     },
     {
       "n8nType": "n8n-nodes-base.cron",
       "name": "cron",
       "displayName": "Cron",
-      "category": "Logic",
-      "description": "Schedule by cron expression",
-      "isStub": true,
-      "implFile": null
+      "category": "Trigger",
+      "description": "Fire on a cron schedule (Vercel Cron-backed, legacy)",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/cron_trigger.rs"
     },
     {
       "n8nType": "n8n-nodes-base.crypto",
@@ -524,9 +560,9 @@
       "name": "debugHelper",
       "displayName": "Debug Helper",
       "category": "Developer",
-      "description": "Generate test data",
-      "isStub": true,
-      "implFile": null
+      "description": "Emit log lines or seed synthetic test data",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/debug_helper.rs"
     },
     {
       "n8nType": "n8n-nodes-base.deepL",
@@ -641,9 +677,9 @@
       "name": "editImage",
       "displayName": "Edit Image",
       "category": "Files",
-      "description": "Image manipulation",
-      "isStub": true,
-      "implFile": null
+      "description": "Resize, crop, rotate, blur, or composite image binaries",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/edit_image.rs"
     },
     {
       "n8nType": "n8n-nodes-base.egoi",
@@ -655,13 +691,13 @@
       "implFile": null
     },
     {
-      "n8nType": "n8n-nodes-base.elastic",
-      "name": "elastic",
+      "n8nType": "n8n-nodes-base.elasticsearch",
+      "name": "elasticsearch",
       "displayName": "Elasticsearch",
       "category": "Database",
-      "description": "Search engine",
-      "isStub": true,
-      "implFile": null
+      "description": "Search, index, update, and delete Elasticsearch documents",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/elasticsearch.rs"
     },
     {
       "n8nType": "n8n-nodes-base.emailReadImap",
@@ -682,6 +718,15 @@
       "implFile": "rust/crates/sabflow-nodes/src/nodes/email_send.rs"
     },
     {
+      "n8nType": "n8n-nodes-base.emailTrigger",
+      "name": "emailTrigger",
+      "displayName": "Email Trigger (IMAP)",
+      "category": "Trigger",
+      "description": "Fire on new messages in an IMAP mailbox",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/email_trigger.rs"
+    },
+    {
       "n8nType": "n8n-nodes-base.emelia",
       "name": "emelia",
       "displayName": "Emelia",
@@ -689,6 +734,15 @@
       "description": "Cold email outreach",
       "isStub": true,
       "implFile": null
+    },
+    {
+      "n8nType": "n8n-nodes-base.end",
+      "name": "end",
+      "displayName": "End",
+      "category": "Logic",
+      "description": "Sink that quietly consumes incoming items",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/end_node.rs"
     },
     {
       "n8nType": "n8n-nodes-base.erpNext",
@@ -704,9 +758,9 @@
       "name": "errorTrigger",
       "displayName": "Error Trigger",
       "category": "Trigger",
-      "description": "Triggers on workflow errors",
-      "isStub": true,
-      "implFile": null
+      "description": "Triggered when another workflow's error workflow points here",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/error_trigger.rs"
     },
     {
       "n8nType": "n8n-nodes-base.evaluation",
@@ -758,9 +812,9 @@
       "name": "executionData",
       "displayName": "Execution Data",
       "category": "Developer",
-      "description": "Read execution metadata",
-      "isStub": true,
-      "implFile": null
+      "description": "Read or write per-execution static data",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/execution_data.rs"
     },
     {
       "n8nType": "n8n-nodes-base.facebook",
@@ -812,7 +866,7 @@
       "name": "filter",
       "displayName": "Filter",
       "category": "Transform",
-      "description": "Drop items that don't match a condition",
+      "description": "Keep only items matching a condition",
       "isStub": false,
       "implFile": "rust/crates/sabflow-nodes/src/nodes/filter.rs"
     },
@@ -842,6 +896,15 @@
       "description": "Form builder",
       "isStub": true,
       "implFile": null
+    },
+    {
+      "n8nType": "n8n-nodes-base.formTrigger",
+      "name": "formTrigger",
+      "displayName": "Form Trigger",
+      "category": "Trigger",
+      "description": "Fire when a hosted form is submitted",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/form_trigger.rs"
     },
     {
       "n8nType": "n8n-nodes-base.formstack",
@@ -884,7 +947,7 @@
       "name": "ftp",
       "displayName": "FTP",
       "category": "Storage",
-      "description": "Transfer files via FTP or SFTP",
+      "description": "Transfer files via FTP",
       "isStub": false,
       "implFile": "rust/crates/sabflow-nodes/src/nodes/ftp.rs"
     },
@@ -893,16 +956,16 @@
       "name": "function",
       "displayName": "Function (legacy)",
       "category": "Logic",
-      "description": "Run a JavaScript snippet that receives `items` and returns the transformed array.",
+      "description": "Legacy code node \u2014 downgrades to the safe expression DSL",
       "isStub": false,
-      "implFile": "rust/crates/sabflow-nodes/src/nodes/function.rs"
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/function_node.rs"
     },
     {
       "n8nType": "n8n-nodes-base.functionItem",
       "name": "functionItem",
       "displayName": "Function Item (legacy)",
-      "category": "Developer",
-      "description": "Run JavaScript once per input item (sandbox not yet implemented)",
+      "category": "Logic",
+      "description": "Legacy per-item code node \u2014 downgrades to the safe expression DSL",
       "isStub": false,
       "implFile": "rust/crates/sabflow-nodes/src/nodes/function_item.rs"
     },
@@ -1001,9 +1064,9 @@
       "name": "gotify",
       "displayName": "Gotify",
       "category": "Communication",
-      "description": "Self-hosted push notifications",
-      "isStub": true,
-      "implFile": null
+      "description": "Send push messages to a self-hosted Gotify server",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/gotify.rs"
     },
     {
       "n8nType": "n8n-nodes-base.grafana",
@@ -1154,9 +1217,9 @@
       "name": "iCalendar",
       "displayName": "iCalendar",
       "category": "Productivity",
-      "description": "Generate iCal events",
-      "isStub": true,
-      "implFile": null
+      "description": "Generate or parse iCalendar (ICS) events",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/i_calendar.rs"
     },
     {
       "n8nType": "n8n-nodes-base.if",
@@ -1181,9 +1244,9 @@
       "name": "interval",
       "displayName": "Interval",
       "category": "Trigger",
-      "description": "Fire at fixed intervals",
-      "isStub": true,
-      "implFile": null
+      "description": "Fire at fixed intervals (Vercel Cron-backed)",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/interval_trigger.rs"
     },
     {
       "n8nType": "n8n-nodes-base.invoiceNinja",
@@ -1193,6 +1256,15 @@
       "description": "Invoicing and billing",
       "isStub": true,
       "implFile": null
+    },
+    {
+      "n8nType": "n8n-nodes-base.itemLists",
+      "name": "itemLists",
+      "displayName": "Item Lists",
+      "category": "Transform",
+      "description": "Aggregate, split, sort, limit, and dedupe items",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/item_lists.rs"
     },
     {
       "n8nType": "n8n-nodes-base.iterable",
@@ -1217,9 +1289,9 @@
       "name": "jinaAi",
       "displayName": "Jina AI",
       "category": "Ai",
-      "description": "Embeddings and reranking",
-      "isStub": true,
-      "implFile": null
+      "description": "Jina AI embeddings and reranking",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/jina_ai.rs"
     },
     {
       "n8nType": "n8n-nodes-base.jira",
@@ -1280,9 +1352,9 @@
       "name": "ldap",
       "displayName": "LDAP",
       "category": "Developer",
-      "description": "Directory operations",
-      "isStub": true,
-      "implFile": null
+      "description": "Search, bind, add, modify, and delete LDAP directory entries",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/ldap_api.rs"
     },
     {
       "n8nType": "n8n-nodes-base.lemlist",
@@ -1343,9 +1415,9 @@
       "name": "localFileTrigger",
       "displayName": "Local File Trigger",
       "category": "Trigger",
-      "description": "Watch local file system",
-      "isStub": true,
-      "implFile": null
+      "description": "Watch a directory for file changes (Vercel-hosted stub)",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/local_file_trigger.rs"
     },
     {
       "n8nType": "n8n-nodes-base.loneScale",
@@ -1424,9 +1496,9 @@
       "name": "markdown",
       "displayName": "Markdown",
       "category": "Transform",
-      "description": "Markdown <-> HTML conversion",
-      "isStub": true,
-      "implFile": null
+      "description": "Convert between Markdown, HTML, and plain text",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/markdown.rs"
     },
     {
       "n8nType": "n8n-nodes-base.marketstack",
@@ -1510,6 +1582,15 @@
       "implFile": null
     },
     {
+      "n8nType": "n8n-nodes-base.microsoftSql",
+      "name": "microsoftSql",
+      "displayName": "Microsoft SQL",
+      "category": "Database",
+      "description": "Run SQL on Microsoft SQL Server",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/microsoft_sql.rs"
+    },
+    {
       "n8nType": "n8n-nodes-base.mindee",
       "name": "mindee",
       "displayName": "Mindee",
@@ -1532,9 +1613,9 @@
       "name": "mistralAi",
       "displayName": "Mistral AI",
       "category": "Ai",
-      "description": "Mistral language models",
-      "isStub": true,
-      "implFile": null
+      "description": "Mistral AI chat completions and embeddings",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/mistral_ai.rs"
     },
     {
       "n8nType": "n8n-nodes-base.mocean",
@@ -1577,9 +1658,9 @@
       "name": "moveBinaryData",
       "displayName": "Move Binary Data",
       "category": "Transform",
-      "description": "Convert binary <-> JSON fields",
-      "isStub": true,
-      "implFile": null
+      "description": "Convert binary <-> JSON fields on each item",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/move_binary_data.rs"
     },
     {
       "n8nType": "n8n-nodes-base.mqtt",
@@ -1589,6 +1670,15 @@
       "description": "MQTT messaging",
       "isStub": true,
       "implFile": null
+    },
+    {
+      "n8nType": "n8n-nodes-base.mqttTrigger",
+      "name": "mqttTrigger",
+      "displayName": "MQTT Trigger",
+      "category": "Trigger",
+      "description": "Fire on messages from an MQTT topic (bridge-backed)",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/mqtt_trigger.rs"
     },
     {
       "n8nType": "n8n-nodes-base.msg91",
@@ -1784,9 +1874,9 @@
       "name": "oracle",
       "displayName": "Oracle DB",
       "category": "Database",
-      "description": "Oracle database",
-      "isStub": true,
-      "implFile": null
+      "description": "Run SQL on Oracle Database",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/oracle.rs"
     },
     {
       "n8nType": "n8n-nodes-base.orbit",
@@ -1820,9 +1910,9 @@
       "name": "pagerDuty",
       "displayName": "PagerDuty",
       "category": "Communication",
-      "description": "On-call incident response",
-      "isStub": true,
-      "implFile": null
+      "description": "Trigger, acknowledge, resolve, and query PagerDuty incidents",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/pager_duty.rs"
     },
     {
       "n8nType": "n8n-nodes-base.payPal",
@@ -1847,9 +1937,9 @@
       "name": "perplexity",
       "displayName": "Perplexity",
       "category": "Ai",
-      "description": "Perplexity AI search",
-      "isStub": true,
-      "implFile": null
+      "description": "Perplexity AI search-grounded chat completions",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/perplexity.rs"
     },
     {
       "n8nType": "n8n-nodes-base.phantombuster",
@@ -1868,6 +1958,15 @@
       "description": "Smart lighting",
       "isStub": true,
       "implFile": null
+    },
+    {
+      "n8nType": "n8n-nodes-base.pinecone",
+      "name": "pinecone",
+      "displayName": "Pinecone",
+      "category": "Database",
+      "description": "Pinecone vector database \u2014 upsert, query, fetch, delete",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/pinecone.rs"
     },
     {
       "n8nType": "n8n-nodes-base.pipedrive",
@@ -1937,9 +2036,9 @@
       "name": "pushbullet",
       "displayName": "Pushbullet",
       "category": "Communication",
-      "description": "Cross-device notifications",
-      "isStub": true,
-      "implFile": null
+      "description": "Push notes and links to your devices via Pushbullet",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/pushbullet.rs"
     },
     {
       "n8nType": "n8n-nodes-base.pushcut",
@@ -1955,18 +2054,27 @@
       "name": "pushover",
       "displayName": "Pushover",
       "category": "Communication",
-      "description": "Push notifications",
-      "isStub": true,
-      "implFile": null
+      "description": "Send push notifications via Pushover",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/pushover.rs"
+    },
+    {
+      "n8nType": "n8n-nodes-base.qdrant",
+      "name": "qdrant",
+      "displayName": "Qdrant",
+      "category": "Database",
+      "description": "Qdrant vector database \u2014 upsert, search, retrieve, delete",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/qdrant.rs"
     },
     {
       "n8nType": "n8n-nodes-base.questDb",
       "name": "questDb",
       "displayName": "QuestDB",
       "category": "Database",
-      "description": "Time-series database",
-      "isStub": true,
-      "implFile": null
+      "description": "Run SQL on QuestDB (time-series)",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/quest_db.rs"
     },
     {
       "n8nType": "n8n-nodes-base.quickBase",
@@ -2018,9 +2126,9 @@
       "name": "readBinaryFile",
       "displayName": "Read Binary File",
       "category": "Files",
-      "description": "Read a single file",
-      "isStub": true,
-      "implFile": null
+      "description": "Read a file from disk into a binary item",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/read_binary_file.rs"
     },
     {
       "n8nType": "n8n-nodes-base.readBinaryFiles",
@@ -2039,6 +2147,15 @@
       "description": "Extract text from PDF",
       "isStub": true,
       "implFile": null
+    },
+    {
+      "n8nType": "n8n-nodes-base.readWriteFile",
+      "name": "readWriteFile",
+      "displayName": "Read/Write File",
+      "category": "Files",
+      "description": "Read a file from disk into binary data, or write binary data to disk",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/read_write_file.rs"
     },
     {
       "n8nType": "n8n-nodes-base.reddit",
@@ -2072,9 +2189,9 @@
       "name": "renameKeys",
       "displayName": "Rename Keys",
       "category": "Transform",
-      "description": "Rename object keys",
-      "isStub": true,
-      "implFile": null
+      "description": "Rename top-level keys on each item",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/rename_keys.rs"
     },
     {
       "n8nType": "n8n-nodes-base.respondToWebhook",
@@ -2084,6 +2201,15 @@
       "description": "Reply to the inbound webhook caller",
       "isStub": false,
       "implFile": "rust/crates/sabflow-nodes/src/nodes/respond_to_webhook.rs"
+    },
+    {
+      "n8nType": "n8n-nodes-base.rethinkDb",
+      "name": "rethinkDb",
+      "displayName": "RethinkDB",
+      "category": "Database",
+      "description": "Document database with realtime changefeeds",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/rethink_db.rs"
     },
     {
       "n8nType": "n8n-nodes-base.rocketchat",
@@ -2230,6 +2356,15 @@
       "implFile": "rust/crates/sabflow-nodes/src/nodes/set.rs"
     },
     {
+      "n8nType": "n8n-nodes-base.sftp",
+      "name": "sftp",
+      "displayName": "SFTP",
+      "category": "Storage",
+      "description": "Transfer files via SFTP (SSH)",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/sftp.rs"
+    },
+    {
       "n8nType": "n8n-nodes-base.shopify",
       "name": "shopify",
       "displayName": "Shopify",
@@ -2241,11 +2376,11 @@
     {
       "n8nType": "n8n-nodes-base.signl4",
       "name": "signl4",
-      "displayName": "Signl4",
+      "displayName": "SIGNL4",
       "category": "Communication",
-      "description": "Mobile alerting",
-      "isStub": true,
-      "implFile": null
+      "description": "Trigger, acknowledge, and resolve SIGNL4 mobile on-call alerts",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/signl4.rs"
     },
     {
       "n8nType": "n8n-nodes-base.simulate",
@@ -2297,9 +2432,9 @@
       "name": "splitInBatches",
       "displayName": "Split In Batches",
       "category": "Logic",
-      "description": "Loop over items in batches",
-      "isStub": true,
-      "implFile": null
+      "description": "Chunk items into batches of a fixed size",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/split_in_batches.rs"
     },
     {
       "n8nType": "n8n-nodes-base.splitOut",
@@ -2333,9 +2468,9 @@
       "name": "spreadsheetFile",
       "displayName": "Spreadsheet File",
       "category": "Files",
-      "description": "Read/write CSV, XLS, ODS",
-      "isStub": true,
-      "implFile": null
+      "description": "Read or write CSV / TSV data (XLSX/ODS reserved for future use)",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/spreadsheet_file.rs"
     },
     {
       "n8nType": "n8n-nodes-base.sseTrigger",
@@ -2363,6 +2498,15 @@
       "description": "Spreadsheet-style database",
       "isStub": true,
       "implFile": null
+    },
+    {
+      "n8nType": "n8n-nodes-base.start",
+      "name": "start",
+      "displayName": "Start",
+      "category": "Trigger",
+      "description": "Legacy entry node \u2014 passes the trigger payload through",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/start_node.rs"
     },
     {
       "n8nType": "n8n-nodes-base.stickyNote",
@@ -2435,6 +2579,15 @@
       "description": "Supabase database operations via PostgREST",
       "isStub": false,
       "implFile": "rust/crates/sabflow-nodes/src/nodes/supabase.rs"
+    },
+    {
+      "n8nType": "n8n-nodes-base.surreal",
+      "name": "surreal",
+      "displayName": "SurrealDB",
+      "category": "Database",
+      "description": "Multi-model document / graph / KV database",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/surreal.rs"
     },
     {
       "n8nType": "n8n-nodes-base.surveyMonkey",
@@ -2549,9 +2702,9 @@
       "name": "totp",
       "displayName": "TOTP",
       "category": "Developer",
-      "description": "Time-based one-time passwords",
-      "isStub": true,
-      "implFile": null
+      "description": "Generate and verify time-based one-time passwords (RFC 6238)",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/totp.rs"
     },
     {
       "n8nType": "n8n-nodes-base.transform",
@@ -2779,6 +2932,15 @@
       "implFile": null
     },
     {
+      "n8nType": "n8n-nodes-base.workflow",
+      "name": "workflow",
+      "displayName": "Workflow",
+      "category": "Developer",
+      "description": "Read metadata about the current sub-workflow",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/workflow_node.rs"
+    },
+    {
       "n8nType": "n8n-nodes-base.workflowTrigger",
       "name": "workflowTrigger",
       "displayName": "Workflow Trigger",
@@ -2873,9 +3035,9 @@
       "name": "zulip",
       "displayName": "Zulip",
       "category": "Communication",
-      "description": "Topic-based team chat",
-      "isStub": true,
-      "implFile": null
+      "description": "Send messages and query subscriptions on a Zulip server",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/zulip.rs"
     }
   ]
 }
