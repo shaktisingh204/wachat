@@ -1,0 +1,162 @@
+{
+  "$schema": "./scenarios.schema.json",
+  "version": 1,
+  "target": {
+    "editorPath": "/dashboard/sabflow/flow-builder",
+    "flowPathTemplate": "/dashboard/sabflow/{flowId}",
+    "baseUrl": "http://localhost:3000",
+    "notes": "Editor URL may require auth — see README for cookie / storageState injection. Each scenario must run on a freshly navigated page so that CLS/LCP/INP are measured against a clean web-vitals stream."
+  },
+  "common": {
+    "warmupRuns": 1,
+    "measuredRuns": 5,
+    "reportPercentiles": [50, 95, 99],
+    "metrics": [
+      "lcp",
+      "cls",
+      "inp",
+      "fps_avg",
+      "fps_p1",
+      "long_tasks_ms",
+      "js_heap_delta_mb",
+      "dom_node_delta",
+      "frames_dropped"
+    ]
+  },
+  "scenarios": [
+    {
+      "id": "cold-load",
+      "label": "Cold load — no doc, first paint",
+      "description": "Open the editor with an empty new-flow URL. Measures first paint of the CRDT-backed shell with zero blocks. Compared against the previous local-state baseline which short-circuited Y.Doc bootstrap.",
+      "setup": {
+        "path": "/dashboard/sabflow/flow-builder",
+        "doc": "empty",
+        "clearCache": true,
+        "throttleCpu": 4,
+        "throttleNetwork": "Fast3G"
+      },
+      "interactions": [],
+      "budget": {
+        "lcp_ms":  { "p50": 1500, "p99": 2500 },
+        "cls":     { "p50": 0.02, "p99": 0.05 },
+        "inp_ms":  { "p50": 100,  "p99": 200  },
+        "js_heap_delta_mb": { "p50": 12, "p99": 20 }
+      }
+    },
+    {
+      "id": "small-doc",
+      "label": "Small doc — 10 blocks",
+      "description": "Hydrate an existing flow with 10 nodes/edges. Validates render cost for the median user doc.",
+      "setup": {
+        "path": "/dashboard/sabflow/flow-builder?fixture=small",
+        "doc": "fixtures/10-blocks.yjs.b64",
+        "clearCache": true
+      },
+      "interactions": [],
+      "budget": {
+        "lcp_ms":  { "p50": 1800, "p99": 2800 },
+        "cls":     { "p50": 0.02, "p99": 0.05 },
+        "inp_ms":  { "p50": 120,  "p99": 220  },
+        "js_heap_delta_mb": { "p50": 14, "p99": 22 }
+      }
+    },
+    {
+      "id": "medium-doc",
+      "label": "Medium doc — 100 blocks",
+      "description": "Hydrate a 100-node flow. This is the regression-risk size for the CRDT layer (Y.Doc apply + reactive sync).",
+      "setup": {
+        "path": "/dashboard/sabflow/flow-builder?fixture=medium",
+        "doc": "fixtures/100-blocks.yjs.b64",
+        "clearCache": true
+      },
+      "interactions": [],
+      "budget": {
+        "lcp_ms":  { "p50": 2500, "p99": 4000 },
+        "cls":     { "p50": 0.05, "p99": 0.10 },
+        "inp_ms":  { "p50": 180,  "p99": 350  },
+        "js_heap_delta_mb": { "p50": 30, "p99": 55 },
+        "long_tasks_ms": { "p50": 250, "p99": 600 }
+      }
+    },
+    {
+      "id": "rapid-drag",
+      "label": "Rapid drag — 5s sustained node drag",
+      "description": "Pick up a node and drag it in a 200px circle for 5s. Records frame-rate and dropped frames; this is where CRDT update fan-out is most likely to stall the main thread.",
+      "setup": {
+        "path": "/dashboard/sabflow/flow-builder?fixture=medium",
+        "doc": "fixtures/100-blocks.yjs.b64"
+      },
+      "interactions": [
+        {
+          "type": "drag",
+          "selector": "[data-testid=\"flow-node\"]:first-child",
+          "durationMs": 5000,
+          "pattern": "circle",
+          "radiusPx": 200,
+          "stepsPerSecond": 60
+        }
+      ],
+      "budget": {
+        "fps_avg":       { "p50": 55,  "p99": 50  },
+        "fps_p1":        { "p50": 30,  "p99": 22  },
+        "frames_dropped":{ "p50": 5,   "p99": 20  },
+        "inp_ms":        { "p50": 100, "p99": 200 }
+      }
+    },
+    {
+      "id": "bulk-paste",
+      "label": "Bulk paste — 50 blocks in one operation",
+      "description": "Trigger a single paste of 50 serialized blocks. Measures Y.Doc transaction batching, single-frame layout cost, and the React commit after the CRDT apply.",
+      "setup": {
+        "path": "/dashboard/sabflow/flow-builder?fixture=small",
+        "doc": "fixtures/10-blocks.yjs.b64"
+      },
+      "interactions": [
+        {
+          "type": "paste",
+          "payload": "fixtures/50-blocks-clipboard.json",
+          "targetSelector": "[data-testid=\"flow-canvas\"]",
+          "settleMs": 1500
+        }
+      ],
+      "budget": {
+        "inp_ms":        { "p50": 200, "p99": 500 },
+        "long_tasks_ms": { "p50": 300, "p99": 800 },
+        "frames_dropped":{ "p50": 4,   "p99": 12  },
+        "js_heap_delta_mb": { "p50": 18, "p99": 32 },
+        "dom_node_delta":   { "p50": 600, "p99": 1200 }
+      }
+    },
+    {
+      "id": "reconnect-replay",
+      "label": "Reconnect replay — 100-update oplog",
+      "description": "Open with 100-block fixture, sever the websocket via route blocking, then restore connectivity and dispatch a 100-update oplog burst. Measures CRDT apply throughput + UI settle time on reconnect.",
+      "setup": {
+        "path": "/dashboard/sabflow/flow-builder?fixture=medium",
+        "doc": "fixtures/100-blocks.yjs.b64",
+        "wsBlockPattern": "**/sabflow/realtime**"
+      },
+      "interactions": [
+        {
+          "type": "wsDisconnect",
+          "durationMs": 500
+        },
+        {
+          "type": "oplogBurst",
+          "updates": "fixtures/100-update-oplog.b64.json",
+          "deliverWindowMs": 200
+        },
+        {
+          "type": "waitForIdle",
+          "timeoutMs": 5000
+        }
+      ],
+      "budget": {
+        "inp_ms":        { "p50": 250, "p99": 600 },
+        "long_tasks_ms": { "p50": 400, "p99": 1000 },
+        "frames_dropped":{ "p50": 6,   "p99": 20  },
+        "js_heap_delta_mb": { "p50": 10, "p99": 22 }
+      }
+    }
+  ]
+}
