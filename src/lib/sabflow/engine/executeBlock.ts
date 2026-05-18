@@ -13,6 +13,7 @@ import { getCredentialById } from '@/lib/sabflow/credentials/db';
 // server-only (via the credentials/db import above), so it never reaches
 // any client bundle.
 import '@/lib/sabflow/agent-bridge.server';
+import { emitTrace } from './traceEmitter';
 
 export type BlockExecutionResult = {
   messages: OutgoingMessage[];
@@ -56,10 +57,17 @@ const INPUT_TYPES = new Set([
  * `userId`       — workspace owner driving the current run.
  * `callerStack`  — flow ids currently on the execution stack (oldest first).
  *                  Used by `forge_execute_workflow` for cycle detection.
+ * `executionId`  — opaque run id; when set, per-item trace events are emitted
+ *                  to `sabflow_execution_traces` (guarded by
+ *                  `SABFLOW_TRACE_ENABLED`).
+ * `itemIndex`    — 0-based item position within the block's item list.
+ *                  Defaults to 0 when not supplied.
  */
 export type ExecuteBlockContext = {
   userId?: string;
   callerStack?: string[];
+  executionId?: string;
+  itemIndex?: number;
 };
 
 /**
@@ -74,11 +82,89 @@ export async function executeBlock(
   userInput?: string,
   ctx?: ExecuteBlockContext,
 ): Promise<BlockExecutionResult> {
-  // Forge blocks are dispatched via the schema-driven registry. Caught before
-  // the switch so we don't have to enumerate every forge type below.
-  if (block.type.startsWith('forge_')) {
-    return executeForgeBlock(block, variables, edges, ctx);
+  const traceExecutionId = ctx?.executionId;
+  const traceItemIndex = ctx?.itemIndex ?? 0;
+  const traceWorkspaceId = ctx?.userId;
+
+  if (traceExecutionId) {
+    emitTrace({
+      executionId: traceExecutionId,
+      nodeId: block.id,
+      itemIndex: traceItemIndex,
+      phase: 'pre',
+      ts: Date.now(),
+      inputSample: userInput !== undefined ? userInput : variables,
+      workspaceId: traceWorkspaceId,
+    });
   }
+
+  const traceStartTs = Date.now();
+
+  const executeAndTrace = async (): Promise<BlockExecutionResult> => {
+    // Forge blocks are dispatched via the schema-driven registry. Caught before
+    // the switch so we don't have to enumerate every forge type below.
+    if (block.type.startsWith('forge_')) {
+      return executeForgeBlock(block, variables, edges, ctx);
+    }
+
+    return executeBlockInner(block, variables, edges, userInput, ctx);
+  };
+
+  let result: BlockExecutionResult;
+  try {
+    result = await executeAndTrace();
+  } catch (err) {
+    if (traceExecutionId) {
+      emitTrace({
+        executionId: traceExecutionId,
+        nodeId: block.id,
+        itemIndex: traceItemIndex,
+        phase: 'error',
+        ts: Date.now(),
+        durationMs: Date.now() - traceStartTs,
+        error: err instanceof Error ? err.message : String(err),
+        workspaceId: traceWorkspaceId,
+      });
+    }
+    throw err;
+  }
+
+  if (traceExecutionId) {
+    emitTrace({
+      executionId: traceExecutionId,
+      nodeId: block.id,
+      itemIndex: traceItemIndex,
+      phase: result.errorSignal ? 'error' : 'post',
+      ts: Date.now(),
+      durationMs: Date.now() - traceStartTs,
+      outputSample: result.messages.length
+        ? result.messages.map((m) => m.content).join('\n')
+        : result.updatedVariables,
+      ...(result.errorSignal && {
+        error:
+          result.errorSignal.kind === 'halt'
+            ? result.errorSignal.message
+            : `goto:${result.errorSignal.groupId}`,
+      }),
+      workspaceId: traceWorkspaceId,
+    });
+  }
+
+  return result;
+}
+
+/**
+ * Inner switch-based dispatch for non-forge blocks. Extracted so the outer
+ * `executeBlock` wrapper can wrap it with trace emission logic without
+ * duplicating the switch.
+ */
+async function executeBlockInner(
+  block: Block,
+  variables: Record<string, string>,
+  edges: Edge[],
+  userInput?: string,
+  ctx?: ExecuteBlockContext,
+): Promise<BlockExecutionResult> {
 
   switch (block.type) {
     // ── Bubble blocks ────────────────────────────────────────────────────────
