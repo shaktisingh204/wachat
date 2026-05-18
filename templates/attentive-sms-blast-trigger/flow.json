@@ -1,0 +1,148 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_attentive_sub",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "attentive.list.subscribe",
+    "options": {
+      "path": "/webhooks/attentive-subscribe",
+      "method": "POST",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_webhook",
+      "name": "Attentive Subscribe",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "attentive-subscribe",
+        "responseMode": "onReceived"
+      },
+      "webhookId": "attentive-subscribe-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Subscriber",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "phone", "value": "={{ $json.user.phone }}" },
+            { "name": "region", "value": "={{ $json.user.region }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_route",
+      "name": "Route by Region",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            { "conditions": { "string": [{ "value1": "={{ $json.region }}", "operation": "equal", "value2": "US" }] }, "outputKey": "us" },
+            { "conditions": { "string": [{ "value1": "={{ $json.region }}", "operation": "equal", "value2": "EU" }] }, "outputKey": "eu" }
+          ]
+        },
+        "fallbackOutput": "apac"
+      }
+    },
+    {
+      "id": "n_send_us",
+      "name": "Attentive Send (US)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, -180],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.attentivemobile.com/v1/messages",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "phone", "value": "={{ $json.phone }}" },
+            { "name": "body", "value": "Welcome! Reply YES for 15% off your first US order." }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "attentive-cred", "name": "Attentive API" }
+      }
+    },
+    {
+      "id": "n_send_eu",
+      "name": "Attentive Send (EU)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.attentivemobile.com/v1/messages",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "phone", "value": "={{ $json.phone }}" },
+            { "name": "body", "value": "Welcome! Reply YES for €10 off your first EU order." }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "attentive-cred", "name": "Attentive API" }
+      }
+    },
+    {
+      "id": "n_send_apac",
+      "name": "Attentive Send (APAC)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, 180],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.attentivemobile.com/v1/messages",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "phone", "value": "={{ $json.phone }}" },
+            { "name": "body", "value": "Welcome! Reply YES for a free APAC shipping coupon." }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "attentive-cred", "name": "Attentive API" }
+      }
+    }
+  ],
+  "connections": {
+    "n_webhook": {
+      "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]]
+    },
+    "n_extract": {
+      "main": [[{ "node": "n_route", "type": "main", "index": 0 }]]
+    },
+    "n_route": {
+      "us": [[{ "node": "n_send_us", "type": "main", "index": 0 }]],
+      "eu": [[{ "node": "n_send_eu", "type": "main", "index": 0 }]],
+      "apac": [[{ "node": "n_send_apac", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_webhook", "n_extract", "n_route", "n_send_us", "n_send_eu", "n_send_apac"]
+    }
+  ],
+  "variables": [],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

@@ -1,0 +1,166 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_databricks",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "databricks.job.failed",
+    "options": {
+      "path": "/webhooks/databricks-job-failure",
+      "method": "POST",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_webhook",
+      "name": "Databricks Job.Failed",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "databricks-job-failure",
+        "responseMode": "onReceived"
+      },
+      "webhookId": "databricks-failure-webhook"
+    },
+    {
+      "id": "n_run_get",
+      "name": "Get Run Details",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "=https://{{ $vars.DATABRICKS_HOST }}/api/2.1/jobs/runs/get?run_id={{ $json.run_id }}"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "databricks-cred", "name": "Databricks PAT" }
+      }
+    },
+    {
+      "id": "n_classify",
+      "name": "Classify Error",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "errorClass", "value": "={{ ($json.state && $json.state.state_message || '').toLowerCase().includes('cluster') || ($json.state && $json.state.state_message || '').toLowerCase().includes('driver') ? 'infra' : 'user' }}" },
+            { "name": "jobName", "value": "={{ $json.run_name }}" },
+            { "name": "runId", "value": "={{ $json.run_id }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_route",
+      "name": "Infra vs Transient",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "conditions": {
+          "string": [
+            { "value1": "={{ $json.errorClass }}", "operation": "equal", "value2": "infra" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_pagerduty",
+      "name": "Page On-Call",
+      "type": "n8n-nodes-base.pagerDuty",
+      "typeVersion": 1,
+      "position": [960, -120],
+      "parameters": {
+        "resource": "incident",
+        "operation": "create",
+        "title": "Databricks infra failure: {{ $json.jobName }} (run {{ $json.runId }})",
+        "serviceId": "={{ $vars.PAGERDUTY_DATA_SERVICE }}",
+        "urgency": "high"
+      },
+      "credentials": {
+        "pagerDutyApi": { "id": "pagerduty-cred", "name": "PagerDuty API" }
+      }
+    },
+    {
+      "id": "n_slack_infra",
+      "name": "Slack #data-oncall",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, -120],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.ONCALL_CHANNEL }}",
+        "text": ":fire: Infra failure — {{ $json.jobName }} (run {{ $json.runId }}) paged"
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    },
+    {
+      "id": "n_slack_transient",
+      "name": "Slack #data-jobs",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [960, 120],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.JOBS_CHANNEL }}",
+        "text": ":warning: {{ $json.jobName }} failed (run {{ $json.runId }}) — likely user code, triage next business day"
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    }
+  ],
+  "connections": {
+    "n_webhook": {
+      "main": [[{ "node": "n_run_get", "type": "main", "index": 0 }]]
+    },
+    "n_run_get": {
+      "main": [[{ "node": "n_classify", "type": "main", "index": 0 }]]
+    },
+    "n_classify": {
+      "main": [[{ "node": "n_route", "type": "main", "index": 0 }]]
+    },
+    "n_route": {
+      "true": [[{ "node": "n_pagerduty", "type": "main", "index": 0 }]],
+      "false": [[{ "node": "n_slack_transient", "type": "main", "index": 0 }]]
+    },
+    "n_pagerduty": {
+      "main": [[{ "node": "n_slack_infra", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_webhook",
+        "n_run_get",
+        "n_classify",
+        "n_route",
+        "n_pagerduty",
+        "n_slack_infra",
+        "n_slack_transient"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_dbx_host", "name": "DATABRICKS_HOST", "defaultValue": "dbc-xxxxxxxx.cloud.databricks.com" },
+    { "id": "v_pd_service", "name": "PAGERDUTY_DATA_SERVICE", "defaultValue": "" },
+    { "id": "v_oncall", "name": "ONCALL_CHANNEL", "defaultValue": "#data-oncall" },
+    { "id": "v_jobs", "name": "JOBS_CHANNEL", "defaultValue": "#data-jobs" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

@@ -1,0 +1,10 @@
+{
+  "id": "hubspot-meeting-no-show",
+  "name": "HubSpot Meeting No-Show Recovery",
+  "description": "When a HubSpot meeting ends with no_show=true the workflow emails the prospect a reschedule link, pings the account executive in Slack, and adds the contact to an Airtable follow-up base. Catches drop-offs that otherwise sit unattended in the AE inbox.",
+  "category": "CRM",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["hubspot", "crm", "sales", "slack", "sendgrid", "airtable"],
+  "version": "0.1.0"
+}

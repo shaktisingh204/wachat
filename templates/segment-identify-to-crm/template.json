@@ -1,0 +1,10 @@
+{
+  "id": "segment-identify-to-crm",
+  "name": "Segment Identify to CRM",
+  "description": "Fans every Segment identify call out to HubSpot and Salesforce, upserting the contact with the supplied traits and a unification row written to Mongo. Keeps marketing and sales CRMs in lockstep with the product-side identity graph without a dedicated reverse-ETL.",
+  "category": "Marketing",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["segment", "hubspot", "salesforce", "mongodb", "cdp", "reverse-etl"],
+  "version": "0.1.0"
+}

@@ -1,0 +1,129 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_event_end",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "eventbrite.event.ended",
+    "options": {
+      "path": "/webhooks/eventbrite-end",
+      "method": "POST",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_webhook",
+      "name": "Eventbrite Event Ended",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "eventbrite-end",
+        "responseMode": "onReceived"
+      },
+      "webhookId": "eventbrite-end-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Event",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "eventId", "value": "={{ $json.event_id }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_wait_24h",
+      "name": "Wait 24h",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": { "amount": 24, "unit": "hours" }
+    },
+    {
+      "id": "n_attendees",
+      "name": "Pull Attendees",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "=https://www.eventbriteapi.com/v3/events/{{ $node['Extract Event'].json.eventId }}/attendees/"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "eventbrite-cred", "name": "Eventbrite Token" }
+      }
+    },
+    {
+      "id": "n_split",
+      "name": "Per Attendee",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": { "batchSize": 1 }
+    },
+    {
+      "id": "n_sendgrid",
+      "name": "Typeform NPS Email",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [1200, 0],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "={{ $vars.FROM_EMAIL }}",
+        "toEmail": "={{ $json.profile.email }}",
+        "subject": "How was the event?",
+        "contentType": "text/html",
+        "content": "<p>Take 30 seconds: <a href=\"{{ $vars.TYPEFORM_URL }}?email={{ $json.profile.email }}\">share your feedback</a>.</p>"
+      },
+      "credentials": {
+        "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid" }
+      }
+    },
+    {
+      "id": "n_mongo",
+      "name": "Mongo NPS Send Log",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [1440, 0],
+      "parameters": {
+        "operation": "insert",
+        "collection": "nps_sends",
+        "fields": "eventId,email,sentAt"
+      },
+      "credentials": {
+        "mongoDb": { "id": "mongo-cred", "name": "MongoDB" }
+      }
+    }
+  ],
+  "connections": {
+    "n_webhook": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": { "main": [[{ "node": "n_wait_24h", "type": "main", "index": 0 }]] },
+    "n_wait_24h": { "main": [[{ "node": "n_attendees", "type": "main", "index": 0 }]] },
+    "n_attendees": { "main": [[{ "node": "n_split", "type": "main", "index": 0 }]] },
+    "n_split": { "main": [[{ "node": "n_sendgrid", "type": "main", "index": 0 }]] },
+    "n_sendgrid": { "main": [[{ "node": "n_mongo", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_webhook", "n_extract", "n_wait_24h", "n_attendees", "n_split", "n_sendgrid", "n_mongo"]
+    }
+  ],
+  "variables": [
+    { "id": "v_from", "name": "FROM_EMAIL", "defaultValue": "events@example.com" },
+    { "id": "v_tf", "name": "TYPEFORM_URL", "defaultValue": "https://form.typeform.com/to/abc" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

@@ -1,0 +1,10 @@
+{
+  "id": "greenhouse-offer-letter",
+  "name": "Greenhouse Offer Letter Generator",
+  "description": "Triggered when an offer is extended in Greenhouse, the workflow asks GPT-4o to write a personalized offer letter using the candidate's profile and role context. The draft is rendered as a DocuSign envelope, emailed to the candidate, and posted in #recruiting for archival.",
+  "category": "HR",
+  "complexity": "advanced",
+  "authorName": "SabNode",
+  "tags": ["greenhouse", "openai", "docusign", "sendgrid", "slack", "recruiting"],
+  "version": "0.1.0"
+}

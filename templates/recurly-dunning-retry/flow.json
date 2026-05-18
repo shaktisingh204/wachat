@@ -1,0 +1,159 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_recurly",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "recurly.invoice.failed",
+    "options": {
+      "path": "/webhooks/recurly-failed",
+      "method": "POST",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_webhook",
+      "name": "Recurly Invoice Failed",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "recurly-failed",
+        "responseMode": "onReceived"
+      },
+      "webhookId": "recurly-failed-webhook"
+    },
+    {
+      "id": "n_wait_1h",
+      "name": "Wait 1h",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": { "amount": 1, "unit": "hours" }
+    },
+    {
+      "id": "n_retry_1",
+      "name": "Retry Charge (1h)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://v3.recurly.com/invoices/{{ $node['Recurly Invoice Failed'].json.invoice.id }}/collect"
+      },
+      "credentials": {
+        "httpBasicAuth": { "id": "recurly-cred", "name": "Recurly API" }
+      }
+    },
+    {
+      "id": "n_wait_6h",
+      "name": "Wait 6h",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": { "amount": 6, "unit": "hours" }
+    },
+    {
+      "id": "n_retry_2",
+      "name": "Retry Charge (6h)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [960, 0],
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://v3.recurly.com/invoices/{{ $node['Recurly Invoice Failed'].json.invoice.id }}/collect"
+      },
+      "credentials": {
+        "httpBasicAuth": { "id": "recurly-cred", "name": "Recurly API" }
+      }
+    },
+    {
+      "id": "n_wait_24h",
+      "name": "Wait 24h",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [1200, 0],
+      "parameters": { "amount": 24, "unit": "hours" }
+    },
+    {
+      "id": "n_retry_3",
+      "name": "Retry Charge (24h)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1440, 0],
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://v3.recurly.com/invoices/{{ $node['Recurly Invoice Failed'].json.invoice.id }}/collect"
+      },
+      "credentials": {
+        "httpBasicAuth": { "id": "recurly-cred", "name": "Recurly API" }
+      }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack Finance Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1680, -100],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.FINANCE_CHANNEL }}",
+        "text": ":money_with_wings: Invoice {{ $node['Recurly Invoice Failed'].json.invoice.id }} failed all 3 retries"
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    },
+    {
+      "id": "n_mongo_log",
+      "name": "Mongo Dunning Log",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [1680, 100],
+      "parameters": {
+        "operation": "insert",
+        "collection": "dunning_history",
+        "fields": "invoiceId,attempts,outcome"
+      },
+      "credentials": {
+        "mongoDb": { "id": "mongo-cred", "name": "MongoDB" }
+      }
+    }
+  ],
+  "connections": {
+    "n_webhook": { "main": [[{ "node": "n_wait_1h", "type": "main", "index": 0 }]] },
+    "n_wait_1h": { "main": [[{ "node": "n_retry_1", "type": "main", "index": 0 }]] },
+    "n_retry_1": { "main": [[{ "node": "n_wait_6h", "type": "main", "index": 0 }]] },
+    "n_wait_6h": { "main": [[{ "node": "n_retry_2", "type": "main", "index": 0 }]] },
+    "n_retry_2": { "main": [[{ "node": "n_wait_24h", "type": "main", "index": 0 }]] },
+    "n_wait_24h": { "main": [[{ "node": "n_retry_3", "type": "main", "index": 0 }]] },
+    "n_retry_3": {
+      "main": [
+        [
+          { "node": "n_slack", "type": "main", "index": 0 },
+          { "node": "n_mongo_log", "type": "main", "index": 0 }
+        ]
+      ]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_webhook", "n_wait_1h", "n_retry_1", "n_wait_6h", "n_retry_2",
+        "n_wait_24h", "n_retry_3", "n_slack", "n_mongo_log"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_finance", "name": "FINANCE_CHANNEL", "defaultValue": "#finance" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

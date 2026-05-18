@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "templateId": "monday-board-sync",
+  "cases": [
+    {
+      "id": "item-changed",
+      "description": "Monday item update mirrors into the Notion database page.",
+      "triggerPayload": {
+        "event": { "pulseId": 12345, "pulseName": "Onboard Acme", "value": { "label": { "text": "Done" } }, "changedAt": { "user_id": 99 } }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

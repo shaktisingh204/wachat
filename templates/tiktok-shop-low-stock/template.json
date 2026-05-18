@@ -1,0 +1,10 @@
+{
+  "id": "tiktok-shop-low-stock",
+  "name": "TikTok Shop Low-Stock Alert",
+  "description": "Pulls TikTok Shop inventory once a day and filters every SKU whose available count is below the reorder threshold. Each low-stock SKU spawns a Linear ticket assigned to the merch team and a Slack message keeps the broader team in the loop.",
+  "category": "E-commerce",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["tiktok-shop", "inventory", "linear", "slack", "ecommerce", "reorder"],
+  "version": "0.1.0"
+}

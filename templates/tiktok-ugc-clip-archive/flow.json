@@ -1,0 +1,134 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_tiktok_mention",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "tiktok.brand.mention",
+    "options": {
+      "path": "/webhooks/tiktok-ugc",
+      "method": "POST",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_webhook",
+      "name": "TikTok Mention",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "tiktok-ugc",
+        "responseMode": "onReceived"
+      },
+      "webhookId": "tiktok-ugc-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Video",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "videoUrl", "value": "={{ $json.video.download_url }}" },
+            { "name": "videoId", "value": "={{ $json.video.id }}" },
+            { "name": "author", "value": "={{ $json.video.author }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_download",
+      "name": "Download Clip",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $json.videoUrl }}",
+        "options": { "response": { "response": { "responseFormat": "file" } } }
+      }
+    },
+    {
+      "id": "n_r2_upload",
+      "name": "Upload to R2",
+      "type": "n8n-nodes-base.awsS3",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "operation": "upload",
+        "bucketName": "={{ $vars.UGC_BUCKET }}",
+        "fileName": "=tiktok/{{ $node['Extract Video'].json.videoId }}.mp4",
+        "binaryData": true
+      },
+      "credentials": {
+        "aws": { "id": "r2-cred", "name": "Cloudflare R2" }
+      }
+    },
+    {
+      "id": "n_frameio",
+      "name": "Frame.io Review",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [960, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.frame.io/v2/assets/{{ $vars.FRAMEIO_PARENT_ASSET }}/children",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "name", "value": "=TikTok-{{ $node['Extract Video'].json.videoId }}" },
+            { "name": "source.url", "value": "=https://{{ $vars.UGC_BUCKET }}.r2.cloudflarestorage.com/tiktok/{{ $node['Extract Video'].json.videoId }}.mp4" },
+            { "name": "type", "value": "file" }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "frameio-cred", "name": "Frame.io Token" }
+      }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack #ugc",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.UGC_CHANNEL }}",
+        "text": ":movie_camera: New TikTok UGC from @{{ $node['Extract Video'].json.author }} — Frame.io review: {{ $json.id }}"
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    }
+  ],
+  "connections": {
+    "n_webhook": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": { "main": [[{ "node": "n_download", "type": "main", "index": 0 }]] },
+    "n_download": { "main": [[{ "node": "n_r2_upload", "type": "main", "index": 0 }]] },
+    "n_r2_upload": { "main": [[{ "node": "n_frameio", "type": "main", "index": 0 }]] },
+    "n_frameio": { "main": [[{ "node": "n_slack", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_webhook", "n_extract", "n_download", "n_r2_upload", "n_frameio", "n_slack"]
+    }
+  ],
+  "variables": [
+    { "id": "v_bucket", "name": "UGC_BUCKET", "defaultValue": "ugc-archive" },
+    { "id": "v_frameio_parent", "name": "FRAMEIO_PARENT_ASSET", "defaultValue": "" },
+    { "id": "v_ugc_channel", "name": "UGC_CHANNEL", "defaultValue": "#ugc" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

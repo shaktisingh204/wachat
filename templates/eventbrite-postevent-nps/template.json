@@ -1,0 +1,10 @@
+{
+  "id": "eventbrite-postevent-nps",
+  "name": "Eventbrite Post-Event NPS",
+  "description": "When an Eventbrite event ends, the workflow waits 24 hours, then emails every attendee a Typeform NPS survey. Responses are ingested into a Mongo collection so the events team can compare across cohorts and quickly spot themes.",
+  "category": "Marketing",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["eventbrite", "typeform", "sendgrid", "mongodb", "nps", "marketing"],
+  "version": "0.1.0"
+}

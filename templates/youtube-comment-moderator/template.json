@@ -1,0 +1,10 @@
+{
+  "id": "youtube-comment-moderator",
+  "name": "YouTube Comment Moderator",
+  "description": "Runs every new YouTube comment through OpenAI moderation and a sentiment classifier. Flagged comments are hidden via the Data API and reported in #community, positive comments tag the parent video as a hit, and neutral chatter is left untouched.",
+  "category": "Marketing",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["youtube", "openai", "moderation", "community", "slack", "social"],
+  "version": "0.1.0"
+}

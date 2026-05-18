@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "templateId": "github-pr-changelog-bot",
+  "cases": [
+    {
+      "id": "pr-merged",
+      "description": "A merged PR triggers a GPT-4o changelog line, a CHANGELOG commit, and a Slack release post.",
+      "triggerPayload": {
+        "action": "closed",
+        "pull_request": {
+          "number": 142,
+          "title": "Add rate limiting middleware",
+          "merged": true
+        }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "id": "monday-board-sync",
+  "name": "Monday.com to Notion Sync",
+  "description": "Listens for Monday.com item updates and mirrors each change into a target Notion database. Status, owner, and column changes propagate within seconds so Notion stays canonical for cross-functional readers while the operating team continues to work on Monday.",
+  "category": "Ops",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["monday", "notion", "sync", "ops", "cross-tool", "mirror"],
+  "version": "0.1.0"
+}

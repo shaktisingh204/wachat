@@ -1,0 +1,10 @@
+{
+  "id": "workday-leave-request",
+  "name": "Workday Leave Approval",
+  "description": "When an employee files leave in Workday, the manager gets a Slack interactive approval prompt. On approve the leave is marked approved in Workday and a placeholder is added to their Google Calendar; on deny the request is closed with a reason.",
+  "category": "HR",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["workday", "slack", "google-calendar", "approval", "hr", "leave"],
+  "version": "0.1.0"
+}

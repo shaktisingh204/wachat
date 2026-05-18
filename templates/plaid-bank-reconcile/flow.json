@@ -1,0 +1,141 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_daily_recon",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": { "schedule": "30 6 * * *", "enabled": true }
+  },
+  "nodes": [
+    {
+      "id": "n_cron",
+      "name": "Daily 06:30",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "30 6 * * *" }] }
+      }
+    },
+    {
+      "id": "n_plaid",
+      "name": "Plaid Transactions",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "https://production.plaid.com/transactions/get",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "client_id", "value": "={{ $vars.PLAID_CLIENT_ID }}" },
+            { "name": "secret", "value": "={{ $vars.PLAID_SECRET }}" },
+            { "name": "access_token", "value": "={{ $vars.PLAID_ACCESS_TOKEN }}" },
+            { "name": "start_date", "value": "={{ $vars.YESTERDAY }}" },
+            { "name": "end_date", "value": "={{ $vars.YESTERDAY }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_qb",
+      "name": "QuickBooks Bank Feed",
+      "type": "n8n-nodes-base.quickBooks",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "resource": "transaction",
+        "operation": "getAll",
+        "additionalFields": { "TxnDate": "={{ $vars.YESTERDAY }}" }
+      },
+      "credentials": {
+        "quickBooksOAuth2Api": { "id": "qb-cred", "name": "QuickBooks OAuth2" }
+      }
+    },
+    {
+      "id": "n_match",
+      "name": "Reconcile",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const plaid = $('Plaid Transactions').first().json.transactions || []; const qb = $('QuickBooks Bank Feed').all().map(i=>i.json); const qbAmounts = new Set(qb.map(t => `${t.amount}|${t.date}`)); const unmatched = plaid.filter(p => !qbAmounts.has(`${p.amount}|${p.date}`)); return unmatched.map(u => ({ json: u }));"
+      }
+    },
+    {
+      "id": "n_split",
+      "name": "Per Exception",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": { "batchSize": 1 }
+    },
+    {
+      "id": "n_airtable",
+      "name": "File Exception",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [1200, 0],
+      "parameters": {
+        "operation": "create",
+        "application": "={{ $vars.AIRTABLE_BASE }}",
+        "table": "Reconciliation Exceptions",
+        "fields": {
+          "Date": "={{ $json.date }}",
+          "Amount": "={{ $json.amount }}",
+          "Merchant": "={{ $json.merchant_name }}",
+          "Plaid Transaction ID": "={{ $json.transaction_id }}"
+        }
+      },
+      "credentials": {
+        "airtableApi": { "id": "airtable-cred", "name": "Airtable API" }
+      }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack #finance",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1440, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.FINANCE_CHANNEL }}",
+        "text": ":bank: Reconciliation pass complete — unmatched item logged"
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    }
+  ],
+  "connections": {
+    "n_cron": { "main": [[{ "node": "n_plaid", "type": "main", "index": 0 }]] },
+    "n_plaid": { "main": [[{ "node": "n_qb", "type": "main", "index": 0 }]] },
+    "n_qb": { "main": [[{ "node": "n_match", "type": "main", "index": 0 }]] },
+    "n_match": { "main": [[{ "node": "n_split", "type": "main", "index": 0 }]] },
+    "n_split": { "main": [[{ "node": "n_airtable", "type": "main", "index": 0 }]] },
+    "n_airtable": { "main": [[{ "node": "n_slack", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cron", "n_plaid", "n_qb", "n_match", "n_split", "n_airtable", "n_slack"]
+    }
+  ],
+  "variables": [
+    { "id": "v_pclient", "name": "PLAID_CLIENT_ID", "defaultValue": "" },
+    { "id": "v_psecret", "name": "PLAID_SECRET", "defaultValue": "" },
+    { "id": "v_paccess", "name": "PLAID_ACCESS_TOKEN", "defaultValue": "" },
+    { "id": "v_yday", "name": "YESTERDAY", "defaultValue": "2026-05-18" },
+    { "id": "v_at", "name": "AIRTABLE_BASE", "defaultValue": "" },
+    { "id": "v_fin", "name": "FINANCE_CHANNEL", "defaultValue": "#finance" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

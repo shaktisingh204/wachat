@@ -1,0 +1,10 @@
+{
+  "id": "dropbox-file-classifier",
+  "name": "Dropbox AI File Classifier",
+  "description": "Watches Dropbox for new uploads, downloads each file, then asks OpenAI's vision model to classify it as invoice, receipt, contract, or other. Each class moves the file to the right folder so finance and legal teams always find documents where they expect them.",
+  "category": "AI",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["dropbox", "openai", "vision", "classification", "documents", "ai"],
+  "version": "0.1.0"
+}

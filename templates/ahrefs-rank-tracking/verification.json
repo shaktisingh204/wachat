@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "ahrefs-rank-tracking",
+  "cases": [
+    {
+      "id": "daily-pull",
+      "description": "Daily cron pulls Ahrefs ranks and logs deltas, flagging significant movement.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

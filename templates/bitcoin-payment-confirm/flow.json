@@ -1,0 +1,141 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_btc_confirm",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "blockcypher.tx.confirmed",
+    "options": {
+      "path": "/webhooks/btc-confirm",
+      "method": "POST",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_webhook",
+      "name": "BlockCypher Confirmed",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "btc-confirm",
+        "responseMode": "onReceived"
+      },
+      "webhookId": "btc-confirm-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract TX",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "txHash", "value": "={{ $json.hash }}" },
+            { "name": "address", "value": "={{ $json.outputs[0].addresses[0] }}" },
+            { "name": "orderId", "value": "={{ $json.metadata.shopifyOrderId }}" },
+            { "name": "customerEmail", "value": "={{ $json.metadata.customerEmail }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_shopify_pay",
+      "name": "Mark Shopify Paid",
+      "type": "n8n-nodes-base.shopify",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "resource": "order",
+        "operation": "update",
+        "orderId": "={{ $json.orderId }}",
+        "updateFields": { "financialStatus": "paid" }
+      },
+      "credentials": {
+        "shopifyApi": { "id": "shopify-cred", "name": "Shopify API" }
+      }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack #crypto-orders",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [720, -120],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.CRYPTO_CHANNEL }}",
+        "text": ":bitcoin: BTC confirmed for order {{ $json.orderId }} (tx {{ $json.txHash }})"
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    },
+    {
+      "id": "n_sendgrid",
+      "name": "Customer Receipt",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [720, 120],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "={{ $vars.FROM_EMAIL }}",
+        "toEmail": "={{ $node['Extract TX'].json.customerEmail }}",
+        "subject": "Your BTC payment is confirmed",
+        "contentType": "text/plain",
+        "content": "Your Bitcoin transaction {{ $node['Extract TX'].json.txHash }} is confirmed. Your order will ship shortly."
+      },
+      "credentials": {
+        "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid" }
+      }
+    },
+    {
+      "id": "n_mongo",
+      "name": "Mongo TX Log",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "operation": "insert",
+        "collection": "btc_payments",
+        "fields": "txHash,orderId,customerEmail,confirmedAt"
+      },
+      "credentials": {
+        "mongoDb": { "id": "mongo-cred", "name": "MongoDB" }
+      }
+    }
+  ],
+  "connections": {
+    "n_webhook": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": { "main": [[{ "node": "n_shopify_pay", "type": "main", "index": 0 }]] },
+    "n_shopify_pay": {
+      "main": [
+        [
+          { "node": "n_slack", "type": "main", "index": 0 },
+          { "node": "n_sendgrid", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "n_slack": { "main": [[{ "node": "n_mongo", "type": "main", "index": 0 }]] },
+    "n_sendgrid": { "main": [[{ "node": "n_mongo", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_webhook", "n_extract", "n_shopify_pay", "n_slack", "n_sendgrid", "n_mongo"]
+    }
+  ],
+  "variables": [
+    { "id": "v_chan", "name": "CRYPTO_CHANNEL", "defaultValue": "#crypto-orders" },
+    { "id": "v_from", "name": "FROM_EMAIL", "defaultValue": "orders@example.com" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

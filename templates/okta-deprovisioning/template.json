@@ -1,0 +1,10 @@
+{
+  "id": "okta-deprovisioning",
+  "name": "Okta Off-boarding",
+  "description": "Catches BambooHR termination events and fans out the full off-boarding fanout: revoke Okta sessions, remove the user from all groups, archive their Google Drive content, transfer ownership to the manager, and finally notify #it-offboarding. Everything happens in parallel so SOC controls hold within minutes of the trigger.",
+  "category": "HR",
+  "complexity": "advanced",
+  "authorName": "SabNode",
+  "tags": ["okta", "offboarding", "bamboohr", "google-drive", "security", "iam"],
+  "version": "0.1.0"
+}

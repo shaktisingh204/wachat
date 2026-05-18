@@ -1,0 +1,10 @@
+{
+  "id": "github-pr-changelog-bot",
+  "name": "GitHub PR Changelog Bot",
+  "description": "Watches for merged pull requests and asks GPT-4o to summarize each diff into a single human-readable changelog line. The summary is appended to CHANGELOG.md via a fresh GitHub commit, then announced in #releases so the team always sees what just shipped.",
+  "category": "Developer",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["github", "openai", "changelog", "release", "slack", "devops"],
+  "version": "0.1.0"
+}

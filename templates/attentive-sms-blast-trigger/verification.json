@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "attentive-sms-blast-trigger",
+  "cases": [
+    {
+      "id": "us-subscriber",
+      "description": "A US subscriber receives the US-locale welcome SMS via Attentive.",
+      "triggerPayload": { "user": { "phone": "+15551231234", "region": "US" } },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

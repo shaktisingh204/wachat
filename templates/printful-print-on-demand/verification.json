@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "templateId": "printful-print-on-demand",
+  "cases": [
+    {
+      "id": "pod-order",
+      "description": "A Shopify order with a Printful line item is routed to Printful and Shopify is patched with tracking.",
+      "triggerPayload": {
+        "id": "ord-555",
+        "line_items": [{ "vendor": "Printful", "sku": "tshirt-blue-m" }]
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

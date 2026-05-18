@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "xero-bill-approval",
+  "cases": [
+    {
+      "id": "above-threshold",
+      "description": "Bill above threshold triggers Slack approval, decision routes to pay or reject.",
+      "triggerPayload": { "bill": { "id": "b-1", "amount": 5000, "vendor": "Acme", "creatorEmail": "ap@example.com" } },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

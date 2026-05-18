@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "templateId": "zoom-webinar-recap",
+  "cases": [
+    {
+      "id": "webinar-ended",
+      "description": "Zoom webinar ended webhook tags attendees in Mailchimp and emails recap.",
+      "triggerPayload": {
+        "payload": { "object": { "id": 88112233, "topic": "Q2 product preview" } }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "id": "retool-form-to-db",
+  "name": "Retool Form to Postgres",
+  "description": "Catches submissions from a Retool form, validates the payload's required fields, then writes the row to Postgres. A confirmation email is sent via SendGrid; invalid payloads short-circuit with a 400 response so the form can surface the error in-line.",
+  "category": "Internal Tools",
+  "complexity": "beginner",
+  "authorName": "SabNode",
+  "tags": ["retool", "postgres", "internal-tools", "sendgrid", "form", "intake"],
+  "version": "0.1.0"
+}

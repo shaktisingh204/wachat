@@ -1,0 +1,121 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_weekly_audit",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": { "schedule": "0 9 * * 1", "enabled": true }
+  },
+  "nodes": [
+    {
+      "id": "n_cron",
+      "name": "Monday 09:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 9 * * 1" }] }
+      }
+    },
+    {
+      "id": "n_list_shares",
+      "name": "List All Shares",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "=https://{{ $vars.NEXTCLOUD_HOST }}/ocs/v2.php/apps/files_sharing/api/v1/shares",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "OCS-APIRequest", "value": "true" },
+            { "name": "Accept", "value": "application/json" }
+          ]
+        }
+      },
+      "credentials": {
+        "httpBasicAuth": { "id": "nextcloud-cred", "name": "Nextcloud Basic Auth" }
+      }
+    },
+    {
+      "id": "n_filter",
+      "name": "Filter Stale Public Links",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const shares = $input.first().json.ocs.data || []; const cutoff = Date.now() - 30*86400000; const stale = shares.filter(s => s.share_type === 3 && new Date(s.stime * 1000).getTime() < cutoff); return [{ json: { stale, count: stale.length } }];"
+      }
+    },
+    {
+      "id": "n_format",
+      "name": "Format Summary",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "summary", "value": "={{ $json.count }} stale public shares found." }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_slack_security",
+      "name": "Slack #security",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SECURITY_CHANNEL }}",
+        "text": ":lock: Weekly Nextcloud share audit — {{ $json.summary }}"
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    },
+    {
+      "id": "n_mongo",
+      "name": "Mongo Audit Trail",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [1200, 0],
+      "parameters": {
+        "operation": "insert",
+        "collection": "nextcloud_audits",
+        "fields": "summary,runAt"
+      },
+      "credentials": {
+        "mongoDb": { "id": "mongo-cred", "name": "MongoDB" }
+      }
+    }
+  ],
+  "connections": {
+    "n_cron": { "main": [[{ "node": "n_list_shares", "type": "main", "index": 0 }]] },
+    "n_list_shares": { "main": [[{ "node": "n_filter", "type": "main", "index": 0 }]] },
+    "n_filter": { "main": [[{ "node": "n_format", "type": "main", "index": 0 }]] },
+    "n_format": { "main": [[{ "node": "n_slack_security", "type": "main", "index": 0 }]] },
+    "n_slack_security": { "main": [[{ "node": "n_mongo", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cron", "n_list_shares", "n_filter", "n_format", "n_slack_security", "n_mongo"]
+    }
+  ],
+  "variables": [
+    { "id": "v_host", "name": "NEXTCLOUD_HOST", "defaultValue": "cloud.example.com" },
+    { "id": "v_sec", "name": "SECURITY_CHANNEL", "defaultValue": "#security" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

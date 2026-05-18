@@ -1,0 +1,184 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_xero_bill",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "xero.bill.created",
+    "options": {
+      "path": "/webhooks/xero-bill",
+      "method": "POST",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_webhook",
+      "name": "Xero Bill Created",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "xero-bill",
+        "responseMode": "onReceived"
+      },
+      "webhookId": "xero-bill-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Bill",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "billId", "value": "={{ $json.bill.id }}" },
+            { "name": "amount", "value": "={{ $json.bill.amount }}" },
+            { "name": "vendor", "value": "={{ $json.bill.vendor }}" },
+            { "name": "creatorEmail", "value": "={{ $json.bill.creatorEmail }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_threshold",
+      "name": "Amount > Threshold?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "conditions": {
+          "number": [
+            { "value1": "={{ $json.amount }}", "operation": "larger", "value2": "={{ $vars.APPROVAL_THRESHOLD }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_slack_prompt",
+      "name": "Slack Approver",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [720, -120],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.APPROVAL_CHANNEL }}",
+        "text": "Bill {{ $json.billId }} from {{ $json.vendor }} for {{ $json.amount }} — approve?"
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    },
+    {
+      "id": "n_wait",
+      "name": "Wait for Decision",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [960, -120],
+      "parameters": {
+        "resume": "webhook",
+        "options": { "webhookSuffix": "xero-decision" }
+      }
+    },
+    {
+      "id": "n_switch",
+      "name": "Approve vs Reject",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 2,
+      "position": [1200, -120],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            { "conditions": { "string": [{ "value1": "={{ $json.decision }}", "operation": "equal", "value2": "approve" }] }, "outputKey": "approve" }
+          ]
+        },
+        "fallbackOutput": "reject"
+      }
+    },
+    {
+      "id": "n_xero_pay",
+      "name": "Mark Paid in Xero",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1440, -240],
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://api.xero.com/api.xro/2.0/Payments/{{ $node['Extract Bill'].json.billId }}"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "xero-cred", "name": "Xero OAuth2" }
+      }
+    },
+    {
+      "id": "n_reject_email",
+      "name": "Notify Creator (Reject)",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [1440, 0],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "={{ $vars.FROM_EMAIL }}",
+        "toEmail": "={{ $node['Extract Bill'].json.creatorEmail }}",
+        "subject": "Bill rejected",
+        "contentType": "text/plain",
+        "content": "Bill {{ $node['Extract Bill'].json.billId }} was rejected."
+      },
+      "credentials": {
+        "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid" }
+      }
+    },
+    {
+      "id": "n_auto_approve",
+      "name": "Auto-Approve in Xero",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, 120],
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://api.xero.com/api.xro/2.0/Payments/{{ $node['Extract Bill'].json.billId }}"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "xero-cred", "name": "Xero OAuth2" }
+      }
+    }
+  ],
+  "connections": {
+    "n_webhook": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": { "main": [[{ "node": "n_threshold", "type": "main", "index": 0 }]] },
+    "n_threshold": {
+      "true": [[{ "node": "n_slack_prompt", "type": "main", "index": 0 }]],
+      "false": [[{ "node": "n_auto_approve", "type": "main", "index": 0 }]]
+    },
+    "n_slack_prompt": { "main": [[{ "node": "n_wait", "type": "main", "index": 0 }]] },
+    "n_wait": { "main": [[{ "node": "n_switch", "type": "main", "index": 0 }]] },
+    "n_switch": {
+      "approve": [[{ "node": "n_xero_pay", "type": "main", "index": 0 }]],
+      "reject": [[{ "node": "n_reject_email", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_webhook", "n_extract", "n_threshold",
+        "n_slack_prompt", "n_wait", "n_switch", "n_xero_pay", "n_reject_email",
+        "n_auto_approve"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_threshold", "name": "APPROVAL_THRESHOLD", "defaultValue": "1000" },
+    { "id": "v_approver", "name": "APPROVAL_CHANNEL", "defaultValue": "#finance-approvers" },
+    { "id": "v_from", "name": "FROM_EMAIL", "defaultValue": "finance@example.com" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

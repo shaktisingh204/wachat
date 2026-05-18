@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "dropbox-file-classifier",
+  "cases": [
+    {
+      "id": "invoice-classify",
+      "description": "Dropbox uploads are classified and moved into the correct folder.",
+      "triggerPayload": { "name": "AcmeInvoice-001.pdf", "path_display": "/Inbox/AcmeInvoice-001.pdf" },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

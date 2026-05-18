@@ -1,0 +1,166 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_box",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "box.file.uploaded",
+    "options": {
+      "path": "/webhooks/box-approval",
+      "method": "POST",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_webhook",
+      "name": "Box File Uploaded",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "box-approval",
+        "responseMode": "onReceived"
+      },
+      "webhookId": "box-approval-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract File",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "fileId", "value": "={{ $json.source.id }}" },
+            { "name": "fileName", "value": "={{ $json.source.name }}" },
+            { "name": "uploader", "value": "={{ $json.source.created_by.login }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_slack_prompt",
+      "name": "Approver Prompt",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.APPROVER_CHANNEL }}",
+        "text": ":eyes: Review file: {{ $json.fileName }} (uploaded by {{ $json.uploader }})",
+        "otherOptions": {
+          "blocksUi": {
+            "blocksValues": [
+              { "type": "actions", "elements": [
+                { "type": "button", "text": "Approve", "value": "approve", "actionId": "doc_approve" },
+                { "type": "button", "text": "Reject", "value": "reject", "actionId": "doc_reject" }
+              ] }
+            ]
+          }
+        }
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    },
+    {
+      "id": "n_wait",
+      "name": "Wait for Decision",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "resume": "webhook",
+        "options": { "webhookSuffix": "box-decision" }
+      }
+    },
+    {
+      "id": "n_route",
+      "name": "Approve vs Reject",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            { "conditions": { "string": [{ "value1": "={{ $json.decision }}", "operation": "equal", "value2": "approve" }] }, "outputKey": "approve" }
+          ]
+        },
+        "fallbackOutput": "reject"
+      }
+    },
+    {
+      "id": "n_box_move",
+      "name": "Move to Approved",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1200, -120],
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://api.box.com/2.0/files/{{ $node['Extract File'].json.fileId }}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "parent.id", "value": "={{ $vars.APPROVED_FOLDER_ID }}" }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "box-cred", "name": "Box JWT" }
+      }
+    },
+    {
+      "id": "n_email_reject",
+      "name": "Notify Uploader of Rejection",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [1200, 120],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "={{ $vars.FROM_EMAIL }}",
+        "toEmail": "={{ $node['Extract File'].json.uploader }}",
+        "subject": "Document needs revision",
+        "contentType": "text/plain",
+        "content": "Your document {{ $node['Extract File'].json.fileName }} was rejected. Please revise and resubmit."
+      },
+      "credentials": {
+        "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid" }
+      }
+    }
+  ],
+  "connections": {
+    "n_webhook": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": { "main": [[{ "node": "n_slack_prompt", "type": "main", "index": 0 }]] },
+    "n_slack_prompt": { "main": [[{ "node": "n_wait", "type": "main", "index": 0 }]] },
+    "n_wait": { "main": [[{ "node": "n_route", "type": "main", "index": 0 }]] },
+    "n_route": {
+      "approve": [[{ "node": "n_box_move", "type": "main", "index": 0 }]],
+      "reject": [[{ "node": "n_email_reject", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_webhook", "n_extract", "n_slack_prompt", "n_wait", "n_route",
+        "n_box_move", "n_email_reject"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_approver", "name": "APPROVER_CHANNEL", "defaultValue": "#doc-approvers" },
+    { "id": "v_approved_folder", "name": "APPROVED_FOLDER_ID", "defaultValue": "" },
+    { "id": "v_from", "name": "FROM_EMAIL", "defaultValue": "ops@example.com" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

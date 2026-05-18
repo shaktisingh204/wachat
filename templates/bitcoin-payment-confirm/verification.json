@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "templateId": "bitcoin-payment-confirm",
+  "cases": [
+    {
+      "id": "tx-confirmed",
+      "description": "BlockCypher confirms a BTC tx, Shopify order is marked paid, customer + Slack are notified.",
+      "triggerPayload": {
+        "hash": "abc123",
+        "outputs": [{ "addresses": ["bc1qabc"] }],
+        "metadata": { "shopifyOrderId": "ord-1", "customerEmail": "buyer@example.com" }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

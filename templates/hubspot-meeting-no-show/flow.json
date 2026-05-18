@@ -1,0 +1,155 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_hs_meeting",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "hubspot.meeting.ended",
+    "options": {
+      "path": "/webhooks/hubspot-meeting-ended",
+      "method": "POST",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_webhook",
+      "name": "HubSpot Meeting Ended",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "hubspot-meeting-ended",
+        "responseMode": "onReceived"
+      },
+      "webhookId": "hs-meeting-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Meeting",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "meetingId", "value": "={{ $json.meeting.id }}" },
+            { "name": "noShow", "value": "={{ String($json.meeting.noShow) }}" },
+            { "name": "contactEmail", "value": "={{ $json.contact.email }}" },
+            { "name": "aeSlackId", "value": "={{ $json.ae.slackId }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_if_no_show",
+      "name": "No-Show?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "conditions": {
+          "string": [
+            { "value1": "={{ $json.noShow }}", "operation": "equal", "value2": "true" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_sendgrid",
+      "name": "Reschedule Email",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [720, -150],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "={{ $vars.FROM_EMAIL }}",
+        "toEmail": "={{ $json.contactEmail }}",
+        "subject": "Missed you — let's reschedule",
+        "contentType": "text/html",
+        "content": "<p>We didn't see you on the call. <a href=\"{{ $vars.SCHEDULER_URL }}\">Pick a new time</a>.</p>"
+      },
+      "credentials": {
+        "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid" }
+      }
+    },
+    {
+      "id": "n_slack_ae",
+      "name": "Slack DM AE",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $json.aeSlackId }}",
+        "text": ":hourglass: No-show on meeting {{ $json.meetingId }}. Reschedule email sent."
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    },
+    {
+      "id": "n_airtable",
+      "name": "Airtable Follow-up",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [720, 150],
+      "parameters": {
+        "operation": "create",
+        "application": "={{ $vars.AIRTABLE_BASE }}",
+        "table": "No-Show Follow-Up",
+        "fields": {
+          "Meeting ID": "={{ $node['Extract Meeting'].json.meetingId }}",
+          "Contact": "={{ $node['Extract Meeting'].json.contactEmail }}"
+        }
+      },
+      "credentials": {
+        "airtableApi": { "id": "airtable-cred", "name": "Airtable API" }
+      }
+    },
+    {
+      "id": "n_noop",
+      "name": "Attended (no-op)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [720, 250],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "n_webhook": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": { "main": [[{ "node": "n_if_no_show", "type": "main", "index": 0 }]] },
+    "n_if_no_show": {
+      "true": [
+        [
+          { "node": "n_sendgrid", "type": "main", "index": 0 },
+          { "node": "n_slack_ae", "type": "main", "index": 0 },
+          { "node": "n_airtable", "type": "main", "index": 0 }
+        ]
+      ],
+      "false": [[{ "node": "n_noop", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_webhook", "n_extract", "n_if_no_show",
+        "n_sendgrid", "n_slack_ae", "n_airtable", "n_noop"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_from", "name": "FROM_EMAIL", "defaultValue": "sales@example.com" },
+    { "id": "v_sched", "name": "SCHEDULER_URL", "defaultValue": "https://meetings.example.com/reschedule" },
+    { "id": "v_at", "name": "AIRTABLE_BASE", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

@@ -1,0 +1,160 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_lever_stage",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "lever.candidate.stage_changed",
+    "options": {
+      "path": "/webhooks/lever-stage",
+      "method": "POST",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_webhook",
+      "name": "Lever Stage Change",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lever-stage",
+        "responseMode": "onReceived"
+      },
+      "webhookId": "lever-stage-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Candidate",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "candidateId", "value": "={{ $json.candidate.id }}" },
+            { "name": "name", "value": "={{ $json.candidate.name }}" },
+            { "name": "email", "value": "={{ $json.candidate.emails[0] }}" },
+            { "name": "stage", "value": "={{ $json.candidate.stage }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_airtable",
+      "name": "Mirror to Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "operation": "upsert",
+        "application": "={{ $vars.AIRTABLE_BASE }}",
+        "table": "Candidates",
+        "fields": {
+          "Candidate ID": "={{ $json.candidateId }}",
+          "Name": "={{ $json.name }}",
+          "Email": "={{ $json.email }}",
+          "Stage": "={{ $json.stage }}"
+        }
+      },
+      "credentials": {
+        "airtableApi": { "id": "airtable-cred", "name": "Airtable API" }
+      }
+    },
+    {
+      "id": "n_if_offer",
+      "name": "Stage = Offer?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "conditions": {
+          "string": [
+            { "value1": "={{ $node['Extract Candidate'].json.stage }}", "operation": "equal", "value2": "offer" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_docusign",
+      "name": "Send DocuSign",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [960, -100],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://{{ $vars.DOCUSIGN_HOST }}/restapi/v2.1/accounts/{{ $vars.DOCUSIGN_ACCOUNT }}/envelopes",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "templateId", "value": "={{ $vars.DOCUSIGN_OFFER_TEMPLATE }}" },
+            { "name": "status", "value": "sent" },
+            { "name": "templateRoles[0].email", "value": "={{ $node['Extract Candidate'].json.email }}" },
+            { "name": "templateRoles[0].name", "value": "={{ $node['Extract Candidate'].json.name }}" },
+            { "name": "templateRoles[0].roleName", "value": "Candidate" }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "docusign-cred", "name": "DocuSign JWT" }
+      }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack #recruiting",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, -100],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.RECRUITING_CHANNEL }}",
+        "text": ":handshake: Offer sent to {{ $node['Extract Candidate'].json.name }} ({{ $node['Extract Candidate'].json.email }}) — envelope {{ $json.envelopeId }}"
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    },
+    {
+      "id": "n_noop",
+      "name": "Non-Offer (no-op)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [960, 100],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "n_webhook": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": { "main": [[{ "node": "n_airtable", "type": "main", "index": 0 }]] },
+    "n_airtable": { "main": [[{ "node": "n_if_offer", "type": "main", "index": 0 }]] },
+    "n_if_offer": {
+      "true": [[{ "node": "n_docusign", "type": "main", "index": 0 }]],
+      "false": [[{ "node": "n_noop", "type": "main", "index": 0 }]]
+    },
+    "n_docusign": { "main": [[{ "node": "n_slack", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_webhook", "n_extract", "n_airtable", "n_if_offer",
+        "n_docusign", "n_slack", "n_noop"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_at", "name": "AIRTABLE_BASE", "defaultValue": "" },
+    { "id": "v_ds_host", "name": "DOCUSIGN_HOST", "defaultValue": "demo.docusign.net" },
+    { "id": "v_ds_acct", "name": "DOCUSIGN_ACCOUNT", "defaultValue": "" },
+    { "id": "v_ds_tpl", "name": "DOCUSIGN_OFFER_TEMPLATE", "defaultValue": "" },
+    { "id": "v_recruit", "name": "RECRUITING_CHANNEL", "defaultValue": "#recruiting" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
