@@ -23,6 +23,13 @@ pub mod node;
 pub mod nodes;
 pub mod registry;
 
+/// Test-only helpers (credential mocks, etc.). The module is `pub` so
+/// integration tests under `tests/` and downstream test suites can
+/// reach it; the prod runtime never imports anything from here, so LTO
+/// drops it. See `docs/adr/sabflow-node-credential-mock.md`.
+#[doc(hidden)]
+pub mod test_support;
+
 pub use binary::{
     default_binary_store, set_default_binary_store, BinaryDataRef, BinaryFetchContext,
     BinaryStore, InMemoryBinaryStore, UnconfiguredBinaryStore,
