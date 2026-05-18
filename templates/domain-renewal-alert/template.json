@@ -1,0 +1,10 @@
+{
+  "id": "domain-renewal-alert",
+  "name": "Domain Renewal Alert",
+  "description": "Runs daily to pull the company's domain portfolio from a registrar API, filters domains expiring within 30 days, and pings Slack #domains so the right team can renew. The same filtered list is mirrored into Airtable as a living renewal tracker.",
+  "category": "Internal Tools",
+  "complexity": "beginner",
+  "authorName": "SabNode",
+  "tags": ["domains", "registrar", "slack", "airtable", "renewal", "internal"],
+  "version": "0.1.0"
+}
