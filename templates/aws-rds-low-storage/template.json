@@ -1,0 +1,10 @@
+{
+  "id": "aws-rds-low-storage",
+  "name": "AWS RDS Low Storage Auto-Scale",
+  "description": "When a CloudWatch alarm fires for low free storage on an RDS instance, the flow calls the RDS modify-db-instance API to grow allocated storage by a percentage, then posts a #db Slack note with the before/after sizes. Stops production from running out of disk before a human reads the email.",
+  "category": "Ops",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["aws", "rds", "cloudwatch", "slack", "autoscale", "webhook"],
+  "version": "0.1.0"
+}
