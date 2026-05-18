@@ -1,0 +1,16 @@
+[package]
+name = "sabflow-executor-queue"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+description = "SabFlow executor — queue & dispatcher scaffold (Track B Phase 2). BullMQ-compatible queue logic lands in later phases."
+
+[lib]
+name = "sabflow_executor_queue"
+path = "src/lib.rs"
+
+[dependencies]
+
+[lints]
+workspace = true
