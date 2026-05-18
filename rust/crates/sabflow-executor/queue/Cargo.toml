@@ -11,6 +11,18 @@ name = "sabflow_executor_queue"
 path = "src/lib.rs"
 
 [dependencies]
+# Tokio is needed by the per-workspace semaphore's `Drop` impl (spawns the
+# release Lua onto the ambient runtime) and by the unit tests. Mirrors the
+# minimal feature set sibling sub-tasks reach for.
+tokio = { version = "1", features = ["macros", "rt", "rt-multi-thread", "sync", "time"] }
+# `#[async_trait]` is needed for the dyn-compatible `LuaExecutor` trait used by
+# the per-workspace semaphore (sub-task #4). The semaphore stores the executor
+# as `Arc<dyn LuaExecutor>` so the dispatcher (sub-task #3) can swap in a real
+# Redis-backed implementation without coupling this crate to a specific client.
+async-trait = "0.1"
+# `thiserror` keeps the `SemaphoreError` variants ergonomic without dragging in
+# `anyhow` (which would force every caller to swallow concrete error types).
+thiserror = "2"
 
 [lints]
 workspace = true
