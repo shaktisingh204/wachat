@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "eventbrite-postevent-nps",
+  "cases": [
+    {
+      "id": "event-ended",
+      "description": "Eventbrite event ended webhook waits 24h, emails Typeform NPS, logs send.",
+      "triggerPayload": { "event_id": "ev-1" },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
