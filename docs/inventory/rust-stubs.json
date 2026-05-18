@@ -1,11 +1,11 @@
 {
   "$schema": "https://sabflow.dev/schemas/rust-stubs-inventory.v1.json",
-  "generatedAt": "2026-05-18T16:30:11Z",
+  "generatedAt": "2026-05-18T19:54:45Z",
   "generator": "scripts/sabflow/gen-rust-stub-inventory.py",
   "summary": {
-    "totalNodes": 358,
-    "implementedCount": 203,
-    "stubCount": 155,
+    "totalNodes": 387,
+    "implementedCount": 233,
+    "stubCount": 154,
     "referenceNode": "n8n-nodes-base.httpRequest",
     "phase": "C.3.9"
   },
@@ -95,6 +95,15 @@
       "description": "Airtable base operations",
       "isStub": false,
       "implFile": "rust/crates/sabflow-nodes/src/nodes/airtable.rs"
+    },
+    {
+      "n8nType": "n8n-nodes-base.airtableTrigger",
+      "name": "airtableTrigger",
+      "displayName": "Airtable Trigger",
+      "category": "Database",
+      "description": "Fire on new or updated records in an Airtable view (polled)",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/airtable_trigger.rs"
     },
     {
       "n8nType": "n8n-nodes-base.airtop",
@@ -277,6 +286,15 @@
       "implFile": "rust/crates/sabflow-nodes/src/nodes/bitbucket.rs"
     },
     {
+      "n8nType": "n8n-nodes-base.bitbucketTrigger",
+      "name": "bitbucketTrigger",
+      "displayName": "Bitbucket Trigger",
+      "category": "Trigger",
+      "description": "Run a flow on a Bitbucket webhook event",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/bitbucket_trigger.rs"
+    },
+    {
       "n8nType": "n8n-nodes-base.bitly",
       "name": "bitly",
       "displayName": "Bitly",
@@ -356,6 +374,15 @@
       "description": "Calendly meeting scheduling",
       "isStub": false,
       "implFile": "rust/crates/sabflow-nodes/src/nodes/calendly.rs"
+    },
+    {
+      "n8nType": "n8n-nodes-base.calendlyTrigger",
+      "name": "calendlyTrigger",
+      "displayName": "Calendly Trigger",
+      "category": "Trigger",
+      "description": "Fires when a Calendly event is scheduled, canceled, or rescheduled",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/calendly_trigger.rs"
     },
     {
       "n8nType": "n8n-nodes-base.chargebee",
@@ -671,6 +698,24 @@
       "description": "Send Discord messages via webhook or bot API",
       "isStub": false,
       "implFile": "rust/crates/sabflow-nodes/src/nodes/discord.rs"
+    },
+    {
+      "n8nType": "n8n-nodes-base.discordInteractionsTrigger",
+      "name": "discordInteractionsTrigger",
+      "displayName": "Discord Interactions Trigger",
+      "category": "Trigger",
+      "description": "Fires on Discord slash-command and component interactions (signed Ed25519 webhook)",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/discord_interactions_trigger.rs"
+    },
+    {
+      "n8nType": "n8n-nodes-base.discordTrigger",
+      "name": "discordTrigger",
+      "displayName": "Discord Trigger",
+      "category": "Trigger",
+      "description": "Fires when Discord delivers a webhook event (message, reaction, etc.)",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/discord_trigger.rs"
     },
     {
       "n8nType": "n8n-nodes-base.discourse",
@@ -1078,6 +1123,15 @@
       "implFile": "rust/crates/sabflow-nodes/src/nodes/github.rs"
     },
     {
+      "n8nType": "n8n-nodes-base.githubTrigger",
+      "name": "githubTrigger",
+      "displayName": "GitHub Trigger",
+      "category": "Trigger",
+      "description": "Run a flow on a GitHub webhook event",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/github_trigger.rs"
+    },
+    {
       "n8nType": "n8n-nodes-base.gitlab",
       "name": "gitlab",
       "displayName": "GitLab",
@@ -1087,6 +1141,15 @@
       "implFile": "rust/crates/sabflow-nodes/src/nodes/gitlab.rs"
     },
     {
+      "n8nType": "n8n-nodes-base.gitlabTrigger",
+      "name": "gitlabTrigger",
+      "displayName": "GitLab Trigger",
+      "category": "Trigger",
+      "description": "Run a flow on a GitLab webhook event",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/gitlab_trigger.rs"
+    },
+    {
       "n8nType": "n8n-nodes-base.gmail",
       "name": "gmail",
       "displayName": "Gmail",
@@ -1094,6 +1157,15 @@
       "description": "Send and read Gmail",
       "isStub": false,
       "implFile": "rust/crates/sabflow-nodes/src/nodes/gmail.rs"
+    },
+    {
+      "n8nType": "n8n-nodes-base.gmailTrigger",
+      "name": "gmailTrigger",
+      "displayName": "Gmail Trigger",
+      "category": "Trigger",
+      "description": "Fire when new Gmail messages arrive (via Pub/Sub push)",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/gmail_trigger.rs"
     },
     {
       "n8nType": "n8n-nodes-base.goToWebinar",
@@ -1159,6 +1231,15 @@
       "implFile": "rust/crates/sabflow-nodes/src/nodes/google_cloud_tasks.rs"
     },
     {
+      "n8nType": "n8n-nodes-base.googleDriveTrigger",
+      "name": "googleDriveTrigger",
+      "displayName": "Google Drive Trigger",
+      "category": "Trigger",
+      "description": "Fire when files in Google Drive change (watch-push or poll)",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/google_drive_trigger.rs"
+    },
+    {
       "n8nType": "n8n-nodes-base.googleSheets",
       "name": "googleSheets",
       "displayName": "Google Sheets",
@@ -1166,6 +1247,15 @@
       "description": "Read and write Google Sheets",
       "isStub": false,
       "implFile": "rust/crates/sabflow-nodes/src/nodes/google_sheets.rs"
+    },
+    {
+      "n8nType": "n8n-nodes-base.googleSheetsTrigger",
+      "name": "googleSheetsTrigger",
+      "displayName": "Google Sheets Trigger",
+      "category": "Trigger",
+      "description": "Fire when rows are added or updated in a Google Sheet (poll-based)",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/google_sheets_trigger.rs"
     },
     {
       "n8nType": "n8n-nodes-base.googleTranslate",
@@ -1211,6 +1301,15 @@
       "description": "Send GraphQL queries",
       "isStub": false,
       "implFile": "rust/crates/sabflow-nodes/src/nodes/graphql.rs"
+    },
+    {
+      "n8nType": "n8n-nodes-base.graphqlTrigger",
+      "name": "graphqlTrigger",
+      "displayName": "GraphQL Trigger",
+      "category": "Trigger",
+      "description": "Listen to a GraphQL subscription and fire on each payload",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/graphql_trigger.rs"
     },
     {
       "n8nType": "n8n-nodes-base.grist",
@@ -1321,6 +1420,15 @@
       "implFile": "rust/crates/sabflow-nodes/src/nodes/hubspot.rs"
     },
     {
+      "n8nType": "n8n-nodes-base.hubspotTrigger",
+      "name": "hubspotTrigger",
+      "displayName": "HubSpot Trigger",
+      "category": "Trigger",
+      "description": "Fire when HubSpot delivers a subscribed webhook event",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/hubspot_trigger.rs"
+    },
+    {
       "n8nType": "n8n-nodes-base.humanticAi",
       "name": "humanticAi",
       "displayName": "HumanticAI",
@@ -1427,6 +1535,15 @@
       "description": "Jira issue tracking",
       "isStub": false,
       "implFile": "rust/crates/sabflow-nodes/src/nodes/jira.rs"
+    },
+    {
+      "n8nType": "n8n-nodes-base.jiraTrigger",
+      "name": "jiraTrigger",
+      "displayName": "Jira Trigger",
+      "category": "Developer",
+      "description": "Fire on Jira Cloud issue / comment events (webhook-backed)",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/jira_trigger.rs"
     },
     {
       "n8nType": "n8n-nodes-base.jotForm",
@@ -1670,6 +1787,15 @@
       "description": "Post messages and manage channels on a Mattermost server",
       "isStub": false,
       "implFile": "rust/crates/sabflow-nodes/src/nodes/mattermost.rs"
+    },
+    {
+      "n8nType": "n8n-nodes-base.mattermostTrigger",
+      "name": "mattermostTrigger",
+      "displayName": "Mattermost Trigger",
+      "category": "Trigger",
+      "description": "Fire when Mattermost delivers an outgoing webhook or slash command",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/mattermost_trigger.rs"
     },
     {
       "n8nType": "n8n-nodes-base.mautic",
@@ -1996,6 +2122,15 @@
       "implFile": "rust/crates/sabflow-nodes/src/nodes/notion.rs"
     },
     {
+      "n8nType": "n8n-nodes-base.notionTrigger",
+      "name": "notionTrigger",
+      "displayName": "Notion Trigger",
+      "category": "Productivity",
+      "description": "Fire on new or updated items in a Notion database or page (polled)",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/notion_trigger.rs"
+    },
+    {
       "n8nType": "n8n-nodes-base.npm",
       "name": "npm",
       "displayName": "npm",
@@ -2122,6 +2257,15 @@
       "implFile": null
     },
     {
+      "n8nType": "n8n-nodes-base.paypalTrigger",
+      "name": "paypalTrigger",
+      "displayName": "PayPal Trigger",
+      "category": "Trigger",
+      "description": "Fires on PayPal webhook events (cert-based verification \u2014 currently stubbed)",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/paypal_trigger.rs"
+    },
+    {
       "n8nType": "n8n-nodes-base.peekalink",
       "name": "peekalink",
       "displayName": "Peekalink",
@@ -2174,6 +2318,15 @@
       "description": "Manage Pipedrive deals, persons, organizations, leads, notes and activities",
       "isStub": false,
       "implFile": "rust/crates/sabflow-nodes/src/nodes/pipedrive.rs"
+    },
+    {
+      "n8nType": "n8n-nodes-base.pipedriveTrigger",
+      "name": "pipedriveTrigger",
+      "displayName": "Pipedrive Trigger",
+      "category": "Trigger",
+      "description": "Fire when Pipedrive POSTs a webhook event",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/pipedrive_trigger.rs"
     },
     {
       "n8nType": "n8n-nodes-base.plivo",
@@ -2455,6 +2608,15 @@
       "implFile": "rust/crates/sabflow-nodes/src/nodes/salesforce.rs"
     },
     {
+      "n8nType": "n8n-nodes-base.salesforceTrigger",
+      "name": "salesforceTrigger",
+      "displayName": "Salesforce Trigger",
+      "category": "Trigger",
+      "description": "Fire when a Salesforce record is created/updated (poll or callout)",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/salesforce_trigger.rs"
+    },
+    {
       "n8nType": "n8n-nodes-base.salesmate",
       "name": "salesmate",
       "displayName": "Salesmate",
@@ -2572,6 +2734,15 @@
       "implFile": "rust/crates/sabflow-nodes/src/nodes/shopify.rs"
     },
     {
+      "n8nType": "n8n-nodes-base.shopifyTrigger",
+      "name": "shopifyTrigger",
+      "displayName": "Shopify Trigger",
+      "category": "Trigger",
+      "description": "Fires on Shopify webhook events (HMAC-SHA256 base64 signed)",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/shopify_trigger.rs"
+    },
+    {
       "n8nType": "n8n-nodes-base.signl4",
       "name": "signl4",
       "displayName": "SIGNL4",
@@ -2597,6 +2768,33 @@
       "description": "Send Slack messages and manage channels & users",
       "isStub": false,
       "implFile": "rust/crates/sabflow-nodes/src/nodes/slack.rs"
+    },
+    {
+      "n8nType": "n8n-nodes-base.slackEventsApiTrigger",
+      "name": "slackEventsApiTrigger",
+      "displayName": "Slack Events API",
+      "category": "Trigger",
+      "description": "Subscribes to Slack Events API events (messages, reactions, app_mention, \u2026)",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/slack_events_trigger.rs"
+    },
+    {
+      "n8nType": "n8n-nodes-base.slackSlashCommandTrigger",
+      "name": "slackSlashCommandTrigger",
+      "displayName": "Slack Slash Command / Interactivity",
+      "category": "Trigger",
+      "description": "Starts a flow on a Slack slash command or interactive payload",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/slack_slash_command.rs"
+    },
+    {
+      "n8nType": "n8n-nodes-base.slackTrigger",
+      "name": "slackTrigger",
+      "displayName": "Slack Trigger",
+      "category": "Trigger",
+      "description": "Starts a flow on Slack real-time events (messages, reactions, members)",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/slack_trigger.rs"
     },
     {
       "n8nType": "n8n-nodes-base.sms77",
@@ -2675,9 +2873,9 @@
       "name": "sseTrigger",
       "displayName": "SSE Trigger",
       "category": "Trigger",
-      "description": "Server-Sent Events trigger",
-      "isStub": true,
-      "implFile": null
+      "description": "Subscribe to a Server-Sent Events stream and fire on each event",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/sse_trigger.rs"
     },
     {
       "n8nType": "n8n-nodes-base.ssh",
@@ -2761,6 +2959,15 @@
       "implFile": "rust/crates/sabflow-nodes/src/nodes/stripe.rs"
     },
     {
+      "n8nType": "n8n-nodes-base.stripeTrigger",
+      "name": "stripeTrigger",
+      "displayName": "Stripe Trigger",
+      "category": "Trigger",
+      "description": "Fires on Stripe webhook events (HMAC-SHA256 signed)",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/stripe_trigger.rs"
+    },
+    {
       "n8nType": "n8n-nodes-base.summarize",
       "name": "summarize",
       "displayName": "Summarize",
@@ -2840,6 +3047,15 @@
       "description": "Send messages, manage chats, and answer callbacks via the Telegram Bot API",
       "isStub": false,
       "implFile": "rust/crates/sabflow-nodes/src/nodes/telegram.rs"
+    },
+    {
+      "n8nType": "n8n-nodes-base.telegramTrigger",
+      "name": "telegramTrigger",
+      "displayName": "Telegram Trigger",
+      "category": "Trigger",
+      "description": "Fires when a Telegram bot receives an update (message, callback, etc.)",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/telegram_trigger.rs"
     },
     {
       "n8nType": "n8n-nodes-base.theHive",
@@ -2950,6 +3166,15 @@
       "implFile": "rust/crates/sabflow-nodes/src/nodes/twilio.rs"
     },
     {
+      "n8nType": "n8n-nodes-base.twilioTrigger",
+      "name": "twilioTrigger",
+      "displayName": "Twilio Trigger",
+      "category": "Trigger",
+      "description": "Fire when Twilio delivers a webhook (inbound message or call event)",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/twilio_trigger.rs"
+    },
+    {
       "n8nType": "n8n-nodes-base.twist",
       "name": "twist",
       "displayName": "Twist",
@@ -2957,6 +3182,15 @@
       "description": "Post threads and comments to Twist channels",
       "isStub": false,
       "implFile": "rust/crates/sabflow-nodes/src/nodes/twist.rs"
+    },
+    {
+      "n8nType": "n8n-nodes-base.twistTrigger",
+      "name": "twistTrigger",
+      "displayName": "Twist Trigger",
+      "category": "Trigger",
+      "description": "Fire when Twist delivers a workspace, channel, thread, or comment event",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/twist_trigger.rs"
     },
     {
       "n8nType": "n8n-nodes-base.twitter",
@@ -2975,6 +3209,15 @@
       "description": "Typeform online forms \u2014 manage forms, responses and workspaces",
       "isStub": false,
       "implFile": "rust/crates/sabflow-nodes/src/nodes/typeform.rs"
+    },
+    {
+      "n8nType": "n8n-nodes-base.typeformTrigger",
+      "name": "typeformTrigger",
+      "displayName": "Typeform Trigger",
+      "category": "Trigger",
+      "description": "Fires when a Typeform form receives a new response",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/typeform_trigger.rs"
     },
     {
       "n8nType": "n8n-nodes-base.uProc",
@@ -3074,6 +3317,15 @@
       "description": "HTTP webhook trigger",
       "isStub": false,
       "implFile": "rust/crates/sabflow-nodes/src/nodes/webhook.rs"
+    },
+    {
+      "n8nType": "n8n-nodes-base.webhookV2",
+      "name": "webhookV2",
+      "displayName": "Webhook (v2)",
+      "category": "Trigger",
+      "description": "Versioned HTTP webhook trigger with extended auth + response modes",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/webhook_v2.rs"
     },
     {
       "n8nType": "n8n-nodes-base.wekan",
@@ -3227,6 +3479,15 @@
       "description": "Zoom meetings, webinars, users and cloud recordings",
       "isStub": false,
       "implFile": "rust/crates/sabflow-nodes/src/nodes/zoom.rs"
+    },
+    {
+      "n8nType": "n8n-nodes-base.zoomTrigger",
+      "name": "zoomTrigger",
+      "displayName": "Zoom Trigger",
+      "category": "Trigger",
+      "description": "Fires on Zoom meeting / webinar / recording events",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/zoom_trigger.rs"
     },
     {
       "n8nType": "n8n-nodes-base.zulip",
