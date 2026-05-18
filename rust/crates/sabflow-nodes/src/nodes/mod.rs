@@ -107,12 +107,11 @@ pub mod my_sql;
 pub mod supabase;
 pub mod noco_db;
 
-// ── Phase C.4: storage adapter nodes ────────────────────────────────────────
-pub mod aws_s3;
-pub mod sftp;
-pub mod read_write_file;
-pub mod read_binary_file;
-pub mod move_binary_data;
+// ── Phase C.4.2: SQL database family ─────────────────────────────────────────
+pub mod microsoft_sql;
+pub mod oracle;
+pub mod crate_db;
+pub mod quest_db;
 
 use crate::{descriptor::NodeCategory, registry::NodeRegistry};
 
@@ -213,12 +212,14 @@ fn register_implemented(r: &mut NodeRegistry) {
     r.register(my_sql::MySqlNode);
     r.register(supabase::SupabaseNode);
     r.register(noco_db::NocoDbNode);
-    // Phase C.4 — storage adapter nodes
-    r.register(aws_s3::AwsS3Node);
-    r.register(sftp::SftpNode);
-    r.register(read_write_file::ReadWriteFileNode);
-    r.register(read_binary_file::ReadBinaryFileNode);
-    r.register(move_binary_data::MoveBinaryDataNode);
+    // Phase C.4.2 — SQL database family (MicrosoftSql + Oracle + CrateDB +
+    // QuestDB land as typed `NotImplemented` stubs because their drivers
+    // aren't in the workspace yet — see each module's header for details).
+    // mySql and postgres were shipped in earlier C.4 batches.
+    r.register(microsoft_sql::MicrosoftSqlNode);
+    r.register(oracle::OracleNode);
+    r.register(crate_db::CrateDbNode);
+    r.register(quest_db::QuestDbNode);
 }
 
 /// Register stubs only when the name isn't already populated by an implemented node.
@@ -268,7 +269,6 @@ fn register_stubs(r: &mut NodeRegistry) {
         ("convertToText", "Convert to Text", NodeCategory::Transform, "Parse a binary file back into items"),
         ("copper", "Copper", NodeCategory::Crm, "CRM built for Google Workspace"),
         ("cortex", "Cortex", NodeCategory::Developer, "Threat intelligence analysis"),
-        ("crateDb", "CrateDB", NodeCategory::Database, "Distributed SQL database"),
         ("cron", "Cron", NodeCategory::Logic, "Schedule by cron expression"),
         ("crypto", "Crypto", NodeCategory::Transform, "Cryptographic operations"),
         ("currents", "Currents", NodeCategory::Analytics, "News API"),
@@ -397,7 +397,6 @@ fn register_stubs(r: &mut NodeRegistry) {
         ("onfleet", "Onfleet", NodeCategory::Misc, "Last-mile delivery"),
         ("openThesaurus", "OpenThesaurus", NodeCategory::Ai, "German thesaurus"),
         ("openWeatherMap", "OpenWeatherMap", NodeCategory::Misc, "Weather data"),
-        ("oracle", "Oracle DB", NodeCategory::Database, "Oracle database"),
         ("orbit", "Orbit", NodeCategory::Marketing, "Community management"),
         ("oura", "Oura", NodeCategory::Misc, "Health tracking ring"),
         ("paddle", "Paddle", NodeCategory::Finance, "Subscription billing"),
@@ -416,7 +415,6 @@ fn register_stubs(r: &mut NodeRegistry) {
         ("pushbullet", "Pushbullet", NodeCategory::Communication, "Cross-device notifications"),
         ("pushcut", "Pushcut", NodeCategory::Communication, "iOS automation"),
         ("pushover", "Pushover", NodeCategory::Communication, "Push notifications"),
-        ("questDb", "QuestDB", NodeCategory::Database, "Time-series database"),
         ("quickBase", "QuickBase", NodeCategory::Database, "Low-code application database"),
         ("quickBooks", "QuickBooks", NodeCategory::Finance, "Accounting"),
         ("quickChart", "QuickChart", NodeCategory::Analytics, "Chart image generation"),
