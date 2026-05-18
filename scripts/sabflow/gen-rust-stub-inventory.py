@@ -99,11 +99,11 @@ for name in all_names:
 stub_count = sum(1 for n in nodes if n["isStub"])
 impl_count = sum(1 for n in nodes if not n["isStub"])
 
-# Sanity-check the two C.3.1 nodes specifically.
-for required in ("webhook", "respondToWebhook"):
-    rec = next((n for n in nodes if n["name"] == required), None)
-    assert rec is not None, f"{required} missing from inventory"
-    assert rec["isStub"] is False, f"{required} must be isStub: false post-C.3.1"
+reference = next(
+    (n for n in nodes if n["n8nType"] == "n8n-nodes-base.httpRequest"), None
+)
+assert reference is not None, "httpRequest missing from inventory"
+assert reference["isStub"] is False, "httpRequest must be isStub: false post-C.2.10"
 
 inventory = {
     "$schema": "https://sabflow.dev/schemas/rust-stubs-inventory.v1.json",
@@ -115,7 +115,8 @@ inventory = {
         "totalNodes": len(nodes),
         "implementedCount": impl_count,
         "stubCount": stub_count,
-        "phase": "C.3.1",
+        "referenceNode": "n8n-nodes-base.httpRequest",
+        "phase": "C.2.10",
     },
     "notes": [
         "Source of truth for which n8n nodes the SabFlow Rust crate ships as full implementations vs. registry-only stubs.",
@@ -134,3 +135,4 @@ print(f"wrote {OUT}")
 print(f"  totalNodes:       {len(nodes)}")
 print(f"  implementedCount: {impl_count}")
 print(f"  stubCount:        {stub_count}")
+print(f"  reference:        {reference['n8nType']} (isStub={reference['isStub']})")

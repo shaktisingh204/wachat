@@ -1,0 +1,42 @@
+{
+  "$schema": "https://sabflow.dev/schemas/node-parity-fixture.v1.json",
+  "name": "basic",
+  "description": "Classic Set node — overlay { added: 1, nested.flag: true } on each item with default keepOnlySet=false. Asserts that incoming keys are preserved AND that the dotted-path key creates a nested object.",
+  "node": "n8n-nodes-base.set",
+  "params": {
+    "mode": "manual",
+    "keepOnlySet": false,
+    "values": [
+      { "name": "added", "value": 1 },
+      { "name": "nested.flag", "value": true }
+    ],
+    "options": {
+      "dotNotation": true
+    }
+  },
+  "input": {
+    "items": [
+      { "json": { "name": "alice", "score": 9 } },
+      { "json": { "name": "bob",   "score": 4 } }
+    ]
+  },
+  "expected": {
+    "branches": [
+      {
+        "items": [
+          { "name": "alice", "score": 9, "added": 1, "nested": { "flag": true } },
+          { "name": "bob",   "score": 4, "added": 1, "nested": { "flag": true } }
+        ]
+      }
+    ]
+  },
+  "expectedFields": [
+    "branches[0].items[0].name",
+    "branches[0].items[0].score",
+    "branches[0].items[0].added",
+    "branches[0].items[0].nested.flag",
+    "branches[0].items[1].name",
+    "branches[0].items[1].added",
+    "branches[0].items[1].nested.flag"
+  ]
+}

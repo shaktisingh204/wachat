@@ -1,0 +1,48 @@
+{
+  "$schema": "https://sabflow.dev/schemas/node-parity-fixture.v1.json",
+  "name": "basic",
+  "description": "Edit Fields V3 in manual mode — coerces a string into a number, a literal into a boolean, and assigns a dotted path. Asserts the coercion table and the dotted-path behaviour match n8n's editFields V3.",
+  "node": "n8n-nodes-base.editFields",
+  "params": {
+    "mode": "manual",
+    "fields": [
+      { "name": "score",         "type": "number",  "value": "42" },
+      { "name": "active",        "type": "boolean", "value": "yes" },
+      { "name": "tags",          "type": "array",   "value": "[\"a\",\"b\"]" },
+      { "name": "meta.priority", "type": "string",  "value": "high" }
+    ],
+    "options": {
+      "keepOnlySet": false,
+      "dotNotation": true
+    }
+  },
+  "input": {
+    "items": [
+      { "json": { "id": "u1", "legacy": true } }
+    ]
+  },
+  "expected": {
+    "branches": [
+      {
+        "items": [
+          {
+            "id": "u1",
+            "legacy": true,
+            "score": 42,
+            "active": true,
+            "tags": ["a", "b"],
+            "meta": { "priority": "high" }
+          }
+        ]
+      }
+    ]
+  },
+  "expectedFields": [
+    "branches[0].items[0].id",
+    "branches[0].items[0].legacy",
+    "branches[0].items[0].score",
+    "branches[0].items[0].active",
+    "branches[0].items[0].tags",
+    "branches[0].items[0].meta.priority"
+  ]
+}

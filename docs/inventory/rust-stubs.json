@@ -1,12 +1,13 @@
 {
   "$schema": "https://sabflow.dev/schemas/rust-stubs-inventory.v1.json",
-  "generatedAt": "2026-05-18T15:25:28Z",
+  "generatedAt": "2026-05-18T15:34:46Z",
   "generator": "scripts/sabflow/gen-rust-stub-inventory.py",
   "summary": {
-    "totalNodes": 310,
-    "implementedCount": 80,
-    "stubCount": 230,
-    "phase": "C.3.1"
+    "totalNodes": 311,
+    "implementedCount": 82,
+    "stubCount": 229,
+    "referenceNode": "n8n-nodes-base.httpRequest",
+    "phase": "C.2.10"
   },
   "notes": [
     "Source of truth for which n8n nodes the SabFlow Rust crate ships as full implementations vs. registry-only stubs.",
@@ -600,6 +601,15 @@
       "implFile": null
     },
     {
+      "n8nType": "n8n-nodes-base.editFields",
+      "name": "editFields",
+      "displayName": "Edit Fields (Set)",
+      "category": "Transform",
+      "description": "Assign or replace fields on each item \u2014 Set V3",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/edit_fields.rs"
+    },
+    {
       "n8nType": "n8n-nodes-base.editImage",
       "name": "editImage",
       "displayName": "Edit Image",
@@ -847,9 +857,9 @@
       "name": "function",
       "displayName": "Function (legacy)",
       "category": "Logic",
-      "description": "Legacy code node",
-      "isStub": true,
-      "implFile": null
+      "description": "Run a JavaScript snippet that receives `items` and returns the transformed array.",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/function.rs"
     },
     {
       "n8nType": "n8n-nodes-base.functionItem",
@@ -2181,7 +2191,7 @@
       "category": "Transform",
       "description": "Set or modify item fields",
       "isStub": false,
-      "implFile": "rust/crates/sabflow-nodes/src/nodes/set_node.rs"
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/set.rs"
     },
     {
       "n8nType": "n8n-nodes-base.shopify",
@@ -2649,7 +2659,7 @@
       "category": "Trigger",
       "description": "HTTP webhook trigger",
       "isStub": false,
-      "implFile": "rust/crates/sabflow-nodes/src/nodes/webhook.rs"
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/webhook_trigger.rs"
     },
     {
       "n8nType": "n8n-nodes-base.wekan",

@@ -1,0 +1,32 @@
+{
+  "$schema": "https://sabflow.dev/schemas/node-parity-fixture.v1.json",
+  "name": "echo",
+  "description": "Legacy Function node — n8n returns the same items array because the snippet is `return items;`. SabFlow does NOT ship a JS runtime (deliberate: every code path must go through the expression-engine sandbox at rust/crates/sabflow-executor/expression/, which is still a scaffold). Until the sandbox lands, SabFlow returns a typed error with the stable code `function.js_not_yet_supported`. This fixture pins that divergence so flipping it back to parity later is a one-line fixture edit, not a runner change.",
+  "node": "n8n-nodes-base.function",
+  "params": {
+    "functionCode": "return items;"
+  },
+  "input": {
+    "items": [
+      { "json": { "k": "v" } }
+    ]
+  },
+  "expected": {
+    "n8n": {
+      "branches": [
+        { "items": [ { "k": "v" } ] }
+      ]
+    },
+    "sabflow": {
+      "error": {
+        "kind": "InvalidParameter",
+        "name": "function.js_not_yet_supported"
+      }
+    }
+  },
+  "expectedDivergence": {
+    "reason": "SabFlow ships the Function node as a typed-error stub until the expression-engine JS sandbox lands. See nodes/function.rs TODO and PLAN-sabflow-coverage.md Phase C.3.2.",
+    "trackedIn": "rust/crates/sabflow-executor/expression/",
+    "errorCode": "function.js_not_yet_supported"
+  }
+}

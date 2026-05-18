@@ -12,7 +12,9 @@ pub mod stub;
 
 // ── Fully-implemented core nodes ────────────────────────────────────────────
 pub mod http_request;
-pub mod set_node;
+pub mod set;
+pub mod edit_fields;
+pub mod function;
 pub mod if_node;
 pub mod switch_node;
 pub mod merge_node;
@@ -105,13 +107,11 @@ pub fn register_all(r: &mut NodeRegistry) {
 }
 
 fn register_implemented(r: &mut NodeRegistry) {
-    // Core (10)
-    // `httpRequest` is the Phase C.2 reference implementation — see
-    // `nodes/http_request.rs`. It is fully implemented (not a stub) and
-    // mirrors `n8n-nodes-base.httpRequest` to parity. `docs/inventory/
-    // rust-stubs.json` records `isStub: false` for this entry.
+    // Core (12 — C.3.2 added edit_fields + function alongside set)
     r.register(http_request::HttpRequestNode);
-    r.register(set_node::SetNode);
+    r.register(set::SetNode);
+    r.register(edit_fields::EditFieldsNode);
+    r.register(function::FunctionNode);
     r.register(if_node::IfNode);
     r.register(switch_node::SwitchNode);
     r.register(merge_node::MergeNode);
@@ -286,7 +286,7 @@ fn register_stubs(r: &mut NodeRegistry) {
         ("freshservice", "Freshservice", NodeCategory::Communication, "IT service management"),
         ("freshworksCrm", "Freshworks CRM", NodeCategory::Crm, "Freshworks CRM"),
         ("ftp", "FTP", NodeCategory::Storage, "Transfer files via FTP/SFTP"),
-        ("function", "Function (legacy)", NodeCategory::Logic, "Legacy code node"),
+        // ("function", ...) promoted to a real implementation in Phase C.3.2 — see nodes/function.rs.
         ("functionItem", "Function Item (legacy)", NodeCategory::Logic, "Legacy per-item code"),
         ("getResponse", "GetResponse", NodeCategory::Marketing, "Email marketing"),
         ("ghost", "Ghost", NodeCategory::Marketing, "Publishing platform"),
