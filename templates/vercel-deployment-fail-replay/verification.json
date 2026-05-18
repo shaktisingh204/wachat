@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "vercel-deployment-fail-replay",
+  "cases": [
+    {
+      "id": "auto-replay",
+      "description": "Deploy fail triggers an immediate replay.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
