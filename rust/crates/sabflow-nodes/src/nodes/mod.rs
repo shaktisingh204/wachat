@@ -109,14 +109,13 @@ pub mod my_sql;
 pub mod supabase;
 pub mod noco_db;
 
-// ── Phase C.5.1: AWS-family nodes (HTTP + SigV4, no aws-sdk-* deps) ──────────
-pub mod aws_sigv4;
-pub mod aws_lambda;
-pub mod aws_ses;
-pub mod aws_sns;
-pub mod aws_sqs;
-pub mod aws_cloud_watch;
-pub mod aws_comprehend;
+// ── Phase C.5.2: Google Cloud integration nodes ─────────────────────────────
+pub mod google_big_query;
+pub mod google_translate;
+pub mod google_cloud_storage;
+pub mod google_cloud_pub_sub;
+pub mod google_cloud_tasks;
+pub mod google_vision;
 
 use crate::{descriptor::NodeCategory, registry::NodeRegistry};
 
@@ -233,13 +232,13 @@ fn register_implemented(r: &mut NodeRegistry) {
     r.register(my_sql::MySqlNode);
     r.register(supabase::SupabaseNode);
     r.register(noco_db::NocoDbNode);
-    // Phase C.5.1 — AWS-family nodes
-    r.register(aws_lambda::AwsLambdaNode);
-    r.register(aws_ses::AwsSesNode);
-    r.register(aws_sns::AwsSnsNode);
-    r.register(aws_sqs::AwsSqsNode);
-    r.register(aws_cloud_watch::AwsCloudWatchNode);
-    r.register(aws_comprehend::AwsComprehendNode);
+    // Phase C.5.2 — Google Cloud nodes
+    r.register(google_big_query::GoogleBigQueryNode);
+    r.register(google_translate::GoogleTranslateNode);
+    r.register(google_cloud_storage::GoogleCloudStorageNode);
+    r.register(google_cloud_pub_sub::GoogleCloudPubSubNode);
+    r.register(google_cloud_tasks::GoogleCloudTasksNode);
+    r.register(google_vision::GoogleVisionNode);
 }
 
 /// Register stubs only when the name isn't already populated by an implemented node.
