@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "ghost-newsletter-auto-summarize",
+  "cases": [
+    {
+      "id": "post-to-thread",
+      "description": "Ghost post becomes scheduled tweet thread.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

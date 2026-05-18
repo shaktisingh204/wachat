@@ -1,0 +1,132 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_ghost_pub",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "ghost.post.published",
+    "options": {
+      "path": "/webhooks/ghost-newsletter-auto-summarize",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Ghost-Token",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_ghost_webhook",
+      "name": "Ghost Post Published",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "httpMethod": "POST", "path": "ghost-newsletter-auto-summarize", "responseMode": "onReceived" },
+      "webhookId": "ghost-newsletter-auto-summarize-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Post",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "title", "value": "={{ $json.post.current.title }}" },
+            { "name": "html", "value": "={{ $json.post.current.html }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_gpt",
+      "name": "Generate Tweet Thread",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "authentication": "apiKey",
+        "resource": "chat",
+        "operation": "complete",
+        "model": "gpt-4o-mini",
+        "messages": {
+          "values": [
+            { "role": "system", "content": "Return JSON { tweets: string[] } — 6 tweets, ≤270 chars each." },
+            { "role": "user", "content": "{{ $json.title }}\n\n{{ $json.html }}" }
+          ]
+        },
+        "options": { "responseFormat": "json_object" }
+      },
+      "credentials": { "openAiApi": { "id": "openai-cred", "name": "OpenAI API" } }
+    },
+    {
+      "id": "n_extract_tweets",
+      "name": "Extract Tweets",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "values": { "string": [{ "name": "tweets", "value": "={{ JSON.parse($json.message.content).tweets.join('|') }}" }] }
+      }
+    },
+    {
+      "id": "n_buffer",
+      "name": "Schedule in Buffer",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [960, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.BUFFER_API }}/1/updates/create.json",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "profile_ids[]", "value": "={{ $vars.BUFFER_PROFILE_ID }}" },
+            { "name": "text", "value": "={{ $json.tweets }}" }
+          ]
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth"
+      },
+      "credentials": { "httpHeaderAuth": { "id": "buffer-cred", "name": "Buffer" } }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack #marketing",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.MARKETING_SLACK }}",
+        "text": ":bird: Scheduled tweet thread for *{{ $node['Extract Post'].json.title }}*"
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    }
+  ],
+  "connections": {
+    "n_ghost_webhook": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": { "main": [[{ "node": "n_gpt", "type": "main", "index": 0 }]] },
+    "n_gpt": { "main": [[{ "node": "n_extract_tweets", "type": "main", "index": 0 }]] },
+    "n_extract_tweets": { "main": [[{ "node": "n_buffer", "type": "main", "index": 0 }]] },
+    "n_buffer": { "main": [[{ "node": "n_slack", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_ghost_webhook", "n_extract", "n_gpt", "n_extract_tweets", "n_buffer", "n_slack"]
+    }
+  ],
+  "variables": [
+    { "id": "v_b", "name": "BUFFER_API", "defaultValue": "https://api.bufferapp.com" },
+    { "id": "v_p", "name": "BUFFER_PROFILE_ID", "defaultValue": "" },
+    { "id": "v_m", "name": "MARKETING_SLACK", "defaultValue": "#marketing" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

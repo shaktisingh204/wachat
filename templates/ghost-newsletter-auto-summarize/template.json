@@ -1,0 +1,10 @@
+{
+  "id": "ghost-newsletter-auto-summarize",
+  "name": "Ghost Newsletter Auto-Summarize",
+  "description": "Every Ghost `post.published` webhook is picked up, GPT-4o turns the post into a six-tweet thread tuned to the brand voice, the result is scheduled in Buffer for the next morning slot, and a #marketing Slack note confirms the publish loop. Multiplies the reach of every newsletter.",
+  "category": "Marketing",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["ghost", "buffer", "openai", "twitter", "marketing", "webhook"],
+  "version": "0.1.0"
+}
