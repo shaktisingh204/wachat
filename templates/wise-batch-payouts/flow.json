@@ -1,0 +1,128 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_friday",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": { "schedule": "0 9 * * 5", "enabled": true }
+  },
+  "nodes": [
+    {
+      "id": "n_cron",
+      "name": "Friday 09:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 9 * * 5" }] }
+      }
+    },
+    {
+      "id": "n_airtable",
+      "name": "Due Payouts",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [240, 0],
+      "parameters": {
+        "operation": "list",
+        "application": "={{ $vars.AIRTABLE_BASE }}",
+        "table": "Contractor Payouts",
+        "additionalOptions": {
+          "filterByFormula": "AND({Status} = 'Due', IS_BEFORE({Due Date}, DATEADD(TODAY(),7,'days')))"
+        }
+      },
+      "credentials": {
+        "airtableApi": { "id": "airtable-cred", "name": "Airtable API" }
+      }
+    },
+    {
+      "id": "n_split",
+      "name": "One Contractor",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": { "batchSize": 1 }
+    },
+    {
+      "id": "n_wise",
+      "name": "Wise Transfer",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.wise.com/v1/transfers",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "targetAccount", "value": "={{ $json.fields['Wise Recipient ID'] }}" },
+            { "name": "quoteUuid", "value": "={{ $json.fields['Quote UUID'] }}" },
+            { "name": "customerTransactionId", "value": "={{ $json.id }}-{{ $now }}" }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "wise-cred", "name": "Wise Token" }
+      }
+    },
+    {
+      "id": "n_sendgrid",
+      "name": "Confirmation Email",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "={{ $vars.FROM_EMAIL }}",
+        "toEmail": "={{ $json.fields['Email'] }}",
+        "subject": "Your payout is on the way",
+        "contentType": "text/plain",
+        "content": "Hi {{ $json.fields['Name'] }}, your payout of {{ $json.fields['Amount'] }} has been queued via Wise."
+      },
+      "credentials": {
+        "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid" }
+      }
+    },
+    {
+      "id": "n_slack",
+      "name": "Finance Summary",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.FINANCE_CHANNEL }}",
+        "text": ":dollar: Friday payouts batch fired."
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    }
+  ],
+  "connections": {
+    "n_cron": { "main": [[{ "node": "n_airtable", "type": "main", "index": 0 }]] },
+    "n_airtable": { "main": [[{ "node": "n_split", "type": "main", "index": 0 }]] },
+    "n_split": { "main": [[{ "node": "n_wise", "type": "main", "index": 0 }]] },
+    "n_wise": { "main": [[{ "node": "n_sendgrid", "type": "main", "index": 0 }]] },
+    "n_sendgrid": { "main": [[{ "node": "n_slack", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cron", "n_airtable", "n_split", "n_wise", "n_sendgrid", "n_slack"]
+    }
+  ],
+  "variables": [
+    { "id": "v_at", "name": "AIRTABLE_BASE", "defaultValue": "" },
+    { "id": "v_from", "name": "FROM_EMAIL", "defaultValue": "payouts@example.com" },
+    { "id": "v_fin", "name": "FINANCE_CHANNEL", "defaultValue": "#finance" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
