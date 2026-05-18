@@ -1,0 +1,190 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_dbx",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "dropbox.file.added",
+    "options": {
+      "path": "/webhooks/dropbox-classifier",
+      "method": "POST",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_webhook",
+      "name": "Dropbox File Added",
+      "type": "n8n-nodes-base.dropboxTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "path": "={{ $vars.DROPBOX_INBOX }}"
+      },
+      "credentials": {
+        "dropboxOAuth2Api": { "id": "dropbox-cred", "name": "Dropbox OAuth2" }
+      }
+    },
+    {
+      "id": "n_download",
+      "name": "Download File",
+      "type": "n8n-nodes-base.dropbox",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "resource": "file",
+        "operation": "download",
+        "path": "={{ $json.path_display }}"
+      },
+      "credentials": {
+        "dropboxOAuth2Api": { "id": "dropbox-cred", "name": "Dropbox OAuth2" }
+      }
+    },
+    {
+      "id": "n_openai_vision",
+      "name": "GPT-4o Vision Classify",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "resource": "chat",
+        "operation": "complete",
+        "model": "gpt-4o",
+        "messages": {
+          "values": [
+            { "role": "system", "content": "Return JSON { class: 'invoice'|'receipt'|'contract'|'other' }." },
+            { "role": "user", "content": "Classify this document." }
+          ]
+        },
+        "options": { "responseFormat": "json_object", "temperature": 0 }
+      },
+      "credentials": {
+        "openAiApi": { "id": "openai-cred", "name": "OpenAI API" }
+      }
+    },
+    {
+      "id": "n_parse",
+      "name": "Parse Class",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "docClass", "value": "={{ JSON.parse($json.message.content).class }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_switch",
+      "name": "Switch Class",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            { "conditions": { "string": [{ "value1": "={{ $json.docClass }}", "operation": "equal", "value2": "invoice" }] }, "outputKey": "invoice" },
+            { "conditions": { "string": [{ "value1": "={{ $json.docClass }}", "operation": "equal", "value2": "receipt" }] }, "outputKey": "receipt" },
+            { "conditions": { "string": [{ "value1": "={{ $json.docClass }}", "operation": "equal", "value2": "contract" }] }, "outputKey": "contract" }
+          ]
+        },
+        "fallbackOutput": "other"
+      }
+    },
+    {
+      "id": "n_move_invoice",
+      "name": "Move → Invoices",
+      "type": "n8n-nodes-base.dropbox",
+      "typeVersion": 1,
+      "position": [1200, -270],
+      "parameters": {
+        "resource": "file",
+        "operation": "move",
+        "path": "={{ $node['Dropbox File Added'].json.path_display }}",
+        "newPath": "=/Invoices/{{ $node['Dropbox File Added'].json.name }}"
+      },
+      "credentials": {
+        "dropboxOAuth2Api": { "id": "dropbox-cred", "name": "Dropbox OAuth2" }
+      }
+    },
+    {
+      "id": "n_move_receipt",
+      "name": "Move → Receipts",
+      "type": "n8n-nodes-base.dropbox",
+      "typeVersion": 1,
+      "position": [1200, -90],
+      "parameters": {
+        "resource": "file",
+        "operation": "move",
+        "path": "={{ $node['Dropbox File Added'].json.path_display }}",
+        "newPath": "=/Receipts/{{ $node['Dropbox File Added'].json.name }}"
+      },
+      "credentials": {
+        "dropboxOAuth2Api": { "id": "dropbox-cred", "name": "Dropbox OAuth2" }
+      }
+    },
+    {
+      "id": "n_move_contract",
+      "name": "Move → Contracts",
+      "type": "n8n-nodes-base.dropbox",
+      "typeVersion": 1,
+      "position": [1200, 90],
+      "parameters": {
+        "resource": "file",
+        "operation": "move",
+        "path": "={{ $node['Dropbox File Added'].json.path_display }}",
+        "newPath": "=/Contracts/{{ $node['Dropbox File Added'].json.name }}"
+      },
+      "credentials": {
+        "dropboxOAuth2Api": { "id": "dropbox-cred", "name": "Dropbox OAuth2" }
+      }
+    },
+    {
+      "id": "n_move_other",
+      "name": "Move → Other",
+      "type": "n8n-nodes-base.dropbox",
+      "typeVersion": 1,
+      "position": [1200, 270],
+      "parameters": {
+        "resource": "file",
+        "operation": "move",
+        "path": "={{ $node['Dropbox File Added'].json.path_display }}",
+        "newPath": "=/Other/{{ $node['Dropbox File Added'].json.name }}"
+      },
+      "credentials": {
+        "dropboxOAuth2Api": { "id": "dropbox-cred", "name": "Dropbox OAuth2" }
+      }
+    }
+  ],
+  "connections": {
+    "n_webhook": { "main": [[{ "node": "n_download", "type": "main", "index": 0 }]] },
+    "n_download": { "main": [[{ "node": "n_openai_vision", "type": "main", "index": 0 }]] },
+    "n_openai_vision": { "main": [[{ "node": "n_parse", "type": "main", "index": 0 }]] },
+    "n_parse": { "main": [[{ "node": "n_switch", "type": "main", "index": 0 }]] },
+    "n_switch": {
+      "invoice": [[{ "node": "n_move_invoice", "type": "main", "index": 0 }]],
+      "receipt": [[{ "node": "n_move_receipt", "type": "main", "index": 0 }]],
+      "contract": [[{ "node": "n_move_contract", "type": "main", "index": 0 }]],
+      "other": [[{ "node": "n_move_other", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_webhook", "n_download", "n_openai_vision", "n_parse", "n_switch",
+        "n_move_invoice", "n_move_receipt", "n_move_contract", "n_move_other"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_inbox", "name": "DROPBOX_INBOX", "defaultValue": "/Inbox" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
