@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_review",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "shopify.product_review.created",
+    "options": {
+      "path": "/webhooks/shopify-product-review-reply",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Shopify-Hmac-Sha256",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_trigger",
+      "name": "New Review",
+      "type": "n8n-nodes-base.shopifyTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "topic": "product_reviews/create" },
+      "credentials": { "shopifyApi": { "id": "shopify-cred", "name": "Shopify" } }
+    },
+    {
+      "id": "n_if",
+      "name": "Rating ≤ 3?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [240, 0],
+      "parameters": {
+        "conditions": { "number": [{ "value1": "={{ $json.rating }}", "operation": "smallerEqual", "value2": 3 }] }
+      }
+    },
+    {
+      "id": "n_gpt_apology",
+      "name": "GPT Apology Draft",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [480, -180],
+      "parameters": { "resource": "chat", "operation": "complete", "model": "gpt-4o-mini" },
+      "credentials": { "openAiApi": { "id": "openai-cred", "name": "OpenAI" } }
+    },
+    {
+      "id": "n_slack_review",
+      "name": "Slack #cx-review",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [720, -180],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": "#cx-review",
+        "text": "Apology draft awaits approval."
+      },
+      "credentials": { "slackApi": { "id": "slack-cred", "name": "Slack" } }
+    },
+    {
+      "id": "n_gpt_thanks",
+      "name": "GPT Thank You",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [480, 180],
+      "parameters": { "resource": "chat", "operation": "complete", "model": "gpt-4o-mini" },
+      "credentials": { "openAiApi": { "id": "openai-cred", "name": "OpenAI" } }
+    },
+    {
+      "id": "n_post_reply",
+      "name": "Shopify Post Reply",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, 180],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://{{ $vars.SHOPIFY_DOMAIN }}/admin/api/2024-07/product_reviews/{{ $node['New Review'].json.id }}/replies.json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "shopifyApi"
+      },
+      "credentials": { "shopifyApi": { "id": "shopify-cred", "name": "Shopify" } }
+    }
+  ],
+  "connections": {
+    "n_trigger": { "main": [[{ "node": "n_if", "type": "main", "index": 0 }]] },
+    "n_if": {
+      "true": [[{ "node": "n_gpt_apology", "type": "main", "index": 0 }]],
+      "false": [[{ "node": "n_gpt_thanks", "type": "main", "index": 0 }]]
+    },
+    "n_gpt_apology": { "main": [[{ "node": "n_slack_review", "type": "main", "index": 0 }]] },
+    "n_gpt_thanks": { "main": [[{ "node": "n_post_reply", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_trigger", "n_if", "n_gpt_apology", "n_slack_review", "n_gpt_thanks", "n_post_reply"]
+    }
+  ],
+  "variables": [
+    { "id": "v_d", "name": "SHOPIFY_DOMAIN", "defaultValue": "shop.example.com" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
