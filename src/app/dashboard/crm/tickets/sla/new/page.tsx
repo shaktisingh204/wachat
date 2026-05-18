@@ -10,17 +10,13 @@ import {
   ZoruCard,
   ZoruInput,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
 import { saveSla } from '@/app/actions/crm-sla.actions';
 import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 
 export const dynamic = 'force-dynamic';
 
@@ -88,19 +84,13 @@ export default function NewSlaPage() {
               />
             </div>
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="priority">Applies to Priority</ZoruLabel>
-              <ZoruSelect name="priority" defaultValue="medium">
-                <ZoruSelectTrigger id="priority">
-                  <ZoruSelectValue placeholder="Select priority" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="low">Low</ZoruSelectItem>
-                  <ZoruSelectItem value="medium">Medium</ZoruSelectItem>
-                  <ZoruSelectItem value="high">High</ZoruSelectItem>
-                  <ZoruSelectItem value="critical">Critical</ZoruSelectItem>
-                  <ZoruSelectItem value="all">All</ZoruSelectItem>
-                </ZoruSelectContent>
-              </ZoruSelect>
+              <ZoruLabel>Applies to Priority</ZoruLabel>
+              <EnumFormField
+                enumName="ticketPriorityWithAll"
+                name="priority"
+                initialId="medium"
+                placeholder="Select priority"
+              />
             </div>
           </div>
 

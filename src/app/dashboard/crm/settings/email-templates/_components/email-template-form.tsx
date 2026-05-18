@@ -19,15 +19,11 @@ import {
     ZoruCard,
     ZoruInput,
     ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
     ZoruSwitch,
     ZoruTextarea,
     useZoruToast,
 } from '@/components/zoruui';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 
 import { saveEmailTemplate } from '@/app/actions/crm-email-templates.actions';
 import type {
@@ -36,21 +32,6 @@ import type {
 } from '@/lib/rust-client/crm-email-templates';
 
 const BASE = '/dashboard/crm/settings/email-templates';
-
-const CATEGORY_OPTIONS: Array<{ value: string; label: string }> = [
-    { value: 'general', label: 'General' },
-    { value: 'transactional', label: 'Transactional' },
-    { value: 'marketing', label: 'Marketing' },
-    { value: 'onboarding', label: 'Onboarding' },
-    { value: 'support', label: 'Support' },
-    { value: 'sales', label: 'Sales' },
-    { value: 'other', label: 'Other' },
-];
-
-const STATUS_OPTIONS: Array<{ value: CrmEmailTemplateStatus; label: string }> = [
-    { value: 'active', label: 'Active' },
-    { value: 'archived', label: 'Archived' },
-];
 
 type SaveState = { message?: string; error?: string; id?: string };
 const initialState: SaveState = {};
@@ -117,8 +98,6 @@ export function EmailTemplateForm({
                         value={initialData!._id}
                     />
                 ) : null}
-                <input type="hidden" name="category" value={category} />
-                <input type="hidden" name="status" value={status} />
                 <input
                     type="hidden"
                     name="isActive"
@@ -139,18 +118,13 @@ export function EmailTemplateForm({
                     </div>
                     <div className="space-y-1.5">
                         <ZoruLabel htmlFor="category-trigger">Category</ZoruLabel>
-                        <ZoruSelect value={category} onValueChange={setCategory}>
-                            <ZoruSelectTrigger id="category-trigger">
-                                <ZoruSelectValue placeholder="Pick a category…" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {CATEGORY_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <EnumFormField
+                            name="category"
+                            enumName="emailTemplateCategory"
+                            initialId={category}
+                            onChange={(id) => setCategory(id ?? 'general')}
+                            placeholder="Pick a category…"
+                        />
                     </div>
                 </div>
 
@@ -216,23 +190,15 @@ export function EmailTemplateForm({
                     </div>
                     <div className="space-y-1.5">
                         <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
-                        <ZoruSelect
-                            value={status}
-                            onValueChange={(v) =>
-                                setStatus(v as CrmEmailTemplateStatus)
+                        <EnumFormField
+                            name="status"
+                            enumName="emailTemplateStatus"
+                            initialId={status}
+                            onChange={(id) =>
+                                setStatus((id ?? 'active') as CrmEmailTemplateStatus)
                             }
-                        >
-                            <ZoruSelectTrigger id="status-trigger">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                            placeholder="Status"
+                        />
                     </div>
                     <div className="flex items-end gap-2 pb-1">
                         <ZoruSwitch

@@ -33,15 +33,11 @@ import {
     ZoruCheckbox,
     ZoruInput,
     ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
     ZoruTextarea,
     useZoruToast,
 } from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import { saveBom } from '@/app/actions/crm-bom.actions';
 import type { CrmBomComponent } from '@/app/actions/crm-bom.actions';
 
@@ -309,17 +305,11 @@ export function BomForm({ initial }: BomFormProps) {
 
                     <div className="space-y-1">
                         <ZoruLabel htmlFor="status">Status</ZoruLabel>
-                        <ZoruSelect name="status" defaultValue={initial?.status ?? 'active'}>
-                            <ZoruSelectTrigger id="status">
-                                <ZoruSelectValue />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="draft">Draft</ZoruSelectItem>
-                                <ZoruSelectItem value="active">Active</ZoruSelectItem>
-                                <ZoruSelectItem value="inactive">Inactive</ZoruSelectItem>
-                                <ZoruSelectItem value="archived">Archived</ZoruSelectItem>
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <EnumFormField
+                            enumName="bomStatus"
+                            name="status"
+                            initialId={initial?.status ?? 'active'}
+                        />
                     </div>
 
                     <div className="space-y-1 md:col-span-2">

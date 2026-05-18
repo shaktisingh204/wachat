@@ -23,15 +23,11 @@ import {
     ZoruCheckbox,
     ZoruInput,
     ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
     useZoruToast,
 } from '@/components/zoruui';
 import { EntityFormShell } from '@/components/crm/entity-form-shell';
 import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 
 import { saveCrmWarehouse } from '@/app/actions/crm-warehouses.actions';
 import type { CrmWarehouse } from '@/lib/definitions';
@@ -125,44 +121,19 @@ export function WarehouseForm({ initialData }: WarehouseFormProps) {
                             </div>
                             <div className="space-y-1">
                                 <ZoruLabel htmlFor="type">Type</ZoruLabel>
-                                <ZoruSelect
+                                <EnumFormField
+                                    enumName="warehouseType"
                                     name="type"
-                                    defaultValue={
-                                        (initialData?.type as string) || 'main'
-                                    }
-                                >
-                                    <ZoruSelectTrigger>
-                                        <ZoruSelectValue />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="main">Main</ZoruSelectItem>
-                                        <ZoruSelectItem value="branch">Branch</ZoruSelectItem>
-                                        <ZoruSelectItem value="franchise">
-                                            Franchise
-                                        </ZoruSelectItem>
-                                        <ZoruSelectItem value="3pl">3PL</ZoruSelectItem>
-                                        <ZoruSelectItem value="virtual">Virtual</ZoruSelectItem>
-                                    </ZoruSelectContent>
-                                </ZoruSelect>
+                                    initialId={(initialData?.type as string) || 'main'}
+                                />
                             </div>
                             <div className="space-y-1">
                                 <ZoruLabel htmlFor="status">Status</ZoruLabel>
-                                <ZoruSelect
+                                <EnumFormField
+                                    enumName="warehouseStatus"
                                     name="status"
-                                    defaultValue={
-                                        (initialData?.status as string) || 'active'
-                                    }
-                                >
-                                    <ZoruSelectTrigger>
-                                        <ZoruSelectValue />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="active">Active</ZoruSelectItem>
-                                        <ZoruSelectItem value="inactive">
-                                            Inactive
-                                        </ZoruSelectItem>
-                                    </ZoruSelectContent>
-                                </ZoruSelect>
+                                    initialId={(initialData?.status as string) || 'active'}
+                                />
                             </div>
                         </div>
                     ),

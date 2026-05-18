@@ -17,11 +17,15 @@
  */
 
 import * as React from 'react';
+import Link from 'next/link';
+import { Plus, Receipt } from 'lucide-react';
 
 import {
+  ZoruButton,
   ZoruCard,
   useZoruToast,
 } from '@/components/zoruui';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import { SavedViewsBar } from '@/components/crm/SavedViewsBar';
@@ -411,101 +415,136 @@ export function InvoiceListClient({
   }, []);
 
   return (
-    <div className="flex w-full flex-col gap-5">
-      <SavedViewsBar
-        entityKind="invoice"
-        currentFilters={savedViewFilters}
-        currentColumns={[]}
-        onApplyView={handleApplyView}
-      />
-
-      {/* KPI strip */}
-      <InvoicesKpiStrip
-        kpi={kpi}
-        currency={defaultCurrency}
-        active={preset}
-        onSelect={applyPreset}
-      />
-
-      {error ? (
-        <div className="rounded border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-[12.5px] text-amber-700 dark:text-amber-400">
-          {error}
-        </div>
-      ) : null}
-
-      <ZoruCard className="overflow-hidden p-0">
-        <InvoicesToolbar
-          query={query}
-          onQueryChange={setQuery}
-          view={view}
-          onViewChange={setView}
-          density={density}
-          onDensityChange={handleDensityChange}
-          preset={preset}
-          onPresetChange={applyPreset}
-          onExportCsv={exportCsv}
-        />
-
-        <InvoicesFilters
-          filtersActive={filtersActive}
-          onClearAll={clearFilters}
-          statusFilter={statusFilter}
-          onStatusFilter={setStatusFilter}
-          customerFilter={customerFilter}
-          onCustomerFilter={setCustomerFilter}
-          agentFilter={agentFilter}
-          onAgentFilter={setAgentFilter}
-          branchFilter={branchFilter}
-          onBranchFilter={setBranchFilter}
-          currencyFilter={currencyFilter}
-          onCurrencyFilter={setCurrencyFilter}
-          fromDate={fromDate}
-          onFromDate={setFromDate}
-          toDate={toDate}
-          onToDate={setToDate}
-          dueFrom={dueFrom}
-          onDueFrom={setDueFrom}
-          dueTo={dueTo}
-          onDueTo={setDueTo}
-          amountMin={amountMin}
-          onAmountMin={setAmountMin}
-          amountMax={amountMax}
-          onAmountMax={setAmountMax}
-        />
-
-        <InvoicesBulkBar
-          count={selected.size}
-          onClear={() => setSelected(new Set())}
-          onExportCsv={exportCsv}
-          onArchive={() => setArchivePending(true)}
-          onDelete={() => setDeletePending(true)}
-          onMarkPaid={() => setMarkPaidPending(true)}
-          onSend={() => setSendPending(true)}
-          onChangeStatus={bulk.changeStatus}
-        />
-
-        {view === 'calendar' ? (
-          <div className="p-3">
-            <InvoicesCalendar invoices={filtered} />
-          </div>
-        ) : (
-          <InvoicesTable
-            invoices={filtered}
-            selected={selected}
-            onToggleRow={toggleRow}
-            onToggleAll={toggleAll}
-            allSelectedOnPage={allSelectedOnPage}
-            filtersActive={filtersActive}
-            density={density}
-          />
-        )}
-
-        {view === 'table' ? (
-          <div className="border-t border-zoru-line p-3">
+    <>
+      <EntityListShell
+        title="Invoices"
+        subtitle="Bill customers and track payment state across your sales pipeline."
+        viewSwitcher={null}
+        primaryAction={
+          <ZoruButton asChild>
+            <Link href="/dashboard/crm/sales/invoices/new">
+              <Plus className="h-4 w-4" /> New invoice
+            </Link>
+          </ZoruButton>
+        }
+        bulkBar={
+          selected.size > 0 ? (
+            <InvoicesBulkBar
+              count={selected.size}
+              onClear={() => setSelected(new Set())}
+              onExportCsv={exportCsv}
+              onArchive={() => setArchivePending(true)}
+              onDelete={() => setDeletePending(true)}
+              onMarkPaid={() => setMarkPaidPending(true)}
+              onSend={() => setSendPending(true)}
+              onChangeStatus={bulk.changeStatus}
+            />
+          ) : null
+        }
+        empty={
+          filtered.length === 0 && !filtersActive ? (
+            <div className="flex flex-col items-center gap-3 p-4">
+              <Receipt className="h-8 w-8 text-zoru-ink-muted" />
+              <h3 className="text-base font-medium text-zoru-ink">
+                No invoices yet
+              </h3>
+              <p className="max-w-sm text-sm text-zoru-ink-muted">
+                Bill your first customer to start tracking sales revenue.
+              </p>
+              <ZoruButton asChild>
+                <Link href="/dashboard/crm/sales/invoices/new">
+                  <Plus className="h-4 w-4" /> New invoice
+                </Link>
+              </ZoruButton>
+            </div>
+          ) : null
+        }
+        pagination={
+          view === 'table' ? (
             <PaginationBar page={page} limit={limit} hasMore={hasMore} />
-          </div>
-        ) : null}
-      </ZoruCard>
+          ) : null
+        }
+      >
+        <div className="flex flex-col gap-5">
+          <SavedViewsBar
+            entityKind="invoice"
+            currentFilters={savedViewFilters}
+            currentColumns={[]}
+            onApplyView={handleApplyView}
+          />
+
+          {/* KPI strip */}
+          <InvoicesKpiStrip
+            kpi={kpi}
+            currency={defaultCurrency}
+            active={preset}
+            onSelect={applyPreset}
+          />
+
+          {error ? (
+            <div className="rounded border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-[12.5px] text-amber-700 dark:text-amber-400">
+              {error}
+            </div>
+          ) : null}
+
+          <ZoruCard className="overflow-hidden p-0">
+            <InvoicesToolbar
+              query={query}
+              onQueryChange={setQuery}
+              view={view}
+              onViewChange={setView}
+              density={density}
+              onDensityChange={handleDensityChange}
+              preset={preset}
+              onPresetChange={applyPreset}
+              onExportCsv={exportCsv}
+            />
+
+            <InvoicesFilters
+              filtersActive={filtersActive}
+              onClearAll={clearFilters}
+              statusFilter={statusFilter}
+              onStatusFilter={setStatusFilter}
+              customerFilter={customerFilter}
+              onCustomerFilter={setCustomerFilter}
+              agentFilter={agentFilter}
+              onAgentFilter={setAgentFilter}
+              branchFilter={branchFilter}
+              onBranchFilter={setBranchFilter}
+              currencyFilter={currencyFilter}
+              onCurrencyFilter={setCurrencyFilter}
+              fromDate={fromDate}
+              onFromDate={setFromDate}
+              toDate={toDate}
+              onToDate={setToDate}
+              dueFrom={dueFrom}
+              onDueFrom={setDueFrom}
+              dueTo={dueTo}
+              onDueTo={setDueTo}
+              amountMin={amountMin}
+              onAmountMin={setAmountMin}
+              amountMax={amountMax}
+              onAmountMax={setAmountMax}
+            />
+
+            {view === 'calendar' ? (
+              <div className="p-3">
+                <InvoicesCalendar invoices={filtered} />
+              </div>
+            ) : (
+              <InvoicesTable
+                invoices={filtered}
+                selected={selected}
+                onToggleRow={toggleRow}
+                onToggleAll={toggleAll}
+                allSelectedOnPage={allSelectedOnPage}
+                filtersActive={filtersActive}
+                density={density}
+              />
+            )}
+          </ZoruCard>
+        </div>
+      </EntityListShell>
 
       <ConfirmDialog
         open={archivePending}
@@ -548,6 +587,6 @@ export function InvoiceListClient({
       />
 
       {bulk.pending ? <span className="sr-only">Working…</span> : null}
-    </div>
+    </>
   );
 }

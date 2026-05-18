@@ -41,6 +41,7 @@ import { COUNTRIES } from '@/data/reference/countries';
 import { STATES } from '@/data/reference/states';
 import { CITIES } from '@/data/reference/cities';
 import { LANGUAGES, SALUTATIONS, LEAD_SOURCES, JOB_TITLES } from '@/data/reference/misc';
+import { resolveCrmEnum } from '@/data/reference/crm-enums';
 
 interface LookupContext {
   userId: ObjectId;
@@ -1227,6 +1228,71 @@ const registry: LookupRegistry = {
       primary: doc.name || 'Ticket Group',
     }),
   }),
+
+  /**
+   * Generic named-enum picker. Caller passes `filter.enumName` (e.g.
+   * 'invoiceStatus'); registry resolves the value list from
+   * `src/data/reference/crm-enums.ts`. Inline-create lets the user
+   * type a one-off value when the canonical list is missing a case —
+   * the id round-trips as the literal label until a tenant override
+   * collection lands.
+   */
+  enum: {
+    searchableFields: ['label', 'id'],
+    toChip: (doc) => ({
+      primary: doc.label || doc.id,
+      secondary: doc.description || undefined,
+    }),
+    async fetch(params) {
+      const enumName = (params.filter as { enumName?: unknown } | undefined)?.enumName;
+      const list = typeof enumName === 'string' ? resolveCrmEnum(enumName) : null;
+
+      // Hydrate-by-ids: accept any id (including ones the user typed
+      // via inline-create even if they're not in the canonical list).
+      if (params.ids && params.ids.length > 0) {
+        const items: LookupItem[] = params.ids.map((id) => {
+          const match = list?.find((it) => it.id === id);
+          return {
+            id,
+            chip: {
+              primary: match?.label ?? id,
+              secondary: match?.description || undefined,
+            },
+            raw: {
+              id,
+              label: match?.label ?? id,
+              tone: match?.tone,
+              description: match?.description,
+            },
+          };
+        });
+        return { items, page: 1, limit: items.length, total: items.length, hasMore: false };
+      }
+
+      if (!list) {
+        return emptyLookupResult(params);
+      }
+
+      return staticPaginate(
+        list,
+        (item, q) => {
+          const needle = q.toLowerCase();
+          return item.label.toLowerCase().includes(needle)
+            || item.id.toLowerCase().includes(needle);
+        },
+        (item) => ({
+          id: item.id,
+          chip: {
+            primary: item.label,
+            secondary: item.description || undefined,
+          },
+          raw: { id: item.id, label: item.label, tone: item.tone, description: item.description },
+        }),
+        params,
+        (item, id) => item.id === id,
+      );
+    },
+  },
 };
 
 /**

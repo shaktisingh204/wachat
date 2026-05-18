@@ -166,6 +166,12 @@ See `benches/sabflow-executor/README.md` for the run procedure.
 
 ## 8. Decision log
 
-| Date | Result | Notes |
-| ---- | ------ | ----- |
-| _pending_ | _pending_ | First run lands in Track B Phase 1 §10. |
+| Date       | Result                    | Notes                                                                                                                                                              |
+| ---------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 2026-05-18 | Methodology accepted      | Workload, harness, and >=30% rule frozen for Track B Phase 1 §10. Bench code lives at `benches/sabflow-executor/`; baseline + candidate share `POST /run` contract. |
+| _next run_ | _captured at adoption PR_ | First numeric result is recorded on the Track B Phase 1 §10 closeout PR. Pass → Rust executor core opt-in; fail → stay on Node. No interim partial-adopt rows.     |
+
+Subsequent entries land **only** when a fresh hot path is benched (expression
+engine — Track B Phase 4 §10; credential decrypt path — Phase 5 §11; node sandbox
+— Phase 6 §8). Each new row carries the bench commit SHA so the result is
+re-runnable.

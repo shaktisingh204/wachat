@@ -91,6 +91,9 @@ async function invoke(ctx: ForgeActionContext): Promise<ForgeActionResult> {
     seededVars[k] = v === null || v === undefined ? '' : String(v);
   }
 
+  // Forward the caller stack so the sub-flow sees the calling chain and any
+  // deeper `forge_execute_workflow` invocations can detect cycles all the way
+  // up.  `runFlowInner` will push the sub-flow's own id on top of this.
   const result = await executeFlow(
     targetFlow,
     {
@@ -100,6 +103,9 @@ async function invoke(ctx: ForgeActionContext): Promise<ForgeActionResult> {
       variables: seededVars,
       history: [],
     },
+    undefined,
+    undefined,
+    stack,
   );
 
   const outputs = {

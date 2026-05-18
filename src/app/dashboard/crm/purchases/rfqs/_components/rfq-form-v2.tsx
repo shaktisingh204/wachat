@@ -21,14 +21,10 @@ import {
     ZoruCard,
     ZoruInput,
     ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
     ZoruTextarea,
     useZoruToast,
 } from '@/components/zoruui';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
 
 import { saveRfq } from '@/app/actions/crm-rfqs-v2.actions';
@@ -203,21 +199,13 @@ export function RfqForm({ initialData }: RfqFormProps) {
                     </div>
                     <div className="space-y-1.5">
                         <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
-                        <ZoruSelect
-                            value={status}
-                            onValueChange={(v) => setStatus(v as CrmRfqStatus)}
-                        >
-                            <ZoruSelectTrigger id="status-trigger">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <EnumFormField
+                            enumName="rfqStatusV2"
+                            name="__status_picker"
+                            initialId={status || null}
+                            placeholder="Status"
+                            onChange={(id) => setStatus((id ?? '') as CrmRfqStatus)}
+                        />
                     </div>
                 </div>
 

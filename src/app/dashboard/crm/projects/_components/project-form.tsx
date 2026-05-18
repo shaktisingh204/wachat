@@ -17,11 +17,6 @@ import { useActionState } from 'react';
 import {
     ZoruInput,
     ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
     ZoruSwitch,
     ZoruTextarea,
     useZoruToast,
@@ -29,6 +24,7 @@ import {
 
 import { EntityFormShell } from '@/components/crm/entity-form-shell';
 import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import { saveWsProject } from '@/app/actions/worksuite/projects.actions';
 
 export interface ProjectFormProps {
@@ -195,45 +191,24 @@ export function ProjectForm({ initial }: ProjectFormProps = {}) {
                                 />
                             </div>
                             <div>
-                                <ZoruLabel htmlFor="status">
+                                <ZoruLabel>
                                     Status <span className="text-zoru-danger-ink">*</span>
                                 </ZoruLabel>
-                                <ZoruSelect
+                                <EnumFormField
+                                    enumName="projectStatus"
                                     name="status"
-                                    defaultValue={initial?.status ?? 'not started'}
-                                >
-                                    <ZoruSelectTrigger id="status">
-                                        <ZoruSelectValue placeholder="Status" />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="not started">
-                                            Not Started
-                                        </ZoruSelectItem>
-                                        <ZoruSelectItem value="in progress">
-                                            In Progress
-                                        </ZoruSelectItem>
-                                        <ZoruSelectItem value="on hold">On Hold</ZoruSelectItem>
-                                        <ZoruSelectItem value="finished">Finished</ZoruSelectItem>
-                                        <ZoruSelectItem value="canceled">Canceled</ZoruSelectItem>
-                                    </ZoruSelectContent>
-                                </ZoruSelect>
+                                    initialId={initial?.status ?? 'not started'}
+                                    placeholder="Status"
+                                />
                             </div>
                             <div>
-                                <ZoruLabel htmlFor="priority">Priority</ZoruLabel>
-                                <ZoruSelect
+                                <ZoruLabel>Priority</ZoruLabel>
+                                <EnumFormField
+                                    enumName="priorityMedium"
                                     name="priority"
-                                    defaultValue={initial?.priority ?? 'medium'}
-                                >
-                                    <ZoruSelectTrigger id="priority">
-                                        <ZoruSelectValue placeholder="Priority" />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="low">Low</ZoruSelectItem>
-                                        <ZoruSelectItem value="medium">Medium</ZoruSelectItem>
-                                        <ZoruSelectItem value="high">High</ZoruSelectItem>
-                                        <ZoruSelectItem value="urgent">Urgent</ZoruSelectItem>
-                                    </ZoruSelectContent>
-                                </ZoruSelect>
+                                    initialId={initial?.priority ?? 'medium'}
+                                    placeholder="Priority"
+                                />
                             </div>
                             <div>
                                 <ZoruLabel htmlFor="completionPercent">% Complete</ZoruLabel>

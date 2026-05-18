@@ -1,5 +1,7 @@
 'use client';
 
+// TODO 1E.sweep: month -> <EnumFormField enumName="month">; employee -> <EntityFormField entity="employee">. See plan §1E.
+
 /**
  * <PfEsiForm /> — create + edit form for PF/ESI monthly records.
  * Binds to `savePfEsiRecord` via `useActionState`.

@@ -20,6 +20,14 @@ pub struct CrmBrand {
     pub website: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub color: Option<String>,
+    /// Short alphanumeric tag (e.g. "ACME", "NIKE"). Optional.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub code: Option<String>,
+    /// Tenant-toggleable activation flag — independent of `status` soft-delete.
+    /// `status` (`"active"`/`"archived"`) controls soft-delete; `is_active`
+    /// lets a tenant disable a brand from being picked without archiving it.
+    #[serde(rename = "isActive", default, skip_serializing_if = "Option::is_none")]
+    pub is_active: Option<bool>,
 
     #[serde(rename = "createdAt")]
     pub created_at: BsonDateTime,

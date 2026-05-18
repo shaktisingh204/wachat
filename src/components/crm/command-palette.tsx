@@ -91,6 +91,9 @@ const entityHref: Record<EntityKey, (id: string) => string> = {
   deal: (id) => `/dashboard/crm/deals/${id}`,
   department: () => `/dashboard/hrm/payroll/departments`,
   designation: () => `/dashboard/hrm/payroll/designations`,
+  // The `enum` key is a form-field-only picker (status, priority, etc.) —
+  // there is no detail page, so the fallback just routes to settings.
+  enum: () => `/dashboard/crm/settings`,
   invoice: (id) => `/dashboard/crm/sales/invoices/${id}`,
   jobTitle: () => `/dashboard/crm/settings`,
   language: () => `/dashboard/crm/settings`,
@@ -134,6 +137,7 @@ const entityLabel: Record<EntityKey, string> = {
   deal: 'Deals',
   department: 'Departments',
   designation: 'Designations',
+  enum: 'Options',
   invoice: 'Invoices',
   jobTitle: 'Job Titles',
   language: 'Languages',

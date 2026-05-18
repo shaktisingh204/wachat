@@ -1,51 +1,36 @@
 /**
- * SabFlow — Catch-all webhook receiver (Phase 6 sub-task #1 of 10).
+ * SabFlow — Unified inbound webhook receiver.
  *
- * Route: `/api/sabflow/webhook/<path>[/extra/segments]`
+ * Route: `/api/sabflow/webhook/<id>`
  *
- * Routes inbound HTTP traffic to the workflow whose Webhook trigger node
- * registered the matching `(path, method)` pair in the `sabflow_webhooks`
- * Mongo collection. The collection's row shape is defined by sibling #2;
- * we forward-declare it here so this file can land first.
+ * `<id>` is dispatched by shape:
+ *   - UUIDv4 → legacy webhookId lookup (UUID-as-secret, `sabflow_webhooks`
+ *     row keyed by `webhookId`). This branch preserves the older trigger
+ *     subscription flow and per-flow filter evaluation.
+ *   - Anything else → Phase 6 n8n-parity path lookup (row keyed by `path`),
+ *     with CORS allow-list, per-webhook rate-limit, raw-body capture, and
+ *     `onReceived` / `lastNode` / `responseNode` response modes.
  *
- * Each persisted row carries:
- *   {
- *     workspaceId, workflowId, nodeId,
- *     path, method,
- *     authentication, allowedOrigins, rawBody, isActive,
- *     responseMode?, plan?, credentials?,
- *   }
- *
- * Three response modes (n8n parity — see `webhook-trigger.ts` §"Response Mode"):
- *
- *   - `onReceived`  — enqueue and reply 200 immediately.
- *   - `lastNode`    — block on Redis pub/sub for the execution's terminal
- *                       status frame (max 30 s); 202 + poll URL on timeout.
- *   - `responseNode`— same wait, but on the `SABFLOW_WEBHOOK_RESPONSE`
- *                       channel so the workflow's "Webhook Respond" node
- *                       sets the response.
- *
- * The dynamic segment is named `[path]` per file-ownership, but we
- * extract the full sub-path from `request.nextUrl.pathname` so future
- * multi-segment routing (`/sabflow/webhook/a/b/c`) can land without a
- * directory rename. CORS preflights are answered out-of-band — they
- * never touch Mongo when `OPTIONS` arrives on an unknown path.
- *
- * Per-webhook rate-limit: 60 req/min, fixed bucket per wall-clock minute
- * (mirrors `sabflow/queue/rate-limit.ts` and #7's claim-side counter).
- *
- * Runtime: Node.js (Vercel Functions). Default 300 s timeout is enough
- * headroom for the 30 s held-connection cap on `lastNode` / `responseNode`.
+ * The two branches diverge enough (different lookup keys, different
+ * enqueue paths, different feature sets) that we keep them as separate
+ * internal handlers and dispatch at the verb-export boundary. Shared
+ * concerns (Redis subscriber for `waitForExecution`, log shape, CORS
+ * preflight) are centralised at the bottom of the file.
  */
 
 import { NextResponse, type NextRequest } from 'next/server';
 import type { Collection } from 'mongodb';
+import { ObjectId } from 'mongodb';
+import { Queue } from 'bullmq';
+import Redis from 'ioredis';
 import { connectToDatabase } from '@/lib/mongodb';
 import { enqueueExecution } from '@/lib/sabflow/queue/enqueue';
 import {
+    SABFLOW_QUEUE,
     SABFLOW_EXEC_CHANNEL,
     SABFLOW_WEBHOOK_RESPONSE,
 } from '@/lib/sabflow/worker/queues';
+import { getWebhookByWebhookId } from '@/lib/sabflow/db';
 import {
     verifyAuth,
     type CredentialResolver,
@@ -55,84 +40,45 @@ import {
     type WebhookTriggerPayload,
 } from '@/lib/sabflow/executor/nodes/webhook-trigger';
 import type { NodeCredentialRequest } from '@/lib/sabflow/executor/contract';
+import { evaluateFilter } from '@/lib/sabflow/docs/triggerFilters';
+import type { EventFilter, SabFlowEvent, WebhookEventOptions } from '@/lib/sabflow/types';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
-/** Held-connection ceiling for `lastNode` / `responseNode` modes. */
 const HELD_CONNECTION_TIMEOUT_MS = 30_000;
-
-/** Per-webhook rate-limit cap (req/min). */
 const PER_WEBHOOK_RATE_LIMIT = 60;
-const RATE_BUCKET_TTL_SEC = 65; // 60 s window + 5 s slack
-
-/** Route-segment prefix stripped to derive the webhook subpath. */
+const RATE_BUCKET_TTL_SEC = 65;
 const ROUTE_PREFIX = '/api/sabflow/webhook/';
 
-// ---------------------------------------------------------------------------
-// Forward-declared Mongo row (sibling #2 owns the canonical schema/types).
-// ---------------------------------------------------------------------------
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-interface SabFlowWebhookRow {
-    workspaceId: string;
-    workflowId: string;
-    nodeId: string;
-    /** Subpath after `/api/sabflow/webhook/`, no leading slash. */
-    path: string;
-    /** HTTP method this row matches; '*' wildcards. */
-    method: WebhookHttpMethod;
-    authentication: WebhookAuthentication;
-    /** CSV / `*` — same shape as `WebhookTriggerOptions.allowedOrigins`. */
-    allowedOrigins?: string;
-    /** Preserve raw body alongside parsed JSON. */
-    rawBody?: boolean;
-    isActive: boolean;
-    /** Defaults to `onReceived` when missing (n8n parity). */
-    responseMode?: WebhookResponseMode;
-    /** Plan tier the enqueue path uses for concurrency caps. */
-    plan?: string;
-    /**
-     * Resolved credentials snapshot (sibling #2 populates this; we keep the
-     * lookup pure so `verifyAuth` is testable in isolation).
-     */
-    credentials?: {
-        httpBasicAuth?: NodeCredentialRequest;
-        httpHeaderAuth?: NodeCredentialRequest;
-    };
-}
+type RouteCtx = { params: Promise<{ id: string }> };
 
-// ---------------------------------------------------------------------------
-// Method dispatch — Next.js wants one export per verb.
-// ---------------------------------------------------------------------------
-
-type RouteCtx = { params: Promise<{ path: string }> };
+// ── Verb exports ────────────────────────────────────────────────────────────
 
 export async function GET(req: NextRequest, ctx: RouteCtx) {
-    return handle(req, ctx, 'GET');
+    return dispatch(req, ctx, 'GET');
 }
 export async function POST(req: NextRequest, ctx: RouteCtx) {
-    return handle(req, ctx, 'POST');
+    return dispatch(req, ctx, 'POST');
 }
 export async function PUT(req: NextRequest, ctx: RouteCtx) {
-    return handle(req, ctx, 'PUT');
+    return dispatch(req, ctx, 'PUT');
 }
 export async function PATCH(req: NextRequest, ctx: RouteCtx) {
-    return handle(req, ctx, 'PATCH');
+    return dispatch(req, ctx, 'PATCH');
 }
 export async function DELETE(req: NextRequest, ctx: RouteCtx) {
-    return handle(req, ctx, 'DELETE');
+    return dispatch(req, ctx, 'DELETE');
 }
 export async function HEAD(req: NextRequest, ctx: RouteCtx) {
-    return handle(req, ctx, 'HEAD');
+    return dispatch(req, ctx, 'HEAD');
 }
 
 /**
- * CORS preflight. We don't know which webhook (if any) the eventual request
- * targets until the actual verb arrives, so we answer permissively for the
- * preflight and re-check `allowedOrigins` on the real request. This matches
- * how Fetch's CORS spec lets the browser decide based on the preflight's
- * Access-Control-Allow-* headers — the server enforces the actual policy on
- * the real call.
+ * CORS preflight. Permissive at the preflight stage — the real request
+ * re-checks `allowedOrigins` (path branch) or method/auth (UUID branch).
  */
 export async function OPTIONS(req: NextRequest) {
     const origin = req.headers.get('origin') ?? '*';
@@ -151,13 +97,287 @@ export async function OPTIONS(req: NextRequest) {
     });
 }
 
-// ---------------------------------------------------------------------------
-// Core handler.
-// ---------------------------------------------------------------------------
-
-async function handle(
+async function dispatch(
     req: NextRequest,
-    _ctx: RouteCtx,
+    ctx: RouteCtx,
+    method: Exclude<WebhookHttpMethod, '*'>,
+): Promise<NextResponse> {
+    const { id } = await ctx.params;
+    if (UUID_RE.test(id)) {
+        return handleByWebhookId(req, id, method);
+    }
+    return handleByPath(req, method);
+}
+
+// ===========================================================================
+// Branch A — Legacy UUID-keyed webhook receiver.
+// ===========================================================================
+
+interface LegacyWebhookRow {
+    isActive: boolean;
+    flowId: string;
+    userId: string;
+    method: string;
+    authentication: string;
+    authHeaderName?: string;
+    authHeaderValue?: string;
+    responseMode?: 'immediately' | 'lastNode' | 'responseNode';
+    appEvent?: string;
+}
+
+let _bullQueue: Queue | null = null;
+function getBullQueue(): Queue {
+    if (_bullQueue) return _bullQueue;
+    const redisConn = {
+        host: process.env.REDIS_HOST ?? 'localhost',
+        port: Number(process.env.REDIS_PORT ?? 6379),
+        ...(process.env.REDIS_PASSWORD ? { password: process.env.REDIS_PASSWORD } : {}),
+    };
+    _bullQueue = new Queue(SABFLOW_QUEUE, { connection: redisConn });
+    return _bullQueue;
+}
+
+function pickTriggerEvent(
+    flow: { events?: SabFlowEvent[] },
+    appEvent: string | undefined,
+): SabFlowEvent | undefined {
+    const events = flow.events ?? [];
+    if (events.length === 0) return undefined;
+    if (appEvent) {
+        const match = events.find((event) => event.appEvent === appEvent);
+        if (match) return match;
+    }
+    return events.find((event) => event.type === 'webhook');
+}
+
+function legacyCheckAuth(req: NextRequest, webhook: LegacyWebhookRow): boolean {
+    if (webhook.authentication === 'none') return true;
+    if (webhook.authentication === 'header') {
+        const name = (webhook.authHeaderName ?? 'Authorization').toLowerCase();
+        return req.headers.get(name) === webhook.authHeaderValue;
+    }
+    if (webhook.authentication === 'query') {
+        const token = new URL(req.url).searchParams.get('token');
+        return token === webhook.authHeaderValue;
+    }
+    if (webhook.authentication === 'basic') {
+        const header = req.headers.get('authorization') ?? '';
+        if (!header.startsWith('Basic ')) return false;
+        const decoded = Buffer.from(header.slice(6), 'base64').toString();
+        const [user, pass] = decoded.split(':', 2);
+        const [expectedUser, expectedPass] = (webhook.authHeaderValue ?? ':').split(':', 2);
+        return user === expectedUser && pass === expectedPass;
+    }
+    return false;
+}
+
+async function handleByWebhookId(
+    req: NextRequest,
+    webhookId: string,
+    method: Exclude<WebhookHttpMethod, '*'>,
+): Promise<NextResponse> {
+    const webhook = (await getWebhookByWebhookId(webhookId)) as LegacyWebhookRow | null;
+    if (!webhook || !webhook.isActive) {
+        return NextResponse.json({ error: 'Webhook not found' }, { status: 404 });
+    }
+
+    if (webhook.method !== 'ANY' && method !== webhook.method) {
+        return NextResponse.json({ error: 'Method not allowed' }, { status: 405 });
+    }
+
+    if (!legacyCheckAuth(req, webhook)) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    let triggerData: unknown = null;
+    const contentType = req.headers.get('content-type') ?? '';
+    try {
+        if (contentType.includes('application/json')) {
+            triggerData = await req.json();
+        } else if (contentType.includes('application/x-www-form-urlencoded')) {
+            const text = await req.text();
+            triggerData = Object.fromEntries(new URLSearchParams(text));
+        } else if (method !== 'GET' && method !== 'HEAD') {
+            const text = await req.text();
+            if (text) {
+                try {
+                    triggerData = JSON.parse(text);
+                } catch {
+                    triggerData = { raw: text };
+                }
+            }
+        }
+    } catch {
+        /* ignore */
+    }
+
+    const queryParams = Object.fromEntries(new URL(req.url).searchParams);
+    const payload = {
+        body: triggerData,
+        query: queryParams,
+        headers: Object.fromEntries(req.headers),
+        method,
+    };
+
+    const { db } = await connectToDatabase();
+    const flow = await db.collection('sabflows').findOne(
+        ObjectId.isValid(webhook.flowId)
+            ? { _id: new ObjectId(webhook.flowId), userId: webhook.userId }
+            : { userId: webhook.userId },
+    );
+    if (!flow) {
+        return NextResponse.json({ error: 'Flow not found or inactive' }, { status: 404 });
+    }
+
+    const triggerEvent = pickTriggerEvent(flow as { events?: SabFlowEvent[] }, webhook.appEvent);
+    const filters = ((triggerEvent?.options as WebhookEventOptions | undefined)?.filters ?? []) as EventFilter[];
+    if (filters.length > 0) {
+        const ok = filters.every((filter) => evaluateFilter(filter, payload));
+        if (!ok) {
+            return NextResponse.json(
+                { status: 'filtered', reason: 'No trigger filter matched' },
+                { status: 200 },
+            );
+        }
+    }
+
+    const executionId = new ObjectId().toHexString();
+    const now = new Date();
+
+    await db.collection('sabflow_executions').insertOne({
+        executionId,
+        flowId: webhook.flowId,
+        projectId: webhook.userId,
+        status: 'queued',
+        triggerMode: 'webhook',
+        startedAt: null,
+        finishedAt: null,
+        durationMs: null,
+        error: null,
+        createdAt: now,
+        updatedAt: now,
+    });
+
+    await getBullQueue().add(
+        'execute',
+        {
+            executionId,
+            flowId: webhook.flowId,
+            projectId: webhook.userId,
+            flowSnapshot: flow,
+            triggerMode: 'webhook',
+            triggerData: payload,
+            variables: {},
+        },
+        {
+            removeOnComplete: { count: 1000 },
+            removeOnFail: { count: 500 },
+            attempts: 3,
+            backoff: { type: 'exponential', delay: 2000 },
+        },
+    );
+
+    if (webhook.responseMode === 'immediately' || !webhook.responseMode) {
+        return NextResponse.json({ executionId, status: 'queued' }, { status: 200 });
+    }
+
+    const channel =
+        webhook.responseMode === 'responseNode'
+            ? SABFLOW_WEBHOOK_RESPONSE(executionId)
+            : SABFLOW_EXEC_CHANNEL(executionId);
+
+    const result = await waitForExecutionLegacy(channel, HELD_CONNECTION_TIMEOUT_MS);
+    if (!result) {
+        return NextResponse.json({ executionId, status: 'running' }, { status: 202 });
+    }
+    if (result.status === 'error') {
+        return NextResponse.json(
+            { executionId, status: 'error', error: result.error },
+            { status: 500 },
+        );
+    }
+    return NextResponse.json({ executionId, status: 'success', data: result.data ?? result });
+}
+
+async function waitForExecutionLegacy(
+    channel: string,
+    timeoutMs: number,
+): Promise<Record<string, unknown> | null> {
+    const redisConn = {
+        host: process.env.REDIS_HOST ?? 'localhost',
+        port: Number(process.env.REDIS_PORT ?? 6379),
+        ...(process.env.REDIS_PASSWORD ? { password: process.env.REDIS_PASSWORD } : {}),
+    };
+    return new Promise((resolve) => {
+        let subscriber: Redis | null = null;
+        const timer = setTimeout(() => {
+            subscriber?.unsubscribe(channel).catch(() => {});
+            subscriber?.disconnect();
+            resolve(null);
+        }, timeoutMs);
+
+        try {
+            subscriber = new Redis({ ...redisConn, lazyConnect: true, enableReadyCheck: false });
+            subscriber
+                .connect()
+                .then(() => {
+                    subscriber!.subscribe(channel, (err) => {
+                        if (err) {
+                            clearTimeout(timer);
+                            resolve(null);
+                            return;
+                        }
+                    });
+                    subscriber!.on('message', (_ch: string, msg: string) => {
+                        try {
+                            const data = JSON.parse(msg) as Record<string, unknown>;
+                            const status = data.status as string;
+                            if (status === 'success' || status === 'error' || status === 'cancelled') {
+                                clearTimeout(timer);
+                                subscriber?.unsubscribe(channel).catch(() => {});
+                                subscriber?.disconnect();
+                                resolve(data);
+                            }
+                        } catch {
+                            /* ignore malformed */
+                        }
+                    });
+                })
+                .catch(() => {
+                    clearTimeout(timer);
+                    resolve(null);
+                });
+        } catch {
+            clearTimeout(timer);
+            resolve(null);
+        }
+    });
+}
+
+// ===========================================================================
+// Branch B — Phase 6 path-keyed n8n-parity receiver.
+// ===========================================================================
+
+interface SabFlowWebhookRow {
+    workspaceId: string;
+    workflowId: string;
+    nodeId: string;
+    path: string;
+    method: WebhookHttpMethod;
+    authentication: WebhookAuthentication;
+    allowedOrigins?: string;
+    rawBody?: boolean;
+    isActive: boolean;
+    responseMode?: WebhookResponseMode;
+    plan?: string;
+    credentials?: {
+        httpBasicAuth?: NodeCredentialRequest;
+        httpHeaderAuth?: NodeCredentialRequest;
+    };
+}
+
+async function handleByPath(
+    req: NextRequest,
     method: Exclude<WebhookHttpMethod, '*'>,
 ): Promise<NextResponse> {
     const t0 = Date.now();
@@ -167,10 +387,9 @@ async function handle(
         return jsonError(404, 'Webhook not found', null);
     }
 
-    // Lookup. Method '*' rows match any verb (n8n parity).
     let webhook: SabFlowWebhookRow | null = null;
     try {
-        webhook = await lookupWebhook(subpath, method);
+        webhook = await lookupWebhookByPath(subpath, method);
     } catch (err) {
         logEvent('webhook.lookup_error', {
             subpath,
@@ -185,11 +404,9 @@ async function handle(
         return jsonError(404, 'Webhook not found', null);
     }
 
-    // CORS origin gate for the actual request. Preflights handled in OPTIONS().
     const origin = req.headers.get('origin');
     const corsHeaders = buildCorsHeaders(origin, webhook.allowedOrigins);
     if (origin && corsHeaders === null) {
-        // Allow-list miss: short-circuit before doing any work.
         logEvent('webhook.cors_denied', {
             subpath,
             method,
@@ -200,7 +417,6 @@ async function handle(
         return jsonError(403, 'Origin not allowed', null);
     }
 
-    // Per-webhook rate-limit (60/min, sliding window via fixed minute bucket).
     const rate = await checkPerWebhookRate(webhook.workspaceId, webhook.workflowId, webhook.nodeId);
     if (!rate.allowed) {
         logEvent('webhook.rate_limited', {
@@ -223,7 +439,6 @@ async function handle(
         });
     }
 
-    // Auth.
     const headerObj = headersToObject(req.headers);
     const credResolver = buildCredentialResolver(webhook);
     const authResult = await verifyAuth(
@@ -245,7 +460,6 @@ async function handle(
         return jsonError(authResult.status ?? 401, 'Unauthorized', corsHeaders);
     }
 
-    // Build the synthetic payload (`WebhookTriggerPayload`).
     const query = Object.fromEntries(req.nextUrl.searchParams.entries());
     const { parsed: body, raw: rawBody } = await parseBody(req);
 
@@ -258,7 +472,6 @@ async function handle(
         ...(webhook.rawBody && rawBody !== undefined ? { rawBody } : {}),
     };
 
-    // Enqueue. `mode: 'webhook'` maps to the dispatcher's webhook entry path.
     const responseMode: WebhookResponseMode = webhook.responseMode ?? 'onReceived';
     const idempotencyKey = req.headers.get('x-idempotency-key') ?? undefined;
     let executionId: string;
@@ -293,7 +506,6 @@ async function handle(
         ms: Date.now() - t0,
     });
 
-    // Response by mode.
     if (responseMode === 'onReceived') {
         return jsonOk({ executionId, status: 'queued' }, 200, corsHeaders);
     }
@@ -303,20 +515,13 @@ async function handle(
             ? SABFLOW_WEBHOOK_RESPONSE(executionId)
             : SABFLOW_EXEC_CHANNEL(executionId);
 
-    const result = await waitForExecution(channel, HELD_CONNECTION_TIMEOUT_MS);
+    const result = await waitForExecutionPath(channel, HELD_CONNECTION_TIMEOUT_MS);
     if (!result) {
-        // Timed out — caller polls for the result. 202 + poll URL.
         const pollUrl = `${req.nextUrl.origin}/api/sabflow/executions/${executionId}`;
-        return jsonOk(
-            { executionId, status: 'running', pollUrl },
-            202,
-            corsHeaders,
-        );
+        return jsonOk({ executionId, status: 'running', pollUrl }, 202, corsHeaders);
     }
 
     if (responseMode === 'responseNode') {
-        // The Respond-to-Webhook node owns the response envelope: status,
-        // headers, body. The frame mirrors `enqueueWebhookDelivery`'s target.
         const status = numberOr(result.status, 200);
         const respHeaders = isStringRecord(result.headers) ? result.headers : {};
         const body = result.body;
@@ -331,7 +536,6 @@ async function handle(
         });
     }
 
-    // lastNode — emit the run's terminal frame.
     if (result.status === 'error') {
         return jsonOk(
             { executionId, status: 'error', error: result.error ?? null },
@@ -346,10 +550,6 @@ async function handle(
     );
 }
 
-// ---------------------------------------------------------------------------
-// Helpers — kept private to this route file.
-// ---------------------------------------------------------------------------
-
 /** Strip the route prefix from `pathname` and trim slashes. Empty → null. */
 function extractSubpath(pathname: string): string | null {
     if (!pathname.startsWith(ROUTE_PREFIX)) return null;
@@ -357,30 +557,17 @@ function extractSubpath(pathname: string): string | null {
     return tail.length > 0 ? decodeURIComponent(tail) : null;
 }
 
-/**
- * Look up `(path, method)` in `sabflow_webhooks`. Method '*' rows match any
- * verb. We use a single `findOne` with `$in` so exact-method wins over
- * wildcard via Mongo's natural ordering; sibling #2 may add an index on
- * `{ path: 1, method: 1, isActive: 1 }` once the schema lands.
- */
-async function lookupWebhook(
+async function lookupWebhookByPath(
     path: string,
     method: WebhookHttpMethod,
 ): Promise<SabFlowWebhookRow | null> {
     const { db } = await connectToDatabase();
     const col = db.collection('sabflow_webhooks') as unknown as Collection<SabFlowWebhookRow>;
-    // Prefer exact-method row; fall back to wildcard '*' if no exact match.
     const exact = await col.findOne({ path, method, isActive: true });
     if (exact) return exact;
     return col.findOne({ path, method: '*', isActive: true });
 }
 
-/**
- * Build a `CredentialResolver` bound to the row's resolved credential
- * snapshot. Sibling #2 populates `credentials` from the workspace's
- * CredentialsHelper at activation time; we just hand the right slot to
- * `verifyAuth`.
- */
 function buildCredentialResolver(row: SabFlowWebhookRow): CredentialResolver {
     return async (type) => {
         const slot = row.credentials?.[type];
@@ -393,10 +580,6 @@ function buildCredentialResolver(row: SabFlowWebhookRow): CredentialResolver {
     };
 }
 
-/**
- * Parse the inbound body. Returns the parsed form plus the raw text body
- * (always — the caller decides whether to surface it based on `rawBody`).
- */
 async function parseBody(
     req: NextRequest,
 ): Promise<{ parsed: unknown; raw: string | undefined }> {
@@ -417,7 +600,6 @@ async function parseBody(
         if (contentType.includes('application/x-www-form-urlencoded')) {
             return { parsed: Object.fromEntries(new URLSearchParams(raw)), raw };
         }
-        // Best-effort JSON sniffing for clients that omit Content-Type.
         try {
             return { parsed: JSON.parse(raw), raw };
         } catch {
@@ -428,48 +610,23 @@ async function parseBody(
     }
 }
 
-/**
- * Build CORS response headers. Returns `null` when an `origin` is present
- * and not on the allow-list; the caller short-circuits with 403.
- *
- * Allow-list grammar matches the trigger node's `WebhookTriggerOptions.allowedOrigins`:
- *   - `'*'` or empty → reflect any origin.
- *   - CSV of exact origins → match exact (case-insensitive scheme/host).
- */
 function buildCorsHeaders(
     origin: string | null,
     allowedOrigins: string | undefined,
 ): Record<string, string> | null {
-    // No origin header → not a CORS request; no headers needed.
     if (!origin) return {};
     const list = (allowedOrigins ?? '*').trim();
     if (list === '' || list === '*') {
-        return {
-            'Access-Control-Allow-Origin': origin,
-            Vary: 'Origin',
-        };
+        return { 'Access-Control-Allow-Origin': origin, Vary: 'Origin' };
     }
     const allow = list
         .split(',')
         .map((s) => s.trim().toLowerCase())
         .filter(Boolean);
     if (!allow.includes(origin.toLowerCase())) return null;
-    return {
-        'Access-Control-Allow-Origin': origin,
-        Vary: 'Origin',
-    };
+    return { 'Access-Control-Allow-Origin': origin, Vary: 'Origin' };
 }
 
-/**
- * Per-webhook rate-limit. Mirrors `sabflow/queue/rate-limit.ts` strategy
- * (fixed bucket per wall-clock minute, INCR + EXPIRE on first hit) but
- * keyed on `(workspaceId, workflowId, nodeId)` so each webhook gets its
- * own 60/min budget, independent of plan-level execution caps.
- *
- * Fail-open on Redis errors: rate-limiting is a guard rail, not a
- * correctness invariant. The plan-level limiter inside `enqueueExecution`
- * (sibling #7, claim-side check) is the secondary line of defense.
- */
 async function checkPerWebhookRate(
     workspaceId: string,
     workflowId: string,
@@ -500,7 +657,6 @@ interface WebhookRedisLike {
     incr(key: string): Promise<number>;
     decr(key: string): Promise<number>;
     expire(key: string, seconds: number): Promise<unknown>;
-    /** ioredis: returns the active-subscription count once the SUBSCRIBE completes. */
     subscribe(channel: string): Promise<unknown>;
     unsubscribe(channel: string): Promise<unknown>;
     on(event: 'message', cb: (channel: string, msg: string) => void): unknown;
@@ -513,11 +669,6 @@ declare global {
     var __sabflowWebhookRedis: WebhookRedisLike | undefined;
 }
 
-/**
- * Lazy ioredis singleton (same convention as `queue/rate-limit.ts`). The
- * subscriber for `waitForExecution` is `duplicate()`d off this client so we
- * don't open a fresh TCP connection per request.
- */
 async function getWebhookRedis(): Promise<WebhookRedisLike> {
     if (globalThis.__sabflowWebhookRedis) return globalThis.__sabflowWebhookRedis;
     const { default: IORedis } = await import('ioredis');
@@ -531,12 +682,7 @@ async function getWebhookRedis(): Promise<WebhookRedisLike> {
     return client;
 }
 
-/**
- * Block until a terminal frame lands on `channel`, or the timeout expires.
- * Returns `null` on timeout; the caller decides whether that's a 202 (poll
- * URL) or a different status.
- */
-async function waitForExecution(
+async function waitForExecutionPath(
     channel: string,
     timeoutMs: number,
 ): Promise<Record<string, unknown> | null> {
@@ -555,18 +701,14 @@ async function waitForExecution(
                     try {
                         const frame = JSON.parse(msg) as Record<string, unknown>;
                         const status = frame.status;
-                        if (
-                            status === 'success' ||
-                            status === 'error' ||
-                            status === 'cancelled'
-                        ) {
+                        if (status === 'success' || status === 'error' || status === 'cancelled') {
                             clearTimeout(timer);
                             void subscriber?.unsubscribe(channel).catch(() => undefined);
                             void subscriber?.quit().catch(() => undefined);
                             resolve(frame);
                         }
                     } catch {
-                        // malformed frame — ignore, keep listening
+                        /* malformed frame — keep listening */
                     }
                 });
                 return subscriber.subscribe(channel);
@@ -578,7 +720,9 @@ async function waitForExecution(
     });
 }
 
-// ── Small utility helpers ─────────────────────────────────────────────────
+// ===========================================================================
+// Shared utilities.
+// ===========================================================================
 
 function headersToObject(h: Headers): Record<string, string> {
     const out: Record<string, string> = {};
@@ -601,10 +745,7 @@ function jsonOk(
     status: number,
     cors: Record<string, string> | null,
 ): NextResponse {
-    return NextResponse.json(body, {
-        status,
-        headers: { ...(cors ?? {}) },
-    });
+    return NextResponse.json(body, { status, headers: { ...(cors ?? {}) } });
 }
 
 function jsonError(
@@ -612,17 +753,9 @@ function jsonError(
     message: string,
     cors: Record<string, string> | null,
 ): NextResponse {
-    return NextResponse.json({ error: message }, {
-        status,
-        headers: { ...(cors ?? {}) },
-    });
+    return NextResponse.json({ error: message }, { status, headers: { ...(cors ?? {}) } });
 }
 
-/**
- * Structured log line. Centralised so operators can grep on `sabflow.webhook`
- * and pipe the JSON through their log aggregator (Datadog, Vercel Logs, etc.).
- * Kept dependency-free so the route file stays self-contained.
- */
 function logEvent(event: string, fields: Record<string, unknown>): void {
     // eslint-disable-next-line no-console
     console.log(JSON.stringify({ at: 'sabflow.webhook', event, ...fields }));

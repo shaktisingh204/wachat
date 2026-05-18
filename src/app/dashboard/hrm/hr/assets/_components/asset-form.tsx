@@ -1,5 +1,7 @@
 'use client';
 
+// TODO 1E.sweep: convert ZoruSelects (status, condition, type) -> <EnumFormField> using catalogued assetStatus/assetCondition. Convert assignedTo/department -> <EntityFormField>. See plan §1E.
+
 /**
  * <AssetForm /> — create + edit form for HR assets.
  *

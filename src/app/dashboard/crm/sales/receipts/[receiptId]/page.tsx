@@ -24,11 +24,12 @@ import {
 } from '@/components/zoruui';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
-import { StatusPill, statusToTone } from '@/components/crm/status-pill';
+// `<StatusPill>` lives inside `<ReceiptInlineStatus>` now.
 import { LineageRail } from '@/components/crm/lineage-rail';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { getPaymentReceipt } from '@/app/actions/crm/payment-receipts.actions';
 import { ReceiptDetailActions } from '../_components/receipt-detail-actions';
+import { ReceiptInlineStatus } from '../_components/receipt-inline-status';
 
 export const dynamic = 'force-dynamic';
 
@@ -167,7 +168,7 @@ export default async function PaymentReceiptDetailPage({
                                 )}
                             </Field>
                             <Field label="Status">
-                                <StatusPill label={status} tone={statusToTone(status)} />
+                                <ReceiptInlineStatus id={receiptId} status={status} />
                             </Field>
                             <Field label="Mode">{modeLabel(receipt.mode)}</Field>
                             <Field label="Bank account">

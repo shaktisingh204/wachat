@@ -133,18 +133,15 @@ function LineItemsSection({ title, items, setItems, currency }: LineItemsSection
                         <div className="grid md:grid-cols-2 gap-4">
                             <div className="space-y-1">
                                 <ZoruLabel className="text-xs">Currency *</ZoruLabel>
-                                <ZoruSelect
-                                    value={item.currency}
-                                    onValueChange={(val) => handleItemChange(item.id, 'currency', val)}
-                                >
-                                    <ZoruSelectTrigger>
-                                        <ZoruSelectValue />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="INR">Indian Rupee (INR, ₹)</ZoruSelectItem>
-                                        <ZoruSelectItem value="USD">US Dollar (USD, $)</ZoruSelectItem>
-                                    </ZoruSelectContent>
-                                </ZoruSelect>
+                                <EntityPicker
+                                    entity="currency"
+                                    value={item.currency || null}
+                                    onChange={(next) => {
+                                        const id = Array.isArray(next) ? (next[0] ?? '') : (next ?? '');
+                                        handleItemChange(item.id, 'currency', id);
+                                    }}
+                                    placeholder="Currency"
+                                />
                             </div>
                             <div className="space-y-1">
                                 <ZoruLabel className="text-xs">Amount *</ZoruLabel>
@@ -254,6 +251,8 @@ export function NewVoucherEntryClient({ presetBookId }: NewVoucherEntryClientPro
                     <section className="grid md:grid-cols-3 gap-4 text-sm mb-8">
                         <div className="space-y-1">
                             <ZoruLabel htmlFor="voucherBookId">Voucher Book *</ZoruLabel>
+                            {/* TODO(§1E): VoucherBook needs its own EntityKey before this can move to
+                                <EntityFormField>. Keeping the in-memory list bound for now. */}
                             <ZoruSelect name="voucherBookId" required value={bookId} onValueChange={setBookId}>
                                 <ZoruSelectTrigger id="voucherBookId">
                                     <ZoruSelectValue placeholder="Select a book…" />

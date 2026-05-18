@@ -1,5 +1,7 @@
 'use client';
 
+// TODO 1E.sweep: status/level -> <EnumFormField>; mode/format -> trainingDeliveryMode (after slug bridge); owner/department -> <EntityFormField>. See plan §1E.
+
 /**
  * <LearningPathForm /> — create + edit form for HR Learning paths.
  *

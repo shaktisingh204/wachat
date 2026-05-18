@@ -1,5 +1,7 @@
 'use client';
 
+// TODO 1E.sweep: status -> <EnumFormField enumName="feedback360Status">; subject/reviewers -> <EntityFormField entity="employee"> + <EntityMultiFormField>. See plan §1E.
+
 /**
  * <Feedback360Form /> — create + edit form for 360° feedback.
  *

@@ -30,15 +30,11 @@ import {
   ZoruCard,
   ZoruInput,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import { saveGrnAction } from '@/app/actions/crm/grns.actions';
 import type {
   CrmGrnDoc,
@@ -486,18 +482,13 @@ export function GrnForm({ initial, seed }: GrnFormProps) {
           <div>
             <ZoruLabel>Status</ZoruLabel>
             <div className="mt-1.5">
-              <ZoruSelect value={status} onValueChange={setStatus}>
-                <ZoruSelectTrigger className="h-9 text-[13px]">
-                  <ZoruSelectValue placeholder="Select status" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  {STATUS_OPTIONS.map((opt) => (
-                    <ZoruSelectItem key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </ZoruSelectItem>
-                  ))}
-                </ZoruSelectContent>
-              </ZoruSelect>
+              <EnumFormField
+                enumName="grnStatus"
+                name="__status_picker"
+                initialId={status || null}
+                placeholder="Select status"
+                onChange={(id) => setStatus((id ?? 'draft') as CrmGrnStatus)}
+              />
             </div>
           </div>
           <div className="md:col-span-2">

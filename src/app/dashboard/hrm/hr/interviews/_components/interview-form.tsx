@@ -19,51 +19,21 @@ import {
     ZoruCard,
     ZoruInput,
     ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
     ZoruTextarea,
     useZoruToast,
 } from '@/components/zoruui';
+import { EnumFormField } from '@/components/crm/enum-form-field';
+import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EntityMultiFormField } from '@/components/crm/entity-multi-form-field';
 
 import { saveInterview } from '@/app/actions/crm-interviews.actions';
 import type {
     CrmInterviewDoc,
-    CrmInterviewRecommendation,
     CrmInterviewStatus,
     CrmInterviewType,
 } from '@/lib/rust-client/crm-interviews';
 
 const BASE = '/dashboard/hrm/hr/interviews';
-
-const TYPE_OPTIONS: Array<{ value: CrmInterviewType; label: string }> = [
-    { value: 'phone', label: 'Phone' },
-    { value: 'video', label: 'Video' },
-    { value: 'onsite', label: 'Onsite' },
-    { value: 'async_assessment', label: 'Async assessment' },
-];
-
-const STATUS_OPTIONS: Array<{ value: CrmInterviewStatus; label: string }> = [
-    { value: 'scheduled', label: 'Scheduled' },
-    { value: 'rescheduled', label: 'Rescheduled' },
-    { value: 'completed', label: 'Completed' },
-    { value: 'no_show', label: 'No show' },
-    { value: 'cancelled', label: 'Cancelled' },
-    { value: 'archived', label: 'Archived' },
-];
-
-const RECOMMENDATION_OPTIONS: Array<{
-    value: CrmInterviewRecommendation | '';
-    label: string;
-}> = [
-    { value: '', label: '—' },
-    { value: 'strong_hire', label: 'Strong hire' },
-    { value: 'hire', label: 'Hire' },
-    { value: 'no_hire', label: 'No hire' },
-    { value: 'strong_no_hire', label: 'Strong no hire' },
-];
 
 /** Convert an ISO datetime into the `YYYY-MM-DDTHH:mm` form `datetime-local` expects. */
 function toDateTimeLocal(value: unknown): string {
@@ -130,13 +100,6 @@ export function InterviewForm({ initialData }: InterviewFormProps) {
         }
     }, [state, toast, router, initialData?._id]);
 
-    const interviewersInitial = Array.isArray(initialData?.interviewers)
-        ? (initialData?.interviewers ?? []).join(', ')
-        : '';
-    const interviewerNamesInitial = Array.isArray(initialData?.interviewerNames)
-        ? (initialData?.interviewerNames ?? []).join(', ')
-        : '';
-
     return (
         <ZoruCard className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
@@ -147,47 +110,36 @@ export function InterviewForm({ initialData }: InterviewFormProps) {
                         value={initialData!._id}
                     />
                 ) : null}
-                <input type="hidden" name="interviewType" value={interviewType} />
-                <input type="hidden" name="status" value={status} />
-                <input
-                    type="hidden"
-                    name="recommendation"
-                    value={recommendation}
-                />
-
-                {/* Row 1: Candidate id + name */}
+                {/* Row 1: Candidate picker (dual-writes candidateName for legacy callers) */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="candidateId">Candidate id *</ZoruLabel>
-                        <ZoruInput
-                            id="candidateId"
+                        <ZoruLabel>Candidate *</ZoruLabel>
+                        {/* TODO 1E.sweep: no dedicated 'candidate' entity in lookup-registry yet — using contact as a near-match; replace with 'candidate' key once registered. */}
+                        <EntityFormField
+                            entity="contact"
                             name="candidateId"
+                            dualWriteName="candidateName"
+                            initialId={initialData?.candidateId ?? null}
+                            initialLabel={initialData?.candidateName ?? ''}
+                            allowCreate
+                            placeholder="Select candidate"
                             required
-                            placeholder="Candidate record id"
-                            defaultValue={initialData?.candidateId ?? ''}
-                            readOnly={isEditing}
-                        />
-                    </div>
-                    <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="candidateName">Candidate name</ZoruLabel>
-                        <ZoruInput
-                            id="candidateName"
-                            name="candidateName"
-                            placeholder="e.g. Priya Sharma"
-                            defaultValue={initialData?.candidateName ?? ''}
+                            disabled={isEditing}
                         />
                     </div>
                 </div>
 
-                {/* Row 2: Job id + Round / Round name */}
+                {/* Row 2: Job + Round / Round name */}
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="jobId">Job id</ZoruLabel>
-                        <ZoruInput
-                            id="jobId"
+                        <ZoruLabel>Job</ZoruLabel>
+                        {/* TODO 1E.sweep: no dedicated 'job' entity in lookup-registry yet — using jobTitle taxonomy as a near-match; replace once 'job' lookup is registered. */}
+                        <EntityFormField
+                            entity="jobTitle"
                             name="jobId"
-                            placeholder="Optional"
-                            defaultValue={initialData?.jobId ?? ''}
+                            initialId={initialData?.jobId ?? null}
+                            allowCreate
+                            placeholder="Linked job"
                         />
                     </div>
                     <div className="space-y-1.5">
@@ -219,24 +171,18 @@ export function InterviewForm({ initialData }: InterviewFormProps) {
                 {/* Row 3: Type + Scheduled at + Duration */}
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="type-trigger">Type</ZoruLabel>
-                        <ZoruSelect
-                            value={interviewType}
-                            onValueChange={(v) =>
-                                setInterviewType(v as CrmInterviewType)
+                        <ZoruLabel>Type</ZoruLabel>
+                        <EnumFormField
+                            enumName="interviewType"
+                            name="interviewType"
+                            initialId={interviewType}
+                            onChange={(id) =>
+                                setInterviewType(
+                                    (id as CrmInterviewType) ?? 'video',
+                                )
                             }
-                        >
-                            <ZoruSelectTrigger id="type-trigger">
-                                <ZoruSelectValue placeholder="Type" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {TYPE_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                            placeholder="Type"
+                        />
                     </div>
                     <div className="space-y-1.5">
                         <ZoruLabel htmlFor="scheduledAt">Scheduled at *</ZoruLabel>
@@ -278,30 +224,26 @@ export function InterviewForm({ initialData }: InterviewFormProps) {
                     />
                 </div>
 
-                {/* Row 5: Interviewers (ids + names) */}
-                <div className="grid gap-4 sm:grid-cols-2">
-                    <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="interviewers">
-                            Interviewer ids
-                        </ZoruLabel>
-                        <ZoruInput
-                            id="interviewers"
-                            name="interviewers"
-                            placeholder="user1, user2, user3"
-                            defaultValue={interviewersInitial}
-                        />
-                    </div>
-                    <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="interviewerNames">
-                            Interviewer names
-                        </ZoruLabel>
-                        <ZoruInput
-                            id="interviewerNames"
-                            name="interviewerNames"
-                            placeholder="Alice, Bob, Carol"
-                            defaultValue={interviewerNamesInitial}
-                        />
-                    </div>
+                {/* Row 5: Interviewers (multi-picker dual-writes label list to interviewerNames) */}
+                <div className="space-y-1.5">
+                    <ZoruLabel>Interviewers</ZoruLabel>
+                    <EntityMultiFormField
+                        entity="employee"
+                        name="interviewers"
+                        dualWriteName="interviewerNames"
+                        initialIds={
+                            Array.isArray(initialData?.interviewers)
+                                ? (initialData?.interviewers as string[])
+                                : []
+                        }
+                        initialLabels={
+                            Array.isArray(initialData?.interviewerNames)
+                                ? (initialData?.interviewerNames as string[])
+                                : []
+                        }
+                        allowCreate
+                        placeholder="Add interviewers"
+                    />
                 </div>
 
                 {/* Row 6: Status + Rating (edit only) */}
@@ -309,27 +251,19 @@ export function InterviewForm({ initialData }: InterviewFormProps) {
                     <>
                         <div className="grid gap-4 sm:grid-cols-3">
                             <div className="space-y-1.5">
-                                <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
-                                <ZoruSelect
-                                    value={status}
-                                    onValueChange={(v) =>
-                                        setStatus(v as CrmInterviewStatus)
+                                <ZoruLabel>Status</ZoruLabel>
+                                <EnumFormField
+                                    enumName="interviewLifecycle"
+                                    name="status"
+                                    initialId={status}
+                                    onChange={(id) =>
+                                        setStatus(
+                                            (id as CrmInterviewStatus) ??
+                                                'scheduled',
+                                        )
                                     }
-                                >
-                                    <ZoruSelectTrigger id="status-trigger">
-                                        <ZoruSelectValue placeholder="Status" />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        {STATUS_OPTIONS.map((o) => (
-                                            <ZoruSelectItem
-                                                key={o.value}
-                                                value={o.value}
-                                            >
-                                                {o.label}
-                                            </ZoruSelectItem>
-                                        ))}
-                                    </ZoruSelectContent>
-                                </ZoruSelect>
+                                    placeholder="Status"
+                                />
                             </div>
                             <div className="space-y-1.5">
                                 <ZoruLabel htmlFor="rating">Rating (1-5)</ZoruLabel>
@@ -349,29 +283,16 @@ export function InterviewForm({ initialData }: InterviewFormProps) {
                                 />
                             </div>
                             <div className="space-y-1.5">
-                                <ZoruLabel htmlFor="rec-trigger">
-                                    Recommendation
-                                </ZoruLabel>
-                                <ZoruSelect
-                                    value={recommendation || '__none'}
-                                    onValueChange={(v) =>
-                                        setRecommendation(v === '__none' ? '' : v)
+                                <ZoruLabel>Recommendation</ZoruLabel>
+                                <EnumFormField
+                                    enumName="interviewRecommendation"
+                                    name="recommendation"
+                                    initialId={recommendation || null}
+                                    onChange={(id) =>
+                                        setRecommendation(id ?? '')
                                     }
-                                >
-                                    <ZoruSelectTrigger id="rec-trigger">
-                                        <ZoruSelectValue placeholder="Recommendation" />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        {RECOMMENDATION_OPTIONS.map((o) => (
-                                            <ZoruSelectItem
-                                                key={o.value || '__none'}
-                                                value={o.value || '__none'}
-                                            >
-                                                {o.label}
-                                            </ZoruSelectItem>
-                                        ))}
-                                    </ZoruSelectContent>
-                                </ZoruSelect>
+                                    placeholder="Recommendation"
+                                />
                             </div>
                         </div>
 

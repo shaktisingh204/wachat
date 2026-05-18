@@ -1,36 +1,36 @@
 /**
- * Canonical Quotation detail — `/dashboard/crm/sales/quotations/[id]`.
+ * Canonical Quotation detail — `/dashboard/crm/sales/quotations/[id]`
+ * (§1D.2 rebuild — Phase 1.1B Wave 2 partial).
  *
- * Server component. Loads the quotation via the canonical
- * `getQuotation` action, then assembles the §1D.2 detail surface:
- *   - Header: clickable status pill (status-change dropdown) + core
- *     action group (Edit · Send · Convert to Invoice · Email · Print
- *     · Archive · Activity). The remaining §1D actions (Convert to SO
- *     / Proforma · Duplicate · WhatsApp) are documented as TODOs in
- *     `<QuotationDetailActions>` per the scope-cap rule.
- *   - Body cards: Overview, Customer, Line items, Money summary,
- *     Terms, Notes composer + chronological list, Attachments, Tags.
- *   - Right rail: LineageRail (current = quotation), status-flow
- *     visualizer (draft→sent→accepted/rejected/expired→converted),
- *     quick-edit chips (sales agent + status), at-a-glance dates.
- *   - Footer: `<EntityAuditTimeline entityKind="quotation">`.
- *   - `?print=1` renders a clean single-column print layout.
+ * Server component. Wraps the existing detail body in the shared
+ * <EntityDetailShell> per the §1D.5 bar. Header: status pill + eyebrow +
+ * back link + 9-button action group. Main body: overview / customer /
+ * line items / money summary / terms / notes / attachments / tags /
+ * custom fields. Right rail: status flow visualizer · quick edits ·
+ * <LineageRail> · related counts · activity link. Footer:
+ * <EntityAuditTimeline entityKind="quotation">.
+ *
+ * Mirrors the ACCOUNTS template at
+ * `src/app/dashboard/crm/accounts/[accountId]/page.tsx`.
  */
 
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, ClipboardList, FileText, Receipt, ShoppingCart } from 'lucide-react';
+import { ArrowLeft, ClipboardList, Receipt, ShoppingCart } from 'lucide-react';
 
 import {
   ZoruBadge,
   ZoruButton,
   ZoruCard,
+  ZoruCardContent,
+  ZoruCardHeader,
+  ZoruCardTitle,
 } from '@/components/zoruui';
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { LineageRail } from '@/components/crm/lineage-rail';
-import { RelatedRail } from '@/components/crm/RelatedRail';
+import { statusToTone } from '@/components/crm/status-pill';
 import { CustomFieldDisplay } from '@/components/crm/custom-field-input';
 import {
   getCrmQuotationRelatedCounts,
@@ -39,6 +39,7 @@ import {
 import { getCustomFieldsFor } from '@/app/actions/worksuite/meta.actions';
 import type { CrmQuotationLineItem } from '@/lib/rust-client/crm-quotations';
 import type { WsCustomField } from '@/lib/worksuite/meta-types';
+import type { LineageKind } from '@/lib/definitions';
 
 import { QuotationDetailActions } from '../_components/quotation-detail-actions';
 import { QuotationPrintView } from '../_components/quotation-print-view';
@@ -106,9 +107,29 @@ function StatusStep({ status, current }: StatusStepProps) {
   );
 }
 
+function DetailField({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div>
+      <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+        {label}
+      </div>
+      <div className="mt-1 text-[13px] text-zoru-ink">{children}</div>
+    </div>
+  );
+}
+
 /* ─── Page ────────────────────────────────────────────────────────── */
 
-export default async function QuotationDetailPage({ params, searchParams }: PageProps) {
+export default async function QuotationDetailPage({
+  params,
+  searchParams,
+}: PageProps) {
   const { id } = await params;
   const sp = await searchParams;
   const printMode = sp?.print === '1';
@@ -152,300 +173,29 @@ export default async function QuotationDetailPage({ params, searchParams }: Page
     return <QuotationPrintView quotation={quotation} />;
   }
 
-  /* ─── Standard detail surface ─────────────────────────────── */
+  /* ─── Detail surface composed via <EntityDetailShell> ─────── */
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <div className="flex flex-col gap-3">
-        <Link
-          href="/dashboard/crm/sales/quotations"
-          className="inline-flex items-center gap-1.5 text-[12.5px] text-zoru-ink-muted hover:text-zoru-ink"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" /> Back to Quotations
-        </Link>
-        <CrmPageHeader
-          title={`Quotation ${quotation.quotationNo}`}
-          subtitle={`${fmtMoney(totals.total, currency)} · ${status}`}
-          icon={FileText}
-          breadcrumbs={[
-            { label: 'CRM', href: '/dashboard/crm' },
-            { label: 'Sales', href: '/dashboard/crm/sales' },
-            { label: 'Quotations', href: '/dashboard/crm/sales/quotations' },
-            { label: quotation.quotationNo },
-          ]}
-        />
+    <EntityDetailShell
+      title={`Quotation ${quotation.quotationNo}`}
+      eyebrow={`QUOTATION ${quotation.quotationNo}`}
+      status={{ label: status, tone: statusToTone(status) }}
+      back={{ href: '/dashboard/crm/sales/quotations', label: 'All quotations' }}
+      actions={
         <QuotationDetailActions
           quotationId={quotationId}
           status={status}
           quotationNo={quotation.quotationNo}
         />
-      </div>
-
-      <div className="flex flex-col gap-6 md:flex-row md:items-start">
-        {/* Main column */}
-        <main className="min-w-0 flex-1 space-y-6">
-          {/* Overview */}
-          <ZoruCard className="p-6">
-            <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
-              Overview
-            </h2>
-            <div className="grid gap-4 md:grid-cols-2">
-              <DetailField label="Quotation #">{quotation.quotationNo}</DetailField>
-              <DetailField label="Status">
-                <ZoruBadge variant="secondary">{status}</ZoruBadge>
-              </DetailField>
-              <DetailField label="Date">{fmtDate(quotation.date)}</DetailField>
-              <DetailField label="Valid until">{fmtDate(quotation.validUntil)}</DetailField>
-              <DetailField label="Currency">{currency}</DetailField>
-              <DetailField label="Place of supply">
-                {quotation.placeOfSupply || '—'}
-              </DetailField>
-              <DetailField label="Subject">{quotation.subject || '—'}</DetailField>
-              <DetailField label="Reference #">
-                {quotation.referenceNo || '—'}
-              </DetailField>
-            </div>
-          </ZoruCard>
-
-          {/* Customer */}
-          <ZoruCard className="p-6">
-            <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
-              Customer
-            </h2>
-            <div className="grid gap-4 md:grid-cols-2">
-              <DetailField label="Customer">
-                {quotation.clientId ? (
-                  <EntityPickerChip entity="client" id={quotation.clientId} />
-                ) : (
-                  '—'
-                )}
-              </DetailField>
-              <DetailField label="Sales agent">
-                {salesAgentId ? (
-                  <EntityPickerChip entity="user" id={salesAgentId} />
-                ) : (
-                  '—'
-                )}
-              </DetailField>
-              <DetailField label="Source deal">
-                {quotation.dealId ? (
-                  <EntityPickerChip entity="deal" id={quotation.dealId} />
-                ) : (
-                  '—'
-                )}
-              </DetailField>
-            </div>
-          </ZoruCard>
-
-          {/* Line items */}
-          <ZoruCard className="p-6">
-            <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
-              Line items
-            </h2>
-            {items.length === 0 ? (
-              <p className="text-[13px] text-zoru-ink-muted">No line items.</p>
-            ) : (
-              <div className="overflow-x-auto rounded border border-zoru-line">
-                <table className="w-full text-[12.5px]">
-                  <thead className="bg-zoru-surface-2 text-zoru-ink-muted">
-                    <tr>
-                      <th className="p-2 text-left">Item</th>
-                      <th className="p-2 text-right">Qty</th>
-                      <th className="p-2 text-right">Unit price</th>
-                      <th className="p-2 text-right">Tax %</th>
-                      <th className="p-2 text-right">Amount</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {items.map((li, idx) => (
-                      <tr
-                        key={`${li.itemId ?? 'row'}-${idx}`}
-                        className="border-t border-zoru-line"
-                      >
-                        <td className="p-2">
-                          {li.itemId ? (
-                            <EntityPickerChip entity="item" id={li.itemId} />
-                          ) : (
-                            <span className="text-zoru-ink">
-                              {li.description || '—'}
-                            </span>
-                          )}
-                          {li.itemId && li.description ? (
-                            <div className="mt-0.5 text-[11.5px] text-zoru-ink-muted">
-                              {li.description}
-                            </div>
-                          ) : null}
-                        </td>
-                        <td className="p-2 text-right font-mono tabular-nums text-zoru-ink">
-                          {li.qty}
-                        </td>
-                        <td className="p-2 text-right font-mono tabular-nums text-zoru-ink">
-                          {fmtMoney(li.rate, currency)}
-                        </td>
-                        <td className="p-2 text-right font-mono tabular-nums text-zoru-ink-muted">
-                          {typeof li.taxRatePct === 'number' ? `${li.taxRatePct}%` : '—'}
-                        </td>
-                        <td className="p-2 text-right font-mono tabular-nums text-zoru-ink">
-                          {fmtMoney(li.total, currency)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </ZoruCard>
-
-          {/* Money summary */}
-          <ZoruCard className="p-6">
-            <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
-              Money summary
-            </h2>
-            <dl className="grid gap-2 md:grid-cols-2 text-[13px]">
-              <div className="flex justify-between md:col-start-2">
-                <span className="text-zoru-ink-muted">Subtotal</span>
-                <span className="font-mono tabular-nums text-zoru-ink">
-                  {fmtMoney(totals.subTotal, currency)}
-                </span>
-              </div>
-              {typeof totals.discountOverall === 'number' ? (
-                <div className="flex justify-between md:col-start-2">
-                  <span className="text-zoru-ink-muted">Discount</span>
-                  <span className="font-mono tabular-nums text-zoru-ink">
-                    −{fmtMoney(totals.discountOverall, currency)}
-                  </span>
-                </div>
-              ) : null}
-              {typeof totals.shippingCharge === 'number' ? (
-                <div className="flex justify-between md:col-start-2">
-                  <span className="text-zoru-ink-muted">Shipping</span>
-                  <span className="font-mono tabular-nums text-zoru-ink">
-                    {fmtMoney(totals.shippingCharge, currency)}
-                  </span>
-                </div>
-              ) : null}
-              {typeof totals.adjustment === 'number' ? (
-                <div className="flex justify-between md:col-start-2">
-                  <span className="text-zoru-ink-muted">Adjustment</span>
-                  <span className="font-mono tabular-nums text-zoru-ink">
-                    {fmtMoney(totals.adjustment, currency)}
-                  </span>
-                </div>
-              ) : null}
-              {typeof totals.roundOff === 'number' ? (
-                <div className="flex justify-between md:col-start-2">
-                  <span className="text-zoru-ink-muted">Round-off</span>
-                  <span className="font-mono tabular-nums text-zoru-ink">
-                    {fmtMoney(totals.roundOff, currency)}
-                  </span>
-                </div>
-              ) : null}
-              <div className="flex justify-between border-t border-zoru-line pt-2 md:col-start-2">
-                <span className="font-medium text-zoru-ink">Total</span>
-                <span className="font-medium font-mono tabular-nums text-zoru-ink">
-                  {fmtMoney(totals.total, currency)}
-                </span>
-              </div>
-            </dl>
-          </ZoruCard>
-
-          {/* Terms */}
-          {quotation.termsAndConditions ? (
-            <ZoruCard className="p-6">
-              <h2 className="mb-3 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
-                Terms &amp; conditions
-              </h2>
-              <p className="whitespace-pre-wrap text-[13px] text-zoru-ink">
-                {quotation.termsAndConditions}
-              </p>
-            </ZoruCard>
-          ) : null}
-
-          {/* Notes (chronological). Until the canonical CRM-notes
-              composer lifts to `quotation` records, surface the
-              persisted `customerNotes` here. */}
-          <ZoruCard className="p-6">
-            <h2 className="mb-3 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
-              Notes
-            </h2>
-            {quotation.customerNotes ? (
-              <p className="whitespace-pre-wrap text-[13px] text-zoru-ink">
-                {quotation.customerNotes}
-              </p>
-            ) : (
-              <p className="text-[13px] text-zoru-ink-muted">
-                No notes yet — add them via the Edit form.
-              </p>
-            )}
-          </ZoruCard>
-
-          {/* Attachments — placeholder list. Files come from SabFiles per
-              `<QuotationForm>`; the wire-shape on the Rust DTO doesn't
-              surface them yet, so we render the URL stash if present in
-              the customFields bag. */}
-          {Array.isArray((cfValues._attachments as unknown) as string[]) ? (
-            <ZoruCard className="p-6">
-              <h2 className="mb-3 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
-                Attachments
-              </h2>
-              <ul className="list-disc space-y-1 pl-5 text-[13px] text-zoru-ink">
-                {(cfValues._attachments as string[]).map((u) => (
-                  <li key={u}>
-                    <a className="hover:underline" href={u} target="_blank" rel="noopener noreferrer">
-                      {u.split('/').pop()}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </ZoruCard>
-          ) : null}
-
-          {/* Tags — surfaced from customFields when present (no first-
-              class tag column on the Rust DTO yet). */}
-          {Array.isArray((cfValues._tags as unknown) as string[]) ? (
-            <ZoruCard className="p-6">
-              <h2 className="mb-3 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
-                Tags
-              </h2>
-              <div className="flex flex-wrap gap-2">
-                {(cfValues._tags as string[]).map((t) => (
-                  <ZoruBadge key={t} variant="outline">
-                    {t}
-                  </ZoruBadge>
-                ))}
-              </div>
-            </ZoruCard>
-          ) : null}
-
-          {customFields.length > 0 ? (
-            <ZoruCard className="p-6">
-              <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
-                Custom fields
-              </h2>
-              <div className="grid gap-4 md:grid-cols-2">
-                {customFields.map((f) => (
-                  <DetailField key={String(f._id ?? f.name)} label={f.label || f.name}>
-                    <CustomFieldDisplay
-                      field={f}
-                      value={
-                        cfValues[f.name] as Parameters<typeof CustomFieldDisplay>[0]['value']
-                      }
-                    />
-                  </DetailField>
-                ))}
-              </div>
-            </ZoruCard>
-          ) : null}
-        </main>
-
-        {/* Right rail */}
-        <aside className="w-full md:w-80 md:shrink-0">
-          <div className="space-y-4 md:sticky md:top-4">
-            {/* Status flow visualizer */}
-            <ZoruCard className="p-4">
-              <h3 className="mb-3 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
-                Status flow
-              </h3>
+      }
+      rightRail={
+        <>
+          {/* Status flow visualizer */}
+          <ZoruCard>
+            <ZoruCardHeader>
+              <ZoruCardTitle>Status flow</ZoruCardTitle>
+            </ZoruCardHeader>
+            <ZoruCardContent>
               <ol className="space-y-1.5">
                 {STATUS_FLOW.map((s) => (
                   <StatusStep key={s} status={s} current={status} />
@@ -454,13 +204,33 @@ export default async function QuotationDetailPage({ params, searchParams }: Page
                   <StatusStep status={status} current={status} />
                 ) : null}
               </ol>
-            </ZoruCard>
+            </ZoruCardContent>
+          </ZoruCard>
 
-            {/* Quick edits */}
-            <ZoruCard className="p-4">
-              <h3 className="mb-3 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
-                At a glance
-              </h3>
+          {/* Lineage rail */}
+          <LineageRail
+            current={{
+              kind: 'quotation',
+              id: quotationId,
+              no: quotation.quotationNo,
+              status,
+            }}
+            lineage={
+              (quotation.lineage ?? []) as Array<{
+                kind: LineageKind;
+                id: string;
+                no?: string;
+                status?: string;
+              }>
+            }
+          />
+
+          {/* At a glance + quick edits */}
+          <ZoruCard>
+            <ZoruCardHeader>
+              <ZoruCardTitle>At a glance</ZoruCardTitle>
+            </ZoruCardHeader>
+            <ZoruCardContent>
               <QuotationQuickEdits
                 quotationId={quotationId}
                 salesAgentId={salesAgentId}
@@ -468,71 +238,422 @@ export default async function QuotationDetailPage({ params, searchParams }: Page
               />
               <div className="mt-3 space-y-1.5 text-[12.5px]">
                 <div className="flex items-center justify-between gap-2">
+                  <span className="text-zoru-ink-muted">Total</span>
+                  <span className="font-mono tabular-nums">
+                    {fmtMoney(totals.total, currency)}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-zoru-ink-muted">Valid until</span>
+                  <span>{fmtDate(quotation.validUntil)}</span>
+                </div>
+                <div className="flex items-center justify-between gap-2">
                   <span className="text-zoru-ink-muted">Created</span>
-                  <span>{fmtDate(quotation.createdAt || quotation.audit?.createdAt)}</span>
+                  <span>
+                    {fmtDate(quotation.createdAt || quotation.audit?.createdAt)}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-zoru-ink-muted">Updated</span>
-                  <span>{fmtDate(quotation.updatedAt || quotation.audit?.updatedAt)}</span>
+                  <span>
+                    {fmtDate(quotation.updatedAt || quotation.audit?.updatedAt)}
+                  </span>
                 </div>
               </div>
-            </ZoruCard>
+            </ZoruCardContent>
+          </ZoruCard>
 
-            {/* Lineage rail */}
-            <LineageRail
-              current={{
-                kind: 'quotation',
-                id: quotationId,
-                no: quotation.quotationNo,
-                status,
-              }}
-              lineage={[]}
-            />
-
-            {/* Related entities */}
-            <RelatedRail
-              items={[
-                {
-                  label: 'Sales orders',
-                  count: relatedCounts.salesOrders,
-                  icon: <ShoppingCart className="h-3.5 w-3.5" />,
-                  href: `/dashboard/crm/sales/orders?quotationId=${quotationId}`,
-                },
-                {
-                  label: 'Invoices',
-                  count: relatedCounts.invoices,
-                  icon: <Receipt className="h-3.5 w-3.5" />,
-                  href: `/dashboard/crm/sales/invoices?quotationId=${quotationId}`,
-                },
-              ]}
-            />
-
-            <ZoruButton size="sm" variant="ghost" asChild className="w-full">
-              <Link href={`/dashboard/crm/sales/quotations/${quotationId}/activity`}>
-                <ClipboardList className="h-3.5 w-3.5" />
-                View full activity log
+          {/* Related entities */}
+          <ZoruCard>
+            <ZoruCardHeader>
+              <ZoruCardTitle>Related</ZoruCardTitle>
+            </ZoruCardHeader>
+            <ZoruCardContent className="space-y-1">
+              <Link
+                href={`/dashboard/crm/sales/orders?quotationId=${quotationId}`}
+                className="flex items-center justify-between rounded-md px-2 py-1.5 text-[13px] text-zoru-ink hover:bg-zoru-surface-2"
+              >
+                <span className="inline-flex items-center gap-2 text-zoru-ink-muted">
+                  <ShoppingCart className="h-4 w-4" /> Sales orders
+                </span>
+                <ZoruBadge variant="secondary">
+                  {relatedCounts.salesOrders}
+                </ZoruBadge>
               </Link>
-            </ZoruButton>
+              <Link
+                href={`/dashboard/crm/sales/invoices?quotationId=${quotationId}`}
+                className="flex items-center justify-between rounded-md px-2 py-1.5 text-[13px] text-zoru-ink hover:bg-zoru-surface-2"
+              >
+                <span className="inline-flex items-center gap-2 text-zoru-ink-muted">
+                  <Receipt className="h-4 w-4" /> Invoices
+                </span>
+                <ZoruBadge variant="secondary">
+                  {relatedCounts.invoices}
+                </ZoruBadge>
+              </Link>
+            </ZoruCardContent>
+          </ZoruCard>
+
+          <ZoruButton size="sm" variant="ghost" asChild className="w-full">
+            <Link
+              href={`/dashboard/crm/sales/quotations/${quotationId}/activity`}
+            >
+              <ClipboardList className="h-3.5 w-3.5" />
+              View full activity log
+            </Link>
+          </ZoruButton>
+        </>
+      }
+      audit={
+        <EntityAuditTimeline entityKind="quotation" entityId={quotationId} />
+      }
+    >
+      <p className="text-[12.5px] text-zoru-ink-muted">
+        {fmtMoney(totals.total, currency)} · {status}
+      </p>
+
+      {/* Overview */}
+      <ZoruCard>
+        <ZoruCardHeader>
+          <ZoruCardTitle>Overview</ZoruCardTitle>
+        </ZoruCardHeader>
+        <ZoruCardContent>
+          <div className="grid gap-4 md:grid-cols-2">
+            <DetailField label="Quotation #">
+              {quotation.quotationNo}
+            </DetailField>
+            <DetailField label="Status">
+              <ZoruBadge variant="secondary">{status}</ZoruBadge>
+            </DetailField>
+            <DetailField label="Date">{fmtDate(quotation.date)}</DetailField>
+            <DetailField label="Valid until">
+              {fmtDate(quotation.validUntil)}
+            </DetailField>
+            <DetailField label="Currency">{currency}</DetailField>
+            <DetailField label="Place of supply">
+              {quotation.placeOfSupply || '—'}
+            </DetailField>
+            <DetailField label="Subject">
+              {quotation.subject || '—'}
+            </DetailField>
+            <DetailField label="Reference #">
+              {quotation.referenceNo || '—'}
+            </DetailField>
           </div>
-        </aside>
-      </div>
+        </ZoruCardContent>
+      </ZoruCard>
 
-      {/* Audit footer */}
-      <EntityAuditTimeline entityKind="quotation" entityId={quotationId} />
-    </div>
+      {/* Customer */}
+      <ZoruCard>
+        <ZoruCardHeader>
+          <ZoruCardTitle>Customer</ZoruCardTitle>
+        </ZoruCardHeader>
+        <ZoruCardContent>
+          <div className="grid gap-4 md:grid-cols-2">
+            <DetailField label="Customer">
+              {quotation.clientId ? (
+                <EntityPickerChip entity="client" id={quotation.clientId} />
+              ) : (
+                '—'
+              )}
+            </DetailField>
+            <DetailField label="Sales agent">
+              {salesAgentId ? (
+                <EntityPickerChip entity="user" id={salesAgentId} />
+              ) : (
+                '—'
+              )}
+            </DetailField>
+            <DetailField label="Source deal">
+              {quotation.dealId ? (
+                <EntityPickerChip entity="deal" id={quotation.dealId} />
+              ) : (
+                '—'
+              )}
+            </DetailField>
+          </div>
+        </ZoruCardContent>
+      </ZoruCard>
+
+      {/* Line items */}
+      <ZoruCard>
+        <ZoruCardHeader>
+          <ZoruCardTitle>Line items</ZoruCardTitle>
+        </ZoruCardHeader>
+        <ZoruCardContent>
+          {items.length === 0 ? (
+            <p className="text-[13px] text-zoru-ink-muted">No line items.</p>
+          ) : (
+            <div className="overflow-x-auto rounded border border-zoru-line">
+              <table className="w-full text-[12.5px]">
+                <thead className="bg-zoru-surface-2 text-zoru-ink-muted">
+                  <tr>
+                    <th className="p-2 text-left">Item</th>
+                    <th className="p-2 text-left">HSN</th>
+                    <th className="p-2 text-right">Qty</th>
+                    <th className="p-2 text-right">Unit price</th>
+                    <th className="p-2 text-right">Disc</th>
+                    <th className="p-2 text-right">Tax %</th>
+                    <th className="p-2 text-right">Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {items.map((li, idx) => (
+                    <tr
+                      key={`${li.itemId ?? 'row'}-${idx}`}
+                      className="border-t border-zoru-line"
+                    >
+                      <td className="p-2">
+                        {li.itemId ? (
+                          <EntityPickerChip entity="item" id={li.itemId} />
+                        ) : (
+                          <span className="text-zoru-ink">
+                            {li.description || '—'}
+                          </span>
+                        )}
+                        {li.itemId && li.description ? (
+                          <div className="mt-0.5 text-[11.5px] text-zoru-ink-muted">
+                            {li.description}
+                          </div>
+                        ) : null}
+                      </td>
+                      <td className="p-2 text-left font-mono text-[11.5px] tabular-nums text-zoru-ink-muted">
+                        {(li as { hsn?: string }).hsn ?? '—'}
+                      </td>
+                      <td className="p-2 text-right font-mono tabular-nums text-zoru-ink">
+                        {li.qty}
+                      </td>
+                      <td className="p-2 text-right font-mono tabular-nums text-zoru-ink">
+                        {fmtMoney(li.rate, currency)}
+                      </td>
+                      <td className="p-2 text-right font-mono tabular-nums text-zoru-ink-muted">
+                        {typeof (li as { discountPct?: number }).discountPct ===
+                        'number'
+                          ? `${(li as { discountPct: number }).discountPct}%`
+                          : '—'}
+                      </td>
+                      <td className="p-2 text-right font-mono tabular-nums text-zoru-ink-muted">
+                        {typeof li.taxRatePct === 'number'
+                          ? `${li.taxRatePct}%`
+                          : '—'}
+                      </td>
+                      <td className="p-2 text-right font-mono tabular-nums text-zoru-ink">
+                        {fmtMoney(li.total, currency)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </ZoruCardContent>
+      </ZoruCard>
+
+      {/* Money summary */}
+      <ZoruCard>
+        <ZoruCardHeader>
+          <ZoruCardTitle>Money summary</ZoruCardTitle>
+        </ZoruCardHeader>
+        <ZoruCardContent>
+          <dl className="grid gap-2 md:grid-cols-2 text-[13px]">
+            <div className="flex justify-between md:col-start-2">
+              <span className="text-zoru-ink-muted">Subtotal</span>
+              <span className="font-mono tabular-nums text-zoru-ink">
+                {fmtMoney(totals.subTotal, currency)}
+              </span>
+            </div>
+            {typeof totals.discountOverall === 'number' ? (
+              <div className="flex justify-between md:col-start-2">
+                <span className="text-zoru-ink-muted">Discount</span>
+                <span className="font-mono tabular-nums text-zoru-ink">
+                  −{fmtMoney(totals.discountOverall, currency)}
+                </span>
+              </div>
+            ) : null}
+            {typeof (
+              totals as { taxCgst?: number }
+            ).taxCgst === 'number' ? (
+              <div className="flex justify-between md:col-start-2">
+                <span className="text-zoru-ink-muted">CGST</span>
+                <span className="font-mono tabular-nums text-zoru-ink">
+                  {fmtMoney(
+                    (totals as { taxCgst: number }).taxCgst,
+                    currency,
+                  )}
+                </span>
+              </div>
+            ) : null}
+            {typeof (
+              totals as { taxSgst?: number }
+            ).taxSgst === 'number' ? (
+              <div className="flex justify-between md:col-start-2">
+                <span className="text-zoru-ink-muted">SGST</span>
+                <span className="font-mono tabular-nums text-zoru-ink">
+                  {fmtMoney(
+                    (totals as { taxSgst: number }).taxSgst,
+                    currency,
+                  )}
+                </span>
+              </div>
+            ) : null}
+            {typeof (
+              totals as { taxIgst?: number }
+            ).taxIgst === 'number' ? (
+              <div className="flex justify-between md:col-start-2">
+                <span className="text-zoru-ink-muted">IGST</span>
+                <span className="font-mono tabular-nums text-zoru-ink">
+                  {fmtMoney(
+                    (totals as { taxIgst: number }).taxIgst,
+                    currency,
+                  )}
+                </span>
+              </div>
+            ) : null}
+            {typeof totals.shippingCharge === 'number' ? (
+              <div className="flex justify-between md:col-start-2">
+                <span className="text-zoru-ink-muted">Shipping</span>
+                <span className="font-mono tabular-nums text-zoru-ink">
+                  {fmtMoney(totals.shippingCharge, currency)}
+                </span>
+              </div>
+            ) : null}
+            {typeof totals.adjustment === 'number' ? (
+              <div className="flex justify-between md:col-start-2">
+                <span className="text-zoru-ink-muted">Adjustment</span>
+                <span className="font-mono tabular-nums text-zoru-ink">
+                  {fmtMoney(totals.adjustment, currency)}
+                </span>
+              </div>
+            ) : null}
+            {typeof totals.roundOff === 'number' ? (
+              <div className="flex justify-between md:col-start-2">
+                <span className="text-zoru-ink-muted">Round-off</span>
+                <span className="font-mono tabular-nums text-zoru-ink">
+                  {fmtMoney(totals.roundOff, currency)}
+                </span>
+              </div>
+            ) : null}
+            <div className="flex justify-between border-t border-zoru-line pt-2 md:col-start-2">
+              <span className="font-medium text-zoru-ink">Total</span>
+              <span className="font-medium font-mono tabular-nums text-zoru-ink">
+                {fmtMoney(totals.total, currency)}
+              </span>
+            </div>
+          </dl>
+        </ZoruCardContent>
+      </ZoruCard>
+
+      {/* Terms */}
+      {quotation.termsAndConditions ? (
+        <ZoruCard>
+          <ZoruCardHeader>
+            <ZoruCardTitle>Terms &amp; conditions</ZoruCardTitle>
+          </ZoruCardHeader>
+          <ZoruCardContent>
+            <p className="whitespace-pre-wrap text-[13px] text-zoru-ink">
+              {quotation.termsAndConditions}
+            </p>
+          </ZoruCardContent>
+        </ZoruCard>
+      ) : null}
+
+      {/* Notes */}
+      <ZoruCard>
+        <ZoruCardHeader>
+          <ZoruCardTitle>Notes</ZoruCardTitle>
+        </ZoruCardHeader>
+        <ZoruCardContent>
+          {quotation.customerNotes ? (
+            <p className="whitespace-pre-wrap text-[13px] text-zoru-ink">
+              {quotation.customerNotes}
+            </p>
+          ) : (
+            <p className="text-[13px] text-zoru-ink-muted">
+              No notes yet — add them via the Edit form.
+            </p>
+          )}
+        </ZoruCardContent>
+      </ZoruCard>
+
+      {/* Attachments — surfaced from customFields stash when present */}
+      {Array.isArray((cfValues._attachments as unknown) as string[]) ? (
+        <ZoruCard>
+          <ZoruCardHeader>
+            <ZoruCardTitle>Attachments</ZoruCardTitle>
+          </ZoruCardHeader>
+          <ZoruCardContent>
+            <ul className="list-disc space-y-1 pl-5 text-[13px] text-zoru-ink">
+              {(cfValues._attachments as string[]).map((u) => (
+                <li key={u}>
+                  <a
+                    className="hover:underline"
+                    href={u}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {u.split('/').pop()}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </ZoruCardContent>
+        </ZoruCard>
+      ) : null}
+
+      {/* Tags */}
+      {Array.isArray((cfValues._tags as unknown) as string[]) ? (
+        <ZoruCard>
+          <ZoruCardHeader>
+            <ZoruCardTitle>Tags</ZoruCardTitle>
+          </ZoruCardHeader>
+          <ZoruCardContent>
+            <div className="flex flex-wrap gap-2">
+              {(cfValues._tags as string[]).map((t) => (
+                <ZoruBadge key={t} variant="outline">
+                  {t}
+                </ZoruBadge>
+              ))}
+            </div>
+          </ZoruCardContent>
+        </ZoruCard>
+      ) : null}
+
+      {/* Custom fields */}
+      {customFields.length > 0 ? (
+        <ZoruCard>
+          <ZoruCardHeader>
+            <ZoruCardTitle>Custom fields</ZoruCardTitle>
+          </ZoruCardHeader>
+          <ZoruCardContent>
+            <div className="grid gap-4 md:grid-cols-2">
+              {customFields.map((f) => (
+                <DetailField
+                  key={String(f._id ?? f.name)}
+                  label={f.label || f.name}
+                >
+                  <CustomFieldDisplay
+                    field={f}
+                    value={
+                      cfValues[f.name] as Parameters<
+                        typeof CustomFieldDisplay
+                      >[0]['value']
+                    }
+                  />
+                </DetailField>
+              ))}
+            </div>
+          </ZoruCardContent>
+        </ZoruCard>
+      ) : null}
+
+      {/* TODO 1D.2: <CrmNotes recordType="quotation"> composer — needs the
+          shared composer to accept `quotation` as a recordType. */}
+      {/* TODO 1D.2: inline attachment add via <SabFilePicker> — needs an
+          `addQuotationAttachment(quotationId, fileId)` action. */}
+      {/* TODO 1D.2: inline status change via <EnumFormField enumName="quotationStatus">
+          on the status pill — needs a `setQuotationStatus(quotationId, status)`
+          quick mutation that revalidates the page. The dropdown already exists
+          in <QuotationDetailActions> as a fallback. */}
+    </EntityDetailShell>
   );
 }
-
-/* ─── Local presentational helpers ─────────────────────────────────── */
-
-function DetailField({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div>
-      <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
-        {label}
-      </div>
-      <div className="mt-1 text-[13px] text-zoru-ink">{children}</div>
-    </div>
-  );
-}
-

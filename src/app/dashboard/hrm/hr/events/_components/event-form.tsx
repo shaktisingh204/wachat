@@ -1,5 +1,7 @@
 'use client';
 
+// TODO 1E.sweep: visibility/type/status dropdowns -> <EnumFormField>; organizer/department -> <EntityFormField>. See plan §1E.
+
 /**
  * <EventForm /> — create / edit shell for Workplace Events.
  *

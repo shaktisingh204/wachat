@@ -16,6 +16,7 @@ import {
   ZoruSelectValue,
   useZoruToast,
 } from '@/components/zoruui';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import { SabFileUrlInput } from '@/components/sabfiles';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import {
@@ -160,31 +161,29 @@ export default function ApplyLeavePage() {
 
             <div>
               <ZoruLabel className="text-zoru-ink">Duration</ZoruLabel>
-              <ZoruSelect value={duration} onValueChange={(v) => setDuration(v as WsLeaveDuration)}>
-                <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
-                  <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="full-day">Full day</ZoruSelectItem>
-                  <ZoruSelectItem value="half-day">Half day</ZoruSelectItem>
-                  <ZoruSelectItem value="multiple">Multiple days</ZoruSelectItem>
-                  <ZoruSelectItem value="hours">Hours</ZoruSelectItem>
-                </ZoruSelectContent>
-              </ZoruSelect>
+              <div className="mt-1.5">
+                <EnumFormField
+                  name="duration"
+                  enumName="leaveDuration"
+                  initialId={duration}
+                  onChange={(id) => setDuration((id ?? 'full-day') as WsLeaveDuration)}
+                  allowInlineCreate={false}
+                />
+              </div>
             </div>
 
             {duration === 'half-day' ? (
               <div>
                 <ZoruLabel className="text-zoru-ink">Half-day Type</ZoruLabel>
-                <ZoruSelect value={halfDayType} onValueChange={(v) => setHalfDayType(v as WsHalfDayType)}>
-                  <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
-                    <ZoruSelectValue />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
-                    <ZoruSelectItem value="first-half">First half</ZoruSelectItem>
-                    <ZoruSelectItem value="second-half">Second half</ZoruSelectItem>
-                  </ZoruSelectContent>
-                </ZoruSelect>
+                <div className="mt-1.5">
+                  <EnumFormField
+                    name="halfDayType"
+                    enumName="halfDayType"
+                    initialId={halfDayType}
+                    onChange={(id) => setHalfDayType((id ?? 'first-half') as WsHalfDayType)}
+                    allowInlineCreate={false}
+                  />
+                </div>
               </div>
             ) : null}
 

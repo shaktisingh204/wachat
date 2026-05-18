@@ -30,15 +30,11 @@ import {
     ZoruCardTitle,
     ZoruInput,
     ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
     ZoruTextarea,
     useZoruToast,
 } from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import { DirtyFormPrompt } from '@/components/crm/dirty-form-prompt';
 import { useFormKeyboardShortcuts } from '@/components/crm/use-form-keyboard-shortcuts';
 import { SabFileUrlInput } from '@/components/sabfiles';
@@ -49,20 +45,8 @@ import {
 import type { CrmAccount } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
 
-const CATEGORIES = [
-    { value: 'new', label: 'New' },
-    { value: 'strategic', label: 'Strategic' },
-    { value: 'key', label: 'Key' },
-    { value: 'regular', label: 'Regular' },
-] as const;
-
-const PAYMENT_TERMS = [
-    { value: 'Immediate', label: 'Immediate' },
-    { value: 'Net 15', label: 'Net 15' },
-    { value: 'Net 30', label: 'Net 30' },
-    { value: 'Net 45', label: 'Net 45' },
-    { value: 'Net 60', label: 'Net 60' },
-] as const;
+// Catalogue lives in `src/data/reference/crm-enums.ts` (accountCategory,
+// paymentTermsLegacy) — the pickers below pull from there.
 
 export interface AccountFormPrefill {
     name?: string;
@@ -308,29 +292,17 @@ export function AccountForm({ mode, initial, prefill }: AccountFormProps) {
                             />
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="category">Category</ZoruLabel>
-                            <input type="hidden" name="category" value={category} />
-                            <ZoruSelect
-                                value={category}
-                                onValueChange={(v) => {
-                                    setCategory(v);
+                            <ZoruLabel>Category</ZoruLabel>
+                            <EnumFormField
+                                enumName="accountCategory"
+                                name="category"
+                                initialId={category || null}
+                                placeholder="Pick a category…"
+                                onChange={(id) => {
+                                    setCategory(id ?? '');
                                     onDirty();
                                 }}
-                            >
-                                <ZoruSelectTrigger>
-                                    <ZoruSelectValue placeholder="Pick a category…" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    {CATEGORIES.map((c) => (
-                                        <ZoruSelectItem
-                                            key={c.value}
-                                            value={c.value}
-                                        >
-                                            {c.label}
-                                        </ZoruSelectItem>
-                                    ))}
-                                </ZoruSelectContent>
-                            </ZoruSelect>
+                            />
                         </div>
                         <div className="space-y-2">
                             <ZoruLabel>Logo</ZoruLabel>
@@ -486,35 +458,17 @@ export function AccountForm({ mode, initial, prefill }: AccountFormProps) {
                             />
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="paymentTerms">
-                                Payment terms
-                            </ZoruLabel>
-                            <input
-                                type="hidden"
+                            <ZoruLabel>Payment terms</ZoruLabel>
+                            <EnumFormField
+                                enumName="paymentTermsLegacy"
                                 name="paymentTerms"
-                                value={paymentTerms}
-                            />
-                            <ZoruSelect
-                                value={paymentTerms}
-                                onValueChange={(v) => {
-                                    setPaymentTerms(v);
+                                initialId={paymentTerms || null}
+                                placeholder="Pick terms…"
+                                onChange={(id) => {
+                                    setPaymentTerms(id ?? '');
                                     onDirty();
                                 }}
-                            >
-                                <ZoruSelectTrigger>
-                                    <ZoruSelectValue placeholder="Pick terms…" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    {PAYMENT_TERMS.map((p) => (
-                                        <ZoruSelectItem
-                                            key={p.value}
-                                            value={p.value}
-                                        >
-                                            {p.label}
-                                        </ZoruSelectItem>
-                                    ))}
-                                </ZoruSelectContent>
-                            </ZoruSelect>
+                            />
                         </div>
                         <div className="space-y-2">
                             <ZoruLabel htmlFor="annualRevenue">

@@ -20,6 +20,11 @@ pub struct CrmLabel {
     pub icon: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
+    /// Mirror of the TS `EntityKey` string this label is scoped to
+    /// (e.g. `"task"`, `"deal"`, `"contact"`). When `None` the label
+    /// is considered global. Indexed alongside `userId + name`.
+    #[serde(rename = "entityKind", default, skip_serializing_if = "Option::is_none")]
+    pub entity_kind: Option<String>,
 
     #[serde(rename = "createdAt")]
     pub created_at: BsonDateTime,

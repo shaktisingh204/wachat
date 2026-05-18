@@ -7,8 +7,9 @@ import { ZoruLabel } from '@/components/zoruui';
 import { ZoruTextarea } from '@/components/zoruui';
 import { ZoruSwitch } from '@/components/zoruui';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
 import { ZoruSeparator } from '@/components/zoruui';
+import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import { LoaderCircle, Save, Building, FileText, Package, Users, Bell, Layers, CheckCircle } from 'lucide-react';
 import { saveCrmSettings } from '@/app/actions/crm-settings.actions';
 import { useToast } from '@/hooks/use-toast';
@@ -112,50 +113,42 @@ export function CrmSettingsForm({ settings }: { settings: WithId<CrmSettings> })
                         <div className="p-5 grid gap-6 md:grid-cols-2">
                             <div className="space-y-2">
                                 <ZoruLabel className="text-foreground">Currency</ZoruLabel>
-                                <ZoruSelect value={currency} onValueChange={setCurrency} name="currency">
-                                    <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="INR">Indian Rupee (INR)</ZoruSelectItem>
-                                        <ZoruSelectItem value="USD">US Dollar (USD)</ZoruSelectItem>
-                                        <ZoruSelectItem value="EUR">Euro (EUR)</ZoruSelectItem>
-                                        <ZoruSelectItem value="GBP">British Pound (GBP)</ZoruSelectItem>
-                                    </ZoruSelectContent>
-                                </ZoruSelect>
+                                <EntityFormField
+                                    entity="currency"
+                                    name="currency"
+                                    initialId={currency}
+                                    onChange={(id) => setCurrency(id ?? '')}
+                                    allowCreate
+                                />
                             </div>
                             <div className="space-y-2">
                                 <ZoruLabel className="text-foreground">Timezone</ZoruLabel>
-                                <ZoruSelect value={timezone} onValueChange={setTimezone} name="timezone">
-                                    <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="Asia/Kolkata">Asia/Kolkata (IST)</ZoruSelectItem>
-                                        <ZoruSelectItem value="Asia/Dubai">Asia/Dubai (GST)</ZoruSelectItem>
-                                        <ZoruSelectItem value="America/New_York">America/New_York (EST)</ZoruSelectItem>
-                                        <ZoruSelectItem value="Europe/London">Europe/London (GMT)</ZoruSelectItem>
-                                    </ZoruSelectContent>
-                                </ZoruSelect>
+                                <EnumFormField
+                                    name="timezone"
+                                    enumName="timezonePreset"
+                                    initialId={timezone}
+                                    onChange={(id) => setTimezone(id ?? '')}
+                                />
                             </div>
                             <div className="space-y-2">
                                 <ZoruLabel className="text-foreground">Date Format</ZoruLabel>
-                                <ZoruSelect value={dateFormat} onValueChange={setDateFormat} name="dateFormat">
-                                    <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="DD-MM-YYYY">DD-MM-YYYY</ZoruSelectItem>
-                                        <ZoruSelectItem value="MM-DD-YYYY">MM-DD-YYYY</ZoruSelectItem>
-                                        <ZoruSelectItem value="YYYY-MM-DD">YYYY-MM-DD</ZoruSelectItem>
-                                    </ZoruSelectContent>
-                                </ZoruSelect>
+                                <EnumFormField
+                                    name="dateFormat"
+                                    enumName="momentFormat"
+                                    initialId={dateFormat}
+                                    onChange={(id) => setDateFormat(id ?? '')}
+                                />
                             </div>
                             <div className="space-y-2">
                                 <ZoruLabel className="text-foreground">Financial Year Start</ZoruLabel>
-                                <ZoruSelect value={financialYear} onValueChange={setFinancialYear} name="financialYearStart">
-                                    <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="April">April</ZoruSelectItem>
-                                        <ZoruSelectItem value="January">January</ZoruSelectItem>
-                                        <ZoruSelectItem value="March">March</ZoruSelectItem>
-                                        {/* Added March/July as needed */}
-                                    </ZoruSelectContent>
-                                </ZoruSelect>
+                                {/* This form uses month names (April/January/March) rather than the canonical
+                                    'apr'/'jan'/'mar' ids — preserved as-is via inline-create. */}
+                                <EnumFormField
+                                    name="financialYearStart"
+                                    enumName="fiscalYearStart"
+                                    initialId={financialYear}
+                                    onChange={(id) => setFinancialYear(id ?? '')}
+                                />
                             </div>
                         </div>
                     </ClayCard>

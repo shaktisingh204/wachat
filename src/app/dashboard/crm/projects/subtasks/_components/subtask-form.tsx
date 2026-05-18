@@ -20,15 +20,11 @@ import {
     ZoruCard,
     ZoruInput,
     ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
     ZoruTextarea,
     useZoruToast,
 } from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 
 import { saveSubtask } from '@/app/actions/crm-subtasks.actions';
 import type {
@@ -38,21 +34,6 @@ import type {
 } from '@/lib/rust-client/crm-subtasks';
 
 const BASE = '/dashboard/crm/projects/subtasks';
-
-const STATUS_OPTIONS: Array<{ value: CrmSubtaskStatus; label: string }> = [
-    { value: 'todo', label: 'To do' },
-    { value: 'in_progress', label: 'In progress' },
-    { value: 'done', label: 'Done' },
-    { value: 'archived', label: 'Archived' },
-];
-
-const PARENT_KIND_OPTIONS: Array<{
-    value: CrmSubtaskParentKind;
-    label: string;
-}> = [
-    { value: 'task', label: 'CRM task' },
-    { value: 'project_task', label: 'Project task' },
-];
 
 function toDateInput(value: unknown): string {
     if (!value) return '';
@@ -137,26 +118,19 @@ export function SubtaskForm({ initialData }: SubtaskFormProps) {
                 {/* Parent kind + parent picker */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="parentKind-trigger">
-                            Parent kind *
-                        </ZoruLabel>
-                        <ZoruSelect
-                            value={parentKind}
-                            onValueChange={(v) =>
-                                setParentKind(v as CrmSubtaskParentKind)
+                        <ZoruLabel>Parent kind *</ZoruLabel>
+                        <EnumFormField
+                            enumName="subtaskParentKindRust"
+                            name="parentKindPicker"
+                            initialId={parentKind}
+                            allowInlineCreate={false}
+                            placeholder="Pick parent kind"
+                            onChange={(next) =>
+                                setParentKind(
+                                    (next ?? 'task') as CrmSubtaskParentKind,
+                                )
                             }
-                        >
-                            <ZoruSelectTrigger id="parentKind-trigger">
-                                <ZoruSelectValue placeholder="Pick parent kind" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {PARENT_KIND_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        />
                     </div>
                     <div className="space-y-1.5">
                         <ZoruLabel>Parent task *</ZoruLabel>
@@ -211,22 +185,16 @@ export function SubtaskForm({ initialData }: SubtaskFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
-                        <ZoruSelect
-                            value={status}
-                            onValueChange={(v) => setStatus(v as CrmSubtaskStatus)}
-                        >
-                            <ZoruSelectTrigger id="status-trigger">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <ZoruLabel>Status</ZoruLabel>
+                        <EnumFormField
+                            enumName="subtaskStatus"
+                            name="statusPicker"
+                            initialId={status}
+                            placeholder="Status"
+                            onChange={(next) =>
+                                setStatus((next ?? 'todo') as CrmSubtaskStatus)
+                            }
+                        />
                     </div>
                 </div>
 

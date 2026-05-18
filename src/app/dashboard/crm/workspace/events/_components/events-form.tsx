@@ -18,14 +18,10 @@ import { useActionState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { EntityFormShell } from '@/components/crm/entity-form-shell';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import {
     ZoruInput,
     ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
     ZoruTextarea,
     useZoruToast,
 } from '@/components/zoruui';
@@ -168,29 +164,24 @@ export function EventsForm({ mode, event, initialDate }: EventsFormProps): React
                         <div className={TWO_COL}>
                             <div>
                                 <ZoruLabel htmlFor="repeat">Repeat</ZoruLabel>
-                                <ZoruSelect name="repeat" defaultValue={event?.repeat ? 'true' : 'false'}>
-                                    <ZoruSelectTrigger id="repeat" className="mt-1.5 h-10">
-                                        <ZoruSelectValue />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="false">No</ZoruSelectItem>
-                                        <ZoruSelectItem value="true">Yes</ZoruSelectItem>
-                                    </ZoruSelectContent>
-                                </ZoruSelect>
+                                <div className="mt-1.5">
+                                    <EnumFormField
+                                        name="repeat"
+                                        enumName="yesNo"
+                                        initialId={event?.repeat ? 'yes' : 'no'}
+                                        allowInlineCreate={false}
+                                    />
+                                </div>
                             </div>
                             <div>
                                 <ZoruLabel htmlFor="repeat_type">Repeat type</ZoruLabel>
-                                <ZoruSelect name="repeat_type" defaultValue={event?.repeat_type ?? 'week'}>
-                                    <ZoruSelectTrigger id="repeat_type" className="mt-1.5 h-10">
-                                        <ZoruSelectValue />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="day">Day</ZoruSelectItem>
-                                        <ZoruSelectItem value="week">Week</ZoruSelectItem>
-                                        <ZoruSelectItem value="month">Month</ZoruSelectItem>
-                                        <ZoruSelectItem value="year">Year</ZoruSelectItem>
-                                    </ZoruSelectContent>
-                                </ZoruSelect>
+                                <div className="mt-1.5">
+                                    <EnumFormField
+                                        name="repeat_type"
+                                        enumName="calendarPeriod"
+                                        initialId={event?.repeat_type ?? 'week'}
+                                    />
+                                </div>
                             </div>
                             <div>
                                 <ZoruLabel htmlFor="repeat_every">Repeat every</ZoruLabel>
@@ -225,15 +216,14 @@ export function EventsForm({ mode, event, initialDate }: EventsFormProps): React
                         <div className={TWO_COL}>
                             <div>
                                 <ZoruLabel htmlFor="send_reminder">Send reminder</ZoruLabel>
-                                <ZoruSelect name="send_reminder" defaultValue={event?.send_reminder ? 'true' : 'false'}>
-                                    <ZoruSelectTrigger id="send_reminder" className="mt-1.5 h-10">
-                                        <ZoruSelectValue />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="false">No</ZoruSelectItem>
-                                        <ZoruSelectItem value="true">Yes</ZoruSelectItem>
-                                    </ZoruSelectContent>
-                                </ZoruSelect>
+                                <div className="mt-1.5">
+                                    <EnumFormField
+                                        name="send_reminder"
+                                        enumName="yesNo"
+                                        initialId={event?.send_reminder ? 'yes' : 'no'}
+                                        allowInlineCreate={false}
+                                    />
+                                </div>
                             </div>
                             <div>
                                 <ZoruLabel htmlFor="remind_time">Remind in</ZoruLabel>
@@ -248,27 +238,24 @@ export function EventsForm({ mode, event, initialDate }: EventsFormProps): React
                             </div>
                             <div>
                                 <ZoruLabel htmlFor="remind_type">Remind unit</ZoruLabel>
-                                <ZoruSelect name="remind_type" defaultValue={event?.remind_type ?? 'hour'}>
-                                    <ZoruSelectTrigger id="remind_type" className="mt-1.5 h-10">
-                                        <ZoruSelectValue />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="hour">Hour</ZoruSelectItem>
-                                        <ZoruSelectItem value="day">Day</ZoruSelectItem>
-                                    </ZoruSelectContent>
-                                </ZoruSelect>
+                                <div className="mt-1.5">
+                                    <EnumFormField
+                                        name="remind_type"
+                                        enumName="reminderUnit"
+                                        initialId={event?.remind_type ?? 'hour'}
+                                    />
+                                </div>
                             </div>
                             <div>
                                 <ZoruLabel htmlFor="google_calendar">Google Calendar</ZoruLabel>
-                                <ZoruSelect name="google_calendar" defaultValue={event?.google_calendar ? 'true' : 'false'}>
-                                    <ZoruSelectTrigger id="google_calendar" className="mt-1.5 h-10">
-                                        <ZoruSelectValue />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="false">No</ZoruSelectItem>
-                                        <ZoruSelectItem value="true">Yes</ZoruSelectItem>
-                                    </ZoruSelectContent>
-                                </ZoruSelect>
+                                <div className="mt-1.5">
+                                    <EnumFormField
+                                        name="google_calendar"
+                                        enumName="yesNo"
+                                        initialId={event?.google_calendar ? 'yes' : 'no'}
+                                        allowInlineCreate={false}
+                                    />
+                                </div>
                             </div>
                         </div>
                     ),

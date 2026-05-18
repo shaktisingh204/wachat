@@ -41,6 +41,81 @@ A module is ecosystem-ready when every entity in it passes (1)–(9).
 
 > Every completed batch lands here date-stamped. Future sessions read this section first to learn what's already done and avoid duplicate work. Cross-reference items by their phase code (e.g. P0.4, P1.1A.3).
 
+### 2026-05-18 — §1E foundation + multi-wave parallel agent batch
+
+**Session shape:** parallel-agent execution with 11 background agents fanned out across the dropdown sweep, P1.1B W2, P1.1B W3 partial, P1.1B W4 partial, P3 dual-impl leftover, P2 W1 field-gap, and P5 cross-feature wiring. The latter half of the batch hit an Anthropic-side rate limit (resets 6:40pm IST), but everything below the limit had already landed by the time it tripped. **176 files modified + 5 new files created** in this single session. The next session needs to resume the dropdown sweep (still 296 raw selects in `/dashboard/crm/**` + `/dashboard/hrm/**`) and finish the W3/W4/P5 page rebuilds that rate-limited mid-flight.
+
+**§1E foundation (closed) — Universal dropdown → EntityPicker sweep:**
+- ✅ New `'enum'` `EntityKey` registered everywhere: `src/lib/lookup-registry.ts` (union + ENTITY_KEYS + REFERENCE_ENTITY_KEYS), `src/components/crm/entity-picker.tsx` (ENTITY_LABEL), `src/components/crm/command-palette.tsx` (entityHref + entityLabel), `src/app/actions/crm-search.actions.ts` (ENTITY_LABEL + ENTITY_ROUTE + ENTITY_PERMISSION_KEY=null), `src/app/dashboard/crm/settings/custom-fields/new/new-field-form.tsx` (ENTITY_LABELS).
+- ✅ Registry adapter in `src/app/actions/crm-lookup.actions.ts` — resolves by `filter.enumName`; supports inline-create round-trip; supports hydrate-by-ids; emits structured chips with optional tone.
+- ✅ `src/data/reference/crm-enums.ts` — single source of truth for catalogued enums. Grew to **192 exported enum constants** (1952 lines) covering every status / priority / type / channel / role / category / mode / treatment / frequency / direction / classification used across CRM + HRM. The CRM_ENUMS map has 191 keys (one stray export); no key collisions despite parallel-agent additions.
+- ✅ `<EnumFormField enumName="...">` wrapper shipped at `src/components/crm/enum-form-field.tsx`. Default `allowInlineCreate=true` so users always get a "+ Create new" row. Drop-in for raw `<select>` / `<ZoruSelect>` whose values come from a catalogued enum.
+- ✅ Plan §1E added (this document) — policy, foundation list, migration pattern, scope, exit criteria, Rust-side parity TODO.
+
+**§1E sweep progress (partial — 23% complete):**
+- Files using `<EnumFormField>`: **119** (from 0).
+- Files importing from `enum-form-field`: **92**.
+- Files still raw `<ZoruSelect>` / `<select>` in `/dashboard/{crm,hrm}/**`: **296** (down from 383 — 87 files converted today).
+- HRM module: ~30 form files migrated (employees, leave, attendance, shifts, salary structure, payroll, training, jobs, offers, onboarding, interviews, etc.).
+- Sales-CRM core + tickets + tasks + projects: ~20 form files migrated (leads, deals, contacts, pipelines, ticket form, task form, project form, issue/milestone/subtask forms).
+- Sales transactions + purchases + inventory: ~25 form files migrated (invoices/quotations/orders/credit-notes/receipts/contracts/delivery, PO/bills/payouts/RFQ/vendor-bids/debit-notes/recurring-expenses, items/warehouses/adjustments/BOM/GRN/production/stock-transfers/batch-expiry).
+- Settings + accounting + banking: ~12 form files migrated (coa-form, voucher-book-form, voucher-entry, payment-account, bank-transaction, reconciliation, crm-settings).
+
+**P1.1B Wave 2 — closed for Invoices + Quotations; partial for Sales Orders / Credit Notes / Receipts:**
+- ✅ Invoices: 5 pages rebuilt (`list`, `new`, `[id]`, `[id]/edit`, `[id]/activity`) against §1D.1/§1D.2/§1D.3 — `<EntityListShell>` with `+New invoice` CTA + sticky bulk bar; `<EntityDetailShell>` detail with status pill + 9-action group + line items + money summary + payment history + LineageRail (lead→deal→quotation→invoice) + related rail + audit footer. New action `getInvoiceKpis()` (wraps existing `computeInvoiceKpis()` over a 200-row Rust window).
+- ✅ Quotations: same 5 pages, same bar. New action `getQuotationKpis(): { totalOpen, accepted, rejected, expired, draft, conversionRatePct }`.
+- ✅ Sales Orders: inline status pill (`<SalesOrderInlineStatus>`) shipped; new `setSalesOrderStatus(id, status)` action with a `SO_STATUS_TO_RUST` mapping table that bridges the UI's fine-grained fulfillment ladder (draft→confirmed→packed→shipped→delivered) to the Rust DTO's coarser lifecycle (open|partial|fulfilled|closed). **Mapping is lossy** — status round-trips look like `packed→partial→packed` from the user's POV; the right fix is a Rust DTO migration to carry the finer states.
+- ✅ Credit Notes: inline status pill (`<CreditNoteInlineStatus>`); 3 raw `<ZoruSelect>`s migrated to `<EnumFormField>` (status/reason/refundMode); `linkedInvoiceId` upgraded from `<ZoruInput>` to `<EntityFormField entity="invoice">`. Added enums: `creditNoteStatusV2`, `creditNoteReason`, `creditNoteRefundMode`.
+- ✅ Payment Receipts: inline status pill (`<ReceiptInlineStatus>`); "Amount received" override input + Received/Applied/Unapplied breakout (amber when unapplied > 0). Added enums: `paymentReceiptStatus`, `paymentMode`.
+- ✅ Sales Order list/new/detail/edit/activity 5-page set: detail page wired with inline status, but the full §1D.2 line-item / money summary / lineage / related-rails rebuild was queued for the second-batch agent that rate-limited.
+
+**P1.1B W2 remainder (subscriptions/contracts/proposals + proforma/DC/recurring) — RATE LIMITED:**
+- Agents `aa413164` (subscriptions/contracts/proposals) and `a193fd05` (proforma/DC/recurring) ran briefly before exhausting the org rate-limit pool. **No output landed.** Resume after 2026-05-18 18:40 IST.
+
+**P1.1B W3 (Purchases) — RATE LIMITED:**
+- Agents `a6db9e13` (POs/bills/payouts) and `a0b9b993` (RFQ/vendor-bids/debit-notes/vendors/hire) rate-limited before producing output. **Skipped — needs re-dispatch.**
+
+**P1.1B W4 (Inventory) — RATE LIMITED:**
+- Agent `a919f7d5` (items/warehouses/adjustments/BOM/GRN/production-orders) rate-limited before output. **Skipped — needs re-dispatch.** Note: the §1E sweep agents already touched several inventory form files for the dropdown migration, so the §1D rebuild will start from a partially-improved base.
+
+**P3 dual-impl sweep — 7-of-13 crates closed:**
+- ✅ subscriptions, fixed-assets, bookings, tickets, bills, rfqs, vendor-bids — all routed through Rust behind `USE_RUST_CRM=true` with the standard `try-rust / record-fallback / fall-through-to-mongo` pattern.
+- **52 `requirePermission()` gates** added across the 7 files.
+- **39 `recordRustFallback()` instrumentation calls** added (each preceded by the human-readable `console.error` log line, matching the §0.5 2026-05-13 P4.1-prep contract — alert rule keys on `event:rust_fallback`).
+- `writeAuditEntry` added to `saveSubscriptionAction`, `saveFixedAssetAction`, `deleteFixedAssetAction`, RFQ + vendor-bid save/delete.
+- Rust crates STILL missing routes (TODO 1.P3 comments left in source): `crm-bookings` lacks `/check-in /check-out /cancel /reschedule`; `crm-fixed-assets` lacks depreciation-calc + `retireOrSell` PATCH field; `crm-accounts` lacks `setCategory` bulk endpoint.
+- Behavioural drift to flag: `saveFixedAssetAction` + `deleteFixedAssetAction` now require a session (previously open); `list*` and `get*` on fixed-assets + bills now require `view` permission (previously open to any logged-in user). RBAC keys exist and §1B page guard already enforces these, so this only tightens server-action callers.
+
+**P3 dual-impl leftover (attendance/leaves/payroll-runs/holidays/GRNs/employees-deep) — RATE LIMITED:**
+- Agent `a7765d2a` rate-limited before producing output. **Skipped — needs re-dispatch.**
+
+**P2 W1 (Rust foundational entities — brand/tag/label/branch) — field-gap closure:**
+- These four crates were already shipped on 2026-05-16 (not in any prior log entry). Today's pass closed the field deltas the original P2 wave specified but the May-16 ship had omitted:
+  - `crm-brands`: +`code`, +`isActive` on `Brand` doc + Create/Update DTOs.
+  - `crm-tags`: no change — `scope` already present.
+  - `crm-labels`: +`entityKind` on `Label` doc + DTOs + `list_filter`; 2 new unit tests for the indexed filter.
+  - `crm-branches`: +`isHeadOffice`, +`isActive` on doc + DTOs + `build_update_doc`.
+- All edits strictly additive (`#[serde(default, skip_serializing_if = "Option::is_none")]` on every new field). Routes are mounted at `/v1/crm/{brands,tags,labels,branches}` (plural — spec asked for singular, but the existing TS rust-client + 15 BFF route files already consume plural form; recommend keeping plural).
+- `cargo check` NOT run (sandbox denied + no toolchain configured). High-confidence the changes compile, but **the next session should run `cargo +stable check -p crm-brands -p crm-tags -p crm-labels -p crm-branches` before merging.**
+- Recommended Mongo indexes (assumed to exist; create them if not): `crm_brands { userId, name }` unique partial, `crm_brands { userId, code }` sparse; `crm_tags { userId, scope, name }`; `crm_labels { userId, entityKind, name }`; `crm_branches { userId, name }` + `{ userId, isHeadOffice }` unique partial.
+
+**P5 cross-feature wiring (search / notifications / activity feed) — already shipped previously, verified 2026-05-18:**
+- Agent `a79167a0` rate-limited before output, but a follow-up audit confirmed all three pages are already on disk and fully wired (the plan's "new page" tag was stale).
+  - `src/app/dashboard/crm/search/{page.tsx,_components/{search-client.tsx,search-results-client.tsx}}` + `crm-search.actions.ts::searchCrmEntities` — covers §5.2.
+  - `src/app/dashboard/crm/notifications/{page.tsx,_components/{notifications-browser,notifications-client,notifications-inbox}.tsx}` + `crm-notifications.actions.ts::getCrmNotifications` — covers §5.3.
+  - `src/app/dashboard/crm/activity/{page.tsx,_components/{activity-browser,activity-feed-client,activity-feed,activity-row}.tsx}` + `crm-activity.actions.ts::getCrmActivityFeed` — covers §5.4.
+- Open follow-up: register `crm_notification` module key in `permission-modules.ts` (notifications currently piggybacks on `crm_lead.view`).
+
+**Deferred / queued for the next session (in priority order):**
+1. **§1E sweep continuation** — 296 raw selects remain. Re-dispatch the 4 sweep agents after the rate-limit window opens (focus first on the agents that hit the limit cold: settings + accounting + banking, sales-CRM core + tickets, sales + purchases + inventory, HRM).
+2. **P1.1B W2 remainder** — subscriptions, contracts, proposals, proforma, delivery-challans, recurring (15 pages).
+3. **P1.1B W3** — entire Purchases module rebuild (PO + bills + payouts + RFQ + vendor-bids + debit-notes + vendors-detail + hire ≈ 30 pages).
+4. **P1.1B W4** — entire Inventory module rebuild (items + warehouses + adjustments + BOM + GRN + production ≈ 30 pages).
+5. **P3 dual-impl leftover** — attendance, leaves, payroll-runs, holidays, GRNs, employees-deep.
+6. **P5 cross-feature wiring** — `/dashboard/crm/search`, `/notifications`, `/activity`.
+7. **`cargo +stable check`** on `crm-brands`, `crm-tags`, `crm-labels`, `crm-branches`.
+8. **Audit `setSalesOrderStatus` Rust mapping** — the `SO_STATUS_TO_RUST` table is lossy; pick a path (extend Rust DTO vs. accept the round-trip).
+
 ### 2026-05-15 — P0.4-fu verified + P1.1B W1 closure (accounts rebuild)
 
 **P0.4-fu — closed (verification only, no new code):**
@@ -66,6 +141,30 @@ The last entity in W1 (leads, deals, contacts, tasks were already done) was acco
 - ✅ Typecheck (`tsc --noEmit`) for the rebuilt module is clean. Remaining 27 errors elsewhere (sabflow / telegram) are unchanged from the baseline.
 
 **Wave 1 (Sales-CRM core) is now done — leads · deals · contacts · tasks · accounts all on the §1D bar.**
+
+### 2026-05-18 — P1.1B Wave 2 partial — INVOICES + QUOTATIONS rebuilt on the shared shells
+
+**Phase 1.1B Wave 2 partial** — the line-item-doc head of Wave 2 is now wrapped in the canonical shells (`<EntityListShell>` + `<EntityDetailShell>`). Invoice + Quotation modules already met most of the §1D content bar from the earlier Wave 2-A landing; this rebuild lifts them onto the same shell composition as ACCOUNTS so the header / right rail / audit-footer layout is now identical across Wave 1 + the first two Wave 2 entities.
+
+- ✅ **Invoices list** `/dashboard/crm/sales/invoices` — page.tsx now hands off directly to `<InvoiceListClient>`; the client composes `<EntityListShell>` with `+New invoice` primary action, sticky bulk bar (archive · delete · export · mark-paid · send · change status), empty state, and table-only pagination wired through the shell. KPI strip + filters + toolbar + saved-views all live inside the shell body so the visual chrome matches ACCOUNTS exactly.
+- ✅ **Invoices detail** `/dashboard/crm/sales/invoices/[id]` — rebuilt as a server component using `<EntityDetailShell>`. Header carries the status pill (toned via `statusToTone()`), `INVOICE <no>` eyebrow, back-to-list link, and the existing 9-button `<InvoiceDetailActions>` (Edit · Send · Mark paid · Email · WhatsApp · Print · Duplicate · Status change · Archive · Delete). Main body: existing `<InvoiceDetailBody>` + payment history + e-invoice + notes + tags + custom fields. Right rail: `<LineageRail>` + Customer card + At-a-glance with `<InvoiceQuickEdits>` + Related counts (Receipts · Credit notes · Quotations · Sales orders · Deliveries — from `getCrmInvoiceRelatedCounts`) + `<InvoiceRelatedRail>` polling wrapper. Audit footer: `<EntityAuditTimeline entityKind="invoice">`.
+- ✅ **Invoices activity** `/dashboard/crm/sales/invoices/[id]/activity` — re-templated against `<EntityDetailShell>` (eyebrow `INVOICE ACTIVITY`, back link to detail), matching the ACCOUNTS template.
+- ✅ **Invoices new + edit** `/dashboard/crm/sales/invoices/new`, `/[id]/edit` — page chrome now matches the ACCOUNTS `/new` + `/edit` template (back-link → `<CrmPageHeader>` → `<InvoiceForm>`). The form itself already satisfies §1D.3 (9 sectioned cards including Header / Customer / Line items / Summary / Bank / E-invoice / E-way bill / Recurring / Notes / Custom fields, every reference field is `<EntityFormField>`, every status enum is `<EnumFormField>`, `<DirtyFormPrompt>` wired, sticky bar with Save · Save & Send · Save & New · Cancel) so no body changes were needed.
+- ✅ **Quotations list** `/dashboard/crm/sales/quotations` — page.tsx hands directly to `<QuotationListClient>`; the client composes `<EntityListShell>` with `+New quotation` primary action, sticky bulk bar (archive · delete · export · send · convert-to-invoice · change status), empty state, pagination. KPI strip + filters + toolbar inside the shell body.
+- ✅ **Quotations detail** `/dashboard/crm/sales/quotations/[id]` — server component rebuilt with `<EntityDetailShell>` per §1D.2. Header: status pill, `QUOTATION <no>` eyebrow, back link, `<QuotationDetailActions>` (Edit · Send · Convert to Invoice · Convert to SO · Email · Print · Duplicate · Archive · Delete · Status change). Main body: Overview · Customer · Line items (with HSN, qty, rate, discount %, tax %, amount columns) · Money summary (subtotal · discount · CGST/SGST/IGST when present · shipping · adjustment · round-off · total) · Terms · Notes · Attachments · Tags · Custom fields. Right rail: Status flow visualizer · `<LineageRail>` · At-a-glance + `<QuotationQuickEdits>` · Related counts (Sales orders · Invoices — from `getCrmQuotationRelatedCounts`). Audit footer.
+- ✅ **Quotations activity** `/dashboard/crm/sales/quotations/[id]/activity` — re-templated against `<EntityDetailShell>`.
+- ✅ **Quotations new + edit** — page chrome aligned with ACCOUNTS. The shared `<QuotationForm>` already satisfies §1D.3 so no body changes needed.
+
+**New server actions shipped:**
+- `getInvoiceKpis(): Promise<InvoiceKpiSummary>` — `src/app/actions/crm/invoices.actions.ts`. Wraps the existing pure `computeInvoiceKpis(rows)` aggregate with a Rust-list call (200 rows). The list `page.tsx` still pulls its own kpiSource window for now; the new action exists so client-side islands can refresh the KPI strip independently.
+- `getQuotationKpis(): Promise<QuotationKpiSnapshot>` — `src/app/actions/crm/quotations.actions.ts`. New explicit aggregate that returns `{ totalOpen, accepted, rejected, expired, draft, conversionRatePct }`.
+
+**Deferred features (TODO 1D.x in the rebuilt pages):**
+- `<CrmNotes recordType="invoice">` / `<CrmNotes recordType="quotation">` — shared composer doesn't yet accept these record types (it covers account/contact/deal/lead today).
+- Inline attachment add on detail pages via `<SabFilePicker>` — needs `addInvoiceAttachment(invoiceId, fileId)` / `addQuotationAttachment(quotationId, fileId)` mutators; not yet on the Rust DTOs.
+- Inline tag add — needs `setInvoiceTags(invoiceId, tags[])` / `setQuotationTags(quotationId, tags[])`. Tag display already works when the array is populated.
+- Inline status change on the detail-page status pill via `<EnumFormField enumName="invoiceStatus|quotationStatus">` — the existing `<InvoiceDetailActions>` / `<QuotationDetailActions>` already host a status dropdown so this is purely UX polish.
+- Bulk batch-convert quotations to invoices — `<QuotationListClient>` currently navigates the first selection to `/invoices/new?fromKind=quotation&fromId=<id>`; needs a server `bulkConvertQuotationsToInvoices(ids[])` action.
 
 **Deferred follow-ups (tracked, not blocking):**
 - `setCrmAccountCategory(ids[], category)` action so the list bulk-bar can actually mutate.
@@ -372,6 +471,67 @@ Anything skipped lands as a comment in the page header: `{/* TODO 1D.x: <feature
 ##### 1D.6 Why this bar matters
 
 The user's frustration in this session was repeatedly that "pages don't have data" or "many pages aren't usable". Loose rebuilds that just hit the structural bar (header + cards + audit) but skip the **data density** + **action density** feel hollow. 1D.1–1D.4 is the operational definition of "data-rich and feature-rich" that turns rebuilds into actually useful pages.
+
+#### 1E — Universal dropdown → EntityPicker sweep
+
+> **Goal (2026-05-18):** every dropdown in the CRM + HRM modules is an `<EntityFormField>` (or `<EnumFormField>` for catalogued enums), and every picker offers a Create-new affordance. No raw `<select>` / `<ZoruSelect>` in form contexts — even hard-coded enums (status, priority, channel, gender, etc.) go through the picker so users get search, recents, dual-write, and inline-create everywhere.
+
+##### 1E.1 Why
+
+The user observed that the rebuild was still leaving raw `<select>` elements in forms — losing search/recents/picker UX on perfectly pickable values. Picker uniformity is part of the §0 "ecosystem-ready" definition (point 1), and §1D.3 explicitly requires *every reference field* to be an `<EntityFormField>`. §1E is the operational sweep that makes that contract real across every page, not just rebuilt ones.
+
+##### 1E.2 Policy
+
+1. **Entity-backed dropdowns** (industries, currencies, countries, employees, vendors, items, …) — use `<EntityFormField entity="<key>" allowCreate>`. Default `allowCreate=true` is the global default since EC0.
+2. **Cascading dropdowns** (country → state → city, pipeline → stage, department → designation) — keep using `<EntityFormField filter={{ parentId }}>`. State/city/stage pickers are disabled until the parent is picked.
+3. **Hard-coded enum dropdowns** (invoice status, ticket priority, gender, leave type, payment method, …) — use the new `<EnumFormField enumName="...">` shorthand, which renders `<EntityFormField entity="enum" filter={{ enumName }}>` under the hood. Catalogue lives in `src/data/reference/crm-enums.ts`. Inline-create stays on by default so users can type a one-off value when the canonical list is missing a case.
+4. **Bool / yes-no toggles** — keep as `<Switch>` or `<RadioGroup>` if they're truly binary state, but for "Yes / No / Not applicable" dropdowns use `<EnumFormField enumName="yesNo">`.
+5. **Filter-bar selects** (list-page filter chips) — use `<EntityFormField>` if the filter value is an entity id (industry, status, owner); use `<EnumFormField>` if it's an enum value.
+6. **Free-text fallback ban** — no form input that conceptually selects from a finite/recurring set should be a raw `<Input>` text field. Convert to a picker with `allowCreate`.
+
+##### 1E.3 Foundation shipped 2026-05-18
+
+- ✅ `'enum'` added to `EntityKey` union + `ENTITY_KEYS` + `REFERENCE_ENTITY_KEYS` (`src/lib/lookup-registry.ts`).
+- ✅ `src/data/reference/crm-enums.ts` — catalogue of ~45 named enums: leadStatus, dealStatus, taskStatus, ticketStatus, invoiceStatus, quotationStatus, salesOrderStatus, purchaseOrderStatus, billStatus, receiptStatus, creditNoteStatus, debitNoteStatus, subscriptionStatus, contractStatus, rfqStatus, approvalStatus, leaveStatus, attendanceStatus, interviewStatus, candidateStatus, employeeStatus, assetStatus, employmentType, gender, maritalStatus, bloodGroup, leaveType, customerType, paymentMethod, paymentTerms, discountType, taxType, gstTreatment, recurringFrequency, ticketChannel, communicationChannel, assetCondition, priority, severity, yesNo, weekday, month, countryRegion, channelDirection, rating5.
+- ✅ Registry adapter in `src/app/actions/crm-lookup.actions.ts` — resolves by `filter.enumName`, supports inline-create (id round-trips), supports hydrate-by-ids.
+- ✅ `<EnumFormField>` wrapper in `src/components/crm/enum-form-field.tsx` — drop-in for raw `<select>`.
+- ✅ Four exhaustive `Record<EntityKey, …>` maps updated: `entity-picker.tsx` (ENTITY_LABEL), `command-palette.tsx` (entityHref + entityLabel), `crm-search.actions.ts` (ENTITY_LABEL + ENTITY_ROUTE + ENTITY_PERMISSION_KEY), `custom-fields/new/new-field-form.tsx` (ENTITY_LABELS).
+
+##### 1E.4 Migration pattern
+
+```tsx
+// before
+<ZoruSelect value={status} onChange={setStatus}>
+  <option value="draft">Draft</option>
+  <option value="sent">Sent</option>
+  <option value="paid">Paid</option>
+</ZoruSelect>
+
+// after
+<EnumFormField
+  name="status"
+  enumName="invoiceStatus"
+  initialId={status}
+  onChange={setStatus}
+/>
+```
+
+If the enum the form needs isn't in `CRM_ENUMS`, *append* a new entry there — don't keep the raw `<select>`. The inline-create row means users aren't blocked even before the catalogue gets the new entry.
+
+##### 1E.5 Scope
+
+Counted on 2026-05-18: **383** files under `src/app/dashboard/{crm,hrm}/**` + `src/components/crm/**` contain a `<Select>` / `<ZoruSelect>` / `<select>`. Already on `<EntityFormField>`: **244**. Net work: ≈ 383 files to audit, of which most need 1–4 dropdown conversions. Dispatched in module-grouped waves (W1A … W1H) to parallel agents.
+
+##### 1E.6 Exit criteria
+
+- Zero `<select>` / `<ZoruSelect>` in `/dashboard/crm/**` or `/dashboard/hrm/**` form files (other than inside picker internals).
+- Every previously-hard-coded enum string has a `CRM_ENUMS` entry.
+- Every list-page filter chip is `<EntityFormField>` / `<EnumFormField>`.
+- The catalogue (`crm-enums.ts`) is the single source of truth for status/priority/type values — back-end action files that hard-code those strings stay valid (the id round-trips), but new docs reference the catalogue.
+
+##### 1E.7 Rust-side parity (deferred)
+
+The Rust `crm-lookup` crate (`rust/crates/crm-lookup`) maintains its own `EntityKey` enum. Adding `Enum` as a Rust variant + static-list handler lands during **Phase 4 cutover prep**, *before* `USE_RUST_LOOKUP=true` is flipped. Today the flag is off, so the TS path handles every enum picker request.
 
 ---
 

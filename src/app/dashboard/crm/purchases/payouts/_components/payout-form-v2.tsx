@@ -19,14 +19,10 @@ import {
     ZoruCard,
     ZoruInput,
     ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
     ZoruTextarea,
     useZoruToast,
 } from '@/components/zoruui';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
 
 import { savePayout } from '@/app/actions/crm-payouts-v2.actions';
@@ -165,21 +161,13 @@ export function PayoutForm({ initialData }: PayoutFormProps) {
                     </div>
                     <div className="space-y-1.5">
                         <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
-                        <ZoruSelect
-                            value={status}
-                            onValueChange={(v) => setStatus(v as CrmPayoutStatus)}
-                        >
-                            <ZoruSelectTrigger id="status-trigger">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <EnumFormField
+                            enumName="payoutStatus"
+                            name="__status_picker"
+                            initialId={status || null}
+                            placeholder="Status"
+                            onChange={(id) => setStatus((id ?? 'sent') as CrmPayoutStatus)}
+                        />
                     </div>
                 </div>
 
@@ -231,21 +219,13 @@ export function PayoutForm({ initialData }: PayoutFormProps) {
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
                         <ZoruLabel htmlFor="paymentMethod-trigger">Payment method</ZoruLabel>
-                        <ZoruSelect
-                            value={paymentMethod}
-                            onValueChange={(v) => setPaymentMethod(v as CrmPayoutMode)}
-                        >
-                            <ZoruSelectTrigger id="paymentMethod-trigger">
-                                <ZoruSelectValue placeholder="Method" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {METHOD_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <EnumFormField
+                            enumName="paymentMode"
+                            name="__paymentMethod_picker"
+                            initialId={paymentMethod || null}
+                            placeholder="Method"
+                            onChange={(id) => setPaymentMethod((id ?? 'cash') as CrmPayoutMode)}
+                        />
                     </div>
                     <div className="space-y-1.5">
                         <ZoruLabel htmlFor="paymentAccountId">Payment account id</ZoruLabel>

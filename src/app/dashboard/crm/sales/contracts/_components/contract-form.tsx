@@ -22,14 +22,11 @@ import {
     ZoruCheckbox,
     ZoruInput,
     ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
     ZoruTextarea,
     useZoruToast,
 } from '@/components/zoruui';
+import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
 
 import { saveContract } from '@/app/actions/crm-contracts.actions';
@@ -198,18 +195,12 @@ export function ContractForm({ initialData }: ContractFormProps) {
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
                         <ZoruLabel>Type</ZoruLabel>
-                        <ZoruSelect value={type} onValueChange={setType}>
-                            <ZoruSelectTrigger>
-                                <ZoruSelectValue />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {TYPE_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <EnumFormField
+                            enumName="contractType"
+                            name="__type_picker"
+                            initialId={type || null}
+                            onChange={(id) => setType(id ?? 'nda')}
+                        />
                     </div>
                     <div className="space-y-1.5">
                         <ZoruLabel htmlFor="contractNo">Contract #</ZoruLabel>
@@ -261,18 +252,12 @@ export function ContractForm({ initialData }: ContractFormProps) {
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
                         <ZoruLabel>Currency</ZoruLabel>
-                        <ZoruSelect value={currency} onValueChange={setCurrency}>
-                            <ZoruSelectTrigger>
-                                <ZoruSelectValue />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {CURRENCY_OPTIONS.map((c) => (
-                                    <ZoruSelectItem key={c} value={c}>
-                                        {c}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <EntityFormField
+                            entity="currency"
+                            name="__currency_picker"
+                            initialId={currency}
+                            onChange={(id) => setCurrency(id ?? 'INR')}
+                        />
                     </div>
                     <div className="space-y-1.5">
                         <ZoruLabel htmlFor="value">Contract value</ZoruLabel>
@@ -336,18 +321,12 @@ export function ContractForm({ initialData }: ContractFormProps) {
                     </div>
                     <div className="space-y-1.5">
                         <ZoruLabel>E-sign provider</ZoruLabel>
-                        <ZoruSelect value={esign} onValueChange={setEsign}>
-                            <ZoruSelectTrigger>
-                                <ZoruSelectValue />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {ESIGN_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <EnumFormField
+                            enumName="esignProvider"
+                            name="__esign_picker"
+                            initialId={esign || null}
+                            onChange={(id) => setEsign(id ?? 'none')}
+                        />
                     </div>
                 </div>
 
@@ -414,21 +393,12 @@ export function ContractForm({ initialData }: ContractFormProps) {
                     </div>
                     <div className="space-y-1.5">
                         <ZoruLabel>Status</ZoruLabel>
-                        <ZoruSelect
-                            value={status}
-                            onValueChange={(v) => setStatus(v as CrmContractStatus)}
-                        >
-                            <ZoruSelectTrigger>
-                                <ZoruSelectValue />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <EnumFormField
+                            enumName="contractStatusV2"
+                            name="__status_picker"
+                            initialId={status || null}
+                            onChange={(id) => setStatus((id ?? 'draft') as CrmContractStatus)}
+                        />
                     </div>
                 </div>
 

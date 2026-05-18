@@ -54,6 +54,8 @@ fn brand_from_create(input: CreateBrandInput, user_id: ObjectId) -> CrmBrand {
         logo_url: input.logo_url,
         website: input.website,
         color: input.color,
+        code: input.code,
+        is_active: Some(input.is_active.unwrap_or(true)),
         created_at: BsonDateTime::from_chrono(Utc::now()),
         updated_at: None,
         status: Some("active".to_owned()),
@@ -76,6 +78,12 @@ fn build_update_doc(patch: UpdateBrandInput) -> Document {
     }
     if let Some(v) = patch.color {
         set.insert("color", v);
+    }
+    if let Some(v) = patch.code {
+        set.insert("code", v);
+    }
+    if let Some(v) = patch.is_active {
+        set.insert("isActive", v);
     }
     if let Some(v) = patch.status {
         set.insert("status", v);

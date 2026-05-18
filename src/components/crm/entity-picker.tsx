@@ -148,6 +148,7 @@ const ENTITY_LABEL: Record<EntityKey, string> = {
   deal: 'deal',
   department: 'department',
   designation: 'designation',
+  enum: 'option',
   industry: 'industry',
   invoice: 'invoice',
   jobTitle: 'job title',

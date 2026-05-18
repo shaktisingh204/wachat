@@ -1,20 +1,23 @@
 /**
- * Quotation activity (audit log) — server route. Mirrors
- * `accounts/[accountId]/activity/page.tsx`. Renders the shared
- * `<EntityAuditTimeline>` for `entityKind: 'quotation'`.
+ * Quotation activity (audit log) — server route (§1D.2 rebuild — Phase
+ * 1.1B Wave 2 partial).
+ *
+ * Mirrors `accounts/[accountId]/activity/page.tsx`. Renders the shared
+ * <EntityAuditTimeline> for `entityKind: 'quotation'`, wrapped in the
+ * shared <EntityDetailShell> for consistent navigation chrome.
  */
 
 import { notFound } from 'next/navigation';
-import Link from 'next/link';
-import { Activity, ArrowLeft } from 'lucide-react';
 
-import { CrmPageHeader } from '../../../../_components/crm-page-header';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getQuotation } from '@/app/actions/crm/quotations.actions';
 
 interface PageProps {
   params: Promise<{ id: string }>;
 }
+
+export const dynamic = 'force-dynamic';
 
 export default async function QuotationActivityPage({ params }: PageProps) {
   const { id } = await params;
@@ -26,31 +29,15 @@ export default async function QuotationActivityPage({ params }: PageProps) {
     : `Quotation ${id.slice(-6)} — Activity`;
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <Link
-        href={`/dashboard/crm/sales/quotations/${id}`}
-        className="inline-flex items-center gap-1.5 text-[12.5px] text-zoru-ink-muted hover:text-zoru-ink"
-      >
-        <ArrowLeft className="h-3.5 w-3.5" /> Back to quotation
-      </Link>
-
-      <CrmPageHeader
-        title={title}
-        subtitle="Audit trail of every change made to this quotation."
-        icon={Activity}
-        breadcrumbs={[
-          { label: 'CRM', href: '/dashboard/crm' },
-          { label: 'Sales', href: '/dashboard/crm/sales' },
-          { label: 'Quotations', href: '/dashboard/crm/sales/quotations' },
-          {
-            label: quotation.quotationNo,
-            href: `/dashboard/crm/sales/quotations/${id}`,
-          },
-          { label: 'Activity' },
-        ]}
-      />
-
+    <EntityDetailShell
+      title={title}
+      eyebrow="QUOTATION ACTIVITY"
+      back={{
+        href: `/dashboard/crm/sales/quotations/${id}`,
+        label: 'Back to quotation',
+      }}
+    >
       <EntityAuditTimeline entityKind="quotation" entityId={id} />
-    </div>
+    </EntityDetailShell>
   );
 }

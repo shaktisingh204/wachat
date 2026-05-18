@@ -39,12 +39,14 @@ import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { LineageRail } from '@/components/crm/lineage-rail';
 import { RelatedRail } from '@/components/crm/RelatedRail';
-import { StatusPill, statusToTone } from '@/components/crm/status-pill';
+// `<StatusPill>` is rendered inside `<SalesOrderInlineStatus>` — no
+// direct import needed here anymore.
 import {
   getCrmSalesOrderRelatedCounts,
   getSalesOrder,
 } from '@/app/actions/crm/sales-orders.actions';
 import { SalesOrdersDetailFulfillment } from '../_components/sales-orders-detail-fulfillment';
+import { SalesOrderInlineStatus } from '../_components/sales-orders-detail-status';
 import type { LineageRef } from '@/lib/definitions';
 
 export const dynamic = 'force-dynamic';
@@ -217,7 +219,7 @@ export default async function SalesOrderDetailPage({
                 Header
               </h3>
               {order.status ? (
-                <StatusPill label={order.status} tone={statusToTone(order.status)} />
+                <SalesOrderInlineStatus id={id} status={order.status} />
               ) : null}
             </div>
             <div className="grid gap-4 md:grid-cols-2">

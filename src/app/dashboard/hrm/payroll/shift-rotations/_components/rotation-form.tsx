@@ -1,5 +1,7 @@
 'use client';
 
+// TODO 1E.sweep: frequency/weekday dropdowns -> <EnumFormField enumName="weekday|recurringFrequency">; shift -> <EntityFormField entity="...">; employees -> <EntityMultiFormField entity="employee">. See plan §1E.
+
 /**
  * <RotationForm /> — create + edit form for shift rotations.
  *

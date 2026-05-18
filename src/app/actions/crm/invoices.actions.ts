@@ -92,6 +92,42 @@ export async function listInvoices(
   }
 }
 
+/**
+ * Dedicated KPI fetch for the §1D.1 list-page strip. Today this pulls a
+ * representative 200-row window from the Rust BFF and aggregates
+ * locally via the pure `computeInvoiceKpis()` helper — same trajectory
+ * as `getCrmAccountKpis`. Replace with a `/v1/crm/invoices/kpis`
+ * server-side aggregate once tenant volumes blow past the 200 ceiling.
+ *
+ * Returns an empty snapshot on failure (never throws) so the list page
+ * keeps rendering even if the Rust hop is down.
+ */
+export async function getInvoiceKpis(): Promise<
+  import('./invoices.kpis').InvoiceKpiSummary
+> {
+  const { computeInvoiceKpis } = await import('./invoices.kpis');
+  try {
+    const docs = await crmInvoicesApi.list({ page: 1, limit: 200 });
+    return computeInvoiceKpis(docs);
+  } catch (e) {
+    recordRustFallback({
+      entity: 'invoice',
+      op: 'list',
+      errorCode: e instanceof RustApiError ? e.code : undefined,
+      status: e instanceof RustApiError ? e.status : undefined,
+    });
+    return {
+      outstanding: 0,
+      overdueCount: 0,
+      overdueAmount: 0,
+      paidThisMonthCount: 0,
+      paidThisMonthAmount: 0,
+      draftCount: 0,
+      avgDaysToPay: null,
+    };
+  }
+}
+
 export async function getInvoice(
   id: string,
 ): Promise<{ invoice: CrmInvoiceDoc | null; error?: string }> {

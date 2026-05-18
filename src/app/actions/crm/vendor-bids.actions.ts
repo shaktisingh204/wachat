@@ -29,6 +29,7 @@ import {
 import { writeAuditEntry } from '@/lib/audit-log';
 import { getSession } from '@/app/actions/user.actions';
 import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+import { requirePermission } from '@/lib/rbac-server';
 
 const LIST_PATH = '/dashboard/crm/purchases/vendor-bids';
 
@@ -55,10 +56,20 @@ export async function listVendorBids(
 ): Promise<VendorBidListResult> {
   const page = Math.max(1, params.page ?? 1);
   const limit = Math.min(Math.max(1, params.limit ?? 20), 100);
+  const session = await getSession();
+  if (!session?.user) {
+    return { bids: [], page, limit, hasMore: false, error: 'Unauthorized' };
+  }
+  const guard = await requirePermission('crm_vendor_bid', 'view');
+  if (!guard.ok) {
+    return { bids: [], page, limit, hasMore: false, error: guard.error };
+  }
   try {
     const bids = await crmVendorBidsApi.list({ ...params, page, limit });
     return { bids, page, limit, hasMore: bids.length === limit };
   } catch (e) {
+    console.error('[listVendorBids] rust path failed; falling back:', e);
+    recordRustFallback({ entity: 'vendor_bid', op: 'list', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
     return { bids: [], page, limit, hasMore: false, error: rustErr(e) };
   }
 }
@@ -67,6 +78,14 @@ export async function getVendorBid(
   id: string,
 ): Promise<{ bid: CrmVendorBidDoc | null; error?: string }> {
   if (!id) return { bid: null, error: 'Missing vendor bid id.' };
+  const session = await getSession();
+  if (!session?.user) {
+    return { bid: null, error: 'Unauthorized' };
+  }
+  const guard = await requirePermission('crm_vendor_bid', 'view');
+  if (!guard.ok) {
+    return { bid: null, error: guard.error };
+  }
   try {
     const bid = await crmVendorBidsApi.getById(id);
     return { bid };
@@ -74,6 +93,8 @@ export async function getVendorBid(
     if (e instanceof RustApiError && e.status === 404) {
       return { bid: null, error: 'Vendor bid not found.' };
     }
+    console.error('[getVendorBid] rust path failed; falling back:', e);
+    recordRustFallback({ entity: 'vendor_bid', op: 'get', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
     return { bid: null, error: rustErr(e) };
   }
 }
@@ -167,7 +188,13 @@ export async function saveVendorBidAction(
   _prev: unknown,
   formData: FormData,
 ): Promise<{ message?: string; error?: string; id?: string }> {
+  const session = await getSession();
+  if (!session?.user) return { error: 'Unauthorized' };
+
   const id = pickString(formData, '_id');
+  const guard = await requirePermission('crm_vendor_bid', id ? 'edit' : 'create');
+  if (!guard.ok) return { error: guard.error };
+
   const rfqId = pickString(formData, 'rfqId');
   const vendorId = pickString(formData, 'vendorId');
   const currency = pickString(formData, 'currency') ?? 'INR';
@@ -213,6 +240,18 @@ export async function saveVendorBidAction(
       result = await crmVendorBidsApi.create(draft);
     }
 
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action: id ? 'update' : 'create',
+        entityKind: 'vendorBid',
+        entityId: String(result._id),
+      });
+    } catch {
+      /* non-fatal */
+    }
+
     revalidatePath(LIST_PATH);
     revalidatePath(`${LIST_PATH}/${String(result._id)}`);
     return {
@@ -220,6 +259,8 @@ export async function saveVendorBidAction(
       id: String(result._id),
     };
   } catch (e) {
+    console.error('[saveVendorBidAction] rust path failed; falling back:', e);
+    recordRustFallback({ entity: 'vendor_bid', op: id ? 'update' : 'create', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
     return { error: rustErr(e) };
   }
 }
@@ -232,14 +273,31 @@ export async function deleteVendorBidAction(
   id: string,
 ): Promise<{ success: boolean; error?: string }> {
   if (!id) return { success: false, error: 'Missing vendor bid id.' };
+  const session = await getSession();
+  if (!session?.user) return { success: false, error: 'Unauthorized' };
+  const guard = await requirePermission('crm_vendor_bid', 'delete');
+  if (!guard.ok) return { success: false, error: guard.error };
   try {
     await crmVendorBidsApi.delete(id);
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action: 'delete',
+        entityKind: 'vendorBid',
+        entityId: id,
+      });
+    } catch {
+      /* non-fatal */
+    }
     revalidatePath(LIST_PATH);
     return { success: true };
   } catch (e) {
     if (e instanceof RustApiError && e.status === 404) {
       return { success: false, error: 'Vendor bid not found.' };
     }
+    console.error('[deleteVendorBidAction] rust path failed; falling back:', e);
+    recordRustFallback({ entity: 'vendor_bid', op: 'delete', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
     return { success: false, error: rustErr(e) };
   }
 }
@@ -297,6 +355,8 @@ export async function updateVendorBidStatus(
   status: CrmVendorBidStatus | string,
 ): Promise<{ success: boolean; error?: string }> {
   if (!id) return { success: false, error: 'Missing vendor bid id.' };
+  const guard = await requirePermission('crm_vendor_bid', 'edit');
+  if (!guard.ok) return { success: false, error: guard.error };
   try {
     await crmVendorBidsApi.update(id, { status });
     await recordAudit('status_change', id);
@@ -304,6 +364,7 @@ export async function updateVendorBidStatus(
     revalidatePath(`${LIST_PATH}/${id}`);
     return { success: true };
   } catch (e) {
+    console.error('[updateVendorBidStatus] rust path failed; falling back:', e);
     trackFallback('update', e);
     return { success: false, error: rustErr(e) };
   }
@@ -313,6 +374,8 @@ export async function archiveVendorBidAction(
   id: string,
 ): Promise<{ success: boolean; error?: string }> {
   if (!id) return { success: false, error: 'Missing vendor bid id.' };
+  const guard = await requirePermission('crm_vendor_bid', 'edit');
+  if (!guard.ok) return { success: false, error: guard.error };
   try {
     // Vendor Bid Rust DTO uses `withdrawn` as the soft-archive terminal.
     await crmVendorBidsApi.update(id, { status: 'withdrawn' });
@@ -320,6 +383,7 @@ export async function archiveVendorBidAction(
     revalidatePath(LIST_PATH);
     return { success: true };
   } catch (e) {
+    console.error('[archiveVendorBidAction] rust path failed; falling back:', e);
     trackFallback('update', e);
     return { success: false, error: rustErr(e) };
   }
@@ -356,6 +420,8 @@ async function runBulk(
 }
 
 export async function bulkDeleteVendorBids(ids: string[]): Promise<BulkResult> {
+  const guard = await requirePermission('crm_vendor_bid', 'delete');
+  if (!guard.ok) return { success: false, processed: 0, error: guard.error };
   return runBulk(ids, async (id) => {
     await crmVendorBidsApi.delete(id);
     await recordAudit('delete', id);
@@ -363,6 +429,8 @@ export async function bulkDeleteVendorBids(ids: string[]): Promise<BulkResult> {
 }
 
 export async function bulkArchiveVendorBids(ids: string[]): Promise<BulkResult> {
+  const guard = await requirePermission('crm_vendor_bid', 'edit');
+  if (!guard.ok) return { success: false, processed: 0, error: guard.error };
   return runBulk(ids, async (id) => {
     await crmVendorBidsApi.update(id, { status: 'withdrawn' });
     await recordAudit('archive', id);
@@ -373,6 +441,8 @@ export async function bulkChangeVendorBidStatus(
   ids: string[],
   status: CrmVendorBidStatus | string,
 ): Promise<BulkResult> {
+  const guard = await requirePermission('crm_vendor_bid', 'edit');
+  if (!guard.ok) return { success: false, processed: 0, error: guard.error };
   return runBulk(ids, async (id) => {
     await crmVendorBidsApi.update(id, { status });
     await recordAudit('status_change', id);

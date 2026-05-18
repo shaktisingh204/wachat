@@ -29,6 +29,9 @@ import {
     useZoruToast,
 } from '@/components/zoruui';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
+import { EnumFormField } from '@/components/crm/enum-form-field';
+import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EntityMultiFormField } from '@/components/crm/entity-multi-form-field';
 
 import { saveTraining } from '@/app/actions/crm-training.actions';
 import type {
@@ -161,9 +164,9 @@ export function TrainingForm({ initialData }: TrainingFormProps) {
                     />
                 ) : null}
                 <input type="hidden" name="materialsUrl" value={materialsUrl} />
+                {/* TODO 1E.sweep: trainingType + deliveryMode dropdowns are still ZoruSelect because the local FORM_TYPE_OPTIONS / DELIVERY_OPTIONS slugs in _config.ts don't map 1:1 to the catalogued `trainingDeliveryMode` enum. Bridge slugs or extend the catalogue, then swap to <EnumFormField>. */}
                 <input type="hidden" name="trainingType" value={trainingType} />
                 <input type="hidden" name="deliveryMode" value={deliveryMode} />
-                <input type="hidden" name="status" value={status} />
 
                 {/* Row 1: Name */}
                 <div className="space-y-1.5">
@@ -223,24 +226,18 @@ export function TrainingForm({ initialData }: TrainingFormProps) {
                     />
                 </div>
 
-                {/* Row 4: Trainer + Provider */}
-                <div className="grid gap-4 sm:grid-cols-3">
+                {/* Row 4: Trainer (entity picker dual-writes trainerName) + Provider */}
+                <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="trainerName">Trainer name</ZoruLabel>
-                        <ZoruInput
-                            id="trainerName"
-                            name="trainerName"
-                            placeholder="Display name"
-                            defaultValue={initialData?.trainerName ?? ''}
-                        />
-                    </div>
-                    <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="trainerId">Trainer id</ZoruLabel>
-                        <ZoruInput
-                            id="trainerId"
+                        <ZoruLabel>Trainer</ZoruLabel>
+                        <EntityFormField
+                            entity="employee"
                             name="trainerId"
-                            placeholder="Optional employee ObjectId"
-                            defaultValue={initialData?.trainerId ?? ''}
+                            dualWriteName="trainerName"
+                            initialId={initialData?.trainerId ?? null}
+                            initialLabel={initialData?.trainerName ?? ''}
+                            allowCreate
+                            placeholder="Select trainer"
                         />
                     </div>
                     <div className="space-y-1.5">
@@ -324,12 +321,13 @@ export function TrainingForm({ initialData }: TrainingFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="currency">Currency</ZoruLabel>
-                        <ZoruInput
-                            id="currency"
+                        <ZoruLabel>Currency</ZoruLabel>
+                        <EntityFormField
+                            entity="currency"
                             name="currency"
+                            initialId={initialData?.currency ?? 'INR'}
+                            allowCreate
                             placeholder="INR"
-                            defaultValue={initialData?.currency ?? 'INR'}
                         />
                     </div>
                 </div>
@@ -385,12 +383,17 @@ export function TrainingForm({ initialData }: TrainingFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="departmentIds">Departments</ZoruLabel>
-                        <ZoruInput
-                            id="departmentIds"
+                        <ZoruLabel>Departments</ZoruLabel>
+                        <EntityMultiFormField
+                            entity="department"
                             name="departmentIds"
-                            placeholder="dept_id_1, dept_id_2"
-                            defaultValue={departmentIdsInitial}
+                            initialIds={
+                                Array.isArray(initialData?.departmentIds)
+                                    ? (initialData?.departmentIds as string[])
+                                    : []
+                            }
+                            allowCreate
+                            placeholder="Add departments"
                         />
                     </div>
                 </div>
@@ -418,22 +421,19 @@ export function TrainingForm({ initialData }: TrainingFormProps) {
                         </ZoruLabel>
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
-                        <ZoruSelect
-                            value={status}
-                            onValueChange={(v) => setStatus(v as CrmTrainingStatus)}
-                        >
-                            <ZoruSelectTrigger id="status-trigger">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {FORM_STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <ZoruLabel>Status</ZoruLabel>
+                        {/* TODO 1E.sweep: trainingStatus catalogue uses 'planned' slug; training crate uses 'planned' too — verify before locking inline-create off. */}
+                        <EnumFormField
+                            enumName="trainingStatus"
+                            name="status"
+                            initialId={status}
+                            onChange={(id) =>
+                                setStatus(
+                                    (id as CrmTrainingStatus) ?? 'planned',
+                                )
+                            }
+                            placeholder="Status"
+                        />
                     </div>
                 </div>
 

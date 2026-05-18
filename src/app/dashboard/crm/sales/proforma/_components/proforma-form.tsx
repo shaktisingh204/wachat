@@ -21,15 +21,11 @@ import {
     ZoruCard,
     ZoruInput,
     ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
     ZoruTextarea,
     useZoruToast,
 } from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 
 import {
     saveProformaInvoice,
@@ -43,12 +39,7 @@ import type {
 
 const BASE = '/dashboard/crm/sales/proforma';
 
-const STATUS_OPTIONS: Array<{ value: CrmProformaStatus; label: string }> = [
-    { value: 'Draft', label: 'Draft' },
-    { value: 'Issued', label: 'Issued' },
-    { value: 'Converted', label: 'Converted' },
-    { value: 'Cancelled', label: 'Cancelled' },
-];
+// Status + currency now sourced from CRM_ENUMS / EntityFormField.
 
 interface LineRow extends CrmProformaLineItem {
     rowId: string;
@@ -230,18 +221,12 @@ export function ProformaForm({ initialData }: ProformaFormProps) {
                     </div>
                     <div className="space-y-1.5">
                         <ZoruLabel>Currency</ZoruLabel>
-                        <ZoruSelect value={currency} onValueChange={setCurrency}>
-                            <ZoruSelectTrigger>
-                                <ZoruSelectValue />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {['INR', 'USD', 'EUR', 'GBP', 'AED'].map((c) => (
-                                    <ZoruSelectItem key={c} value={c}>
-                                        {c}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <EntityFormField
+                            entity="currency"
+                            name="__currency_picker"
+                            initialId={currency}
+                            onChange={(id) => setCurrency(id ?? 'INR')}
+                        />
                     </div>
                 </div>
 
@@ -435,21 +420,12 @@ export function ProformaForm({ initialData }: ProformaFormProps) {
                     </div>
                     <div className="space-y-1.5">
                         <ZoruLabel>Status</ZoruLabel>
-                        <ZoruSelect
-                            value={status}
-                            onValueChange={(v) => setStatus(v as CrmProformaStatus)}
-                        >
-                            <ZoruSelectTrigger>
-                                <ZoruSelectValue />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <EnumFormField
+                            enumName="proformaStatus"
+                            name="__status_picker"
+                            initialId={status || null}
+                            onChange={(id) => setStatus((id ?? 'Draft') as CrmProformaStatus)}
+                        />
                     </div>
                 </div>
 

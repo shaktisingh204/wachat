@@ -1,6 +1,8 @@
 import { ZoruButton, ZoruButton } from '@/components/zoruui';
 'use client';
 
+// TODO 1E.sweep: shift-type dropdowns -> <EnumFormField enumName="shiftType">; department/employees -> <EntityFormField>/<EntityMultiFormField>. See plan §1E.
+
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { ZoruInput } from '@/components/zoruui';

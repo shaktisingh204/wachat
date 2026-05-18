@@ -338,6 +338,64 @@ export async function deleteSalesOrderAction(
   }
 }
 
+/**
+ * Inline status mutation for the sales-order detail page. The CRM_ENUMS
+ * `salesOrderStatus` picker exposes the user-facing fulfillment ladder
+ * (`draft → confirmed → packed → shipped → delivered` plus
+ * `cancelled` / `returned`), while the Rust DTO `CrmSalesOrderStatus`
+ * enumerates the shorter `open | partial | fulfilled | closed |
+ * cancelled` lifecycle. Map between them so the UI picker can stay
+ * granular without the Rust API rejecting writes. P1.1B Wave 2.
+ */
+const SO_STATUS_TO_RUST: Record<
+  string,
+  'open' | 'partial' | 'fulfilled' | 'closed' | 'cancelled'
+> = {
+  draft: 'open',
+  confirmed: 'open',
+  packed: 'partial',
+  shipped: 'partial',
+  delivered: 'fulfilled',
+  cancelled: 'cancelled',
+  returned: 'cancelled',
+  // Identity entries so callers passing a Rust value also work.
+  open: 'open',
+  partial: 'partial',
+  fulfilled: 'fulfilled',
+  closed: 'closed',
+};
+
+export async function setSalesOrderStatus(
+  id: string,
+  status: string,
+): Promise<{ success: boolean; error?: string }> {
+  if (!id) return { success: false, error: 'Missing sales-order id.' };
+  if (!status) return { success: false, error: 'Missing status.' };
+  const mapped = SO_STATUS_TO_RUST[status];
+  if (!mapped) {
+    return { success: false, error: `Unknown sales-order status: ${status}` };
+  }
+  try {
+    await crmSalesOrdersApi.update(id, { status: mapped });
+    revalidatePath(LIST_PATH);
+    revalidatePath(`${LIST_PATH}/${id}`);
+    const actorId = await _crmSoActorId();
+    if (actorId) {
+      void recordFlowAction('crm.salesOrder.statusChanged', {
+        userId: actorId,
+        target: id,
+        metadata: { op: 'setStatus', uiStatus: status, rustStatus: mapped },
+      });
+    }
+    return { success: true };
+  } catch (e) {
+    if (e instanceof RustApiError && e.status === 404) {
+      return { success: false, error: 'Sales order not found.' };
+    }
+    return { success: false, error: rustErr(e) };
+  }
+}
+
 /* ─── Programmatic helpers (typed) ────────────────────────────── */
 
 export async function createSalesOrder(input: CrmSalesOrderCreateInput) {

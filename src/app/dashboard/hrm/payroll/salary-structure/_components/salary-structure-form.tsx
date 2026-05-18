@@ -1,5 +1,7 @@
 'use client';
 
+// TODO 1E.sweep: frequency/component-type dropdowns -> <EnumFormField>; currency -> <EntityFormField entity="currency">; employee -> <EntityFormField entity="employee">. See plan §1E.
+
 /**
  * <SalaryStructureForm /> — create + edit form for the salary-structure
  * entity (Rust-backed via `crmSalaryStructuresApi`).

@@ -18,15 +18,11 @@ import {
     ZoruCard,
     ZoruInput,
     ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
     ZoruTextarea,
     useZoruToast,
 } from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 
 import { saveMilestone } from '@/app/actions/crm-milestones.actions';
 import type {
@@ -36,20 +32,6 @@ import type {
 } from '@/lib/rust-client/crm-milestones';
 
 const BASE = '/dashboard/crm/projects/milestones';
-
-const STATUS_OPTIONS: Array<{ value: CrmMilestoneStatus; label: string }> = [
-    { value: 'planned', label: 'Planned' },
-    { value: 'in_progress', label: 'In progress' },
-    { value: 'completed', label: 'Completed' },
-    { value: 'overdue', label: 'Overdue' },
-    { value: 'archived', label: 'Archived' },
-];
-
-const PRIORITY_OPTIONS: Array<{ value: CrmMilestonePriority; label: string }> = [
-    { value: 'low', label: 'Low' },
-    { value: 'medium', label: 'Medium' },
-    { value: 'high', label: 'High' },
-];
 
 function toDateInput(value: unknown): string {
     if (!value) return '';
@@ -159,7 +141,10 @@ export function MilestoneForm({ initialData }: MilestoneFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="parentId">Parent milestone id</ZoruLabel>
+                        <ZoruLabel>Parent milestone</ZoruLabel>
+                        {/* TODO 1E.sweep: no `milestone` entity in lookup-registry — falling
+                            back to free-text id input. Promote once a milestone lookup
+                            adapter exists. */}
                         <ZoruInput
                             id="parentId"
                             name="parentId"
@@ -211,48 +196,32 @@ export function MilestoneForm({ initialData }: MilestoneFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="priority-trigger">Priority</ZoruLabel>
-                        <ZoruSelect
-                            value={priority}
-                            onValueChange={(v) =>
-                                setPriority(v as CrmMilestonePriority)
+                        <ZoruLabel>Priority</ZoruLabel>
+                        <EnumFormField
+                            enumName="priorityMedium"
+                            name="priorityPicker"
+                            initialId={priority}
+                            placeholder="Priority"
+                            onChange={(next) =>
+                                setPriority((next ?? 'medium') as CrmMilestonePriority)
                             }
-                        >
-                            <ZoruSelectTrigger id="priority-trigger">
-                                <ZoruSelectValue placeholder="Priority" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {PRIORITY_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        />
                     </div>
                 </div>
 
                 {/* Status + Owner */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
-                        <ZoruSelect
-                            value={status}
-                            onValueChange={(v) =>
-                                setStatus(v as CrmMilestoneStatus)
+                        <ZoruLabel>Status</ZoruLabel>
+                        <EnumFormField
+                            enumName="milestoneStatus"
+                            name="statusPicker"
+                            initialId={status}
+                            placeholder="Status"
+                            onChange={(next) =>
+                                setStatus((next ?? 'planned') as CrmMilestoneStatus)
                             }
-                        >
-                            <ZoruSelectTrigger id="status-trigger">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        />
                     </div>
                     <div className="space-y-1.5">
                         <ZoruLabel>Owner</ZoruLabel>

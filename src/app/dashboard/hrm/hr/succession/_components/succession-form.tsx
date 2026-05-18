@@ -1,5 +1,7 @@
 'use client';
 
+// TODO 1E.sweep: readiness -> <EnumFormField enumName="successionReadiness">; incumbent/successors -> <EntityFormField entity="employee">. See plan §1E.
+
 /**
  * <SuccessionForm /> — create + edit form for HR succession plans.
  *

@@ -1,14 +1,18 @@
 /**
- * Edit invoice — `/dashboard/crm/sales/invoices/[id]/edit`.
+ * Edit invoice — `/dashboard/crm/sales/invoices/[id]/edit` (§1D.3 rebuild
+ * — Phase 1.1B Wave 2 partial).
  *
- * Hydrates the existing invoice, fetches custom-field definitions, and
- * passes both to the shared `<InvoiceForm>` (re-used from the Create
- * flow). The form submits a PATCH because `_id` is rendered as a
- * hidden input.
+ * Hydrates the existing invoice, fetches the custom-field definitions,
+ * and hands both to the shared `<InvoiceForm>` (re-used from the Create
+ * flow). The form submits a PATCH because `_id` is rendered as a hidden
+ * input.
+ *
+ * Mirrors `accounts/[accountId]/edit/page.tsx`.
  */
 
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { Receipt } from 'lucide-react';
+import { ArrowLeft, Receipt } from 'lucide-react';
 
 import { CrmPageHeader } from '../../../../_components/crm-page-header';
 import { InvoiceForm } from '../../_components/invoice-form';
@@ -36,6 +40,16 @@ export default async function EditInvoicePage({
 
   return (
     <div className="flex w-full flex-col gap-6">
+      <div>
+        <Link
+          href={`/dashboard/crm/sales/invoices/${id}`}
+          className="inline-flex items-center gap-1.5 text-[12.5px] text-zoru-ink-muted hover:text-zoru-ink"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" />
+          Back to invoice
+        </Link>
+      </div>
+
       <CrmPageHeader
         title={`Edit ${fallback.invoiceNo || 'invoice'}`}
         subtitle="Update invoice details and line items."
@@ -51,6 +65,7 @@ export default async function EditInvoicePage({
           { label: 'Edit' },
         ]}
       />
+
       <InvoiceForm
         initial={fallback}
         customFields={customFields}

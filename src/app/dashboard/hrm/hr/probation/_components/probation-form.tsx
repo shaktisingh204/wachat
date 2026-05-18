@@ -20,14 +20,11 @@ import {
     ZoruCard,
     ZoruInput,
     ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
     ZoruTextarea,
     useZoruToast,
 } from '@/components/zoruui';
+import { EnumFormField } from '@/components/crm/enum-form-field';
+import { EntityFormField } from '@/components/crm/entity-form-field';
 
 import {
     saveCrmProbation,
@@ -38,24 +35,6 @@ import {
 } from '@/app/actions/crm-probation.actions';
 
 const BASE = '/dashboard/hrm/hr/probation';
-
-const STATUS_OPTIONS: Array<{ value: ProbationStatus; label: string }> = [
-    { value: 'in_progress', label: 'In progress' },
-    { value: 'confirmed', label: 'Confirmed' },
-    { value: 'extended', label: 'Extended' },
-    { value: 'terminated', label: 'Terminated' },
-    { value: 'archived', label: 'Archived' },
-];
-
-const RECOMMENDATION_OPTIONS: Array<{
-    value: '' | ProbationRecommendation;
-    label: string;
-}> = [
-    { value: '', label: '— None —' },
-    { value: 'confirm', label: 'Confirm' },
-    { value: 'extend', label: 'Extend' },
-    { value: 'terminate', label: 'Terminate' },
-];
 
 function toDateInput(value: unknown): string {
     if (!value) return '';
@@ -167,28 +146,21 @@ export function ProbationForm({ initialData }: ProbationFormProps) {
                 {isEditing ? (
                     <input type="hidden" name="probationId" value={recordId} />
                 ) : null}
-                <input type="hidden" name="status" value={status} />
-                <input type="hidden" name="recommendation" value={recommendation} />
                 <input type="hidden" name="criteria" value={cleanCriteriaJson} />
 
-                {/* Employee */}
+                {/* Employee picker (dual-writes employeeName for legacy callers) */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="employeeName">Employee name *</ZoruLabel>
-                        <ZoruInput
-                            id="employeeName"
-                            name="employeeName"
-                            placeholder="Full name"
-                            defaultValue={initialData?.employeeName ?? ''}
-                        />
-                    </div>
-                    <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="employeeId">Employee ID</ZoruLabel>
-                        <ZoruInput
-                            id="employeeId"
+                        <ZoruLabel>Employee *</ZoruLabel>
+                        <EntityFormField
+                            entity="employee"
                             name="employeeId"
-                            placeholder="HR employee id"
-                            defaultValue={initialData?.employeeId ?? ''}
+                            dualWriteName="employeeName"
+                            initialId={initialData?.employeeId ?? null}
+                            initialLabel={initialData?.employeeName ?? ''}
+                            allowCreate
+                            placeholder="Select employee"
+                            required
                         />
                     </div>
                 </div>
@@ -215,26 +187,18 @@ export function ProbationForm({ initialData }: ProbationFormProps) {
                     </div>
                 </div>
 
-                {/* Evaluator */}
-                <div className="grid gap-4 sm:grid-cols-2">
-                    <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="evaluatorName">Evaluator name</ZoruLabel>
-                        <ZoruInput
-                            id="evaluatorName"
-                            name="evaluatorName"
-                            placeholder="Reporting manager"
-                            defaultValue={initialData?.evaluatorName ?? ''}
-                        />
-                    </div>
-                    <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="evaluatorId">Evaluator ID</ZoruLabel>
-                        <ZoruInput
-                            id="evaluatorId"
-                            name="evaluatorId"
-                            placeholder="User id"
-                            defaultValue={initialData?.evaluatorId ?? ''}
-                        />
-                    </div>
+                {/* Evaluator picker (dual-writes evaluatorName for legacy callers) */}
+                <div className="space-y-1.5">
+                    <ZoruLabel>Evaluator</ZoruLabel>
+                    <EntityFormField
+                        entity="employee"
+                        name="evaluatorId"
+                        dualWriteName="evaluatorName"
+                        initialId={initialData?.evaluatorId ?? null}
+                        initialLabel={initialData?.evaluatorName ?? ''}
+                        allowCreate
+                        placeholder="Select evaluator"
+                    />
                 </div>
 
                 {/* Criteria repeater */}
@@ -327,53 +291,36 @@ export function ProbationForm({ initialData }: ProbationFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="recommendation-trigger">
-                            Recommendation
-                        </ZoruLabel>
-                        <ZoruSelect
-                            value={recommendation || 'none'}
-                            onValueChange={(v) =>
+                        <ZoruLabel>Recommendation</ZoruLabel>
+                        <EnumFormField
+                            enumName="probationRecommendation"
+                            name="recommendation"
+                            initialId={recommendation || null}
+                            onChange={(id) =>
                                 setRecommendation(
-                                    v === 'none' ? '' : (v as ProbationRecommendation),
+                                    (id as ProbationRecommendation) ?? '',
                                 )
                             }
-                        >
-                            <ZoruSelectTrigger id="recommendation-trigger">
-                                <ZoruSelectValue placeholder="—" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {RECOMMENDATION_OPTIONS.map((o) => (
-                                    <ZoruSelectItem
-                                        key={o.value || 'none'}
-                                        value={o.value || 'none'}
-                                    >
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                            placeholder="Recommendation"
+                        />
                     </div>
                 </div>
 
                 {/* Status + Notes */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
-                        <ZoruSelect
-                            value={status}
-                            onValueChange={(v) => setStatus(v as ProbationStatus)}
-                        >
-                            <ZoruSelectTrigger id="status-trigger">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <ZoruLabel>Status</ZoruLabel>
+                        <EnumFormField
+                            enumName="probationStatus"
+                            name="status"
+                            initialId={status}
+                            onChange={(id) =>
+                                setStatus(
+                                    (id as ProbationStatus) ?? 'in_progress',
+                                )
+                            }
+                            placeholder="Status"
+                        />
                     </div>
                     <div className="space-y-1.5 sm:col-span-1">
                         <ZoruLabel htmlFor="notes">Notes</ZoruLabel>

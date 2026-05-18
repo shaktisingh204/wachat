@@ -20,15 +20,11 @@ import {
   ZoruCard,
   ZoruInput,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import { EntityMultiFormField } from '@/components/crm/entity-multi-form-field';
 import { EntityPicker } from '@/components/crm/entity-picker';
 import { DirtyFormPrompt } from '@/components/crm/dirty-form-prompt';
@@ -327,21 +323,18 @@ export function DealForm({ initial, redirectTo, currentUserId }: DealFormProps) 
             <ZoruLabel>
               Counter-party type <span className="text-zoru-danger-ink">*</span>
             </ZoruLabel>
-            <ZoruSelect
-              value={partyKind}
-              onValueChange={(v) => {
-                setPartyKind(v as PartyKind);
-                markDirty();
+            <EnumFormField
+              enumName="partyKind"
+              name="partyKindPicker"
+              initialId={partyKind}
+              allowInlineCreate={false}
+              onChange={(next) => {
+                if (next === 'client' || next === 'lead') {
+                  setPartyKind(next as PartyKind);
+                  markDirty();
+                }
               }}
-            >
-              <ZoruSelectTrigger>
-                <ZoruSelectValue />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="client">Client (account)</ZoruSelectItem>
-                <ZoruSelectItem value="lead">Lead / contact</ZoruSelectItem>
-              </ZoruSelectContent>
-            </ZoruSelect>
+            />
           </div>
 
           <div className="space-y-1.5">
@@ -463,18 +456,13 @@ export function DealForm({ initial, redirectTo, currentUserId }: DealFormProps) 
           </div>
 
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="priority">Priority</ZoruLabel>
-            <ZoruSelect name="priority" defaultValue={initial?.priority ?? undefined}>
-              <ZoruSelectTrigger id="priority">
-                <ZoruSelectValue placeholder="Select priority" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="low">Low</ZoruSelectItem>
-                <ZoruSelectItem value="medium">Medium</ZoruSelectItem>
-                <ZoruSelectItem value="high">High</ZoruSelectItem>
-                <ZoruSelectItem value="critical">Critical</ZoruSelectItem>
-              </ZoruSelectContent>
-            </ZoruSelect>
+            <ZoruLabel>Priority</ZoruLabel>
+            <EnumFormField
+              enumName="ticketPriority"
+              name="priority"
+              initialId={initial?.priority ?? null}
+              placeholder="Select priority"
+            />
           </div>
 
           <div className="space-y-1.5">

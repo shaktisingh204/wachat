@@ -19,12 +19,16 @@
  */
 
 import * as React from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { FileText, Plus } from 'lucide-react';
 
 import {
+  ZoruButton,
   ZoruCard,
   useZoruToast,
 } from '@/components/zoruui';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import type { CrmQuotationStatus } from '@/lib/rust-client/crm-quotations';
@@ -347,73 +351,107 @@ export function QuotationListClient({
   /* ─── Render ─────────────────────────────────────────────────── */
 
   return (
-    <div className="flex w-full flex-col gap-5">
-      <QuotationKpiStrip kpi={kpi} onSegmentClick={onKpiSegmentClick} />
+    <>
+      <EntityListShell
+        title="Quotations"
+        subtitle="Create and manage sales quotations — open, accepted, rejected, expired, converted."
+        primaryAction={
+          <ZoruButton asChild>
+            <Link href="/dashboard/crm/sales/quotations/new">
+              <Plus className="h-4 w-4" /> New quotation
+            </Link>
+          </ZoruButton>
+        }
+        bulkBar={
+          selected.size > 0 ? (
+            <QuotationBulkBar
+              count={selected.size}
+              onExportCsv={exportCsv}
+              onClear={() => setSelected(new Set())}
+              onArchive={() => setArchivePending(true)}
+              onDelete={() => setDeletePending(true)}
+              onSend={bulk.send}
+              onConvertToInvoice={() => setConvertPending(true)}
+              onChangeStatus={bulk.changeStatus as (s: CrmQuotationStatus) => void}
+            />
+          ) : null
+        }
+        empty={
+          filtered.length === 0 && !filtersActive ? (
+            <div className="flex flex-col items-center gap-3 p-4">
+              <FileText className="h-8 w-8 text-zoru-ink-muted" />
+              <h3 className="text-base font-medium text-zoru-ink">
+                No quotations yet
+              </h3>
+              <p className="max-w-sm text-sm text-zoru-ink-muted">
+                Draft your first quotation to start the sales conversation.
+              </p>
+              <ZoruButton asChild>
+                <Link href="/dashboard/crm/sales/quotations/new">
+                  <Plus className="h-4 w-4" /> New quotation
+                </Link>
+              </ZoruButton>
+            </div>
+          ) : null
+        }
+        pagination={<PaginationBar page={page} limit={limit} hasMore={hasMore} />}
+      >
+        <div className="flex flex-col gap-5">
+          <QuotationKpiStrip kpi={kpi} onSegmentClick={onKpiSegmentClick} />
 
-      {error ? (
-        <div className="rounded border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-[12.5px] text-amber-700 dark:text-amber-400">
-          {error}
+          {error ? (
+            <div className="rounded border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-[12.5px] text-amber-700 dark:text-amber-400">
+              {error}
+            </div>
+          ) : null}
+
+          <ZoruCard className="overflow-hidden p-0">
+            <QuotationListToolbar
+              query={query}
+              onQueryChange={setQuery}
+              view={view}
+              onViewChange={setView}
+              density={density}
+              onDensityChange={handleDensityChange}
+              preset={preset}
+              onPresetChange={applyPreset}
+              onExportCsv={exportCsv}
+            />
+
+            <QuotationFilters
+              statusFilter={statusFilter}
+              customerFilter={customerFilter}
+              salesAgentFilter={salesAgentFilter}
+              currencyFilter={currencyFilter}
+              fromDate={fromDate}
+              toDate={toDate}
+              validFrom={validFrom}
+              validTo={validTo}
+              filtersActive={filtersActive}
+              onStatusChange={setStatusFilter}
+              onCustomerChange={setCustomerFilter}
+              onSalesAgentChange={setSalesAgentFilter}
+              onCurrencyChange={setCurrencyFilter}
+              onFromDateChange={setFromDate}
+              onToDateChange={setToDate}
+              onValidFromChange={setValidFrom}
+              onValidToChange={setValidTo}
+              onClear={clearFilters}
+            />
+
+            <QuotationTable
+              quotations={filtered}
+              selected={selected}
+              onToggleRow={toggleRow}
+              onToggleAll={toggleAll}
+              allSelectedOnPage={allSelectedOnPage}
+              filtersActive={filtersActive}
+              defaultCurrency={defaultCurrency}
+              density={density}
+            />
+          </ZoruCard>
         </div>
-      ) : null}
-
-      <ZoruCard className="overflow-hidden p-0">
-        <QuotationListToolbar
-          query={query}
-          onQueryChange={setQuery}
-          view={view}
-          onViewChange={setView}
-          density={density}
-          onDensityChange={handleDensityChange}
-          preset={preset}
-          onPresetChange={applyPreset}
-          onExportCsv={exportCsv}
-        />
-
-        <QuotationFilters
-          statusFilter={statusFilter}
-          customerFilter={customerFilter}
-          salesAgentFilter={salesAgentFilter}
-          currencyFilter={currencyFilter}
-          fromDate={fromDate}
-          toDate={toDate}
-          validFrom={validFrom}
-          validTo={validTo}
-          filtersActive={filtersActive}
-          onStatusChange={setStatusFilter}
-          onCustomerChange={setCustomerFilter}
-          onSalesAgentChange={setSalesAgentFilter}
-          onCurrencyChange={setCurrencyFilter}
-          onFromDateChange={setFromDate}
-          onToDateChange={setToDate}
-          onValidFromChange={setValidFrom}
-          onValidToChange={setValidTo}
-          onClear={clearFilters}
-        />
-
-        <QuotationBulkBar
-          count={selected.size}
-          onExportCsv={exportCsv}
-          onClear={() => setSelected(new Set())}
-          onArchive={() => setArchivePending(true)}
-          onDelete={() => setDeletePending(true)}
-          onSend={bulk.send}
-          onConvertToInvoice={() => setConvertPending(true)}
-          onChangeStatus={bulk.changeStatus as (s: CrmQuotationStatus) => void}
-        />
-
-        <QuotationTable
-          quotations={filtered}
-          selected={selected}
-          onToggleRow={toggleRow}
-          onToggleAll={toggleAll}
-          allSelectedOnPage={allSelectedOnPage}
-          filtersActive={filtersActive}
-          defaultCurrency={defaultCurrency}
-          density={density}
-        />
-
-        <PaginationBar page={page} limit={limit} hasMore={hasMore} />
-      </ZoruCard>
+      </EntityListShell>
 
       <ConfirmDialog
         open={archivePending}
@@ -450,6 +488,6 @@ export function QuotationListClient({
       />
 
       {bulk.pending ? <span className="sr-only">Working…</span> : null}
-    </div>
+    </>
   );
 }

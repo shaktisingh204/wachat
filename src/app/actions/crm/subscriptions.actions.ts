@@ -54,6 +54,14 @@ export async function listSubscriptions(
 ): Promise<SubscriptionListResult> {
   const page = Math.max(1, params.page ?? 1);
   const limit = Math.min(Math.max(1, params.limit ?? 20), 100);
+  const session = await getSession();
+  if (!session?.user) {
+    return { subscriptions: [], page, limit, hasMore: false, error: 'Unauthorized' };
+  }
+  const guard = await requirePermission('crm_subscription', 'view');
+  if (!guard.ok) {
+    return { subscriptions: [], page, limit, hasMore: false, error: guard.error };
+  }
   try {
     const subscriptions = await crmSubscriptionsApi.list({ ...params, page, limit });
     return {
@@ -63,6 +71,8 @@ export async function listSubscriptions(
       hasMore: subscriptions.length === limit,
     };
   } catch (e) {
+    console.error('[listSubscriptions] rust path failed; falling back:', e);
+    recordRustFallback({ entity: 'subscription', op: 'list', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
     return { subscriptions: [], page, limit, hasMore: false, error: rustErr(e) };
   }
 }
@@ -71,6 +81,14 @@ export async function getSubscription(
   id: string,
 ): Promise<{ subscription: CrmSubscriptionDoc | null; error?: string }> {
   if (!id) return { subscription: null, error: 'Missing subscription id.' };
+  const session = await getSession();
+  if (!session?.user) {
+    return { subscription: null, error: 'Unauthorized' };
+  }
+  const guard = await requirePermission('crm_subscription', 'view');
+  if (!guard.ok) {
+    return { subscription: null, error: guard.error };
+  }
   try {
     const subscription = await crmSubscriptionsApi.getById(id);
     return { subscription };
@@ -78,6 +96,8 @@ export async function getSubscription(
     if (e instanceof RustApiError && e.status === 404) {
       return { subscription: null, error: 'Subscription not found.' };
     }
+    console.error('[getSubscription] rust path failed; falling back:', e);
+    recordRustFallback({ entity: 'subscription', op: 'get', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
     return { subscription: null, error: rustErr(e) };
   }
 }
@@ -136,7 +156,12 @@ export async function saveSubscriptionAction(
   _prev: unknown,
   formData: FormData,
 ): Promise<{ message?: string; error?: string; id?: string }> {
+  const session = await getSession();
+  if (!session?.user) return { error: 'Unauthorized' };
+
   const id = pickString(formData, '_id');
+  const guard = await requirePermission('crm_subscription', id ? 'edit' : 'create');
+  if (!guard.ok) return { error: guard.error };
 
   const customerId = pickString(formData, 'customerId');
   const itemId = pickString(formData, 'itemId');
@@ -202,6 +227,18 @@ export async function saveSubscriptionAction(
       result = await crmSubscriptionsApi.create(draft);
     }
 
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action: id ? 'update' : 'create',
+        entityKind: 'subscription',
+        entityId: String(result._id),
+      });
+    } catch {
+      /* non-fatal */
+    }
+
     revalidatePath(LIST_PATH);
     revalidatePath(`${LIST_PATH}/${String(result._id)}`);
     return {
@@ -209,6 +246,8 @@ export async function saveSubscriptionAction(
       id: String(result._id),
     };
   } catch (e) {
+    console.error('[saveSubscriptionAction] rust path failed; falling back:', e);
+    recordRustFallback({ entity: 'subscription', op: id ? 'update' : 'create', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
     return { error: rustErr(e) };
   }
 }

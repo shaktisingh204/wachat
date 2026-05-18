@@ -14,21 +14,17 @@ import { useActionState } from 'react';
 import {
     ZoruInput,
     ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
     ZoruSwitch,
     useZoruToast,
 } from '@/components/zoruui';
 
 import { EntityFormShell } from '@/components/crm/entity-form-shell';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import { saveVoucherBook } from '@/app/actions/crm-vouchers.actions';
 import type { CrmVoucherBook } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
 
-import { VOUCHER_TYPES, type VoucherBookType, type VoucherResetFrequency } from './types';
+import type { VoucherResetFrequency } from './types';
 
 interface VoucherBookFormProps {
     initial?: WithId<CrmVoucherBook> | null;
@@ -94,18 +90,13 @@ export function VoucherBookForm({ initial }: VoucherBookFormProps): React.JSX.El
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div className="space-y-2">
                                 <ZoruLabel htmlFor="voucherBookType">Type *</ZoruLabel>
-                                <ZoruSelect name="voucherBookType" required defaultValue={init?.type}>
-                                    <ZoruSelectTrigger id="voucherBookType">
-                                        <ZoruSelectValue placeholder="Pick a voucher type" />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        {VOUCHER_TYPES.map((t: VoucherBookType) => (
-                                            <ZoruSelectItem key={t} value={t}>
-                                                {t}
-                                            </ZoruSelectItem>
-                                        ))}
-                                    </ZoruSelectContent>
-                                </ZoruSelect>
+                                <EnumFormField
+                                    name="voucherBookType"
+                                    enumName="voucherType"
+                                    initialId={init?.type ?? null}
+                                    required
+                                    placeholder="Pick a voucher type"
+                                />
                             </div>
                             <div className="space-y-2">
                                 <ZoruLabel htmlFor="voucherBookName">Name *</ZoruLabel>
@@ -170,19 +161,11 @@ export function VoucherBookForm({ initial }: VoucherBookFormProps): React.JSX.El
                             </div>
                             <div className="space-y-2 md:col-span-2">
                                 <ZoruLabel htmlFor="resetFrequency">Reset frequency</ZoruLabel>
-                                <ZoruSelect
+                                <EnumFormField
                                     name="resetFrequency"
-                                    defaultValue={init?.resetFrequency ?? 'none'}
-                                >
-                                    <ZoruSelectTrigger id="resetFrequency">
-                                        <ZoruSelectValue />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="none">Never reset</ZoruSelectItem>
-                                        <ZoruSelectItem value="yearly">Reset yearly (FY)</ZoruSelectItem>
-                                        <ZoruSelectItem value="monthly">Reset monthly</ZoruSelectItem>
-                                    </ZoruSelectContent>
-                                </ZoruSelect>
+                                    enumName="voucherResetFrequency"
+                                    initialId={(init?.resetFrequency ?? 'none') as VoucherResetFrequency}
+                                />
                             </div>
                         </div>
                     ),

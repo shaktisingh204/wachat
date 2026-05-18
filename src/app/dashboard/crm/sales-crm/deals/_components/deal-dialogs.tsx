@@ -313,6 +313,11 @@ export function DealWonLossDialog({
           </ZoruDialogDescription>
         </ZoruDialogHeader>
         <div className="space-y-3 py-2">
+          {/* TODO 1E.sweep: `reasons` is a runtime list from props (per-tenant
+              configured win/loss reasons). Once we model `dealReasonsEnum` as
+              a Mongo-backed enum, this becomes an `<EnumFormField>`; for now
+              the raw ZoruSelect is preserved so the inline-custom sentinel
+              still works. */}
           {Array.isArray(reasons) && reasons.length > 0 ? (
             <div className="space-y-1">
               <ZoruLabel>Reason</ZoruLabel>

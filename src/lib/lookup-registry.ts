@@ -29,6 +29,7 @@ export type EntityKey =
   | 'department'  // HR department (`crm_departments`)
   | 'designation' // HR designation (`crm_designations`)
   | 'employee'    // HR Employee (`crm_employees`)
+  | 'enum'        // Catalogued named-enum picker — pass filter.enumName (see src/data/reference/crm-enums.ts)
   | 'industry'    // Industry classification (static enum) + inline-create
   | 'invoice'     // CRM Invoice (`crm_invoices`)
   | 'item'        // CRM Product / Item (`crm_products`)
@@ -79,6 +80,7 @@ export const ENTITY_KEYS = [
   'department',
   'designation',
   'employee',
+  'enum',
   'industry',
   'invoice',
   'item',
@@ -126,6 +128,7 @@ export const REFERENCE_ENTITY_KEYS: readonly EntityKey[] = [
   'industry',
   'unit',
   'vendorType',
+  'enum',
 ] as const;
 
 export function isReferenceEntity(entity: EntityKey): boolean {

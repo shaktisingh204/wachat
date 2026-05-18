@@ -17,17 +17,13 @@ import {
     ZoruButton,
     ZoruCard,
     ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
     ZoruTextarea,
     useZoruToast,
 } from '@/components/zoruui';
 
 import { CrmPageHeader } from '../../../../_components/crm-page-header';
 import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 
 import {
     fileEraseRequest,
@@ -132,25 +128,17 @@ export default function NewGdprEraseRequestPage() {
                     <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                         <div className="space-y-2">
                             <ZoruLabel htmlFor="subject-kind">Subject kind</ZoruLabel>
-                            <ZoruSelect
-                                value={subjectKind}
-                                onValueChange={(v) => {
-                                    setSubjectKind(v as EraseSubjectKind);
+                            <EnumFormField
+                                name="__subjectKind"
+                                enumName="eraseSubjectKind"
+                                initialId={subjectKind}
+                                onChange={(id) => {
+                                    setSubjectKind((id ?? 'contact') as EraseSubjectKind);
                                     setSubjectId(null);
                                     setSubjectLabel('');
                                 }}
-                            >
-                                <ZoruSelectTrigger id="subject-kind">
-                                    <ZoruSelectValue placeholder="Pick a kind" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    {SUBJECT_KINDS.map((s) => (
-                                        <ZoruSelectItem key={s.value} value={s.value}>
-                                            {s.label}
-                                        </ZoruSelectItem>
-                                    ))}
-                                </ZoruSelectContent>
-                            </ZoruSelect>
+                                placeholder="Pick a kind"
+                            />
                         </div>
 
                         <div className="space-y-2">
@@ -182,21 +170,13 @@ export default function NewGdprEraseRequestPage() {
 
                     <div className="space-y-2">
                         <ZoruLabel htmlFor="scope">Scope</ZoruLabel>
-                        <ZoruSelect
-                            value={scope}
-                            onValueChange={(v) => setScope(v as EraseScope)}
-                        >
-                            <ZoruSelectTrigger id="scope">
-                                <ZoruSelectValue placeholder="Pick a scope" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {SCOPES.map((s) => (
-                                    <ZoruSelectItem key={s.value} value={s.value}>
-                                        {s.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <EnumFormField
+                            name="__scope"
+                            enumName="eraseScope"
+                            initialId={scope}
+                            onChange={(id) => setScope((id ?? 'soft_redact') as EraseScope)}
+                            placeholder="Pick a scope"
+                        />
                         <p className="text-[12px] text-zoru-ink-muted">
                             {SCOPES.find((s) => s.value === scope)?.help}
                         </p>

@@ -29,6 +29,7 @@ import {
 import { writeAuditEntry } from '@/lib/audit-log';
 import { getSession } from '@/app/actions/user.actions';
 import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+import { requirePermission } from '@/lib/rbac-server';
 
 const LIST_PATH = '/dashboard/crm/purchases/rfqs';
 
@@ -53,10 +54,20 @@ export interface RfqListResult {
 export async function listRfqs(params: CrmRfqListParams = {}): Promise<RfqListResult> {
   const page = Math.max(1, params.page ?? 1);
   const limit = Math.min(Math.max(1, params.limit ?? 20), 100);
+  const session = await getSession();
+  if (!session?.user) {
+    return { rfqs: [], page, limit, hasMore: false, error: 'Unauthorized' };
+  }
+  const guard = await requirePermission('crm_rfq', 'view');
+  if (!guard.ok) {
+    return { rfqs: [], page, limit, hasMore: false, error: guard.error };
+  }
   try {
     const rfqs = await crmRfqsApi.list({ ...params, page, limit });
     return { rfqs, page, limit, hasMore: rfqs.length === limit };
   } catch (e) {
+    console.error('[listRfqs] rust path failed; falling back:', e);
+    recordRustFallback({ entity: 'rfq', op: 'list', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
     return { rfqs: [], page, limit, hasMore: false, error: rustErr(e) };
   }
 }
@@ -65,6 +76,14 @@ export async function getRfq(
   id: string,
 ): Promise<{ rfq: CrmRfqDoc | null; error?: string }> {
   if (!id) return { rfq: null, error: 'Missing RFQ id.' };
+  const session = await getSession();
+  if (!session?.user) {
+    return { rfq: null, error: 'Unauthorized' };
+  }
+  const guard = await requirePermission('crm_rfq', 'view');
+  if (!guard.ok) {
+    return { rfq: null, error: guard.error };
+  }
   try {
     const rfq = await crmRfqsApi.getById(id);
     return { rfq };
@@ -72,6 +91,8 @@ export async function getRfq(
     if (e instanceof RustApiError && e.status === 404) {
       return { rfq: null, error: 'RFQ not found.' };
     }
+    console.error('[getRfq] rust path failed; falling back:', e);
+    recordRustFallback({ entity: 'rfq', op: 'get', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
     return { rfq: null, error: rustErr(e) };
   }
 }
@@ -199,7 +220,13 @@ export async function saveRfqAction(
   _prev: unknown,
   formData: FormData,
 ): Promise<{ message?: string; error?: string; id?: string }> {
+  const session = await getSession();
+  if (!session?.user) return { error: 'Unauthorized' };
+
   const id = pickString(formData, '_id');
+  const guard = await requirePermission('crm_rfq', id ? 'edit' : 'create');
+  if (!guard.ok) return { error: guard.error };
+
   const title = pickString(formData, 'title');
   const items = parseLineItems(formData);
   const vendorsInvited = parseVendorIds(formData);
@@ -263,6 +290,18 @@ export async function saveRfqAction(
       result = await crmRfqsApi.create(draft);
     }
 
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action: id ? 'update' : 'create',
+        entityKind: 'rfq',
+        entityId: String(result._id),
+      });
+    } catch {
+      /* non-fatal */
+    }
+
     revalidatePath(LIST_PATH);
     revalidatePath(`${LIST_PATH}/${String(result._id)}`);
     return {
@@ -270,6 +309,8 @@ export async function saveRfqAction(
       id: String(result._id),
     };
   } catch (e) {
+    console.error('[saveRfqAction] rust path failed; falling back:', e);
+    recordRustFallback({ entity: 'rfq', op: id ? 'update' : 'create', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
     return { error: rustErr(e) };
   }
 }
@@ -282,14 +323,31 @@ export async function deleteRfqAction(
   id: string,
 ): Promise<{ success: boolean; error?: string }> {
   if (!id) return { success: false, error: 'Missing RFQ id.' };
+  const session = await getSession();
+  if (!session?.user) return { success: false, error: 'Unauthorized' };
+  const guard = await requirePermission('crm_rfq', 'delete');
+  if (!guard.ok) return { success: false, error: guard.error };
   try {
     await crmRfqsApi.delete(id);
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action: 'delete',
+        entityKind: 'rfq',
+        entityId: id,
+      });
+    } catch {
+      /* non-fatal */
+    }
     revalidatePath(LIST_PATH);
     return { success: true };
   } catch (e) {
     if (e instanceof RustApiError && e.status === 404) {
       return { success: false, error: 'RFQ not found.' };
     }
+    console.error('[deleteRfqAction] rust path failed; falling back:', e);
+    recordRustFallback({ entity: 'rfq', op: 'delete', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
     return { success: false, error: rustErr(e) };
   }
 }
@@ -343,6 +401,8 @@ export async function updateRfqStatus(
   status: CrmRfqStatus | string,
 ): Promise<{ success: boolean; error?: string }> {
   if (!id) return { success: false, error: 'Missing RFQ id.' };
+  const guard = await requirePermission('crm_rfq', 'edit');
+  if (!guard.ok) return { success: false, error: guard.error };
   try {
     await crmRfqsApi.update(id, { status });
     await recordAudit('status_change', id);
@@ -350,6 +410,7 @@ export async function updateRfqStatus(
     revalidatePath(`${LIST_PATH}/${id}`);
     return { success: true };
   } catch (e) {
+    console.error('[updateRfqStatus] rust path failed; falling back:', e);
     trackFallback('update', e);
     return { success: false, error: rustErr(e) };
   }
@@ -359,6 +420,8 @@ export async function archiveRfqAction(
   id: string,
 ): Promise<{ success: boolean; error?: string }> {
   if (!id) return { success: false, error: 'Missing RFQ id.' };
+  const guard = await requirePermission('crm_rfq', 'edit');
+  if (!guard.ok) return { success: false, error: guard.error };
   try {
     // Rust RFQ DTO doesn't model archived directly — soft-state via
     // status = cancelled is the canonical "out-of-flow" terminal.
@@ -367,6 +430,7 @@ export async function archiveRfqAction(
     revalidatePath(LIST_PATH);
     return { success: true };
   } catch (e) {
+    console.error('[archiveRfqAction] rust path failed; falling back:', e);
     trackFallback('update', e);
     return { success: false, error: rustErr(e) };
   }
@@ -376,6 +440,8 @@ export async function awardRfqAction(
   id: string,
 ): Promise<{ success: boolean; error?: string }> {
   if (!id) return { success: false, error: 'Missing RFQ id.' };
+  const guard = await requirePermission('crm_rfq', 'edit');
+  if (!guard.ok) return { success: false, error: guard.error };
   try {
     await crmRfqsApi.update(id, { status: 'awarded' });
     await recordAudit('status_change', id);
@@ -383,6 +449,7 @@ export async function awardRfqAction(
     revalidatePath(`${LIST_PATH}/${id}`);
     return { success: true };
   } catch (e) {
+    console.error('[awardRfqAction] rust path failed; falling back:', e);
     trackFallback('update', e);
     return { success: false, error: rustErr(e) };
   }
@@ -419,6 +486,8 @@ async function runBulk(
 }
 
 export async function bulkDeleteRfqs(ids: string[]): Promise<BulkResult> {
+  const guard = await requirePermission('crm_rfq', 'delete');
+  if (!guard.ok) return { success: false, processed: 0, error: guard.error };
   return runBulk(ids, async (id) => {
     await crmRfqsApi.delete(id);
     await recordAudit('delete', id);
@@ -426,6 +495,8 @@ export async function bulkDeleteRfqs(ids: string[]): Promise<BulkResult> {
 }
 
 export async function bulkArchiveRfqs(ids: string[]): Promise<BulkResult> {
+  const guard = await requirePermission('crm_rfq', 'edit');
+  if (!guard.ok) return { success: false, processed: 0, error: guard.error };
   return runBulk(ids, async (id) => {
     await crmRfqsApi.update(id, { status: 'cancelled' });
     await recordAudit('archive', id);
@@ -436,6 +507,8 @@ export async function bulkChangeRfqStatus(
   ids: string[],
   status: CrmRfqStatus | string,
 ): Promise<BulkResult> {
+  const guard = await requirePermission('crm_rfq', 'edit');
+  if (!guard.ok) return { success: false, processed: 0, error: guard.error };
   return runBulk(ids, async (id) => {
     await crmRfqsApi.update(id, { status });
     await recordAudit('status_change', id);
@@ -443,6 +516,8 @@ export async function bulkChangeRfqStatus(
 }
 
 export async function bulkCloseRfqs(ids: string[]): Promise<BulkResult> {
+  const guard = await requirePermission('crm_rfq', 'edit');
+  if (!guard.ok) return { success: false, processed: 0, error: guard.error };
   return runBulk(ids, async (id) => {
     await crmRfqsApi.update(id, { status: 'closed' });
     await recordAudit('status_change', id);

@@ -31,15 +31,11 @@ import {
     ZoruCheckbox,
     ZoruInput,
     ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
     ZoruTextarea,
     useZoruToast,
 } from '@/components/zoruui';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 
 import { saveAnnouncement } from '@/app/actions/crm-announcements.actions';
 import type {
@@ -51,36 +47,6 @@ import type {
 } from '@/lib/rust-client/crm-announcements';
 
 const BASE = '/dashboard/hrm/hr/announcements';
-
-const CATEGORY_OPTIONS: Array<{ value: CrmAnnouncementCategory; label: string }> = [
-    { value: 'general', label: 'General' },
-    { value: 'hr', label: 'HR' },
-    { value: 'policy', label: 'Policy' },
-    { value: 'event', label: 'Event' },
-    { value: 'celebration', label: 'Celebration' },
-    { value: 'urgent', label: 'Urgent' },
-];
-
-const PRIORITY_OPTIONS: Array<{ value: CrmAnnouncementPriority; label: string }> = [
-    { value: 'low', label: 'Low' },
-    { value: 'normal', label: 'Normal' },
-    { value: 'high', label: 'High' },
-    { value: 'urgent', label: 'Urgent' },
-];
-
-const AUDIENCE_OPTIONS: Array<{ value: CrmAnnouncementAudience; label: string }> = [
-    { value: 'all', label: 'All employees' },
-    { value: 'department', label: 'Department' },
-    { value: 'team', label: 'Team' },
-    { value: 'role', label: 'Role' },
-];
-
-const STATUS_OPTIONS: Array<{ value: CrmAnnouncementStatus; label: string }> = [
-    { value: 'draft', label: 'Draft' },
-    { value: 'scheduled', label: 'Scheduled' },
-    { value: 'published', label: 'Published' },
-    { value: 'archived', label: 'Archived' },
-];
 
 const initialState: { message?: string; error?: string; id?: string } = {};
 
@@ -208,11 +174,7 @@ export function AnnouncementForm({ initialData }: AnnouncementFormProps) {
                     value={String(initialData!._id)}
                 />
             ) : null}
-            {/* Hidden inputs for controlled selects + banner. */}
-            <input type="hidden" name="category" value={category} />
-            <input type="hidden" name="priority" value={priority} />
-            <input type="hidden" name="audience" value={audience} />
-            <input type="hidden" name="status" value={status} />
+            {/* Hidden input for SabFiles banner. */}
             <input type="hidden" name="bannerUrl" value={bannerUrl} />
 
             <ZoruCard className="p-6">
@@ -246,47 +208,37 @@ export function AnnouncementForm({ initialData }: AnnouncementFormProps) {
                         />
                     </div>
 
-                    {/* Category / Priority */}
+                    {/* Category (TODO above) / Priority */}
                     <div className="grid gap-4 sm:grid-cols-2">
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="category-trigger">Category</ZoruLabel>
-                            <ZoruSelect
-                                value={category}
-                                onValueChange={(v) =>
-                                    setCategory(v as CrmAnnouncementCategory)
+                            <ZoruLabel>Category</ZoruLabel>
+                            <EnumFormField
+                                enumName="announcementCategory"
+                                name="category"
+                                initialId={category}
+                                onChange={(id) =>
+                                    setCategory(
+                                        (id as CrmAnnouncementCategory) ??
+                                            'general',
+                                    )
                                 }
-                            >
-                                <ZoruSelectTrigger id="category-trigger">
-                                    <ZoruSelectValue placeholder="Category" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    {CATEGORY_OPTIONS.map((o) => (
-                                        <ZoruSelectItem key={o.value} value={o.value}>
-                                            {o.label}
-                                        </ZoruSelectItem>
-                                    ))}
-                                </ZoruSelectContent>
-                            </ZoruSelect>
+                                placeholder="Category"
+                            />
                         </div>
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="priority-trigger">Priority</ZoruLabel>
-                            <ZoruSelect
-                                value={priority}
-                                onValueChange={(v) =>
-                                    setPriority(v as CrmAnnouncementPriority)
+                            <ZoruLabel>Priority</ZoruLabel>
+                            <EnumFormField
+                                enumName="priority"
+                                name="priority"
+                                initialId={priority}
+                                onChange={(id) =>
+                                    setPriority(
+                                        (id as CrmAnnouncementPriority) ??
+                                            'normal',
+                                    )
                                 }
-                            >
-                                <ZoruSelectTrigger id="priority-trigger">
-                                    <ZoruSelectValue placeholder="Priority" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    {PRIORITY_OPTIONS.map((o) => (
-                                        <ZoruSelectItem key={o.value} value={o.value}>
-                                            {o.label}
-                                        </ZoruSelectItem>
-                                    ))}
-                                </ZoruSelectContent>
-                            </ZoruSelect>
+                                placeholder="Priority"
+                            />
                         </div>
                     </div>
                 </div>
@@ -299,24 +251,18 @@ export function AnnouncementForm({ initialData }: AnnouncementFormProps) {
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="audience-trigger">Send to</ZoruLabel>
-                        <ZoruSelect
-                            value={audience}
-                            onValueChange={(v) =>
-                                setAudience(v as CrmAnnouncementAudience)
+                        <ZoruLabel>Send to</ZoruLabel>
+                        <EnumFormField
+                            enumName="announcementAudience"
+                            name="audience"
+                            initialId={audience}
+                            onChange={(id) =>
+                                setAudience(
+                                    (id as CrmAnnouncementAudience) ?? 'all',
+                                )
                             }
-                        >
-                            <ZoruSelectTrigger id="audience-trigger">
-                                <ZoruSelectValue placeholder="Audience" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {AUDIENCE_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                            placeholder="Audience"
+                        />
                     </div>
                     {audienceNeedsIds ? (
                         <div className="space-y-1.5">
@@ -366,24 +312,18 @@ export function AnnouncementForm({ initialData }: AnnouncementFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
-                        <ZoruSelect
-                            value={status}
-                            onValueChange={(v) =>
-                                setStatus(v as CrmAnnouncementStatus)
+                        <ZoruLabel>Status</ZoruLabel>
+                        <EnumFormField
+                            enumName="announcementStatus"
+                            name="status"
+                            initialId={status}
+                            onChange={(id) =>
+                                setStatus(
+                                    (id as CrmAnnouncementStatus) ?? 'draft',
+                                )
                             }
-                        >
-                            <ZoruSelectTrigger id="status-trigger">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                            placeholder="Status"
+                        />
                     </div>
                 </div>
             </ZoruCard>

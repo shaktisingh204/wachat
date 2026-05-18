@@ -21,14 +21,10 @@ import {
   ZoruCard,
   ZoruInput,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruSkeleton,
   useZoruToast,
 } from '@/components/zoruui';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
 import {
   getQuickBooksSetting,
@@ -249,19 +245,13 @@ export default function QuickBooksIntegrationPage() {
             <div>
               <ZoruLabel htmlFor="environment">Environment</ZoruLabel>
               <div className="mt-1.5">
-                <ZoruSelect
-                  value={env}
-                  onValueChange={(val) => setEnv(val as WsQuickBooksEnv)}
+                <EnumFormField
                   name="environment"
-                >
-                  <ZoruSelectTrigger id="environment">
-                    <ZoruSelectValue placeholder="Select environment" />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
-                    <ZoruSelectItem value="sandbox">Sandbox</ZoruSelectItem>
-                    <ZoruSelectItem value="production">Production</ZoruSelectItem>
-                  </ZoruSelectContent>
-                </ZoruSelect>
+                  enumName="quickbooksEnvironment"
+                  initialId={env}
+                  onChange={(id) => setEnv((id ?? 'sandbox') as WsQuickBooksEnv)}
+                  placeholder="Select environment"
+                />
               </div>
             </div>
 

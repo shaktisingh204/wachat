@@ -33,15 +33,11 @@ import {
     ZoruCard,
     ZoruInput,
     ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
     ZoruTextarea,
     useZoruToast,
 } from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import { savePaymentReceiptAction } from '@/app/actions/crm/payment-receipts.actions';
 import { getUnpaidInvoicesByAccount } from '@/app/actions/crm-invoices.actions';
 import type {
@@ -50,22 +46,8 @@ import type {
     CrmReceiptStatus,
 } from '@/lib/rust-client/crm-payment-receipts';
 
-const PAYMENT_MODES: Array<{ value: CrmPaymentMode; label: string }> = [
-    { value: 'cash', label: 'Cash' },
-    { value: 'cheque', label: 'Cheque' },
-    { value: 'upi', label: 'UPI' },
-    { value: 'neft', label: 'NEFT' },
-    { value: 'rtgs', label: 'RTGS' },
-    { value: 'imps', label: 'IMPS' },
-    { value: 'card', label: 'Card' },
-    { value: 'wallet', label: 'Wallet' },
-];
-
-const STATUSES: Array<{ value: CrmReceiptStatus; label: string }> = [
-    { value: 'received', label: 'Received' },
-    { value: 'cleared', label: 'Cleared' },
-    { value: 'bounced', label: 'Bounced' },
-];
+// Mode + status options now sourced from CRM_ENUMS (`paymentMode`,
+// `paymentReceiptStatus`) via <EnumFormField>.
 
 const INITIAL_STATE = { message: undefined, error: undefined, id: undefined };
 
@@ -197,9 +179,28 @@ export function ReceiptForm({ initial }: ReceiptFormProps) {
         });
     }, [clientId]);
 
-    const totalAmount = useMemo(() => {
+    // Sum of the per-row allocations.
+    const totalApplied = useMemo(() => {
         return applyRows.reduce((s, r) => s + (Number(r.amount) || 0), 0);
     }, [applyRows]);
+
+    /**
+     * Explicit "amount received" — falls back to the sum of apply rows
+     * when the user hasn't touched it (so the common "the receipt is
+     * just the sum of allocations" flow keeps working). When the user
+     * overrides, the gap between received and applied flows into the
+     * advance bucket. P1.1B Wave 2.
+     */
+    const [amountReceivedOverride, setAmountReceivedOverride] = useState<string>(
+        initial?.amount != null && initial.amount !== 0 ? String(initial.amount) : '',
+    );
+    const totalAmount = useMemo(() => {
+        if (amountReceivedOverride.trim()) {
+            const n = Number(amountReceivedOverride);
+            if (Number.isFinite(n) && n > 0) return n;
+        }
+        return totalApplied;
+    }, [amountReceivedOverride, totalApplied]);
 
     const serializedApplyTo = useMemo(() => {
         return applyRows
@@ -238,7 +239,7 @@ export function ReceiptForm({ initial }: ReceiptFormProps) {
         return new Date().toISOString().slice(0, 10);
     })();
 
-    const totalSettled = totalAmount;
+    const totalSettled = totalApplied;
 
     return (
         <form ref={formRef} action={formAction} className="space-y-6">
@@ -329,22 +330,15 @@ export function ReceiptForm({ initial }: ReceiptFormProps) {
                     </div>
                     <div>
                         <ZoruLabel>Mode</ZoruLabel>
-                        <ZoruSelect
-                            value={mode}
-                            onValueChange={(v) => setMode(v as CrmPaymentMode)}
-                            disabled={editing}
-                        >
-                            <ZoruSelectTrigger className="mt-1.5">
-                                <ZoruSelectValue />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {PAYMENT_MODES.map((m) => (
-                                    <ZoruSelectItem key={m.value} value={m.value}>
-                                        {m.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <div className="mt-1.5">
+                            <EnumFormField
+                                enumName="paymentMode"
+                                name="__mode_picker"
+                                initialId={mode || null}
+                                disabled={editing}
+                                onChange={(id) => setMode((id ?? '') as CrmPaymentMode)}
+                            />
+                        </div>
                     </div>
                     <div>
                         <ZoruLabel>Bank account</ZoruLabel>
@@ -440,21 +434,14 @@ export function ReceiptForm({ initial }: ReceiptFormProps) {
                     </div>
                     <div>
                         <ZoruLabel>Status</ZoruLabel>
-                        <ZoruSelect
-                            value={status}
-                            onValueChange={(v) => setStatus(v as CrmReceiptStatus)}
-                        >
-                            <ZoruSelectTrigger className="mt-1.5">
-                                <ZoruSelectValue />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUSES.map((s) => (
-                                    <ZoruSelectItem key={s.value} value={s.value}>
-                                        {s.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <div className="mt-1.5">
+                            <EnumFormField
+                                enumName="paymentReceiptStatus"
+                                name="__status_picker"
+                                initialId={status || null}
+                                onChange={(id) => setStatus((id ?? 'received') as CrmReceiptStatus)}
+                            />
+                        </div>
                     </div>
                 </div>
             </ZoruCard>
@@ -474,6 +461,35 @@ export function ReceiptForm({ initial }: ReceiptFormProps) {
                     >
                         <PlusCircle className="h-3.5 w-3.5" /> Add invoice
                     </ZoruButton>
+                </div>
+
+                {/*
+                  Optional "Amount received" override. Leave blank to let
+                  the form auto-derive the receipt amount from the sum of
+                  applied rows. Type a number to capture a lump-sum
+                  payment where part of the cash sits as advance.
+                */}
+                <div className="mb-4 grid gap-4 md:grid-cols-[200px_1fr]">
+                    <div>
+                        <ZoruLabel htmlFor="amountReceivedOverride">
+                            Amount received
+                        </ZoruLabel>
+                        <ZoruInput
+                            id="amountReceivedOverride"
+                            type="number"
+                            min={0}
+                            step="0.01"
+                            value={amountReceivedOverride}
+                            onChange={(e) => setAmountReceivedOverride(e.target.value)}
+                            className="mt-1.5"
+                            placeholder={String(totalApplied || '0.00')}
+                            disabled={editing}
+                        />
+                    </div>
+                    <p className="self-end text-[11.5px] text-zoru-ink-muted">
+                        Leave blank to keep this in sync with the sum of allocations
+                        below. Type a higher amount to record an advance.
+                    </p>
                 </div>
                 {!clientId ? (
                     <p className="text-[12.5px] text-zoru-ink-muted">
@@ -551,7 +567,15 @@ export function ReceiptForm({ initial }: ReceiptFormProps) {
                     </div>
                 )}
 
-                <div className="mt-5 flex items-center justify-between border-t border-zoru-line pt-4">
+                {/*
+                  Running "applied vs unapplied" breakout. The grand
+                  total received is the sum of all apply-row amounts
+                  for a create; advance = max(0, total - applied) when
+                  the user toggles "Treat excess as advance" and lets
+                  some money sit unattached. Matches the §1D.2
+                  payment-history bar on the detail page.
+                */}
+                <div className="mt-5 flex flex-col gap-3 border-t border-zoru-line pt-4">
                     <label className="flex items-center gap-2 text-[12.5px] text-zoru-ink-muted">
                         <input
                             type="checkbox"
@@ -562,11 +586,31 @@ export function ReceiptForm({ initial }: ReceiptFormProps) {
                         />
                         Treat excess as advance
                     </label>
-                    <div className="text-[14px] tabular-nums">
-                        <span className="text-zoru-ink-muted">Total settled: </span>
-                        <span className="font-semibold text-zoru-ink">
-                            {fmtMoney(totalSettled, currency)}
-                        </span>
+                    <div className="grid grid-cols-3 gap-2 text-[12.5px] tabular-nums">
+                        <div className="flex flex-col rounded-md border border-zoru-line bg-zoru-surface-2 p-2">
+                            <span className="text-zoru-ink-muted">Received</span>
+                            <span className="text-[14px] font-semibold text-zoru-ink">
+                                {fmtMoney(totalAmount, currency)}
+                            </span>
+                        </div>
+                        <div className="flex flex-col rounded-md border border-zoru-line bg-zoru-surface-2 p-2">
+                            <span className="text-zoru-ink-muted">Applied</span>
+                            <span className="text-[14px] font-semibold text-emerald-600 dark:text-emerald-400">
+                                {fmtMoney(totalSettled, currency)}
+                            </span>
+                        </div>
+                        <div className="flex flex-col rounded-md border border-zoru-line bg-zoru-surface-2 p-2">
+                            <span className="text-zoru-ink-muted">Unapplied</span>
+                            <span
+                                className={
+                                    Math.max(0, totalAmount - totalSettled) > 0
+                                        ? 'text-[14px] font-semibold text-amber-600 dark:text-amber-400'
+                                        : 'text-[14px] font-semibold text-zoru-ink'
+                                }
+                            >
+                                {fmtMoney(Math.max(0, totalAmount - totalSettled), currency)}
+                            </span>
+                        </div>
                     </div>
                 </div>
             </ZoruCard>

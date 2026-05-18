@@ -1,5 +1,7 @@
 'use client';
 
+// TODO 1E.sweep: type -> <EnumFormField enumName="recognitionType">; recipient/nominator -> <EntityFormField entity="employee">. See plan §1E.
+
 /**
  * <RecognitionForm /> — shared create/edit form for HR Recognition.
  *

@@ -304,6 +304,8 @@ export async function getCrmTicketRelatedCounts(ticketId: string): Promise<{
   if (!ticketId) return empty;
   const session = await getSession();
   if (!session?.user) return empty;
+  const guard = await requirePermission('crm_ticket', 'view');
+  if (!guard.ok) return empty;
 
   try {
     const { db } = await connectToDatabase();

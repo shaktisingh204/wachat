@@ -21,14 +21,10 @@ import {
   ZoruCard,
   ZoruInput,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   useZoruToast,
 } from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import { EntityPicker } from '@/components/crm/entity-picker';
 import {
   CustomFieldInput,
@@ -123,15 +119,17 @@ export function DealForm({ initial, customFields }: DealFormProps) {
             <ZoruLabel>
               Counter-party type <span className="text-zoru-danger-ink">*</span>
             </ZoruLabel>
-            <ZoruSelect value={partyKind} onValueChange={(v) => setPartyKind(v as 'client' | 'lead')}>
-              <ZoruSelectTrigger className="mt-1.5">
-                <ZoruSelectValue />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="client">Client (account)</ZoruSelectItem>
-                <ZoruSelectItem value="lead">Lead</ZoruSelectItem>
-              </ZoruSelectContent>
-            </ZoruSelect>
+            <div className="mt-1.5">
+              <EnumFormField
+                enumName="partyKind"
+                name="partyKindPicker"
+                initialId={partyKind}
+                allowInlineCreate={false}
+                onChange={(next) => {
+                  if (next === 'client' || next === 'lead') setPartyKind(next);
+                }}
+              />
+            </div>
           </div>
           <div>
             <ZoruLabel>
@@ -196,18 +194,15 @@ export function DealForm({ initial, customFields }: DealFormProps) {
             </div>
           </div>
           <div>
-            <ZoruLabel htmlFor="status">Status</ZoruLabel>
-            <ZoruSelect name="status" defaultValue={initial?.status ?? 'open'}>
-              <ZoruSelectTrigger id="status" className="mt-1.5">
-                <ZoruSelectValue />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="open">Open</ZoruSelectItem>
-                <ZoruSelectItem value="won">Won</ZoruSelectItem>
-                <ZoruSelectItem value="lost">Lost</ZoruSelectItem>
-                <ZoruSelectItem value="abandoned">Abandoned</ZoruSelectItem>
-              </ZoruSelectContent>
-            </ZoruSelect>
+            <ZoruLabel>Status</ZoruLabel>
+            <div className="mt-1.5">
+              <EnumFormField
+                enumName="dealStatus"
+                name="status"
+                initialId={initial?.status ?? 'open'}
+                placeholder="Status"
+              />
+            </div>
           </div>
         </div>
       </ZoruCard>

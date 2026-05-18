@@ -16,15 +16,12 @@ import { useRouter } from 'next/navigation';
 import { Upload, X } from 'lucide-react';
 
 import { EntityFormShell } from '@/components/crm/entity-form-shell';
+import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import {
     ZoruButton,
     ZoruInput,
     ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
     ZoruTextarea,
     useZoruToast,
 } from '@/components/zoruui';
@@ -132,26 +129,19 @@ export function BankTransactionForm({
                                 <ZoruLabel htmlFor="accountId">
                                     Account <span className="text-zoru-danger-ink">*</span>
                                 </ZoruLabel>
-                                <ZoruSelect
-                                    name="accountId"
-                                    defaultValue={defaultAccountId}
-                                >
-                                    <ZoruSelectTrigger id="accountId" className="mt-1.5 h-10">
-                                        <ZoruSelectValue placeholder="Pick a payment account" />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        {accounts.length === 0 ? (
-                                            <ZoruSelectItem value="" disabled>
-                                                No accounts available
-                                            </ZoruSelectItem>
-                                        ) : null}
-                                        {accounts.map((a) => (
-                                            <ZoruSelectItem key={a._id} value={a._id}>
-                                                {a.accountName}
-                                            </ZoruSelectItem>
-                                        ))}
-                                    </ZoruSelectContent>
-                                </ZoruSelect>
+                                <div className="mt-1.5">
+                                    <EntityFormField
+                                        entity="bankAccount"
+                                        name="accountId"
+                                        initialId={defaultAccountId || null}
+                                        initialLabel={
+                                            accounts.find((a) => a._id === defaultAccountId)?.accountName
+                                        }
+                                        required
+                                        allowCreate
+                                        placeholder="Pick a payment account"
+                                    />
+                                </div>
                             </div>
                             <div>
                                 <ZoruLabel htmlFor="transactionDate">
@@ -190,19 +180,14 @@ export function BankTransactionForm({
                                 <ZoruLabel htmlFor="type">
                                     Direction <span className="text-zoru-danger-ink">*</span>
                                 </ZoruLabel>
-                                <ZoruSelect name="type" defaultValue={defaultType}>
-                                    <ZoruSelectTrigger id="type" className="mt-1.5 h-10">
-                                        <ZoruSelectValue />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="credit">
-                                            Credit (money in)
-                                        </ZoruSelectItem>
-                                        <ZoruSelectItem value="debit">
-                                            Debit (money out)
-                                        </ZoruSelectItem>
-                                    </ZoruSelectContent>
-                                </ZoruSelect>
+                                <div className="mt-1.5">
+                                    <EnumFormField
+                                        name="type"
+                                        enumName="bankTransactionDirection"
+                                        initialId={defaultType}
+                                        required
+                                    />
+                                </div>
                             </div>
                             <div>
                                 <ZoruLabel htmlFor="balanceAfter">Balance after</ZoruLabel>
@@ -222,21 +207,13 @@ export function BankTransactionForm({
                             </div>
                             <div>
                                 <ZoruLabel htmlFor="status">Status</ZoruLabel>
-                                <ZoruSelect name="status" defaultValue={defaultStatus}>
-                                    <ZoruSelectTrigger id="status" className="mt-1.5 h-10">
-                                        <ZoruSelectValue />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="pending">Pending</ZoruSelectItem>
-                                        <ZoruSelectItem value="cleared">Cleared</ZoruSelectItem>
-                                        <ZoruSelectItem value="reconciled">
-                                            Reconciled
-                                        </ZoruSelectItem>
-                                        <ZoruSelectItem value="archived">
-                                            Archived
-                                        </ZoruSelectItem>
-                                    </ZoruSelectContent>
-                                </ZoruSelect>
+                                <div className="mt-1.5">
+                                    <EnumFormField
+                                        name="status"
+                                        enumName="bankTransactionStatus"
+                                        initialId={defaultStatus}
+                                    />
+                                </div>
                             </div>
                         </div>
                     ),

@@ -254,6 +254,7 @@ export function BudgetsListClient({ budgets }: BudgetsListClientProps) {
             className="h-9 pl-9 text-[13px]"
           />
         </div>
+        {/* TODO 1E.sweep: dynamic list — needs EntityKey */}
         <ZoruSelect value={statusFilter} onValueChange={setStatusFilter}>
           <ZoruSelectTrigger className="h-9 w-[140px] text-[13px]">
             <ZoruSelectValue placeholder="Status" />
@@ -267,6 +268,7 @@ export function BudgetsListClient({ budgets }: BudgetsListClientProps) {
             ))}
           </ZoruSelectContent>
         </ZoruSelect>
+        {/* TODO 1E.sweep: dynamic list — needs EntityKey */}
         <ZoruSelect value={headTypeFilter} onValueChange={setHeadTypeFilter}>
           <ZoruSelectTrigger className="h-9 w-[160px] text-[13px]">
             <ZoruSelectValue placeholder="Head type" />
@@ -280,6 +282,7 @@ export function BudgetsListClient({ budgets }: BudgetsListClientProps) {
             ))}
           </ZoruSelectContent>
         </ZoruSelect>
+        {/* TODO 1E.sweep: dynamic list — needs EntityKey */}
         <ZoruSelect value={periodFilter} onValueChange={setPeriodFilter}>
           <ZoruSelectTrigger className="h-9 w-[140px] text-[13px]">
             <ZoruSelectValue placeholder="Period" />
@@ -293,6 +296,7 @@ export function BudgetsListClient({ budgets }: BudgetsListClientProps) {
             ))}
           </ZoruSelectContent>
         </ZoruSelect>
+        {/* TODO 1E.sweep: dynamic list — needs EntityKey */}
         <ZoruSelect value={ownerFilter} onValueChange={setOwnerFilter}>
           <ZoruSelectTrigger className="h-9 w-[160px] text-[13px]">
             <ZoruSelectValue placeholder="Owner" />
@@ -306,6 +310,7 @@ export function BudgetsListClient({ budgets }: BudgetsListClientProps) {
             ))}
           </ZoruSelectContent>
         </ZoruSelect>
+        {/* TODO 1E.sweep: dynamic list — needs EntityKey */}
         <ZoruSelect value={scenarioFilter} onValueChange={setScenarioFilter}>
           <ZoruSelectTrigger className="h-9 w-[140px] text-[13px]">
             <ZoruSelectValue placeholder="Scenario" />

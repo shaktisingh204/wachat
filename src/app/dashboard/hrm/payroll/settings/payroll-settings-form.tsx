@@ -11,6 +11,7 @@ import {
   ZoruSwitch,
   useZoruToast,
 } from '@/components/zoruui';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import { savePayrollSettings, type PayrollSettings } from '@/app/actions/crm-payroll-settings.actions';
 
 const initialState: { message?: string; error?: string } = {};
@@ -24,9 +25,6 @@ function SaveButton() {
     </ZoruButton>
   );
 }
-
-const selectCls =
-  'flex h-9 w-full rounded-md border border-zoru-line bg-transparent px-3 py-1 text-[13px] text-zoru-ink shadow-sm focus:outline-none focus:ring-1 focus:ring-zoru-accent';
 
 export function PayrollSettingsForm({ settings }: { settings: PayrollSettings }) {
   const [state, formAction] = useActionState(savePayrollSettings, initialState);
@@ -46,27 +44,27 @@ export function PayrollSettingsForm({ settings }: { settings: PayrollSettings })
         <div className="grid gap-4 sm:grid-cols-3">
           <div className="space-y-1.5">
             <ZoruLabel htmlFor="payFrequency">Pay Frequency</ZoruLabel>
-            <select id="payFrequency" name="payFrequency" defaultValue={settings.payFrequency} className={selectCls}>
-              <option value="weekly">Weekly</option>
-              <option value="biweekly">Bi-weekly</option>
-              <option value="monthly">Monthly</option>
-            </select>
+            <EnumFormField
+              name="payFrequency"
+              enumName="payFrequency"
+              initialId={settings.payFrequency}
+            />
           </div>
           <div className="space-y-1.5">
             <ZoruLabel htmlFor="currency">Currency</ZoruLabel>
-            <select id="currency" name="currency" defaultValue={settings.currency} className={selectCls}>
-              <option value="INR">INR — Indian Rupee</option>
-              <option value="USD">USD — US Dollar</option>
-              <option value="EUR">EUR — Euro</option>
-              <option value="GBP">GBP — British Pound</option>
-            </select>
+            <EnumFormField
+              name="currency"
+              enumName="payrollCurrency"
+              initialId={settings.currency}
+            />
           </div>
           <div className="space-y-1.5">
             <ZoruLabel htmlFor="taxRegime">Tax Regime</ZoruLabel>
-            <select id="taxRegime" name="taxRegime" defaultValue={settings.taxRegime} className={selectCls}>
-              <option value="new">New Regime (Section 115BAC)</option>
-              <option value="old">Old Regime</option>
-            </select>
+            <EnumFormField
+              name="taxRegime"
+              enumName="taxRegime"
+              initialId={settings.taxRegime}
+            />
           </div>
           <div className="space-y-1.5">
             <ZoruLabel htmlFor="workingDaysPerWeek">Working Days / Week</ZoruLabel>
@@ -80,11 +78,11 @@ export function PayrollSettingsForm({ settings }: { settings: PayrollSettings })
           </div>
           <div className="space-y-1.5">
             <ZoruLabel htmlFor="payslipTemplate">Payslip Template</ZoruLabel>
-            <select id="payslipTemplate" name="payslipTemplate" defaultValue={settings.payslipTemplate} className={selectCls}>
-              <option value="standard">Standard</option>
-              <option value="detailed">Detailed</option>
-              <option value="compact">Compact</option>
-            </select>
+            <EnumFormField
+              name="payslipTemplate"
+              enumName="payslipTemplate"
+              initialId={settings.payslipTemplate}
+            />
           </div>
         </div>
       </ZoruCard>

@@ -1,5 +1,7 @@
 'use client';
 
+// TODO 1E.sweep: status/financial-year/quarter dropdowns -> <EnumFormField>; employee -> <EntityFormField entity="employee">. See plan §1E.
+
 /**
  * <Form16Form /> — create + edit form for Form 16 records.
  *

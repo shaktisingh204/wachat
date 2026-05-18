@@ -123,6 +123,8 @@ async function retrieve(ctx: ForgeActionContext): Promise<ForgeActionResult> {
   seededVars.query = query;
   seededVars.top_k = String(topK);
 
+  // Forward the caller stack so deeper sub-workflow invocations can detect
+  // cycles all the way up.  `runFlowInner` pushes the sub-flow's id on top.
   const { result } = await executeFlow(
     targetFlow,
     {
@@ -132,6 +134,9 @@ async function retrieve(ctx: ForgeActionContext): Promise<ForgeActionResult> {
       variables: seededVars,
       history: [],
     },
+    undefined,
+    undefined,
+    stack,
   );
 
   const retrieved = normaliseRetrieved(

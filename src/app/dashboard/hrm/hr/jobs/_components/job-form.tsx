@@ -18,14 +18,11 @@ import {
     ZoruCard,
     ZoruInput,
     ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
     ZoruTextarea,
     useZoruToast,
 } from '@/components/zoruui';
+import { EnumFormField } from '@/components/crm/enum-form-field';
+import { EntityFormField } from '@/components/crm/entity-form-field';
 
 import { saveJob } from '@/app/actions/crm-jobs.actions';
 import type {
@@ -36,35 +33,6 @@ import type {
 } from '@/lib/rust-client/crm-jobs';
 
 const BASE = '/dashboard/hrm/hr/jobs';
-
-const EMPLOYMENT_TYPE_OPTIONS: Array<{
-    value: CrmJobEmploymentType;
-    label: string;
-}> = [
-    { value: 'full_time', label: 'Full-time' },
-    { value: 'part_time', label: 'Part-time' },
-    { value: 'contract', label: 'Contract' },
-    { value: 'intern', label: 'Intern' },
-    { value: 'temporary', label: 'Temporary' },
-];
-
-const REMOTE_POLICY_OPTIONS: Array<{
-    value: CrmJobRemotePolicy;
-    label: string;
-}> = [
-    { value: 'onsite', label: 'On-site' },
-    { value: 'remote', label: 'Remote' },
-    { value: 'hybrid', label: 'Hybrid' },
-];
-
-const STATUS_OPTIONS: Array<{ value: CrmJobStatus; label: string }> = [
-    { value: 'draft', label: 'Draft' },
-    { value: 'open', label: 'Open' },
-    { value: 'on_hold', label: 'On hold' },
-    { value: 'filled', label: 'Filled' },
-    { value: 'closed', label: 'Closed' },
-    { value: 'archived', label: 'Archived' },
-];
 
 function toDateInput(value: unknown): string {
     if (!value) return '';
@@ -137,9 +105,6 @@ export function JobForm({ initialData }: JobFormProps) {
                 {isEditing ? (
                     <input type="hidden" name="jobId" value={initialData!._id} />
                 ) : null}
-                <input type="hidden" name="employmentType" value={employmentType} />
-                <input type="hidden" name="remotePolicy" value={remotePolicy} />
-                <input type="hidden" name="status" value={status} />
 
                 {/* Row 1: Title + Openings */}
                 <div className="grid gap-4 sm:grid-cols-[2fr_1fr]">
@@ -173,17 +138,15 @@ export function JobForm({ initialData }: JobFormProps) {
                 {/* Row 2: Department + Location */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="departmentName">Department</ZoruLabel>
-                        <ZoruInput
-                            id="departmentName"
-                            name="departmentName"
-                            placeholder="e.g. Engineering"
-                            defaultValue={initialData?.departmentName ?? ''}
-                        />
-                        <input
-                            type="hidden"
+                        <ZoruLabel>Department</ZoruLabel>
+                        <EntityFormField
+                            entity="department"
                             name="departmentId"
-                            defaultValue={initialData?.departmentId ?? ''}
+                            dualWriteName="departmentName"
+                            initialId={initialData?.departmentId ?? null}
+                            initialLabel={initialData?.departmentName ?? ''}
+                            allowCreate
+                            placeholder="Select department"
                         />
                     </div>
                     <div className="space-y-1.5">
@@ -197,67 +160,47 @@ export function JobForm({ initialData }: JobFormProps) {
                     </div>
                 </div>
 
-                {/* Row 3: Employment type + Remote policy + Status */}
+                {/* Row 3: Employment type + Work mode + Status */}
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="employmentType-trigger">
-                            Employment type
-                        </ZoruLabel>
-                        <ZoruSelect
-                            value={employmentType}
-                            onValueChange={(v) =>
-                                setEmploymentType(v as CrmJobEmploymentType)
+                        <ZoruLabel>Employment type</ZoruLabel>
+                        <EnumFormField
+                            enumName="jobEmploymentType"
+                            name="employmentType"
+                            initialId={employmentType}
+                            onChange={(id) =>
+                                setEmploymentType(
+                                    (id as CrmJobEmploymentType) ?? 'full_time',
+                                )
                             }
-                        >
-                            <ZoruSelectTrigger id="employmentType-trigger">
-                                <ZoruSelectValue placeholder="Type" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {EMPLOYMENT_TYPE_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                            placeholder="Type"
+                        />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="remotePolicy-trigger">Work mode</ZoruLabel>
-                        <ZoruSelect
-                            value={remotePolicy}
-                            onValueChange={(v) =>
-                                setRemotePolicy(v as CrmJobRemotePolicy)
-                            }
-                        >
-                            <ZoruSelectTrigger id="remotePolicy-trigger">
-                                <ZoruSelectValue placeholder="Work mode" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {REMOTE_POLICY_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <ZoruLabel>Work mode</ZoruLabel>
+                        <EnumFormField
+                            enumName="jobWorkMode"
+                            name="remotePolicy"
+                            initialId={remotePolicy === 'onsite' ? 'on_site' : remotePolicy}
+                            onChange={(id) => {
+                                const mapped =
+                                    id === 'on_site' ? 'onsite' : (id as CrmJobRemotePolicy);
+                                setRemotePolicy(mapped ?? 'onsite');
+                            }}
+                            placeholder="Work mode"
+                        />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
-                        <ZoruSelect
-                            value={status}
-                            onValueChange={(v) => setStatus(v as CrmJobStatus)}
-                        >
-                            <ZoruSelectTrigger id="status-trigger">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <ZoruLabel>Status</ZoruLabel>
+                        <EnumFormField
+                            enumName="jobStatus"
+                            name="status"
+                            initialId={status}
+                            onChange={(id) =>
+                                setStatus((id as CrmJobStatus) ?? 'draft')
+                            }
+                            placeholder="Status"
+                        />
                     </div>
                 </div>
 
@@ -328,12 +271,13 @@ export function JobForm({ initialData }: JobFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="currency">Currency</ZoruLabel>
-                        <ZoruInput
-                            id="currency"
+                        <ZoruLabel>Currency</ZoruLabel>
+                        <EntityFormField
+                            entity="currency"
                             name="currency"
+                            initialId={initialData?.currency ?? 'INR'}
+                            allowCreate
                             placeholder="INR"
-                            defaultValue={initialData?.currency ?? 'INR'}
                         />
                     </div>
                 </div>
@@ -395,14 +339,13 @@ export function JobForm({ initialData }: JobFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="hiringManagerId">
-                            Hiring manager id
-                        </ZoruLabel>
-                        <ZoruInput
-                            id="hiringManagerId"
+                        <ZoruLabel>Hiring manager</ZoruLabel>
+                        <EntityFormField
+                            entity="employee"
                             name="hiringManagerId"
-                            placeholder="Optional"
-                            defaultValue={initialData?.hiringManagerId ?? ''}
+                            initialId={initialData?.hiringManagerId ?? null}
+                            allowCreate
+                            placeholder="Hiring manager"
                         />
                     </div>
                 </div>

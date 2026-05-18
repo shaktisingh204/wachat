@@ -199,6 +199,7 @@ function ExpenseCategoryDialog({
 
                         <div className="space-y-2">
                             <ZoruLabel htmlFor="parentId">Parent category</ZoruLabel>
+                            {/* TODO 1E.sweep: dynamic list — needs EntityKey */}
                             <ZoruSelect
                                 value={parentId || 'none'}
                                 onValueChange={(v) => setParentId(v === 'none' ? '' : v)}
@@ -231,6 +232,7 @@ function ExpenseCategoryDialog({
                         <div className="space-y-2 sm:col-span-2">
                             <ZoruLabel htmlFor="defaultAccountId">Default GL account</ZoruLabel>
                             {accounts.length > 0 ? (
+                                /* TODO 1E.sweep: dynamic list — needs EntityKey */
                                 <ZoruSelect
                                     value={defaultAccountId || 'none'}
                                     onValueChange={(v) =>

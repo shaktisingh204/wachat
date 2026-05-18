@@ -17,14 +17,11 @@ import {
     ZoruCard,
     ZoruInput,
     ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
     ZoruTextarea,
     useZoruToast,
 } from '@/components/zoruui';
+import { EnumFormField } from '@/components/crm/enum-form-field';
+import { EntityFormField } from '@/components/crm/entity-form-field';
 
 import { saveExit } from '@/app/actions/crm-exits.actions';
 import type {
@@ -34,42 +31,6 @@ import type {
 } from '@/lib/rust-client/crm-exits';
 
 const BASE = '/dashboard/hrm/hr/exits';
-
-const TYPE_OPTIONS: Array<{ value: CrmExitType; label: string }> = [
-    { value: 'resignation', label: 'Resignation' },
-    { value: 'termination', label: 'Termination' },
-    { value: 'end_of_contract', label: 'End of contract' },
-    { value: 'retirement', label: 'Retirement' },
-    { value: 'other', label: 'Other' },
-];
-
-const STATUS_OPTIONS: Array<{ value: CrmExitStatus; label: string }> = [
-    { value: 'open', label: 'Open' },
-    { value: 'complete', label: 'Complete' },
-    { value: 'cancelled', label: 'Cancelled' },
-    { value: 'archived', label: 'Archived' },
-];
-
-const FNF_OPTIONS = [
-    { value: 'pending', label: 'Pending' },
-    { value: 'in_progress', label: 'In progress' },
-    { value: 'cleared', label: 'Cleared' },
-    { value: 'waived', label: 'Waived' },
-];
-
-const KT_OPTIONS = FNF_OPTIONS;
-
-const NOC_OPTIONS = [
-    { value: 'pending', label: 'Pending' },
-    { value: 'issued', label: 'Issued' },
-    { value: 'na', label: 'Not applicable' },
-];
-
-const ASSET_OPTIONS = [
-    { value: 'pending', label: 'Pending' },
-    { value: 'partial', label: 'Partial' },
-    { value: 'complete', label: 'Complete' },
-];
 
 function toDateInput(value: unknown): string {
     if (!value) return '';
@@ -150,35 +111,20 @@ export function ExitForm({ initialData }: ExitFormProps) {
                 {isEditing ? (
                     <input type="hidden" name="exitId" value={initialData!._id} />
                 ) : null}
-                <input type="hidden" name="type" value={type} />
-                <input type="hidden" name="status" value={status} />
-                <input type="hidden" name="fnfStatus" value={fnfStatus} />
-                <input type="hidden" name="nocStatus" value={nocStatus} />
-                <input type="hidden" name="assetReturnStatus" value={assetReturnStatus} />
-                <input
-                    type="hidden"
-                    name="knowledgeTransferStatus"
-                    value={knowledgeTransferStatus}
-                />
 
-                {/* Employee */}
+                {/* Employee picker (dual-writes employeeName for legacy callers) */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="employeeName">Employee name *</ZoruLabel>
-                        <ZoruInput
-                            id="employeeName"
-                            name="employeeName"
-                            placeholder="Full name"
-                            defaultValue={initialData?.employeeName ?? ''}
-                        />
-                    </div>
-                    <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="employeeId">Employee ID</ZoruLabel>
-                        <ZoruInput
-                            id="employeeId"
+                        <ZoruLabel>Employee *</ZoruLabel>
+                        <EntityFormField
+                            entity="employee"
                             name="employeeId"
-                            placeholder="HR employee id"
-                            defaultValue={initialData?.employeeId ?? ''}
+                            dualWriteName="employeeName"
+                            initialId={initialData?.employeeId ?? null}
+                            initialLabel={initialData?.employeeName ?? ''}
+                            allowCreate
+                            placeholder="Select employee"
+                            required
                         />
                     </div>
                 </div>
@@ -186,37 +132,28 @@ export function ExitForm({ initialData }: ExitFormProps) {
                 {/* Type + Status */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="type-trigger">Type</ZoruLabel>
-                        <ZoruSelect value={type} onValueChange={(v) => setType(v as CrmExitType)}>
-                            <ZoruSelectTrigger id="type-trigger">
-                                <ZoruSelectValue placeholder="Type" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {TYPE_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <ZoruLabel>Type</ZoruLabel>
+                        <EnumFormField
+                            enumName="exitType"
+                            name="type"
+                            initialId={type}
+                            onChange={(id) =>
+                                setType((id as CrmExitType) ?? 'resignation')
+                            }
+                            placeholder="Type"
+                        />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
-                        <ZoruSelect
-                            value={status}
-                            onValueChange={(v) => setStatus(v as CrmExitStatus)}
-                        >
-                            <ZoruSelectTrigger id="status-trigger">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <ZoruLabel>Status</ZoruLabel>
+                        <EnumFormField
+                            enumName="exitStatus"
+                            name="status"
+                            initialId={status}
+                            onChange={(id) =>
+                                setStatus((id as CrmExitStatus) ?? 'open')
+                            }
+                            placeholder="Status"
+                        />
                     </div>
                 </div>
 
@@ -245,70 +182,48 @@ export function ExitForm({ initialData }: ExitFormProps) {
                 {/* Clearance status grid */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="fnf-trigger">F&amp;F status</ZoruLabel>
-                        <ZoruSelect value={fnfStatus} onValueChange={setFnfStatus}>
-                            <ZoruSelectTrigger id="fnf-trigger">
-                                <ZoruSelectValue placeholder="F&F status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {FNF_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <ZoruLabel>F&amp;F status</ZoruLabel>
+                        <EnumFormField
+                            enumName="exitClearanceStatus"
+                            name="fnfStatus"
+                            initialId={fnfStatus}
+                            onChange={(id) => setFnfStatus(id ?? 'pending')}
+                            placeholder="F&F status"
+                        />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="noc-trigger">NOC status</ZoruLabel>
-                        <ZoruSelect value={nocStatus} onValueChange={setNocStatus}>
-                            <ZoruSelectTrigger id="noc-trigger">
-                                <ZoruSelectValue placeholder="NOC status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {NOC_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <ZoruLabel>NOC status</ZoruLabel>
+                        <EnumFormField
+                            enumName="nocStatus"
+                            name="nocStatus"
+                            initialId={nocStatus}
+                            onChange={(id) => setNocStatus(id ?? 'pending')}
+                            placeholder="NOC status"
+                        />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="asset-trigger">Asset return</ZoruLabel>
-                        <ZoruSelect
-                            value={assetReturnStatus}
-                            onValueChange={setAssetReturnStatus}
-                        >
-                            <ZoruSelectTrigger id="asset-trigger">
-                                <ZoruSelectValue placeholder="Asset return" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {ASSET_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <ZoruLabel>Asset return</ZoruLabel>
+                        <EnumFormField
+                            enumName="assetReturnStatus"
+                            name="assetReturnStatus"
+                            initialId={assetReturnStatus}
+                            onChange={(id) =>
+                                setAssetReturnStatus(id ?? 'pending')
+                            }
+                            placeholder="Asset return"
+                        />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="kt-trigger">Knowledge transfer</ZoruLabel>
-                        <ZoruSelect
-                            value={knowledgeTransferStatus}
-                            onValueChange={setKnowledgeTransferStatus}
-                        >
-                            <ZoruSelectTrigger id="kt-trigger">
-                                <ZoruSelectValue placeholder="KT status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {KT_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <ZoruLabel>Knowledge transfer</ZoruLabel>
+                        <EnumFormField
+                            enumName="exitClearanceStatus"
+                            name="knowledgeTransferStatus"
+                            initialId={knowledgeTransferStatus}
+                            onChange={(id) =>
+                                setKnowledgeTransferStatus(id ?? 'pending')
+                            }
+                            placeholder="KT status"
+                        />
                     </div>
                 </div>
 

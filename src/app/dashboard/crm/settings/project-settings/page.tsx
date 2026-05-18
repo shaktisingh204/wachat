@@ -12,17 +12,12 @@ import { FolderKanban, LoaderCircle } from 'lucide-react';
 import {
   ZoruButton,
   ZoruCard,
-  ZoruInput,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruSkeleton,
   ZoruSwitch,
   useZoruToast,
 } from '@/components/zoruui';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 import {
   getProjectSettings,
@@ -163,31 +158,25 @@ export default function ProjectSettingsPage() {
                   <ZoruLabel htmlFor="default_status" className="text-[13px] text-zoru-ink">
                     Default Status
                   </ZoruLabel>
-                  <ZoruInput
-                    id="default_status"
-                    name="default_status"
-                    placeholder="not_started"
-                    defaultValue={settings?.default_status ?? 'not_started'}
-                    className="mt-1.5"
-                  />
+                  <div className="mt-1.5">
+                    <EnumFormField
+                      name="default_status"
+                      enumName="projectStatus"
+                      initialId={settings?.default_status ?? 'not_started'}
+                    />
+                  </div>
                 </div>
                 <div>
                   <ZoruLabel htmlFor="default_priority" className="text-[13px] text-zoru-ink">
                     Default Priority
                   </ZoruLabel>
-                  <ZoruSelect
-                    name="default_priority"
-                    defaultValue={settings?.default_priority ?? 'medium'}
-                  >
-                    <ZoruSelectTrigger id="default_priority" className="mt-1.5">
-                      <ZoruSelectValue />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                      <ZoruSelectItem value="low">Low</ZoruSelectItem>
-                      <ZoruSelectItem value="medium">Medium</ZoruSelectItem>
-                      <ZoruSelectItem value="high">High</ZoruSelectItem>
-                    </ZoruSelectContent>
-                  </ZoruSelect>
+                  <div className="mt-1.5">
+                    <EnumFormField
+                      name="default_priority"
+                      enumName="priorityMedium"
+                      initialId={settings?.default_priority ?? 'medium'}
+                    />
+                  </div>
                 </div>
               </div>
             </section>

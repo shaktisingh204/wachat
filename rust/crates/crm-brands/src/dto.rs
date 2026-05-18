@@ -28,6 +28,10 @@ pub struct CreateBrandInput {
     pub website: Option<String>,
     #[serde(default)]
     pub color: Option<String>,
+    #[serde(default)]
+    pub code: Option<String>,
+    #[serde(default)]
+    pub is_active: Option<bool>,
 }
 
 #[derive(Debug, Clone, Default, Deserialize)]
@@ -43,6 +47,10 @@ pub struct UpdateBrandInput {
     pub website: Option<String>,
     #[serde(default)]
     pub color: Option<String>,
+    #[serde(default)]
+    pub code: Option<String>,
+    #[serde(default)]
+    pub is_active: Option<bool>,
     #[serde(default)]
     pub status: Option<String>,
 }

@@ -1,5 +1,7 @@
 'use client';
 
+// TODO 1E.sweep: status/billable dropdowns -> <EnumFormField>; project -> <EntityFormField entity="project">; employee -> <EntityFormField entity="employee">. See plan §1E.
+
 /**
  * <TimesheetForm /> — shared form used by `/new` and `/[id]`.
  *

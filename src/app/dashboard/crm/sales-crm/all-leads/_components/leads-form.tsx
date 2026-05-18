@@ -27,14 +27,10 @@ import {
     ZoruDatePicker,
     ZoruInput,
     ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
     ZoruTextarea,
     useZoruToast,
 } from '@/components/zoruui';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import { LoaderCircle, Save } from 'lucide-react';
 
 import { EntityFormField } from '@/components/crm/entity-form-field';
@@ -248,19 +244,12 @@ export function LeadForm({ mode, initial, prefill, showConvert = true }: LeadFor
                 </ZoruCardHeader>
                 <ZoruCardContent className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-2">
-                        <ZoruLabel htmlFor="status">Status</ZoruLabel>
-                        <ZoruSelect name="status" defaultValue={(initial?.status as string) ?? 'New'}>
-                            <ZoruSelectTrigger id="status">
-                                <ZoruSelectValue />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {LEAD_STATUSES.map((s) => (
-                                    <ZoruSelectItem key={s} value={s}>
-                                        {s}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <ZoruLabel>Status</ZoruLabel>
+                        <EnumFormField
+                            enumName="leadStatusLegacy"
+                            name="status"
+                            initialId={(initial?.status as string) ?? 'New'}
+                        />
                     </div>
                     <div className="space-y-2">
                         <ZoruLabel htmlFor="source">Lead Source</ZoruLabel>

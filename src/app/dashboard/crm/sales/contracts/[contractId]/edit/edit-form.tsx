@@ -16,15 +16,11 @@ import {
     ZoruCard,
     ZoruInput,
     ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
     ZoruTextarea,
     useZoruToast,
 } from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import { updateContract } from '@/app/actions/crm-contracts.actions';
 
 const initialState: { message?: string; error?: string; id?: string } = {};
@@ -89,21 +85,12 @@ export function EditContractForm({
                     </div>
                     <div className="space-y-1.5">
                         <ZoruLabel htmlFor="type">Contract Type</ZoruLabel>
-                        <ZoruSelect name="type" defaultValue={(initial.type as string) || 'nda'}>
-                            <ZoruSelectTrigger id="type">
-                                <ZoruSelectValue placeholder="Select type" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="nda">NDA</ZoruSelectItem>
-                                <ZoruSelectItem value="msa">MSA</ZoruSelectItem>
-                                <ZoruSelectItem value="sow">SOW</ZoruSelectItem>
-                                <ZoruSelectItem value="amc">AMC</ZoruSelectItem>
-                                <ZoruSelectItem value="employment">Employment</ZoruSelectItem>
-                                <ZoruSelectItem value="vendor">Vendor</ZoruSelectItem>
-                                <ZoruSelectItem value="service">Service</ZoruSelectItem>
-                                <ZoruSelectItem value="lease">Lease</ZoruSelectItem>
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <EnumFormField
+                            enumName="contractTypeExtended"
+                            name="type"
+                            initialId={(initial.type as string) || 'nda'}
+                            placeholder="Select type"
+                        />
                     </div>
                 </div>
 
@@ -165,21 +152,12 @@ export function EditContractForm({
                     </div>
                     <div className="space-y-1.5">
                         <ZoruLabel htmlFor="esignProvider">E-Signature Provider</ZoruLabel>
-                        <ZoruSelect
+                        <EnumFormField
+                            enumName="esignProviderExtended"
                             name="esignProvider"
-                            defaultValue={(initial.esignProvider as string) || 'none'}
-                        >
-                            <ZoruSelectTrigger id="esignProvider">
-                                <ZoruSelectValue placeholder="Select provider" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="none">None</ZoruSelectItem>
-                                <ZoruSelectItem value="internal">Internal</ZoruSelectItem>
-                                <ZoruSelectItem value="digio">Digio</ZoruSelectItem>
-                                <ZoruSelectItem value="docusign">DocuSign</ZoruSelectItem>
-                                <ZoruSelectItem value="aadhaar">Aadhaar e-Sign</ZoruSelectItem>
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                            initialId={(initial.esignProvider as string) || 'none'}
+                            placeholder="Select provider"
+                        />
                     </div>
                 </div>
 
