@@ -126,10 +126,10 @@ pub mod my_sql;
 pub mod supabase;
 pub mod noco_db;
 
-// ── Phase C.6 productivity-webhook triggers ────────────────────────────────
-pub mod notion_trigger;
-pub mod airtable_trigger;
-pub mod jira_trigger;
+// ── Phase C.6.10 — generic webhook / listener triggers ──────────────────────
+pub mod webhook_v2;
+pub mod sse_trigger;
+pub mod graphql_trigger;
 
 use crate::{descriptor::NodeCategory, registry::NodeRegistry};
 
@@ -255,10 +255,10 @@ fn register_implemented(r: &mut NodeRegistry) {
     r.register(my_sql::MySqlNode);
     r.register(supabase::SupabaseNode);
     r.register(noco_db::NocoDbNode);
-    // Phase C.6.7 — form / calendar webhook triggers
-    r.register(typeform_trigger::TypeformTriggerNode);
-    r.register(calendly_trigger::CalendlyTriggerNode);
-    r.register(zoom_trigger::ZoomTriggerNode);
+    // Phase C.6.10 — generic webhook / listener triggers (3)
+    r.register(webhook_v2::WebhookV2Node);
+    r.register(sse_trigger::SseTriggerNode);
+    r.register(graphql_trigger::GraphqlTriggerNode);
 }
 
 /// Register stubs only when the name isn't already populated by an implemented node.
