@@ -1,6 +1,7 @@
 'use client';
 
-import { ZoruButton, ZoruInput, ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
+import { ZoruButton, ZoruInput } from '@/components/zoruui';
+import { EnumFilterField } from '@/components/crm/enum-filter-field';
 import {
   ArrowRightCircle,
   CalendarRange,
@@ -144,21 +145,6 @@ export function GrnKpiStrip({
 
 /* ─── Filters toolbar ──────────────────────────────────────────── */
 
-const STATUS_OPTIONS: { value: '' | string; label: string }[] = [
-    { value: '', label: 'All statuses' },
-    { value: 'draft', label: 'Draft (pending QC)' },
-    { value: 'inspected', label: 'Inspected' },
-    { value: 'posted', label: 'Posted (accepted)' },
-    { value: 'rejected', label: 'Rejected' },
-];
-
-const QC_OPTIONS: { value: '' | string; label: string }[] = [
-    { value: '', label: 'Any QC state' },
-    { value: 'pending', label: 'Pending QC' },
-    { value: 'accepted', label: 'Accepted' },
-    { value: 'partial', label: 'Partially accepted' },
-    { value: 'rejected', label: 'Rejected' },
-];
 
 export function GrnFiltersBar({
     filters,
@@ -184,23 +170,14 @@ export function GrnFiltersBar({
                     className="h-9 pl-9 text-[13px]"
                 />
             </div>
-            <ZoruSelect
-                value={filters.status || '__all'}
-                onValueChange={(v) =>
-                    onUpdate({ status: v === '__all' ? undefined : v, page: '1' })
+            <EnumFilterField
+                enumName="grnStatus"
+                value={filters.status || 'all'}
+                onChange={(v) =>
+                    onUpdate({ status: v === 'all' ? undefined : v, page: '1' })
                 }
-            >
-                <ZoruSelectTrigger className="h-9 w-[160px] text-[13px]">
-                    <ZoruSelectValue placeholder="Status" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                    {STATUS_OPTIONS.map((o) => (
-                        <ZoruSelectItem key={o.value || '__all'} value={o.value || '__all'}>
-                            {o.label}
-                        </ZoruSelectItem>
-                    ))}
-                </ZoruSelectContent>
-            </ZoruSelect>
+                allLabel="All statuses"
+            />
             <div className="w-[200px]">
                 <EntityPicker
                     entity="vendor"
@@ -223,23 +200,14 @@ export function GrnFiltersBar({
                     }}
                 />
             </div>
-            <ZoruSelect
-                value={filters.qcStatus || '__any'}
-                onValueChange={(v) =>
-                    onUpdate({ qcStatus: v === '__any' ? undefined : v, page: '1' })
+            <EnumFilterField
+                enumName="grnQcStatus"
+                value={filters.qcStatus || 'all'}
+                onChange={(v) =>
+                    onUpdate({ qcStatus: v === 'all' ? undefined : v, page: '1' })
                 }
-            >
-                <ZoruSelectTrigger className="h-9 w-[160px] text-[13px]">
-                    <ZoruSelectValue placeholder="QC state" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                    {QC_OPTIONS.map((o) => (
-                        <ZoruSelectItem key={o.value || '__any'} value={o.value || '__any'}>
-                            {o.label}
-                        </ZoruSelectItem>
-                    ))}
-                </ZoruSelectContent>
-            </ZoruSelect>
+                allLabel="Any QC state"
+            />
             <details className="relative">
                 <summary className="list-none">
                     <ZoruButton variant="outline" size="sm" className="h-9 text-[12.5px]">

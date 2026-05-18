@@ -5,14 +5,10 @@ import {
   ZoruCard,
   ZoruInput,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import {
   useActionState,
   useEffect,
@@ -50,23 +46,6 @@ interface BookingFormProps {
   initial?: CrmBookingDoc | null;
 }
 
-const STATUS_OPTIONS: ReadonlyArray<{ value: CrmBookingStatus; label: string }> = [
-  { value: 'pending', label: 'Pending' },
-  { value: 'confirmed', label: 'Confirmed' },
-  { value: 'cancelled', label: 'Cancelled' },
-  { value: 'completed', label: 'Completed' },
-  { value: 'no_show', label: 'No show' },
-];
-
-const PAYMENT_OPTIONS: ReadonlyArray<{
-  value: CrmBookingPaymentStatus;
-  label: string;
-}> = [
-  { value: 'unpaid', label: 'Unpaid' },
-  { value: 'partial', label: 'Partial' },
-  { value: 'paid', label: 'Paid' },
-  { value: 'refunded', label: 'Refunded' },
-];
 
 function SubmitButton({ editing }: { editing: boolean }) {
   const { pending } = useFormStatus();
@@ -257,21 +236,11 @@ export function BookingForm({ initial }: BookingFormProps) {
           <div>
             <ZoruLabel>Booking status</ZoruLabel>
             <div className="mt-1.5">
-              <ZoruSelect
-                value={status}
-                onValueChange={(v) => setStatus(v as CrmBookingStatus)}
-              >
-                <ZoruSelectTrigger>
-                  <ZoruSelectValue placeholder="Pending" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  {STATUS_OPTIONS.map((opt) => (
-                    <ZoruSelectItem key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </ZoruSelectItem>
-                  ))}
-                </ZoruSelectContent>
-              </ZoruSelect>
+              <EnumFormField
+                enumName="bookingStatus"
+                initialId={status}
+                onChange={(v) => setStatus((v ?? 'pending') as CrmBookingStatus)}
+              />
             </div>
             {editing ? (
               <p className="mt-1.5 text-[11.5px] text-zoru-ink-muted">
@@ -283,23 +252,13 @@ export function BookingForm({ initial }: BookingFormProps) {
           <div>
             <ZoruLabel>Payment status</ZoruLabel>
             <div className="mt-1.5">
-              <ZoruSelect
-                value={paymentStatus}
-                onValueChange={(v) =>
-                  setPaymentStatus(v as CrmBookingPaymentStatus)
+              <EnumFormField
+                enumName="bookingPaymentStatus"
+                initialId={paymentStatus}
+                onChange={(v) =>
+                  setPaymentStatus((v ?? 'unpaid') as CrmBookingPaymentStatus)
                 }
-              >
-                <ZoruSelectTrigger>
-                  <ZoruSelectValue placeholder="Unpaid" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  {PAYMENT_OPTIONS.map((opt) => (
-                    <ZoruSelectItem key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </ZoruSelectItem>
-                  ))}
-                </ZoruSelectContent>
-              </ZoruSelect>
+              />
             </div>
           </div>
           <div className="md:col-span-2">

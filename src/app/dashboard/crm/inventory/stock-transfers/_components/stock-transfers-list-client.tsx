@@ -5,11 +5,6 @@ import {
   ZoruButton,
   ZoruInput,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruSkeleton,
   ZoruStatCard,
   ZoruTable,
@@ -20,6 +15,7 @@ import {
   ZoruTableRow,
   useZoruToast,
 } from '@/components/zoruui';
+import { EnumFilterField } from '@/components/crm/enum-filter-field';
 import {
   useDebouncedCallback } from 'use-debounce';
 import {
@@ -71,13 +67,6 @@ const EMPTY_KPIS: CrmStockTransferKpis = {
 
 type StatusFilterValue = '' | CrmStockTransferStatus;
 
-const STATUS_OPTIONS: { value: StatusFilterValue; label: string }[] = [
-    { value: '', label: 'Any status' },
-    { value: 'Draft', label: 'Draft' },
-    { value: 'InTransit', label: 'In Transit' },
-    { value: 'Received', label: 'Received' },
-    { value: 'Cancelled', label: 'Cancelled' },
-];
 
 function fmtDate(value: unknown): string {
     if (!value) return '—';
@@ -200,31 +189,15 @@ export function StockTransfersListClient() {
                             <ZoruLabel className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
                                 Status
                             </ZoruLabel>
-                            <ZoruSelect
-                                value={statusFilter || '__any__'}
-                                onValueChange={(v) => {
-                                    setStatusFilter(
-                                        v === '__any__'
-                                            ? ''
-                                            : (v as CrmStockTransferStatus),
-                                    );
+                            <EnumFilterField
+                                enumName="stockTransferStatus"
+                                value={statusFilter || 'all'}
+                                onChange={(v) => {
+                                    setStatusFilter(v === 'all' ? '' : v as CrmStockTransferStatus);
                                     setPage(1);
                                 }}
-                            >
-                                <ZoruSelectTrigger className="h-8">
-                                    <ZoruSelectValue />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    {STATUS_OPTIONS.map((o) => (
-                                        <ZoruSelectItem
-                                            key={o.value || '__any__'}
-                                            value={o.value || '__any__'}
-                                        >
-                                            {o.label}
-                                        </ZoruSelectItem>
-                                    ))}
-                                </ZoruSelectContent>
-                            </ZoruSelect>
+                                allLabel="Any status"
+                            />
                         </div>
                         <div className="w-56 space-y-1">
                             <ZoruLabel className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">

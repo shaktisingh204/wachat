@@ -7,12 +7,8 @@ import {
   ZoruCardContent,
   ZoruInput,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
 } from '@/components/zoruui';
+import { EnumFilterField } from '@/components/crm/enum-filter-field';
 import {
   Archive,
   Download,
@@ -57,21 +53,12 @@ export function BomFiltersRow(props: BomFiltersRowProps) {
                     <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                         Status
                     </ZoruLabel>
-                    <ZoruSelect
+                    <EnumFilterField
+                        enumName="bomStatus"
                         value={props.status}
-                        onValueChange={(v) => props.onStatusChange(v as BomStatusFilter)}
-                    >
-                        <ZoruSelectTrigger>
-                            <ZoruSelectValue />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                            <ZoruSelectItem value="all">All</ZoruSelectItem>
-                            <ZoruSelectItem value="active">Active</ZoruSelectItem>
-                            <ZoruSelectItem value="inactive">Inactive</ZoruSelectItem>
-                            <ZoruSelectItem value="draft">Draft</ZoruSelectItem>
-                            <ZoruSelectItem value="archived">Archived</ZoruSelectItem>
-                        </ZoruSelectContent>
-                    </ZoruSelect>
+                        onChange={(v) => props.onStatusChange(v as BomStatusFilter)}
+                        allLabel="All"
+                    />
                 </div>
 
                 <div className="space-y-1">
