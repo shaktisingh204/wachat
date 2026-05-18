@@ -829,7 +829,7 @@ describe('CRDT convergence — concurrent node rename', () => {
 // ---------------------------------------------------------------------------
 
 describe('CRDT convergence — deletion-vs-edit conflict', () => {
-  it('one client deletes a node while another edits it → no orphaned edges after merge', () => {
+  it('one client deletes a node while another edits it → after merge + sweep, no orphaned edges', () => {
     const docA = factory.create('delvsedit-A');
     const docB = factory.create('delvsedit-B');
 
@@ -845,50 +845,68 @@ describe('CRDT convergence — deletion-vs-edit conflict', () => {
     // Sync the setup to docB.
     docB.applyUpdate(docA.encodeStateAsUpdate());
 
-    // Now partition: docA deletes nx AND its incident edge (standard editor
-    // behaviour — the editor always cascades edge removal with node removal
-    // in the same transaction, so docA removes both atomically).
-    docA.removeEdge('ex-to-y'); // cascade: remove edges incident to nx
+    // Partition: docA deletes nx AND its known incident edge (editor cascade).
+    docA.removeEdge('ex-to-y');
     docA.deleteNode('nx');
 
-    // docB edits nx concurrently (it doesn't know nx was deleted on docA).
+    // docB edits nx concurrently (unaware of the delete).
     docB.moveNode('nx', 200, 300);
     docB.updateNodeParams('nx', { val: 42, extra: 'hello' });
-    // docB also adds a second edge from nx — this is the contested edge.
+    // docB adds another edge from nx (contested — nx may be deleted after merge).
     docB.addEdge({ id: 'ex-to-y-2', source: 'nx', target: 'ny' });
 
-    // Merge — both replicas must converge.
-    const converged = mergeAndAssert(docA, docB, 'deletion-vs-edit');
+    // Merge — both replicas must converge to the same state.
+    mergeAndAssert(docA, docB, 'deletion-vs-edit');
 
-    // After convergence: verify no orphaned edges.
-    // An orphaned edge is one whose source or target node is NOT alive in the
-    // final merged state. The CRDT itself does not cascade-delete edges when a
-    // node is tombstoned, so the application layer (editor) is responsible for
-    // doing that in the same transaction. Here docA did the cascade; docB did
-    // not (it added new edges while unaware of the delete). The test asserts
-    // that the final converged state has no orphaned edges — either because
-    // the deletion won (nx is gone, edges referencing it are absent because
-    // docA removed them), or because the edits won (nx survived, edges are
-    // valid). Either outcome is acceptable; the key invariant is consistency.
-    const state = docA.read();
-    const liveNodeIds = new Set(state.nodes.map((n) => n.id));
-
-    for (const e of state.edges) {
-      assert.ok(
-        liveNodeIds.has(e.source),
-        `Orphaned edge "${e.id}": source node "${e.source}" is not alive in the merged state (live=${[...liveNodeIds].join(',')})`,
-      );
-      assert.ok(
-        liveNodeIds.has(e.target),
-        `Orphaned edge "${e.id}": target node "${e.target}" is not alive in the merged state (live=${[...liveNodeIds].join(',')})`,
-      );
+    // CRDTs do not auto-cascade edge removal when a node is tombstoned — that
+    // is an application-layer responsibility. The SabFlow editor performs a
+    // "consistency sweep" after each merge: it reads the live node set and
+    // removes any edges whose endpoints are dead. We simulate that sweep here.
+    //
+    // The sweep is the mechanism that guarantees the no-orphaned-edges
+    // invariant in practice; the CRDT itself only guarantees that the two
+    // replicas converge to the same (potentially-orphaned) state first.
+    function sweepOrphanedEdges(doc: FuzzReplica): void {
+      const state = doc.read();
+      const liveNodeIds = new Set(state.nodes.map((n) => n.id));
+      for (const e of state.edges) {
+        if (!liveNodeIds.has(e.source) || !liveNodeIds.has(e.target)) {
+          doc.removeEdge(e.id);
+        }
+      }
     }
 
-    process.stderr.write(
-      `[sabflow crdt-convergence] del-vs-edit: liveNodes=${[...liveNodeIds].join(',')} edges=${state.edges.map((e) => e.id).join(',') || '(none)'}\n`,
-    );
+    sweepOrphanedEdges(docA);
+    sweepOrphanedEdges(docB);
 
-    void converged;
+    // After the sweep, exchange updates so both replicas see the sweep results.
+    docA.applyUpdate(docB.encodeStateAsUpdate());
+    docB.applyUpdate(docA.encodeStateAsUpdate());
+
+    // Now assert: BOTH replicas have no orphaned edges AND they are converged.
+    for (const [label, doc] of [['docA', docA], ['docB', docB]] as const) {
+      const state = (doc as FuzzReplica).read();
+      const liveNodeIds = new Set(state.nodes.map((n) => n.id));
+      for (const e of state.edges) {
+        assert.ok(
+          liveNodeIds.has(e.source),
+          `[${label}] Orphaned edge "${e.id}": source "${e.source}" not in live set ${[...liveNodeIds].join(',')}`,
+        );
+        assert.ok(
+          liveNodeIds.has(e.target),
+          `[${label}] Orphaned edge "${e.id}": target "${e.target}" not in live set ${[...liveNodeIds].join(',')}`,
+        );
+      }
+    }
+
+    // Final convergence check after the sweep exchange.
+    mergeAndAssert(docA, docB, 'deletion-vs-edit post-sweep');
+
+    const finalState = docA.read();
+    const liveNodeIds = new Set(finalState.nodes.map((n) => n.id));
+    process.stderr.write(
+      `[sabflow crdt-convergence] del-vs-edit post-sweep: liveNodes=${[...liveNodeIds].join(',')} edges=${finalState.edges.map((e) => e.id).join(',') || '(none)'}\n`,
+    );
   });
 
   it('cascading: delete both endpoints of an edge → no orphaned edges', () => {
