@@ -1,0 +1,136 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_gh",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "github.secret_scanning_alert",
+    "options": {
+      "path": "/webhooks/github-security-alert-triage",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Hub-Signature-256",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_trigger",
+      "name": "Secret Scan Alert",
+      "type": "n8n-nodes-base.githubTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "events": ["secret_scanning_alert"], "owner": "={{ $vars.GH_OWNER }}", "repository": "={{ $vars.GH_REPO }}" },
+      "credentials": { "githubApi": { "id": "github-cred", "name": "GitHub" } }
+    },
+    {
+      "id": "n_fetch",
+      "name": "Fetch Alert",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "=https://api.github.com/repos/{{ $vars.GH_OWNER }}/{{ $vars.GH_REPO }}/secret-scanning/alerts/{{ $json.alert.number }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "githubApi"
+      },
+      "credentials": { "githubApi": { "id": "github-cred", "name": "GitHub" } }
+    },
+    {
+      "id": "n_route",
+      "name": "Route by Severity",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            { "conditions": { "string": [{ "value1": "={{ $json.severity }}", "operation": "equal", "value2": "high" }] }, "outputKey": "high" },
+            { "conditions": { "string": [{ "value1": "={{ $json.severity }}", "operation": "equal", "value2": "medium" }] }, "outputKey": "medium" }
+          ]
+        },
+        "fallbackOutput": "low"
+      }
+    },
+    {
+      "id": "n_pd",
+      "name": "PagerDuty Page",
+      "type": "n8n-nodes-base.pagerDuty",
+      "typeVersion": 1,
+      "position": [720, -200],
+      "parameters": { "resource": "incident", "operation": "create" },
+      "credentials": { "pagerDutyApi": { "id": "pd-cred", "name": "PagerDuty" } }
+    },
+    {
+      "id": "n_slack_high",
+      "name": "Slack #security (high)",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [960, -200],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": "#security",
+        "text": "HIGH severity secret leaked."
+      },
+      "credentials": { "slackApi": { "id": "slack-cred", "name": "Slack" } }
+    },
+    {
+      "id": "n_slack_med",
+      "name": "Slack #security (med)",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": "#security",
+        "text": "Medium severity secret alert."
+      },
+      "credentials": { "slackApi": { "id": "slack-cred", "name": "Slack" } }
+    },
+    {
+      "id": "n_linear",
+      "name": "Linear Backlog",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, 200],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.linear.app/graphql",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "linearApi"
+      },
+      "credentials": { "linearApi": { "id": "linear-cred", "name": "Linear" } }
+    }
+  ],
+  "connections": {
+    "n_trigger": { "main": [[{ "node": "n_fetch", "type": "main", "index": 0 }]] },
+    "n_fetch": { "main": [[{ "node": "n_route", "type": "main", "index": 0 }]] },
+    "n_route": {
+      "high": [[
+        { "node": "n_pd", "type": "main", "index": 0 },
+        { "node": "n_slack_high", "type": "main", "index": 0 }
+      ]],
+      "medium": [[{ "node": "n_slack_med", "type": "main", "index": 0 }]],
+      "low": [[{ "node": "n_linear", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_trigger", "n_fetch", "n_route", "n_pd", "n_slack_high", "n_slack_med", "n_linear"]
+    }
+  ],
+  "variables": [
+    { "id": "v_owner", "name": "GH_OWNER", "defaultValue": "your-org" },
+    { "id": "v_repo", "name": "GH_REPO", "defaultValue": "your-repo" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
