@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t___NAME_UNDERSCORE___start",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "template.start",
+    "options": {
+      "path": "/webhooks/__NAME__",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Webhook-Secret",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "groups": [
+    {
+      "id": "g___NAME_UNDERSCORE___main",
+      "title": "Main",
+      "graphCoordinates": { "x": 320, "y": 0 },
+      "blockIds": ["b___NAME_UNDERSCORE___step1"]
+    }
+  ],
+  "blocks": [
+    {
+      "id": "b___NAME_UNDERSCORE___step1",
+      "groupId": "g___NAME_UNDERSCORE___main",
+      "type": "set_variable",
+      "options": {
+        "name": "placeholder",
+        "value": "TODO — replace with real block(s)"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "e_t___NAME_UNDERSCORE___start__b___NAME_UNDERSCORE___step1",
+      "from": { "eventId": "t___NAME_UNDERSCORE___start" },
+      "to": { "blockId": "b___NAME_UNDERSCORE___step1" }
+    }
+  ],
+  "variables": [
+    { "id": "v_input", "name": "input", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": {}
+}

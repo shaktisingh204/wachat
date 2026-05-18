@@ -1,0 +1,33 @@
+{
+  "name": "sabnode-template-cli",
+  "version": "0.1.0",
+  "description": "Scaffold a new SabFlow template package (template.json + flow.json + verification.json + README.md).",
+  "license": "Apache-2.0",
+  "type": "module",
+  "bin": {
+    "sabnode-template": "./bin/sabnode-template.mjs"
+  },
+  "files": [
+    "bin",
+    "src",
+    "templates",
+    "README.md"
+  ],
+  "scripts": {
+    "start": "node ./bin/sabnode-template.mjs",
+    "test": "node --test ./src/__tests__/cli.test.mjs"
+  },
+  "engines": {
+    "node": ">=18.17"
+  },
+  "keywords": [
+    "sabnode",
+    "sabflow",
+    "template",
+    "scaffold",
+    "cli"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
+}
