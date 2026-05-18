@@ -1,0 +1,113 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_cron_quarter",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": { "schedule": "0 7 1 1,4,7,10 *", "enabled": true }
+  },
+  "nodes": [
+    {
+      "id": "n_cron",
+      "name": "Quarterly",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "rule": { "interval": [{ "field": "cronExpression", "expression": "0 7 1 1,4,7,10 *" }] } }
+    },
+    {
+      "id": "n_list",
+      "name": "List Secrets",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": {
+        "method": "LIST",
+        "url": "={{ $vars.VAULT_API }}/v1/{{ $vars.VAULT_PATH }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth"
+      },
+      "credentials": { "httpHeaderAuth": { "id": "vault-cred", "name": "Vault Token" } }
+    },
+    {
+      "id": "n_rotate",
+      "name": "Rotate Each",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.VAULT_API }}/v1/{{ $vars.VAULT_PATH }}/rotate-root",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth"
+      },
+      "credentials": { "httpHeaderAuth": { "id": "vault-cred", "name": "Vault Token" } }
+    },
+    {
+      "id": "n_notify_services",
+      "name": "Notify Services",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, -100],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.SERVICE_REFRESH_URL }}",
+        "sendBody": true,
+        "bodyParameters": { "parameters": [{ "name": "rotated", "value": "={{ $vars.VAULT_PATH }}" }] }
+      }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack #security",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [720, 100],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SECURITY_SLACK }}",
+        "text": ":key: Rotated Vault secrets at {{ $vars.VAULT_PATH }}"
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    },
+    {
+      "id": "n_mongo_log",
+      "name": "Audit Log",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": { "operation": "insert", "collection": "vault_rotations" },
+      "credentials": { "mongoDb": { "id": "mongo-cred", "name": "Mongo" } }
+    }
+  ],
+  "connections": {
+    "n_cron": { "main": [[{ "node": "n_list", "type": "main", "index": 0 }]] },
+    "n_list": { "main": [[{ "node": "n_rotate", "type": "main", "index": 0 }]] },
+    "n_rotate": {
+      "main": [[
+        { "node": "n_notify_services", "type": "main", "index": 0 },
+        { "node": "n_slack", "type": "main", "index": 0 }
+      ]]
+    },
+    "n_notify_services": { "main": [[{ "node": "n_mongo_log", "type": "main", "index": 0 }]] },
+    "n_slack": { "main": [[{ "node": "n_mongo_log", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cron", "n_list", "n_rotate", "n_notify_services", "n_slack", "n_mongo_log"]
+    }
+  ],
+  "variables": [
+    { "id": "v_v", "name": "VAULT_API", "defaultValue": "https://vault.example.com" },
+    { "id": "v_p", "name": "VAULT_PATH", "defaultValue": "database/config/main" },
+    { "id": "v_r", "name": "SERVICE_REFRESH_URL", "defaultValue": "https://service.example.com/refresh" },
+    { "id": "v_s", "name": "SECURITY_SLACK", "defaultValue": "#security" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

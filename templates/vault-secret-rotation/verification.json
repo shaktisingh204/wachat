@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "vault-secret-rotation",
+  "cases": [
+    {
+      "id": "quarterly-rotation",
+      "description": "Vault secret rotated; downstream services and audit log updated.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "id": "vault-secret-rotation",
+  "name": "Vault Secret Rotation",
+  "description": "Quarterly, rotates a configured list of HashiCorp Vault secrets using the rotate-root API, then notifies every dependent service via a pre-configured webhook so each can refresh in-memory caches. A summary lands in #security so auditors have a clear paper trail.",
+  "category": "Internal Tools",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["vault", "rotation", "security", "slack", "compliance", "cron"],
+  "version": "0.1.0"
+}
