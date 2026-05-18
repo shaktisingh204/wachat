@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "shopify-cogs-update",
+  "cases": [
+    {
+      "id": "weekly-cogs",
+      "description": "Weekly COGS sheet syncs to Shopify.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
