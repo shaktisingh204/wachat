@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "mighty-networks-new-member",
+  "cases": [
+    {
+      "id": "member-welcomed",
+      "description": "Mighty Networks new member triggers welcome fan-out.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
