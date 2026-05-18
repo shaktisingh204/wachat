@@ -40,6 +40,7 @@ import {
 import {
     getCrmWarehouseById,
     getCrmWarehouseInventorySummary,
+    getCrmWarehouseStockByItem,
 } from '@/app/actions/crm-warehouses.actions';
 
 import { WarehouseDetailActions } from '../_components/warehouse-detail-actions';
@@ -85,7 +86,10 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
     const warehouse = await getCrmWarehouseById(id);
     if (!warehouse) notFound();
 
-    const summary = await getCrmWarehouseInventorySummary(id);
+    const [summary, stockRows] = await Promise.all([
+        getCrmWarehouseInventorySummary(id),
+        getCrmWarehouseStockByItem(id, 50),
+    ]);
 
     const archived = !!(warehouse as any).archived;
     const status =
@@ -337,6 +341,112 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
                             </dd>
                         </div>
                     </dl>
+                </ZoruCardContent>
+            </ZoruCard>
+
+            <ZoruCard>
+                <ZoruCardHeader>
+                    <ZoruCardTitle>
+                        Stock by item ({stockRows.length})
+                    </ZoruCardTitle>
+                </ZoruCardHeader>
+                <ZoruCardContent className="p-0">
+                    {stockRows.length === 0 ? (
+                        <p className="p-4 text-sm text-zinc-500">
+                            No items stocked in this warehouse yet.
+                        </p>
+                    ) : (
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-[12.5px]">
+                                <thead className="bg-zoru-surface-2 text-zoru-ink-muted">
+                                    <tr>
+                                        <th className="px-3 py-2 text-left font-medium">
+                                            Item
+                                        </th>
+                                        <th className="px-3 py-2 text-left font-medium">
+                                            SKU
+                                        </th>
+                                        <th className="px-3 py-2 text-right font-medium">
+                                            Stock
+                                        </th>
+                                        <th className="px-3 py-2 text-right font-medium">
+                                            Reorder pt
+                                        </th>
+                                        <th className="px-3 py-2 text-right font-medium">
+                                            Cost / unit
+                                        </th>
+                                        <th className="px-3 py-2 text-right font-medium">
+                                            Value
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {stockRows.map((r) => {
+                                        const low =
+                                            typeof r.reorderPoint === 'number' &&
+                                            r.reorderPoint > 0 &&
+                                            r.stock <= r.reorderPoint;
+                                        return (
+                                            <tr
+                                                key={r.productId}
+                                                className="border-t border-zoru-line"
+                                            >
+                                                <td className="px-3 py-2">
+                                                    <Link
+                                                        href={`/dashboard/crm/inventory/items/${r.productId}`}
+                                                        className="text-zoru-primary hover:underline"
+                                                    >
+                                                        {r.name}
+                                                    </Link>
+                                                </td>
+                                                <td className="px-3 py-2 font-mono text-zoru-ink-muted">
+                                                    {r.sku || '—'}
+                                                </td>
+                                                <td
+                                                    className={[
+                                                        'px-3 py-2 text-right font-mono',
+                                                        r.stock <= 0
+                                                            ? 'text-rose-500'
+                                                            : low
+                                                              ? 'text-amber-500'
+                                                              : '',
+                                                    ].join(' ')}
+                                                >
+                                                    {r.stock.toLocaleString()}
+                                                </td>
+                                                <td className="px-3 py-2 text-right font-mono text-zoru-ink-muted">
+                                                    {typeof r.reorderPoint ===
+                                                    'number'
+                                                        ? r.reorderPoint
+                                                        : '—'}
+                                                </td>
+                                                <td className="px-3 py-2 text-right font-mono text-zoru-ink-muted">
+                                                    {r.costPrice
+                                                        ? r.costPrice.toLocaleString(
+                                                              'en-IN',
+                                                              {
+                                                                  maximumFractionDigits: 2,
+                                                              },
+                                                          )
+                                                        : '—'}
+                                                </td>
+                                                <td className="px-3 py-2 text-right font-mono">
+                                                    {r.value.toLocaleString(
+                                                        'en-IN',
+                                                        {
+                                                            style: 'currency',
+                                                            currency: 'INR',
+                                                            maximumFractionDigits: 0,
+                                                        },
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
                 </ZoruCardContent>
             </ZoruCard>
         </EntityDetailShell>

@@ -1,6 +1,8 @@
 'use client';
 
-// TODO 1E.sweep: status/financial-year/quarter dropdowns -> <EnumFormField>; employee -> <EntityFormField entity="employee">. See plan §1E.
+// 1E.sweep: status converted to <EnumFormField enumName="form16Status">.
+// TODOs remaining: financial-year (dynamic list); employee →
+// <EntityFormField entity="employee">.
 
 /**
  * <Form16Form /> — create + edit form for Form 16 records.
@@ -28,17 +30,11 @@ import {
     useZoruToast,
 } from '@/components/zoruui';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 
 import { saveForm16, type CrmForm16Status } from '@/app/actions/crm-form-16.actions';
 
 const BASE = '/dashboard/hrm/payroll/form-16';
-
-const STATUS_OPTIONS: Array<{ value: CrmForm16Status; label: string }> = [
-    { value: 'draft', label: 'Draft' },
-    { value: 'generated', label: 'Generated' },
-    { value: 'issued', label: 'Issued' },
-    { value: 'archived', label: 'Archived' },
-];
 
 function currentFY(): string {
     const now = new Date();
@@ -175,6 +171,7 @@ export function Form16Form({ initialData }: Form16FormProps) {
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
                         <ZoruLabel htmlFor="fy-trigger">Financial year</ZoruLabel>
+                        {/* TODO 1E.sweep: dynamic list — needs <EnumFieldYearRange> variant (rolling 6-FY window) */}
                         <ZoruSelect value={financialYear} onValueChange={setFinancialYear}>
                             <ZoruSelectTrigger id="fy-trigger">
                                 <ZoruSelectValue placeholder="Select FY" />
@@ -189,22 +186,17 @@ export function Form16Form({ initialData }: Form16FormProps) {
                         </ZoruSelect>
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
-                        <ZoruSelect
-                            value={status}
-                            onValueChange={(v) => setStatus(v as CrmForm16Status)}
-                        >
-                            <ZoruSelectTrigger id="status-trigger">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <ZoruLabel>Status</ZoruLabel>
+                        <EnumFormField
+                            name="status-picker"
+                            enumName="form16Status"
+                            initialId={status}
+                            onChange={(id) =>
+                                setStatus((id as CrmForm16Status) ?? 'draft')
+                            }
+                            allowInlineCreate={false}
+                            placeholder="Status"
+                        />
                     </div>
                 </div>
 

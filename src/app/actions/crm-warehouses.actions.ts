@@ -52,6 +52,17 @@ export interface CrmWarehouseInventorySummary {
     totalValue: number;
 }
 
+/** Single row for the "Stock by item" sub-table on warehouse detail. */
+export interface CrmWarehouseStockRow {
+    productId: string;
+    sku?: string;
+    name: string;
+    stock: number;
+    reorderPoint?: number;
+    costPrice?: number;
+    value: number;
+}
+
 const EMPTY_KPIS: CrmWarehouseKpis = {
     total: 0,
     active: 0,
@@ -266,6 +277,78 @@ export async function getCrmWarehouseInventorySummary(
         console.error('Failed to compute warehouse inventory summary:', e);
         recordRustFallback({ entity: 'warehouse', op: 'other' });
         return empty;
+    }
+}
+
+/**
+ * Per-item stock rows for a warehouse — drives the "Stock by item"
+ * sub-table on the warehouse detail page (§1D bar).
+ *
+ * Mongo-only path; mirrors the aggregation used by
+ * `getCrmWarehouseInventorySummary` but emits a row per product instead
+ * of a single rollup. `limit` caps the table at 50 rows by default.
+ */
+export async function getCrmWarehouseStockByItem(
+    warehouseId: string,
+    limit = 50,
+): Promise<CrmWarehouseStockRow[]> {
+    if (!warehouseId || !ObjectId.isValid(warehouseId)) return [];
+    const session = await getSession();
+    if (!session?.user) return [];
+
+    try {
+        const { db } = await connectToDatabase();
+        const cap = Math.min(Math.max(1, limit), 200);
+        const rows = await db
+            .collection('crm_products')
+            .aggregate([
+                {
+                    $match: {
+                        userId: new ObjectId(session.user._id),
+                        'inventory.warehouseId': new ObjectId(warehouseId),
+                    },
+                },
+                { $unwind: '$inventory' },
+                {
+                    $match: {
+                        'inventory.warehouseId': new ObjectId(warehouseId),
+                    },
+                },
+                {
+                    $project: {
+                        _id: 1,
+                        sku: 1,
+                        name: 1,
+                        costPrice: 1,
+                        stock: { $ifNull: ['$inventory.stock', 0] },
+                        reorderPoint: '$inventory.reorderPoint',
+                    },
+                },
+                { $sort: { stock: -1, name: 1 } },
+                { $limit: cap },
+            ])
+            .toArray();
+
+        return rows.map((r) => {
+            const stock = Number(r.stock ?? 0);
+            const cost = Number(r.costPrice ?? 0);
+            return {
+                productId: String(r._id),
+                sku: r.sku ? String(r.sku) : undefined,
+                name: String(r.name ?? '—'),
+                stock,
+                reorderPoint:
+                    typeof r.reorderPoint === 'number'
+                        ? r.reorderPoint
+                        : undefined,
+                costPrice: cost || undefined,
+                value: stock * cost,
+            };
+        });
+    } catch (e) {
+        console.error('Failed to compute warehouse stock-by-item:', e);
+        recordRustFallback({ entity: 'warehouse', op: 'other' });
+        return [];
     }
 }
 

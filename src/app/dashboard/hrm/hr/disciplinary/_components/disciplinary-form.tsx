@@ -1,6 +1,11 @@
 'use client';
 
-// TODO 1E.sweep: convert remaining ZoruSelects (caseType, severity, status, hearing.outcome) to <EnumFormField>. Catalogued: disciplinaryStatus, disciplinaryType, severity. Local lists differ slightly — bridge slugs first.
+// 1E.sweep done — caseType/severity/status converted to <EnumFormField> using
+// the dedicated `disciplinaryCaseType` / `disciplinarySeverity` /
+// `disciplinaryCaseStatus` enums (slugs preserved as the form's wire contract,
+// kept separate from the existing `disciplinaryType` / `disciplinaryStatus`
+// enums which model the action workflow rather than the case lifecycle).
+// hearing.outcome stays as a free-text input — no canonical list there yet.
 
 /**
  * <DisciplinaryForm /> — create + edit form for HR disciplinary cases.
@@ -37,15 +42,11 @@ import {
     ZoruCard,
     ZoruInput,
     ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
     ZoruTextarea,
     useZoruToast,
 } from '@/components/zoruui';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 
 import { saveDisciplinaryCase } from '@/app/actions/crm-disciplinary.actions';
 import type {
@@ -55,27 +56,6 @@ import type {
 } from '@/lib/rust-client/crm-disciplinary';
 
 const BASE = '/dashboard/hrm/hr/disciplinary';
-
-const CASE_TYPE_OPTIONS: Array<{ value: string; label: string }> = [
-    { value: 'misconduct', label: 'Misconduct' },
-    { value: 'performance', label: 'Performance' },
-    { value: 'attendance', label: 'Attendance' },
-    { value: 'other', label: 'Other' },
-];
-
-const SEVERITY_OPTIONS: Array<{ value: string; label: string }> = [
-    { value: 'minor', label: 'Minor' },
-    { value: 'major', label: 'Major' },
-    { value: 'severe', label: 'Severe' },
-];
-
-const STATUS_OPTIONS: Array<{ value: CrmDisciplinaryStatus; label: string }> = [
-    { value: 'open', label: 'Open' },
-    { value: 'investigating', label: 'Investigating' },
-    { value: 'resolved', label: 'Resolved' },
-    { value: 'closed', label: 'Closed' },
-    { value: 'archived', label: 'Archived' },
-];
 
 function toDateInput(value: unknown): string {
     if (!value) return '';
@@ -252,34 +232,26 @@ export function DisciplinaryForm({ initialData }: DisciplinaryFormProps) {
                 {/* Case type + Severity */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="caseType-trigger">Case type</ZoruLabel>
-                        <ZoruSelect value={caseType} onValueChange={setCaseType}>
-                            <ZoruSelectTrigger id="caseType-trigger">
-                                <ZoruSelectValue placeholder="Type" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {CASE_TYPE_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <ZoruLabel>Case type</ZoruLabel>
+                        <EnumFormField
+                            name="caseType-picker"
+                            enumName="disciplinaryCaseType"
+                            initialId={caseType}
+                            onChange={(id) => setCaseType(id ?? 'misconduct')}
+                            allowInlineCreate={false}
+                            placeholder="Type"
+                        />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="severity-trigger">Severity</ZoruLabel>
-                        <ZoruSelect value={severity} onValueChange={setSeverity}>
-                            <ZoruSelectTrigger id="severity-trigger">
-                                <ZoruSelectValue placeholder="Severity" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {SEVERITY_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <ZoruLabel>Severity</ZoruLabel>
+                        <EnumFormField
+                            name="severity-picker"
+                            enumName="disciplinarySeverity"
+                            initialId={severity}
+                            onChange={(id) => setSeverity(id ?? 'minor')}
+                            allowInlineCreate={false}
+                            placeholder="Severity"
+                        />
                     </div>
                 </div>
 
@@ -431,24 +403,17 @@ export function DisciplinaryForm({ initialData }: DisciplinaryFormProps) {
                 {/* Status + Notes */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
-                        <ZoruSelect
-                            value={status}
-                            onValueChange={(v) =>
-                                setStatus(v as CrmDisciplinaryStatus)
+                        <ZoruLabel>Status</ZoruLabel>
+                        <EnumFormField
+                            name="status-picker"
+                            enumName="disciplinaryCaseStatus"
+                            initialId={status}
+                            onChange={(id) =>
+                                setStatus((id as CrmDisciplinaryStatus) ?? 'open')
                             }
-                        >
-                            <ZoruSelectTrigger id="status-trigger">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                            allowInlineCreate={false}
+                            placeholder="Status"
+                        />
                     </div>
                     <div className="space-y-1.5">
                         <ZoruLabel htmlFor="notes">Notes</ZoruLabel>

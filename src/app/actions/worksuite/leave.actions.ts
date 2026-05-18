@@ -10,6 +10,24 @@
  *  - crm_leave_settings
  *
  * Every tenant-scoped query applies `userId = new ObjectId(session.user._id)`.
+ *
+ * **Dual-impl status — Phase 3 sweep (2026-05-18):**
+ *  - RBAC: all mutators now require `crm_leave` permissions.
+ *  - Rust delegation: this worksuite surface is a multi-collection
+ *    workflow (`crm_leave_types` + `crm_leaves` + `crm_leave_files` +
+ *    `crm_leave_settings`) with a duration/hours/half-day mental model.
+ *    The Rust crate `crm-leaves` ships a single `LeaveApplication`
+ *    document with `from`/`to` ranges and `halfDay` boolean — structurally
+ *    incompatible with the worksuite shape. The clean Rust path for the
+ *    new HR-payroll surface lives at
+ *    `src/app/actions/crm/leaves.actions.ts`; this legacy file stays
+ *    Mongo-only until the worksuite UI migrates off the multi-collection
+ *    workflow.
+ *
+ * TODO 1.P3: collapse the worksuite leave collections onto the unified
+ * Rust `LeaveApplication` once leave-types/leave-settings are pushed to
+ * the Rust crate as sub-features and the calendar/report queries are
+ * pivoted to range-scan against the single collection.
  */
 
 import { revalidatePath } from 'next/cache';
@@ -17,6 +35,8 @@ import { ObjectId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
 import { getErrorMessage } from '@/lib/utils';
+import { requirePermission } from '@/lib/rbac-server';
+import { writeAuditEntry } from '@/lib/audit-log';
 import type {
   WsLeave,
   WsLeaveType,
@@ -123,6 +143,8 @@ async function computeDaysCount(
 export async function getLeaveTypes(): Promise<WsLeaveType[]> {
   const t = await requireTenant();
   if (!t.ok) return [];
+  const guard = await requirePermission('crm_leave', 'view');
+  if (!guard.ok) return [];
   try {
     const { db } = await connectToDatabase();
     const rows = await db
@@ -164,9 +186,11 @@ export async function saveLeaveType(
 ): Promise<{ message?: string; error?: string; id?: string }> {
   const t = await requireTenant();
   if (!t.ok) return { error: t.error };
+  const _id = (formData.get('_id') as string) || '';
+  const guard = await requirePermission('crm_leave', _id ? 'edit' : 'create');
+  if (!guard.ok) return { error: guard.error };
   try {
     const { db } = await connectToDatabase();
-    const _id = (formData.get('_id') as string) || '';
     const type_name = (formData.get('type_name') as string) || '';
     if (!type_name) return { error: 'Leave type name is required.' };
 
@@ -207,6 +231,8 @@ export async function saveLeaveType(
 export async function deleteLeaveType(id: string): Promise<ActionResult> {
   const t = await requireTenant();
   if (!t.ok) return { success: false, error: t.error };
+  const guard = await requirePermission('crm_leave', 'delete');
+  if (!guard.ok) return { success: false, error: guard.error };
   const oid = tryObjectId(id);
   if (!oid) return { success: false, error: 'Invalid id' };
   try {
@@ -230,6 +256,8 @@ export async function getLeaves(filters?: {
 }): Promise<WsLeave[]> {
   const t = await requireTenant();
   if (!t.ok) return [];
+  const guard = await requirePermission('crm_leave', 'view');
+  if (!guard.ok) return [];
   try {
     const { db } = await connectToDatabase();
     const query: Record<string, unknown> = { userId: t.userId };
@@ -270,6 +298,8 @@ export async function saveLeave(
 ): Promise<ActionResult<WsLeave>> {
   const t = await requireTenant();
   if (!t.ok) return { success: false, error: t.error };
+  const guard = await requirePermission('crm_leave', input._id ? 'edit' : 'create');
+  if (!guard.ok) return { success: false, error: guard.error };
   if (!input.user_id || !input.leave_type_id || !input.leave_date) {
     return { success: false, error: 'Employee, type and date are required.' };
   }
@@ -318,6 +348,17 @@ export async function saveLeave(
       await db
         .collection(COLL.LEAVES)
         .updateOne({ _id: oid, userId: t.userId }, { $set: doc });
+      try {
+        await writeAuditEntry({
+          tenantUserId: t.userIdString,
+          actorId: t.userIdString,
+          action: 'update',
+          entityKind: 'leave',
+          entityId: input._id,
+        });
+      } catch {
+        /* non-fatal */
+      }
       revalidatePath(ROUTE);
       revalidatePath(`${ROUTE}/${input._id}`);
       return { success: true, id: input._id };
@@ -326,6 +367,17 @@ export async function saveLeave(
     const res = await db
       .collection(COLL.LEAVES)
       .insertOne({ ...doc, createdAt: now });
+    try {
+      await writeAuditEntry({
+        tenantUserId: t.userIdString,
+        actorId: t.userIdString,
+        action: 'create',
+        entityKind: 'leave',
+        entityId: res.insertedId.toString(),
+      });
+    } catch {
+      /* non-fatal */
+    }
     revalidatePath(ROUTE);
     return { success: true, id: res.insertedId.toString() };
   } catch (e) {
@@ -336,12 +388,25 @@ export async function saveLeave(
 export async function deleteLeave(id: string): Promise<ActionResult> {
   const t = await requireTenant();
   if (!t.ok) return { success: false, error: t.error };
+  const guard = await requirePermission('crm_leave', 'delete');
+  if (!guard.ok) return { success: false, error: guard.error };
   const oid = tryObjectId(id);
   if (!oid) return { success: false, error: 'Invalid id' };
   try {
     const { db } = await connectToDatabase();
     await db.collection(COLL.LEAVES).deleteOne({ _id: oid, userId: t.userId });
     await db.collection(COLL.FILES).deleteMany({ userId: t.userId, leave_id: id });
+    try {
+      await writeAuditEntry({
+        tenantUserId: t.userIdString,
+        actorId: t.userIdString,
+        action: 'delete',
+        entityKind: 'leave',
+        entityId: id,
+      });
+    } catch {
+      /* non-fatal */
+    }
     revalidatePath(ROUTE);
     return { success: true };
   } catch (e) {
@@ -356,6 +421,8 @@ export async function deleteLeave(id: string): Promise<ActionResult> {
 export async function approveLeave(id: string): Promise<ActionResult> {
   const t = await requireTenant();
   if (!t.ok) return { success: false, error: t.error };
+  const guard = await requirePermission('crm_leave', 'edit');
+  if (!guard.ok) return { success: false, error: guard.error };
   const oid = tryObjectId(id);
   if (!oid) return { success: false, error: 'Invalid id' };
   try {
@@ -373,6 +440,17 @@ export async function approveLeave(id: string): Promise<ActionResult> {
         },
       },
     );
+    try {
+      await writeAuditEntry({
+        tenantUserId: t.userIdString,
+        actorId: t.userIdString,
+        action: 'approve',
+        entityKind: 'leave',
+        entityId: id,
+      });
+    } catch {
+      /* non-fatal */
+    }
     revalidatePath(ROUTE);
     revalidatePath(`${ROUTE}/${id}`);
     return { success: true };
@@ -384,6 +462,8 @@ export async function approveLeave(id: string): Promise<ActionResult> {
 export async function rejectLeave(id: string, reason: string): Promise<ActionResult> {
   const t = await requireTenant();
   if (!t.ok) return { success: false, error: t.error };
+  const guard = await requirePermission('crm_leave', 'edit');
+  if (!guard.ok) return { success: false, error: guard.error };
   const oid = tryObjectId(id);
   if (!oid) return { success: false, error: 'Invalid id' };
   try {
@@ -401,6 +481,18 @@ export async function rejectLeave(id: string, reason: string): Promise<ActionRes
         },
       },
     );
+    try {
+      await writeAuditEntry({
+        tenantUserId: t.userIdString,
+        actorId: t.userIdString,
+        action: 'reject',
+        entityKind: 'leave',
+        entityId: id,
+        reason: reason ?? '',
+      });
+    } catch {
+      /* non-fatal */
+    }
     revalidatePath(ROUTE);
     revalidatePath(`${ROUTE}/${id}`);
     return { success: true };

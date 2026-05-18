@@ -12,14 +12,10 @@ import { useActionState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { EntityFormShell } from '@/components/crm/entity-form-shell';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import {
     ZoruInput,
     ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
     ZoruTextarea,
     useZoruToast,
 } from '@/components/zoruui';
@@ -104,28 +100,25 @@ export function NoticesForm({ mode, notice }: NoticesFormProps): React.JSX.Eleme
                         <div className="grid gap-4 md:grid-cols-2">
                             <div>
                                 <ZoruLabel htmlFor="notice_to">Audience</ZoruLabel>
-                                <ZoruSelect name="notice_to" defaultValue={notice?.notice_to ?? 'all'}>
-                                    <ZoruSelectTrigger id="notice_to" className="mt-1.5 h-10">
-                                        <ZoruSelectValue />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="all">Everyone</ZoruSelectItem>
-                                        <ZoruSelectItem value="department">Department</ZoruSelectItem>
-                                        <ZoruSelectItem value="employee">Specific employees</ZoruSelectItem>
-                                    </ZoruSelectContent>
-                                </ZoruSelect>
+                                <div className="mt-1.5">
+                                    <EnumFormField
+                                        name="notice_to"
+                                        enumName="noticeAudience"
+                                        initialId={notice?.notice_to ?? 'all'}
+                                        allowInlineCreate={false}
+                                    />
+                                </div>
                             </div>
                             <div>
                                 <ZoruLabel htmlFor="pinned">Pinned</ZoruLabel>
-                                <ZoruSelect name="pinned" defaultValue={notice?.pinned ? 'true' : 'false'}>
-                                    <ZoruSelectTrigger id="pinned" className="mt-1.5 h-10">
-                                        <ZoruSelectValue />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="false">No</ZoruSelectItem>
-                                        <ZoruSelectItem value="true">Yes</ZoruSelectItem>
-                                    </ZoruSelectContent>
-                                </ZoruSelect>
+                                <div className="mt-1.5">
+                                    <EnumFormField
+                                        name="pinned"
+                                        enumName="yesNo"
+                                        initialId={notice?.pinned ? 'yes' : 'no'}
+                                        allowInlineCreate={false}
+                                    />
+                                </div>
                             </div>
                             <div>
                                 <ZoruLabel htmlFor="department_id">Department id</ZoruLabel>

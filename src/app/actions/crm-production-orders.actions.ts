@@ -434,7 +434,15 @@ export async function saveProductionOrder(
 
 export async function setProductionOrderStatus(
   orderId: string,
-  status: 'planned' | 'released' | 'in_progress' | 'completed' | 'closed' | 'cancelled',
+  status:
+    | 'planned'
+    | 'released'
+    | 'in_progress'
+    | 'paused'
+    | 'qa_check'
+    | 'completed'
+    | 'closed'
+    | 'cancelled',
 ): Promise<{ success: boolean; error?: string }> {
   if (!ObjectId.isValid(orderId)) return { success: false, error: 'Invalid order id.' };
   const session = await getSession();

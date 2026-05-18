@@ -27,6 +27,8 @@ import {
     useZoruToast,
 } from '@/components/zoruui';
 
+import { EnumFormField } from '@/components/crm/enum-form-field';
+
 import {
     saveCrmTimesheet,
     type CrmTimesheetDoc,
@@ -36,14 +38,6 @@ import {
 import { getCrmEmployees } from '@/app/actions/crm-employees.actions';
 
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] as const;
-
-const STATUS_OPTIONS: Array<{ value: CrmTimesheetStatus; label: string }> = [
-    { value: 'draft', label: 'Draft' },
-    { value: 'submitted', label: 'Submitted' },
-    { value: 'approved', label: 'Approved' },
-    { value: 'rejected', label: 'Rejected' },
-    { value: 'archived', label: 'Archived' },
-];
 
 interface EmployeeLite {
     _id: string;
@@ -182,6 +176,7 @@ export function TimesheetForm({ initial }: Props): React.JSX.Element {
                 <div className="grid gap-4 md:grid-cols-3">
                     <div>
                         <ZoruLabel>Employee *</ZoruLabel>
+                        {/* TODO 1E.sweep: dynamic list — needs EntityKey "employee" (already exists; just swap to <EntityFormField entity="employee">) */}
                         <ZoruSelect value={employeeId || undefined} onValueChange={setEmployeeId}>
                             <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
                                 <ZoruSelectValue placeholder="Select employee" />
@@ -308,21 +303,18 @@ export function TimesheetForm({ initial }: Props): React.JSX.Element {
                 <div className="grid gap-4 md:grid-cols-2">
                     <div>
                         <ZoruLabel>Status</ZoruLabel>
-                        <ZoruSelect
-                            value={status}
-                            onValueChange={(v) => setStatus(v as CrmTimesheetStatus)}
-                        >
-                            <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
-                                <ZoruSelectValue />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <div className="mt-1.5">
+                            <EnumFormField
+                                name="status-picker"
+                                enumName="timesheetStatus"
+                                initialId={status}
+                                onChange={(id) =>
+                                    setStatus((id as CrmTimesheetStatus) ?? 'draft')
+                                }
+                                allowInlineCreate={false}
+                                placeholder="Status"
+                            />
+                        </div>
                     </div>
                     <div>
                         <ZoruLabel>Notes</ZoruLabel>

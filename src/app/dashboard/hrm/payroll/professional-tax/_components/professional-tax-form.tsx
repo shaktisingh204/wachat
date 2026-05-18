@@ -1,6 +1,11 @@
 'use client';
 
-// TODO 1E.sweep: month -> <EnumFormField enumName="month">; state -> <EntityFormField entity="state">; employee -> <EntityFormField entity="employee">. See plan §1E.
+// 1E.sweep: status converted to <EnumFormField enumName="tdsStatus">
+// (slugs match: pending/deposited/filed/archived). TODOs remaining:
+// - state stays as ZoruSelect over indianStates (dynamic list) — needs
+//   <EntityFormField entity="state"> with India-only filter.
+// - month is a <input type="month"> (native), not a dropdown.
+// - employee → <EntityFormField entity="employee">.
 
 /**
  * <ProfessionalTaxForm /> — create + edit form for monthly PT records.
@@ -29,6 +34,7 @@ import {
     ZoruTextarea,
     useZoruToast,
 } from '@/components/zoruui';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 
 import {
     saveProfessionalTaxRecord,
@@ -37,16 +43,6 @@ import {
 import { indianStates } from '@/lib/states';
 
 const BASE = '/dashboard/hrm/payroll/professional-tax';
-
-const STATUS_OPTIONS: Array<{
-    value: CrmProfessionalTaxStatus;
-    label: string;
-}> = [
-    { value: 'pending', label: 'Pending' },
-    { value: 'deposited', label: 'Deposited' },
-    { value: 'filed', label: 'Filed' },
-    { value: 'archived', label: 'Archived' },
-];
 
 function currentMonth(): string {
     const d = new Date();
@@ -156,6 +152,7 @@ export function ProfessionalTaxForm({ initialData }: ProfessionalTaxFormProps) {
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
                         <ZoruLabel htmlFor="state-trigger">State *</ZoruLabel>
+                        {/* TODO 1E.sweep: dynamic list — needs <EntityFormField entity="state"> with India-only filter */}
                         <ZoruSelect value={stateValue} onValueChange={setStateValue}>
                             <ZoruSelectTrigger id="state-trigger">
                                 <ZoruSelectValue placeholder="Select state…" />
@@ -183,24 +180,19 @@ export function ProfessionalTaxForm({ initialData }: ProfessionalTaxFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
-                        <ZoruSelect
-                            value={status}
-                            onValueChange={(v) =>
-                                setStatus(v as CrmProfessionalTaxStatus)
+                        <ZoruLabel>Status</ZoruLabel>
+                        <EnumFormField
+                            name="status-picker"
+                            enumName="tdsStatus"
+                            initialId={status}
+                            onChange={(id) =>
+                                setStatus(
+                                    (id as CrmProfessionalTaxStatus) ?? 'pending',
+                                )
                             }
-                        >
-                            <ZoruSelectTrigger id="status-trigger">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                            allowInlineCreate={false}
+                            placeholder="Status"
+                        />
                     </div>
                 </div>
 

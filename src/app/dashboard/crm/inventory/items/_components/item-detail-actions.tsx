@@ -14,11 +14,14 @@ import { useRouter } from 'next/navigation';
 import {
   Activity,
   Archive,
+  ArrowLeftRight,
   Copy,
   Mail,
   Pencil,
+  Power,
   Printer,
   QrCode,
+  ShoppingCart,
   Trash2,
   Warehouse,
 } from 'lucide-react';
@@ -37,6 +40,7 @@ import { deleteCrmProduct } from '@/app/actions/crm-products.actions';
 
 const STATUS_OPTIONS = [
   { value: 'active', label: 'Active' },
+  { value: 'inactive', label: 'Inactive' },
   { value: 'archived', label: 'Archived' },
 ];
 
@@ -111,10 +115,33 @@ export function ItemDetailActions({
       </ZoruButton>
 
       <ZoruButton size="sm" variant="outline" asChild>
+        <Link href={`/dashboard/crm/inventory/stock-transfers/new?productId=${productId}`}>
+          <ArrowLeftRight className="h-3.5 w-3.5" /> Transfer
+        </Link>
+      </ZoruButton>
+
+      <ZoruButton
+        size="sm"
+        variant="outline"
+        onClick={() => moveTo(currentStatus === 'inactive' ? 'active' : 'inactive')}
+      >
+        <Power className="h-3.5 w-3.5" />
+        {currentStatus === 'inactive' ? 'Mark active' : 'Mark inactive'}
+      </ZoruButton>
+
+      <ZoruButton size="sm" variant="outline" asChild>
         <Link
           href={`/dashboard/crm/inventory/items/new?fromKind=product&fromId=${productId}`}
         >
           <Copy className="h-3.5 w-3.5" /> Duplicate
+        </Link>
+      </ZoruButton>
+
+      <ZoruButton size="sm" variant="outline" asChild>
+        <Link
+          href={`/dashboard/crm/purchases/orders/new?fromKind=product&fromId=${productId}`}
+        >
+          <ShoppingCart className="h-3.5 w-3.5" /> Add to PO
         </Link>
       </ZoruButton>
 

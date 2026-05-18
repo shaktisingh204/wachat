@@ -414,6 +414,55 @@ export const DEBIT_NOTE_STATUS: EnumValue[] = [
   v('applied', 'Applied', { tone: 'success' }),
 ];
 
+/**
+ * Payout (vendor payment) workflow status — P1.1B W3 (Purchases rebuild).
+ * Mirrors the Rust `CrmPayoutStatus` lifecycle: a payout is `pending` when
+ * created, `processing` once handed to the bank rail, `cleared` after the
+ * bank confirms (success terminal), `failed` on bank rejection, or
+ * `reversed` if the user voids it post-clearance. The detail page's inline
+ * "Mark cleared" / "Reverse" actions round-trip these values.
+ */
+export const PAYOUT_STATUS: EnumValue[] = [
+  v('pending', 'Pending', { tone: 'warning' }),
+  v('processing', 'Processing', { tone: 'info' }),
+  v('cleared', 'Cleared', { tone: 'success' }),
+  v('failed', 'Failed', { tone: 'destructive' }),
+  v('reversed', 'Reversed', { tone: 'destructive' }),
+];
+
+/**
+ * Vendor bid workflow status — P1.1B W3 (Purchases rebuild). Bids start
+ * `submitted`, can be `shortlisted`, then `accepted` (terminal-success →
+ * convert-to-PO) or `rejected`. `countered` is the buyer's counter-offer
+ * round trip; the buyer surfaces it from the detail page's "Counter-offer"
+ * action.
+ */
+export const VENDOR_BID_STATUS: EnumValue[] = [
+  v('submitted', 'Submitted', { tone: 'info' }),
+  v('shortlisted', 'Shortlisted', { tone: 'info' }),
+  v('countered', 'Counter-offered', { tone: 'warning' }),
+  v('accepted', 'Accepted', { tone: 'success' }),
+  v('rejected', 'Rejected', { tone: 'destructive' }),
+  v('withdrawn', 'Withdrawn', { tone: 'neutral' }),
+];
+
+/**
+ * Hire (procurement-of-services) lifecycle — P1.1B W3 (Purchases rebuild).
+ * Surfaces only when the `hire` module is enabled. `requested` → an
+ * approver `approves` or `rejects`; once approved the contract is
+ * `engaged` (active service), then either `completed` (service delivered)
+ * or `cancelled`.
+ */
+export const HIRE_STATUS: EnumValue[] = [
+  v('draft', 'Draft', { tone: 'neutral' }),
+  v('requested', 'Requested', { tone: 'info' }),
+  v('approved', 'Approved', { tone: 'success' }),
+  v('engaged', 'Engaged', { tone: 'info' }),
+  v('completed', 'Completed', { tone: 'success' }),
+  v('rejected', 'Rejected', { tone: 'destructive' }),
+  v('cancelled', 'Cancelled', { tone: 'destructive' }),
+];
+
 export const SUBSCRIPTION_STATUS: EnumValue[] = [
   v('trial', 'Trial', { tone: 'info' }),
   v('active', 'Active', { tone: 'success' }),
@@ -890,6 +939,86 @@ export const POLICY_STATUS: EnumValue[] = [
   v('archived', 'Archived', { tone: 'neutral' }),
 ];
 
+/**
+ * Slug set used by the policy form (matches the `CrmPolicyCategory` Rust
+ * type) — finer-grained than the catalogued `policyCategory` and kept
+ * separate so legacy callers using IT/Legal/Compliance/Safety slugs are
+ * not broken.
+ */
+export const POLICY_DOC_CATEGORY: EnumValue[] = [
+  v('leave', 'Leave'),
+  v('travel', 'Travel'),
+  v('code_of_conduct', 'Code of conduct'),
+  v('it_security', 'IT security'),
+  v('hr', 'HR'),
+  v('finance', 'Finance'),
+  v('other', 'Other'),
+];
+
+/**
+ * Lifecycle status used by the policy form — adds `under_review` and
+ * `obsolete` on top of the catalogued `policyStatus`.
+ */
+export const POLICY_DOC_STATUS: EnumValue[] = [
+  v('draft', 'Draft', { tone: 'neutral' }),
+  v('under_review', 'Under review', { tone: 'warning' }),
+  v('published', 'Published', { tone: 'success' }),
+  v('archived', 'Archived', { tone: 'neutral' }),
+  v('obsolete', 'Obsolete', { tone: 'destructive' }),
+];
+
+/** Slug set used by the HR document-template form. */
+export const DOCUMENT_TEMPLATE_CATEGORY: EnumValue[] = [
+  v('offer_letter', 'Offer letter'),
+  v('appointment_letter', 'Appointment letter'),
+  v('contract', 'Contract'),
+  v('nda', 'NDA'),
+  v('relieving_letter', 'Relieving letter'),
+  v('experience_letter', 'Experience letter'),
+  v('warning_letter', 'Warning letter'),
+  v('other', 'Other'),
+];
+
+/** Lifecycle status for an HR document template. */
+export const DOCUMENT_TEMPLATE_STATUS: EnumValue[] = [
+  v('draft', 'Draft', { tone: 'neutral' }),
+  v('active', 'Active', { tone: 'success' }),
+  v('archived', 'Archived', { tone: 'neutral' }),
+];
+
+/** Lifecycle status for an HR weekly timesheet. */
+export const TIMESHEET_STATUS: EnumValue[] = [
+  v('draft', 'Draft', { tone: 'neutral' }),
+  v('submitted', 'Submitted', { tone: 'info' }),
+  v('approved', 'Approved', { tone: 'success' }),
+  v('rejected', 'Rejected', { tone: 'destructive' }),
+  v('archived', 'Archived', { tone: 'neutral' }),
+];
+
+/** Indian fiscal quarter for TDS / payroll-tax records. */
+export const TDS_QUARTER: EnumValue[] = [
+  v('Q1', 'Q1 (Apr – Jun)'),
+  v('Q2', 'Q2 (Jul – Sep)'),
+  v('Q3', 'Q3 (Oct – Dec)'),
+  v('Q4', 'Q4 (Jan – Mar)'),
+];
+
+/** Lifecycle status for a TDS record. */
+export const TDS_STATUS: EnumValue[] = [
+  v('pending', 'Pending', { tone: 'warning' }),
+  v('deposited', 'Deposited', { tone: 'info' }),
+  v('filed', 'Filed', { tone: 'success' }),
+  v('archived', 'Archived', { tone: 'neutral' }),
+];
+
+/** Lifecycle status for a Form 16 record. */
+export const FORM_16_STATUS: EnumValue[] = [
+  v('draft', 'Draft', { tone: 'neutral' }),
+  v('generated', 'Generated', { tone: 'info' }),
+  v('issued', 'Issued', { tone: 'success' }),
+  v('archived', 'Archived', { tone: 'neutral' }),
+];
+
 export const NOTICE_PRIORITY: EnumValue[] = [
   v('low', 'Low', { tone: 'neutral' }),
   v('normal', 'Normal', { tone: 'info' }),
@@ -946,6 +1075,104 @@ export const DOCUMENT_VISIBILITY: EnumValue[] = [
   v('department', 'Department'),
   v('organization', 'Organization'),
   v('public', 'Public'),
+];
+
+/**
+ * Category for HR document records (matches the `CrmDocumentCategory`
+ * Rust enum used by `crm_documents`). Distinct from the more generic
+ * `documentVisibility`.
+ */
+export const DOCUMENT_CATEGORY: EnumValue[] = [
+  v('id_proof', 'ID proof'),
+  v('address_proof', 'Address proof'),
+  v('qualification', 'Qualification'),
+  v('experience', 'Experience'),
+  v('contract', 'Contract'),
+  v('appointment', 'Appointment'),
+  v('resignation', 'Resignation'),
+  v('other', 'Other'),
+];
+
+/**
+ * Linked-entity discriminator for an HR document — i.e. what kind of
+ * record the document is attached to.
+ */
+export const DOCUMENT_ENTITY_KIND: EnumValue[] = [
+  v('employee', 'Employee'),
+  v('candidate', 'Candidate'),
+  v('contact', 'Contact'),
+  v('account', 'Account'),
+  v('vendor', 'Vendor'),
+];
+
+/** Lifecycle for an HR document (verification + retention). */
+export const DOCUMENT_STATUS: EnumValue[] = [
+  v('pending', 'Pending', { tone: 'warning' }),
+  v('verified', 'Verified', { tone: 'success' }),
+  v('expired', 'Expired', { tone: 'destructive' }),
+  v('rejected', 'Rejected', { tone: 'destructive' }),
+  v('archived', 'Archived', { tone: 'neutral' }),
+];
+
+/**
+ * Asset category for the HR asset register. Distinct from
+ * `assetCondition` (physical state) and `assetStatus` (lifecycle).
+ */
+export const ASSET_CATEGORY: EnumValue[] = [
+  v('laptop', 'Laptop'),
+  v('phone', 'Phone'),
+  v('monitor', 'Monitor'),
+  v('badge', 'Badge'),
+  v('keys', 'Keys'),
+  v('vehicle', 'Vehicle'),
+  v('other', 'Other'),
+];
+
+/** Audience picker for notices (worksuite). */
+export const NOTICE_AUDIENCE: EnumValue[] = [
+  v('all', 'Everyone'),
+  v('department', 'Department'),
+  v('employee', 'Specific employees'),
+];
+
+/** Knowledge-base article media kind. */
+export const KB_ARTICLE_TYPE: EnumValue[] = [
+  v('article', 'Article'),
+  v('video', 'Video'),
+  v('audio', 'Audio'),
+  v('image', 'Image'),
+  v('document', 'Document'),
+];
+
+/**
+ * Top-level case kind for HR disciplinary records. Distinct from
+ * `disciplinaryType` (which catalogs the action — warning, suspension,
+ * termination, etc.). Matches the form's caseType slug set.
+ */
+export const DISCIPLINARY_CASE_TYPE: EnumValue[] = [
+  v('misconduct', 'Misconduct'),
+  v('performance', 'Performance'),
+  v('attendance', 'Attendance'),
+  v('other', 'Other'),
+];
+
+/** Severity grading for an HR disciplinary case. */
+export const DISCIPLINARY_SEVERITY: EnumValue[] = [
+  v('minor', 'Minor', { tone: 'info' }),
+  v('major', 'Major', { tone: 'warning' }),
+  v('severe', 'Severe', { tone: 'destructive' }),
+];
+
+/**
+ * Lifecycle status for the disciplinary *case* (form-level), as opposed
+ * to `disciplinaryStatus` which tracks the action workflow.
+ */
+export const DISCIPLINARY_CASE_STATUS: EnumValue[] = [
+  v('open', 'Open', { tone: 'info' }),
+  v('investigating', 'Investigating', { tone: 'warning' }),
+  v('resolved', 'Resolved', { tone: 'success' }),
+  v('closed', 'Closed', { tone: 'neutral' }),
+  v('archived', 'Archived', { tone: 'neutral' }),
 ];
 
 /* ------------------------------------------------------------------ */
@@ -1122,6 +1349,7 @@ export const ASSET_STATUS: EnumValue[] = [
   v('in_repair', 'In repair', { tone: 'warning' }),
   v('lost', 'Lost', { tone: 'destructive' }),
   v('retired', 'Retired', { tone: 'neutral' }),
+  v('archived', 'Archived', { tone: 'neutral' }),
 ];
 
 /* ------------------------------------------------------------------ */
@@ -1762,6 +1990,121 @@ export const PAYSLIP_TEMPLATE: EnumValue[] = [
 ];
 
 /* ------------------------------------------------------------------ */
+/* Inventory finite enums (P1.1B Wave 4)                              */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Reasons surfaced on the stock-adjustment new/edit form's Reason picker.
+ * Stored verbatim on `CrmStockAdjustment.reason`; the legacy form already
+ * defaulted to `correction`, so we keep that as the canonical ID.
+ */
+export const STOCK_ADJUSTMENT_REASON: EnumValue[] = [
+  v('correction', 'Count correction', { tone: 'neutral' }),
+  v('damage', 'Damage', { tone: 'destructive' }),
+  v('expiry', 'Expiry', { tone: 'warning' }),
+  v('theft', 'Theft', { tone: 'destructive' }),
+  v('scrap', 'Scrap', { tone: 'warning' }),
+  v('transfer', 'Transfer', { tone: 'info' }),
+];
+
+/**
+ * Lifecycle of a production order — used by the detail header status pill
+ * and the new/edit form's Status picker. Aligns with the union accepted
+ * by `setProductionOrderStatus`.
+ */
+export const PRODUCTION_ORDER_STATUS: EnumValue[] = [
+  v('planned', 'Planned', { tone: 'neutral' }),
+  v('released', 'Released', { tone: 'info' }),
+  v('in_progress', 'In progress', { tone: 'info' }),
+  v('paused', 'Paused', { tone: 'warning' }),
+  v('qa_check', 'QA check', { tone: 'warning' }),
+  v('completed', 'Completed', { tone: 'success' }),
+  v('closed', 'Closed', { tone: 'success' }),
+  v('cancelled', 'Cancelled', { tone: 'destructive' }),
+];
+
+/**
+ * GRN workflow status — mirrors the Rust DTO + the legacy Mongo column
+ * (`draft | inspected | posted | rejected`). The §1D brief asked for a
+ * superset that includes `received | partial | qc_failed | closed`; we
+ * union both spellings so existing data + new workflows both render.
+ */
+export const GRN_STATUS: EnumValue[] = [
+  v('draft', 'Draft', { tone: 'neutral' }),
+  v('received', 'Received', { tone: 'info' }),
+  v('partial', 'Partial', { tone: 'warning' }),
+  v('inspected', 'Inspected', { tone: 'info' }),
+  v('qc_failed', 'QC failed', { tone: 'destructive' }),
+  v('posted', 'Posted', { tone: 'success' }),
+  v('closed', 'Closed', { tone: 'success' }),
+  v('rejected', 'Rejected', { tone: 'destructive' }),
+];
+
+/** BOM lifecycle status — drives the detail status pill + activate flow. */
+export const BOM_STATUS: EnumValue[] = [
+  v('draft', 'Draft', { tone: 'neutral' }),
+  v('active', 'Active', { tone: 'success' }),
+  v('inactive', 'Inactive', { tone: 'neutral' }),
+  v('archived', 'Archived', { tone: 'neutral' }),
+];
+
+/**
+ * Synthetic stock-status enum used on the items list KPI strip + table
+ * tone pill (no equivalent column on `CrmProduct`; the derivation lives
+ * in `items/_components/types.ts → isLowStock / isOutOfStock`).
+ */
+export const ITEM_STOCK_STATUS: EnumValue[] = [
+  v('in_stock', 'In stock', { tone: 'success' }),
+  v('low', 'Low stock', { tone: 'warning' }),
+  v('out_of_stock', 'Out of stock', { tone: 'destructive' }),
+];
+
+/** Warehouse classification — Main / Branch / Franchise / 3PL / Virtual. */
+export const WAREHOUSE_TYPE: EnumValue[] = [
+  v('main', 'Main'),
+  v('branch', 'Branch'),
+  v('franchise', 'Franchise'),
+  v('3pl', '3PL'),
+  v('virtual', 'Virtual'),
+];
+
+/** Warehouse availability status. */
+export const WAREHOUSE_STATUS: EnumValue[] = [
+  v('active', 'Active', { tone: 'success' }),
+  v('inactive', 'Inactive', { tone: 'neutral' }),
+  v('archived', 'Archived', { tone: 'neutral' }),
+];
+
+/**
+ * Stock-transfer lifecycle — IDs match the existing TS union
+ * `CrmStockTransferStatus` ('Draft' | 'InTransit' | 'Received' |
+ * 'Cancelled' | 'archived'), so the picker round-trips without a writer
+ * change.
+ */
+export const STOCK_TRANSFER_STATUS: EnumValue[] = [
+  v('Draft', 'Draft', { tone: 'neutral' }),
+  v('InTransit', 'In transit', { tone: 'info' }),
+  v('Received', 'Received', { tone: 'success' }),
+  v('Cancelled', 'Cancelled', { tone: 'destructive' }),
+  v('archived', 'Archived', { tone: 'neutral' }),
+];
+
+/** Item-batch (batch/expiry) status. */
+export const ITEM_BATCH_STATUS: EnumValue[] = [
+  v('active', 'Active', { tone: 'success' }),
+  v('expired', 'Expired', { tone: 'destructive' }),
+  v('recalled', 'Recalled', { tone: 'destructive' }),
+  v('archived', 'Archived', { tone: 'neutral' }),
+];
+
+/** Per-item tax preference (taxable / non-taxable / out-of-scope). */
+export const ITEM_TAX_PREFERENCE: EnumValue[] = [
+  v('taxable', 'Taxable'),
+  v('non_taxable', 'Non-taxable'),
+  v('out_of_scope', 'Out of scope'),
+];
+
+/* ------------------------------------------------------------------ */
 /* Catalogue                                                           */
 /* ------------------------------------------------------------------ */
 
@@ -1818,6 +2161,12 @@ export const CRM_ENUMS = {
   /** Credit-note refund mode picker. P1.1B Wave 2. */
   creditNoteRefundMode: CREDIT_NOTE_REFUND_MODE,
   debitNoteStatus: DEBIT_NOTE_STATUS,
+  /** Payout (vendor payment) workflow status. P1.1B W3. */
+  payoutStatus: PAYOUT_STATUS,
+  /** Vendor bid workflow status. P1.1B W3. */
+  vendorBidStatus: VENDOR_BID_STATUS,
+  /** Hire / procurement-of-services lifecycle. P1.1B W3. */
+  hireStatus: HIRE_STATUS,
   subscriptionStatus: SUBSCRIPTION_STATUS,
   contractStatus: CONTRACT_STATUS,
   rfqStatus: RFQ_STATUS,
@@ -1882,6 +2231,23 @@ export const CRM_ENUMS = {
   successionReadiness: SUCCESSION_READINESS,
   certificationStatus: CERTIFICATION_STATUS,
   documentVisibility: DOCUMENT_VISIBILITY,
+  documentCategory: DOCUMENT_CATEGORY,
+  documentEntityKind: DOCUMENT_ENTITY_KIND,
+  documentStatus: DOCUMENT_STATUS,
+  assetCategory: ASSET_CATEGORY,
+  noticeAudience: NOTICE_AUDIENCE,
+  kbArticleType: KB_ARTICLE_TYPE,
+  disciplinaryCaseType: DISCIPLINARY_CASE_TYPE,
+  disciplinarySeverity: DISCIPLINARY_SEVERITY,
+  disciplinaryCaseStatus: DISCIPLINARY_CASE_STATUS,
+  policyDocCategory: POLICY_DOC_CATEGORY,
+  policyDocStatus: POLICY_DOC_STATUS,
+  documentTemplateCategory: DOCUMENT_TEMPLATE_CATEGORY,
+  documentTemplateStatus: DOCUMENT_TEMPLATE_STATUS,
+  timesheetStatus: TIMESHEET_STATUS,
+  tdsQuarter: TDS_QUARTER,
+  tdsStatus: TDS_STATUS,
+  form16Status: FORM_16_STATUS,
 
   // Type / classification enums
   employmentType: EMPLOYMENT_TYPE,
@@ -1997,6 +2363,18 @@ export const CRM_ENUMS = {
   payrollCurrency: PAYROLL_CURRENCY,
   taxRegime: TAX_REGIME,
   payslipTemplate: PAYSLIP_TEMPLATE,
+
+  // Inventory (P1.1B Wave 4)
+  stockAdjustmentReason: STOCK_ADJUSTMENT_REASON,
+  productionOrderStatus: PRODUCTION_ORDER_STATUS,
+  grnStatus: GRN_STATUS,
+  bomStatus: BOM_STATUS,
+  itemStockStatus: ITEM_STOCK_STATUS,
+  warehouseType: WAREHOUSE_TYPE,
+  warehouseStatus: WAREHOUSE_STATUS,
+  stockTransferStatus: STOCK_TRANSFER_STATUS,
+  itemBatchStatus: ITEM_BATCH_STATUS,
+  itemTaxPreference: ITEM_TAX_PREFERENCE,
 } as const satisfies Record<string, EnumValue[]>;
 
 export type CrmEnumName = keyof typeof CRM_ENUMS;

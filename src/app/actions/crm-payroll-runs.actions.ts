@@ -14,6 +14,26 @@
  * Fields: period_month, period_year, run_date, run_by, total_employees,
  *         total_gross, total_deductions, total_net,
  *         status (draft|in_progress|processed|paid|archived).
+ *
+ * **Dual-impl status — Phase 3 sweep (2026-05-18):**
+ *  - RBAC: all reads + mutators already guarded on `crm_payroll`.
+ *  - Rust delegation: the Rust crate `crm-payroll-runs`
+ *    (`/v1/hrm/payroll-runs`) uses a structurally DIFFERENT data model
+ *    from this legacy entity:
+ *      legacy: `period_month` (1-12) + `period_year` (int) + `total_*`
+ *              rollups + status enum (draft|in_progress|processed|paid|archived).
+ *      Rust:   `periodFrom`/`periodTo` ISO-date range + `employees[]` per-row
+ *              breakdown + `totals{gross,net,ctc,employeeCount}` +
+ *              status (draft|processing|approved|disbursed|closed) +
+ *              lifecycle endpoints (compute/approve/disburse).
+ *    The clean Rust path for the new HR-payroll surface lives at
+ *    `src/app/actions/crm/payroll-runs.actions.ts`; this legacy file
+ *    stays Mongo-only until the worksuite UI is rebuilt against the
+ *    range-based + per-employee Rust model.
+ *
+ * TODO 1.P3: collapse the (month, year) wrapper onto the Rust range
+ * model once the legacy `/dashboard/hrm/payroll/payroll` route is
+ * migrated to consume `periodFrom`/`periodTo` directly.
  */
 
 import { revalidatePath } from 'next/cache';

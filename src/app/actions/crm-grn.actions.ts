@@ -50,6 +50,9 @@ export async function getGrns(poId?: string): Promise<WithId<CrmGrn>[]> {
     const session = await getSession();
     if (!session?.user) return [];
 
+    const guard = await requirePermission('crm_grn', 'view');
+    if (!guard.ok) return [];
+
     if (useRustCrm()) {
         try {
             const grns = await crmGrnsApi.list({
@@ -95,6 +98,9 @@ export async function getGrnById(grnId: string): Promise<WithId<CrmGrn> | null> 
     if (!grnId) return null;
     const session = await getSession();
     if (!session?.user) return null;
+
+    const guard = await requirePermission('crm_grn', 'view');
+    if (!guard.ok) return null;
 
     if (useRustCrm()) {
         try {
