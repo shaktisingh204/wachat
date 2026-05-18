@@ -1,0 +1,16 @@
+[package]
+name = "sabflow-executor-nodes"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+description = "SabFlow executor — built-in nodes scaffold (Track B Phase 3). Real node implementations land in later phases."
+
+[lib]
+name = "sabflow_executor_nodes"
+path = "src/lib.rs"
+
+[dependencies]
+
+[lints]
+workspace = true
