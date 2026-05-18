@@ -1,0 +1,123 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_tfc_plan",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "tfc.workspace.plan",
+    "options": {
+      "path": "/webhooks/terraform-cloud-plan-bot",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-TFC-Token",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_tfc_webhook",
+      "name": "TFC Plan Notification",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "httpMethod": "POST", "path": "terraform-cloud-plan-bot", "responseMode": "onReceived" },
+      "webhookId": "terraform-cloud-plan-bot-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Run",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "runId", "value": "={{ $json.run_id }}" },
+            { "name": "workspace", "value": "={{ $json.workspace_name }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_fetch_plan",
+      "name": "Fetch Plan JSON",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.TFC_API }}/api/v2/runs/{{ $json.runId }}/plan/json-output",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth"
+      },
+      "credentials": { "httpHeaderAuth": { "id": "tfc-cred", "name": "Terraform Cloud Token" } }
+    },
+    {
+      "id": "n_gpt_summary",
+      "name": "Summarize Plan",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "authentication": "apiKey",
+        "resource": "chat",
+        "operation": "complete",
+        "model": "gpt-4o-mini",
+        "messages": {
+          "values": [
+            { "role": "system", "content": "Summarize this Terraform plan in Slack mrkdwn. Call out destructive changes." },
+            { "role": "user", "content": "={{ JSON.stringify($json) }}" }
+          ]
+        }
+      },
+      "credentials": { "openAiApi": { "id": "openai-cred", "name": "OpenAI API" } }
+    },
+    {
+      "id": "n_extract_summary",
+      "name": "Extract Summary",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "values": { "string": [{ "name": "summary", "value": "={{ $json.message.content }}" }] }
+      }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack PR Review",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.TFC_SLACK }}",
+        "text": ":lock_with_ink_pen: Plan for *{{ $node['Extract Run'].json.workspace }}*\n{{ $json.summary }}"
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    }
+  ],
+  "connections": {
+    "n_tfc_webhook": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": { "main": [[{ "node": "n_fetch_plan", "type": "main", "index": 0 }]] },
+    "n_fetch_plan": { "main": [[{ "node": "n_gpt_summary", "type": "main", "index": 0 }]] },
+    "n_gpt_summary": { "main": [[{ "node": "n_extract_summary", "type": "main", "index": 0 }]] },
+    "n_extract_summary": { "main": [[{ "node": "n_slack", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_tfc_webhook", "n_extract", "n_fetch_plan", "n_gpt_summary", "n_extract_summary", "n_slack"]
+    }
+  ],
+  "variables": [
+    { "id": "v_t", "name": "TFC_API", "defaultValue": "https://app.terraform.io" },
+    { "id": "v_s", "name": "TFC_SLACK", "defaultValue": "#terraform" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
