@@ -14,6 +14,7 @@
 
 pub mod binary;
 pub mod context;
+pub mod continue_on_fail;
 pub mod descriptor;
 pub mod error;
 pub mod errors;
@@ -26,7 +27,8 @@ pub use binary::{
     default_binary_store, set_default_binary_store, BinaryDataRef, BinaryFetchContext,
     BinaryStore, InMemoryBinaryStore, UnconfiguredBinaryStore,
 };
-pub use context::{Credential, ExecutionContext, NodeInput, NodeOutput};
+pub use context::{Credential, ExecutionContext, NodeContext, NodeInput, NodeMetrics, NodeOutput};
+pub use continue_on_fail::{error_sentinel, try_with_continue_on_fail, ItemResult};
 pub use descriptor::{
     CredentialBinding, NodeCategory, NodeDescriptor, NodeProperty, NodePropertyOption,
     NodePropertyType,

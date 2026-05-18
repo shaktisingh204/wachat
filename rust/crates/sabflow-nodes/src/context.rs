@@ -3,7 +3,10 @@
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::HashMap;
-use std::sync::Arc;
+use std::sync::{
+    atomic::{AtomicU64, Ordering},
+    Arc,
+};
 
 use crate::error::{NodeError, NodeResult};
 
@@ -62,7 +65,41 @@ pub struct Credential {
     pub data: HashMap<String, String>,
 }
 
+/// Counters surfaced to the C.1.8 metrics dashboard.
+///
+/// Cheap, lock-free, shareable across tasks. `Arc<NodeMetrics>` is cloned
+/// onto every per-item future so the helper can bump counters without
+/// touching the parent context.
+#[derive(Debug, Default)]
+pub struct NodeMetrics {
+    /// Number of per-item failures that were swallowed by
+    /// [`crate::continue_on_fail::try_with_continue_on_fail`].
+    /// Surfaced verbatim on the executor dashboard (C.1.8).
+    pub continue_on_fail_count: AtomicU64,
+}
+
+impl NodeMetrics {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Atomic increment — safe to call from any tokio task.
+    pub fn incr_continue_on_fail(&self) {
+        self.continue_on_fail_count.fetch_add(1, Ordering::Relaxed);
+    }
+
+    /// Snapshot reader for tests and the metrics endpoint.
+    pub fn continue_on_fail_count(&self) -> u64 {
+        self.continue_on_fail_count.load(Ordering::Relaxed)
+    }
+}
+
 /// Runtime context handed to every [`crate::Node::execute`] call.
+///
+/// This is the canonical Rust-side mirror of n8n's `IExecuteFunctions`.
+/// The plan and forward-looking ADRs refer to it as `NodeContext`; the
+/// alias is exported alongside so SDK helpers can use the shorter name
+/// without breaking the existing call sites.
 pub struct ExecutionContext {
     /// Flow / session variables (mutable across the run).
     pub variables: HashMap<String, Value>,
@@ -78,7 +115,20 @@ pub struct ExecutionContext {
     pub node_outputs: HashMap<String, NodeOutput>,
     /// Execution id — useful for logging and idempotency.
     pub execution_id: String,
+    /// Whether the *current* node has `continueOnFail` set by the runtime.
+    /// Set by the runtime (`sabflow-engine-runtime`) when it dispatches a
+    /// node whose block options include `continueOnFail: true`. Defaults
+    /// to `false`. n8n parity: `IExecuteFunctions.continueOnFail()`.
+    pub continue_on_fail: bool,
+    /// Shared metrics counters. Lifted to `Arc` so helpers can clone the
+    /// handle into per-item futures without re-borrowing `ctx`.
+    pub metrics: Arc<NodeMetrics>,
 }
+
+/// Alias matching the public name used in the PLAN-sabflow-coverage.md C.2
+/// task list and the (pending) `docs/adr/sabflow-executor-rust-errors.md`
+/// ADR. Forward-declaration — the SDK helpers prefer this name.
+pub type NodeContext = ExecutionContext;
 
 impl ExecutionContext {
     pub fn new(execution_id: String, http: Arc<reqwest::Client>) -> Self {
@@ -90,6 +140,8 @@ impl ExecutionContext {
             trigger_data: None,
             node_outputs: HashMap::new(),
             execution_id,
+            continue_on_fail: false,
+            metrics: Arc::new(NodeMetrics::new()),
         }
     }
     pub fn with_mongo(mut self, m: sabnode_db::mongo::MongoHandle) -> Self {
@@ -107,6 +159,20 @@ impl ExecutionContext {
     pub fn with_credentials(mut self, c: HashMap<String, Credential>) -> Self {
         self.credentials = c;
         self
+    }
+
+    /// Mark this dispatch as `continueOnFail`. Builder counterpart to the
+    /// `continue_on_fail` field; preferred when constructing a context
+    /// outside the runtime (tests, embedded calls).
+    pub fn with_continue_on_fail(mut self, on: bool) -> Self {
+        self.continue_on_fail = on;
+        self
+    }
+
+    /// n8n parity: `IExecuteFunctions.continueOnFail()`. Returns whether
+    /// the currently dispatched node should swallow per-item failures.
+    pub fn continue_on_fail(&self) -> bool {
+        self.continue_on_fail
     }
 
     /// Look up a credential by id — error if missing.
