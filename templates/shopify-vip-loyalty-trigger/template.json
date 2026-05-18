@@ -1,0 +1,10 @@
+{
+  "id": "shopify-vip-loyalty-trigger",
+  "name": "Shopify VIP Loyalty Trigger",
+  "description": "When a Shopify order is created, pulls the customer's lifetime spend, compares it to a VIP threshold, and for VIPs upgrades the customer in Klaviyo, generates a one-time discount code, emails them a thank-you with the code, and posts to a #vip-orders Slack channel. Replaces the manual segmentation, code-creation, and notification work merch teams do by hand.",
+  "category": "E-commerce",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["shopify", "klaviyo", "loyalty", "vip", "email", "ecommerce"],
+  "version": "0.1.0"
+}
