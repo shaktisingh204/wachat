@@ -1,0 +1,180 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_shopify_product_create",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "shopify.products.create",
+    "options": {
+      "topic": "products/create",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_shopify_trigger",
+      "name": "Shopify Product Created",
+      "type": "n8n-nodes-base.shopifyTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "topic": "products/create"
+      },
+      "credentials": {
+        "shopifyApi": { "id": "shopify-cred", "name": "Shopify API" }
+      }
+    },
+    {
+      "id": "n_pick_context",
+      "name": "Pick Product Context",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "productId", "value": "={{ $json.id }}" },
+            { "name": "productTitle", "value": "={{ $json.title }}" },
+            { "name": "locale", "value": "={{ $json.locale || $vars.DEFAULT_LOCALE }}" }
+          ],
+          "json": [
+            { "name": "images", "value": "={{ $json.images }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_split_images",
+      "name": "Split Per Image",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      }
+    },
+    {
+      "id": "n_download_image",
+      "name": "Download Image Binary",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $json.src }}",
+        "options": { "response": { "response": { "responseFormat": "file" } } }
+      }
+    },
+    {
+      "id": "n_gpt_vision_describe",
+      "name": "GPT-4o Vision Describe",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "authentication": "apiKey",
+        "resource": "chat",
+        "operation": "complete",
+        "model": "gpt-4o",
+        "messages": {
+          "values": [
+            { "role": "system", "content": "You write concise (max 120 char), descriptive alt-text for product images. Respond in the requested locale. Plain text only — no quotes, no prefix." },
+            { "role": "user", "content": "=Product: {{ $node['Pick Product Context'].json.productTitle }}\nLocale: {{ $node['Pick Product Context'].json.locale }}\nImage: {{ $binary.data }}" }
+          ]
+        },
+        "options": { "temperature": 0.2 }
+      },
+      "credentials": {
+        "openAiApi": { "id": "openai-cred", "name": "OpenAI API" }
+      }
+    },
+    {
+      "id": "n_shopify_update_image",
+      "name": "Update Image Alt Text",
+      "type": "n8n-nodes-base.shopify",
+      "typeVersion": 1,
+      "position": [1200, 0],
+      "parameters": {
+        "resource": "productImage",
+        "operation": "update",
+        "productId": "={{ $node['Pick Product Context'].json.productId }}",
+        "imageId": "={{ $node['Split Per Image'].json.id }}",
+        "updateFields": {
+          "alt": "={{ $node['GPT-4o Vision Describe'].json.message.content }}"
+        }
+      },
+      "credentials": {
+        "shopifyApi": { "id": "shopify-cred", "name": "Shopify API" }
+      }
+    },
+    {
+      "id": "n_airtable_log",
+      "name": "Log to Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [1440, 0],
+      "parameters": {
+        "operation": "append",
+        "application": "={{ $vars.AIRTABLE_BASE_ID }}",
+        "table": "={{ $vars.AIRTABLE_TABLE }}",
+        "fields": {
+          "Product": "={{ $node['Pick Product Context'].json.productTitle }}",
+          "ProductId": "={{ $node['Pick Product Context'].json.productId }}",
+          "ImageId": "={{ $node['Split Per Image'].json.id }}",
+          "ImageUrl": "={{ $node['Split Per Image'].json.src }}",
+          "Locale": "={{ $node['Pick Product Context'].json.locale }}",
+          "AltText": "={{ $node['GPT-4o Vision Describe'].json.message.content }}"
+        }
+      },
+      "credentials": {
+        "airtableApi": { "id": "airtable-cred", "name": "Airtable API" }
+      }
+    }
+  ],
+  "connections": {
+    "n_shopify_trigger": {
+      "main": [[{ "node": "n_pick_context", "type": "main", "index": 0 }]]
+    },
+    "n_pick_context": {
+      "main": [[{ "node": "n_split_images", "type": "main", "index": 0 }]]
+    },
+    "n_split_images": {
+      "main": [[{ "node": "n_download_image", "type": "main", "index": 0 }]]
+    },
+    "n_download_image": {
+      "main": [[{ "node": "n_gpt_vision_describe", "type": "main", "index": 0 }]]
+    },
+    "n_gpt_vision_describe": {
+      "main": [[{ "node": "n_shopify_update_image", "type": "main", "index": 0 }]]
+    },
+    "n_shopify_update_image": {
+      "main": [[{ "node": "n_airtable_log", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_shopify_trigger",
+        "n_pick_context",
+        "n_split_images",
+        "n_download_image",
+        "n_gpt_vision_describe",
+        "n_shopify_update_image",
+        "n_airtable_log"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_default_locale", "name": "DEFAULT_LOCALE", "defaultValue": "en" },
+    { "id": "v_airtable_base", "name": "AIRTABLE_BASE_ID", "defaultValue": "" },
+    { "id": "v_airtable_table", "name": "AIRTABLE_TABLE", "defaultValue": "AltTextLog" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
