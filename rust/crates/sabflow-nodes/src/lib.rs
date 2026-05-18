@@ -12,6 +12,7 @@
 //! and exposed over HTTP so the frontend can render a generic settings UI
 //! from each node's [`NodeDescriptor`].
 
+pub mod binary;
 pub mod context;
 pub mod descriptor;
 pub mod error;
@@ -21,6 +22,10 @@ pub mod node;
 pub mod nodes;
 pub mod registry;
 
+pub use binary::{
+    default_binary_store, set_default_binary_store, BinaryDataRef, BinaryFetchContext,
+    BinaryStore, InMemoryBinaryStore, UnconfiguredBinaryStore,
+};
 pub use context::{Credential, ExecutionContext, NodeInput, NodeOutput};
 pub use descriptor::{
     CredentialBinding, NodeCategory, NodeDescriptor, NodeProperty, NodePropertyOption,
