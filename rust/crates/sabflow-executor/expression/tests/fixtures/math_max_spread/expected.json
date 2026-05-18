@@ -1,0 +1,5 @@
+{
+  "kind": "value",
+  "value": 9,
+  "notes": "Per ADR §5 Math.max is allow-listed and §3 permits spread in argument position. This fixture proves both."
+}

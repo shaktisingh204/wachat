@@ -1,0 +1,7 @@
+{
+  "$execution": {
+    "id": "exec_01HKZ9T0PARITYTEST",
+    "mode": "manual",
+    "resumeUrl": "https://sabnode.example.com/sabflow/resume/abc"
+  }
+}

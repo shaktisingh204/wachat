@@ -1,0 +1,5 @@
+{
+  "kind": "value",
+  "value": "Hello Ada! You are item #3.",
+  "notes": "Per ADR §1 mixed-text templates concatenate chunks and stringify interpolated values. The harness strips one trailing newline from expression.txt before evaluation (see parity.rs::strip_one_trailing_newline), so the expected output has no trailing newline either."
+}

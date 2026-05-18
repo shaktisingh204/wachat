@@ -1,0 +1,6 @@
+{
+  "kind": "error",
+  "errorCode": "E_UNKNOWN_IDENTIFIER",
+  "errorMessageSubstring": "globalThis",
+  "notes": "Per ADR §2 the in-scope identifier set is fixed; `globalThis` is not in it. Lookup must fail at evaluate time (or tokenize time, depending on impl). The TS-side sandbox uses `Sandbox.isAllowedGlobal` to reject it."
+}

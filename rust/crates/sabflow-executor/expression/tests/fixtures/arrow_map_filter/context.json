@@ -1,0 +1,10 @@
+{
+  "$json": {
+    "items": [
+      { "active": true,  "qty": 2 },
+      { "active": false, "qty": 5 },
+      { "active": true,  "qty": 3 },
+      { "active": true,  "qty": 7 }
+    ]
+  }
+}

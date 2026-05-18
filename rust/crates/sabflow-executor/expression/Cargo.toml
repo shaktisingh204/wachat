@@ -12,5 +12,13 @@ path = "src/lib.rs"
 
 [dependencies]
 
+# Test-only deps — no runtime cost. `serde_json` is the same crate version
+# already used across the workspace (e.g. wachat-queue, wachat-templates-tests).
+# We need it to read the JSON fixtures under `tests/fixtures/` for the
+# Phase C.2.4 parity suite. The fixtures double as the acceptance criteria
+# for the eventual evaluator implementation that supersedes the scaffold.
+[dev-dependencies]
+serde_json = "1"
+
 [lints]
 workspace = true

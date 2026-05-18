@@ -1,0 +1,1 @@
+{{ $json.items.filter(i => i.active).map(i => i.qty).reduce((a, b) => a + b, 0) }}
