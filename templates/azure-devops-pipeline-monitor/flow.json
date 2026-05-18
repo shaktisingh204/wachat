@@ -1,0 +1,126 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_ado_failed",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "ado.pipeline.failed",
+    "options": {
+      "path": "/webhooks/azure-devops-pipeline-monitor",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-ADO-Token",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_ado_webhook",
+      "name": "Pipeline Failed",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "httpMethod": "POST", "path": "azure-devops-pipeline-monitor", "responseMode": "onReceived" },
+      "webhookId": "azure-devops-pipeline-monitor-webhook"
+    },
+    {
+      "id": "n_extract_run",
+      "name": "Extract Run Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "runId", "value": "={{ $json.resource.id }}" },
+            { "name": "pipelineName", "value": "={{ $json.resource.definition.name }}" },
+            { "name": "webUrl", "value": "={{ $json.resource._links.web.href }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_fetch_logs",
+      "name": "Fetch Run Logs",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.ADO_API_BASE }}/{{ $vars.ADO_ORG }}/{{ $vars.ADO_PROJECT }}/_apis/build/builds/{{ $json.runId }}/logs?api-version=7.0",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpBasicAuth"
+      },
+      "credentials": { "httpBasicAuth": { "id": "ado-cred", "name": "Azure DevOps PAT" } }
+    },
+    {
+      "id": "n_slack_devops",
+      "name": "Post to #devops",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [720, -100],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.DEVOPS_SLACK_CHANNEL }}",
+        "text": ":warning: ADO pipeline failed: *{{ $json.pipelineName }}* — <{{ $json.webUrl }}|run #{{ $json.runId }}>"
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    },
+    {
+      "id": "n_linear_ticket",
+      "name": "Create Linear Ticket",
+      "type": "n8n-nodes-base.linear",
+      "typeVersion": 1,
+      "position": [720, 100],
+      "parameters": {
+        "resource": "issue",
+        "operation": "create",
+        "teamId": "={{ $vars.LINEAR_TEAM_ID }}",
+        "title": "ADO pipeline failed: {{ $json.pipelineName }} #{{ $json.runId }}",
+        "additionalFields": { "priority": 2, "labels": ["ci-failure", "ado"] }
+      },
+      "credentials": { "linearApi": { "id": "linear-cred", "name": "Linear" } }
+    },
+    {
+      "id": "n_mongo_log",
+      "name": "Log Incident",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": { "operation": "insert", "collection": "ado_failures" },
+      "credentials": { "mongoDb": { "id": "mongo-cred", "name": "Mongo" } }
+    }
+  ],
+  "connections": {
+    "n_ado_webhook": { "main": [[{ "node": "n_extract_run", "type": "main", "index": 0 }]] },
+    "n_extract_run": { "main": [[{ "node": "n_fetch_logs", "type": "main", "index": 0 }]] },
+    "n_fetch_logs": {
+      "main": [[
+        { "node": "n_slack_devops", "type": "main", "index": 0 },
+        { "node": "n_linear_ticket", "type": "main", "index": 0 }
+      ]]
+    },
+    "n_slack_devops": { "main": [[{ "node": "n_mongo_log", "type": "main", "index": 0 }]] },
+    "n_linear_ticket": { "main": [[{ "node": "n_mongo_log", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_ado_webhook", "n_extract_run", "n_fetch_logs", "n_slack_devops", "n_linear_ticket", "n_mongo_log"]
+    }
+  ],
+  "variables": [
+    { "id": "v_base", "name": "ADO_API_BASE", "defaultValue": "https://dev.azure.com" },
+    { "id": "v_org", "name": "ADO_ORG", "defaultValue": "" },
+    { "id": "v_proj", "name": "ADO_PROJECT", "defaultValue": "" },
+    { "id": "v_slack", "name": "DEVOPS_SLACK_CHANNEL", "defaultValue": "#devops" },
+    { "id": "v_team", "name": "LINEAR_TEAM_ID", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
