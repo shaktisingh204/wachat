@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "github-security-alert-triage",
+  "cases": [
+    {
+      "id": "alert",
+      "description": "Alert triggers fetch and switch by severity.",
+      "triggerPayload": { "alert": { "number": 7, "severity": "high" } },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
