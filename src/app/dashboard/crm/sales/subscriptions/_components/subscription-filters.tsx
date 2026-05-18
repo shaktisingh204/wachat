@@ -1,0 +1,140 @@
+'use client';
+
+/**
+ * <SubscriptionFilters> — collapsible filter row for the §1D
+ * subscriptions list.
+ *
+ * Dimensions: client (account picker), status (catalogued enum →
+ * `<EnumFilterField enumName="subscriptionStatus">`), billing cadence
+ * (frequency), renewal mode. Pure presentational — parent owns the
+ * state.
+ */
+
+import * as React from 'react';
+
+import {
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+} from '@/components/zoruui';
+import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EnumFilterField } from '@/components/crm/enum-filter-field';
+
+const FREQUENCY_OPTIONS = [
+  { value: 'all', label: 'All cadences' },
+  { value: 'daily', label: 'Daily' },
+  { value: 'weekly', label: 'Weekly' },
+  { value: 'monthly', label: 'Monthly' },
+  { value: 'quarterly', label: 'Quarterly' },
+  { value: 'yearly', label: 'Yearly' },
+  { value: 'custom', label: 'Custom' },
+];
+
+const RENEWAL_OPTIONS = [
+  { value: 'all', label: 'Any renewal' },
+  { value: 'auto', label: 'Auto-renew' },
+  { value: 'manual', label: 'Manual' },
+];
+
+interface SubscriptionFiltersProps {
+  filtersActive: boolean;
+  onClearAll: () => void;
+  /** `'all'` sentinel = no filter. Mirrors `<EnumFilterField>` semantics. */
+  statusFilter: string;
+  onStatusFilter: (next: string) => void;
+  customerFilter: string | null;
+  onCustomerFilter: (next: string | null) => void;
+  frequencyFilter: string;
+  onFrequencyFilter: (next: string) => void;
+  renewalFilter: string;
+  onRenewalFilter: (next: string) => void;
+}
+
+export function SubscriptionFilters({
+  filtersActive,
+  onClearAll,
+  statusFilter,
+  onStatusFilter,
+  customerFilter,
+  onCustomerFilter,
+  frequencyFilter,
+  onFrequencyFilter,
+  renewalFilter,
+  onRenewalFilter,
+}: SubscriptionFiltersProps) {
+  return (
+    <details className="border-b border-zoru-line bg-zoru-surface-2/40" open>
+      <summary className="cursor-pointer list-none px-3 py-2 text-[12px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+        Filters
+        {filtersActive ? (
+          <>
+            <span className="ml-2 text-zoru-ink">·</span>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                onClearAll();
+              }}
+              className="ml-1 text-zoru-primary hover:underline"
+            >
+              clear all
+            </button>
+          </>
+        ) : null}
+      </summary>
+      <div className="grid gap-3 px-3 pb-3 md:grid-cols-2 lg:grid-cols-4">
+        <div className="space-y-1">
+          <ZoruLabel>Client</ZoruLabel>
+          <EntityFormField
+            entity="client"
+            name="_filter_customer"
+            initialId={customerFilter}
+            onChange={onCustomerFilter}
+          />
+        </div>
+        <div className="space-y-1">
+          <ZoruLabel>Status</ZoruLabel>
+          <EnumFilterField
+            enumName="subscriptionStatus"
+            value={statusFilter}
+            onChange={onStatusFilter}
+            allLabel="All statuses"
+          />
+        </div>
+        <div className="space-y-1">
+          <ZoruLabel>Billing cadence</ZoruLabel>
+          <ZoruSelect value={frequencyFilter} onValueChange={onFrequencyFilter}>
+            <ZoruSelectTrigger>
+              <ZoruSelectValue />
+            </ZoruSelectTrigger>
+            <ZoruSelectContent>
+              {FREQUENCY_OPTIONS.map((o) => (
+                <ZoruSelectItem key={o.value} value={o.value}>
+                  {o.label}
+                </ZoruSelectItem>
+              ))}
+            </ZoruSelectContent>
+          </ZoruSelect>
+        </div>
+        <div className="space-y-1">
+          <ZoruLabel>Renewal</ZoruLabel>
+          <ZoruSelect value={renewalFilter} onValueChange={onRenewalFilter}>
+            <ZoruSelectTrigger>
+              <ZoruSelectValue />
+            </ZoruSelectTrigger>
+            <ZoruSelectContent>
+              {RENEWAL_OPTIONS.map((o) => (
+                <ZoruSelectItem key={o.value} value={o.value}>
+                  {o.label}
+                </ZoruSelectItem>
+              ))}
+            </ZoruSelectContent>
+          </ZoruSelect>
+        </div>
+      </div>
+    </details>
+  );
+}

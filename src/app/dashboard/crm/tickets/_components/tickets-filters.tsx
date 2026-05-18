@@ -46,6 +46,7 @@ import {
     ZoruSelectValue,
 } from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EnumFilterField } from '@/components/crm/enum-filter-field';
 
 export type TicketRequesterKind = 'client' | 'lead' | 'employee';
 export type TicketStatusFilter =
@@ -117,79 +118,39 @@ export function TicketsFiltersRow(props: TicketsFiltersRowProps) {
         <ZoruCard>
             <ZoruCardContent className="grid grid-cols-1 gap-3 pt-4 md:grid-cols-4 lg:grid-cols-8">
                 <FilterField label="Status">
-                    <ZoruSelect
+                    <EnumFilterField
+                        enumName="ticketStatus"
                         value={props.statusFilter}
-                        onValueChange={(v) => props.onStatusChange(v as TicketStatusFilter)}
-                    >
-                        <ZoruSelectTrigger>
-                            <ZoruSelectValue />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                            <ZoruSelectItem value="all">All</ZoruSelectItem>
-                            {STATUS_OPTIONS.map((o) => (
-                                <ZoruSelectItem key={o.value} value={o.value}>
-                                    {o.label}
-                                </ZoruSelectItem>
-                            ))}
-                        </ZoruSelectContent>
-                    </ZoruSelect>
+                        onChange={(v) => props.onStatusChange(v as TicketStatusFilter)}
+                        allLabel="All"
+                    />
                 </FilterField>
 
                 <FilterField label="Priority">
-                    <ZoruSelect
+                    <EnumFilterField
+                        enumName="ticketPriority"
                         value={props.priorityFilter || 'all'}
-                        onValueChange={(v) => props.onPriorityChange(v === 'all' ? '' : v)}
-                    >
-                        <ZoruSelectTrigger>
-                            <ZoruSelectValue />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                            <ZoruSelectItem value="all">Any</ZoruSelectItem>
-                            {PRIORITY_OPTIONS.map((o) => (
-                                <ZoruSelectItem key={o.value} value={o.value}>
-                                    {o.label}
-                                </ZoruSelectItem>
-                            ))}
-                        </ZoruSelectContent>
-                    </ZoruSelect>
+                        onChange={(v) => props.onPriorityChange(v === 'all' ? '' : v)}
+                        allLabel="Any priority"
+                    />
                 </FilterField>
 
                 <FilterField label="Severity">
-                    <ZoruSelect
+                    <EnumFilterField
+                        enumName="ticketSeverity"
                         value={props.severityFilter || 'all'}
-                        onValueChange={(v) => props.onSeverityChange(v === 'all' ? '' : v)}
-                    >
-                        <ZoruSelectTrigger>
-                            <ZoruSelectValue />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                            <ZoruSelectItem value="all">Any</ZoruSelectItem>
-                            {SEVERITY_OPTIONS.map((o) => (
-                                <ZoruSelectItem key={o.value} value={o.value}>
-                                    {o.label}
-                                </ZoruSelectItem>
-                            ))}
-                        </ZoruSelectContent>
-                    </ZoruSelect>
+                        onChange={(v) => props.onSeverityChange(v === 'all' ? '' : v)}
+                        allLabel="Any severity"
+                    />
                 </FilterField>
 
                 <FilterField label="Channel">
-                    <ZoruSelect
+                    <EnumFilterField
+                        enumName="ticketChannel"
                         value={props.channelFilter || 'all'}
-                        onValueChange={(v) => props.onChannelChange(v === 'all' ? '' : v)}
-                    >
-                        <ZoruSelectTrigger>
-                            <ZoruSelectValue />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                            <ZoruSelectItem value="all">Any</ZoruSelectItem>
-                            {CHANNEL_OPTIONS.map((o) => (
-                                <ZoruSelectItem key={o.value} value={o.value}>
-                                    {o.label}
-                                </ZoruSelectItem>
-                            ))}
-                        </ZoruSelectContent>
-                    </ZoruSelect>
+                        onChange={(v) => props.onChannelChange(v === 'all' ? '' : v)}
+                        allLabel="Any channel"
+                    />
                 </FilterField>
 
                 <FilterField label="Category">
@@ -213,22 +174,14 @@ export function TicketsFiltersRow(props: TicketsFiltersRowProps) {
                 </FilterField>
 
                 <FilterField label="Requester">
-                    <ZoruSelect
+                    <EnumFilterField
+                        enumName="requesterKind"
                         value={props.requesterKindFilter}
-                        onValueChange={(v) =>
+                        onChange={(v) =>
                             props.onRequesterKindChange(v as TicketRequesterKind | 'all')
                         }
-                    >
-                        <ZoruSelectTrigger>
-                            <ZoruSelectValue />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                            <ZoruSelectItem value="all">Any</ZoruSelectItem>
-                            <ZoruSelectItem value="client">Client</ZoruSelectItem>
-                            <ZoruSelectItem value="lead">Lead</ZoruSelectItem>
-                            <ZoruSelectItem value="employee">Employee</ZoruSelectItem>
-                        </ZoruSelectContent>
-                    </ZoruSelect>
+                        allLabel="Any requester"
+                    />
                 </FilterField>
 
                 <FilterField label="Created">

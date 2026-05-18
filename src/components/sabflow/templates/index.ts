@@ -1,4 +1,10 @@
 import type { TemplateDefinition, TemplateCategory } from './types';
+import {
+  registerTemplate as registerCanonicalTemplate,
+  normaliseCategory,
+  FIRST_PARTY_PUBLISHER,
+  type Template as CanonicalTemplate,
+} from '@/lib/sabflow/marketplace/registry';
 
 import {
   leadCaptureTemplate,
@@ -78,5 +84,40 @@ export const TEMPLATE_CATEGORIES: TemplateCategory[] = [
   'E-commerce',
   'Health',
 ];
+
+/* ── C.10.8 #8 — push chatbot templates into the unified registry ─────
+ *
+ * The marketplace browse page (Phase C.10.5) reads from
+ * `@/lib/sabflow/marketplace/registry`.  Side-effect-register every chatbot
+ * template here so the in-builder picker and the marketplace see the same
+ * catalogue.  The legacy `TEMPLATES` array above stays as-is for any code
+ * that still imports the chatbot-specific shape directly. */
+function adaptChatbotTemplate(tpl: TemplateDefinition): CanonicalTemplate {
+  return {
+    id: tpl.id,
+    slug: tpl.id,
+    displayName: tpl.name,
+    description: tpl.description,
+    category: normaliseCategory(tpl.category),
+    tags: [],
+    requiredCredentials: [],
+    screenshots: [],
+    version: '1.0.0',
+    publisher: FIRST_PARTY_PUBLISHER,
+    installCount: 0,
+    kind: 'chatbot',
+    chrome: {
+      emoji: tpl.emoji,
+      color: tpl.color,
+      bgColor: tpl.bgColor,
+      icon: tpl.icon,
+    },
+    build: tpl.build,
+  };
+}
+
+for (const tpl of TEMPLATES) {
+  registerCanonicalTemplate(adaptChatbotTemplate(tpl));
+}
 
 export type { TemplateDefinition, TemplateCategory } from './types';

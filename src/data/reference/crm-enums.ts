@@ -149,6 +149,20 @@ export const LEAD_STATUS_LEGACY: EnumValue[] = [
   v('Converted', 'Converted', { tone: 'success' }),
 ];
 
+/**
+ * Filter-bar variant of lead status used on the All-Leads list page.
+ * Includes `Won` + `archived` which the list filter exposes (but the
+ * edit form doesn't). Sweep §1E.
+ */
+export const LEAD_STATUS_LIST_FILTER: EnumValue[] = [
+  v('New', 'New', { tone: 'info' }),
+  v('Contacted', 'Contacted', { tone: 'info' }),
+  v('Qualified', 'Qualified', { tone: 'success' }),
+  v('Won', 'Won', { tone: 'success' }),
+  v('Converted', 'Converted', { tone: 'success' }),
+  v('archived', 'Archived', { tone: 'neutral' }),
+];
+
 /** Knowledge-base article visibility. */
 export const KB_VISIBILITY: EnumValue[] = [
   v('public', 'Public', { tone: 'info' }),
@@ -2128,6 +2142,7 @@ export const CRM_ENUMS = {
   taskType: TASK_TYPE,
   recurringFrequencySimple: RECURRING_FREQUENCY_SIMPLE,
   leadStatusLegacy: LEAD_STATUS_LEGACY,
+  leadStatusListFilter: LEAD_STATUS_LIST_FILTER,
   kbVisibility: KB_VISIBILITY,
   kbStatus: KB_STATUS,
   replyTemplateStatus: REPLY_TEMPLATE_STATUS,

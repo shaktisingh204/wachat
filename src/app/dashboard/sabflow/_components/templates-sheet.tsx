@@ -2,9 +2,13 @@
 
 /**
  * Right-side slide-over panel that shows the SabFlow template catalog.
- * Reuses the existing `TEMPLATES` registry from
- * `@/components/sabflow/templates` (no parallel stub data needed — the
- * registry is shipped already).
+ *
+ * Phase C.10.8 #8 — this picker now reads from the **unified** marketplace
+ * registry at `@/lib/sabflow/marketplace/registry` instead of the chatbot-only
+ * `TEMPLATES` array.  We filter to `kind === 'chatbot'` so the picker keeps
+ * its original behaviour (it still creates chatbot-style flows via
+ * `template.build()` + `saveSabFlow()`), but the same registry now also
+ * powers the marketplace browse page and the install API.
  *
  * On select: creates a fresh blank flow via `createSabFlow`, then materialises
  * the template graph into it via `saveSabFlow`. Navigates to the new flow on
@@ -17,16 +21,65 @@ import { useRouter } from 'next/navigation';
 import { LuX, LuSearch, LuChevronRight, LuLoader, LuSparkles } from 'react-icons/lu';
 import { cn } from '@/lib/utils';
 import { createSabFlow, saveSabFlow } from '@/app/actions/sabflow';
+// Importing for its registration side-effect — pushes every chatbot template
+// into the unified registry so `listChatbotTemplates()` returns the full set.
+import '@/components/sabflow/templates';
 import {
-  TEMPLATES,
-  TEMPLATE_CATEGORIES,
-  type TemplateCategory,
-  type TemplateDefinition,
-} from '@/components/sabflow/templates';
+  listChatbotTemplates,
+  type Template as UnifiedTemplate,
+} from '@/lib/sabflow/marketplace/registry';
+import type { TemplateInstance } from '@/components/sabflow/templates/types';
 
-type CategoryFilter = 'All' | TemplateCategory;
+/* ── Local view-model ────────────────────────────────────── */
 
-const FILTERS: CategoryFilter[] = ['All', ...TEMPLATE_CATEGORIES];
+/**
+ * Adapter shape: keeps the rest of this file's JSX byte-identical to the
+ * pre-unification version (it expects `.icon`, `.emoji`, `.color`,
+ * `.bgColor`, `.category`, `.build()`).  The unified `Template` stores those
+ * in `chrome` + a typed-`unknown` icon; we re-cast here at the boundary.
+ */
+type ChatbotTemplateView = {
+  id: string;
+  name: string;
+  description: string;
+  emoji: string;
+  color: string;
+  bgColor: string;
+  icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
+  category: string;
+  build: () => TemplateInstance;
+};
+
+function toView(t: UnifiedTemplate): ChatbotTemplateView | null {
+  if (t.kind !== 'chatbot' || !t.chrome || !t.build) return null;
+  return {
+    id: t.id,
+    name: t.displayName,
+    description: t.description,
+    emoji: t.chrome.emoji,
+    color: t.chrome.color,
+    bgColor: t.chrome.bgColor,
+    icon: t.chrome.icon as ChatbotTemplateView['icon'],
+    category: t.category,
+    build: t.build,
+  };
+}
+
+// Snapshot the chatbot subset once per module load — the registry is fully
+// populated by the side-effect import above.
+const CHATBOT_TEMPLATES: ChatbotTemplateView[] = listChatbotTemplates()
+  .map(toView)
+  .filter((t): t is ChatbotTemplateView => t !== null);
+
+// Distinct canonical categories present in the chatbot subset, in stable
+// display order.
+const CHATBOT_CATEGORIES: string[] = Array.from(
+  new Set(CHATBOT_TEMPLATES.map((t) => t.category)),
+);
+
+type CategoryFilter = 'All' | string;
+
+const FILTERS: CategoryFilter[] = ['All', ...CHATBOT_CATEGORIES];
 
 /**
  * Step 36 — featured-templates pinned to the top of the marketplace.  Order
@@ -58,7 +111,7 @@ export function TemplatesSheet({ open, onClose, onCreated }: Props) {
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return TEMPLATES.filter((t) => {
+    return CHATBOT_TEMPLATES.filter((t) => {
       if (filter !== 'All' && t.category !== filter) return false;
       if (!q) return true;
       return (
@@ -70,20 +123,16 @@ export function TemplatesSheet({ open, onClose, onCreated }: Props) {
 
   const counts = useMemo<Record<CategoryFilter, number>>(() => {
     const base: Record<CategoryFilter, number> = {
-      All: TEMPLATES.length,
-      Marketing: 0,
-      Support: 0,
-      Sales: 0,
-      HR: 0,
-      'E-commerce': 0,
-      Health: 0,
-      Other: 0,
+      All: CHATBOT_TEMPLATES.length,
     };
-    for (const t of TEMPLATES) base[t.category] = (base[t.category] ?? 0) + 1;
+    for (const c of CHATBOT_CATEGORIES) base[c] = 0;
+    for (const t of CHATBOT_TEMPLATES) {
+      base[t.category] = (base[t.category] ?? 0) + 1;
+    }
     return base;
   }, []);
 
-  function handleSelect(template: TemplateDefinition) {
+  function handleSelect(template: ChatbotTemplateView) {
     if (creating) return;
     setCreating(template.id);
     setError(null);
@@ -151,7 +200,7 @@ export function TemplatesSheet({ open, onClose, onCreated }: Props) {
               Browse templates
             </span>
             <span className="text-xs text-zinc-500">
-              {filtered.length} of {TEMPLATES.length}
+              {filtered.length} of {CHATBOT_TEMPLATES.length}
             </span>
           </div>
           <button
@@ -214,7 +263,9 @@ export function TemplatesSheet({ open, onClose, onCreated }: Props) {
         {/* Featured row — only when there's no active filter / query */}
         {filter === 'All' && !query.trim() && (
           <FeaturedRow
-            templates={TEMPLATES.filter((t) => FEATURED_TEMPLATE_IDS.includes(t.id))}
+            templates={CHATBOT_TEMPLATES.filter((t) =>
+              FEATURED_TEMPLATE_IDS.includes(t.id),
+            )}
             onSelect={handleSelect}
             disabled={isPending}
             creating={creating}
@@ -294,8 +345,8 @@ function FeaturedRow({
   disabled,
   creating,
 }: {
-  templates: TemplateDefinition[];
-  onSelect: (tpl: TemplateDefinition) => void;
+  templates: ChatbotTemplateView[];
+  onSelect: (tpl: ChatbotTemplateView) => void;
   disabled: boolean;
   creating: string | null;
 }) {

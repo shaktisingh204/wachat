@@ -99,7 +99,7 @@ export async function saveDepartmentAction(
   const name = pickStr(fd, 'name');
   if (!name) return { error: 'Name is required.' };
 
-  const guard = await requirePermission('crm_department', id ? 'update' : 'create');
+  const guard = await requirePermission('crm_department', id ? 'edit' : 'create');
   if (!guard.ok) return { error: guard.error };
 
   const draft: CrmDepartmentCreateInput = {
@@ -177,7 +177,7 @@ export async function saveDesignationAction(
   const name = pickStr(fd, 'name');
   if (!name) return { error: 'Name is required.' };
 
-  const guard = await requirePermission('crm_designation', id ? 'update' : 'create');
+  const guard = await requirePermission('crm_designation', id ? 'edit' : 'create');
   if (!guard.ok) return { error: guard.error };
 
   const draft: CrmDesignationCreateInput = {
@@ -215,5 +215,165 @@ export async function deleteDesignationAction(id: string): Promise<{ success: bo
     return { success: true };
   } catch (e) {
     return { success: false, error: err(e) };
+  }
+}
+
+/* ── KPI snapshots (§1D) ───────────────────────────────────────── */
+
+export interface DepartmentKpiBundle {
+  total: number;
+  active: number;
+  inactive: number;
+  /** Headcount in the largest department. */
+  largestHeadcount: number;
+  /** Rounded to 1 decimal — useful for the "Avg headcount" tile. */
+  avgHeadcount: number;
+}
+
+export async function getDepartmentKpis(): Promise<DepartmentKpiBundle> {
+  const empty: DepartmentKpiBundle = {
+    total: 0,
+    active: 0,
+    inactive: 0,
+    largestHeadcount: 0,
+    avgHeadcount: 0,
+  };
+  try {
+    const [departments, { listEmployees }] = await Promise.all([
+      crmDepartmentsApi.list({ page: 1, limit: 200 }),
+      import('@/app/actions/crm/employees.actions'),
+    ]);
+    if (departments.length === 0) return empty;
+    const counts = await Promise.all(
+      departments.map((d) =>
+        listEmployees({ departmentId: d._id, limit: 1 })
+          // The Rust list endpoint returns up to `limit` items and a
+          // hasMore flag — for an accurate headcount we'd need a
+          // `count` endpoint. Until that lands we pull a wider window
+          // for any department that hit the cap.
+          .then(async (res) => {
+            if (!res.hasMore) return res.employees.length;
+            const wider = await listEmployees({
+              departmentId: d._id,
+              limit: 100,
+            });
+            return wider.employees.length + (wider.hasMore ? 1 : 0);
+          })
+          .catch(() => 0),
+      ),
+    );
+    const total = departments.length;
+    const active = departments.filter((d) => d.active !== false).length;
+    const inactive = total - active;
+    const largest = counts.length > 0 ? Math.max(...counts) : 0;
+    const sum = counts.reduce((a, b) => a + b, 0);
+    const avg = total > 0 ? Math.round((sum / total) * 10) / 10 : 0;
+    return { total, active, inactive, largestHeadcount: largest, avgHeadcount: avg };
+  } catch (e) {
+    console.error('[getDepartmentKpis] failed:', e);
+    return empty;
+  }
+}
+
+export interface DesignationKpiBundle {
+  total: number;
+  active: number;
+  inactive: number;
+  /** Holders in the most-populated designation. */
+  topHeadcount: number;
+  /** Name of that designation (for the "Top by headcount" tile). */
+  topName: string | null;
+}
+
+export async function getDesignationKpis(): Promise<DesignationKpiBundle> {
+  const empty: DesignationKpiBundle = {
+    total: 0,
+    active: 0,
+    inactive: 0,
+    topHeadcount: 0,
+    topName: null,
+  };
+  try {
+    const [designations, { listEmployees }] = await Promise.all([
+      crmDesignationsApi.list({ page: 1, limit: 200 }),
+      import('@/app/actions/crm/employees.actions'),
+    ]);
+    if (designations.length === 0) return empty;
+    const counts = await Promise.all(
+      designations.map((d) =>
+        listEmployees({ designationId: d._id, limit: 1 })
+          .then(async (res) => {
+            if (!res.hasMore) return res.employees.length;
+            const wider = await listEmployees({
+              designationId: d._id,
+              limit: 100,
+            });
+            return wider.employees.length + (wider.hasMore ? 1 : 0);
+          })
+          .catch(() => 0),
+      ),
+    );
+    const total = designations.length;
+    const active = designations.filter((d) => d.active !== false).length;
+    const inactive = total - active;
+    let topIdx = -1;
+    let topHeadcount = 0;
+    counts.forEach((c, i) => {
+      if (c > topHeadcount) {
+        topHeadcount = c;
+        topIdx = i;
+      }
+    });
+    return {
+      total,
+      active,
+      inactive,
+      topHeadcount,
+      topName: topIdx >= 0 ? designations[topIdx].name : null,
+    };
+  } catch (e) {
+    console.error('[getDesignationKpis] failed:', e);
+    return empty;
+  }
+}
+
+/* ── Related counts (§1D) ─────────────────────────────────────── */
+
+export async function getDepartmentRelatedCounts(id: string): Promise<{
+  employees: number;
+  children: number;
+}> {
+  const empty = { employees: 0, children: 0 };
+  if (!id) return empty;
+  try {
+    const { listEmployees } = await import('@/app/actions/crm/employees.actions');
+    const [{ employees, hasMore }, { items: allDepartments }] = await Promise.all([
+      listEmployees({ departmentId: id, limit: 100 }),
+      listDepartments({ limit: 200 }),
+    ]);
+    return {
+      employees: employees.length + (hasMore ? 1 : 0),
+      children: allDepartments.filter((d) => d.parentDepartmentId === id).length,
+    };
+  } catch (e) {
+    console.error('[getDepartmentRelatedCounts] failed:', e);
+    return empty;
+  }
+}
+
+export async function getDesignationRelatedCounts(id: string): Promise<{
+  employees: number;
+}> {
+  if (!id) return { employees: 0 };
+  try {
+    const { listEmployees } = await import('@/app/actions/crm/employees.actions');
+    const { employees, hasMore } = await listEmployees({
+      designationId: id,
+      limit: 100,
+    });
+    return { employees: employees.length + (hasMore ? 1 : 0) };
+  } catch (e) {
+    console.error('[getDesignationRelatedCounts] failed:', e);
+    return { employees: 0 };
   }
 }

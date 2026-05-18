@@ -85,6 +85,61 @@ export async function listAttendance(
   }
 }
 
+/**
+ * §1D.1 — KPI snapshot for the attendance list-page strip.
+ *
+ * Pulls a representative 200-row Rust window and aggregates locally so
+ * the list page renders the strip server-side. Returns a zeroed
+ * snapshot on Rust failure (never throws). Replace with a dedicated
+ * `/v1/crm/attendance/kpis` aggregate once tenant volumes blow past
+ * the 200 ceiling.
+ */
+export interface AttendanceKpiSummary {
+  presentToday: number;
+  absentToday: number;
+  halfDayToday: number;
+  lateToday: number;
+  wfhThisWeek: number;
+}
+
+export async function getAttendanceKpis(): Promise<AttendanceKpiSummary> {
+  const empty: AttendanceKpiSummary = {
+    presentToday: 0,
+    absentToday: 0,
+    halfDayToday: 0,
+    lateToday: 0,
+    wfhThisWeek: 0,
+  };
+  try {
+    const docs = await crmAttendanceApi.list({ page: 1, limit: 200 });
+    const todayIso = new Date().toISOString().slice(0, 10);
+    const sevenAgo = Date.now() - 7 * 86_400_000;
+    const out = { ...empty };
+    for (const a of docs) {
+      const sameDay = a.date?.slice(0, 10) === todayIso;
+      if (sameDay) {
+        if (a.status === 'present') out.presentToday += 1;
+        else if (a.status === 'absent') out.absentToday += 1;
+        else if (a.status === 'half_day') out.halfDayToday += 1;
+        if ((a.lateByMinutes ?? 0) > 0) out.lateToday += 1;
+      }
+      if (a.status === 'wfh' && a.date) {
+        const t = new Date(a.date).getTime();
+        if (!Number.isNaN(t) && t >= sevenAgo) out.wfhThisWeek += 1;
+      }
+    }
+    return out;
+  } catch (e) {
+    recordRustFallback({
+      entity: 'attendance',
+      op: 'list',
+      errorCode: e instanceof RustApiError ? e.code : undefined,
+      status: e instanceof RustApiError ? e.status : undefined,
+    });
+    return empty;
+  }
+}
+
 export async function getAttendance(
   id: string,
 ): Promise<{ record: CrmAttendanceDoc | null; error?: string }> {

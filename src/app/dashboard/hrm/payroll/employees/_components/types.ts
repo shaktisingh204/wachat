@@ -41,6 +41,10 @@ export interface EmployeeKpiSnapshot {
   total: number;
   active: number;
   onLeave: number;
+  /** Status === 'resigned' — i.e. notice period in progress. */
+  onNotice: number;
+  /** Employees whose joiningDate falls in the current calendar month. */
+  newThisMonth: number;
   terminated: number;
   /** Mean tenure across active employees, in whole months. */
   avgTenureMonths: number | null;
@@ -51,6 +55,9 @@ export type EmployeePresetKey =
   | 'my-team'
   | 'on-probation'
   | 'joined-last-30d'
+  | 'joined-this-month'
+  | 'on-leave'
+  | 'on-notice'
   | 'terminated';
 
 export type EmployeeViewMode = 'table' | 'grid' | 'org';

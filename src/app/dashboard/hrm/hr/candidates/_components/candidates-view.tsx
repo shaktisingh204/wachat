@@ -1,12 +1,26 @@
 'use client';
 
 /**
- * Candidates list — §1D.1 + kanban view per spec.
+ * Candidates list — §1D.1 rebuild for P1.1B Wave 6.
  *
- * KPI (5): Total · New · In review · Offer · Hired
- * Columns (8): name+photo · job · stage · source · score · last activity · status · actions
- * Filters (6): stage, job, source, owner, score range, date range
- * Views: table | kanban (by stage)
+ * KPI (5) — spec-locked labels:
+ *   New applications · In screening · In interview · Offered · Hired
+ *
+ * Columns (8):
+ *   name+photo · job · stage · source · score · last activity · email · phone
+ *
+ * Filters per spec:
+ *   • Job          — <EntityFormField entity="crmJob" />
+ *   • Stage        — <EnumFilterField enumName="candidateStage" />
+ *   • Source       — <EnumFilterField enumName="candidateSource" />
+ *   • Min score    — text
+ *   • Applied from — date
+ *
+ * Views: table | kanban (by stage).
+ *
+ * KPI counts come from the dedicated `getCandidateKpis()` server action
+ * (tenant-wide, not just the visible page) so the strip never lies on
+ * partial data.
  */
 
 import * as React from 'react';
@@ -14,24 +28,26 @@ import Link from 'next/link';
 import {
   LayoutGrid,
   Table as TableIcon,
-  Users,
   Sparkles,
   Search as SearchIcon,
   Send,
   Trophy,
+  UserCheck,
 } from 'lucide-react';
 import { useDebouncedCallback } from 'use-debounce';
 
 import { useZoruToast, ZoruAvatar, ZoruAvatarFallback } from '@/components/zoruui';
+import { EnumFilterField } from '@/components/crm/enum-filter-field';
+import { EntityFormField } from '@/components/crm/entity-form-field';
 import {
   RecruitmentListShell,
   renderStatusCell,
   type RecruitmentColumn,
-  type RecruitmentFilter,
   type RecruitmentKpi,
 } from '../../_components/recruitment-list-shell';
 import { CandidatesKanban } from './candidates-kanban';
 import { deleteCandidate } from '@/app/actions/hr.actions';
+import type { CandidateKpis } from '@/app/actions/hr-recruitment-kpis.actions';
 
 interface Candidate {
   _id: string;
@@ -39,6 +55,7 @@ interface Candidate {
   email?: string;
   phone?: string;
   jobId?: string;
+  jobTitle?: string;
   position?: string;
   stage?: string;
   source?: string;
@@ -48,40 +65,25 @@ interface Candidate {
   createdAt?: string | Date;
   applied_at?: string | Date;
   currentCompany?: string;
-  experienceYears?: number;
   ownerId?: string;
 }
 
-const STAGES = [
-  'applied',
-  'screening',
-  'interview',
-  'offer',
-  'hired',
-  'rejected',
-] as const;
+interface CandidatesViewProps {
+  initial: Candidate[];
+  kpis?: CandidateKpis;
+}
 
-const STAGE_OPTIONS = STAGES.map((s) => ({
-  value: s,
-  label: s.charAt(0).toUpperCase() + s.slice(1),
-}));
-
-export function CandidatesView({ initial }: { initial: Candidate[] }) {
+export function CandidatesView({ initial, kpis }: CandidatesViewProps) {
   const { toast } = useZoruToast();
   const [rows, setRows] = React.useState<Candidate[]>(initial);
   const [view, setView] = React.useState<'table' | 'kanban'>('table');
   const [search, setSearch] = React.useState('');
   const [activeKpi, setActiveKpi] = React.useState<string | undefined>();
-  const [filterValues, setFilterValues] = React.useState<Record<string, string>>(
-    {
-      stage: '',
-      source: '',
-      job: '',
-      owner: '',
-      minScore: '',
-      from: '',
-    },
-  );
+  const [stageFilter, setStageFilter] = React.useState<string>('all');
+  const [sourceFilter, setSourceFilter] = React.useState<string>('all');
+  const [jobFilter, setJobFilter] = React.useState<string | null>(null);
+  const [minScore, setMinScore] = React.useState('');
+  const [appliedFrom, setAppliedFrom] = React.useState('');
   const [page, setPage] = React.useState(1);
 
   React.useEffect(() => setRows(initial), [initial]);
@@ -100,77 +102,99 @@ export function CandidatesView({ initial }: { initial: Candidate[] }) {
         }`.toLowerCase();
         if (!hay.includes(q)) return false;
       }
-      const stageFilter = activeKpi || filterValues.stage;
-      if (stageFilter) {
-        if (stageFilter === 'inReview') {
-          if (!['screening', 'interview'].includes(r.stage || '')) return false;
-        } else if ((r.stage || '') !== stageFilter) {
-          return false;
-        }
-      }
-      if (filterValues.source && (r.source || '') !== filterValues.source)
+      // KPI card click sets a sentinel that maps to one of the
+      // pipeline stages — `screening`, `interview`, `offer`, `hired`,
+      // or the "new applications" group (stage = applied).
+      const kpiStage =
+        activeKpi === 'new'
+          ? 'applied'
+          : activeKpi === 'screening'
+            ? 'screening'
+            : activeKpi === 'interview'
+              ? 'interview'
+              : activeKpi === 'offered'
+                ? 'offer'
+                : activeKpi === 'hired'
+                  ? 'hired'
+                  : '';
+      const stage =
+        kpiStage || (stageFilter !== 'all' ? stageFilter : '');
+      if (stage && (r.stage || '') !== stage) return false;
+      if (sourceFilter !== 'all' && (r.source || '') !== sourceFilter)
         return false;
-      if (filterValues.job && (r.jobId || '') !== filterValues.job)
-        return false;
-      if (filterValues.owner && (r.ownerId || '') !== filterValues.owner)
-        return false;
-      if (filterValues.minScore) {
-        const min = Number(filterValues.minScore);
+      if (jobFilter && (r.jobId || '') !== jobFilter) return false;
+      if (minScore) {
+        const min = Number(minScore);
         if (Number.isFinite(min) && (r.rating ?? 0) < min) return false;
       }
-      if (filterValues.from) {
-        const from = new Date(filterValues.from);
+      if (appliedFrom) {
+        const from = new Date(appliedFrom);
         const d = r.applied_at || r.createdAt;
         if (!d || new Date(d) < from) return false;
       }
       return true;
     });
-  }, [rows, search, filterValues, activeKpi]);
+  }, [
+    rows,
+    search,
+    activeKpi,
+    stageFilter,
+    sourceFilter,
+    jobFilter,
+    minScore,
+    appliedFrom,
+  ]);
 
-  const counts = React.useMemo(() => {
-    const c = {
-      total: rows.length,
-      applied: 0,
-      inReview: 0,
-      offer: 0,
+  // Counts come from the tenant-wide KPI action; fall back to local
+  // sums when the server passes nothing (older callers / loading).
+  const counts: CandidateKpis = React.useMemo(() => {
+    if (kpis) return kpis;
+    const out: CandidateKpis = {
+      newApplications: 0,
+      inScreening: 0,
+      inInterview: 0,
+      offered: 0,
       hired: 0,
+      total: rows.length,
     };
     for (const r of rows) {
-      if (r.stage === 'applied') c.applied += 1;
-      if (r.stage === 'screening' || r.stage === 'interview') c.inReview += 1;
-      if (r.stage === 'offer') c.offer += 1;
-      if (r.stage === 'hired') c.hired += 1;
+      if (r.stage === 'applied') out.newApplications += 1;
+      if (r.stage === 'screening') out.inScreening += 1;
+      if (r.stage === 'interview') out.inInterview += 1;
+      if (r.stage === 'offer') out.offered += 1;
+      if (r.stage === 'hired') out.hired += 1;
     }
-    return c;
-  }, [rows]);
+    return out;
+  }, [kpis, rows]);
 
-  const kpis: RecruitmentKpi[] = [
-    {
-      key: 'total',
-      label: 'Total',
-      value: counts.total.toLocaleString(),
-      icon: <Users className="h-4 w-4" />,
-    },
+  const kpiCards: RecruitmentKpi[] = [
     {
       key: 'new',
-      label: 'New',
-      value: counts.applied.toLocaleString(),
+      label: 'New applications',
+      value: counts.newApplications.toLocaleString(),
       icon: <Sparkles className="h-4 w-4" />,
-      filterValue: 'applied',
+      filterValue: 'new',
     },
     {
-      key: 'review',
-      label: 'In review',
-      value: counts.inReview.toLocaleString(),
+      key: 'screening',
+      label: 'In screening',
+      value: counts.inScreening.toLocaleString(),
       icon: <SearchIcon className="h-4 w-4" />,
-      filterValue: 'inReview',
+      filterValue: 'screening',
     },
     {
-      key: 'offer',
-      label: 'Offer',
-      value: counts.offer.toLocaleString(),
+      key: 'interview',
+      label: 'In interview',
+      value: counts.inInterview.toLocaleString(),
+      icon: <UserCheck className="h-4 w-4" />,
+      filterValue: 'interview',
+    },
+    {
+      key: 'offered',
+      label: 'Offered',
+      value: counts.offered.toLocaleString(),
       icon: <Send className="h-4 w-4" />,
-      filterValue: 'offer',
+      filterValue: 'offered',
     },
     {
       key: 'hired',
@@ -202,7 +226,19 @@ export function CandidatesView({ initial }: { initial: Candidate[] }) {
     {
       key: 'jobId',
       label: 'Job',
-      render: (row) => (row.jobId ? <code className="text-[11px]">{shorten(row.jobId)}</code> : '—'),
+      render: (row) =>
+        row.jobTitle ? (
+          <Link
+            href={`/dashboard/hrm/hr/jobs/${row.jobId}`}
+            className="text-zoru-ink hover:underline"
+          >
+            {row.jobTitle}
+          </Link>
+        ) : row.jobId ? (
+          <code className="text-[11px]">{shorten(row.jobId)}</code>
+        ) : (
+          '—'
+        ),
     },
     {
       key: 'stage',
@@ -224,43 +260,73 @@ export function CandidatesView({ initial }: { initial: Candidate[] }) {
     { key: 'phone', label: 'Phone', render: (r) => r.phone || '—' },
   ];
 
-  const filters: RecruitmentFilter[] = [
-    {
-      key: 'stage',
-      label: 'Stage',
-      type: 'select',
-      options: STAGE_OPTIONS,
-    },
-    {
-      key: 'source',
-      label: 'Source',
-      type: 'text',
-      placeholder: 'Source',
-    },
-    {
-      key: 'job',
-      label: 'Job',
-      type: 'text',
-      placeholder: 'Job id',
-    },
-    {
-      key: 'owner',
-      label: 'Owner',
-      type: 'text',
-      placeholder: 'Owner id',
-    },
-    {
-      key: 'minScore',
-      label: 'Min score',
-      type: 'text',
-      placeholder: 'Min score',
-    },
-    {
-      key: 'from',
-      label: 'Applied from',
-      type: 'date',
-    },
-  ];
+  // Custom filter row — uses EnumFilterField + EntityFormField per
+  // §1D.1 picker uniformity. RecruitmentListShell's stock filter-row
+  // is generic-text/select; we render our own and route it through
+  // the same `filters` slot via a passthrough.
+  const filtersSlot = (
+    <>
+      <div className="min-w-[180px]">
+        <EnumFilterField
+          enumName="candidateStage"
+          value={stageFilter}
+          onChange={(v) => {
+            setStageFilter(v);
+            setPage(1);
+          }}
+          allLabel="All stages"
+          placeholder="Stage"
+        />
+      </div>
+      <div className="min-w-[180px]">
+        <EnumFilterField
+          enumName="candidateSource"
+          value={sourceFilter}
+          onChange={(v) => {
+            setSourceFilter(v);
+            setPage(1);
+          }}
+          allLabel="All sources"
+          placeholder="Source"
+        />
+      </div>
+      <div className="min-w-[180px]">
+        <EntityFormField
+          entity="crmJob"
+          initialId={jobFilter}
+          onChange={(v) => {
+            const next = typeof v === 'string' ? v : null;
+            setJobFilter(next);
+            setPage(1);
+          }}
+          placeholder="Job"
+          allowCreate={false}
+        />
+      </div>
+      <input
+        type="number"
+        value={minScore}
+        onChange={(e) => setMinScore(e.target.value)}
+        placeholder="Min score"
+        className="h-8 w-[120px] rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface px-2 text-[12px] text-zoru-ink"
+      />
+      <input
+        type="date"
+        value={appliedFrom}
+        onChange={(e) => setAppliedFrom(e.target.value)}
+        className="h-8 w-[148px] rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface px-2 text-[12px] text-zoru-ink"
+      />
+    </>
+  );
+
+  const hasFilters =
+    Boolean(search) ||
+    stageFilter !== 'all' ||
+    sourceFilter !== 'all' ||
+    Boolean(jobFilter) ||
+    Boolean(minScore) ||
+    Boolean(appliedFrom) ||
+    Boolean(activeKpi);
 
   return (
     <RecruitmentListShell<Candidate>
@@ -269,30 +335,30 @@ export function CandidatesView({ initial }: { initial: Candidate[] }) {
       basePath="/dashboard/hrm/hr/candidates"
       singular="Candidate"
       rows={filtered}
-      kpis={kpis}
+      kpis={kpiCards}
       activeKpi={activeKpi}
       onPickKpi={setActiveKpi}
       search={search}
       onSearchChange={onSearch}
-      filters={filters}
-      filterValues={filterValues}
-      onFilterChange={(k, v) => {
-        setFilterValues((prev) => ({ ...prev, [k]: v }));
-        setPage(1);
+      filters={[]}
+      filterValues={{
+        // Pass-through marker so the shell's "clear all" detects state.
+        __synthetic: hasFilters ? '1' : '',
+      }}
+      onFilterChange={() => {
+        /* All filter widgets above are controlled directly. */
       }}
       onClearFilters={() => {
-        setFilterValues({
-          stage: '',
-          source: '',
-          job: '',
-          owner: '',
-          minScore: '',
-          from: '',
-        });
+        setStageFilter('all');
+        setSourceFilter('all');
+        setJobFilter(null);
+        setMinScore('');
+        setAppliedFrom('');
         setActiveKpi(undefined);
         setSearch('');
         setPage(1);
       }}
+      customFilters={filtersSlot}
       columns={columns}
       views={[
         { key: 'table', label: 'Table', icon: <TableIcon className="h-3.5 w-3.5" /> },

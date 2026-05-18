@@ -279,7 +279,7 @@ export async function saveAssetAssignment(
     const assignmentId = asString(formData.get('assignmentId'));
     const isEditing = !!assignmentId;
 
-    const guard = await requirePermission(RBAC_KEY, isEditing ? 'update' : 'create');
+    const guard = await requirePermission(RBAC_KEY, isEditing ? 'edit' : 'create');
     if (!guard.ok) return { error: guard.error };
 
     const { payload, error } = readPayload(formData);

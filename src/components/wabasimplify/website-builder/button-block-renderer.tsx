@@ -5,7 +5,7 @@ import React from 'react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import * as LucideIcons from 'lucide-react';
-import { ZoruButton, buttonVariants } from '@/components/zoruui';
+import { zoruButtonVariants } from '@/components/zoruui';
 
 interface ButtonBlockRendererProps {
   settings: any;
@@ -122,8 +122,9 @@ export const ButtonBlockRenderer: React.FC<ButtonBlockRendererProps> = ({ settin
       </>
     );
     
+    const zoruSize = size === 'default' ? 'md' : size;
     const buttonClasses = cn(
-        buttonVariants({ size, variant: 'default' }),
+        zoruButtonVariants({ size: zoruSize, variant: 'default' }),
         animationClasses[animation as keyof typeof animationClasses],
         animationDurationClasses[animationDuration as keyof typeof animationDurationClasses],
         hoverAnimationClass,

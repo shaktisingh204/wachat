@@ -311,6 +311,29 @@ export function EmployeesListClient({
         setJoinedTo(fmt(today));
         return;
       }
+      if (actual === 'joined-this-month') {
+        setStatusFilter('all');
+        const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+        setJoinedFrom(fmt(monthStart));
+        setJoinedTo(fmt(today));
+        return;
+      }
+      if (actual === 'on-leave') {
+        setStatusFilter('on_leave');
+        setManagerFilter(null);
+        setJoinedFrom('');
+        setJoinedTo('');
+        return;
+      }
+      if (actual === 'on-notice') {
+        // Notice-period employees are captured under `resigned` until
+        // the Rust DTO exposes a dedicated flag (matches `getEmployeeKpis`).
+        setStatusFilter('resigned');
+        setManagerFilter(null);
+        setJoinedFrom('');
+        setJoinedTo('');
+        return;
+      }
       if (actual === 'terminated') {
         setStatusFilter('terminated');
         setManagerFilter(null);
