@@ -1,0 +1,115 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_msg",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "discord.messageCreate",
+    "options": {
+      "path": "/webhooks/discord-spam-filter",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Discord-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_trigger",
+      "name": "Discord Message",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "discord-spam-filter",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "discord-spam-filter"
+    },
+    {
+      "id": "n_moderate",
+      "name": "OpenAI Moderation",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": { "resource": "moderation", "operation": "create" },
+      "credentials": { "openAiApi": { "id": "openai-cred", "name": "OpenAI" } }
+    },
+    {
+      "id": "n_if",
+      "name": "Flagged?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "conditions": { "boolean": [{ "value1": "={{ $json.results[0].flagged }}", "value2": true }] }
+      }
+    },
+    {
+      "id": "n_delete",
+      "name": "Delete Message",
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [720, -180],
+      "parameters": { "resource": "message", "operation": "delete", "messageId": "={{ $node['Discord Message'].json.id }}" },
+      "credentials": { "discordApi": { "id": "discord-cred", "name": "Discord Bot" } }
+    },
+    {
+      "id": "n_timeout",
+      "name": "Timeout User",
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": { "resource": "member", "operation": "edit", "memberId": "={{ $node['Discord Message'].json.author.id }}", "additionalFields": { "communicationDisabledUntil": "+1h" } },
+      "credentials": { "discordApi": { "id": "discord-cred", "name": "Discord Bot" } }
+    },
+    {
+      "id": "n_log",
+      "name": "Slack #mod-log",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [720, 180],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": "#mod-log",
+        "text": "Flagged Discord message removed."
+      },
+      "credentials": { "slackApi": { "id": "slack-cred", "name": "Slack" } }
+    },
+    {
+      "id": "n_noop",
+      "name": "Clean",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [720, 320],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "n_trigger": { "main": [[{ "node": "n_moderate", "type": "main", "index": 0 }]] },
+    "n_moderate": { "main": [[{ "node": "n_if", "type": "main", "index": 0 }]] },
+    "n_if": {
+      "true": [[
+        { "node": "n_delete", "type": "main", "index": 0 },
+        { "node": "n_timeout", "type": "main", "index": 0 },
+        { "node": "n_log", "type": "main", "index": 0 }
+      ]],
+      "false": [[{ "node": "n_noop", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_trigger", "n_moderate", "n_if", "n_delete", "n_timeout", "n_log", "n_noop"]
+    }
+  ],
+  "variables": [],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
