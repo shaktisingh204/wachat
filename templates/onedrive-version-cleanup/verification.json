@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "onedrive-version-cleanup",
+  "cases": [
+    {
+      "id": "weekly-cleanup",
+      "description": "Weekly cron deletes old OneDrive versions and posts a summary.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

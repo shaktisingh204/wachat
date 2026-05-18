@@ -1,0 +1,95 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_weekly_cleanup",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": { "schedule": "0 3 * * 0", "enabled": true }
+  },
+  "nodes": [
+    {
+      "id": "n_cron",
+      "name": "Sunday 03:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 3 * * 0" }] }
+      }
+    },
+    {
+      "id": "n_list",
+      "name": "List OneDrive Files",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "=https://graph.microsoft.com/v1.0/users/{{ $vars.ONEDRIVE_USER }}/drive/root/children"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "graph-cred", "name": "MS Graph Token" }
+      }
+    },
+    {
+      "id": "n_split",
+      "name": "Per File",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": { "batchSize": 1 }
+    },
+    {
+      "id": "n_delete_old",
+      "name": "Delete Old Versions",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, 0],
+      "parameters": {
+        "method": "DELETE",
+        "url": "=https://graph.microsoft.com/v1.0/users/{{ $vars.ONEDRIVE_USER }}/drive/items/{{ $json.id }}/versions"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "graph-cred", "name": "MS Graph Token" }
+      }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack #it-cleanup",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.CLEANUP_CHANNEL }}",
+        "text": ":broom: OneDrive cleanup pass complete."
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    }
+  ],
+  "connections": {
+    "n_cron": { "main": [[{ "node": "n_list", "type": "main", "index": 0 }]] },
+    "n_list": { "main": [[{ "node": "n_split", "type": "main", "index": 0 }]] },
+    "n_split": { "main": [[{ "node": "n_delete_old", "type": "main", "index": 0 }]] },
+    "n_delete_old": { "main": [[{ "node": "n_slack", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cron", "n_list", "n_split", "n_delete_old", "n_slack"]
+    }
+  ],
+  "variables": [
+    { "id": "v_user", "name": "ONEDRIVE_USER", "defaultValue": "" },
+    { "id": "v_channel", "name": "CLEANUP_CHANNEL", "defaultValue": "#it-cleanup" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
