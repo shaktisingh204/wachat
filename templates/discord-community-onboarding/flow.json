@@ -1,0 +1,176 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_discord_trigger",
+    "type": "discordTrigger",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "discord.guildMemberAdd",
+    "options": {
+      "event": "guildMemberAdd",
+      "guildId": "={{ $vars.DISCORD_GUILD_ID }}",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_discord_trigger",
+      "name": "Discord Member Joined",
+      "type": "n8n-nodes-base.discordTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "event": "guildMemberAdd",
+        "guildId": "={{ $vars.DISCORD_GUILD_ID }}"
+      },
+      "credentials": {
+        "discordBotApi": { "id": "discord-bot-cred", "name": "Discord Bot" }
+      }
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Member Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "userId", "value": "={{ $json.user.id }}" },
+            { "name": "username", "value": "={{ $json.user.username }}" },
+            { "name": "guildId", "value": "={{ $json.guild.id }}" },
+            { "name": "joinedAt", "value": "={{ $json.joinedAt }}" }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "n_dm",
+      "name": "Send Welcome DM",
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [480, -180],
+      "parameters": {
+        "resource": "message",
+        "operation": "send-message",
+        "sendTo": "user",
+        "userId": "={{ $node['Extract Member Fields'].json.userId }}",
+        "content": "Welcome to the community, {{ $node['Extract Member Fields'].json.username }}! Please read the rules in #rules and grab any role you like from #roles."
+      },
+      "credentials": {
+        "discordBotApi": { "id": "discord-bot-cred", "name": "Discord Bot" }
+      }
+    },
+    {
+      "id": "n_role",
+      "name": "Assign Member Role",
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "resource": "member",
+        "operation": "role-add",
+        "guildId": "={{ $node['Extract Member Fields'].json.guildId }}",
+        "userId": "={{ $node['Extract Member Fields'].json.userId }}",
+        "roleId": "={{ $vars.DISCORD_MEMBER_ROLE_ID }}"
+      },
+      "credentials": {
+        "discordBotApi": { "id": "discord-bot-cred", "name": "Discord Bot" }
+      }
+    },
+    {
+      "id": "n_slack",
+      "name": "Notify Community Ops",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [480, 180],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "community-ops",
+        "text": "New Discord member joined: {{ $node['Extract Member Fields'].json.username }} ({{ $node['Extract Member Fields'].json.userId }})"
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    },
+    {
+      "id": "n_merge",
+      "name": "Merge Fan-out",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "mode": "combine",
+        "combinationMode": "multiplex"
+      }
+    },
+    {
+      "id": "n_mongo_log",
+      "name": "Log Join to MongoDB",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "operation": "insert",
+        "collection": "discord_onboarding_log",
+        "fields": "userId,username,guildId,joinedAt"
+      },
+      "credentials": {
+        "mongoDb": { "id": "mongo-cred", "name": "MongoDB" }
+      }
+    }
+  ],
+  "connections": {
+    "n_discord_trigger": {
+      "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]]
+    },
+    "n_extract": {
+      "main": [
+        [
+          { "node": "n_dm", "type": "main", "index": 0 },
+          { "node": "n_role", "type": "main", "index": 0 },
+          { "node": "n_slack", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "n_dm": {
+      "main": [[{ "node": "n_merge", "type": "main", "index": 0 }]]
+    },
+    "n_role": {
+      "main": [[{ "node": "n_merge", "type": "main", "index": 1 }]]
+    },
+    "n_slack": {
+      "main": [[{ "node": "n_merge", "type": "main", "index": 2 }]]
+    },
+    "n_merge": {
+      "main": [[{ "node": "n_mongo_log", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_discord_trigger",
+        "n_extract",
+        "n_dm",
+        "n_role",
+        "n_slack",
+        "n_merge",
+        "n_mongo_log"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_guild_id", "name": "DISCORD_GUILD_ID", "defaultValue": "" },
+    { "id": "v_member_role", "name": "DISCORD_MEMBER_ROLE_ID", "defaultValue": "" },
+    { "id": "v_community_channel", "name": "DISCORD_COMMUNITY_CHANNEL", "defaultValue": "community" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
