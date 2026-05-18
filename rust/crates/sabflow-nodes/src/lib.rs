@@ -15,6 +15,7 @@
 pub mod context;
 pub mod descriptor;
 pub mod error;
+pub mod errors;
 pub mod node;
 pub mod nodes;
 pub mod registry;
@@ -25,6 +26,10 @@ pub use descriptor::{
     NodePropertyType,
 };
 pub use error::{NodeError, NodeResult};
+pub use errors::{
+    codes, CredentialFailure, ErrorContext, ExecutorError, ExecutorErrorCode, NodeOperationReason,
+    WireError, WorkflowFaultKind,
+};
 pub use node::Node;
 pub use registry::{default_registry, NodeRegistry};
 
