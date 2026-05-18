@@ -1,0 +1,10 @@
+{
+  "id": "stripe-revenue-recognition-aged",
+  "name": "Stripe Revenue Recognition (Aged Deferred)",
+  "description": "On the first of every month, computes the deferred-revenue rollforward for last month's Stripe subscriptions, formats the journal entries, and posts them to QuickBooks Online via the JournalEntry endpoint. Replaces the spreadsheet finance teams maintain by hand.",
+  "category": "Finance",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["stripe", "quickbooks", "revenue", "finance", "accounting", "cron"],
+  "version": "0.1.0"
+}
