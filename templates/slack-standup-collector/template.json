@@ -1,0 +1,10 @@
+{
+  "id": "slack-standup-collector",
+  "name": "Slack Standup Collector",
+  "description": "Runs every weekday at 09:00, DMs each team member a standup prompt, waits 30 minutes, and pulls their replies via Slack conversations.history. Aggregates everyone's answers into a single digest and posts it to #team-standup so async teams skip the daily meeting.",
+  "category": "HR",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["slack", "standup", "async", "team", "mongo", "schedule"],
+  "version": "0.1.0"
+}
