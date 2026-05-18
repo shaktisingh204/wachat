@@ -1,0 +1,10 @@
+{
+  "id": "bugsnag-error-spike-page",
+  "name": "Bugsnag Error Spike Page",
+  "description": "Listens for Bugsnag error-rate spike webhooks configured at greater than 5x baseline, then grabs the offending release SHA and a sample stack trace from the event payload. Fans out a PagerDuty incident, a Slack alert in the on-call channel with the trace, and a Linear bug ticket assigned to the on-call engineer. Replaces tribal-knowledge incident response with a deterministic page and audit trail.",
+  "category": "Developer",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["bugsnag", "pagerduty", "slack", "linear", "oncall", "developer", "incidents"],
+  "version": "0.1.0"
+}
