@@ -5,14 +5,10 @@ import {
   ZoruCard,
   ZoruInput,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import {
   useActionState,
   useEffect,
@@ -121,19 +117,14 @@ export default function NewPortalUserPage() {
           </div>
 
           {/* Portal Type */}
-          {/* TODO §1E: portalType needs enumName="portalType" once that enum is registered in CRM_ENUMS */}
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="portalType">Portal Type</ZoruLabel>
-            <ZoruSelect name="portalType" value={portalType} onValueChange={setPortalType}>
-              <ZoruSelectTrigger id="portalType" className="w-full max-w-xs">
-                <ZoruSelectValue placeholder="Select type" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="customer">Customer</ZoruSelectItem>
-                <ZoruSelectItem value="vendor">Vendor</ZoruSelectItem>
-                <ZoruSelectItem value="employee">Employee</ZoruSelectItem>
-              </ZoruSelectContent>
-            </ZoruSelect>
+            <ZoruLabel>Portal Type</ZoruLabel>
+            <EnumFormField
+              enumName="portalType"
+              name="portalType"
+              initialId={portalType}
+              onChange={(v) => setPortalType(v ?? 'customer')}
+            />
           </div>
 
           {/* Linked Entity */}

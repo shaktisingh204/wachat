@@ -5,14 +5,10 @@ import {
   ZoruCard,
   ZoruInput,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import {
   useActionState,
   useEffect,
@@ -43,17 +39,6 @@ import type {
 
 const BASE = '/dashboard/crm/loans';
 
-const DIRECTION_OPTIONS: Array<{ value: CrmLoanDirection; label: string }> = [
-    { value: 'taken', label: 'Taken (we owe the party)' },
-    { value: 'given', label: 'Given (party owes us)' },
-];
-
-const STATUS_OPTIONS: Array<{ value: CrmLoanStatus; label: string }> = [
-    { value: 'active', label: 'Active' },
-    { value: 'closed', label: 'Closed' },
-    { value: 'defaulted', label: 'Defaulted' },
-    { value: 'archived', label: 'Archived' },
-];
 
 function toDateInput(value: unknown): string {
     if (!value) return '';
@@ -167,22 +152,12 @@ export function LoanForm({ initialData }: LoanFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="direction-trigger">Direction</ZoruLabel>
-                        <ZoruSelect
-                            value={direction}
-                            onValueChange={(v) => setDirection(v as CrmLoanDirection)}
-                        >
-                            <ZoruSelectTrigger id="direction-trigger">
-                                <ZoruSelectValue placeholder="Pick a direction…" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {DIRECTION_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <ZoruLabel>Direction</ZoruLabel>
+                        <EnumFormField
+                            enumName="loanDirection"
+                            initialId={direction}
+                            onChange={(v) => setDirection((v ?? 'taken') as CrmLoanDirection)}
+                        />
                     </div>
                 </div>
 
@@ -268,22 +243,12 @@ export function LoanForm({ initialData }: LoanFormProps) {
                         </p>
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
-                        <ZoruSelect
-                            value={status}
-                            onValueChange={(v) => setStatus(v as CrmLoanStatus)}
-                        >
-                            <ZoruSelectTrigger id="status-trigger">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <ZoruLabel>Status</ZoruLabel>
+                        <EnumFormField
+                            enumName="loanStatus"
+                            initialId={status}
+                            onChange={(v) => setStatus((v ?? 'active') as CrmLoanStatus)}
+                        />
                     </div>
                 </div>
 

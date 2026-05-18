@@ -5,11 +5,6 @@ import {
   ZoruCard,
   ZoruCheckbox,
   ZoruInput,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruTable,
   ZoruTableBody,
   ZoruTableCell,
@@ -18,6 +13,7 @@ import {
   ZoruTableRow,
   useZoruToast,
 } from '@/components/zoruui';
+import { EnumFilterField } from '@/components/crm/enum-filter-field';
 import {
   useRouter,
   useSearchParams,
@@ -77,20 +73,6 @@ interface BookingListClientProps {
   error?: string;
 }
 
-const STATUS_VALUES: CrmBookingStatus[] = [
-  'pending',
-  'confirmed',
-  'cancelled',
-  'completed',
-  'no_show',
-];
-
-const PAYMENT_VALUES: CrmBookingPaymentStatus[] = [
-  'unpaid',
-  'partial',
-  'paid',
-  'refunded',
-];
 
 function fmtDateTime(v?: string): string {
   if (!v) return '—';
@@ -348,29 +330,23 @@ export function BookingListClient({
             className="h-9 pl-9 text-[13px]"
           />
         </div>
-        <FilterSelect
+        <EnumFilterField
+          enumName="bookingStatus"
           value={statusFilter}
           onChange={(v) =>
             setStatusFilter(v === 'all' ? 'all' : (v as CrmBookingStatus))
           }
-          placeholder="Status"
-          options={[
-            { value: 'all', label: 'All statuses' },
-            ...STATUS_VALUES.map((s) => ({ value: s, label: s })),
-          ]}
+          allLabel="All statuses"
         />
-        <FilterSelect
+        <EnumFilterField
+          enumName="bookingPaymentStatus"
           value={paymentFilter}
           onChange={(v) =>
             setPaymentFilter(
               v === 'all' ? 'all' : (v as CrmBookingPaymentStatus),
             )
           }
-          placeholder="Payment"
-          options={[
-            { value: 'all', label: 'All payments' },
-            ...PAYMENT_VALUES.map((s) => ({ value: s, label: s })),
-          ]}
+          allLabel="All payments"
         />
         {hasActiveFilters ? (
           <ZoruButton variant="ghost" size="sm" onClick={clearFilters}>
@@ -560,29 +536,3 @@ export function BookingListClient({
   );
 }
 
-function FilterSelect({
-  value,
-  onChange,
-  placeholder,
-  options,
-}: {
-  value: string;
-  onChange: (v: string) => void;
-  placeholder: string;
-  options: Array<{ value: string; label: string }>;
-}) {
-  return (
-    <ZoruSelect value={value} onValueChange={onChange}>
-      <ZoruSelectTrigger className="h-9 w-[140px] text-[13px]">
-        <ZoruSelectValue placeholder={placeholder} />
-      </ZoruSelectTrigger>
-      <ZoruSelectContent>
-        {options.map((opt) => (
-          <ZoruSelectItem key={opt.value} value={opt.value}>
-            {opt.label}
-          </ZoruSelectItem>
-        ))}
-      </ZoruSelectContent>
-    </ZoruSelect>
-  );
-}

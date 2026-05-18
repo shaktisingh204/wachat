@@ -5,14 +5,10 @@ import {
   ZoruCard,
   ZoruInput,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import {
   useActionState,
   useState } from 'react';
@@ -45,13 +41,6 @@ function SubmitButton() {
     </ZoruButton>
   );
 }
-
-// TODO §1E: loanType needs enumName="loanType" once that enum is registered in CRM_ENUMS
-const LOAN_TYPES = [
-  { value: 'employee_advance', label: 'Employee Advance' },
-  { value: 'customer_loan', label: 'Customer Loan' },
-  { value: 'vendor_advance', label: 'Vendor Advance' },
-] as const;
 
 const initialState = { message: '', error: '' };
 
@@ -96,19 +85,13 @@ export default function NewLoanPage() {
         <form action={formAction} className="flex flex-col gap-6">
           {/* Loan Type */}
           <div className="flex flex-col gap-1.5">
-            <ZoruLabel htmlFor="type">Loan Type</ZoruLabel>
-            <ZoruSelect name="type" value={loanType} onValueChange={setLoanType}>
-              <ZoruSelectTrigger id="type" className="w-full max-w-xs">
-                <ZoruSelectValue placeholder="Select type" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                {LOAN_TYPES.map((t) => (
-                  <ZoruSelectItem key={t.value} value={t.value}>
-                    {t.label}
-                  </ZoruSelectItem>
-                ))}
-              </ZoruSelectContent>
-            </ZoruSelect>
+            <ZoruLabel>Loan Type</ZoruLabel>
+            <EnumFormField
+              enumName="loanType"
+              name="type"
+              initialId={loanType}
+              onChange={(v) => setLoanType(v ?? 'customer_loan')}
+            />
           </div>
 
           {/* Borrower */}
