@@ -1,0 +1,11 @@
+{
+  "generatedAt": "2026-05-18T14:21:01.205Z",
+  "source": "docs/N8N_MIGRATION_INVENTORY.md",
+  "scope": "n8n base nodes (packages/nodes-base/nodes/*) — versioned variants and trigger-only nodes follow their own roadmap per the manifest header. SabFlow coverage is computed against forge block ids under src/lib/sabflow/forge/blocks/**.ts plus rust executors under rust/crates/sabflow-nodes/src/nodes/*.rs.",
+  "sabflowCoverageCount": 288,
+  "n8nTotalCount": 288,
+  "missingCount": 0,
+  "missingByCategory": {},
+  "missing": [],
+  "note": "SabFlow ships an executor (forge block or rust node) for every service in the n8n base-node manifest. The diff is empty as of this generation. Triggers and versioned (V1/V2/V3) variants live outside this manifest and are tracked separately."
+}

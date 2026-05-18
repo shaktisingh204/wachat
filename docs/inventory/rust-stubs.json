@@ -1,0 +1,2798 @@
+{
+  "generatedAt": "2026-05-18T14:22:01.296Z",
+  "totalNodes": 310,
+  "stubCount": 230,
+  "fallbackMaskedCount": 225,
+  "nodes": [
+    {
+      "nodeType": "n8n-nodes-base.actionNetwork",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.activeCampaign",
+      "crateModule": "sabflow_nodes::nodes::active_campaign",
+      "file": "rust/crates/sabflow-nodes/src/nodes/active_campaign.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T17:30:14+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.acuityScheduling",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.adalo",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.affinity",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.agileCrm",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.airtable",
+      "crateModule": "sabflow_nodes::nodes::airtable",
+      "file": "rust/crates/sabflow-nodes/src/nodes/airtable.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:25:21+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.airtop",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.aiTransform",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "high",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.amqp",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.anthropic",
+      "crateModule": "sabflow_nodes::nodes::anthropic",
+      "file": "rust/crates/sabflow-nodes/src/nodes/anthropic.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "high",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.apiTemplateIo",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.asana",
+      "crateModule": "sabflow_nodes::nodes::asana",
+      "file": "rust/crates/sabflow-nodes/src/nodes/asana.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T17:30:14+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.autopilot",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.aws",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "high",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.bambooHr",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.bannerbear",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.baserow",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.beeminder",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "low",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.bitbucket",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.bitly",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.bitwarden",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.box",
+      "crateModule": "sabflow_nodes::nodes::box_node",
+      "file": "rust/crates/sabflow-nodes/src/nodes/box_node.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T17:30:14+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.brandfetch",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.brevo",
+      "crateModule": "sabflow_nodes::nodes::brevo",
+      "file": "rust/crates/sabflow-nodes/src/nodes/brevo.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T17:30:14+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.bubble",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.cal",
+      "crateModule": "sabflow_nodes::nodes::cal_com",
+      "file": "rust/crates/sabflow-nodes/src/nodes/cal_com.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T17:30:14+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.calendly",
+      "crateModule": "sabflow_nodes::nodes::calendly",
+      "file": "rust/crates/sabflow-nodes/src/nodes/calendly.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T17:30:14+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.chargebee",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.circleCi",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.cisco",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.clearbit",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.clickUp",
+      "crateModule": "sabflow_nodes::nodes::click_up",
+      "file": "rust/crates/sabflow-nodes/src/nodes/click_up.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T17:30:14+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.clockify",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "low",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.cloudflare",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.cockpit",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.coda",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.code",
+      "crateModule": "sabflow_nodes::nodes::code_node",
+      "file": "rust/crates/sabflow-nodes/src/nodes/code_node.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "high",
+      "lastTouched": "2026-05-11T16:25:21+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.coinGecko",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.compareDatasets",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "high",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.compression",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "low",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.contentful",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.convertKit",
+      "crateModule": "sabflow_nodes::nodes::convert_kit",
+      "file": "rust/crates/sabflow-nodes/src/nodes/convert_kit.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T17:30:14+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.copper",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.cortex",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.crateDb",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.cron",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "low",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.crypto",
+      "crateModule": "sabflow_nodes::nodes::crypto",
+      "file": "rust/crates/sabflow-nodes/src/nodes/crypto.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T17:30:14+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.currents",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.customerIo",
+      "crateModule": "sabflow_nodes::nodes::customer_io",
+      "file": "rust/crates/sabflow-nodes/src/nodes/customer_io.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T17:30:14+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.databricks",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.dataTable",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "low",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.dateTime",
+      "crateModule": "sabflow_nodes::nodes::date_time",
+      "file": "rust/crates/sabflow-nodes/src/nodes/date_time.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T17:30:14+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.debugHelper",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "low",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.deepL",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "high",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.demio",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.dhl",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.discord",
+      "crateModule": "sabflow_nodes::nodes::discord",
+      "file": "rust/crates/sabflow-nodes/src/nodes/discord.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:25:21+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.discourse",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.disqus",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.drift",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.dropbox",
+      "crateModule": "sabflow_nodes::nodes::dropbox",
+      "file": "rust/crates/sabflow-nodes/src/nodes/dropbox.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T17:30:14+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.dropcontact",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.dynamicCredentialCheck",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "low",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.e2eTest",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "low",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.editImage",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.egoi",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.elastic",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.emailReadImap",
+      "crateModule": "sabflow_nodes::nodes::email_read_imap",
+      "file": "rust/crates/sabflow-nodes/src/nodes/email_read_imap.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T17:30:14+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.emailSend",
+      "crateModule": "sabflow_nodes::nodes::email_send",
+      "file": "rust/crates/sabflow-nodes/src/nodes/email_send.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T17:30:14+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.emelia",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.erpNext",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.errorTrigger",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "low",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.evaluation",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "high",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.eventbrite",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.executeCommand",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "low",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.executeWorkflow",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "high",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.executionData",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "low",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.facebook",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.facebookLeadAds",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.figma",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.fileMaker",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.files",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": false,
+      "complexityHint": "low",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.filter",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "low",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.flow",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.form",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "low",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.formIo",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.formstack",
+      "crateModule": "sabflow_nodes::nodes::formstack",
+      "file": "rust/crates/sabflow-nodes/src/nodes/formstack.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T17:30:14+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.freshdesk",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.freshservice",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.freshworksCrm",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.ftp",
+      "crateModule": "sabflow_nodes::nodes::ftp",
+      "file": "rust/crates/sabflow-nodes/src/nodes/ftp.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T17:30:14+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.function",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "high",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.functionItem",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "high",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.getResponse",
+      "crateModule": "sabflow_nodes::nodes::get_response",
+      "file": "rust/crates/sabflow-nodes/src/nodes/get_response.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T17:30:14+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.ghost",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.git",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.github",
+      "crateModule": "sabflow_nodes::nodes::github",
+      "file": "rust/crates/sabflow-nodes/src/nodes/github.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:25:21+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.gitlab",
+      "crateModule": "sabflow_nodes::nodes::gitlab",
+      "file": "rust/crates/sabflow-nodes/src/nodes/gitlab.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:25:21+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.gmail",
+      "crateModule": "sabflow_nodes::nodes::gmail",
+      "file": "rust/crates/sabflow-nodes/src/nodes/gmail.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.gong",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.google",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.googleSheets",
+      "crateModule": "sabflow_nodes::nodes::google_sheets",
+      "file": "rust/crates/sabflow-nodes/src/nodes/google_sheets.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:25:21+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.gotify",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.goToWebinar",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.grafana",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.graphQL",
+      "crateModule": "sabflow_nodes::nodes::graphql",
+      "file": "rust/crates/sabflow-nodes/src/nodes/graphql.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "high",
+      "lastTouched": "2026-05-11T17:30:14+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.grist",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.gumroad",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.hackerNews",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.haloPsa",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.harvest",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.helpScout",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.highLevel",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.homeAssistant",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.html",
+      "crateModule": "sabflow_nodes::nodes::html",
+      "file": "rust/crates/sabflow-nodes/src/nodes/html.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T17:30:14+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.htmlExtract",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "low",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.httpRequest",
+      "crateModule": "sabflow_nodes::nodes::http_request",
+      "file": "rust/crates/sabflow-nodes/src/nodes/http_request.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:25:21+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.hubspot",
+      "crateModule": "sabflow_nodes::nodes::hubspot",
+      "file": "rust/crates/sabflow-nodes/src/nodes/hubspot.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.humanticAi",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "high",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.hunter",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.iCalendar",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "low",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.if",
+      "crateModule": "sabflow_nodes::nodes::if_node",
+      "file": "rust/crates/sabflow-nodes/src/nodes/if_node.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "low",
+      "lastTouched": "2026-05-11T16:25:21+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.intercom",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.interval",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "low",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.invoiceNinja",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.itemLists",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "low",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.iterable",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.jenkins",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.jinaAi",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "high",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.jira",
+      "crateModule": "sabflow_nodes::nodes::jira",
+      "file": "rust/crates/sabflow-nodes/src/nodes/jira.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T17:30:14+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.jotForm",
+      "crateModule": "sabflow_nodes::nodes::jot_form",
+      "file": "rust/crates/sabflow-nodes/src/nodes/jot_form.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T17:30:14+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.jwt",
+      "crateModule": "sabflow_nodes::nodes::jwt",
+      "file": "rust/crates/sabflow-nodes/src/nodes/jwt.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T17:30:14+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.kafka",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.keap",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.koBoToolbox",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.ldap",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.lemlist",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.line",
+      "crateModule": "sabflow_nodes::nodes::line",
+      "file": "rust/crates/sabflow-nodes/src/nodes/line.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T17:30:14+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.linear",
+      "crateModule": "sabflow_nodes::nodes::linear",
+      "file": "rust/crates/sabflow-nodes/src/nodes/linear.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T17:30:14+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.lingvaNex",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.linkedIn",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.localFileTrigger",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "low",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.loneScale",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.magento",
+      "crateModule": "sabflow_nodes::nodes::magento",
+      "file": "rust/crates/sabflow-nodes/src/nodes/magento.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T17:30:14+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.mailcheck",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "low",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.mailchimp",
+      "crateModule": "sabflow_nodes::nodes::mailchimp",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mailchimp.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.mailerLite",
+      "crateModule": "sabflow_nodes::nodes::mailer_lite",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mailer_lite.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T17:30:14+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.mailgun",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.mailjet",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.mandrill",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.manualTrigger",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "low",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.markdown",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": false,
+      "complexityHint": "low",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.marketstack",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.matrix",
+      "crateModule": "sabflow_nodes::nodes::matrix",
+      "file": "rust/crates/sabflow-nodes/src/nodes/matrix.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T17:30:14+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.mattermost",
+      "crateModule": "sabflow_nodes::nodes::mattermost",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mattermost.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T17:30:14+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.mautic",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.medium",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.merge",
+      "crateModule": "sabflow_nodes::nodes::merge_node",
+      "file": "rust/crates/sabflow-nodes/src/nodes/merge_node.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "high",
+      "lastTouched": "2026-05-11T16:25:21+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.messageBird",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.metabase",
+      "crateModule": "sabflow_nodes::nodes::metabase",
+      "file": "rust/crates/sabflow-nodes/src/nodes/metabase.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T17:30:14+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.microsoft",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.mindee",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "high",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.misp",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.mistralAi",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": false,
+      "complexityHint": "high",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.mocean",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.mondayCom",
+      "crateModule": "sabflow_nodes::nodes::monday_com",
+      "file": "rust/crates/sabflow-nodes/src/nodes/monday_com.rs",
+      "isStub": false,
+      "hasForgeFallback": false,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T17:30:14+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.mongoDb",
+      "crateModule": "sabflow_nodes::nodes::mongo_db",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mongo_db.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.monicaCrm",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.moveBinaryData",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "low",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.mqtt",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.msg91",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.mySql",
+      "crateModule": "sabflow_nodes::nodes::my_sql",
+      "file": "rust/crates/sabflow-nodes/src/nodes/my_sql.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T17:30:14+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.n8n",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "low",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.n8nTrainingCustomerDatastore",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": false,
+      "complexityHint": "low",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.n8nTrainingCustomerMessenger",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": false,
+      "complexityHint": "low",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.n8nTrigger",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "low",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.nasa",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.netlify",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.netscaler",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.nextCloud",
+      "crateModule": "sabflow_nodes::nodes::next_cloud",
+      "file": "rust/crates/sabflow-nodes/src/nodes/next_cloud.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T17:30:14+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.nocoDb",
+      "crateModule": "sabflow_nodes::nodes::noco_db",
+      "file": "rust/crates/sabflow-nodes/src/nodes/noco_db.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T17:30:14+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.noOp",
+      "crateModule": "sabflow_nodes::nodes::noop_node",
+      "file": "rust/crates/sabflow-nodes/src/nodes/noop_node.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "low",
+      "lastTouched": "2026-05-11T16:25:21+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.notion",
+      "crateModule": "sabflow_nodes::nodes::notion",
+      "file": "rust/crates/sabflow-nodes/src/nodes/notion.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:25:21+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.npm",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.odoo",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.okta",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.oneSimpleApi",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.onfleet",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.openAi",
+      "crateModule": "sabflow_nodes::nodes::openai",
+      "file": "rust/crates/sabflow-nodes/src/nodes/openai.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "high",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.openThesaurus",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.openWeatherMap",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.oracle",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.orbit",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.oura",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.paddle",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.pagerDuty",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.payPal",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.peekalink",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.perplexity",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "high",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.phantombuster",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.philipsHue",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.pipedrive",
+      "crateModule": "sabflow_nodes::nodes::pipedrive",
+      "file": "rust/crates/sabflow-nodes/src/nodes/pipedrive.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T17:30:14+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.plivo",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.postBin",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.postgres",
+      "crateModule": "sabflow_nodes::nodes::postgres",
+      "file": "rust/crates/sabflow-nodes/src/nodes/postgres.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.postHog",
+      "crateModule": "sabflow_nodes::nodes::post_hog",
+      "file": "rust/crates/sabflow-nodes/src/nodes/post_hog.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T17:30:14+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.postmark",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.profitWell",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.pushbullet",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.pushcut",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.pushover",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.questDb",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.quickBase",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.quickBooks",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.quickChart",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.rabbitMq",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.raindrop",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "low",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.readBinaryFile",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "low",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.readBinaryFiles",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "low",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.readPdf",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.reddit",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.redis",
+      "crateModule": "sabflow_nodes::nodes::redis_node",
+      "file": "rust/crates/sabflow-nodes/src/nodes/redis_node.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.renameKeys",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "low",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.respondToWebhook",
+      "crateModule": "sabflow_nodes::nodes::respond_to_webhook",
+      "file": "rust/crates/sabflow-nodes/src/nodes/respond_to_webhook.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.rocketchat",
+      "crateModule": "sabflow_nodes::nodes::rocketchat",
+      "file": "rust/crates/sabflow-nodes/src/nodes/rocketchat.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T17:30:14+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.rssFeedRead",
+      "crateModule": "sabflow_nodes::nodes::rss_feed_read",
+      "file": "rust/crates/sabflow-nodes/src/nodes/rss_feed_read.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T17:30:14+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.rundeck",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.s3",
+      "crateModule": "sabflow_nodes::nodes::s3",
+      "file": "rust/crates/sabflow-nodes/src/nodes/s3.rs",
+      "isStub": false,
+      "hasForgeFallback": false,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T17:30:14+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.salesforce",
+      "crateModule": "sabflow_nodes::nodes::salesforce",
+      "file": "rust/crates/sabflow-nodes/src/nodes/salesforce.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T17:30:14+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.salesmate",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.schedule",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.scheduleTrigger",
+      "crateModule": "sabflow_nodes::nodes::schedule_trigger",
+      "file": "rust/crates/sabflow-nodes/src/nodes/schedule_trigger.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:25:21+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.seaTable",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.securityScorecard",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.segment",
+      "crateModule": "sabflow_nodes::nodes::segment_node",
+      "file": "rust/crates/sabflow-nodes/src/nodes/segment_node.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T17:30:14+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.sendGrid",
+      "crateModule": "sabflow_nodes::nodes::sendgrid",
+      "file": "rust/crates/sabflow-nodes/src/nodes/sendgrid.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.sendy",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.sentryIo",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.serviceNow",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.set",
+      "crateModule": "sabflow_nodes::nodes::set_node",
+      "file": "rust/crates/sabflow-nodes/src/nodes/set_node.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "low",
+      "lastTouched": "2026-05-11T16:25:21+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.shopify",
+      "crateModule": "sabflow_nodes::nodes::shopify",
+      "file": "rust/crates/sabflow-nodes/src/nodes/shopify.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T17:30:14+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.signl4",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.simulate",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "low",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.slack",
+      "crateModule": "sabflow_nodes::nodes::slack",
+      "file": "rust/crates/sabflow-nodes/src/nodes/slack.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:25:21+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.sms77",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.snowflake",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.splitInBatches",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "high",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.splunk",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.spotify",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.spreadsheetFile",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.sseTrigger",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "low",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.ssh",
+      "crateModule": "sabflow_nodes::nodes::ssh",
+      "file": "rust/crates/sabflow-nodes/src/nodes/ssh.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T17:30:14+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.stackby",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.stickyNote",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "low",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.stopAndError",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "low",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.storyblok",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.strapi",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.strava",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.stripe",
+      "crateModule": "sabflow_nodes::nodes::stripe",
+      "file": "rust/crates/sabflow-nodes/src/nodes/stripe.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.supabase",
+      "crateModule": "sabflow_nodes::nodes::supabase",
+      "file": "rust/crates/sabflow-nodes/src/nodes/supabase.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T17:30:14+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.surveyMonkey",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.switch",
+      "crateModule": "sabflow_nodes::nodes::switch_node",
+      "file": "rust/crates/sabflow-nodes/src/nodes/switch_node.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "high",
+      "lastTouched": "2026-05-11T16:25:21+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.syncroMsp",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.taiga",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.tapfiliate",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.telegram",
+      "crateModule": "sabflow_nodes::nodes::telegram",
+      "file": "rust/crates/sabflow-nodes/src/nodes/telegram.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.theHive",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.theHiveProject",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.timeSaved",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "low",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.timescaleDb",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.todoist",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "low",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.toggl",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "low",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.totp",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "low",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.transform",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "low",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.travisCi",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.trello",
+      "crateModule": "sabflow_nodes::nodes::trello",
+      "file": "rust/crates/sabflow-nodes/src/nodes/trello.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T17:30:14+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.twake",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.twilio",
+      "crateModule": "sabflow_nodes::nodes::twilio",
+      "file": "rust/crates/sabflow-nodes/src/nodes/twilio.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.twist",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.twitter",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.typeform",
+      "crateModule": "sabflow_nodes::nodes::typeform",
+      "file": "rust/crates/sabflow-nodes/src/nodes/typeform.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T17:30:14+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.unleashedSoftware",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.uplead",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.uProc",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.uptimeRobot",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.urlScanIo",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.venafi",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.vero",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.vonage",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.wait",
+      "crateModule": "sabflow_nodes::nodes::wait_node",
+      "file": "rust/crates/sabflow-nodes/src/nodes/wait_node.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "low",
+      "lastTouched": "2026-05-11T16:25:21+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.webflow",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.webhook",
+      "crateModule": "sabflow_nodes::nodes::webhook_trigger",
+      "file": "rust/crates/sabflow-nodes/src/nodes/webhook_trigger.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:25:21+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.wekan",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "low",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.whatsApp",
+      "crateModule": "sabflow_nodes::nodes::whatsapp",
+      "file": "rust/crates/sabflow-nodes/src/nodes/whatsapp.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T17:30:14+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.wise",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.wooCommerce",
+      "crateModule": "sabflow_nodes::nodes::woo_commerce",
+      "file": "rust/crates/sabflow-nodes/src/nodes/woo_commerce.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T17:30:14+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.wordpress",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.workable",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.workflowTrigger",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "low",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.writeBinaryFile",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "low",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.wufoo",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.xero",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.xml",
+      "crateModule": "sabflow_nodes::nodes::xml",
+      "file": "rust/crates/sabflow-nodes/src/nodes/xml.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T17:30:14+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.yourls",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.zammad",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.zendesk",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.zoho",
+      "crateModule": "sabflow_nodes::nodes::zoho",
+      "file": "rust/crates/sabflow-nodes/src/nodes/zoho.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T17:30:14+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.zoom",
+      "crateModule": "sabflow_nodes::nodes::zoom",
+      "file": "rust/crates/sabflow-nodes/src/nodes/zoom.rs",
+      "isStub": false,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T17:30:14+05:30"
+    },
+    {
+      "nodeType": "n8n-nodes-base.zulip",
+      "crateModule": "sabflow_nodes::nodes::stub",
+      "file": "rust/crates/sabflow-nodes/src/nodes/mod.rs",
+      "isStub": true,
+      "hasForgeFallback": true,
+      "complexityHint": "medium",
+      "lastTouched": "2026-05-11T16:45:00+05:30"
+    }
+  ]
+}
