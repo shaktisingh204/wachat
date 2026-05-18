@@ -1,0 +1,165 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_leave",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "workday.leave.requested",
+    "options": {
+      "path": "/webhooks/workday-leave",
+      "method": "POST",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_webhook",
+      "name": "Workday Leave Request",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "workday-leave",
+        "responseMode": "onReceived"
+      },
+      "webhookId": "workday-leave-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Leave",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "leaveId", "value": "={{ $json.leave.id }}" },
+            { "name": "employee", "value": "={{ $json.leave.employee.email }}" },
+            { "name": "manager", "value": "={{ $json.leave.manager.email }}" },
+            { "name": "startDate", "value": "={{ $json.leave.startDate }}" },
+            { "name": "endDate", "value": "={{ $json.leave.endDate }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_slack_prompt",
+      "name": "Slack Approval Prompt",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $json.manager }}",
+        "text": "Leave request from {{ $json.employee }} ({{ $json.startDate }} → {{ $json.endDate }}). Approve?",
+        "otherOptions": {
+          "blocksUi": {
+            "blocksValues": [
+              { "type": "actions", "elements": [
+                { "type": "button", "text": "Approve", "value": "approve", "actionId": "approve_leave" },
+                { "type": "button", "text": "Deny", "value": "deny", "actionId": "deny_leave" }
+              ] }
+            ]
+          }
+        }
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    },
+    {
+      "id": "n_wait_decision",
+      "name": "Wait for Decision",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "resume": "webhook",
+        "options": { "webhookSuffix": "workday-leave-decision" }
+      }
+    },
+    {
+      "id": "n_if_approved",
+      "name": "Approved?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "conditions": {
+          "string": [
+            { "value1": "={{ $json.decision }}", "operation": "equal", "value2": "approve" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_workday_update",
+      "name": "Workday Approve",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1200, -100],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://{{ $vars.WORKDAY_HOST }}/api/leaves/{{ $node['Extract Leave'].json.leaveId }}/approve"
+      },
+      "credentials": {
+        "httpBasicAuth": { "id": "workday-cred", "name": "Workday API" }
+      }
+    },
+    {
+      "id": "n_gcal",
+      "name": "Block Google Calendar",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1,
+      "position": [1440, -100],
+      "parameters": {
+        "operation": "create",
+        "calendar": "={{ $node['Extract Leave'].json.employee }}",
+        "start": "={{ $node['Extract Leave'].json.startDate }}",
+        "end": "={{ $node['Extract Leave'].json.endDate }}",
+        "additionalFields": { "summary": "Approved leave" }
+      },
+      "credentials": {
+        "googleCalendarOAuth2Api": { "id": "gcal-cred", "name": "Google Calendar" }
+      }
+    },
+    {
+      "id": "n_noop_denied",
+      "name": "Denied (close)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1200, 100],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "n_webhook": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": { "main": [[{ "node": "n_slack_prompt", "type": "main", "index": 0 }]] },
+    "n_slack_prompt": { "main": [[{ "node": "n_wait_decision", "type": "main", "index": 0 }]] },
+    "n_wait_decision": { "main": [[{ "node": "n_if_approved", "type": "main", "index": 0 }]] },
+    "n_if_approved": {
+      "true": [[{ "node": "n_workday_update", "type": "main", "index": 0 }]],
+      "false": [[{ "node": "n_noop_denied", "type": "main", "index": 0 }]]
+    },
+    "n_workday_update": { "main": [[{ "node": "n_gcal", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_webhook", "n_extract", "n_slack_prompt", "n_wait_decision",
+        "n_if_approved", "n_workday_update", "n_gcal", "n_noop_denied"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_wd_host", "name": "WORKDAY_HOST", "defaultValue": "wd.example.com" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

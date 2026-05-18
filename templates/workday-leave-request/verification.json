@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "templateId": "workday-leave-request",
+  "cases": [
+    {
+      "id": "leave-approved",
+      "description": "Leave request is posted, manager approves, Workday and Calendar update.",
+      "triggerPayload": {
+        "leave": {
+          "id": "lv-1",
+          "employee": { "email": "alex@example.com" },
+          "manager": { "email": "mgr@example.com" },
+          "startDate": "2026-06-01",
+          "endDate": "2026-06-05"
+        }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
