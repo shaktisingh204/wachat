@@ -1,5 +1,5 @@
 import { ZoruButton } from '@/components/zoruui';
-import { CalendarClock, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
 /**
  * CRM Bookings list — `/dashboard/crm/bookings`.
@@ -14,7 +14,7 @@ import { CalendarClock, Plus } from 'lucide-react';
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { listBookings } from '@/app/actions/crm/bookings.actions';
 import { BookingListClient } from './_components/booking-list-client';
 
@@ -42,21 +42,18 @@ export default async function BookingsPage({
   const { bookings, hasMore, error } = await listBookings({ page, limit });
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Bookings"
-        subtitle="Reserve resources, rooms, or staff slots for your customers."
-        icon={CalendarClock}
-        actions={
-          <ZoruButton asChild>
-            <Link href="/dashboard/crm/bookings/new">
-              <Plus className="h-4 w-4" />
-              New booking
-            </Link>
-          </ZoruButton>
-        }
-      />
-
+    <EntityListShell
+      title="Bookings"
+      subtitle="Reserve resources, rooms, or staff slots for your customers."
+      primaryAction={
+        <ZoruButton asChild>
+          <Link href="/dashboard/crm/bookings/new">
+            <Plus className="h-4 w-4" />
+            New booking
+          </Link>
+        </ZoruButton>
+      }
+    >
       <BookingListClient
         bookings={bookings}
         page={page}
@@ -65,6 +62,6 @@ export default async function BookingsPage({
         initialQuery={q}
         error={error}
       />
-    </div>
+    </EntityListShell>
   );
 }

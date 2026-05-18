@@ -1,17 +1,12 @@
-import { ZoruButton } from '@/components/zoruui';
 import {
   notFound,
   redirect } from 'next/navigation';
-import { ArrowLeft,
-  Clock } from 'lucide-react';
 
 /**
  * Edit time log — server wrapper around `<TimeLogForm initialData={...} />`.
  */
 
-import Link from 'next/link';
-
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getSession } from '@/app/actions/user.actions';
 import { getTimeLogById } from '@/app/actions/crm-time-logs.actions';
 
@@ -37,30 +32,12 @@ export default async function EditTimeLogPage({ params }: PageProps) {
     const title = log.description || 'Untitled session';
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'CRM', href: '/dashboard/crm' },
-                    {
-                        label: 'Time Tracking',
-                        href: '/dashboard/crm/time-tracking',
-                    },
-                    { label: 'Time Logs', href: BASE },
-                    { label: title, href: `${BASE}/${logId}` },
-                    { label: 'Edit' },
-                ]}
-                title={`Edit · ${title}`}
-                subtitle="Update entry details, billable flag or duration."
-                icon={Clock}
-                actions={
-                    <ZoruButton variant="ghost" asChild>
-                        <Link href={`${BASE}/${logId}`}>
-                            <ArrowLeft className="mr-2 h-4 w-4" /> Back to detail
-                        </Link>
-                    </ZoruButton>
-                }
-            />
+        <EntityDetailShell
+            eyebrow="TIME LOG"
+            title={`Edit · ${title}`}
+            back={{ href: `${BASE}/${logId}`, label: 'Back to detail' }}
+        >
             <TimeLogForm initialData={log} />
-        </div>
+        </EntityDetailShell>
     );
 }

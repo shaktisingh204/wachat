@@ -1,9 +1,7 @@
 import { ZoruButton, ZoruCard, ZoruCardContent } from '@/components/zoruui';
-import {
-  Store,
-  Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 
 /**
  * POS terminal — `/dashboard/crm/pos/terminal`.
@@ -47,17 +45,11 @@ export default async function PosTerminalPage({ searchParams }: PageProps) {
 
     if (!activeSession) {
         return (
-            <div className="flex w-full flex-col gap-6">
-                <CrmPageHeader
-                    title="POS terminal"
-                    subtitle="Ring up sales for an open cashier shift."
-                    icon={Store}
-                    breadcrumbs={[
-                        { label: 'CRM', href: '/dashboard/crm' },
-                        { label: 'POS', href: '/dashboard/crm/pos' },
-                        { label: 'Terminal' },
-                    ]}
-                />
+            <EntityDetailShell
+                eyebrow="POS TERMINAL"
+                title="POS terminal"
+                back={{ href: '/dashboard/crm/pos', label: 'POS' }}
+            >
                 <ZoruCard>
                     <ZoruCardContent className="flex flex-col items-center justify-center gap-3 p-10 text-center">
                         <p className="text-sm font-medium text-zoru-ink">
@@ -75,36 +67,28 @@ export default async function PosTerminalPage({ searchParams }: PageProps) {
                         </ZoruButton>
                     </ZoruCardContent>
                 </ZoruCard>
-            </div>
+            </EntityDetailShell>
         );
     }
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="POS terminal"
-                subtitle={`Cashier shift on ${activeSession.terminalId} — open since ${new Date(activeSession.openedAt).toLocaleString()}.`}
-                icon={Store}
-                breadcrumbs={[
-                    { label: 'CRM', href: '/dashboard/crm' },
-                    { label: 'POS', href: '/dashboard/crm/pos' },
-                    { label: 'Terminal' },
-                ]}
-                actions={
-                    <ZoruButton size="sm" variant="outline" asChild>
-                        <Link
-                            href={`/dashboard/crm/pos/sessions/${activeSession._id}`}
-                        >
-                            View session
-                        </Link>
-                    </ZoruButton>
-                }
-            />
+        <EntityDetailShell
+            eyebrow="POS TERMINAL"
+            title="POS terminal"
+            back={{ href: '/dashboard/crm/pos', label: 'POS' }}
+            actions={
+                <ZoruButton size="sm" variant="outline" asChild>
+                    <Link href={`/dashboard/crm/pos/sessions/${activeSession._id}`}>
+                        View session
+                    </Link>
+                </ZoruButton>
+            }
+        >
             <PosTerminalClient
                 session={activeSession}
                 initialItems={items}
                 prefillHold={prefillHold}
             />
-        </div>
+        </EntityDetailShell>
     );
 }

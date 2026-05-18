@@ -42,7 +42,6 @@ import {
   useCallback } from 'react';
 import { LoaderCircle,
   Save,
-  Shield,
   Plus,
   Trash2 } from 'lucide-react';
 import { getSession } from '@/app/actions/user.actions';
@@ -52,7 +51,7 @@ import { saveRolePermissions,
 import type { WithId,
   User } from '@/lib/definitions';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 const initialState = { message: undefined, error: undefined };
 
@@ -204,13 +203,11 @@ export default function ManageRolesPage() {
     const allRoles = [{ id: 'agent', name: 'Agent', permissions: user.crm?.permissions?.agent }, ...customRolesWithPermissions];
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="Manage Team Roles"
-                subtitle="Define what different roles can access and do across the platform."
-                icon={Shield}
-                actions={<AddRoleDialog onRoleAdded={fetchUser} />}
-            />
+        <EntityListShell
+            title="Manage Team Roles"
+            subtitle="Define what different roles can access and do across the platform."
+            primaryAction={<AddRoleDialog onRoleAdded={fetchUser} />}
+        >
 
             <form action={formAction}>
                 <ZoruAccordion type="single" collapsible className="w-full space-y-4">
@@ -262,6 +259,6 @@ export default function ManageRolesPage() {
                     </ZoruButton>
                 </div>
             </form>
-        </div>
+        </EntityListShell>
     );
 }

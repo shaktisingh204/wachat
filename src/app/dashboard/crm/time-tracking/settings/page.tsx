@@ -5,13 +5,13 @@ import {
   useEffect,
   useState,
   useTransition } from 'react';
-import { Settings as SettingsIcon,
+import {
   Briefcase,
   ListTodo } from 'lucide-react';
 
 import * as React from 'react';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   getLogTimeSettings,
   setLogTimeFor,
@@ -77,12 +77,10 @@ export default function TimeTrackingSettingsPage() {
   };
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Time Tracking Settings"
-        subtitle="Choose whether time is logged against projects, tasks, or both."
-        icon={SettingsIcon}
-      />
+    <EntityListShell
+      title="Time Tracking Settings"
+      subtitle="Choose whether time is logged against projects, tasks, or both."
+    >
 
       <ZoruCard className="p-6">
         <div className="divide-y divide-zoru-line">
@@ -132,6 +130,6 @@ export default function TimeTrackingSettingsPage() {
           Refresh
         </ZoruButton>
       </div>
-    </div>
+    </EntityListShell>
   );
 }

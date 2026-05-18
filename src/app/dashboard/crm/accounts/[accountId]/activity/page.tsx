@@ -7,7 +7,6 @@
 
 import { notFound } from 'next/navigation';
 
-import { CrmPageHeader } from '../../../_components/crm-page-header';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getCrmAccountById } from '@/app/actions/crm-accounts.actions';
@@ -22,21 +21,15 @@ export default async function AccountActivityPage({ params }: PageProps) {
     if (!account) notFound();
 
     return (
-        <div className="space-y-6">
-            <CrmPageHeader
-                title={`${account.name} — Activity`}
-                subtitle="Audit trail of changes made to this account."
-            />
-            <EntityDetailShell
-                title={account.name}
-                eyebrow="ACCOUNT ACTIVITY"
-                back={{
-                    href: `/dashboard/crm/accounts/${accountId}`,
-                    label: 'Back to account',
-                }}
-            >
-                <EntityAuditTimeline entityKind="account" entityId={accountId} />
-            </EntityDetailShell>
-        </div>
+        <EntityDetailShell
+            eyebrow="ACCOUNT ACTIVITY"
+            title={`${account.name} — Activity`}
+            back={{
+                href: `/dashboard/crm/accounts/${accountId}`,
+                label: 'Back to account',
+            }}
+        >
+            <EntityAuditTimeline entityKind="account" entityId={accountId} />
+        </EntityDetailShell>
     );
 }

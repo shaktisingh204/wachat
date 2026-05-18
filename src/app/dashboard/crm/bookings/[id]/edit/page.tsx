@@ -7,13 +7,14 @@
  */
 
 import { notFound } from 'next/navigation';
-import { CalendarClock } from 'lucide-react';
 
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { BookingForm } from '../../_components/booking-form';
 import { getBooking } from '@/app/actions/crm/bookings.actions';
 
 export const dynamic = 'force-dynamic';
+
+const BASE = '/dashboard/crm/bookings';
 
 export default async function EditBookingPage({
   params,
@@ -29,13 +30,12 @@ export default async function EditBookingPage({
     booking.service || `Booking ${String(booking._id).slice(-6)}`;
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title={`Edit ${title}`}
-        subtitle="Update booking details."
-        icon={CalendarClock}
-      />
+    <EntityDetailShell
+      eyebrow="BOOKING"
+      title={`Edit · ${title}`}
+      back={{ href: BASE, label: 'Bookings' }}
+    >
       <BookingForm initial={booking} />
-    </div>
+    </EntityDetailShell>
   );
 }

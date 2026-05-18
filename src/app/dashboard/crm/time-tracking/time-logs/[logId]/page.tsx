@@ -21,7 +21,6 @@ import {
   useTransition,
   use } from 'react';
 import {
-  ArrowLeft,
   Clock,
   Coffee,
   Square,
@@ -30,9 +29,8 @@ import {
   } from 'lucide-react';
 
 import * as React from 'react';
-import Link from 'next/link';
 
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import {
   getTimeLogById,
   getBreaksForLog,
@@ -128,34 +126,23 @@ export default function TimeLogDetailPage({
   };
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <div>
-        <Link
-          href="/dashboard/crm/time-tracking/time-logs"
-          className="inline-flex items-center gap-1.5 text-[12.5px] text-zoru-ink-muted hover:text-zoru-ink"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" strokeWidth={1.75} />
-          Back to Time Logs
-        </Link>
-      </div>
-
-      <CrmPageHeader
-        title={log?.memo || 'Time Log'}
-        subtitle={log ? `Started ${fmt(log.start_time)}` : 'Loading…'}
-        icon={Clock}
-        actions={
-          log && !log.end_time ? (
-            <ZoruButton
-              className="bg-destructive text-white hover:bg-destructive/90"
-              disabled={isBusy}
-              onClick={handleStopTimer}
-            >
-              <Square className="h-4 w-4" strokeWidth={1.75} />
-              Stop Timer
-            </ZoruButton>
-          ) : null
-        }
-      />
+    <EntityDetailShell
+      eyebrow="TIME LOG"
+      title={log?.memo || 'Time Log'}
+      back={{ href: '/dashboard/crm/time-tracking/time-logs', label: 'Time Logs' }}
+      actions={
+        log && !log.end_time ? (
+          <ZoruButton
+            className="bg-destructive text-white hover:bg-destructive/90"
+            disabled={isBusy}
+            onClick={handleStopTimer}
+          >
+            <Square className="h-4 w-4" strokeWidth={1.75} />
+            Stop Timer
+          </ZoruButton>
+        ) : undefined
+      }
+    >
 
       {isLoading && !log ? (
         <ZoruCard className="p-6">
@@ -355,7 +342,7 @@ export default function TimeLogDetailPage({
           </ZoruCard>
         </>
       )}
-    </div>
+    </EntityDetailShell>
   );
 }
 

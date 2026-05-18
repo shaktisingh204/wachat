@@ -39,10 +39,9 @@ import { handleInviteAgent,
   getInvitedUsers } from '@/app/actions/team.actions';
 import { Plus,
   Trash2,
-  LoaderCircle,
-  MessagesSquare } from 'lucide-react';
+  LoaderCircle } from 'lucide-react';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 const removeAgentInitialState: any = { message: null, error: null };
 const inviteAgentInitialState: any = { message: null, error: null };
@@ -165,12 +164,10 @@ export default function TeamChatPage() {
     }, []);
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="Team Chat"
-                subtitle="Invite and manage users for your account."
-                icon={MessagesSquare}
-            />
+        <EntityListShell
+            title="Team Chat"
+            subtitle="Invite and manage users for your account."
+        >
 
             <InviteAgentForm onAgentInvited={fetchData} />
             <ZoruSeparator />
@@ -215,6 +212,6 @@ export default function TeamChatPage() {
                     )}
                 </div>
             </ZoruCard>
-        </div>
+        </EntityListShell>
     )
 }

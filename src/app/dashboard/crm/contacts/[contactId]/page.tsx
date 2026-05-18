@@ -33,12 +33,10 @@ import type { CrmContact,
   CrmAccount,
   CrmDeal } from '@/lib/definitions';
 import {
-  ArrowLeft,
   Briefcase,
   Mail,
   Phone,
   MessageSquare,
-  Users,
   Handshake,
   ListChecks,
   StickyNote,
@@ -47,11 +45,10 @@ import {
   Paperclip,
   } from 'lucide-react';
 import { CrmNotes } from '@/components/wabasimplify/crm-notes';
-import Link from 'next/link';
 import { ComposeEmailDialog } from '@/components/wabasimplify/crm-compose-email-dialog';
 import { RelatedRail } from '@/components/crm/RelatedRail';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 
 function ContactDetailPageSkeleton() {
   return (
@@ -149,22 +146,12 @@ export default function CrmContactDetailPage() {
         initialTo={contact.email}
         initialSubject={`Following up`}
       />
+      <EntityDetailShell
+        eyebrow="CONTACT"
+        title={contact.name}
+        back={{ href: '/dashboard/crm/contacts', label: 'Contacts' }}
+      >
       <div className="flex w-full flex-col gap-6">
-        <div>
-          <Link
-            href="/dashboard/crm/contacts"
-            className="inline-flex items-center gap-1.5 text-[12.5px] text-zoru-ink-muted hover:text-zoru-ink"
-          >
-            <ArrowLeft className="h-3.5 w-3.5" strokeWidth={1.75} />
-            Back to All Contacts
-          </Link>
-        </div>
-
-        <CrmPageHeader
-          title={contact.name}
-          subtitle={contact.jobTitle || 'Contact details and activity'}
-          icon={Users}
-        />
 
         <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-3">
           <div className="space-y-6 lg:col-span-1">
@@ -376,6 +363,7 @@ export default function CrmContactDetailPage() {
           </div>
         </div>
       </div>
+      </EntityDetailShell>
     </>
   );
 }

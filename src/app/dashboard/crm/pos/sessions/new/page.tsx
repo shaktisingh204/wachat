@@ -6,29 +6,22 @@
  * lookup-registry entry for `terminal`.
  */
 
-import { Store } from 'lucide-react';
-
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 
 import { PosSessionNewForm } from '../../_components/pos-session-new-form';
 
 export const dynamic = 'force-dynamic';
 
+const BASE = '/dashboard/crm/pos/sessions';
+
 export default function NewPosSessionPage() {
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="Open POS session"
-                subtitle="Start a fresh cashier shift on a terminal."
-                icon={Store}
-                breadcrumbs={[
-                    { label: 'CRM', href: '/dashboard/crm' },
-                    { label: 'POS', href: '/dashboard/crm/pos' },
-                    { label: 'Sessions', href: '/dashboard/crm/pos/sessions' },
-                    { label: 'New' },
-                ]}
-            />
+        <EntityDetailShell
+            eyebrow="POS SESSION"
+            title="Open POS session"
+            back={{ href: BASE, label: 'Sessions' }}
+        >
             <PosSessionNewForm />
-        </div>
+        </EntityDetailShell>
     );
 }

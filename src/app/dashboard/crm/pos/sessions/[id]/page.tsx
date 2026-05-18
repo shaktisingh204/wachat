@@ -12,10 +12,9 @@ import {
 } from '@/components/zoruui';
 import {
   notFound } from 'next/navigation';
-import { Store,
-  Receipt } from 'lucide-react';
+import { Receipt } from 'lucide-react';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 
 /**
  * POS session detail — `/dashboard/crm/pos/sessions/[id]`.
@@ -103,27 +102,17 @@ export default async function PosSessionDetailPage({ params }: PageProps) {
     const revenue = completed.reduce((sum, t) => sum + (t.total ?? 0), 0);
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title={`Session · ${session.terminalId}`}
-                subtitle={`Opened ${fmtDateTime(session.openedAt)}${session.openedByName ? ` by ${session.openedByName}` : ''}.`}
-                icon={Store}
-                breadcrumbs={[
-                    { label: 'CRM', href: '/dashboard/crm' },
-                    { label: 'POS', href: '/dashboard/crm/pos' },
-                    {
-                        label: 'Sessions',
-                        href: '/dashboard/crm/pos/sessions',
-                    },
-                    { label: session.terminalId },
-                ]}
-                actions={
-                    <PosSessionDetailActions
-                        sessionId={session._id}
-                        status={session.status}
-                    />
-                }
-            />
+        <EntityDetailShell
+            eyebrow="POS SESSION"
+            title={`Session · ${session.terminalId}`}
+            back={{ href: '/dashboard/crm/pos/sessions', label: 'Sessions' }}
+            actions={
+                <PosSessionDetailActions
+                    sessionId={session._id}
+                    status={session.status}
+                />
+            }
+        >
 
             <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
                 <ZoruCard className="md:col-span-2">
@@ -281,6 +270,6 @@ export default async function PosSessionDetailPage({ params }: PageProps) {
                     .
                 </p>
             ) : null}
-        </div>
+        </EntityDetailShell>
     );
 }

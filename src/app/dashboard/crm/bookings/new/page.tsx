@@ -6,22 +6,21 @@
  * renders the shared `<BookingForm>` (also used by Edit).
  */
 
-import { CalendarClock } from 'lucide-react';
-
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { BookingForm } from '../_components/booking-form';
 
 export const dynamic = 'force-dynamic';
 
+const BASE = '/dashboard/crm/bookings';
+
 export default function NewBookingPage() {
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="New booking"
-        subtitle="Reserve a slot for a customer."
-        icon={CalendarClock}
-      />
+    <EntityDetailShell
+      eyebrow="BOOKING"
+      title="New booking"
+      back={{ href: BASE, label: 'Bookings' }}
+    >
       <BookingForm />
-    </div>
+    </EntityDetailShell>
   );
 }
