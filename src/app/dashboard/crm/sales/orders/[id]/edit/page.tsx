@@ -9,9 +9,8 @@
  */
 
 import { notFound } from 'next/navigation';
-import { ShoppingCart } from 'lucide-react';
 
-import { CrmPageHeader } from '../../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { SalesOrdersForm } from '../../_components/sales-orders-form';
 import { getSalesOrder } from '@/app/actions/crm/sales-orders.actions';
 
@@ -28,13 +27,12 @@ export default async function EditSalesOrderPage({
   if (!order) notFound();
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title={`Edit ${order.soNo || 'sales order'}`}
-        subtitle="Update sales order details."
-        icon={ShoppingCart}
-      />
+    <EntityDetailShell
+      eyebrow="SALES ORDER"
+      title={`Edit ${order.soNo || 'sales order'}`}
+      back={{ href: `/dashboard/crm/sales/orders/${id}`, label: 'Sales Order' }}
+    >
       <SalesOrdersForm initial={order} />
-    </div>
+    </EntityDetailShell>
   );
 }

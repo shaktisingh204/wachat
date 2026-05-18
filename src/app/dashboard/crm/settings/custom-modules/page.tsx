@@ -30,7 +30,6 @@ import {
   useZoruToast,
 } from '@/components/zoruui';
 import {
-  Layers,
   Plus,
   Pencil,
   Trash2,
@@ -43,7 +42,7 @@ import { useActionState,
 
 import * as React from 'react';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   getCustomModules,
   saveCustomModule,
@@ -170,23 +169,21 @@ export default function CustomModulesPage() {
   };
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Custom Modules"
-        subtitle="Define bespoke modules with role-scoped view/create/edit/delete permissions."
-        icon={Layers}
-        actions={
-          <ZoruButton
-            onClick={() => {
-              setEditing(null);
-              setDialogOpen(true);
-            }}
-          >
-            <Plus className="h-4 w-4" />
-            Add Custom Module
-          </ZoruButton>
-        }
-      />
+    <EntityListShell
+      title="Custom Modules"
+      subtitle="Define bespoke modules with role-scoped view/create/edit/delete permissions."
+      primaryAction={
+        <ZoruButton
+          onClick={() => {
+            setEditing(null);
+            setDialogOpen(true);
+          }}
+        >
+          <Plus className="h-4 w-4" />
+          Add Custom Module
+        </ZoruButton>
+      }
+    >
 
       <ZoruCard className="p-0">
         <div className="overflow-x-auto rounded-lg">
@@ -429,6 +426,6 @@ export default function CustomModulesPage() {
           </ZoruAlertDialogFooter>
         </ZoruAlertDialogContent>
       </ZoruAlertDialog>
-    </div>
+    </EntityListShell>
   );
 }

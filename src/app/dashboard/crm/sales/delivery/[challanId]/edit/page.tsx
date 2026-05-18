@@ -1,9 +1,11 @@
 import { notFound } from 'next/navigation';
-import { CrmPageHeader } from '../../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getDeliveryChallanById } from '@/app/actions/crm-delivery-challans.actions';
 import { DeliveryForm, type DeliveryFormSeed } from '../../_components/delivery-form';
 
 export const dynamic = 'force-dynamic';
+
+const BASE = '/dashboard/crm/sales/delivery';
 
 export default async function EditDeliveryChallanPage({
     params,
@@ -14,12 +16,14 @@ export default async function EditDeliveryChallanPage({
     const challan = await getDeliveryChallanById(challanId);
     if (!challan) notFound();
 
+    const challanNumber = (challan as any).challanNumber as string | undefined;
+
     const seed: DeliveryFormSeed = {
         clientId:
             typeof (challan as any).accountId === 'object'
                 ? String((challan as any).accountId)
                 : ((challan as any).accountId as string | undefined),
-        challanNumber: (challan as any).challanNumber as string | undefined,
+        challanNumber,
         items: Array.isArray((challan as any).lineItems)
             ? ((challan as any).lineItems as Array<{
                   itemId?: string;
@@ -32,12 +36,12 @@ export default async function EditDeliveryChallanPage({
     };
 
     return (
-        <div className="space-y-6">
-            <CrmPageHeader
-                title="Edit Delivery Challan"
-                subtitle={String((challan as any).challanNumber ?? '')}
-            />
+        <EntityDetailShell
+            eyebrow="DELIVERY CHALLAN"
+            title={`Edit · ${challanNumber ?? 'Delivery Challan'}`}
+            back={{ href: `${BASE}/${challanId}`, label: 'Delivery Challan' }}
+        >
             <DeliveryForm seed={seed} editId={challanId} />
-        </div>
+        </EntityDetailShell>
     );
 }

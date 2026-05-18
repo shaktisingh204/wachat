@@ -1,18 +1,13 @@
-import { ZoruButton } from '@/components/zoruui';
 import {
   notFound,
   redirect } from 'next/navigation';
-import { ArrowLeft,
-  Mail } from 'lucide-react';
 
 /**
  * Edit email template page — server wrapper that loads the template
  * and passes it as `initialData` to `<EmailTemplateForm />`.
  */
 
-import Link from 'next/link';
-
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getSession } from '@/app/actions/user.actions';
 import { getEmailTemplateById } from '@/app/actions/crm-email-templates.actions';
 
@@ -36,29 +31,12 @@ export default async function EditEmailTemplatePage({
     if (!template) notFound();
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'CRM', href: '/dashboard/crm' },
-                    { label: 'Settings', href: '/dashboard/crm/settings' },
-                    { label: 'Email Templates', href: BASE },
-                    { label: template.name, href: `${BASE}/${templateId}` },
-                    { label: 'Edit' },
-                ]}
-                title={`Edit · ${template.name}`}
-                subtitle="Update subject, body, merge variables and publishing status."
-                icon={Mail}
-                actions={
-                    <ZoruButton variant="ghost" asChild>
-                        <Link href={`${BASE}/${templateId}`}>
-                            <ArrowLeft className="mr-2 h-4 w-4" />
-                            Back to detail
-                        </Link>
-                    </ZoruButton>
-                }
-            />
-
+        <EntityDetailShell
+            eyebrow="EMAIL TEMPLATE"
+            title={`Edit · ${template.name}`}
+            back={{ href: `${BASE}/${templateId}`, label: template.name }}
+        >
             <EmailTemplateForm initialData={template} />
-        </div>
+        </EntityDetailShell>
     );
 }

@@ -26,7 +26,6 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
   ArrowLeft,
-  FileQuestion,
   LoaderCircle,
   CheckCircle2,
   Eraser,
@@ -37,7 +36,7 @@ import {
   } from 'lucide-react';
 
 import { SharePublicLinkButton } from '@/components/worksuite/share-public-link-button';
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import {
   acceptEstimate,
   convertEstimateRequestToQuote,
@@ -293,37 +292,30 @@ export default function EstimateRequestDetailPage(props: {
   }
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Estimate Request"
-        subtitle="Review details, set status, and convert to a quote."
-        icon={FileQuestion}
-        actions={
-          <>
-            <Link href="/dashboard/crm/sales/estimate-requests">
-              <ZoruButton variant="outline">
-                <ArrowLeft className="h-4 w-4" />
-                Back
-              </ZoruButton>
-            </Link>
-            <SharePublicLinkButton
-              resourceType="estimate"
-              resourceId={request._id}
-            />
-            <ZoruButton
-              disabled={isConverting || isQuoted}
-              onClick={handleConvert}
-            >
-              {isConverting ? (
-                <LoaderCircle className="h-4 w-4 animate-spin" />
-              ) : (
-                <ArrowRightCircle className="h-4 w-4" />
-              )}
-              {isQuoted ? 'Already Quoted' : 'Convert to Quote'}
-            </ZoruButton>
-          </>
-        }
-      />
+    <EntityDetailShell
+      eyebrow="ESTIMATE REQUEST"
+      title="Estimate Request"
+      back={{ href: '/dashboard/crm/sales/estimate-requests', label: 'Estimate Requests' }}
+      actions={
+        <>
+          <SharePublicLinkButton
+            resourceType="estimate"
+            resourceId={request._id}
+          />
+          <ZoruButton
+            disabled={isConverting || isQuoted}
+            onClick={handleConvert}
+          >
+            {isConverting ? (
+              <LoaderCircle className="h-4 w-4 animate-spin" />
+            ) : (
+              <ArrowRightCircle className="h-4 w-4" />
+            )}
+            {isQuoted ? 'Already Quoted' : 'Convert to Quote'}
+          </ZoruButton>
+        </>
+      }
+    >
 
       <ZoruCard className="p-6">
         <div className="mb-4 flex flex-wrap items-center gap-3">
@@ -534,6 +526,6 @@ export default function EstimateRequestDetailPage(props: {
           </div>
         </ZoruCard>
       ) : null}
-    </div>
+    </EntityDetailShell>
   );
 }

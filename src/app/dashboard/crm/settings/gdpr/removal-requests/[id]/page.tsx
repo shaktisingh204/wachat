@@ -33,12 +33,10 @@ import {
   useParams,
   useRouter } from 'next/navigation';
 import {
-    ArrowLeft,
   CheckCircle2,
   Loader2,
   PlayCircle,
   ShieldOff,
-  UserMinus,
   XCircle,
   } from 'lucide-react';
 
@@ -56,7 +54,7 @@ import {
 import * as React from 'react';
 import Link from 'next/link';
 
-import { CrmPageHeader } from '../../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 
 import {
     approveEraseRequest,
@@ -211,19 +209,20 @@ export default function GdprEraseRequestDetailPage() {
 
     if (!row) {
         return (
-            <div className="space-y-4">
-                <CrmPageHeader
-                    title="Erase request not found"
-                    subtitle="The request may have been deleted or you don't have access."
-                    icon={UserMinus}
-                />
+            <EntityDetailShell
+                eyebrow="GDPR"
+                title="Erase request not found"
+                back={{
+                    href: '/dashboard/crm/settings/gdpr/removal-requests',
+                    label: 'Erase Requests',
+                }}
+            >
                 <ZoruButton variant="outline" asChild>
                     <Link href="/dashboard/crm/settings/gdpr/removal-requests">
-                        <ArrowLeft className="mr-2 h-4 w-4" />
                         Back to list
                     </Link>
                 </ZoruButton>
-            </div>
+            </EntityDetailShell>
         );
     }
 
@@ -234,20 +233,16 @@ export default function GdprEraseRequestDetailPage() {
         row.status === 'approved' && !row.legalHold && Boolean(row.dryRunReport);
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title={`Erase: ${row.subjectName}`}
-                subtitle={`Subject kind: ${row.subjectKind} · scope: ${row.scope === 'hard_delete' ? 'hard delete' : 'soft redact'}`}
-                icon={UserMinus}
-            />
-
+        <EntityDetailShell
+            eyebrow="GDPR"
+            title={`Erase: ${row.subjectName}`}
+            status={{ label: row.status, tone: STATUS_TONE[row.status] === 'success' ? 'green' : STATUS_TONE[row.status] === 'warning' ? 'amber' : STATUS_TONE[row.status] === 'danger' ? 'red' : 'blue' }}
+            back={{
+                href: '/dashboard/crm/settings/gdpr/removal-requests',
+                label: 'Erase Requests',
+            }}
+        >
             <div className="flex flex-wrap items-center gap-2">
-                <ZoruButton variant="outline" asChild>
-                    <Link href="/dashboard/crm/settings/gdpr/removal-requests">
-                        <ArrowLeft className="mr-2 h-4 w-4" />
-                        Back
-                    </Link>
-                </ZoruButton>
                 <ZoruBadge variant={STATUS_TONE[row.status]}>{row.status}</ZoruBadge>
                 {row.legalHold ? (
                     <span className="inline-flex items-center gap-1 rounded-full bg-zoru-danger-bg px-3 py-1 text-xs text-zoru-danger-ink">
@@ -530,6 +525,6 @@ export default function GdprEraseRequestDetailPage() {
                     </ZoruAlertDialogFooter>
                 </ZoruAlertDialogContent>
             </ZoruAlertDialog>
-        </div>
+        </EntityDetailShell>
     );
 }

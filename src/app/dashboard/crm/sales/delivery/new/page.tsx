@@ -13,9 +13,7 @@
  * lineage tuple through to the action.
  */
 
-import { Truck } from 'lucide-react';
-
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { DeliveryForm, type DeliveryFormSeed } from '../_components/delivery-form';
 import { getCrmEntityForPrefill } from '@/lib/crm/convert-with-prefill';
 import type { CrmSalesOrderDoc } from '@/lib/rust-client/crm-sales-orders';
@@ -70,21 +68,16 @@ export default async function NewDeliveryChallanPage({
   }
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="New delivery challan"
-        subtitle={
-          seed?.soRef
-            ? 'Pre-filled from a sales order — confirm and save.'
-            : 'Record a delivery for transportation or pickup.'
-        }
-        icon={Truck}
-      />
+    <EntityDetailShell
+      eyebrow="DELIVERY CHALLAN"
+      title="New delivery challan"
+      back={{ href: '/dashboard/crm/sales/delivery', label: 'Delivery' }}
+    >
       <DeliveryForm
         seed={seed}
         fromKind={fromKind || undefined}
         fromId={fromId || undefined}
       />
-    </div>
+    </EntityDetailShell>
   );
 }

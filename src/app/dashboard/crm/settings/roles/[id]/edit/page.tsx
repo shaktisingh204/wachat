@@ -1,9 +1,6 @@
-import { ZoruButton } from '@/components/zoruui';
 import {
   notFound,
   redirect } from 'next/navigation';
-import { ArrowLeft,
-  Shield } from 'lucide-react';
 
 /**
  * Edit role page — server wrapper that loads the role and passes it as
@@ -13,9 +10,7 @@ import { ArrowLeft,
  * or re-purpose a role without having to touch its grants.
  */
 
-import Link from 'next/link';
-
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getSession } from '@/app/actions/user.actions';
 import { getRoleById } from '@/app/actions/worksuite/rbac.actions';
 import type { WsRole } from '@/lib/worksuite/rbac-types';
@@ -42,32 +37,12 @@ export default async function EditRolePage({
   if (!role) notFound();
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        breadcrumbs={[
-          { label: 'CRM', href: '/dashboard/crm' },
-          { label: 'Settings', href: '/dashboard/crm/settings' },
-          { label: 'Roles', href: BASE },
-          {
-            label: role.display_name || role.name,
-            href: `${BASE}/${id}`,
-          },
-          { label: 'Edit' },
-        ]}
-        title={`Edit · ${role.display_name || role.name}`}
-        subtitle="Update role name, slug, description and admin flag. Members and permissions are edited on the detail page."
-        icon={Shield}
-        actions={
-          <ZoruButton variant="ghost" asChild>
-            <Link href={`${BASE}/${id}`}>
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to detail
-            </Link>
-          </ZoruButton>
-        }
-      />
-
+    <EntityDetailShell
+      eyebrow="ROLE"
+      title={`Edit · ${role.display_name || role.name}`}
+      back={{ href: `${BASE}/${id}`, label: role.display_name || role.name }}
+    >
       <RoleForm initialData={role} />
-    </div>
+    </EntityDetailShell>
   );
 }

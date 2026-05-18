@@ -1,5 +1,5 @@
 import { ZoruButton } from '@/components/zoruui';
-import { ShoppingCart, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
 /**
  * CRM Sales Orders list — `/dashboard/crm/sales/orders`.
@@ -21,7 +21,7 @@ import { ShoppingCart, Plus } from 'lucide-react';
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { listSalesOrders } from '@/app/actions/crm/sales-orders.actions';
 import { crmSalesOrdersApi } from '@/lib/rust-client/crm-sales-orders';
 import { SalesOrdersListClient } from './_components/sales-orders-list-client';
@@ -111,21 +111,18 @@ export default async function SalesOrdersPage({
   });
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Sales Orders"
-        subtitle="Create, share, and track confirmed customer orders."
-        icon={ShoppingCart}
-        actions={
-          <ZoruButton asChild>
-            <Link href="/dashboard/crm/sales/orders/new">
-              <Plus className="h-4 w-4" />
-              New sales order
-            </Link>
-          </ZoruButton>
-        }
-      />
-
+    <EntityListShell
+      title="Sales Orders"
+      subtitle="Create, share, and track confirmed customer orders."
+      primaryAction={
+        <ZoruButton asChild>
+          <Link href="/dashboard/crm/sales/orders/new">
+            <Plus className="h-4 w-4" />
+            New sales order
+          </Link>
+        </ZoruButton>
+      }
+    >
       <SalesOrdersListClient
         orders={filtered}
         page={listResult.page}
@@ -142,6 +139,6 @@ export default async function SalesOrdersPage({
         kpis={kpis}
         error={listResult.error}
       />
-    </div>
+    </EntityListShell>
   );
 }

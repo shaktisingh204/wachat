@@ -2,9 +2,7 @@ import { ZoruButton, ZoruCard } from '@/components/zoruui';
 import {
   notFound } from 'next/navigation';
 import {
-  ShoppingCart,
   Pencil,
-  ArrowLeft,
   Truck,
   Receipt,
   Mail,
@@ -36,7 +34,7 @@ import {
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { LineageRail } from '@/components/crm/lineage-rail';
@@ -134,26 +132,18 @@ export default async function SalesOrderDetailPage({
   const agentId = order.assignment?.assignedTo;
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title={order.soNo || 'Sales order'}
-        subtitle={`Sales order · ${fmtDate(order.date)}`}
-        icon={ShoppingCart}
-        actions={
-          <>
-            <ZoruButton variant="outline" asChild>
-              <Link href="/dashboard/crm/sales/orders">
-                <ArrowLeft className="h-4 w-4" /> Back
-              </Link>
-            </ZoruButton>
-            <ZoruButton asChild>
-              <Link href={`/dashboard/crm/sales/orders/${id}/edit`}>
-                <Pencil className="h-4 w-4" /> Edit
-              </Link>
-            </ZoruButton>
-          </>
-        }
-      />
+    <EntityDetailShell
+      eyebrow="SALES ORDER"
+      title={order.soNo || 'Sales order'}
+      back={{ href: '/dashboard/crm/sales/orders', label: 'Sales Orders' }}
+      actions={
+        <ZoruButton asChild>
+          <Link href={`/dashboard/crm/sales/orders/${id}/edit`}>
+            <Pencil className="h-4 w-4" /> Edit
+          </Link>
+        </ZoruButton>
+      }
+    >
 
       {/* Action group ─────────────────────────────────────────────── */}
       <ZoruCard className="flex flex-wrap items-center gap-2 p-3">
@@ -388,6 +378,6 @@ export default async function SalesOrderDetailPage({
       </div>
 
       <EntityAuditTimeline entityKind="salesOrder" entityId={id} />
-    </div>
+    </EntityDetailShell>
   );
 }

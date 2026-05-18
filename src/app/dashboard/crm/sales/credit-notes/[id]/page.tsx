@@ -2,7 +2,6 @@ import { ZoruButton, ZoruCard, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTabl
 import {
   notFound } from 'next/navigation';
 import {
-    FileMinus,
   Pencil,
   ArrowLeft,
   Activity,
@@ -20,7 +19,7 @@ import {
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 // `<StatusPill>` lives inside `<CreditNoteInlineStatus>` now.
@@ -92,38 +91,32 @@ export default async function CreditNoteDetailPage({
     const status = creditNote.status || 'draft';
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title={title}
-                subtitle="Credit note"
-                icon={FileMinus}
-                actions={
-                    <>
-                        <ZoruButton variant="outline" asChild>
-                            <Link href="/dashboard/crm/sales/credit-notes">
-                                <ArrowLeft className="h-4 w-4" /> Back
-                            </Link>
-                        </ZoruButton>
-                        <ZoruButton variant="outline" asChild>
-                            <Link href={`/dashboard/crm/sales/credit-notes/${id}/activity`}>
-                                <Activity className="h-4 w-4" /> Activity
-                            </Link>
-                        </ZoruButton>
-                        <CreditNoteDetailActions id={id} currentStatus={status} />
-                        <ZoruButton variant="outline" disabled title="Coming soon">
-                            <Printer className="h-4 w-4" /> Print
-                        </ZoruButton>
-                        <ZoruButton variant="outline" disabled title="Coming soon">
-                            <Mail className="h-4 w-4" /> Email
-                        </ZoruButton>
-                        <ZoruButton asChild>
-                            <Link href={`/dashboard/crm/sales/credit-notes/${id}/edit`}>
-                                <Pencil className="h-4 w-4" /> Edit
-                            </Link>
-                        </ZoruButton>
-                    </>
-                }
-            />
+        <EntityDetailShell
+            eyebrow="CREDIT NOTE"
+            title={title}
+            back={{ href: '/dashboard/crm/sales/credit-notes', label: 'Credit Notes' }}
+            actions={
+                <>
+                    <ZoruButton variant="outline" asChild>
+                        <Link href={`/dashboard/crm/sales/credit-notes/${id}/activity`}>
+                            <Activity className="h-4 w-4" /> Activity
+                        </Link>
+                    </ZoruButton>
+                    <CreditNoteDetailActions id={id} currentStatus={status} />
+                    <ZoruButton variant="outline" disabled title="Coming soon">
+                        <Printer className="h-4 w-4" /> Print
+                    </ZoruButton>
+                    <ZoruButton variant="outline" disabled title="Coming soon">
+                        <Mail className="h-4 w-4" /> Email
+                    </ZoruButton>
+                    <ZoruButton asChild>
+                        <Link href={`/dashboard/crm/sales/credit-notes/${id}/edit`}>
+                            <Pencil className="h-4 w-4" /> Edit
+                        </Link>
+                    </ZoruButton>
+                </>
+            }
+        >
 
             <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
                 <div className="flex flex-col gap-6">
@@ -301,6 +294,6 @@ export default async function CreditNoteDetailPage({
             </div>
 
             <EntityAuditTimeline entityKind="creditNote" entityId={id} />
-        </div>
+        </EntityDetailShell>
     );
 }

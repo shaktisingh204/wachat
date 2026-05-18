@@ -1,9 +1,6 @@
-import { ZoruButton } from '@/components/zoruui';
 import {
   notFound,
   redirect } from 'next/navigation';
-import { ArrowLeft,
-  Settings2 } from 'lucide-react';
 
 /**
  * Edit custom field page — server wrapper that loads the field via the
@@ -11,9 +8,7 @@ import { ArrowLeft,
  * `<CustomFieldForm />` client island.
  */
 
-import Link from 'next/link';
-
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getSession } from '@/app/actions/user.actions';
 import { getCustomFieldById } from '@/app/actions/crm-custom-fields.actions';
 
@@ -37,29 +32,12 @@ export default async function EditCustomFieldPage({
   if (!field) notFound();
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        breadcrumbs={[
-          { label: 'CRM', href: '/dashboard/crm' },
-          { label: 'Settings', href: '/dashboard/crm/settings' },
-          { label: 'Custom Fields', href: BASE },
-          { label: field.label, href: `${BASE}/${id}` },
-          { label: 'Edit' },
-        ]}
-        title={`Edit · ${field.label}`}
-        subtitle="Update label, placeholder, validation, options and display flags."
-        icon={Settings2}
-        actions={
-          <ZoruButton variant="ghost" asChild>
-            <Link href={`${BASE}/${id}`}>
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to detail
-            </Link>
-          </ZoruButton>
-        }
-      />
-
+    <EntityDetailShell
+      eyebrow="CUSTOM FIELD"
+      title={`Edit · ${field.label}`}
+      back={{ href: `${BASE}/${id}`, label: field.label }}
+    >
       <CustomFieldForm initialData={field} />
-    </div>
+    </EntityDetailShell>
   );
 }

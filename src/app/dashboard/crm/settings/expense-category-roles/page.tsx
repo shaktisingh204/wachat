@@ -29,10 +29,9 @@ import {
   } from 'react';
 import { LoaderCircle,
   Plus,
-  ShieldCheck,
   Trash2 } from 'lucide-react';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   getExpenseCategoryRoles,
   saveExpenseCategoryRole,
@@ -135,12 +134,10 @@ export default function ExpenseCategoryRolesPage() {
   };
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Expense Category Roles"
-        subtitle="Grant roles permission to create or approve expenses in specific categories."
-        icon={ShieldCheck}
-      />
+    <EntityListShell
+      title="Expense Category Roles"
+      subtitle="Grant roles permission to create or approve expenses in specific categories."
+    >
 
       <ZoruCard className="p-6">
         <form action={formAction} className="space-y-4">
@@ -275,6 +272,6 @@ export default function ExpenseCategoryRolesPage() {
           </ZoruTable>
         )}
       </ZoruCard>
-    </div>
+    </EntityListShell>
   );
 }

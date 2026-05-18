@@ -8,11 +8,10 @@ import {
   useState,
   useTransition,
   } from 'react';
-import { FileText,
-  LoaderCircle } from 'lucide-react';
+import { LoaderCircle } from 'lucide-react';
 
 import { EnumFormField } from '@/components/crm/enum-form-field';
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   getInvoiceSettings,
   saveInvoiceSettings,
@@ -85,12 +84,10 @@ export default function InvoiceSettingsPage() {
   }, [saveState, toast, refresh]);
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Invoice Settings"
-        subtitle="Invoice numbering, tax behaviour, defaults, and reminder rules."
-        icon={FileText}
-      />
+    <EntityListShell
+      title="Invoice Settings"
+      subtitle="Invoice numbering, tax behaviour, defaults, and reminder rules."
+    >
 
       {isLoading && !settings ? (
         <ZoruCard className="p-6">
@@ -294,6 +291,6 @@ export default function InvoiceSettingsPage() {
           </form>
         </ZoruCard>
       )}
-    </div>
+    </EntityListShell>
   );
 }

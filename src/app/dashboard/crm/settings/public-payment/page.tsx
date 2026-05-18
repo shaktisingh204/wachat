@@ -7,10 +7,9 @@ import {
   useState,
   useTransition,
   } from 'react';
-import { Globe,
-  LoaderCircle } from 'lucide-react';
+import { LoaderCircle } from 'lucide-react';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   getGatewayCredentials,
   togglePublicPayment,
@@ -59,12 +58,10 @@ export default function PublicPaymentPage() {
   };
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Public Payment"
-        subtitle="Choose which gateways customers see on public invoice and proposal pay pages."
-        icon={Globe}
-      />
+    <EntityListShell
+      title="Public Payment"
+      subtitle="Choose which gateways customers see on public invoice and proposal pay pages."
+    >
 
       <ZoruCard className="p-6">
         {isLoading && rows.length === 0 ? (
@@ -125,6 +122,6 @@ export default function PublicPaymentPage() {
           </ul>
         )}
       </ZoruCard>
-    </div>
+    </EntityListShell>
   );
 }

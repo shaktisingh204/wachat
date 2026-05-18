@@ -10,11 +10,9 @@
  * Mirrors `accounts/[accountId]/edit/page.tsx`.
  */
 
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, FileText } from 'lucide-react';
 
-import { CrmPageHeader } from '../../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { QuotationForm } from '../../_components/quotation-form';
 import { getQuotation } from '@/app/actions/crm/quotations.actions';
 import { getCustomFieldsFor } from '@/app/actions/worksuite/meta.actions';
@@ -40,34 +38,12 @@ export default async function EditQuotationPage({ params }: PageProps) {
     : 'Edit quotation';
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <div>
-        <Link
-          href={`/dashboard/crm/sales/quotations/${id}`}
-          className="inline-flex items-center gap-1.5 text-[12.5px] text-zoru-ink-muted hover:text-zoru-ink"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" />
-          Back to quotation
-        </Link>
-      </div>
-
-      <CrmPageHeader
-        title={title}
-        subtitle="Update quotation details, line items, and terms."
-        icon={FileText}
-        breadcrumbs={[
-          { label: 'CRM', href: '/dashboard/crm' },
-          { label: 'Sales', href: '/dashboard/crm/sales' },
-          { label: 'Quotations', href: '/dashboard/crm/sales/quotations' },
-          {
-            label: quotation.quotationNo,
-            href: `/dashboard/crm/sales/quotations/${id}`,
-          },
-          { label: 'Edit' },
-        ]}
-      />
-
+    <EntityDetailShell
+      eyebrow="QUOTATION"
+      title={title}
+      back={{ href: `/dashboard/crm/sales/quotations/${id}`, label: 'Quotation' }}
+    >
       <QuotationForm initial={quotation} customFields={customFields} />
-    </div>
+    </EntityDetailShell>
   );
 }

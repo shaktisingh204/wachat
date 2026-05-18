@@ -2,9 +2,7 @@ import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
 import {
   notFound,
   redirect } from 'next/navigation';
-import { ArrowLeft,
-  Mail,
-  Pencil } from 'lucide-react';
+import { Pencil } from 'lucide-react';
 
 /**
  * Email template detail page.
@@ -16,7 +14,7 @@ import { ArrowLeft,
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 import { getSession } from '@/app/actions/user.actions';
 import { getEmailTemplateById } from '@/app/actions/crm-email-templates.actions';
@@ -55,35 +53,20 @@ export default async function EmailTemplateDetailPage({
     const variables = Array.isArray(template.variables) ? template.variables : [];
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'CRM', href: '/dashboard/crm' },
-                    { label: 'Settings', href: '/dashboard/crm/settings' },
-                    { label: 'Email Templates', href: BASE },
-                    { label: template.name },
-                ]}
-                title={template.name}
-                subtitle={template.subject}
-                icon={Mail}
-                actions={
-                    <div className="flex items-center gap-2">
-                        <ZoruButton variant="outline" asChild>
-                            <Link href={BASE}>
-                                <ArrowLeft className="mr-2 h-4 w-4" />
-                                Back
-                            </Link>
-                        </ZoruButton>
-                        <ZoruButton asChild>
-                            <Link href={`${BASE}/${templateId}/edit`}>
-                                <Pencil className="mr-2 h-4 w-4" />
-                                Edit
-                            </Link>
-                        </ZoruButton>
-                    </div>
-                }
-            />
-
+        <EntityDetailShell
+            eyebrow="EMAIL TEMPLATE"
+            title={template.name}
+            status={{ label: status, tone }}
+            back={{ href: BASE, label: 'Email Templates' }}
+            actions={
+                <ZoruButton asChild>
+                    <Link href={`${BASE}/${templateId}/edit`}>
+                        <Pencil className="mr-2 h-4 w-4" />
+                        Edit
+                    </Link>
+                </ZoruButton>
+            }
+        >
             {/* Summary card */}
             <ZoruCard className="p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
@@ -151,6 +134,6 @@ export default async function EmailTemplateDetailPage({
                     </pre>
                 </ZoruCard>
             ) : null}
-        </div>
+        </EntityDetailShell>
     );
 }

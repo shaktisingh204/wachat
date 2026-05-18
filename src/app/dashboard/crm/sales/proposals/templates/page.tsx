@@ -18,14 +18,12 @@ import {
   useTransition } from 'react';
 import Link from 'next/link';
 import {
-  ArrowLeft,
-  LayoutTemplate,
   LoaderCircle,
   Plus,
   Trash2,
   } from 'lucide-react';
 
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   deleteProposalTemplate,
   getProposalTemplates,
@@ -76,28 +74,18 @@ export default function ProposalTemplatesPage() {
   };
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Proposal Templates"
-        subtitle="Reusable templates you can clone into new proposals."
-        icon={LayoutTemplate}
-        actions={
-          <>
-            <Link href="/dashboard/crm/sales/proposals">
-              <ZoruButton variant="outline">
-                <ArrowLeft className="h-4 w-4" />
-                Back
-              </ZoruButton>
-            </Link>
-            <Link href="/dashboard/crm/sales/proposals/templates/new">
-              <ZoruButton>
-                <Plus className="h-4 w-4" />
-                New Template
-              </ZoruButton>
-            </Link>
-          </>
-        }
-      />
+    <EntityListShell
+      title="Proposal Templates"
+      subtitle="Reusable templates you can clone into new proposals."
+      primaryAction={
+        <Link href="/dashboard/crm/sales/proposals/templates/new">
+          <ZoruButton>
+            <Plus className="h-4 w-4" />
+            New Template
+          </ZoruButton>
+        </Link>
+      }
+    >
 
       <ZoruCard className="p-6">
         <div className="overflow-x-auto rounded-lg border border-zoru-line">
@@ -167,6 +155,6 @@ export default function ProposalTemplatesPage() {
           </ZoruTable>
         </div>
       </ZoruCard>
-    </div>
+    </EntityListShell>
   );
 }

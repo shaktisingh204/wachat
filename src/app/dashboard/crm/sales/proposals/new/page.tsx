@@ -21,14 +21,12 @@ import {
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
-  ArrowLeft,
-  FileText,
   LayoutTemplate,
   LoaderCircle,
   Save,
   } from 'lucide-react';
 
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityPicker } from '@/components/crm/entity-picker';
 import {
   saveProposal,
@@ -154,20 +152,10 @@ export default function NewProposalPage() {
   };
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="New Proposal"
-        subtitle="Compose a sales proposal with line items, terms, and totals."
-        icon={FileText}
-        actions={
-          <Link href="/dashboard/crm/sales/proposals">
-            <ZoruButton variant="outline">
-              <ArrowLeft className="h-4 w-4" />
-              All Proposals
-            </ZoruButton>
-          </Link>
-        }
-      />
+    <EntityListShell
+      title="New Proposal"
+      subtitle="Compose a sales proposal with line items, terms, and totals."
+    >
 
       <ZoruCard className="p-6">
         <div className="grid gap-4 md:grid-cols-3">
@@ -318,6 +306,6 @@ export default function NewProposalPage() {
           Save &amp; Send
         </ZoruButton>
       </div>
-    </div>
+    </EntityListShell>
   );
 }

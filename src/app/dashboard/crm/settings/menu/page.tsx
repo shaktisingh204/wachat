@@ -30,7 +30,6 @@ import {
   useZoruToast,
 } from '@/components/zoruui';
 import {
-  Menu as MenuIcon,
   Plus,
   Pencil,
   Trash2,
@@ -45,7 +44,7 @@ import { useActionState,
 
 import * as React from 'react';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   getMenu,
   saveMenu,
@@ -155,23 +154,21 @@ export default function MenuSettingsPage() {
   };
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Sidebar Menu"
-        subtitle="Configure sidebar entries. Reorder with the arrows; toggle to hide."
-        icon={MenuIcon}
-        actions={
-          <ZoruButton
-            onClick={() => {
-              setEditing(null);
-              setDialogOpen(true);
-            }}
-          >
-            <Plus className="h-4 w-4" />
-            Add Entry
-          </ZoruButton>
-        }
-      />
+    <EntityListShell
+      title="Sidebar Menu"
+      subtitle="Configure sidebar entries. Reorder with the arrows; toggle to hide."
+      primaryAction={
+        <ZoruButton
+          onClick={() => {
+            setEditing(null);
+            setDialogOpen(true);
+          }}
+        >
+          <Plus className="h-4 w-4" />
+          Add Entry
+        </ZoruButton>
+      }
+    >
 
       <ZoruCard className="p-0">
         <div className="overflow-x-auto rounded-lg">
@@ -380,6 +377,6 @@ export default function MenuSettingsPage() {
           </ZoruAlertDialogFooter>
         </ZoruAlertDialogContent>
       </ZoruAlertDialog>
-    </div>
+    </EntityListShell>
   );
 }
