@@ -1,0 +1,10 @@
+{
+  "id": "ai-rfp-responder",
+  "name": "AI RFP Responder",
+  "description": "Triggered by an RFP document upload, extracts the text via an OCR HTTP service, has GPT-4o vision read the structure, queries a Pinecone knowledge base for past responses, and drafts a tailored reply. The final draft is sent to the requester via SendGrid and attached to the related Salesforce opportunity.",
+  "category": "Sales",
+  "complexity": "advanced",
+  "authorName": "SabNode",
+  "tags": ["rfp", "sales", "openai", "pinecone", "salesforce", "sendgrid", "ai"],
+  "version": "0.1.0"
+}
