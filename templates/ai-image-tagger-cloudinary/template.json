@@ -1,0 +1,10 @@
+{
+  "id": "ai-image-tagger-cloudinary",
+  "name": "AI Image Tagger (Cloudinary)",
+  "description": "Triggers on every Cloudinary upload, pulls the asset bytes, and asks OpenAI vision for descriptive tags and an alt-text. Writes the metadata back to Cloudinary, then mirrors a row to Airtable so editors can audit AI-generated alt text before campaigns ship.",
+  "category": "E-commerce",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["cloudinary", "vision", "openai", "airtable", "alt-text", "media"],
+  "version": "0.1.0"
+}
