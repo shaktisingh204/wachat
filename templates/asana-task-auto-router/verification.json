@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "templateId": "asana-task-auto-router",
+  "cases": [
+    {
+      "id": "design-task",
+      "description": "An Asana task tagged 'design' is routed to the design section with a round-robin assignee.",
+      "triggerPayload": {
+        "gid": "task-1",
+        "tags": [{ "name": "design" }]
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
