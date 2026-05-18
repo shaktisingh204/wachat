@@ -1,5 +1,48 @@
-import { redirect } from 'next/navigation';
+/**
+ * New payroll run page — server wrapper around `<PayrollRunForm />`.
+ */
 
-export default function Page(): never {
-  redirect('/dashboard/hrm/payroll/payroll/new');
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
+import { ArrowLeft, Wallet } from 'lucide-react';
+
+import { ZoruButton } from '@/components/zoruui';
+import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { getSession } from '@/app/actions/user.actions';
+
+import { PayrollRunForm } from '../_components/payroll-run-form-v2';
+
+export const dynamic = 'force-dynamic';
+
+export default async function NewPayrollRunPage() {
+    const session = await getSession();
+    if (!session?.user) redirect('/login');
+
+    return (
+        <div className="flex w-full flex-col gap-6">
+            <CrmPageHeader
+                breadcrumbs={[
+                    { label: 'Payroll', href: '/dashboard/crm/hr-payroll' },
+                    {
+                        label: 'Payroll runs',
+                        href: '/dashboard/crm/hr-payroll/payroll',
+                    },
+                    { label: 'New' },
+                ]}
+                title="New payroll run"
+                subtitle="Pick a period — payslips are generated and stored immediately."
+                icon={Wallet}
+                actions={
+                    <ZoruButton variant="ghost" asChild>
+                        <Link href="/dashboard/crm/hr-payroll/payroll">
+                            <ArrowLeft className="mr-2 h-4 w-4" />
+                            Back to runs
+                        </Link>
+                    </ZoruButton>
+                }
+            />
+
+            <PayrollRunForm />
+        </div>
+    );
 }

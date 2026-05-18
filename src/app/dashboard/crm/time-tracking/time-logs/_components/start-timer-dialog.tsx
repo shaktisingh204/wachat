@@ -62,12 +62,14 @@ export function StartTimerDialog({
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="start-task">Task id (optional)</ZoruLabel>
-            <ZoruInput
-              id="start-task"
-              value={form.task_id}
-              onChange={(e) => onFormChange({ ...form, task_id: e.target.value })}
-              placeholder="Mongo ObjectId"
+            <ZoruLabel>Task (optional)</ZoruLabel>
+            <EntityFormField
+              entity="task"
+              name="task_id"
+              initialId={form.task_id || undefined}
+              onChange={(id) => onFormChange({ ...form, task_id: id ?? '' })}
+              placeholder="Pick a task (optional)"
+              allowCreate
             />
           </div>
           <div>

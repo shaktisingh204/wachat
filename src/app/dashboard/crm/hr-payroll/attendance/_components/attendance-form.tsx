@@ -116,8 +116,8 @@ export function AttendanceForm({ initial }: AttendanceFormProps) {
       toast({ title: 'Saved', description: state.message });
       router.push(
         state.id
-          ? `/dashboard/hrm/payroll/attendance/${state.id}`
-          : '/dashboard/hrm/payroll/attendance',
+          ? `/dashboard/crm/hr-payroll/attendance/${state.id}`
+          : '/dashboard/crm/hr-payroll/attendance',
       );
     }
     if (state?.error) {
@@ -321,8 +321,8 @@ export function AttendanceForm({ initial }: AttendanceFormProps) {
           <Link
             href={
               editing
-                ? `/dashboard/hrm/payroll/attendance/${String(initial!._id)}`
-                : '/dashboard/hrm/payroll/attendance'
+                ? `/dashboard/crm/hr-payroll/attendance/${String(initial!._id)}`
+                : '/dashboard/crm/hr-payroll/attendance'
             }
           >
             Cancel

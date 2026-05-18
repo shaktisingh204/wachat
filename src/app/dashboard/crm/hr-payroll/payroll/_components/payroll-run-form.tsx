@@ -94,8 +94,8 @@ export function PayrollRunForm({ initial }: PayrollRunFormProps) {
       toast({ title: 'Saved', description: state.message });
       router.push(
         state.id
-          ? `/dashboard/hrm/payroll/payroll/${state.id}`
-          : '/dashboard/hrm/payroll/payroll',
+          ? `/dashboard/crm/hr-payroll/payroll/${state.id}`
+          : '/dashboard/crm/hr-payroll/payroll',
       );
     }
     if (state?.error) {
@@ -214,8 +214,8 @@ export function PayrollRunForm({ initial }: PayrollRunFormProps) {
           <Link
             href={
               editing
-                ? `/dashboard/hrm/payroll/payroll/${String(initial!._id)}`
-                : '/dashboard/hrm/payroll/payroll'
+                ? `/dashboard/crm/hr-payroll/payroll/${String(initial!._id)}`
+                : '/dashboard/crm/hr-payroll/payroll'
             }
           >
             Cancel

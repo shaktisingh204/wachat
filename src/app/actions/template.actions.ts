@@ -20,6 +20,20 @@
 import { revalidatePath } from 'next/cache';
 import type { WithId } from 'mongodb';
 import type { Template, CreateTemplateState } from '@/lib/definitions';
+import { recordFlowAction } from '@/lib/sabflow/audit/middleware';
+import { getSession } from './user.actions';
+
+async function _wachatTplActorId(): Promise<string | null> {
+    try {
+        const session = await getSession();
+        const u = (session as { user?: { _id?: unknown; id?: unknown } } | null)?.user;
+        const raw = u?._id ?? u?.id;
+        if (!raw) return null;
+        return typeof raw === 'string' ? raw : String(raw);
+    } catch {
+        return null;
+    }
+}
 
 // ---------------------------------------------------------------------------
 // FormData helpers — keep the legacy `(prevState, formData)` signatures.
@@ -126,6 +140,22 @@ export async function handleCreateTemplate(
                 strField(formData, 'allowCategoryChange') !== 'false',
         });
         revalidatePath('/wachat/templates');
+        if (!r.error) {
+            const actor = await _wachatTplActorId();
+            if (actor) {
+                void recordFlowAction('wachat.template.created', {
+                    userId: actor,
+                    target: (r as { metaTemplateId?: string; id?: string }).metaTemplateId
+                        ?? (r as { id?: string }).id,
+                    metadata: {
+                        projectId: strField(formData, 'projectId'),
+                        name: strField(formData, 'name'),
+                        language: strField(formData, 'language'),
+                        category: strField(formData, 'category'),
+                    },
+                });
+            }
+        }
         return r;
     } catch (e: any) {
         return { error: e?.message ?? 'An unexpected error occurred.' };
@@ -212,6 +242,19 @@ export async function handleEditTemplate(
             buttons: jsonField<unknown[]>(formData, 'buttons'),
         });
         revalidatePath('/wachat/templates');
+        if (!r.error) {
+            const actor = await _wachatTplActorId();
+            if (actor) {
+                void recordFlowAction('wachat.template.updated', {
+                    userId: actor,
+                    target: formData.get('metaTemplateId') as string,
+                    metadata: {
+                        projectId: strField(formData, 'projectId'),
+                        category: strField(formData, 'category'),
+                    },
+                });
+            }
+        }
         return r;
     } catch (e: any) {
         return { error: e?.message ?? 'An unexpected error occurred.' };
@@ -231,6 +274,16 @@ export async function handleDeleteTemplate(
             metaTemplateId,
         });
         revalidatePath('/wachat/templates');
+        if (!r.error) {
+            const actor = await _wachatTplActorId();
+            if (actor) {
+                void recordFlowAction('wachat.template.deleted', {
+                    userId: actor,
+                    target: metaTemplateId ?? templateName,
+                    metadata: { projectId, templateName },
+                });
+            }
+        }
         return r;
     } catch (e: any) {
         return { error: e?.message ?? 'An unexpected error occurred.' };
@@ -248,6 +301,16 @@ export async function handleDeleteTemplateById(
             metaTemplateId,
         });
         revalidatePath('/wachat/templates');
+        if (!r.error) {
+            const actor = await _wachatTplActorId();
+            if (actor) {
+                void recordFlowAction('wachat.template.deleted', {
+                    userId: actor,
+                    target: metaTemplateId,
+                    metadata: { projectId },
+                });
+            }
+        }
         return r;
     } catch (e: any) {
         return { error: e?.message ?? 'An unexpected error occurred.' };

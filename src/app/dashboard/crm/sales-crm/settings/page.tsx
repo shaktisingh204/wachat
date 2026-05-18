@@ -45,7 +45,7 @@ export default function LeadSettingsPage() {
       ]}
       fields={[
         { name: 'company_name', label: 'Company Name', required: true, fullWidth: true },
-        { name: 'form_id', label: 'Form ID (Mongo ObjectId)' },
+        { name: 'form_id', label: 'Form ID', help: 'Internal identifier of the connected lead form.' },
         { name: 'logo', label: 'Logo URL', fullWidth: true },
         { name: 'default_url', label: 'Redirect URL', fullWidth: true },
         { name: 'share_link', label: 'Public Share Link', fullWidth: true },

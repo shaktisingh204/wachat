@@ -12,6 +12,20 @@ import { getErrorMessage, validateFile } from '@/lib/utils';
 import type { BroadcastJob } from '@/lib/definitions';
 import Papa from 'papaparse';
 import * as xlsx from 'xlsx';
+import { recordFlowAction } from '@/lib/sabflow/audit/middleware';
+import { getSession } from '@/app/actions/user.actions';
+
+async function _wachatBcActorId(): Promise<string | null> {
+    try {
+        const session = await getSession();
+        const u = (session as { user?: { _id?: unknown; id?: unknown } } | null)?.user;
+        const raw = u?._id ?? u?.id;
+        if (!raw) return null;
+        return typeof raw === 'string' ? raw : String(raw);
+    } catch {
+        return null;
+    }
+}
 
 // ---------------------------------------------------------------------------
 // Phase 6 (final): every server action below is a thin shim around the
@@ -549,6 +563,18 @@ export async function handleStartBroadcast(
     try {
         const r = await rustClient.wachatBroadcast.start(body);
         revalidatePath('/wachat/broadcasts');
+        const actor = await _wachatBcActorId();
+        if (actor) {
+            void recordFlowAction('wachat.campaign.launched', {
+                userId: actor,
+                target: (r as { broadcastId?: string; id?: string }).broadcastId
+                    ?? (r as { id?: string }).id,
+                metadata: {
+                    projectId: body.projectId,
+                    templateName: (body as { templateName?: string }).templateName,
+                },
+            });
+        }
         return { message: r.message };
     } catch (e) {
         return toErrorResponse(e);
@@ -653,6 +679,13 @@ export async function handleStopBroadcast(
     try {
         const r = await rustClient.wachatBroadcast.stop(broadcastId);
         revalidatePath('/wachat/broadcasts');
+        const actor = await _wachatBcActorId();
+        if (actor) {
+            void recordFlowAction('wachat.campaign.cancelled', {
+                userId: actor,
+                target: broadcastId,
+            });
+        }
         return { message: r.message };
     } catch (e) {
         return toErrorResponse(e);

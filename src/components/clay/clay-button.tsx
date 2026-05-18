@@ -37,10 +37,14 @@ const variantToButton: Record<Variant, ButtonProps['variant']> = {
 };
 
 const variantOverride: Record<Variant, string> = {
+  // Use `[background-image:none]` (not `[background:none]`) to strip the
+  // shadcn `default` gradient WITHOUT also wiping the `bg-foreground` color.
+  // The shorthand `background` resets all background props, which had been
+  // rendering the obsidian CTA as a blank/invisible pill.
   obsidian:
-    'rounded-full bg-foreground text-background [background:none] hover:bg-foreground/90 hover:[background:none] shadow-none',
+    'rounded-full bg-foreground text-background [background-image:none] hover:bg-foreground/90 hover:[background-image:none] shadow-none',
   rose:
-    'rounded-full bg-primary text-primary-foreground [background:none] hover:bg-primary/90 hover:[background:none] shadow-none',
+    'rounded-full bg-primary text-primary-foreground [background-image:none] hover:bg-primary/90 hover:[background-image:none] shadow-none',
   'rose-soft':
     'rounded-full bg-accent text-accent-foreground border-accent hover:bg-accent/80 hover:border-accent',
   pill:

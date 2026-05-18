@@ -1,5 +1,45 @@
-import { redirect } from 'next/navigation';
+/**
+ * New exit page — server wrapper around `<ExitForm />`.
+ */
 
-export default function Page(): never {
-  redirect('/dashboard/hrm/hr/exits/new');
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
+import { ArrowLeft, LogOut } from 'lucide-react';
+
+import { ZoruButton } from '@/components/zoruui';
+import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { getSession } from '@/app/actions/user.actions';
+
+import { ExitForm } from '../_components/exit-form';
+
+export const dynamic = 'force-dynamic';
+
+export default async function NewExitPage() {
+    const session = await getSession();
+    if (!session?.user) redirect('/login');
+
+    return (
+        <div className="flex w-full flex-col gap-6">
+            <CrmPageHeader
+                breadcrumbs={[
+                    { label: 'HR', href: '/dashboard/crm/hr' },
+                    { label: 'Exits', href: '/dashboard/crm/hr/exits' },
+                    { label: 'New' },
+                ]}
+                title="New Exit"
+                subtitle="Record an offboarding case with clearance and F&F tracking."
+                icon={LogOut}
+                actions={
+                    <ZoruButton variant="ghost" asChild>
+                        <Link href="/dashboard/crm/hr/exits">
+                            <ArrowLeft className="mr-2 h-4 w-4" />
+                            Back to list
+                        </Link>
+                    </ZoruButton>
+                }
+            />
+
+            <ExitForm />
+        </div>
+    );
 }

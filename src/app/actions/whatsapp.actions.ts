@@ -7,6 +7,20 @@ import { ObjectId, type WithId } from 'mongodb';
 import { getProjectById } from './project.actions';
 import type { Project, Contact, PhoneNumber, PaymentConfiguration, FacebookPaymentRequest, Transaction, AnyMessage } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
+import { recordFlowAction } from '@/lib/sabflow/audit/middleware';
+import { getSession } from './user.actions';
+
+async function _wachatActorId(): Promise<string | null> {
+    try {
+        const session = await getSession();
+        const u = (session as { user?: { _id?: unknown; id?: unknown } } | null)?.user;
+        const raw = u?._id ?? u?.id;
+        if (!raw) return null;
+        return typeof raw === 'string' ? raw : String(raw);
+    } catch {
+        return null;
+    }
+}
 
 export async function getPublicProjectById(projectId: string): Promise<WithId<Project> | null> {
     try {
@@ -136,6 +150,18 @@ export async function handleManualWachatSetup(prevState: any, formData: FormData
             businessId: (formData.get('businessId') as string) || undefined,
         });
         revalidatePath('/wachat');
+        const actor = await _wachatActorId();
+        if (actor) {
+            void recordFlowAction('wachat.number.connected', {
+                userId: actor,
+                target: (r as { _id?: string; id?: string }).id ?? (r as { _id?: string })._id,
+                metadata: {
+                    name: r.name,
+                    wabaId: formData.get('wabaId') as string,
+                    phoneNumberId: formData.get('phoneNumberId') as string,
+                },
+            });
+        }
         return { message: `Project "${r.name}" connected successfully!` };
     } catch (e: any) {
         return { error: e?.message ?? 'Setup failed' };
@@ -240,6 +266,16 @@ export async function handleSubscribeProjectWebhook(wabaId: string, appId: strin
         const { rustClient } = await import('@/lib/rust-client');
         const { projectId } = await rustClient.wachatConfig.getProjectByWaba(wabaId);
         const r = await rustClient.wachatConfig.subscribeWebhook(projectId, { appId, userAccessToken });
+        if (r.isActive) {
+            const actor = await _wachatActorId();
+            if (actor) {
+                void recordFlowAction('wachat.webhook.subscribed', {
+                    userId: actor,
+                    target: projectId,
+                    metadata: { wabaId, appId },
+                });
+            }
+        }
         return { success: !!r.isActive };
     } catch (e: any) {
         return { success: false, error: e?.message ?? 'Subscribe failed' };
@@ -705,6 +741,14 @@ export async function deregisterPhoneNumber(
     try {
         const { rustClient } = await import('@/lib/rust-client');
         await rustClient.wachatConfig.deregisterPhone(projectId, phoneNumberId);
+        const actor = await _wachatActorId();
+        if (actor) {
+            void recordFlowAction('wachat.number.disconnected', {
+                userId: actor,
+                target: phoneNumberId,
+                metadata: { projectId },
+            });
+        }
         return { success: true, message: 'Phone number deregistered from Cloud API.' };
     } catch (e: any) {
         return { success: false, error: e?.message ?? 'Deregister failed' };

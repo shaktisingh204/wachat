@@ -17,6 +17,20 @@
 import { revalidatePath } from 'next/cache';
 import { rustClient } from '@/lib/rust-client';
 import { getErrorMessage } from '@/lib/utils';
+import { recordFlowAction } from '@/lib/sabflow/audit/middleware';
+import { getSession } from '@/app/actions/user.actions';
+
+async function _wachatFtActorId(): Promise<string | null> {
+    try {
+        const session = await getSession();
+        const u = (session as { user?: { _id?: unknown; id?: unknown } } | null)?.user;
+        const raw = u?._id ?? u?.id;
+        if (!raw) return null;
+        return typeof raw === 'string' ? raw : String(raw);
+    } catch {
+        return null;
+    }
+}
 
 // =================================================================
 //  CHAT LABELS
@@ -281,6 +295,16 @@ export async function addToOptOut(projectId: string, phone: string, reason?: str
     try {
         const r = await rustClient.wachatFeatures.addToOptOut(projectId, phone, reason);
         revalidatePath('/wachat/opt-out');
+        if (r.success) {
+            const actor = await _wachatFtActorId();
+            if (actor) {
+                void recordFlowAction('wachat.contact.optedOut', {
+                    userId: actor,
+                    target: phone,
+                    metadata: { projectId, reason },
+                });
+            }
+        }
         return { success: r.success };
     } catch (e: any) { return { success: false, error: getErrorMessage(e) }; }
 }

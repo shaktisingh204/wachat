@@ -1,10 +1,16 @@
+/**
+ * Shift detail — there is no standalone detail page; editing happens
+ * via the inline dialog on the list page. Deep links that land here
+ * fall back to the list.
+ */
+
 import { redirect } from 'next/navigation';
 
-interface PageProps {
+export default async function ShiftDetailLegacyRedirect({
+  params,
+}: {
   params: Promise<{ id: string }>;
-}
-
-export default async function Page({ params }: PageProps): Promise<never> {
-  const { id } = await params;
-  redirect(`/dashboard/hrm/payroll/shifts/${id}`);
+}) {
+  await params;
+  redirect('/dashboard/crm/hr-payroll/shifts');
 }

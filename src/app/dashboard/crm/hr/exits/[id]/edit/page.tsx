@@ -1,10 +1,22 @@
-import { redirect } from 'next/navigation';
+import { notFound } from 'next/navigation';
+
+import { CrmPageHeader } from '../../../../../crm/_components/crm-page-header';
+import { getExitById } from '@/app/actions/crm-exits.actions';
+import { ExitForm } from '../../new/exit-form';
 
 interface PageProps {
-  params: Promise<{ id: string }>;
+    params: Promise<{ id: string }>;
 }
 
-export default async function Page({ params }: PageProps): Promise<never> {
-  const { id } = await params;
-  redirect(`/dashboard/hrm/hr/exits/${id}/edit`);
+export default async function ExitEditPage({ params }: PageProps) {
+    const { id } = await params;
+    const exit = await getExitById(id);
+    if (!exit) notFound();
+
+    return (
+        <div className="space-y-6">
+            <CrmPageHeader title={`Edit exit`} />
+            <ExitForm exit={{ ...(exit as any), _id: String((exit as any)._id ?? id) }} />
+        </div>
+    );
 }

@@ -37,9 +37,12 @@ export default function LeadNotesPage() {
       fields={[
         {
           name: 'lead_id',
-          label: 'Lead ID',
+          label: 'Lead',
           required: true,
-          placeholder: 'Mongo ObjectId of the lead',
+          type: 'entity',
+          entity: 'lead',
+          allowCreate: true,
+          placeholder: 'Select or create a lead…',
           fullWidth: true,
         },
         { name: 'title', label: 'Title', required: true, fullWidth: true },

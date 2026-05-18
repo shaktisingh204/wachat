@@ -72,13 +72,18 @@ function writeCollapsed(collapsed: Set<string>): void {
 
 /* ── BlocksSideBar ──────────────────────────────────────── */
 export function BlocksSideBar() {
-  const [isOpen, setIsOpen] = useState(false);
+  // Pinned/visible by default. The pin button still toggles it, but we no
+  // longer reveal/hide it on hover — that surprise reveal was reported as
+  // "nodes appearing on left side hover" when users expected a click‑driven
+  // panel.
   const [isLocked, setIsLocked] = useState(() => {
-    if (typeof window === 'undefined') return false;
+    if (typeof window === 'undefined') return true;
     try {
-      return localStorage.getItem(LOCK_KEY) === 'true';
+      const v = localStorage.getItem(LOCK_KEY);
+      if (v === null) return true;
+      return v === 'true';
     } catch {
-      return false;
+      return true;
     }
   });
   const [query, setQuery] = useState('');
@@ -87,22 +92,6 @@ export function BlocksSideBar() {
 
   const { setDraggedBlockType } = useBlockDnd();
   const searchInputRef = useRef<HTMLInputElement>(null);
-  const closeTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
-
-  // Initial open state follows lock
-  useEffect(() => {
-    if (isLocked) setIsOpen(true);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const open = useCallback(() => {
-    clearTimeout(closeTimer.current);
-    setIsOpen(true);
-  }, []);
-
-  const scheduleClose = useCallback(() => {
-    if (isLocked) return;
-    closeTimer.current = setTimeout(() => setIsOpen(false), 180);
-  }, [isLocked]);
 
   const toggleLock = useCallback(() => {
     setIsLocked((prev) => {
@@ -112,7 +101,6 @@ export function BlocksSideBar() {
       } catch {
         /* noop */
       }
-      if (!next) setIsOpen(false);
       return next;
     });
   }, []);
@@ -167,7 +155,7 @@ export function BlocksSideBar() {
     });
   }, []);
 
-  const isVisible = isOpen || isLocked;
+  const isVisible = isLocked;
   const lowerQuery = query.trim().toLowerCase();
 
   // Dynamic n8n-parity descriptor categories (fetched from the Rust runtime)
@@ -217,15 +205,8 @@ export function BlocksSideBar() {
     .filter((e): e is BlockRegistryEntry => e !== undefined);
 
   return (
-    <div
-      className="absolute left-0 top-0 h-full z-20 flex"
-      onMouseEnter={open}
-      onMouseLeave={scheduleClose}
-    >
-      {/* Thin hot-zone to trigger reveal when sidebar is hidden */}
-      {!isVisible && <div className="w-3 h-full cursor-pointer" aria-hidden="true" />}
-
-      {/* Slide-in panel */}
+    <div className="absolute left-0 top-0 h-full z-20 flex">
+      {/* Pinned-by-default panel. No hover reveal — toggle via the pin button. */}
       <div
         className={cn(
           'absolute left-0 top-0 h-full w-[260px] flex flex-col',
@@ -353,14 +334,25 @@ export function BlocksSideBar() {
         </div>
       </div>
 
-      {/* Dock handle — visible only when panel is hidden and not locked */}
-      {!isVisible && !isLocked && (
-        <div
-          className="absolute left-0 top-1/2 -translate-y-1/2 translate-x-3 flex items-center justify-center"
-          aria-hidden="true"
+      {/* Reopen button — when the user has unpinned/closed the palette,
+          give them an explicit click target to bring it back. No hover
+          surprise; only an obvious button. */}
+      {!isVisible && (
+        <button
+          type="button"
+          onClick={toggleLock}
+          aria-label="Open block palette"
+          title="Open block palette"
+          className={cn(
+            'absolute left-2 top-4 flex items-center gap-1.5 px-2.5 py-1.5 rounded-md',
+            'bg-[var(--gray-1)] border border-[var(--gray-5)] shadow-sm',
+            'text-[12px] font-medium text-[var(--gray-12)]',
+            'hover:bg-[var(--gray-3)] hover:border-[var(--gray-7)] transition-colors',
+          )}
         >
-          <div className="h-12 w-1 rounded-full bg-[var(--gray-6)] opacity-70" />
-        </div>
+          <LuPinOff className="h-3.5 w-3.5" strokeWidth={2} />
+          Blocks
+        </button>
       )}
     </div>
   );

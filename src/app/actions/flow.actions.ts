@@ -7,6 +7,7 @@ import { type WithId } from 'mongodb';
 import { rustClient, RustApiError } from '@/lib/rust-client';
 import type { Flow, FlowNode, FlowEdge } from '@/lib/definitions';
 import { getSession } from '@/app/actions/user.actions';
+import { recordFlowAction } from '@/lib/sabflow/audit/middleware';
 
 export async function getFlowsForProject(projectId: string): Promise<WithId<Flow>[]> {
     try {
@@ -55,6 +56,16 @@ export async function saveFlow(data: {
         });
         if (result?.error) return { error: result.error };
         revalidatePath('/wachat/flow-builder');
+        const u = (session.user as { _id?: unknown; id?: unknown });
+        const raw = u._id ?? u.id;
+        const actorId = raw ? (typeof raw === 'string' ? raw : String(raw)) : null;
+        if (actorId) {
+            void recordFlowAction(flowId ? 'wachat.flow.updated' : 'wachat.flow.created', {
+                userId: actorId,
+                target: result?.flowId ?? flowId,
+                metadata: { projectId, name },
+            });
+        }
         return {
             message: result?.message ?? (flowId ? 'Flow updated successfully.' : 'Flow created successfully.'),
             flowId: result?.flowId ?? flowId,
@@ -74,6 +85,15 @@ export async function deleteFlow(flowId: string): Promise<{ message?: string; er
         const result = await rustClient.wachatFlows.deleteFlow(flowId);
         if (result?.error) return { error: result.error };
         revalidatePath('/wachat/flow-builder');
+        const u = (session.user as { _id?: unknown; id?: unknown });
+        const raw = u._id ?? u.id;
+        const actorId = raw ? (typeof raw === 'string' ? raw : String(raw)) : null;
+        if (actorId) {
+            void recordFlowAction('wachat.flow.deleted', {
+                userId: actorId,
+                target: flowId,
+            });
+        }
         return { message: result?.message ?? 'Flow deleted.' };
     } catch (e: any) {
         if (e instanceof RustApiError) {
