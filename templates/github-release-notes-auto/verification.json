@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "github-release-notes-auto",
+  "cases": [
+    {
+      "id": "release",
+      "description": "Release published triggers compare, summarize, update, and announce.",
+      "triggerPayload": { "release": { "id": 555, "tag_name": "v1.2.0" }, "previous_tag": "v1.1.0" },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
