@@ -1,0 +1,239 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_netlify_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "netlify.deploy_succeeded",
+    "options": {
+      "path": "/webhooks/netlify-deploy-changelog",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Webhook-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_netlify_trigger",
+      "name": "Netlify Deploy Succeeded",
+      "type": "n8n-nodes-base.netlifyTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "events": ["deploy_succeeded"]
+      },
+      "credentials": {
+        "netlifyApi": { "id": "netlify-cred", "name": "Netlify API" }
+      }
+    },
+    {
+      "id": "n_filter_prod",
+      "name": "Production Only",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "conditions": {
+          "combinator": "and",
+          "string": [
+            { "value1": "={{ $json.context }}", "operation": "equal", "value2": "production" },
+            { "value1": "={{ $json.state }}", "operation": "equal", "value2": "ready" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_skip_preview",
+      "name": "Skip Preview Deploys",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [480, 120],
+      "parameters": {}
+    },
+    {
+      "id": "n_extract_shas",
+      "name": "Extract Commit Range",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [480, -80],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "owner", "value": "={{ $json.repo.owner }}" },
+            { "name": "repo", "value": "={{ $json.repo.name }}" },
+            { "name": "headSha", "value": "={{ $json.commit_ref }}" },
+            { "name": "baseSha", "value": "={{ $json.previous_deploy.commit_ref }}" },
+            { "name": "deployId", "value": "={{ $json.id }}" },
+            { "name": "deployUrl", "value": "={{ $json.deploy_ssl_url }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_fetch_commits",
+      "name": "GitHub Compare Commits",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, -80],
+      "parameters": {
+        "method": "GET",
+        "url": "=https://api.github.com/repos/{{ $json.owner }}/{{ $json.repo }}/compare/{{ $json.baseSha }}...{{ $json.headSha }}",
+        "responseFormat": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "github-token", "name": "GitHub Token" }
+      }
+    },
+    {
+      "id": "n_aggregate_commits",
+      "name": "Aggregate Commit Messages",
+      "type": "n8n-nodes-base.itemLists",
+      "typeVersion": 1,
+      "position": [960, -80],
+      "parameters": {
+        "operation": "aggregateItems",
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            { "fieldToAggregate": "commits", "renameField": true, "outputFieldName": "commitList" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_gpt_changelog",
+      "name": "GPT-4o Changelog Writer",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [1200, -80],
+      "parameters": {
+        "authentication": "apiKey",
+        "resource": "chat",
+        "operation": "complete",
+        "model": "gpt-4o",
+        "messages": {
+          "values": [
+            { "role": "system", "content": "You are a release-notes editor. Given a list of git commits, write a concise user-facing changelog as Markdown with sections: Features, Improvements, Fixes. Skip chore/refactor/test commits unless they materially affect users." },
+            { "role": "user", "content": "Deploy: {{ $node['Extract Commit Range'].json.deployUrl }}\n\nCommits:\n{{ JSON.stringify($json.commitList) }}" }
+          ]
+        },
+        "options": { "responseFormat": "text", "temperature": 0.2 }
+      },
+      "credentials": {
+        "openAiApi": { "id": "openai-cred", "name": "OpenAI API" }
+      }
+    },
+    {
+      "id": "n_slack_post",
+      "name": "Slack #releases",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1440, -160],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": "#releases",
+        "text": "={{ $json.message.content }}",
+        "otherOptions": { "mrkdwn": true }
+      },
+      "credentials": {
+        "slackApi": { "id": "slack-cred", "name": "Slack API" }
+      }
+    },
+    {
+      "id": "n_notion_update",
+      "name": "Notion Status Page",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2,
+      "position": [1440, 0],
+      "parameters": {
+        "resource": "page",
+        "operation": "update",
+        "pageId": "={{ $env.NOTION_STATUS_PAGE_ID }}",
+        "propertiesUi": {
+          "propertyValues": [
+            { "key": "Last Deploy", "value": "={{ $node['Extract Commit Range'].json.deployId }}" },
+            { "key": "Changelog", "value": "={{ $node['GPT-4o Changelog Writer'].json.message.content }}" }
+          ]
+        }
+      },
+      "credentials": {
+        "notionApi": { "id": "notion-cred", "name": "Notion API" }
+      }
+    },
+    {
+      "id": "n_mongo_log",
+      "name": "Mongo Changelog Log",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [1680, -80],
+      "parameters": {
+        "operation": "insert",
+        "collection": "deploy_changelogs",
+        "fields": "deployId,deployUrl,headSha,baseSha,changelog,postedAt"
+      },
+      "credentials": {
+        "mongoDb": { "id": "mongo-cred", "name": "Mongo" }
+      }
+    }
+  ],
+  "connections": {
+    "n_netlify_trigger": {
+      "main": [[{ "node": "n_filter_prod", "type": "main", "index": 0 }]]
+    },
+    "n_filter_prod": {
+      "main": [
+        [{ "node": "n_extract_shas", "type": "main", "index": 0 }],
+        [{ "node": "n_skip_preview", "type": "main", "index": 0 }]
+      ]
+    },
+    "n_extract_shas": {
+      "main": [[{ "node": "n_fetch_commits", "type": "main", "index": 0 }]]
+    },
+    "n_fetch_commits": {
+      "main": [[{ "node": "n_aggregate_commits", "type": "main", "index": 0 }]]
+    },
+    "n_aggregate_commits": {
+      "main": [[{ "node": "n_gpt_changelog", "type": "main", "index": 0 }]]
+    },
+    "n_gpt_changelog": {
+      "main": [[
+        { "node": "n_slack_post", "type": "main", "index": 0 },
+        { "node": "n_notion_update", "type": "main", "index": 0 }
+      ]]
+    },
+    "n_slack_post": {
+      "main": [[{ "node": "n_mongo_log", "type": "main", "index": 0 }]]
+    },
+    "n_notion_update": {
+      "main": [[{ "node": "n_mongo_log", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_netlify_trigger",
+        "n_filter_prod",
+        "n_skip_preview",
+        "n_extract_shas",
+        "n_fetch_commits",
+        "n_aggregate_commits",
+        "n_gpt_changelog",
+        "n_slack_post",
+        "n_notion_update",
+        "n_mongo_log"
+      ]
+    }
+  ],
+  "variables": [],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

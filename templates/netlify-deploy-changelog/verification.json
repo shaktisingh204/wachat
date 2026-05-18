@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "templateId": "netlify-deploy-changelog",
+  "cases": [
+    {
+      "id": "happy-path",
+      "description": "Production Netlify deploy succeeds; commits are fetched, summarised by GPT-4o, and fanned out to Slack #releases and the Notion status page before being logged to Mongo.",
+      "triggerPayload": {
+        "id": "deploy_abc123",
+        "state": "ready",
+        "context": "production",
+        "commit_ref": "deadbeef1234",
+        "deploy_ssl_url": "https://sabnode.example.com",
+        "repo": { "owner": "shaktisingh204", "name": "sabnode" },
+        "previous_deploy": { "commit_ref": "cafef00d5678" }
+      },
+      "expect": {
+        "finalStatus": "success"
+      }
+    }
+  ]
+}
