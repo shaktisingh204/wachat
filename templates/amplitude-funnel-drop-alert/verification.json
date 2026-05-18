@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "amplitude-funnel-drop-alert",
+  "cases": [
+    {
+      "id": "hourly-check",
+      "description": "Hourly cron pulls Amplitude funnel data, computes drop, alerts when threshold breached.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
