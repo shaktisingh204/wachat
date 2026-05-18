@@ -1,0 +1,10 @@
+{
+  "id": "asana-task-auto-router",
+  "name": "Asana Task Auto-Router",
+  "description": "Watches Asana for new tasks and reads the leading tag to figure out which team owns the work. The task is moved into the correct section and an assignee is picked from a round-robin pool so backlog grooming never has to happen manually.",
+  "category": "Ops",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["asana", "task-management", "routing", "round-robin", "ops", "automation"],
+  "version": "0.1.0"
+}
