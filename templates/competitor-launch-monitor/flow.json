@@ -1,0 +1,168 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_hourly_cron",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": {
+      "schedule": "0 * * * *",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_cron_trigger",
+      "name": "Every Hour",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "rule": { "interval": [{ "field": "hours", "hoursInterval": 1 }] }
+      }
+    },
+    {
+      "id": "n_rss_phunt",
+      "name": "Product Hunt RSS",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "url": "https://www.producthunt.com/feed",
+        "options": {}
+      }
+    },
+    {
+      "id": "n_last_hour",
+      "name": "Last 60 Minutes Only",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "conditions": {
+          "dateTime": [
+            { "value1": "={{ $json.pubDate }}", "operation": "after", "value2": "={{ $now.minus({hours:1}).toISO() }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_split",
+      "name": "One Per Post",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "batchSize": 1
+      }
+    },
+    {
+      "id": "n_gpt_classify",
+      "name": "GPT Relevance Check",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "authentication": "apiKey",
+        "resource": "chat",
+        "operation": "complete",
+        "model": "gpt-4o-mini",
+        "messages": {
+          "values": [
+            { "role": "system", "content": "You are a competitive-intel analyst. Given a Product Hunt post and a list of competitor keywords, respond with strict JSON {relevant: boolean, reason: string, severity: 'low'|'med'|'high'}." },
+            { "role": "user", "content": "Keywords: {{ $vars.COMPETITOR_KEYWORDS }}\n\nPost title: {{ $json.title }}\nPost description: {{ $json.contentSnippet }}" }
+          ]
+        },
+        "options": { "responseFormat": "json_object", "temperature": 0 }
+      },
+      "credentials": {
+        "openAiApi": { "id": "openai-cred", "name": "OpenAI API" }
+      }
+    },
+    {
+      "id": "n_is_relevant",
+      "name": "Relevant?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [1200, 0],
+      "parameters": {
+        "conditions": {
+          "boolean": [{ "value1": "={{ JSON.parse($json.message.content).relevant }}", "value2": true }]
+        }
+      }
+    },
+    {
+      "id": "n_slack_alert",
+      "name": "Slack Growth Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1440, -80],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.GROWTH_SLACK_CHANNEL }}",
+        "text": ":eyes: *New competitor launch:* {{ $node['One Per Post'].json.title }}\n_{{ $node['One Per Post'].json.contentSnippet }}_\nLink: {{ $node['One Per Post'].json.link }}\nSeverity: {{ JSON.parse($json.message.content).severity }}\nWhy: {{ JSON.parse($json.message.content).reason }}"
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    },
+    {
+      "id": "n_ignore",
+      "name": "Not Relevant (No-Op)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1440, 80],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "n_cron_trigger": {
+      "main": [[{ "node": "n_rss_phunt", "type": "main", "index": 0 }]]
+    },
+    "n_rss_phunt": {
+      "main": [[{ "node": "n_last_hour", "type": "main", "index": 0 }]]
+    },
+    "n_last_hour": {
+      "main": [[{ "node": "n_split", "type": "main", "index": 0 }]]
+    },
+    "n_split": {
+      "main": [[{ "node": "n_gpt_classify", "type": "main", "index": 0 }]]
+    },
+    "n_gpt_classify": {
+      "main": [[{ "node": "n_is_relevant", "type": "main", "index": 0 }]]
+    },
+    "n_is_relevant": {
+      "main": [
+        [{ "node": "n_slack_alert", "type": "main", "index": 0 }],
+        [{ "node": "n_ignore", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_cron_trigger",
+        "n_rss_phunt",
+        "n_last_hour",
+        "n_split",
+        "n_gpt_classify",
+        "n_is_relevant",
+        "n_slack_alert",
+        "n_ignore"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_keywords", "name": "COMPETITOR_KEYWORDS", "defaultValue": "workflow automation, n8n, zapier, marketplace" },
+    { "id": "v_growth", "name": "GROWTH_SLACK_CHANNEL", "defaultValue": "#growth" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

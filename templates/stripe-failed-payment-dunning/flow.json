@@ -1,0 +1,187 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_payment_failed",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "stripe.payment_intent.payment_failed",
+    "options": {
+      "path": "/webhooks/stripe-failed-payment-dunning",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "Stripe-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_stripe_trigger",
+      "name": "Payment Failed",
+      "type": "n8n-nodes-base.stripeTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "events": ["payment_intent.payment_failed"]
+      },
+      "credentials": {
+        "stripeApi": { "id": "stripe-cred", "name": "Stripe API" }
+      }
+    },
+    {
+      "id": "n_extract_payment",
+      "name": "Extract Payment Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "customerId", "value": "={{ $json.data.object.customer }}" },
+            { "name": "amount", "value": "={{ ($json.data.object.amount / 100).toFixed(2) }}" },
+            { "name": "currency", "value": "={{ $json.data.object.currency.toUpperCase() }}" },
+            { "name": "reason", "value": "={{ $json.data.object.last_payment_error.message }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_lookup_customer",
+      "name": "Lookup Customer",
+      "type": "n8n-nodes-base.stripe",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "resource": "customer",
+        "operation": "get",
+        "customerId": "={{ $json.customerId }}"
+      },
+      "credentials": {
+        "stripeApi": { "id": "stripe-cred", "name": "Stripe API" }
+      }
+    },
+    {
+      "id": "n_email_customer",
+      "name": "Email Customer",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [720, -120],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "={{ $vars.FINANCE_FROM }}",
+        "toEmail": "={{ $json.email }}",
+        "subject": "We couldn't process your payment",
+        "contentType": "text/html",
+        "content": "<p>Hi {{ $json.name }}, we couldn't charge your card for {{ $node['Extract Payment Fields'].json.currency }} {{ $node['Extract Payment Fields'].json.amount }}. Reason: {{ $node['Extract Payment Fields'].json.reason }}. Please <a href=\"{{ $vars.BILLING_PORTAL_URL }}\">update your card</a>.</p>"
+      },
+      "credentials": {
+        "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid API" }
+      }
+    },
+    {
+      "id": "n_slack_finance",
+      "name": "Slack Finance Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.FINANCE_SLACK_CHANNEL }}",
+        "text": ":x: Payment failed — *{{ $json.email }}* — {{ $node['Extract Payment Fields'].json.currency }} {{ $node['Extract Payment Fields'].json.amount }} — {{ $node['Extract Payment Fields'].json.reason }}"
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    },
+    {
+      "id": "n_is_enterprise",
+      "name": "Enterprise Plan?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [720, 120],
+      "parameters": {
+        "conditions": {
+          "string": [{ "value1": "={{ $json.metadata.plan }}", "operation": "equal", "value2": "enterprise" }]
+        }
+      }
+    },
+    {
+      "id": "n_ping_csm",
+      "name": "Ping CSM",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [960, 80],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.CSM_SLACK_CHANNEL }}",
+        "text": ":rotating_light: Enterprise payment failure — {{ $node['Lookup Customer'].json.email }} — assigned CSM: {{ $node['Lookup Customer'].json.metadata.csm_email }}"
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    },
+    {
+      "id": "n_not_enterprise",
+      "name": "Non-Enterprise (No-Op)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [960, 200],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "n_stripe_trigger": {
+      "main": [[{ "node": "n_extract_payment", "type": "main", "index": 0 }]]
+    },
+    "n_extract_payment": {
+      "main": [[{ "node": "n_lookup_customer", "type": "main", "index": 0 }]]
+    },
+    "n_lookup_customer": {
+      "main": [
+        [
+          { "node": "n_email_customer", "type": "main", "index": 0 },
+          { "node": "n_slack_finance", "type": "main", "index": 0 },
+          { "node": "n_is_enterprise", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "n_is_enterprise": {
+      "main": [
+        [{ "node": "n_ping_csm", "type": "main", "index": 0 }],
+        [{ "node": "n_not_enterprise", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_stripe_trigger",
+        "n_extract_payment",
+        "n_lookup_customer",
+        "n_email_customer",
+        "n_slack_finance",
+        "n_is_enterprise",
+        "n_ping_csm",
+        "n_not_enterprise"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_finance_from", "name": "FINANCE_FROM", "defaultValue": "billing@example.com" },
+    { "id": "v_billing_portal", "name": "BILLING_PORTAL_URL", "defaultValue": "https://billing.stripe.com/p/login/example" },
+    { "id": "v_finance_slack", "name": "FINANCE_SLACK_CHANNEL", "defaultValue": "#finance" },
+    { "id": "v_csm_slack", "name": "CSM_SLACK_CHANNEL", "defaultValue": "#csm-pages" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

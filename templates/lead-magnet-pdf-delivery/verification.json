@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "templateId": "lead-magnet-pdf-delivery",
+  "cases": [
+    {
+      "id": "happy-path",
+      "description": "Form submit subscribes in Mailchimp, signs an R2 link, emails the lead, and pings growth.",
+      "triggerPayload": {
+        "email": "Reader@Example.com",
+        "firstName": "Reader",
+        "utm_source": "twitter"
+      },
+      "expect": {
+        "finalStatus": "success"
+      }
+    }
+  ]
+}

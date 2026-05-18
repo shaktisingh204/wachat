@@ -1,0 +1,10 @@
+{
+  "id": "knowledge-base-sync-pinecone",
+  "name": "Knowledge Base Sync to Pinecone",
+  "description": "Whenever a Notion knowledge-base page is updated, fetches the rendered page content, chunks it, generates embeddings with OpenAI, and upserts the vectors to a Pinecone index keyed by Notion page id. Powers RAG-style search without keeping a hand-rolled embed worker.",
+  "category": "AI",
+  "complexity": "advanced",
+  "authorName": "SabNode",
+  "tags": ["notion", "openai", "embeddings", "pinecone", "rag", "vector-store"],
+  "version": "0.1.0"
+}

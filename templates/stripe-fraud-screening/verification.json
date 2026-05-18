@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "templateId": "stripe-fraud-screening",
+  "cases": [
+    {
+      "id": "high-risk-efw",
+      "description": "High-risk early-fraud warning freezes the customer, pages security, and opens a Linear issue.",
+      "triggerPayload": {
+        "data": {
+          "object": {
+            "id": "issfr_test_1",
+            "charge": "ch_test_1",
+            "fraud_type": "fraudulent"
+          }
+        }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

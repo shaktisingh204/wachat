@@ -1,0 +1,230 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_daily_cron",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": {
+      "schedule": "0 9 * * *",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_cron_trigger",
+      "name": "Daily 09:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 9 * * *" }] }
+      }
+    },
+    {
+      "id": "n_stripe_invoices",
+      "name": "Fetch Overdue Invoices",
+      "type": "n8n-nodes-base.stripe",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "resource": "invoice",
+        "operation": "getAll",
+        "additionalFields": { "status": "open", "due_date": { "lt": "now" } }
+      },
+      "credentials": {
+        "stripeApi": { "id": "stripe-cred", "name": "Stripe API" }
+      }
+    },
+    {
+      "id": "n_split_invoices",
+      "name": "One Per Invoice",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "batchSize": 1
+      }
+    },
+    {
+      "id": "n_compute_age",
+      "name": "Compute Age Bucket",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const due = new Date($json.due_date * 1000);\nconst now = new Date();\nconst ageDays = Math.floor((now - due) / 86400000);\nconst bucket = ageDays <= 7 ? 'gentle' : ageDays <= 14 ? 'firm' : 'final';\nreturn [{ json: { ...$json, ageDays, bucket } }];"
+      }
+    },
+    {
+      "id": "n_route_bucket",
+      "name": "Route by Bucket",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            { "conditions": { "string": [{ "value1": "={{ $json.bucket }}", "operation": "equal", "value2": "gentle" }] }, "outputKey": "gentle" },
+            { "conditions": { "string": [{ "value1": "={{ $json.bucket }}", "operation": "equal", "value2": "firm" }] }, "outputKey": "firm" },
+            { "conditions": { "string": [{ "value1": "={{ $json.bucket }}", "operation": "equal", "value2": "final" }] }, "outputKey": "final" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_gentle_email",
+      "name": "Gentle Reminder",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [1200, -160],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "={{ $vars.FINANCE_FROM }}",
+        "toEmail": "={{ $json.customer_email }}",
+        "subject": "Friendly reminder: invoice {{ $json.number }}",
+        "contentType": "text/html",
+        "content": "<p>Just a quick nudge — invoice {{ $json.number }} for {{ ($json.amount_due / 100).toFixed(2) }} {{ $json.currency.toUpperCase() }} is past due. <a href=\"{{ $json.hosted_invoice_url }}\">Pay here</a>.</p>"
+      },
+      "credentials": {
+        "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid API" }
+      }
+    },
+    {
+      "id": "n_firm_email",
+      "name": "Firm Reminder",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [1200, 0],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "={{ $vars.FINANCE_FROM }}",
+        "toEmail": "={{ $json.customer_email }}",
+        "subject": "Second notice: invoice {{ $json.number }} overdue {{ $json.ageDays }} days",
+        "contentType": "text/html",
+        "content": "<p>We haven't received payment for invoice {{ $json.number }} ({{ ($json.amount_due / 100).toFixed(2) }} {{ $json.currency.toUpperCase() }}). Please reply to this email or <a href=\"{{ $json.hosted_invoice_url }}\">pay now</a>.</p>"
+      },
+      "credentials": {
+        "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid API" }
+      }
+    },
+    {
+      "id": "n_final_email",
+      "name": "Final Notice",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [1200, 160],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "={{ $vars.FINANCE_FROM }}",
+        "toEmail": "={{ $json.customer_email }}",
+        "subject": "Final notice: invoice {{ $json.number }} ({{ $json.ageDays }} days overdue)",
+        "contentType": "text/html",
+        "content": "<p>This is our final reminder before this account is sent to collections. Please <a href=\"{{ $json.hosted_invoice_url }}\">resolve invoice {{ $json.number }}</a> within 5 business days.</p>"
+      },
+      "credentials": {
+        "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid API" }
+      }
+    },
+    {
+      "id": "n_hubspot_tag",
+      "name": "Tag Final-Stage in HubSpot",
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2,
+      "position": [1440, 160],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "contact",
+        "operation": "upsert",
+        "email": "={{ $json.customer_email }}",
+        "additionalFields": {
+          "collection_status": "final-notice",
+          "overdue_invoice": "={{ $json.number }}"
+        }
+      },
+      "credentials": {
+        "hubspotOAuth2Api": { "id": "hubspot-cred", "name": "HubSpot OAuth2" }
+      }
+    },
+    {
+      "id": "n_slack_ledger",
+      "name": "Slack Finance Ledger",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1440, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.FINANCE_LEDGER_CHANNEL }}",
+        "text": ":credit_card: Dunning ({{ $node['Compute Age Bucket'].json.bucket }}) — {{ $json.number }} — {{ ($json.amount_due / 100).toFixed(2) }} {{ $json.currency.toUpperCase() }} — {{ $json.customer_email }}"
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    }
+  ],
+  "connections": {
+    "n_cron_trigger": {
+      "main": [[{ "node": "n_stripe_invoices", "type": "main", "index": 0 }]]
+    },
+    "n_stripe_invoices": {
+      "main": [[{ "node": "n_split_invoices", "type": "main", "index": 0 }]]
+    },
+    "n_split_invoices": {
+      "main": [[{ "node": "n_compute_age", "type": "main", "index": 0 }]]
+    },
+    "n_compute_age": {
+      "main": [[{ "node": "n_route_bucket", "type": "main", "index": 0 }]]
+    },
+    "n_route_bucket": {
+      "gentle": [[{ "node": "n_gentle_email", "type": "main", "index": 0 }]],
+      "firm": [[{ "node": "n_firm_email", "type": "main", "index": 0 }]],
+      "final": [[{ "node": "n_final_email", "type": "main", "index": 0 }]]
+    },
+    "n_gentle_email": {
+      "main": [[{ "node": "n_slack_ledger", "type": "main", "index": 0 }]]
+    },
+    "n_firm_email": {
+      "main": [[{ "node": "n_slack_ledger", "type": "main", "index": 0 }]]
+    },
+    "n_final_email": {
+      "main": [[{ "node": "n_hubspot_tag", "type": "main", "index": 0 }]]
+    },
+    "n_hubspot_tag": {
+      "main": [[{ "node": "n_slack_ledger", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_cron_trigger",
+        "n_stripe_invoices",
+        "n_split_invoices",
+        "n_compute_age",
+        "n_route_bucket",
+        "n_gentle_email",
+        "n_firm_email",
+        "n_final_email",
+        "n_hubspot_tag",
+        "n_slack_ledger"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_finance_from", "name": "FINANCE_FROM", "defaultValue": "billing@example.com" },
+    { "id": "v_finance_ledger", "name": "FINANCE_LEDGER_CHANNEL", "defaultValue": "#finance-ledger" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

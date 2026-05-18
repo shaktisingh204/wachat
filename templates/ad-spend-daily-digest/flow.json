@@ -1,0 +1,190 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_cron_morning",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": {
+      "schedule": "0 8 * * *",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_cron_trigger",
+      "name": "Every Morning 08:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 8 * * *" }] }
+      }
+    },
+    {
+      "id": "n_yesterday",
+      "name": "Compute Yesterday",
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 2,
+      "position": [240, 0],
+      "parameters": {
+        "operation": "subtract",
+        "duration": 1,
+        "timeUnit": "day"
+      }
+    },
+    {
+      "id": "n_google_ads",
+      "name": "Fetch Google Ads",
+      "type": "n8n-nodes-base.googleAds",
+      "typeVersion": 1,
+      "position": [480, -120],
+      "parameters": {
+        "resource": "report",
+        "operation": "run",
+        "customerId": "={{ $vars.GOOGLE_ADS_CUSTOMER_ID }}",
+        "query": "SELECT campaign.name, metrics.cost_micros, metrics.conversions FROM campaign WHERE segments.date = '{{ $node['Compute Yesterday'].json.date }}'"
+      },
+      "credentials": {
+        "googleAdsOAuth2Api": { "id": "google-ads-cred", "name": "Google Ads OAuth2" }
+      }
+    },
+    {
+      "id": "n_meta_ads",
+      "name": "Fetch Meta Ads",
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [480, 120],
+      "parameters": {
+        "httpRequestMethod": "GET",
+        "graphApiVersion": "v18.0",
+        "node": "={{ $vars.META_AD_ACCOUNT_ID }}/insights",
+        "queryParameters": {
+          "parameters": [
+            { "name": "fields", "value": "campaign_name,spend,actions" },
+            { "name": "time_range", "value": "={\"since\":\"{{ $node['Compute Yesterday'].json.date }}\",\"until\":\"{{ $node['Compute Yesterday'].json.date }}\"}" }
+          ]
+        }
+      },
+      "credentials": {
+        "facebookGraphApi": { "id": "meta-cred", "name": "Meta Marketing API" }
+      }
+    },
+    {
+      "id": "n_merge_metrics",
+      "name": "Merge Channel Metrics",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "mode": "mergeByPosition"
+      }
+    },
+    {
+      "id": "n_format_digest",
+      "name": "Format Digest",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "subject", "value": "Ad Spend Digest — {{ $node['Compute Yesterday'].json.date }}" },
+            { "name": "summary", "value": "Google spend: {{ $json[0].cost_micros / 1000000 }} | Meta spend: {{ $json[1].spend }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_email_digest",
+      "name": "Email Digest",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [1200, -100],
+      "parameters": {
+        "fromEmail": "={{ $vars.FROM_EMAIL }}",
+        "toEmail": "={{ $vars.DIGEST_RECIPIENTS }}",
+        "subject": "={{ $json.subject }}",
+        "html": "<p>{{ $json.summary }}</p>"
+      },
+      "credentials": {
+        "smtp": { "id": "smtp-cred", "name": "Workspace SMTP" }
+      }
+    },
+    {
+      "id": "n_slack_digest",
+      "name": "Slack Digest",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, 100],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.GROWTH_SLACK_CHANNEL }}",
+        "text": "*{{ $json.subject }}*\n{{ $json.summary }}"
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    }
+  ],
+  "connections": {
+    "n_cron_trigger": {
+      "main": [[{ "node": "n_yesterday", "type": "main", "index": 0 }]]
+    },
+    "n_yesterday": {
+      "main": [
+        [
+          { "node": "n_google_ads", "type": "main", "index": 0 },
+          { "node": "n_meta_ads", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "n_google_ads": {
+      "main": [[{ "node": "n_merge_metrics", "type": "main", "index": 0 }]]
+    },
+    "n_meta_ads": {
+      "main": [[{ "node": "n_merge_metrics", "type": "main", "index": 1 }]]
+    },
+    "n_merge_metrics": {
+      "main": [[{ "node": "n_format_digest", "type": "main", "index": 0 }]]
+    },
+    "n_format_digest": {
+      "main": [
+        [
+          { "node": "n_email_digest", "type": "main", "index": 0 },
+          { "node": "n_slack_digest", "type": "main", "index": 0 }
+        ]
+      ]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_cron_trigger",
+        "n_yesterday",
+        "n_google_ads",
+        "n_meta_ads",
+        "n_merge_metrics",
+        "n_format_digest",
+        "n_email_digest",
+        "n_slack_digest"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_google_customer", "name": "GOOGLE_ADS_CUSTOMER_ID", "defaultValue": "" },
+    { "id": "v_meta_account", "name": "META_AD_ACCOUNT_ID", "defaultValue": "" },
+    { "id": "v_from", "name": "FROM_EMAIL", "defaultValue": "growth@example.com" },
+    { "id": "v_to", "name": "DIGEST_RECIPIENTS", "defaultValue": "" },
+    { "id": "v_slack_growth", "name": "GROWTH_SLACK_CHANNEL", "defaultValue": "#growth" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

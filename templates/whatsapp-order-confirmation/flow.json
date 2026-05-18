@@ -1,0 +1,148 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_shopify_order",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "shopify.order.created",
+    "options": {
+      "path": "/webhooks/whatsapp-order-confirmation",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Shopify-Hmac-Sha256",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_shopify_trigger",
+      "name": "Shopify Order",
+      "type": "n8n-nodes-base.shopifyTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "topic": "orders/create"
+      },
+      "credentials": {
+        "shopifyApi": { "id": "shopify-cred", "name": "Shopify API" }
+      }
+    },
+    {
+      "id": "n_extract_order",
+      "name": "Extract Order Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "orderNumber", "value": "={{ $json.order_number }}" },
+            { "name": "customerPhone", "value": "={{ $json.customer.phone }}" },
+            { "name": "customerName", "value": "={{ $json.customer.first_name }}" },
+            { "name": "total", "value": "={{ $json.total_price }} {{ $json.currency }}" },
+            { "name": "itemSummary", "value": "={{ $json.line_items.map(li => li.quantity + 'x ' + li.title).join(', ') }}" }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "n_has_phone",
+      "name": "Customer Has Phone?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "conditions": {
+          "string": [
+            { "value1": "={{ $json.customerPhone }}", "operation": "isNotEmpty" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_whatsapp_send",
+      "name": "Send WhatsApp Confirmation",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [720, -80],
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "={{ $vars.WHATSAPP_PHONE_NUMBER_ID }}",
+        "recipientPhoneNumber": "={{ $json.customerPhone }}",
+        "messagingProduct": "whatsapp",
+        "messageType": "template",
+        "template": "order_confirmation",
+        "components": [
+          {
+            "type": "body",
+            "parameters": [
+              { "type": "text", "text": "={{ $json.customerName }}" },
+              { "type": "text", "text": "={{ $json.orderNumber }}" },
+              { "type": "text", "text": "={{ $json.itemSummary }}" },
+              { "type": "text", "text": "={{ $json.total }}" }
+            ]
+          }
+        ]
+      },
+      "credentials": {
+        "whatsAppApi": { "id": "whatsapp-cred", "name": "WhatsApp Business API" }
+      }
+    },
+    {
+      "id": "n_log_skipped",
+      "name": "Log Skipped (No Phone)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, 80],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.AUDIT_LOG_URL }}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "event", "value": "whatsapp_order_skipped_no_phone" },
+            { "name": "orderNumber", "value": "={{ $node['Extract Order Fields'].json.orderNumber }}" }
+          ]
+        }
+      }
+    }
+  ],
+  "connections": {
+    "n_shopify_trigger": {
+      "main": [[{ "node": "n_extract_order", "type": "main", "index": 0 }]]
+    },
+    "n_extract_order": {
+      "main": [[{ "node": "n_has_phone", "type": "main", "index": 0 }]]
+    },
+    "n_has_phone": {
+      "main": [
+        [{ "node": "n_whatsapp_send", "type": "main", "index": 0 }],
+        [{ "node": "n_log_skipped", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_shopify_trigger",
+        "n_extract_order",
+        "n_has_phone",
+        "n_whatsapp_send",
+        "n_log_skipped"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_phone_id", "name": "WHATSAPP_PHONE_NUMBER_ID", "defaultValue": "" },
+    { "id": "v_audit_log", "name": "AUDIT_LOG_URL", "defaultValue": "https://audit.example.com/events" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

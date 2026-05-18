@@ -1,0 +1,234 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_nightly_cron",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": {
+      "schedule": "0 2 * * *",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_cron_trigger",
+      "name": "Every Night 02:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 2 * * *" }] }
+      }
+    },
+    {
+      "id": "n_hubspot_companies",
+      "name": "List Active Companies",
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2,
+      "position": [240, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "company",
+        "operation": "getAll",
+        "additionalFields": { "propertiesCollection": { "properties": ["domain", "stripe_customer_id", "csm_email", "lifecyclestage"] }, "filterGroups": [{ "filters": [{ "propertyName": "lifecyclestage", "operator": "EQ", "value": "customer" }] }] },
+        "returnAll": true
+      },
+      "credentials": {
+        "hubspotOAuth2Api": { "id": "hubspot-cred", "name": "HubSpot OAuth2" }
+      }
+    },
+    {
+      "id": "n_split_companies",
+      "name": "One Per Company",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "batchSize": 1
+      }
+    },
+    {
+      "id": "n_mixpanel_usage",
+      "name": "Mixpanel 7d Usage",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, -100],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.MIXPANEL_API }}/segmentation",
+        "queryParameters": {
+          "parameters": [
+            { "name": "from_date", "value": "={{ $now.minus({days:7}).toISODate() }}" },
+            { "name": "to_date", "value": "={{ $now.toISODate() }}" },
+            { "name": "where", "value": "properties[\"company_domain\"] == \"{{ $json.properties.domain }}\"" },
+            { "name": "event", "value": "action_completed" }
+          ]
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth"
+      },
+      "credentials": {
+        "httpBasicAuth": { "id": "mixpanel-cred", "name": "Mixpanel Service Account" }
+      }
+    },
+    {
+      "id": "n_stripe_mrr",
+      "name": "Stripe MRR",
+      "type": "n8n-nodes-base.stripe",
+      "typeVersion": 1,
+      "position": [720, 100],
+      "parameters": {
+        "resource": "subscription",
+        "operation": "getAll",
+        "additionalFields": { "customer": "={{ $json.properties.stripe_customer_id }}", "status": "active" }
+      },
+      "credentials": {
+        "stripeApi": { "id": "stripe-cred", "name": "Stripe API" }
+      }
+    },
+    {
+      "id": "n_merge_signals",
+      "name": "Merge Signals",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "mode": "mergeByPosition"
+      }
+    },
+    {
+      "id": "n_compute_score",
+      "name": "Compute Health Score",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1200, 0],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const usage = $json[0]?.data?.values?.action_completed ?? {};\nconst usageScore = Math.min(100, Math.round((Object.values(usage).reduce((a,b)=>a+b,0)) / 5));\nconst mrr = ($json[1]?.[0]?.items?.data?.[0]?.price?.unit_amount ?? 0) / 100;\nconst mrrScore = Math.min(100, Math.round(mrr / 50));\nconst score = Math.round(0.6*usageScore + 0.4*mrrScore);\nreturn [{ json: { score, usageScore, mrrScore, csmEmail: $('One Per Company').first().json.properties.csm_email, companyId: $('One Per Company').first().json.id } }];"
+      }
+    },
+    {
+      "id": "n_write_back",
+      "name": "Write Back to HubSpot",
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2,
+      "position": [1440, -80],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "company",
+        "operation": "update",
+        "companyId": "={{ $json.companyId }}",
+        "additionalFields": { "health_score": "={{ $json.score }}" }
+      },
+      "credentials": {
+        "hubspotOAuth2Api": { "id": "hubspot-cred", "name": "HubSpot OAuth2" }
+      }
+    },
+    {
+      "id": "n_at_risk_check",
+      "name": "Below At-Risk?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [1440, 80],
+      "parameters": {
+        "conditions": {
+          "number": [{ "value1": "={{ $json.score }}", "operation": "smaller", "value2": "={{ $vars.AT_RISK_THRESHOLD }}" }]
+        }
+      }
+    },
+    {
+      "id": "n_slack_csm",
+      "name": "Ping CSM",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1680, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.CSM_SLACK_CHANNEL }}",
+        "text": ":warning: At-risk health score ({{ $json.score }}/100) for company {{ $json.companyId }} — CSM: {{ $json.csmEmail }}"
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    },
+    {
+      "id": "n_healthy",
+      "name": "Healthy (No-Op)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1680, 160],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "n_cron_trigger": {
+      "main": [[{ "node": "n_hubspot_companies", "type": "main", "index": 0 }]]
+    },
+    "n_hubspot_companies": {
+      "main": [[{ "node": "n_split_companies", "type": "main", "index": 0 }]]
+    },
+    "n_split_companies": {
+      "main": [
+        [
+          { "node": "n_mixpanel_usage", "type": "main", "index": 0 },
+          { "node": "n_stripe_mrr", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "n_mixpanel_usage": {
+      "main": [[{ "node": "n_merge_signals", "type": "main", "index": 0 }]]
+    },
+    "n_stripe_mrr": {
+      "main": [[{ "node": "n_merge_signals", "type": "main", "index": 1 }]]
+    },
+    "n_merge_signals": {
+      "main": [[{ "node": "n_compute_score", "type": "main", "index": 0 }]]
+    },
+    "n_compute_score": {
+      "main": [
+        [
+          { "node": "n_write_back", "type": "main", "index": 0 },
+          { "node": "n_at_risk_check", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "n_at_risk_check": {
+      "main": [
+        [{ "node": "n_slack_csm", "type": "main", "index": 0 }],
+        [{ "node": "n_healthy", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_cron_trigger",
+        "n_hubspot_companies",
+        "n_split_companies",
+        "n_mixpanel_usage",
+        "n_stripe_mrr",
+        "n_merge_signals",
+        "n_compute_score",
+        "n_write_back",
+        "n_at_risk_check",
+        "n_slack_csm",
+        "n_healthy"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_mixpanel_api", "name": "MIXPANEL_API", "defaultValue": "https://mixpanel.com/api/2.0" },
+    { "id": "v_at_risk", "name": "AT_RISK_THRESHOLD", "defaultValue": "40" },
+    { "id": "v_csm_channel", "name": "CSM_SLACK_CHANNEL", "defaultValue": "#csm" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

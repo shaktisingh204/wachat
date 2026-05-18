@@ -1,0 +1,295 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_inbound_email",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "email.received",
+    "options": {
+      "path": "/webhooks/ai-support-triage",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Inbound-Token",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_email_trigger",
+      "name": "Inbound Support Email",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ai-support-triage",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "ai-support-triage-webhook"
+    },
+    {
+      "id": "n_extract_email",
+      "name": "Extract Email Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "from", "value": "={{ $json.from }}" },
+            { "name": "subject", "value": "={{ $json.subject }}" },
+            { "name": "body", "value": "={{ $json.text }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_gpt_classify",
+      "name": "GPT Triage Classify",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "authentication": "apiKey",
+        "resource": "chat",
+        "operation": "complete",
+        "model": "gpt-4o-mini",
+        "messages": {
+          "values": [
+            { "role": "system", "content": "Return JSON: { intent: 'billing'|'technical'|'account'|'other', priority: 'low'|'normal'|'high'|'urgent', language: ISO-639-1, summary: string }." },
+            { "role": "user", "content": "Subject: {{ $json.subject }}\n\nBody: {{ $json.body }}" }
+          ]
+        },
+        "options": { "responseFormat": "json_object", "temperature": 0 }
+      },
+      "credentials": {
+        "openAiApi": { "id": "openai-cred", "name": "OpenAI API" }
+      }
+    },
+    {
+      "id": "n_parse_classification",
+      "name": "Parse Classification",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "intent", "value": "={{ JSON.parse($json.message.content).intent }}" },
+            { "name": "priority", "value": "={{ JSON.parse($json.message.content).priority }}" },
+            { "name": "language", "value": "={{ JSON.parse($json.message.content).language }}" },
+            { "name": "summary", "value": "={{ JSON.parse($json.message.content).summary }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_route",
+      "name": "Route by Intent",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            { "conditions": { "string": [{ "value1": "={{ $json.intent }}", "operation": "equal", "value2": "billing" }] }, "outputKey": "billing" },
+            { "conditions": { "string": [{ "value1": "={{ $json.intent }}", "operation": "equal", "value2": "technical" }] }, "outputKey": "technical" },
+            { "conditions": { "string": [{ "value1": "={{ $json.intent }}", "operation": "equal", "value2": "account" }] }, "outputKey": "account" }
+          ]
+        },
+        "fallbackOutput": "other"
+      }
+    },
+    {
+      "id": "n_create_billing",
+      "name": "Zendesk Billing Queue",
+      "type": "n8n-nodes-base.zendesk",
+      "typeVersion": 1,
+      "position": [1200, -180],
+      "parameters": {
+        "resource": "ticket",
+        "operation": "create",
+        "subject": "={{ $node['Extract Email Fields'].json.subject }}",
+        "description": "={{ $node['Extract Email Fields'].json.body }}",
+        "additionalFields": {
+          "group": "={{ $vars.ZENDESK_BILLING_GROUP }}",
+          "priority": "={{ $node['Parse Classification'].json.priority }}",
+          "tags": ["ai-triage", "billing", "lang:{{ $node['Parse Classification'].json.language }}"]
+        }
+      },
+      "credentials": {
+        "zendeskApi": { "id": "zendesk-cred", "name": "Zendesk API" }
+      }
+    },
+    {
+      "id": "n_create_technical",
+      "name": "Zendesk Technical Queue",
+      "type": "n8n-nodes-base.zendesk",
+      "typeVersion": 1,
+      "position": [1200, -60],
+      "parameters": {
+        "resource": "ticket",
+        "operation": "create",
+        "subject": "={{ $node['Extract Email Fields'].json.subject }}",
+        "description": "={{ $node['Extract Email Fields'].json.body }}",
+        "additionalFields": {
+          "group": "={{ $vars.ZENDESK_TECHNICAL_GROUP }}",
+          "priority": "={{ $node['Parse Classification'].json.priority }}",
+          "tags": ["ai-triage", "technical", "lang:{{ $node['Parse Classification'].json.language }}"]
+        }
+      },
+      "credentials": {
+        "zendeskApi": { "id": "zendesk-cred", "name": "Zendesk API" }
+      }
+    },
+    {
+      "id": "n_create_account",
+      "name": "Zendesk Account Queue",
+      "type": "n8n-nodes-base.zendesk",
+      "typeVersion": 1,
+      "position": [1200, 60],
+      "parameters": {
+        "resource": "ticket",
+        "operation": "create",
+        "subject": "={{ $node['Extract Email Fields'].json.subject }}",
+        "description": "={{ $node['Extract Email Fields'].json.body }}",
+        "additionalFields": {
+          "group": "={{ $vars.ZENDESK_ACCOUNT_GROUP }}",
+          "priority": "={{ $node['Parse Classification'].json.priority }}",
+          "tags": ["ai-triage", "account", "lang:{{ $node['Parse Classification'].json.language }}"]
+        }
+      },
+      "credentials": {
+        "zendeskApi": { "id": "zendesk-cred", "name": "Zendesk API" }
+      }
+    },
+    {
+      "id": "n_create_other",
+      "name": "Zendesk Catch-All",
+      "type": "n8n-nodes-base.zendesk",
+      "typeVersion": 1,
+      "position": [1200, 180],
+      "parameters": {
+        "resource": "ticket",
+        "operation": "create",
+        "subject": "={{ $node['Extract Email Fields'].json.subject }}",
+        "description": "={{ $node['Extract Email Fields'].json.body }}",
+        "additionalFields": {
+          "group": "={{ $vars.ZENDESK_TRIAGE_GROUP }}",
+          "priority": "={{ $node['Parse Classification'].json.priority }}",
+          "tags": ["ai-triage", "other", "lang:{{ $node['Parse Classification'].json.language }}"]
+        }
+      },
+      "credentials": {
+        "zendeskApi": { "id": "zendesk-cred", "name": "Zendesk API" }
+      }
+    },
+    {
+      "id": "n_kb_lookup",
+      "name": "Retrieve KB Article",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1440, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.KB_VECTOR_SEARCH_URL }}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "query", "value": "={{ $node['Parse Classification'].json.summary }}" },
+            { "name": "topK", "value": "1" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_auto_reply",
+      "name": "Auto-Reply in Language",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [1680, 0],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "={{ $vars.SUPPORT_FROM_EMAIL }}",
+        "toEmail": "={{ $node['Extract Email Fields'].json.from }}",
+        "subject": "Re: {{ $node['Extract Email Fields'].json.subject }}",
+        "contentType": "text/html",
+        "content": "<p>{{ $json.results[0].snippet }}</p><p><a href=\"{{ $json.results[0].url }}\">{{ $json.results[0].title }}</a></p>"
+      },
+      "credentials": {
+        "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid API" }
+      }
+    }
+  ],
+  "connections": {
+    "n_email_trigger": {
+      "main": [[{ "node": "n_extract_email", "type": "main", "index": 0 }]]
+    },
+    "n_extract_email": {
+      "main": [[{ "node": "n_gpt_classify", "type": "main", "index": 0 }]]
+    },
+    "n_gpt_classify": {
+      "main": [[{ "node": "n_parse_classification", "type": "main", "index": 0 }]]
+    },
+    "n_parse_classification": {
+      "main": [[{ "node": "n_route", "type": "main", "index": 0 }]]
+    },
+    "n_route": {
+      "billing": [[{ "node": "n_create_billing", "type": "main", "index": 0 }]],
+      "technical": [[{ "node": "n_create_technical", "type": "main", "index": 0 }]],
+      "account": [[{ "node": "n_create_account", "type": "main", "index": 0 }]],
+      "other": [[{ "node": "n_create_other", "type": "main", "index": 0 }]]
+    },
+    "n_create_billing": {
+      "main": [[{ "node": "n_kb_lookup", "type": "main", "index": 0 }]]
+    },
+    "n_create_technical": {
+      "main": [[{ "node": "n_kb_lookup", "type": "main", "index": 0 }]]
+    },
+    "n_create_account": {
+      "main": [[{ "node": "n_kb_lookup", "type": "main", "index": 0 }]]
+    },
+    "n_create_other": {
+      "main": [[{ "node": "n_kb_lookup", "type": "main", "index": 0 }]]
+    },
+    "n_kb_lookup": {
+      "main": [[{ "node": "n_auto_reply", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_email_trigger",
+        "n_extract_email",
+        "n_gpt_classify",
+        "n_parse_classification",
+        "n_route",
+        "n_create_billing",
+        "n_create_technical",
+        "n_create_account",
+        "n_create_other",
+        "n_kb_lookup",
+        "n_auto_reply"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_zendesk_billing", "name": "ZENDESK_BILLING_GROUP", "defaultValue": "" },
+    { "id": "v_zendesk_tech", "name": "ZENDESK_TECHNICAL_GROUP", "defaultValue": "" },
+    { "id": "v_zendesk_account", "name": "ZENDESK_ACCOUNT_GROUP", "defaultValue": "" },
+    { "id": "v_zendesk_triage", "name": "ZENDESK_TRIAGE_GROUP", "defaultValue": "" },
+    { "id": "v_kb_url", "name": "KB_VECTOR_SEARCH_URL", "defaultValue": "https://kb.example.com/vector/search" },
+    { "id": "v_support_from", "name": "SUPPORT_FROM_EMAIL", "defaultValue": "support@example.com" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

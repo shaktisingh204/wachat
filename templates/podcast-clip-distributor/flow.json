@@ -1,0 +1,241 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_rss_episode",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": {
+      "schedule": "*/30 * * * *",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_rss_trigger",
+      "name": "Show RSS",
+      "type": "n8n-nodes-base.rssFeedReadTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "feedUrl": "={{ $vars.SHOW_RSS_URL }}",
+        "pollTimes": { "item": [{ "mode": "everyMinute" }] }
+      }
+    },
+    {
+      "id": "n_download_mp3",
+      "name": "Download MP3",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $json.enclosure.url }}",
+        "options": { "response": { "response": { "responseFormat": "file" } } }
+      }
+    },
+    {
+      "id": "n_upload_r2",
+      "name": "Archive MP3 to R2",
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "operation": "upload",
+        "bucketName": "={{ $vars.R2_BUCKET }}",
+        "fileName": "podcast/{{ $json.guid }}.mp3",
+        "binaryPropertyName": "data"
+      },
+      "credentials": {
+        "s3": { "id": "r2-cred", "name": "R2 (S3-compatible)" }
+      }
+    },
+    {
+      "id": "n_assemblyai_submit",
+      "name": "Submit Transcription",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.assemblyai.com/v2/transcript",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"audio_url\":\"{{ $json.location }}\",\"speaker_labels\":true,\"auto_chapters\":true}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "assemblyai-cred", "name": "AssemblyAI Key" }
+      }
+    },
+    {
+      "id": "n_wait_5m",
+      "name": "Wait 5m",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "amount": 5,
+        "unit": "minutes"
+      }
+    },
+    {
+      "id": "n_poll_transcript",
+      "name": "Poll Transcript",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1200, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "=https://api.assemblyai.com/v2/transcript/{{ $json.id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "assemblyai-cred", "name": "AssemblyAI Key" }
+      }
+    },
+    {
+      "id": "n_ready_check",
+      "name": "Transcript Ready?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [1440, 0],
+      "parameters": {
+        "conditions": {
+          "string": [{ "value1": "={{ $json.status }}", "operation": "equal", "value2": "completed" }]
+        }
+      }
+    },
+    {
+      "id": "n_gpt_clips",
+      "name": "GPT-4o Pick Clips",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [1680, -80],
+      "parameters": {
+        "authentication": "apiKey",
+        "resource": "chat",
+        "operation": "complete",
+        "model": "gpt-4o",
+        "messages": {
+          "values": [
+            { "role": "system", "content": "Choose the 3 most clippable moments from this podcast transcript. Output JSON [{startMs, endMs, hook, suggestedCaption}] only." },
+            { "role": "user", "content": "={{ $json.text }}" }
+          ]
+        },
+        "options": { "responseFormat": "json_object", "temperature": 0.3 }
+      },
+      "credentials": {
+        "openAiApi": { "id": "openai-cred", "name": "OpenAI API" }
+      }
+    },
+    {
+      "id": "n_save_airtable",
+      "name": "Save Clips to Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [1920, -80],
+      "parameters": {
+        "operation": "create",
+        "application": "={{ $vars.AIRTABLE_BASE_ID }}",
+        "table": "Podcast Clips",
+        "fields": [
+          { "name": "Episode GUID", "value": "={{ $node['Show RSS'].json.guid }}" },
+          { "name": "Clips JSON", "value": "={{ $json.message.content }}" }
+        ]
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "airtable-cred", "name": "Airtable API" }
+      }
+    },
+    {
+      "id": "n_slack_social",
+      "name": "Slack Social Team",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [2160, -80],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SOCIAL_SLACK_CHANNEL }}",
+        "text": ":studio_microphone: New episode clips ready — *{{ $node['Show RSS'].json.title }}* — see the Podcast Clips Airtable."
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    },
+    {
+      "id": "n_not_ready",
+      "name": "Not Ready Yet (No-Op)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1680, 120],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "n_rss_trigger": {
+      "main": [[{ "node": "n_download_mp3", "type": "main", "index": 0 }]]
+    },
+    "n_download_mp3": {
+      "main": [[{ "node": "n_upload_r2", "type": "main", "index": 0 }]]
+    },
+    "n_upload_r2": {
+      "main": [[{ "node": "n_assemblyai_submit", "type": "main", "index": 0 }]]
+    },
+    "n_assemblyai_submit": {
+      "main": [[{ "node": "n_wait_5m", "type": "main", "index": 0 }]]
+    },
+    "n_wait_5m": {
+      "main": [[{ "node": "n_poll_transcript", "type": "main", "index": 0 }]]
+    },
+    "n_poll_transcript": {
+      "main": [[{ "node": "n_ready_check", "type": "main", "index": 0 }]]
+    },
+    "n_ready_check": {
+      "main": [
+        [{ "node": "n_gpt_clips", "type": "main", "index": 0 }],
+        [{ "node": "n_not_ready", "type": "main", "index": 0 }]
+      ]
+    },
+    "n_gpt_clips": {
+      "main": [[{ "node": "n_save_airtable", "type": "main", "index": 0 }]]
+    },
+    "n_save_airtable": {
+      "main": [[{ "node": "n_slack_social", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_rss_trigger",
+        "n_download_mp3",
+        "n_upload_r2",
+        "n_assemblyai_submit",
+        "n_wait_5m",
+        "n_poll_transcript",
+        "n_ready_check",
+        "n_gpt_clips",
+        "n_save_airtable",
+        "n_slack_social",
+        "n_not_ready"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_rss", "name": "SHOW_RSS_URL", "defaultValue": "" },
+    { "id": "v_r2_bucket", "name": "R2_BUCKET", "defaultValue": "" },
+    { "id": "v_airtable_base", "name": "AIRTABLE_BASE_ID", "defaultValue": "" },
+    { "id": "v_social_channel", "name": "SOCIAL_SLACK_CHANNEL", "defaultValue": "#social" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

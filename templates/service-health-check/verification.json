@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "templateId": "service-health-check",
+  "cases": [
+    {
+      "id": "failure-path",
+      "description": "A failing probe fans out to Slack and PagerDuty.",
+      "triggerPayload": {},
+      "expect": {
+        "finalStatus": "success"
+      }
+    }
+  ]
+}

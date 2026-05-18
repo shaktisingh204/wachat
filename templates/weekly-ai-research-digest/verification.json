@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "templateId": "weekly-ai-research-digest",
+  "cases": [
+    {
+      "id": "happy-path",
+      "description": "Weekly run aggregates RSS items, summarises with GPT-4o, and fans out to blog + Slack.",
+      "triggerPayload": {},
+      "expect": {
+        "finalStatus": "success"
+      }
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "deep-work-calendar-blocker",
+  "cases": [
+    {
+      "id": "slot-free",
+      "description": "Morning run finds a free slot and creates a Deep Work calendar block.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

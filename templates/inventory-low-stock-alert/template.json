@@ -1,0 +1,10 @@
+{
+  "id": "inventory-low-stock-alert",
+  "name": "Inventory Low-Stock Alert",
+  "description": "Daily Shopify inventory sweep: pulls each product's stock level, filters to items below their reorder threshold, emails the procurement team with a CSV attachment of the shortfall, and opens one Linear ticket per SKU so reorders are tracked. Cuts out manual spreadsheet checks.",
+  "category": "E-commerce",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["shopify", "inventory", "linear", "procurement", "csv", "ecommerce"],
+  "version": "0.1.0"
+}

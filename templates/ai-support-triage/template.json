@@ -1,0 +1,10 @@
+{
+  "id": "ai-support-triage",
+  "name": "AI Support Triage",
+  "description": "Catches every inbound support email, asks GPT-4o to classify intent, priority, and language, routes the message to the matching Zendesk queue with a priority tag, and auto-replies in the customer's language with the top KB article retrieved from a vector store. Replaces the first hour of a triage agent's shift.",
+  "category": "Support",
+  "complexity": "advanced",
+  "authorName": "SabNode",
+  "tags": ["ai", "support", "triage", "openai", "zendesk", "vector-store", "helpdesk"],
+  "version": "0.1.0"
+}

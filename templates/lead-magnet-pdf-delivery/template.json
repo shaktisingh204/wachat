@@ -1,0 +1,10 @@
+{
+  "id": "lead-magnet-pdf-delivery",
+  "name": "Lead Magnet PDF Delivery",
+  "description": "Captures a marketing form submission, subscribes the lead to a Mailchimp audience with the right tags, emails a signed download link to the gated PDF via SendGrid, and pings the growth Slack channel. Replaces hand-rolled landing-page glue.",
+  "category": "Onboarding",
+  "complexity": "beginner",
+  "authorName": "SabNode",
+  "tags": ["onboarding", "mailchimp", "sendgrid", "lead-magnet", "marketing", "growth"],
+  "version": "0.1.0"
+}

@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "knowledge-base-sync-pinecone",
+  "cases": [
+    {
+      "id": "happy-path",
+      "description": "Notion page update flows through fetch → chunk → embed → upsert.",
+      "triggerPayload": { "id": "11111111-1111-1111-1111-111111111111" },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "id": "appointment-reminder-sms",
+  "name": "Appointment Reminder SMS",
+  "description": "Runs every evening, queries tomorrow's appointments from your MongoDB clinic schedule, and dispatches a Twilio SMS reminder to each patient. Includes a confirm/reschedule link and respects patient SMS-opt-out flags. Cuts no-shows without manual outreach.",
+  "category": "Health",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["health", "clinic", "twilio", "sms", "reminders", "appointments"],
+  "version": "0.1.0"
+}

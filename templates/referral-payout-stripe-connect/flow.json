@@ -1,0 +1,208 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_referral_converted",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "referral.converted",
+    "options": {
+      "path": "/webhooks/referral-payout-stripe-connect",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Referral-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_referral_trigger",
+      "name": "Referral Converted",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "referral-payout-stripe-connect",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "referral-converted-webhook"
+    },
+    {
+      "id": "n_extract_event",
+      "name": "Extract Event Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "referrerId", "value": "={{ $json.referrerId }}" },
+            { "name": "referredEmail", "value": "={{ $json.referredEmail }}" },
+            { "name": "saleAmount", "value": "={{ $json.saleAmount }}" },
+            { "name": "currency", "value": "={{ $json.currency || 'usd' }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_load_referrer",
+      "name": "Load Referrer Tier",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "operation": "findOne",
+        "collection": "referrers",
+        "query": "={\"referrerId\":\"{{ $json.referrerId }}\"}"
+      },
+      "credentials": {
+        "mongoDb": { "id": "mongo-cred", "name": "Application Mongo" }
+      }
+    },
+    {
+      "id": "n_calc_commission",
+      "name": "Calculate Commission",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const tier = $input.first().json.tier ?? 'standard';\nconst rate = ({standard:0.10, gold:0.15, partner:0.20})[tier] ?? 0.10;\nconst sale = Number($input.first().json.saleAmount);\nreturn [{ json: { amountCents: Math.round(sale * rate * 100), rate, tier, connectAccountId: $input.first().json.stripeConnectAccountId } }];"
+      }
+    },
+    {
+      "id": "n_amount_ok",
+      "name": "Amount > 0?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "conditions": {
+          "number": [{ "value1": "={{ $json.amountCents }}", "operation": "larger", "value2": 0 }]
+        }
+      }
+    },
+    {
+      "id": "n_stripe_transfer",
+      "name": "Stripe Connect Transfer",
+      "type": "n8n-nodes-base.stripe",
+      "typeVersion": 1,
+      "position": [1200, -80],
+      "parameters": {
+        "resource": "transfer",
+        "operation": "create",
+        "amount": "={{ $json.amountCents }}",
+        "currency": "={{ $node['Extract Event Fields'].json.currency }}",
+        "destination": "={{ $json.connectAccountId }}",
+        "additionalFields": {
+          "description": "Referral commission for {{ $node['Extract Event Fields'].json.referredEmail }}"
+        }
+      },
+      "credentials": {
+        "stripeApi": { "id": "stripe-cred", "name": "Stripe API" }
+      }
+    },
+    {
+      "id": "n_log_airtable",
+      "name": "Log to Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [1440, -80],
+      "parameters": {
+        "operation": "create",
+        "application": "={{ $vars.AIRTABLE_BASE_ID }}",
+        "table": "Referral Payouts",
+        "fields": [
+          { "name": "Referrer ID", "value": "={{ $node['Extract Event Fields'].json.referrerId }}" },
+          { "name": "Transfer ID", "value": "={{ $json.id }}" },
+          { "name": "Amount (cents)", "value": "={{ $node['Calculate Commission'].json.amountCents }}" },
+          { "name": "Currency", "value": "={{ $node['Extract Event Fields'].json.currency }}" },
+          { "name": "Tier", "value": "={{ $node['Calculate Commission'].json.tier }}" }
+        ]
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "airtable-cred", "name": "Airtable API" }
+      }
+    },
+    {
+      "id": "n_slack_confirm",
+      "name": "Slack Finance Confirm",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1680, -80],
+      "parameter_marker_unused": true,
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.FINANCE_SLACK_CHANNEL }}",
+        "text": ":money_with_wings: Paid {{ ($node['Calculate Commission'].json.amountCents / 100).toFixed(2) }} {{ $node['Extract Event Fields'].json.currency.toUpperCase() }} to referrer *{{ $node['Extract Event Fields'].json.referrerId }}* ({{ $node['Calculate Commission'].json.tier }} tier)."
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    },
+    {
+      "id": "n_skip_zero",
+      "name": "Zero Commission (No-Op)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1200, 120],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "n_referral_trigger": {
+      "main": [[{ "node": "n_extract_event", "type": "main", "index": 0 }]]
+    },
+    "n_extract_event": {
+      "main": [[{ "node": "n_load_referrer", "type": "main", "index": 0 }]]
+    },
+    "n_load_referrer": {
+      "main": [[{ "node": "n_calc_commission", "type": "main", "index": 0 }]]
+    },
+    "n_calc_commission": {
+      "main": [[{ "node": "n_amount_ok", "type": "main", "index": 0 }]]
+    },
+    "n_amount_ok": {
+      "main": [
+        [{ "node": "n_stripe_transfer", "type": "main", "index": 0 }],
+        [{ "node": "n_skip_zero", "type": "main", "index": 0 }]
+      ]
+    },
+    "n_stripe_transfer": {
+      "main": [[{ "node": "n_log_airtable", "type": "main", "index": 0 }]]
+    },
+    "n_log_airtable": {
+      "main": [[{ "node": "n_slack_confirm", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_referral_trigger",
+        "n_extract_event",
+        "n_load_referrer",
+        "n_calc_commission",
+        "n_amount_ok",
+        "n_stripe_transfer",
+        "n_log_airtable",
+        "n_slack_confirm",
+        "n_skip_zero"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_airtable_base", "name": "AIRTABLE_BASE_ID", "defaultValue": "" },
+    { "id": "v_finance_channel", "name": "FINANCE_SLACK_CHANNEL", "defaultValue": "#finance" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

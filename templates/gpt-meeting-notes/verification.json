@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "templateId": "gpt-meeting-notes",
+  "cases": [
+    {
+      "id": "happy-path",
+      "description": "Calendly event end → Otter transcript → GPT summary → email + Notion.",
+      "triggerPayload": {
+        "event": {
+          "name": "Customer Discovery — Acme",
+          "start_time": "2026-05-19T15:00:00Z",
+          "end_time": "2026-05-19T15:30:00Z",
+          "host": { "email": "ae@example.com" },
+          "invitees": [{ "email": "buyer@acme.example" }]
+        }
+      },
+      "expect": {
+        "finalStatus": "success"
+      }
+    }
+  ]
+}

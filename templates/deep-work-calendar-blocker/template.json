@@ -1,0 +1,10 @@
+{
+  "id": "deep-work-calendar-blocker",
+  "name": "Deep Work Calendar Blocker",
+  "description": "Each morning, checks the 09:00–11:00 slot on your Google Calendar; if the slot is free, drops a recurring 'Deep Work' event there so meetings don't backfill your maker hours. If a meeting already exists, posts a Slack reminder to defend tomorrow's slot instead.",
+  "category": "Internal Tools",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["google-calendar", "productivity", "deep-work", "internal-tools", "slack"],
+  "version": "0.1.0"
+}

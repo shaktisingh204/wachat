@@ -1,0 +1,180 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_efw_webhook",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "stripe.radar.early_fraud_warning.created",
+    "options": {
+      "path": "/webhooks/stripe-fraud-screening",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "Stripe-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_stripe_trigger",
+      "name": "Early Fraud Warning",
+      "type": "n8n-nodes-base.stripeTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "events": ["radar.early_fraud_warning.created"]
+      },
+      "credentials": {
+        "stripeApi": { "id": "stripe-cred", "name": "Stripe API" }
+      }
+    },
+    {
+      "id": "n_extract_efw",
+      "name": "Extract EFW Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "efwId", "value": "={{ $json.data.object.id }}" },
+            { "name": "chargeId", "value": "={{ $json.data.object.charge }}" },
+            { "name": "fraudType", "value": "={{ $json.data.object.fraud_type }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_get_charge",
+      "name": "Fetch Charge",
+      "type": "n8n-nodes-base.stripe",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "resource": "charge",
+        "operation": "get",
+        "chargeId": "={{ $json.chargeId }}"
+      },
+      "credentials": {
+        "stripeApi": { "id": "stripe-cred", "name": "Stripe API" }
+      }
+    },
+    {
+      "id": "n_risk_check",
+      "name": "Risk Level High?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "conditions": {
+          "string": [{ "value1": "={{ $json.outcome.risk_level }}", "operation": "equal", "value2": "highest" }]
+        }
+      }
+    },
+    {
+      "id": "n_freeze_customer",
+      "name": "Freeze in MongoDB",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [960, -150],
+      "parameters": {
+        "operation": "update",
+        "collection": "customers",
+        "updateKey": "stripeId",
+        "fields": "fraudFlag,fraudFreezeAt"
+      },
+      "credentials": {
+        "mongoDb": { "id": "mongo-cred", "name": "Application Mongo" }
+      }
+    },
+    {
+      "id": "n_slack_security",
+      "name": "Slack Security Page",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SECURITY_SLACK_CHANNEL }}",
+        "text": ":rotating_light: *High-risk fraud warning* — EFW {{ $node['Extract EFW Fields'].json.efwId }} on charge {{ $node['Extract EFW Fields'].json.chargeId }} ({{ $node['Extract EFW Fields'].json.fraudType }}). Customer frozen."
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    },
+    {
+      "id": "n_linear_ticket",
+      "name": "Open Linear Issue",
+      "type": "n8n-nodes-base.linear",
+      "typeVersion": 1,
+      "position": [960, 150],
+      "parameters": {
+        "resource": "issue",
+        "operation": "create",
+        "teamId": "={{ $vars.LINEAR_FRAUD_TEAM_ID }}",
+        "title": "Investigate EFW {{ $node['Extract EFW Fields'].json.efwId }}",
+        "description": "Charge: {{ $node['Extract EFW Fields'].json.chargeId }}\nFraud type: {{ $node['Extract EFW Fields'].json.fraudType }}\nCustomer was auto-frozen pending review.",
+        "additionalFields": { "labels": ["fraud", "auto"] }
+      },
+      "credentials": {
+        "linearApi": { "id": "linear-cred", "name": "Linear API" }
+      }
+    },
+    {
+      "id": "n_low_risk_noop",
+      "name": "Low Risk (No-Op)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [960, 280],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "n_stripe_trigger": {
+      "main": [[{ "node": "n_extract_efw", "type": "main", "index": 0 }]]
+    },
+    "n_extract_efw": {
+      "main": [[{ "node": "n_get_charge", "type": "main", "index": 0 }]]
+    },
+    "n_get_charge": {
+      "main": [[{ "node": "n_risk_check", "type": "main", "index": 0 }]]
+    },
+    "n_risk_check": {
+      "main": [
+        [
+          { "node": "n_freeze_customer", "type": "main", "index": 0 },
+          { "node": "n_slack_security", "type": "main", "index": 0 },
+          { "node": "n_linear_ticket", "type": "main", "index": 0 }
+        ],
+        [{ "node": "n_low_risk_noop", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_stripe_trigger",
+        "n_extract_efw",
+        "n_get_charge",
+        "n_risk_check",
+        "n_freeze_customer",
+        "n_slack_security",
+        "n_linear_ticket",
+        "n_low_risk_noop"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_security_channel", "name": "SECURITY_SLACK_CHANNEL", "defaultValue": "#security" },
+    { "id": "v_linear_team", "name": "LINEAR_FRAUD_TEAM_ID", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

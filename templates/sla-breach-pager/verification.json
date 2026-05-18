@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "templateId": "sla-breach-pager",
+  "cases": [
+    {
+      "id": "breaching-ticket",
+      "description": "Cron finds a breaching ticket, pages on-call, and tags it.",
+      "triggerPayload": {},
+      "expect": {
+        "finalStatus": "success"
+      }
+    }
+  ]
+}

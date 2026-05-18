@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "templateId": "gdpr-data-export",
+  "cases": [
+    {
+      "id": "happy-path",
+      "description": "SAR form fans out to all three sources, zips, signs, emails the subject, and audits.",
+      "triggerPayload": {
+        "requestId": "sar-2026-0042",
+        "subjectId": "u_77881122",
+        "email": "subject@example.com"
+      },
+      "expect": {
+        "finalStatus": "success"
+      }
+    }
+  ]
+}

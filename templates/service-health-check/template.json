@@ -1,0 +1,10 @@
+{
+  "id": "service-health-check",
+  "name": "Service Health Check",
+  "description": "Runs every five minutes, probes every URL in your monitored-services list, and pages on-call via Slack + PagerDuty whenever a probe returns a non-2xx status. Replaces hand-rolled uptime scripts with a single auditable flow.",
+  "category": "Internal Tools",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["monitoring", "uptime", "slack", "pagerduty", "http", "internal-tools"],
+  "version": "0.1.0"
+}

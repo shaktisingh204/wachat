@@ -1,0 +1,156 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_cron_5m",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": {
+      "schedule": "*/5 * * * *",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_cron_trigger",
+      "name": "Every 5 Minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "rule": { "interval": [{ "field": "minutes", "minutesInterval": 5 }] }
+      }
+    },
+    {
+      "id": "n_load_targets",
+      "name": "Load Monitored Targets",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.TARGETS_CONFIG_URL }}",
+        "responseFormat": "json"
+      }
+    },
+    {
+      "id": "n_split_targets",
+      "name": "Split Each Target",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "batchSize": 1
+      }
+    },
+    {
+      "id": "n_probe",
+      "name": "HTTP Probe",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $json.url }}",
+        "options": {
+          "timeout": 10000
+        }
+      }
+    },
+    {
+      "id": "n_is_unhealthy",
+      "name": "Status Not 2xx?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "conditions": {
+          "number": [
+            { "value1": "={{ $json.statusCode }}", "operation": "largerEqual", "value2": 400 }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_slack_alert",
+      "name": "Slack On-Call Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, -100],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.ONCALL_SLACK_CHANNEL }}",
+        "text": ":rotating_light: *{{ $node['Split Each Target'].json.name }}* is DOWN — status {{ $json.statusCode }} — {{ $node['Split Each Target'].json.url }}"
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    },
+    {
+      "id": "n_pagerduty_incident",
+      "name": "Page On-Call",
+      "type": "n8n-nodes-base.pagerDuty",
+      "typeVersion": 1,
+      "position": [1200, 100],
+      "parameters": {
+        "resource": "incident",
+        "operation": "create",
+        "title": "{{ $node['Split Each Target'].json.name }} health check failed",
+        "serviceId": "={{ $vars.PAGERDUTY_SERVICE_ID }}",
+        "urgency": "high"
+      },
+      "credentials": {
+        "pagerDutyApi": { "id": "pagerduty-cred", "name": "PagerDuty API" }
+      }
+    }
+  ],
+  "connections": {
+    "n_cron_trigger": {
+      "main": [[{ "node": "n_load_targets", "type": "main", "index": 0 }]]
+    },
+    "n_load_targets": {
+      "main": [[{ "node": "n_split_targets", "type": "main", "index": 0 }]]
+    },
+    "n_split_targets": {
+      "main": [[{ "node": "n_probe", "type": "main", "index": 0 }]]
+    },
+    "n_probe": {
+      "main": [[{ "node": "n_is_unhealthy", "type": "main", "index": 0 }]]
+    },
+    "n_is_unhealthy": {
+      "main": [
+        [
+          { "node": "n_slack_alert", "type": "main", "index": 0 },
+          { "node": "n_pagerduty_incident", "type": "main", "index": 0 }
+        ]
+      ]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_cron_trigger",
+        "n_load_targets",
+        "n_split_targets",
+        "n_probe",
+        "n_is_unhealthy",
+        "n_slack_alert",
+        "n_pagerduty_incident"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_targets", "name": "TARGETS_CONFIG_URL", "defaultValue": "" },
+    { "id": "v_oncall_channel", "name": "ONCALL_SLACK_CHANNEL", "defaultValue": "#oncall" },
+    { "id": "v_pd_service", "name": "PAGERDUTY_SERVICE_ID", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

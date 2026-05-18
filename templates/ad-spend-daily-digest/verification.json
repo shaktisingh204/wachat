@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "templateId": "ad-spend-daily-digest",
+  "cases": [
+    {
+      "id": "happy-path",
+      "description": "Daily run fans out to both ad networks and re-converges on email + Slack.",
+      "triggerPayload": {},
+      "expect": {
+        "finalStatus": "success"
+      }
+    }
+  ]
+}

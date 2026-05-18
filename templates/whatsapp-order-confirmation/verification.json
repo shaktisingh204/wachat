@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "templateId": "whatsapp-order-confirmation",
+  "cases": [
+    {
+      "id": "happy-path",
+      "description": "Shopify order with a customer phone sends a WhatsApp template.",
+      "triggerPayload": {
+        "order_number": "1042",
+        "total_price": "129.00",
+        "currency": "USD",
+        "customer": {
+          "first_name": "Aiko",
+          "phone": "+819012345678"
+        },
+        "line_items": [
+          { "quantity": 1, "title": "Wireless Earbuds" },
+          { "quantity": 2, "title": "USB-C Cable" }
+        ]
+      },
+      "expect": {
+        "finalStatus": "success"
+      }
+    }
+  ]
+}

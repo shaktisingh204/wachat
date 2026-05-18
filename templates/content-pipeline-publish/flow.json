@@ -1,0 +1,211 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_airtable_ready",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "airtable.row.updated",
+    "options": {
+      "path": "/webhooks/content-pipeline-publish",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Airtable-Webhook",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_airtable_trigger",
+      "name": "Airtable Row Ready",
+      "type": "n8n-nodes-base.airtableTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "baseId": "={{ $vars.AIRTABLE_BASE_ID }}",
+        "tableId": "={{ $vars.AIRTABLE_CONTENT_TABLE }}",
+        "triggerField": "Status"
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "airtable-cred", "name": "Airtable API" }
+      }
+    },
+    {
+      "id": "n_only_ready",
+      "name": "Filter Status=Ready",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "conditions": {
+          "string": [{ "value1": "={{ $json.fields.Status }}", "operation": "equal", "value2": "Ready to Publish" }]
+        }
+      }
+    },
+    {
+      "id": "n_extract_post",
+      "name": "Extract Post Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [480, -80],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "rowId", "value": "={{ $json.id }}" },
+            { "name": "title", "value": "={{ $json.fields.Title }}" },
+            { "name": "body", "value": "={{ $json.fields.Body }}" },
+            { "name": "summary", "value": "={{ $json.fields.Summary }}" },
+            { "name": "thread", "value": "={{ $json.fields['Twitter Thread'] }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_wp_publish",
+      "name": "Publish to WordPress",
+      "type": "n8n-nodes-base.wordpress",
+      "typeVersion": 1,
+      "position": [720, -200],
+      "parameters": {
+        "resource": "post",
+        "operation": "create",
+        "title": "={{ $json.title }}",
+        "content": "={{ $json.body }}",
+        "additionalFields": { "status": "publish" }
+      },
+      "credentials": {
+        "wordpressApi": { "id": "wordpress-cred", "name": "WordPress API" }
+      }
+    },
+    {
+      "id": "n_linkedin_share",
+      "name": "Share on LinkedIn",
+      "type": "n8n-nodes-base.linkedIn",
+      "typeVersion": 1,
+      "position": [720, -80],
+      "parameters": {
+        "resource": "post",
+        "operation": "create",
+        "postAs": "organization",
+        "organizationId": "={{ $vars.LINKEDIN_ORG_ID }}",
+        "text": "={{ $node['Extract Post Fields'].json.summary }} {{ $node['Extract Post Fields'].json.title }}"
+      },
+      "credentials": {
+        "linkedInOAuth2Api": { "id": "linkedin-cred", "name": "LinkedIn OAuth2" }
+      }
+    },
+    {
+      "id": "n_twitter_thread",
+      "name": "Post Twitter Thread",
+      "type": "n8n-nodes-base.twitter",
+      "typeVersion": 2,
+      "position": [720, 40],
+      "parameters": {
+        "operation": "create",
+        "text": "={{ $node['Extract Post Fields'].json.thread }}"
+      },
+      "credentials": {
+        "twitterOAuth2Api": { "id": "twitter-cred", "name": "X / Twitter OAuth2" }
+      }
+    },
+    {
+      "id": "n_collect_urls",
+      "name": "Collect Published URLs",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2,
+      "position": [960, -80],
+      "parameters": {
+        "mode": "mergeByPosition"
+      }
+    },
+    {
+      "id": "n_writeback",
+      "name": "Write Back to Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [1200, -80],
+      "parameters": {
+        "operation": "update",
+        "application": "={{ $vars.AIRTABLE_BASE_ID }}",
+        "table": "={{ $vars.AIRTABLE_CONTENT_TABLE }}",
+        "id": "={{ $node['Extract Post Fields'].json.rowId }}",
+        "fields": [
+          { "name": "Status", "value": "Published" },
+          { "name": "WordPress URL", "value": "={{ $json[0].link }}" },
+          { "name": "LinkedIn URL", "value": "={{ $json[1].url }}" },
+          { "name": "Twitter URL", "value": "={{ $json[2].url }}" }
+        ]
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "airtable-cred", "name": "Airtable API" }
+      }
+    },
+    {
+      "id": "n_not_ready",
+      "name": "Not Ready (No-Op)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [480, 200],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "n_airtable_trigger": {
+      "main": [[{ "node": "n_only_ready", "type": "main", "index": 0 }]]
+    },
+    "n_only_ready": {
+      "main": [
+        [{ "node": "n_extract_post", "type": "main", "index": 0 }],
+        [{ "node": "n_not_ready", "type": "main", "index": 0 }]
+      ]
+    },
+    "n_extract_post": {
+      "main": [
+        [
+          { "node": "n_wp_publish", "type": "main", "index": 0 },
+          { "node": "n_linkedin_share", "type": "main", "index": 0 },
+          { "node": "n_twitter_thread", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "n_wp_publish": {
+      "main": [[{ "node": "n_collect_urls", "type": "main", "index": 0 }]]
+    },
+    "n_linkedin_share": {
+      "main": [[{ "node": "n_collect_urls", "type": "main", "index": 1 }]]
+    },
+    "n_twitter_thread": {
+      "main": [[{ "node": "n_collect_urls", "type": "main", "index": 2 }]]
+    },
+    "n_collect_urls": {
+      "main": [[{ "node": "n_writeback", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_airtable_trigger",
+        "n_only_ready",
+        "n_extract_post",
+        "n_wp_publish",
+        "n_linkedin_share",
+        "n_twitter_thread",
+        "n_collect_urls",
+        "n_writeback",
+        "n_not_ready"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_airtable_base", "name": "AIRTABLE_BASE_ID", "defaultValue": "" },
+    { "id": "v_airtable_table", "name": "AIRTABLE_CONTENT_TABLE", "defaultValue": "Content" },
+    { "id": "v_linkedin_org", "name": "LINKEDIN_ORG_ID", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

@@ -1,0 +1,120 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_stripe_webhook",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "stripe.charge.succeeded",
+    "options": {
+      "path": "/webhooks/stripe-charge-to-airtable",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "Stripe-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_stripe_trigger",
+      "name": "Stripe Charge",
+      "type": "n8n-nodes-base.stripeTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "events": ["charge.succeeded"]
+      },
+      "credentials": {
+        "stripeApi": { "id": "stripe-cred", "name": "Stripe API" }
+      }
+    },
+    {
+      "id": "n_extract_charge",
+      "name": "Extract Charge Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "chargeId", "value": "={{ $json.data.object.id }}" },
+            { "name": "customerEmail", "value": "={{ $json.data.object.receipt_email }}" },
+            { "name": "amount", "value": "={{ ($json.data.object.amount / 100).toFixed(2) }}" },
+            { "name": "currency", "value": "={{ $json.data.object.currency.toUpperCase() }}" },
+            { "name": "description", "value": "={{ $json.data.object.description }}" }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "n_airtable_create",
+      "name": "Log to Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "operation": "create",
+        "application": "={{ $vars.AIRTABLE_BASE_ID }}",
+        "table": "Revenue Ledger",
+        "addAllFields": false,
+        "fields": [
+          { "name": "Charge ID", "value": "={{ $json.chargeId }}" },
+          { "name": "Email", "value": "={{ $json.customerEmail }}" },
+          { "name": "Amount", "value": "={{ $json.amount }}" },
+          { "name": "Currency", "value": "={{ $json.currency }}" },
+          { "name": "Description", "value": "={{ $json.description }}" }
+        ]
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "airtable-cred", "name": "Airtable API" }
+      }
+    },
+    {
+      "id": "n_send_receipt",
+      "name": "Send Receipt Email",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "={{ $vars.FROM_EMAIL }}",
+        "toEmail": "={{ $node['Extract Charge Fields'].json.customerEmail }}",
+        "subject": "Receipt for your payment of {{ $node['Extract Charge Fields'].json.currency }} {{ $node['Extract Charge Fields'].json.amount }}",
+        "contentType": "text/html",
+        "content": "<p>Thanks for your payment.</p><p>Charge ID: {{ $node['Extract Charge Fields'].json.chargeId }}</p>"
+      },
+      "credentials": {
+        "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid API" }
+      }
+    }
+  ],
+  "connections": {
+    "n_stripe_trigger": {
+      "main": [[{ "node": "n_extract_charge", "type": "main", "index": 0 }]]
+    },
+    "n_extract_charge": {
+      "main": [[{ "node": "n_airtable_create", "type": "main", "index": 0 }]]
+    },
+    "n_airtable_create": {
+      "main": [[{ "node": "n_send_receipt", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_stripe_trigger", "n_extract_charge", "n_airtable_create", "n_send_receipt"]
+    }
+  ],
+  "variables": [
+    { "id": "v_airtable_base", "name": "AIRTABLE_BASE_ID", "defaultValue": "" },
+    { "id": "v_from_email", "name": "FROM_EMAIL", "defaultValue": "billing@example.com" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

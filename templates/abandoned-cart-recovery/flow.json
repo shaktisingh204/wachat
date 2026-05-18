@@ -1,0 +1,222 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_shopify_abandon",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "shopify.checkouts.abandoned",
+    "options": {
+      "path": "/webhooks/abandoned-cart-recovery",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Shopify-Hmac-Sha256",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_abandon_trigger",
+      "name": "Abandoned Checkout",
+      "type": "n8n-nodes-base.shopifyTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "topic": "checkouts/update"
+      },
+      "credentials": {
+        "shopifyApi": { "id": "shopify-cred", "name": "Shopify API" }
+      }
+    },
+    {
+      "id": "n_extract_checkout",
+      "name": "Extract Checkout Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "checkoutId", "value": "={{ $json.id }}" },
+            { "name": "email", "value": "={{ $json.email }}" },
+            { "name": "phone", "value": "={{ $json.phone }}" },
+            { "name": "recoveryUrl", "value": "={{ $json.abandoned_checkout_url }}" },
+            { "name": "total", "value": "={{ $json.total_price }} {{ $json.currency }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_wait_1h",
+      "name": "Cool-Off 1h",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "amount": 1,
+        "unit": "hours"
+      }
+    },
+    {
+      "id": "n_check_completed",
+      "name": "Already Purchased?",
+      "type": "n8n-nodes-base.shopify",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "resource": "order",
+        "operation": "getAll",
+        "additionalFields": { "email": "={{ $json.email }}", "createdAtMin": "={{ $now.minus({hours:2}).toISO() }}" }
+      },
+      "credentials": {
+        "shopifyApi": { "id": "shopify-cred", "name": "Shopify API" }
+      }
+    },
+    {
+      "id": "n_if_still_open",
+      "name": "Still Abandoned?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "conditions": {
+          "number": [{ "value1": "={{ $json.orders.length }}", "operation": "equal", "value2": 0 }]
+        }
+      }
+    },
+    {
+      "id": "n_email_nudge",
+      "name": "Email Nudge",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [1200, -120],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "={{ $vars.FROM_EMAIL }}",
+        "toEmail": "={{ $node['Extract Checkout Fields'].json.email }}",
+        "subject": "You left something behind ({{ $node['Extract Checkout Fields'].json.total }})",
+        "contentType": "text/html",
+        "content": "<p>Still thinking it over? <a href=\"{{ $node['Extract Checkout Fields'].json.recoveryUrl }}\">Resume your checkout</a>.</p>"
+      },
+      "credentials": {
+        "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid API" }
+      }
+    },
+    {
+      "id": "n_whatsapp_nudge",
+      "name": "WhatsApp Nudge",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [1200, 0],
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "={{ $vars.WHATSAPP_PHONE_NUMBER_ID }}",
+        "recipientPhoneNumber": "={{ $node['Extract Checkout Fields'].json.phone }}",
+        "messageType": "template",
+        "template": "cart_recovery"
+      },
+      "credentials": {
+        "whatsAppApi": { "id": "whatsapp-cred", "name": "WhatsApp Business API" }
+      }
+    },
+    {
+      "id": "n_wait_23h",
+      "name": "Wait 23h More",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [1440, 0],
+      "parameters": {
+        "amount": 23,
+        "unit": "hours"
+      }
+    },
+    {
+      "id": "n_retarget_meta",
+      "name": "Add to Meta Audience",
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [1680, 0],
+      "parameters": {
+        "httpRequestMethod": "POST",
+        "node": "={{ $vars.META_CUSTOM_AUDIENCE_ID }}/users",
+        "queryParameters": {
+          "parameters": [
+            { "name": "payload", "value": "={\"schema\":[\"EMAIL\",\"PHONE\"],\"data\":[[\"{{ $node['Extract Checkout Fields'].json.email }}\",\"{{ $node['Extract Checkout Fields'].json.phone }}\"]]}" }
+          ]
+        }
+      },
+      "credentials": {
+        "facebookGraphApi": { "id": "meta-cred", "name": "Meta Marketing API" }
+      }
+    },
+    {
+      "id": "n_noop_converted",
+      "name": "Already Converted (No-Op)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1200, 200],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "n_abandon_trigger": {
+      "main": [[{ "node": "n_extract_checkout", "type": "main", "index": 0 }]]
+    },
+    "n_extract_checkout": {
+      "main": [[{ "node": "n_wait_1h", "type": "main", "index": 0 }]]
+    },
+    "n_wait_1h": {
+      "main": [[{ "node": "n_check_completed", "type": "main", "index": 0 }]]
+    },
+    "n_check_completed": {
+      "main": [[{ "node": "n_if_still_open", "type": "main", "index": 0 }]]
+    },
+    "n_if_still_open": {
+      "main": [
+        [
+          { "node": "n_email_nudge", "type": "main", "index": 0 },
+          { "node": "n_whatsapp_nudge", "type": "main", "index": 0 }
+        ],
+        [{ "node": "n_noop_converted", "type": "main", "index": 0 }]
+      ]
+    },
+    "n_email_nudge": {
+      "main": [[{ "node": "n_wait_23h", "type": "main", "index": 0 }]]
+    },
+    "n_whatsapp_nudge": {
+      "main": [[{ "node": "n_wait_23h", "type": "main", "index": 0 }]]
+    },
+    "n_wait_23h": {
+      "main": [[{ "node": "n_retarget_meta", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_abandon_trigger",
+        "n_extract_checkout",
+        "n_wait_1h",
+        "n_check_completed",
+        "n_if_still_open",
+        "n_email_nudge",
+        "n_whatsapp_nudge",
+        "n_wait_23h",
+        "n_retarget_meta",
+        "n_noop_converted"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_from_email", "name": "FROM_EMAIL", "defaultValue": "store@example.com" },
+    { "id": "v_phone_id", "name": "WHATSAPP_PHONE_NUMBER_ID", "defaultValue": "" },
+    { "id": "v_meta_aud", "name": "META_CUSTOM_AUDIENCE_ID", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

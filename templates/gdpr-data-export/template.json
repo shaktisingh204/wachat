@@ -1,0 +1,10 @@
+{
+  "id": "gdpr-data-export",
+  "name": "GDPR Data Export",
+  "description": "Captures a Subject Access Request form, gathers the requester's records across MongoDB, Stripe, and Intercom into a single ZIP, uploads the archive to R2 with a short-lived signed URL, emails the requester the link, and writes an immutable row to an audit log so compliance has receipts. Replaces an ad-hoc DPO checklist.",
+  "category": "Internal Tools",
+  "complexity": "advanced",
+  "authorName": "SabNode",
+  "tags": ["gdpr", "compliance", "mongodb", "stripe", "intercom", "r2", "audit"],
+  "version": "0.1.0"
+}

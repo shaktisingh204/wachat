@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "templateId": "ai-support-triage",
+  "cases": [
+    {
+      "id": "billing-intent",
+      "description": "Inbound email is classified billing, routed to the billing queue, and auto-replied with a KB article.",
+      "triggerPayload": {
+        "from": "customer@example.com",
+        "subject": "I was double-charged this month",
+        "text": "Hi, my August invoice was billed twice. Please refund. — Pat"
+      },
+      "expect": {
+        "finalStatus": "success"
+      }
+    }
+  ]
+}

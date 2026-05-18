@@ -1,0 +1,10 @@
+{
+  "id": "sla-breach-pager",
+  "name": "SLA Breach Pager",
+  "description": "Every fifteen minutes, queries Zendesk for tickets where the first-response SLA is within the breach window, escalates each one with a PagerDuty incident and a Slack mention to the on-call rotation, and tags the ticket so it isn't paged twice. Replaces manual SLA-watching.",
+  "category": "Ops",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["zendesk", "sla", "pagerduty", "slack", "oncall", "ops"],
+  "version": "0.1.0"
+}

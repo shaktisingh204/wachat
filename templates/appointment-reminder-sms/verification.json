@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "templateId": "appointment-reminder-sms",
+  "cases": [
+    {
+      "id": "happy-path",
+      "description": "Cron picks up tomorrow's appointments and sends one SMS per patient.",
+      "triggerPayload": {},
+      "expect": {
+        "finalStatus": "success"
+      }
+    }
+  ]
+}

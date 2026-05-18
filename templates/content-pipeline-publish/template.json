@@ -1,0 +1,10 @@
+{
+  "id": "content-pipeline-publish",
+  "name": "Content Pipeline Publish",
+  "description": "When an Airtable content row is flipped to 'Ready to Publish', fans the post out to WordPress (as a draft-then-publish), LinkedIn (as a company-page share), and Twitter/X (as a thread), then writes the resulting URLs back to the source row. Replaces the morning of copy-pasting per channel.",
+  "category": "Marketing",
+  "complexity": "advanced",
+  "authorName": "SabNode",
+  "tags": ["airtable", "wordpress", "linkedin", "twitter", "content", "marketing"],
+  "version": "0.1.0"
+}

@@ -1,0 +1,10 @@
+{
+  "id": "weekly-ai-research-digest",
+  "name": "Weekly AI Research Digest",
+  "description": "Every Monday morning, pulls the past week of items from a list of RSS feeds you care about, asks GPT-4o to summarise them into a single-page digest, publishes the digest to your internal blog API, and announces it in Slack. Eliminates the manual Monday roundup.",
+  "category": "AI",
+  "complexity": "advanced",
+  "authorName": "SabNode",
+  "tags": ["ai", "openai", "gpt-4", "rss", "digest", "research", "weekly"],
+  "version": "0.1.0"
+}

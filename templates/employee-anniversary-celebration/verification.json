@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "employee-anniversary-celebration",
+  "cases": [
+    {
+      "id": "happy-path",
+      "description": "Daily run catches today's anniversary, celebrates in Slack, sends a gift, and logs to Airtable.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

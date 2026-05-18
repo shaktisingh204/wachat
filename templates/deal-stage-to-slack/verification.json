@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "templateId": "deal-stage-to-slack",
+  "cases": [
+    {
+      "id": "stage-change",
+      "description": "A dealstage property change posts to Slack and mirrors to Airtable.",
+      "triggerPayload": {
+        "objectId": "12345",
+        "propertyName": "dealstage",
+        "propertyValue": "closedwon"
+      },
+      "expect": {
+        "finalStatus": "success"
+      }
+    }
+  ]
+}

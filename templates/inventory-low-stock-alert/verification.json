@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "templateId": "inventory-low-stock-alert",
+  "cases": [
+    {
+      "id": "shortfall-path",
+      "description": "Daily run detects SKUs below threshold, emails procurement and opens one Linear ticket per SKU.",
+      "triggerPayload": {},
+      "expect": {
+        "finalStatus": "success"
+      }
+    }
+  ]
+}

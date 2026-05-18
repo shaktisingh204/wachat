@@ -1,0 +1,201 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_weekly_cron",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": {
+      "schedule": "0 7 * * MON",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_cron_trigger",
+      "name": "Every Monday 07:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 7 * * MON" }] }
+      }
+    },
+    {
+      "id": "n_load_feeds",
+      "name": "Load Feed List",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.FEED_LIST_URL }}",
+        "responseFormat": "json"
+      }
+    },
+    {
+      "id": "n_split_feeds",
+      "name": "Split Per Feed",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "batchSize": 1
+      }
+    },
+    {
+      "id": "n_rss_fetch",
+      "name": "Read RSS",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": { "ignoreSSL": false }
+      }
+    },
+    {
+      "id": "n_filter_week",
+      "name": "Last 7 Days",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "conditions": {
+          "dateTime": [
+            { "value1": "={{ $json.isoDate }}", "operation": "after", "value2": "={{ $now.minus({days:7}).toISO() }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_aggregate",
+      "name": "Aggregate Items",
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [1200, 0],
+      "parameters": {
+        "aggregate": "aggregateAllItemData"
+      }
+    },
+    {
+      "id": "n_summarise",
+      "name": "GPT-4o Summarise",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [1440, 0],
+      "parameters": {
+        "authentication": "apiKey",
+        "resource": "chat",
+        "operation": "complete",
+        "model": "gpt-4o",
+        "messages": {
+          "values": [
+            { "role": "system", "content": "You are a research editor. Produce a single-page digest in markdown that groups items by theme and surfaces the 5 most consequential pieces with one-sentence takeaways." },
+            { "role": "user", "content": "={{ JSON.stringify($json.items) }}" }
+          ]
+        },
+        "options": { "temperature": 0.3 }
+      },
+      "credentials": {
+        "openAiApi": { "id": "openai-cred", "name": "OpenAI API" }
+      }
+    },
+    {
+      "id": "n_publish_blog",
+      "name": "Publish to Internal Blog",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1680, -80],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.INTERNAL_BLOG_API }}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "title", "value": "Weekly AI Research Digest" },
+            { "name": "body", "value": "={{ $json.message.content }}" },
+            { "name": "tags", "value": "ai,digest,weekly" }
+          ]
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "blog-token", "name": "Blog API Token" }
+      }
+    },
+    {
+      "id": "n_announce_slack",
+      "name": "Announce in Slack",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1680, 80],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.RESEARCH_SLACK_CHANNEL }}",
+        "text": ":newspaper: This week's AI research digest is live — {{ $json.message.content | slice: 0, 240 }}…"
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    }
+  ],
+  "connections": {
+    "n_cron_trigger": {
+      "main": [[{ "node": "n_load_feeds", "type": "main", "index": 0 }]]
+    },
+    "n_load_feeds": {
+      "main": [[{ "node": "n_split_feeds", "type": "main", "index": 0 }]]
+    },
+    "n_split_feeds": {
+      "main": [[{ "node": "n_rss_fetch", "type": "main", "index": 0 }]]
+    },
+    "n_rss_fetch": {
+      "main": [[{ "node": "n_filter_week", "type": "main", "index": 0 }]]
+    },
+    "n_filter_week": {
+      "main": [[{ "node": "n_aggregate", "type": "main", "index": 0 }]]
+    },
+    "n_aggregate": {
+      "main": [[{ "node": "n_summarise", "type": "main", "index": 0 }]]
+    },
+    "n_summarise": {
+      "main": [
+        [
+          { "node": "n_publish_blog", "type": "main", "index": 0 },
+          { "node": "n_announce_slack", "type": "main", "index": 0 }
+        ]
+      ]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_cron_trigger",
+        "n_load_feeds",
+        "n_split_feeds",
+        "n_rss_fetch",
+        "n_filter_week",
+        "n_aggregate",
+        "n_summarise",
+        "n_publish_blog",
+        "n_announce_slack"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_feed_list", "name": "FEED_LIST_URL", "defaultValue": "" },
+    { "id": "v_blog_api", "name": "INTERNAL_BLOG_API", "defaultValue": "https://blog.internal.example.com/api/posts" },
+    { "id": "v_research_channel", "name": "RESEARCH_SLACK_CHANNEL", "defaultValue": "#research" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

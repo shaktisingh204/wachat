@@ -1,0 +1,10 @@
+{
+  "id": "employee-anniversary-celebration",
+  "name": "Employee Anniversary Celebration",
+  "description": "Every morning, queries BambooHR for employees whose work anniversary is today, posts a celebration message tagging the team-channel, sends a Tremendous gift card via email, and logs the milestone in an Airtable recognition ledger. Replaces an HR calendar cron job that nobody updates.",
+  "category": "HR",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["hr", "anniversary", "bamboohr", "slack", "tremendous", "recognition", "airtable"],
+  "version": "0.1.0"
+}

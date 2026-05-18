@@ -1,0 +1,10 @@
+{
+  "id": "stripe-charge-to-airtable",
+  "name": "Stripe Charge to Airtable",
+  "description": "Listens for Stripe charge.succeeded webhooks, records the transaction in an Airtable revenue ledger, and emails a branded receipt to the customer via SendGrid. Keeps finance in sync without manual reconciliation.",
+  "category": "Finance",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["stripe", "airtable", "sendgrid", "finance", "payments", "receipts"],
+  "version": "0.1.0"
+}

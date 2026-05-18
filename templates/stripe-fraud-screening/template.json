@@ -1,0 +1,10 @@
+{
+  "id": "stripe-fraud-screening",
+  "name": "Stripe Fraud Screening",
+  "description": "On a Stripe radar.early_fraud_warning, fetches the related charge and customer, looks up the customer's risk level, and — if high — freezes the customer in MongoDB, pages the security channel in Slack, and opens a Linear issue for the fraud-ops team. Cuts time-to-response on early-fraud warnings.",
+  "category": "Finance",
+  "complexity": "advanced",
+  "authorName": "SabNode",
+  "tags": ["stripe", "fraud", "radar", "security", "linear", "slack", "ops"],
+  "version": "0.1.0"
+}

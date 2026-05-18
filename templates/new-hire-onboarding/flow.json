@@ -1,0 +1,149 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_hris_webhook",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "hris.employee.created",
+    "options": {
+      "path": "/webhooks/new-hire-onboarding",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-HRIS-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_hris_trigger",
+      "name": "HRIS New Hire",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "new-hire-onboarding",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "new-hire-webhook"
+    },
+    {
+      "id": "n_extract_hire",
+      "name": "Extract Hire Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "fullName", "value": "={{ $json.firstName }} {{ $json.lastName }}" },
+            { "name": "email", "value": "={{ $json.email }}" },
+            { "name": "manager", "value": "={{ $json.managerEmail }}" },
+            { "name": "title", "value": "={{ $json.title }}" },
+            { "name": "startDate", "value": "={{ $json.startDate }}" },
+            { "name": "slackChannel", "value": "onboarding-{{ $json.firstName | downcase }}-{{ $json.lastName | downcase }}" }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "n_slack_create_channel",
+      "name": "Create Slack Channel",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [480, -120],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "channel",
+        "operation": "create",
+        "channel": "={{ $json.slackChannel }}",
+        "additionalFields": { "isPrivate": false }
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    },
+    {
+      "id": "n_notion_create_doc",
+      "name": "Create Notion Onboarding Doc",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2,
+      "position": [480, 120],
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "create",
+        "databaseId": "={{ $vars.NOTION_ONBOARDING_DB }}",
+        "propertiesUi": {
+          "propertyValues": [
+            { "key": "Title|title", "title": "Onboarding — {{ $node['Extract Hire Fields'].json.fullName }}" },
+            { "key": "Start Date|date", "date": "={{ $node['Extract Hire Fields'].json.startDate }}" },
+            { "key": "Manager|email", "email": "={{ $node['Extract Hire Fields'].json.manager }}" }
+          ]
+        }
+      },
+      "credentials": {
+        "notionApi": { "id": "notion-cred", "name": "Notion API" }
+      }
+    },
+    {
+      "id": "n_send_welcome",
+      "name": "Send Welcome Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "fromEmail": "={{ $vars.PEOPLE_OPS_EMAIL }}",
+        "toEmail": "={{ $node['Extract Hire Fields'].json.email }}",
+        "subject": "Welcome to the team, {{ $node['Extract Hire Fields'].json.fullName }}!",
+        "html": "<p>We're thrilled to have you. Your manager <strong>{{ $node['Extract Hire Fields'].json.manager }}</strong> will be in touch on day one ({{ $node['Extract Hire Fields'].json.startDate }}).</p>"
+      },
+      "credentials": {
+        "smtp": { "id": "smtp-cred", "name": "Workspace SMTP" }
+      }
+    }
+  ],
+  "connections": {
+    "n_hris_trigger": {
+      "main": [[{ "node": "n_extract_hire", "type": "main", "index": 0 }]]
+    },
+    "n_extract_hire": {
+      "main": [
+        [
+          { "node": "n_slack_create_channel", "type": "main", "index": 0 },
+          { "node": "n_notion_create_doc", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "n_slack_create_channel": {
+      "main": [[{ "node": "n_send_welcome", "type": "main", "index": 0 }]]
+    },
+    "n_notion_create_doc": {
+      "main": [[{ "node": "n_send_welcome", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_hris_trigger",
+        "n_extract_hire",
+        "n_slack_create_channel",
+        "n_notion_create_doc",
+        "n_send_welcome"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_notion_db", "name": "NOTION_ONBOARDING_DB", "defaultValue": "" },
+    { "id": "v_people_ops_email", "name": "PEOPLE_OPS_EMAIL", "defaultValue": "people@example.com" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

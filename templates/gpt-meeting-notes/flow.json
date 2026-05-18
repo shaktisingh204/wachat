@@ -1,0 +1,233 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_calendly_ended",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "calendly.invitee_no_show.event_ended",
+    "options": {
+      "path": "/webhooks/gpt-meeting-notes",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "Calendly-Webhook-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_calendly_trigger",
+      "name": "Calendly Event Ended",
+      "type": "n8n-nodes-base.calendlyTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "events": ["invitee.created"]
+      },
+      "credentials": {
+        "calendlyApi": { "id": "calendly-cred", "name": "Calendly API" }
+      }
+    },
+    {
+      "id": "n_extract_meeting",
+      "name": "Extract Meeting Info",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "eventName", "value": "={{ $json.event.name }}" },
+            { "name": "startTime", "value": "={{ $json.event.start_time }}" },
+            { "name": "endTime", "value": "={{ $json.event.end_time }}" },
+            { "name": "attendees", "value": "={{ $json.event.invitees.map(i => i.email).join(',') }}" },
+            { "name": "host", "value": "={{ $json.event.host.email }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_wait_5m",
+      "name": "Wait 5m for Otter Sync",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "amount": 5,
+        "unit": "minutes"
+      }
+    },
+    {
+      "id": "n_otter_search",
+      "name": "Fetch Otter Transcript",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.OTTER_SEARCH_URL }}",
+        "queryParameters": {
+          "parameters": [
+            { "name": "since", "value": "={{ $node['Extract Meeting Info'].json.startTime }}" },
+            { "name": "host", "value": "={{ $node['Extract Meeting Info'].json.host }}" }
+          ]
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "otter-cred", "name": "Otter API Token" }
+      }
+    },
+    {
+      "id": "n_have_transcript",
+      "name": "Have Transcript?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "conditions": {
+          "string": [{ "value1": "={{ $json.transcript }}", "operation": "isNotEmpty" }]
+        }
+      }
+    },
+    {
+      "id": "n_gpt_summarise",
+      "name": "GPT-4o Summarise",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [1200, -80],
+      "parameters": {
+        "authentication": "apiKey",
+        "resource": "chat",
+        "operation": "complete",
+        "model": "gpt-4o",
+        "messages": {
+          "values": [
+            { "role": "system", "content": "You are an executive assistant. Given a meeting transcript, output JSON with: tldr (3 bullets), decisions (list), action_items (list of {who, what, due}), and follow_ups (list)." },
+            { "role": "user", "content": "={{ $json.transcript }}" }
+          ]
+        },
+        "options": { "responseFormat": "json_object", "temperature": 0.2 }
+      },
+      "credentials": {
+        "openAiApi": { "id": "openai-cred", "name": "OpenAI API" }
+      }
+    },
+    {
+      "id": "n_email_summary",
+      "name": "Email Summary",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [1440, -160],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "={{ $vars.NOTES_FROM_EMAIL }}",
+        "toEmail": "={{ $node['Extract Meeting Info'].json.attendees }}",
+        "subject": "Notes — {{ $node['Extract Meeting Info'].json.eventName }}",
+        "contentType": "text/html",
+        "content": "={{ $json.message.content }}"
+      },
+      "credentials": {
+        "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid API" }
+      }
+    },
+    {
+      "id": "n_notion_file",
+      "name": "File to Notion",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2,
+      "position": [1440, 0],
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "create",
+        "databaseId": "={{ $vars.NOTION_MEETINGS_DB }}",
+        "propertiesUi": {
+          "propertyValues": [
+            { "key": "Name|title", "title": "={{ $node['Extract Meeting Info'].json.eventName }}" },
+            { "key": "Date|date", "date": "={{ $node['Extract Meeting Info'].json.startTime }}" },
+            { "key": "Attendees|rich_text", "richText": "={{ $node['Extract Meeting Info'].json.attendees }}" }
+          ]
+        }
+      },
+      "credentials": {
+        "notionApi": { "id": "notion-cred", "name": "Notion API" }
+      }
+    },
+    {
+      "id": "n_no_transcript",
+      "name": "No Transcript Yet",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, 120],
+      "parameter_marker_unused": true,
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.NOTES_FALLBACK_CHANNEL }}",
+        "text": "No Otter transcript found yet for *{{ $node['Extract Meeting Info'].json.eventName }}*. Retrying later."
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    }
+  ],
+  "connections": {
+    "n_calendly_trigger": {
+      "main": [[{ "node": "n_extract_meeting", "type": "main", "index": 0 }]]
+    },
+    "n_extract_meeting": {
+      "main": [[{ "node": "n_wait_5m", "type": "main", "index": 0 }]]
+    },
+    "n_wait_5m": {
+      "main": [[{ "node": "n_otter_search", "type": "main", "index": 0 }]]
+    },
+    "n_otter_search": {
+      "main": [[{ "node": "n_have_transcript", "type": "main", "index": 0 }]]
+    },
+    "n_have_transcript": {
+      "main": [
+        [{ "node": "n_gpt_summarise", "type": "main", "index": 0 }],
+        [{ "node": "n_no_transcript", "type": "main", "index": 0 }]
+      ]
+    },
+    "n_gpt_summarise": {
+      "main": [
+        [
+          { "node": "n_email_summary", "type": "main", "index": 0 },
+          { "node": "n_notion_file", "type": "main", "index": 0 }
+        ]
+      ]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_calendly_trigger",
+        "n_extract_meeting",
+        "n_wait_5m",
+        "n_otter_search",
+        "n_have_transcript",
+        "n_gpt_summarise",
+        "n_email_summary",
+        "n_notion_file",
+        "n_no_transcript"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_otter_search", "name": "OTTER_SEARCH_URL", "defaultValue": "https://otter.ai/api/v1/recent" },
+    { "id": "v_notion_db", "name": "NOTION_MEETINGS_DB", "defaultValue": "" },
+    { "id": "v_notes_from", "name": "NOTES_FROM_EMAIL", "defaultValue": "notes@example.com" },
+    { "id": "v_notes_fallback", "name": "NOTES_FALLBACK_CHANNEL", "defaultValue": "#meeting-notes-fallback" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

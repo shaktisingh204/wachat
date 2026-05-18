@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "templateId": "expense-receipt-to-quickbooks",
+  "cases": [
+    {
+      "id": "happy-path",
+      "description": "Forwarded receipt is OCR'd, archived to R2, billed in QuickBooks, and confirmed to the submitter.",
+      "triggerPayload": {
+        "from": "alex@example.com",
+        "subject": "Fwd: Coffee receipt",
+        "attachments": [
+          { "url": "https://inbound.example.com/x/abc.pdf", "filename": "coffee-receipt.pdf" }
+        ]
+      },
+      "expect": {
+        "finalStatus": "success"
+      }
+    }
+  ]
+}

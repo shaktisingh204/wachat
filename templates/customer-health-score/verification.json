@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "customer-health-score",
+  "cases": [
+    {
+      "id": "at-risk-customer",
+      "description": "Nightly score blend writes back to HubSpot and pings CSM for an at-risk customer.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

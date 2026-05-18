@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "templateId": "stripe-failed-payment-dunning",
+  "cases": [
+    {
+      "id": "enterprise-failure",
+      "description": "Payment failure on an enterprise customer emails them, alerts finance, and pages the CSM.",
+      "triggerPayload": {
+        "data": {
+          "object": {
+            "customer": "cus_test_enterprise",
+            "amount": 599900,
+            "currency": "usd",
+            "last_payment_error": { "message": "card_declined" }
+          }
+        }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
