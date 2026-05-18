@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "templateId": "lever-candidate-pipeline",
+  "cases": [
+    {
+      "id": "offer-stage",
+      "description": "Stage change to 'offer' triggers Airtable mirror, DocuSign envelope, and Slack ping.",
+      "triggerPayload": {
+        "candidate": { "id": "c-1", "name": "Sam Jones", "emails": ["sam@example.com"], "stage": "offer" }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

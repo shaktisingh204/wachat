@@ -1,0 +1,10 @@
+{
+  "id": "lever-candidate-pipeline",
+  "name": "Lever Candidate Pipeline",
+  "description": "Mirrors Lever candidate stage changes into an Airtable pipeline base so recruiting and finance can review without paying per Lever seat. When a candidate hits the offer stage, the workflow fires a DocuSign envelope and pings #recruiting with the envelope link.",
+  "category": "HR",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["lever", "ats", "airtable", "docusign", "slack", "recruiting"],
+  "version": "0.1.0"
+}
