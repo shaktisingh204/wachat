@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "templateId": "gdpr-deletion-cascade",
+  "cases": [
+    {
+      "id": "happy-path",
+      "description": "DPO-signed erasure request fans out to all five sinks, merges, audits, and emails the subject.",
+      "triggerPayload": {
+        "requestId": "rtbf-2026-0007",
+        "subjectId": "cus_77881122",
+        "email": "subject@example.com",
+        "dpoSignature": "ed25519:abc123"
+      },
+      "expect": {
+        "finalStatus": "success"
+      }
+    }
+  ]
+}
