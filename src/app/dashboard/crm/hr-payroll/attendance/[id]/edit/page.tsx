@@ -7,9 +7,8 @@
  */
 
 import { notFound } from 'next/navigation';
-import { CalendarCheck } from 'lucide-react';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { AttendanceForm } from '@/app/dashboard/crm/hr-payroll/attendance/_components/attendance-form';
 import { getAttendance } from '@/app/actions/crm/attendance.actions';
 
@@ -32,13 +31,12 @@ export default async function EditAttendancePage({
   if (!record) notFound();
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title={`Edit ${fmtDate(record.date)}`}
-        subtitle="Update attendance details."
-        icon={CalendarCheck}
-      />
+    <EntityDetailShell
+      title={`Edit ${fmtDate(record.date)}`}
+      eyebrow="ATTENDANCE"
+      back={{ href: '/dashboard/crm/hr-payroll/attendance', label: 'Attendance' }}
+    >
       <AttendanceForm initial={record} />
-    </div>
+    </EntityDetailShell>
   );
 }

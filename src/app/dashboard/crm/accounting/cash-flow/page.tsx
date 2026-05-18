@@ -3,9 +3,9 @@ export const dynamic = 'force-dynamic';
 
 import { getCashFlowStatement } from '@/app/actions/crm-accounting-reports.actions';
 
-import { ArrowUpCircle, ArrowDownCircle, ArrowLeftRight } from 'lucide-react';
+import { ArrowUpCircle, ArrowDownCircle } from 'lucide-react';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 export default async function CashFlowPage(props: { searchParams: Promise<{ year?: string }> }) {
     const searchParams = await props.searchParams;
@@ -14,12 +14,10 @@ export default async function CashFlowPage(props: { searchParams: Promise<{ year
     const netCashFlow = totalIn - totalOut;
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="Cash Flow Statement"
-                subtitle={`Inflow vs Outflow Analysis for ${year}`}
-                icon={ArrowLeftRight}
-            />
+        <EntityListShell
+            title="Cash Flow Statement"
+            subtitle={`Inflow vs Outflow Analysis for ${year}`}
+        >
 
             <div className="grid gap-4 md:grid-cols-3">
                 <ZoruCard>
@@ -72,6 +70,6 @@ export default async function CashFlowPage(props: { searchParams: Promise<{ year
                     </ZoruTable>
                 </div>
             </ZoruCard>
-        </div>
+        </EntityListShell>
     )
 }

@@ -20,7 +20,7 @@ import {
   ZoruTableRow,
   useZoruToast,
 } from '@/components/zoruui';
-import { Download, ChevronDown, SlidersHorizontal, TrendingUp } from "lucide-react";
+import { Download, ChevronDown, SlidersHorizontal } from "lucide-react";
 
 import { useState, useEffect, useTransition, useCallback } from 'react';
 import { generateProfitAndLossData } from "@/app/actions/crm-accounting.actions";
@@ -28,7 +28,7 @@ import { LoaderCircle } from "lucide-react";
 import { format } from "date-fns";
 import Papa from 'papaparse';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 const StatCard = ({ title, value, percentage, isProfit }: { title: string; value: string; percentage?: string, isProfit?: boolean }) => (
     <div className="bg-secondary border border-border p-4 rounded-lg text-center">
@@ -153,38 +153,36 @@ export default function PnlPage() {
     }
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="Profit & Loss"
-                subtitle="An overview of your business's profitability."
-                icon={TrendingUp}
-                actions={
-                    <ZoruPopover>
-                        <ZoruPopoverTrigger asChild>
-                            <ZoruButton variant="outline">
-                                Filters
+        <EntityListShell
+            title="Profit & Loss"
+            subtitle="An overview of your business's profitability."
+            primaryAction={
+                <ZoruPopover>
+                    <ZoruPopoverTrigger asChild>
+                        <ZoruButton variant="outline">
+                            Filters
+                        </ZoruButton>
+                    </ZoruPopoverTrigger>
+                    <ZoruPopoverContent className="w-96 space-y-4">
+                        <div className="space-y-2">
+                            <ZoruLabel>Start Date</ZoruLabel>
+                            <ZoruDatePicker value={startDate} onChange={setStartDate} />
+                        </div>
+                        <div className="space-y-2">
+                            <ZoruLabel>End Date</ZoruLabel>
+                            <ZoruDatePicker value={endDate} onChange={setEndDate} />
+                        </div>
+                        <div className="flex justify-end">
+                            <ZoruButton onClick={fetchData} disabled={isLoading}>
+                                {isLoading && <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/>}
+                                Apply
                             </ZoruButton>
-                        </ZoruPopoverTrigger>
-                        <ZoruPopoverContent className="w-96 space-y-4">
-                            <div className="space-y-2">
-                                <ZoruLabel>Start Date</ZoruLabel>
-                                <ZoruDatePicker value={startDate} onChange={setStartDate} />
-                            </div>
-                            <div className="space-y-2">
-                                <ZoruLabel>End Date</ZoruLabel>
-                                <ZoruDatePicker value={endDate} onChange={setEndDate} />
-                            </div>
-                            <div className="flex justify-end">
-                                <ZoruButton onClick={fetchData} disabled={isLoading}>
-                                    {isLoading && <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/>}
-                                    Apply
-                                </ZoruButton>
-                            </div>
-                        </ZoruPopoverContent>
-                    </ZoruPopover>
-                }
-            />
+                        </div>
+                    </ZoruPopoverContent>
+                </ZoruPopover>
+            }
+        >
             <PnlClient data={data} startDate={startDate} endDate={endDate} />
-        </div>
+        </EntityListShell>
     );
 }

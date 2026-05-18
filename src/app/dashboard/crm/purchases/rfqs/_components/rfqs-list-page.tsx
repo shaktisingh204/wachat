@@ -19,7 +19,6 @@ import {
   useZoruToast,
 } from '@/components/zoruui';
 import {
-  ClipboardList,
   Edit,
   LoaderCircle,
   Plus,
@@ -36,7 +35,6 @@ import {
 import * as React from 'react';
 import Link from 'next/link';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EnumFilterField } from '@/components/crm/enum-filter-field';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
@@ -114,27 +112,16 @@ export function RfqsListPage() {
 
     return (
         <>
-            <div className="flex w-full flex-col gap-6">
-                <CrmPageHeader
-                    breadcrumbs={[
-                        { label: 'CRM', href: '/dashboard/crm' },
-                        { label: 'Purchases', href: '/dashboard/crm/purchases' },
-                        { label: 'RFQs' },
-                    ]}
+            <EntityListShell
                     title="Request for Quotations"
                     subtitle="Issue RFQs and collect vendor bids."
-                    icon={ClipboardList}
-                    actions={
+                    primaryAction={
                         <ZoruButton asChild>
                             <Link href={`${BASE}/new`}>
                                 <Plus className="mr-1.5 h-3.5 w-3.5" /> New RFQ
                             </Link>
                         </ZoruButton>
                     }
-                />
-
-                <EntityListShell
-                    title=""
                     search={{
                         value: search,
                         onChange: setSearch,
@@ -228,7 +215,6 @@ export function RfqsListPage() {
                         </ZoruTable>
                     </div>
                 </EntityListShell>
-            </div>
 
             <ZoruAlertDialog
                 open={!!pendingDelete}

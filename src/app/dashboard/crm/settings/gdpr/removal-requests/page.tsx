@@ -52,7 +52,6 @@ import {
 import * as React from 'react';
 import Link from 'next/link';
 
-import { CrmPageHeader } from '../../../_components/crm-page-header';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 import {
@@ -285,12 +284,6 @@ export default function GdprEraseRequestsPage() {
 
     return (
         <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="GDPR Erase Requests"
-                subtitle="Right-to-be-forgotten workflow for CRM subjects (Art. 17)."
-                icon={UserMinus}
-            />
-
             <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
                 <ZoruStatCard label="Pending" value={counts.pending.toLocaleString()} />
                 <ZoruStatCard label="Approved" value={counts.approved.toLocaleString()} />
@@ -302,7 +295,8 @@ export default function GdprEraseRequestsPage() {
             </div>
 
             <EntityListShell
-                title=""
+                title="GDPR Erase Requests"
+                subtitle="Right-to-be-forgotten workflow for CRM subjects (Art. 17)."
                 primaryAction={
                     <ZoruButton asChild>
                         <Link href="/dashboard/crm/settings/gdpr/removal-requests/new">

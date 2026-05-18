@@ -5,14 +5,12 @@ import {
   useActionState,
   useEffect } from 'react';
 import { useFormStatus } from 'react-dom';
-import { ArrowLeft,
-  Save,
+import { Save,
   LoaderCircle,
-  Award } from 'lucide-react';
-import Link from 'next/link';
+  } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { saveLoyaltyProgram } from '@/app/actions/crm-loyalty.actions';
 
 export const dynamic = 'force-dynamic';
@@ -49,20 +47,11 @@ export default function NewLoyaltyProgramPage() {
     }, [state, router, toast]);
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="New Loyalty Program"
-                subtitle="Create a points-based loyalty program for your customers."
-                icon={Award}
-                actions={
-                    <Link href="/dashboard/crm/sales/loyalty">
-                        <ZoruButton variant="outline" size="sm">
-                            <ArrowLeft className="h-4 w-4" />
-                            Back
-                        </ZoruButton>
-                    </Link>
-                }
-            />
+        <EntityDetailShell
+            eyebrow="LOYALTY PROGRAM"
+            title="New Loyalty Program"
+            back={{ href: '/dashboard/crm/sales/loyalty', label: 'Loyalty' }}
+        >
 
             <form action={formAction}>
                 <ZoruCard className="p-6 max-w-xl">
@@ -178,6 +167,6 @@ export default function NewLoyaltyProgramPage() {
                     </div>
                 </ZoruCard>
             </form>
-        </div>
+        </EntityDetailShell>
     );
 }

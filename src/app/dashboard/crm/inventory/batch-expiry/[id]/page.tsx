@@ -4,8 +4,6 @@ import {
   redirect } from 'next/navigation';
 import {
     AlertTriangle,
-  ArrowLeft,
-  CalendarClock,
   Pencil,
   } from 'lucide-react';
 
@@ -18,7 +16,7 @@ import {
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 import { getSession } from '@/app/actions/user.actions';
 
@@ -67,32 +65,18 @@ export default async function BatchDetailPage({
     const soon = days != null && days >= 0 && days <= SOON_DAYS;
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'CRM', href: '/dashboard/crm' },
-                    { label: 'Inventory', href: '/dashboard/crm/inventory' },
-                    { label: 'Batch & expiry', href: BASE },
-                    { label: batch.batchNumber },
-                ]}
-                title={batch.batchNumber}
-                subtitle={batch.itemName}
-                icon={CalendarClock}
-                actions={
-                    <div className="flex items-center gap-2">
-                        <ZoruButton variant="outline" asChild>
-                            <Link href={BASE}>
-                                <ArrowLeft className="mr-2 h-4 w-4" /> Back
-                            </Link>
-                        </ZoruButton>
-                        <ZoruButton asChild>
-                            <Link href={`${BASE}/${id}/edit`}>
-                                <Pencil className="mr-2 h-4 w-4" /> Edit
-                            </Link>
-                        </ZoruButton>
-                    </div>
-                }
-            />
+        <EntityDetailShell
+            eyebrow="BATCH"
+            title={batch.batchNumber}
+            back={{ href: BASE, label: 'Batch & expiry' }}
+            actions={
+                <ZoruButton asChild>
+                    <Link href={`${BASE}/${id}/edit`}>
+                        <Pencil className="mr-2 h-4 w-4" /> Edit
+                    </Link>
+                </ZoruButton>
+            }
+        >
 
             {/* Expiry alert */}
             {expired ? (
@@ -193,6 +177,6 @@ export default async function BatchDetailPage({
                     ) : null}
                 </div>
             </ZoruCard>
-        </div>
+        </EntityDetailShell>
     );
 }

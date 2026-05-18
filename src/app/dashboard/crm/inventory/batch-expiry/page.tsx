@@ -11,14 +11,14 @@ import {
   ZoruTableRow,
   useZoruToast,
 } from '@/components/zoruui';
-import { Download, CalendarClock, LoaderCircle } from 'lucide-react';
+import { Download, LoaderCircle } from 'lucide-react';
 import { useState, useEffect, useTransition, useCallback } from 'react';
 import { generateBatchExpiryReportData } from '@/app/actions/crm-reports.actions';
 
 import Papa from 'papaparse';
 import { format } from "date-fns";
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 type ReportData = {
     expiringIn30: any[];
@@ -121,17 +121,15 @@ export default function BatchExpiryReportPage() {
     ];
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="Batch Expiry Report"
-                subtitle="Track expiry dates for your batch-managed items to reduce wastage."
-                icon={CalendarClock}
-                actions={
-                    <ZoruButton variant="outline" onClick={() => handleDownload(allBatches, 'full_expiry_report')} disabled={allBatches.length === 0}>
-                        Download Full Report
-                    </ZoruButton>
-                }
-            />
+        <EntityListShell
+            title="Batch Expiry Report"
+            subtitle="Track expiry dates for your batch-managed items to reduce wastage."
+            primaryAction={
+                <ZoruButton variant="outline" onClick={() => handleDownload(allBatches, 'full_expiry_report')} disabled={allBatches.length === 0}>
+                    Download Full Report
+                </ZoruButton>
+            }
+        >
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <StatCard title="Expired Stock" value={reportData.expired.length} />
@@ -158,6 +156,6 @@ export default function BatchExpiryReportPage() {
                      <BatchTable title="Safe Stock (Expires > 90 days)" batches={reportData.safe} />
                 </div>
             </div>
-        </div>
+        </EntityListShell>
     )
 }

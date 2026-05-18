@@ -14,9 +14,7 @@
  * extra pre-fetching beyond the session.
  */
 
-import { ShoppingBag } from 'lucide-react';
-
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { PurchaseOrderForm } from '../_components/purchase-order-form';
 import { getSession } from '@/app/actions/user.actions';
 
@@ -25,24 +23,10 @@ export const dynamic = 'force-dynamic';
 export default async function NewPurchaseOrderPage() {
   const session = await getSession();
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="New purchase order"
-        subtitle="Raise a new procurement order for a vendor."
-        icon={ShoppingBag}
-        breadcrumbs={[
-          { label: 'CRM', href: '/dashboard/crm' },
-          { label: 'Purchases', href: '/dashboard/crm/purchases' },
-          {
-            label: 'Purchase Orders',
-            href: '/dashboard/crm/purchases/orders',
-          },
-          { label: 'New' },
-        ]}
-      />
+    <EntityListShell title="New purchase order" subtitle="Raise a new procurement order for a vendor.">
       <PurchaseOrderForm
         currentUserId={session?.user?._id ? String(session.user._id) : null}
       />
-    </div>
+    </EntityListShell>
   );
 }

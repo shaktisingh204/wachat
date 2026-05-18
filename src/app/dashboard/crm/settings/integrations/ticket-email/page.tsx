@@ -8,10 +8,9 @@ import {
   useState,
   useTransition,
   } from 'react';
-import { LoaderCircle,
-  Ticket } from 'lucide-react';
+import { LoaderCircle } from 'lucide-react';
 
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   getTicketEmailSetting,
   saveTicketEmailSetting,
@@ -67,12 +66,10 @@ export default function TicketEmailIntegrationPage() {
   const id = doc && (doc as any)._id ? String((doc as any)._id) : '';
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Ticket Email"
-        subtitle="IMAP inbox that converts incoming emails into tickets."
-        icon={Ticket}
-      />
+    <EntityListShell
+      title="Ticket Email"
+      subtitle="IMAP inbox that converts incoming emails into tickets."
+    >
 
       <ZoruCard className="p-6">
         {!doc && !id ? (
@@ -188,6 +185,6 @@ export default function TicketEmailIntegrationPage() {
           </div>
         </form>
       </ZoruCard>
-    </div>
+    </EntityListShell>
   );
 }

@@ -1,18 +1,13 @@
-import { ZoruButton } from '@/components/zoruui';
 import {
   notFound,
   redirect } from 'next/navigation';
-import { ArrowLeft,
-  ArrowRightLeft } from 'lucide-react';
 
 /**
  * Edit stock transfer — server wrapper, fetches doc and reuses
  * <StockTransferForm /> with `initial` set.
  */
 
-import Link from 'next/link';
-
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getSession } from '@/app/actions/user.actions';
 
 import { getStockTransferById } from '@/app/actions/crm-stock-transfers.actions';
@@ -38,27 +33,12 @@ export default async function EditStockTransferPage({ params }: PageProps) {
         transfer.transferNumber || `ST-${String(transfer._id).slice(-6)}`;
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'CRM', href: '/dashboard/crm' },
-                    { label: 'Inventory', href: '/dashboard/crm/inventory' },
-                    { label: 'Stock transfers', href: BASE },
-                    { label: number, href: `${BASE}/${id}` },
-                    { label: 'Edit' },
-                ]}
-                title={`Edit ${number}`}
-                subtitle="Update warehouses, line items, status, or attachments."
-                icon={ArrowRightLeft}
-                actions={
-                    <ZoruButton variant="ghost" asChild>
-                        <Link href={`${BASE}/${id}`}>
-                            <ArrowLeft className="mr-2 h-4 w-4" /> Back to transfer
-                        </Link>
-                    </ZoruButton>
-                }
-            />
+        <EntityDetailShell
+            eyebrow="STOCK TRANSFER"
+            title={`Edit ${number}`}
+            back={{ href: `${BASE}/${id}`, label: 'Back to transfer' }}
+        >
             <StockTransferForm initial={transfer} />
-        </div>
+        </EntityDetailShell>
     );
 }

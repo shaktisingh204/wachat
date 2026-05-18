@@ -8,7 +8,7 @@
 
 import { notFound } from 'next/navigation';
 
-import { CrmPageHeader } from '../../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getContractById } from '@/app/actions/crm-contracts.actions';
 import { EditContractForm } from './edit-form';
 
@@ -24,12 +24,12 @@ export default async function EditContractPage({
     if (!contract) notFound();
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title={`Edit ${(contract as any).title ?? 'contract'}`}
-                subtitle="Update contract terms, parties, and lifecycle."
-            />
+        <EntityDetailShell
+            eyebrow="CONTRACT"
+            title={`Edit ${(contract as any).title ?? 'contract'}`}
+            back={{ href: `/dashboard/crm/sales/contracts/${contractId}`, label: 'Contract' }}
+        >
             <EditContractForm contractId={contractId} initial={contract as any} />
-        </div>
+        </EntityDetailShell>
     );
 }

@@ -8,7 +8,6 @@ import {
   useState,
   useTransition,
   } from 'react';
-import { Building2 } from 'lucide-react';
 
 /**
  * Company Profile — single-doc settings form per §1D.3:
@@ -31,7 +30,7 @@ import * as React from 'react';
 import { SabFileUrlInput } from '@/components/sabfiles';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { EntityFormShell } from '@/components/crm/entity-form-shell';
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
     getCompanyProfile,
     saveCompanyProfile,
@@ -142,26 +141,22 @@ export default function CompanyProfilePage() {
 
     if (isLoading && !profile) {
         return (
-            <div className="flex w-full flex-col gap-6">
-                <CrmPageHeader
-                    title="Company Profile"
-                    subtitle="Master details for your organization — branding, contact, fiscal year, and document prefixes."
-                    icon={Building2}
-                />
+            <EntityListShell
+                title="Company Profile"
+                subtitle="Master details for your organization — branding, contact, fiscal year, and document prefixes."
+            >
                 <ZoruCard className="p-6">
                     <ZoruSkeleton className="h-[420px] w-full" />
                 </ZoruCard>
-            </div>
+            </EntityListShell>
         );
     }
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="Company Profile"
-                subtitle="Master details for your organization — branding, contact, fiscal year, and document prefixes."
-                icon={Building2}
-            />
+        <EntityListShell
+            title="Company Profile"
+            subtitle="Master details for your organization — branding, contact, fiscal year, and document prefixes."
+        >
             <EntityFormShell
                 action={formAction}
                 submitLabel="Save Profile"
@@ -409,6 +404,6 @@ export default function CompanyProfilePage() {
                     },
                 ]}
             />
-        </div>
+        </EntityListShell>
     );
 }

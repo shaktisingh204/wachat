@@ -11,10 +11,9 @@ import {
 } from '@/components/zoruui';
 import {
   ObjectId } from 'mongodb';
-import { Award,
-  Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 import Link from 'next/link';
 
@@ -75,20 +74,18 @@ export default async function SalesLoyaltyPage() {
   }
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Loyalty"
-        subtitle="Reward repeat customers with tiered points programs and expiry rules."
-        icon={Award}
-        actions={
-          <Link href="/dashboard/crm/sales/loyalty/new">
-            <ZoruButton variant="outline">
-              <Plus className="h-4 w-4" strokeWidth={1.75} />
-              New program
-            </ZoruButton>
-          </Link>
-        }
-      />
+    <EntityListShell
+      title="Loyalty"
+      subtitle="Reward repeat customers with tiered points programs and expiry rules."
+      primaryAction={
+        <Link href="/dashboard/crm/sales/loyalty/new">
+          <ZoruButton variant="outline">
+            <Plus className="h-4 w-4" strokeWidth={1.75} />
+            New program
+          </ZoruButton>
+        </Link>
+      }
+    >
 
       <ZoruCard className="p-6">
         <div className="mb-4">
@@ -168,6 +165,6 @@ export default async function SalesLoyaltyPage() {
           </ZoruTable>
         </div>
       </ZoruCard>
-    </div>
+    </EntityListShell>
   );
 }

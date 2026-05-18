@@ -1,9 +1,8 @@
 import { ZoruCard } from '@/components/zoruui';
-import { Wallet } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   ReportToolbar,
   StatCard,
@@ -24,13 +23,11 @@ export default async function IncomeReportPage(props: {
   const avg = rows.length ? total / rows.length : 0;
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Income Report"
-        subtitle="Revenue by month from paid and partially paid invoices."
-        icon={Wallet}
-        actions={<ReportToolbar from={sp.from} to={sp.to} />}
-      />
+    <EntityListShell
+      title="Income Report"
+      subtitle="Revenue by month from paid and partially paid invoices."
+      primaryAction={<ReportToolbar from={sp.from} to={sp.to} />}
+    >
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <StatCard label="Total income" value={fmtMoney(total)} tone="green" />
@@ -64,6 +61,6 @@ export default async function IncomeReportPage(props: {
           </div>
         )}
       </ZoruCard>
-    </div>
+    </EntityListShell>
   );
 }

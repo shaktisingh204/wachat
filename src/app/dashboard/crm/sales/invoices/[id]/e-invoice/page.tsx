@@ -1,8 +1,6 @@
-import { ZoruBadge, ZoruButton, ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import { ZoruBadge, ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
 import {
   notFound } from 'next/navigation';
-import { FileCheck,
-  ArrowLeft } from 'lucide-react';
 
 /**
  * Invoice e-invoice (IRN) manager — `/dashboard/crm/sales/invoices/[id]/e-invoice`.
@@ -13,9 +11,7 @@ import { FileCheck,
  * later without breaking this shell).
  */
 
-import Link from 'next/link';
-
-import { CrmPageHeader } from '../../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getEInvoiceForInvoice } from '@/app/actions/crm-india-einvoice.actions';
 import { EInvoiceActions } from './_components/e-invoice-actions';
 
@@ -38,20 +34,11 @@ export default async function InvoiceEInvoicePage(props: {
     const block = await getEInvoiceForInvoice(id);
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="E-invoice (IRN)"
-                subtitle="Report this invoice to the GSTN IRP and attach the signed IRN + QR."
-                icon={FileCheck}
-                actions={
-                    <ZoruButton asChild variant="outline">
-                        <Link href={`/dashboard/crm/sales/invoices/${id}`}>
-                            <ArrowLeft className="h-4 w-4" />
-                            Back to invoice
-                        </Link>
-                    </ZoruButton>
-                }
-            />
+        <EntityDetailShell
+            eyebrow="INVOICE"
+            title="E-invoice (IRN)"
+            back={{ href: `/dashboard/crm/sales/invoices/${id}`, label: 'Invoice' }}
+        >
 
             {!block ? (
                 <ZoruCard>
@@ -146,7 +133,7 @@ export default async function InvoiceEInvoicePage(props: {
                     </ZoruCard>
                 </>
             )}
-        </div>
+        </EntityDetailShell>
     );
 }
 

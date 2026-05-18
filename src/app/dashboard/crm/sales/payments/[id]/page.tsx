@@ -1,9 +1,7 @@
 import { ZoruButton, ZoruCard, ZoruBadge } from '@/components/zoruui';
 import {
   notFound } from 'next/navigation';
-import { CreditCard,
-  Pencil,
-  ArrowLeft } from 'lucide-react';
+import { Pencil } from 'lucide-react';
 
 /**
  * Payment receipt detail — `/dashboard/crm/sales/payments/[id]`.
@@ -17,7 +15,7 @@ import { CreditCard,
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { getPaymentReceipt } from '@/app/actions/crm/payment-receipts.actions';
 
@@ -83,26 +81,18 @@ export default async function PaymentReceiptDetailPage({
   const applied = receipt.applyTo ?? [];
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title={title}
-        subtitle={`Payment receipt · ${fmtMoney(receipt.amount, receipt.currency)}`}
-        icon={CreditCard}
-        actions={
-          <>
-            <ZoruButton variant="outline" asChild>
-              <Link href="/dashboard/crm/sales/payments">
-                <ArrowLeft className="h-4 w-4" /> Back
-              </Link>
-            </ZoruButton>
-            <ZoruButton asChild>
-              <Link href={`/dashboard/crm/sales/payments/${id}/edit`}>
-                <Pencil className="h-4 w-4" /> Edit
-              </Link>
-            </ZoruButton>
-          </>
-        }
-      />
+    <EntityDetailShell
+      eyebrow="PAYMENT RECEIPT"
+      title={title}
+      back={{ href: '/dashboard/crm/sales/payments', label: 'Payment Receipts' }}
+      actions={
+        <ZoruButton asChild>
+          <Link href={`/dashboard/crm/sales/payments/${id}/edit`}>
+            <Pencil className="h-4 w-4" /> Edit
+          </Link>
+        </ZoruButton>
+      }
+    >
 
       <div className="grid gap-6 lg:grid-cols-3">
         <ZoruCard className="p-6 lg:col-span-2">
@@ -217,6 +207,6 @@ export default async function PaymentReceiptDetailPage({
         Created {fmtDate(receipt.createdAt || receipt.audit?.createdAt)} · Updated{' '}
         {fmtDate(receipt.updatedAt || receipt.audit?.updatedAt)}
       </div>
-    </div>
+    </EntityDetailShell>
   );
 }

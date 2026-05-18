@@ -55,7 +55,7 @@ export type ContractStatusV2 =
   | 'terminated'
   | 'renewed';
 
-export const CONTRACT_STATUS_V2_VALUES: ContractStatusV2[] = [
+const CONTRACT_STATUS_V2_VALUES: ContractStatusV2[] = [
   'draft',
   'pending_signature',
   'active',

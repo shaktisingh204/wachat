@@ -13,7 +13,6 @@ import {
   ObjectId } from 'mongodb';
 import { redirect } from 'next/navigation';
 import { ArrowRight,
-  CalendarClock,
   FileSignature } from 'lucide-react';
 
 /**
@@ -28,7 +27,7 @@ import { ArrowRight,
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
@@ -112,28 +111,18 @@ export default async function ContractRenewalsPage() {
     }
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'Sales', href: '/dashboard/crm/sales' },
-                    {
-                        label: 'Contracts',
-                        href: CONTRACTS_BASE,
-                    },
-                    { label: 'Renewals' },
-                ]}
-                title="Contract renewals"
-                subtitle={`Active contracts expiring within ${RENEWAL_WINDOW_DAYS} days — soonest first.`}
-                icon={CalendarClock}
-                actions={
-                    <ZoruButton variant="outline" asChild>
-                        <Link href={CONTRACTS_BASE}>
-                            <FileSignature className="mr-2 h-4 w-4" />
-                            All contracts
-                        </Link>
-                    </ZoruButton>
-                }
-            />
+        <EntityListShell
+            title="Contract renewals"
+            subtitle={`Active contracts expiring within ${RENEWAL_WINDOW_DAYS} days — soonest first.`}
+            primaryAction={
+                <ZoruButton variant="outline" asChild>
+                    <Link href={CONTRACTS_BASE}>
+                        <FileSignature className="mr-2 h-4 w-4" />
+                        All contracts
+                    </Link>
+                </ZoruButton>
+            }
+        >
 
             <ZoruCard className="p-6">
                 <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
@@ -286,6 +275,6 @@ export default async function ContractRenewalsPage() {
                     </ZoruTable>
                 </div>
             </ZoruCard>
-        </div>
+        </EntityListShell>
     );
 }

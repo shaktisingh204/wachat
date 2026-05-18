@@ -3,13 +3,13 @@
 import { ZoruBadge, ZoruButton, ZoruCard, ZoruPopover, ZoruPopoverContent, ZoruPopoverTrigger } from '@/components/zoruui';
 import { useState, useEffect } from 'react';
 import { format } from 'date-fns';
-import { Calendar as CalendarIcon, ArrowDownCircle, ArrowUpCircle, BookOpen, LoaderCircle } from 'lucide-react';
+import { Calendar as CalendarIcon, ArrowDownCircle, ArrowUpCircle, LoaderCircle } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { Calendar } from '@/components/ui/calendar';
 
 import { getDayBookTransactions, type DayBookTransaction } from "@/app/actions/crm-accounting-reports.actions";
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 export default function DayBookPage() {
     const [date, setDate] = useState<Date>(new Date());
@@ -35,32 +35,29 @@ export default function DayBookPage() {
     }
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="Day Book"
-                subtitle={`Transactions for ${format(date, 'PPP')}`}
-                icon={BookOpen}
-                actions={
-                    <ZoruPopover>
-                        <ZoruPopoverTrigger asChild>
-                            <ZoruButton
-                                variant="outline"
-                               
-                            >
-                                {date ? format(date, "PPP") : 'Pick a date'}
-                            </ZoruButton>
-                        </ZoruPopoverTrigger>
-                        <ZoruPopoverContent className="w-auto p-0" align="end">
-                            <Calendar
-                                mode="single"
-                                selected={date}
-                                onSelect={(d) => d && setDate(d)}
-                                initialFocus
-                            />
-                        </ZoruPopoverContent>
-                    </ZoruPopover>
-                }
-            />
+        <EntityListShell
+            title="Day Book"
+            subtitle={`Transactions for ${format(date, 'PPP')}`}
+            primaryAction={
+                <ZoruPopover>
+                    <ZoruPopoverTrigger asChild>
+                        <ZoruButton
+                            variant="outline"
+                        >
+                            {date ? format(date, "PPP") : 'Pick a date'}
+                        </ZoruButton>
+                    </ZoruPopoverTrigger>
+                    <ZoruPopoverContent className="w-auto p-0" align="end">
+                        <Calendar
+                            mode="single"
+                            selected={date}
+                            onSelect={(d) => d && setDate(d)}
+                            initialFocus
+                        />
+                    </ZoruPopoverContent>
+                </ZoruPopover>
+            }
+        >
 
             <div className="grid gap-4 md:grid-cols-3">
                 <ZoruCard>
@@ -122,6 +119,6 @@ export default function DayBookPage() {
                     )}
                 </div>
             </ZoruCard>
-        </div>
+        </EntityListShell>
     )
 }

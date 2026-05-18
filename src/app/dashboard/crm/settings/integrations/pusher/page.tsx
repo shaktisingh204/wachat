@@ -9,10 +9,9 @@ import {
   useTransition,
   } from 'react';
 import { LoaderCircle,
-  Play,
-  Zap } from 'lucide-react';
+  Play } from 'lucide-react';
 
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   getPusherSetting,
   savePusherSetting,
@@ -84,12 +83,10 @@ export default function PusherIntegrationPage() {
   };
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Pusher"
-        subtitle="Realtime channel credentials for live updates."
-        icon={Zap}
-      />
+    <EntityListShell
+      title="Pusher"
+      subtitle="Realtime channel credentials for live updates."
+    >
 
       <ZoruCard className="p-6">
         {!doc && !id ? (
@@ -181,6 +178,6 @@ export default function PusherIntegrationPage() {
           </div>
         </form>
       </ZoruCard>
-    </div>
+    </EntityListShell>
   );
 }

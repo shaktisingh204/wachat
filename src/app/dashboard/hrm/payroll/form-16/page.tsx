@@ -4,12 +4,11 @@ import { ZoruCard, ZoruButton, ZoruBadge } from '@/components/zoruui';
 import {
   useState,
   useTransition } from 'react';
-import { FileText,
-  Download,
+import { Download,
   LoaderCircle,
   ChevronDown } from 'lucide-react';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 const currentYear = new Date().getFullYear();
 

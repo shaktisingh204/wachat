@@ -20,7 +20,6 @@ import {
 } from '@/components/zoruui';
 import {
   Edit,
-  Gavel,
   LoaderCircle,
   Plus,
   Trash2 } from 'lucide-react';
@@ -32,7 +31,6 @@ import {
 import * as React from 'react';
 import Link from 'next/link';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 import { EnumFilterField } from '@/components/crm/enum-filter-field';
@@ -119,27 +117,16 @@ export function VendorBidsListPage() {
 
     return (
         <>
-            <div className="flex w-full flex-col gap-6">
-                <CrmPageHeader
-                    breadcrumbs={[
-                        { label: 'CRM', href: '/dashboard/crm' },
-                        { label: 'Purchases', href: '/dashboard/crm/purchases' },
-                        { label: 'Vendor Bids' },
-                    ]}
+            <EntityListShell
                     title="Vendor Bids"
                     subtitle="Bids submitted by vendors in response to RFQs."
-                    icon={Gavel}
-                    actions={
+                    primaryAction={
                         <ZoruButton asChild>
                             <Link href={`${BASE}/new`}>
                                 <Plus className="mr-1.5 h-3.5 w-3.5" /> New bid
                             </Link>
                         </ZoruButton>
                     }
-                />
-
-                <EntityListShell
-                    title=""
                     search={{
                         value: search,
                         onChange: setSearch,
@@ -231,7 +218,6 @@ export function VendorBidsListPage() {
                         </ZoruTable>
                     </div>
                 </EntityListShell>
-            </div>
 
             <ZoruAlertDialog
                 open={!!pendingDelete}

@@ -30,7 +30,6 @@ import {
   useTransition,
   } from 'react';
 import {
-    Building,
   ChevronDown,
   ChevronRight,
   LoaderCircle,
@@ -39,7 +38,7 @@ import {
   Trash2,
   } from 'lucide-react';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
     getDepartmentTree,
     getDepartmentsExt,
@@ -261,18 +260,16 @@ export default function DepartmentsHierarchyPage() {
     }, [editing]);
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="Departments — Hierarchy"
-                subtitle="Nested org structure. Set a parent for each department to build the tree."
-                icon={Building}
-                actions={
-                    <ZoruButton onClick={handleAdd}>
-                        <Plus className="h-4 w-4" />
-                        Add Department
-                    </ZoruButton>
-                }
-            />
+        <EntityListShell
+            title="Departments — Hierarchy"
+            subtitle="Nested org structure. Set a parent for each department to build the tree."
+            primaryAction={
+                <ZoruButton onClick={handleAdd}>
+                    <Plus className="h-4 w-4" />
+                    Add Department
+                </ZoruButton>
+            }
+        >
 
             <ZoruCard className="p-6">
                 {isLoading && tree.length === 0 ? (
@@ -389,6 +386,6 @@ export default function DepartmentsHierarchyPage() {
                     </form>
                 </ZoruDialogContent>
             </ZoruDialog>
-        </div>
+        </EntityListShell>
     );
 }

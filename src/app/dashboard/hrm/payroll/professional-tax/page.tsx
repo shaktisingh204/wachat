@@ -35,8 +35,7 @@ import {
   useTransition,
   useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
-import { Landmark,
-  LoaderCircle,
+import { LoaderCircle,
   Plus,
   Save,
   Trash2,
@@ -46,7 +45,7 @@ import { getCrmPtSlabs, saveCrmPtSlab, deleteCrmPtSlab, generateProfessionalTaxR
 import type { WithId, CrmProfessionalTaxSlab } from '@/lib/definitions';
 import { indianStates } from '@/lib/states';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 const saveInitialState: any = { message: null, error: null };
 
@@ -192,12 +191,10 @@ export default function ProfessionalTaxPage() {
     const statesCount = [...new Set(slabs.map(s => s.state))].length;
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="Professional Tax"
-                subtitle="Manage state-wise PT slabs and view calculated tax for employees."
-                icon={Landmark}
-            />
+        <EntityListShell
+            title="Professional Tax"
+            subtitle="Manage state-wise PT slabs and view calculated tax for employees."
+        >
 
             <div className="grid gap-4 md:grid-cols-3">
                 <ZoruCard className="p-6">
@@ -334,6 +331,6 @@ export default function ProfessionalTaxPage() {
                     </ZoruCard>
                 </div>
             </div>
-        </div>
+        </EntityListShell>
     );
 }

@@ -9,10 +9,9 @@ import {
   useTransition,
   } from 'react';
 import { LoaderCircle,
-  Mail,
   Play } from 'lucide-react';
 
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   getSmtpSetting,
   saveSmtpSetting,
@@ -77,12 +76,10 @@ export default function SmtpIntegrationPage() {
   };
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="SMTP"
-        subtitle="Outbound email server for transactional email."
-        icon={Mail}
-      />
+    <EntityListShell
+      title="SMTP"
+      subtitle="Outbound email server for transactional email."
+    >
 
       <ZoruCard className="p-6">
         <div className="mb-4 flex items-center gap-2">
@@ -217,6 +214,6 @@ export default function SmtpIntegrationPage() {
           </div>
         </form>
       </ZoruCard>
-    </div>
+    </EntityListShell>
   );
 }

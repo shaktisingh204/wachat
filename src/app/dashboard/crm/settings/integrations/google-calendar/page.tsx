@@ -8,10 +8,9 @@ import {
   useState,
   useTransition,
   } from 'react';
-import { CalendarDays,
-  LoaderCircle } from 'lucide-react';
+import { LoaderCircle } from 'lucide-react';
 
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   getGoogleCalendarSetting,
   saveGoogleCalendarSetting,
@@ -67,12 +66,10 @@ export default function GoogleCalendarIntegrationPage() {
   const id = doc && (doc as any)._id ? String((doc as any)._id) : '';
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Google Calendar"
-        subtitle="OAuth credentials for Google Calendar sync."
-        icon={CalendarDays}
-      />
+    <EntityListShell
+      title="Google Calendar"
+      subtitle="OAuth credentials for Google Calendar sync."
+    >
 
       <ZoruCard className="p-6">
         {!doc && !id ? (
@@ -148,6 +145,6 @@ export default function GoogleCalendarIntegrationPage() {
           </div>
         </form>
       </ZoruCard>
-    </div>
+    </EntityListShell>
   );
 }

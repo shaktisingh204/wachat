@@ -22,13 +22,13 @@ import {
   useMemo,
   useState,
   useTransition } from 'react';
-import { ArrowLeftRight,
+import {
   Check,
   Plus,
   X } from 'lucide-react';
 import { format } from 'date-fns';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { getCrmEmployees } from '@/app/actions/crm-employees.actions';
 import type { WithId, CrmEmployee } from '@/lib/definitions';
 import {
@@ -146,20 +146,18 @@ export default function ShiftChangeRequestsPage() {
   };
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Shift Change Requests"
-        subtitle="Review and action employee requests to swap shifts."
-        icon={ArrowLeftRight}
-        actions={
-          <ZoruButton
-            onClick={() => { resetForm(); setDialogOpen(true); }}
-          >
-            <Plus className="h-4 w-4" strokeWidth={1.75} />
-            New Request
-          </ZoruButton>
-        }
-      />
+    <EntityListShell
+      title="Shift Change Requests"
+      subtitle="Review and action employee requests to swap shifts."
+      primaryAction={
+        <ZoruButton
+          onClick={() => { resetForm(); setDialogOpen(true); }}
+        >
+          <Plus className="h-4 w-4" strokeWidth={1.75} />
+          New Request
+        </ZoruButton>
+      }
+    >
 
       <ZoruCard className="p-6">
         <h2 className="mb-3 text-[16px] text-zoru-ink">All Requests</h2>
@@ -353,7 +351,7 @@ export default function ShiftChangeRequestsPage() {
           </form>
         </ZoruDialogContent>
       </ZoruDialog>
-    </div>
+    </EntityListShell>
   );
 }
 

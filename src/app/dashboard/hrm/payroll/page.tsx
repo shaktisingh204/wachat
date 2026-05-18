@@ -15,13 +15,12 @@ import {
   useEffect,
   useTransition,
   useCallback } from 'react';
-import { DollarSign,
-  LoaderCircle,
+import { LoaderCircle,
   Play,
   CheckCircle } from 'lucide-react';
 import { startOfMonth } from 'date-fns';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { getPayslips } from '@/app/actions/crm-payroll.actions';
 import { getCrmEmployees } from '@/app/actions/crm-employees.actions';
 import { useT } from '@/lib/i18n/client';
@@ -78,36 +77,34 @@ export default function PayrollRunPage() {
     const periodLabel = `${months.find(m => m.value === month)?.label} ${year}`;
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title={t('hrm.payroll.run.title')}
-                subtitle={t('hrm.payroll.run.subtitle', { period: periodLabel })}
-                icon={DollarSign}
-                actions={
-                    <>
-                        <ZoruSelect value={String(month)} onValueChange={val => setMonth(Number(val))}>
-                            <ZoruSelectTrigger className="w-36 h-9 rounded-full border-zoru-line bg-zoru-bg text-[13px]">
-                                <ZoruSelectValue />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {months.map(m => <ZoruSelectItem key={m.value} value={String(m.value)}>{m.label}</ZoruSelectItem>)}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
-                        <ZoruSelect value={String(year)} onValueChange={val => setYear(Number(val))}>
-                            <ZoruSelectTrigger className="w-28 h-9 rounded-full border-zoru-line bg-zoru-bg text-[13px]">
-                                <ZoruSelectValue />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {years.map(y => <ZoruSelectItem key={y} value={String(y)}>{y}</ZoruSelectItem>)}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
-                        <ZoruButton disabled={isLoading}>
-                            <Play className="h-4 w-4" />
-                            {t('hrm.payroll.run.action.run')}
-                        </ZoruButton>
-                    </>
-                }
-            />
+        <EntityListShell
+            title={t('hrm.payroll.run.title')}
+            subtitle={t('hrm.payroll.run.subtitle', { period: periodLabel })}
+            primaryAction={
+                <>
+                    <ZoruSelect value={String(month)} onValueChange={val => setMonth(Number(val))}>
+                        <ZoruSelectTrigger className="w-36 h-9 rounded-full border-zoru-line bg-zoru-bg text-[13px]">
+                            <ZoruSelectValue />
+                        </ZoruSelectTrigger>
+                        <ZoruSelectContent>
+                            {months.map(m => <ZoruSelectItem key={m.value} value={String(m.value)}>{m.label}</ZoruSelectItem>)}
+                        </ZoruSelectContent>
+                    </ZoruSelect>
+                    <ZoruSelect value={String(year)} onValueChange={val => setYear(Number(val))}>
+                        <ZoruSelectTrigger className="w-28 h-9 rounded-full border-zoru-line bg-zoru-bg text-[13px]">
+                            <ZoruSelectValue />
+                        </ZoruSelectTrigger>
+                        <ZoruSelectContent>
+                            {years.map(y => <ZoruSelectItem key={y} value={String(y)}>{y}</ZoruSelectItem>)}
+                        </ZoruSelectContent>
+                    </ZoruSelect>
+                    <ZoruButton disabled={isLoading}>
+                        <Play className="h-4 w-4" />
+                        {t('hrm.payroll.run.action.run')}
+                    </ZoruButton>
+                </>
+            }
+        >
 
             <div className="grid gap-4 md:grid-cols-3">
                 <ZoruCard className="p-6">
@@ -206,6 +203,6 @@ export default function PayrollRunPage() {
                     </table>
                 </div>
             </ZoruCard>
-        </div>
+        </EntityListShell>
     );
 }

@@ -8,14 +8,12 @@
  * Per CRM_REBUILD_PLAN §1D.1.
  */
 
-import { Package } from 'lucide-react';
 
 import type { WithId } from 'mongodb';
 
 import { getCrmProducts } from '@/app/actions/crm-products.actions';
 import type { CrmProduct } from '@/lib/definitions';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
 import { ItemsListClient } from './_components/items-list-client';
 import type { ItemKpiSnapshot, ItemListRow } from './_components/types';
 import {
@@ -129,18 +127,7 @@ export default async function InventoryItemsPage({ searchParams }: PageProps) {
   const hasMore = page * limit < (pageResult.total ?? rows.length);
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Items"
-        subtitle="Products, services and bundles tracked across warehouses."
-        icon={Package}
-        breadcrumbs={[
-          { label: 'CRM', href: '/dashboard/crm' },
-          { label: 'Inventory', href: '/dashboard/crm/inventory' },
-          { label: 'Items' },
-        ]}
-      />
-
+    <>
       <ItemsListClient
         items={rows}
         page={page}
@@ -150,6 +137,6 @@ export default async function InventoryItemsPage({ searchParams }: PageProps) {
         kpi={kpi}
         defaultCurrency={rows[0]?.currency ?? 'INR'}
       />
-    </div>
+    </>
   );
 }

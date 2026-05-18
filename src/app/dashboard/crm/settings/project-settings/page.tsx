@@ -8,11 +8,10 @@ import {
   useState,
   useTransition,
   } from 'react';
-import { FolderKanban,
-  LoaderCircle } from 'lucide-react';
+import { LoaderCircle } from 'lucide-react';
 
 import { EnumFormField } from '@/components/crm/enum-form-field';
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   getProjectSettings,
   saveProjectSettings,
@@ -85,13 +84,10 @@ export default function ProjectSettingsPage() {
   }, [saveState, toast, refresh]);
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Project Settings"
-        subtitle="Milestones, time tracking, views, and creation defaults for the project module."
-        icon={FolderKanban}
-      />
-
+    <EntityListShell
+      title="Project Settings"
+      subtitle="Milestones, time tracking, views, and creation defaults for the project module."
+    >
       {isLoading && !settings ? (
         <ZoruCard className="p-6">
           <ZoruSkeleton className="h-[420px] w-full" />
@@ -184,6 +180,6 @@ export default function ProjectSettingsPage() {
           </form>
         </ZoruCard>
       )}
-    </div>
+    </EntityListShell>
   );
 }

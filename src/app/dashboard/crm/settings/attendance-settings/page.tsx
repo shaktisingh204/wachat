@@ -8,10 +8,9 @@ import {
   useState,
   useTransition,
   } from 'react';
-import { Clock,
-  LoaderCircle } from 'lucide-react';
+import { LoaderCircle } from 'lucide-react';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   getAttendanceSettings,
   saveAttendanceSettings,
@@ -86,12 +85,10 @@ export default function AttendanceSettingsPage() {
   const ipListInitial = (settings?.allowed_ip_addresses ?? []).join('\n');
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Attendance Settings"
-        subtitle="Office hours, check-in methods, lateness rules, and location/IP constraints."
-        icon={Clock}
-      />
+    <EntityListShell
+      title="Attendance Settings"
+      subtitle="Office hours, check-in methods, lateness rules, and location/IP constraints."
+    >
 
       {isLoading && !settings ? (
         <ZoruCard className="p-6">
@@ -266,6 +263,6 @@ export default function AttendanceSettingsPage() {
           </form>
         </ZoruCard>
       )}
-    </div>
+    </EntityListShell>
   );
 }

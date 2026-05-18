@@ -30,7 +30,6 @@ import {
   useZoruToast,
 } from '@/components/zoruui';
 import {
-  KeyRound,
   Plus,
   Pencil,
   Trash2,
@@ -43,7 +42,7 @@ import { useActionState,
 
 import * as React from 'react';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   getPermissionsGroupedByModule,
   getModules,
@@ -120,23 +119,21 @@ export default function PermissionsPage() {
   };
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Permissions"
-        subtitle="Grouped by module. Create granular permissions to reference from roles."
-        icon={KeyRound}
-        actions={
-          <ZoruButton
-            onClick={() => {
-              setEditing(null);
-              setDialogOpen(true);
-            }}
-          >
-            <Plus className="h-4 w-4" />
-            Add Permission
-          </ZoruButton>
-        }
-      />
+    <EntityListShell
+      title="Permissions"
+      subtitle="Grouped by module. Create granular permissions to reference from roles."
+      primaryAction={
+        <ZoruButton
+          onClick={() => {
+            setEditing(null);
+            setDialogOpen(true);
+          }}
+        >
+          <Plus className="h-4 w-4" />
+          Add Permission
+        </ZoruButton>
+      }
+    >
 
       {isLoading && groups.length === 0 ? (
         <ZoruCard className="p-6">
@@ -350,6 +347,6 @@ export default function PermissionsPage() {
           </ZoruAlertDialogFooter>
         </ZoruAlertDialogContent>
       </ZoruAlertDialog>
-    </div>
+    </EntityListShell>
   );
 }

@@ -11,10 +11,9 @@ import {
 } from '@/components/zoruui';
 import {
   ObjectId } from 'mongodb';
-import { Gift,
-  Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 import Link from 'next/link';
 
@@ -82,20 +81,18 @@ export default async function SalesGiftCardsPage() {
   }
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Gift cards"
-        subtitle="Issue, track and redeem gift cards with balance and expiry controls."
-        icon={Gift}
-        actions={
-          <Link href="/dashboard/crm/sales/gift-cards/new">
-            <ZoruButton variant="outline">
-              <Plus className="h-4 w-4" strokeWidth={1.75} />
-              New gift card
-            </ZoruButton>
-          </Link>
-        }
-      />
+    <EntityListShell
+      title="Gift cards"
+      subtitle="Issue, track and redeem gift cards with balance and expiry controls."
+      primaryAction={
+        <Link href="/dashboard/crm/sales/gift-cards/new">
+          <ZoruButton variant="outline">
+            <Plus className="h-4 w-4" strokeWidth={1.75} />
+            New gift card
+          </ZoruButton>
+        </Link>
+      }
+    >
 
       <ZoruCard className="p-6">
         <div className="mb-4">
@@ -192,6 +189,6 @@ export default async function SalesGiftCardsPage() {
           </ZoruTable>
         </div>
       </ZoruCard>
-    </div>
+    </EntityListShell>
   );
 }

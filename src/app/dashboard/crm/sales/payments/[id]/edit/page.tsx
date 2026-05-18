@@ -7,9 +7,8 @@
  */
 
 import { notFound } from 'next/navigation';
-import { CreditCard } from 'lucide-react';
 
-import { CrmPageHeader } from '../../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { PaymentReceiptForm } from '../../_components/payment-receipt-form';
 import { getPaymentReceipt } from '@/app/actions/crm/payment-receipts.actions';
 
@@ -28,13 +27,12 @@ export default async function EditPaymentReceiptPage({
   const title = receipt.receiptNo || String(receipt._id);
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title={`Edit ${title}`}
-        subtitle="Update payment receipt details."
-        icon={CreditCard}
-      />
+    <EntityDetailShell
+      eyebrow="PAYMENT RECEIPT"
+      title={`Edit ${title}`}
+      back={{ href: `/dashboard/crm/sales/payments/${id}`, label: 'Payment Receipt' }}
+    >
       <PaymentReceiptForm initial={receipt} />
-    </div>
+    </EntityDetailShell>
   );
 }

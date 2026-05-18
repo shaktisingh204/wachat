@@ -13,9 +13,7 @@
  * `WsCustomFieldBelongsTo`.
  */
 
-import { Wallet } from 'lucide-react';
-
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { PayoutForm } from '../_components/payout-form';
 import { getCrmEntityForPrefill } from '@/lib/crm/convert-with-prefill';
 import type { CrmBillDoc } from '@/lib/rust-client/crm-bills';
@@ -59,17 +57,15 @@ export default async function NewPayoutPage({
       : undefined;
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="New payout"
-        subtitle={
-          initial
-            ? 'Pre-filled from a vendor bill — confirm and save.'
-            : 'Log an outgoing vendor payment.'
-        }
-        icon={Wallet}
-      />
+    <EntityListShell
+      title="New payout"
+      subtitle={
+        initial
+          ? 'Pre-filled from a vendor bill — confirm and save.'
+          : 'Log an outgoing vendor payment.'
+      }
+    >
       <PayoutForm initial={initial} />
-    </div>
+    </EntityListShell>
   );
 }

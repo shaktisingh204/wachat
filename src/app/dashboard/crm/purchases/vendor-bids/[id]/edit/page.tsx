@@ -10,9 +10,8 @@
  */
 
 import { notFound } from 'next/navigation';
-import { Gavel } from 'lucide-react';
 
-import { CrmPageHeader } from '../../../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { VendorBidForm } from '../../_components/vendor-bid-form';
 import { getVendorBid } from '@/app/actions/crm/vendor-bids.actions';
 
@@ -31,13 +30,8 @@ export default async function EditVendorBidPage({
   const title = bid.vendorName || 'vendor bid';
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title={`Edit ${title}`}
-        subtitle="Update vendor-bid details."
-        icon={Gavel}
-      />
+    <EntityListShell title={`Edit ${title}`} subtitle="Update vendor-bid details.">
       <VendorBidForm initial={bid} />
-    </div>
+    </EntityListShell>
   );
 }

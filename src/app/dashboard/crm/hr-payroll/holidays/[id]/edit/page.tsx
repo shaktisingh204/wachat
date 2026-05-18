@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 
-import { CrmPageHeader } from '../../../../../crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getHoliday } from '@/app/actions/crm/holidays.actions';
 import { HolidayForm } from '../../new/holiday-form';
 
@@ -14,9 +14,12 @@ export default async function HolidayEditPage({ params }: PageProps) {
     if (!holiday) notFound();
 
     return (
-        <div className="space-y-6">
-            <CrmPageHeader title={`Edit ${(holiday as any).name || 'holiday'}`} />
+        <EntityDetailShell
+            title={`Edit ${(holiday as any).name || 'holiday'}`}
+            eyebrow="HOLIDAY"
+            back={{ href: '/dashboard/crm/hr-payroll/holidays', label: 'Holidays' }}
+        >
             <HolidayForm holiday={{ ...(holiday as any), _id: String((holiday as any)._id ?? id) }} />
-        </div>
+        </EntityDetailShell>
     );
 }

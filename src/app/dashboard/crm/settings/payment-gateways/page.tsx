@@ -40,7 +40,6 @@ import {
   useActionState,
   } from 'react';
 import {
-  KeyRound,
   Plus,
   Pencil,
   Trash2,
@@ -51,7 +50,7 @@ import {
   } from 'lucide-react';
 
 import { EnumFormField } from '@/components/crm/enum-form-field';
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   getGatewayCredentials,
   saveGatewayCredential,
@@ -185,23 +184,21 @@ export default function PaymentGatewaysPage() {
   };
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Payment Gateways"
-        subtitle="Configure API credentials for each supported gateway."
-        icon={KeyRound}
-        actions={
-          <ZoruButton
-            onClick={() => {
-              setEditing(null);
-              setOpen(true);
-            }}
-          >
-            <Plus className="h-4 w-4" strokeWidth={1.75} />
-            Add Gateway
-          </ZoruButton>
-        }
-      />
+    <EntityListShell
+      title="Payment Gateways"
+      subtitle="Configure API credentials for each supported gateway."
+      primaryAction={
+        <ZoruButton
+          onClick={() => {
+            setEditing(null);
+            setOpen(true);
+          }}
+        >
+          <Plus className="h-4 w-4" strokeWidth={1.75} />
+          Add Gateway
+        </ZoruButton>
+      }
+    >
 
       <ZoruCard className="p-6">
         {isLoading && rows.length === 0 ? (
@@ -407,6 +404,6 @@ export default function PaymentGatewaysPage() {
           </ZoruAlertDialogFooter>
         </ZoruAlertDialogContent>
       </ZoruAlertDialog>
-    </div>
+    </EntityListShell>
   );
 }

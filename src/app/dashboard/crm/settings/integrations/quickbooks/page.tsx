@@ -9,7 +9,6 @@ import {
   useTransition,
   } from 'react';
 import {
-  FileSpreadsheet,
   LoaderCircle,
   Plug,
   RefreshCw,
@@ -17,7 +16,7 @@ import {
   } from 'lucide-react';
 
 import { EnumFormField } from '@/components/crm/enum-form-field';
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   getQuickBooksSetting,
   saveQuickBooksSetting,
@@ -115,12 +114,10 @@ export default function QuickBooksIntegrationPage() {
   };
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="QuickBooks"
-        subtitle="Sync invoices and payments with QuickBooks Online."
-        icon={FileSpreadsheet}
-      />
+    <EntityListShell
+      title="QuickBooks"
+      subtitle="Sync invoices and payments with QuickBooks Online."
+    >
 
       <ZoruCard className="p-6">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
@@ -280,6 +277,6 @@ export default function QuickBooksIntegrationPage() {
           </div>
         </form>
       </ZoruCard>
-    </div>
+    </EntityListShell>
   );
 }

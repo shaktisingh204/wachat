@@ -8,10 +8,9 @@ import {
   useState,
   useTransition,
   } from 'react';
-import { LoaderCircle,
-  MessageSquare } from 'lucide-react';
+import { LoaderCircle } from 'lucide-react';
 
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   getMessageSetting,
   saveMessageSetting,
@@ -69,12 +68,10 @@ export default function MessageSettingsIntegrationPage() {
   const id = doc && (doc as any)._id ? String((doc as any)._id) : '';
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Message Settings"
-        subtitle="Internal messaging limits and attachment rules."
-        icon={MessageSquare}
-      />
+    <EntityListShell
+      title="Message Settings"
+      subtitle="Internal messaging limits and attachment rules."
+    >
 
       <ZoruCard className="p-6">
         {!doc && !id ? (
@@ -148,6 +145,6 @@ export default function MessageSettingsIntegrationPage() {
           </div>
         </form>
       </ZoruCard>
-    </div>
+    </EntityListShell>
   );
 }

@@ -2,9 +2,7 @@ import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
 import {
   notFound,
   redirect } from 'next/navigation';
-import { ArrowLeft,
-  FileSignature,
-  Pencil } from 'lucide-react';
+import { Pencil } from 'lucide-react';
 
 /**
  * Contract template detail page — server component.
@@ -15,7 +13,7 @@ import { ArrowLeft,
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 import { getSession } from '@/app/actions/user.actions';
 
@@ -57,37 +55,19 @@ export default async function ContractTemplateDetailPage({
     const variables = template.variables ?? [];
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'Sales', href: '/dashboard/crm/sales' },
-                    {
-                        label: 'Contracts',
-                        href: '/dashboard/crm/sales/contracts',
-                    },
-                    { label: 'Templates', href: BASE },
-                    { label: template.name },
-                ]}
-                title={template.name}
-                subtitle="Contract template detail"
-                icon={FileSignature}
-                actions={
-                    <div className="flex items-center gap-2">
-                        <ZoruButton variant="outline" asChild>
-                            <Link href={BASE}>
-                                <ArrowLeft className="mr-2 h-4 w-4" />
-                                Back
-                            </Link>
-                        </ZoruButton>
-                        <ZoruButton asChild>
-                            <Link href={`${BASE}/${id}/edit`}>
-                                <Pencil className="mr-2 h-4 w-4" />
-                                Edit
-                            </Link>
-                        </ZoruButton>
-                    </div>
-                }
-            />
+        <EntityDetailShell
+            eyebrow="CONTRACT TEMPLATE"
+            title={template.name}
+            back={{ href: BASE, label: 'Templates' }}
+            actions={
+                <ZoruButton asChild>
+                    <Link href={`${BASE}/${id}/edit`}>
+                        <Pencil className="mr-2 h-4 w-4" />
+                        Edit
+                    </Link>
+                </ZoruButton>
+            }
+        >
 
             <ZoruCard className="p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
@@ -157,6 +137,6 @@ export default async function ContractTemplateDetailPage({
                     </div>
                 )}
             </ZoruCard>
-        </div>
+        </EntityDetailShell>
     );
 }

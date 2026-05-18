@@ -8,11 +8,10 @@ import {
   useState,
   useTransition,
   } from 'react';
-import { HardDrive,
-  LoaderCircle } from 'lucide-react';
+import { LoaderCircle } from 'lucide-react';
 
 import { EnumFormField } from '@/components/crm/enum-form-field';
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   getStorageSetting,
   saveStorageSetting,
@@ -71,12 +70,10 @@ export default function StorageIntegrationPage() {
   const id = doc && (doc as any)._id ? String((doc as any)._id) : '';
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Storage"
-        subtitle="Choose where uploaded files are stored."
-        icon={HardDrive}
-      />
+    <EntityListShell
+      title="Storage"
+      subtitle="Choose where uploaded files are stored."
+    >
 
       <ZoruCard className="p-6">
         {!doc && !id ? (
@@ -198,6 +195,6 @@ export default function StorageIntegrationPage() {
           </div>
         </form>
       </ZoruCard>
-    </div>
+    </EntityListShell>
   );
 }

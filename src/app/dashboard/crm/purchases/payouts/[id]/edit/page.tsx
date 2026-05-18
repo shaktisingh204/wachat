@@ -7,9 +7,8 @@
  */
 
 import { notFound } from 'next/navigation';
-import { Wallet } from 'lucide-react';
 
-import { CrmPageHeader } from '../../../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { PayoutForm } from '../../_components/payout-form';
 import { getPayout } from '@/app/actions/crm/payouts.actions';
 
@@ -28,13 +27,8 @@ export default async function EditPayoutPage({
   const title = payout.paymentNo || String(payout._id);
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title={`Edit ${title}`}
-        subtitle="Update payout details."
-        icon={Wallet}
-      />
+    <EntityListShell title={`Edit ${title}`} subtitle="Update payout details.">
       <PayoutForm initial={payout} />
-    </div>
+    </EntityListShell>
   );
 }

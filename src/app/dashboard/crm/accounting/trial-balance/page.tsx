@@ -24,7 +24,7 @@ import {
   ZoruTableRow,
   useZoruToast,
 } from '@/components/zoruui';
-import { Download, SlidersHorizontal, ChevronDown, AlertCircle, Scale } from 'lucide-react';
+import { Download, SlidersHorizontal, ChevronDown, AlertCircle } from 'lucide-react';
 
 import { useState, useEffect, useTransition, useCallback } from "react";
 import { generateTrialBalanceData } from "@/app/actions/crm-accounting.actions";
@@ -35,7 +35,7 @@ import { getSession } from "@/app/actions";
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 type TrialBalanceEntry = {
     accountId: string;
@@ -215,39 +215,37 @@ export default function TrialBalancePage() {
     }
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="Trial Balance"
-                subtitle="Review debits and credits across all accounts."
-                icon={Scale}
-                actions={
-                    <ZoruPopover>
-                        <ZoruPopoverTrigger asChild>
-                            <ZoruButton variant="outline">
-                                Filters
+        <EntityListShell
+            title="Trial Balance"
+            subtitle="Review debits and credits across all accounts."
+            primaryAction={
+                <ZoruPopover>
+                    <ZoruPopoverTrigger asChild>
+                        <ZoruButton variant="outline">
+                            Filters
+                        </ZoruButton>
+                    </ZoruPopoverTrigger>
+                    <ZoruPopoverContent className="w-96 space-y-4">
+                        <div className="space-y-2">
+                            <ZoruLabel>Start Date</ZoruLabel>
+                            <ZoruDatePicker value={startDate} onChange={setStartDate} />
+                        </div>
+                        <div className="space-y-2">
+                            <ZoruLabel>End Date</ZoruLabel>
+                            <ZoruDatePicker value={endDate} onChange={setEndDate} />
+                        </div>
+                        <div className="flex justify-end gap-2">
+                            <ZoruButton variant="ghost" onClick={handleClearFilters}>Clear</ZoruButton>
+                            <ZoruButton onClick={fetchData} disabled={isLoading}>
+                                {isLoading && <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/>}
+                                Apply
                             </ZoruButton>
-                        </ZoruPopoverTrigger>
-                        <ZoruPopoverContent className="w-96 space-y-4">
-                            <div className="space-y-2">
-                                <ZoruLabel>Start Date</ZoruLabel>
-                                <ZoruDatePicker value={startDate} onChange={setStartDate} />
-                            </div>
-                            <div className="space-y-2">
-                                <ZoruLabel>End Date</ZoruLabel>
-                                <ZoruDatePicker value={endDate} onChange={setEndDate} />
-                            </div>
-                            <div className="flex justify-end gap-2">
-                                <ZoruButton variant="ghost" onClick={handleClearFilters}>Clear</ZoruButton>
-                                <ZoruButton onClick={fetchData} disabled={isLoading}>
-                                    {isLoading && <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/>}
-                                    Apply
-                                </ZoruButton>
-                            </div>
-                        </ZoruPopoverContent>
-                    </ZoruPopover>
-                }
-            />
+                        </div>
+                    </ZoruPopoverContent>
+                </ZoruPopover>
+            }
+        >
             <TrialBalanceClient data={data.data} totals={data.totals} user={user} />
-        </div>
+        </EntityListShell>
     );
 }

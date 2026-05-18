@@ -11,9 +11,8 @@
  */
 
 import { ObjectId } from 'mongodb';
-import { Wallet } from 'lucide-react';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { listBills } from '@/app/actions/crm/bills.actions';
 import { computeBillKpis } from '@/app/actions/crm/bills.kpis';
 import { getSession } from '@/app/actions/user.actions';
@@ -110,18 +109,10 @@ export default async function ExpensesPage({ searchParams }: PageProps) {
   const kpi = computeBillKpis(kpiSource);
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Bills & Expenses"
-        subtitle="Track vendor invoices, AP ageing, and direct-to-ledger expenses."
-        icon={Wallet}
-        breadcrumbs={[
-          { label: 'CRM', href: '/dashboard/crm' },
-          { label: 'Purchases', href: '/dashboard/crm/purchases' },
-          { label: 'Bills' },
-        ]}
-      />
-
+    <EntityListShell
+      title="Bills & Expenses"
+      subtitle="Track vendor invoices, AP ageing, and direct-to-ledger expenses."
+    >
       <BillListClient
         bills={rows}
         page={page}
@@ -133,6 +124,6 @@ export default async function ExpensesPage({ searchParams }: PageProps) {
         currentUserId={session?.user?._id ? String(session.user._id) : null}
         error={error}
       />
-    </div>
+    </EntityListShell>
   );
 }

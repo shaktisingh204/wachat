@@ -3,12 +3,11 @@ export const dynamic = 'force-dynamic';
 
 import { getInvoices } from '@/app/actions/crm-invoices.actions';
 
-import { FileBarChart } from 'lucide-react';
 import { format } from 'date-fns';
 
 import { MonthPicker } from '@/components/crm/month-picker';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 export default async function Gstr1Page(props: { searchParams: Promise<{ month?: string, year?: string }> }) {
     const searchParams = await props.searchParams;
@@ -18,13 +17,11 @@ export default async function Gstr1Page(props: { searchParams: Promise<{ month?:
     const { invoices } = await getInvoices(1, 50, { month, year });
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="GSTR-1 Report"
-                subtitle="Outward supplies of goods or services."
-                icon={FileBarChart}
-                actions={<MonthPicker />}
-            />
+        <EntityListShell
+            title="GSTR-1 Report"
+            subtitle="Outward supplies of goods or services."
+            primaryAction={<MonthPicker />}
+        >
 
             <ZoruCard>
                 <div className="mb-4">
@@ -70,6 +67,6 @@ export default async function Gstr1Page(props: { searchParams: Promise<{ month?:
                     </ZoruTable>
                 </div>
             </ZoruCard>
-        </div>
+        </EntityListShell>
     )
 }

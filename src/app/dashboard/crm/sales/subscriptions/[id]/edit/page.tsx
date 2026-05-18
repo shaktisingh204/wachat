@@ -10,9 +10,8 @@
  */
 
 import { notFound } from 'next/navigation';
-import { Repeat } from 'lucide-react';
 
-import { CrmPageHeader } from '../../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { SubscriptionForm } from '../../_components/subscription-form';
 import { getSubscription } from '@/app/actions/crm/subscriptions.actions';
 
@@ -29,13 +28,12 @@ export default async function EditSubscriptionPage({
   if (!subscription) notFound();
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title={`Edit subscription ${String(subscription._id).slice(-6)}`}
-        subtitle="Update billing cadence, plan, or trial window."
-        icon={Repeat}
-      />
+    <EntityDetailShell
+      eyebrow="SUBSCRIPTION"
+      title={`Edit subscription ${String(subscription._id).slice(-6)}`}
+      back={{ href: `/dashboard/crm/sales/subscriptions/${id}`, label: 'Subscription' }}
+    >
       <SubscriptionForm initial={subscription} />
-    </div>
+    </EntityDetailShell>
   );
 }

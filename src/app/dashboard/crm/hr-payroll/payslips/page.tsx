@@ -14,7 +14,7 @@ import { EnumFilterField } from '@/components/crm/enum-filter-field';
 import {
   Eye,
   LoaderCircle,
-  Receipt } from 'lucide-react';
+} from 'lucide-react';
 
 /**
  * Payslips — list page (Rust-backed).
@@ -25,7 +25,6 @@ import {
 import * as React from 'react';
 import Link from 'next/link';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 
@@ -100,17 +99,9 @@ export default function PayslipsListPage() {
 
     return (
         <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'Payroll', href: '/dashboard/crm/hr-payroll' },
-                    { label: 'Payslips' },
-                ]}
+            <EntityListShell
                 title="Payslips"
                 subtitle="Issued payslips by employee and pay period."
-                icon={Receipt}
-            />
-
-            <EntityListShell
                 title=""
                 search={{
                     value: search,

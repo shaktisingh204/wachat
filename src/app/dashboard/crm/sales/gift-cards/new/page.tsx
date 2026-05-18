@@ -5,14 +5,12 @@ import {
   useActionState,
   useEffect } from 'react';
 import { useFormStatus } from 'react-dom';
-import { ArrowLeft,
-  Save,
+import { Save,
   LoaderCircle,
-  Gift } from 'lucide-react';
-import Link from 'next/link';
+  } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { saveGiftCard } from '@/app/actions/crm-gift-cards.actions';
 
@@ -50,20 +48,11 @@ export default function NewGiftCardPage() {
     }, [state, router, toast]);
 
     return (
-        <div className="max-w-2xl mx-auto space-y-6">
-            <CrmPageHeader
-                title="New Gift Card"
-                subtitle="Create a new gift card to issue to a customer."
-                icon={Gift}
-                actions={
-                    <Link href="/dashboard/crm/sales/gift-cards">
-                        <ZoruButton variant="outline" size="sm">
-                            <ArrowLeft className="h-4 w-4" />
-                            Back to Gift Cards
-                        </ZoruButton>
-                    </Link>
-                }
-            />
+        <EntityDetailShell
+            eyebrow="GIFT CARD"
+            title="New Gift Card"
+            back={{ href: '/dashboard/crm/sales/gift-cards', label: 'Gift Cards' }}
+        >
 
             <form action={formAction}>
                 <ZoruCard className="p-6 space-y-6">
@@ -166,6 +155,6 @@ export default function NewGiftCardPage() {
                     </div>
                 </ZoruCard>
             </form>
-        </div>
+        </EntityDetailShell>
     );
 }

@@ -7,9 +7,8 @@
  */
 
 import { notFound } from 'next/navigation';
-import { FileMinus } from 'lucide-react';
 
-import { CrmPageHeader } from '../../../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { DebitNoteForm } from '../../_components/debit-note-form';
 import { getDebitNote } from '@/app/actions/crm/debit-notes.actions';
 
@@ -28,13 +27,8 @@ export default async function EditDebitNotePage({
   const title = debitNote.dnNo || String(debitNote._id);
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title={`Edit ${title}`}
-        subtitle="Update debit note details."
-        icon={FileMinus}
-      />
+    <EntityListShell title={`Edit ${title}`} subtitle="Update debit note details.">
       <DebitNoteForm initial={debitNote} />
-    </div>
+    </EntityListShell>
   );
 }

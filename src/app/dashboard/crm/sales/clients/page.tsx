@@ -37,7 +37,6 @@ import { useRouter } from 'next/navigation';
 import { useDebouncedCallback } from 'use-debounce';
 import {
   Search,
-  Users,
   MoreVertical,
   Archive,
   Edit,
@@ -55,7 +54,7 @@ import type { CrmAccount } from '@/lib/definitions';
 import { CrmAddClientDialog } from '@/components/wabasimplify/crm-add-client-dialog';
 import { ClientReportButton } from '@/components/wabasimplify/client-report-button';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 const ACCOUNTS_PER_PAGE = 20;
 
@@ -126,18 +125,16 @@ export default function CrmClientsPage() {
   if (isLoading && accounts.length === 0) return <ClientsPageSkeleton />;
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Clients & Prospects"
-        subtitle="Manage your customer pipeline from prospect to deal."
-        icon={Users}
-        actions={
-          <>
-            <ClientReportButton />
-            <CrmAddClientDialog onClientAdded={fetchData} />
-          </>
-        }
-      />
+    <EntityListShell
+      title="Clients & Prospects"
+      subtitle="Manage your customer pipeline from prospect to deal."
+      primaryAction={
+        <>
+          <ClientReportButton />
+          <CrmAddClientDialog onClientAdded={fetchData} />
+        </>
+      }
+    >
 
       <ZoruCard className="p-6">
         <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
@@ -297,6 +294,6 @@ export default function CrmClientsPage() {
           </ZoruTable>
         </div>
       </ZoruCard>
-    </div>
+    </EntityListShell>
   );
 }

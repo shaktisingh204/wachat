@@ -11,13 +11,13 @@ import {
   ZoruTableRow,
   useZoruToast,
 } from '@/components/zoruui';
-import { Download, TrendingUp, LoaderCircle, ArrowUpDown } from 'lucide-react';
+import { Download, LoaderCircle, ArrowUpDown } from 'lucide-react';
 import { useState, useEffect, useTransition, useCallback, useMemo } from 'react';
 import { generateProductPnlData } from '@/app/actions/crm-reports.actions';
 
 import Papa from 'papaparse';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 type ProductPnlData = {
     productId: string;
@@ -121,17 +121,15 @@ export default function ProductPnlPage() {
     );
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="Product-wise P&L"
-                subtitle="Analyze the profitability of each product in your inventory."
-                icon={TrendingUp}
-                actions={
-                    <ZoruButton variant="outline" onClick={handleDownload} disabled={isLoading || reportData.length === 0}>
-                        Download CSV
-                    </ZoruButton>
-                }
-            />
+        <EntityListShell
+            title="Product-wise P&L"
+            subtitle="Analyze the profitability of each product in your inventory."
+            primaryAction={
+                <ZoruButton variant="outline" onClick={handleDownload} disabled={isLoading || reportData.length === 0}>
+                    Download CSV
+                </ZoruButton>
+            }
+        >
 
             <ZoruCard>
                 <h2 className="text-[16px] font-semibold text-foreground">Profitability Report</h2>
@@ -174,6 +172,6 @@ export default function ProductPnlPage() {
                     </ZoruTable>
                 </div>
             </ZoruCard>
-        </div>
+        </EntityListShell>
     );
 }

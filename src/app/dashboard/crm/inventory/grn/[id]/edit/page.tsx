@@ -10,9 +10,8 @@
  */
 
 import { notFound } from 'next/navigation';
-import { PackageCheck } from 'lucide-react';
 
-import { CrmPageHeader } from '../../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { GrnForm } from '../../_components/grn-form';
 import { getGrn } from '@/app/actions/crm/grns.actions';
 
@@ -29,13 +28,12 @@ export default async function EditGrnPage({
   if (!grn) notFound();
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title={`Edit ${grn.grnNo || 'GRN'}`}
-        subtitle="Update goods-receipt details."
-        icon={PackageCheck}
-      />
+    <EntityDetailShell
+      eyebrow="GRN"
+      title={`Edit ${grn.grnNo || 'GRN'}`}
+      back={{ href: `/dashboard/crm/inventory/grn/${id}`, label: 'Back to GRN' }}
+    >
       <GrnForm initial={grn} />
-    </div>
+    </EntityDetailShell>
   );
 }

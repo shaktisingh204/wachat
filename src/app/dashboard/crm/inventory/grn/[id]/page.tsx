@@ -2,9 +2,7 @@ import { ZoruButton, ZoruCard } from '@/components/zoruui';
 import {
   notFound } from 'next/navigation';
 import {
-    PackageCheck,
   Pencil,
-  ArrowLeft,
   Activity,
   Printer,
   Receipt,
@@ -24,7 +22,8 @@ import {
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
+import { statusToTone } from '@/components/crm/status-pill';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import { LineageRail } from '@/components/crm/lineage-rail';
@@ -107,42 +106,37 @@ export default async function GrnDetailPage({
     const linkedBillId = lineage.find((l) => l.kind === 'bill')?.id;
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title={title}
-                subtitle={`Goods receipt · ${fmtDate(grn.date)}`}
-                icon={PackageCheck}
-                actions={
-                    <>
-                        <ZoruButton variant="outline" asChild>
-                            <Link href="/dashboard/crm/inventory/grn">
-                                <ArrowLeft className="h-4 w-4" /> Back
-                            </Link>
-                        </ZoruButton>
-                        <ZoruButton variant="outline" asChild>
-                            <Link href={`/dashboard/crm/inventory/grn/${id}/activity`}>
-                                <Activity className="h-4 w-4" /> Activity
-                            </Link>
-                        </ZoruButton>
-                        <GrnDetailActions id={id} currentStatus={status} />
-                        <ZoruButton variant="outline" asChild>
-                            <Link
-                                href={`/dashboard/crm/purchases/expenses/new?fromKind=grn&fromId=${id}`}
-                            >
-                                <Receipt className="h-4 w-4" /> Convert to Bill
-                            </Link>
-                        </ZoruButton>
-                        <ZoruButton variant="outline" disabled title="Coming soon">
-                            <Printer className="h-4 w-4" /> Print
-                        </ZoruButton>
-                        <ZoruButton asChild>
-                            <Link href={`/dashboard/crm/inventory/grn/${id}/edit`}>
-                                <Pencil className="h-4 w-4" /> Edit
-                            </Link>
-                        </ZoruButton>
-                    </>
-                }
-            />
+        <EntityDetailShell
+            eyebrow="GRN"
+            title={title}
+            status={{ label: status, tone: statusToTone(status) }}
+            back={{ href: '/dashboard/crm/inventory/grn', label: 'GRNs' }}
+            actions={
+                <>
+                    <ZoruButton variant="outline" asChild>
+                        <Link href={`/dashboard/crm/inventory/grn/${id}/activity`}>
+                            <Activity className="h-4 w-4" /> Activity
+                        </Link>
+                    </ZoruButton>
+                    <GrnDetailActions id={id} currentStatus={status} />
+                    <ZoruButton variant="outline" asChild>
+                        <Link
+                            href={`/dashboard/crm/purchases/expenses/new?fromKind=grn&fromId=${id}`}
+                        >
+                            <Receipt className="h-4 w-4" /> Convert to Bill
+                        </Link>
+                    </ZoruButton>
+                    <ZoruButton variant="outline" disabled title="Coming soon">
+                        <Printer className="h-4 w-4" /> Print
+                    </ZoruButton>
+                    <ZoruButton asChild>
+                        <Link href={`/dashboard/crm/inventory/grn/${id}/edit`}>
+                            <Pencil className="h-4 w-4" /> Edit
+                        </Link>
+                    </ZoruButton>
+                </>
+            }
+        >
 
             <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
                 <div className="flex flex-col gap-6">
@@ -389,6 +383,6 @@ export default async function GrnDetailPage({
             </div>
 
             <EntityAuditTimeline entityKind="grn" entityId={id} />
-        </div>
+        </EntityDetailShell>
     );
 }

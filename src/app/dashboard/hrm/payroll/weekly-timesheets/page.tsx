@@ -15,7 +15,6 @@ import {
 import Link from 'next/link';
 import { format } from 'date-fns';
 import {
-  CalendarClock,
   Plus,
   Check,
   X,
@@ -23,7 +22,7 @@ import {
   Eye,
   } from 'lucide-react';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   getWeeklyTimesheets,
   submitWeeklyTimesheet,
@@ -113,20 +112,18 @@ export default function WeeklyTimesheetsPage() {
   };
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Weekly Timesheets"
-        subtitle="Track, submit, and approve weekly hour logs across your team."
-        icon={CalendarClock}
-        actions={
-          <Link href="/dashboard/hrm/payroll/weekly-timesheets/new">
-            <ZoruButton>
-              <Plus className="h-4 w-4" strokeWidth={1.75} />
-              New Timesheet
-            </ZoruButton>
-          </Link>
-        }
-      />
+    <EntityListShell
+      title="Weekly Timesheets"
+      subtitle="Track, submit, and approve weekly hour logs across your team."
+      primaryAction={
+        <Link href="/dashboard/hrm/payroll/weekly-timesheets/new">
+          <ZoruButton>
+            <Plus className="h-4 w-4" strokeWidth={1.75} />
+            New Timesheet
+          </ZoruButton>
+        </Link>
+      }
+    >
 
       <ZoruCard className="p-6">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
@@ -204,6 +201,6 @@ export default function WeeklyTimesheetsPage() {
           </table>
         </div>
       </ZoruCard>
-    </div>
+    </EntityListShell>
   );
 }

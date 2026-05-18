@@ -3,9 +3,7 @@
 import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
 import {
   useSearchParams } from 'next/navigation';
-import { ArrowLeft,
-  CalendarCheck,
-  Pencil } from 'lucide-react';
+import { Pencil } from 'lucide-react';
 
 /**
  * Attendance detail — per-row view for one attendance record.
@@ -22,7 +20,7 @@ import { ArrowLeft,
 import * as React from 'react';
 import Link from 'next/link';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 
 import { getCrmAttendance } from '@/app/actions/crm-hr.actions';
 import { getCrmEmployees } from '@/app/actions/crm-employees.actions';
@@ -142,39 +140,20 @@ export default function AttendanceDetailPage({
     }, [id, searchDate]);
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'HRM', href: '/dashboard/hrm' },
-                    { label: 'Payroll', href: '/dashboard/crm/hr-payroll' },
-                    {
-                        label: 'Attendance',
-                        href: '/dashboard/crm/hr-payroll/attendance',
-                    },
-                    { label: 'Record' },
-                ]}
-                title="Attendance record"
-                subtitle="Per-employee attendance entry detail."
-                icon={CalendarCheck}
-                actions={
-                    <div className="flex gap-2">
-                        <ZoruButton variant="ghost" asChild>
-                            <Link href="/dashboard/crm/hr-payroll/attendance">
-                                <ArrowLeft className="mr-2 h-4 w-4" />
-                                Back to list
-                            </Link>
-                        </ZoruButton>
-                        <ZoruButton asChild>
-                            <Link
-                                href={`/dashboard/crm/hr-payroll/attendance/new?date=${searchDate}`}
-                            >
-                                <Pencil className="mr-2 h-4 w-4" />
-                                Bulk edit for this date
-                            </Link>
-                        </ZoruButton>
-                    </div>
-                }
-            />
+        <EntityDetailShell
+            title="Attendance record"
+            back={{ href: '/dashboard/crm/hr-payroll/attendance', label: 'Attendance' }}
+            actions={
+                <ZoruButton asChild>
+                    <Link
+                        href={`/dashboard/crm/hr-payroll/attendance/new?date=${searchDate}`}
+                    >
+                        <Pencil className="mr-2 h-4 w-4" />
+                        Bulk edit for this date
+                    </Link>
+                </ZoruButton>
+            }
+        >
 
             {isLoading && !record ? (
                 <ZoruCard className="p-6">
@@ -213,6 +192,6 @@ export default function AttendanceDetailPage({
                     </dl>
                 </ZoruCard>
             )}
-        </div>
+        </EntityDetailShell>
     );
 }

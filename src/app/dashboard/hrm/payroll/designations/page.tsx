@@ -30,12 +30,11 @@ import {
 import { useFormStatus } from 'react-dom';
 import { LoaderCircle,
   Trash2,
-  BadgeCheck,
   Pencil,
   Plus,
   X } from 'lucide-react';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
     getCrmDesignations,
     saveCrmDesignation,
@@ -136,18 +135,16 @@ export default function DesignationsPage() {
     }, {});
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="Designations"
-                subtitle="Manage job titles with department mapping and grade levels."
-                icon={BadgeCheck}
-                actions={
-                    <ZoruButton onClick={openAdd}>
-                        <Plus className="h-4 w-4" />
-                        Add Designation
-                    </ZoruButton>
-                }
-            />
+        <EntityListShell
+            title="Designations"
+            subtitle="Manage job titles with department mapping and grade levels."
+            primaryAction={
+                <ZoruButton onClick={openAdd}>
+                    <Plus className="h-4 w-4" />
+                    Add Designation
+                </ZoruButton>
+            }
+        >
 
             <ZoruCard className="p-6">
                 <div className="mb-4 flex items-center justify-between">
@@ -330,6 +327,6 @@ export default function DesignationsPage() {
                     </form>
                 </ZoruDialogContent>
             </ZoruDialog>
-        </div>
+        </EntityListShell>
     );
 }

@@ -1,11 +1,14 @@
-import { CrmPageHeader } from '../../../../crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { HolidayForm } from './holiday-form';
 
 export default function NewHolidayPage() {
     return (
-        <div className="space-y-6">
-            <CrmPageHeader title="New holiday" />
+        <EntityDetailShell
+            title="New holiday"
+            eyebrow="HOLIDAY"
+            back={{ href: '/dashboard/crm/hr-payroll/holidays', label: 'Holidays' }}
+        >
             <HolidayForm />
-        </div>
+        </EntityDetailShell>
     );
 }

@@ -17,10 +17,9 @@ import {
   useState,
   useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { CalendarClock,
-  LoaderCircle } from 'lucide-react';
+import { LoaderCircle } from 'lucide-react';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { saveWeeklyTimesheet } from '@/app/actions/worksuite/time.actions';
 import { getCrmEmployees } from '@/app/actions/crm-employees.actions';
 import { wsToISODate } from '@/lib/worksuite/time-types';
@@ -106,12 +105,10 @@ export default function NewWeeklyTimesheetPage() {
   };
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="New Weekly Timesheet"
-        subtitle="Create a draft timesheet for an employee for a given week."
-        icon={CalendarClock}
-      />
+    <EntityListShell
+      title="New Weekly Timesheet"
+      subtitle="Create a draft timesheet for an employee for a given week."
+    >
 
       <ZoruCard className="p-6">
         {isLoadingEmps ? (
@@ -182,6 +179,6 @@ export default function NewWeeklyTimesheetPage() {
           </form>
         )}
       </ZoruCard>
-    </div>
+    </EntityListShell>
   );
 }

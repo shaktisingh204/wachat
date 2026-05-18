@@ -8,10 +8,9 @@ import {
   useState,
   useTransition,
   } from 'react';
-import { BellPlus,
-  LoaderCircle } from 'lucide-react';
+import { LoaderCircle } from 'lucide-react';
 
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   getPushNotificationSetting,
   savePushNotificationSetting,
@@ -67,12 +66,10 @@ export default function PushNotificationsIntegrationPage() {
     : '';
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Push Notifications"
-        subtitle="Firebase Cloud Messaging configuration."
-        icon={BellPlus}
-      />
+    <EntityListShell
+      title="Push Notifications"
+      subtitle="Firebase Cloud Messaging configuration."
+    >
 
       <ZoruCard className="p-6">
         {!doc && !id ? (
@@ -128,6 +125,6 @@ export default function PushNotificationsIntegrationPage() {
           </div>
         </form>
       </ZoruCard>
-    </div>
+    </EntityListShell>
   );
 }

@@ -11,14 +11,14 @@ import {
   ZoruTableRow,
   useZoruToast,
 } from '@/components/zoruui';
-import { IndianRupee, Box, Download, LoaderCircle, DollarSign } from 'lucide-react';
+import { IndianRupee, Box, Download, LoaderCircle } from 'lucide-react';
 import { useState, useEffect, useTransition, useCallback } from 'react';
 import { generateStockValueReport } from "@/app/actions/crm-reports.actions";
 
 import Papa from "papaparse";
 import { format } from "date-fns";
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 const StatCard = ({ title, value, icon: Icon }: { title: string; value: string | number; icon: React.ElementType }) => (
     <ZoruCard>
@@ -79,17 +79,15 @@ export default function StockValueReportPage() {
     };
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="Stock Value Report"
-                subtitle="Get a real-time valuation of your entire inventory."
-                icon={DollarSign}
-                actions={
-                    <ZoruButton variant="outline" onClick={handleDownload} disabled={isLoading || reportData.length === 0}>
-                        Download CSV
-                    </ZoruButton>
-                }
-            />
+        <EntityListShell
+            title="Stock Value Report"
+            subtitle="Get a real-time valuation of your entire inventory."
+            primaryAction={
+                <ZoruButton variant="outline" onClick={handleDownload} disabled={isLoading || reportData.length === 0}>
+                    Download CSV
+                </ZoruButton>
+            }
+        >
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <StatCard title="Total Inventory Value" value={formatCurrency(summary.totalValue || 0)} icon={IndianRupee} />
@@ -134,6 +132,6 @@ export default function StockValueReportPage() {
                 </div>
                 <p className="mt-4 text-[11.5px] text-muted-foreground">This report is based on the 'Buying Price' (cost) set for each product. If cost is not set, it falls back to the 'Selling Price'.</p>
             </ZoruCard>
-        </div>
+        </EntityListShell>
     );
 }

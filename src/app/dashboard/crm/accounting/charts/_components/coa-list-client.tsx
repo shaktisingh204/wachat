@@ -16,7 +16,6 @@ import {
   useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { LayoutGrid,
-  Network,
   Plus,
   TreePine } from 'lucide-react';
 import Papa from 'papaparse';
@@ -32,7 +31,6 @@ import Papa from 'papaparse';
 
 import * as React from 'react';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 import {
@@ -263,15 +261,12 @@ export function CoaListClient(): React.JSX.Element {
     return (
         <>
             <div className="flex w-full flex-col gap-6">
-                <CrmPageHeader
-                    breadcrumbs={[
-                        { label: 'Accounting', href: '/dashboard/crm/accounting' },
-                        { label: 'Chart of Accounts' },
-                    ]}
+                <CoaKpiStrip kpi={kpi} currency={displayCurrency} active={filters.nature} onSelect={handleKpiSelect} />
+
+                <EntityListShell
                     title="Chart of Accounts"
                     subtitle="Manage your company's financial accounts."
-                    icon={Network}
-                    actions={
+                    primaryAction={
                         <>
                             <ZoruButton asChild variant="outline">
                                 <Link href="/dashboard/crm/accounting/groups">Account groups</Link>
@@ -286,12 +281,6 @@ export function CoaListClient(): React.JSX.Element {
                             </ZoruButton>
                         </>
                     }
-                />
-
-                <CoaKpiStrip kpi={kpi} currency={displayCurrency} active={filters.nature} onSelect={handleKpiSelect} />
-
-                <EntityListShell
-                    title=""
                     search={{ value: search, onChange: setSearch, placeholder: 'Search accounts…' }}
                     viewSwitcher={viewSwitcher}
                     filters={

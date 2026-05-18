@@ -7,7 +7,6 @@ import {
   useState,
   useTransition } from 'react';
 import {
-  Megaphone,
   LoaderCircle,
   CheckCircle2,
   AlertCircle,
@@ -20,7 +19,7 @@ import {
   PowerOff,
   } from 'lucide-react';
 
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   getLeadGenConfig,
   saveLeadGenConfigAction as saveLeadGenConfig,
@@ -184,12 +183,10 @@ export default function FacebookAdsIntegrationPage() {
   // ── Render ───────────────────────────────────────────────────────────────
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Facebook Ads → Leads"
-        subtitle="Auto-create CRM leads from Facebook Lead Ad forms in real-time."
-        icon={Megaphone}
-      />
+    <EntityListShell
+      title="Facebook Ads → Leads"
+      subtitle="Auto-create CRM leads from Facebook Lead Ad forms in real-time."
+    >
 
       {/* Status banner */}
       <StatusBanner config={config} loading={loading} onDisconnect={disconnect} />
@@ -251,7 +248,7 @@ export default function FacebookAdsIntegrationPage() {
           )}
         </>
       )}
-    </div>
+    </EntityListShell>
   );
 }
 

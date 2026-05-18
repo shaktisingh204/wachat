@@ -10,9 +10,8 @@
  */
 
 import { notFound } from 'next/navigation';
-import { ClipboardList } from 'lucide-react';
 
-import { CrmPageHeader } from '../../../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { RfqForm } from '../../_components/rfq-form';
 import { getRfq } from '@/app/actions/crm/rfqs.actions';
 
@@ -29,13 +28,8 @@ export default async function EditRfqPage({
   if (!rfq) notFound();
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title={`Edit ${rfq.title || 'RFQ'}`}
-        subtitle="Update RFQ details."
-        icon={ClipboardList}
-      />
+    <EntityListShell title={`Edit ${rfq.title || 'RFQ'}`} subtitle="Update RFQ details.">
       <RfqForm initial={rfq} />
-    </div>
+    </EntityListShell>
   );
 }

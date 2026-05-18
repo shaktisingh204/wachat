@@ -10,9 +10,7 @@
  */
 
 import { redirect } from 'next/navigation';
-import { Tags } from 'lucide-react';
-
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { getSession } from '@/app/actions/user.actions';
 
 import { VendorTypesPageClient } from './_components/vendor-types-page-client';
@@ -24,19 +22,11 @@ export default async function VendorTypesPage() {
     if (!session?.user) redirect('/login');
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'CRM', href: '/dashboard/crm' },
-                    { label: 'Purchases', href: '/dashboard/crm/purchases' },
-                    { label: 'Vendors', href: '/dashboard/crm/purchases/vendors' },
-                    { label: 'Types' },
-                ]}
-                title="Vendor Types"
-                subtitle="Classify vendors by category — supplier, contractor, service provider, etc."
-                icon={Tags}
-            />
+        <EntityListShell
+            title="Vendor Types"
+            subtitle="Classify vendors by category — supplier, contractor, service provider, etc."
+        >
             <VendorTypesPageClient />
-        </div>
+        </EntityListShell>
     );
 }

@@ -12,15 +12,13 @@ import { useParams,
 import { format,
   addDays } from 'date-fns';
 import {
-  CalendarClock,
-  ArrowLeft,
   Send,
   Check,
   X,
   LoaderCircle,
   } from 'lucide-react';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import {
   getWeeklyTimesheetById,
   getWeeklyEntries,
@@ -179,52 +177,44 @@ export default function WeeklyTimesheetDetailPage() {
   const canEdit = sheet.status === 'draft' || sheet.status === 'rejected';
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Weekly Timesheet"
-        subtitle={`${fmtDate(sheet.week_start_date)} – ${fmtDate(sheet.week_end_date)}`}
-        icon={CalendarClock}
-        actions={
-          <div className="flex items-center gap-2">
+    <EntityDetailShell
+      title="Weekly Timesheet"
+      eyebrow={`${fmtDate(sheet.week_start_date)} – ${fmtDate(sheet.week_end_date)}`}
+      back={{ href: '/dashboard/hrm/payroll/weekly-timesheets', label: 'Weekly Timesheets' }}
+      actions={
+        <div className="flex items-center gap-2">
+          {sheet.status === 'draft' && (
             <ZoruButton
-              variant="outline"
-              onClick={() => router.push('/dashboard/hrm/payroll/weekly-timesheets')}
+              onClick={handleSubmit}
+              disabled={isSaving}
             >
-              <ArrowLeft className="h-4 w-4" strokeWidth={1.75} />
-              Back
+              <Send className="h-4 w-4" strokeWidth={1.75} />
+              Submit
             </ZoruButton>
-            {sheet.status === 'draft' && (
+          )}
+          {sheet.status === 'submitted' && (
+            <>
               <ZoruButton
-                onClick={handleSubmit}
+                variant="outline"
+                onClick={handleApprove}
                 disabled={isSaving}
               >
-                <Send className="h-4 w-4" strokeWidth={1.75} />
-                Submit
+                <Check className="h-4 w-4" strokeWidth={1.75} />
+                Approve
               </ZoruButton>
-            )}
-            {sheet.status === 'submitted' && (
-              <>
-                <ZoruButton
-                  variant="outline"
-                  onClick={handleApprove}
-                  disabled={isSaving}
-                >
-                  <Check className="h-4 w-4" strokeWidth={1.75} />
-                  Approve
-                </ZoruButton>
-                <ZoruButton
-                  variant="outline"
-                  onClick={handleReject}
-                  disabled={isSaving}
-                >
-                  <X className="h-4 w-4" strokeWidth={1.75} />
-                  Reject
-                </ZoruButton>
-              </>
-            )}
-          </div>
-        }
-      />
+              <ZoruButton
+                variant="outline"
+                onClick={handleReject}
+                disabled={isSaving}
+              >
+                <X className="h-4 w-4" strokeWidth={1.75} />
+                Reject
+              </ZoruButton>
+            </>
+          )}
+        </div>
+      }
+    >
 
       {/* Summary bar */}
       <div className="flex flex-wrap gap-4">
@@ -331,6 +321,6 @@ export default function WeeklyTimesheetDetailPage() {
           </p>
         )}
       </ZoruCard>
-    </div>
+    </EntityDetailShell>
   );
 }

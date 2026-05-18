@@ -17,7 +17,6 @@ import {
 } from '@/components/zoruui';
 import {
   CalendarCheck,
-  CheckSquare,
   Plus,
   Eye } from 'lucide-react';
 
@@ -33,7 +32,6 @@ import {
 import * as React from 'react';
 import Link from 'next/link';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 
@@ -159,27 +157,16 @@ export default function AttendanceListPage(): React.JSX.Element {
     }, [rows, search, departmentFilter]);
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'HRM', href: '/dashboard/hrm' },
-                    { label: 'Payroll', href: '/dashboard/hrm/payroll' },
-                    { label: 'Attendance' },
-                ]}
+        <EntityListShell
                 title="Attendance"
                 subtitle="Daily attendance roster. Pick a date, filter by department, then bulk-mark."
-                icon={CheckSquare}
-                actions={
+                primaryAction={
                     <ZoruButton asChild>
                         <Link href={`${BASE}/new?date=${dateIso}`}>
                             <Plus className="mr-1.5 h-3.5 w-3.5" /> Bulk-mark for date
                         </Link>
                     </ZoruButton>
                 }
-            />
-
-            <EntityListShell
-                title=""
                 search={{
                     value: search,
                     onChange: setSearch,
@@ -282,6 +269,6 @@ export default function AttendanceListPage(): React.JSX.Element {
                 <CalendarCheck className="-mt-0.5 mr-1 inline h-3.5 w-3.5" />
                 Showing attendance for <strong>{dateIso}</strong>.
             </p>
-        </div>
+        </EntityListShell>
     );
 }

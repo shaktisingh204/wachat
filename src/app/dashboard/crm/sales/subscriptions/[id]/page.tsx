@@ -1,9 +1,7 @@
 import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
 import {
   notFound } from 'next/navigation';
-import { Repeat,
-  Pencil,
-  ArrowLeft } from 'lucide-react';
+import { Pencil } from 'lucide-react';
 
 /**
  * Subscription detail — `/dashboard/crm/sales/subscriptions/[id]`.
@@ -15,7 +13,7 @@ import { Repeat,
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { getSubscription } from '@/app/actions/crm/subscriptions.actions';
 import type {
@@ -133,28 +131,18 @@ export default async function SubscriptionDetailPage({
       : undefined;
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title={`Subscription ${String(subscription._id).slice(-6)}`}
-        subtitle={`${frequencyLabel(subscription.frequency)} · ${subscription.status}`}
-        icon={Repeat}
-        actions={
-          <>
-            <ZoruButton variant="outline" asChild>
-              <Link href="/dashboard/crm/sales/subscriptions">
-                <ArrowLeft className="h-4 w-4" /> Back
-              </Link>
-            </ZoruButton>
-            <ZoruButton asChild>
-              <Link
-                href={`/dashboard/crm/sales/subscriptions/${id}/edit`}
-              >
-                <Pencil className="h-4 w-4" /> Edit
-              </Link>
-            </ZoruButton>
-          </>
-        }
-      />
+    <EntityDetailShell
+      eyebrow="SUBSCRIPTION"
+      title={`Subscription ${String(subscription._id).slice(-6)}`}
+      back={{ href: '/dashboard/crm/sales/subscriptions', label: 'Subscriptions' }}
+      actions={
+        <ZoruButton asChild>
+          <Link href={`/dashboard/crm/sales/subscriptions/${id}/edit`}>
+            <Pencil className="h-4 w-4" /> Edit
+          </Link>
+        </ZoruButton>
+      }
+    >
 
       <div className="grid gap-6 lg:grid-cols-3">
         <ZoruCard className="p-6 lg:col-span-2">
@@ -234,6 +222,6 @@ export default async function SubscriptionDetailPage({
         Created {fmtDate(subscription.createdAt || subscription.audit?.createdAt)} ·
         Updated {fmtDate(subscription.updatedAt || subscription.audit?.updatedAt)}
       </div>
-    </div>
+    </EntityDetailShell>
   );
 }
