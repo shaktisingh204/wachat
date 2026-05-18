@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruInput, ZoruLabel, ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
+import { ZoruInput, ZoruLabel } from '@/components/zoruui';
 /**
  * <EmployeesFilters> — collapsible filter row for the employees list.
  *
@@ -12,23 +12,7 @@ import { ZoruInput, ZoruLabel, ZoruSelect, ZoruSelectContent, ZoruSelectItem, Zo
 import * as React from 'react';
 
 import { EntityFormField } from '@/components/crm/entity-form-field';
-
-const STATUS_OPTIONS = [
-  { value: 'all', label: 'All statuses' },
-  { value: 'active', label: 'Active' },
-  { value: 'on_leave', label: 'On leave' },
-  { value: 'terminated', label: 'Terminated' },
-  { value: 'resigned', label: 'Resigned' },
-];
-
-const EMPLOYMENT_TYPES = [
-  { value: 'all', label: 'All types' },
-  { value: 'full_time', label: 'Full-time' },
-  { value: 'part_time', label: 'Part-time' },
-  { value: 'contract', label: 'Contract' },
-  { value: 'intern', label: 'Intern' },
-  { value: 'consultant', label: 'Consultant' },
-];
+import { EnumFilterField } from '@/components/crm/enum-filter-field';
 
 interface EmployeesFiltersProps {
   filtersActive: boolean;
@@ -98,18 +82,12 @@ export function EmployeesFilters({
       <div className="grid gap-3 px-3 pb-3 md:grid-cols-3 lg:grid-cols-4">
         <div className="space-y-1">
           <ZoruLabel>Status</ZoruLabel>
-          <ZoruSelect value={statusFilter} onValueChange={onStatusFilter}>
-            <ZoruSelectTrigger>
-              <ZoruSelectValue />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
-              {STATUS_OPTIONS.map((o) => (
-                <ZoruSelectItem key={o.value} value={o.value}>
-                  {o.label}
-                </ZoruSelectItem>
-              ))}
-            </ZoruSelectContent>
-          </ZoruSelect>
+          <EnumFilterField
+            enumName="employeeStatus"
+            value={statusFilter}
+            onChange={onStatusFilter}
+            allLabel="All statuses"
+          />
         </div>
         <div className="space-y-1">
           <ZoruLabel>Department</ZoruLabel>
@@ -140,21 +118,12 @@ export function EmployeesFilters({
         </div>
         <div className="space-y-1">
           <ZoruLabel>Employment type</ZoruLabel>
-          <ZoruSelect
+          <EnumFilterField
+            enumName="employmentType"
             value={employmentTypeFilter}
-            onValueChange={onEmploymentTypeFilter}
-          >
-            <ZoruSelectTrigger>
-              <ZoruSelectValue />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
-              {EMPLOYMENT_TYPES.map((o) => (
-                <ZoruSelectItem key={o.value} value={o.value}>
-                  {o.label}
-                </ZoruSelectItem>
-              ))}
-            </ZoruSelectContent>
-          </ZoruSelect>
+            onChange={onEmploymentTypeFilter}
+            allLabel="All types"
+          />
         </div>
         <div className="space-y-1">
           <ZoruLabel>Work location</ZoruLabel>

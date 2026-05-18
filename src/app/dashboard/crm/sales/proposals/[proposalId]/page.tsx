@@ -1,6 +1,14 @@
 'use client';
 
-import { ZoruBadge, ZoruButton, ZoruCard, ZoruInput, ZoruLabel, ZoruSkeleton, useZoruToast } from '@/components/zoruui';
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSkeleton,
+  useZoruToast,
+} from '@/components/zoruui';
 import {
   use,
   useCallback,
@@ -8,12 +16,10 @@ import {
   useRef,
   useState,
   useTransition,
-  } from 'react';
+} from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
-  ArrowLeft,
-  FileText,
   Send,
   FileSignature,
   CheckCircle2,
@@ -24,10 +30,11 @@ import {
   DollarSign,
   User as UserIcon,
   FileCheck2,
-  } from 'lucide-react';
+  Pencil,
+} from 'lucide-react';
 
 import { SharePublicLinkButton } from '@/components/worksuite/share-public-link-button';
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityDetailShell, type EntityStatusTone } from '@/components/crm/entity-detail-shell';
 import {
   getProposalById,
   signProposal,
@@ -58,6 +65,13 @@ const STATUS_VARIANT: Record<WsProposalStatus, BadgeVariant> = {
   expired: 'danger',
 };
 
+function statusTone(s: WsProposalStatus): EntityStatusTone {
+  if (s === 'accepted') return 'green';
+  if (s === 'sent') return 'amber';
+  if (s === 'declined' || s === 'expired') return 'red';
+  return 'neutral';
+}
+
 function fmtCurrency(value: number, currency?: string): string {
   try {
     return new Intl.NumberFormat('en-IN', {
@@ -71,13 +85,13 @@ function fmtCurrency(value: number, currency?: string): string {
 
 function fmtDate(v: unknown): string {
   if (!v) return '—';
-  const d = new Date(v as any);
-  return isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
+  const d = new Date(v as string);
+  return isNaN(d.getTime()) ? '—' : d.toLocaleDateString('en-IN');
 }
 
 function fmtDateTime(v: unknown): string {
   if (!v) return '—';
-  const d = new Date(v as any);
+  const d = new Date(v as string);
   return isNaN(d.getTime()) ? '—' : d.toLocaleString();
 }
 
@@ -115,10 +129,7 @@ export default function ProposalDetailPage(props: {
 
   const proposal = data?.proposal;
   const isAccepted = proposal?.status === 'accepted';
-  const showSignaturePad =
-    proposal?.signature_required && !isAccepted && proposal?.status !== 'draft'
-      ? true
-      : proposal?.signature_required && !isAccepted;
+  const showSignaturePad = proposal?.signature_required && !isAccepted;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -188,6 +199,7 @@ export default function ProposalDetailPage(props: {
       try {
         canvas.releasePointerCapture(e.pointerId);
       } catch {
+        // ignored
       }
     }
   };
@@ -230,17 +242,10 @@ export default function ProposalDetailPage(props: {
     });
     setIsSubmitting(false);
     if (res.success) {
-      toast({
-        title: 'Signed',
-        description: 'Proposal has been accepted successfully.',
-      });
+      toast({ title: 'Signed', description: 'Proposal has been accepted successfully.' });
       refresh();
     } else {
-      toast({
-        title: 'Error',
-        description: res.error,
-        variant: 'destructive',
-      });
+      toast({ title: 'Error', description: res.error, variant: 'destructive' });
     }
   };
 
@@ -274,12 +279,13 @@ export default function ProposalDetailPage(props: {
     setIsConvertingContract(false);
     if (res.success) {
       toast({ title: 'Contract created' });
-      router.push('/dashboard/crm/contracts');
+      router.push('/dashboard/crm/sales/contracts');
     } else {
       toast({ title: 'Error', description: res.error, variant: 'destructive' });
     }
   };
 
+  /* Loading / not found states */
   if (isLoading && !data) {
     return (
       <div className="flex w-full flex-col gap-6">
@@ -291,95 +297,85 @@ export default function ProposalDetailPage(props: {
 
   if (!proposal || !data) {
     return (
-      <ZoruCard className="p-6 border-dashed">
+      <ZoruCard className="border-dashed p-6">
         <div className="flex flex-col items-center gap-3 py-12 text-center">
           <p className="text-[13px] text-zoru-ink-muted">Proposal not found.</p>
-          <Link href="/dashboard/crm/sales/proposals">
-            <ZoruButton variant="outline">
-              <ArrowLeft className="h-4 w-4" />
-              Back to Proposals
-            </ZoruButton>
-          </Link>
+          <ZoruButton variant="outline" asChild>
+            <Link href="/dashboard/crm/sales/proposals">Back to Proposals</Link>
+          </ZoruButton>
         </div>
       </ZoruCard>
     );
   }
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title={`${proposal.proposal_number} · ${proposal.title}`}
-        subtitle="Proposal details, line items, and e-signature."
-        icon={FileText}
-        actions={
-          <>
-            <Link href="/dashboard/crm/sales/proposals">
-              <ZoruButton variant="outline">
-                <ArrowLeft className="h-4 w-4" />
-                All Proposals
-              </ZoruButton>
+    <EntityDetailShell
+      eyebrow="PROPOSAL"
+      title={`${proposal.proposal_number} · ${proposal.title}`}
+      status={{
+        label: proposal.status,
+        tone: statusTone(proposal.status),
+      }}
+      back={{ href: '/dashboard/crm/sales/proposals', label: 'All proposals' }}
+      actions={
+        <>
+          <ZoruButton variant="outline" asChild>
+            <Link href={`/dashboard/crm/sales/proposals/${proposalId}/edit`}>
+              <Pencil className="h-4 w-4" /> Edit
             </Link>
-            <SharePublicLinkButton
-              resourceType="proposal"
-              resourceId={proposalId}
-            />
-            {proposal.status === 'draft' ? (
-              <ZoruButton
-                variant="outline"
-                disabled={isUpdatingStatus}
-                onClick={markSent}
-              >
-                {isUpdatingStatus ? (
-                  <LoaderCircle className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Send className="h-4 w-4" />
-                )}
-                Mark as Sent
-              </ZoruButton>
-            ) : null}
-            {isAccepted ? (
-              <ZoruButton
-                disabled={isConverting}
-                onClick={convertToInvoice}
-              >
-                {isConverting ? (
-                  <LoaderCircle className="h-4 w-4 animate-spin" />
-                ) : (
-                  <ReceiptText className="h-4 w-4" />
-                )}
-                Convert to Invoice
-              </ZoruButton>
-            ) : null}
-            {isAccepted ? (
-              <ZoruButton
-                variant="outline"
-                disabled={isConvertingContract}
-                onClick={convertToContract}
-              >
-                {isConvertingContract ? (
-                  <LoaderCircle className="h-4 w-4 animate-spin" />
-                ) : (
-                  <FileCheck2 className="h-4 w-4" />
-                )}
-                Create Contract
-              </ZoruButton>
-            ) : null}
-          </>
-        }
-      />
-
+          </ZoruButton>
+          <SharePublicLinkButton resourceType="proposal" resourceId={proposalId} />
+          {proposal.status === 'draft' ? (
+            <ZoruButton
+              variant="outline"
+              disabled={isUpdatingStatus}
+              onClick={markSent}
+            >
+              {isUpdatingStatus ? (
+                <LoaderCircle className="h-4 w-4 animate-spin" />
+              ) : (
+                <Send className="h-4 w-4" />
+              )}
+              Mark as Sent
+            </ZoruButton>
+          ) : null}
+          {isAccepted ? (
+            <ZoruButton disabled={isConverting} onClick={convertToInvoice}>
+              {isConverting ? (
+                <LoaderCircle className="h-4 w-4 animate-spin" />
+              ) : (
+                <ReceiptText className="h-4 w-4" />
+              )}
+              Convert to Invoice
+            </ZoruButton>
+          ) : null}
+          {isAccepted ? (
+            <ZoruButton
+              variant="outline"
+              disabled={isConvertingContract}
+              onClick={convertToContract}
+            >
+              {isConvertingContract ? (
+                <LoaderCircle className="h-4 w-4 animate-spin" />
+              ) : (
+                <FileCheck2 className="h-4 w-4" />
+              )}
+              Create Contract
+            </ZoruButton>
+          ) : null}
+        </>
+      }
+    >
+      {/* Summary card */}
       <ZoruCard className="p-6">
         <div className="mb-4 flex items-center gap-2">
           <ZoruBadge variant={STATUS_VARIANT[proposal.status] || 'ghost'}>
             {proposal.status}
           </ZoruBadge>
           {proposal.signature_required ? (
-            <ZoruBadge variant="ghost">
-              Signature required
-            </ZoruBadge>
+            <ZoruBadge variant="ghost">Signature required</ZoruBadge>
           ) : null}
         </div>
-
         <div className="grid gap-4 md:grid-cols-4">
           <div className="flex items-start gap-3">
             <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-zoru-surface-2">
@@ -398,9 +394,7 @@ export default function ProposalDetailPage(props: {
             </div>
             <div>
               <p className="text-[11.5px] text-zoru-ink-muted">Issued</p>
-              <p className="text-[13px] text-zoru-ink">
-                {fmtDate(proposal.issue_date)}
-              </p>
+              <p className="text-[13px] text-zoru-ink">{fmtDate(proposal.issue_date)}</p>
             </div>
           </div>
           <div className="flex items-start gap-3">
@@ -409,17 +403,12 @@ export default function ProposalDetailPage(props: {
             </div>
             <div>
               <p className="text-[11.5px] text-zoru-ink-muted">Valid Until</p>
-              <p className="text-[13px] text-zoru-ink">
-                {fmtDate(proposal.valid_until)}
-              </p>
+              <p className="text-[13px] text-zoru-ink">{fmtDate(proposal.valid_until)}</p>
             </div>
           </div>
           <div className="flex items-start gap-3">
             <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-zoru-surface-2">
-              <DollarSign
-                className="h-4 w-4 text-zoru-ink"
-                strokeWidth={1.75}
-              />
+              <DollarSign className="h-4 w-4 text-zoru-ink" strokeWidth={1.75} />
             </div>
             <div>
               <p className="text-[11.5px] text-zoru-ink-muted">Total</p>
@@ -431,6 +420,7 @@ export default function ProposalDetailPage(props: {
         </div>
       </ZoruCard>
 
+      {/* Line items */}
       <ZoruCard className="p-6">
         <h2 className="mb-3 text-[16px] text-zoru-ink">Line Items</h2>
         <div className="overflow-x-auto rounded-lg border border-zoru-line">
@@ -465,15 +455,11 @@ export default function ProposalDetailPage(props: {
                         </div>
                       ) : null}
                     </td>
-                    <td className="p-3 text-right align-top text-zoru-ink">
-                      {it.quantity}
-                    </td>
+                    <td className="p-3 text-right align-top text-zoru-ink">{it.quantity}</td>
                     <td className="p-3 text-right align-top text-zoru-ink">
                       {fmtCurrency(it.unit_price, proposal.currency)}
                     </td>
-                    <td className="p-3 text-right align-top text-zoru-ink">
-                      {it.tax}%
-                    </td>
+                    <td className="p-3 text-right align-top text-zoru-ink">{it.tax}%</td>
                     <td className="p-3 text-right align-top text-zoru-ink">
                       {fmtCurrency(it.total, proposal.currency)}
                     </td>
@@ -483,25 +469,19 @@ export default function ProposalDetailPage(props: {
             </tbody>
             <tfoot>
               <tr>
-                <td colSpan={4} className="p-3 text-right text-zoru-ink">
-                  Subtotal
-                </td>
+                <td colSpan={4} className="p-3 text-right text-zoru-ink">Subtotal</td>
                 <td className="p-3 text-right text-zoru-ink">
                   {fmtCurrency(proposal.subtotal, proposal.currency)}
                 </td>
               </tr>
               <tr>
-                <td colSpan={4} className="p-3 text-right text-zoru-ink">
-                  Tax
-                </td>
+                <td colSpan={4} className="p-3 text-right text-zoru-ink">Tax</td>
                 <td className="p-3 text-right text-zoru-ink">
                   {fmtCurrency(proposal.tax, proposal.currency)}
                 </td>
               </tr>
               <tr>
-                <td colSpan={4} className="p-3 text-right text-zoru-ink">
-                  Discount
-                </td>
+                <td colSpan={4} className="p-3 text-right text-zoru-ink">Discount</td>
                 <td className="p-3 text-right text-zoru-ink">
                   −{fmtCurrency(proposal.discount, proposal.currency)}
                 </td>
@@ -525,13 +505,9 @@ export default function ProposalDetailPage(props: {
           <div className="mt-6 grid gap-4 md:grid-cols-2">
             {proposal.note ? (
               <div>
-                <p className="mb-1 text-[11.5px] uppercase text-zoru-ink-muted">
-                  Notes
-                </p>
+                <p className="mb-1 text-[11.5px] uppercase text-zoru-ink-muted">Notes</p>
                 <div className="rounded-lg border border-zoru-line bg-zoru-surface-2 p-3 text-[13px] text-zoru-ink">
-                  <pre className="whitespace-pre-wrap font-sans">
-                    {proposal.note}
-                  </pre>
+                  <pre className="whitespace-pre-wrap font-sans">{proposal.note}</pre>
                 </div>
               </div>
             ) : null}
@@ -541,9 +517,7 @@ export default function ProposalDetailPage(props: {
                   Terms &amp; Conditions
                 </p>
                 <div className="rounded-lg border border-zoru-line bg-zoru-surface-2 p-3 text-[13px] text-zoru-ink">
-                  <pre className="whitespace-pre-wrap font-sans">
-                    {proposal.terms}
-                  </pre>
+                  <pre className="whitespace-pre-wrap font-sans">{proposal.terms}</pre>
                 </div>
               </div>
             ) : null}
@@ -551,13 +525,12 @@ export default function ProposalDetailPage(props: {
         ) : null}
       </ZoruCard>
 
+      {/* Signature / accepted section */}
       {isAccepted ? (
         <ZoruCard className="p-6">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="h-5 w-5 text-emerald-500" />
-            <h2 className="text-[16px] text-zoru-ink">
-              Accepted &amp; Signed
-            </h2>
+            <h2 className="text-[16px] text-zoru-ink">Accepted &amp; Signed</h2>
           </div>
           {data.signs.length === 0 ? (
             <p className="mt-2 text-[13px] text-zoru-ink-muted">
@@ -571,18 +544,10 @@ export default function ProposalDetailPage(props: {
                   className="rounded-lg border border-zoru-line bg-zoru-surface-2 p-4"
                 >
                   <p className="text-[11.5px] text-zoru-ink-muted">Signed by</p>
-                  <p className="text-[13px] text-zoru-ink">
-                    {s.signer_name}
-                  </p>
-                  <p className="text-[11.5px] text-zoru-ink-muted">
-                    {s.signer_email}
-                  </p>
-                  <p className="mt-2 text-[11.5px] text-zoru-ink-muted">
-                    Signed at
-                  </p>
-                  <p className="text-[13px] text-zoru-ink">
-                    {fmtDateTime(s.signed_at)}
-                  </p>
+                  <p className="text-[13px] text-zoru-ink">{s.signer_name}</p>
+                  <p className="text-[11.5px] text-zoru-ink-muted">{s.signer_email}</p>
+                  <p className="mt-2 text-[11.5px] text-zoru-ink-muted">Signed at</p>
+                  <p className="text-[13px] text-zoru-ink">{fmtDateTime(s.signed_at)}</p>
                   {s.signature_data_url ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
@@ -600,9 +565,7 @@ export default function ProposalDetailPage(props: {
         <ZoruCard className="p-6">
           <div className="mb-4 flex items-center gap-2">
             <FileSignature className="h-5 w-5 text-zoru-ink" />
-            <h2 className="text-[16px] text-zoru-ink">
-              Sign this proposal
-            </h2>
+            <h2 className="text-[16px] text-zoru-ink">Sign this proposal</h2>
           </div>
           <div className="grid gap-4 md:grid-cols-2">
             <div>
@@ -644,18 +607,10 @@ export default function ProposalDetailPage(props: {
             </p>
           </div>
           <div className="mt-4 flex flex-wrap justify-end gap-2">
-            <ZoruButton
-              variant="outline"
-              onClick={clearCanvas}
-              disabled={isSubmitting}
-            >
-              <Eraser className="h-4 w-4" />
-              Clear
+            <ZoruButton variant="outline" onClick={clearCanvas} disabled={isSubmitting}>
+              <Eraser className="h-4 w-4" /> Clear
             </ZoruButton>
-            <ZoruButton
-              onClick={handleSign}
-              disabled={isSubmitting}
-            >
+            <ZoruButton onClick={handleSign} disabled={isSubmitting}>
               {isSubmitting ? (
                 <LoaderCircle className="h-4 w-4 animate-spin" />
               ) : (
@@ -666,6 +621,6 @@ export default function ProposalDetailPage(props: {
           </div>
         </ZoruCard>
       ) : null}
-    </div>
+    </EntityDetailShell>
   );
 }

@@ -13,6 +13,8 @@ import {
   ZoruSelectValue,
   useZoruToast,
 } from '@/components/zoruui';
+import { EnumFormField } from '@/components/crm/enum-form-field';
+import type { CrmEnumName } from '@/data/reference/crm-enums';
 import {
   useEffect,
   useState,
@@ -289,27 +291,18 @@ export default function EmployeeProfilePage() {
                 />
               </Field>
 
-              <SelectField
+              <EnumSelectField
                 label="Marital Status"
+                enumName="maritalStatus"
                 value={form.marital_status ?? ''}
                 onChange={(v) => set('marital_status', v as any)}
-                options={[
-                  { value: 'single', label: 'Single' },
-                  { value: 'married', label: 'Married' },
-                  { value: 'divorced', label: 'Divorced' },
-                  { value: 'widowed', label: 'Widowed' },
-                ]}
               />
 
-              <SelectField
+              <EnumSelectField
                 label="Gender"
+                enumName="gender"
                 value={form.gender ?? ''}
                 onChange={(v) => set('gender', v as any)}
-                options={[
-                  { value: 'male', label: 'Male' },
-                  { value: 'female', label: 'Female' },
-                  { value: 'others', label: 'Others' },
-                ]}
               />
 
               <DateField
@@ -318,14 +311,11 @@ export default function EmployeeProfilePage() {
                 onChange={(v) => set('date_of_birth', v)}
               />
 
-              <SelectField
+              <EnumSelectField
                 label="Blood Group"
+                enumName="bloodGroup"
                 value={form.blood_group ?? ''}
                 onChange={(v) => set('blood_group', v)}
-                options={['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].map((g) => ({
-                  value: g,
-                  label: g,
-                }))}
               />
 
               <TextField
@@ -375,17 +365,11 @@ export default function EmployeeProfilePage() {
           <ZoruCard className="p-6">
             <h2 className="mb-4 text-[15px] text-zoru-ink">Employment</h2>
             <div className="grid gap-4 md:grid-cols-2">
-              <SelectField
+              <EnumSelectField
                 label="Employment Type"
+                enumName="employmentType"
                 value={form.employment_type ?? ''}
                 onChange={(v) => set('employment_type', v as any)}
-                options={[
-                  { value: 'full-time', label: 'Full-time' },
-                  { value: 'part-time', label: 'Part-time' },
-                  { value: 'contract', label: 'Contract' },
-                  { value: 'internship', label: 'Internship' },
-                  { value: 'trainee', label: 'Trainee' },
-                ]}
               />
 
               <DateField
@@ -512,14 +496,11 @@ export default function EmployeeProfilePage() {
                 onChange={(v) => set('bank_name', v)}
               />
 
-              <SelectField
+              <EnumSelectField
                 label="Tax Regime"
+                enumName="taxRegime"
                 value={form.tax_regime ?? ''}
                 onChange={(v) => set('tax_regime', v)}
-                options={[
-                  { value: 'old', label: 'Old' },
-                  { value: 'new', label: 'New' },
-                ]}
               />
             </div>
           </ZoruCard>
@@ -631,6 +612,32 @@ function SelectField({
           ))}
         </ZoruSelectContent>
       </ZoruSelect>
+    </Field>
+  );
+}
+
+function EnumSelectField({
+  label,
+  enumName,
+  value,
+  onChange,
+  fullWidth,
+}: {
+  label: string;
+  enumName: CrmEnumName;
+  value: string;
+  onChange: (v: string) => void;
+  fullWidth?: boolean;
+}) {
+  return (
+    <Field label={label} fullWidth={fullWidth}>
+      <EnumFormField
+        name={`_profile_${enumName}`}
+        enumName={enumName}
+        initialId={value || null}
+        onChange={(id) => onChange(id ?? '')}
+        allowInlineCreate={false}
+      />
     </Field>
   );
 }

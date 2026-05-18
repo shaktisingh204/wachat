@@ -31,7 +31,9 @@ import {
   X,
   } from 'lucide-react';
 
-// TODO 1E.sweep: status/level -> <EnumFormField>; mode/format -> trainingDeliveryMode (after slug bridge); owner/department -> <EntityFormField>. See plan §1E.
+// §1E status:
+// - status ZoruSelect:   TODO §1E: add enumName for learningPathStatus (CrmLearningPathStatus not in CRM_ENUMS catalogue yet)
+// - audience ZoruSelect: TODO §1E: add enumName for learningPathAudience (CrmLearningPathAudience not in CRM_ENUMS catalogue yet)
 
 /**
  * <LearningPathForm /> — create + edit form for HR Learning paths.

@@ -27,7 +27,10 @@ import {
   X,
   } from 'lucide-react';
 
-// TODO 1E.sweep: visibility/type/status dropdowns -> <EnumFormField>; organizer/department -> <EntityFormField>. See plan §1E.
+// §1E status:
+// - event_type ZoruSelect: TODO §1E: add enumName for eventType (CrmEventType not in CRM_ENUMS catalogue yet)
+// - status ZoruSelect:     TODO §1E: add enumName for eventStatus (CrmEventStatus not in CRM_ENUMS catalogue yet)
+// - organizer/department:  TODO §1E: swap to <EntityFormField entity="employee"> once organizer is an entity ref
 
 /**
  * <EventForm /> — create / edit shell for Workplace Events.

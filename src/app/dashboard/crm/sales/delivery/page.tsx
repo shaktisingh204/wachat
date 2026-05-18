@@ -1,21 +1,10 @@
-import { ZoruButton } from '@/components/zoruui';
-import { Truck, Plus } from 'lucide-react';
-
 /**
- * CRM Delivery Challans list — `/dashboard/crm/sales/delivery`.
- *
- * §1D list shell (thin variant). Server component reads search/filter
- * params from the URL, hydrates a page of challans + KPI bucket counts
- * via the existing `getDeliveryChallans` action, and hands off to
- * `<DeliveryListClient>` for KPIs/search/filters/bulk-bar/delete.
- *
- * Skipped per the rebuild plan's scope cap: activity sub-route +
- * density toggle (defer to a follow-up sprint).
+ * Delivery Challans list — `/dashboard/crm/sales/delivery`
+ * §1D rebuild. Server component reads search/filter params from the URL,
+ * hydrates a page of challans + KPI bucket counts via `getDeliveryChallans`,
+ * and hands off to `<DeliveryListClient>` which composes EntityListShell.
  */
 
-import Link from 'next/link';
-
-import { CrmPageHeader } from '../../_components/crm-page-header';
 import { getDeliveryChallans } from '@/app/actions/crm-delivery-challans.actions';
 import {
   DeliveryListClient,
@@ -110,35 +99,19 @@ export default async function DeliveryChallansPage({
   });
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Delivery Challans"
-        subtitle="Create, share, and track delivery challans."
-        icon={Truck}
-        actions={
-          <ZoruButton asChild>
-            <Link href="/dashboard/crm/sales/delivery/new">
-              <Plus className="h-4 w-4" />
-              New challan
-            </Link>
-          </ZoruButton>
-        }
-      />
-
-      <DeliveryListClient
-        rows={rows}
-        page={page}
-        limit={limit}
-        hasMore={hasMore}
-        initialQuery={q}
-        initialStatus={status}
-        initialClientId={clientId}
-        initialTransporterId={transporterId}
-        initialDateFrom={dateFrom}
-        initialDateTo={dateTo}
-        initialWarehouseId={warehouseId}
-        kpis={kpis}
-      />
-    </div>
+    <DeliveryListClient
+      rows={rows}
+      page={page}
+      limit={limit}
+      hasMore={hasMore}
+      initialQuery={q}
+      initialStatus={status}
+      initialClientId={clientId}
+      initialTransporterId={transporterId}
+      initialDateFrom={dateFrom}
+      initialDateTo={dateTo}
+      initialWarehouseId={warehouseId}
+      kpis={kpis}
+    />
   );
 }

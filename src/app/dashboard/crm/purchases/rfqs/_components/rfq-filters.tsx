@@ -12,15 +12,7 @@ import { ZoruInput, ZoruLabel, ZoruSelect, ZoruSelectContent, ZoruSelectItem, Zo
 import * as React from 'react';
 
 import { EntityFormField } from '@/components/crm/entity-form-field';
-
-const STATUS_OPTIONS = [
-  { value: 'all', label: 'All statuses' },
-  { value: 'draft', label: 'Draft' },
-  { value: 'open', label: 'Open' },
-  { value: 'closed', label: 'Closed' },
-  { value: 'awarded', label: 'Awarded' },
-  { value: 'cancelled', label: 'Cancelled' },
-];
+import { EnumFilterField } from '@/components/crm/enum-filter-field';
 
 const VENDORS_INVITED_OPTIONS = [
   { value: 'all', label: 'Any invited count' },
@@ -93,18 +85,12 @@ export function RfqFilters(props: RfqFiltersProps) {
       <div className="grid gap-3 px-3 pb-3 md:grid-cols-3 lg:grid-cols-4">
         <div className="space-y-1">
           <ZoruLabel>Status</ZoruLabel>
-          <ZoruSelect value={statusFilter} onValueChange={onStatusChange}>
-            <ZoruSelectTrigger>
-              <ZoruSelectValue />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
-              {STATUS_OPTIONS.map((o) => (
-                <ZoruSelectItem key={o.value} value={o.value}>
-                  {o.label}
-                </ZoruSelectItem>
-              ))}
-            </ZoruSelectContent>
-          </ZoruSelect>
+          <EnumFilterField
+            enumName="rfqStatus"
+            value={statusFilter}
+            onChange={onStatusChange}
+            allLabel="All statuses"
+          />
         </div>
 
         <div className="space-y-1">

@@ -5,11 +5,6 @@ import {
   ZoruCard,
   ZoruInput,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   useZoruToast,
 } from '@/components/zoruui';
 import {
@@ -24,7 +19,7 @@ import { ArrowLeft,
   LoaderCircle,
   Save } from 'lucide-react';
 
-// TODO 1E.sweep: convert ZoruSelect (status) -> <EnumFormField enumName="certificationStatus">. Employee/issuer dropdowns -> <EntityFormField entity="employee">. See plan §1E.
+// §1E: ZoruSelect (status) converted to <EnumFormField enumName="certificationStatus">.
 
 /**
  * <CertificationForm /> — create + edit form for HR Certifications.
@@ -35,6 +30,7 @@ import { ArrowLeft,
  */
 
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 
 import {
     saveCertification,
@@ -43,13 +39,6 @@ import {
 } from '@/app/actions/crm-certifications.actions';
 
 const BASE = '/dashboard/hrm/hr/certifications';
-
-const STATUS_OPTIONS: Array<{ value: CrmCertificationStatus; label: string }> = [
-    { value: 'active', label: 'Active' },
-    { value: 'expired', label: 'Expired' },
-    { value: 'revoked', label: 'Revoked' },
-    { value: 'archived', label: 'Archived' },
-];
 
 function toDateInput(value: unknown): string {
     if (!value) return '';
@@ -266,25 +255,18 @@ export function CertificationForm({ initialData }: CertificationFormProps) {
                 </div>
 
                 {/* Row 6: Status */}
-                <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
-                    <ZoruSelect
-                        value={status}
-                        onValueChange={(v) =>
-                            setStatus(v as CrmCertificationStatus)
+                <div className="space-y-1.5 sm:w-1/2">
+                    <ZoruLabel>Status</ZoruLabel>
+                    <EnumFormField
+                        name="status-picker"
+                        enumName="certificationStatus"
+                        initialId={status}
+                        onChange={(id) =>
+                            setStatus((id as CrmCertificationStatus) ?? 'active')
                         }
-                    >
-                        <ZoruSelectTrigger id="status-trigger" className="sm:w-1/2">
-                            <ZoruSelectValue placeholder="Status" />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                            {STATUS_OPTIONS.map((o) => (
-                                <ZoruSelectItem key={o.value} value={o.value}>
-                                    {o.label}
-                                </ZoruSelectItem>
-                            ))}
-                        </ZoruSelectContent>
-                    </ZoruSelect>
+                        allowInlineCreate={false}
+                        placeholder="Status"
+                    />
                 </div>
 
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">

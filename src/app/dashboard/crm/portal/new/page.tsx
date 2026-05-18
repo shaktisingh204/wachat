@@ -121,6 +121,7 @@ export default function NewPortalUserPage() {
           </div>
 
           {/* Portal Type */}
+          {/* TODO §1E: portalType needs enumName="portalType" once that enum is registered in CRM_ENUMS */}
           <div className="flex flex-col gap-1.5">
             <ZoruLabel htmlFor="portalType">Portal Type</ZoruLabel>
             <ZoruSelect name="portalType" value={portalType} onValueChange={setPortalType}>
