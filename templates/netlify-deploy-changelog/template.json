@@ -1,0 +1,10 @@
+{
+  "id": "netlify-deploy-changelog",
+  "name": "Netlify Deploy Changelog",
+  "description": "When a Netlify production deploy succeeds, fetches the git commit range since the last deploy, asks GPT-4o to write a user-facing changelog from the commit messages, and posts it to #releases on Slack and to your status-page Notion doc. Replaces hand-curated release notes with an automated, consistent feed of what just shipped.",
+  "category": "Developer",
+  "complexity": "advanced",
+  "authorName": "SabNode",
+  "tags": ["netlify", "github", "openai", "changelog", "slack", "notion", "developer"],
+  "version": "0.1.0"
+}
