@@ -1,0 +1,10 @@
+{
+  "id": "onedrive-version-cleanup",
+  "name": "OneDrive Version Cleanup",
+  "description": "Weekly cron sweeps OneDrive for file versions older than 90 days and deletes them via the Graph API to reclaim storage. A short summary of how many versions were removed gets posted to #it-cleanup so leadership has receipts.",
+  "category": "Ops",
+  "complexity": "beginner",
+  "authorName": "SabNode",
+  "tags": ["onedrive", "microsoft-graph", "cleanup", "storage", "slack", "ops"],
+  "version": "0.1.0"
+}
