@@ -1,0 +1,156 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_segment",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "segment.identify",
+    "options": {
+      "path": "/webhooks/segment-identify",
+      "method": "POST",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_webhook",
+      "name": "Segment Identify",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "segment-identify",
+        "responseMode": "onReceived"
+      },
+      "webhookId": "segment-identify-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Traits",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "userId", "value": "={{ $json.userId }}" },
+            { "name": "email", "value": "={{ $json.traits.email }}" },
+            { "name": "firstName", "value": "={{ $json.traits.firstName }}" },
+            { "name": "lastName", "value": "={{ $json.traits.lastName }}" },
+            { "name": "company", "value": "={{ $json.traits.company }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_hubspot",
+      "name": "Upsert HubSpot Contact",
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2,
+      "position": [480, -150],
+      "parameters": {
+        "resource": "contact",
+        "operation": "upsert",
+        "email": "={{ $json.email }}",
+        "additionalFields": {
+          "firstName": "={{ $json.firstName }}",
+          "lastName": "={{ $json.lastName }}",
+          "company": "={{ $json.company }}"
+        }
+      },
+      "credentials": {
+        "hubspotApi": { "id": "hubspot-cred", "name": "HubSpot API" }
+      }
+    },
+    {
+      "id": "n_salesforce",
+      "name": "Upsert Salesforce Lead",
+      "type": "n8n-nodes-base.salesforce",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "resource": "lead",
+        "operation": "upsert",
+        "externalId": "Email",
+        "externalIdValue": "={{ $json.email }}",
+        "additionalFields": {
+          "FirstName": "={{ $json.firstName }}",
+          "LastName": "={{ $json.lastName }}",
+          "Company": "={{ $json.company }}"
+        }
+      },
+      "credentials": {
+        "salesforceOAuth2Api": { "id": "salesforce-cred", "name": "Salesforce OAuth2" }
+      }
+    },
+    {
+      "id": "n_mongo",
+      "name": "Mongo Unification Row",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [480, 150],
+      "parameters": {
+        "operation": "insert",
+        "collection": "identity_graph",
+        "fields": "userId,email,firstName,lastName,company"
+      },
+      "credentials": {
+        "mongoDb": { "id": "mongo-cred", "name": "MongoDB" }
+      }
+    },
+    {
+      "id": "n_audit_slack",
+      "name": "Audit Log to #cdp",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.CDP_AUDIT_CHANNEL }}",
+        "text": ":id: Identify synced — {{ $node['Extract Traits'].json.email }} → HubSpot+Salesforce+Mongo"
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    }
+  ],
+  "connections": {
+    "n_webhook": {
+      "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]]
+    },
+    "n_extract": {
+      "main": [
+        [
+          { "node": "n_hubspot", "type": "main", "index": 0 },
+          { "node": "n_salesforce", "type": "main", "index": 0 },
+          { "node": "n_mongo", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "n_hubspot": {
+      "main": [[{ "node": "n_audit_slack", "type": "main", "index": 0 }]]
+    },
+    "n_salesforce": {
+      "main": [[{ "node": "n_audit_slack", "type": "main", "index": 0 }]]
+    },
+    "n_mongo": {
+      "main": [[{ "node": "n_audit_slack", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_webhook", "n_extract", "n_hubspot", "n_salesforce", "n_mongo", "n_audit_slack"]
+    }
+  ],
+  "variables": [
+    { "id": "v_cdp", "name": "CDP_AUDIT_CHANNEL", "defaultValue": "#cdp-audit" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
