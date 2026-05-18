@@ -7,15 +7,11 @@ import {
   useRef,
   useState } from 'react';
 import { useFormStatus } from 'react-dom';
-import Link from 'next/link';
-import { ArrowLeft,
-  HandCoins,
-  LoaderCircle,
-  Save } from 'lucide-react';
+import { LoaderCircle, Save } from 'lucide-react';
 
 import { updateLoan } from '@/app/actions/crm-loans.actions';
 
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import type { EntityKey } from '@/lib/lookup-registry';
 
@@ -74,21 +70,11 @@ export function EditLoanForm({ loan, loanId }: Props) {
     }, [state, toast, loanId]);
 
     return (
-        <div className="flex w-full max-w-2xl flex-col gap-6">
-            <Link
-                href={`/dashboard/crm/loans/${loanId}`}
-                className="inline-flex items-center gap-1.5 text-[12.5px] text-zoru-ink-muted hover:text-zoru-ink"
-            >
-                <ArrowLeft className="h-3.5 w-3.5" strokeWidth={1.75} />
-                Back to Loan
-            </Link>
-
-            <CrmPageHeader
-                title="Edit Loan"
-                subtitle={`Update the details for ${loan.borrowerName ?? 'this loan'}.`}
-                icon={HandCoins}
-            />
-
+        <EntityDetailShell
+            eyebrow="LOAN"
+            title="Edit Loan"
+            back={{ href: `/dashboard/crm/loans/${loanId}`, label: 'Back to loan' }}
+        >
             <form action={formAction} ref={formRef}>
                 <input type="hidden" name="id" value={loanId} />
                 <ZoruCard className="p-6">
@@ -220,6 +206,6 @@ export function EditLoanForm({ loan, loanId }: Props) {
                     </div>
                 </ZoruCard>
             </form>
-        </div>
+        </EntityDetailShell>
     );
 }

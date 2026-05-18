@@ -20,7 +20,6 @@ import {
   useState,
   useTransition } from 'react';
 import {
-  Tags,
   Plus,
   Pencil,
   Trash2,
@@ -28,7 +27,7 @@ import {
   X,
   } from 'lucide-react';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   getLeaveTypes,
   saveLeaveType,
@@ -129,18 +128,16 @@ export default function LeaveTypesPage() {
   };
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Leave Types"
-        subtitle="Define leave categories with annual quota, color, monthly cap, and paid status."
-        icon={Tags}
-        actions={
-          <ZoruButton onClick={openNew}>
-            <Plus className="h-4 w-4" strokeWidth={1.75} />
-            Add Leave Type
-          </ZoruButton>
-        }
-      />
+    <EntityListShell
+      title="Leave Types"
+      subtitle="Define leave categories with annual quota, color, monthly cap, and paid status."
+      primaryAction={
+        <ZoruButton onClick={openNew}>
+          <Plus className="h-4 w-4" strokeWidth={1.75} />
+          Add Leave Type
+        </ZoruButton>
+      }
+    >
 
       <ZoruCard className="p-6">
         {isLoadingList && types.length === 0 ? (
@@ -372,6 +369,6 @@ export default function LeaveTypesPage() {
           </ZoruCard>
         </div>
       )}
-    </div>
+    </EntityListShell>
   );
 }

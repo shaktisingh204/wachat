@@ -26,7 +26,6 @@ import {
 import {
   useParams } from 'next/navigation';
 import {
-    ArrowLeft,
   LoaderCircle,
   Pencil,
   PhoneCall,
@@ -47,7 +46,7 @@ import {
 import * as React from 'react';
 import Link from 'next/link';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 import {
     deleteCrmEmergencyContact,
@@ -185,35 +184,16 @@ export default function EmployeeEmergencyContactsSubPage() {
 
     return (
         <>
-            <div className="flex w-full flex-col gap-6">
-                <CrmPageHeader
-                    breadcrumbs={[
-                        { label: 'HR', href: '/dashboard/hrm/hr' },
-                        {
-                            label: 'Employees',
-                            href: '/dashboard/hrm/payroll/employees',
-                        },
-                        { label: 'Employee', href: BASE },
-                        { label: 'Emergency contacts' },
-                    ]}
-                    title="Emergency contacts"
-                    subtitle="People to reach in case of an emergency."
-                    icon={PhoneCall}
-                    actions={
-                        <div className="flex items-center gap-2">
-                            <ZoruButton variant="outline" asChild>
-                                <Link href={BASE}>
-                                    <ArrowLeft className="mr-2 h-4 w-4" />
-                                    Overview
-                                </Link>
-                            </ZoruButton>
-                            <ZoruButton onClick={openAdd}>
-                                <Plus className="mr-2 h-4 w-4" />
-                                Add contact
-                            </ZoruButton>
-                        </div>
-                    }
-                />
+            <EntityListShell
+                title="Emergency contacts"
+                subtitle="People to reach in case of an emergency."
+                primaryAction={
+                    <ZoruButton onClick={openAdd}>
+                        <Plus className="mr-2 h-4 w-4" />
+                        Add contact
+                    </ZoruButton>
+                }
+            >
 
                 <div className="flex flex-wrap gap-1 border-b border-zoru-line">
                     {[
@@ -365,7 +345,7 @@ export default function EmployeeEmergencyContactsSubPage() {
                         ))}
                     </div>
                 )}
-            </div>
+            </EntityListShell>
 
             {/* Add / Edit dialog */}
             <ZoruDialog open={dialogOpen} onOpenChange={setDialogOpen}>

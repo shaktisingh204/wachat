@@ -2,7 +2,7 @@ import { ZoruBadge, ZoruCard, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTable
 import {
   ShoppingBag } from 'lucide-react';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 /**
  * Store orders list — `/dashboard/crm/store/orders`.
@@ -64,17 +64,10 @@ export default async function StoreOrdersPage({ searchParams }: PageProps) {
     ]);
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="Store orders"
-                subtitle="Orders captured from the storefront — payment and fulfillment state."
-                icon={ShoppingBag}
-                breadcrumbs={[
-                    { label: 'CRM', href: '/dashboard/crm' },
-                    { label: 'Store', href: '/dashboard/crm/store' },
-                    { label: 'Orders' },
-                ]}
-            />
+        <EntityListShell
+            title="Store orders"
+            subtitle="Orders captured from the storefront — payment and fulfillment state."
+        >
 
             <ZoruCard className="p-4">
                 <StorefrontFilterClient
@@ -172,6 +165,6 @@ export default async function StoreOrdersPage({ searchParams }: PageProps) {
                     </ZoruTable>
                 </div>
             </ZoruCard>
-        </div>
+        </EntityListShell>
     );
 }

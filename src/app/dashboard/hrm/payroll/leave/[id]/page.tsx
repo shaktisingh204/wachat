@@ -6,11 +6,8 @@ import {
   useEffect,
   useState,
   useTransition } from 'react';
-import Link from 'next/link';
 import { format } from 'date-fns';
 import {
-  CalendarOff,
-  ArrowLeft,
   Check,
   X,
   Paperclip,
@@ -19,7 +16,7 @@ import {
   } from 'lucide-react';
 
 import { SabFileUrlInput } from '@/components/sabfiles';
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   getLeave,
   getLeaveTypes,
@@ -140,20 +137,10 @@ export default function LeaveDetailPage({
   };
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Leave Application"
-        subtitle="Review application details, attachments and approve or reject."
-        icon={CalendarOff}
-        actions={
-          <Link href="/dashboard/hrm/payroll/leave">
-            <ZoruButton variant="outline">
-              <ArrowLeft className="h-4 w-4" />
-              Back to list
-            </ZoruButton>
-          </Link>
-        }
-      />
+    <EntityListShell
+      title="Leave Application"
+      subtitle="Review application details, attachments and approve or reject."
+    >
 
       {isLoading && !leave ? (
         <ZoruCard className="p-6">
@@ -340,7 +327,7 @@ export default function LeaveDetailPage({
           </ZoruCard>
         </>
       )}
-    </div>
+    </EntityListShell>
   );
 }
 

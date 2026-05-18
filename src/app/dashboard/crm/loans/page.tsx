@@ -1,11 +1,9 @@
 import { ZoruButton } from '@/components/zoruui';
-import {
-  HandCoins,
-  Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { ObjectId } from 'mongodb';
 import Link from 'next/link';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 import { getSession } from '@/app/actions/user.actions';
 import { connectToDatabase } from '@/lib/mongodb';
@@ -103,20 +101,17 @@ export default async function LoansPage() {
   }
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Loans & Advances"
-        subtitle="Employee advances, customer and vendor loans with EMI and NPA tracking."
-        icon={HandCoins}
-        actions={
-          <ZoruButton variant="outline" size="sm" asChild>
-            <Link href="/dashboard/crm/loans/new">
-              <Plus className="h-4 w-4" /> New loan
-            </Link>
-          </ZoruButton>
-        }
-      />
-
+    <EntityListShell
+      title="Loans & Advances"
+      subtitle="Employee advances, customer and vendor loans with EMI and NPA tracking."
+      primaryAction={
+        <ZoruButton variant="outline" size="sm" asChild>
+          <Link href="/dashboard/crm/loans/new">
+            <Plus className="h-4 w-4" /> New loan
+          </Link>
+        </ZoruButton>
+      }
+    >
       {loadError ? (
         <div className="rounded-md border border-amber-500/40 bg-amber-500/10 px-4 py-2.5 text-[13px] text-amber-600">
           Could not load loans. Please try again.
@@ -124,6 +119,6 @@ export default async function LoansPage() {
       ) : null}
 
       <LoansListClient loans={loans} />
-    </div>
+    </EntityListShell>
   );
 }

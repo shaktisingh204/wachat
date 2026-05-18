@@ -19,11 +19,11 @@ import {
   useEffect,
   useState,
   useTransition } from 'react';
-import { UserCog,
+import {
   LoaderCircle,
   Save } from 'lucide-react';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   saveEmployeeDetail,
   getEmployeeDetails,
@@ -245,12 +245,10 @@ export default function EmployeeProfilePage() {
   };
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Employee Extended Profile"
-        subtitle="View and edit detailed employee profile information."
-        icon={UserCog}
-      />
+    <EntityListShell
+      title="Employee Extended Profile"
+      subtitle="View and edit detailed employee profile information."
+    >
 
       <ZoruCard className="p-6">
         <div className="flex flex-col gap-1.5">
@@ -520,7 +518,7 @@ export default function EmployeeProfilePage() {
           </div>
         </form>
       )}
-    </div>
+    </EntityListShell>
   );
 }
 

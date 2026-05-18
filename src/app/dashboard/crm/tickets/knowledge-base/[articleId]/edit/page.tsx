@@ -3,9 +3,8 @@
  */
 
 import { redirect } from 'next/navigation';
-import { BookOpen } from 'lucide-react';
 
-import { CrmPageHeader } from '../../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getKbArticleById } from '@/app/actions/crm-knowledge-base.actions';
 import { KbArticleForm } from '../../_components/kb-article-form';
 
@@ -23,13 +22,12 @@ export default async function EditKbArticlePage({
     }
 
     return (
-        <div className="flex w-full flex-col gap-6 p-4 md:p-6">
-            <CrmPageHeader
-                title="Edit article"
-                subtitle="Update this knowledge base article."
-                icon={BookOpen}
-            />
+        <EntityDetailShell
+            eyebrow="KNOWLEDGE BASE"
+            title="Edit article"
+            back={{ href: `/dashboard/crm/tickets/knowledge-base/${articleId}`, label: 'Back to article' }}
+        >
             <KbArticleForm mode="edit" articleId={articleId} initial={article} />
-        </div>
+        </EntityDetailShell>
     );
 }

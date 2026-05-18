@@ -23,7 +23,7 @@ import { Plus,
   RotateCw,
   Trash2 } from 'lucide-react';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   getShiftRotation,
   saveShiftRotation,
@@ -103,19 +103,10 @@ export default function ShiftRotationDetailPage() {
   const totalCycle = sequences.reduce((acc, s) => acc + Number(s.duration_days ?? 0), 0);
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title={rotation?.name ?? 'Rotation'}
-        subtitle={rotation?.description || 'Build the repeating sequence of shifts.'}
-        icon={RotateCw}
-        actions={
-          rotation ? (
-            <ZoruBadge variant={rotation.is_active ? 'success' : 'secondary'}>
-              {rotation.is_active ? 'active' : 'inactive'}
-            </ZoruBadge>
-          ) : null
-        }
-      />
+    <EntityListShell
+      title={rotation?.name ?? 'Rotation'}
+      subtitle={rotation?.description || 'Build the repeating sequence of shifts.'}
+    >
 
       {!rotation ? (
         <div className="text-[13px] text-zoru-ink-muted">Loading…</div>
@@ -246,6 +237,6 @@ export default function ShiftRotationDetailPage() {
           </ZoruCard>
         </>
       )}
-    </div>
+    </EntityListShell>
   );
 }

@@ -3,8 +3,7 @@ import {
   notFound,
   redirect } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft,
-  GitCompare,
+import {
   Paperclip,
   Pencil } from 'lucide-react';
 
@@ -14,7 +13,7 @@ import { ArrowLeft,
  * Server component. Hits `getReconciliationById` (Rust-backed).
  */
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 import { getSession } from '@/app/actions/user.actions';
 import { getReconciliationById } from '@/app/actions/crm-reconciliation.actions';
@@ -95,32 +94,18 @@ export default async function ReconciliationDetailPage({ params }: PageProps) {
     const { statementUrl, rest } = extractStatementUrl(recon.notes);
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'CRM', href: '/dashboard/crm' },
-                    { label: 'Banking', href: '/dashboard/crm/banking' },
-                    { label: 'Reconciliation', href: BASE },
-                    { label: `Period ${fmtDate(recon.periodStart)}` },
-                ]}
-                title={`Reconciliation · ${fmtDate(recon.periodStart)} – ${fmtDate(recon.periodEnd)}`}
-                subtitle={`Account ${recon.accountId.slice(0, 8)}…`}
-                icon={GitCompare}
-                actions={
-                    <div className="flex items-center gap-2">
-                        <ZoruButton variant="outline" asChild>
-                            <Link href={BASE}>
-                                <ArrowLeft className="mr-2 h-4 w-4" /> Back
-                            </Link>
-                        </ZoruButton>
-                        <ZoruButton asChild>
-                            <Link href={`${BASE}/${id}/edit`}>
-                                <Pencil className="mr-2 h-4 w-4" /> Edit
-                            </Link>
-                        </ZoruButton>
-                    </div>
-                }
-            />
+        <EntityDetailShell
+            eyebrow="RECONCILIATION"
+            title={`Reconciliation · ${fmtDate(recon.periodStart)} – ${fmtDate(recon.periodEnd)}`}
+            back={{ href: BASE, label: 'Reconciliation' }}
+            actions={
+                <ZoruButton asChild>
+                    <Link href={`${BASE}/${id}/edit`}>
+                        <Pencil className="mr-2 h-4 w-4" /> Edit
+                    </Link>
+                </ZoruButton>
+            }
+        >
 
             <ZoruCard>
                 <ZoruCardHeader>
@@ -187,6 +172,6 @@ export default async function ReconciliationDetailPage({ params }: PageProps) {
                     </ZoruCardContent>
                 </ZoruCard>
             ) : null}
-        </div>
+        </EntityDetailShell>
     );
 }

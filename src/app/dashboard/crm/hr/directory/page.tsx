@@ -2,7 +2,6 @@
 
 import { ZoruBadge, ZoruButton, ZoruCard, ZoruInput, ZoruSkeleton } from '@/components/zoruui';
 import {
-  Users,
   ArrowRight,
   Mail,
   Phone,
@@ -19,7 +18,7 @@ import { useEffect,
 import * as React from 'react';
 import Link from 'next/link';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { getCrmEmployees } from '@/app/actions/crm-employees.actions';
 
 type Employee = {
@@ -112,20 +111,18 @@ export default function DirectoryPage() {
   const empty = !isLoading && rows.length === 0;
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Employee Directory"
-        subtitle="A read-only view of every employee in your organization."
-        icon={Users}
-        actions={
-          <Link href="/dashboard/hrm/payroll/employees">
-            <ZoruButton>
-              Manage Employees
-              <ArrowRight className="h-4 w-4" strokeWidth={1.75} />
-            </ZoruButton>
-          </Link>
-        }
-      />
+    <EntityListShell
+      title="Employee Directory"
+      subtitle="A read-only view of every employee in your organization."
+      primaryAction={
+        <Link href="/dashboard/hrm/payroll/employees">
+          <ZoruButton>
+            Manage Employees
+            <ArrowRight className="h-4 w-4" strokeWidth={1.75} />
+          </ZoruButton>
+        </Link>
+      }
+    >
 
       {/* Toolbar */}
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -353,6 +350,6 @@ export default function DirectoryPage() {
           {q ? ` matching "${search}"` : ''}
         </p>
       )}
-    </div>
+    </EntityListShell>
   );
 }

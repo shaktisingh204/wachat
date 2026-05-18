@@ -1,18 +1,13 @@
-import { ZoruButton } from '@/components/zoruui';
 import {
   notFound,
   redirect } from 'next/navigation';
-import { ArrowLeft,
-  FormInput } from 'lucide-react';
 
 /**
  * Edit custom form — server wrapper that loads the form by id and
  * hands it to `<CustomFormForm />` as `initialData`.
  */
 
-import Link from 'next/link';
-
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getSession } from '@/app/actions/user.actions';
 import { getFormById } from '@/app/actions/crm-forms.actions';
 
@@ -36,28 +31,12 @@ export default async function EditCustomFormPage({
   if (!form) notFound();
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        breadcrumbs={[
-          { label: 'Tickets', href: '/dashboard/crm/tickets' },
-          { label: 'Custom Forms', href: BASE },
-          { label: form.name, href: `${BASE}/${id}` },
-          { label: 'Edit' },
-        ]}
-        title={`Edit · ${form.name}`}
-        subtitle="Update fields, settings, and status."
-        icon={FormInput}
-        actions={
-          <ZoruButton variant="ghost" asChild>
-            <Link href={`${BASE}/${id}`}>
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to detail
-            </Link>
-          </ZoruButton>
-        }
-      />
-
+    <EntityDetailShell
+      eyebrow="CUSTOM FORM"
+      title={`Edit · ${form.name}`}
+      back={{ href: `${BASE}/${id}`, label: 'Back to detail' }}
+    >
       <CustomFormForm initialData={form} />
-    </div>
+    </EntityDetailShell>
   );
 }

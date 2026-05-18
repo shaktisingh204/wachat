@@ -9,10 +9,9 @@ import Link from 'next/link';
 import { Edit,
   Play,
   Plus,
-  RotateCw,
   Trash2 } from 'lucide-react';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   getShiftRotations,
   saveShiftRotation,
@@ -56,20 +55,18 @@ export default function ShiftRotationsPage() {
   };
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Shift Rotations"
-        subtitle="Define cyclical shift sequences to automate assignment."
-        icon={RotateCw}
-        actions={
-          <Link href="/dashboard/crm/hr-payroll/shift-rotations/automate">
-            <ZoruButton>
-              <Play className="h-4 w-4" strokeWidth={1.75} />
-              Automate Shift
-            </ZoruButton>
-          </Link>
-        }
-      />
+    <EntityListShell
+      title="Shift Rotations"
+      subtitle="Define cyclical shift sequences to automate assignment."
+      primaryAction={
+        <Link href="/dashboard/crm/hr-payroll/shift-rotations/automate">
+          <ZoruButton>
+            <Play className="h-4 w-4" strokeWidth={1.75} />
+            Automate Shift
+          </ZoruButton>
+        </Link>
+      }
+    >
 
       <ZoruCard className="p-6">
         <h2 className="mb-3 text-[16px] text-zoru-ink">Create Rotation</h2>
@@ -166,6 +163,6 @@ export default function ShiftRotationsPage() {
           </table>
         </div>
       </ZoruCard>
-    </div>
+    </EntityListShell>
   );
 }

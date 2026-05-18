@@ -1,9 +1,6 @@
-import { ZoruButton } from '@/components/zoruui';
 import {
   notFound,
   redirect } from 'next/navigation';
-import { ArrowLeft,
-  ArrowLeftRight } from 'lucide-react';
 
 /**
  * Edit bank transaction — server page that loads the existing row and
@@ -11,9 +8,7 @@ import { ArrowLeft,
  * `saveBankTransaction` (PATCH branch when a hidden `id` is present).
  */
 
-import Link from 'next/link';
-
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 
 import { getSession } from '@/app/actions/user.actions';
 import {
@@ -47,29 +42,12 @@ export default async function EditBankTransactionPage({
     }));
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'Banking', href: '/dashboard/crm/banking' },
-                    { label: 'Bank Transactions', href: BASE },
-                    {
-                        label: tx.referenceNumber || tx._id.slice(0, 8),
-                        href: `${BASE}/${tx._id}`,
-                    },
-                    { label: 'Edit' },
-                ]}
-                title="Edit Bank Transaction"
-                subtitle="Update the description, category, amount, status, or attached statement."
-                icon={ArrowLeftRight}
-                actions={
-                    <ZoruButton variant="ghost" asChild>
-                        <Link href={`${BASE}/${tx._id}`}>
-                            <ArrowLeft className="mr-2 h-4 w-4" /> Back
-                        </Link>
-                    </ZoruButton>
-                }
-            />
+        <EntityDetailShell
+            eyebrow="BANK TRANSACTION"
+            title="Edit Bank Transaction"
+            back={{ href: `${BASE}/${tx._id}`, label: 'Back to transaction' }}
+        >
             <BankTransactionForm mode="edit" initial={tx} accounts={accounts} />
-        </div>
+        </EntityDetailShell>
     );
 }

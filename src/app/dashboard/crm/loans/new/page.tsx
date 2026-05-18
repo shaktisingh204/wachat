@@ -13,13 +13,11 @@ import {
   useActionState,
   useState } from 'react';
 import { useFormStatus } from 'react-dom';
-import { ArrowLeft,
-  Save,
-  LoaderCircle,
-  HandCoins } from 'lucide-react';
+import { Save,
+  LoaderCircle } from 'lucide-react';
 import Link from 'next/link';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { saveLoan } from '@/app/actions/crm-loans.actions';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
@@ -67,20 +65,11 @@ export default function NewLoanPage() {
   }, [state, toast, router]);
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="New Loan"
-        subtitle="Disburse an employee advance, customer or vendor loan."
-        icon={HandCoins}
-        actions={
-          <ZoruButton variant="outline" size="sm" asChild>
-            <Link href="/dashboard/crm/loans">
-              <ArrowLeft className="h-4 w-4" /> Back
-            </Link>
-          </ZoruButton>
-        }
-      />
-
+    <EntityDetailShell
+      eyebrow="LOAN"
+      title="New Loan"
+      back={{ href: '/dashboard/crm/loans', label: 'Loans & Advances' }}
+    >
       <ZoruCard className="p-6">
         <form action={formAction} className="flex flex-col gap-6">
           {/* Loan Type */}
@@ -190,6 +179,6 @@ export default function NewLoanPage() {
           </div>
         </form>
       </ZoruCard>
-    </div>
+    </EntityDetailShell>
   );
 }

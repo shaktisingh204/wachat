@@ -26,7 +26,6 @@ import {
 import {
   Edit,
   LoaderCircle,
-  Megaphone,
   Pin,
   Plus,
   Trash2 } from 'lucide-react';
@@ -46,7 +45,6 @@ import {
 import * as React from 'react';
 import Link from 'next/link';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 
@@ -184,17 +182,10 @@ export default function AnnouncementsListPage() {
 
     return (
         <>
-            <div className="flex w-full flex-col gap-6">
-                <CrmPageHeader
-                    breadcrumbs={[
-                        { label: 'HRM', href: '/dashboard/hrm' },
-                        { label: 'HR', href: '/dashboard/crm/hr' },
-                        { label: 'Announcements' },
-                    ]}
+            <EntityListShell
                     title="Announcements"
                     subtitle="Company-wide updates, news, and pinned messages."
-                    icon={Megaphone}
-                    actions={
+                    primaryAction={
                         <ZoruButton asChild>
                             <Link href={`${BASE}/new`}>
                                 <Plus className="mr-1.5 h-3.5 w-3.5" /> New
@@ -202,10 +193,6 @@ export default function AnnouncementsListPage() {
                             </Link>
                         </ZoruButton>
                     }
-                />
-
-                <EntityListShell
-                    title=""
                     search={{
                         value: search,
                         onChange: setSearch,
@@ -423,8 +410,7 @@ export default function AnnouncementsListPage() {
                             </ZoruTableBody>
                         </ZoruTable>
                     </div>
-                </EntityListShell>
-            </div>
+            </EntityListShell>
 
             <ZoruAlertDialog
                 open={!!pendingDelete}

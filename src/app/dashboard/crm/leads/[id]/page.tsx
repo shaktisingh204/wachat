@@ -2,7 +2,6 @@ import { ZoruButton, ZoruCard, ZoruBadge } from '@/components/zoruui';
 import {
   notFound } from 'next/navigation';
 import {
-  Users,
   Pencil,
   ArrowLeft,
   Handshake,
@@ -22,7 +21,7 @@ import {
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { CustomFieldDisplay } from '@/components/crm/custom-field-input';
 import { RelatedRail } from '@/components/crm/RelatedRail';
@@ -95,26 +94,18 @@ export default async function LeadDetailPage({
   const cfValues = (lead.customFields ?? {}) as Record<string, unknown>;
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title={fullName}
-        subtitle={lead.company ? `${lead.title ?? ''}${lead.title ? ' · ' : ''}${lead.company}` : 'Lead'}
-        icon={Users}
-        actions={
-          <>
-            <ZoruButton variant="outline" asChild>
-              <Link href="/dashboard/crm/leads">
-                <ArrowLeft className="h-4 w-4" /> Back
-              </Link>
-            </ZoruButton>
-            <ZoruButton asChild>
-              <Link href={`/dashboard/crm/leads/${id}/edit`}>
-                <Pencil className="h-4 w-4" /> Edit
-              </Link>
-            </ZoruButton>
-          </>
-        }
-      />
+    <EntityDetailShell
+      eyebrow="LEAD"
+      title={fullName}
+      back={{ href: '/dashboard/crm/leads', label: 'Leads' }}
+      actions={
+        <ZoruButton asChild>
+          <Link href={`/dashboard/crm/leads/${id}/edit`}>
+            <Pencil className="h-4 w-4" /> Edit
+          </Link>
+        </ZoruButton>
+      }
+    >
 
       <div className="grid gap-6 lg:grid-cols-3">
         <ZoruCard className="p-6 lg:col-span-2">
@@ -225,6 +216,6 @@ export default async function LeadDetailPage({
         Created {fmtDate(lead.createdAt || lead.audit?.createdAt)} · Updated{' '}
         {fmtDate(lead.updatedAt || lead.audit?.updatedAt)}
       </div>
-    </div>
+    </EntityDetailShell>
   );
 }

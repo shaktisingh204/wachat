@@ -1,11 +1,11 @@
 'use client';
 
 import { ZoruCard } from '@/components/zoruui';
-import { CalendarCheck, CalendarX, FileSpreadsheet, BookOpen, BarChart3 } from 'lucide-react';
+import { CalendarCheck, CalendarX, FileSpreadsheet, BookOpen } from 'lucide-react';
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 const REPORT_CATEGORIES = [
     {
@@ -44,13 +44,10 @@ const REPORT_CATEGORIES = [
 
 export default function HrReportsIndexPage() {
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="Payroll Reports"
-                subtitle="Generate and download detailed HR and payroll reports for your organisation."
-                icon={BarChart3}
-            />
-
+        <EntityListShell
+            title="Payroll Reports"
+            subtitle="Generate and download detailed HR and payroll reports for your organisation."
+        >
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4">
                 {REPORT_CATEGORIES.map(({ href, icon: Icon, title, description, color, bg }) => (
                     <Link key={href} href={href} className="group block focus-visible:outline-none">
@@ -65,6 +62,6 @@ export default function HrReportsIndexPage() {
                     </Link>
                 ))}
             </div>
-        </div>
+        </EntityListShell>
     );
 }

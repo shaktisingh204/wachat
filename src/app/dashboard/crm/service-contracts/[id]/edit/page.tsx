@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getServiceContractById } from '@/app/actions/crm-service-contracts.actions';
 import { ServiceContractEditForm } from './edit-form';
 
@@ -14,9 +14,12 @@ export default async function ServiceContractEditPage({ params }: PageProps) {
     if (!c) notFound();
 
     return (
-        <div className="space-y-6">
-            <CrmPageHeader title={`Edit ${c.contractNo || c.title || 'service contract'}`} />
+        <EntityDetailShell
+            eyebrow="SERVICE CONTRACT"
+            title={`Edit · ${c.contractNo || c.title || 'service contract'}`}
+            back={{ href: `/dashboard/crm/service-contracts/${id}`, label: 'Back to contract' }}
+        >
             <ServiceContractEditForm contract={{ ...c, _id: String(c._id ?? id) }} />
-        </div>
+        </EntityDetailShell>
     );
 }

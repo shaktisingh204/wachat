@@ -8,9 +8,8 @@
  */
 
 import { notFound } from 'next/navigation';
-import { Users } from 'lucide-react';
 
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { LeadForm } from '../../_components/lead-form';
 import { getLead } from '@/app/actions/crm/leads.actions';
 import { getCustomFieldsFor } from '@/app/actions/worksuite/meta.actions';
@@ -35,13 +34,12 @@ export default async function EditLeadPage({
     [lead.firstName, lead.lastName].filter(Boolean).join(' ') || lead.email || 'Lead';
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title={`Edit ${fullName}`}
-        subtitle="Update lead details."
-        icon={Users}
-      />
+    <EntityDetailShell
+      eyebrow="LEAD"
+      title={`Edit · ${fullName}`}
+      back={{ href: `/dashboard/crm/leads/${id}`, label: 'Back to lead' }}
+    >
       <LeadForm initial={lead} customFields={customFields} />
-    </div>
+    </EntityDetailShell>
   );
 }

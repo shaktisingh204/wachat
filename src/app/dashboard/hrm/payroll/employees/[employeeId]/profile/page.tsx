@@ -3,12 +3,10 @@ import {
   notFound,
   redirect } from 'next/navigation';
 import {
-    ArrowLeft,
   Briefcase,
   PenLine,
   PhoneCall,
   User,
-  UserCircle,
   } from 'lucide-react';
 
 /**
@@ -28,7 +26,7 @@ import {
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 import { getSession } from '@/app/actions/user.actions';
@@ -134,37 +132,18 @@ export default async function EmployeeProfileSubPage({
     const BASE = `/dashboard/hrm/payroll/employees/${employeeId}`;
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'HR', href: '/dashboard/hrm/hr' },
-                    {
-                        label: 'Employees',
-                        href: '/dashboard/hrm/payroll/employees',
-                    },
-                    { label: fullName, href: BASE },
-                    { label: 'Profile' },
-                ]}
-                title={fullName}
-                subtitle="Personal and employment details."
-                icon={UserCircle}
-                actions={
-                    <div className="flex items-center gap-2">
-                        <ZoruButton variant="outline" asChild>
-                            <Link href={BASE}>
-                                <ArrowLeft className="mr-2 h-4 w-4" />
-                                Overview
-                            </Link>
-                        </ZoruButton>
-                        <ZoruButton asChild>
-                            <Link href={`${BASE}/edit`}>
-                                <PenLine className="mr-2 h-4 w-4" />
-                                Edit
-                            </Link>
-                        </ZoruButton>
-                    </div>
-                }
-            />
+        <EntityListShell
+            title={fullName}
+            subtitle="Personal and employment details."
+            primaryAction={
+                <ZoruButton asChild>
+                    <Link href={`${BASE}/edit`}>
+                        <PenLine className="mr-2 h-4 w-4" />
+                        Edit
+                    </Link>
+                </ZoruButton>
+            }
+        >
 
             {/* Sub-tab navigation strip */}
             <div className="flex flex-wrap gap-1 border-b border-zoru-line">
@@ -388,7 +367,7 @@ export default async function EmployeeProfileSubPage({
                     </dl>
                 </ZoruCard>
             </div>
-        </div>
+        </EntityListShell>
     );
 }
 

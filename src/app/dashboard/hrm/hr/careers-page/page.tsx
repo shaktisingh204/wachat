@@ -18,8 +18,7 @@ import {
   useEffect,
   useState,
   useTransition } from 'react';
-import { Globe,
-  LoaderCircle } from 'lucide-react';
+import { LoaderCircle } from 'lucide-react';
 
 /**
  * Careers page settings — §1D.4 specialised "settings list" upgrade.

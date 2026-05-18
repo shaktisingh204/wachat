@@ -14,7 +14,7 @@ import {
 import {
   AlertTriangle } from 'lucide-react';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 /**
  * Abandoned carts list — `/dashboard/crm/store/abandoned-cart`.
@@ -84,17 +84,10 @@ export default async function AbandonedCartsPage({ searchParams }: PageProps) {
     ]);
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="Abandoned carts"
-                subtitle="Drop-off carts with recovery email dispatch."
-                icon={AlertTriangle}
-                breadcrumbs={[
-                    { label: 'CRM', href: '/dashboard/crm' },
-                    { label: 'Store', href: '/dashboard/crm/store' },
-                    { label: 'Abandoned cart' },
-                ]}
-            />
+        <EntityListShell
+            title="Abandoned carts"
+            subtitle="Drop-off carts with recovery email dispatch."
+        >
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <ZoruStatCard label="Total" value={kpi.total} />
@@ -236,6 +229,6 @@ export default async function AbandonedCartsPage({ searchParams }: PageProps) {
                     </ZoruTable>
                 </div>
             </ZoruCard>
-        </div>
+        </EntityListShell>
     );
 }

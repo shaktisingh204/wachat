@@ -12,9 +12,7 @@ import {
 import {
   notFound,
   redirect } from 'next/navigation';
-import { ArrowLeft,
-  FormInput,
-  Pencil } from 'lucide-react';
+import { Pencil } from 'lucide-react';
 
 /**
  * Custom form detail page.
@@ -25,7 +23,7 @@ import { ArrowLeft,
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 import { getSession } from '@/app/actions/user.actions';
 import { getFormById } from '@/app/actions/crm-forms.actions';
@@ -60,33 +58,19 @@ export default async function CustomFormDetailPage({
   const settings = (form.settings ?? {}) as Record<string, unknown>;
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        breadcrumbs={[
-          { label: 'Tickets', href: '/dashboard/crm/tickets' },
-          { label: 'Custom Forms', href: BASE },
-          { label: form.name },
-        ]}
-        title={form.name}
-        subtitle={form.slug ? `/${form.slug}` : 'Custom form'}
-        icon={FormInput}
-        actions={
-          <div className="flex items-center gap-2">
-            <ZoruButton variant="outline" asChild>
-              <Link href={BASE}>
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back
-              </Link>
-            </ZoruButton>
-            <ZoruButton asChild>
-              <Link href={`${BASE}/${id}/edit`}>
-                <Pencil className="mr-2 h-4 w-4" />
-                Edit
-              </Link>
-            </ZoruButton>
-          </div>
-        }
-      />
+    <EntityDetailShell
+      eyebrow="CUSTOM FORM"
+      title={form.name}
+      back={{ href: BASE, label: 'Custom Forms' }}
+      actions={
+        <ZoruButton asChild>
+          <Link href={`${BASE}/${id}/edit`}>
+            <Pencil className="mr-2 h-4 w-4" />
+            Edit
+          </Link>
+        </ZoruButton>
+      }
+    >
 
       <ZoruCard className="p-6">
         <div className="mb-4 flex flex-wrap items-center gap-2">
@@ -205,6 +189,6 @@ export default async function CustomFormDetailPage({
           </div>
         )}
       </ZoruCard>
-    </div>
+    </EntityDetailShell>
   );
 }

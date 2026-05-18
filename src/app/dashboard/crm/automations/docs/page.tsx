@@ -9,10 +9,8 @@ import {
   ZoruCard,
   ZoruSeparator,
 } from '@/components/zoruui';
-import Link from 'next/link';
-import { ChevronLeft, BookOpen } from 'lucide-react';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 const blockDocs = [
     {
@@ -69,20 +67,10 @@ const blockDocs = [
 
 export default function CrmAutomationDocsPage() {
     return (
-        <div className="flex w-full flex-col gap-6">
-            <div>
-                <Link href="/dashboard/crm/automations" className="inline-flex items-center gap-2 text-[13px] text-muted-foreground hover:text-foreground">
-                    <ChevronLeft className="h-4 w-4" />
-                    Back to Automations
-                </Link>
-            </div>
-
-            <CrmPageHeader
-                title="CRM Automation Documentation"
-                subtitle="A guide to building powerful, automated workflows to manage your leads and customers."
-                icon={BookOpen}
-            />
-
+        <EntityListShell
+            title="CRM Automation Documentation"
+            subtitle="A guide to building powerful, automated workflows to manage your leads and customers."
+        >
             <ZoruCard>
                 <div className="mb-4">
                     <h2 className="text-[16px] font-semibold text-foreground">Using Variables</h2>
@@ -133,6 +121,6 @@ export default function CrmAutomationDocsPage() {
                     </ZoruAccordionItem>
                 ))}
             </ZoruAccordion>
-        </div>
+        </EntityListShell>
     );
 }

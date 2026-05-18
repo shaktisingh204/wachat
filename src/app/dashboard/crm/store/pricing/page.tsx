@@ -13,7 +13,7 @@ import {
   Plus,
   Tag } from 'lucide-react';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 /**
  * Pricing rules list — `/dashboard/crm/store/pricing`.
@@ -56,25 +56,18 @@ export default async function PricingRulesPage({ searchParams }: PageProps) {
         : '/dashboard/crm/store/pricing/new';
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="Pricing rules"
-                subtitle="Discount engine — percent off, fixed off, BXGY and bundles."
-                icon={Tag}
-                breadcrumbs={[
-                    { label: 'CRM', href: '/dashboard/crm' },
-                    { label: 'Store', href: '/dashboard/crm/store' },
-                    { label: 'Pricing' },
-                ]}
-                actions={
-                    <ZoruButton variant="outline" asChild>
-                        <Link href={newHref}>
-                            <Plus className="h-4 w-4" />
-                            New rule
-                        </Link>
-                    </ZoruButton>
-                }
-            />
+        <EntityListShell
+            title="Pricing rules"
+            subtitle="Discount engine — percent off, fixed off, BXGY and bundles."
+            primaryAction={
+                <ZoruButton variant="outline" asChild>
+                    <Link href={newHref}>
+                        <Plus className="h-4 w-4" />
+                        New rule
+                    </Link>
+                </ZoruButton>
+            }
+        >
 
             <ZoruCard className="p-4">
                 <StorefrontFilterClient
@@ -162,6 +155,6 @@ export default async function PricingRulesPage({ searchParams }: PageProps) {
                     </ZoruTable>
                 </div>
             </ZoruCard>
-        </div>
+        </EntityListShell>
     );
 }

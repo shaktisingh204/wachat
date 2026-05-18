@@ -4,7 +4,6 @@ import { ZoruBadge, ZoruButton, ZoruCard, ZoruLabel, ZoruPopover, ZoruPopoverCon
 import {
   Download,
   SlidersHorizontal,
-  CalendarX,
   LoaderCircle,
   Users,
   CheckCircle2,
@@ -18,7 +17,7 @@ import { generateLeaveReportData,
   getReportLeaveTypes } from '@/app/actions/crm-hr-reports.actions';
 import Papa from 'papaparse';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 type LeaveRow = {
     employeeId: string;
@@ -99,20 +98,18 @@ export default function LeaveReportPage() {
     };
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="Leave Report"
-                subtitle="Leave allocation, usage, pending requests, and remaining balances."
-                icon={CalendarX}
-                actions={
-                    <>
-                        <ZoruPopover>
-                            <ZoruPopoverTrigger asChild>
-                                <ZoruButton variant="outline">
-                                    <SlidersHorizontal className="h-4 w-4" />
-                                    Filters
-                                </ZoruButton>
-                            </ZoruPopoverTrigger>
+        <EntityListShell
+            title="Leave Report"
+            subtitle="Leave allocation, usage, pending requests, and remaining balances."
+            primaryAction={
+                <>
+                    <ZoruPopover>
+                        <ZoruPopoverTrigger asChild>
+                            <ZoruButton variant="outline">
+                                <SlidersHorizontal className="h-4 w-4" />
+                                Filters
+                            </ZoruButton>
+                        </ZoruPopoverTrigger>
                             <ZoruPopoverContent className="w-72 space-y-4 p-4">
                                 <div className="space-y-1.5">
                                     <ZoruLabel className="text-[12.5px]">Year</ZoruLabel>
@@ -162,7 +159,7 @@ export default function LeaveReportPage() {
                         </ZoruButton>
                     </>
                 }
-            />
+        >
 
             {/* Summary stat cards */}
             <div className="grid gap-4 sm:grid-cols-3">
@@ -238,6 +235,6 @@ export default function LeaveReportPage() {
                     </table>
                 </div>
             </ZoruCard>
-        </div>
+        </EntityListShell>
     );
 }

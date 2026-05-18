@@ -36,7 +36,7 @@ import {
 import {
   useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
-import { Clock,
+import {
   Edit,
   LoaderCircle,
   Plus,
@@ -52,7 +52,6 @@ import { Clock,
 
 import * as React from 'react';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 
@@ -470,24 +469,14 @@ export default function ShiftsListPage() {
                 initial={editing}
             />
 
-            <div className="flex w-full flex-col gap-6">
-                <CrmPageHeader
-                    breadcrumbs={[
-                        { label: 'Payroll', href: '/dashboard/crm/hr-payroll' },
-                        { label: 'Shifts' },
-                    ]}
+            <EntityListShell
                     title="Shifts"
                     subtitle="Master shift definitions used across attendance, payroll and rotations."
-                    icon={Clock}
-                    actions={
+                    primaryAction={
                         <ZoruButton onClick={() => handleOpenDialog(null)}>
                             <Plus className="mr-1.5 h-3.5 w-3.5" /> New shift
                         </ZoruButton>
                     }
-                />
-
-                <EntityListShell
-                    title=""
                     search={{
                         value: search,
                         onChange: setSearch,
@@ -617,8 +606,7 @@ export default function ShiftsListPage() {
                             </ZoruTableBody>
                         </ZoruTable>
                     </div>
-                </EntityListShell>
-            </div>
+            </EntityListShell>
 
             <ZoruAlertDialog
                 open={!!pendingDelete}

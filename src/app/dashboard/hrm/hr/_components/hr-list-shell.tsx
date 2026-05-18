@@ -29,7 +29,7 @@ import { StatusPill,
  * entities.
  *
  * Composes:
- *   <CrmPageHeader> + <EntityListShell> + KPI strip + status filter chip row
+ *   <EntityListShell> + KPI strip + status filter chip row
  *   + simple bulk action bar + table.
  *
  * Each entity passes:

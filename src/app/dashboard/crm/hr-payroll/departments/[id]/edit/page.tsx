@@ -7,9 +7,8 @@
  */
 
 import { notFound } from 'next/navigation';
-import { Building2 } from 'lucide-react';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { DepartmentForm } from '@/app/dashboard/crm/hr-payroll/departments/_components/department-form';
 import { getDepartment } from '@/app/actions/crm/departments.actions';
 
@@ -25,13 +24,12 @@ export default async function EditDepartmentPage({
   if (!item) notFound();
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title={`Edit ${item.name}`}
-        subtitle="Update department."
-        icon={Building2}
-      />
+    <EntityDetailShell
+      title={`Edit ${item.name}`}
+      eyebrow="DEPARTMENT"
+      back={{ href: '/dashboard/crm/hr-payroll/departments', label: 'Departments' }}
+    >
       <DepartmentForm initial={item} />
-    </div>
+    </EntityDetailShell>
   );
 }

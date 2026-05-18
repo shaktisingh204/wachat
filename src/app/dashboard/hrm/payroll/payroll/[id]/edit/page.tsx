@@ -1,9 +1,6 @@
-import { ZoruButton } from '@/components/zoruui';
 import {
   notFound,
   redirect } from 'next/navigation';
-import { ArrowLeft,
-  Wallet } from 'lucide-react';
 
 /**
  * Edit payroll run page — wrap `<PayrollRunForm initialData=… />`.
@@ -13,9 +10,7 @@ import { ArrowLeft,
  * after generation.
  */
 
-import Link from 'next/link';
-
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { getSession } from '@/app/actions/user.actions';
 import { getPayrollRunById } from '@/app/actions/crm-payroll-runs.actions';
 
@@ -46,28 +41,11 @@ export default async function EditPayrollRunPage({
     const periodLabel = `${MONTH_LABELS[(run.period_month ?? 1) - 1]} ${run.period_year}`;
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'Payroll', href: '/dashboard/hrm/payroll' },
-                    { label: 'Payroll runs', href: BASE },
-                    { label: periodLabel, href: `${BASE}/${runId}` },
-                    { label: 'Edit' },
-                ]}
-                title={`Edit · ${periodLabel}`}
-                subtitle="Update status, notes, or finalize the run."
-                icon={Wallet}
-                actions={
-                    <ZoruButton variant="ghost" asChild>
-                        <Link href={`${BASE}/${runId}`}>
-                            <ArrowLeft className="mr-2 h-4 w-4" />
-                            Back to detail
-                        </Link>
-                    </ZoruButton>
-                }
-            />
-
+        <EntityListShell
+            title={`Edit · ${periodLabel}`}
+            subtitle="Update status, notes, or finalize the run."
+        >
             <PayrollRunForm initialData={run} />
-        </div>
+        </EntityListShell>
     );
 }

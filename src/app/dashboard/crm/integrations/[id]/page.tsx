@@ -3,8 +3,7 @@ import {
   notFound,
   redirect } from 'next/navigation';
 import { Pencil,
-  ShieldAlert,
-  Webhook } from 'lucide-react';
+  ShieldAlert } from 'lucide-react';
 
 /**
  * Integration detail page.
@@ -20,7 +19,6 @@ import Link from 'next/link';
 
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { getSession } from '@/app/actions/user.actions';
 import { getIntegrationById } from '@/app/actions/crm-integrations.actions';
 
@@ -56,21 +54,9 @@ export default async function IntegrationDetailPage({
   const configKeys = Object.keys(integration.config ?? {});
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        breadcrumbs={[
-          { label: 'CRM', href: '/dashboard/crm' },
-          { label: 'Integrations', href: BASE },
-          { label: integration.name },
-        ]}
-        title={integration.name}
-        subtitle={`Provider: ${integration.provider}`}
-        icon={Webhook}
-      />
-
-      <EntityDetailShell
-        title={integration.name}
-        eyebrow={`INTEGRATION · ${integration.provider.toUpperCase()}`}
+    <EntityDetailShell
+      title={integration.name}
+      eyebrow={`INTEGRATION · ${integration.provider.toUpperCase()}`}
         status={{
           label: connected
             ? 'Connected'
@@ -196,7 +182,6 @@ export default async function IntegrationDetailPage({
             ***hidden***
           </div>
         </ZoruCard>
-      </EntityDetailShell>
-    </div>
+    </EntityDetailShell>
   );
 }

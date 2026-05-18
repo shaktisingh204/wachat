@@ -9,13 +9,11 @@ import {
   ZoruTableHeader,
   ZoruTableRow,
 } from '@/components/zoruui';
-import {
-  Trophy,
-  Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { ObjectId } from 'mongodb';
 import Link from 'next/link';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 import { getSession } from '@/app/actions/user.actions';
 import { connectToDatabase } from '@/lib/mongodb';
@@ -105,19 +103,17 @@ export default async function AwardsPage() {
   );
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Awards & Recognition Programs"
-        subtitle="Celebrate top performers with structured awards and peer nominations."
-        icon={Trophy}
-        actions={
-          <ZoruButton variant="outline" size="sm" asChild>
-            <Link href="/dashboard/hrm/hr/awards/new">
-              <Plus className="h-4 w-4" /> New program
-            </Link>
-          </ZoruButton>
-        }
-      />
+    <EntityListShell
+      title="Awards & Recognition Programs"
+      subtitle="Celebrate top performers with structured awards and peer nominations."
+      primaryAction={
+        <ZoruButton variant="outline" size="sm" asChild>
+          <Link href="/dashboard/hrm/hr/awards/new">
+            <Plus className="h-4 w-4" /> New program
+          </Link>
+        </ZoruButton>
+      }
+    >
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
         <ZoruCard className="p-3">
@@ -242,6 +238,6 @@ export default async function AwardsPage() {
           </ZoruTable>
         </div>
       </ZoruCard>
-    </div>
+    </EntityListShell>
   );
 }

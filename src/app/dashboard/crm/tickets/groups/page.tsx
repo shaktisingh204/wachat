@@ -55,7 +55,6 @@ import { Edit,
 
 import * as React from 'react';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 
@@ -413,23 +412,14 @@ export default function TicketGroupsPage() {
       />
 
       <div className="flex w-full flex-col gap-6">
-        <CrmPageHeader
-          breadcrumbs={[
-            { label: 'Tickets', href: '/dashboard/crm/tickets' },
-            { label: 'Groups' },
-          ]}
+        <EntityListShell
           title="Ticket Groups"
           subtitle="Organize support tickets by team, product, or domain."
-          icon={LifeBuoy}
-          actions={
+          primaryAction={
             <ZoruButton onClick={() => handleOpenDialog(null)}>
               <Plus className="mr-1.5 h-3.5 w-3.5" /> New Group
             </ZoruButton>
           }
-        />
-
-        <EntityListShell
-          title=""
           search={{
             value: search,
             onChange: setSearch,

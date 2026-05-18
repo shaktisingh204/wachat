@@ -1,16 +1,10 @@
-import { ZoruButton } from '@/components/zoruui';
-import {
-  redirect } from 'next/navigation';
-import { ArrowLeft,
-  MessageSquareText } from 'lucide-react';
+import { redirect } from 'next/navigation';
 
 /**
  * New reply template — server wrapper around `<ReplyTemplateForm />`.
  */
 
-import Link from 'next/link';
-
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getSession } from '@/app/actions/user.actions';
 
 import { ReplyTemplateForm } from '../_components/reply-template-form';
@@ -24,27 +18,12 @@ export default async function NewReplyTemplatePage() {
   if (!session?.user) redirect('/login');
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        breadcrumbs={[
-          { label: 'Tickets', href: '/dashboard/crm/tickets' },
-          { label: 'Reply Templates', href: BASE },
-          { label: 'New' },
-        ]}
-        title="New reply template"
-        subtitle="Compose a canned reply with {{variable}} placeholders."
-        icon={MessageSquareText}
-        actions={
-          <ZoruButton variant="ghost" asChild>
-            <Link href={BASE}>
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to list
-            </Link>
-          </ZoruButton>
-        }
-      />
-
+    <EntityDetailShell
+      eyebrow="REPLY TEMPLATE"
+      title="New reply template"
+      back={{ href: BASE, label: 'Reply Templates' }}
+    >
       <ReplyTemplateForm />
-    </div>
+    </EntityDetailShell>
   );
 }

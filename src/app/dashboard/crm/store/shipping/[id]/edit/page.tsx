@@ -3,13 +3,14 @@
  */
 
 import { notFound } from 'next/navigation';
-import { Truck } from 'lucide-react';
 
-import { CrmPageHeader } from '../../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { ShippingZoneForm } from '../../_components/shipping-zone-form';
 import { getShippingZoneById } from '@/app/actions/crm-store.actions';
 
 export const dynamic = 'force-dynamic';
+
+const BASE = '/dashboard/crm/store/shipping';
 
 export default async function EditShippingZonePage({
     params,
@@ -22,26 +23,12 @@ export default async function EditShippingZonePage({
     const name = (zone.name as string) || `Zone ${id.slice(-6)}`;
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title={`Edit · ${name}`}
-                subtitle="Update zone coverage and method rates."
-                icon={Truck}
-                breadcrumbs={[
-                    { label: 'CRM', href: '/dashboard/crm' },
-                    { label: 'Store', href: '/dashboard/crm/store' },
-                    {
-                        label: 'Shipping',
-                        href: '/dashboard/crm/store/shipping',
-                    },
-                    {
-                        label: name,
-                        href: `/dashboard/crm/store/shipping/${id}`,
-                    },
-                    { label: 'Edit' },
-                ]}
-            />
+        <EntityDetailShell
+            eyebrow="SHIPPING ZONE"
+            title={`Edit · ${name}`}
+            back={{ href: `${BASE}/${id}`, label: 'Back to zone' }}
+        >
             <ShippingZoneForm initial={zone} zoneId={id} />
-        </div>
+        </EntityDetailShell>
     );
 }

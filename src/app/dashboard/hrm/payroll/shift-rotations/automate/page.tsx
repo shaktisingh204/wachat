@@ -20,7 +20,7 @@ import {
 import { Play,
   RotateCw } from 'lucide-react';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { getCrmEmployees } from '@/app/actions/crm-employees.actions';
 import type { WithId, CrmEmployee } from '@/lib/definitions';
 import {
@@ -106,12 +106,10 @@ export default function AutomateShiftPage() {
   };
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Automate Shift"
-        subtitle="Expand a rotation across a date range for selected employees."
-        icon={Play}
-      />
+    <EntityListShell
+      title="Automate Shift"
+      subtitle="Expand a rotation across a date range for selected employees."
+    >
 
       <form onSubmit={handleRun} className="flex flex-col gap-4">
         <ZoruCard className="p-6">
@@ -247,6 +245,6 @@ export default function AutomateShiftPage() {
           )}
         </div>
       </ZoruCard>
-    </div>
+    </EntityListShell>
   );
 }

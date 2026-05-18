@@ -5,9 +5,7 @@
  * once, then hands off to the shared `<TicketForm>` (also used by Edit).
  */
 
-import { LifeBuoy } from 'lucide-react';
-
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getCustomFieldsFor } from '@/app/actions/worksuite/meta.actions';
 import { TicketForm } from '../_components/ticket-form';
 import type { WsCustomField } from '@/lib/worksuite/meta-types';
@@ -18,13 +16,12 @@ export default async function NewTicketPage() {
   const customFields = (await getCustomFieldsFor('ticket')) as WsCustomField[];
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="New ticket"
-        subtitle="Log a new customer issue."
-        icon={LifeBuoy}
-      />
+    <EntityDetailShell
+      eyebrow="TICKET"
+      title="New ticket"
+      back={{ href: '/dashboard/crm/tickets', label: 'Tickets' }}
+    >
       <TicketForm customFields={customFields} />
-    </div>
+    </EntityDetailShell>
   );
 }

@@ -9,8 +9,6 @@ import {
 import Link from 'next/link';
 import { format } from 'date-fns';
 import {
-  CalendarOff,
-  ArrowLeft,
   Check,
   X,
   Paperclip,
@@ -19,7 +17,7 @@ import {
   } from 'lucide-react';
 
 import { SabFileUrlInput } from '@/components/sabfiles';
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import {
   getLeave,
   getLeaveTypes,
@@ -140,20 +138,11 @@ export default function LeaveDetailPage({
   };
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Leave Application"
-        subtitle="Review application details, attachments and approve or reject."
-        icon={CalendarOff}
-        actions={
-          <Link href="/dashboard/crm/hr-payroll/leave">
-            <ZoruButton variant="outline">
-              <ArrowLeft className="h-4 w-4" />
-              Back to list
-            </ZoruButton>
-          </Link>
-        }
-      />
+    <EntityDetailShell
+      title="Leave Application"
+      eyebrow="LEAVE"
+      back={{ href: '/dashboard/crm/hr-payroll/leave', label: 'Leave' }}
+    >
 
       {isLoading && !leave ? (
         <ZoruCard className="p-6">
@@ -340,7 +329,7 @@ export default function LeaveDetailPage({
           </ZoruCard>
         </>
       )}
-    </div>
+    </EntityDetailShell>
   );
 }
 

@@ -23,13 +23,12 @@ import {
   useMemo,
   useState,
   useTransition } from 'react';
-import { PhoneCall,
-  Plus,
+import { Plus,
   Pencil,
   Trash2,
   LoaderCircle } from 'lucide-react';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   getEmergencyContacts,
   saveEmergencyContact,
@@ -125,18 +124,16 @@ export default function EmergencyContactsPage() {
     setForm((prev) => ({ ...prev, [key]: value }));
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Emergency Contacts"
-        subtitle="Emergency contact details for each employee."
-        icon={PhoneCall}
-        actions={
-          <ZoruButton onClick={openAdd}>
-            <Plus className="h-4 w-4" />
-            Add Contact
-          </ZoruButton>
-        }
-      />
+    <EntityListShell
+      title="Emergency Contacts"
+      subtitle="Emergency contact details for each employee."
+      primaryAction={
+        <ZoruButton onClick={openAdd}>
+          <Plus className="h-4 w-4" />
+          Add Contact
+        </ZoruButton>
+      }
+    >
 
       <ZoruCard className="p-6">
         {isLoading ? (
@@ -232,6 +229,6 @@ export default function EmergencyContactsPage() {
           </ZoruDialogFooter>
         </ZoruDialogContent>
       </ZoruDialog>
-    </div>
+    </EntityListShell>
   );
 }

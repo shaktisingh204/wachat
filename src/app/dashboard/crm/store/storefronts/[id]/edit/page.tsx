@@ -3,9 +3,8 @@
  */
 
 import { notFound } from 'next/navigation';
-import { Store } from 'lucide-react';
 
-import { CrmPageHeader } from '../../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { StorefrontForm } from '../../_components/storefront-form';
 import { getStorefrontById } from '@/app/actions/crm-store.actions';
 
@@ -22,26 +21,12 @@ export default async function EditStorefrontPage({
     const name = (sf.name as string) || `Storefront ${id.slice(-6)}`;
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title={`Edit · ${name}`}
-                subtitle="Update storefront settings, domain and homepage layout."
-                icon={Store}
-                breadcrumbs={[
-                    { label: 'CRM', href: '/dashboard/crm' },
-                    { label: 'Store', href: '/dashboard/crm/store' },
-                    {
-                        label: 'Storefronts',
-                        href: '/dashboard/crm/store/storefronts',
-                    },
-                    {
-                        label: name,
-                        href: `/dashboard/crm/store/storefronts/${id}`,
-                    },
-                    { label: 'Edit' },
-                ]}
-            />
+        <EntityDetailShell
+            eyebrow="STOREFRONT"
+            title={`Edit · ${name}`}
+            back={{ href: `/dashboard/crm/store/storefronts/${id}`, label: 'Back to storefront' }}
+        >
             <StorefrontForm initial={sf} storefrontId={id} />
-        </div>
+        </EntityDetailShell>
     );
 }

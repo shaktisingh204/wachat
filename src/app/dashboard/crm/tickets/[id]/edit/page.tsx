@@ -8,9 +8,8 @@
  */
 
 import { notFound } from 'next/navigation';
-import { LifeBuoy } from 'lucide-react';
 
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { TicketForm } from '../../_components/ticket-form';
 import { getTicket } from '@/app/actions/crm/tickets.actions';
 import { getCustomFieldsFor } from '@/app/actions/worksuite/meta.actions';
@@ -34,13 +33,12 @@ export default async function EditTicketPage({
   const subject = ticket.subject || 'Ticket';
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title={`Edit ${subject}`}
-        subtitle="Update ticket details."
-        icon={LifeBuoy}
-      />
+    <EntityDetailShell
+      eyebrow="TICKET"
+      title={`Edit ${subject}`}
+      back={{ href: `/dashboard/crm/tickets/${id}`, label: 'Back to ticket' }}
+    >
       <TicketForm initial={ticket} customFields={customFields} />
-    </div>
+    </EntityDetailShell>
   );
 }

@@ -9,7 +9,7 @@ import { FileText,
   LoaderCircle,
   ChevronDown } from 'lucide-react';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 const currentYear = new Date().getFullYear();
 
@@ -101,21 +101,19 @@ export default function Form16Page() {
     const generated = mockForm16Data.filter(e => e.status === 'generated').length;
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="Form 16 Generation"
-                subtitle="Download Annual Tax Certificates (Part A & Part B) for all employees."
-                icon={FileText}
-                actions={
-                    <ZoruButton
-                        disabled={isGenerating}
-                        onClick={() => handleGenerate(selectedFY.label)}
-                    >
-                        {isGenerating ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />}
-                        Generate All — {selectedFY.label}
-                    </ZoruButton>
-                }
-            />
+        <EntityListShell
+            title="Form 16 Generation"
+            subtitle="Download Annual Tax Certificates (Part A & Part B) for all employees."
+            primaryAction={
+                <ZoruButton
+                    disabled={isGenerating}
+                    onClick={() => handleGenerate(selectedFY.label)}
+                >
+                    {isGenerating ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />}
+                    Generate All — {selectedFY.label}
+                </ZoruButton>
+            }
+        >
 
             <div className="grid gap-4 md:grid-cols-3">
                 <ZoruCard className="p-6">
@@ -225,6 +223,6 @@ export default function Form16Page() {
                     </p>
                 </div>
             </ZoruCard>
-        </div>
+        </EntityListShell>
     );
 }

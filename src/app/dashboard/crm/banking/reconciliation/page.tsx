@@ -29,7 +29,7 @@ import type { WithId, CrmPaymentAccount } from '@/lib/definitions';
 
 import { format } from 'date-fns';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 type ReconciliationData = {
     bookEntries: any[];
@@ -180,12 +180,10 @@ export default function BankReconciliationPage() {
     const difference = clearedBookAmount - clearedStatementAmount;
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="Bank Reconciliation"
-                subtitle="Match your bank statement transactions with your company's book entries."
-                icon={GitCompare}
-            />
+        <EntityListShell
+            title="Bank Reconciliation"
+            subtitle="Match your bank statement transactions with your company's book entries."
+        >
 
             <ZoruCard>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
@@ -217,7 +215,7 @@ export default function BankReconciliationPage() {
                 </div>
                 </>
             )}
-        </div>
+        </EntityListShell>
     );
 }
 

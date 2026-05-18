@@ -1,7 +1,7 @@
 import { ZoruBadge, ZoruButton, ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
 import {
   notFound } from 'next/navigation';
-import { LifeBuoy,
+import {
   ArrowLeft,
   MessageSquare,
   Paperclip,
@@ -21,7 +21,7 @@ import { LifeBuoy,
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { CustomFieldDisplay } from '@/components/crm/custom-field-input';
 import { RelatedRail } from '@/components/crm/RelatedRail';
@@ -114,19 +114,11 @@ export default async function TicketDetailPage({
     const description = (cfBag.description as string | undefined) ?? '';
 
     return (
-        <div className="flex w-full flex-col gap-6 p-4 md:p-6">
-            <CrmPageHeader
-                title={subject}
-                subtitle={`Ticket #${String(ticket._id).slice(-6).toUpperCase()}`}
-                icon={LifeBuoy}
-                actions={
-                    <ZoruButton variant="outline" asChild>
-                        <Link href="/dashboard/crm/tickets">
-                            <ArrowLeft className="h-4 w-4" /> Back
-                        </Link>
-                    </ZoruButton>
-                }
-            />
+        <EntityDetailShell
+            eyebrow="TICKET"
+            title={subject}
+            back={{ href: '/dashboard/crm/tickets', label: 'Tickets' }}
+        >
 
             <TicketDetailClient ticket={ticket} />
 
@@ -344,6 +336,6 @@ export default async function TicketDetailPage({
                 Created {fmtDate(ticket.createdAt || ticket.audit?.createdAt)} · Updated{' '}
                 {fmtDate(ticket.updatedAt || ticket.audit?.updatedAt)}
             </div>
-        </div>
+        </EntityDetailShell>
     );
 }

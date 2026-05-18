@@ -25,7 +25,6 @@ import {
 } from '@/components/zoruui';
 import {
   Edit,
-  FileText,
   LoaderCircle,
   Plus,
   Trash2 } from 'lucide-react';
@@ -41,7 +40,6 @@ import {
 import * as React from 'react';
 import Link from 'next/link';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 
@@ -156,26 +154,16 @@ export default function DocumentsListPage() {
 
     return (
         <>
-            <div className="flex w-full flex-col gap-6">
-                <CrmPageHeader
-                    breadcrumbs={[
-                        { label: 'HR', href: '/dashboard/crm/hr' },
-                        { label: 'Documents' },
-                    ]}
+            <EntityListShell
                     title="Documents"
                     subtitle="HR documents — contracts, IDs, certifications and other files."
-                    icon={FileText}
-                    actions={
+                    primaryAction={
                         <ZoruButton asChild>
                             <Link href={`${BASE}/new`}>
                                 <Plus className="mr-1.5 h-3.5 w-3.5" /> New document
                             </Link>
                         </ZoruButton>
                     }
-                />
-
-                <EntityListShell
-                    title=""
                     search={{
                         value: search,
                         onChange: setSearch,
@@ -300,8 +288,7 @@ export default function DocumentsListPage() {
                             </ZoruTableBody>
                         </ZoruTable>
                     </div>
-                </EntityListShell>
-            </div>
+            </EntityListShell>
 
             <ZoruAlertDialog
                 open={!!pendingDelete}

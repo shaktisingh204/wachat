@@ -2,11 +2,7 @@ import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
 import {
   notFound,
   redirect } from 'next/navigation';
-import {
-  ArrowLeft,
-  MessageSquareText,
-  Pencil,
-  } from 'lucide-react';
+import { Pencil } from 'lucide-react';
 
 /**
  * Reply template detail page.
@@ -17,7 +13,7 @@ import {
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 import { getSession } from '@/app/actions/user.actions';
 import { getReplyTemplateById } from '@/app/actions/crm-reply-templates.actions';
@@ -50,33 +46,19 @@ export default async function ReplyTemplateDetailPage({
   const variables = Array.isArray(template.variables) ? template.variables : [];
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        breadcrumbs={[
-          { label: 'Tickets', href: '/dashboard/crm/tickets' },
-          { label: 'Reply Templates', href: BASE },
-          { label: template.name },
-        ]}
-        title={template.name}
-        subtitle={template.shortcut ? `Shortcut: ${template.shortcut}` : 'Reply template'}
-        icon={MessageSquareText}
-        actions={
-          <div className="flex items-center gap-2">
-            <ZoruButton variant="outline" asChild>
-              <Link href={BASE}>
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back
-              </Link>
-            </ZoruButton>
-            <ZoruButton asChild>
-              <Link href={`${BASE}/${id}/edit`}>
-                <Pencil className="mr-2 h-4 w-4" />
-                Edit
-              </Link>
-            </ZoruButton>
-          </div>
-        }
-      />
+    <EntityDetailShell
+      eyebrow="REPLY TEMPLATE"
+      title={template.name}
+      back={{ href: BASE, label: 'Reply Templates' }}
+      actions={
+        <ZoruButton asChild>
+          <Link href={`${BASE}/${id}/edit`}>
+            <Pencil className="mr-2 h-4 w-4" />
+            Edit
+          </Link>
+        </ZoruButton>
+      }
+    >
 
       <ZoruCard className="p-6">
         <div className="mb-4 flex flex-wrap items-center gap-2">
@@ -144,6 +126,6 @@ export default async function ReplyTemplateDetailPage({
           </div>
         )}
       </ZoruCard>
-    </div>
+    </EntityDetailShell>
   );
 }

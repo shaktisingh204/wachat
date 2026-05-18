@@ -35,7 +35,6 @@ import { LoaderCircle,
   Trash2,
   Edit,
   Save,
-  FileText,
   CheckSquare,
   Square } from 'lucide-react';
 import { getSalaryStructures,
@@ -44,7 +43,7 @@ import { getSalaryStructures,
 import type { WithId,
   CrmSalaryStructure } from '@/lib/definitions';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 const saveInitialState = { success: false, error: undefined };
 
@@ -257,18 +256,16 @@ export default function SalaryStructurePage() {
                 onSave={fetchData}
                 structure={editingStructure}
             />
-            <div className="flex w-full flex-col gap-6">
-                <CrmPageHeader
-                    title="Salary Structures"
-                    subtitle="Define salary templates with earnings and deductions for different employee roles or grades."
-                    icon={FileText}
-                    actions={
-                        <ZoruButton onClick={() => handleEdit(null)}>
-                            <Plus className="h-4 w-4" />
-                            Create New Structure
-                        </ZoruButton>
-                    }
-                />
+            <EntityListShell
+                title="Salary Structures"
+                subtitle="Define salary templates with earnings and deductions for different employee roles or grades."
+                primaryAction={
+                    <ZoruButton onClick={() => handleEdit(null)}>
+                        <Plus className="h-4 w-4" />
+                        Create New Structure
+                    </ZoruButton>
+                }
+            >
                 <ZoruCard className="p-6">
                     <div className="mb-4">
                         <h2 className="text-[16px] text-zoru-ink">Your Structures</h2>
@@ -357,7 +354,7 @@ export default function SalaryStructurePage() {
                         </table>
                     </div>
                 </ZoruCard>
-            </div>
+            </EntityListShell>
         </>
     );
 }

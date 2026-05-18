@@ -1,17 +1,12 @@
-import { ZoruButton } from '@/components/zoruui';
 import {
   notFound,
   redirect } from 'next/navigation';
-import { ArrowLeft,
-  Wallet } from 'lucide-react';
 
 /**
  * Edit salary structure page — wrap `<SalaryStructureForm initialData=… />`.
  */
 
-import Link from 'next/link';
-
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getSession } from '@/app/actions/user.actions';
 import { getSalaryStructureDoc } from '@/app/actions/crm-salary-structures.actions';
 
@@ -37,28 +32,12 @@ export default async function EditSalaryStructurePage({
     const label = doc.employeeName ?? doc.employeeId ?? id;
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'Payroll', href: '/dashboard/crm/hr-payroll' },
-                    { label: 'Salary structures', href: BASE },
-                    { label, href: `${BASE}/${id}` },
-                    { label: 'Edit' },
-                ]}
-                title={`Edit · ${label}`}
-                subtitle="Update earnings, deductions, or archive this structure."
-                icon={Wallet}
-                actions={
-                    <ZoruButton variant="ghost" asChild>
-                        <Link href={`${BASE}/${id}`}>
-                            <ArrowLeft className="mr-2 h-4 w-4" />
-                            Back to detail
-                        </Link>
-                    </ZoruButton>
-                }
-            />
-
+        <EntityDetailShell
+            title={`Edit · ${label}`}
+            eyebrow="SALARY STRUCTURE"
+            back={{ href: BASE, label: 'Salary structures' }}
+        >
             <SalaryStructureForm initialData={doc} />
-        </div>
+        </EntityDetailShell>
     );
 }

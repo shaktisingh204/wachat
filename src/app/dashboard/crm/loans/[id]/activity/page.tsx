@@ -6,7 +6,6 @@
 
 import { notFound } from 'next/navigation';
 
-import { CrmPageHeader } from '../../../_components/crm-page-header';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getLoanById } from '@/app/actions/crm-loans.actions';
@@ -23,21 +22,15 @@ export default async function LoanActivityPage({ params }: PageProps) {
     const title = (loan.borrowerName as string) || 'Loan';
 
     return (
-        <div className="space-y-6">
-            <CrmPageHeader
-                title={`${title} — Activity`}
-                subtitle="Audit trail of changes made to this loan."
-            />
-            <EntityDetailShell
-                title={title}
-                eyebrow="LOAN ACTIVITY"
-                back={{
-                    href: `/dashboard/crm/loans/${id}`,
-                    label: 'Back to loan',
-                }}
-            >
-                <EntityAuditTimeline entityKind="loan" entityId={id} />
-            </EntityDetailShell>
-        </div>
+        <EntityDetailShell
+            title={`${title} — Activity`}
+            eyebrow="LOAN ACTIVITY"
+            back={{
+                href: `/dashboard/crm/loans/${id}`,
+                label: 'Back to loan',
+            }}
+        >
+            <EntityAuditTimeline entityKind="loan" entityId={id} />
+        </EntityDetailShell>
     );
 }

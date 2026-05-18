@@ -12,9 +12,7 @@
  * Per CRM_REBUILD_PLAN §1D.
  */
 
-import { Users } from 'lucide-react';
-
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { listEmployees } from '@/app/actions/crm/employees.actions';
 import { getSession } from '@/app/actions/user.actions';
 import { getT } from '@/lib/i18n/server';
@@ -88,18 +86,10 @@ export default async function EmployeesPage({ searchParams }: PageProps) {
   const kpi = computeEmployeeKpis(kpiSource);
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title={t('hrm.payroll.employees.title')}
-        subtitle={t('hrm.payroll.employees.subtitle')}
-        icon={Users}
-        breadcrumbs={[
-          { label: t('hrm.breadcrumb.hrm'), href: '/dashboard/hrm' },
-          { label: t('hrm.breadcrumb.payroll'), href: '/dashboard/crm/hr-payroll' },
-          { label: t('hrm.breadcrumb.employees') },
-        ]}
-      />
-
+    <EntityListShell
+      title={t('hrm.payroll.employees.title')}
+      subtitle={t('hrm.payroll.employees.subtitle')}
+    >
       <EmployeesListClient
         rows={rows}
         page={page}
@@ -110,6 +100,6 @@ export default async function EmployeesPage({ searchParams }: PageProps) {
         currentUserId={session?.user?._id ? String(session.user._id) : null}
         error={error}
       />
-    </div>
+    </EntityListShell>
   );
 }

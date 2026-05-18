@@ -24,7 +24,6 @@ import {
   useState,
   useTransition } from 'react';
 import { ExternalLink,
-  FileText,
   LoaderCircle,
   Pencil,
   Plus,
@@ -32,7 +31,7 @@ import { ExternalLink,
   Upload } from 'lucide-react';
 import { SabFilePickerButton } from '@/components/sabfiles';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   deleteEmployeeDocument,
   getEmployeeDocuments,
@@ -168,18 +167,16 @@ export default function EmployeeDocumentsPage() {
     setForm((prev) => ({ ...prev, [key]: value }));
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Employee Documents"
-        subtitle="Upload and track employee documents with expiry dates."
-        icon={FileText}
-        actions={
-          <ZoruButton onClick={openAdd}>
-            <Plus className="h-4 w-4" />
-            Add Document
-          </ZoruButton>
-        }
-      />
+    <EntityListShell
+      title="Employee Documents"
+      subtitle="Upload and track employee documents with expiry dates."
+      primaryAction={
+        <ZoruButton onClick={openAdd}>
+          <Plus className="h-4 w-4" />
+          Add Document
+        </ZoruButton>
+      }
+    >
 
       <ZoruCard className="p-6">
         {isLoading ? (
@@ -373,6 +370,6 @@ export default function EmployeeDocumentsPage() {
           </ZoruDialogFooter>
         </ZoruDialogContent>
       </ZoruDialog>
-    </div>
+    </EntityListShell>
   );
 }

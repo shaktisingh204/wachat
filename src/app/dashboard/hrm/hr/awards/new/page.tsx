@@ -5,14 +5,13 @@ import {
   useActionState,
   useEffect } from 'react';
 import { useFormStatus } from 'react-dom';
-import { ArrowLeft,
+import {
   Save,
   LoaderCircle,
-  Trophy } from 'lucide-react';
-import Link from 'next/link';
+  } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { saveAwardProgram } from '@/app/actions/crm-awards.actions';
 
 export const dynamic = 'force-dynamic';
@@ -49,20 +48,10 @@ export default function NewAwardProgramPage() {
   }, [state, toast, router]);
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="New Award Program"
-        subtitle="Define a recognition cycle with nominations and winners."
-        icon={Trophy}
-        actions={
-          <ZoruButton variant="ghost" asChild className="text-zoru-ink-muted hover:text-zoru-ink">
-            <Link href="/dashboard/hrm/hr/awards">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back
-            </Link>
-          </ZoruButton>
-        }
-      />
+    <EntityListShell
+      title="New Award Program"
+      subtitle="Define a recognition cycle with nominations and winners."
+    >
 
       <ZoruCard className="p-6">
         <form action={formAction} className="flex flex-col gap-6">
@@ -176,6 +165,6 @@ export default function NewAwardProgramPage() {
           </div>
         </form>
       </ZoruCard>
-    </div>
+    </EntityListShell>
   );
 }

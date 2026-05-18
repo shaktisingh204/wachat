@@ -1,8 +1,5 @@
-import { ZoruButton } from '@/components/zoruui';
 import {
   redirect } from 'next/navigation';
-import { ArrowLeft,
-  ArrowLeftRight } from 'lucide-react';
 
 /**
  * New bank transaction — server page that pre-loads the list of payment
@@ -10,9 +7,7 @@ import { ArrowLeft,
  * the chosen id is an ObjectId belonging to this user).
  */
 
-import Link from 'next/link';
-
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 
 import { getSession } from '@/app/actions/user.actions';
 import { getCrmPaymentAccounts } from '@/app/actions/crm-payment-accounts.actions';
@@ -33,25 +28,12 @@ export default async function NewBankTransactionPage() {
     }));
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'Banking', href: '/dashboard/crm/banking' },
-                    { label: 'Bank Transactions', href: BASE },
-                    { label: 'New' },
-                ]}
-                title="New Bank Transaction"
-                subtitle="Manually record a single statement-level transaction."
-                icon={ArrowLeftRight}
-                actions={
-                    <ZoruButton variant="ghost" asChild>
-                        <Link href={BASE}>
-                            <ArrowLeft className="mr-2 h-4 w-4" /> Back to list
-                        </Link>
-                    </ZoruButton>
-                }
-            />
+        <EntityDetailShell
+            eyebrow="BANK TRANSACTION"
+            title="New Bank Transaction"
+            back={{ href: BASE, label: 'Bank Transactions' }}
+        >
             <BankTransactionForm mode="new" accounts={accounts} />
-        </div>
+        </EntityDetailShell>
     );
 }
