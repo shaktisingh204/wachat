@@ -90,12 +90,35 @@ export const SABFLOW_TRIGGER_PERMISSION_KEYS = [
     'sabflow.trigger.admin',
 ] as const;
 
+/**
+ * Execution-management keys (read / pin / unpin individual execution rows).
+ *
+ * | Key                          | Intent                                              |
+ * |------------------------------|-----------------------------------------------------|
+ * | `sabflow.execution.pin`      | Pin an execution row + its trace to bypass the      |
+ * |                              | 30-day trace TTL on important runs.                 |
+ * | `sabflow.execution.unpin`    | Unpin an execution row — restores the trace's       |
+ * |                              | rolling 30-day `expiresAt`.                         |
+ * | `sabflow.execution.admin`    | Catch-all admin grant — implies both pin & unpin.   |
+ *
+ * Reserved by Phase C.9 §4. NOT yet registered in `permission-modules.ts` /
+ * `definitions.ts` — global registration happens in Phase B.8 §1, following
+ * the same forward-declaration pattern used for the credential keys
+ * (`src/lib/sabflow/executor/credentials/rbac.ts`) and trigger keys.
+ */
+export const SABFLOW_EXECUTION_PERMISSION_KEYS = [
+    'sabflow.execution.pin',
+    'sabflow.execution.unpin',
+    'sabflow.execution.admin',
+] as const;
+
 /** All SabFlow permission keys — single flat list for module registration. */
 export const SABFLOW_PERMISSION_KEYS = [
     ...SABFLOW_DOC_PERMISSION_KEYS,
     ...SABFLOW_CREDENTIAL_PERMISSION_KEYS,
     ...SABFLOW_WORKFLOW_PERMISSION_KEYS,
     ...SABFLOW_TRIGGER_PERMISSION_KEYS,
+    ...SABFLOW_EXECUTION_PERMISSION_KEYS,
 ] as const;
 
 export type SabflowPermissionKey = (typeof SABFLOW_PERMISSION_KEYS)[number];
@@ -151,6 +174,13 @@ export const DEFAULT_SABFLOW_ROLE_GRANTS: Record<
         'sabflow.workflow.write',
         'sabflow.workflow.execute',
         'sabflow.trigger.admin',
+        // Execution pinning — admins get the catch-all `execution.admin`,
+        // which implies both `execution.pin` and `execution.unpin` at the
+        // enforcement layer (see `hasExecutionPinPermission` in
+        // src/app/api/sabflow/executions/[id]/pin/route.ts).
+        'sabflow.execution.pin',
+        'sabflow.execution.unpin',
+        'sabflow.execution.admin',
     ],
     owner: [
         'sabflow.doc.read',
@@ -168,5 +198,8 @@ export const DEFAULT_SABFLOW_ROLE_GRANTS: Record<
         'sabflow.workflow.write',
         'sabflow.workflow.execute',
         'sabflow.trigger.admin',
+        'sabflow.execution.pin',
+        'sabflow.execution.unpin',
+        'sabflow.execution.admin',
     ],
 } as const;
