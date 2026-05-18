@@ -2,8 +2,7 @@ import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
 import {
   notFound,
   redirect } from 'next/navigation';
-import { ArrowLeft,
-  Package,
+import {
   Pencil,
   UserPlus } from 'lucide-react';
 
@@ -13,7 +12,7 @@ import { ArrowLeft,
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 import { getSession } from '@/app/actions/user.actions';
 import { getAssetById } from '@/app/actions/crm-assets.actions';
@@ -67,39 +66,27 @@ export default async function AssetDetailPage({
     const tags = Array.isArray(asset.tags) ? asset.tags : [];
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'HR', href: '/dashboard/crm/hr' },
-                    { label: 'Assets', href: BASE },
-                    { label: asset.name },
-                ]}
-                title={asset.name}
-                subtitle={`Tag · ${asset.assetTag}`}
-                icon={Package}
-                actions={
-                    <div className="flex items-center gap-2">
-                        <ZoruButton variant="outline" asChild>
-                            <Link href={BASE}>
-                                <ArrowLeft className="mr-2 h-4 w-4" />
-                                Back
-                            </Link>
-                        </ZoruButton>
-                        <ZoruButton variant="outline" asChild>
-                            <Link href={`/dashboard/crm/hr/asset-assignments/new?assetId=${assetId}&assetName=${encodeURIComponent(asset.name)}`}>
-                                <UserPlus className="mr-2 h-4 w-4" />
-                                Assign
-                            </Link>
-                        </ZoruButton>
-                        <ZoruButton asChild>
-                            <Link href={`${BASE}/${assetId}/edit`}>
-                                <Pencil className="mr-2 h-4 w-4" />
-                                Edit
-                            </Link>
-                        </ZoruButton>
-                    </div>
-                }
-            />
+        <EntityDetailShell
+            title={asset.name}
+            eyebrow="ASSET"
+            back={{ href: BASE, label: 'Assets' }}
+            actions={
+                <div className="flex items-center gap-2">
+                    <ZoruButton variant="outline" asChild>
+                        <Link href={`/dashboard/crm/hr/asset-assignments/new?assetId=${assetId}&assetName=${encodeURIComponent(asset.name)}`}>
+                            <UserPlus className="mr-2 h-4 w-4" />
+                            Assign
+                        </Link>
+                    </ZoruButton>
+                    <ZoruButton asChild>
+                        <Link href={`${BASE}/${assetId}/edit`}>
+                            <Pencil className="mr-2 h-4 w-4" />
+                            Edit
+                        </Link>
+                    </ZoruButton>
+                </div>
+            }
+        >
 
             <ZoruCard className="p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
@@ -170,6 +157,6 @@ export default async function AssetDetailPage({
                     ) : null}
                 </div>
             </ZoruCard>
-        </div>
+        </EntityDetailShell>
     );
 }

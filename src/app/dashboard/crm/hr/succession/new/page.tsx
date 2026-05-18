@@ -1,11 +1,14 @@
-import { CrmPageHeader } from '../../../../crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { SuccessionForm } from './succession-form';
 
 export default function NewSuccessionPage() {
     return (
-        <div className="space-y-6">
-            <CrmPageHeader title="New succession plan" />
+        <EntityDetailShell
+            title="New succession plan"
+            eyebrow="SUCCESSION"
+            back={{ href: '/dashboard/crm/hr/succession', label: 'Succession' }}
+        >
             <SuccessionForm />
-        </div>
+        </EntityDetailShell>
     );
 }
