@@ -3,17 +3,17 @@
 
 import { useEffect, useState, useTransition } from 'react';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Label } from '@/components/ui/label';
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruDialogTrigger,
+} from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
 import { LoaderCircle, Edit } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { updateProjectPlanByAdmin } from '@/app/actions/admin.actions';
@@ -49,45 +49,45 @@ export function AdminAssignPlanDialog({ projectId, projectName, currentPlanId, a
 
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
+    <ZoruDialog open={open} onOpenChange={setOpen}>
+      <ZoruDialogTrigger asChild>
+        <ZoruButton variant="outline" size="sm">
           <Edit className="mr-2 h-4 w-4" />
           Assign Plan
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+        </ZoruButton>
+      </ZoruDialogTrigger>
+      <ZoruDialogContent className="sm:max-w-md">
         <form onSubmit={handleSubmit}>
-          <DialogHeader>
-            <DialogTitle>Assign Plan to {projectName}</DialogTitle>
-            <DialogDescription>
-              Select a new subscription plan for this project. This will override its current plan.
-            </DialogDescription>
-          </DialogHeader>
+          <ZoruDialogHeader>
+            <ZoruDialogTitle>Assign Plan to {projectName}</ZoruDialogTitle>
+            <ZoruDialogDescription>
+              ZoruSelect a new subscription plan for this project. This will override its current plan.
+            </ZoruDialogDescription>
+          </ZoruDialogHeader>
           <div className="py-6">
-            <Label htmlFor="plan-select">Subscription Plan</Label>
-            <Select name="planId" value={selectedPlan} onValueChange={setSelectedPlan}>
-              <SelectTrigger id="plan-select">
-                <SelectValue placeholder="Select a plan..." />
-              </SelectTrigger>
-              <SelectContent>
+            <ZoruLabel htmlFor="plan-select">Subscription Plan</ZoruLabel>
+            <ZoruSelect name="planId" value={selectedPlan} onValueChange={setSelectedPlan}>
+              <ZoruSelectTrigger id="plan-select">
+                <ZoruSelectValue placeholder="ZoruSelect a plan..." />
+              </ZoruSelectTrigger>
+              <ZoruSelectContent>
                 {allPlans.map((plan) => (
-                  <SelectItem key={plan._id.toString()} value={plan._id.toString()}>
+                  <ZoruSelectItem key={plan._id.toString()} value={plan._id.toString()}>
                     {plan.name} ({plan.price} {plan.currency}/month)
-                  </SelectItem>
+                  </ZoruSelectItem>
                 ))}
-              </SelectContent>
-            </Select>
+              </ZoruSelectContent>
+            </ZoruSelect>
           </div>
-          <DialogFooter>
-            <Button id={`close-dialog-${projectId}`} type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
-             <Button type="submit" disabled={isPending}>
+          <ZoruDialogFooter>
+            <ZoruButton id={`close-dialog-${projectId}`} type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</ZoruButton>
+             <ZoruButton type="submit" disabled={isPending}>
               {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
               Assign Plan
-            </Button>
-          </DialogFooter>
+            </ZoruButton>
+          </ZoruDialogFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+      </ZoruDialogContent>
+    </ZoruDialog>
   );
 }

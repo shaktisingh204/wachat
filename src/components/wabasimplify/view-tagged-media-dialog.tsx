@@ -2,10 +2,10 @@
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { ZoruDialog, ZoruDialogContent, ZoruDialogDescription, ZoruDialogHeader, ZoruDialogTitle } from '@/components/zoruui';
 import { getTaggedMediaForProduct } from '@/app/actions/catalog.actions';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { ZoruSkeleton } from '@/components/zoruui';
+import { ZoruAlert, ZoruAlertDescription, ZoruAlertTitle } from '@/components/zoruui';
 import { AlertCircle, Image as ImageIcon } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -36,25 +36,25 @@ export function ViewTaggedMediaDialog({ isOpen, onOpenChange, product, projectId
   }, [isOpen, product.id, projectId]);
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-3xl">
-        <DialogHeader>
-          <DialogTitle>Media Tagged with "{product.name}"</DialogTitle>
-          <DialogDescription>
+    <ZoruDialog open={isOpen} onOpenChange={onOpenChange}>
+      <ZoruDialogContent className="sm:max-w-3xl">
+        <ZoruDialogHeader>
+          <ZoruDialogTitle>Media Tagged with "{product.name}"</ZoruDialogTitle>
+          <ZoruDialogDescription>
             Posts and other media where this product has been tagged.
-          </DialogDescription>
-        </DialogHeader>
+          </ZoruDialogDescription>
+        </ZoruDialogHeader>
         <div className="max-h-[60vh] overflow-y-auto p-1 -mx-2">
             {isLoading ? (
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
-                    {[...Array(4)].map((_, i) => <Skeleton key={i} className="aspect-square w-full" />)}
+                    {[...Array(4)].map((_, i) => <ZoruSkeleton key={i} className="aspect-square w-full" />)}
                 </div>
             ) : error ? (
-                <Alert variant="destructive">
+                <ZoruAlert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>Error</AlertTitle>
-                    <AlertDescription>{error}</AlertDescription>
-                </Alert>
+                    <ZoruAlertTitle>Error</ZoruAlertTitle>
+                    <ZoruAlertDescription>{error}</ZoruAlertDescription>
+                </ZoruAlert>
             ) : media.length > 0 ? (
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
                     {media.map(item => (
@@ -74,7 +74,7 @@ export function ViewTaggedMediaDialog({ isOpen, onOpenChange, product, projectId
                 </div>
             )}
         </div>
-      </DialogContent>
-    </Dialog>
+      </ZoruDialogContent>
+    </ZoruDialog>
   );
 }

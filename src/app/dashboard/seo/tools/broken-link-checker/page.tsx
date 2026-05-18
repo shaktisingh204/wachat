@@ -1,14 +1,14 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
 void _zoruCn;
 
 import { useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
+import { ZoruBadge } from '@/components/zoruui';
 import { apiFetchUrl, parseHtml } from '@/lib/seo-tools/api-client';
 
 interface LinkRow {
@@ -88,30 +88,30 @@ export default function BrokenLinkCheckerPage() {
   return (
     <ToolShell title="Broken Link Checker" description="Fetch a page and verify its outgoing links (first 30).">
       <div className="flex gap-2">
-        <Input
+        <ZoruInput
           placeholder="https://example.com"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
         />
-        <Button onClick={run} disabled={loading || !url}>
+        <ZoruButton onClick={run} disabled={loading || !url}>
           {loading ? 'Fetching…' : 'Fetch Links'}
-        </Button>
+        </ZoruButton>
       </div>
 
       {error && (
-        <Card className="border-red-500/50">
-          <CardContent className="p-4 text-sm text-red-500">{error}</CardContent>
-        </Card>
+        <ZoruCard className="border-red-500/50">
+          <ZoruCardContent className="p-4 text-sm text-red-500">{error}</ZoruCardContent>
+        </ZoruCard>
       )}
 
       {rows && (
-        <Card>
-          <CardContent className="p-4 space-y-3">
+        <ZoruCard>
+          <ZoruCardContent className="p-4 space-y-3">
             <div className="flex items-center justify-between">
               <div className="text-sm text-muted-foreground">{rows.length} links</div>
-              <Button size="sm" variant="outline" onClick={checkAll}>
+              <ZoruButton size="sm" variant="outline" onClick={checkAll}>
                 Check all
-              </Button>
+              </ZoruButton>
             </div>
             <div className="space-y-2">
               {rows.map((row, i) => (
@@ -121,23 +121,23 @@ export default function BrokenLinkCheckerPage() {
                     {row.text && <div className="text-muted-foreground truncate">{row.text}</div>}
                   </div>
                   <StatusBadge row={row} />
-                  <Button size="sm" variant="ghost" onClick={() => checkOne(i)}>
+                  <ZoruButton size="sm" variant="ghost" onClick={() => checkOne(i)}>
                     Check
-                  </Button>
+                  </ZoruButton>
                 </div>
               ))}
             </div>
-          </CardContent>
-        </Card>
+          </ZoruCardContent>
+        </ZoruCard>
       )}
     </ToolShell>
   );
 }
 
 function StatusBadge({ row }: { row: LinkRow }) {
-  if (row.state === 'idle') return <Badge variant="secondary">Pending</Badge>;
-  if (row.state === 'checking') return <Badge variant="secondary">Checking…</Badge>;
+  if (row.state === 'idle') return <ZoruBadge variant="secondary">Pending</ZoruBadge>;
+  if (row.state === 'checking') return <ZoruBadge variant="secondary">Checking…</ZoruBadge>;
   if (row.state === 'ok')
-    return <Badge className="bg-green-600 hover:bg-green-600">OK {row.status}</Badge>;
-  return <Badge variant="destructive">Broken {row.status ?? ''}</Badge>;
+    return <ZoruBadge className="bg-green-600 hover:bg-green-600">OK {row.status}</ZoruBadge>;
+  return <ZoruBadge variant="destructive">Broken {row.status ?? ''}</ZoruBadge>;
 }

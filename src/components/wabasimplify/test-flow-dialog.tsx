@@ -3,11 +3,11 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import type { FlowNode, FlowEdge } from '@/lib/definitions';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { ZoruDialog, ZoruDialogContent, ZoruDialogDescription, ZoruDialogHeader, ZoruDialogTitle } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruScrollArea } from '@/components/zoruui';
+import { ZoruAvatar, ZoruAvatarFallback } from '@/components/zoruui';
 import { ImageIcon } from 'lucide-react';
 
 interface TestFlowDialogProps {
@@ -153,20 +153,20 @@ export function TestFlowDialog({ open, onOpenChange, nodes, edges }: TestFlowDia
   }, [messages, isBotTyping]);
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Test Flow</DialogTitle>
-          <DialogDescription>
+    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+      <ZoruDialogContent className="sm:max-w-md">
+        <ZoruDialogHeader>
+          <ZoruDialogTitle>Test Flow</ZoruDialogTitle>
+          <ZoruDialogDescription>
             Simulate a conversation to test your flow's logic.
-          </DialogDescription>
-        </DialogHeader>
+          </ZoruDialogDescription>
+        </ZoruDialogHeader>
         <div className="h-[60vh] flex flex-col">
-          <ScrollArea className="flex-1 p-4 border rounded-md" ref={scrollAreaRef}>
+          <ZoruScrollArea className="flex-1 p-4 border rounded-md" ref={scrollAreaRef}>
             <div className="space-y-4">
               {messages.map(msg => (
                 <div key={msg.id} className={`flex items-end gap-2 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  {msg.sender === 'bot' && <Avatar className="h-8 w-8"><AvatarFallback>B</AvatarFallback></Avatar>}
+                  {msg.sender === 'bot' && <ZoruAvatar className="h-8 w-8"><ZoruAvatarFallback>B</ZoruAvatarFallback></ZoruAvatar>}
                   <div className={`max-w-xs rounded-lg p-3 text-sm break-words ${msg.sender === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
                     {msg.content}
                   </div>
@@ -174,7 +174,7 @@ export function TestFlowDialog({ open, onOpenChange, nodes, edges }: TestFlowDia
               ))}
               {isBotTyping && (
                   <div className="flex items-end gap-2 justify-start">
-                    <Avatar className="h-8 w-8"><AvatarFallback>B</AvatarFallback></Avatar>
+                    <ZoruAvatar className="h-8 w-8"><ZoruAvatarFallback>B</ZoruAvatarFallback></ZoruAvatar>
                     <div className="max-w-xs rounded-lg p-3 text-sm bg-muted flex items-center gap-1.5">
                         <span className="h-2 w-2 bg-muted-foreground rounded-full animate-pulse [animation-delay:-0.3s]"></span>
                         <span className="h-2 w-2 bg-muted-foreground rounded-full animate-pulse [animation-delay:-0.15s]"></span>
@@ -183,19 +183,19 @@ export function TestFlowDialog({ open, onOpenChange, nodes, edges }: TestFlowDia
                 </div>
               )}
             </div>
-          </ScrollArea>
+          </ZoruScrollArea>
           <form onSubmit={handleUserInput} className="mt-4 flex gap-2">
-            <Input 
+            <ZoruInput 
               value={userInput}
               onChange={e => setUserInput(e.target.value)}
               placeholder="Type your message..."
               disabled={!isWaitingForInput}
               autoComplete="off"
             />
-            <Button type="submit" disabled={!isWaitingForInput}>Send</Button>
+            <ZoruButton type="submit" disabled={!isWaitingForInput}>Send</ZoruButton>
           </form>
         </div>
-      </DialogContent>
-    </Dialog>
+      </ZoruDialogContent>
+    </ZoruDialog>
   );
 }

@@ -1,12 +1,13 @@
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
 'use client';
 
 import * as React from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { Search, XCircle } from 'lucide-react';
 
-import { ClayCard, ClayButton, ClayBadge } from '@/components/clay';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { ClayCard, ClayBadge } from '@/components/clay';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
 import type { WsUserActivity } from '@/lib/worksuite/chat-types';
 
 export interface ActivityBrowserProps {
@@ -66,8 +67,8 @@ export function ActivityBrowser({ activities, initialFilters }: ActivityBrowserP
           aria-label="Filter activity"
         >
           <div>
-            <Label className="text-[11.5px] text-muted-foreground">Actor</Label>
-            <Input
+            <ZoruLabel className="text-[11.5px] text-muted-foreground">Actor</ZoruLabel>
+            <ZoruInput
               value={filters.actor}
               onChange={(e) => setFilters((f) => ({ ...f, actor: e.target.value }))}
               placeholder="User id"
@@ -75,8 +76,8 @@ export function ActivityBrowser({ activities, initialFilters }: ActivityBrowserP
             />
           </div>
           <div>
-            <Label className="text-[11.5px] text-muted-foreground">Action</Label>
-            <Input
+            <ZoruLabel className="text-[11.5px] text-muted-foreground">Action</ZoruLabel>
+            <ZoruInput
               value={filters.action}
               onChange={(e) => setFilters((f) => ({ ...f, action: e.target.value }))}
               placeholder="e.g. created"
@@ -84,8 +85,8 @@ export function ActivityBrowser({ activities, initialFilters }: ActivityBrowserP
             />
           </div>
           <div>
-            <Label className="text-[11.5px] text-muted-foreground">Resource type</Label>
-            <Input
+            <ZoruLabel className="text-[11.5px] text-muted-foreground">Resource type</ZoruLabel>
+            <ZoruInput
               value={filters.resourceType}
               onChange={(e) =>
                 setFilters((f) => ({ ...f, resourceType: e.target.value }))
@@ -95,8 +96,8 @@ export function ActivityBrowser({ activities, initialFilters }: ActivityBrowserP
             />
           </div>
           <div>
-            <Label className="text-[11.5px] text-muted-foreground">From</Label>
-            <Input
+            <ZoruLabel className="text-[11.5px] text-muted-foreground">From</ZoruLabel>
+            <ZoruInput
               type="date"
               value={filters.from}
               onChange={(e) => setFilters((f) => ({ ...f, from: e.target.value }))}
@@ -104,8 +105,8 @@ export function ActivityBrowser({ activities, initialFilters }: ActivityBrowserP
             />
           </div>
           <div>
-            <Label className="text-[11.5px] text-muted-foreground">To</Label>
-            <Input
+            <ZoruLabel className="text-[11.5px] text-muted-foreground">To</ZoruLabel>
+            <ZoruInput
               type="date"
               value={filters.to}
               onChange={(e) => setFilters((f) => ({ ...f, to: e.target.value }))}
@@ -113,16 +114,16 @@ export function ActivityBrowser({ activities, initialFilters }: ActivityBrowserP
             />
           </div>
           <div className="flex items-end gap-2 md:col-span-5">
-            <ClayButton
+            <ZoruButton
               type="submit"
               variant="obsidian"
               size="sm"
               leading={<Search className="h-3.5 w-3.5" />}
             >
               Apply
-            </ClayButton>
+            </ZoruButton>
             {hasFilters ? (
-              <ClayButton
+              <ZoruButton
                 type="button"
                 variant="pill"
                 size="sm"
@@ -130,7 +131,7 @@ export function ActivityBrowser({ activities, initialFilters }: ActivityBrowserP
                 leading={<XCircle className="h-3.5 w-3.5" />}
               >
                 Clear
-              </ClayButton>
+              </ZoruButton>
             ) : null}
           </div>
         </form>

@@ -1,11 +1,11 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
 void _zoruCn;
 
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruTextarea } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { removeDuplicateLines } from '@/lib/seo-tools/text-utils';
 
@@ -19,15 +19,15 @@ export default function DuplicateLineRemoverPage() {
 
   return (
     <ToolShell title="Duplicate Line Remover" description="Remove duplicate lines while preserving order.">
-      <Textarea value={text} onChange={(e) => setText(e.target.value)} placeholder="Paste lines…" className="min-h-[220px]" />
+      <ZoruTextarea value={text} onChange={(e) => setText(e.target.value)} placeholder="Paste lines…" className="min-h-[220px]" />
       <div className="flex gap-2">
-        <Button onClick={run}>Remove duplicates</Button>
-        <Button variant="ghost" onClick={() => { setText(''); setResult(''); }}>Clear</Button>
+        <ZoruButton onClick={run}>Remove duplicates</ZoruButton>
+        <ZoruButton variant="ghost" onClick={() => { setText(''); setResult(''); }}>Clear</ZoruButton>
       </div>
       {result && (
         <>
           <div className="text-sm text-muted-foreground">Removed {removed} duplicate line(s)</div>
-          <Textarea readOnly value={result} className="min-h-[220px] font-mono text-xs" />
+          <ZoruTextarea readOnly value={result} className="min-h-[220px] font-mono text-xs" />
         </>
       )}
     </ToolShell>

@@ -11,22 +11,22 @@ import {
 } from 'firebase/auth';
 import { AlertCircle, Eye, EyeOff, LoaderCircle } from 'lucide-react';
 
-import { Button } from '@/components/ui/button';
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
 import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+    ZoruCard,
+    ZoruCardContent,
+    ZoruCardDescription,
+    ZoruCardFooter,
+    ZoruCardHeader,
+    ZoruCardTitle,
+} from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
 import {
-    Alert,
-    AlertDescription,
-    AlertTitle,
-} from '@/components/ui/alert';
+    ZoruAlert,
+    ZoruAlertDescription,
+    ZoruAlertTitle,
+} from '@/components/zoruui';
 import { auth } from '@/lib/firebase/config';
 import { consumePendingInviteToken } from '@/app/actions/team.actions';
 
@@ -94,12 +94,12 @@ async function postSession(params: {
 
 function SubmitButton({ isPending }: { isPending: boolean }) {
     return (
-        <Button type="submit" className="w-full h-11 text-base" disabled={isPending}>
+        <ZoruButton type="submit" className="w-full h-11 text-base" disabled={isPending}>
             {isPending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : null}
             Sign in
-        </Button>
+        </ZoruButton>
     );
 }
 
@@ -178,30 +178,30 @@ export function LoginForm() {
     };
 
     return (
-        <Card className="w-full max-w-md shadow-2xl rounded-2xl border-border/40 backdrop-blur-sm">
+        <ZoruCard className="w-full max-w-md shadow-2xl rounded-2xl border-border/40 backdrop-blur-sm">
             <form onSubmit={handleLogin} noValidate>
-                <CardHeader className="space-y-2">
-                    <CardTitle className="text-2xl font-bold font-headline">
+                <ZoruCardHeader className="space-y-2">
+                    <ZoruCardTitle className="text-2xl font-bold font-headline">
                         Welcome back
-                    </CardTitle>
-                    <CardDescription>
+                    </ZoruCardTitle>
+                    <ZoruCardDescription>
                         Sign in to manage your WhatsApp, CRM, SEO, and
                         automation workspaces.
-                    </CardDescription>
-                </CardHeader>
+                    </ZoruCardDescription>
+                </ZoruCardHeader>
 
-                <CardContent className="space-y-5">
+                <ZoruCardContent className="space-y-5">
                     {error && (
-                        <Alert variant="destructive">
+                        <ZoruAlert variant="destructive">
                             <AlertCircle className="h-4 w-4" />
-                            <AlertTitle>Sign-in failed</AlertTitle>
-                            <AlertDescription>{error}</AlertDescription>
-                        </Alert>
+                            <ZoruAlertTitle>Sign-in failed</ZoruAlertTitle>
+                            <ZoruAlertDescription>{error}</ZoruAlertDescription>
+                        </ZoruAlert>
                     )}
 
                     <div className="space-y-2">
-                        <Label htmlFor="email">Email</Label>
-                        <Input
+                        <ZoruLabel htmlFor="email">Email</ZoruLabel>
+                        <ZoruInput
                             id="email"
                             name="email"
                             type="email"
@@ -214,7 +214,7 @@ export function LoginForm() {
 
                     <div className="space-y-2">
                         <div className="flex items-center justify-between">
-                            <Label htmlFor="password">Password</Label>
+                            <ZoruLabel htmlFor="password">Password</ZoruLabel>
                             <Link
                                 href="/forgot-password"
                                 className="text-xs text-muted-foreground hover:text-primary"
@@ -223,7 +223,7 @@ export function LoginForm() {
                             </Link>
                         </div>
                         <div className="relative">
-                            <Input
+                            <ZoruInput
                                 id="password"
                                 name="password"
                                 type={showPassword ? 'text' : 'password'}
@@ -266,7 +266,7 @@ export function LoginForm() {
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
-                        <Button
+                        <ZoruButton
                             variant="outline"
                             type="button"
                             disabled={isPending}
@@ -274,8 +274,8 @@ export function LoginForm() {
                         >
                             <GoogleIcon />
                             Google
-                        </Button>
-                        <Button
+                        </ZoruButton>
+                        <ZoruButton
                             variant="outline"
                             type="button"
                             disabled={isPending}
@@ -283,11 +283,11 @@ export function LoginForm() {
                         >
                             <FacebookIcon />
                             Facebook
-                        </Button>
+                        </ZoruButton>
                     </div>
-                </CardContent>
+                </ZoruCardContent>
 
-                <CardFooter className="justify-center">
+                <ZoruCardFooter className="justify-center">
                     <p className="text-sm text-muted-foreground">
                         New to SabNode?{' '}
                         <Link
@@ -297,9 +297,9 @@ export function LoginForm() {
                             Start your setup
                         </Link>
                     </p>
-                </CardFooter>
+                </ZoruCardFooter>
             </form>
-        </Card>
+        </ZoruCard>
     );
 }
 

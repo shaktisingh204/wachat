@@ -3,17 +3,17 @@
 import { useActionState, useCallback, useEffect, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruDialogTrigger,
+} from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
 import { LoaderCircle, Plus, Building, Upload, X } from 'lucide-react';
 import { SabFilePickerButton } from '@/components/sabfiles';
 import { useToast } from '@/hooks/use-toast';
@@ -21,26 +21,25 @@ import { addCrmClient } from '@/app/actions/crm.actions';
 import { getCustomFieldsFor } from '@/app/actions/worksuite/meta.actions';
 import type { WsCustomField } from '@/lib/worksuite/meta-types';
 import { CustomFieldInput, type CustomFieldValue } from '@/components/crm/custom-field-input';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { ScrollArea } from '../ui/scroll-area';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { Checkbox } from '../ui/checkbox';
-import { Textarea } from '../ui/textarea';
-import { ClayButton } from '@/components/clay';
+import { ZoruAccordion, ZoruAccordionContent, ZoruAccordionItem, ZoruAccordionTrigger } from '@/components/zoruui';
+import { ZoruScrollArea } from '../ui/scroll-area';
+import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '../ui/select';
+import { ZoruCheckbox } from '../ui/checkbox';
+import { ZoruTextarea } from '../ui/textarea';
 
 const initialState: { message?: string; error?: string; newClient?: any } = { message: undefined, error: undefined, newClient: undefined };
 
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <ClayButton
+    <ZoruButton
       type="submit"
       variant="obsidian"
       disabled={pending}
       leading={pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : undefined}
     >
       Save Client
-    </ClayButton>
+    </ZoruButton>
   );
 }
 
@@ -139,33 +138,33 @@ export function CrmAddClientDialog({ onClientAdded, defaultOpen = false, default
   }, [formState, toast, onClientAdded]);
 
   return (
-    <Dialog open={open} onOpenChange={(val) => {
+    <ZoruDialog open={open} onOpenChange={(val) => {
       setOpen(val);
       if (!val) {
         // Optional: reset default name or handle closure if needed
       }
     }}>
-      <DialogTrigger asChild>
-        <Button variant="outline" className={defaultName ? "hidden" : ""}>
+      <ZoruDialogTrigger asChild>
+        <ZoruButton variant="outline" className={defaultName ? "hidden" : ""}>
           <Plus className="mr-2 h-4 w-4" />
           New Prospect
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-2xl max-h-[85vh] flex flex-col overflow-hidden p-0">
+        </ZoruButton>
+      </ZoruDialogTrigger>
+      <ZoruDialogContent className="sm:max-w-2xl max-h-[85vh] flex flex-col overflow-hidden p-0">
         <form action={handleFormAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
-          <DialogHeader className="px-6 pt-6 pb-2">
-            <DialogTitle className="text-foreground">Create a New Client</DialogTitle>
-            <DialogDescription className="text-muted-foreground">
+          <ZoruDialogHeader className="px-6 pt-6 pb-2">
+            <ZoruDialogTitle className="text-foreground">Create a New Client</ZoruDialogTitle>
+            <ZoruDialogDescription className="text-muted-foreground">
               Add a new client to your CRM. Required fields are marked with an asterisk.
-            </DialogDescription>
-          </DialogHeader>
+            </ZoruDialogDescription>
+          </ZoruDialogHeader>
           <div className="flex-1 overflow-y-auto px-6 py-2">
-            <Accordion type="multiple" defaultValue={['basic', 'address']} className="w-full">
-              <AccordionItem value="basic">
-                <AccordionTrigger>Basic Information</AccordionTrigger>
-                <AccordionContent className="space-y-4 pt-2">
+            <ZoruAccordion type="multiple" defaultValue={['basic', 'address']} className="w-full">
+              <ZoruAccordionItem value="basic">
+                <ZoruAccordionTrigger>Basic Information</ZoruAccordionTrigger>
+                <ZoruAccordionContent className="space-y-4 pt-2">
                   <div className="space-y-2">
-                    <Label>Upload Logo</Label>
+                    <ZoruLabel>Upload Logo</ZoruLabel>
                     <input type="hidden" name="logoUrl" value={logoUrl} />
                     <div className="flex items-center gap-2">
                       <SabFilePickerButton
@@ -181,7 +180,7 @@ export function CrmAddClientDialog({ onClientAdded, defaultOpen = false, default
                       {logoUrl && (
                         <>
                           <span className="text-xs text-muted-foreground truncate max-w-[200px]">{logoFileName || logoUrl}</span>
-                          <Button
+                          <ZoruButton
                             type="button"
                             variant="ghost"
                             size="icon"
@@ -192,24 +191,24 @@ export function CrmAddClientDialog({ onClientAdded, defaultOpen = false, default
                             }}
                           >
                             <X className="h-4 w-4" />
-                          </Button>
+                          </ZoruButton>
                         </>
                       )}
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="businessName">Business Name *</Label>
-                      <Input id="businessName" name="businessName" maxLength={100} required defaultValue={defaultName} />
+                      <ZoruLabel htmlFor="businessName">Business Name *</ZoruLabel>
+                      <ZoruInput id="businessName" name="businessName" maxLength={100} required defaultValue={defaultName} />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="clientIndustry">Client Industry</Label>
+                      <ZoruLabel htmlFor="clientIndustry">Client Industry</ZoruLabel>
                       <EntityFormField entity="industry" name="clientIndustry" />
                     </div>
                   </div>
                   <div className="grid grid-cols-3 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="country">Country *</Label>
+                      <ZoruLabel htmlFor="country">Country *</ZoruLabel>
                       <EntityFormField
                         entity="country"
                         name="country"
@@ -221,7 +220,7 @@ export function CrmAddClientDialog({ onClientAdded, defaultOpen = false, default
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="state">State</Label>
+                      <ZoruLabel htmlFor="state">State</ZoruLabel>
                       <EntityFormField
                         entity="state"
                         name="state"
@@ -230,7 +229,7 @@ export function CrmAddClientDialog({ onClientAdded, defaultOpen = false, default
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="city">City/Town</Label>
+                      <ZoruLabel htmlFor="city">City/Town</ZoruLabel>
                       <EntityFormField
                         entity="city"
                         name="city"
@@ -238,16 +237,16 @@ export function CrmAddClientDialog({ onClientAdded, defaultOpen = false, default
                       />
                     </div>
                   </div>
-                </AccordionContent>
-              </AccordionItem>
+                </ZoruAccordionContent>
+              </ZoruAccordionItem>
               {/* ... Tax ... */}
-              <AccordionItem value="address">
-                <AccordionTrigger>Address (Optional)</AccordionTrigger>
-                <AccordionContent className="space-y-4 pt-2">
-                  <div className="space-y-2"><Label htmlFor="street">Street Address</Label><Input id="street" name="street" maxLength={200} /></div>
+              <ZoruAccordionItem value="address">
+                <ZoruAccordionTrigger>Address (Optional)</ZoruAccordionTrigger>
+                <ZoruAccordionContent className="space-y-4 pt-2">
+                  <div className="space-y-2"><ZoruLabel htmlFor="street">Street Address</ZoruLabel><ZoruInput id="street" name="street" maxLength={200} /></div>
                   <div className="grid grid-cols-3 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="addressCountry">Country</Label>
+                      <ZoruLabel htmlFor="addressCountry">Country</ZoruLabel>
                       <EntityFormField
                         entity="country"
                         name="addressCountry"
@@ -258,7 +257,7 @@ export function CrmAddClientDialog({ onClientAdded, defaultOpen = false, default
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="addressState">State</Label>
+                      <ZoruLabel htmlFor="addressState">State</ZoruLabel>
                       <EntityFormField
                         entity="state"
                         name="addressState"
@@ -267,35 +266,35 @@ export function CrmAddClientDialog({ onClientAdded, defaultOpen = false, default
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="addressCity">City</Label>
+                      <ZoruLabel htmlFor="addressCity">City</ZoruLabel>
                       <EntityFormField
                         entity="city"
                         name="addressCity"
                         filter={addressStateId ? { stateId: addressStateId } : addressCountryId ? { countryId: addressCountryId } : undefined}
                       />
                     </div>
-                    <div className="space-y-2"><Label htmlFor="addressZip">ZIP Code</Label><Input id="addressZip" name="addressZip" maxLength={20} /></div>
+                    <div className="space-y-2"><ZoruLabel htmlFor="addressZip">ZIP Code</ZoruLabel><ZoruInput id="addressZip" name="addressZip" maxLength={20} /></div>
                   </div>
-                </AccordionContent>
-              </AccordionItem>
-              <AccordionItem value="shipping">
-                <AccordionTrigger>Shipping Details (Optional)</AccordionTrigger>
-                <AccordionContent className="space-y-4 pt-2">
-                  <div className="flex items-center space-x-2"><Checkbox id="copy-billing" /><Label htmlFor="copy-billing">Copy from billing address</Label></div>
-                  <div className="space-y-2"><Label htmlFor="shippingName">Name</Label><Input id="shippingName" name="shippingName" maxLength={100} /></div>
-                  <div className="space-y-2"><Label htmlFor="shippingStreet">Street Address</Label><Input id="shippingStreet" name="shippingStreet" maxLength={200} /></div>
-                </AccordionContent>
-              </AccordionItem>
-              <AccordionItem value="additional">
-                <AccordionTrigger>Additional Details (Optional)</AccordionTrigger>
-                <AccordionContent className="space-y-4 pt-2">
-                  <div className="space-y-2"><Label htmlFor="alias">Business Alias</Label><Input id="alias" name="alias" maxLength={100} /></div>
+                </ZoruAccordionContent>
+              </ZoruAccordionItem>
+              <ZoruAccordionItem value="shipping">
+                <ZoruAccordionTrigger>Shipping Details (Optional)</ZoruAccordionTrigger>
+                <ZoruAccordionContent className="space-y-4 pt-2">
+                  <div className="flex items-center space-x-2"><ZoruCheckbox id="copy-billing" /><ZoruLabel htmlFor="copy-billing">Copy from billing address</ZoruLabel></div>
+                  <div className="space-y-2"><ZoruLabel htmlFor="shippingName">Name</ZoruLabel><ZoruInput id="shippingName" name="shippingName" maxLength={100} /></div>
+                  <div className="space-y-2"><ZoruLabel htmlFor="shippingStreet">Street Address</ZoruLabel><ZoruInput id="shippingStreet" name="shippingStreet" maxLength={200} /></div>
+                </ZoruAccordionContent>
+              </ZoruAccordionItem>
+              <ZoruAccordionItem value="additional">
+                <ZoruAccordionTrigger>Additional Details (Optional)</ZoruAccordionTrigger>
+                <ZoruAccordionContent className="space-y-4 pt-2">
+                  <div className="space-y-2"><ZoruLabel htmlFor="alias">Business Alias</ZoruLabel><ZoruInput id="alias" name="alias" maxLength={100} /></div>
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2"><Label htmlFor="email">Email</Label><Input id="email" name="email" type="email" maxLength={100} /></div>
-                    <div className="space-y-2"><Label htmlFor="phone">Phone No.</Label><Input id="phone" name="phone" maxLength={30} /></div>
+                    <div className="space-y-2"><ZoruLabel htmlFor="email">Email</ZoruLabel><ZoruInput id="email" name="email" type="email" maxLength={100} /></div>
+                    <div className="space-y-2"><ZoruLabel htmlFor="phone">Phone No.</ZoruLabel><ZoruInput id="phone" name="phone" maxLength={30} /></div>
                   </div>
                   <div className="space-y-2">
-                    <Label>Attachments</Label>
+                    <ZoruLabel>Attachments</ZoruLabel>
                     <input type="hidden" name="attachmentUrls" value={JSON.stringify(attachmentUrls.map(a => a.url))} />
                     <div className="flex flex-col gap-2">
                       <SabFilePickerButton
@@ -312,7 +311,7 @@ export function CrmAddClientDialog({ onClientAdded, defaultOpen = false, default
                           {attachmentUrls.map((a, idx) => (
                             <li key={`${a.url}-${idx}`} className="flex items-center justify-between gap-2 rounded-md border border-border px-2 py-1.5">
                               <span className="text-xs text-foreground truncate">{a.name}</span>
-                              <Button
+                              <ZoruButton
                                 type="button"
                                 variant="ghost"
                                 size="icon"
@@ -322,90 +321,90 @@ export function CrmAddClientDialog({ onClientAdded, defaultOpen = false, default
                                 }
                               >
                                 <X className="h-4 w-4" />
-                              </Button>
+                              </ZoruButton>
                             </li>
                           ))}
                         </ul>
                       )}
                     </div>
                   </div>
-                </AccordionContent>
-              </AccordionItem>
-              <AccordionItem value="enterprise">
-                <AccordionTrigger>Enterprise Details (Optional)</AccordionTrigger>
-                <AccordionContent className="space-y-4 pt-2">
+                </ZoruAccordionContent>
+              </ZoruAccordionItem>
+              <ZoruAccordionItem value="enterprise">
+                <ZoruAccordionTrigger>Enterprise Details (Optional)</ZoruAccordionTrigger>
+                <ZoruAccordionContent className="space-y-4 pt-2">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="gstin" className="text-foreground">GSTIN</Label>
-                      <Input id="gstin" name="gstin" placeholder="08XXXXXXXX1Z5" maxLength={20} className="h-10 rounded-lg border-border bg-card text-[13px]" />
+                      <ZoruLabel htmlFor="gstin" className="text-foreground">GSTIN</ZoruLabel>
+                      <ZoruInput id="gstin" name="gstin" placeholder="08XXXXXXXX1Z5" maxLength={20} className="h-10 rounded-lg border-border bg-card text-[13px]" />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="pan" className="text-foreground">PAN</Label>
-                      <Input id="pan" name="pan" placeholder="ABCDE1234F" maxLength={20} className="h-10 rounded-lg border-border bg-card text-[13px]" />
+                      <ZoruLabel htmlFor="pan" className="text-foreground">PAN</ZoruLabel>
+                      <ZoruInput id="pan" name="pan" placeholder="ABCDE1234F" maxLength={20} className="h-10 rounded-lg border-border bg-card text-[13px]" />
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="billingAddress" className="text-foreground">Billing Address</Label>
-                    <Textarea id="billingAddress" name="billingAddress" rows={3} className="rounded-lg border-border bg-card text-[13px]" />
+                    <ZoruLabel htmlFor="billingAddress" className="text-foreground">Billing Address</ZoruLabel>
+                    <ZoruTextarea id="billingAddress" name="billingAddress" rows={3} className="rounded-lg border-border bg-card text-[13px]" />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="shippingAddress" className="text-foreground">Shipping Address</Label>
-                    <Textarea id="shippingAddress" name="shippingAddress" rows={3} className="rounded-lg border-border bg-card text-[13px]" />
+                    <ZoruLabel htmlFor="shippingAddress" className="text-foreground">Shipping Address</ZoruLabel>
+                    <ZoruTextarea id="shippingAddress" name="shippingAddress" rows={3} className="rounded-lg border-border bg-card text-[13px]" />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="annualRevenue" className="text-foreground">Annual Revenue</Label>
-                      <Input id="annualRevenue" name="annualRevenue" type="number" min={0} placeholder="e.g. 1000000" className="h-10 rounded-lg border-border bg-card text-[13px]" />
+                      <ZoruLabel htmlFor="annualRevenue" className="text-foreground">Annual Revenue</ZoruLabel>
+                      <ZoruInput id="annualRevenue" name="annualRevenue" type="number" min={0} placeholder="e.g. 1000000" className="h-10 rounded-lg border-border bg-card text-[13px]" />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="employeeCount" className="text-foreground">Employee Count</Label>
-                      <Input id="employeeCount" name="employeeCount" type="number" min={0} placeholder="e.g. 250" className="h-10 rounded-lg border-border bg-card text-[13px]" />
+                      <ZoruLabel htmlFor="employeeCount" className="text-foreground">Employee Count</ZoruLabel>
+                      <ZoruInput id="employeeCount" name="employeeCount" type="number" min={0} placeholder="e.g. 250" className="h-10 rounded-lg border-border bg-card text-[13px]" />
                     </div>
                   </div>
                   <div className="grid grid-cols-3 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="accountCurrency" className="text-foreground">Currency</Label>
+                      <ZoruLabel htmlFor="accountCurrency" className="text-foreground">Currency</ZoruLabel>
                       <EntityFormField entity="currency" name="accountCurrency" initialId="INR" />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="paymentTerms" className="text-foreground">Payment Terms</Label>
-                      <Select name="paymentTerms" defaultValue="Net 30">
-                        <SelectTrigger id="paymentTerms" className="h-10 rounded-lg border-border bg-card text-[13px]"><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Immediate">Immediate</SelectItem>
-                          <SelectItem value="Net 15">Net 15</SelectItem>
-                          <SelectItem value="Net 30">Net 30</SelectItem>
-                          <SelectItem value="Net 45">Net 45</SelectItem>
-                          <SelectItem value="Net 60">Net 60</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <ZoruLabel htmlFor="paymentTerms" className="text-foreground">Payment Terms</ZoruLabel>
+                      <ZoruSelect name="paymentTerms" defaultValue="Net 30">
+                        <ZoruSelectTrigger id="paymentTerms" className="h-10 rounded-lg border-border bg-card text-[13px]"><ZoruSelectValue /></ZoruSelectTrigger>
+                        <ZoruSelectContent>
+                          <ZoruSelectItem value="Immediate">Immediate</ZoruSelectItem>
+                          <ZoruSelectItem value="Net 15">Net 15</ZoruSelectItem>
+                          <ZoruSelectItem value="Net 30">Net 30</ZoruSelectItem>
+                          <ZoruSelectItem value="Net 45">Net 45</ZoruSelectItem>
+                          <ZoruSelectItem value="Net 60">Net 60</ZoruSelectItem>
+                        </ZoruSelectContent>
+                      </ZoruSelect>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="category" className="text-foreground">Category</Label>
-                      <Select name="category" defaultValue="regular">
-                        <SelectTrigger id="category" className="h-10 rounded-lg border-border bg-card text-[13px]"><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="new">New</SelectItem>
-                          <SelectItem value="strategic">Strategic</SelectItem>
-                          <SelectItem value="key">Key</SelectItem>
-                          <SelectItem value="regular">Regular</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <ZoruLabel htmlFor="category" className="text-foreground">Category</ZoruLabel>
+                      <ZoruSelect name="category" defaultValue="regular">
+                        <ZoruSelectTrigger id="category" className="h-10 rounded-lg border-border bg-card text-[13px]"><ZoruSelectValue /></ZoruSelectTrigger>
+                        <ZoruSelectContent>
+                          <ZoruSelectItem value="new">New</ZoruSelectItem>
+                          <ZoruSelectItem value="strategic">Strategic</ZoruSelectItem>
+                          <ZoruSelectItem value="key">Key</ZoruSelectItem>
+                          <ZoruSelectItem value="regular">Regular</ZoruSelectItem>
+                        </ZoruSelectContent>
+                      </ZoruSelect>
                     </div>
                   </div>
-                </AccordionContent>
-              </AccordionItem>
-              <AccordionItem value="account-details">
-                <AccordionTrigger>Account Details (Optional)</AccordionTrigger>
-                <AccordionContent className="pt-2 text-center text-muted-foreground">
+                </ZoruAccordionContent>
+              </ZoruAccordionItem>
+              <ZoruAccordionItem value="account-details">
+                <ZoruAccordionTrigger>Account Details (Optional)</ZoruAccordionTrigger>
+                <ZoruAccordionContent className="pt-2 text-center text-muted-foreground">
                   <p className="text-sm">Enable Advanced Accounting to create or link ledger.</p>
-                  <ClayButton variant="pill" size="sm" className="mt-2" disabled>Enable Now</ClayButton>
-                </AccordionContent>
-              </AccordionItem>
+                  <ZoruButton variant="outline" size="sm" className="mt-2" disabled>Enable Now</ZoruButton>
+                </ZoruAccordionContent>
+              </ZoruAccordionItem>
               {customFields.length > 0 ? (
-                <AccordionItem value="custom-fields">
-                  <AccordionTrigger>Custom Fields</AccordionTrigger>
-                  <AccordionContent className="space-y-4 pt-2">
+                <ZoruAccordionItem value="custom-fields">
+                  <ZoruAccordionTrigger>Custom Fields</ZoruAccordionTrigger>
+                  <ZoruAccordionContent className="space-y-4 pt-2">
                     <div className="grid gap-4 md:grid-cols-2">
                       {customFields.map((f) => (
                         <CustomFieldInput
@@ -418,17 +417,17 @@ export function CrmAddClientDialog({ onClientAdded, defaultOpen = false, default
                         />
                       ))}
                     </div>
-                  </AccordionContent>
-                </AccordionItem>
+                  </ZoruAccordionContent>
+                </ZoruAccordionItem>
               ) : null}
-            </Accordion>
+            </ZoruAccordion>
           </div>
-          <DialogFooter className="px-6 pb-6 pt-2">
-            <ClayButton type="button" variant="pill" onClick={() => setOpen(false)}>Cancel</ClayButton>
+          <ZoruDialogFooter className="px-6 pb-6 pt-2">
+            <ZoruButton type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</ZoruButton>
             <SubmitButton />
-          </DialogFooter>
+          </ZoruDialogFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+      </ZoruDialogContent>
+    </ZoruDialog>
   );
 }

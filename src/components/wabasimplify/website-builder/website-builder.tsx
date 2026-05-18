@@ -12,17 +12,17 @@ import { BlockPalette } from './block-palette';
 import { Canvas } from './canvas';
 import { PropertiesPanel } from './properties-panel';
 import { PageManagerPanel } from './page-manager-panel';
-import { Separator } from '@/components/ui/separator';
+import { ZoruSeparator, ZoruButton } from '@/components/zoruui';
 import { WebsiteBuilderHeader } from './website-builder-header';
 import { saveEcommPage, getEcommPages, updateEcommShopSettings } from '@/app/actions/custom-ecommerce.actions';
 import { ChevronLeft, ChevronRight, X, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
+import { ZoruButton } from '@/components/zoruui';
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
+    ZoruDropdownMenu,
+    ZoruDropdownMenuContent,
+    ZoruDropdownMenuItem,
+    ZoruDropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
 function findList(items: WebsiteBlock[], droppableId: string): WebsiteBlock[] | null {
@@ -263,28 +263,28 @@ export function WebsiteBuilder({ shop, initialPages, availableProducts }: { shop
                         </div>
                     </div>
 
-                    {/* B. FAB (Floating Action Button) - Absolute Overlay */}
-                    <DropdownMenu open={isBlockPaletteOpen} onOpenChange={setIsBlockPaletteOpen}>
-                        <DropdownMenuTrigger asChild>
-                            <Button
+                    {/* B. FAB (Floating Action ZoruButton) - Absolute Overlay */}
+                    <ZoruDropdownMenu open={isBlockPaletteOpen} onOpenChange={setIsBlockPaletteOpen}>
+                        <ZoruDropdownMenuTrigger asChild>
+                            <ZoruButton
                                 size="icon"
                                 className="absolute bottom-8 right-8 h-16 w-16 rounded-full shadow-2xl z-50 bg-gradient-to-br from-primary to-primary/80 text-primary-foreground hover:shadow-primary/25 hover:scale-105 active:scale-95 transition-all duration-300 border border-white/10"
                             >
                                 <Plus className="h-7 w-7" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" side="top" className="w-80 h-[500px] overflow-y-auto p-0 z-50 rounded-xl shadow-2xl border bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
+                            </ZoruButton>
+                        </ZoruDropdownMenuTrigger>
+                        <ZoruDropdownMenuContent align="end" side="top" className="w-80 h-[500px] overflow-y-auto p-0 z-50 rounded-xl shadow-2xl border bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
                             <div className="p-4 border-b sticky top-0 bg-background/80 backdrop-blur-md z-10">
                                 <h3 className="font-semibold text-sm">Add Elements</h3>
                             </div>
                             <div className="p-4">
                                 <BlockPalette onAddBlock={(type) => { handleAddBlock(type); setIsBlockPaletteOpen(false); }} />
-                                <Separator className="my-4" />
+                                <ZoruSeparator className="my-4" />
                                 <div className="text-xs font-semibold text-muted-foreground mb-2">PAGES & LAYOUT</div>
                                 <PageManagerPanel pages={pages} activePageId={activePage?._id.toString() || ''} onSelectPage={handleSelectSurface} shopId={shop._id.toString()} onPagesUpdate={fetchPages} />
                             </div>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+                        </ZoruDropdownMenuContent>
+                    </ZoruDropdownMenu>
 
                     {/* C. Properties Panel (Overlay Sidebar) */}
                     {/* Fixed position relative to Main Content Area, high Z-index */}
@@ -297,9 +297,9 @@ export function WebsiteBuilder({ shop, initialPages, availableProducts }: { shop
                     >
                         <div className="flex items-center justify-between p-4 border-b bg-transparent sticky top-0 z-10">
                             <h3 className="font-semibold text-sm">Properties</h3>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-full" onClick={() => { setRightPanelOpen(false); setSelectedBlockId(null); }}>
+                            <ZoruButton variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-full" onClick={() => { setRightPanelOpen(false); setSelectedBlockId(null); }}>
                                 <X className="h-4 w-4" />
-                            </Button>
+                            </ZoruButton>
                         </div>
                         <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
                             {selectedBlock ? (
@@ -311,7 +311,7 @@ export function WebsiteBuilder({ shop, initialPages, availableProducts }: { shop
                                 />
                             ) : (
                                 <div className="flex flex-col items-center justify-center h-full text-muted-foreground p-4 text-center">
-                                    <p className="text-sm">Select a block on the canvas to edit its properties.</p>
+                                    <p className="text-sm">ZoruSelect a block on the canvas to edit its properties.</p>
                                 </div>
                             )}
                         </div>

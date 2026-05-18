@@ -1,7 +1,7 @@
 
 'use client';
 
-import { Label } from '@/components/ui/label';
+import { ZoruLabel } from '@/components/zoruui';
 import { CodeBlock } from '@/components/wabasimplify/code-block';
 
 export function GoogleSheetsConnection({ flowId }: { flowId?: string }) {
@@ -14,8 +14,8 @@ export function GoogleSheetsConnection({ flowId }: { flowId?: string }) {
             `}</style>
             <div>
                  <div className="space-y-2">
-                    <Label className="text-base font-semibold">Webhook URL</Label>
-                    <p className="text-xs text-muted-foreground">Copy this URL and paste it into the SabFlow Webhooks add-on in your Google Sheet.</p>
+                    <ZoruLabel className="text-base font-semibold">Webhook URL</ZoruLabel>
+                    <p className="text-xs text-muted-foreground">Copy this URL and paste it into the SabFlow Webhooks add-on in your Google ZoruSheet.</p>
                     <div style={{ overflow: 'scroll' }}>
                         <CodeBlock code={webhookUrl} />
                     </div>

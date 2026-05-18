@@ -40,7 +40,7 @@ type Summary = {
     totalAbsent: number;
 };
 
-type SelectItem = { _id: string; name: string };
+type ZoruSelectItem = { _id: string; name: string };
 
 const StatCard = ({ title, value, sub, icon: Icon }: { title: string; value: string; sub?: string; icon: React.ElementType }) => (
     <ZoruCard className="flex flex-col gap-1 p-6">
@@ -62,8 +62,8 @@ function attendanceBadgeVariant(pct: number): 'success' | 'warning' | 'danger' {
 export default function AttendanceReportPage() {
     const [reportData, setReportData] = useState<AttendanceRow[]>([]);
     const [summary, setSummary] = useState<Summary>({ totalEmployees: 0, overallAttendance: 0, totalPresent: 0, totalAbsent: 0 });
-    const [employees, setEmployees] = useState<SelectItem[]>([]);
-    const [departments, setDepartments] = useState<SelectItem[]>([]);
+    const [employees, setEmployees] = useState<ZoruSelectItem[]>([]);
+    const [departments, setDepartments] = useState<ZoruSelectItem[]>([]);
     const [isLoading, startTransition] = useTransition();
     const { toast } = useZoruToast();
 

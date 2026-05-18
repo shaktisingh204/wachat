@@ -1,11 +1,11 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
 void _zoruCn;
 
 import { useMemo, useState } from 'react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
 export default function QueryBuilderPage() {
@@ -22,19 +22,19 @@ export default function QueryBuilderPage() {
 
   return (
     <ToolShell title="Query String Builder" description="Build URL query strings from key/value pairs.">
-      <Input value={base} onChange={(e) => setBase(e.target.value)} placeholder="https://example.com/page" />
+      <ZoruInput value={base} onChange={(e) => setBase(e.target.value)} placeholder="https://example.com/page" />
       <div className="space-y-2">
         {rows.map((r, i) => (
           <div key={i} className="flex gap-2">
-            <Input value={r.k} onChange={(e) => setRows((rs) => rs.map((rr, j) => j === i ? { ...rr, k: e.target.value } : rr))} placeholder="key" />
-            <Input value={r.v} onChange={(e) => setRows((rs) => rs.map((rr, j) => j === i ? { ...rr, v: e.target.value } : rr))} placeholder="value" />
-            <Button variant="ghost" onClick={() => setRows((rs) => rs.filter((_, j) => j !== i))}>×</Button>
+            <ZoruInput value={r.k} onChange={(e) => setRows((rs) => rs.map((rr, j) => j === i ? { ...rr, k: e.target.value } : rr))} placeholder="key" />
+            <ZoruInput value={r.v} onChange={(e) => setRows((rs) => rs.map((rr, j) => j === i ? { ...rr, v: e.target.value } : rr))} placeholder="value" />
+            <ZoruButton variant="ghost" onClick={() => setRows((rs) => rs.filter((_, j) => j !== i))}>×</ZoruButton>
           </div>
         ))}
-        <Button variant="outline" onClick={() => setRows((r) => [...r, { k: '', v: '' }])}>+ Add param</Button>
+        <ZoruButton variant="outline" onClick={() => setRows((r) => [...r, { k: '', v: '' }])}>+ Add param</ZoruButton>
       </div>
       {out && <div className="font-mono text-xs bg-muted p-3 rounded break-all">{out}</div>}
-      {out && <Button onClick={() => navigator.clipboard.writeText(out)}>Copy</Button>}
+      {out && <ZoruButton onClick={() => navigator.clipboard.writeText(out)}>Copy</ZoruButton>}
     </ToolShell>
   );
 }

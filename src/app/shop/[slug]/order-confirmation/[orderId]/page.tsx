@@ -2,9 +2,9 @@
 'use client';
 
 import { getEcommOrderById } from '@/app/actions/custom-ecommerce.actions';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
+import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardFooter, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import { ZoruSeparator } from '@/components/zoruui';
 import type { WithId, EcommOrder } from '@/lib/definitions';
 import { CheckCircle, Package } from 'lucide-react';
 import Link from 'next/link';
@@ -29,19 +29,19 @@ export default function OrderConfirmationPage(props: { params: Promise<{ orderId
 
     return (
          <div className="container mx-auto px-4 py-12 flex justify-center">
-             <Card className="w-full max-w-2xl text-center">
-                <CardHeader>
+             <ZoruCard className="w-full max-w-2xl text-center">
+                <ZoruCardHeader>
                     <div className="mx-auto bg-green-100 text-green-700 rounded-full h-16 w-16 flex items-center justify-center mb-4">
                         <CheckCircle className="h-10 w-10" />
                     </div>
-                    <CardTitle className="text-3xl">Thank you for your order!</CardTitle>
-                    <CardDescription>
+                    <ZoruCardTitle className="text-3xl">Thank you for your order!</ZoruCardTitle>
+                    <ZoruCardDescription>
                         Your order has been placed successfully. A confirmation has been sent to your email.
-                    </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4 text-left">
+                    </ZoruCardDescription>
+                </ZoruCardHeader>
+                <ZoruCardContent className="space-y-4 text-left">
                     <p className="font-semibold">Order ID: <span className="font-mono text-muted-foreground">{order._id.toString()}</span></p>
-                    <Separator />
+                    <ZoruSeparator />
                     <h3 className="font-semibold text-lg">Order Summary</h3>
                     <ul className="space-y-2">
                         {order.items.map(item => (
@@ -51,13 +51,13 @@ export default function OrderConfirmationPage(props: { params: Promise<{ orderId
                              </li>
                         ))}
                     </ul>
-                     <Separator />
+                     <ZoruSeparator />
                      <div className="space-y-2">
                         <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(order.subtotal)}</span></div>
                         <div className="flex justify-between"><span className="text-muted-foreground">Shipping</span><span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(order.shipping)}</span></div>
                         <div className="flex justify-between font-bold text-lg"><span className="text-foreground">Total</span><span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(order.total)}</span></div>
                     </div>
-                    <Separator />
+                    <ZoruSeparator />
                     <div>
                         <h3 className="font-semibold text-lg">Shipping to</h3>
                         <div className="text-muted-foreground">
@@ -67,12 +67,12 @@ export default function OrderConfirmationPage(props: { params: Promise<{ orderId
                         </div>
                     </div>
                     <div className="pt-4 flex justify-center">
-                         <Button asChild>
+                         <ZoruButton asChild>
                             <Link href={`/shop/${params.slug}`}>Continue Shopping</Link>
-                        </Button>
+                        </ZoruButton>
                     </div>
-                </CardContent>
-            </Card>
+                </ZoruCardContent>
+            </ZoruCard>
         </div>
     );
 }

@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import { ZoruBadge } from '@/components/zoruui';
 
 // Mock Data Fetch
 async function getStatusData(shareId: string) {
@@ -40,11 +40,11 @@ export default async function PublicStatusPage({ params }: { params: Promise<{ s
                 </header>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Rank Movement (Last 7 Days)</CardTitle>
-                        </CardHeader>
-                        <CardContent className="flex gap-8">
+                    <ZoruCard>
+                        <ZoruCardHeader>
+                            <ZoruCardTitle>Rank Movement (Last 7 Days)</ZoruCardTitle>
+                        </ZoruCardHeader>
+                        <ZoruCardContent className="flex gap-8">
                             <div>
                                 <div className="text-2xl font-bold text-green-600">+{data.keywordsUp}</div>
                                 <div className="text-sm text-muted-foreground">Improved</div>
@@ -53,28 +53,28 @@ export default async function PublicStatusPage({ params }: { params: Promise<{ s
                                 <div className="text-2xl font-bold text-red-600">-{data.keywordsDown}</div>
                                 <div className="text-sm text-muted-foreground">Declined</div>
                             </div>
-                        </CardContent>
-                    </Card>
+                        </ZoruCardContent>
+                    </ZoruCard>
 
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Top Keywords</CardTitle>
-                        </CardHeader>
-                        <CardContent>
+                    <ZoruCard>
+                        <ZoruCardHeader>
+                            <ZoruCardTitle>Top Keywords</ZoruCardTitle>
+                        </ZoruCardHeader>
+                        <ZoruCardContent>
                             <div className="space-y-3">
                                 {data.topKeywords.map((k, i) => (
                                     <div key={i} className="flex justify-between items-center text-sm border-b last:border-0 pb-2 last:pb-0">
                                         <span className="font-medium">{k.term}</span>
                                         <div className="flex items-center gap-3">
-                                            <Badge variant="outline">#{k.rank}</Badge>
+                                            <ZoruBadge variant="outline">#{k.rank}</ZoruBadge>
                                             {k.change > 0 && <span className="text-green-600 text-xs">▲ {k.change}</span>}
                                             {k.change < 0 && <span className="text-red-600 text-xs">▼ {Math.abs(k.change)}</span>}
                                         </div>
                                     </div>
                                 ))}
                             </div>
-                        </CardContent>
-                    </Card>
+                        </ZoruCardContent>
+                    </ZoruCard>
                 </div>
 
                 <footer className="text-center text-xs text-slate-400 mt-12">

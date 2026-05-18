@@ -1,11 +1,11 @@
 
 'use client';
 
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
+import { ZoruLabel } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
 import { Slider } from '@/components/ui/slider';
-import { Switch } from '@/components/ui/switch';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { ZoruSwitch } from '@/components/zoruui';
+import { ZoruAccordion, ZoruAccordionContent, ZoruAccordionItem, ZoruAccordionTrigger } from '@/components/zoruui';
 
 export function ColumnsBlockEditor({ settings, onUpdate }: { settings: any, onUpdate: (newSettings: any) => void }) {
     const handleUpdate = (field: string, value: any) => {
@@ -26,13 +26,13 @@ export function ColumnsBlockEditor({ settings, onUpdate }: { settings: any, onUp
 
     return (
         <div className="space-y-4">
-            <Accordion type="multiple" className="w-full" defaultValue={['layout']}>
-                <AccordionItem value="layout">
-                    <AccordionTrigger>Layout</AccordionTrigger>
-                    <AccordionContent className="space-y-4 pt-2">
+            <ZoruAccordion type="multiple" className="w-full" defaultValue={['layout']}>
+                <ZoruAccordionItem value="layout">
+                    <ZoruAccordionTrigger>Layout</ZoruAccordionTrigger>
+                    <ZoruAccordionContent className="space-y-4 pt-2">
                         <div className="space-y-2">
                             <div className="flex justify-between items-center">
-                                <Label>Columns</Label>
+                                <ZoruLabel>Columns</ZoruLabel>
                                 <span className="text-sm text-muted-foreground">{columnCount}</span>
                             </div>
                             <Slider
@@ -45,7 +45,7 @@ export function ColumnsBlockEditor({ settings, onUpdate }: { settings: any, onUp
                         </div>
                         <div className="space-y-2">
                              <div className="flex justify-between items-center">
-                                <Label>Gap between columns (px)</Label>
+                                <ZoruLabel>Gap between columns (px)</ZoruLabel>
                                 <span className="text-sm text-muted-foreground">{settings.gap || 16}px</span>
                              </div>
                             <Slider
@@ -57,26 +57,26 @@ export function ColumnsBlockEditor({ settings, onUpdate }: { settings: any, onUp
                             />
                         </div>
                         <div className="flex items-center space-x-2">
-                            <Switch id="stackOnMobile" checked={settings.stackOnMobile !== false} onCheckedChange={(val) => handleUpdate('stackOnMobile', val)} />
-                            <Label htmlFor="stackOnMobile">Stack on mobile devices</Label>
+                            <ZoruSwitch id="stackOnMobile" checked={settings.stackOnMobile !== false} onCheckedChange={(val) => handleUpdate('stackOnMobile', val)} />
+                            <ZoruLabel htmlFor="stackOnMobile">Stack on mobile devices</ZoruLabel>
                         </div>
-                    </AccordionContent>
-                </AccordionItem>
-                 <AccordionItem value="spacing">
-                    <AccordionTrigger>Spacing</AccordionTrigger>
-                    <AccordionContent className="space-y-4 pt-2">
+                    </ZoruAccordionContent>
+                </ZoruAccordionItem>
+                 <ZoruAccordionItem value="spacing">
+                    <ZoruAccordionTrigger>Spacing</ZoruAccordionTrigger>
+                    <ZoruAccordionContent className="space-y-4 pt-2">
                          <div className="space-y-2">
-                            <Label>Padding (Top, Right, Bottom, Left) in px</Label>
+                            <ZoruLabel>Padding (Top, Right, Bottom, Left) in px</ZoruLabel>
                             <div className="grid grid-cols-4 gap-2">
-                                <Input type="number" placeholder="Top" value={settings.padding?.top || ''} onChange={(e) => handleSubFieldUpdate('padding', 'top', e.target.value)} />
-                                <Input type="number" placeholder="Right" value={settings.padding?.right || ''} onChange={(e) => handleSubFieldUpdate('padding', 'right', e.target.value)} />
-                                <Input type="number" placeholder="Bottom" value={settings.padding?.bottom || ''} onChange={(e) => handleSubFieldUpdate('padding', 'bottom', e.target.value)} />
-                                <Input type="number" placeholder="Left" value={settings.padding?.left || ''} onChange={(e) => handleSubFieldUpdate('padding', 'left', e.target.value)} />
+                                <ZoruInput type="number" placeholder="Top" value={settings.padding?.top || ''} onChange={(e) => handleSubFieldUpdate('padding', 'top', e.target.value)} />
+                                <ZoruInput type="number" placeholder="Right" value={settings.padding?.right || ''} onChange={(e) => handleSubFieldUpdate('padding', 'right', e.target.value)} />
+                                <ZoruInput type="number" placeholder="Bottom" value={settings.padding?.bottom || ''} onChange={(e) => handleSubFieldUpdate('padding', 'bottom', e.target.value)} />
+                                <ZoruInput type="number" placeholder="Left" value={settings.padding?.left || ''} onChange={(e) => handleSubFieldUpdate('padding', 'left', e.target.value)} />
                             </div>
                         </div>
-                    </AccordionContent>
-                </AccordionItem>
-            </Accordion>
+                    </ZoruAccordionContent>
+                </ZoruAccordionItem>
+            </ZoruAccordion>
         </div>
     );
 }

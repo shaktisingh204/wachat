@@ -1,5 +1,5 @@
+import { ZoruButton } from '@/components/zoruui';
 import * as React from 'react';
-import { ClayButton } from '@/components/clay';
 
 /**
  * ReportToolbar — a URL-driven date range filter used by Worksuite
@@ -43,9 +43,9 @@ export function ReportToolbar({
         />
       </label>
       {extra}
-      <ClayButton type="submit" variant="obsidian" size="sm">
+      <ZoruButton type="submit" size="sm">
         Apply
-      </ClayButton>
+      </ZoruButton>
     </form>
   );
 }

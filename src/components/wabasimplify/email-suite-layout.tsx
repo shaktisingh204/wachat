@@ -7,10 +7,10 @@ import { Mail, Send, Users, FileText, Settings, Inbox, ChevronDown, PlusCircle, 
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import type { WithId, EmailSettings } from '@/lib/definitions';
 import { getEmailSettings } from '@/app/actions/email.actions';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { ZoruSkeleton } from '@/components/zoruui';
+import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from "@/components/ui/select";
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruBadge } from '@/components/zoruui';
 import Link from 'next/link';
 
 interface EmailSuiteLayoutProps {
@@ -87,10 +87,10 @@ export function EmailSuiteLayout({ children }: EmailSuiteLayoutProps) {
     if (isLoading) {
         return (
             <div className="flex gap-8 h-full">
-                <Skeleton className="w-64 h-full" />
+                <ZoruSkeleton className="w-64 h-full" />
                 <div className="flex-1 space-y-4">
-                    <Skeleton className="h-12 w-full" />
-                    <Skeleton className="h-64 w-full" />
+                    <ZoruSkeleton className="h-12 w-full" />
+                    <ZoruSkeleton className="h-64 w-full" />
                 </div>
             </div>
         );
@@ -110,14 +110,14 @@ export function EmailSuiteLayout({ children }: EmailSuiteLayoutProps) {
             sidebar={
                 <div className="flex flex-col h-full gap-4">
                     <div className="px-2">
-                        <Select value={activeAccount._id.toString()} onValueChange={handleAccountChange}>
-                            <SelectTrigger className="w-full">
-                                <SelectValue placeholder="Select Account" />
-                            </SelectTrigger>
-                            <SelectContent className="max-w-[300px]">
-                                <SelectItem value="back_to_list" className="font-medium text-muted-foreground mb-1">
+                        <ZoruSelect value={activeAccount._id.toString()} onValueChange={handleAccountChange}>
+                            <ZoruSelectTrigger className="w-full">
+                                <ZoruSelectValue placeholder="ZoruSelect Account" />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent className="max-w-[300px]">
+                                <ZoruSelectItem value="back_to_list" className="font-medium text-muted-foreground mb-1">
                                     ← All Accounts
-                                </SelectItem>
+                                </ZoruSelectItem>
 
                                 <div className="max-h-[200px] overflow-y-auto">
                                     {accounts.length === 0 ? (
@@ -126,17 +126,17 @@ export function EmailSuiteLayout({ children }: EmailSuiteLayoutProps) {
                                         </div>
                                     ) : (
                                         accounts.map(acc => (
-                                            <SelectItem key={acc._id.toString()} value={acc._id.toString()}>
+                                            <ZoruSelectItem key={acc._id.toString()} value={acc._id.toString()}>
                                                 <div className="flex flex-col items-start text-left overflow-hidden">
                                                     <span className="font-semibold text-sm truncate w-full">{acc.fromName || 'Account'}</span>
                                                     <span className="text-xs text-muted-foreground truncate w-full">{acc.fromEmail}</span>
                                                 </div>
-                                            </SelectItem>
+                                            </ZoruSelectItem>
                                         ))
                                     )}
                                 </div>
                                 <div className="h-px bg-border my-1" />
-                                <SelectItem value="add_new" className="text-primary focus:text-primary font-medium py-3">
+                                <ZoruSelectItem value="add_new" className="text-primary focus:text-primary font-medium py-3">
                                     <div className="flex flex-col gap-1 items-start w-full">
                                         <div className="flex items-center gap-2 font-semibold">
                                             <PlusCircle className="h-4 w-4" /> Connect Your Email
@@ -145,9 +145,9 @@ export function EmailSuiteLayout({ children }: EmailSuiteLayoutProps) {
                                             Link your email account to sync conversations, send campaigns, and track deliverability directly from your dashboard.
                                         </span>
                                     </div>
-                                </SelectItem>
-                            </SelectContent>
-                        </Select>
+                                </ZoruSelectItem>
+                            </ZoruSelectContent>
+                        </ZoruSelect>
                     </div>
 
                     <ModuleSidebar

@@ -1,13 +1,13 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
 void _zoruCn;
 
 import { useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
 
 export default function UrlParserPage() {
   const [url, setUrl] = useState('');
@@ -39,25 +39,25 @@ export default function UrlParserPage() {
   return (
     <ToolShell title="URL Parser" description="Break a URL into its component parts using the WHATWG URL parser.">
       <div className="flex gap-2">
-        <Input
+        <ZoruInput
           placeholder="https://user:pass@example.com:8080/path?x=1#hash"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
         />
-        <Button onClick={run} disabled={!url}>
+        <ZoruButton onClick={run} disabled={!url}>
           Parse
-        </Button>
+        </ZoruButton>
       </div>
 
       {error && (
-        <Card className="border-red-500/50">
-          <CardContent className="p-4 text-sm text-red-500">{error}</CardContent>
-        </Card>
+        <ZoruCard className="border-red-500/50">
+          <ZoruCardContent className="p-4 text-sm text-red-500">{error}</ZoruCardContent>
+        </ZoruCard>
       )}
 
       {parts && (
-        <Card>
-          <CardContent className="p-4">
+        <ZoruCard>
+          <ZoruCardContent className="p-4">
             <table className="w-full text-sm">
               <tbody>
                 {Object.entries(parts).map(([k, v]) => (
@@ -68,8 +68,8 @@ export default function UrlParserPage() {
                 ))}
               </tbody>
             </table>
-          </CardContent>
-        </Card>
+          </ZoruCardContent>
+        </ZoruCard>
       )}
     </ToolShell>
   );

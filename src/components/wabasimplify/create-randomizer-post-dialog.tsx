@@ -4,17 +4,17 @@
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+} from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
+import { ZoruTextarea } from '@/components/zoruui';
 import { LoaderCircle, PlusCircle } from 'lucide-react';
 import { addRandomizerPost } from '@/app/actions/facebook.actions';
 import { useToast } from '@/hooks/use-toast';
@@ -27,10 +27,10 @@ function SubmitButton() {
   const { pending } = useFormStatus();
 
   return (
-    <Button type="submit" disabled={pending}>
+    <ZoruButton type="submit" disabled={pending}>
       {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <PlusCircle className="mr-2 h-4 w-4" />}
       Add Post
-    </Button>
+    </ZoruButton>
   );
 }
 
@@ -67,25 +67,25 @@ export function CreateRandomizerPostDialog({ isOpen, onOpenChange, project, onPo
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col overflow-hidden p-0">
+    <ZoruDialog open={isOpen} onOpenChange={handleOpenChange}>
+      <ZoruDialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col overflow-hidden p-0">
         <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
           <input type="hidden" name="projectId" value={project._id.toString()} />
-          <DialogHeader className="px-6 pt-6 pb-2">
-            <DialogTitle>Add Post to Pool</DialogTitle>
-            <DialogDescription>
+          <ZoruDialogHeader className="px-6 pt-6 pb-2">
+            <ZoruDialogTitle>Add Post to Pool</ZoruDialogTitle>
+            <ZoruDialogDescription>
               Create content that will be randomly selected for posting.
-            </DialogDescription>
-          </DialogHeader>
+            </ZoruDialogDescription>
+          </ZoruDialogHeader>
 
           <div className="flex-1 overflow-y-auto px-6 py-2">
             <div className="grid gap-4">
               <div className="space-y-2">
-                <Label htmlFor="message">Message</Label>
-                <Textarea id="message" name="message" placeholder="What's on your mind?" className="min-h-32" required />
+                <ZoruLabel htmlFor="message">Message</ZoruLabel>
+                <ZoruTextarea id="message" name="message" placeholder="What's on your mind?" className="min-h-32" required />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="imageUrl">Image URL (Optional)</Label>
+                <ZoruLabel htmlFor="imageUrl">Image URL (Optional)</ZoruLabel>
                 <SabFileUrlInput
                   id="imageUrl"
                   name="imageUrl"
@@ -98,12 +98,12 @@ export function CreateRandomizerPostDialog({ isOpen, onOpenChange, project, onPo
               </div>
             </div>
           </div>
-          <DialogFooter className="px-6 pb-6 pt-2">
-            <Button type="button" variant="outline" onClick={() => handleOpenChange(false)}>Cancel</Button>
+          <ZoruDialogFooter className="px-6 pb-6 pt-2">
+            <ZoruButton type="button" variant="outline" onClick={() => handleOpenChange(false)}>Cancel</ZoruButton>
             <SubmitButton />
-          </DialogFooter>
+          </ZoruDialogFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+      </ZoruDialogContent>
+    </ZoruDialog>
   );
 }

@@ -19,15 +19,15 @@ import {
     Users,
 } from 'lucide-react';
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
+import { ZoruTextarea } from '@/components/zoruui';
 import {
-    Alert,
-    AlertDescription,
-    AlertTitle,
-} from '@/components/ui/alert';
+    ZoruAlert,
+    ZoruAlertDescription,
+    ZoruAlertTitle,
+} from '@/components/zoruui';
 import { cn } from '@/lib/utils';
 
 import { saveOnboardingRequirements } from '@/app/actions/onboarding-flow.actions';
@@ -193,16 +193,16 @@ export function RequirementsStep({
     return (
         <form onSubmit={submit} className="space-y-6" noValidate>
             {error && (
-                <Alert variant="destructive">
+                <ZoruAlert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>Almost there</AlertTitle>
-                    <AlertDescription>{error}</AlertDescription>
-                </Alert>
+                    <ZoruAlertTitle>Almost there</ZoruAlertTitle>
+                    <ZoruAlertDescription>{error}</ZoruAlertDescription>
+                </ZoruAlert>
             )}
 
             <div className="space-y-3">
                 <div className="flex items-end justify-between">
-                    <Label>Modules to turn on *</Label>
+                    <ZoruLabel>Modules to turn on *</ZoruLabel>
                     <span className="text-xs text-muted-foreground">
                         {selected.length} selected
                     </span>
@@ -250,10 +250,10 @@ export function RequirementsStep({
 
             <div className="grid gap-5 lg:grid-cols-2">
                 <div className="space-y-2">
-                    <Label htmlFor="primaryGoal">
+                    <ZoruLabel htmlFor="primaryGoal">
                         What's the #1 outcome you want in 90 days? *
-                    </Label>
-                    <Textarea
+                    </ZoruLabel>
+                    <ZoruTextarea
                         id="primaryGoal"
                         value={primaryGoal}
                         onChange={(e) => setPrimaryGoal(e.target.value)}
@@ -265,10 +265,10 @@ export function RequirementsStep({
 
                 <div className="space-y-5">
                     <div className="space-y-2">
-                        <Label htmlFor="currentTools">
+                        <ZoruLabel htmlFor="currentTools">
                             Tools you use today (optional)
-                        </Label>
-                        <Input
+                        </ZoruLabel>
+                        <ZoruInput
                             id="currentTools"
                             value={currentTools}
                             onChange={(e) => setCurrentTools(e.target.value)}
@@ -277,7 +277,7 @@ export function RequirementsStep({
                         />
                     </div>
                     <div className="space-y-2">
-                        <Label>When are you looking to go live?</Label>
+                        <ZoruLabel>When are you looking to go live?</ZoruLabel>
                         <div className="flex flex-wrap gap-2">
                             {TIMELINES.map((t) => {
                                 const active = timeline === t;
@@ -304,15 +304,15 @@ export function RequirementsStep({
             </div>
 
             <div className="flex justify-between pt-2">
-                <Button
+                <ZoruButton
                     type="button"
                     variant="ghost"
                     onClick={onBack}
                     disabled={isPending}
                 >
                     Back
-                </Button>
-                <Button
+                </ZoruButton>
+                <ZoruButton
                     type="submit"
                     className="h-11 px-6 text-base"
                     disabled={isPending}
@@ -321,7 +321,7 @@ export function RequirementsStep({
                         <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
                     ) : null}
                     Continue
-                </Button>
+                </ZoruButton>
             </div>
         </form>
     );

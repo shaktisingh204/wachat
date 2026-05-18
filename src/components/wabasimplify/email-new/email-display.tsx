@@ -4,12 +4,12 @@ import React from 'react';
 import { Mail, Reply, ReplyAll, Forward, MoreVertical, Trash2, Archive, Paperclip } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import { mockConversations } from './email-data';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { ZoruAvatar, ZoruAvatarFallback, ZoruAvatarImage, ZoruButton } from '@/components/zoruui';
 import { format } from 'date-fns';
-import { Separator } from '@/components/ui/separator';
-import { Button } from '@/components/ui/button';
-import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
-import { Textarea } from '@/components/ui/textarea';
+import { ZoruSeparator } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruTooltip, ZoruTooltipContent, ZoruTooltipTrigger, ZoruTooltipProvider } from '@/components/zoruui';
+import { ZoruTextarea } from '@/components/zoruui';
 
 export function EmailDisplay({ initialAccountId }: { initialAccountId?: string }) {
     const searchParams = useSearchParams();
@@ -46,7 +46,7 @@ export function EmailDisplay({ initialAccountId }: { initialAccountId?: string }
                 <div className="p-6 bg-background rounded-full mb-4 shadow-sm border">
                     <Mail className="h-10 w-10 text-muted-foreground/50" />
                 </div>
-                <p>Select an email to view details</p>
+                <p>ZoruSelect an email to view details</p>
             </div>
         );
     }
@@ -83,46 +83,46 @@ export function EmailDisplay({ initialAccountId }: { initialAccountId?: string }
             {/* Header Toolbar */}
             <div className="flex items-center justify-between p-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-10">
                 <div className="flex items-center gap-2">
-                    <TooltipProvider>
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <Button variant="ghost" size="icon">
+                    <ZoruTooltipProvider>
+                        <ZoruTooltip>
+                            <ZoruTooltipTrigger asChild>
+                                <ZoruButton variant="ghost" size="icon">
                                     <Archive className="h-4 w-4" />
                                     <span className="sr-only">Archive</span>
-                                </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>Archive</TooltipContent>
-                        </Tooltip>
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <Button variant="ghost" size="icon">
+                                </ZoruButton>
+                            </ZoruTooltipTrigger>
+                            <ZoruTooltipContent>Archive</ZoruTooltipContent>
+                        </ZoruTooltip>
+                        <ZoruTooltip>
+                            <ZoruTooltipTrigger asChild>
+                                <ZoruButton variant="ghost" size="icon">
                                     <Trash2 className="h-4 w-4" />
                                     <span className="sr-only">Move to trash</span>
-                                </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>Move to trash</TooltipContent>
-                        </Tooltip>
-                    </TooltipProvider>
-                    <Separator orientation="vertical" className="mx-1 h-6" />
+                                </ZoruButton>
+                            </ZoruTooltipTrigger>
+                            <ZoruTooltipContent>Move to trash</ZoruTooltipContent>
+                        </ZoruTooltip>
+                    </ZoruTooltipProvider>
+                    <ZoruSeparator orientation="vertical" className="mx-1 h-6" />
                 </div>
                 <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="icon">
+                    <ZoruButton variant="ghost" size="icon">
                         <Reply className="h-4 w-4" />
                         <span className="sr-only">Reply</span>
-                    </Button>
-                    <Button variant="ghost" size="icon">
+                    </ZoruButton>
+                    <ZoruButton variant="ghost" size="icon">
                         <ReplyAll className="h-4 w-4" />
                         <span className="sr-only">Reply all</span>
-                    </Button>
-                    <Button variant="ghost" size="icon">
+                    </ZoruButton>
+                    <ZoruButton variant="ghost" size="icon">
                         <Forward className="h-4 w-4" />
                         <span className="sr-only">Forward</span>
-                    </Button>
-                    <Separator orientation="vertical" className="mx-1 h-6" />
-                    <Button variant="ghost" size="icon">
+                    </ZoruButton>
+                    <ZoruSeparator orientation="vertical" className="mx-1 h-6" />
+                    <ZoruButton variant="ghost" size="icon">
                         <MoreVertical className="h-4 w-4" />
                         <span className="sr-only">More</span>
-                    </Button>
+                    </ZoruButton>
                 </div>
             </div>
 
@@ -137,9 +137,9 @@ export function EmailDisplay({ initialAccountId }: { initialAccountId?: string }
                     {messages.map((message: any) => (
                         <div key={message.id} className="flex flex-col gap-4 border p-4 rounded-xl shadow-sm bg-card">
                             <div className="flex items-start gap-4">
-                                <Avatar className="h-10 w-10">
-                                    <AvatarFallback>{message.from ? message.from.charAt(0) : '?'}</AvatarFallback>
-                                </Avatar>
+                                <ZoruAvatar className="h-10 w-10">
+                                    <ZoruAvatarFallback>{message.from ? message.from.charAt(0) : '?'}</ZoruAvatarFallback>
+                                </ZoruAvatar>
                                 <div className="grid gap-1">
                                     <div className="font-semibold">{message.from}</div>
                                     <div className="ml-auto text-xs text-muted-foreground">
@@ -147,7 +147,7 @@ export function EmailDisplay({ initialAccountId }: { initialAccountId?: string }
                                     </div>
                                 </div>
                             </div>
-                            <Separator />
+                            <ZoruSeparator />
                             <div className="text-sm prose prose-neutral dark:prose-invert max-w-none overflow-hidden">
                                 {message.body && (
                                     <div dangerouslySetInnerHTML={{ __html: message.body }}></div>
@@ -159,21 +159,21 @@ export function EmailDisplay({ initialAccountId }: { initialAccountId?: string }
 
                 {/* Reply Area (Optimistic) */}
                 <div className="mt-6 flex gap-4">
-                    <Avatar className="h-10 w-10">
-                        <AvatarFallback>ME</AvatarFallback>
-                    </Avatar>
+                    <ZoruAvatar className="h-10 w-10">
+                        <ZoruAvatarFallback>ME</ZoruAvatarFallback>
+                    </ZoruAvatar>
                     <div className="flex-1 space-y-2">
-                        <Textarea
+                        <ZoruTextarea
                             placeholder={`Reply...`}
                             className="min-h-[100px]"
                         />
                         <div className="flex justify-between items-center">
                             <div className="flex gap-2">
-                                <Button variant="ghost" size="icon"><Paperclip className="h-4 w-4" /></Button>
+                                <ZoruButton variant="ghost" size="icon"><Paperclip className="h-4 w-4" /></ZoruButton>
                             </div>
-                            <Button size="sm">
+                            <ZoruButton size="sm">
                                 <Reply className="mr-2 h-4 w-4" /> Send Reply
-                            </Button>
+                            </ZoruButton>
                         </div>
                     </div>
                 </div>

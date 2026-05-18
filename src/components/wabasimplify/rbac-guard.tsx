@@ -2,7 +2,7 @@ import { headers } from 'next/headers';
 import { getCachedSession } from '@/lib/server-cache';
 import { getRequiredPermissionForPath } from '@/lib/rbac-server';
 import { ShieldOff, Home, MessageSquare } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
 import Link from 'next/link';
 import { GlobalRolePermissions } from '@/lib/definitions';
 import { connectToDatabase } from '@/lib/mongodb';
@@ -33,18 +33,18 @@ function ForbiddenPage() {
 
                 {/* Actions */}
                 <div className="relative flex gap-3 justify-center">
-                    <Button asChild size="sm" className="gap-2 rounded-xl bg-primary/90 hover:bg-primary shadow-md">
+                    <ZoruButton asChild size="sm" className="gap-2 rounded-xl bg-primary/90 hover:bg-primary shadow-md">
                         <Link href="/wachat">
                             <Home className="h-4 w-4" />
                             Go Home
                         </Link>
-                    </Button>
-                    <Button asChild size="sm" variant="outline" className="gap-2 rounded-xl border-white/10 bg-white/5 hover:bg-white/10">
+                    </ZoruButton>
+                    <ZoruButton asChild size="sm" variant="outline" className="gap-2 rounded-xl border-white/10 bg-white/5 hover:bg-white/10">
                         <Link href="/dashboard/team/team-chat">
                             <MessageSquare className="h-4 w-4" />
                             Contact Admin
                         </Link>
-                    </Button>
+                    </ZoruButton>
                 </div>
             </div>
         </div>

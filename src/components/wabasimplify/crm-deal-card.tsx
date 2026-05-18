@@ -2,7 +2,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { ZoruAvatar, ZoruAvatarFallback } from '@/components/zoruui';
 import { User, Building, FolderKanban } from 'lucide-react';
 import type { WithId, CrmDeal, CrmContact, CrmAccount } from '@/lib/definitions';
 import { useDraggable } from '@dnd-kit/core';
@@ -45,9 +45,9 @@ export function CrmDealCard({ deal, contact, account, taskCount = 0, index }: Cr
                             <FolderKanban className="h-3 w-3" />
                             <span>{taskCount}</span>
                         </div>
-                        <Avatar className="h-6 w-6">
-                            <AvatarFallback>A</AvatarFallback>
-                        </Avatar>
+                        <ZoruAvatar className="h-6 w-6">
+                            <ZoruAvatarFallback>A</ZoruAvatarFallback>
+                        </ZoruAvatar>
                     </div>
                 </ClayCard>
             </Link>

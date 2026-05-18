@@ -1,17 +1,17 @@
 
 'use client';
 
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
+import { ZoruLabel, ZoruButton } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruTextarea } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
 import { Plus, Trash2, Upload } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
-import { Separator } from '@/components/ui/separator';
-import { Card, CardContent } from '@/components/ui/card';
+import { ZoruAccordion, ZoruAccordionContent, ZoruAccordionItem, ZoruAccordionTrigger } from '@/components/zoruui';
+import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
+import { ZoruSwitch } from '@/components/zoruui';
+import { ZoruSeparator } from '@/components/zoruui';
+import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
 import Image from 'next/image';
 import { SabFilePickerButton } from '@/components/sabfiles';
 
@@ -60,19 +60,19 @@ export function RepeaterBlockEditor({ settings, onUpdate }: { settings: any, onU
 
     return (
         <div className="space-y-4">
-            <Accordion type="multiple" className="w-full" defaultValue={['items', 'layout']}>
-                <AccordionItem value="items">
-                    <AccordionTrigger>Repeater Items</AccordionTrigger>
-                    <AccordionContent className="space-y-4 pt-2">
+            <ZoruAccordion type="multiple" className="w-full" defaultValue={['items', 'layout']}>
+                <ZoruAccordionItem value="items">
+                    <ZoruAccordionTrigger>Repeater Items</ZoruAccordionTrigger>
+                    <ZoruAccordionContent className="space-y-4 pt-2">
                         {items.map((item: RepeaterItem, index: number) => (
-                            <Card key={item.id} className="relative bg-background">
-                                <CardContent className="p-4 space-y-3">
-                                    <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1 h-7 w-7" onClick={() => removeItem(index)}>
+                            <ZoruCard key={item.id} className="relative bg-background">
+                                <ZoruCardContent className="p-4 space-y-3">
+                                    <ZoruButton type="button" variant="ghost" size="icon" className="absolute top-1 right-1 h-7 w-7" onClick={() => removeItem(index)}>
                                         <Trash2 className="h-4 w-4 text-destructive" />
-                                    </Button>
+                                    </ZoruButton>
                                     <h4 className="font-medium">Item {index + 1}</h4>
                                     <div className="space-y-2">
-                                        <Label>Image</Label>
+                                        <ZoruLabel>Image</ZoruLabel>
                                          <div className="flex items-center gap-2">
                                             <SabFilePickerButton
                                                 accept="image"
@@ -84,98 +84,98 @@ export function RepeaterBlockEditor({ settings, onUpdate }: { settings: any, onU
                                             {item.imageUrl && <Image src={item.imageUrl} alt="preview" width={40} height={40} className="rounded-md object-cover" />}
                                         </div>
                                     </div>
-                                    <div className="space-y-2"><Label>Title</Label><Input placeholder="Item Title" value={item.title || ''} onChange={(e) => handleItemChange(index, 'title', e.target.value)} /></div>
-                                    <div className="space-y-2"><Label>Description</Label><Textarea placeholder="Item description..." value={item.description || ''} onChange={(e) => handleItemChange(index, 'description', e.target.value)} /></div>
-                                    <div className="space-y-2"><Label>Button Text</Label><Input placeholder="e.g., Learn More" value={item.buttonText || ''} onChange={(e) => handleItemChange(index, 'buttonText', e.target.value)} /></div>
-                                    <div className="space-y-2"><Label>Button Link</Label><Input placeholder="https://..." value={item.buttonLink || ''} onChange={(e) => handleItemChange(index, 'buttonLink', e.target.value)} /></div>
-                                </CardContent>
-                            </Card>
+                                    <div className="space-y-2"><ZoruLabel>Title</ZoruLabel><ZoruInput placeholder="Item Title" value={item.title || ''} onChange={(e) => handleItemChange(index, 'title', e.target.value)} /></div>
+                                    <div className="space-y-2"><ZoruLabel>Description</ZoruLabel><ZoruTextarea placeholder="Item description..." value={item.description || ''} onChange={(e) => handleItemChange(index, 'description', e.target.value)} /></div>
+                                    <div className="space-y-2"><ZoruLabel>ZoruButton Text</ZoruLabel><ZoruInput placeholder="e.g., Learn More" value={item.buttonText || ''} onChange={(e) => handleItemChange(index, 'buttonText', e.target.value)} /></div>
+                                    <div className="space-y-2"><ZoruLabel>ZoruButton Link</ZoruLabel><ZoruInput placeholder="https://..." value={item.buttonLink || ''} onChange={(e) => handleItemChange(index, 'buttonLink', e.target.value)} /></div>
+                                </ZoruCardContent>
+                            </ZoruCard>
                         ))}
-                        <Button type="button" variant="outline" onClick={addItem}><Plus className="mr-2 h-4 w-4" /> Add Item</Button>
-                    </AccordionContent>
-                </AccordionItem>
-                <AccordionItem value="layout">
-                    <AccordionTrigger>Layout Settings</AccordionTrigger>
-                    <AccordionContent className="space-y-4 pt-2">
+                        <ZoruButton type="button" variant="outline" onClick={addItem}><Plus className="mr-2 h-4 w-4" /> Add Item</ZoruButton>
+                    </ZoruAccordionContent>
+                </ZoruAccordionItem>
+                <ZoruAccordionItem value="layout">
+                    <ZoruAccordionTrigger>Layout Settings</ZoruAccordionTrigger>
+                    <ZoruAccordionContent className="space-y-4 pt-2">
                         <div className="space-y-2">
-                            <Label>Layout</Label>
-                            <Select value={settings.layout || 'grid'} onValueChange={(val) => handleUpdate('layout', val)}>
-                                <SelectTrigger><SelectValue /></SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="grid">Grid</SelectItem>
-                                    <SelectItem value="list">List</SelectItem>
-                                    <SelectItem value="carousel">Carousel</SelectItem>
-                                </SelectContent>
-                            </Select>
+                            <ZoruLabel>Layout</ZoruLabel>
+                            <ZoruSelect value={settings.layout || 'grid'} onValueChange={(val) => handleUpdate('layout', val)}>
+                                <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
+                                <ZoruSelectContent>
+                                    <ZoruSelectItem value="grid">Grid</ZoruSelectItem>
+                                    <ZoruSelectItem value="list">List</ZoruSelectItem>
+                                    <ZoruSelectItem value="carousel">Carousel</ZoruSelectItem>
+                                </ZoruSelectContent>
+                            </ZoruSelect>
                         </div>
                         {settings.layout === 'grid' && (
                             <div className="space-y-2">
-                                <Label>Columns</Label>
-                                <Select value={String(settings.columns || 3)} onValueChange={(val) => handleUpdate('columns', Number(val))}>
-                                    <SelectTrigger><SelectValue /></SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="1">1</SelectItem>
-                                        <SelectItem value="2">2</SelectItem>
-                                        <SelectItem value="3">3</SelectItem>
-                                        <SelectItem value="4">4</SelectItem>
-                                    </SelectContent>
-                                </Select>
+                                <ZoruLabel>Columns</ZoruLabel>
+                                <ZoruSelect value={String(settings.columns || 3)} onValueChange={(val) => handleUpdate('columns', Number(val))}>
+                                    <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
+                                    <ZoruSelectContent>
+                                        <ZoruSelectItem value="1">1</ZoruSelectItem>
+                                        <ZoruSelectItem value="2">2</ZoruSelectItem>
+                                        <ZoruSelectItem value="3">3</ZoruSelectItem>
+                                        <ZoruSelectItem value="4">4</ZoruSelectItem>
+                                    </ZoruSelectContent>
+                                </ZoruSelect>
                             </div>
                         )}
                          {settings.layout === 'carousel' && (
                             <div className="space-y-4 pt-2">
                                 <div className="flex items-center justify-between">
-                                    <Label>Loop</Label>
-                                    <Switch checked={settings.loop || false} onCheckedChange={(val) => handleUpdate('loop', val)} />
+                                    <ZoruLabel>Loop</ZoruLabel>
+                                    <ZoruSwitch checked={settings.loop || false} onCheckedChange={(val) => handleUpdate('loop', val)} />
                                 </div>
                                 <div className="flex items-center justify-between">
-                                    <Label>Autoplay</Label>
-                                    <Switch checked={settings.autoplay || false} onCheckedChange={(val) => handleUpdate('autoplay', val)} />
+                                    <ZoruLabel>Autoplay</ZoruLabel>
+                                    <ZoruSwitch checked={settings.autoplay || false} onCheckedChange={(val) => handleUpdate('autoplay', val)} />
                                 </div>
                                 {settings.autoplay && (
-                                    <div className="space-y-2"><Label>Autoplay Delay (sec)</Label><Input type="number" value={settings.autoplayDelay || 4} onChange={e => handleUpdate('autoplayDelay', Number(e.target.value))} /></div>
+                                    <div className="space-y-2"><ZoruLabel>Autoplay Delay (sec)</ZoruLabel><ZoruInput type="number" value={settings.autoplayDelay || 4} onChange={e => handleUpdate('autoplayDelay', Number(e.target.value))} /></div>
                                 )}
                             </div>
                         )}
-                    </AccordionContent>
-                </AccordionItem>
-                 <AccordionItem value="outerLayout">
-                    <AccordionTrigger>Sizing &amp; Layout</AccordionTrigger>
-                    <AccordionContent className="space-y-4 pt-2">
+                    </ZoruAccordionContent>
+                </ZoruAccordionItem>
+                 <ZoruAccordionItem value="outerLayout">
+                    <ZoruAccordionTrigger>Sizing &amp; Layout</ZoruAccordionTrigger>
+                    <ZoruAccordionContent className="space-y-4 pt-2">
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label>Width</Label>
-                                <Input value={settings.layout?.width || '100%'} onChange={e => handleSubFieldUpdate('layout', 'width', e.target.value)} />
+                                <ZoruLabel>Width</ZoruLabel>
+                                <ZoruInput value={settings.layout?.width || '100%'} onChange={e => handleSubFieldUpdate('layout', 'width', e.target.value)} />
                             </div>
                             <div className="space-y-2">
-                                <Label>Height</Label>
-                                <Input value={settings.layout?.height || 'auto'} onChange={e => handleSubFieldUpdate('layout', 'height', e.target.value)} />
+                                <ZoruLabel>Height</ZoruLabel>
+                                <ZoruInput value={settings.layout?.height || 'auto'} onChange={e => handleSubFieldUpdate('layout', 'height', e.target.value)} />
                             </div>
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label>Max Width</Label>
-                                <Input value={settings.layout?.maxWidth || ''} placeholder="e.g. 1200px" onChange={e => handleSubFieldUpdate('layout', 'maxWidth', e.target.value)} />
+                                <ZoruLabel>Max Width</ZoruLabel>
+                                <ZoruInput value={settings.layout?.maxWidth || ''} placeholder="e.g. 1200px" onChange={e => handleSubFieldUpdate('layout', 'maxWidth', e.target.value)} />
                             </div>
                             <div className="space-y-2">
-                                <Label>Min Height</Label>
-                                <Input value={settings.layout?.minHeight || ''} placeholder="e.g. 200px" onChange={e => handleSubFieldUpdate('layout', 'minHeight', e.target.value)} />
+                                <ZoruLabel>Min Height</ZoruLabel>
+                                <ZoruInput value={settings.layout?.minHeight || ''} placeholder="e.g. 200px" onChange={e => handleSubFieldUpdate('layout', 'minHeight', e.target.value)} />
                             </div>
                         </div>
                         <div className="space-y-2">
-                            <Label>Overflow</Label>
-                            <Select value={settings.layout?.overflow || 'visible'} onValueChange={(val) => handleSubFieldUpdate('layout', 'overflow', val)}>
-                                <SelectTrigger><SelectValue/></SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="visible">Visible</SelectItem>
-                                    <SelectItem value="hidden">Hidden</SelectItem>
-                                    <SelectItem value="scroll">Scroll</SelectItem>
-                                </SelectContent>
-                            </Select>
+                            <ZoruLabel>Overflow</ZoruLabel>
+                            <ZoruSelect value={settings.layout?.overflow || 'visible'} onValueChange={(val) => handleSubFieldUpdate('layout', 'overflow', val)}>
+                                <ZoruSelectTrigger><ZoruSelectValue/></ZoruSelectTrigger>
+                                <ZoruSelectContent>
+                                    <ZoruSelectItem value="visible">Visible</ZoruSelectItem>
+                                    <ZoruSelectItem value="hidden">Hidden</ZoruSelectItem>
+                                    <ZoruSelectItem value="scroll">Scroll</ZoruSelectItem>
+                                </ZoruSelectContent>
+                            </ZoruSelect>
                         </div>
-                    </AccordionContent>
-                </AccordionItem>
-            </Accordion>
+                    </ZoruAccordionContent>
+                </ZoruAccordionItem>
+            </ZoruAccordion>
         </div>
     );
 }

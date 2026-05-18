@@ -1,9 +1,9 @@
 
 'use client';
 
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
+import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
 import { DynamicBooleanInput } from '../shared/dynamic-boolean-input';
 
 interface TextInputEditorProps {
@@ -21,8 +21,8 @@ export function TextInputEditor({ component, updateField }: TextInputEditorProps
     return (
         <div className="space-y-6">
             <div className="space-y-2">
-                <Label htmlFor="name">Name (ID)</Label>
-                <Input
+                <ZoruLabel htmlFor="name">Name (ID)</ZoruLabel>
+                <ZoruInput
                     id="name"
                     value={component.name || ''}
                     onChange={(e) => updateField('name', e.target.value)}
@@ -33,47 +33,47 @@ export function TextInputEditor({ component, updateField }: TextInputEditorProps
                 <p className="text-[10px] text-muted-foreground">Unique ID for data binding.</p>
             </div>
             <div className="space-y-2">
-                <Label htmlFor="label">Label</Label>
-                <Input id="label" value={component.label || ''} onChange={(e) => updateField('label', e.target.value)} required />
+                <ZoruLabel htmlFor="label">ZoruLabel</ZoruLabel>
+                <ZoruInput id="label" value={component.label || ''} onChange={(e) => updateField('label', e.target.value)} required />
             </div>
             <div className="space-y-2">
-                <Label htmlFor="placeholder">Placeholder</Label>
-                <Input id="placeholder" value={component.placeholder || ''} onChange={(e) => updateField('placeholder', e.target.value)} />
+                <ZoruLabel htmlFor="placeholder">Placeholder</ZoruLabel>
+                <ZoruInput id="placeholder" value={component.placeholder || ''} onChange={(e) => updateField('placeholder', e.target.value)} />
             </div>
             <div className="space-y-2">
-                <Label htmlFor="helper-text">Helper Text</Label>
-                <Input id="helper-text" value={component['helper-text'] || ''} onChange={(e) => updateField('helper-text', e.target.value)} />
+                <ZoruLabel htmlFor="helper-text">Helper Text</ZoruLabel>
+                <ZoruInput id="helper-text" value={component['helper-text'] || ''} onChange={(e) => updateField('helper-text', e.target.value)} />
             </div>
             <div className="space-y-2">
-                <Label htmlFor="error-message">Error Message</Label>
-                <Input id="error-message" value={component['error-message'] || ''} onChange={(e) => updateField('error-message', e.target.value)} />
+                <ZoruLabel htmlFor="error-message">Error Message</ZoruLabel>
+                <ZoruInput id="error-message" value={component['error-message'] || ''} onChange={(e) => updateField('error-message', e.target.value)} />
             </div>
 
             {isTextInputComponent && (
                 <div className="space-y-2">
-                    <Label htmlFor="input-type">Input Type</Label>
-                    <Select value={component['input-type'] || 'text'} onValueChange={(v) => updateField('input-type', v)}>
-                        <SelectTrigger id="input-type"><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="text">Text</SelectItem>
-                            <SelectItem value="number">Number</SelectItem>
-                            <SelectItem value="email">Email</SelectItem>
-                            <SelectItem value="password">Password</SelectItem>
+                    <ZoruLabel htmlFor="input-type">ZoruInput Type</ZoruLabel>
+                    <ZoruSelect value={component['input-type'] || 'text'} onValueChange={(v) => updateField('input-type', v)}>
+                        <ZoruSelectTrigger id="input-type"><ZoruSelectValue /></ZoruSelectTrigger>
+                        <ZoruSelectContent>
+                            <ZoruSelectItem value="text">Text</ZoruSelectItem>
+                            <ZoruSelectItem value="number">Number</ZoruSelectItem>
+                            <ZoruSelectItem value="email">Email</ZoruSelectItem>
+                            <ZoruSelectItem value="password">Password</ZoruSelectItem>
                             {/* 'phone' is sometimes supported but usually 'text' with regex is better or use PhoneNumber component if strictly needed, keeping standard types */}
-                            <SelectItem value="phone">Phone</SelectItem>
-                        </SelectContent>
-                    </Select>
+                            <ZoruSelectItem value="phone">Phone</ZoruSelectItem>
+                        </ZoruSelectContent>
+                    </ZoruSelect>
                 </div>
             )}
 
             <div className="grid grid-cols-2 gap-6">
                 <div className="space-y-2">
-                    <Label htmlFor="min-chars">Min Chars</Label>
-                    <Input id="min-chars" type="number" value={component['min-chars'] ?? ''} onChange={e => updateField('min-chars', e.target.value ? parseInt(e.target.value) : undefined)} />
+                    <ZoruLabel htmlFor="min-chars">Min Chars</ZoruLabel>
+                    <ZoruInput id="min-chars" type="number" value={component['min-chars'] ?? ''} onChange={e => updateField('min-chars', e.target.value ? parseInt(e.target.value) : undefined)} />
                 </div>
                 <div className="space-y-2">
-                    <Label htmlFor="max-chars">Max Chars</Label>
-                    <Input id="max-chars" type="number" value={component['max-chars'] ?? ''} onChange={e => updateField('max-chars', e.target.value ? parseInt(e.target.value) : undefined)} />
+                    <ZoruLabel htmlFor="max-chars">Max Chars</ZoruLabel>
+                    <ZoruInput id="max-chars" type="number" value={component['max-chars'] ?? ''} onChange={e => updateField('max-chars', e.target.value ? parseInt(e.target.value) : undefined)} />
                 </div>
             </div>
 

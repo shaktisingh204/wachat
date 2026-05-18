@@ -3,17 +3,17 @@
 
 import { useEffect, useState, useTransition } from 'react';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruDialogTrigger,
+} from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
 import { LoaderCircle, Edit } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { updateProjectCreditsByAdmin } from '@/app/actions/admin.actions';
@@ -43,24 +43,24 @@ export function AdminUpdateCreditsButton({ projectId, currentCredits }: AdminUpd
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="ghost" size="sm">
+    <ZoruDialog open={open} onOpenChange={setOpen}>
+      <ZoruDialogTrigger asChild>
+        <ZoruButton variant="ghost" size="sm">
           <Edit className="mr-2 h-4 w-4" />
           Credits
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+        </ZoruButton>
+      </ZoruDialogTrigger>
+      <ZoruDialogContent className="sm:max-w-md">
         <form onSubmit={handleSubmit}>
-          <DialogHeader>
-            <DialogTitle>Update User Credits</DialogTitle>
-            <DialogDescription>
+          <ZoruDialogHeader>
+            <ZoruDialogTitle>Update User Credits</ZoruDialogTitle>
+            <ZoruDialogDescription>
               Set a new credit balance for this user.
-            </DialogDescription>
-          </DialogHeader>
+            </ZoruDialogDescription>
+          </ZoruDialogHeader>
           <div className="py-6">
-            <Label htmlFor="credits-input">New Credit Balance</Label>
-            <Input
+            <ZoruLabel htmlFor="credits-input">New Credit Balance</ZoruLabel>
+            <ZoruInput
               id="credits-input"
               type="number"
               value={credits}
@@ -68,15 +68,15 @@ export function AdminUpdateCreditsButton({ projectId, currentCredits }: AdminUpd
               required
             />
           </div>
-          <DialogFooter>
-            <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
-             <Button type="submit" disabled={isPending}>
+          <ZoruDialogFooter>
+            <ZoruButton type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</ZoruButton>
+             <ZoruButton type="submit" disabled={isPending}>
               {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
               Save Credits
-            </Button>
-          </DialogFooter>
+            </ZoruButton>
+          </ZoruDialogFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+      </ZoruDialogContent>
+    </ZoruDialog>
   );
 }

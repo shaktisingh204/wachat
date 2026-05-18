@@ -7,7 +7,7 @@ import { EmbeddedForm } from '@/components/wabasimplify/embedded-form';
 import { getCrmFormById } from '@/app/actions/crm-forms.actions';
 import { useEffect, useState, use } from 'react';
 import type { WithId, CrmForm } from '@/lib/definitions';
-import { Skeleton } from '@/components/ui/skeleton';
+import { ZoruSkeleton } from '@/components/zoruui';
 
 export default function EmbeddedFormPage(props: { params: Promise<{ formId: string }> }) {
     const params = use(props.params);
@@ -23,7 +23,7 @@ export default function EmbeddedFormPage(props: { params: Promise<{ formId: stri
     }, [params.formId]);
 
     if (isLoading) {
-        return <div className="p-4"><Skeleton className="h-96 w-full max-w-lg mx-auto" /></div>;
+        return <div className="p-4"><ZoruSkeleton className="h-96 w-full max-w-lg mx-auto" /></div>;
     }
 
     if (!form) {

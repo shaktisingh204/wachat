@@ -1,7 +1,7 @@
 
 'use client';
 
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { ZoruAccordion, ZoruAccordionContent, ZoruAccordionItem, ZoruAccordionTrigger } from '@/components/zoruui';
 import React from 'react';
 
 export function FaqBlockRenderer({ settings }: { settings: any }) {
@@ -20,14 +20,14 @@ export function FaqBlockRenderer({ settings }: { settings: any }) {
         <div className="text-center mb-8">
             <h2 className="text-3xl font-bold">{settings.title || 'Frequently Asked Questions'}</h2>
         </div>
-        <Accordion type="single" collapsible className="w-full">
+        <ZoruAccordion type="single" collapsible className="w-full">
             {(settings.faqItems || []).map((item: any, index: number) => (
-                <AccordionItem value={`item-${item.id || index}`} key={item.id || index}>
-                    <AccordionTrigger>{item.question}</AccordionTrigger>
-                    <AccordionContent>{item.answer}</AccordionContent>
-                </AccordionItem>
+                <ZoruAccordionItem value={`item-${item.id || index}`} key={item.id || index}>
+                    <ZoruAccordionTrigger>{item.question}</ZoruAccordionTrigger>
+                    <ZoruAccordionContent>{item.answer}</ZoruAccordionContent>
+                </ZoruAccordionItem>
             ))}
-        </Accordion>
+        </ZoruAccordion>
     </div>
 );
 }

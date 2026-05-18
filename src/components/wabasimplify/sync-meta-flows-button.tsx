@@ -4,7 +4,7 @@
 import { useTransition } from 'react';
 import { handleSyncMetaFlows } from '@/app/actions/meta-flow.actions';
 import { useToast } from '@/hooks/use-toast';
-import { Button } from '@/components/ui/button';
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
 import { RefreshCw, LoaderCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
@@ -43,7 +43,7 @@ export function SyncMetaFlowsButton({ projectId, onSyncComplete }: SyncMetaFlows
   };
 
   return (
-    <Button onClick={onSync} variant="outline" disabled={isPending || !projectId}>
+    <ZoruButton onClick={onSync} variant="outline" disabled={isPending || !projectId}>
       {isPending ? (
         <>
           <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
@@ -55,6 +55,6 @@ export function SyncMetaFlowsButton({ projectId, onSyncComplete }: SyncMetaFlows
           Sync with Meta
         </>
       )}
-    </Button>
+    </ZoruButton>
   );
 }

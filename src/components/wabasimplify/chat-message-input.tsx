@@ -7,19 +7,19 @@ import { getCannedMessages } from '@/app/actions/project.actions';
 import { handleSendMessage } from '@/app/actions/whatsapp.actions';
 import type { CannedMessage, Template, Contact, Project } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
 import { Send, LoaderCircle, Star } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { ZoruPopover, ZoruPopoverAnchor, ZoruPopoverContent, ZoruPopoverTrigger } from '@/components/zoruui';
+import { ZoruScrollArea } from '@/components/zoruui';
 import { SendTemplateDialog } from './send-template-dialog';
 import { RequestPaymentDialog } from './request-payment-dialog';
 import { RequestWhatsAppPaymentDialog } from './request-whatsapp-payment-dialog';
 import { SendCatalogDialog } from './send-catalog-dialog';
 import { ChatAttachmentMenu } from './chat-attachment-menu';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { ZoruDialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle } from '@/components/zoruui';
+import { ZoruCommand, ZoruCommandEmpty, ZoruCommandGroup, ZoruCommandInput, ZoruCommandItem, ZoruCommandList } from '@/components/zoruui';
 import { Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { SabFileToFileButton } from '@/components/sabfiles';
@@ -40,10 +40,10 @@ const sendInitialState = {
 function SubmitButton({ onClick, disabled }: { onClick: () => void, disabled?: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <Button type="button" size="icon" onClick={onClick} disabled={pending || disabled}>
+        <ZoruButton type="button" size="icon" onClick={onClick} disabled={pending || disabled}>
             {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
             <span className="sr-only">Send Message</span>
-        </Button>
+        </ZoruButton>
     );
 }
 
@@ -216,18 +216,18 @@ export function ChatMessageInput({ project, contact, templates, replyToMessageId
                 />
             )}
 
-            <Dialog open={isTemplateSelectorOpen} onOpenChange={setIsTemplateSelectorOpen}>
-                <DialogContent className="p-0">
-                    <DialogHeader className="px-4 pt-4 pb-2">
-                        <DialogTitle>Select a Template</DialogTitle>
-                    </DialogHeader>
-                    <Command>
-                        <CommandInput placeholder="Search templates..." />
-                        <CommandList>
-                            <CommandEmpty>No templates found.</CommandEmpty>
-                            <CommandGroup>
+            <ZoruDialog open={isTemplateSelectorOpen} onOpenChange={setIsTemplateSelectorOpen}>
+                <ZoruDialogContent className="p-0">
+                    <ZoruDialogHeader className="px-4 pt-4 pb-2">
+                        <ZoruDialogTitle>ZoruSelect a Template</ZoruDialogTitle>
+                    </ZoruDialogHeader>
+                    <ZoruCommand>
+                        <ZoruCommandInput placeholder="Search templates..." />
+                        <ZoruCommandList>
+                            <ZoruCommandEmpty>No templates found.</ZoruCommandEmpty>
+                            <ZoruCommandGroup>
                                 {templates.map((template) => (
-                                    <CommandItem
+                                    <ZoruCommandItem
                                         key={template._id.toString()}
                                         value={template.name}
                                         onSelect={() => {
@@ -237,13 +237,13 @@ export function ChatMessageInput({ project, contact, templates, replyToMessageId
                                     >
                                         <Check className={cn("mr-2 h-4 w-4 opacity-0")} />
                                         {template.name}
-                                    </CommandItem>
+                                    </ZoruCommandItem>
                                 ))}
-                            </CommandGroup>
-                        </CommandList>
-                    </Command>
-                </DialogContent>
-            </Dialog>
+                            </ZoruCommandGroup>
+                        </ZoruCommandList>
+                    </ZoruCommand>
+                </ZoruDialogContent>
+            </ZoruDialog>
 
             <div className="flex w-full items-center gap-2 p-2 relative">
                 <ChatAttachmentMenu
@@ -265,16 +265,16 @@ export function ChatMessageInput({ project, contact, templates, replyToMessageId
                     SabFiles
                 </SabFileToFileButton>
 
-                {/* Template Selection Dialog (Quick Fix: Reuse the popover logic but in a dialog or just a command palette?) */}
+                {/* Template Selection ZoruDialog (Quick Fix: Reuse the popover logic but in a dialog or just a command palette?) */}
                 {/* For now, I will use a simple logical trick:
-                    If the user clicks "Template", I'll show a CommandDialog to pick a template.
+                    If the user clicks "Template", I'll show a ZoruCommandDialog to pick a template.
                     Then clicking one sets `templateToSend`.
                 */}
 
-                <Popover open={cannedPopoverOpen} onOpenChange={setCannedPopoverOpen}>
-                    <PopoverAnchor asChild>
+                <ZoruPopover open={cannedPopoverOpen} onOpenChange={setCannedPopoverOpen}>
+                    <ZoruPopoverAnchor asChild>
                         <div className="flex-1 bg-secondary/50 focus-within:bg-secondary rounded-2xl transition-colors border border-transparent focus-within:border-primary/20">
-                            <Input
+                            <ZoruInput
                                 name="messageText"
                                 placeholder={isUploading ? "Uploading..." : "Type a message"}
                                 autoComplete="off"
@@ -285,16 +285,16 @@ export function ChatMessageInput({ project, contact, templates, replyToMessageId
                                 disabled={disabled || isUploading}
                             />
                         </div>
-                    </PopoverAnchor>
+                    </ZoruPopoverAnchor>
                     {/* Hidden file input */}
                     <input type="file" id="media-file-input" className="hidden" onChange={handleFileChange} />
 
-                    <PopoverContent
+                    <ZoruPopoverContent
                         className="w-[--radix-popover-trigger-width] p-0"
                         onOpenAutoFocus={(e) => e.preventDefault()}
                         align="end" side="top"
                     >
-                        <ScrollArea className="max-h-60">
+                        <ZoruScrollArea className="max-h-60">
                             <div className="p-1">
                                 {filteredCannedMessages.length > 0 ? (
                                     filteredCannedMessages.map(msg => (
@@ -317,9 +317,9 @@ export function ChatMessageInput({ project, contact, templates, replyToMessageId
                                     </p>
                                 )}
                             </div>
-                        </ScrollArea>
-                    </PopoverContent>
-                </Popover>
+                        </ZoruScrollArea>
+                    </ZoruPopoverContent>
+                </ZoruPopover>
 
                 <div className="flex-shrink-0">
                     <SubmitButton onClick={handleTextSend} disabled={!inputValue.trim() || disabled || isUploading} />

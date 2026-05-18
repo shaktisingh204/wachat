@@ -1,12 +1,12 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
 void _zoruCn;
 
 import { useState } from 'react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { apiWhois } from '@/lib/seo-tools/api-client';
 
@@ -29,13 +29,13 @@ export default function WhoisLookupPage() {
   return (
     <ToolShell title="WHOIS Lookup" description="Query WHOIS registration data for any domain.">
       <div className="flex gap-2">
-        <Input value={domain} onChange={(e) => setDomain(e.target.value)} placeholder="example.com" />
-        <Button onClick={run} disabled={loading}>{loading ? 'Looking up…' : 'Lookup'}</Button>
+        <ZoruInput value={domain} onChange={(e) => setDomain(e.target.value)} placeholder="example.com" />
+        <ZoruButton onClick={run} disabled={loading}>{loading ? 'Looking up…' : 'Lookup'}</ZoruButton>
       </div>
-      {error && <Card className="border-red-500"><CardContent className="p-4 text-red-600 text-sm">{error}</CardContent></Card>}
+      {error && <ZoruCard className="border-red-500"><ZoruCardContent className="p-4 text-red-600 text-sm">{error}</ZoruCardContent></ZoruCard>}
       {data && (
         <>
-          <Card><CardContent className="p-4">
+          <ZoruCard><ZoruCardContent className="p-4">
             <div className="text-xs text-muted-foreground mb-2">Server: {data.server}</div>
             <table className="w-full text-xs">
               <tbody>
@@ -44,8 +44,8 @@ export default function WhoisLookupPage() {
                 ))}
               </tbody>
             </table>
-          </CardContent></Card>
-          <Button variant="outline" onClick={() => setShowRaw((s) => !s)}>{showRaw ? 'Hide' : 'Show'} raw WHOIS</Button>
+          </ZoruCardContent></ZoruCard>
+          <ZoruButton variant="outline" onClick={() => setShowRaw((s) => !s)}>{showRaw ? 'Hide' : 'Show'} raw WHOIS</ZoruButton>
           {showRaw && <pre className="text-xs bg-muted p-3 rounded overflow-auto max-h-96 whitespace-pre-wrap">{data.raw}</pre>}
         </>
       )}

@@ -3,17 +3,17 @@
 import { useState, useTransition } from 'react';
 import { Project, PhoneNumber } from '@/lib/definitions';
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+    ZoruDialog,
+    ZoruDialogContent,
+    ZoruDialogDescription,
+    ZoruDialogFooter,
+    ZoruDialogHeader,
+    ZoruDialogTitle,
+    ZoruDialogTrigger,
+} from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruBadge } from '@/components/zoruui';
+import { ZoruAlert, ZoruAlertDescription, ZoruAlertTitle } from '@/components/zoruui';
 import { Loader2, Lock, ShieldCheck, Upload, Key, CheckCircle, AlertTriangle } from 'lucide-react';
 import { generateAndSaveFlowsKeys, uploadPublicKeyToMeta } from '@/app/actions/flows-encryption.actions';
 import { useToast } from '@/hooks/use-toast';
@@ -66,22 +66,22 @@ export function FlowsEncryptionDialog({ project, phone, trigger, open: controlle
     };
 
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
+        <ZoruDialog open={open} onOpenChange={setOpen}>
+            <ZoruDialogTrigger asChild>
                 {trigger || (
-                    <Button variant="outline" size="sm" className="w-full">
+                    <ZoruButton variant="outline" size="sm" className="w-full">
                         <Lock className="mr-2 h-4 w-4" />
                         Flows Encryption
-                    </Button>
+                    </ZoruButton>
                 )}
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-md">
-                <DialogHeader>
-                    <DialogTitle>WhatsApp Flows Encryption</DialogTitle>
-                    <DialogDescription>
+            </ZoruDialogTrigger>
+            <ZoruDialogContent className="sm:max-w-md">
+                <ZoruDialogHeader>
+                    <ZoruDialogTitle>WhatsApp Flows Encryption</ZoruDialogTitle>
+                    <ZoruDialogDescription>
                         To send Flows, you must sign payloads with a private key and upload the corresponding public key to Meta.
-                    </DialogDescription>
-                </DialogHeader>
+                    </ZoruDialogDescription>
+                </ZoruDialogHeader>
 
                 <div className="flex flex-col gap-4 py-4">
                     <div className="flex items-center justify-between p-4 border rounded-lg bg-muted/50">
@@ -97,11 +97,11 @@ export function FlowsEncryptionDialog({ project, phone, trigger, open: controlle
                             </div>
                         </div>
                         {hasKeys ? (
-                            <Badge variant="secondary" className="bg-green-100 text-green-700 hover:bg-green-100">Ready</Badge>
+                            <ZoruBadge variant="secondary" className="bg-green-100 text-green-700 hover:bg-green-100">Ready</ZoruBadge>
                         ) : (
-                            <Button size="sm" onClick={handleGenerateKeys} disabled={isPending}>
+                            <ZoruButton size="sm" onClick={handleGenerateKeys} disabled={isPending}>
                                 {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Generate'}
-                            </Button>
+                            </ZoruButton>
                         )}
                     </div>
 
@@ -118,37 +118,37 @@ export function FlowsEncryptionDialog({ project, phone, trigger, open: controlle
                             </div>
                         </div>
                         {isUploaded ? (
-                            <Badge variant="secondary" className="bg-blue-100 text-blue-700 hover:bg-blue-100">Synced</Badge>
+                            <ZoruBadge variant="secondary" className="bg-blue-100 text-blue-700 hover:bg-blue-100">Synced</ZoruBadge>
                         ) : (
-                            <Button
+                            <ZoruButton
                                 size="sm"
                                 onClick={handleUploadToMeta}
                                 disabled={isPending || !hasKeys}
                                 variant={isFailed ? "destructive" : "default"}
                             >
                                 {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : isFailed ? 'Retry' : 'Upload'}
-                            </Button>
+                            </ZoruButton>
                         )}
                     </div>
 
                     {isUploaded && (
-                        <Alert className="bg-green-50 border-green-200">
+                        <ZoruAlert className="bg-green-50 border-green-200">
                             <ShieldCheck className="h-4 w-4 text-green-600" />
-                            <AlertTitle className="text-green-800">Fully Configured</AlertTitle>
-                            <AlertDescription className="text-green-700">
+                            <ZoruAlertTitle className="text-green-800">Fully Configured</ZoruAlertTitle>
+                            <ZoruAlertDescription className="text-green-700">
                                 This phone number is ready to send and receive encrypted WhatsApp Flows.
-                            </AlertDescription>
-                        </Alert>
+                            </ZoruAlertDescription>
+                        </ZoruAlert>
                     )}
 
                     {!hasKeys && (
-                        <Alert>
+                        <ZoruAlert>
                             <AlertTriangle className="h-4 w-4" />
-                            <AlertTitle>Action Required</AlertTitle>
-                            <AlertDescription>
+                            <ZoruAlertTitle>Action Required</ZoruAlertTitle>
+                            <ZoruAlertDescription>
                                 Generate keys first, then upload the public key to Meta to resolve encryption errors.
-                            </AlertDescription>
-                        </Alert>
+                            </ZoruAlertDescription>
+                        </ZoruAlert>
                     )}
                     {hasKeys && config?.privateKey && (
                         <div className="flex items-center justify-between p-4 border rounded-lg bg-muted/50">
@@ -161,7 +161,7 @@ export function FlowsEncryptionDialog({ project, phone, trigger, open: controlle
                                     <span className="text-xs text-muted-foreground">Download for safekeeping</span>
                                 </div>
                             </div>
-                            <Button
+                            <ZoruButton
                                 size="sm"
                                 variant="outline"
                                 onClick={() => {
@@ -179,15 +179,15 @@ export function FlowsEncryptionDialog({ project, phone, trigger, open: controlle
                             >
                                 <Upload className="mr-2 h-4 w-4 rotate-180" />
                                 Download
-                            </Button>
+                            </ZoruButton>
                         </div>
                     )}
                 </div>
 
-                <DialogFooter className="sm:justify-start">
-                    {/* DialogFooter left empty intentionally if no other actions needed */}
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
+                <ZoruDialogFooter className="sm:justify-start">
+                    {/* ZoruDialogFooter left empty intentionally if no other actions needed */}
+                </ZoruDialogFooter>
+            </ZoruDialogContent>
+        </ZoruDialog>
     );
 }

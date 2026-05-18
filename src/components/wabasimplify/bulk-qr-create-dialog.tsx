@@ -3,15 +3,15 @@
 
 import { useState } from 'react';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruDialogTrigger,
+} from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
 import { Upload } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 
@@ -19,20 +19,20 @@ export function BulkCreateQrDialog() {
   const [open, setOpen] = useState(false);
   
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" disabled>
+    <ZoruDialog open={open} onOpenChange={setOpen}>
+      <ZoruDialogTrigger asChild>
+        <ZoruButton variant="outline" disabled>
             <Upload className="mr-2 h-4 w-4" />
             Bulk Create
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Bulk QR Code Creation</DialogTitle>
-            <DialogDescription>
+        </ZoruButton>
+      </ZoruDialogTrigger>
+      <ZoruDialogContent className="sm:max-w-md">
+          <ZoruDialogHeader>
+            <ZoruDialogTitle>Bulk QR Code Creation</ZoruDialogTitle>
+            <ZoruDialogDescription>
               Create multiple QR codes at once by uploading a file.
-            </DialogDescription>
-          </DialogHeader>
+            </ZoruDialogDescription>
+          </ZoruDialogHeader>
           <div className="py-6">
             <Alert>
               <AlertTitle>Coming Soon!</AlertTitle>
@@ -41,10 +41,10 @@ export function BulkCreateQrDialog() {
               </AlertDescription>
             </Alert>
           </div>
-          <DialogFooter>
-            <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Close</Button>
-          </DialogFooter>
-      </DialogContent>
-    </Dialog>
+          <ZoruDialogFooter>
+            <ZoruButton type="button" variant="ghost" onClick={() => setOpen(false)}>Close</ZoruButton>
+          </ZoruDialogFooter>
+      </ZoruDialogContent>
+    </ZoruDialog>
   );
 }

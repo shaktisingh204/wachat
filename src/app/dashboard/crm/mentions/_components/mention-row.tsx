@@ -1,9 +1,10 @@
+import { ZoruButton } from '@/components/zoruui';
 'use client';
 
 import * as React from 'react';
 import { AtSign, Check } from 'lucide-react';
 
-import { ClayBadge, ClayButton } from '@/components/clay';
+import { ClayBadge } from '@/components/clay';
 import { useToast } from '@/hooks/use-toast';
 import { markMentionRead } from '@/app/actions/worksuite/chat.actions';
 import type { WsMentionUser } from '@/lib/worksuite/chat-types';
@@ -64,7 +65,7 @@ export function MentionRow({ mention }: MentionRowProps) {
         </p>
       </div>
       {!read ? (
-        <ClayButton
+        <ZoruButton
           size="sm"
           variant="pill"
           onClick={onMarkRead}
@@ -72,7 +73,7 @@ export function MentionRow({ mention }: MentionRowProps) {
           leading={<Check className="h-3.5 w-3.5" />}
         >
           Mark read
-        </ClayButton>
+        </ZoruButton>
       ) : null}
     </li>
   );

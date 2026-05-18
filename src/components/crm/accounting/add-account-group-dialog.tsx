@@ -1,3 +1,4 @@
+import { ZoruButton } from '@/components/zoruui';
 'use client';
 
 import { useState, useRef, useEffect, useActionState } from 'react';
@@ -17,7 +18,6 @@ import { useToast } from "@/hooks/use-toast";
 import { saveCrmAccountGroup } from '@/app/actions/crm-accounting.actions';
 import { Loader2 } from 'lucide-react';
 import { useFormStatus } from 'react-dom';
-import { ClayButton } from '@/components/clay';
 
 const initialState = {
     message: '',
@@ -27,14 +27,14 @@ const initialState = {
 function SubmitButton() {
     const { pending } = useFormStatus();
     return (
-        <ClayButton
+        <ZoruButton
             type="submit"
             variant="obsidian"
             disabled={pending}
             leading={pending ? <Loader2 className="h-4 w-4 animate-spin" /> : undefined}
         >
             Save Group
-        </ClayButton>
+        </ZoruButton>
     );
 }
 
@@ -114,7 +114,7 @@ export function AddAccountGroupDialog({ open, onOpenChange, onGroupAdded, defaul
                         </Select>
                     </div>
                     <DialogFooter>
-                        <ClayButton type="button" variant="pill" onClick={() => onOpenChange(false)}>Cancel</ClayButton>
+                        <ZoruButton type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</ZoruButton>
                         <SubmitButton />
                     </DialogFooter>
                 </form>

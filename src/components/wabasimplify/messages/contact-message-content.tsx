@@ -2,9 +2,9 @@
 
 'use client';
 
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { ZoruCard, ZoruCardHeader, ZoruCardTitle, ZoruCardContent, ZoruButton } from '@/components/zoruui';
 import { User, Phone, Briefcase } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { ZoruButton } from '@/components/zoruui';
 
 interface ContactMessageContentProps {
   contacts: any[]; // The `contacts` array from the message payload
@@ -22,24 +22,24 @@ export function ContactMessageContent({ contacts }: ContactMessageContentProps) 
 
   return (
     <div className="w-64">
-      <Card className="shadow-none border-0 bg-transparent">
-        <CardHeader className="p-2">
+      <ZoruCard className="shadow-none border-0 bg-transparent">
+        <ZoruCardHeader className="p-2">
           <div className="flex items-center gap-2">
             <User className="h-5 w-5 text-primary" />
-            <CardTitle className="text-base">Contact Card</CardTitle>
+            <ZoruCardTitle className="text-base">Contact ZoruCard</ZoruCardTitle>
           </div>
-        </CardHeader>
-        <CardContent className="p-2 space-y-2 text-sm">
+        </ZoruCardHeader>
+        <ZoruCardContent className="p-2 space-y-2 text-sm">
           <p className="font-semibold">{name}</p>
           <div className="text-muted-foreground space-y-1">
             <p className="flex items-center gap-2"><Phone className="h-4 w-4" /> {phone}</p>
             <p className="flex items-center gap-2"><Briefcase className="h-4 w-4" /> {org}</p>
           </div>
-          <Button variant="outline" size="sm" className="w-full mt-2">
+          <ZoruButton variant="outline" size="sm" className="w-full mt-2">
             View Contact
-          </Button>
-        </CardContent>
-      </Card>
+          </ZoruButton>
+        </ZoruCardContent>
+      </ZoruCard>
     </div>
   );
 }

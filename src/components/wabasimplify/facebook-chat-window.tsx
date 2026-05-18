@@ -2,13 +2,13 @@
 'use client';
 
 import type { WithId, Project, FacebookConversation, FacebookMessage } from '@/lib/definitions';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Skeleton } from '../ui/skeleton';
-import { Button } from '../ui/button';
+import { ZoruScrollArea, ZoruButton } from '@/components/zoruui';
+import { ZoruSkeleton } from '../ui/skeleton';
+import { ZoruButton } from '../ui/button';
 import { ArrowLeft, Info, LoaderCircle, Phone, Video } from 'lucide-react';
 import { FacebookChatMessage } from './facebook-chat-message';
 import { FacebookMessageInput } from './facebook-message-input';
-import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { ZoruAvatar, ZoruAvatarFallback, ZoruAvatarImage } from '../ui/avatar';
 import { useEffect, useRef } from 'react';
 
 interface FacebookChatWindowProps {
@@ -33,26 +33,26 @@ export function FacebookChatWindow({ project, conversation, messages, isLoading,
         <div className="flex flex-col h-full bg-transparent">
             <div className="flex items-center justify-between gap-3 p-3 border-b bg-background h-[73px] flex-shrink-0">
                 <div className="flex items-center gap-3">
-                    <Button variant="ghost" size="icon" className="md:hidden" onClick={onBack}>
+                    <ZoruButton variant="ghost" size="icon" className="md:hidden" onClick={onBack}>
                         <ArrowLeft className="h-4 w-4" />
-                    </Button>
-                    <Avatar>
-                        <AvatarImage src={`https://graph.facebook.com/${participant?.id}/picture`} alt={participant?.name || 'U'} data-ai-hint="person avatar"/>
-                        <AvatarFallback>{participant?.name.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
-                    </Avatar>
+                    </ZoruButton>
+                    <ZoruAvatar>
+                        <ZoruAvatarImage src={`https://graph.facebook.com/${participant?.id}/picture`} alt={participant?.name || 'U'} data-ai-hint="person avatar"/>
+                        <ZoruAvatarFallback>{participant?.name.charAt(0).toUpperCase() || 'U'}</ZoruAvatarFallback>
+                    </ZoruAvatar>
                     <div>
                         <p className="font-semibold">{participant?.name}</p>
                         <p className="text-sm text-muted-foreground">online</p>
                     </div>
                 </div>
                  <div className="flex items-center gap-1">
-                    <Button variant="ghost" size="icon" disabled><Phone className="h-5 w-5" /></Button>
-                    <Button variant="ghost" size="icon" disabled><Video className="h-5 w-5" /></Button>
-                    <Button variant="ghost" size="icon"><Info className="h-5 w-5" /></Button>
+                    <ZoruButton variant="ghost" size="icon" disabled><Phone className="h-5 w-5" /></ZoruButton>
+                    <ZoruButton variant="ghost" size="icon" disabled><Video className="h-5 w-5" /></ZoruButton>
+                    <ZoruButton variant="ghost" size="icon"><Info className="h-5 w-5" /></ZoruButton>
                 </div>
             </div>
             
-            <ScrollArea className="flex-1 bg-chat-texture" viewportClassName="scroll-container">
+            <ZoruScrollArea className="flex-1 bg-chat-texture" viewportClassName="scroll-container">
                 <div className="p-4 space-y-4">
                     {isLoading ? (
                         <div className="flex items-center justify-center h-full">
@@ -65,7 +65,7 @@ export function FacebookChatWindow({ project, conversation, messages, isLoading,
                     )}
                     <div ref={messagesEndRef} />
                 </div>
-            </ScrollArea>
+            </ZoruScrollArea>
             
             <div className="flex items-center p-3 border-t bg-background flex-shrink-0">
                 {participant && project.facebookPageId && (

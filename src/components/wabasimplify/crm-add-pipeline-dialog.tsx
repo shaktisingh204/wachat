@@ -2,21 +2,20 @@
 
 import { useTransition, useState } from 'react';
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+    ZoruDialog,
+    ZoruDialogContent,
+    ZoruDialogDescription,
+    ZoruDialogFooter,
+    ZoruDialogHeader,
+    ZoruDialogTitle,
+    ZoruDialogTrigger,
+} from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
 import { LoaderCircle, Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { createCrmPipeline } from '@/app/actions/crm-pipelines.actions';
-import { ClayButton } from '@/components/clay';
 
 interface CrmAddPipelineDialogProps {
     onPipelineAdded: (pipeline: any) => void;
@@ -47,25 +46,25 @@ export function CrmAddPipelineDialog({ onPipelineAdded, defaultOpen = false, def
     };
 
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-                <Button variant="outline" className={defaultName ? "hidden" : ""}>
+        <ZoruDialog open={open} onOpenChange={setOpen}>
+            <ZoruDialogTrigger asChild>
+                <ZoruButton variant="outline" className={defaultName ? "hidden" : ""}>
                     <Plus className="mr-2 h-4 w-4" />
                     New Pipeline
-                </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-md">
+                </ZoruButton>
+            </ZoruDialogTrigger>
+            <ZoruDialogContent className="sm:max-w-md">
                 <form onSubmit={handleSubmit}>
-                    <DialogHeader>
-                        <DialogTitle className="text-foreground">Create New Pipeline</DialogTitle>
-                        <DialogDescription className="text-muted-foreground">
+                    <ZoruDialogHeader>
+                        <ZoruDialogTitle className="text-foreground">Create New Pipeline</ZoruDialogTitle>
+                        <ZoruDialogDescription className="text-muted-foreground">
                             Add a new sales pipeline to your CRM.
-                        </DialogDescription>
-                    </DialogHeader>
+                        </ZoruDialogDescription>
+                    </ZoruDialogHeader>
                     <div className="space-y-4 py-4">
                         <div className="space-y-2">
-                            <Label htmlFor="name" className="text-foreground">Pipeline Name</Label>
-                            <Input
+                            <ZoruLabel htmlFor="name" className="text-foreground">Pipeline Name</ZoruLabel>
+                            <ZoruInput
                                 id="name"
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
@@ -74,19 +73,19 @@ export function CrmAddPipelineDialog({ onPipelineAdded, defaultOpen = false, def
                             />
                         </div>
                     </div>
-                    <DialogFooter>
-                        <ClayButton type="button" variant="pill" onClick={() => setOpen(false)}>Cancel</ClayButton>
-                        <ClayButton
+                    <ZoruDialogFooter>
+                        <ZoruButton type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</ZoruButton>
+                        <ZoruButton
                             type="submit"
                             variant="obsidian"
                             disabled={isPending}
                             leading={isPending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : undefined}
                         >
                             Create Pipeline
-                        </ClayButton>
-                    </DialogFooter>
+                        </ZoruButton>
+                    </ZoruDialogFooter>
                 </form>
-            </DialogContent>
-        </Dialog>
+            </ZoruDialogContent>
+        </ZoruDialog>
     );
 }

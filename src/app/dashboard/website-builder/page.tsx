@@ -4,9 +4,9 @@
 import { useEffect, useState, useTransition, useCallback } from 'react';
 import { getSites } from '@/app/actions/portfolio.actions';
 import type { WithId, Website } from '@/lib/definitions';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
+import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardFooter, ZoruCardHeader, ZoruCardTitle, ZoruButton } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruSkeleton } from '@/components/zoruui';
 import { ArrowRight, Globe } from 'lucide-react';
 import { CreatePortfolioDialog } from '@/components/wabasimplify/create-portfolio-dialog';
 import { useRouter } from 'next/navigation';
@@ -16,13 +16,13 @@ function PageSkeleton() {
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <div className="space-y-2">
-                    <Skeleton className="h-8 w-64" />
-                    <Skeleton className="h-4 w-96" />
+                    <ZoruSkeleton className="h-8 w-64" />
+                    <ZoruSkeleton className="h-4 w-96" />
                 </div>
-                <Skeleton className="h-10 w-40" />
+                <ZoruSkeleton className="h-10 w-40" />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-48 w-full" />)}
+                {[...Array(3)].map((_, i) => <ZoruSkeleton key={i} className="h-48 w-full" />)}
             </div>
         </div>
     );
@@ -36,20 +36,20 @@ function SiteCard({ site }: { site: WithId<Website> }) {
     }
 
     return (
-        <Card className="flex flex-col">
-            <CardHeader>
-                <CardTitle>{site.name}</CardTitle>
-                <CardDescription>Slug: {site.slug}</CardDescription>
-            </CardHeader>
-            <CardContent className="flex-grow">
+        <ZoruCard className="flex flex-col">
+            <ZoruCardHeader>
+                <ZoruCardTitle>{site.name}</ZoruCardTitle>
+                <ZoruCardDescription>Slug: {site.slug}</ZoruCardDescription>
+            </ZoruCardHeader>
+            <ZoruCardContent className="flex-grow">
                 <p className="text-sm text-muted-foreground">Created: {new Date(site.createdAt).toLocaleDateString()}</p>
-            </CardContent>
-            <CardFooter>
-                 <Button onClick={handleManage} className="w-full">
+            </ZoruCardContent>
+            <ZoruCardFooter>
+                 <ZoruButton onClick={handleManage} className="w-full">
                     Manage <ArrowRight className="ml-2 h-4 w-4"/>
-                </Button>
-            </CardFooter>
-        </Card>
+                </ZoruButton>
+            </ZoruCardFooter>
+        </ZoruCard>
     );
 }
 

@@ -2,16 +2,16 @@
 'use client';
 
 import * as React from 'react';
-import { Button } from '@/components/ui/button';
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-    DropdownMenuGroup,
-} from '@/components/ui/dropdown-menu';
+    ZoruDropdownMenu,
+    ZoruDropdownMenuContent,
+    ZoruDropdownMenuItem,
+    ZoruDropdownMenuLabel,
+    ZoruDropdownMenuSeparator,
+    ZoruDropdownMenuTrigger,
+    ZoruDropdownMenuGroup,
+} from '@/components/zoruui';
 import { ChevronsUpDown, Check, LayoutTemplate, File, ShoppingCart } from 'lucide-react';
 import type { WithId, EcommPage, EcommShop, Website, WebsitePage } from '@/lib/definitions';
 
@@ -38,39 +38,39 @@ export function SurfaceSwitcher({ shop, pages, activeSurface, onSwitch }: Surfac
     const activeSurfaceLabel =
         siteParts.find(p => p.id === activeSurface)?.name ||
         allPages.find(p => p._id.toString() === activeSurface)?.name ||
-        'Select a Page';
+        'ZoruSelect a Page';
 
     return (
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="w-56 justify-between">
+        <ZoruDropdownMenu>
+            <ZoruDropdownMenuTrigger asChild>
+                <ZoruButton variant="outline" className="w-56 justify-between">
                     <span className="truncate">{activeSurfaceLabel}</span>
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56">
-                <DropdownMenuLabel>Site Parts</DropdownMenuLabel>
-                <DropdownMenuGroup>
+                </ZoruButton>
+            </ZoruDropdownMenuTrigger>
+            <ZoruDropdownMenuContent className="w-56">
+                <ZoruDropdownMenuLabel>Site Parts</ZoruDropdownMenuLabel>
+                <ZoruDropdownMenuGroup>
                     {siteParts.map(part => (
-                        <DropdownMenuItem key={part.id} onSelect={() => onSwitch(part.id)}>
+                        <ZoruDropdownMenuItem key={part.id} onSelect={() => onSwitch(part.id)}>
                             <LayoutTemplate className="mr-2 h-4 w-4" />
                             <span>{part.name}</span>
                             {activeSurface === part.id && <Check className="ml-auto h-4 w-4" />}
-                        </DropdownMenuItem>
+                        </ZoruDropdownMenuItem>
                     ))}
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuLabel>Pages</DropdownMenuLabel>
-                <DropdownMenuGroup>
+                </ZoruDropdownMenuGroup>
+                <ZoruDropdownMenuSeparator />
+                <ZoruDropdownMenuLabel>Pages</ZoruDropdownMenuLabel>
+                <ZoruDropdownMenuGroup>
                     {allPages.map(page => (
-                        <DropdownMenuItem key={page._id.toString()} onSelect={() => onSwitch(page._id.toString())}>
+                        <ZoruDropdownMenuItem key={page._id.toString()} onSelect={() => onSwitch(page._id.toString())}>
                             <File className="mr-2 h-4 w-4" />
                             <span>{page.name}</span>
                             {activeSurface === page._id.toString() && <Check className="ml-auto h-4 w-4" />}
-                        </DropdownMenuItem>
+                        </ZoruDropdownMenuItem>
                     ))}
-                </DropdownMenuGroup>
-            </DropdownMenuContent>
-        </DropdownMenu>
+                </ZoruDropdownMenuGroup>
+            </ZoruDropdownMenuContent>
+        </ZoruDropdownMenu>
     );
 }

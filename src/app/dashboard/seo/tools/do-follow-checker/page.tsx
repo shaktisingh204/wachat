@@ -1,13 +1,13 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
 void _zoruCn;
 
 import { useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
 import { apiFetchUrl, parseHtml } from '@/lib/seo-tools/api-client';
 
 export default function DoFollowCheckerPage() {
@@ -46,26 +46,26 @@ export default function DoFollowCheckerPage() {
   return (
     <ToolShell title="DoFollow / NoFollow Checker" description="Split a page's outbound links into DoFollow vs NoFollow buckets.">
       <div className="flex gap-2">
-        <Input
+        <ZoruInput
           placeholder="https://example.com"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
         />
-        <Button onClick={run} disabled={loading || !url}>
+        <ZoruButton onClick={run} disabled={loading || !url}>
           {loading ? 'Checking…' : 'Check'}
-        </Button>
+        </ZoruButton>
       </div>
 
       {error && (
-        <Card className="border-red-500/50">
-          <CardContent className="p-4 text-sm text-red-500">{error}</CardContent>
-        </Card>
+        <ZoruCard className="border-red-500/50">
+          <ZoruCardContent className="p-4 text-sm text-red-500">{error}</ZoruCardContent>
+        </ZoruCard>
       )}
 
       {data && (
         <div className="grid md:grid-cols-2 gap-4">
-          <Card>
-            <CardContent className="p-4 space-y-2">
+          <ZoruCard>
+            <ZoruCardContent className="p-4 space-y-2">
               <div className="text-sm font-semibold">DoFollow ({data.dofollow.length})</div>
               <div className="space-y-1 max-h-96 overflow-auto">
                 {data.dofollow.slice(0, 50).map((l, i) => (
@@ -74,10 +74,10 @@ export default function DoFollowCheckerPage() {
                   </div>
                 ))}
               </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4 space-y-2">
+            </ZoruCardContent>
+          </ZoruCard>
+          <ZoruCard>
+            <ZoruCardContent className="p-4 space-y-2">
               <div className="text-sm font-semibold">NoFollow ({data.nofollow.length})</div>
               <div className="space-y-1 max-h-96 overflow-auto">
                 {data.nofollow.slice(0, 50).map((l, i) => (
@@ -86,8 +86,8 @@ export default function DoFollowCheckerPage() {
                   </div>
                 ))}
               </div>
-            </CardContent>
-          </Card>
+            </ZoruCardContent>
+          </ZoruCard>
         </div>
       )}
     </ToolShell>

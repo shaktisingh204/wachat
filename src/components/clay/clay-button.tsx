@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Button, type ButtonProps } from '@/components/ui/button';
+import { ZoruButton, type ZoruButtonProps } from '@/components/zoruui';
 import { cn } from '@/lib/utils';
 
 type Variant =
@@ -22,16 +22,14 @@ export interface ClayButtonProps
 }
 
 /**
- * Map clay variants → shadcn Button variants.
- * `obsidian` and `rose` are SabNode's primary CTAs; both lean on
- * shadcn's `default` (which is the indigo gradient) — we then layer
- * tone-specific overrides so the buttons read the way the design
- * reference expects.
+ * Map clay variants → ZoruButton variants. ClayButton is now a thin
+ * back-compat wrapper around ZoruButton for the public-facing pages
+ * and dashboards that still reference it.
  */
-const variantToButton: Record<Variant, ButtonProps['variant']> = {
+const variantToZoru: Record<Variant, ZoruButtonProps['variant']> = {
   obsidian: 'default',
   rose: 'default',
-  'rose-soft': 'outline',
+  'rose-soft': 'secondary',
   pill: 'outline',
   ghost: 'ghost',
 };
@@ -53,11 +51,11 @@ const variantOverride: Record<Variant, string> = {
     'rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary',
 };
 
-const sizeClass: Record<Size, string> = {
-  sm: 'h-8 px-3 text-[12.5px]',
-  md: 'h-9 px-4 text-[13px]',
-  lg: 'h-11 px-5 text-[14px]',
-  icon: 'h-9 w-9 p-0 text-[13px]',
+const sizeToZoru: Record<Size, ZoruButtonProps['size']> = {
+  sm: 'sm',
+  md: 'md',
+  lg: 'lg',
+  icon: 'icon',
 };
 
 export const ClayButton = React.forwardRef<HTMLButtonElement, ClayButtonProps>(
@@ -74,18 +72,12 @@ export const ClayButton = React.forwardRef<HTMLButtonElement, ClayButtonProps>(
     },
     ref,
   ) => (
-    <Button
+    <ZoruButton
       ref={ref}
       type={type}
-      noMotion
-      variant={variantToButton[variant]}
-      className={cn(
-        // gap and leading-none keep the leading/trailing icon spacing tight
-        'gap-2 font-medium leading-none',
-        sizeClass[size],
-        variantOverride[variant],
-        className,
-      )}
+      variant={variantToZoru[variant]}
+      size={sizeToZoru[size]}
+      className={cn('gap-2 font-medium leading-none', variantOverride[variant], className)}
       {...props}
     >
       {leading ? (
@@ -95,7 +87,7 @@ export const ClayButton = React.forwardRef<HTMLButtonElement, ClayButtonProps>(
       {trailing ? (
         <span className="flex shrink-0 items-center">{trailing}</span>
       ) : null}
-    </Button>
+    </ZoruButton>
   ),
 );
 ClayButton.displayName = 'ClayButton';

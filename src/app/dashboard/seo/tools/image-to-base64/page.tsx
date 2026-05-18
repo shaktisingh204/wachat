@@ -1,14 +1,14 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
 void _zoruCn;
 
 import { useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
+import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruTextarea } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
 export default function ImageToBase64Page() {
@@ -27,23 +27,23 @@ export default function ImageToBase64Page() {
 
   return (
     <ToolShell title="Image to Base64" description="Convert an image to a base64 data URL.">
-      <Card>
-        <CardContent className="p-4 space-y-4">
+      <ZoruCard>
+        <ZoruCardContent className="p-4 space-y-4">
           <div>
-            <Label>Image file</Label>
-            <Input type="file" accept="image/*" onChange={(e) => onFile(e.target.files?.[0] || null)} />
+            <ZoruLabel>Image file</ZoruLabel>
+            <ZoruInput type="file" accept="image/*" onChange={(e) => onFile(e.target.files?.[0] || null)} />
           </div>
           {err && <div className="text-sm text-destructive">{err}</div>}
           {b64 && (
             <>
-              <Textarea value={b64} readOnly className="min-h-[200px] font-mono text-xs" />
-              <Button onClick={() => navigator.clipboard.writeText(b64)}>Copy to clipboard</Button>
+              <ZoruTextarea value={b64} readOnly className="min-h-[200px] font-mono text-xs" />
+              <ZoruButton onClick={() => navigator.clipboard.writeText(b64)}>Copy to clipboard</ZoruButton>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={b64} alt="Preview" className="max-w-full rounded border" />
             </>
           )}
-        </CardContent>
-      </Card>
+        </ZoruCardContent>
+      </ZoruCard>
     </ToolShell>
   );
 }

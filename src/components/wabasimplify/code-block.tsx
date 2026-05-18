@@ -2,7 +2,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
 import { Copy, Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -28,7 +28,7 @@ export function CodeBlock({ code, language, className, wrap }: CodeBlockProps) {
 
   return (
     <div className={cn("relative rounded-lg bg-muted/50 p-4 font-mono text-sm", className)}>
-      <Button
+      <ZoruButton
         size="icon"
         variant="ghost"
         className="absolute right-2 top-2 h-7 w-7"
@@ -36,7 +36,7 @@ export function CodeBlock({ code, language, className, wrap }: CodeBlockProps) {
       >
         {hasCopied ? <Check className="h-4 w-4 text-primary" /> : <Copy className="h-4 w-4" />}
         <span className="sr-only">Copy code</span>
-      </Button>
+      </ZoruButton>
       <pre className={cn("overflow-hidden", wrap && "whitespace-pre-wrap break-all")}>
         <code
           className={cn(

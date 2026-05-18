@@ -1,14 +1,14 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
 void _zoruCn;
 
 import { useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruBadge } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { apiFetchUrl, parseHtml } from '@/lib/seo-tools/api-client';
 
@@ -39,24 +39,24 @@ export default function ImageAltCheckerPage() {
 
   return (
     <ToolShell title="Image Alt Checker" description="Audit a page for images missing descriptive alt text.">
-      <Card>
-        <CardContent className="p-4 space-y-4">
+      <ZoruCard>
+        <ZoruCardContent className="p-4 space-y-4">
           <div>
-            <Label>Page URL</Label>
-            <Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com" />
+            <ZoruLabel>Page URL</ZoruLabel>
+            <ZoruInput value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com" />
           </div>
-          <Button onClick={run} disabled={loading || !url.trim()}>
+          <ZoruButton onClick={run} disabled={loading || !url.trim()}>
             {loading ? 'Checking…' : 'Check'}
-          </Button>
+          </ZoruButton>
           {err && <div className="text-sm text-destructive">{err}</div>}
-        </CardContent>
-      </Card>
+        </ZoruCardContent>
+      </ZoruCard>
       {images.length > 0 && (
-        <Card>
-          <CardContent className="p-4 space-y-3">
+        <ZoruCard>
+          <ZoruCardContent className="p-4 space-y-3">
             <div className="text-sm">
-              <Badge variant="secondary">{images.length} images</Badge>{' '}
-              <Badge variant={missing ? 'destructive' : 'default'}>{missing} missing alt</Badge>
+              <ZoruBadge variant="secondary">{images.length} images</ZoruBadge>{' '}
+              <ZoruBadge variant={missing ? 'destructive' : 'default'}>{missing} missing alt</ZoruBadge>
             </div>
             <div className="space-y-2">
               {images.map((img, i) => {
@@ -72,8 +72,8 @@ export default function ImageAltCheckerPage() {
                 );
               })}
             </div>
-          </CardContent>
-        </Card>
+          </ZoruCardContent>
+        </ZoruCard>
       )}
     </ToolShell>
   );

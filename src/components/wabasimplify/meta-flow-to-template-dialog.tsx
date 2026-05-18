@@ -3,19 +3,19 @@
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruDialogTrigger,
+} from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
+import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
+import { ZoruTextarea } from '@/components/zoruui';
 import { LoaderCircle, Send } from 'lucide-react';
 import { handleCreateFlowTemplate } from '@/app/actions/template.actions';
 import { useToast } from '@/hooks/use-toast';
@@ -27,10 +27,10 @@ const initialState = { message: undefined, error: undefined, payload: undefined 
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" disabled={pending}>
+    <ZoruButton type="submit" disabled={pending}>
       {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
       Create Template
-    </Button>
+    </ZoruButton>
   );
 }
 
@@ -83,65 +83,65 @@ export function MetaFlowToTemplateDialog({ flow }: MetaFlowToTemplateDialogProps
   }, [state, toast]);
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="secondary" size="sm"><Send className="mr-2 h-4 w-4" />Create Send Template</Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col overflow-hidden p-0">
+    <ZoruDialog open={open} onOpenChange={setOpen}>
+      <ZoruDialogTrigger asChild>
+        <ZoruButton variant="secondary" size="sm"><Send className="mr-2 h-4 w-4" />Create Send Template</ZoruButton>
+      </ZoruDialogTrigger>
+      <ZoruDialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col overflow-hidden p-0">
         <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
           <input type="hidden" name="projectId" value={flow.projectId.toString()} />
           <input type="hidden" name="flowId" value={flow.metaId} />
-          <DialogHeader className="px-6 pt-6 pb-2">
-            <DialogTitle>Create Template for Flow</DialogTitle>
-            <DialogDescription>
+          <ZoruDialogHeader className="px-6 pt-6 pb-2">
+            <ZoruDialogTitle>Create Template for Flow</ZoruDialogTitle>
+            <ZoruDialogDescription>
               Create a message template with a button to trigger the "{flow.name}" flow.
-            </DialogDescription>
-          </DialogHeader>
+            </ZoruDialogDescription>
+          </ZoruDialogHeader>
 
           <div className="flex-1 overflow-y-auto px-6 py-2">
             <div className="grid gap-4">
               <div className="space-y-2">
-                <Label htmlFor="templateName">Template Name</Label>
-                <Input id="templateName" name="templateName" placeholder="e.g., start_support_flow" required />
+                <ZoruLabel htmlFor="templateName">Template Name</ZoruLabel>
+                <ZoruInput id="templateName" name="templateName" placeholder="e.g., start_support_flow" required />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="language">Language</Label>
-                  <Select name="language" defaultValue="en_US" required>
-                    <SelectTrigger id="language"><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      {languages.map(lang => <SelectItem key={lang.code} value={lang.code}>{lang.name}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
+                  <ZoruLabel htmlFor="language">Language</ZoruLabel>
+                  <ZoruSelect name="language" defaultValue="en_US" required>
+                    <ZoruSelectTrigger id="language"><ZoruSelectValue /></ZoruSelectTrigger>
+                    <ZoruSelectContent>
+                      {languages.map(lang => <ZoruSelectItem key={lang.code} value={lang.code}>{lang.name}</ZoruSelectItem>)}
+                    </ZoruSelectContent>
+                  </ZoruSelect>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="category">Category</Label>
-                  <Select name="category" required>
-                    <SelectTrigger id="category"><SelectValue placeholder="Select..." /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="MARKETING">Marketing</SelectItem>
-                      <SelectItem value="UTILITY">Utility</SelectItem>
-                      <SelectItem value="AUTHENTICATION">Authentication</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <ZoruLabel htmlFor="category">Category</ZoruLabel>
+                  <ZoruSelect name="category" required>
+                    <ZoruSelectTrigger id="category"><ZoruSelectValue placeholder="ZoruSelect..." /></ZoruSelectTrigger>
+                    <ZoruSelectContent>
+                      <ZoruSelectItem value="MARKETING">Marketing</ZoruSelectItem>
+                      <ZoruSelectItem value="UTILITY">Utility</ZoruSelectItem>
+                      <ZoruSelectItem value="AUTHENTICATION">Authentication</ZoruSelectItem>
+                    </ZoruSelectContent>
+                  </ZoruSelect>
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="bodyText">Body Text</Label>
-                <Textarea id="bodyText" name="bodyText" placeholder="This message will appear above the button." required />
+                <ZoruLabel htmlFor="bodyText">Body Text</ZoruLabel>
+                <ZoruTextarea id="bodyText" name="bodyText" placeholder="This message will appear above the button." required />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="buttonText">Button Text</Label>
-                <Input id="buttonText" name="buttonText" placeholder="e.g., Start Support Chat" required />
+                <ZoruLabel htmlFor="buttonText">ZoruButton Text</ZoruLabel>
+                <ZoruInput id="buttonText" name="buttonText" placeholder="e.g., Start Support Chat" required />
               </div>
             </div>
           </div>
-          <DialogFooter className="px-6 pb-6 pt-2">
-            <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
+          <ZoruDialogFooter className="px-6 pb-6 pt-2">
+            <ZoruButton type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</ZoruButton>
             <SubmitButton />
-          </DialogFooter>
+          </ZoruDialogFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+      </ZoruDialogContent>
+    </ZoruDialog>
   );
 }

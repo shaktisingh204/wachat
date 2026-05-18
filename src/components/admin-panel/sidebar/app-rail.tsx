@@ -4,8 +4,8 @@ import * as React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { ZoruTooltip, ZoruTooltipContent, ZoruTooltipTrigger } from '@/components/zoruui';
+import { ZoruAvatar, ZoruAvatarFallback, ZoruAvatarImage } from '@/components/zoruui';
 import {
     Home,
     Settings,
@@ -160,24 +160,24 @@ export function AppRail({ activeApp }: AppRailProps) {
                 <Divider />
 
                 {/* User avatar → user settings */}
-                <Tooltip>
-                    <TooltipTrigger asChild>
+                <ZoruTooltip>
+                    <ZoruTooltipTrigger asChild>
                         <Link
                             href="/dashboard/user/profile"
                             className="flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-200 hover:scale-105 mt-0.5"
                         >
-                            <Avatar className="h-8 w-8 ring-2 ring-transparent hover:ring-border transition-all duration-200">
-                                <AvatarImage src={avatarSrc} />
-                                <AvatarFallback className="text-[11px] font-bold bg-secondary text-foreground">
+                            <ZoruAvatar className="h-8 w-8 ring-2 ring-transparent hover:ring-border transition-all duration-200">
+                                <ZoruAvatarImage src={avatarSrc} />
+                                <ZoruAvatarFallback className="text-[11px] font-bold bg-secondary text-foreground">
                                     {initials}
-                                </AvatarFallback>
-                            </Avatar>
+                                </ZoruAvatarFallback>
+                            </ZoruAvatar>
                         </Link>
-                    </TooltipTrigger>
-                    <TooltipContent side="right" sideOffset={12}>
+                    </ZoruTooltipTrigger>
+                    <ZoruTooltipContent side="right" sideOffset={12}>
                         <p>{(sessionUser as any)?.name || 'Profile'}</p>
-                    </TooltipContent>
-                </Tooltip>
+                    </ZoruTooltipContent>
+                </ZoruTooltip>
 
                 {/* Logout */}
                 <RailItem
@@ -212,8 +212,8 @@ function RailItem({
     destructive?: boolean;
 }) {
     return (
-        <Tooltip>
-            <TooltipTrigger asChild>
+        <ZoruTooltip>
+            <ZoruTooltipTrigger asChild>
                 <Link
                     href={href}
                     prefetch={prefetch}
@@ -233,11 +233,11 @@ function RailItem({
                     <Icon className="h-[18px] w-[18px] shrink-0" />
                     <span className="sr-only">{label}</span>
                 </Link>
-            </TooltipTrigger>
-            <TooltipContent side="right" sideOffset={12}>
+            </ZoruTooltipTrigger>
+            <ZoruTooltipContent side="right" sideOffset={12}>
                 <p>{label}</p>
-            </TooltipContent>
-        </Tooltip>
+            </ZoruTooltipContent>
+        </ZoruTooltip>
     );
 }
 

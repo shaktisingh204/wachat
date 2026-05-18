@@ -1,12 +1,12 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
 void _zoruCn;
 
 import { useState } from 'react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { apiFetchUrl } from '@/lib/seo-tools/api-client';
 
@@ -29,14 +29,14 @@ export default function RobotsTxtTesterPage() {
   return (
     <ToolShell title="Robots.txt Tester" description="Fetch and inspect a site's robots.txt file.">
       <div className="flex gap-2">
-        <Input value={domain} onChange={(e) => setDomain(e.target.value)} placeholder="example.com" />
-        <Button onClick={run} disabled={loading}>{loading ? 'Fetching…' : 'Fetch'}</Button>
+        <ZoruInput value={domain} onChange={(e) => setDomain(e.target.value)} placeholder="example.com" />
+        <ZoruButton onClick={run} disabled={loading}>{loading ? 'Fetching…' : 'Fetch'}</ZoruButton>
       </div>
-      {error && <Card className="border-red-500"><CardContent className="p-4 text-red-600 text-sm">{error}</CardContent></Card>}
+      {error && <ZoruCard className="border-red-500"><ZoruCardContent className="p-4 text-red-600 text-sm">{error}</ZoruCardContent></ZoruCard>}
       {content && (
-        <Card><CardContent className="p-4">
+        <ZoruCard><ZoruCardContent className="p-4">
           <pre className="text-xs bg-muted p-3 rounded overflow-auto whitespace-pre-wrap max-h-96">{content}</pre>
-        </CardContent></Card>
+        </ZoruCardContent></ZoruCard>
       )}
     </ToolShell>
   );

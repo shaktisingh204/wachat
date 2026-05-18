@@ -1,16 +1,16 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { ZoruCard, ZoruCardHeader, ZoruCardTitle, ZoruCardContent, ZoruCardDescription, ZoruButton } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
 import { IndianRupee, LoaderCircle, CheckCircle2, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { createPayuWalletTopup } from '@/app/actions/payu.actions';
 import type { User, WithId } from '@/lib/definitions';
 import { useSearchParams } from 'next/navigation';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { ZoruAlert, ZoruAlertDescription } from '@/components/zoruui';
 
 /**
  * Submits a PayU checkout payload as a hidden HTML form.
@@ -81,33 +81,33 @@ export function WalletCard({ user }: { user: WithId<User> }) {
     const currency = user.wallet?.currency || 'INR';
 
     return (
-        <Card>
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+        <ZoruCard>
+            <ZoruCardHeader>
+                <ZoruCardTitle className="flex items-center gap-2">
                     <IndianRupee className="h-6 w-6" />
                     Your Wallet
-                </CardTitle>
-                <CardDescription>
+                </ZoruCardTitle>
+                <ZoruCardDescription>
                     Your current account balance.
-                </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
+                </ZoruCardDescription>
+            </ZoruCardHeader>
+            <ZoruCardContent className="space-y-4">
                 {/* Payment result banners */}
                 {paymentStatus === 'success' && paymentType === 'wallet' && (
-                    <Alert>
+                    <ZoruAlert>
                         <CheckCircle2 className="h-4 w-4" />
-                        <AlertDescription>
+                        <ZoruAlertDescription>
                             Wallet topped up successfully! Your balance has been updated.
-                        </AlertDescription>
-                    </Alert>
+                        </ZoruAlertDescription>
+                    </ZoruAlert>
                 )}
                 {paymentStatus === 'failed' && (
-                    <Alert variant="destructive">
+                    <ZoruAlert variant="destructive">
                         <AlertCircle className="h-4 w-4" />
-                        <AlertDescription>
+                        <ZoruAlertDescription>
                             Payment failed. No money was deducted. Please try again.
-                        </AlertDescription>
-                    </Alert>
+                        </ZoruAlertDescription>
+                    </ZoruAlert>
                 )}
 
                 <div className="text-4xl font-bold">
@@ -134,8 +134,8 @@ export function WalletCard({ user }: { user: WithId<User> }) {
 
                 <form onSubmit={handleAddFunds} className="space-y-3">
                     <div className="space-y-1">
-                        <Label htmlFor="amount">Amount (INR)</Label>
-                        <Input
+                        <ZoruLabel htmlFor="amount">Amount (INR)</ZoruLabel>
+                        <ZoruInput
                             id="amount"
                             name="amount"
                             type="number"
@@ -146,19 +146,19 @@ export function WalletCard({ user }: { user: WithId<User> }) {
                             step="100"
                         />
                     </div>
-                    <Button type="submit" className="w-full" disabled={isPending}>
+                    <ZoruButton type="submit" className="w-full" disabled={isPending}>
                         {isPending ? (
                             <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
                         ) : (
                             <IndianRupee className="mr-2 h-4 w-4" />
                         )}
                         Add ₹{amount.toLocaleString('en-IN')}
-                    </Button>
+                    </ZoruButton>
                     <p className="text-center text-[11px] text-muted-foreground">
                         Secure payment via PayU
                     </p>
                 </form>
-            </CardContent>
-        </Card>
+            </ZoruCardContent>
+        </ZoruCard>
     );
 }

@@ -2,11 +2,11 @@
 'use client';
 
 import { useState, useEffect, useTransition } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
+import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardHeader, ZoruCardTitle, ZoruButton } from '@/components/zoruui';
+import { ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/zoruui';
+import { ZoruBadge } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruSkeleton } from '@/components/zoruui';
 import { Eye, Trash2, LoaderCircle } from 'lucide-react';
 import type { WithId } from 'mongodb';
 import { getQrCodes, deleteQrCode } from '@/app/actions/qr-code.actions';
@@ -14,16 +14,16 @@ type QrCode = any;
 type QrCodeWithShortUrl = any;
 import { QrCodeDialog } from './qr-code-dialog';
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruAlertDialogTrigger,
+} from '@/components/zoruui';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 
@@ -45,23 +45,23 @@ function DeleteQrCodeButton({ qrCode, onDeleted }: { qrCode: WithId<QrCode>, onD
     }
 
     return (
-        <AlertDialog>
-            <AlertDialogTrigger asChild>
-                <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive"/></Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-                <AlertDialogHeader>
-                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                    <AlertDialogDescription>This will permanently delete the QR code "{qrCode.name}". This action cannot be undone.</AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleDelete} disabled={isPending}>
+        <ZoruAlertDialog>
+            <ZoruAlertDialogTrigger asChild>
+                <ZoruButton variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive"/></ZoruButton>
+            </ZoruAlertDialogTrigger>
+            <ZoruAlertDialogContent>
+                <ZoruAlertDialogHeader>
+                    <ZoruAlertDialogTitle>Are you sure?</ZoruAlertDialogTitle>
+                    <ZoruAlertDialogDescription>This will permanently delete the QR code "{qrCode.name}". This action cannot be undone.</ZoruAlertDialogDescription>
+                </ZoruAlertDialogHeader>
+                <ZoruAlertDialogFooter>
+                    <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+                    <ZoruAlertDialogAction onClick={handleDelete} disabled={isPending}>
                         {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />} Delete
-                    </AlertDialogAction>
-                </AlertDialogFooter>
-            </AlertDialogContent>
-        </AlertDialog>
+                    </ZoruAlertDialogAction>
+                </ZoruAlertDialogFooter>
+            </ZoruAlertDialogContent>
+        </ZoruAlertDialog>
     );
 }
 
@@ -112,57 +112,57 @@ export function SavedQrCodes({ initialQrCodes }: { initialQrCodes: WithId<QrCode
             open={!!selectedQrData}
             onOpenChange={(open) => !open && setSelectedQrData(null)}
         />
-        <Card className="card-gradient card-gradient-purple">
-            <CardHeader>
-                <CardTitle>Your Saved QR Codes</CardTitle>
-            </CardHeader>
-            <CardContent>
+        <ZoruCard className="card-gradient card-gradient-purple">
+            <ZoruCardHeader>
+                <ZoruCardTitle>Your Saved QR Codes</ZoruCardTitle>
+            </ZoruCardHeader>
+            <ZoruCardContent>
                 <div className="border rounded-md">
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Name</TableHead>
-                                <TableHead>Type</TableHead>
-                                <TableHead>Data Preview</TableHead>
-                                <TableHead>Created</TableHead>
-                                <TableHead className="text-right">Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {isLoading ? <TableRow><TableCell colSpan={5}><Skeleton className="h-10 w-full"/></TableCell></TableRow>
+                    <ZoruTable>
+                        <ZoruTableHeader>
+                            <ZoruTableRow>
+                                <ZoruTableHead>Name</ZoruTableHead>
+                                <ZoruTableHead>Type</ZoruTableHead>
+                                <ZoruTableHead>Data Preview</ZoruTableHead>
+                                <ZoruTableHead>Created</ZoruTableHead>
+                                <ZoruTableHead className="text-right">Actions</ZoruTableHead>
+                            </ZoruTableRow>
+                        </ZoruTableHeader>
+                        <ZoruTableBody>
+                            {isLoading ? <ZoruTableRow><ZoruTableCell colSpan={5}><ZoruSkeleton className="h-10 w-full"/></ZoruTableCell></ZoruTableRow>
                             : qrCodes.length > 0 ? qrCodes.map(code => (
-                                <TableRow key={code._id.toString()}>
-                                    <TableCell className="font-medium">{code.name}</TableCell>
-                                    <TableCell>
+                                <ZoruTableRow key={code._id.toString()}>
+                                    <ZoruTableCell className="font-medium">{code.name}</ZoruTableCell>
+                                    <ZoruTableCell>
                                         <div className="flex flex-col gap-1">
-                                            <Badge variant="outline" className="capitalize">{code.dataType}</Badge>
-                                            {code.shortUrl && <Badge variant="secondary">Dynamic</Badge>}
+                                            <ZoruBadge variant="outline" className="capitalize">{code.dataType}</ZoruBadge>
+                                            {code.shortUrl && <ZoruBadge variant="secondary">Dynamic</ZoruBadge>}
                                         </div>
-                                    </TableCell>
-                                    <TableCell className="text-muted-foreground truncate max-w-xs font-mono text-xs">
+                                    </ZoruTableCell>
+                                    <ZoruTableCell className="text-muted-foreground truncate max-w-xs font-mono text-xs">
                                         {code.shortUrl ? (
-                                            <Button asChild variant="outline" size="sm">
+                                            <ZoruButton asChild variant="outline" size="sm">
                                                 <Link href={`/dashboard/url-shortener/${code.shortUrl._id}`}>
                                                     View Analytics
                                                 </Link>
-                                            </Button>
+                                            </ZoruButton>
                                         ) : (
                                             generateDataString(code)
                                         )}
-                                    </TableCell>
-                                    <TableCell>{new Date(code.createdAt).toLocaleDateString()}</TableCell>
-                                    <TableCell className="text-right">
-                                        <Button variant="ghost" size="icon" onClick={() => handleViewQr(code)}><Eye className="h-4 w-4"/></Button>
+                                    </ZoruTableCell>
+                                    <ZoruTableCell>{new Date(code.createdAt).toLocaleDateString()}</ZoruTableCell>
+                                    <ZoruTableCell className="text-right">
+                                        <ZoruButton variant="ghost" size="icon" onClick={() => handleViewQr(code)}><Eye className="h-4 w-4"/></ZoruButton>
                                         <DeleteQrCodeButton qrCode={code} onDeleted={fetchData} />
-                                    </TableCell>
-                                </TableRow>
+                                    </ZoruTableCell>
+                                </ZoruTableRow>
                             ))
-                            : <TableRow><TableCell colSpan={5} className="text-center h-24">No QR codes saved yet.</TableCell></TableRow>}
-                        </TableBody>
-                    </Table>
+                            : <ZoruTableRow><ZoruTableCell colSpan={5} className="text-center h-24">No QR codes saved yet.</ZoruTableCell></ZoruTableRow>}
+                        </ZoruTableBody>
+                    </ZoruTable>
                 </div>
-            </CardContent>
-        </Card>
+            </ZoruCardContent>
+        </ZoruCard>
         </>
     );
 }

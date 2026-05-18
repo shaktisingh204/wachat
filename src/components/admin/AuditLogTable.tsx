@@ -13,16 +13,16 @@
 import * as React from 'react';
 import { Search, ShieldAlert, ShieldCheck } from 'lucide-react';
 
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
+import { ZoruBadge } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table';
+    ZoruTable,
+    ZoruTableBody,
+    ZoruTableCell,
+    ZoruTableHead,
+    ZoruTableHeader,
+    ZoruTableRow,
+} from '@/components/zoruui';
 import { cn } from '@/lib/utils';
 
 import type {
@@ -225,7 +225,7 @@ export function AuditLogTable({ summary }: AuditLogTableProps) {
                         </label>
                         <div className="relative mt-1">
                             <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                            <Input
+                            <ZoruInput
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                                 placeholder="actor, action, resource…"
@@ -237,7 +237,7 @@ export function AuditLogTable({ summary }: AuditLogTableProps) {
                         <label className="text-xs font-medium text-slate-500">
                             From
                         </label>
-                        <Input
+                        <ZoruInput
                             type="datetime-local"
                             value={from}
                             onChange={(e) => setFrom(e.target.value)}
@@ -248,7 +248,7 @@ export function AuditLogTable({ summary }: AuditLogTableProps) {
                         <label className="text-xs font-medium text-slate-500">
                             To
                         </label>
-                        <Input
+                        <ZoruInput
                             type="datetime-local"
                             value={to}
                             onChange={(e) => setTo(e.target.value)}
@@ -268,20 +268,20 @@ export function AuditLogTable({ summary }: AuditLogTableProps) {
                 {(actorFilter || actionFilter) && (
                     <div className="mt-3 flex flex-wrap gap-2 text-xs">
                         {actorFilter && (
-                            <Badge variant="secondary">
+                            <ZoruBadge variant="secondary">
                                 Actor: {actorFilter}
-                            </Badge>
+                            </ZoruBadge>
                         )}
                         {actionFilter && (
-                            <Badge variant="secondary">
+                            <ZoruBadge variant="secondary">
                                 Action: {actionFilter}
-                            </Badge>
+                            </ZoruBadge>
                         )}
                     </div>
                 )}
             </div>
 
-            {/* Table */}
+            {/* ZoruTable */}
             <div className="rounded-2xl border border-slate-200 bg-white">
                 <div className="border-b border-slate-200 px-4 py-3">
                     <h2 className="text-sm font-semibold text-slate-900">
@@ -291,57 +291,57 @@ export function AuditLogTable({ summary }: AuditLogTableProps) {
                         Showing {filtered.length} of {summary.recent.length} most-recent rows.
                     </p>
                 </div>
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead className="w-[180px]">Timestamp</TableHead>
-                            <TableHead>Actor</TableHead>
-                            <TableHead>Action</TableHead>
-                            <TableHead>Resource</TableHead>
-                            <TableHead className="w-[100px]">Outcome</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
+                <ZoruTable>
+                    <ZoruTableHeader>
+                        <ZoruTableRow>
+                            <ZoruTableHead className="w-[180px]">Timestamp</ZoruTableHead>
+                            <ZoruTableHead>Actor</ZoruTableHead>
+                            <ZoruTableHead>Action</ZoruTableHead>
+                            <ZoruTableHead>Resource</ZoruTableHead>
+                            <ZoruTableHead className="w-[100px]">Outcome</ZoruTableHead>
+                        </ZoruTableRow>
+                    </ZoruTableHeader>
+                    <ZoruTableBody>
                         {filtered.length === 0 ? (
-                            <TableRow>
-                                <TableCell
+                            <ZoruTableRow>
+                                <ZoruTableCell
                                     colSpan={5}
                                     className="py-12 text-center text-sm text-slate-400"
                                 >
                                     No events match the current filters.
-                                </TableCell>
-                            </TableRow>
+                                </ZoruTableCell>
+                            </ZoruTableRow>
                         ) : (
                             filtered.map((evt) => (
-                                <TableRow key={evt.id}>
-                                    <TableCell className="font-mono text-xs text-slate-600">
+                                <ZoruTableRow key={evt.id}>
+                                    <ZoruTableCell className="font-mono text-xs text-slate-600">
                                         {formatTimestamp(evt.ts)}
-                                    </TableCell>
-                                    <TableCell className="text-sm text-slate-900">
+                                    </ZoruTableCell>
+                                    <ZoruTableCell className="text-sm text-slate-900">
                                         {evt.actor}
-                                    </TableCell>
-                                    <TableCell className="font-mono text-xs text-slate-700">
+                                    </ZoruTableCell>
+                                    <ZoruTableCell className="font-mono text-xs text-slate-700">
                                         {evt.action}
-                                    </TableCell>
-                                    <TableCell className="font-mono text-xs text-slate-600">
+                                    </ZoruTableCell>
+                                    <ZoruTableCell className="font-mono text-xs text-slate-600">
                                         {evt.resource}
-                                    </TableCell>
-                                    <TableCell>
+                                    </ZoruTableCell>
+                                    <ZoruTableCell>
                                         {isFailure(evt) ? (
-                                            <Badge variant="destructive">
+                                            <ZoruBadge variant="destructive">
                                                 error
-                                            </Badge>
+                                            </ZoruBadge>
                                         ) : (
-                                            <Badge variant="secondary">
+                                            <ZoruBadge variant="secondary">
                                                 ok
-                                            </Badge>
+                                            </ZoruBadge>
                                         )}
-                                    </TableCell>
-                                </TableRow>
+                                    </ZoruTableCell>
+                                </ZoruTableRow>
                             ))
                         )}
-                    </TableBody>
-                </Table>
+                    </ZoruTableBody>
+                </ZoruTable>
             </div>
         </div>
     );

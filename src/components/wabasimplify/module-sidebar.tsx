@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
 import { usePathname } from 'next/navigation';
 
 export interface ModuleSidebarItem {
@@ -51,7 +51,7 @@ export function ModuleSidebar({ items, activeValue, onValueChange, title }: Modu
 
                 if (item.href) {
                     return (
-                        <Button
+                        <ZoruButton
                             key={item.href}
                             variant={isActive ? "secondary" : "ghost"}
                             className={cn("justify-start w-full", isActive && "bg-muted font-medium")}
@@ -60,19 +60,19 @@ export function ModuleSidebar({ items, activeValue, onValueChange, title }: Modu
                             <Link href={item.href}>
                                 {content}
                             </Link>
-                        </Button>
+                        </ZoruButton>
                     );
                 }
 
                 return (
-                    <Button
+                    <ZoruButton
                         key={item.value}
                         variant={isActive ? "secondary" : "ghost"}
                         className={cn("justify-start w-full", isActive && "bg-muted font-medium")}
                         onClick={() => onValueChange?.(item.value!)}
                     >
                         {content}
-                    </Button>
+                    </ZoruButton>
                 );
             })}
         </nav>

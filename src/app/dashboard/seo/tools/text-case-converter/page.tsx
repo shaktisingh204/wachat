@@ -1,11 +1,11 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
 void _zoruCn;
 
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruTextarea } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { toTitleCase, toSentenceCase, toCamelCase } from '@/lib/seo-tools/text-utils';
 
@@ -22,7 +22,7 @@ export default function TextCaseConverterPage() {
 
   return (
     <ToolShell title="Text Case Converter" description="Convert text between UPPER, lower, Title, Sentence, camelCase, etc.">
-      <Textarea
+      <ZoruTextarea
         value={text}
         onChange={(e) => setText(e.target.value)}
         placeholder="Type or paste text…"
@@ -30,13 +30,13 @@ export default function TextCaseConverterPage() {
       />
       <div className="flex flex-wrap gap-2">
         {actions.map((a) => (
-          <Button key={a.label} variant="outline" onClick={() => setText(a.fn(text))}>
+          <ZoruButton key={a.label} variant="outline" onClick={() => setText(a.fn(text))}>
             {a.label}
-          </Button>
+          </ZoruButton>
         ))}
-        <Button variant="ghost" onClick={() => setText('')}>
+        <ZoruButton variant="ghost" onClick={() => setText('')}>
           Clear
-        </Button>
+        </ZoruButton>
       </div>
     </ToolShell>
   );

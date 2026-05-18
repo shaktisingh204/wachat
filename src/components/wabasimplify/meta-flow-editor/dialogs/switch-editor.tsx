@@ -1,14 +1,14 @@
 'use client';
 
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
+import { ZoruAlert, ZoruAlertDescription, ZoruAlertTitle } from '@/components/zoruui';
 import { GitBranch } from 'lucide-react';
 
 /**
- * Meta Flow JSON v7.3 Switch — a control-flow component, not a UI toggle.
+ * Meta Flow JSON v7.3 ZoruSwitch — a control-flow component, not a UI toggle.
  *
- *   { type: "Switch", value: "<expr>", cases: { "<v1>": [...], default: [...] } }
+ *   { type: "ZoruSwitch", value: "<expr>", cases: { "<v1>": [...], default: [...] } }
  *
  * Render branches in the raw JSON tab; here we only expose the
  * discriminator value and the case keys.
@@ -42,8 +42,8 @@ export function SwitchEditor({ component, updateField }: SwitchEditorProps) {
     return (
         <div className="space-y-6">
             <div className="space-y-2">
-                <Label htmlFor="value">Value expression</Label>
-                <Input
+                <ZoruLabel htmlFor="value">Value expression</ZoruLabel>
+                <ZoruInput
                     id="value"
                     value={component.value || ''}
                     onChange={(e) => updateField('value', e.target.value)}
@@ -59,7 +59,7 @@ export function SwitchEditor({ component, updateField }: SwitchEditorProps) {
 
             <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                    <Label>Cases ({caseKeys.length})</Label>
+                    <ZoruLabel>Cases ({caseKeys.length})</ZoruLabel>
                     <button type="button" onClick={addCase} className="text-[11px] font-medium text-primary hover:underline">
                         + Add case
                     </button>
@@ -70,7 +70,7 @@ export function SwitchEditor({ component, updateField }: SwitchEditorProps) {
                     </p>
                 ) : caseKeys.map((k) => (
                     <div key={k} className="flex items-center gap-2">
-                        <Input
+                        <ZoruInput
                             value={k}
                             onChange={(e) => renameCase(k, e.target.value)}
                             className="font-mono text-xs"
@@ -89,14 +89,14 @@ export function SwitchEditor({ component, updateField }: SwitchEditorProps) {
                 ))}
             </div>
 
-            <Alert>
+            <ZoruAlert>
                 <GitBranch className="h-4 w-4" />
-                <AlertTitle>Edit branch children in JSON</AlertTitle>
-                <AlertDescription>
+                <ZoruAlertTitle>Edit branch children in JSON</ZoruAlertTitle>
+                <ZoruAlertDescription>
                     Components inside each case branch are edited in the Raw JSON tab.
                     This panel only configures the switch value and case keys.
-                </AlertDescription>
-            </Alert>
+                </ZoruAlertDescription>
+            </ZoruAlert>
         </div>
     );
 }

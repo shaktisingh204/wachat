@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { handleWabaOnboarding } from '@/app/actions/onboarding.actions';
 import { LoaderCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { ZoruCard, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription } from '@/components/zoruui';
 
 // This is the Client Component that handles effects and state
 export function FacebookCallbackClient({ code, error, stateFromUrl }: { code?: string, error?: string, stateFromUrl?: string }) {
@@ -54,17 +54,17 @@ export function FacebookCallbackClient({ code, error, stateFromUrl }: { code?: s
 
   return (
     <div className="flex h-screen w-screen items-center justify-center bg-muted">
-      <Card className="max-w-sm text-center">
-        <CardHeader>
+      <ZoruCard className="max-w-sm text-center">
+        <ZoruCardHeader>
           <div className="flex justify-center mb-4">
             <LoaderCircle className="h-10 w-10 animate-spin text-primary" />
           </div>
-          <CardTitle>Finalizing connection, please wait...</CardTitle>
-          <CardDescription>
+          <ZoruCardTitle>Finalizing connection, please wait...</ZoruCardTitle>
+          <ZoruCardDescription>
             This may take a moment. Do not close this window.
-          </CardDescription>
-        </CardHeader>
-      </Card>
+          </ZoruCardDescription>
+        </ZoruCardHeader>
+      </ZoruCard>
     </div>
   );
 }

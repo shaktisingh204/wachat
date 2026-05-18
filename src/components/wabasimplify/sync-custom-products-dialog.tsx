@@ -3,17 +3,17 @@
 
 import { useEffect, useState, useTransition } from 'react';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Label } from '@/components/ui/label';
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruDialogTrigger,
+} from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
 import { LoaderCircle, RefreshCw, Facebook } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getCatalogs, syncCatalogs } from '@/app/actions/catalog.actions';
@@ -71,52 +71,52 @@ export function SyncCustomProductsDialog({ projectId, shopId }: SyncCustomProduc
 
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline">
+    <ZoruDialog open={open} onOpenChange={setOpen}>
+      <ZoruDialogTrigger asChild>
+        <ZoruButton variant="outline">
           <Facebook className="mr-2 h-4 w-4" />
           Sync to Facebook Catalog
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-md max-h-[85vh] flex flex-col overflow-hidden p-0">
-        <DialogHeader className="px-6 pt-6 pb-2">
-          <DialogTitle>Sync Products to Facebook</DialogTitle>
-          <DialogDescription>
+        </ZoruButton>
+      </ZoruDialogTrigger>
+      <ZoruDialogContent className="sm:max-w-md max-h-[85vh] flex flex-col overflow-hidden p-0">
+        <ZoruDialogHeader className="px-6 pt-6 pb-2">
+          <ZoruDialogTitle>Sync Products to Facebook</ZoruDialogTitle>
+          <ZoruDialogDescription>
             Push your custom products to a Meta Catalog. This will create or update products based on their internal ID.
-          </DialogDescription>
-        </DialogHeader>
+          </ZoruDialogDescription>
+        </ZoruDialogHeader>
         <div className="flex-1 overflow-y-auto px-6 py-2">
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="catalog-select">Target Catalog</Label>
+              <ZoruLabel htmlFor="catalog-select">Target Catalog</ZoruLabel>
               <div className="flex items-center gap-2">
-                <Select value={selectedCatalogId} onValueChange={setSelectedCatalogId} disabled={isLoading}>
-                  <SelectTrigger id="catalog-select">
-                    <SelectValue placeholder="Select a catalog..." />
-                  </SelectTrigger>
-                  <SelectContent>
+                <ZoruSelect value={selectedCatalogId} onValueChange={setSelectedCatalogId} disabled={isLoading}>
+                  <ZoruSelectTrigger id="catalog-select">
+                    <ZoruSelectValue placeholder="ZoruSelect a catalog..." />
+                  </ZoruSelectTrigger>
+                  <ZoruSelectContent>
                     {catalogs.map((catalog) => (
-                      <SelectItem key={catalog._id.toString()} value={catalog.metaCatalogId}>
+                      <ZoruSelectItem key={catalog._id.toString()} value={catalog.metaCatalogId}>
                         {catalog.name}
-                      </SelectItem>
+                      </ZoruSelectItem>
                     ))}
-                  </SelectContent>
-                </Select>
-                <Button variant="ghost" size="icon" onClick={() => fetchAndSetCatalogs(true)} disabled={isLoading}>
+                  </ZoruSelectContent>
+                </ZoruSelect>
+                <ZoruButton variant="ghost" size="icon" onClick={() => fetchAndSetCatalogs(true)} disabled={isLoading}>
                   {isLoading ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
-                </Button>
+                </ZoruButton>
               </div>
             </div>
           </div>
         </div>
-        <DialogFooter className="px-6 pb-6 pt-2">
-          <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
-          <Button type="button" onClick={handleSync} disabled={isSyncing || !selectedCatalogId}>
+        <ZoruDialogFooter className="px-6 pb-6 pt-2">
+          <ZoruButton type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</ZoruButton>
+          <ZoruButton type="button" onClick={handleSync} disabled={isSyncing || !selectedCatalogId}>
             {isSyncing && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
             Sync Now
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+          </ZoruButton>
+        </ZoruDialogFooter>
+      </ZoruDialogContent>
+    </ZoruDialog>
   );
 }

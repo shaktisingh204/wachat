@@ -1,15 +1,15 @@
 
 'use client';
 
-import { Label } from '@/components/ui/label';
+import { ZoruLabel } from '@/components/zoruui';
 import { SmartCombobox } from '@/components/wabasimplify/smart-combobox';
 import { getTemplates } from '@/app/actions';
 import { useProject } from '@/context/project-context';
 import type { Template } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
 import { useEffect, useState } from 'react';
-import { Input } from '@/components/ui/input';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruRadioGroup, ZoruRadioGroupItem } from '@/components/zoruui';
 import { SabFileToFileButton } from '@/components/sabfiles';
 
 interface EditorProps {
@@ -129,28 +129,28 @@ export function SendTemplateEditor({ node, onUpdate }: EditorProps) {
     return (
         <div className="space-y-4">
             <div className="space-y-2">
-                <Label>Template</Label>
+                <ZoruLabel>Template</ZoruLabel>
                 <SmartCombobox
                     value={node.data.templateId || ''}
                     onSelect={handleTemplateChange}
                     options={templates.map(t => ({ label: t.name, value: t._id.toString() }))}
-                    placeholder="Select a template..."
+                    placeholder="ZoruSelect a template..."
                     searchPlaceholder="Search templates..."
                 />
             </div>
 
             {selectedTemplate && hasMediaHeader && (
                 <div className="space-y-4 pt-2 border-t">
-                    <Label>Header Media ({mediaType})</Label>
-                    <RadioGroup value={mediaSource} onValueChange={(v) => setMediaSource(v as any)} className="flex gap-4">
-                        <div className="flex items-center space-x-2"><RadioGroupItem value="url" id="t-media-url" /><Label htmlFor="t-media-url">From URL</Label></div>
-                        <div className="flex items-center space-x-2"><RadioGroupItem value="upload" id="t-media-upload" /><Label htmlFor="t-media-upload">Upload</Label></div>
-                    </RadioGroup>
+                    <ZoruLabel>Header Media ({mediaType})</ZoruLabel>
+                    <ZoruRadioGroup value={mediaSource} onValueChange={(v) => setMediaSource(v as any)} className="flex gap-4">
+                        <div className="flex items-center space-x-2"><ZoruRadioGroupItem value="url" id="t-media-url" /><ZoruLabel htmlFor="t-media-url">From URL</ZoruLabel></div>
+                        <div className="flex items-center space-x-2"><ZoruRadioGroupItem value="upload" id="t-media-upload" /><ZoruLabel htmlFor="t-media-upload">Upload</ZoruLabel></div>
+                    </ZoruRadioGroup>
 
                     {mediaSource === 'url' ? (
                         <div className="space-y-2">
-                            <Label htmlFor="t-media-url-input">Media URL</Label>
-                            <Input
+                            <ZoruLabel htmlFor="t-media-url-input">Media URL</ZoruLabel>
+                            <ZoruInput
                                 id="t-media-url-input"
                                 placeholder={`https://example.com/media.${mediaType === 'image' ? 'png' : 'mp4'}`}
                                 value={node.data.headerMedia?.url || ''}
@@ -159,8 +159,8 @@ export function SendTemplateEditor({ node, onUpdate }: EditorProps) {
                         </div>
                     ) : (
                         <div className="space-y-2">
-                            <Label htmlFor="t-media-file">Upload Media</Label>
-                            <Input
+                            <ZoruLabel htmlFor="t-media-file">Upload Media</ZoruLabel>
+                            <ZoruInput
                                 id="t-media-file"
                                 type="file"
                                 accept={mediaType === 'image' ? "image/*" : mediaType === 'video' ? "video/*" : "*/*"}
@@ -182,11 +182,11 @@ export function SendTemplateEditor({ node, onUpdate }: EditorProps) {
 
             {selectedTemplate && variables.length > 0 && (
                 <div className="space-y-3 pt-2 border-t">
-                    <Label>Template Variables</Label>
+                    <ZoruLabel>Template Variables</ZoruLabel>
                     {variables.map(varNum => (
                         <div key={varNum} className="space-y-1">
-                            <Label htmlFor={`var-${varNum}`} className="text-xs text-muted-foreground">Variable {'{{'}{varNum}{'}}'}</Label>
-                            <Input
+                            <ZoruLabel htmlFor={`var-${varNum}`} className="text-xs text-muted-foreground">Variable {'{{'}{varNum}{'}}'}</ZoruLabel>
+                            <ZoruInput
                                 id={`var-${varNum}`}
                                 placeholder="Enter value or a variable like {{name}}"
                                 value={node.data.inputs?.[`variable${varNum}`] || ''}

@@ -2,7 +2,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
 import { SurfaceSwitcher } from './surface-switcher';
 import { Eye, Save, ArrowLeft, LoaderCircle } from 'lucide-react';
 import type { WithId, Website, WebsitePage, EcommShop, EcommPage } from '@/lib/definitions';
@@ -27,11 +27,11 @@ export function WebsiteBuilderHeader({
   return (
     <header className="flex-shrink-0 flex items-center justify-between gap-4 p-3 border-b bg-background/80 backdrop-blur-md sticky top-0 z-50">
       <div className="flex items-center gap-2">
-        <Button variant="ghost" size="icon" asChild>
+        <ZoruButton variant="ghost" size="icon" asChild>
           <Link href={`/dashboard/website-builder`}>
             <ArrowLeft className="h-4 w-4" />
           </Link>
-        </Button>
+        </ZoruButton>
         <SurfaceSwitcher
           shop={site}
           pages={pages}
@@ -40,16 +40,16 @@ export function WebsiteBuilderHeader({
         />
       </div>
       <div className="flex items-center gap-2">
-        <Button variant="outline" asChild>
+        <ZoruButton variant="outline" asChild>
           <Link href={`/web/${site.slug}`} target="_blank">
             <Eye className="mr-2 h-4 w-4" />
             View Site
           </Link>
-        </Button>
-        <Button onClick={onSave} disabled={isSaving}>
+        </ZoruButton>
+        <ZoruButton onClick={onSave} disabled={isSaving}>
           {isSaving ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
           Save
-        </Button>
+        </ZoruButton>
       </div>
     </header>
   );

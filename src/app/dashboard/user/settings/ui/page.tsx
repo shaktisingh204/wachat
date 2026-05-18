@@ -3,35 +3,35 @@
 
 import { useActionState, useEffect, useState } from 'react';
 import { useFormStatus } from 'react-dom';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { ZoruCard, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription, ZoruCardContent, ZoruCardFooter, ZoruButton } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
+import { ZoruRadioGroup, ZoruRadioGroupItem } from '@/components/zoruui';
 import { handleUpdateUserProfile, getSession } from '@/app/actions/user.actions';
 import type { User } from '@/lib/definitions';
 import { useToast } from '@/hooks/use-toast';
 import { LoaderCircle, Save } from 'lucide-react';
-import { Skeleton } from '@/components/ui/skeleton';
+import { ZoruSkeleton } from '@/components/zoruui';
 
 const initialState = { message: undefined, error: undefined };
 
 function SubmitButton() {
     const { pending } = useFormStatus();
     return (
-        <Button type="submit" disabled={pending}>
+        <ZoruButton type="submit" disabled={pending}>
             {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
             Save Preferences
-        </Button>
+        </ZoruButton>
     )
 }
 
 function UIPageSkeleton() {
     return (
-        <Card>
-            <CardHeader><Skeleton className="h-6 w-1/3" /><Skeleton className="h-4 w-2/3 mt-2" /></CardHeader>
-            <CardContent><Skeleton className="h-24 w-full" /></CardContent>
-            <CardFooter><Skeleton className="h-10 w-32" /></CardFooter>
-        </Card>
+        <ZoruCard>
+            <ZoruCardHeader><ZoruSkeleton className="h-6 w-1/3" /><ZoruSkeleton className="h-4 w-2/3 mt-2" /></ZoruCardHeader>
+            <ZoruCardContent><ZoruSkeleton className="h-24 w-full" /></ZoruCardContent>
+            <ZoruCardFooter><ZoruSkeleton className="h-10 w-32" /></ZoruCardFooter>
+        </ZoruCard>
     );
 }
 
@@ -73,35 +73,35 @@ export default function UiPreferencesPage() {
         <form action={formAction}>
             {/* Pass user's name so it doesn't get erased on save */}
             <input type="hidden" name="name" value={user.name} />
-            <Card>
-                <CardHeader>
-                    <CardTitle>UI Preferences</CardTitle>
-                    <CardDescription>Customize the look and feel of your dashboard.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
+            <ZoruCard>
+                <ZoruCardHeader>
+                    <ZoruCardTitle>UI Preferences</ZoruCardTitle>
+                    <ZoruCardDescription>Customize the look and feel of your dashboard.</ZoruCardDescription>
+                </ZoruCardHeader>
+                <ZoruCardContent className="space-y-4">
                     <div className="space-y-2">
-                        <Label>App Rail Position</Label>
+                        <ZoruLabel>App Rail Position</ZoruLabel>
                         <p className="text-sm text-muted-foreground">Choose where the main application navigation bar appears.</p>
-                        <RadioGroup
+                        <ZoruRadioGroup
                             name="appRailPosition"
                             defaultValue={user.appRailPosition || 'left'}
                             className="flex gap-4 pt-2"
                         >
                             <div className="flex items-center space-x-2">
-                                <RadioGroupItem value="left" id="pos-left" />
-                                <Label htmlFor="pos-left" className="font-normal">Left Sidebar</Label>
+                                <ZoruRadioGroupItem value="left" id="pos-left" />
+                                <ZoruLabel htmlFor="pos-left" className="font-normal">Left Sidebar</ZoruLabel>
                             </div>
                             <div className="flex items-center space-x-2">
-                                <RadioGroupItem value="top" id="pos-top" />
-                                <Label htmlFor="pos-top" className="font-normal">Top Header</Label>
+                                <ZoruRadioGroupItem value="top" id="pos-top" />
+                                <ZoruLabel htmlFor="pos-top" className="font-normal">Top Header</ZoruLabel>
                             </div>
-                        </RadioGroup>
+                        </ZoruRadioGroup>
                     </div>
-                </CardContent>
-                <CardFooter>
+                </ZoruCardContent>
+                <ZoruCardFooter>
                     <SubmitButton />
-                </CardFooter>
-            </Card>
+                </ZoruCardFooter>
+            </ZoruCard>
         </form>
     );
 }

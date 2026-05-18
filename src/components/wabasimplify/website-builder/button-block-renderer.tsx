@@ -5,7 +5,7 @@ import React from 'react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import * as LucideIcons from 'lucide-react';
-import { Button, buttonVariants } from '@/components/ui/button';
+import { ZoruButton, buttonVariants } from '@/components/zoruui';
 
 interface ButtonBlockRendererProps {
   settings: any;

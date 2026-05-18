@@ -1,3 +1,4 @@
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
 'use client';
 
 /**
@@ -11,17 +12,17 @@ import { useRouter } from 'next/navigation';
 import { useActionState, useEffect } from 'react';
 import { LoaderCircle } from 'lucide-react';
 
-import { ClayCard, ClayButton } from '@/components/clay';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+import { ClayCard } from '@/components/clay';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
+import { ZoruTextarea } from '@/components/zoruui';
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
+    ZoruSelect,
+    ZoruSelectContent,
+    ZoruSelectItem,
+    ZoruSelectTrigger,
+    ZoruSelectValue,
+} from '@/components/zoruui';
 import { useToast } from '@/hooks/use-toast';
 import { saveWsIssue } from '@/app/actions/worksuite/projects.actions';
 import { EntityFormField } from '@/components/crm/entity-form-field';
@@ -77,10 +78,10 @@ export function IssueForm({ mode, initial }: IssueFormProps) {
                 ) : null}
 
                 <div>
-                    <Label htmlFor="title" className="text-foreground">
+                    <ZoruLabel htmlFor="title" className="text-foreground">
                         Title <span className="text-destructive">*</span>
-                    </Label>
-                    <Input
+                    </ZoruLabel>
+                    <ZoruInput
                         id="title"
                         name="title"
                         required
@@ -90,10 +91,10 @@ export function IssueForm({ mode, initial }: IssueFormProps) {
                 </div>
 
                 <div>
-                    <Label htmlFor="description" className="text-foreground">
+                    <ZoruLabel htmlFor="description" className="text-foreground">
                         Description
-                    </Label>
-                    <Textarea
+                    </ZoruLabel>
+                    <ZoruTextarea
                         id="description"
                         name="description"
                         rows={4}
@@ -104,91 +105,91 @@ export function IssueForm({ mode, initial }: IssueFormProps) {
 
                 <div className="grid gap-4 md:grid-cols-2">
                     <div>
-                        <Label htmlFor="projectId" className="text-foreground">
+                        <ZoruLabel htmlFor="projectId" className="text-foreground">
                             Project
-                        </Label>
+                        </ZoruLabel>
                         <EntityFormField
                             entity="project"
                             name="projectId"
                             initialId={initial?.projectId}
-                            placeholder="Select project (optional)"
+                            placeholder="ZoruSelect project (optional)"
                         />
                     </div>
                     <div>
-                        <Label htmlFor="status" className="text-foreground">
+                        <ZoruLabel htmlFor="status" className="text-foreground">
                             Status
-                        </Label>
-                        <Select name="status" defaultValue={initial?.status ?? 'open'}>
-                            <SelectTrigger
+                        </ZoruLabel>
+                        <ZoruSelect name="status" defaultValue={initial?.status ?? 'open'}>
+                            <ZoruSelectTrigger
                                 id="status"
                                 className="h-10 rounded-lg border-border bg-card text-[13px]"
                             >
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="open">Open</SelectItem>
-                                <SelectItem value="in_progress">In progress</SelectItem>
-                                <SelectItem value="resolved">Resolved</SelectItem>
-                                <SelectItem value="closed">Closed</SelectItem>
-                            </SelectContent>
-                        </Select>
+                                <ZoruSelectValue />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                <ZoruSelectItem value="open">Open</ZoruSelectItem>
+                                <ZoruSelectItem value="in_progress">In progress</ZoruSelectItem>
+                                <ZoruSelectItem value="resolved">Resolved</ZoruSelectItem>
+                                <ZoruSelectItem value="closed">Closed</ZoruSelectItem>
+                            </ZoruSelectContent>
+                        </ZoruSelect>
                     </div>
                 </div>
 
                 <div className="grid gap-4 md:grid-cols-2">
                     <div>
-                        <Label htmlFor="priority" className="text-foreground">
+                        <ZoruLabel htmlFor="priority" className="text-foreground">
                             Priority
-                        </Label>
-                        <Select
+                        </ZoruLabel>
+                        <ZoruSelect
                             name="priority"
                             defaultValue={initial?.priority ?? 'medium'}
                         >
-                            <SelectTrigger
+                            <ZoruSelectTrigger
                                 id="priority"
                                 className="h-10 rounded-lg border-border bg-card text-[13px]"
                             >
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="low">Low</SelectItem>
-                                <SelectItem value="medium">Medium</SelectItem>
-                                <SelectItem value="high">High</SelectItem>
-                                <SelectItem value="urgent">Urgent</SelectItem>
-                            </SelectContent>
-                        </Select>
+                                <ZoruSelectValue />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                <ZoruSelectItem value="low">Low</ZoruSelectItem>
+                                <ZoruSelectItem value="medium">Medium</ZoruSelectItem>
+                                <ZoruSelectItem value="high">High</ZoruSelectItem>
+                                <ZoruSelectItem value="urgent">Urgent</ZoruSelectItem>
+                            </ZoruSelectContent>
+                        </ZoruSelect>
                     </div>
                     <div>
-                        <Label htmlFor="assigneeId" className="text-foreground">
+                        <ZoruLabel htmlFor="assigneeId" className="text-foreground">
                             Assignee
-                        </Label>
+                        </ZoruLabel>
                         <EntityFormField
                             entity="employee"
                             name="assigneeId"
                             dualWriteName="assigneeName"
                             initialId={initial?.assigneeId}
                             initialLabel={initial?.assigneeName}
-                            placeholder="Select assignee"
+                            placeholder="ZoruSelect assignee"
                         />
                     </div>
                 </div>
 
                 <div>
-                    <Label htmlFor="reporterId" className="text-foreground">
+                    <ZoruLabel htmlFor="reporterId" className="text-foreground">
                         Reporter
-                    </Label>
+                    </ZoruLabel>
                     <EntityFormField
                         entity="user"
                         name="reporterId"
                         dualWriteName="reporterName"
                         initialId={initial?.reporterId}
                         initialLabel={initial?.reporterName}
-                        placeholder="Select reporter"
+                        placeholder="ZoruSelect reporter"
                     />
                 </div>
 
                 <div className="flex justify-end gap-2 pt-2">
-                    <ClayButton
+                    <ZoruButton
                         type="button"
                         variant="pill"
                         onClick={() =>
@@ -200,8 +201,8 @@ export function IssueForm({ mode, initial }: IssueFormProps) {
                         }
                     >
                         Cancel
-                    </ClayButton>
-                    <ClayButton
+                    </ZoruButton>
+                    <ZoruButton
                         type="submit"
                         variant="obsidian"
                         disabled={isPending}
@@ -215,7 +216,7 @@ export function IssueForm({ mode, initial }: IssueFormProps) {
                         }
                     >
                         {mode === 'edit' ? 'Save changes' : 'Save'}
-                    </ClayButton>
+                    </ZoruButton>
                 </div>
             </form>
         </ClayCard>

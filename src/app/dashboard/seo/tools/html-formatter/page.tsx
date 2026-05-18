@@ -4,7 +4,7 @@ import { cn as _zoruCn } from '@/components/zoruui';
 void _zoruCn;
 
 import { useMemo, useState } from 'react';
-import { Textarea } from '@/components/ui/textarea';
+import { ZoruTextarea } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
 function format(html: string): string {
@@ -27,8 +27,8 @@ export default function HtmlFormatterPage() {
   const out = useMemo(() => format(text), [text]);
   return (
     <ToolShell title="HTML Formatter" description="Pretty-print minified or messy HTML.">
-      <Textarea value={text} onChange={(e) => setText(e.target.value)} className="min-h-[200px] font-mono text-xs" placeholder="Paste HTML…" />
-      <Textarea readOnly value={out} className="min-h-[240px] font-mono text-xs" />
+      <ZoruTextarea value={text} onChange={(e) => setText(e.target.value)} className="min-h-[200px] font-mono text-xs" placeholder="Paste HTML…" />
+      <ZoruTextarea readOnly value={out} className="min-h-[240px] font-mono text-xs" />
     </ToolShell>
   );
 }

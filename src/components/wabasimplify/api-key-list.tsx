@@ -5,11 +5,11 @@ import { useState, useTransition } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { revokeApiKey } from '@/app/actions/api-keys.actions';
 import type { ApiKey } from '@/lib/definitions';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow, ZoruButton } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruAlertDialog, ZoruAlertDialogAction, ZoruAlertDialogCancel, ZoruAlertDialogContent, ZoruAlertDialogDescription, ZoruAlertDialogFooter, ZoruAlertDialogHeader, ZoruAlertDialogTitle, ZoruAlertDialogTrigger } from '@/components/zoruui';
 import { LoaderCircle, Trash2 } from 'lucide-react';
-import { Badge } from '../ui/badge';
+import { ZoruBadge } from '../ui/badge';
 import { formatDistanceToNow } from 'date-fns';
 
 interface ApiKeyListProps {
@@ -34,28 +34,28 @@ function RevokeButton({ apiKey, onKeyRevoked }: { apiKey: Omit<ApiKey, 'key'>, o
     }
 
     return (
-        <AlertDialog>
-            <AlertDialogTrigger asChild>
-                <Button variant="destructive" size="sm" disabled={apiKey.revoked}>
+        <ZoruAlertDialog>
+            <ZoruAlertDialogTrigger asChild>
+                <ZoruButton variant="destructive" size="sm" disabled={apiKey.revoked}>
                     <Trash2 className="mr-2 h-4 w-4"/>
                     Revoke
-                </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-                 <AlertDialogHeader>
-                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                    <AlertDialogDescription>
+                </ZoruButton>
+            </ZoruAlertDialogTrigger>
+            <ZoruAlertDialogContent>
+                 <ZoruAlertDialogHeader>
+                    <ZoruAlertDialogTitle>Are you sure?</ZoruAlertDialogTitle>
+                    <ZoruAlertDialogDescription>
                         This action will permanently revoke the API key "{apiKey.name}". Any applications using this key will no longer have access.
-                    </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleRevoke} disabled={isPending}>
+                    </ZoruAlertDialogDescription>
+                </ZoruAlertDialogHeader>
+                <ZoruAlertDialogFooter>
+                    <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+                    <ZoruAlertDialogAction onClick={handleRevoke} disabled={isPending}>
                         {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />} Revoke Key
-                    </AlertDialogAction>
-                </AlertDialogFooter>
-            </AlertDialogContent>
-        </AlertDialog>
+                    </ZoruAlertDialogAction>
+                </ZoruAlertDialogFooter>
+            </ZoruAlertDialogContent>
+        </ZoruAlertDialog>
     );
 }
 
@@ -66,32 +66,32 @@ export function ApiKeyList({ keys, onKeyRevoked }: ApiKeyListProps) {
     
     return (
         <div className="border rounded-md">
-            <Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead>Name</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Created</TableHead>
-                        <TableHead>Last Used</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
+            <ZoruTable>
+                <ZoruTableHeader>
+                    <ZoruTableRow>
+                        <ZoruTableHead>Name</ZoruTableHead>
+                        <ZoruTableHead>Status</ZoruTableHead>
+                        <ZoruTableHead>Created</ZoruTableHead>
+                        <ZoruTableHead>Last Used</ZoruTableHead>
+                        <ZoruTableHead className="text-right">Actions</ZoruTableHead>
+                    </ZoruTableRow>
+                </ZoruTableHeader>
+                <ZoruTableBody>
                     {keys.map(key => (
-                        <TableRow key={key._id.toString()}>
-                            <TableCell className="font-medium">{key.name}</TableCell>
-                            <TableCell>
-                                {key.revoked ? <Badge variant="destructive">Revoked</Badge> : <Badge>Active</Badge>}
-                            </TableCell>
-                            <TableCell>{new Date(key.createdAt).toLocaleDateString()}</TableCell>
-                             <TableCell>{key.lastUsed ? formatDistanceToNow(new Date(key.lastUsed), { addSuffix: true }) : 'Never'}</TableCell>
-                            <TableCell className="text-right">
+                        <ZoruTableRow key={key._id.toString()}>
+                            <ZoruTableCell className="font-medium">{key.name}</ZoruTableCell>
+                            <ZoruTableCell>
+                                {key.revoked ? <ZoruBadge variant="destructive">Revoked</ZoruBadge> : <ZoruBadge>Active</ZoruBadge>}
+                            </ZoruTableCell>
+                            <ZoruTableCell>{new Date(key.createdAt).toLocaleDateString()}</ZoruTableCell>
+                             <ZoruTableCell>{key.lastUsed ? formatDistanceToNow(new Date(key.lastUsed), { addSuffix: true }) : 'Never'}</ZoruTableCell>
+                            <ZoruTableCell className="text-right">
                                 <RevokeButton apiKey={key} onKeyRevoked={onKeyRevoked} />
-                            </TableCell>
-                        </TableRow>
+                            </ZoruTableCell>
+                        </ZoruTableRow>
                     ))}
-                </TableBody>
-            </Table>
+                </ZoruTableBody>
+            </ZoruTable>
         </div>
     );
 }

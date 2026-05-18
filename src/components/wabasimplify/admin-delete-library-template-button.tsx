@@ -3,17 +3,17 @@
 
 import { useEffect, useState, useTransition } from 'react';
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruAlertDialogTrigger,
+} from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
 import { LoaderCircle, Trash2 } from 'lucide-react';
 import { deleteLibraryTemplate } from '@/app/actions/template.actions';
 import { useToast } from '@/hooks/use-toast';
@@ -43,27 +43,27 @@ export function AdminDeleteLibraryTemplateButton({ templateId, templateName }: A
   }
 
   return (
-    <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogTrigger asChild>
-        <Button variant="ghost" size="icon">
+    <ZoruAlertDialog open={open} onOpenChange={setOpen}>
+      <ZoruAlertDialogTrigger asChild>
+        <ZoruButton variant="ghost" size="icon">
           <Trash2 className="h-4 w-4 text-destructive" />
-        </Button>
-      </AlertDialogTrigger>
-      <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
+        </ZoruButton>
+      </ZoruAlertDialogTrigger>
+      <ZoruAlertDialogContent>
+          <ZoruAlertDialogHeader>
+            <ZoruAlertDialogTitle>Are you sure?</ZoruAlertDialogTitle>
+            <ZoruAlertDialogDescription>
               This will permanently delete the template "{templateName}" from the public library. This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter className="mt-4">
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <Button variant="destructive" onClick={handleDelete} disabled={isPending}>
+            </ZoruAlertDialogDescription>
+          </ZoruAlertDialogHeader>
+          <ZoruAlertDialogFooter className="mt-4">
+            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+            <ZoruButton variant="destructive" onClick={handleDelete} disabled={isPending}>
               {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
               Yes, Delete
-            </Button>
-          </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+            </ZoruButton>
+          </ZoruAlertDialogFooter>
+      </ZoruAlertDialogContent>
+    </ZoruAlertDialog>
   );
 }

@@ -1,12 +1,12 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
 void _zoruCn;
 
 import { useState } from 'react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
 const PREFIXES = ['how to', 'what is', 'why is', 'when does', 'where is', 'can i', 'should i'];
@@ -38,13 +38,13 @@ export default function PeopleAlsoAskPage() {
   return (
     <ToolShell title="People Also Ask" description="Question-based autocomplete variants for your seed.">
       <div className="flex gap-2">
-        <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="e.g. seo" onKeyDown={(e) => e.key === 'Enter' && run()} />
-        <Button onClick={run} disabled={loading}>{loading ? 'Loading…' : 'Get questions'}</Button>
+        <ZoruInput value={q} onChange={(e) => setQ(e.target.value)} placeholder="e.g. seo" onKeyDown={(e) => e.key === 'Enter' && run()} />
+        <ZoruButton onClick={run} disabled={loading}>{loading ? 'Loading…' : 'Get questions'}</ZoruButton>
       </div>
       {results.length > 0 && (
-        <Card><CardContent className="p-4 space-y-1">
+        <ZoruCard><ZoruCardContent className="p-4 space-y-1">
           {results.map((s, i) => <div key={i} className="text-sm border-b last:border-0 py-1">{s}</div>)}
-        </CardContent></Card>
+        </ZoruCardContent></ZoruCard>
       )}
     </ToolShell>
   );

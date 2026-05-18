@@ -2,8 +2,8 @@ import * as React from 'react';
 import Link from 'next/link';
 import { Smartphone, ArrowRight } from 'lucide-react';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardHeader, ZoruCardTitle, ZoruButton } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
 import { SettingsTabs } from '../_components/settings-tabs';
 
 export const metadata = { title: 'Settings — Devices — SabWa' };
@@ -24,23 +24,23 @@ export default function Page() {
       </div>
       <SettingsTabs />
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Linked Devices</CardTitle>
-          <CardDescription>
+      <ZoruCard>
+        <ZoruCardHeader>
+          <ZoruCardTitle>Linked Devices</ZoruCardTitle>
+          <ZoruCardDescription>
             Device management lives on the dedicated Linked Devices page — health, platform, last-seen, and
             unlink controls for every device paired with your SabWa session.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Button asChild>
+          </ZoruCardDescription>
+        </ZoruCardHeader>
+        <ZoruCardContent>
+          <ZoruButton asChild>
             <Link href="/sabwa/devices">
               Open Linked Devices
               <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
-          </Button>
-        </CardContent>
-      </Card>
+          </ZoruButton>
+        </ZoruCardContent>
+      </ZoruCard>
     </div>
   );
 }

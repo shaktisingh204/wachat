@@ -1,13 +1,13 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
 void _zoruCn;
 
 import { useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
 
 const COMMERCIAL = ['buy', 'best', 'price', 'cheap', 'deal', 'discount', 'purchase', 'order', 'shop', 'cost'];
 
@@ -45,17 +45,17 @@ export default function KeywordCpcPage() {
   return (
     <ToolShell title="Keyword CPC Estimator" description="Estimate cost-per-click range for a keyword based on intent and length heuristics.">
       <div className="flex gap-2">
-        <Input
+        <ZoruInput
           value={kw}
           onChange={(e) => setKw(e.target.value)}
           placeholder="Enter a keyword"
           onKeyDown={(e) => e.key === 'Enter' && run()}
         />
-        <Button onClick={run}>Estimate</Button>
+        <ZoruButton onClick={run}>Estimate</ZoruButton>
       </div>
       {result && (
-        <Card>
-          <CardContent className="p-6 space-y-4">
+        <ZoruCard>
+          <ZoruCardContent className="p-6 space-y-4">
             <div className="flex items-baseline gap-2">
               <span className="text-4xl font-bold">${result.low}</span>
               <span className="text-muted-foreground">–</span>
@@ -68,8 +68,8 @@ export default function KeywordCpcPage() {
             <p className="text-xs text-muted-foreground">
               Heuristic estimate based on commercial intent words and keyword length. Use Google Keyword Planner for precise numbers.
             </p>
-          </CardContent>
-        </Card>
+          </ZoruCardContent>
+        </ZoruCard>
       )}
     </ToolShell>
   );

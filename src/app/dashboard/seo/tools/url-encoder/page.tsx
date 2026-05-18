@@ -1,14 +1,14 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
 void _zoruCn;
 
 import { useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
+import { ZoruTextarea } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
 
 export default function UrlEncoderPage() {
   const [input, setInput] = useState('');
@@ -37,30 +37,30 @@ export default function UrlEncoderPage() {
   return (
     <ToolShell title="URL Encoder" description="Encode text or URLs using encodeURIComponent.">
       <div className="flex flex-col gap-3">
-        <Label>Input text</Label>
-        <Textarea
+        <ZoruLabel>ZoruInput text</ZoruLabel>
+        <ZoruTextarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Paste text to encode…"
           className="min-h-[140px]"
         />
         <div>
-          <Button onClick={run} disabled={!input}>
+          <ZoruButton onClick={run} disabled={!input}>
             Encode
-          </Button>
+          </ZoruButton>
         </div>
       </div>
 
       {output && (
-        <Card>
-          <CardContent className="p-4 space-y-3">
-            <Label>Encoded output</Label>
-            <Textarea readOnly value={output} className="min-h-[140px] font-mono text-sm" />
-            <Button variant="outline" onClick={copy}>
+        <ZoruCard>
+          <ZoruCardContent className="p-4 space-y-3">
+            <ZoruLabel>Encoded output</ZoruLabel>
+            <ZoruTextarea readOnly value={output} className="min-h-[140px] font-mono text-sm" />
+            <ZoruButton variant="outline" onClick={copy}>
               {copied ? 'Copied!' : 'Copy'}
-            </Button>
-          </CardContent>
-        </Card>
+            </ZoruButton>
+          </ZoruCardContent>
+        </ZoruCard>
       )}
     </ToolShell>
   );

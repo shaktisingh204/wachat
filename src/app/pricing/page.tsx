@@ -1,6 +1,6 @@
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription, ZoruCardFooter, ZoruButton } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
 import Link from 'next/link';
 import { Check } from 'lucide-react';
 import { LandingHeader } from '@/components/landing/landing-header';
@@ -62,16 +62,16 @@ export default function PricingPage() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
             {plans.map(plan => (
-                <Card key={plan.name} className={`flex flex-col h-full ${plan.isPopular ? 'border-2 border-primary shadow-2xl' : ''}`}>
-                    <CardHeader>
-                        <CardTitle className="text-2xl">{plan.name}</CardTitle>
-                        <CardDescription>{plan.description}</CardDescription>
+                <ZoruCard key={plan.name} className={`flex flex-col h-full ${plan.isPopular ? 'border-2 border-primary shadow-2xl' : ''}`}>
+                    <ZoruCardHeader>
+                        <ZoruCardTitle className="text-2xl">{plan.name}</ZoruCardTitle>
+                        <ZoruCardDescription>{plan.description}</ZoruCardDescription>
                         <div className="pt-4">
                             <span className="text-4xl font-bold">{plan.price}</span>
                             {plan.price.startsWith('₹') && <span className="text-muted-foreground">/mo</span>}
                         </div>
-                    </CardHeader>
-                    <CardContent className="flex-grow space-y-4">
+                    </ZoruCardHeader>
+                    <ZoruCardContent className="flex-grow space-y-4">
                         <ul className="space-y-3">
                             {plan.features.map(feature => (
                                 <li key={feature} className="flex items-start">
@@ -80,13 +80,13 @@ export default function PricingPage() {
                                 </li>
                             ))}
                         </ul>
-                    </CardContent>
-                    <CardFooter>
-                         <Button className="w-full" size="lg" variant={plan.isPopular ? 'default' : 'outline'}>
+                    </ZoruCardContent>
+                    <ZoruCardFooter>
+                         <ZoruButton className="w-full" size="lg" variant={plan.isPopular ? 'default' : 'outline'}>
                             {plan.cta}
-                        </Button>
-                    </CardFooter>
-                </Card>
+                        </ZoruButton>
+                    </ZoruCardFooter>
+                </ZoruCard>
             ))}
         </div>
       </div>

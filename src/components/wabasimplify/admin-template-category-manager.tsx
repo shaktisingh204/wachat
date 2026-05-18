@@ -6,10 +6,10 @@ import { getTemplateCategories, saveTemplateCategory, deleteTemplateCategory } f
 import type { TemplateCategory } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
 import { useToast } from '@/hooks/use-toast';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
+import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardHeader, ZoruCardTitle, ZoruButton } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableRow } from '@/components/zoruui';
 import { LoaderCircle, Plus, Trash2 } from 'lucide-react';
 
 export function AdminTemplateCategoryManager() {
@@ -45,40 +45,40 @@ export function AdminTemplateCategoryManager() {
     };
 
     return (
-        <Card>
-            <CardHeader>
-                <CardTitle>Template Categories</CardTitle>
-                <CardDescription>Manage the categories available for custom library templates.</CardDescription>
-            </CardHeader>
-            <CardContent>
+        <ZoruCard>
+            <ZoruCardHeader>
+                <ZoruCardTitle>Template Categories</ZoruCardTitle>
+                <ZoruCardDescription>Manage the categories available for custom library templates.</ZoruCardDescription>
+            </ZoruCardHeader>
+            <ZoruCardContent>
                 <form action={handleSubmit} ref={formRef} className="flex flex-col sm:flex-row gap-2 mb-4">
-                    <Input name="name" placeholder="New Category Name" required />
-                    <Input name="description" placeholder="Description (optional)" />
-                    <Button type="submit" disabled={isSaving} size="sm">
+                    <ZoruInput name="name" placeholder="New Category Name" required />
+                    <ZoruInput name="description" placeholder="Description (optional)" />
+                    <ZoruButton type="submit" disabled={isSaving} size="sm">
                         {isSaving ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
                         Add
-                    </Button>
+                    </ZoruButton>
                 </form>
                 <div className="border rounded-md">
-                    <Table>
-                        <TableBody>
-                            {isLoading ? <TableRow><TableCell><LoaderCircle className="h-5 w-5 animate-spin"/></TableCell></TableRow>
+                    <ZoruTable>
+                        <ZoruTableBody>
+                            {isLoading ? <ZoruTableRow><ZoruTableCell><LoaderCircle className="h-5 w-5 animate-spin"/></ZoruTableCell></ZoruTableRow>
                             : categories.length > 0 ? categories.map(cat => (
-                                <TableRow key={cat._id.toString()}>
-                                    <TableCell className="font-medium">{cat.name}</TableCell>
-                                    <TableCell className="text-muted-foreground">{cat.description}</TableCell>
-                                    <TableCell className="text-right w-16">
-                                        <Button variant="ghost" size="icon" disabled>
+                                <ZoruTableRow key={cat._id.toString()}>
+                                    <ZoruTableCell className="font-medium">{cat.name}</ZoruTableCell>
+                                    <ZoruTableCell className="text-muted-foreground">{cat.description}</ZoruTableCell>
+                                    <ZoruTableCell className="text-right w-16">
+                                        <ZoruButton variant="ghost" size="icon" disabled>
                                             <Trash2 className="h-4 w-4 text-destructive"/>
-                                        </Button>
-                                    </TableCell>
-                                </TableRow>
+                                        </ZoruButton>
+                                    </ZoruTableCell>
+                                </ZoruTableRow>
                             ))
-                            : <TableRow><TableCell className="text-center text-muted-foreground">No custom categories created yet.</TableCell></TableRow>}
-                        </TableBody>
-                    </Table>
+                            : <ZoruTableRow><ZoruTableCell className="text-center text-muted-foreground">No custom categories created yet.</ZoruTableCell></ZoruTableRow>}
+                        </ZoruTableBody>
+                    </ZoruTable>
                 </div>
-            </CardContent>
-        </Card>
+            </ZoruCardContent>
+        </ZoruCard>
     );
 }

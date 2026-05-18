@@ -1,12 +1,12 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
 void _zoruCn;
 
 import { useState } from 'react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { apiDnsLookup } from '@/lib/seo-tools/api-client';
 
@@ -30,12 +30,12 @@ export default function ServerLocationPage() {
   return (
     <ToolShell title="Server Location Checker" description="Resolve server IPs via local DNS (no third-party geolocation API).">
       <div className="flex gap-2">
-        <Input value={host} onChange={(e) => setHost(e.target.value)} placeholder="example.com" />
-        <Button onClick={run} disabled={loading}>{loading ? 'Looking up…' : 'Locate'}</Button>
+        <ZoruInput value={host} onChange={(e) => setHost(e.target.value)} placeholder="example.com" />
+        <ZoruButton onClick={run} disabled={loading}>{loading ? 'Looking up…' : 'Locate'}</ZoruButton>
       </div>
-      {error && <Card className="border-red-500"><CardContent className="p-4 text-red-600 text-sm">{error}</CardContent></Card>}
+      {error && <ZoruCard className="border-red-500"><ZoruCardContent className="p-4 text-red-600 text-sm">{error}</ZoruCardContent></ZoruCard>}
       {data && (
-        <Card><CardContent className="p-4 text-sm space-y-2">
+        <ZoruCard><ZoruCardContent className="p-4 text-sm space-y-2">
           <div><span className="font-semibold">Host:</span> {data.host}</div>
           <div>
             <span className="font-semibold">IPv4 addresses:</span>
@@ -48,7 +48,7 @@ export default function ServerLocationPage() {
           <div className="text-xs text-muted-foreground pt-2">
             GeoIP requires an offline MaxMind database or paid API; not included in local-only mode.
           </div>
-        </CardContent></Card>
+        </ZoruCardContent></ZoruCard>
       )}
     </ToolShell>
   );

@@ -1,13 +1,13 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
 void _zoruCn;
 
 import { useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { ZoruTextarea } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
 import { wordFrequency } from '@/lib/seo-tools/text-utils';
 
 const STOPWORDS = new Set([
@@ -32,16 +32,16 @@ export default function KeywordExtractorPage() {
 
   return (
     <ToolShell title="Keyword Extractor" description="Extract the most important keywords from a piece of text (stopwords filtered).">
-      <Textarea
+      <ZoruTextarea
         value={text}
         onChange={(e) => setText(e.target.value)}
         placeholder="Paste text content…"
         className="min-h-[220px]"
       />
-      <Button onClick={run} className="w-fit">Extract Keywords</Button>
+      <ZoruButton onClick={run} className="w-fit">Extract Keywords</ZoruButton>
       {results.length > 0 && (
-        <Card>
-          <CardContent className="p-4">
+        <ZoruCard>
+          <ZoruCardContent className="p-4">
             <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
               {results.map((r) => (
                 <div key={r.word} className="flex justify-between p-2 rounded bg-muted/40">
@@ -50,8 +50,8 @@ export default function KeywordExtractorPage() {
                 </div>
               ))}
             </div>
-          </CardContent>
-        </Card>
+          </ZoruCardContent>
+        </ZoruCard>
       )}
     </ToolShell>
   );

@@ -1,14 +1,14 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
 void _zoruCn;
 
 import { useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
+import { ZoruBadge } from '@/components/zoruui';
 import { apiFetchUrl, type FetchUrlResult } from '@/lib/seo-tools/api-client';
 
 export default function RedirectCheckerPage() {
@@ -31,25 +31,25 @@ export default function RedirectCheckerPage() {
   return (
     <ToolShell title="Redirect Checker" description="Trace the redirect chain from an initial URL to its final destination.">
       <div className="flex gap-2">
-        <Input
+        <ZoruInput
           placeholder="https://example.com"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
         />
-        <Button onClick={run} disabled={loading || !url}>
+        <ZoruButton onClick={run} disabled={loading || !url}>
           {loading ? 'Checking…' : 'Check'}
-        </Button>
+        </ZoruButton>
       </div>
 
       {result?.error && (
-        <Card className="border-red-500/50">
-          <CardContent className="p-4 text-sm text-red-500">{result.error}</CardContent>
-        </Card>
+        <ZoruCard className="border-red-500/50">
+          <ZoruCardContent className="p-4 text-sm text-red-500">{result.error}</ZoruCardContent>
+        </ZoruCard>
       )}
 
       {result && !result.error && (
-        <Card>
-          <CardContent className="p-4 space-y-4">
+        <ZoruCard>
+          <ZoruCardContent className="p-4 space-y-4">
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               <Stat label="Hops" value={String(result.redirectChain?.length ?? 0)} />
               <Stat label="Final status" value={String(result.status)} />
@@ -64,16 +64,16 @@ export default function RedirectCheckerPage() {
                 <div className="space-y-2">
                   {result.redirectChain.map((hop, i) => (
                     <div key={i} className="flex items-start gap-3 text-sm">
-                      <Badge variant="secondary">{i + 1}</Badge>
-                      <Badge>{hop.status}</Badge>
+                      <ZoruBadge variant="secondary">{i + 1}</ZoruBadge>
+                      <ZoruBadge>{hop.status}</ZoruBadge>
                       <div className="font-mono break-all">{hop.url}</div>
                     </div>
                   ))}
                 </div>
               )}
             </div>
-          </CardContent>
-        </Card>
+          </ZoruCardContent>
+        </ZoruCard>
       )}
     </ToolShell>
   );

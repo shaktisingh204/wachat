@@ -13,7 +13,7 @@
  *
  * Migrated from shadcn `/ui/*` to ZoruUI. Visual swap only — server-action
  * surface, prop shapes and data flow are unchanged. Audience source uses a
- * segmented ZoruButton group instead of a Tabs/RadioGroup card matrix per the
+ * segmented ZoruButton group instead of a Tabs/ZoruRadioGroup card matrix per the
  * no-tab-ui directive; stepper is the existing pattern from `connect/_client`.
  */
 
@@ -465,7 +465,7 @@ function Step1Audience({
                       }
                     >
                       <ZoruSelectTrigger>
-                        <ZoruSelectValue placeholder="Select column" />
+                        <ZoruSelectValue placeholder="ZoruSelect column" />
                       </ZoruSelectTrigger>
                       <ZoruSelectContent>
                         {state.csv.headers.map((h) => (
@@ -544,7 +544,7 @@ function Step1Audience({
 
         {state.source === 'label' && (
           <div className="space-y-1">
-            <ZoruLabel>Label</ZoruLabel>
+            <ZoruLabel>ZoruLabel</ZoruLabel>
             <ZoruSelect
               value={state.label ?? ''}
               onValueChange={(v) => onChange({ ...state, label: v })}

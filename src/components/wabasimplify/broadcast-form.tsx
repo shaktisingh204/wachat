@@ -1,3 +1,4 @@
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
 'use client';
 
 /**
@@ -40,26 +41,25 @@ import { TemplateInputRenderer } from './template-input-renderer';
 import { useProject } from '@/context/project-context';
 import { cn } from '@/lib/utils';
 
-import { ClayButton } from '@/components/clay';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+} from '@/components/zoruui';
+import { ZoruRadioGroup, ZoruRadioGroupItem } from '@/components/zoruui';
+import { ZoruPopover, ZoruPopoverContent, ZoruPopoverTrigger } from '@/components/zoruui';
 import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from '@/components/ui/command';
+  ZoruCommand,
+  ZoruCommandEmpty,
+  ZoruCommandGroup,
+  ZoruCommandInput,
+  ZoruCommandItem,
+  ZoruCommandList,
+} from '@/components/zoruui';
 
 /* ══════════════════════════════════════════════════════════════════
  *  Helpers (unchanged from original — CSV/XLSX parsing + validation)
@@ -178,7 +178,7 @@ const validateFileContent = async (
 function SubmitButton({ disabled }: { disabled: boolean }) {
   const { pending } = useFormStatus();
   return (
-    <ClayButton
+    <ZoruButton
       type="submit"
       variant="rose"
       size="lg"
@@ -192,7 +192,7 @@ function SubmitButton({ disabled }: { disabled: boolean }) {
       }
     >
       {pending ? 'Queueing broadcast…' : 'Start broadcast'}
-    </ClayButton>
+    </ZoruButton>
   );
 }
 
@@ -354,7 +354,7 @@ export function BroadcastForm({
       <div className="grid gap-5 md:grid-cols-2">
         <div className="flex flex-col gap-2">
           <StepLabel step={1} label="Broadcast type" />
-          <RadioGroup
+          <ZoruRadioGroup
             value={broadcastType}
             onValueChange={(v) => setBroadcastType(v as 'template' | 'flow')}
             className="flex gap-3"
@@ -373,27 +373,27 @@ export function BroadcastForm({
               description="Multi-step form experience"
               active={broadcastType === 'flow'}
             />
-          </RadioGroup>
+          </ZoruRadioGroup>
         </div>
 
         <div className="flex flex-col gap-1.5">
           <StepLabel step={2} label="Send from" />
-          <Select
+          <ZoruSelect
             name="phoneNumberId"
             value={selectedPhoneNumber}
             onValueChange={setSelectedPhoneNumber}
           >
-            <SelectTrigger>
-              <SelectValue placeholder="Choose a number…" />
-            </SelectTrigger>
-            <SelectContent>
+            <ZoruSelectTrigger>
+              <ZoruSelectValue placeholder="Choose a number…" />
+            </ZoruSelectTrigger>
+            <ZoruSelectContent>
               {(activeProject?.phoneNumbers || []).map((phone) => (
-                <SelectItem key={phone.id} value={phone.id}>
+                <ZoruSelectItem key={phone.id} value={phone.id}>
                   {phone.display_phone_number} · {phone.verified_name}
-                </SelectItem>
+                </ZoruSelectItem>
               ))}
-            </SelectContent>
-          </Select>
+            </ZoruSelectContent>
+          </ZoruSelect>
         </div>
       </div>
 
@@ -406,18 +406,18 @@ export function BroadcastForm({
           }
         />
         {broadcastType === 'template' ? (
-          <Select
+          <ZoruSelect
             name="templateId"
             value={selectedTemplate?._id.toString() || ''}
             onValueChange={handleTemplateChange}
           >
-            <SelectTrigger>
-              <SelectValue placeholder="Choose an approved template…" />
-            </SelectTrigger>
-            <SelectContent>
+            <ZoruSelectTrigger>
+              <ZoruSelectValue placeholder="Choose an approved template…" />
+            </ZoruSelectTrigger>
+            <ZoruSelectContent>
               {approvedTemplates.length > 0 ? (
                 approvedTemplates.map((template) => (
-                  <SelectItem
+                  <ZoruSelectItem
                     key={template._id.toString()}
                     value={template._id.toString()}
                   >
@@ -427,7 +427,7 @@ export function BroadcastForm({
                         ? template.status.replace(/_/g, ' ').toLowerCase()
                         : 'n/a'}
                     </span>
-                  </SelectItem>
+                  </ZoruSelectItem>
                 ))
               ) : (
                 <div className="px-2 py-4 text-center text-[12px] text-muted-foreground">
@@ -435,34 +435,34 @@ export function BroadcastForm({
                   one.
                 </div>
               )}
-            </SelectContent>
-          </Select>
+            </ZoruSelectContent>
+          </ZoruSelect>
         ) : (
-          <Select
+          <ZoruSelect
             name="flowId"
             value={selectedFlow?._id.toString() || ''}
             onValueChange={handleFlowChange}
           >
-            <SelectTrigger>
-              <SelectValue placeholder="Choose a flow…" />
-            </SelectTrigger>
-            <SelectContent>
+            <ZoruSelectTrigger>
+              <ZoruSelectValue placeholder="Choose a flow…" />
+            </ZoruSelectTrigger>
+            <ZoruSelectContent>
               {metaFlows.length > 0 ? (
                 metaFlows.map((flow) => (
-                  <SelectItem
+                  <ZoruSelectItem
                     key={flow._id.toString()}
                     value={flow._id.toString()}
                   >
                     {flow.name}
-                  </SelectItem>
+                  </ZoruSelectItem>
                 ))
               ) : (
                 <div className="px-2 py-4 text-center text-[12px] text-muted-foreground">
                   No flows found. Sync with Meta or create a new one.
                 </div>
               )}
-            </SelectContent>
-          </Select>
+            </ZoruSelectContent>
+          </ZoruSelect>
         )}
       </div>
 
@@ -470,9 +470,9 @@ export function BroadcastForm({
       {broadcastType === 'flow' && (
         <div className="grid gap-4 rounded-[14px] border border-border bg-secondary p-5 md:grid-cols-2">
           <div className="md:col-span-2">
-            <Label className="text-[11.5px] font-semibold uppercase tracking-wide text-muted-foreground">
+            <ZoruLabel className="text-[11.5px] font-semibold uppercase tracking-wide text-muted-foreground">
               Flow entry message
-            </Label>
+            </ZoruLabel>
             <p className="mt-0.5 text-[11.5px] text-muted-foreground">
               Define how the flow entry message looks to the user.
             </p>
@@ -482,14 +482,14 @@ export function BroadcastForm({
             optional
             htmlFor="flowHeader"
           >
-            <Input
+            <ZoruInput
               name="flowHeader"
               id="flowHeader"
               placeholder="Start your application"
             />
           </Field>
           <Field label="Body text" required htmlFor="flowBody">
-            <Input
+            <ZoruInput
               name="flowBody"
               id="flowBody"
               placeholder="Click below to begin…"
@@ -497,14 +497,14 @@ export function BroadcastForm({
             />
           </Field>
           <Field label="Footer" optional htmlFor="flowFooter">
-            <Input
+            <ZoruInput
               name="flowFooter"
               id="flowFooter"
               placeholder="Wachat"
             />
           </Field>
           <Field label="CTA button" required htmlFor="flowCta">
-            <Input
+            <ZoruInput
               name="flowCta"
               id="flowCta"
               placeholder="Open App"
@@ -519,7 +519,7 @@ export function BroadcastForm({
         <div className="flex flex-col gap-2">
           <StepLabel step={4} label="Audience" />
           <input type="hidden" name="audienceType" value={audienceType} />
-          <RadioGroup
+          <ZoruRadioGroup
             value={audienceType}
             onValueChange={(val) => setAudienceType(val as 'file' | 'tags')}
             className="flex gap-3"
@@ -538,15 +538,15 @@ export function BroadcastForm({
               description="Existing segments"
               active={audienceType === 'tags'}
             />
-          </RadioGroup>
+          </ZoruRadioGroup>
         </div>
 
         {audienceType === 'file' ? (
           <div className="flex flex-col gap-1.5">
             <div className="flex items-center justify-between">
-              <Label className="text-[11.5px] font-semibold text-muted-foreground">
+              <ZoruLabel className="text-[11.5px] font-semibold text-muted-foreground">
                 Contact file <span className="ml-1 text-destructive">*</span>
-              </Label>
+              </ZoruLabel>
               <button
                 type="button"
                 onClick={handleDownloadSample}
@@ -624,11 +624,11 @@ export function BroadcastForm({
           </div>
         ) : (
           <div className="flex flex-col gap-1.5">
-            <Label className="text-[11.5px] font-semibold text-muted-foreground">
+            <ZoruLabel className="text-[11.5px] font-semibold text-muted-foreground">
               Contact tags
-            </Label>
-            <Popover>
-              <PopoverTrigger asChild>
+            </ZoruLabel>
+            <ZoruPopover>
+              <ZoruPopoverTrigger asChild>
                 <button
                   type="button"
                   role="combobox"
@@ -641,24 +641,24 @@ export function BroadcastForm({
                     <LuTag className="h-3.5 w-3.5" strokeWidth={2} />
                     {selectedTagIds.length > 0
                       ? `${selectedTagIds.length} tag${selectedTagIds.length === 1 ? '' : 's'} selected`
-                      : 'Select tags…'}
+                      : 'ZoruSelect tags…'}
                   </span>
                   <LuChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
                 </button>
-              </PopoverTrigger>
-              <PopoverContent
+              </ZoruPopoverTrigger>
+              <ZoruPopoverContent
                 className="w-[--radix-popover-trigger-width] p-0"
                 align="start"
               >
-                <Command>
-                  <CommandInput placeholder="Search tags…" />
-                  <CommandList>
-                    <CommandEmpty>No tags found.</CommandEmpty>
-                    <CommandGroup>
+                <ZoruCommand>
+                  <ZoruCommandInput placeholder="Search tags…" />
+                  <ZoruCommandList>
+                    <ZoruCommandEmpty>No tags found.</ZoruCommandEmpty>
+                    <ZoruCommandGroup>
                       {(activeProject?.tags || []).map((tag: Tag) => {
                         const isSelected = selectedTagIds.includes(tag._id);
                         return (
-                          <CommandItem
+                          <ZoruCommandItem
                             key={tag._id}
                             value={tag.name}
                             onSelect={() => {
@@ -688,14 +688,14 @@ export function BroadcastForm({
                               style={{ backgroundColor: tag.color }}
                             />
                             <span>{tag.name}</span>
-                          </CommandItem>
+                          </ZoruCommandItem>
                         );
                       })}
-                    </CommandGroup>
-                  </CommandList>
-                </Command>
-              </PopoverContent>
-            </Popover>
+                    </ZoruCommandGroup>
+                  </ZoruCommandList>
+                </ZoruCommand>
+              </ZoruPopoverContent>
+            </ZoruPopover>
             <div className="mt-0.5 text-[11px] text-muted-foreground">
               Send this broadcast to every contact matching one or more of
               these tags.
@@ -821,7 +821,7 @@ function TypeOption({
           : 'border-border bg-card hover:bg-secondary',
       )}
     >
-      <RadioGroupItem value={value} id={id} className="mt-0.5" />
+      <ZoruRadioGroupItem value={value} id={id} className="mt-0.5" />
       <div className="flex flex-col">
         <span className="text-[13px] font-medium leading-tight text-foreground">
           {label}
@@ -849,7 +849,7 @@ function Field({
 }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <Label
+      <ZoruLabel
         htmlFor={htmlFor}
         className="text-[11.5px] font-semibold text-muted-foreground"
       >
@@ -860,7 +860,7 @@ function Field({
             (optional)
           </span>
         ) : null}
-      </Label>
+      </ZoruLabel>
       {children}
     </div>
   );

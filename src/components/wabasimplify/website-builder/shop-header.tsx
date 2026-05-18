@@ -3,7 +3,7 @@
 'use client';
 
 import { useCart } from '@/context/cart-context';
-import { Button } from '@/components/ui/button';
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
 import { ShoppingCart } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
@@ -19,7 +19,7 @@ export function ShopHeader({ shopName }: { shopName: string }) {
                     {shopName}
                 </Link>
                 <nav>
-                    <Button asChild variant="ghost">
+                    <ZoruButton asChild variant="ghost">
                         <Link href={`/shop/${params.slug}/cart`}>
                             <ShoppingCart className="h-5 w-5" />
                             {itemCount > 0 && (
@@ -28,7 +28,7 @@ export function ShopHeader({ shopName }: { shopName: string }) {
                                 </span>
                             )}
                         </Link>
-                    </Button>
+                    </ZoruButton>
                 </nav>
             </div>
         </header>

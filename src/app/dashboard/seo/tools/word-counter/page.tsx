@@ -4,8 +4,8 @@ import { cn as _zoruCn } from '@/components/zoruui';
 void _zoruCn;
 
 import { useMemo, useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Textarea } from '@/components/ui/textarea';
+import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
+import { ZoruTextarea } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import {
   countWords,
@@ -40,7 +40,7 @@ export default function WordCounterPage() {
 
   return (
     <ToolShell title="Word Counter" description="Count words, characters, sentences, and estimate reading time.">
-      <Textarea
+      <ZoruTextarea
         value={text}
         onChange={(e) => setText(e.target.value)}
         placeholder="Paste or type your content…"
@@ -48,12 +48,12 @@ export default function WordCounterPage() {
       />
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
         {boxes.map((b) => (
-          <Card key={b.label}>
-            <CardContent className="p-4">
+          <ZoruCard key={b.label}>
+            <ZoruCardContent className="p-4">
               <div className="text-2xl font-bold">{b.value}</div>
               <div className="text-xs text-muted-foreground">{b.label}</div>
-            </CardContent>
-          </Card>
+            </ZoruCardContent>
+          </ZoruCard>
         ))}
       </div>
     </ToolShell>

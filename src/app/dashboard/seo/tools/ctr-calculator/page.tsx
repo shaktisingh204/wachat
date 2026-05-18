@@ -4,9 +4,9 @@ import { cn as _zoruCn } from '@/components/zoruui';
 void _zoruCn;
 
 import { useMemo, useState } from 'react';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent } from '@/components/ui/card';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
+import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
 export default function CtrCalculatorPage() {
@@ -26,17 +26,17 @@ export default function CtrCalculatorPage() {
   return (
     <ToolShell title="CTR / CPC / CVR Calculator" description="Compute CTR, CPC, CVR, CPA and CPM from your campaign numbers.">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <div className="space-y-1"><Label>Impressions</Label><Input type="number" value={imp} onChange={(e) => setImp(Number(e.target.value) || 0)} /></div>
-        <div className="space-y-1"><Label>Clicks</Label><Input type="number" value={clicks} onChange={(e) => setClicks(Number(e.target.value) || 0)} /></div>
-        <div className="space-y-1"><Label>Conversions</Label><Input type="number" value={conversions} onChange={(e) => setConversions(Number(e.target.value) || 0)} /></div>
-        <div className="space-y-1"><Label>Cost</Label><Input type="number" value={cost} onChange={(e) => setCost(Number(e.target.value) || 0)} /></div>
+        <div className="space-y-1"><ZoruLabel>Impressions</ZoruLabel><ZoruInput type="number" value={imp} onChange={(e) => setImp(Number(e.target.value) || 0)} /></div>
+        <div className="space-y-1"><ZoruLabel>Clicks</ZoruLabel><ZoruInput type="number" value={clicks} onChange={(e) => setClicks(Number(e.target.value) || 0)} /></div>
+        <div className="space-y-1"><ZoruLabel>Conversions</ZoruLabel><ZoruInput type="number" value={conversions} onChange={(e) => setConversions(Number(e.target.value) || 0)} /></div>
+        <div className="space-y-1"><ZoruLabel>Cost</ZoruLabel><ZoruInput type="number" value={cost} onChange={(e) => setCost(Number(e.target.value) || 0)} /></div>
       </div>
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-        <Card><CardContent className="p-4"><div className="text-2xl font-bold">{r.ctr.toFixed(2)}%</div><div className="text-xs text-muted-foreground">CTR</div></CardContent></Card>
-        <Card><CardContent className="p-4"><div className="text-2xl font-bold">${r.cpc.toFixed(2)}</div><div className="text-xs text-muted-foreground">CPC</div></CardContent></Card>
-        <Card><CardContent className="p-4"><div className="text-2xl font-bold">{r.cvr.toFixed(2)}%</div><div className="text-xs text-muted-foreground">CVR</div></CardContent></Card>
-        <Card><CardContent className="p-4"><div className="text-2xl font-bold">${r.cpa.toFixed(2)}</div><div className="text-xs text-muted-foreground">CPA</div></CardContent></Card>
-        <Card><CardContent className="p-4"><div className="text-2xl font-bold">${r.cpm.toFixed(2)}</div><div className="text-xs text-muted-foreground">CPM</div></CardContent></Card>
+        <ZoruCard><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{r.ctr.toFixed(2)}%</div><div className="text-xs text-muted-foreground">CTR</div></ZoruCardContent></ZoruCard>
+        <ZoruCard><ZoruCardContent className="p-4"><div className="text-2xl font-bold">${r.cpc.toFixed(2)}</div><div className="text-xs text-muted-foreground">CPC</div></ZoruCardContent></ZoruCard>
+        <ZoruCard><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{r.cvr.toFixed(2)}%</div><div className="text-xs text-muted-foreground">CVR</div></ZoruCardContent></ZoruCard>
+        <ZoruCard><ZoruCardContent className="p-4"><div className="text-2xl font-bold">${r.cpa.toFixed(2)}</div><div className="text-xs text-muted-foreground">CPA</div></ZoruCardContent></ZoruCard>
+        <ZoruCard><ZoruCardContent className="p-4"><div className="text-2xl font-bold">${r.cpm.toFixed(2)}</div><div className="text-xs text-muted-foreground">CPM</div></ZoruCardContent></ZoruCard>
       </div>
     </ToolShell>
   );

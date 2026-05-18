@@ -4,17 +4,17 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+    ZoruDropdownMenu,
+    ZoruDropdownMenuContent,
+    ZoruDropdownMenuItem,
+    ZoruDropdownMenuLabel,
+    ZoruDropdownMenuSeparator,
+    ZoruDropdownMenuTrigger,
+} from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruAvatar, ZoruAvatarImage, ZoruAvatarFallback } from '@/components/zoruui';
 import { ClayBadge } from '@/components/clay';
-import { Skeleton } from '@/components/ui/skeleton';
+import { ZoruSkeleton } from '@/components/zoruui';
 import {
     LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Repeat, Inbox, Package, Compass, Search, Star, Video, Bot, ShieldCheck, Key, BookCopy, Rss, ChevronsUpDown, TrendingUp, PanelLeft, Sparkles, ChevronRight, Calendar, Database, User as UserIcon, Wrench, Newspaper, Clapperboard, Pencil, BarChart2, Globe, Landmark, Users as UsersIcon, LifeBuoy, HelpCircle, LayoutGrid
 } from 'lucide-react';
@@ -37,10 +37,10 @@ import {
     SidebarTrigger,
     SidebarProvider,
 } from '@/components/ui/sidebar';
-import { Drawer, DrawerTrigger } from '../ui/drawer';
+import { ZoruDrawer, ZoruDrawerTrigger } from '../ui/drawer';
 import { ProjectProvider, useProject } from '@/context/project-context';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Separator } from '../ui/separator';
+import { ZoruCollapsible, ZoruCollapsibleContent, ZoruCollapsibleTrigger } from '@/components/zoruui';
+import { ZoruSeparator } from '../ui/separator';
 
 const wachatMenuItems = [
     { href: '/wachat', label: 'All Projects', icon: Briefcase, roles: ['owner', 'admin', 'agent'] },
@@ -135,7 +135,7 @@ const crmMenuItems = [
             {
                 label: 'Reports',
                 subSubItems: [
-                    { href: "/dashboard/crm/accounting/balance-sheet", label: "Balance Sheet" },
+                    { href: "/dashboard/crm/accounting/balance-sheet", label: "Balance ZoruSheet" },
                     { href: "/dashboard/crm/accounting/trial-balance", label: "Trial Balance" },
                     { href: "/dashboard/crm/accounting/pnl", label: "Profit and Loss" },
                     { href: "/dashboard/crm/accounting/income-statement", label: "Income Statement" },
@@ -576,11 +576,11 @@ const userSettingsItems = [
 
 const FullPageSkeleton = () => (
     <div className="flex h-screen w-screen bg-background p-2 gap-2">
-        <div className="w-16 rounded-lg bg-card p-2"><Skeleton className="h-full w-full" /></div>
-        <div className="w-60 rounded-lg bg-card p-2"><Skeleton className="h-full w-full" /></div>
+        <div className="w-16 rounded-lg bg-card p-2"><ZoruSkeleton className="h-full w-full" /></div>
+        <div className="w-60 rounded-lg bg-card p-2"><ZoruSkeleton className="h-full w-full" /></div>
         <div className="flex-1 flex flex-col gap-2">
-            <div className="h-16 rounded-lg bg-card p-4"><Skeleton className="h-full w-full" /></div>
-            <div className="flex-1 rounded-lg bg-card p-4"><Skeleton className="h-full w-full" /></div>
+            <div className="h-16 rounded-lg bg-card p-4"><ZoruSkeleton className="h-full w-full" /></div>
+            <div className="flex-1 rounded-lg bg-card p-4"><ZoruSkeleton className="h-full w-full" /></div>
         </div>
     </div>
 );
@@ -669,13 +669,13 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
     const CollapsibleSidebarItem = ({ item }: { item: any }) => {
         const isOpen = pathname.startsWith(item.href);
         return (
-            <Collapsible defaultOpen={isOpen}>
-                <CollapsibleTrigger asChild>
+            <ZoruCollapsible defaultOpen={isOpen}>
+                <ZoruCollapsibleTrigger asChild>
                     <SidebarMenuButton isActive={isOpen} tooltip={item.label} className="w-full">
                         <item.icon /><span>{item.label}</span><ChevronRight className="ml-auto transition-transform group-data-[state=open]:rotate-90" />
                     </SidebarMenuButton>
-                </CollapsibleTrigger>
-                <CollapsibleContent asChild>
+                </ZoruCollapsibleTrigger>
+                <ZoruCollapsibleContent asChild>
                     <SidebarMenu className="pl-4">
                         {item.subItems.map((subItem: any) =>
                             subItem.subSubItems ? (
@@ -685,8 +685,8 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
                             )
                         )}
                     </SidebarMenu>
-                </CollapsibleContent>
-            </Collapsible>
+                </ZoruCollapsibleContent>
+            </ZoruCollapsible>
         )
     }
 
@@ -724,12 +724,12 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
     const HeaderAppRail = () => (
         <nav className="hidden items-center gap-1 md:flex">
             {appIcons.map(app => (
-                <Button key={app.id} asChild variant={activeApp === app.id ? 'secondary' : 'ghost'} size="sm">
+                <ZoruButton key={app.id} asChild variant={activeApp === app.id ? 'secondary' : 'ghost'} size="sm">
                     <Link href={app.href} className="flex items-center gap-2">
                         <app.icon className="h-4 w-4" />
                         {app.label}
                     </Link>
-                </Button>
+                </ZoruButton>
             ))}
         </nav>
     );
@@ -740,16 +740,16 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
                 <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center justify-between gap-4 border-b bg-background px-4">
                     <div className="flex items-center gap-2">
                         <SidebarTrigger>
-                            <Button variant="ghost" size="icon" className="md:hidden">
+                            <ZoruButton variant="ghost" size="icon" className="md:hidden">
                                 <PanelLeft />
-                            </Button>
+                            </ZoruButton>
                         </SidebarTrigger>
                         <Link href="/wachat" className="hidden font-bold sm:inline-block">
                             SabNode
                         </Link>
                         {appRailPosition === 'top' && (
                             <>
-                                <Separator orientation="vertical" className="h-6 mx-2 hidden md:block" />
+                                <ZoruSeparator orientation="vertical" className="h-6 mx-2 hidden md:block" />
                                 <HeaderAppRail />
                             </>
                         )}
@@ -757,25 +757,25 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
 
                     <div className="flex items-center gap-2">
                         <div className="font-medium text-sm hidden md:block">{activeProjectName}</div>
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                                    <Avatar>
-                                        <AvatarImage src="https://i.pravatar.cc/150?u=a042581f4e29026704d" data-ai-hint="person avatar" />
-                                        <AvatarFallback>{sessionUser?.name.charAt(0) || 'U'}</AvatarFallback>
-                                    </Avatar>
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem asChild><Link href="/dashboard/user/settings/profile">Profile</Link></DropdownMenuItem>
-                                <DropdownMenuItem asChild><Link href="/dashboard/user/billing">Billing</Link></DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem asChild><Link href="/api/auth/admin-logout" prefetch={false}><LogOut className="mr-2 h-4 w-4" />Admin Logout</Link></DropdownMenuItem>
-                                <DropdownMenuItem asChild><Link href="/api/auth/logout" prefetch={false}><LogOut className="mr-2 h-4 w-4" />Logout</Link></DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
+                        <ZoruDropdownMenu>
+                            <ZoruDropdownMenuTrigger asChild>
+                                <ZoruButton variant="ghost" className="relative h-10 w-10 rounded-full">
+                                    <ZoruAvatar>
+                                        <ZoruAvatarImage src="https://i.pravatar.cc/150?u=a042581f4e29026704d" data-ai-hint="person avatar" />
+                                        <ZoruAvatarFallback>{sessionUser?.name.charAt(0) || 'U'}</ZoruAvatarFallback>
+                                    </ZoruAvatar>
+                                </ZoruButton>
+                            </ZoruDropdownMenuTrigger>
+                            <ZoruDropdownMenuContent align="end">
+                                <ZoruDropdownMenuLabel>My Account</ZoruDropdownMenuLabel>
+                                <ZoruDropdownMenuSeparator />
+                                <ZoruDropdownMenuItem asChild><Link href="/dashboard/user/settings/profile">Profile</Link></ZoruDropdownMenuItem>
+                                <ZoruDropdownMenuItem asChild><Link href="/dashboard/user/billing">Billing</Link></ZoruDropdownMenuItem>
+                                <ZoruDropdownMenuSeparator />
+                                <ZoruDropdownMenuItem asChild><Link href="/api/auth/admin-logout" prefetch={false}><LogOut className="mr-2 h-4 w-4" />Admin Logout</Link></ZoruDropdownMenuItem>
+                                <ZoruDropdownMenuItem asChild><Link href="/api/auth/logout" prefetch={false}><LogOut className="mr-2 h-4 w-4" />Logout</Link></ZoruDropdownMenuItem>
+                            </ZoruDropdownMenuContent>
+                        </ZoruDropdownMenu>
                     </div>
                 </header>
 

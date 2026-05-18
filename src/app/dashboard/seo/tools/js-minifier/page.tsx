@@ -4,7 +4,7 @@ import { cn as _zoruCn } from '@/components/zoruui';
 void _zoruCn;
 
 import { useMemo, useState } from 'react';
-import { Textarea } from '@/components/ui/textarea';
+import { ZoruTextarea } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
 export default function JsMinifierPage() {
@@ -22,9 +22,9 @@ export default function JsMinifierPage() {
   );
   return (
     <ToolShell title="JS Minifier" description="Naive JavaScript minifier (strips comments + whitespace). Avoid on code with strings containing those chars.">
-      <Textarea value={text} onChange={(e) => setText(e.target.value)} className="min-h-[200px] font-mono text-xs" placeholder="Paste JS…" />
+      <ZoruTextarea value={text} onChange={(e) => setText(e.target.value)} className="min-h-[200px] font-mono text-xs" placeholder="Paste JS…" />
       <div className="text-sm text-muted-foreground">{text.length} → {min.length} bytes</div>
-      <Textarea readOnly value={min} className="min-h-[200px] font-mono text-xs" />
+      <ZoruTextarea readOnly value={min} className="min-h-[200px] font-mono text-xs" />
     </ToolShell>
   );
 }

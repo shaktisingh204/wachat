@@ -1,16 +1,16 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
 void _zoruCn;
 
 import { useMemo, useState } from 'react';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
+import { ZoruTextarea } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
-type SchemaType = 'Article' | 'Product' | 'LocalBusiness' | 'FAQPage' | 'BreadcrumbList';
+type SchemaType = 'Article' | 'Product' | 'LocalBusiness' | 'FAQPage' | 'ZoruBreadcrumbList';
 
 export default function SchemaGeneratorPage() {
   const [type, setType] = useState<SchemaType>('Article');
@@ -37,7 +37,7 @@ export default function SchemaGeneratorPage() {
       case 'FAQPage':
         obj = { ...obj, mainEntity: [{ '@type': 'Question', name: fields.question, acceptedAnswer: { '@type': 'Answer', text: fields.answer } }] };
         break;
-      case 'BreadcrumbList':
+      case 'ZoruBreadcrumbList':
         const list = fields.items.split(/\r?\n/).filter(Boolean);
         obj = { ...obj, itemListElement: list.map((it, i) => ({ '@type': 'ListItem', position: i + 1, name: it })) };
         break;
@@ -53,38 +53,38 @@ export default function SchemaGeneratorPage() {
           <option value="Product">Product</option>
           <option value="LocalBusiness">LocalBusiness</option>
           <option value="FAQPage">FAQPage</option>
-          <option value="BreadcrumbList">BreadcrumbList</option>
+          <option value="ZoruBreadcrumbList">ZoruBreadcrumbList</option>
         </select>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {type === 'Article' && <>
-          <div className="space-y-1 md:col-span-2"><Label>Headline</Label><Input value={fields.headline} onChange={(e) => update('headline', e.target.value)} /></div>
-          <div className="space-y-1"><Label>Author</Label><Input value={fields.author} onChange={(e) => update('author', e.target.value)} /></div>
-          <div className="space-y-1"><Label>Published date</Label><Input type="date" value={fields.date} onChange={(e) => update('date', e.target.value)} /></div>
-          <div className="space-y-1 md:col-span-2"><Label>Image URL</Label><Input value={fields.image} onChange={(e) => update('image', e.target.value)} /></div>
+          <div className="space-y-1 md:col-span-2"><ZoruLabel>Headline</ZoruLabel><ZoruInput value={fields.headline} onChange={(e) => update('headline', e.target.value)} /></div>
+          <div className="space-y-1"><ZoruLabel>Author</ZoruLabel><ZoruInput value={fields.author} onChange={(e) => update('author', e.target.value)} /></div>
+          <div className="space-y-1"><ZoruLabel>Published date</ZoruLabel><ZoruInput type="date" value={fields.date} onChange={(e) => update('date', e.target.value)} /></div>
+          <div className="space-y-1 md:col-span-2"><ZoruLabel>Image URL</ZoruLabel><ZoruInput value={fields.image} onChange={(e) => update('image', e.target.value)} /></div>
         </>}
         {type === 'Product' && <>
-          <div className="space-y-1"><Label>Name</Label><Input value={fields.name} onChange={(e) => update('name', e.target.value)} /></div>
-          <div className="space-y-1"><Label>SKU</Label><Input value={fields.sku} onChange={(e) => update('sku', e.target.value)} /></div>
-          <div className="space-y-1"><Label>Price</Label><Input value={fields.price} onChange={(e) => update('price', e.target.value)} /></div>
-          <div className="space-y-1"><Label>Currency</Label><Input value={fields.currency} onChange={(e) => update('currency', e.target.value)} /></div>
-          <div className="space-y-1 md:col-span-2"><Label>Image URL</Label><Input value={fields.image} onChange={(e) => update('image', e.target.value)} /></div>
+          <div className="space-y-1"><ZoruLabel>Name</ZoruLabel><ZoruInput value={fields.name} onChange={(e) => update('name', e.target.value)} /></div>
+          <div className="space-y-1"><ZoruLabel>SKU</ZoruLabel><ZoruInput value={fields.sku} onChange={(e) => update('sku', e.target.value)} /></div>
+          <div className="space-y-1"><ZoruLabel>Price</ZoruLabel><ZoruInput value={fields.price} onChange={(e) => update('price', e.target.value)} /></div>
+          <div className="space-y-1"><ZoruLabel>Currency</ZoruLabel><ZoruInput value={fields.currency} onChange={(e) => update('currency', e.target.value)} /></div>
+          <div className="space-y-1 md:col-span-2"><ZoruLabel>Image URL</ZoruLabel><ZoruInput value={fields.image} onChange={(e) => update('image', e.target.value)} /></div>
         </>}
         {type === 'LocalBusiness' && <>
-          <div className="space-y-1"><Label>Name</Label><Input value={fields.name} onChange={(e) => update('name', e.target.value)} /></div>
-          <div className="space-y-1"><Label>Phone</Label><Input value={fields.phone} onChange={(e) => update('phone', e.target.value)} /></div>
-          <div className="space-y-1 md:col-span-2"><Label>Address</Label><Input value={fields.address} onChange={(e) => update('address', e.target.value)} /></div>
+          <div className="space-y-1"><ZoruLabel>Name</ZoruLabel><ZoruInput value={fields.name} onChange={(e) => update('name', e.target.value)} /></div>
+          <div className="space-y-1"><ZoruLabel>Phone</ZoruLabel><ZoruInput value={fields.phone} onChange={(e) => update('phone', e.target.value)} /></div>
+          <div className="space-y-1 md:col-span-2"><ZoruLabel>Address</ZoruLabel><ZoruInput value={fields.address} onChange={(e) => update('address', e.target.value)} /></div>
         </>}
         {type === 'FAQPage' && <>
-          <div className="space-y-1 md:col-span-2"><Label>Question</Label><Input value={fields.question} onChange={(e) => update('question', e.target.value)} /></div>
-          <div className="space-y-1 md:col-span-2"><Label>Answer</Label><Textarea value={fields.answer} onChange={(e) => update('answer', e.target.value)} /></div>
+          <div className="space-y-1 md:col-span-2"><ZoruLabel>Question</ZoruLabel><ZoruInput value={fields.question} onChange={(e) => update('question', e.target.value)} /></div>
+          <div className="space-y-1 md:col-span-2"><ZoruLabel>Answer</ZoruLabel><ZoruTextarea value={fields.answer} onChange={(e) => update('answer', e.target.value)} /></div>
         </>}
-        {type === 'BreadcrumbList' && <>
-          <div className="space-y-1 md:col-span-2"><Label>Breadcrumb items (one per line)</Label><Textarea value={fields.items} onChange={(e) => update('items', e.target.value)} /></div>
+        {type === 'ZoruBreadcrumbList' && <>
+          <div className="space-y-1 md:col-span-2"><ZoruLabel>ZoruBreadcrumb items (one per line)</ZoruLabel><ZoruTextarea value={fields.items} onChange={(e) => update('items', e.target.value)} /></div>
         </>}
       </div>
-      <Button onClick={() => navigator.clipboard.writeText(schema)}>Copy</Button>
-      <Textarea readOnly value={schema} className="min-h-[260px] font-mono text-xs" />
+      <ZoruButton onClick={() => navigator.clipboard.writeText(schema)}>Copy</ZoruButton>
+      <ZoruTextarea readOnly value={schema} className="min-h-[260px] font-mono text-xs" />
     </ToolShell>
   );
 }

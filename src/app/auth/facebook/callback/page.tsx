@@ -1,6 +1,6 @@
 import { Suspense } from 'react'
 import { LoaderCircle } from 'lucide-react'
-import { Card, CardHeader, CardTitle } from '@/components/ui/card'
+import { ZoruCard, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui'
 import FacebookCallbackClient from './FacebookCallbackClient'
 
 type PageProps = {
@@ -24,14 +24,14 @@ export default async function FacebookCallbackPage({
     <Suspense
       fallback={
         <div className="flex h-screen w-screen items-center justify-center bg-muted">
-          <Card className="max-w-sm text-center">
-            <CardHeader>
+          <ZoruCard className="max-w-sm text-center">
+            <ZoruCardHeader>
               <div className="flex justify-center mb-4">
                 <LoaderCircle className="h-10 w-10 animate-spin text-primary" />
               </div>
-              <CardTitle>Loading...</CardTitle>
-            </CardHeader>
-          </Card>
+              <ZoruCardTitle>Loading...</ZoruCardTitle>
+            </ZoruCardHeader>
+          </ZoruCard>
         </div>
       }
     >

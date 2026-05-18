@@ -1,12 +1,12 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
 void _zoruCn;
 
 import { useState } from 'react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { apiFetchUrl, parseHtml } from '@/lib/seo-tools/api-client';
 
@@ -31,12 +31,12 @@ export default function TitleTagCheckerPage() {
   return (
     <ToolShell title="Title Tag Checker" description="Check a page title's length and quality (30–60 chars recommended).">
       <div className="flex gap-2">
-        <Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com" />
-        <Button onClick={run} disabled={loading}>{loading ? 'Loading…' : 'Check'}</Button>
+        <ZoruInput value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com" />
+        <ZoruButton onClick={run} disabled={loading}>{loading ? 'Loading…' : 'Check'}</ZoruButton>
       </div>
-      {error && <Card className="border-red-500"><CardContent className="p-4 text-red-600 text-sm">{error}</CardContent></Card>}
+      {error && <ZoruCard className="border-red-500"><ZoruCardContent className="p-4 text-red-600 text-sm">{error}</ZoruCardContent></ZoruCard>}
       {title !== null && (
-        <Card><CardContent className="p-4 space-y-2">
+        <ZoruCard><ZoruCardContent className="p-4 space-y-2">
           <div className="text-sm font-semibold">Title</div>
           <div className="text-lg">{title || <span className="text-muted-foreground">(empty)</span>}</div>
           <div className="flex items-center justify-between text-xs">
@@ -48,7 +48,7 @@ export default function TitleTagCheckerPage() {
           <div className="h-1.5 bg-muted rounded">
             <div className={`h-full rounded ${status === 'ok' ? 'bg-green-500' : 'bg-red-500'}`} style={{ width: `${Math.min(100, (len / 60) * 100)}%` }} />
           </div>
-        </CardContent></Card>
+        </ZoruCardContent></ZoruCard>
       )}
     </ToolShell>
   );

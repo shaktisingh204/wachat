@@ -7,15 +7,15 @@ import type { WithId } from 'mongodb';
 import type { Project, User, Plan } from '@/lib/definitions';
 import { handleInviteAgent, handleRemoveAgent } from '@/app/actions/team.actions';
 import { useToast } from '@/hooks/use-toast';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardFooter, ZoruCardHeader, ZoruCardTitle, ZoruButton } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruAvatar, ZoruAvatarFallback, ZoruAvatarImage } from '@/components/zoruui';
 import { Plus, Trash2, LoaderCircle } from 'lucide-react';
 import { useFormStatus } from 'react-dom';
-import { Separator } from '@/components/ui/separator';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ZoruSeparator } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
+import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
 import { useActionState } from 'react';
 import Link from 'next/link';
 
@@ -46,9 +46,9 @@ function RemoveAgentForm({ agent, project }: { agent: any, project: any }) {
          <form action={formAction}>
             <input type="hidden" name="projectId" value={project._id.toString()} />
             <input type="hidden" name="agentUserId" value={agent.userId.toString()} />
-            <Button type="submit" variant="destructive" size="icon" disabled={pending}>
+            <ZoruButton type="submit" variant="destructive" size="icon" disabled={pending}>
                {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
-            </Button>
+            </ZoruButton>
         </form>
     );
 }
@@ -70,37 +70,37 @@ function InviteAgentForm({ project, isDisabled }: { project: any, isDisabled: bo
     }, [state, toast]);
     
     return (
-       <Card className="p-4 border-dashed">
-            <CardHeader>
-                <CardTitle>Invite a New Team Member</CardTitle>
-                <CardDescription>Assign a role to the new user.</CardDescription>
-            </CardHeader>
-            <CardContent>
+       <ZoruCard className="p-4 border-dashed">
+            <ZoruCardHeader>
+                <ZoruCardTitle>Invite a New Team Member</ZoruCardTitle>
+                <ZoruCardDescription>Assign a role to the new user.</ZoruCardDescription>
+            </ZoruCardHeader>
+            <ZoruCardContent>
             <form action={formAction} ref={formRef}>
                 <input type="hidden" name="projectId" value={project._id} />
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                      <div className="space-y-2">
-                        <Label htmlFor="email">Email</Label>
-                        <Input id="email" name="email" type="email" placeholder="Enter agent's email" required />
+                        <ZoruLabel htmlFor="email">Email</ZoruLabel>
+                        <ZoruInput id="email" name="email" type="email" placeholder="Enter agent's email" required />
                     </div>
                      <div className="space-y-2">
-                        <Label htmlFor="role">Role</Label>
-                        <Select name="role" defaultValue="agent">
-                            <SelectTrigger id="role"><SelectValue placeholder="Select role" /></SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="agent">Agent</SelectItem>
-                                <SelectItem value="admin">Admin</SelectItem>
-                            </SelectContent>
-                        </Select>
+                        <ZoruLabel htmlFor="role">Role</ZoruLabel>
+                        <ZoruSelect name="role" defaultValue="agent">
+                            <ZoruSelectTrigger id="role"><ZoruSelectValue placeholder="ZoruSelect role" /></ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                <ZoruSelectItem value="agent">Agent</ZoruSelectItem>
+                                <ZoruSelectItem value="admin">Admin</ZoruSelectItem>
+                            </ZoruSelectContent>
+                        </ZoruSelect>
                     </div>
                 </div>
-                <Button type="submit" disabled={pending || isDisabled} className="mt-4">
+                <ZoruButton type="submit" disabled={pending || isDisabled} className="mt-4">
                   {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
                   Invite Agent
-                </Button>
+                </ZoruButton>
             </form>
-            </CardContent>
-        </Card>
+            </ZoruCardContent>
+        </ZoruCard>
     );
 }
 
@@ -121,10 +121,10 @@ export function AgentsRolesSettingsTab({ project, user }: AgentsRolesSettingsTab
         return (
             <div className="flex items-center justify-between gap-4 border rounded-md p-4">
                 <div className="flex items-center gap-4">
-                    <Avatar>
-                        <AvatarImage src={`https://api.dicebear.com/7.x/lorelei/svg?seed=${agent.email}`} alt={agent.name} />
-                        <AvatarFallback>{agent.name.substring(0, 2).toUpperCase()} </AvatarFallback>
-                    </Avatar>
+                    <ZoruAvatar>
+                        <ZoruAvatarImage src={`https://api.dicebear.com/7.x/lorelei/svg?seed=${agent.email}`} alt={agent.name} />
+                        <ZoruAvatarFallback>{agent.name.substring(0, 2).toUpperCase()} </ZoruAvatarFallback>
+                    </ZoruAvatar>
                     <div className="space-y-0.5">
                         <p className="text-sm font-medium leading-none">{agent.name}</p>
                         <p className="text-sm text-muted-foreground">{agent.email}</p>
@@ -138,12 +138,12 @@ export function AgentsRolesSettingsTab({ project, user }: AgentsRolesSettingsTab
     };
     
     return (
-        <Card className="card-gradient card-gradient-green">
-            <CardHeader>
-                <CardTitle>Agents &amp; Roles</CardTitle>
-                <CardDescription>Manage agents and their roles for this project.</CardDescription>
-            </CardHeader>
-             <CardContent className="space-y-6">
+        <ZoruCard className="card-gradient card-gradient-green">
+            <ZoruCardHeader>
+                <ZoruCardTitle>Agents &amp; Roles</ZoruCardTitle>
+                <ZoruCardDescription>Manage agents and their roles for this project.</ZoruCardDescription>
+            </ZoruCardHeader>
+             <ZoruCardContent className="space-y-6">
                 <div className="p-4 bg-muted/50 rounded-lg space-y-2 text-sm text-muted-foreground">
                     <h4 className="font-semibold text-card-foreground">Team Management</h4>
                     <p>Invite team members to assist with managing this project.</p>
@@ -156,7 +156,7 @@ export function AgentsRolesSettingsTab({ project, user }: AgentsRolesSettingsTab
                 </div>
                 
                 <InviteAgentForm project={project} isDisabled={isAtLimit} />
-                <Separator/>
+                <ZoruSeparator/>
                 <div>
                     <h3 className="text-lg font-semibold mb-2">Team Members</h3>
                     {project.agents && project.agents.length > 0 ? (
@@ -167,8 +167,8 @@ export function AgentsRolesSettingsTab({ project, user }: AgentsRolesSettingsTab
                         <p className="text-sm text-muted-foreground">No team members have been added to this project yet.</p>
                     )}
                 </div>
-             </CardContent>
-        </Card>
+             </ZoruCardContent>
+        </ZoruCard>
     );
 }
 

@@ -2,9 +2,9 @@
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
+import { ZoruDialog, ZoruDialogContent, ZoruDialogDescription, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogFooter } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruTextarea } from '@/components/zoruui';
 import { LoaderCircle, Send, ThumbsUp, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { ScrollArea } from '../ui/scroll-area';
@@ -60,14 +60,14 @@ export function InstagramViewCommentsDialog({ isOpen, onOpenChange, media, proje
   }, [isOpen, media.id, projectId, toast]);
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg h-[80vh] flex flex-col">
-        <DialogHeader>
-          <DialogTitle>Comments</DialogTitle>
-          <DialogDescription>
+    <ZoruDialog open={isOpen} onOpenChange={onOpenChange}>
+      <ZoruDialogContent className="sm:max-w-lg h-[80vh] flex flex-col">
+        <ZoruDialogHeader>
+          <ZoruDialogTitle>Comments</ZoruDialogTitle>
+          <ZoruDialogDescription>
             Viewing comments for post by @{media.username}
-          </DialogDescription>
-        </DialogHeader>
+          </ZoruDialogDescription>
+        </ZoruDialogHeader>
         <ScrollArea className="flex-1 -mx-6 px-6">
             <div className="space-y-4 py-4">
                 {isLoading ? (
@@ -84,13 +84,13 @@ export function InstagramViewCommentsDialog({ isOpen, onOpenChange, media, proje
                 ))}
             </div>
         </ScrollArea>
-        <DialogFooter className="mt-auto border-t pt-4">
+        <ZoruDialogFooter className="mt-auto border-t pt-4">
            <form className="w-full flex items-center gap-2">
-                <Textarea name="message" placeholder="Write a comment..." className="flex-1" required disabled/>
-                <Button type="submit" disabled><Send className="h-4 w-4" /></Button>
+                <ZoruTextarea name="message" placeholder="Write a comment..." className="flex-1" required disabled/>
+                <ZoruButton type="submit" disabled><Send className="h-4 w-4" /></ZoruButton>
            </form>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </ZoruDialogFooter>
+      </ZoruDialogContent>
+    </ZoruDialog>
   );
 }

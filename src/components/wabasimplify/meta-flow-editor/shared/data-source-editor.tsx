@@ -2,9 +2,9 @@
 'use client';
 
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
 import { Plus, Trash2 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -35,11 +35,11 @@ export function DataSourceEditor({ label, dataSource, updateDataSource }: DataSo
 
     return (
         <div className="space-y-2 rounded-lg border p-4">
-            <Label className="font-semibold">{label}</Label>
+            <ZoruLabel className="font-semibold">{label}</ZoruLabel>
             <div className="space-y-3">
                 {dataSource.map(item => (
                     <div key={item.id} className="p-3 border rounded-md space-y-2 relative bg-muted/50">
-                        <Button
+                        <ZoruButton
                             type="button"
                             variant="ghost"
                             size="icon"
@@ -47,10 +47,10 @@ export function DataSourceEditor({ label, dataSource, updateDataSource }: DataSo
                             onClick={() => handleRemoveItem(item.id)}
                         >
                             <Trash2 className="h-3 w-3 text-destructive" />
-                        </Button>
+                        </ZoruButton>
                         <div className="space-y-1">
-                            <Label htmlFor={`title-${item.id}`} className="text-xs">Title</Label>
-                            <Input
+                            <ZoruLabel htmlFor={`title-${item.id}`} className="text-xs">Title</ZoruLabel>
+                            <ZoruInput
                                 id={`title-${item.id}`}
                                 value={item.title}
                                 onChange={e => handleItemChange(item.id, 'title', e.target.value)}
@@ -59,8 +59,8 @@ export function DataSourceEditor({ label, dataSource, updateDataSource }: DataSo
                             />
                         </div>
                         <div className="space-y-1">
-                            <Label htmlFor={`desc-${item.id}`} className="text-xs">Description (optional)</Label>
-                            <Input
+                            <ZoruLabel htmlFor={`desc-${item.id}`} className="text-xs">Description (optional)</ZoruLabel>
+                            <ZoruInput
                                 id={`desc-${item.id}`}
                                 value={item.description || ''}
                                 onChange={e => handleItemChange(item.id, 'description', e.target.value)}
@@ -70,7 +70,7 @@ export function DataSourceEditor({ label, dataSource, updateDataSource }: DataSo
                     </div>
                 ))}
             </div>
-             <Button
+             <ZoruButton
                 type="button"
                 variant="outline"
                 size="sm"
@@ -79,7 +79,7 @@ export function DataSourceEditor({ label, dataSource, updateDataSource }: DataSo
             >
                 <Plus className="mr-2 h-4 w-4" />
                 Add Item
-            </Button>
+            </ZoruButton>
         </div>
     );
 }

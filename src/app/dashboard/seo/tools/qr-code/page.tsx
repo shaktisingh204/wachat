@@ -1,12 +1,12 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
 void _zoruCn;
 
 import { useRef, useState } from 'react';
 import QRCode from 'react-qr-code';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
 export default function QrCodePage() {
@@ -28,15 +28,15 @@ export default function QrCodePage() {
   return (
     <ToolShell title="QR Code Generator" description="Generate a QR code locally (no third-party API).">
       <div className="flex gap-2">
-        <Input value={text} onChange={(e) => setText(e.target.value)} placeholder="Text or URL" />
-        <Button onClick={() => setSubmitted(text)}>Generate</Button>
+        <ZoruInput value={text} onChange={(e) => setText(e.target.value)} placeholder="Text or URL" />
+        <ZoruButton onClick={() => setSubmitted(text)}>Generate</ZoruButton>
       </div>
       {submitted && (
         <div className="flex flex-col items-start gap-2">
           <div ref={wrapRef} className="p-4 bg-white border rounded">
             <QRCode value={submitted} size={256} />
           </div>
-          <Button variant="outline" onClick={download}>Download SVG</Button>
+          <ZoruButton variant="outline" onClick={download}>Download SVG</ZoruButton>
         </div>
       )}
     </ToolShell>

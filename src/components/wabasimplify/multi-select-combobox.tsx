@@ -4,22 +4,22 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { Check, ChevronsUpDown, X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
 import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from '@/components/ui/command';
+  ZoruCommand,
+  ZoruCommandEmpty,
+  ZoruCommandGroup,
+  ZoruCommandInput,
+  ZoruCommandItem,
+  ZoruCommandList,
+} from '@/components/zoruui';
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '../ui/scroll-area';
+  ZoruPopover,
+  ZoruPopoverContent,
+  ZoruPopoverTrigger,
+} from '@/components/zoruui';
+import { ZoruBadge } from '@/components/zoruui';
+import { ZoruScrollArea } from '../ui/scroll-area';
 
 export type MultiSelectOption = {
   value: string;
@@ -40,7 +40,7 @@ export function MultiSelectCombobox({
   options,
   selected,
   onSelectionChange,
-  placeholder = "Select...",
+  placeholder = "ZoruSelect...",
   className,
 }: MultiSelectComboboxProps) {
   const [open, setOpen] = React.useState(false);
@@ -53,9 +53,9 @@ export function MultiSelectCombobox({
   };
 
   return (
-    <Popover open={open} onOpenChange={setOpen} modal={true}>
-      <PopoverTrigger asChild>
-        <Button
+    <ZoruPopover open={open} onOpenChange={setOpen} modal={true}>
+      <ZoruPopoverTrigger asChild>
+        <ZoruButton
           variant="outline"
           role="combobox"
           aria-expanded={open}
@@ -66,7 +66,7 @@ export function MultiSelectCombobox({
               options
                 .filter((option) => selected.includes(option.value))
                 .map((option) => (
-                  <Badge
+                  <ZoruBadge
                     key={option.value}
                     variant="secondary"
                     className="rounded-sm px-2 py-1 font-normal flex items-center gap-1"
@@ -82,24 +82,24 @@ export function MultiSelectCombobox({
                     >
                       <X className="h-3 w-3 text-muted-foreground hover:text-foreground" />
                     </button>
-                  </Badge>
+                  </ZoruBadge>
                 ))
             ) : (
               <span className="text-muted-foreground font-normal">{placeholder}</span>
             )}
           </div>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
-        <Command>
-          <CommandInput placeholder="Search tags..." />
-          <CommandList>
-            <CommandEmpty>No options found.</CommandEmpty>
-            <CommandGroup>
-              <ScrollArea className="max-h-60">
+        </ZoruButton>
+      </ZoruPopoverTrigger>
+      <ZoruPopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+        <ZoruCommand>
+          <ZoruCommandInput placeholder="Search tags..." />
+          <ZoruCommandList>
+            <ZoruCommandEmpty>No options found.</ZoruCommandEmpty>
+            <ZoruCommandGroup>
+              <ZoruScrollArea className="max-h-60">
                 {options.map((option) => (
-                  <CommandItem
+                  <ZoruCommandItem
                     key={option.value}
                     value={option.label}
                     onSelect={() => handleSelect(option.value)}
@@ -114,13 +114,13 @@ export function MultiSelectCombobox({
                       <span className="w-4 h-4 rounded-full mr-2" style={{ backgroundColor: option.color }} />
                     )}
                     {option.label}
-                  </CommandItem>
+                  </ZoruCommandItem>
                 ))}
-              </ScrollArea>
-            </CommandGroup>
-          </CommandList>
-        </Command>
-      </PopoverContent>
-    </Popover>
+              </ZoruScrollArea>
+            </ZoruCommandGroup>
+          </ZoruCommandList>
+        </ZoruCommand>
+      </ZoruPopoverContent>
+    </ZoruPopover>
   );
 }

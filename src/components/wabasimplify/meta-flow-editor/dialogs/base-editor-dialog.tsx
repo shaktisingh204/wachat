@@ -2,14 +2,14 @@
 'use client';
 
 import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+} from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruScrollArea } from '@/components/zoruui';
 
 interface BaseEditorDialogProps {
   isOpen: boolean;
@@ -21,21 +21,21 @@ interface BaseEditorDialogProps {
 
 export function BaseEditorDialog({ isOpen, onOpenChange, onSave, componentType, children }: BaseEditorDialogProps) {
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>Edit Component: {componentType}</DialogTitle>
-        </DialogHeader>
-        <ScrollArea className="max-h-[60vh] -mx-6 px-6">
+    <ZoruDialog open={isOpen} onOpenChange={onOpenChange}>
+      <ZoruDialogContent className="sm:max-w-2xl">
+        <ZoruDialogHeader>
+          <ZoruDialogTitle>Edit Component: {componentType}</ZoruDialogTitle>
+        </ZoruDialogHeader>
+        <ZoruScrollArea className="max-h-[60vh] -mx-6 px-6">
           <div className="py-6 space-y-6">
             {children}
           </div>
-        </ScrollArea>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button onClick={onSave}>Apply</Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </ZoruScrollArea>
+        <ZoruDialogFooter>
+          <ZoruButton variant="outline" onClick={() => onOpenChange(false)}>Cancel</ZoruButton>
+          <ZoruButton onClick={onSave}>Apply</ZoruButton>
+        </ZoruDialogFooter>
+      </ZoruDialogContent>
+    </ZoruDialog>
   );
 }

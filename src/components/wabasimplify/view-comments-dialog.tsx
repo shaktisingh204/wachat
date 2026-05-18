@@ -2,9 +2,9 @@
 'use client';
 
 import { useEffect, useRef, useState, useTransition } from 'react';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
+import { ZoruDialog, ZoruDialogContent, ZoruDialogDescription, ZoruDialogFooter, ZoruDialogHeader, ZoruDialogTitle } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruTextarea } from '@/components/zoruui';
 import { LoaderCircle, Send, ThumbsUp, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { ScrollArea } from '../ui/scroll-area';
@@ -19,10 +19,10 @@ const commentInitialState = { success: false, error: undefined };
 function SubmitButton() {
     const [isPending, startTransition] = useTransition();
     return (
-        <Button type="submit" disabled={isPending}>
+        <ZoruButton type="submit" disabled={isPending}>
             {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
             Comment
-        </Button>
+        </ZoruButton>
     );
 }
 
@@ -65,9 +65,9 @@ function Comment({ comment, projectId, onActionComplete }: { comment: any, proje
                     <p className="text-sm mt-1">{comment.message}</p>
                 </div>
                 <div className="flex items-center gap-2 mt-1">
-                     <Button variant="ghost" size="sm" className="text-xs h-auto py-0.5 px-1.5" onClick={onLike} disabled={isLiking}>Like</Button>
-                     <Button variant="ghost" size="sm" className="text-xs h-auto py-0.5 px-1.5" disabled>Reply</Button>
-                     <Button variant="ghost" size="sm" className="text-xs h-auto py-0.5 px-1.5 text-destructive" onClick={onDelete} disabled={isDeleting}>Delete</Button>
+                     <ZoruButton variant="ghost" size="sm" className="text-xs h-auto py-0.5 px-1.5" onClick={onLike} disabled={isLiking}>Like</ZoruButton>
+                     <ZoruButton variant="ghost" size="sm" className="text-xs h-auto py-0.5 px-1.5" disabled>Reply</ZoruButton>
+                     <ZoruButton variant="ghost" size="sm" className="text-xs h-auto py-0.5 px-1.5 text-destructive" onClick={onDelete} disabled={isDeleting}>Delete</ZoruButton>
                 </div>
             </div>
         </div>
@@ -107,14 +107,14 @@ export function ViewCommentsDialog({ isOpen, onOpenChange, post, projectId, onAc
     }, [state, toast, onActionComplete]);
   
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg h-[80vh] flex flex-col">
-        <DialogHeader>
-          <DialogTitle>Comments</DialogTitle>
-          <DialogDescription>
+    <ZoruDialog open={isOpen} onOpenChange={onOpenChange}>
+      <ZoruDialogContent className="sm:max-w-lg h-[80vh] flex flex-col">
+        <ZoruDialogHeader>
+          <ZoruDialogTitle>Comments</ZoruDialogTitle>
+          <ZoruDialogDescription>
             Viewing comments for post: "{post.message?.substring(0, 30)}..."
-          </DialogDescription>
-        </DialogHeader>
+          </ZoruDialogDescription>
+        </ZoruDialogHeader>
         <ScrollArea className="flex-1 -mx-6 px-6">
             <div className="space-y-4 py-4">
                 {(post.comments?.data || []).length > 0 ? (
@@ -126,18 +126,18 @@ export function ViewCommentsDialog({ isOpen, onOpenChange, post, projectId, onAc
                 )}
             </div>
         </ScrollArea>
-        <DialogFooter className="mt-auto border-t pt-4">
+        <ZoruDialogFooter className="mt-auto border-t pt-4">
            <form action={action} ref={formRef} className="w-full flex items-center gap-2">
                 <input type="hidden" name="projectId" value={projectId} />
                 <input type="hidden" name="objectId" value={post.id} />
-                <Textarea name="message" placeholder="Write a comment..." className="flex-1" required />
-                <Button type="submit" disabled={isPending}>
+                <ZoruTextarea name="message" placeholder="Write a comment..." className="flex-1" required />
+                <ZoruButton type="submit" disabled={isPending}>
                     {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
                     Comment
-                </Button>
+                </ZoruButton>
            </form>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </ZoruDialogFooter>
+      </ZoruDialogContent>
+    </ZoruDialog>
   );
 }

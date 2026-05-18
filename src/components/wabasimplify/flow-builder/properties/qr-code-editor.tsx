@@ -1,8 +1,8 @@
 
 'use client';
 
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
 
 interface EditorProps {
   node: any;
@@ -12,8 +12,8 @@ interface EditorProps {
 export function QrCodeEditor({ node, onUpdate }: EditorProps) {
   return (
     <div className="space-y-4">
-        <div className="space-y-2"><Label>Data to Encode</Label><Input value={node.data.qrData || ''} onChange={e => onUpdate({ qrData: e.target.value })} placeholder="https://example.com or {{my_short_link}}"/></div>
-        <div className="space-y-2"><Label>Save Image URL to Variable</Label><Input value={node.data.saveAsVariable || ''} onChange={e => onUpdate({ saveAsVariable: e.target.value })} placeholder="my_qr_code_url" /></div>
+        <div className="space-y-2"><ZoruLabel>Data to Encode</ZoruLabel><ZoruInput value={node.data.qrData || ''} onChange={e => onUpdate({ qrData: e.target.value })} placeholder="https://example.com or {{my_short_link}}"/></div>
+        <div className="space-y-2"><ZoruLabel>Save Image URL to Variable</ZoruLabel><ZoruInput value={node.data.saveAsVariable || ''} onChange={e => onUpdate({ saveAsVariable: e.target.value })} placeholder="my_qr_code_url" /></div>
     </div>
   );
 }

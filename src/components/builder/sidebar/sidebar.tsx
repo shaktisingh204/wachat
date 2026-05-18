@@ -6,10 +6,10 @@ import { WIDGET_REGISTRY } from '@/components/builder/registry';
 import { DraggableSidebarItem } from './draggable-item';
 import { StylePanel } from './style-panel';
 import { ThemePanel } from './theme-panel';
-import { Button } from '@/components/ui/button';
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'; // Assuming these exist usually
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
 import { v4 as uuidv4 } from 'uuid';
 
 export const BuilderSidebar = () => {
@@ -112,7 +112,7 @@ export const BuilderSidebar = () => {
                         <div className="space-y-4 h-full flex flex-col">
                             <div className="flex justify-between items-center pb-2 border-b">
                                 <h3 className="font-medium text-sm">Content</h3>
-                                <Button variant="destructive" size="sm" onClick={handleDelete} className="h-6 text-xs">Delete</Button>
+                                <ZoruButton variant="destructive" size="sm" onClick={handleDelete} className="h-6 text-xs">Delete</ZoruButton>
                             </div>
 
                             {/* Content Tab */}
@@ -122,8 +122,8 @@ export const BuilderSidebar = () => {
                                         {/* Text Content */}
                                         {['HEADING', 'TEXT', 'BUTTON'].includes(selectedElement.widgetType) && (
                                             <div className="space-y-1">
-                                                <Label className="text-xs">Text</Label>
-                                                <Input
+                                                <ZoruLabel className="text-xs">Text</ZoruLabel>
+                                                <ZoruInput
                                                     value={selectedElement.content.text || ''}
                                                     onChange={(e) => handleUpdate('text', e.target.value)}
                                                     className="h-8 text-sm"
@@ -134,8 +134,8 @@ export const BuilderSidebar = () => {
                                         {/* Image Source */}
                                         {selectedElement.widgetType === 'IMAGE' && (
                                             <div className="space-y-1">
-                                                <Label className="text-xs">Image URL</Label>
-                                                <Input
+                                                <ZoruLabel className="text-xs">Image URL</ZoruLabel>
+                                                <ZoruInput
                                                     value={selectedElement.content.src || ''}
                                                     onChange={(e) => handleUpdate('src', e.target.value)}
                                                     className="h-8 text-sm"
@@ -153,7 +153,7 @@ export const BuilderSidebar = () => {
                             </div>
                         </div>
                     ) : (
-                        <div className="text-center text-gray-500 py-10">Select an element to edit</div>
+                        <div className="text-center text-gray-500 py-10">ZoruSelect an element to edit</div>
                     )}
                 </TabsContent>
                 <TabsContent value="global" className="h-[calc(100vh-100px)] overflow-hidden">

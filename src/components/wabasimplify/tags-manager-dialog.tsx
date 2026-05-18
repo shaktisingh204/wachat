@@ -4,17 +4,17 @@
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruDialogTrigger,
+} from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
 import { LoaderCircle, Save, Trash2, Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { handleUpdateUserProfile } from '@/app/actions/index.ts';
@@ -26,10 +26,10 @@ const initialState = { message: null, error: null };
 function SubmitButton({ disabled }: { disabled: boolean }) {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" disabled={pending || disabled}>
+    <ZoruButton type="submit" disabled={pending || disabled}>
       {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
       Save Tags
-    </Button>
+    </ZoruButton>
   );
 }
 
@@ -84,13 +84,13 @@ export function TagsManagerDialog({ isOpen, onOpenChange, user, onTagsUpdated }:
         const names = currentTags.map(t => t.name.trim().toLowerCase());
         
         if (names.some(name => name === '')) {
-            setValidationError('Label names cannot be empty. Please fill them in or remove the blank labels.');
+            setValidationError('ZoruLabel names cannot be empty. Please fill them in or remove the blank labels.');
             return;
         }
 
         const uniqueNames = new Set(names);
         if (uniqueNames.size !== names.length) {
-            setValidationError('Label names must be unique. Please remove or rename duplicates.');
+            setValidationError('ZoruLabel names must be unique. Please remove or rename duplicates.');
             return;
         }
         
@@ -99,53 +99,53 @@ export function TagsManagerDialog({ isOpen, onOpenChange, user, onTagsUpdated }:
     };
 
     return (
-        <Dialog open={isOpen} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-lg">
+        <ZoruDialog open={isOpen} onOpenChange={onOpenChange}>
+            <ZoruDialogContent className="sm:max-w-lg">
                 <form action={validateAndSubmit}>
                     <input type="hidden" name="name" value={user.name} />
                     <input type="hidden" name="tags" value={JSON.stringify(tags.map(t => ({ name: t.name, color: t.color, _id: t._id })).filter(t => t.name.trim()))} />
-                    <DialogHeader>
-                        <DialogTitle>Manage Labels</DialogTitle>
-                        <DialogDescription>Create, edit, or delete your custom labels.</DialogDescription>
-                    </DialogHeader>
+                    <ZoruDialogHeader>
+                        <ZoruDialogTitle>Manage Labels</ZoruDialogTitle>
+                        <ZoruDialogDescription>Create, edit, or delete your custom labels.</ZoruDialogDescription>
+                    </ZoruDialogHeader>
                     <div className="py-4 space-y-4 max-h-[60vh] overflow-y-auto">
                         <div className="grid grid-cols-[1fr,auto,auto] items-center gap-2 p-2 font-medium text-sm text-muted-foreground">
-                            <span>Label Name</span>
+                            <span>ZoruLabel Name</span>
                             <span className="text-center">Color</span>
                             <span className="w-10"></span>
                         </div>
                         <div className="space-y-2">
                             {tags.map(tag => (
                                 <div key={tag._id} className="grid grid-cols-[1fr,auto,auto] items-center gap-2">
-                                    <Input
+                                    <ZoruInput
                                         value={tag.name}
                                         onChange={(e) => handleTagChange(tag._id, 'name', e.target.value)}
                                         placeholder="Enter tag name"
                                     />
-                                    <Input
+                                    <ZoruInput
                                         type="color"
                                         value={tag.color}
                                         onChange={(e) => handleTagChange(tag._id, 'color', e.target.value)}
                                         className="h-9 w-14 p-1"
                                     />
-                                    <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveTag(tag._id)}>
+                                    <ZoruButton type="button" variant="ghost" size="icon" onClick={() => handleRemoveTag(tag._id)}>
                                         <Trash2 className="h-4 w-4 text-destructive" />
-                                    </Button>
+                                    </ZoruButton>
                                 </div>
                             ))}
                         </div>
-                         <Button type="button" variant="outline" className="w-full" onClick={handleAddTag}>
+                         <ZoruButton type="button" variant="outline" className="w-full" onClick={handleAddTag}>
                             <Plus className="mr-2 h-4 w-4" />
-                            Add Label
-                        </Button>
+                            Add ZoruLabel
+                        </ZoruButton>
                         {validationError && <p className="text-sm text-destructive">{validationError}</p>}
                     </div>
-                    <DialogFooter>
-                        <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+                    <ZoruDialogFooter>
+                        <ZoruButton type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</ZoruButton>
                         <SubmitButton disabled={!!validationError} />
-                    </DialogFooter>
+                    </ZoruDialogFooter>
                 </form>
-            </DialogContent>
-        </Dialog>
+            </ZoruDialogContent>
+        </ZoruDialog>
     );
 }

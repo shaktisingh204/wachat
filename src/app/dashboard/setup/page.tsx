@@ -18,12 +18,12 @@ import {
     Workflow,
     Zap,
 } from 'lucide-react';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { ZoruAlert, ZoruAlertDescription, ZoruAlertTitle } from '@/components/zoruui';
+import { ZoruCheckbox } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
+import { ZoruDialog, ZoruDialogContent, ZoruDialogDescription, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogTrigger } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruBadge } from '@/components/zoruui';
 import { cn } from '@/lib/utils';
 
 /* ------------------------------------------------------------------ */
@@ -48,7 +48,7 @@ const TRUST = [
 const STEPS = [
     { n: '1', title: 'Click "Connect WhatsApp"', sub: 'Opens the official Meta authorization flow in a popup.' },
     { n: '2', title: 'Log in to Facebook',        sub: 'Use the Facebook account linked to your Business portfolio.' },
-    { n: '3', title: 'Select your WABA',          sub: 'Choose an existing WhatsApp Business Account or create one.' },
+    { n: '3', title: 'ZoruSelect your WABA',          sub: 'Choose an existing WhatsApp Business Account or create one.' },
     { n: '4', title: 'You\'re live',              sub: 'Return here — your project appears instantly.' },
 ];
 
@@ -65,17 +65,17 @@ export default function SetupPage() {
     if (!appId || !configId) {
         return (
             <div className="flex min-h-screen items-center justify-center">
-                <Alert variant="destructive" className="max-w-lg w-full rounded-2xl">
+                <ZoruAlert variant="destructive" className="max-w-lg w-full rounded-2xl">
                     <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>Configuration Missing</AlertTitle>
-                    <AlertDescription className="space-y-2 mt-2">
+                    <ZoruAlertTitle>Configuration Missing</ZoruAlertTitle>
+                    <ZoruAlertDescription className="space-y-2 mt-2">
                         <p>Add these env variables to your <code>.env</code> file:</p>
                         <ul className="list-disc list-inside text-xs space-y-1 font-mono bg-destructive/10 rounded-lg p-3">
                             <li>NEXT_PUBLIC_META_ONBOARDING_APP_ID</li>
                             <li>NEXT_PUBLIC_META_ONBOARDING_CONFIG_ID</li>
                         </ul>
-                    </AlertDescription>
-                </Alert>
+                    </ZoruAlertDescription>
+                </ZoruAlert>
             </div>
         );
     }
@@ -96,9 +96,9 @@ export default function SetupPage() {
                         <div className="absolute -bottom-1 -left-1 h-3 w-3 rounded-full bg-teal-400 shadow-lg" />
                     </div>
 
-                    <Badge className="rounded-full bg-emerald-100 text-emerald-700 border border-emerald-200 px-4 py-1 text-xs font-semibold hover:bg-emerald-100">
+                    <ZoruBadge className="rounded-full bg-emerald-100 text-emerald-700 border border-emerald-200 px-4 py-1 text-xs font-semibold hover:bg-emerald-100">
                         <Sparkles className="mr-1.5 h-3 w-3" /> Official Meta Embedded Signup
-                    </Badge>
+                    </ZoruBadge>
 
                     <h1 className="text-4xl font-bold tracking-tight md:text-5xl">
                         Connect Your{' '}
@@ -112,24 +112,24 @@ export default function SetupPage() {
                     </p>
 
                     {/* Primary CTA */}
-                    <Dialog>
-                        <DialogTrigger asChild>
-                            <Button size="lg" className="rounded-full px-10 text-base shadow-xl shadow-emerald-500/30 hover:shadow-emerald-500/50 hover:scale-[1.03] transition-all mt-2">
+                    <ZoruDialog>
+                        <ZoruDialogTrigger asChild>
+                            <ZoruButton size="lg" className="rounded-full px-10 text-base shadow-xl shadow-emerald-500/30 hover:shadow-emerald-500/50 hover:scale-[1.03] transition-all mt-2">
                                 <MessageCircle className="mr-2 h-5 w-5" />
                                 Connect WhatsApp Account
                                 <ArrowRight className="ml-2 h-4 w-4" />
-                            </Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-md rounded-3xl border-emerald-200/40">
-                            <DialogHeader>
+                            </ZoruButton>
+                        </ZoruDialogTrigger>
+                        <ZoruDialogContent className="sm:max-w-md rounded-3xl border-emerald-200/40">
+                            <ZoruDialogHeader>
                                 <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-600">
                                     <MessageCircle className="h-5 w-5 text-white" />
                                 </div>
-                                <DialogTitle className="text-lg">Guided WhatsApp Setup</DialogTitle>
-                                <DialogDescription>
+                                <ZoruDialogTitle className="text-lg">Guided WhatsApp Setup</ZoruDialogTitle>
+                                <ZoruDialogDescription>
                                     You'll be redirected to Facebook to authorize access. It only takes a minute.
-                                </DialogDescription>
-                            </DialogHeader>
+                                </ZoruDialogDescription>
+                            </ZoruDialogHeader>
 
                             <div className="py-4 space-y-5">
                                 <EmbeddedSignup
@@ -140,16 +140,16 @@ export default function SetupPage() {
                                 />
 
                                 <div className="flex items-start gap-3 rounded-xl border border-emerald-200/60 bg-emerald-50/60 p-3">
-                                    <Checkbox
+                                    <ZoruCheckbox
                                         id="include-catalog"
                                         checked={includeCatalog}
                                         onCheckedChange={(c) => setIncludeCatalog(Boolean(c))}
                                         className="mt-0.5 border-emerald-400 data-[state=checked]:bg-emerald-600 data-[state=checked]:border-emerald-600"
                                     />
                                     <div>
-                                        <Label htmlFor="include-catalog" className="text-sm font-medium cursor-pointer">
+                                        <ZoruLabel htmlFor="include-catalog" className="text-sm font-medium cursor-pointer">
                                             Include Catalog Management
-                                        </Label>
+                                        </ZoruLabel>
                                         <p className="text-xs text-muted-foreground mt-0.5">
                                             Grants permission to manage your WhatsApp product catalog
                                         </p>
@@ -165,8 +165,8 @@ export default function SetupPage() {
                                     ))}
                                 </div>
                             </div>
-                        </DialogContent>
-                    </Dialog>
+                        </ZoruDialogContent>
+                    </ZoruDialog>
                 </div>
 
                 {/* ── MAIN GRID ── */}
@@ -257,23 +257,23 @@ export default function SetupPage() {
                                 <Zap className="h-7 w-7 text-lime-300" />
                                 <p className="font-bold text-lg leading-snug">Ready to start reaching customers?</p>
                                 <p className="text-sm text-white/90">Connect your account in under 2 minutes.</p>
-                                <Dialog>
-                                    <DialogTrigger asChild>
-                                        <Button size="default" className="w-full rounded-xl bg-white text-emerald-700 hover:bg-white/90 font-semibold shadow-lg mt-1">
+                                <ZoruDialog>
+                                    <ZoruDialogTrigger asChild>
+                                        <ZoruButton className="w-full rounded-xl bg-white text-emerald-700 hover:bg-white/90 font-semibold shadow-lg mt-1">
                                             <MessageCircle className="mr-2 h-4 w-4" />
                                             Connect Now
-                                        </Button>
-                                    </DialogTrigger>
-                                    <DialogContent className="sm:max-w-md rounded-3xl border-emerald-200/40">
-                                        <DialogHeader>
+                                        </ZoruButton>
+                                    </ZoruDialogTrigger>
+                                    <ZoruDialogContent className="sm:max-w-md rounded-3xl border-emerald-200/40">
+                                        <ZoruDialogHeader>
                                             <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-600">
                                                 <MessageCircle className="h-5 w-5 text-white" />
                                             </div>
-                                            <DialogTitle className="text-lg">Guided WhatsApp Setup</DialogTitle>
-                                            <DialogDescription>
+                                            <ZoruDialogTitle className="text-lg">Guided WhatsApp Setup</ZoruDialogTitle>
+                                            <ZoruDialogDescription>
                                                 You'll be redirected to Facebook to authorize access.
-                                            </DialogDescription>
-                                        </DialogHeader>
+                                            </ZoruDialogDescription>
+                                        </ZoruDialogHeader>
                                         <div className="py-4 space-y-5">
                                             <EmbeddedSignup
                                                 appId={appId}
@@ -282,24 +282,24 @@ export default function SetupPage() {
                                                 state="whatsapp"
                                             />
                                             <div className="flex items-start gap-3 rounded-xl border border-emerald-200/60 bg-emerald-50/60 p-3">
-                                                <Checkbox
+                                                <ZoruCheckbox
                                                     id="include-catalog-2"
                                                     checked={includeCatalog}
                                                     onCheckedChange={(c) => setIncludeCatalog(Boolean(c))}
                                                     className="mt-0.5 border-emerald-400 data-[state=checked]:bg-emerald-600 data-[state=checked]:border-emerald-600"
                                                 />
                                                 <div>
-                                                    <Label htmlFor="include-catalog-2" className="text-sm font-medium cursor-pointer">
+                                                    <ZoruLabel htmlFor="include-catalog-2" className="text-sm font-medium cursor-pointer">
                                                         Include Catalog Management
-                                                    </Label>
+                                                    </ZoruLabel>
                                                     <p className="text-xs text-muted-foreground mt-0.5">
                                                         Grants permission to manage your WhatsApp product catalog
                                                     </p>
                                                 </div>
                                             </div>
                                         </div>
-                                    </DialogContent>
-                                </Dialog>
+                                    </ZoruDialogContent>
+                                </ZoruDialog>
                             </div>
                         </div>
                     </div>

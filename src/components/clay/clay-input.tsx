@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Input } from '@/components/ui/input';
+import { ZoruInput } from '@/components/zoruui';
 import { cn } from '@/lib/utils';
 
 export interface ClayInputProps
@@ -10,7 +10,7 @@ export interface ClayInputProps
 }
 
 /**
- * ClayInput — delegates to the shadcn `Input` primitive.
+ * ClayInput — delegates to the shadcn `ZoruInput` primitive.
  * When `leading`/`trailing` adornments are provided, we wrap the
  * primitive in a flex container with focus-within styling so the
  * decorations sit flush inside the same visual bounding box.
@@ -19,7 +19,7 @@ export const ClayInput = React.forwardRef<HTMLInputElement, ClayInputProps>(
   ({ className, leading, trailing, sizeVariant = 'md', ...props }, ref) => {
     if (!leading && !trailing) {
       return (
-        <Input
+        <ZoruInput
           ref={ref}
           className={cn(
             sizeVariant === 'sm' && 'h-8 py-1.5 text-[12.5px]',
@@ -68,9 +68,9 @@ export interface ClaySelectProps
 }
 
 /**
- * ClaySelect — native <select> styled to match the shadcn Input.
+ * ClaySelect — native <select> styled to match the shadcn ZoruInput.
  * (We deliberately keep this as a native element rather than the
- * Radix-based shadcn Select primitive because the public API here
+ * Radix-based shadcn ZoruSelect primitive because the public API here
  * accepts standard select HTML attributes plus a flat `options` list.)
  */
 export const ClaySelect = React.forwardRef<HTMLSelectElement, ClaySelectProps>(

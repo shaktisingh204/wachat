@@ -2,7 +2,7 @@
 'use client';
 
 import React from 'react';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { ZoruAccordion, ZoruAccordionContent, ZoruAccordionItem, ZoruAccordionTrigger } from '@/components/zoruui';
 import { cn } from '@/lib/utils';
 import * as LucideIcons from 'lucide-react';
 
@@ -72,7 +72,7 @@ export const AccordionBlockRenderer: React.FC<AccordionBlockRendererProps> = ({ 
     } = settings;
 
     if (items.length === 0) {
-        return <div className="p-4 text-center border-2 border-dashed rounded-lg text-muted-foreground">Accordion Block: No items configured.</div>;
+        return <div className="p-4 text-center border-2 border-dashed rounded-lg text-muted-foreground">ZoruAccordion Block: No items configured.</div>;
     }
     
     const wrapperStyle: React.CSSProperties = {
@@ -122,15 +122,15 @@ export const AccordionBlockRenderer: React.FC<AccordionBlockRendererProps> = ({ 
     return (
         <div id={cssId} className={cn(animationClass, responsiveClasses, cssClasses)} style={wrapperStyle} {...customAttrs}>
             <style>{dynamicStyles}</style>
-            <Accordion type={behavior as any} collapsible className="w-full space-y-2" defaultValue={defaultActiveItem as any} style={{ gap: `${spaceBetween}px` }}>
+            <ZoruAccordion type={behavior as any} collapsible className="w-full space-y-2" defaultValue={defaultActiveItem as any} style={{ gap: `${spaceBetween}px` }}>
                 {items.map(item => (
-                    <AccordionItem 
+                    <ZoruAccordionItem 
                         key={item.id} 
                         value={item.id} 
                         style={itemStyle} 
                         className={cn(`accordion-item-${(settings as any).id} border-none overflow-hidden`, shadowClass)}
                     >
-                        <AccordionTrigger style={triggerStyle} asChild>
+                        <ZoruAccordionTrigger style={triggerStyle} asChild>
                              <TitleTag className={cn('flex flex-1 items-center justify-between font-medium transition-all hover:underline', iconPosition === 'right' && 'flex-row-reverse')}>
                                 {item.icon && <IconRenderer iconName={item.icon} className="mr-2" />}
                                 {item.title}
@@ -139,13 +139,13 @@ export const AccordionBlockRenderer: React.FC<AccordionBlockRendererProps> = ({ 
                                     <IconRenderer iconName={activeIcon} className="active-icon" />
                                 </div>
                             </TitleTag>
-                        </AccordionTrigger>
-                        <AccordionContent>
+                        </ZoruAccordionTrigger>
+                        <ZoruAccordionContent>
                            <div style={contentStyle} className="whitespace-pre-wrap">{item.content}</div>
-                        </AccordionContent>
-                    </AccordionItem>
+                        </ZoruAccordionContent>
+                    </ZoruAccordionItem>
                 ))}
-            </Accordion>
+            </ZoruAccordion>
         </div>
     );
 };

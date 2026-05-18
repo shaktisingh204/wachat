@@ -1,14 +1,14 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
 void _zoruCn;
 
 import { useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
+import { ZoruBadge } from '@/components/zoruui';
 
 const PREFIXES = ['best', 'top', 'affordable', 'professional', 'online'];
 const SUFFIXES = ['guide', 'tips', 'examples', 'ideas', 'review', 'tutorial', 'services', 'tools', 'company', 'software'];
@@ -31,22 +31,22 @@ export default function RelatedKeywordsPage() {
   return (
     <ToolShell title="Related Keywords" description="Find related keyword ideas based on a seed term.">
       <div className="flex gap-2">
-        <Input
+        <ZoruInput
           value={seed}
           onChange={(e) => setSeed(e.target.value)}
           placeholder="Enter seed keyword"
           onKeyDown={(e) => e.key === 'Enter' && run()}
         />
-        <Button onClick={run}>Find Related</Button>
+        <ZoruButton onClick={run}>Find Related</ZoruButton>
       </div>
       {results.length > 0 && (
-        <Card>
-          <CardContent className="p-4 flex flex-wrap gap-2">
+        <ZoruCard>
+          <ZoruCardContent className="p-4 flex flex-wrap gap-2">
             {results.map((r) => (
-              <Badge key={r} variant="secondary" className="text-sm">{r}</Badge>
+              <ZoruBadge key={r} variant="secondary" className="text-sm">{r}</ZoruBadge>
             ))}
-          </CardContent>
-        </Card>
+          </ZoruCardContent>
+        </ZoruCard>
       )}
     </ToolShell>
   );

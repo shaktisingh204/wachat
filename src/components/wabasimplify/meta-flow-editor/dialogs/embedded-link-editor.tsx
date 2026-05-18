@@ -1,8 +1,8 @@
 
 'use client';
 
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
 import { DynamicBooleanInput } from '../shared/dynamic-boolean-input';
 import { ActionEditor } from '../shared/action-editor';
 
@@ -19,8 +19,8 @@ export function EmbeddedLinkEditor({ component, updateField, updateAction, allSc
     return (
         <div className="space-y-6">
             <div className="space-y-2">
-                <Label htmlFor="text">Link Text</Label>
-                <Input id="text" value={component.text || ''} onChange={(e) => updateField('text', e.target.value)} required maxLength={25} />
+                <ZoruLabel htmlFor="text">Link Text</ZoruLabel>
+                <ZoruInput id="text" value={component.text || ''} onChange={(e) => updateField('text', e.target.value)} required maxLength={25} />
             </div>
 
             <ActionEditor

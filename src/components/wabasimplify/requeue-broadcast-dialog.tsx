@@ -14,26 +14,25 @@ import { handleRequeueBroadcast } from '@/app/actions/broadcast.actions';
 import { useToast } from '@/hooks/use-toast';
 import type { Project, Template } from '@/lib/definitions';
 
-import { ClayButton } from '@/components/clay';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruDialogTrigger,
+} from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+} from '@/components/zoruui';
+import { ZoruRadioGroup, ZoruRadioGroupItem } from '@/components/zoruui';
 import { cn } from '@/lib/utils';
 
 const initialState = {
@@ -44,7 +43,7 @@ const initialState = {
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <ClayButton
+    <ZoruButton
       type="submit"
       variant="rose"
       size="md"
@@ -58,7 +57,7 @@ function SubmitButton() {
       }
     >
       {pending ? 'Requeueing…' : 'Requeue broadcast'}
-    </ClayButton>
+    </ZoruButton>
   );
 }
 
@@ -123,8 +122,8 @@ export function RequeueBroadcastDialog({
   );
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>
+    <ZoruDialog open={open} onOpenChange={handleOpenChange}>
+      <ZoruDialogTrigger asChild>
         <button
           type="button"
           aria-label="Requeue broadcast"
@@ -132,45 +131,45 @@ export function RequeueBroadcastDialog({
         >
           <LuRotateCw className="h-3.5 w-3.5" strokeWidth={1.75} />
         </button>
-      </DialogTrigger>
-      <DialogContent className="max-w-[540px] rounded-[18px] border border-border bg-card p-0 shadow-lg">
+      </ZoruDialogTrigger>
+      <ZoruDialogContent className="max-w-[540px] rounded-[18px] border border-border bg-card p-0 shadow-lg">
         <form ref={formRef} action={formAction}>
           <input type="hidden" name="broadcastId" value={broadcastId} />
           <input type="hidden" name="templateId" value={selectedTemplateId} />
           <input type="hidden" name="requeueScope" value={requeueScope} />
 
-          <DialogHeader className="flex flex-row items-start gap-3 border-b border-border px-6 py-5">
+          <ZoruDialogHeader className="flex flex-row items-start gap-3 border-b border-border px-6 py-5">
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-accent text-accent-foreground">
               <LuRotateCw className="h-5 w-5" strokeWidth={2} />
             </span>
             <div className="min-w-0 flex-1">
-              <DialogTitle className="text-[16px] font-semibold text-foreground leading-tight">
+              <ZoruDialogTitle className="text-[16px] font-semibold text-foreground leading-tight">
                 Requeue broadcast
-              </DialogTitle>
-              <DialogDescription className="mt-0.5 text-[12px] text-muted-foreground leading-snug">
+              </ZoruDialogTitle>
+              <ZoruDialogDescription className="mt-0.5 text-[12px] text-muted-foreground leading-snug">
                 Send this campaign again to the same audience — all contacts
                 or only the ones that failed the first time.
-              </DialogDescription>
+              </ZoruDialogDescription>
             </div>
-          </DialogHeader>
+          </ZoruDialogHeader>
 
           <div className="flex flex-col gap-5 px-6 py-5">
             {/* Template select */}
             <div className="flex flex-col gap-1.5">
-              <Label className="text-[11.5px] font-semibold text-muted-foreground">
+              <ZoruLabel className="text-[11.5px] font-semibold text-muted-foreground">
                 Message template <span className="ml-1 text-destructive">*</span>
-              </Label>
-              <Select
+              </ZoruLabel>
+              <ZoruSelect
                 value={selectedTemplateId}
                 onValueChange={setSelectedTemplateId}
               >
-                <SelectTrigger>
-                  <SelectValue placeholder="Choose an approved template…" />
-                </SelectTrigger>
-                <SelectContent>
+                <ZoruSelectTrigger>
+                  <ZoruSelectValue placeholder="Choose an approved template…" />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
                   {approvedTemplates.length > 0 ? (
                     approvedTemplates.map((template) => (
-                      <SelectItem
+                      <ZoruSelectItem
                         key={template._id.toString()}
                         value={template._id.toString()}
                       >
@@ -180,21 +179,21 @@ export function RequeueBroadcastDialog({
                             ? template.status.replace(/_/g, ' ').toLowerCase()
                             : 'n/a'}
                         </span>
-                      </SelectItem>
+                      </ZoruSelectItem>
                     ))
                   ) : (
                     <div className="px-2 py-4 text-center text-[12px] text-muted-foreground">
                       No approved templates found.
                     </div>
                   )}
-                </SelectContent>
-              </Select>
+                </ZoruSelectContent>
+              </ZoruSelect>
             </div>
 
             {/* Header media (optional) */}
             {showImageUpload ? (
               <div className="flex flex-col gap-1.5">
-                <Label
+                <ZoruLabel
                   htmlFor="headerImageUrl"
                   className="text-[11.5px] font-semibold text-muted-foreground"
                 >
@@ -202,8 +201,8 @@ export function RequeueBroadcastDialog({
                   <span className="ml-1 text-muted-foreground/70 font-normal">
                     (optional)
                   </span>
-                </Label>
-                <Input
+                </ZoruLabel>
+                <ZoruInput
                   id="headerImageUrl"
                   name="headerImageUrl"
                   type="url"
@@ -218,10 +217,10 @@ export function RequeueBroadcastDialog({
 
             {/* Scope radio group */}
             <div className="flex flex-col gap-2">
-              <Label className="text-[11.5px] font-semibold text-muted-foreground">
+              <ZoruLabel className="text-[11.5px] font-semibold text-muted-foreground">
                 Target contacts
-              </Label>
-              <RadioGroup
+              </ZoruLabel>
+              <ZoruRadioGroup
                 value={requeueScope}
                 onValueChange={(v) =>
                   setRequeueScope(v as 'ALL' | 'FAILED')
@@ -242,24 +241,24 @@ export function RequeueBroadcastDialog({
                   title="Only failed contacts"
                   description="Retry delivery only to the ones that failed last time."
                 />
-              </RadioGroup>
+              </ZoruRadioGroup>
             </div>
           </div>
 
-          <DialogFooter className="border-t border-border px-6 py-4 sm:justify-end gap-2">
-            <ClayButton
+          <ZoruDialogFooter className="border-t border-border px-6 py-4 sm:justify-end gap-2">
+            <ZoruButton
               type="button"
               variant="pill"
               size="md"
               onClick={() => setOpen(false)}
             >
               Cancel
-            </ClayButton>
+            </ZoruButton>
             <SubmitButton />
-          </DialogFooter>
+          </ZoruDialogFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+      </ZoruDialogContent>
+    </ZoruDialog>
   );
 }
 
@@ -288,7 +287,7 @@ function ScopeOption({
           : 'border-border bg-card hover:bg-secondary',
       )}
     >
-      <RadioGroupItem value={value} id={id} />
+      <ZoruRadioGroupItem value={value} id={id} />
       <div className="flex flex-col">
         <span className="text-[13px] font-medium text-foreground">{title}</span>
         <span className="text-[11px] text-muted-foreground">{description}</span>

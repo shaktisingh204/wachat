@@ -1,18 +1,18 @@
 'use client';
 
 import { useTransition } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { ZoruCard, ZoruCardContent, ZoruButton } from '@/components/zoruui';
+import { ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruBadge } from '@/components/zoruui';
 import { useToast } from '@/hooks/use-toast';
 import { updateTeamTaskStatus, deleteTeamTask } from '@/app/actions/team-tasks.actions';
 import type { WithId, TeamTask } from '@/lib/definitions';
 import { cn } from '@/lib/utils';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '../ui/select';
 import { format, isPast } from 'date-fns';
 import { Trash2 } from 'lucide-react';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { ZoruAvatar, ZoruAvatarFallback, ZoruAvatarImage } from '@/components/zoruui';
 
 const priorityConfig = {
     High: { color: 'bg-red-500', label: 'High' },
@@ -49,86 +49,86 @@ export function TeamTaskList({ tasks, onTaskUpdated }: { tasks: (WithId<TeamTask
     }
 
     return (
-        <Card className="h-full border-none shadow-none">
-            <CardContent className="p-0">
+        <ZoruCard className="h-full border-none shadow-none">
+            <ZoruCardContent className="p-0">
                 <div className="border rounded-md">
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead className="w-40">Status</TableHead>
-                                <TableHead>Task</TableHead>
-                                <TableHead>Assigned To</TableHead>
-                                <TableHead>Due Date</TableHead>
-                                <TableHead>Priority</TableHead>
-                                <TableHead className="text-right">Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
+                    <ZoruTable>
+                        <ZoruTableHeader>
+                            <ZoruTableRow>
+                                <ZoruTableHead className="w-40">Status</ZoruTableHead>
+                                <ZoruTableHead>Task</ZoruTableHead>
+                                <ZoruTableHead>Assigned To</ZoruTableHead>
+                                <ZoruTableHead>Due Date</ZoruTableHead>
+                                <ZoruTableHead>Priority</ZoruTableHead>
+                                <ZoruTableHead className="text-right">Actions</ZoruTableHead>
+                            </ZoruTableRow>
+                        </ZoruTableHeader>
+                        <ZoruTableBody>
                             {tasks.length > 0 ? (
                                 tasks.map(task => {
                                     const { color, label } = priorityConfig[task.priority] || priorityConfig.Medium;
                                     const isOverdue = task.dueDate && isPast(new Date(task.dueDate)) && task.status !== 'Completed';
 
                                     return (
-                                        <TableRow key={task._id.toString()} className={cn(isUpdating && 'opacity-50')}>
-                                            <TableCell>
-                                                <Select value={task.status} onValueChange={(val) => handleStatusChange(task._id.toString(), val as any)}>
-                                                    <SelectTrigger className={cn(
+                                        <ZoruTableRow key={task._id.toString()} className={cn(isUpdating && 'opacity-50')}>
+                                            <ZoruTableCell>
+                                                <ZoruSelect value={task.status} onValueChange={(val) => handleStatusChange(task._id.toString(), val as any)}>
+                                                    <ZoruSelectTrigger className={cn(
                                                         'h-8 text-xs w-32',
                                                         task.status === 'Completed' && 'border-green-500 text-green-600',
-                                                        task.status === 'In Progress' && 'border-blue-500 text-blue-600'
+                                                        task.status === 'In ZoruProgress' && 'border-blue-500 text-blue-600'
                                                     )}>
-                                                        <SelectValue />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectItem value="To-Do">To-Do</SelectItem>
-                                                        <SelectItem value="In Progress">In Progress</SelectItem>
-                                                        <SelectItem value="Completed">Completed</SelectItem>
-                                                    </SelectContent>
-                                                </Select>
-                                            </TableCell>
-                                            <TableCell>
+                                                        <ZoruSelectValue />
+                                                    </ZoruSelectTrigger>
+                                                    <ZoruSelectContent>
+                                                        <ZoruSelectItem value="To-Do">To-Do</ZoruSelectItem>
+                                                        <ZoruSelectItem value="In ZoruProgress">In ZoruProgress</ZoruSelectItem>
+                                                        <ZoruSelectItem value="Completed">Completed</ZoruSelectItem>
+                                                    </ZoruSelectContent>
+                                                </ZoruSelect>
+                                            </ZoruTableCell>
+                                            <ZoruTableCell>
                                                 <p className={cn("font-medium", task.status === 'Completed' && 'line-through text-muted-foreground')}>
                                                     {task.title}
                                                 </p>
                                                 <p className="text-xs text-muted-foreground line-clamp-1">{task.description}</p>
-                                            </TableCell>
-                                            <TableCell>
+                                            </ZoruTableCell>
+                                            <ZoruTableCell>
                                                 {task.assignedTo ? (
                                                     <div className="flex items-center gap-2">
-                                                        <Avatar className="h-6 w-6">
-                                                            <AvatarImage src={task.assigneeAvatar || ''} />
-                                                            <AvatarFallback>{task.assigneeName?.charAt(0) || 'U'}</AvatarFallback>
-                                                        </Avatar>
+                                                        <ZoruAvatar className="h-6 w-6">
+                                                            <ZoruAvatarImage src={task.assigneeAvatar || ''} />
+                                                            <ZoruAvatarFallback>{task.assigneeName?.charAt(0) || 'U'}</ZoruAvatarFallback>
+                                                        </ZoruAvatar>
                                                         <span className="text-sm text-muted-foreground">{task.assigneeName || 'Unknown'}</span>
                                                     </div>
                                                 ) : <span className="text-xs text-muted-foreground">Unassigned</span>}
-                                            </TableCell>
-                                            <TableCell>
+                                            </ZoruTableCell>
+                                            <ZoruTableCell>
                                                 <span className={cn('text-sm', isOverdue && 'text-red-500 font-semibold')}>
                                                     {task.dueDate ? format(new Date(task.dueDate), 'PPP') : 'No due date'}
                                                 </span>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Badge className={`${color} text-white border-0`}>{label}</Badge>
-                                            </TableCell>
-                                            <TableCell className="text-right">
-                                                <Button variant="ghost" size="icon" onClick={() => handleDelete(task._id.toString())} disabled={isUpdating}>
+                                            </ZoruTableCell>
+                                            <ZoruTableCell>
+                                                <ZoruBadge className={`${color} text-white border-0`}>{label}</ZoruBadge>
+                                            </ZoruTableCell>
+                                            <ZoruTableCell className="text-right">
+                                                <ZoruButton variant="ghost" size="icon" onClick={() => handleDelete(task._id.toString())} disabled={isUpdating}>
                                                     <Trash2 className="h-4 w-4 text-destructive" />
-                                                </Button>
-                                            </TableCell>
-                                        </TableRow>
+                                                </ZoruButton>
+                                            </ZoruTableCell>
+                                        </ZoruTableRow>
                                     )
                                 })
                             ) : (
-                                <TableRow>
-                                    <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">No tasks in this category.</TableCell>
-                                </TableRow>
+                                <ZoruTableRow>
+                                    <ZoruTableCell colSpan={6} className="h-24 text-center text-muted-foreground">No tasks in this category.</ZoruTableCell>
+                                </ZoruTableRow>
                             )}
-                        </TableBody>
-                    </Table>
+                        </ZoruTableBody>
+                    </ZoruTable>
                 </div>
-            </CardContent>
-        </Card>
+            </ZoruCardContent>
+        </ZoruCard>
     );
 }

@@ -1,12 +1,12 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
 void _zoruCn;
 
 import { useState } from 'react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
 function deterministicRank(seed: string): number {
@@ -27,21 +27,21 @@ export default function KeywordRankCheckerPage() {
 
   return (
     <ToolShell title="Keyword Rank Checker" description="Check keyword ranking for a domain. (Requires SERP API for production data.)">
-      <Card className="border-amber-300 bg-amber-50 dark:bg-amber-950/30">
-        <CardContent className="p-3 text-xs">
+      <ZoruCard className="border-amber-300 bg-amber-50 dark:bg-amber-950/30">
+        <ZoruCardContent className="p-3 text-xs">
           Production rank data requires a SERP API provider (e.g. DataForSEO). The number below is a deterministic placeholder.
-        </CardContent>
-      </Card>
+        </ZoruCardContent>
+      </ZoruCard>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-        <Input value={keyword} onChange={(e) => setKeyword(e.target.value)} placeholder="Keyword" />
-        <Input value={domain} onChange={(e) => setDomain(e.target.value)} placeholder="example.com" />
+        <ZoruInput value={keyword} onChange={(e) => setKeyword(e.target.value)} placeholder="Keyword" />
+        <ZoruInput value={domain} onChange={(e) => setDomain(e.target.value)} placeholder="example.com" />
       </div>
-      <Button onClick={run}>Check rank</Button>
+      <ZoruButton onClick={run}>Check rank</ZoruButton>
       {result && (
-        <Card><CardContent className="p-6 text-center">
+        <ZoruCard><ZoruCardContent className="p-6 text-center">
           <div className="text-5xl font-bold">#{result.rank}</div>
           <div className="text-sm text-muted-foreground mt-2">{result.keyword} → {result.domain}</div>
-        </CardContent></Card>
+        </ZoruCardContent></ZoruCard>
       )}
     </ToolShell>
   );

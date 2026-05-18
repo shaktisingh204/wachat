@@ -7,11 +7,11 @@ import { handleFacebookOAuthCallback } from '@/app/actions/facebook.actions'
 import { LoaderCircle } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from '@/components/ui/card'
+  ZoruCard,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruCardDescription,
+} from '@/components/zoruui'
 
 type Props = {
   code?: string
@@ -83,17 +83,17 @@ export default function FacebookCallbackClient({
 
   return (
     <div className="flex h-screen w-screen items-center justify-center bg-muted">
-      <Card className="max-w-sm text-center">
-        <CardHeader>
+      <ZoruCard className="max-w-sm text-center">
+        <ZoruCardHeader>
           <div className="flex justify-center mb-4">
             <LoaderCircle className="h-10 w-10 animate-spin text-primary" />
           </div>
-          <CardTitle>Finalizing connection, please wait…</CardTitle>
-          <CardDescription>
+          <ZoruCardTitle>Finalizing connection, please wait…</ZoruCardTitle>
+          <ZoruCardDescription>
             This may take a moment. Do not close this window.
-          </CardDescription>
-        </CardHeader>
-      </Card>
+          </ZoruCardDescription>
+        </ZoruCardHeader>
+      </ZoruCard>
     </div>
   )
 }

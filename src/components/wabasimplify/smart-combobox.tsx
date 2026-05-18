@@ -3,21 +3,21 @@
 import * as React from 'react';
 import { Check, ChevronsUpDown, LoaderCircle, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
 import {
-    Command,
-    CommandEmpty,
-    CommandGroup,
-    CommandInput,
-    CommandItem,
-    CommandList,
-    CommandSeparator,
-} from '@/components/ui/command';
+    ZoruCommand,
+    ZoruCommandEmpty,
+    ZoruCommandGroup,
+    ZoruCommandInput,
+    ZoruCommandItem,
+    ZoruCommandList,
+    ZoruCommandSeparator,
+} from '@/components/zoruui';
 import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from '@/components/ui/popover';
+    ZoruPopover,
+    ZoruPopoverContent,
+    ZoruPopoverTrigger,
+} from '@/components/zoruui';
 
 interface Option {
     value: string;
@@ -42,7 +42,7 @@ export function SmartCombobox({
     value,
     onSelect,
     onCreate,
-    placeholder = "Select option...",
+    placeholder = "ZoruSelect option...",
     searchPlaceholder = "Search...",
     createLabel = "Create",
     isLoading = false,
@@ -57,9 +57,9 @@ export function SmartCombobox({
     }, [options, value]);
 
     return (
-        <Popover open={open} onOpenChange={setOpen} modal={true}>
-            <PopoverTrigger asChild>
-                <Button
+        <ZoruPopover open={open} onOpenChange={setOpen} modal={true}>
+            <ZoruPopoverTrigger asChild>
+                <ZoruButton
                     variant="outline"
                     role="combobox"
                     aria-expanded={open}
@@ -68,22 +68,22 @@ export function SmartCombobox({
                 >
                     {selectedLabel || placeholder}
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-full p-0" align="start">
-                <Command>
-                    <CommandInput
+                </ZoruButton>
+            </ZoruPopoverTrigger>
+            <ZoruPopoverContent className="w-full p-0" align="start">
+                <ZoruCommand>
+                    <ZoruCommandInput
                         placeholder={searchPlaceholder}
                         value={inputValue}
                         onValueChange={setInputValue}
                     />
-                    <CommandList className="max-h-[300px] overflow-y-auto overflow-x-hidden">
-                        <CommandEmpty>
+                    <ZoruCommandList className="max-h-[300px] overflow-y-auto overflow-x-hidden">
+                        <ZoruCommandEmpty>
                             No results found.
-                        </CommandEmpty>
-                        <CommandGroup>
+                        </ZoruCommandEmpty>
+                        <ZoruCommandGroup>
                             {options.map((option) => (
-                                <CommandItem
+                                <ZoruCommandItem
                                     key={option.value}
                                     value={option.label}
                                     onSelect={(_) => {
@@ -99,14 +99,14 @@ export function SmartCombobox({
                                         )}
                                     />
                                     {option.label}
-                                </CommandItem>
+                                </ZoruCommandItem>
                             ))}
-                        </CommandGroup>
+                        </ZoruCommandGroup>
                         {onCreate && (
                             <>
-                                <CommandSeparator />
-                                <CommandGroup>
-                                    <CommandItem
+                                <ZoruCommandSeparator />
+                                <ZoruCommandGroup>
+                                    <ZoruCommandItem
                                         value={`:::create:::${inputValue}`}
                                         onSelect={() => {
                                             onCreate(inputValue);
@@ -116,13 +116,13 @@ export function SmartCombobox({
                                     >
                                         <Plus className="mr-2 h-4 w-4" />
                                         {createLabel} {inputValue ? `"${inputValue}"` : ""}
-                                    </CommandItem>
-                                </CommandGroup>
+                                    </ZoruCommandItem>
+                                </ZoruCommandGroup>
                             </>
                         )}
-                    </CommandList>
-                </Command>
-            </PopoverContent>
-        </Popover >
+                    </ZoruCommandList>
+                </ZoruCommand>
+            </ZoruPopoverContent>
+        </ZoruPopover >
     );
 }

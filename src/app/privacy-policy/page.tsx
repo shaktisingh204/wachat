@@ -1,5 +1,5 @@
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
 import Link from 'next/link';
 
 export default function PrivacyPolicyPage() {
@@ -11,11 +11,11 @@ export default function PrivacyPolicyPage() {
                 &larr; Back to Home
             </Link>
         </div>
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-3xl font-bold font-headline">Privacy Policy for SabNode</CardTitle>
-          </CardHeader>
-          <CardContent className="prose prose-sm sm:prose-base lg:prose-lg xl:prose-xl dark:prose-invert max-w-none space-y-4 text-foreground/90">
+        <ZoruCard>
+          <ZoruCardHeader>
+            <ZoruCardTitle className="text-3xl font-bold font-headline">Privacy Policy for SabNode</ZoruCardTitle>
+          </ZoruCardHeader>
+          <ZoruCardContent className="prose prose-sm sm:prose-base lg:prose-lg xl:prose-xl dark:prose-invert max-w-none space-y-4 text-foreground/90">
             <p><strong>Last Updated:</strong> {new Date().toLocaleDateString()}</p>
             
             <h2 className="text-xl font-semibold">Introduction</h2>
@@ -46,8 +46,8 @@ export default function PrivacyPolicyPage() {
 
             <h2 className="text-xl font-semibold">Contact Us</h2>
             <p>If you have questions or comments about this Privacy Policy, please contact us at: [Your Contact Email]</p>
-          </CardContent>
-        </Card>
+          </ZoruCardContent>
+        </ZoruCard>
       </div>
     </div>
   );

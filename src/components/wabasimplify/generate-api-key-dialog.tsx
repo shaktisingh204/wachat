@@ -4,16 +4,16 @@
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+} from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
 import { LoaderCircle, Key, Copy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { generateApiKey } from '@/app/actions/api-keys.actions';
@@ -25,10 +25,10 @@ const initialState = { success: false, apiKey: undefined, error: undefined };
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" disabled={pending}>
+    <ZoruButton type="submit" disabled={pending}>
       {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
       Generate Key
-    </Button>
+    </ZoruButton>
   );
 }
 
@@ -77,14 +77,14 @@ export function GenerateApiKeyDialog({ isOpen, onOpenChange, onKeyGenerated }: G
 
   if (state.success && state.apiKey) {
     return (
-      <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>API Key Generated Successfully</DialogTitle>
-            <DialogDescription>
+      <ZoruDialog open={isOpen} onOpenChange={handleOpenChange}>
+        <ZoruDialogContent>
+          <ZoruDialogHeader>
+            <ZoruDialogTitle>API Key Generated Successfully</ZoruDialogTitle>
+            <ZoruDialogDescription>
               Here is your new API key. Please copy and store it somewhere safe. You will not be able to see it again.
-            </DialogDescription>
-          </DialogHeader>
+            </ZoruDialogDescription>
+          </ZoruDialogHeader>
           <Alert variant="destructive">
             <AlertTitle>Important!</AlertTitle>
             <AlertDescription>
@@ -92,43 +92,43 @@ export function GenerateApiKeyDialog({ isOpen, onOpenChange, onKeyGenerated }: G
             </AlertDescription>
           </Alert>
           <div className="flex items-center gap-2">
-            <Input readOnly value={state.apiKey} className="font-mono" />
-            <Button variant="outline" size="icon" onClick={() => copy(state.apiKey!)}>
+            <ZoruInput readOnly value={state.apiKey} className="font-mono" />
+            <ZoruButton variant="outline" size="icon" onClick={() => copy(state.apiKey!)}>
               <Copy className="h-4 w-4" />
-            </Button>
+            </ZoruButton>
           </div>
-          <DialogFooter>
-            <Button onClick={() => handleOpenChange(false)}>Close</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          <ZoruDialogFooter>
+            <ZoruButton onClick={() => handleOpenChange(false)}>Close</ZoruButton>
+          </ZoruDialogFooter>
+        </ZoruDialogContent>
+      </ZoruDialog>
     );
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-md max-h-[85vh] flex flex-col overflow-hidden p-0">
+    <ZoruDialog open={isOpen} onOpenChange={handleOpenChange}>
+      <ZoruDialogContent className="sm:max-w-md max-h-[85vh] flex flex-col overflow-hidden p-0">
         <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
-          <DialogHeader className="px-6 pt-6 pb-2">
-            <DialogTitle>Create New API Key</DialogTitle>
-            <DialogDescription>
+          <ZoruDialogHeader className="px-6 pt-6 pb-2">
+            <ZoruDialogTitle>Create New API Key</ZoruDialogTitle>
+            <ZoruDialogDescription>
               Give this key a name to help you identify it later.
-            </DialogDescription>
-          </DialogHeader>
+            </ZoruDialogDescription>
+          </ZoruDialogHeader>
           <div className="flex-1 overflow-y-auto px-6 py-2">
             <div className="grid gap-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Key Name</Label>
-                <Input id="name" name="name" placeholder="e.g., My Awesome App" required />
+                <ZoruLabel htmlFor="name">Key Name</ZoruLabel>
+                <ZoruInput id="name" name="name" placeholder="e.g., My Awesome App" required />
               </div>
             </div>
           </div>
-          <DialogFooter className="px-6 pb-6 pt-2">
-            <Button type="button" variant="ghost" onClick={() => handleOpenChange(false)}>Cancel</Button>
+          <ZoruDialogFooter className="px-6 pb-6 pt-2">
+            <ZoruButton type="button" variant="ghost" onClick={() => handleOpenChange(false)}>Cancel</ZoruButton>
             <SubmitButton />
-          </DialogFooter>
+          </ZoruDialogFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+      </ZoruDialogContent>
+    </ZoruDialog>
   );
 }

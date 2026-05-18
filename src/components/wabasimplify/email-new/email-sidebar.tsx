@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Button } from '@/components/ui/button';
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
 import {
     Inbox,
     Send,
@@ -46,12 +46,12 @@ export function EmailSidebar() {
     return (
         <div className="flex flex-col h-full bg-background border-r py-4 px-2 gap-4">
             <div className="px-2">
-                <Button className="w-full justify-start gap-2" size="lg" asChild>
+                <ZoruButton className="w-full justify-start gap-2" size="lg" asChild>
                     <Link href="?compose=new">
                         <Plus className="w-5 h-5" />
                         <span className="font-semibold">Compose</span>
                     </Link>
-                </Button>
+                </ZoruButton>
             </div>
 
             <div className="flex-1 overflow-y-auto space-y-6 px-2">
@@ -60,7 +60,7 @@ export function EmailSidebar() {
                         const newParams = new URLSearchParams(searchParams.toString());
                         newParams.set('folder', item.id);
                         return (
-                            <Button
+                            <ZoruButton
                                 key={item.id}
                                 variant={currentFolder === item.id ? 'secondary' : 'ghost'}
                                 className={cn(
@@ -80,7 +80,7 @@ export function EmailSidebar() {
                                         </span>
                                     )}
                                 </Link>
-                            </Button>
+                            </ZoruButton>
                         )
                     })}
                 </div>
@@ -90,14 +90,14 @@ export function EmailSidebar() {
                         Labels
                     </h4>
                     {labels.map((item) => (
-                        <Button
+                        <ZoruButton
                             key={item.label}
                             variant="ghost"
                             className="w-full justify-start font-normal"
                         >
                             <div className={cn("w-2 h-2 rounded-full mr-3", item.color)} />
                             {item.label}
-                        </Button>
+                        </ZoruButton>
                     ))}
                 </div>
             </div>

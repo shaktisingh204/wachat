@@ -1,8 +1,8 @@
 
 'use client';
 
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { ZoruCard, ZoruCardContent, ZoruCardFooter, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import { ZoruAvatar, ZoruAvatarImage, ZoruAvatarFallback } from '@/components/zoruui';
 import Image from 'next/image';
 import React from 'react';
 
@@ -23,23 +23,23 @@ export function TestimonialsBlockRenderer({ settings }: { settings: any }) {
         </div>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {(settings.testimonials || []).map((item: any) => (
-                <Card key={item.id} className="flex flex-col">
-                    <CardContent className="p-6 flex-grow">
+                <ZoruCard key={item.id} className="flex flex-col">
+                    <ZoruCardContent className="p-6 flex-grow">
                         <p className="italic text-muted-foreground">"{item.quote}"</p>
-                    </CardContent>
-                    <CardFooter className="flex items-center gap-4 mt-auto">
-                        <Avatar>
+                    </ZoruCardContent>
+                    <ZoruCardFooter className="flex items-center gap-4 mt-auto">
+                        <ZoruAvatar>
                             {item.avatar ? (
-                                <AvatarImage src={item.avatar} alt={item.author} data-ai-hint="person avatar" />
+                                <ZoruAvatarImage src={item.avatar} alt={item.author} data-ai-hint="person avatar" />
                             ) : null}
-                            <AvatarFallback>{item.author?.charAt(0) || 'A'}</AvatarFallback>
-                        </Avatar>
+                            <ZoruAvatarFallback>{item.author?.charAt(0) || 'A'}</ZoruAvatarFallback>
+                        </ZoruAvatar>
                         <div>
                             <p className="font-semibold">{item.author}</p>
                             <p className="text-sm text-muted-foreground">{item.title}</p>
                         </div>
-                    </CardFooter>
-                </Card>
+                    </ZoruCardFooter>
+                </ZoruCard>
             ))}
         </div>
     </div>

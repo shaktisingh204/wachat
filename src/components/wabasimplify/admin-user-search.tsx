@@ -1,7 +1,7 @@
 
 'use client';
 
-import { Input } from '@/components/ui/input';
+import { ZoruInput } from '@/components/zoruui';
 import { Search } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useDebouncedCallback } from 'use-debounce';
@@ -25,7 +25,7 @@ export function AdminUserSearch({ placeholder }: { placeholder: string }) {
   return (
     <div className="relative">
       <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-      <Input
+      <ZoruInput
         type="search"
         placeholder={placeholder}
         className="pl-8 w-full"

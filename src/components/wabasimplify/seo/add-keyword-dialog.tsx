@@ -1,14 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
+import { ZoruDialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogTrigger } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruTextarea } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
 import { Plus, Loader2 } from 'lucide-react';
 import { addKeyword } from '@/app/actions/seo-rank.actions';
 import { toast } from '@/hooks/use-toast';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
 
 export function AddKeywordDialog({ projectId, onAdded }: { projectId: string; onAdded: () => void }) {
     const [open, setOpen] = useState(false);
@@ -43,36 +43,36 @@ export function AddKeywordDialog({ projectId, onAdded }: { projectId: string; on
     };
 
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-                <Button>
+        <ZoruDialog open={open} onOpenChange={setOpen}>
+            <ZoruDialogTrigger asChild>
+                <ZoruButton>
                     <Plus className="mr-2 h-4 w-4" /> Add Keywords
-                </Button>
-            </DialogTrigger>
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>Add Keywords to Track</DialogTitle>
-                </DialogHeader>
+                </ZoruButton>
+            </ZoruDialogTrigger>
+            <ZoruDialogContent>
+                <ZoruDialogHeader>
+                    <ZoruDialogTitle>Add Keywords to Track</ZoruDialogTitle>
+                </ZoruDialogHeader>
 
                 <div className="space-y-4 py-4">
                     <div className="space-y-2">
-                        <Label>Location</Label>
-                        <Select value={location} onValueChange={setLocation}>
-                            <SelectTrigger>
-                                <SelectValue placeholder="Select Location" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="2840">United States</SelectItem>
-                                <SelectItem value="2826">United Kingdom</SelectItem>
-                                <SelectItem value="2356">India</SelectItem>
-                                <SelectItem value="2036">Australia</SelectItem>
-                            </SelectContent>
-                        </Select>
+                        <ZoruLabel>Location</ZoruLabel>
+                        <ZoruSelect value={location} onValueChange={setLocation}>
+                            <ZoruSelectTrigger>
+                                <ZoruSelectValue placeholder="ZoruSelect Location" />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                <ZoruSelectItem value="2840">United States</ZoruSelectItem>
+                                <ZoruSelectItem value="2826">United Kingdom</ZoruSelectItem>
+                                <ZoruSelectItem value="2356">India</ZoruSelectItem>
+                                <ZoruSelectItem value="2036">Australia</ZoruSelectItem>
+                            </ZoruSelectContent>
+                        </ZoruSelect>
                     </div>
 
                     <div className="space-y-2">
-                        <Label>Keywords (One per line)</Label>
-                        <Textarea
+                        <ZoruLabel>Keywords (One per line)</ZoruLabel>
+                        <ZoruTextarea
                             placeholder="seo tools&#10;rank tracker"
                             className="h-32"
                             value={keywords}
@@ -81,11 +81,11 @@ export function AddKeywordDialog({ projectId, onAdded }: { projectId: string; on
                     </div>
                 </div>
 
-                <Button onClick={handleSubmit} disabled={loading} className="w-full">
+                <ZoruButton onClick={handleSubmit} disabled={loading} className="w-full">
                     {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                     Add Keywords
-                </Button>
-            </DialogContent>
-        </Dialog>
+                </ZoruButton>
+            </ZoruDialogContent>
+        </ZoruDialog>
     );
 }

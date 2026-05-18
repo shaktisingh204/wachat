@@ -3,16 +3,16 @@
 
 import { useEffect, useRef, useState, useTransition } from 'react';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+} from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
+import { ZoruTextarea } from '@/components/zoruui';
 import { LoaderCircle, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FacebookPost } from '@/lib/definitions';
@@ -24,10 +24,10 @@ function SubmitButton() {
   const [isPending, startTransition] = useTransition();
 
   return (
-    <Button type="submit" disabled={isPending}>
+    <ZoruButton type="submit" disabled={isPending}>
       {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
       Save Changes
-    </Button>
+    </ZoruButton>
   );
 }
 
@@ -64,22 +64,22 @@ export function UpdatePostDialog({ isOpen, onOpenChange, post, projectId, onPost
   }, [state, toast, onOpenChange, onPostUpdated]);
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+    <ZoruDialog open={isOpen} onOpenChange={onOpenChange}>
+      <ZoruDialogContent className="sm:max-w-lg">
         <form action={action} ref={formRef}>
           <input type="hidden" name="projectId" value={projectId} />
           <input type="hidden" name="postId" value={post.id} />
-          <DialogHeader>
-            <DialogTitle>Update Post</DialogTitle>
-            <DialogDescription>
+          <ZoruDialogHeader>
+            <ZoruDialogTitle>Update Post</ZoruDialogTitle>
+            <ZoruDialogDescription>
               Edit the text content of your Facebook post. Media cannot be changed after posting.
-            </DialogDescription>
-          </DialogHeader>
+            </ZoruDialogDescription>
+          </ZoruDialogHeader>
 
           <div className="grid gap-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="message">Post Message</Label>
-              <Textarea
+              <ZoruLabel htmlFor="message">Post Message</ZoruLabel>
+              <ZoruTextarea
                 id="message"
                 name="message"
                 className="min-h-40"
@@ -87,15 +87,15 @@ export function UpdatePostDialog({ isOpen, onOpenChange, post, projectId, onPost
               />
             </div>
           </div>
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-            <Button type="submit" disabled={isPending}>
+          <ZoruDialogFooter>
+            <ZoruButton type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</ZoruButton>
+            <ZoruButton type="submit" disabled={isPending}>
                 {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
                 Save Changes
-            </Button>
-          </DialogFooter>
+            </ZoruButton>
+          </ZoruDialogFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+      </ZoruDialogContent>
+    </ZoruDialog>
   );
 }

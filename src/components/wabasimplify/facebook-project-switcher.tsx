@@ -4,15 +4,15 @@
 import * as React from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+  ZoruDropdownMenu,
+  ZoruDropdownMenuContent,
+  ZoruDropdownMenuItem,
+  ZoruDropdownMenuLabel,
+  ZoruDropdownMenuSeparator,
+  ZoruDropdownMenuTrigger,
+} from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruAvatar, ZoruAvatarFallback, ZoruAvatarImage } from '@/components/zoruui';
 import { Briefcase, Check, ChevronsUpDown } from 'lucide-react';
 import type { WithId, Project } from '@/lib/definitions';
 
@@ -43,31 +43,31 @@ export function FacebookProjectSwitcher({ projects, activeProject }: FacebookPro
     }
 
     return (
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="flex items-center gap-2">
-                    <Avatar className="h-8 w-8">
-                        <AvatarImage src={`https://graph.facebook.com/${activeProject.facebookPageId}/picture?type=square`} alt={activeProject.name} />
-                        <AvatarFallback>{activeProject.name.charAt(0)}</AvatarFallback>
-                    </Avatar>
+        <ZoruDropdownMenu>
+            <ZoruDropdownMenuTrigger asChild>
+                <ZoruButton variant="ghost" className="flex items-center gap-2">
+                    <ZoruAvatar className="h-8 w-8">
+                        <ZoruAvatarImage src={`https://graph.facebook.com/${activeProject.facebookPageId}/picture?type=square`} alt={activeProject.name} />
+                        <ZoruAvatarFallback>{activeProject.name.charAt(0)}</ZoruAvatarFallback>
+                    </ZoruAvatar>
                     <span className="hidden md:inline font-semibold">{activeProject.name}</span>
                     <ChevronsUpDown className="h-4 w-4 opacity-50" />
-                </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start">
-                <DropdownMenuLabel>Switch Project</DropdownMenuLabel>
-                <DropdownMenuSeparator />
+                </ZoruButton>
+            </ZoruDropdownMenuTrigger>
+            <ZoruDropdownMenuContent align="start">
+                <ZoruDropdownMenuLabel>ZoruSwitch Project</ZoruDropdownMenuLabel>
+                <ZoruDropdownMenuSeparator />
                 {projects.map(project => (
-                    <DropdownMenuItem key={project._id.toString()} onSelect={() => handleSelectProject(project)}>
-                        <Avatar className="h-6 w-6 mr-2">
-                            <AvatarImage src={`https://graph.facebook.com/${project.facebookPageId}/picture?type=square`} alt={project.name} />
-                            <AvatarFallback>{project.name.charAt(0)}</AvatarFallback>
-                        </Avatar>
+                    <ZoruDropdownMenuItem key={project._id.toString()} onSelect={() => handleSelectProject(project)}>
+                        <ZoruAvatar className="h-6 w-6 mr-2">
+                            <ZoruAvatarImage src={`https://graph.facebook.com/${project.facebookPageId}/picture?type=square`} alt={project.name} />
+                            <ZoruAvatarFallback>{project.name.charAt(0)}</ZoruAvatarFallback>
+                        </ZoruAvatar>
                         <span>{project.name}</span>
                         {project._id.toString() === activeProject._id.toString() && <Check className="ml-auto h-4 w-4" />}
-                    </DropdownMenuItem>
+                    </ZoruDropdownMenuItem>
                 ))}
-            </DropdownMenuContent>
-        </DropdownMenu>
+            </ZoruDropdownMenuContent>
+        </ZoruDropdownMenu>
     );
 }

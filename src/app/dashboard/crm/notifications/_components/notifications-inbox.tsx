@@ -1,9 +1,10 @@
+import { ZoruButton } from '@/components/zoruui';
 'use client';
 
 import * as React from 'react';
 import { Bell, CheckCheck, Check } from 'lucide-react';
 
-import { ClayCard, ClayBadge, ClayButton } from '@/components/clay';
+import { ClayCard, ClayBadge } from '@/components/clay';
 import { useToast } from '@/hooks/use-toast';
 import {
   markNotificationRead,
@@ -75,7 +76,7 @@ export function NotificationsInbox({ initialNotifications }: NotificationsInboxP
           </ClayBadge>
           <ClayBadge tone="neutral">{rows.length} total</ClayBadge>
         </div>
-        <ClayButton
+        <ZoruButton
           variant="pill"
           size="sm"
           onClick={markAll}
@@ -83,7 +84,7 @@ export function NotificationsInbox({ initialNotifications }: NotificationsInboxP
           leading={<CheckCheck className="h-3.5 w-3.5" />}
         >
           Mark all read
-        </ClayButton>
+        </ZoruButton>
       </div>
 
       {rows.length === 0 ? (
@@ -124,14 +125,14 @@ export function NotificationsInbox({ initialNotifications }: NotificationsInboxP
                     ) : null}
                   </div>
                   {!read ? (
-                    <ClayButton
+                    <ZoruButton
                       size="sm"
                       variant="pill"
                       onClick={() => markOne(n._id)}
                       leading={<Check className="h-3.5 w-3.5" />}
                     >
                       Mark read
-                    </ClayButton>
+                    </ZoruButton>
                   ) : null}
                 </li>
               );

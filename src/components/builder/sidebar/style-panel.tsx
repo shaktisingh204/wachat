@@ -2,15 +2,15 @@
 
 import React from 'react';
 import { useEditor } from '@/components/builder/editor-provider';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
 import {
-    Accordion,
-    AccordionContent,
-    AccordionItem,
-    AccordionTrigger
-} from '@/components/ui/accordion';
+    ZoruAccordion,
+    ZoruAccordionContent,
+    ZoruAccordionItem,
+    ZoruAccordionTrigger
+} from '@/components/zoruui';
 
 export const StylePanel = () => {
     const { state, dispatch } = useEditor();
@@ -32,7 +32,7 @@ export const StylePanel = () => {
         : null;
 
     if (!selectedElement) {
-        return <div className="p-4 text-center text-gray-500">Select an element to edit styles</div>;
+        return <div className="p-4 text-center text-gray-500">ZoruSelect an element to edit styles</div>;
     }
 
     const handleUpdate = (styleProp: string, value: string) => {
@@ -55,23 +55,23 @@ export const StylePanel = () => {
                 <p className="text-xs text-gray-500">ID: {selectedElement.id.slice(0, 8)}</p>
             </div>
 
-            <Accordion type="multiple" defaultValue={['typography', 'background', 'layout']}>
+            <ZoruAccordion type="multiple" defaultValue={['typography', 'background', 'layout']}>
 
                 {/* TYPOGRAPHY */}
-                <AccordionItem value="typography">
-                    <AccordionTrigger>Typography</AccordionTrigger>
-                    <AccordionContent className="space-y-4 pt-2">
+                <ZoruAccordionItem value="typography">
+                    <ZoruAccordionTrigger>Typography</ZoruAccordionTrigger>
+                    <ZoruAccordionContent className="space-y-4 pt-2">
                         <div className="grid grid-cols-2 gap-2">
                             <div>
-                                <Label className="text-xs">Color</Label>
+                                <ZoruLabel className="text-xs">Color</ZoruLabel>
                                 <div className="flex gap-2">
-                                    <Input
+                                    <ZoruInput
                                         type="color"
                                         className="w-8 h-8 p-0 border-0"
                                         value={getStyle('color') || '#000000'}
                                         onChange={(e) => handleUpdate('color', e.target.value)}
                                     />
-                                    <Input
+                                    <ZoruInput
                                         className="h-8 text-xs"
                                         value={getStyle('color')}
                                         onChange={(e) => handleUpdate('color', e.target.value)}
@@ -80,8 +80,8 @@ export const StylePanel = () => {
                                 </div>
                             </div>
                             <div>
-                                <Label className="text-xs">Font Size</Label>
-                                <Input
+                                <ZoruLabel className="text-xs">Font Size</ZoruLabel>
+                                <ZoruInput
                                     className="h-8 text-xs"
                                     value={getStyle('fontSize')}
                                     onChange={(e) => handleUpdate('fontSize', e.target.value)}
@@ -89,8 +89,8 @@ export const StylePanel = () => {
                                 />
                             </div>
                             <div>
-                                <Label className="text-xs">Font Weight</Label>
-                                <Input
+                                <ZoruLabel className="text-xs">Font Weight</ZoruLabel>
+                                <ZoruInput
                                     className="h-8 text-xs"
                                     value={getStyle('fontWeight')}
                                     onChange={(e) => handleUpdate('fontWeight', e.target.value)}
@@ -98,7 +98,7 @@ export const StylePanel = () => {
                                 />
                             </div>
                             <div>
-                                <Label className="text-xs">Align</Label>
+                                <ZoruLabel className="text-xs">Align</ZoruLabel>
                                 <div className="flex border rounded overflow-hidden h-8">
                                     {['left', 'center', 'right'].map(align => (
                                         <button
@@ -112,23 +112,23 @@ export const StylePanel = () => {
                                 </div>
                             </div>
                         </div>
-                    </AccordionContent>
-                </AccordionItem>
+                    </ZoruAccordionContent>
+                </ZoruAccordionItem>
 
                 {/* BACKGROUND */}
-                <AccordionItem value="background">
-                    <AccordionTrigger>Background</AccordionTrigger>
-                    <AccordionContent className="space-y-4 pt-2">
+                <ZoruAccordionItem value="background">
+                    <ZoruAccordionTrigger>Background</ZoruAccordionTrigger>
+                    <ZoruAccordionContent className="space-y-4 pt-2">
                         <div>
-                            <Label className="text-xs">Background Color</Label>
+                            <ZoruLabel className="text-xs">Background Color</ZoruLabel>
                             <div className="flex gap-2">
-                                <Input
+                                <ZoruInput
                                     type="color"
                                     className="w-8 h-8 p-0 border-0"
                                     value={getStyle('backgroundColor') || '#ffffff'}
                                     onChange={(e) => handleUpdate('backgroundColor', e.target.value)}
                                 />
-                                <Input
+                                <ZoruInput
                                     className="h-8 text-xs"
                                     value={getStyle('backgroundColor')}
                                     onChange={(e) => handleUpdate('backgroundColor', e.target.value)}
@@ -136,17 +136,17 @@ export const StylePanel = () => {
                                 />
                             </div>
                         </div>
-                    </AccordionContent>
-                </AccordionItem>
+                    </ZoruAccordionContent>
+                </ZoruAccordionItem>
 
                 {/* LAYOUT */}
-                <AccordionItem value="layout">
-                    <AccordionTrigger>Layout & Spacing</AccordionTrigger>
-                    <AccordionContent className="space-y-4 pt-2">
+                <ZoruAccordionItem value="layout">
+                    <ZoruAccordionTrigger>Layout & Spacing</ZoruAccordionTrigger>
+                    <ZoruAccordionContent className="space-y-4 pt-2">
                         <div className="grid grid-cols-2 gap-2">
                             <div>
-                                <Label className="text-xs">Padding</Label>
-                                <Input
+                                <ZoruLabel className="text-xs">Padding</ZoruLabel>
+                                <ZoruInput
                                     className="h-8 text-xs"
                                     value={getStyle('padding')}
                                     onChange={(e) => handleUpdate('padding', e.target.value)}
@@ -154,8 +154,8 @@ export const StylePanel = () => {
                                 />
                             </div>
                             <div>
-                                <Label className="text-xs">Margin</Label>
-                                <Input
+                                <ZoruLabel className="text-xs">Margin</ZoruLabel>
+                                <ZoruInput
                                     className="h-8 text-xs"
                                     value={getStyle('margin')}
                                     onChange={(e) => handleUpdate('margin', e.target.value)}
@@ -163,8 +163,8 @@ export const StylePanel = () => {
                                 />
                             </div>
                             <div>
-                                <Label className="text-xs">Height</Label>
-                                <Input
+                                <ZoruLabel className="text-xs">Height</ZoruLabel>
+                                <ZoruInput
                                     className="h-8 text-xs"
                                     value={getStyle('height')}
                                     onChange={(e) => handleUpdate('height', e.target.value)}
@@ -172,8 +172,8 @@ export const StylePanel = () => {
                                 />
                             </div>
                             <div>
-                                <Label className="text-xs">Width</Label>
-                                <Input
+                                <ZoruLabel className="text-xs">Width</ZoruLabel>
+                                <ZoruInput
                                     className="h-8 text-xs"
                                     value={getStyle('width')}
                                     onChange={(e) => handleUpdate('width', e.target.value)}
@@ -181,17 +181,17 @@ export const StylePanel = () => {
                                 />
                             </div>
                         </div>
-                    </AccordionContent>
-                </AccordionItem>
+                    </ZoruAccordionContent>
+                </ZoruAccordionItem>
 
                 {/* BORDER */}
-                <AccordionItem value="border">
-                    <AccordionTrigger>Border</AccordionTrigger>
-                    <AccordionContent className="space-y-4 pt-2">
+                <ZoruAccordionItem value="border">
+                    <ZoruAccordionTrigger>Border</ZoruAccordionTrigger>
+                    <ZoruAccordionContent className="space-y-4 pt-2">
                         <div className="grid grid-cols-2 gap-2">
                             <div>
-                                <Label className="text-xs">Radius</Label>
-                                <Input
+                                <ZoruLabel className="text-xs">Radius</ZoruLabel>
+                                <ZoruInput
                                     className="h-8 text-xs"
                                     value={getStyle('borderRadius')}
                                     onChange={(e) => handleUpdate('borderRadius', e.target.value)}
@@ -199,8 +199,8 @@ export const StylePanel = () => {
                                 />
                             </div>
                             <div>
-                                <Label className="text-xs">Width</Label>
-                                <Input
+                                <ZoruLabel className="text-xs">Width</ZoruLabel>
+                                <ZoruInput
                                     className="h-8 text-xs"
                                     value={getStyle('borderWidth')}
                                     onChange={(e) => handleUpdate('borderWidth', e.target.value)}
@@ -208,15 +208,15 @@ export const StylePanel = () => {
                                 />
                             </div>
                             <div className="col-span-2">
-                                <Label className="text-xs">Color</Label>
+                                <ZoruLabel className="text-xs">Color</ZoruLabel>
                                 <div className="flex gap-2">
-                                    <Input
+                                    <ZoruInput
                                         type="color"
                                         className="w-8 h-8 p-0 border-0"
                                         value={getStyle('borderColor') || '#000000'}
                                         onChange={(e) => handleUpdate('borderColor', e.target.value)}
                                     />
-                                    <Input
+                                    <ZoruInput
                                         className="h-8 text-xs"
                                         value={getStyle('borderColor')}
                                         onChange={(e) => handleUpdate('borderColor', e.target.value)}
@@ -225,7 +225,7 @@ export const StylePanel = () => {
                                 </div>
                             </div>
                             <div>
-                                <Label className="text-xs">Style</Label>
+                                <ZoruLabel className="text-xs">Style</ZoruLabel>
                                 <select
                                     className="h-8 text-xs w-full border rounded px-2"
                                     value={getStyle('borderStyle') || 'solid'}
@@ -238,10 +238,10 @@ export const StylePanel = () => {
                                 </select>
                             </div>
                         </div>
-                    </AccordionContent>
-                </AccordionItem>
+                    </ZoruAccordionContent>
+                </ZoruAccordionItem>
 
-            </Accordion>
+            </ZoruAccordion>
         </div>
     );
 };

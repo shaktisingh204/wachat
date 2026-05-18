@@ -4,18 +4,18 @@
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruDialogTrigger,
+} from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
+import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
 import { LoaderCircle, FileUp, AlertCircle } from 'lucide-react';
 import { handleCreatePaymentConfiguration } from '@/app/actions/whatsapp-pay.actions';
 import { useToast } from '@/hooks/use-toast';
@@ -35,9 +35,9 @@ const initialState: State = { message: null, error: undefined, oauth_url: undefi
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" disabled={pending}>
+    <ZoruButton type="submit" disabled={pending}>
       {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : 'Create Configuration'}
-    </Button>
+    </ZoruButton>
   );
 }
 
@@ -73,41 +73,41 @@ export function CreatePaymentConfigDialog({ isOpen, onOpenChange, onSuccess }: C
 
   if (state.oauth_url) {
     return (
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Complete Onboarding</DialogTitle>
-          <DialogDescription>
+      <ZoruDialogContent>
+        <ZoruDialogHeader>
+          <ZoruDialogTitle>Complete Onboarding</ZoruDialogTitle>
+          <ZoruDialogDescription>
             Your payment configuration has been created. Please complete the setup with your payment provider.
-          </DialogDescription>
-        </DialogHeader>
+          </ZoruDialogDescription>
+        </ZoruDialogHeader>
         <Alert>
           <AlertTitle>Action Required</AlertTitle>
           <AlertDescription>
             Click the button below to go to the provider's site and authorize the connection.
           </AlertDescription>
         </Alert>
-        <DialogFooter>
-          <Button asChild>
+        <ZoruDialogFooter>
+          <ZoruButton asChild>
             <a href={state.oauth_url} target="_blank" rel="noopener noreferrer" onClick={() => handleOpenChange(false)}>
               Complete Onboarding
             </a>
-          </Button>
-        </DialogFooter>
-      </DialogContent>
+          </ZoruButton>
+        </ZoruDialogFooter>
+      </ZoruDialogContent>
     )
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-md">
+    <ZoruDialog open={isOpen} onOpenChange={handleOpenChange}>
+      <ZoruDialogContent className="sm:max-w-md">
         <form action={formAction} ref={formRef}>
           <input type="hidden" name="projectId" value={typeof window !== 'undefined' ? localStorage.getItem('activeProjectId') || '' : ''} />
-          <DialogHeader>
-            <DialogTitle>Create Payment Configuration</DialogTitle>
-            <DialogDescription>
+          <ZoruDialogHeader>
+            <ZoruDialogTitle>Create Payment Configuration</ZoruDialogTitle>
+            <ZoruDialogDescription>
               This information should match the details in your Meta Commerce Manager account.
-            </DialogDescription>
-          </DialogHeader>
+            </ZoruDialogDescription>
+          </ZoruDialogHeader>
           {state.error && (
             <Alert variant="destructive" className="mx-6">
               <AlertCircle className="h-4 w-4" />
@@ -117,52 +117,52 @@ export function CreatePaymentConfigDialog({ isOpen, onOpenChange, onSuccess }: C
           <ScrollArea className="max-h-[60vh] -mx-6 my-4 px-6">
             <div className="grid gap-4 py-4">
               <div className="space-y-2">
-                <Label htmlFor="configuration_name">Configuration Name</Label>
-                <Input id="configuration_name" name="configuration_name" placeholder="e.g., my-razorpay-setup" required />
+                <ZoruLabel htmlFor="configuration_name">Configuration Name</ZoruLabel>
+                <ZoruInput id="configuration_name" name="configuration_name" placeholder="e.g., my-razorpay-setup" required />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="provider_name">Provider</Label>
-                <Select name="provider_name" onValueChange={setProviderType} defaultValue="gateway" required>
-                  <SelectTrigger><SelectValue placeholder="Select provider type..." /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="razorpay">Razorpay</SelectItem>
-                    <SelectItem value="payu">PayU</SelectItem>
-                    <SelectItem value="zaakpay">Zaakpay</SelectItem>
-                    <SelectItem value="upi_vpa">UPI VPA</SelectItem>
-                  </SelectContent>
-                </Select>
+                <ZoruLabel htmlFor="provider_name">Provider</ZoruLabel>
+                <ZoruSelect name="provider_name" onValueChange={setProviderType} defaultValue="gateway" required>
+                  <ZoruSelectTrigger><ZoruSelectValue placeholder="ZoruSelect provider type..." /></ZoruSelectTrigger>
+                  <ZoruSelectContent>
+                    <ZoruSelectItem value="razorpay">Razorpay</ZoruSelectItem>
+                    <ZoruSelectItem value="payu">PayU</ZoruSelectItem>
+                    <ZoruSelectItem value="zaakpay">Zaakpay</ZoruSelectItem>
+                    <ZoruSelectItem value="upi_vpa">UPI VPA</ZoruSelectItem>
+                  </ZoruSelectContent>
+                </ZoruSelect>
               </div>
               {providerType !== 'upi_vpa' ? (
                 <>
                   <div className="space-y-2">
-                    <Label htmlFor="redirect_url">Redirect URL</Label>
-                    <Input id="redirect_url" name="redirect_url" type="url" placeholder="https://your-site.com/payment/callback" required />
+                    <ZoruLabel htmlFor="redirect_url">Redirect URL</ZoruLabel>
+                    <ZoruInput id="redirect_url" name="redirect_url" type="url" placeholder="https://your-site.com/payment/callback" required />
                   </div>
                 </>
               ) : (
                 <>
                   <div className="space-y-2">
-                    <Label htmlFor="merchant_vpa">Merchant VPA</Label>
-                    <Input id="merchant_vpa" name="merchant_vpa" placeholder="your-business@okhdfcbank" required />
+                    <ZoruLabel htmlFor="merchant_vpa">Merchant VPA</ZoruLabel>
+                    <ZoruInput id="merchant_vpa" name="merchant_vpa" placeholder="your-business@okhdfcbank" required />
                   </div>
                 </>
               )}
               <div className="space-y-2">
-                <Label htmlFor="purpose_code">Purpose Code</Label>
-                <Input id="purpose_code" name="purpose_code" placeholder="e.g., 00" required />
+                <ZoruLabel htmlFor="purpose_code">Purpose Code</ZoruLabel>
+                <ZoruInput id="purpose_code" name="purpose_code" placeholder="e.g., 00" required />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="merchant_category_code">Merchant Category Code (MCC)</Label>
-                <Input id="merchant_category_code" name="merchant_category_code" placeholder="e.g., 0000" required />
+                <ZoruLabel htmlFor="merchant_category_code">Merchant Category Code (MCC)</ZoruLabel>
+                <ZoruInput id="merchant_category_code" name="merchant_category_code" placeholder="e.g., 0000" required />
               </div>
             </div>
           </ScrollArea>
-          <DialogFooter>
-            <Button type="button" variant="ghost" onClick={() => handleOpenChange(false)}>Cancel</Button>
+          <ZoruDialogFooter>
+            <ZoruButton type="button" variant="ghost" onClick={() => handleOpenChange(false)}>Cancel</ZoruButton>
             <SubmitButton />
-          </DialogFooter>
+          </ZoruDialogFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+      </ZoruDialogContent>
+    </ZoruDialog>
   );
 }

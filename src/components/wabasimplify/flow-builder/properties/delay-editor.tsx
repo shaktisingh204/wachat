@@ -1,10 +1,10 @@
 
 'use client';
 
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
+import { ZoruSwitch } from '@/components/zoruui';
+import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
 
 interface EditorProps {
   node: any;
@@ -22,8 +22,8 @@ export function DelayEditor({ node, onUpdate }: EditorProps) {
     <div className="space-y-4">
       <div className="grid grid-cols-3 gap-2">
         <div className="col-span-2 space-y-2">
-          <Label htmlFor="delay-value">Delay Value</Label>
-          <Input
+          <ZoruLabel htmlFor="delay-value">Delay Value</ZoruLabel>
+          <ZoruInput
             id="delay-value"
             type="text"
             placeholder="e.g. 5 or {{variable}}"
@@ -41,8 +41,8 @@ export function DelayEditor({ node, onUpdate }: EditorProps) {
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="delay-unit">Unit</Label>
-          <Select
+          <ZoruLabel htmlFor="delay-unit">Unit</ZoruLabel>
+          <ZoruSelect
             value={currentUnit}
             onValueChange={(val) => {
               onUpdate({
@@ -50,21 +50,21 @@ export function DelayEditor({ node, onUpdate }: EditorProps) {
               });
             }}
           >
-            <SelectTrigger id="delay-unit">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="seconds">Seconds</SelectItem>
-              <SelectItem value="minutes">Minutes</SelectItem>
-              <SelectItem value="hours">Hours</SelectItem>
-              <SelectItem value="days">Days</SelectItem>
-            </SelectContent>
-          </Select>
+            <ZoruSelectTrigger id="delay-unit">
+              <ZoruSelectValue />
+            </ZoruSelectTrigger>
+            <ZoruSelectContent>
+              <ZoruSelectItem value="seconds">Seconds</ZoruSelectItem>
+              <ZoruSelectItem value="minutes">Minutes</ZoruSelectItem>
+              <ZoruSelectItem value="hours">Hours</ZoruSelectItem>
+              <ZoruSelectItem value="days">Days</ZoruSelectItem>
+            </ZoruSelectContent>
+          </ZoruSelect>
         </div>
       </div>
       <div className="flex items-center space-x-2">
-        <Switch id="typing-indicator" checked={node.data.showTyping} onCheckedChange={(checked) => onUpdate({ showTyping: checked })} />
-        <Label htmlFor="typing-indicator">Show typing indicator</Label>
+        <ZoruSwitch id="typing-indicator" checked={node.data.showTyping} onCheckedChange={(checked) => onUpdate({ showTyping: checked })} />
+        <ZoruLabel htmlFor="typing-indicator">Show typing indicator</ZoruLabel>
       </div>
     </div>
   );

@@ -5,9 +5,9 @@ void _zoruCn;
 
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
-import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
+import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruBadge } from '@/components/zoruui';
 import { Wrench, Search } from 'lucide-react';
 import {
   SEO_TOOLS,
@@ -48,7 +48,7 @@ export default function SeoToolsHubPage() {
 
       <div className="relative max-w-md">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input
+        <ZoruInput
           className="pl-9"
           placeholder="Search tools…"
           value={query}
@@ -87,39 +87,39 @@ export default function SeoToolsHubPage() {
           const Wrapper: any = tool.status === 'ready' ? Link : 'div';
           return (
             <Wrapper key={tool.slug} href={href} className="block">
-              <Card
+              <ZoruCard
                 className={`h-full transition ${
                   tool.status === 'ready'
                     ? 'hover:border-primary hover:shadow-md cursor-pointer'
                     : 'opacity-70 cursor-not-allowed'
                 }`}
               >
-                <CardContent className="p-4 flex flex-col gap-2 h-full">
+                <ZoruCardContent className="p-4 flex flex-col gap-2 h-full">
                   <div className="flex items-start justify-between gap-2">
                     <h3 className="font-semibold text-sm leading-tight">{tool.name}</h3>
                     {tool.status === 'soon' && (
-                      <Badge variant="outline" className="text-[10px]">
+                      <ZoruBadge variant="outline" className="text-[10px]">
                         Soon
-                      </Badge>
+                      </ZoruBadge>
                     )}
                   </div>
                   <p className="text-xs text-muted-foreground flex-1">{tool.description}</p>
                   <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
                     {SEO_TOOL_CATEGORIES.find((c) => c.id === tool.category)?.label}
                   </div>
-                </CardContent>
-              </Card>
+                </ZoruCardContent>
+              </ZoruCard>
             </Wrapper>
           );
         })}
       </div>
 
       {filtered.length === 0 && (
-        <Card className="border-dashed">
-          <CardContent className="p-12 text-center text-muted-foreground">
+        <ZoruCard className="border-dashed">
+          <ZoruCardContent className="p-12 text-center text-muted-foreground">
             No tools match your search.
-          </CardContent>
-        </Card>
+          </ZoruCardContent>
+        </ZoruCard>
       )}
     </div>
   );

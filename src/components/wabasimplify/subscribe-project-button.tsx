@@ -6,7 +6,7 @@ import { useTransition } from 'react';
 import { handleSubscribeProjectWebhook } from '@/app/actions/whatsapp.actions';
 import { getProjectById } from '@/app/actions/index.ts';
 import { useToast } from '@/hooks/use-toast';
-import { Button } from '@/components/ui/button';
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
 import { Rss, LoaderCircle } from 'lucide-react';
 
 interface SubscribeProjectButtonProps {
@@ -47,13 +47,13 @@ export function SubscribeProjectButton({ projectId, isActive, buttonText }: Subs
   const text = buttonText || (isActive ? 'Resubscribe' : 'Subscribe');
 
   return (
-    <Button onClick={onSubscribe} variant="outline" size="sm" disabled={isPending}>
+    <ZoruButton onClick={onSubscribe} variant="outline" size="sm" disabled={isPending}>
       {isPending ? (
         <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
       ) : (
         <Rss className="mr-2 h-4 w-4" />
       )}
       {text}
-    </Button>
+    </ZoruButton>
   );
 }

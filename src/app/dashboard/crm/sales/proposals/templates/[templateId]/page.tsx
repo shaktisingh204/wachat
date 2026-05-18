@@ -4,7 +4,7 @@ import { cn as _zoruCn } from '@/components/zoruui';
 void _zoruCn;
 
 import { use, useEffect, useState, useTransition } from 'react';
-import { Skeleton } from '@/components/ui/skeleton';
+import { ZoruSkeleton } from '@/components/zoruui';
 import { getProposalTemplateById } from '@/app/actions/worksuite/proposals.actions';
 import {
   TemplateEditor,
@@ -30,8 +30,8 @@ export default function EditProposalTemplatePage(props: {
   if (isLoading && !initial) {
     return (
       <div className="flex w-full flex-col gap-6">
-        <Skeleton className="h-10 w-64" />
-        <Skeleton className="h-64 w-full" />
+        <ZoruSkeleton className="h-10 w-64" />
+        <ZoruSkeleton className="h-64 w-full" />
       </div>
     );
   }

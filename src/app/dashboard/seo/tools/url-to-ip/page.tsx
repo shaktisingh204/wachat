@@ -1,12 +1,12 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
 void _zoruCn;
 
 import { useState } from 'react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { apiDnsLookup } from '@/lib/seo-tools/api-client';
 
@@ -31,15 +31,15 @@ export default function UrlToIpPage() {
   return (
     <ToolShell title="URL to IP" description="Resolve a URL or hostname to its IP addresses.">
       <div className="flex gap-2">
-        <Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="example.com or https://example.com" />
-        <Button onClick={run} disabled={loading}>{loading ? 'Looking up…' : 'Resolve'}</Button>
+        <ZoruInput value={url} onChange={(e) => setUrl(e.target.value)} placeholder="example.com or https://example.com" />
+        <ZoruButton onClick={run} disabled={loading}>{loading ? 'Looking up…' : 'Resolve'}</ZoruButton>
       </div>
-      {error && <Card className="border-red-500"><CardContent className="p-4 text-red-600 text-sm">{error}</CardContent></Card>}
+      {error && <ZoruCard className="border-red-500"><ZoruCardContent className="p-4 text-red-600 text-sm">{error}</ZoruCardContent></ZoruCard>}
       {result && (
-        <Card><CardContent className="p-4">
+        <ZoruCard><ZoruCardContent className="p-4">
           <div className="text-sm font-semibold mb-2">{result.host}</div>
           <pre className="text-xs bg-muted p-3 rounded overflow-auto">{JSON.stringify(result.records, null, 2)}</pre>
-        </CardContent></Card>
+        </ZoruCardContent></ZoruCard>
       )}
     </ToolShell>
   );

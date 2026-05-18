@@ -5,17 +5,17 @@ import React, { useState, useEffect, useCallback, useTransition, useMemo } from 
 import { DndContext, DragEndEvent, PointerSensor, useSensor, useSensors, closestCenter } from '@dnd-kit/core';
 import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Button } from '@/components/ui/button';
-import { ClayCard, ClayButton } from '@/components/clay';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { ZoruButton, ZoruButton, ZoruButton } from '@/components/zoruui';
+import { ClayCard } from '@/components/clay';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
+import { ZoruSwitch } from '@/components/zoruui';
+import { ZoruTextarea } from '@/components/zoruui';
+import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
+import { ZoruAccordion, ZoruAccordionContent, ZoruAccordionItem, ZoruAccordionTrigger } from '@/components/zoruui';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
+import { ZoruScrollArea } from '@/components/zoruui';
+import { ZoruSeparator } from '@/components/zoruui';
 import { Plus, Trash2, ArrowLeft, Save, LoaderCircle, Eye, Code2, ListPlus } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { useToast } from '@/hooks/use-toast';
@@ -27,8 +27,8 @@ import { useRouter } from 'next/navigation';
 import { StyleSettingsPanel } from '@/components/wabasimplify/website-builder/style-settings-panel';
 import Image from 'next/image';
 import { CodeBlock } from '../code-block';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { ZoruDialog, ZoruDialogContent, ZoruDialogDescription, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogTrigger } from '@/components/zoruui';
+import { ZoruDropdownMenu, ZoruDropdownMenuContent, ZoruDropdownMenuItem, ZoruDropdownMenuTrigger } from '@/components/zoruui';
 
 
 const defaultFields: FormField[] = [
@@ -39,22 +39,22 @@ const defaultFields: FormField[] = [
 
 function CodeEmbedDialog({ embedScript }: { embedScript: string }) {
     return (
-        <Dialog>
-            <DialogTrigger asChild>
-                <Button variant="outline"><Code2 className="mr-2 h-4 w-4"/> Embed</Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-2xl overflow-hidden">
-                 <DialogHeader>
-                    <DialogTitle>Embed Form on Your Website</DialogTitle>
-                    <DialogDescription>
+        <ZoruDialog>
+            <ZoruDialogTrigger asChild>
+                <ZoruButton variant="outline"><Code2 className="mr-2 h-4 w-4"/> Embed</ZoruButton>
+            </ZoruDialogTrigger>
+            <ZoruDialogContent className="sm:max-w-2xl overflow-hidden">
+                 <ZoruDialogHeader>
+                    <ZoruDialogTitle>Embed Form on Your Website</ZoruDialogTitle>
+                    <ZoruDialogDescription>
                         Copy and paste this code snippet where you want the form to appear on your website.
-                    </DialogDescription>
-                </DialogHeader>
+                    </ZoruDialogDescription>
+                </ZoruDialogHeader>
                  <div className="py-4">
                     <CodeBlock code={embedScript} language="html" />
                 </div>
-            </DialogContent>
-        </Dialog>
+            </ZoruDialogContent>
+        </ZoruDialog>
     );
 }
 
@@ -74,8 +74,8 @@ const availableFieldTypes = [
     { type: 'email', label: 'Email' },
     { type: 'textarea', label: 'Text Area' },
     { type: 'number', label: 'Number' },
-    { type: 'select', label: 'Select' },
-    { type: 'checkbox', label: 'Checkbox' },
+    { type: 'select', label: 'ZoruSelect' },
+    { type: 'checkbox', label: 'ZoruCheckbox' },
     { type: 'radio', label: 'Radio Group' },
     { type: 'date', label: 'Date' },
     { type: 'file', label: 'File Upload' },
@@ -196,28 +196,28 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
         <div className="h-full flex flex-col">
             <header className="flex-shrink-0 flex items-center justify-between p-3 border-b border-border bg-card">
                 <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="icon" onClick={() => router.back()}>
+                    <ZoruButton variant="ghost" size="icon" onClick={() => router.back()}>
                         <ArrowLeft className="h-4 w-4" />
-                    </Button>
-                    <Input value={formName} onChange={e => setFormName(e.target.value)} className="text-lg font-semibold text-foreground border-none shadow-none focus-visible:ring-0 p-1 h-auto" />
+                    </ZoruButton>
+                    <ZoruInput value={formName} onChange={e => setFormName(e.target.value)} className="text-lg font-semibold text-foreground border-none shadow-none focus-visible:ring-0 p-1 h-auto" />
                 </div>
                 <div className="flex items-center gap-2">
                     {initialForm?._id && (
                         <>
-                            <Button variant="outline" asChild>
+                            <ZoruButton variant="outline" asChild>
                                 <a href={`/embed/crm-form/${initialForm._id.toString()}`} target="_blank" rel="noopener noreferrer"><Eye className="mr-2 h-4 w-4"/> Preview</a>
-                            </Button>
+                            </ZoruButton>
                             <CodeEmbedDialog embedScript={embedScript} />
                         </>
                     )}
-                    <ClayButton
+                    <ZoruButton
                         variant="obsidian"
                         onClick={handleSave}
                         disabled={isSaving}
                         leading={isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                     >
                         Save Form
-                    </ClayButton>
+                    </ZoruButton>
                 </div>
             </header>
             <div className="flex-1 grid grid-cols-12 min-h-0">
@@ -225,20 +225,20 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
                     <div className="space-y-4">
                         <h2 className="text-lg font-semibold text-foreground">Form Fields</h2>
                         <p className="text-sm text-muted-foreground">Drag to reorder fields.</p>
-                         <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="outline" size="sm" className="w-full">
+                         <ZoruDropdownMenu>
+                            <ZoruDropdownMenuTrigger asChild>
+                                <ZoruButton variant="outline" size="sm" className="w-full">
                                     <Plus className="mr-2 h-4 w-4"/>Add Field
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent>
+                                </ZoruButton>
+                            </ZoruDropdownMenuTrigger>
+                            <ZoruDropdownMenuContent>
                                 {availableFieldTypes.map(field => (
-                                     <DropdownMenuItem key={field.type} onSelect={() => addField(field.type as FormField['type'])}>
+                                     <ZoruDropdownMenuItem key={field.type} onSelect={() => addField(field.type as FormField['type'])}>
                                         {field.label}
-                                     </DropdownMenuItem>
+                                     </ZoruDropdownMenuItem>
                                 ))}
-                            </DropdownMenuContent>
-                        </DropdownMenu>
+                            </ZoruDropdownMenuContent>
+                        </ZoruDropdownMenu>
                         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
                             <SortableContext items={fields.map(f => f.id)} strategy={verticalListSortingStrategy}>
                                 <div className="space-y-2">
@@ -262,10 +262,10 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
                     <div className="flex items-center justify-between mb-4">
                         <h2 className="text-lg font-semibold text-foreground">Properties</h2>
                          {selectedFieldId && (
-                            <Button variant="ghost" size="sm" onClick={() => setSelectedFieldId(null)}>
+                            <ZoruButton variant="ghost" size="sm" onClick={() => setSelectedFieldId(null)}>
                                 <ArrowLeft className="mr-2 h-4 w-4" />
                                 Form Settings
-                            </Button>
+                            </ZoruButton>
                         )}
                     </div>
                     {selectedField ? (
@@ -281,19 +281,19 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
                                 <TabsTrigger value="style">Style</TabsTrigger>
                             </TabsList>
                             <TabsContent value="general" className="mt-4">
-                                <Accordion type="multiple" className="w-full" defaultValue={['general_settings']}>
-                                    <AccordionItem value="general_settings">
-                                        <AccordionTrigger>General Settings</AccordionTrigger>
-                                        <AccordionContent className="space-y-4 pt-2">
-                                            <div className="space-y-2"><Label>Form Title</Label><Input value={settings.title || 'Contact Us'} onChange={(e) => setSettings({...settings, title: e.target.value})} /></div>
-                                            <div className="space-y-2"><Label>Form Description</Label><Textarea value={settings.description || ''} onChange={(e) => setSettings({...settings, description: e.target.value})} /></div>
-                                            <div className="space-y-2"><Label>Submit Button Text</Label><Input value={settings.submitButtonText || 'Send Message'} onChange={(e) => setSettings({...settings, submitButtonText: e.target.value})} /></div>
-                                            <div className="space-y-2"><Label>Success Message</Label><Textarea value={settings.successMessage || 'Thank you! Your submission has been received.'} onChange={(e) => setSettings({...settings, successMessage: e.target.value})} /></div>
-                                            <div className="space-y-2"><Label>Logo URL</Label><Input value={settings.logoUrl || ''} onChange={(e) => setSettings({...settings, logoUrl: e.target.value})} /></div>
-                                            <div className="space-y-2"><Label>Footer Text (HTML allowed)</Label><Textarea value={settings.footerText || ''} onChange={(e) => setSettings({...settings, footerText: e.target.value})} /></div>
-                                        </AccordionContent>
-                                    </AccordionItem>
-                                </Accordion>
+                                <ZoruAccordion type="multiple" className="w-full" defaultValue={['general_settings']}>
+                                    <ZoruAccordionItem value="general_settings">
+                                        <ZoruAccordionTrigger>General Settings</ZoruAccordionTrigger>
+                                        <ZoruAccordionContent className="space-y-4 pt-2">
+                                            <div className="space-y-2"><ZoruLabel>Form Title</ZoruLabel><ZoruInput value={settings.title || 'Contact Us'} onChange={(e) => setSettings({...settings, title: e.target.value})} /></div>
+                                            <div className="space-y-2"><ZoruLabel>Form Description</ZoruLabel><ZoruTextarea value={settings.description || ''} onChange={(e) => setSettings({...settings, description: e.target.value})} /></div>
+                                            <div className="space-y-2"><ZoruLabel>Submit ZoruButton Text</ZoruLabel><ZoruInput value={settings.submitButtonText || 'Send Message'} onChange={(e) => setSettings({...settings, submitButtonText: e.target.value})} /></div>
+                                            <div className="space-y-2"><ZoruLabel>Success Message</ZoruLabel><ZoruTextarea value={settings.successMessage || 'Thank you! Your submission has been received.'} onChange={(e) => setSettings({...settings, successMessage: e.target.value})} /></div>
+                                            <div className="space-y-2"><ZoruLabel>Logo URL</ZoruLabel><ZoruInput value={settings.logoUrl || ''} onChange={(e) => setSettings({...settings, logoUrl: e.target.value})} /></div>
+                                            <div className="space-y-2"><ZoruLabel>Footer Text (HTML allowed)</ZoruLabel><ZoruTextarea value={settings.footerText || ''} onChange={(e) => setSettings({...settings, footerText: e.target.value})} /></div>
+                                        </ZoruAccordionContent>
+                                    </ZoruAccordionItem>
+                                </ZoruAccordion>
                             </TabsContent>
                             <TabsContent value="style" className="mt-4">
                                  <StyleSettingsPanel settings={settings} onUpdate={setSettings} />

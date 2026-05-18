@@ -4,8 +4,8 @@ import { cn as _zoruCn } from '@/components/zoruui';
 void _zoruCn;
 
 import { useMemo, useState } from 'react';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent } from '@/components/ui/card';
+import { ZoruTextarea } from '@/components/zoruui';
+import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
 const COMMON_NEGATIVES = [
@@ -27,9 +27,9 @@ export default function KeywordNegativePage() {
 
   return (
     <ToolShell title="Negative Keyword Tool" description="Identify common negative keywords in your keyword list.">
-      <Textarea value={kw} onChange={(e) => setKw(e.target.value)} placeholder="One keyword per line…" className="min-h-[220px]" />
-      <Card>
-        <CardContent className="p-4">
+      <ZoruTextarea value={kw} onChange={(e) => setKw(e.target.value)} placeholder="One keyword per line…" className="min-h-[220px]" />
+      <ZoruCard>
+        <ZoruCardContent className="p-4">
           <div className="font-semibold text-sm mb-2">Common negatives</div>
           <div className="flex flex-wrap gap-1">
             {COMMON_NEGATIVES.map((n) => (
@@ -37,8 +37,8 @@ export default function KeywordNegativePage() {
             ))}
           </div>
           {negatives.length > 0 && <div className="mt-3 text-sm text-muted-foreground">{negatives.length} negatives detected in your list.</div>}
-        </CardContent>
-      </Card>
+        </ZoruCardContent>
+      </ZoruCard>
     </ToolShell>
   );
 }

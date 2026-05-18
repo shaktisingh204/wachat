@@ -3,17 +3,17 @@
 import { useActionState, useEffect, useRef } from 'react';
 import { useFormStatus } from 'react-dom';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+} from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
+import { ZoruTextarea } from '@/components/zoruui';
 import { LoaderCircle, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { FacebookPageDetails } from '@/lib/definitions';
@@ -26,10 +26,10 @@ function SubmitButton() {
   const { pending } = useFormStatus();
 
   return (
-    <Button type="submit" disabled={pending}>
+    <ZoruButton type="submit" disabled={pending}>
       {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
       Save Changes
-    </Button>
+    </ZoruButton>
   );
 }
 
@@ -58,39 +58,39 @@ export function EditPageDetailsDialog({ isOpen, onOpenChange, pageDetails, proje
   }, [state, toast, onOpenChange, onSuccess]);
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col overflow-hidden p-0">
+    <ZoruDialog open={isOpen} onOpenChange={onOpenChange}>
+      <ZoruDialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col overflow-hidden p-0">
         <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
           <input type="hidden" name="projectId" value={projectId} />
           <input type="hidden" name="pageId" value={pageDetails.id} />
-          <DialogHeader className="px-6 pt-6 pb-2">
-            <DialogTitle>Edit Page Details</DialogTitle>
-            <DialogDescription>
+          <ZoruDialogHeader className="px-6 pt-6 pb-2">
+            <ZoruDialogTitle>Edit Page Details</ZoruDialogTitle>
+            <ZoruDialogDescription>
               Update information for your page "{pageDetails.name}". Changes may take time to appear.
-            </DialogDescription>
-          </DialogHeader>
+            </ZoruDialogDescription>
+          </ZoruDialogHeader>
           <div className="flex-1 overflow-y-auto px-6 py-2">
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="about">About</Label>
-                <Textarea id="about" name="about" defaultValue={pageDetails.about || ''} className="min-h-32" />
+                <ZoruLabel htmlFor="about">About</ZoruLabel>
+                <ZoruTextarea id="about" name="about" defaultValue={pageDetails.about || ''} className="min-h-32" />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="phone">Phone Number</Label>
-                <Input id="phone" name="phone" defaultValue={pageDetails.phone || ''} />
+                <ZoruLabel htmlFor="phone">Phone Number</ZoruLabel>
+                <ZoruInput id="phone" name="phone" defaultValue={pageDetails.phone || ''} />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="website">Website</Label>
-                <Input id="website" name="website" type="url" defaultValue={pageDetails.website || ''} />
+                <ZoruLabel htmlFor="website">Website</ZoruLabel>
+                <ZoruInput id="website" name="website" type="url" defaultValue={pageDetails.website || ''} />
               </div>
             </div>
           </div>
-          <DialogFooter className="px-6 pb-6 pt-2">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <ZoruDialogFooter className="px-6 pb-6 pt-2">
+            <ZoruButton type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</ZoruButton>
             <SubmitButton />
-          </DialogFooter>
+          </ZoruDialogFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+      </ZoruDialogContent>
+    </ZoruDialog>
   );
 }

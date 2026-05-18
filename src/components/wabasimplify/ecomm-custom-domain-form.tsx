@@ -3,19 +3,19 @@
 
 import { useActionState, useEffect, useRef, useTransition, useState } from 'react';
 import { useFormStatus } from 'react-dom';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
+import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardHeader, ZoruCardTitle, ZoruButton } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
 import { Key, LoaderCircle, Trash2, CheckCircle, Copy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { Separator } from '@/components/ui/separator';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { ZoruSeparator } from '@/components/zoruui';
+import { ZoruAlert, ZoruAlertDescription, ZoruAlertTitle } from '@/components/zoruui';
 import { addCustomDomain, getCustomDomains, verifyCustomDomain, deleteCustomDomain } from '@/app/actions/url-shortener.actions';
 import type { WithId, CustomDomain } from '@/lib/definitions';
-import { Skeleton } from '@/components/ui/skeleton';
+import { ZoruSkeleton } from '@/components/zoruui';
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
-import { Badge } from '@/components/ui/badge';
+import { ZoruBadge } from '@/components/zoruui';
 
 
 const addDomainInitialState = { success: undefined, error: undefined };
@@ -23,10 +23,10 @@ const addDomainInitialState = { success: undefined, error: undefined };
 function AddDomainButton() {
     const { pending } = useFormStatus();
     return (
-        <Button type="submit" disabled={pending}>
+        <ZoruButton type="submit" disabled={pending}>
             {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
             Add Domain
-        </Button>
+        </ZoruButton>
     )
 }
 
@@ -46,7 +46,7 @@ function VerifyButton({ domainId, onActionComplete }: { domainId: string, onActi
         });
     };
 
-    return <Button onClick={onVerify} size="sm" disabled={isPending}>{isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}Verify</Button>;
+    return <ZoruButton onClick={onVerify} size="sm" disabled={isPending}>{isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}Verify</ZoruButton>;
 }
 
 function DeleteButton({ domainId, onActionComplete }: { domainId: string, onActionComplete: () => void }) {
@@ -64,7 +64,7 @@ function DeleteButton({ domainId, onActionComplete }: { domainId: string, onActi
         });
     }
 
-    return <Button variant="ghost" size="icon" onClick={onDelete} disabled={isPending}>{isPending ? <LoaderCircle className="h-4 w-4 animate-spin"/> : <Trash2 className="h-4 w-4 text-destructive"/>}</Button>;
+    return <ZoruButton variant="ghost" size="icon" onClick={onDelete} disabled={isPending}>{isPending ? <LoaderCircle className="h-4 w-4 animate-spin"/> : <Trash2 className="h-4 w-4 text-destructive"/>}</ZoruButton>;
 }
 
 
@@ -98,25 +98,25 @@ export function EcommCustomDomainForm() {
     }, [addState, toast]);
 
     return (
-        <Card>
-            <CardHeader>
-                <CardTitle>Custom Domains</CardTitle>
-                <CardDescription>Use your own domain for branded shop URLs (e.g., shop.mybrand.com).</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
+        <ZoruCard>
+            <ZoruCardHeader>
+                <ZoruCardTitle>Custom Domains</ZoruCardTitle>
+                <ZoruCardDescription>Use your own domain for branded shop URLs (e.g., shop.mybrand.com).</ZoruCardDescription>
+            </ZoruCardHeader>
+            <ZoruCardContent className="space-y-6">
                 <form action={addAction} ref={addFormRef} className="space-y-2">
-                    <Label htmlFor="hostname">Add New Domain</Label>
+                    <ZoruLabel htmlFor="hostname">Add New Domain</ZoruLabel>
                     <div className="flex gap-2">
-                        <Input id="hostname" name="hostname" placeholder="e.g., shop.mybrand.com" required />
+                        <ZoruInput id="hostname" name="hostname" placeholder="e.g., shop.mybrand.com" required />
                         <AddDomainButton />
                     </div>
                 </form>
 
-                <Separator />
+                <ZoruSeparator />
                  <div className="space-y-4">
                     <h4 className="font-medium">Your Domains</h4>
                     {isLoading ? (
-                        <Skeleton className="h-24 w-full" />
+                        <ZoruSkeleton className="h-24 w-full" />
                     ) : domains.length > 0 ? (
                         domains.map(domain => (
                             <div key={domain._id.toString()} className="p-4 border rounded-lg space-y-4">
@@ -124,9 +124,9 @@ export function EcommCustomDomainForm() {
                                     <div className="flex items-center gap-2">
                                         <p className="font-semibold">{domain.hostname}</p>
                                         {domain.verified ? (
-                                            <Badge><CheckCircle className="mr-1 h-3 w-3" /> Verified</Badge>
+                                            <ZoruBadge><CheckCircle className="mr-1 h-3 w-3" /> Verified</ZoruBadge>
                                         ) : (
-                                            <Badge variant="secondary">Unverified</Badge>
+                                            <ZoruBadge variant="secondary">Unverified</ZoruBadge>
                                         )}
                                     </div>
                                     <DeleteButton domainId={domain._id.toString()} onActionComplete={fetchData} />
@@ -139,7 +139,7 @@ export function EcommCustomDomainForm() {
                                             <span className="text-muted-foreground">Value/Target:</span>
                                             <div className="flex items-center gap-2">
                                                 <span className="break-all">cname.sabnode.com</span>
-                                                <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => copy('cname.sabnode.com')}><Copy className="h-3 w-3"/></Button>
+                                                <ZoruButton variant="ghost" size="icon" className="h-5 w-5" onClick={() => copy('cname.sabnode.com')}><Copy className="h-3 w-3"/></ZoruButton>
                                             </div>
                                         </div>
                                     </div>
@@ -151,7 +151,7 @@ export function EcommCustomDomainForm() {
                                             <span className="text-muted-foreground">Value:</span>
                                             <div className="flex items-center gap-2">
                                                 <span className="break-all">{domain.verificationCode}</span>
-                                                <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => copy(domain.verificationCode)}><Key className="h-3 w-3"/></Button>
+                                                <ZoruButton variant="ghost" size="icon" className="h-5 w-5" onClick={() => copy(domain.verificationCode)}><Key className="h-3 w-3"/></ZoruButton>
                                             </div>
                                         </div>
                                          <div className="flex justify-end pt-2">
@@ -165,7 +165,7 @@ export function EcommCustomDomainForm() {
                         <p className="text-sm text-center text-muted-foreground py-4">No custom domains added yet.</p>
                     )}
                 </div>
-            </CardContent>
-        </Card>
+            </ZoruCardContent>
+        </ZoruCard>
     );
 }

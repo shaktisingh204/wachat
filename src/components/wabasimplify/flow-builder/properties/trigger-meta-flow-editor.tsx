@@ -1,10 +1,10 @@
 
 'use client';
 
-import { Label } from '@/components/ui/label';
+import { ZoruLabel } from '@/components/zoruui';
 import { SmartCombobox } from '@/components/wabasimplify/smart-combobox';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruTextarea } from '@/components/zoruui';
 import { getMetaFlows } from '@/app/actions/meta-flow.actions';
 import { useProject } from '@/context/project-context';
 import type { MetaFlow } from '@/lib/definitions';
@@ -29,18 +29,18 @@ export function TriggerMetaFlowEditor({ node, onUpdate }: EditorProps) {
     return (
         <div className="space-y-4">
             <div className="space-y-2">
-                <Label>Meta Flow to Trigger</Label>
+                <ZoruLabel>Meta Flow to Trigger</ZoruLabel>
                 <SmartCombobox
                     value={node.data.metaFlowId || ''}
                     onSelect={(val: string) => onUpdate({ metaFlowId: val })}
                     options={metaFlows.map(f => ({ label: f.name, value: f.metaId }))}
-                    placeholder="Select a Meta Flow..."
+                    placeholder="ZoruSelect a Meta Flow..."
                     searchPlaceholder="Search meta flows..."
                 />
             </div>
-            <div className="space-y-2"><Label>Header</Label><Input value={node.data.header || ''} onChange={e => onUpdate({ header: e.target.value })} /></div>
-            <div className="space-y-2"><Label>Body</Label><Textarea value={node.data.body || ''} onChange={e => onUpdate({ body: e.target.value })} /></div>
-            <div className="space-y-2"><Label>Footer</Label><Input value={node.data.footer || ''} onChange={e => onUpdate({ footer: e.target.value })} /></div>
+            <div className="space-y-2"><ZoruLabel>Header</ZoruLabel><ZoruInput value={node.data.header || ''} onChange={e => onUpdate({ header: e.target.value })} /></div>
+            <div className="space-y-2"><ZoruLabel>Body</ZoruLabel><ZoruTextarea value={node.data.body || ''} onChange={e => onUpdate({ body: e.target.value })} /></div>
+            <div className="space-y-2"><ZoruLabel>Footer</ZoruLabel><ZoruInput value={node.data.footer || ''} onChange={e => onUpdate({ footer: e.target.value })} /></div>
         </div>
     );
 }

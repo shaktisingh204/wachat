@@ -3,13 +3,13 @@
 'use client';
 
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
+import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
 import { Wand2, LoaderCircle, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { ZoruAlert, ZoruAlertDescription, ZoruAlertTitle } from '@/components/zoruui';
 
 interface AiSuggestionsProps {
   onSuggestionSelect: (suggestion: string) => void;
@@ -41,16 +41,16 @@ export function AiSuggestions({ onSuggestionSelect }: AiSuggestionsProps) {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>AI Content Assistant</CardTitle>
-        <CardDescription>Get AI-powered suggestions for your template body.</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
+    <ZoruCard>
+      <ZoruCardHeader>
+        <ZoruCardTitle>AI Content Assistant</ZoruCardTitle>
+        <ZoruCardDescription>Get AI-powered suggestions for your template body.</ZoruCardDescription>
+      </ZoruCardHeader>
+      <ZoruCardContent className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="topic">Topic</Label>
+          <ZoruLabel htmlFor="topic">Topic</ZoruLabel>
           <div className="flex gap-2">
-            <Input
+            <ZoruInput
               id="topic"
               placeholder="e.g., flash sale, new product"
               value={topic}
@@ -62,28 +62,28 @@ export function AiSuggestions({ onSuggestionSelect }: AiSuggestionsProps) {
                 }
               }}
             />
-            <Button type="button" onClick={getSuggestions} disabled={isLoading}>
+            <ZoruButton type="button" onClick={getSuggestions} disabled={isLoading}>
               {isLoading ? (
                 <LoaderCircle className="h-4 w-4 animate-spin" />
               ) : (
                 <Wand2 className="h-4 w-4" />
               )}
               <span className="sr-only">Get Suggestions</span>
-            </Button>
+            </ZoruButton>
           </div>
         </div>
 
         {error && (
-            <Alert variant="destructive">
+            <ZoruAlert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Error</AlertTitle>
-                <AlertDescription>{error}</AlertDescription>
-            </Alert>
+                <ZoruAlertTitle>Error</ZoruAlertTitle>
+                <ZoruAlertDescription>{error}</ZoruAlertDescription>
+            </ZoruAlert>
         )}
 
         {suggestions.length > 0 && (
           <div className="space-y-2">
-            <Label>Suggestions</Label>
+            <ZoruLabel>Suggestions</ZoruLabel>
             <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
               {suggestions.map((suggestion, index) => (
                 <div
@@ -97,7 +97,7 @@ export function AiSuggestions({ onSuggestionSelect }: AiSuggestionsProps) {
             </div>
           </div>
         )}
-      </CardContent>
-    </Card>
+      </ZoruCardContent>
+    </ZoruCard>
   );
 }

@@ -4,17 +4,17 @@
 import { useActionState, useEffect, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruAlertDialogTrigger,
+} from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
 import { LoaderCircle, Trash2 } from 'lucide-react';
 import { handleDeleteUserProject } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
@@ -27,16 +27,16 @@ const initialState = {
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <AlertDialogAction asChild>
-      <Button type="submit" variant="destructive" disabled={pending}>
+    <ZoruAlertDialogAction asChild>
+      <ZoruButton type="submit" variant="destructive" disabled={pending}>
         {pending ? (
           <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
         ) : (
           <Trash2 className="mr-2 h-4 w-4" />
         )}
         Yes, Delete Project
-      </Button>
-    </AlertDialogAction>
+      </ZoruButton>
+    </ZoruAlertDialogAction>
   );
 }
 
@@ -62,27 +62,27 @@ export function DeleteProjectButton({ projectId, projectName }: DeleteProjectBut
   }, [state, toast]);
 
   return (
-    <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogTrigger asChild onClick={(e) => e.stopPropagation()}>
-        <Button variant="ghost" size="icon" className="h-7 w-7">
+    <ZoruAlertDialog open={open} onOpenChange={setOpen}>
+      <ZoruAlertDialogTrigger asChild onClick={(e) => e.stopPropagation()}>
+        <ZoruButton variant="ghost" size="icon" className="h-7 w-7">
           <Trash2 className="h-4 w-4 text-destructive" />
-        </Button>
-      </AlertDialogTrigger>
-      <AlertDialogContent>
+        </ZoruButton>
+      </ZoruAlertDialogTrigger>
+      <ZoruAlertDialogContent>
         <form action={formAction}>
           <input type="hidden" name="projectId" value={projectId} />
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>
+          <ZoruAlertDialogHeader>
+            <ZoruAlertDialogTitle>Are you absolutely sure?</ZoruAlertDialogTitle>
+            <ZoruAlertDialogDescription>
               This action cannot be undone. This will permanently delete the project "{projectName}" and all of its associated data, including campaigns, contacts, and flows.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter className="mt-4">
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            </ZoruAlertDialogDescription>
+          </ZoruAlertDialogHeader>
+          <ZoruAlertDialogFooter className="mt-4">
+            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
             <SubmitButton />
-          </AlertDialogFooter>
+          </ZoruAlertDialogFooter>
         </form>
-      </AlertDialogContent>
-    </AlertDialog>
+      </ZoruAlertDialogContent>
+    </ZoruAlertDialog>
   );
 }

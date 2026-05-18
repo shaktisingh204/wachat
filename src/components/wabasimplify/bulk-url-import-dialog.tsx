@@ -4,17 +4,17 @@
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruDialogTrigger,
+} from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
 import { LoaderCircle, UploadCloud } from 'lucide-react';
 import { handleBulkCreateShortUrls } from '@/app/actions/url-shortener.actions';
 import { useToast } from '@/hooks/use-toast';
@@ -28,7 +28,7 @@ function SubmitButton() {
   const { pending } = useFormStatus();
 
   return (
-    <Button type="submit" disabled={pending}>
+    <ZoruButton type="submit" disabled={pending}>
       {pending ? (
         <>
           <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
@@ -37,7 +37,7 @@ function SubmitButton() {
       ) : (
         'Import URLs'
       )}
-    </Button>
+    </ZoruButton>
   );
 }
 
@@ -64,33 +64,33 @@ export function BulkImportDialog({ onImportComplete }: BulkImportDialogProps) {
   }, [state, toast, onImportComplete]);
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline">
+    <ZoruDialog open={open} onOpenChange={setOpen}>
+      <ZoruDialogTrigger asChild>
+        <ZoruButton variant="outline">
             <UploadCloud className="mr-2 h-4 w-4" />
             Bulk Import
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+        </ZoruButton>
+      </ZoruDialogTrigger>
+      <ZoruDialogContent className="sm:max-w-md">
         <form action={formAction} ref={formRef}>
-            <DialogHeader>
-                <DialogTitle>Bulk Import URLs</DialogTitle>
-                <DialogDescription>
+            <ZoruDialogHeader>
+                <ZoruDialogTitle>Bulk Import URLs</ZoruDialogTitle>
+                <ZoruDialogDescription>
                     Upload a CSV or XLSX file. The first column should be the long URL, and the optional second column can be a custom alias.
-                </DialogDescription>
-            </DialogHeader>
+                </ZoruDialogDescription>
+            </ZoruDialogHeader>
             <div className="grid gap-4 py-4">
                 <div className="space-y-2">
-                    <Label htmlFor="urlFile">File</Label>
-                    <Input id="urlFile" name="urlFile" type="file" accept=".csv,.xlsx" required />
+                    <ZoruLabel htmlFor="urlFile">File</ZoruLabel>
+                    <ZoruInput id="urlFile" name="urlFile" type="file" accept=".csv,.xlsx" required />
                 </div>
             </div>
-            <DialogFooter>
-                <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
+            <ZoruDialogFooter>
+                <ZoruButton type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</ZoruButton>
                 <SubmitButton />
-            </DialogFooter>
+            </ZoruDialogFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+      </ZoruDialogContent>
+    </ZoruDialog>
   );
 }

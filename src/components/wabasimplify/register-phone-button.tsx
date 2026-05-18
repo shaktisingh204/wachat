@@ -2,7 +2,7 @@
 'use client';
 
 import { useTransition } from 'react';
-import { Button } from '@/components/ui/button';
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
 import { LoaderCircle, CheckSquare } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { registerPhoneNumber } from '@/app/actions/whatsapp.actions';
@@ -28,9 +28,9 @@ export function RegisterPhoneButton({ projectId, phoneNumberId }: RegisterPhoneB
     };
 
     return (
-        <Button onClick={handleRegister} disabled={isPending} variant="outline" size="sm">
+        <ZoruButton onClick={handleRegister} disabled={isPending} variant="outline" size="sm">
             {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <CheckSquare className="mr-2 h-4 w-4" />}
             Register
-        </Button>
+        </ZoruButton>
     );
 }

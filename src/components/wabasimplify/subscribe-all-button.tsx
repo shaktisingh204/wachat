@@ -4,7 +4,7 @@
 import { useTransition, useState, useEffect } from 'react';
 import { handleSubscribeAllProjects } from '@/app/actions/index.ts';
 import { useToast } from '@/hooks/use-toast';
-import { Button } from '@/components/ui/button';
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
 import { Rss, LoaderCircle } from 'lucide-react';
 
 export function SubscribeAllButton() {
@@ -35,7 +35,7 @@ export function SubscribeAllButton() {
   };
 
   return (
-    <Button onClick={onSubscribe} variant="outline" disabled={isPending}>
+    <ZoruButton onClick={onSubscribe} variant="outline" disabled={isPending}>
       {isPending ? (
         <>
           <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
@@ -47,6 +47,6 @@ export function SubscribeAllButton() {
           Subscribe All to Webhooks
         </>
       )}
-    </Button>
+    </ZoruButton>
   );
 }

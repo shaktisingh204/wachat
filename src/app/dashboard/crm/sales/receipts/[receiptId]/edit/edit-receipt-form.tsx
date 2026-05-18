@@ -91,7 +91,7 @@ export function EditReceiptForm({ receipt }: EditReceiptFormProps) {
                             <EntityPicker
                                 entity="bankAccount"
                                 value={bankAccountId || null}
-                                placeholder="Select bank account…"
+                                placeholder="ZoruSelect bank account…"
                                 onChange={(next) => {
                                     const id = Array.isArray(next) ? next[0] ?? '' : (next ?? '');
                                     setBankAccountId(id);

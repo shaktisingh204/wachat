@@ -1,13 +1,13 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
 void _zoruCn;
 
 import { useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
+import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
 const SIZES = [16, 32, 48, 180];
@@ -48,23 +48,23 @@ export default function FaviconGeneratorPage() {
 
   return (
     <ToolShell title="Favicon Generator" description="Generate favicon PNGs at 16, 32, 48 and 180 px.">
-      <Card>
-        <CardContent className="p-4 space-y-4">
+      <ZoruCard>
+        <ZoruCardContent className="p-4 space-y-4">
           <div>
-            <Label>Source image (square works best)</Label>
-            <Input type="file" accept="image/*" onChange={(e) => setFile(e.target.files?.[0] || null)} />
+            <ZoruLabel>Source image (square works best)</ZoruLabel>
+            <ZoruInput type="file" accept="image/*" onChange={(e) => setFile(e.target.files?.[0] || null)} />
           </div>
-          <Button onClick={generate} disabled={!file}>
+          <ZoruButton onClick={generate} disabled={!file}>
             Generate
-          </Button>
+          </ZoruButton>
           {err && <div className="text-sm text-destructive">{err}</div>}
-        </CardContent>
-      </Card>
+        </ZoruCardContent>
+      </ZoruCard>
       {outputs.length > 0 && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {outputs.map((o) => (
-            <Card key={o.size}>
-              <CardContent className="p-4 text-center space-y-2">
+            <ZoruCard key={o.size}>
+              <ZoruCardContent className="p-4 text-center space-y-2">
                 <div className="text-sm text-muted-foreground">
                   {o.size}x{o.size}
                 </div>
@@ -73,8 +73,8 @@ export default function FaviconGeneratorPage() {
                 <a href={o.url} download={`favicon-${o.size}.png`} className="underline text-xs block">
                   Download
                 </a>
-              </CardContent>
-            </Card>
+              </ZoruCardContent>
+            </ZoruCard>
           ))}
         </div>
       )}

@@ -1,11 +1,12 @@
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
 'use client';
 
 import * as React from 'react';
 import { Paperclip, Send, LoaderCircle, Download } from 'lucide-react';
 
-import { ClayCard, ClayButton } from '@/components/clay';
-import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
+import { ClayCard } from '@/components/clay';
+import { ZoruTextarea } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
 import { SabFileUrlInput } from '@/components/sabfiles';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -196,7 +197,7 @@ export function ChatThread({ peerUserId, currentUserId, initialMessages }: ChatT
           </ul>
         ) : null}
 
-        <Textarea
+        <ZoruTextarea
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           placeholder="Write a message…"
@@ -204,7 +205,7 @@ export function ChatThread({ peerUserId, currentUserId, initialMessages }: ChatT
           className="rounded-lg border-border bg-card text-[13px]"
         />
         <div className="flex flex-wrap items-center gap-2">
-          <Input
+          <ZoruInput
             value={fileName}
             onChange={(e) => setFileName(e.target.value)}
             placeholder="File name (optional)"
@@ -222,7 +223,7 @@ export function ChatThread({ peerUserId, currentUserId, initialMessages }: ChatT
             placeholder="https://file-url"
             className="flex-1 min-w-[180px]"
           />
-          <ClayButton
+          <ZoruButton
             type="button"
             variant="pill"
             size="sm"
@@ -230,8 +231,8 @@ export function ChatThread({ peerUserId, currentUserId, initialMessages }: ChatT
             leading={<Paperclip className="h-3.5 w-3.5" />}
           >
             Attach
-          </ClayButton>
-          <ClayButton
+          </ZoruButton>
+          <ZoruButton
             type="submit"
             variant="obsidian"
             size="sm"
@@ -245,7 +246,7 @@ export function ChatThread({ peerUserId, currentUserId, initialMessages }: ChatT
             }
           >
             Send
-          </ClayButton>
+          </ZoruButton>
         </div>
       </form>
     </ClayCard>

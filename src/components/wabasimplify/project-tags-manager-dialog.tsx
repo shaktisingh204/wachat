@@ -4,15 +4,15 @@
 import { useActionState, useEffect, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+    ZoruDialog,
+    ZoruDialogContent,
+    ZoruDialogDescription,
+    ZoruDialogFooter,
+    ZoruDialogHeader,
+    ZoruDialogTitle,
+} from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
 import { LoaderCircle, Save, Trash2, Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { handleUpdateProjectTags } from '@/app/actions/index'; // Ensure this export exists
@@ -25,10 +25,10 @@ const initialState: { message?: string; error?: string } = { message: undefined,
 function SubmitButton({ disabled }: { disabled: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <Button type="submit" disabled={pending || disabled}>
+        <ZoruButton type="submit" disabled={pending || disabled}>
             {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
             Save Tags
-        </Button>
+        </ZoruButton>
     );
 }
 
@@ -99,15 +99,15 @@ export function ProjectTagsManagerDialog({ isOpen, onOpenChange, project, onTags
     };
 
     return (
-        <Dialog open={isOpen} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-lg">
+        <ZoruDialog open={isOpen} onOpenChange={onOpenChange}>
+            <ZoruDialogContent className="sm:max-w-lg">
                 <form action={validateAndSubmit}>
                     <input type="hidden" name="projectId" value={project._id.toString()} />
                     <input type="hidden" name="tags" value={JSON.stringify(tags.map(t => ({ name: t.name, color: t.color, _id: t._id })).filter(t => t.name.trim()))} />
-                    <DialogHeader>
-                        <DialogTitle>Manage Project Tags</DialogTitle>
-                        <DialogDescription>Create, edit, or delete tags for this project.</DialogDescription>
-                    </DialogHeader>
+                    <ZoruDialogHeader>
+                        <ZoruDialogTitle>Manage Project Tags</ZoruDialogTitle>
+                        <ZoruDialogDescription>Create, edit, or delete tags for this project.</ZoruDialogDescription>
+                    </ZoruDialogHeader>
                     <div className="py-4 space-y-4 max-h-[60vh] overflow-y-auto">
                         <div className="grid grid-cols-[1fr,auto,auto] items-center gap-2 p-2 font-medium text-sm text-muted-foreground">
                             <span>Tag Name</span>
@@ -117,35 +117,35 @@ export function ProjectTagsManagerDialog({ isOpen, onOpenChange, project, onTags
                         <div className="space-y-2">
                             {tags.map(tag => (
                                 <div key={tag._id} className="grid grid-cols-[1fr,auto,auto] items-center gap-2">
-                                    <Input
+                                    <ZoruInput
                                         value={tag.name}
                                         onChange={(e) => handleTagChange(tag._id, 'name', e.target.value)}
                                         placeholder="Enter tag name"
                                     />
-                                    <Input
+                                    <ZoruInput
                                         type="color"
                                         value={tag.color}
                                         onChange={(e) => handleTagChange(tag._id, 'color', e.target.value)}
                                         className="h-9 w-14 p-1"
                                     />
-                                    <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveTag(tag._id)}>
+                                    <ZoruButton type="button" variant="ghost" size="icon" onClick={() => handleRemoveTag(tag._id)}>
                                         <Trash2 className="h-4 w-4 text-destructive" />
-                                    </Button>
+                                    </ZoruButton>
                                 </div>
                             ))}
                         </div>
-                        <Button type="button" variant="outline" className="w-full" onClick={handleAddTag}>
+                        <ZoruButton type="button" variant="outline" className="w-full" onClick={handleAddTag}>
                             <Plus className="mr-2 h-4 w-4" />
                             Add Tag
-                        </Button>
+                        </ZoruButton>
                         {validationError && <p className="text-sm text-destructive">{validationError}</p>}
                     </div>
-                    <DialogFooter>
-                        <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+                    <ZoruDialogFooter>
+                        <ZoruButton type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</ZoruButton>
                         <SubmitButton disabled={!!validationError} />
-                    </DialogFooter>
+                    </ZoruDialogFooter>
                 </form>
-            </DialogContent>
-        </Dialog>
+            </ZoruDialogContent>
+        </ZoruDialog>
     );
 }

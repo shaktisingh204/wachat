@@ -3,16 +3,16 @@
 
 import { useEffect, useRef, useState, useTransition } from 'react';
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardDescription,
+  ZoruCardFooter,
+  ZoruCardHeader,
+  ZoruCardTitle,
+} from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
 import { LoaderCircle, Save, Key } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 // import { saveSmsSettings } from '@/app/actions/sms.actions';
@@ -25,10 +25,10 @@ function SubmitButton() {
   const [isPending, startTransition] = useTransition();
 
   return (
-    <Button type="submit" disabled={isPending}>
+    <ZoruButton type="submit" disabled={isPending}>
       {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
       Save Twilio Settings
-    </Button>
+    </ZoruButton>
   );
 }
 
@@ -60,35 +60,35 @@ export function SmsSettingsForm({ user }: SmsSettingsFormProps) {
 
     return (
         <form action={action}>
-            <Card className="card-gradient card-gradient-blue">
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
+            <ZoruCard className="card-gradient card-gradient-blue">
+                <ZoruCardHeader>
+                    <ZoruCardTitle className="flex items-center gap-2">
                         <Key className="h-5 w-5"/>
                         Twilio Configuration
-                    </CardTitle>
-                    <CardDescription>Enter your Twilio Account SID and Auth Token to enable SMS sending.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
+                    </ZoruCardTitle>
+                    <ZoruCardDescription>Enter your Twilio Account SID and Auth Token to enable SMS sending.</ZoruCardDescription>
+                </ZoruCardHeader>
+                <ZoruCardContent className="space-y-4">
                     <div className="space-y-2">
-                        <Label htmlFor="accountSid">Account SID</Label>
-                        <Input id="accountSid" name="accountSid" defaultValue={settings?.accountSid} placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" required />
+                        <ZoruLabel htmlFor="accountSid">Account SID</ZoruLabel>
+                        <ZoruInput id="accountSid" name="accountSid" defaultValue={settings?.accountSid} placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" required />
                     </div>
                     <div className="space-y-2">
-                        <Label htmlFor="authToken">Auth Token</Label>
-                        <Input id="authToken" name="authToken" type="password" defaultValue={settings?.authToken} required />
+                        <ZoruLabel htmlFor="authToken">Auth Token</ZoruLabel>
+                        <ZoruInput id="authToken" name="authToken" type="password" defaultValue={settings?.authToken} required />
                     </div>
                     <div className="space-y-2">
-                        <Label htmlFor="fromNumber">Twilio Phone Number</Label>
-                        <Input id="fromNumber" name="fromNumber" type="tel" defaultValue={settings?.fromNumber} placeholder="+15551234567" required />
+                        <ZoruLabel htmlFor="fromNumber">Twilio Phone Number</ZoruLabel>
+                        <ZoruInput id="fromNumber" name="fromNumber" type="tel" defaultValue={settings?.fromNumber} placeholder="+15551234567" required />
                     </div>
-                </CardContent>
-                <CardFooter>
-                    <Button type="submit" disabled={isPending}>
+                </ZoruCardContent>
+                <ZoruCardFooter>
+                    <ZoruButton type="submit" disabled={isPending}>
                         {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
                         Save Twilio Settings
-                    </Button>
-                </CardFooter>
-            </Card>
+                    </ZoruButton>
+                </ZoruCardFooter>
+            </ZoruCard>
         </form>
     );
 }

@@ -3,11 +3,11 @@
 
 import { useState, useEffect, useTransition } from 'react';
 import { getDiwaliThemeStatus, setDiwaliThemeStatus } from '@/app/actions/admin.actions';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
+import { ZoruSwitch } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
 import { useToast } from '@/hooks/use-toast';
 import { LoaderCircle } from 'lucide-react';
-import { Skeleton } from '../ui/skeleton';
+import { ZoruSkeleton } from '../ui/skeleton';
 
 export function DiwaliThemeToggle() {
     const [isEnabled, setIsEnabled] = useState(false);
@@ -36,20 +36,20 @@ export function DiwaliThemeToggle() {
     };
     
     if(isLoading) {
-        return <Skeleton className="h-10 w-full" />
+        return <ZoruSkeleton className="h-10 w-full" />
     }
 
     return (
         <div className="flex items-center justify-between rounded-lg border p-4 shadow-sm">
             <div className="space-y-0.5">
-                <Label htmlFor="diwali-switch" className="text-base font-semibold">Diwali Theme</Label>
+                <ZoruLabel htmlFor="diwali-switch" className="text-base font-semibold">Diwali Theme</ZoruLabel>
                 <p className="text-sm text-muted-foreground">
                     Globally enable or disable the festive Diwali theme for all users.
                 </p>
             </div>
             <div className="flex items-center gap-2">
                  {(isLoading || isUpdating) && <LoaderCircle className="h-4 w-4 animate-spin text-muted-foreground" />}
-                <Switch
+                <ZoruSwitch
                     id="diwali-switch"
                     checked={isEnabled}
                     onCheckedChange={onCheckedChange}

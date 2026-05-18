@@ -5,35 +5,34 @@
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruDialogTrigger,
+} from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
 import { LoaderCircle, Upload } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { importCrmContacts } from '@/app/actions/crm.actions';
-import { ClayButton } from '@/components/clay';
 
 const initialState = { message: undefined, error: undefined };
 
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <ClayButton
+    <ZoruButton
       type="submit"
       variant="obsidian"
       disabled={pending}
       leading={pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : undefined}
     >
       Import Contacts
-    </ClayButton>
+    </ZoruButton>
   );
 }
 
@@ -60,35 +59,35 @@ export function CrmImportContactsDialog({ onImported }: CrmImportContactsDialogP
   }, [state, toast, onImported]);
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline">
+    <ZoruDialog open={open} onOpenChange={setOpen}>
+      <ZoruDialogTrigger asChild>
+        <ZoruButton variant="outline">
           <Upload className="mr-2 h-4 w-4" />
           Import
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-md max-h-[85vh] flex flex-col overflow-hidden p-0">
+        </ZoruButton>
+      </ZoruDialogTrigger>
+      <ZoruDialogContent className="sm:max-w-md max-h-[85vh] flex flex-col overflow-hidden p-0">
         <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
-          <DialogHeader className="px-6 pt-6 pb-2">
-            <DialogTitle className="text-foreground">Import Contacts</DialogTitle>
-            <DialogDescription className="text-muted-foreground">
+          <ZoruDialogHeader className="px-6 pt-6 pb-2">
+            <ZoruDialogTitle className="text-foreground">Import Contacts</ZoruDialogTitle>
+            <ZoruDialogDescription className="text-muted-foreground">
               Upload a CSV or XLSX file. Ensure columns match: `name`, `email`, `phone`, `company`, `jobTitle`, `status`, `leadScore`.
-            </DialogDescription>
-          </DialogHeader>
+            </ZoruDialogDescription>
+          </ZoruDialogHeader>
           <div className="flex-1 overflow-y-auto px-6 py-2">
             <div className="grid gap-4">
               <div className="space-y-2">
-                <Label htmlFor="contactFile" className="text-foreground">File</Label>
-                <Input id="contactFile" name="contactFile" type="file" accept=".csv,.xlsx" required />
+                <ZoruLabel htmlFor="contactFile" className="text-foreground">File</ZoruLabel>
+                <ZoruInput id="contactFile" name="contactFile" type="file" accept=".csv,.xlsx" required />
               </div>
             </div>
           </div>
-          <DialogFooter className="px-6 pb-6 pt-2">
-            <ClayButton type="button" variant="pill" onClick={() => setOpen(false)}>Cancel</ClayButton>
+          <ZoruDialogFooter className="px-6 pb-6 pt-2">
+            <ZoruButton type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</ZoruButton>
             <SubmitButton />
-          </DialogFooter>
+          </ZoruDialogFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+      </ZoruDialogContent>
+    </ZoruDialog>
   );
 }

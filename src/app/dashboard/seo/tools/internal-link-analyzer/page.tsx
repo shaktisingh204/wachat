@@ -1,13 +1,13 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
 void _zoruCn;
 
 import { useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
 import { apiFetchUrl, parseHtml } from '@/lib/seo-tools/api-client';
 
 export default function InternalLinkAnalyzerPage() {
@@ -55,25 +55,25 @@ export default function InternalLinkAnalyzerPage() {
   return (
     <ToolShell title="Internal Link Analyzer" description="List all links that point to the same domain as the page.">
       <div className="flex gap-2">
-        <Input
+        <ZoruInput
           placeholder="https://example.com"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
         />
-        <Button onClick={run} disabled={loading || !url}>
+        <ZoruButton onClick={run} disabled={loading || !url}>
           {loading ? 'Analyzing…' : 'Analyze'}
-        </Button>
+        </ZoruButton>
       </div>
 
       {error && (
-        <Card className="border-red-500/50">
-          <CardContent className="p-4 text-sm text-red-500">{error}</CardContent>
-        </Card>
+        <ZoruCard className="border-red-500/50">
+          <ZoruCardContent className="p-4 text-sm text-red-500">{error}</ZoruCardContent>
+        </ZoruCard>
       )}
 
       {links && (
-        <Card>
-          <CardContent className="p-4 space-y-3">
+        <ZoruCard>
+          <ZoruCardContent className="p-4 space-y-3">
             <div className="text-sm font-semibold">{links.length} internal links</div>
             <div className="space-y-2 max-h-[600px] overflow-auto">
               {links.map((l, i) => (
@@ -83,8 +83,8 @@ export default function InternalLinkAnalyzerPage() {
                 </div>
               ))}
             </div>
-          </CardContent>
-        </Card>
+          </ZoruCardContent>
+        </ZoruCard>
       )}
     </ToolShell>
   );

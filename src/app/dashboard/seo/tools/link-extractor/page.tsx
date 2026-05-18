@@ -1,14 +1,14 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
 void _zoruCn;
 
 import { useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
+import { ZoruBadge } from '@/components/zoruui';
 import { apiFetchUrl, parseHtml } from '@/lib/seo-tools/api-client';
 
 interface LinkRow {
@@ -58,30 +58,30 @@ export default function LinkExtractorPage() {
   return (
     <ToolShell title="Link Extractor" description="Extract all links from a page and export them as CSV.">
       <div className="flex gap-2">
-        <Input
+        <ZoruInput
           placeholder="https://example.com"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
         />
-        <Button onClick={run} disabled={loading || !url}>
+        <ZoruButton onClick={run} disabled={loading || !url}>
           {loading ? 'Extracting…' : 'Extract'}
-        </Button>
+        </ZoruButton>
       </div>
 
       {error && (
-        <Card className="border-red-500/50">
-          <CardContent className="p-4 text-sm text-red-500">{error}</CardContent>
-        </Card>
+        <ZoruCard className="border-red-500/50">
+          <ZoruCardContent className="p-4 text-sm text-red-500">{error}</ZoruCardContent>
+        </ZoruCard>
       )}
 
       {rows && (
-        <Card>
-          <CardContent className="p-4 space-y-3">
+        <ZoruCard>
+          <ZoruCardContent className="p-4 space-y-3">
             <div className="flex items-center justify-between">
               <div className="text-sm font-semibold">{rows.length} links</div>
-              <Button size="sm" variant="outline" onClick={exportCsv}>
+              <ZoruButton size="sm" variant="outline" onClick={exportCsv}>
                 Export CSV
-              </Button>
+              </ZoruButton>
             </div>
             <div className="overflow-auto max-h-[600px]">
               <table className="w-full text-sm">
@@ -99,14 +99,14 @@ export default function LinkExtractorPage() {
                       <td className="p-2 font-mono text-xs break-all max-w-xs">{r.href}</td>
                       <td className="p-2 truncate max-w-xs">{r.text}</td>
                       <td className="p-2 text-xs">{r.rel}</td>
-                      <td className="p-2">{r.nofollow ? <Badge variant="destructive">Yes</Badge> : <Badge variant="secondary">No</Badge>}</td>
+                      <td className="p-2">{r.nofollow ? <ZoruBadge variant="destructive">Yes</ZoruBadge> : <ZoruBadge variant="secondary">No</ZoruBadge>}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
-          </CardContent>
-        </Card>
+          </ZoruCardContent>
+        </ZoruCard>
       )}
     </ToolShell>
   );

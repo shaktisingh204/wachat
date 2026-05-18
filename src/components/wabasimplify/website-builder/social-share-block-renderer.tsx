@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
 import { cn } from '@/lib/utils';
 import { Facebook, Twitter, Linkedin, MessageSquare, Send, Mail, Printer } from 'lucide-react';
 
@@ -136,7 +136,7 @@ export const SocialShareBlockRenderer: React.FC<SocialShareBlockRendererProps> =
                         const shareUrl = getShareUrl(platform, currentUrl, pageTitle);
                         
                         return (
-                            <Button
+                            <ZoruButton
                                 key={platform}
                                 asChild
                                 variant="outline"
@@ -145,7 +145,7 @@ export const SocialShareBlockRenderer: React.FC<SocialShareBlockRendererProps> =
                                 <a href={shareUrl} target="_blank" rel="noopener noreferrer">
                                     {buttonContent}
                                 </a>
-                            </Button>
+                            </ZoruButton>
                         )
                     })}
                 </div>

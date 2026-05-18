@@ -1,8 +1,8 @@
 
 'use client';
 
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
+import { ZoruSeparator } from '@/components/zoruui';
 import { Type, Star, FileQuestion, Code, ShoppingBag, LayoutDashboard, Heading1, Image as ImageIcon, MousePointerClick, Video, Star as StarIcon, Minus, GalleryVertical, Rows as TabsIcon, PanelTopClose, ClipboardList, MapPin, Timer, Share2, Repeat, LayoutGrid, ShoppingCart as CartIcon, Zap } from 'lucide-react';
 import type { WebsiteBlock } from '@/lib/definitions';
 
@@ -13,7 +13,7 @@ const blockSections = [
             { type: 'section', label: 'Section / Container', icon: LayoutDashboard },
             { type: 'columns', label: 'Columns', icon: LayoutGrid },
             { type: 'tabs', label: 'Tabs', icon: TabsIcon },
-            { type: 'accordion', label: 'Accordion', icon: PanelTopClose },
+            { type: 'accordion', label: 'ZoruAccordion', icon: PanelTopClose },
             { type: 'spacer', label: 'Spacer / Divider', icon: Minus },
         ]
     },
@@ -25,7 +25,7 @@ const blockSections = [
             { type: 'image', label: 'Image', icon: ImageIcon },
             { type: 'video', label: 'Video', icon: Video },
             { type: 'imageCarousel', label: 'Image Carousel', icon: GalleryVertical },
-            { type: 'button', label: 'Button', icon: MousePointerClick },
+            { type: 'button', label: 'ZoruButton', icon: MousePointerClick },
             { type: 'icon', label: 'Icon', icon: StarIcon },
             { type: 'countdown', label: 'Countdown Timer', icon: Timer },
             { type: 'socialShare', label: 'Social Share', icon: Share2 },
@@ -72,12 +72,12 @@ export function BlockPalette({ onAddBlock }: BlockPaletteProps) {
                     <div key={section.title} className="space-y-2">
                         <h3 className="font-semibold text-sm text-muted-foreground px-2">{section.title}</h3>
                         {section.blocks.map(block => (
-                            <Button key={block.type} variant="outline" className="w-full justify-start mb-2" onClick={() => onAddBlock(block.type as WebsiteBlock['type'])}>
+                            <ZoruButton key={block.type} variant="outline" className="w-full justify-start mb-2" onClick={() => onAddBlock(block.type as WebsiteBlock['type'])}>
                                 <block.icon className="mr-2 h-4 w-4" />
                                 {block.label}
-                            </Button>
+                            </ZoruButton>
                         ))}
-                        {sectionIndex < blockSections.length - 1 && <Separator className="my-4" />}
+                        {sectionIndex < blockSections.length - 1 && <ZoruSeparator className="my-4" />}
                     </div>
                 ))}
             </div>

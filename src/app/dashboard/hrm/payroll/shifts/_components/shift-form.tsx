@@ -1,18 +1,19 @@
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
 'use client';
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
-import { ClayCard, ClayButton } from '@/components/clay';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
+import { ZoruCheckbox } from '@/components/zoruui';
+import { ClayCard } from '@/components/clay';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+} from '@/components/zoruui';
 import { saveEmployeeShift } from '@/app/actions/worksuite/shifts.actions';
 import type { WsEmployeeShift, WsWeekDay, WsDayOff } from '@/lib/worksuite/shifts-types';
 
@@ -85,7 +86,7 @@ export function ShiftForm({ initial }: { initial?: WsEmployeeShift }) {
         <h2 className="mb-4 text-[16px] font-semibold text-foreground">Shift Details</h2>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <Field label="Shift Name" required>
-            <Input
+            <ZoruInput
               value={form.name}
               onChange={(e) => set('name', e.target.value)}
               required
@@ -100,7 +101,7 @@ export function ShiftForm({ initial }: { initial?: WsEmployeeShift }) {
                 onChange={(e) => set('color_code', e.target.value)}
                 className="h-9 w-12 cursor-pointer rounded-md border border-border bg-card p-1"
               />
-              <Input
+              <ZoruInput
                 value={form.color_code}
                 onChange={(e) => set('color_code', e.target.value)}
                 placeholder="#EAB308"
@@ -108,35 +109,35 @@ export function ShiftForm({ initial }: { initial?: WsEmployeeShift }) {
             </div>
           </Field>
           <Field label="Clock In Time">
-            <Input
+            <ZoruInput
               type="time"
               value={form.clock_in_time ?? ''}
               onChange={(e) => set('clock_in_time', e.target.value)}
             />
           </Field>
           <Field label="Clock Out Time">
-            <Input
+            <ZoruInput
               type="time"
               value={form.clock_out_time ?? ''}
               onChange={(e) => set('clock_out_time', e.target.value)}
             />
           </Field>
           <Field label="Office Start Time">
-            <Input
+            <ZoruInput
               type="time"
               value={form.office_start_time}
               onChange={(e) => set('office_start_time', e.target.value)}
             />
           </Field>
           <Field label="Office End Time">
-            <Input
+            <ZoruInput
               type="time"
               value={form.office_end_time}
               onChange={(e) => set('office_end_time', e.target.value)}
             />
           </Field>
           <Field label="Total Hours">
-            <Input
+            <ZoruInput
               type="number"
               step="0.25"
               value={form.total_hours ?? 0}
@@ -144,7 +145,7 @@ export function ShiftForm({ initial }: { initial?: WsEmployeeShift }) {
             />
           </Field>
           <Field label="Office Hours">
-            <Input
+            <ZoruInput
               type="number"
               step="0.25"
               value={form.office_hours ?? 0}
@@ -152,7 +153,7 @@ export function ShiftForm({ initial }: { initial?: WsEmployeeShift }) {
             />
           </Field>
           <Field label="Late Mark After (minutes)">
-            <Input
+            <ZoruInput
               type="number"
               min={0}
               value={form.late_mark_after}
@@ -160,7 +161,7 @@ export function ShiftForm({ initial }: { initial?: WsEmployeeShift }) {
             />
           </Field>
           <Field label="Early Clock-In Allowed (minutes)">
-            <Input
+            <ZoruInput
               type="number"
               min={0}
               value={form.early_clock_in}
@@ -168,7 +169,7 @@ export function ShiftForm({ initial }: { initial?: WsEmployeeShift }) {
             />
           </Field>
           <Field label="Break Time (hours)">
-            <Input
+            <ZoruInput
               type="number"
               step="0.25"
               min={0}
@@ -177,18 +178,18 @@ export function ShiftForm({ initial }: { initial?: WsEmployeeShift }) {
             />
           </Field>
           <Field label="Days Off Type">
-            <Select
+            <ZoruSelect
               value={form.days_off_type}
               onValueChange={(v) => set('days_off_type', v as WsDayOff)}
             >
-              <SelectTrigger>
-                <SelectValue placeholder="Select" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="week-off">Week Off</SelectItem>
-                <SelectItem value="consecutive">Consecutive</SelectItem>
-              </SelectContent>
-            </Select>
+              <ZoruSelectTrigger>
+                <ZoruSelectValue placeholder="ZoruSelect" />
+              </ZoruSelectTrigger>
+              <ZoruSelectContent>
+                <ZoruSelectItem value="week-off">Week Off</ZoruSelectItem>
+                <ZoruSelectItem value="consecutive">Consecutive</ZoruSelectItem>
+              </ZoruSelectContent>
+            </ZoruSelect>
           </Field>
         </div>
       </ClayCard>
@@ -197,7 +198,7 @@ export function ShiftForm({ initial }: { initial?: WsEmployeeShift }) {
         <h2 className="mb-4 text-[16px] font-semibold text-foreground">Half-Day Rules</h2>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <Field label="Half-Day After (hours)">
-            <Input
+            <ZoruInput
               type="number"
               step="0.25"
               min={0}
@@ -206,14 +207,14 @@ export function ShiftForm({ initial }: { initial?: WsEmployeeShift }) {
             />
           </Field>
           <Field label="Half-Day Start">
-            <Input
+            <ZoruInput
               type="time"
               value={form.half_day_start ?? ''}
               onChange={(e) => set('half_day_start', e.target.value)}
             />
           </Field>
           <Field label="Half-Day End">
-            <Input
+            <ZoruInput
               type="time"
               value={form.half_day_end ?? ''}
               onChange={(e) => set('half_day_end', e.target.value)}
@@ -232,7 +233,7 @@ export function ShiftForm({ initial }: { initial?: WsEmployeeShift }) {
                 key={day}
                 className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-[13px] text-foreground"
               >
-                <Checkbox
+                <ZoruCheckbox
                   checked={checked}
                   onCheckedChange={(v) => toggleDay(day, Boolean(v))}
                 />
@@ -250,16 +251,16 @@ export function ShiftForm({ initial }: { initial?: WsEmployeeShift }) {
       ) : null}
 
       <div className="flex items-center justify-end gap-2">
-        <ClayButton
+        <ZoruButton
           variant="pill"
           type="button"
           onClick={() => router.push('/dashboard/hrm/payroll/shifts')}
         >
           Cancel
-        </ClayButton>
-        <ClayButton variant="obsidian" type="submit" disabled={pending}>
+        </ZoruButton>
+        <ZoruButton type="submit" disabled={pending}>
           {pending ? 'Saving…' : initial?._id ? 'Save Changes' : 'Create Shift'}
-        </ClayButton>
+        </ZoruButton>
       </div>
     </form>
   );
@@ -276,10 +277,10 @@ function Field({
 }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <Label className="text-[12px] text-muted-foreground">
+      <ZoruLabel className="text-[12px] text-muted-foreground">
         {label}
         {required ? <span className="ml-0.5 text-destructive">*</span> : null}
-      </Label>
+      </ZoruLabel>
       {children}
     </div>
   );

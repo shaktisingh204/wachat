@@ -1,14 +1,14 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
 void _zoruCn;
 
 import { useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
+import { ZoruBadge } from '@/components/zoruui';
 
 function hash(str: string): number {
   let h = 0;
@@ -36,19 +36,19 @@ export default function BacklinkCheckerPage() {
   return (
     <ToolShell title="Backlink Checker" description="Placeholder backlink metrics preview.">
       <div className="flex gap-2">
-        <Input
+        <ZoruInput
           placeholder="example.com"
           value={domain}
           onChange={(e) => setDomain(e.target.value)}
         />
-        <Button onClick={run} disabled={!domain}>
+        <ZoruButton onClick={run} disabled={!domain}>
           Check
-        </Button>
+        </ZoruButton>
       </div>
 
       {rows && (
-        <Card>
-          <CardContent className="p-4 space-y-3">
+        <ZoruCard>
+          <ZoruCardContent className="p-4 space-y-3">
             <div className="text-xs text-muted-foreground border-l-2 border-amber-500 pl-3">
               Backlinks data requires third-party API integration (Ahrefs/Majestic). Currently showing
               placeholder metrics.
@@ -64,13 +64,13 @@ export default function BacklinkCheckerPage() {
                   <div className="font-mono text-xs break-all">{r.source}</div>
                   <div>{r.anchor}</div>
                   <div className="text-right">
-                    <Badge variant="secondary">{r.dr}</Badge>
+                    <ZoruBadge variant="secondary">{r.dr}</ZoruBadge>
                   </div>
                 </div>
               ))}
             </div>
-          </CardContent>
-        </Card>
+          </ZoruCardContent>
+        </ZoruCard>
       )}
     </ToolShell>
   );

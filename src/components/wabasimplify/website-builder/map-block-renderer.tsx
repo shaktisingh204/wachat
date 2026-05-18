@@ -3,8 +3,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
+import { ZoruSkeleton } from '@/components/zoruui';
+import { ZoruAlert, ZoruAlertTitle, ZoruAlertDescription } from '@/components/zoruui';
 import { MapPin } from 'lucide-react';
 
 interface MapBlockRendererProps {
@@ -69,18 +69,18 @@ export const MapBlockRenderer: React.FC<MapBlockRendererProps> = ({ settings }) 
     } = settings;
 
     if (apiKey === undefined) {
-        return <Skeleton style={{ height }} />;
+        return <ZoruSkeleton style={{ height }} />;
     }
 
     if (!apiKey) {
         return (
-            <Alert variant="destructive" style={{ height: 'auto', minHeight: '200px' }} className="flex flex-col items-center justify-center text-center">
+            <ZoruAlert variant="destructive" style={{ height: 'auto', minHeight: '200px' }} className="flex flex-col items-center justify-center text-center">
                 <MapPin className="h-6 w-6" />
-                <AlertTitle>Google Maps API Key Missing</AlertTitle>
-                <AlertDescription>
+                <ZoruAlertTitle>Google Maps API Key Missing</ZoruAlertTitle>
+                <ZoruAlertDescription>
                     Please configure `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` in your environment variables.
-                </AlertDescription>
-            </Alert>
+                </ZoruAlertDescription>
+            </ZoruAlert>
         );
     }
     

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useDraggable } from '@dnd-kit/core';
-import { Button } from '@/components/ui/button';
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
 import { cn } from '@/lib/utils';
 
 interface DraggableSidebarItemProps {
@@ -21,17 +21,17 @@ export const DraggableSidebarItem = ({ type, label }: DraggableSidebarItemProps)
 
     return (
         <div ref={setNodeRef} {...listeners} {...attributes} className={cn("w-full mb-2", isDragging ? "opacity-50" : "opacity-100")}>
-            <Button variant="secondary" className="w-full justify-start text-sm cursor-grab active:cursor-grabbing">
+            <ZoruButton variant="secondary" className="w-full justify-start text-sm cursor-grab active:cursor-grabbing">
                 {label}
-            </Button>
+            </ZoruButton>
         </div>
     );
 };
 
 export const SidebarItemOverlay = ({ label }: { label: string }) => {
     return (
-        <Button variant="secondary" className="w-[200px] justify-start text-sm cursor-grabbing shadow-xl ring-2 ring-primary">
+        <ZoruButton variant="secondary" className="w-[200px] justify-start text-sm cursor-grabbing shadow-xl ring-2 ring-primary">
             {label}
-        </Button>
+        </ZoruButton>
     )
 }

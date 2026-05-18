@@ -7,7 +7,7 @@
  *   - Clay header bar (back link, flow name input, status switch, save CTA)
  *   - React Flow canvas (dotted background, custom nodes, drop-to-add)
  *   - Floating Clay FAB for opening the Add Block palette
- *   - Clay Sheet on mobile / pinned Properties panel on desktop
+ *   - Clay ZoruSheet on mobile / pinned Properties panel on desktop
  *   - Clay-styled Settings dialog for name + trigger keywords
  */
 
@@ -65,28 +65,28 @@ import {
 } from '@/components/zoruui';
 
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
+  ZoruPopover,
+  ZoruPopoverContent,
+  ZoruPopoverTrigger,
+} from '@/components/zoruui';
+import { ZoruScrollArea } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
+import { ZoruSwitch } from '@/components/zoruui';
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from '@/components/ui/sheet';
+  ZoruSheet,
+  ZoruSheetContent,
+  ZoruSheetHeader,
+  ZoruSheetTitle,
+} from '@/components/zoruui';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+} from '@/components/zoruui';
 
 /* ── node type registry ─────────────────────────────────────────── */
 
@@ -370,7 +370,7 @@ function FlowBuilder({ flowId }: { flowId: string }) {
             Back
           </Link>
           <div className="h-6 w-px bg-border" />
-          <Input
+          <ZoruInput
             value={flowName}
             onChange={(e) => setFlowName(e.target.value)}
             className="h-9 w-[260px] rounded-[10px] border-border bg-card font-semibold text-foreground"
@@ -387,7 +387,7 @@ function FlowBuilder({ flowId }: { flowId: string }) {
               <span className="text-[10.5px] font-semibold uppercase tracking-wide text-muted-foreground">
                 {isPaused ? 'Paused' : 'Active'}
               </span>
-              <Switch
+              <ZoruSwitch
                 checked={!isPaused}
                 onCheckedChange={(checked) =>
                   setCurrentFlow({
@@ -474,8 +474,8 @@ function FlowBuilder({ flowId }: { flowId: string }) {
 
             {/* Floating Add-Block FAB (top-left) */}
             <Panel position="top-left" className="m-4">
-              <Popover>
-                <PopoverTrigger asChild>
+              <ZoruPopover>
+                <ZoruPopoverTrigger asChild>
                   <button
                     type="button"
                     aria-label="Add block"
@@ -483,8 +483,8 @@ function FlowBuilder({ flowId }: { flowId: string }) {
                   >
                     <LuPlus className="h-5 w-5" strokeWidth={2.25} />
                   </button>
-                </PopoverTrigger>
-                <PopoverContent
+                </ZoruPopoverTrigger>
+                <ZoruPopoverContent
                   side="right"
                   align="start"
                   className="ml-4 w-[340px] rounded-[16px] border border-border bg-card p-0 shadow-lg"
@@ -497,13 +497,13 @@ function FlowBuilder({ flowId }: { flowId: string }) {
                       Drag a block onto the canvas to add it to your flow.
                     </p>
                   </div>
-                  <ScrollArea className="h-[460px]">
+                  <ZoruScrollArea className="h-[460px]">
                     <div className="p-4">
                       <Sidebar className="w-full" />
                     </div>
-                  </ScrollArea>
-                </PopoverContent>
-              </Popover>
+                  </ZoruScrollArea>
+                </ZoruPopoverContent>
+              </ZoruPopover>
             </Panel>
 
             {/* Flow status footer — shown when empty or just start node */}
@@ -536,14 +536,14 @@ function FlowBuilder({ flowId }: { flowId: string }) {
 
       {/* Properties panel — mobile sheet (only rendered below md breakpoint) */}
       <div className="md:hidden">
-        <Sheet open={isPropsOpen && !!selectedNode} onOpenChange={setIsPropsOpen}>
-          <SheetContent
+        <ZoruSheet open={isPropsOpen && !!selectedNode} onOpenChange={setIsPropsOpen}>
+          <ZoruSheetContent
             side="right"
             className="w-full p-0 sm:max-w-md"
           >
-            <SheetHeader className="sr-only">
-              <SheetTitle>Properties</SheetTitle>
-            </SheetHeader>
+            <ZoruSheetHeader className="sr-only">
+              <ZoruSheetTitle>Properties</ZoruSheetTitle>
+            </ZoruSheetHeader>
             {selectedNode ? (
               <PropertiesPanel
                 node={selectedNode}
@@ -552,8 +552,8 @@ function FlowBuilder({ flowId }: { flowId: string }) {
                 availableVariables={[]}
               />
             ) : null}
-          </SheetContent>
-        </Sheet>
+          </ZoruSheetContent>
+        </ZoruSheet>
       </div>
     </div>
   );
@@ -609,32 +609,32 @@ function FlowSettingsDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[480px] rounded-[18px] border border-border bg-card p-0 shadow-lg">
-        <DialogHeader className="flex flex-row items-start gap-3 border-b border-border px-6 py-5">
+    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+      <ZoruDialogContent className="max-w-[480px] rounded-[18px] border border-border bg-card p-0 shadow-lg">
+        <ZoruDialogHeader className="flex flex-row items-start gap-3 border-b border-border px-6 py-5">
           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-accent text-accent-foreground">
             <LuSettings2 className="h-5 w-5" strokeWidth={2} />
           </span>
           <div className="min-w-0 flex-1">
-            <DialogTitle className="text-[16px] font-semibold text-foreground leading-tight">
+            <ZoruDialogTitle className="text-[16px] font-semibold text-foreground leading-tight">
               Flow settings
-            </DialogTitle>
-            <DialogDescription className="mt-0.5 text-[12px] text-muted-foreground leading-snug">
+            </ZoruDialogTitle>
+            <ZoruDialogDescription className="mt-0.5 text-[12px] text-muted-foreground leading-snug">
               Configure the basic settings for this flow.
-            </DialogDescription>
+            </ZoruDialogDescription>
           </div>
-        </DialogHeader>
+        </ZoruDialogHeader>
 
         <form onSubmit={handleSubmit}>
           <div className="flex flex-col gap-5 px-6 py-5">
             <div className="flex flex-col gap-1.5">
-              <Label
+              <ZoruLabel
                 htmlFor="flow-name"
                 className="text-[11.5px] font-semibold text-muted-foreground"
               >
                 Flow name <span className="ml-1 text-destructive">*</span>
-              </Label>
-              <Input
+              </ZoruLabel>
+              <ZoruInput
                 id="flow-name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -644,13 +644,13 @@ function FlowSettingsDialog({
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <Label
+              <ZoruLabel
                 htmlFor="flow-keywords"
                 className="text-[11.5px] font-semibold text-muted-foreground"
               >
                 Trigger keywords
-              </Label>
-              <Input
+              </ZoruLabel>
+              <ZoruInput
                 id="flow-keywords"
                 value={keywords}
                 onChange={(e) => setKeywords(e.target.value)}
@@ -663,7 +663,7 @@ function FlowSettingsDialog({
             </div>
           </div>
 
-          <DialogFooter className="border-t border-border px-6 py-4 sm:justify-end gap-2">
+          <ZoruDialogFooter className="border-t border-border px-6 py-4 sm:justify-end gap-2">
             <ZoruButton
               type="button"
               variant="outline"
@@ -672,9 +672,9 @@ function FlowSettingsDialog({
               Cancel
             </ZoruButton>
             <ZoruButton type="submit">Save changes</ZoruButton>
-          </DialogFooter>
+          </ZoruDialogFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+      </ZoruDialogContent>
+    </ZoruDialog>
   );
 }

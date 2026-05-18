@@ -2,7 +2,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
 import { InstagramIcon } from './custom-sidebar-components';
 import Link from 'next/link';
 import { LoaderCircle } from 'lucide-react';
@@ -22,11 +22,11 @@ export function InstagramEmbeddedSignup({ appId, state }: InstagramEmbeddedSignu
     const appUrl = process.env.NEXT_PUBLIC_APP_URL;
 
     if (!appUrl) {
-        return <Button disabled size="lg">App URL not configured</Button>;
+        return <ZoruButton disabled size="lg">App URL not configured</ZoruButton>;
     }
 
     if (!isClient) {
-        return <Button disabled size="lg"><LoaderCircle className="mr-2 h-5 w-5 animate-spin" />Loading...</Button>;
+        return <ZoruButton disabled size="lg"><LoaderCircle className="mr-2 h-5 w-5 animate-spin" />Loading...</ZoruButton>;
     }
 
     const redirectUri = new URL('/auth/facebook/callback', appUrl).toString();
@@ -36,12 +36,12 @@ export function InstagramEmbeddedSignup({ appId, state }: InstagramEmbeddedSignu
     const facebookLoginUrl = `/api/auth/meta-suite/login?state=${state}`;
 
     return (
-        <Button asChild size="lg" className="bg-instagram hover:bg-instagram/90 w-full">
+        <ZoruButton asChild size="lg" className="bg-instagram hover:bg-instagram/90 w-full">
             <a href={facebookLoginUrl}>
                 <InstagramIcon className="mr-2 h-5 w-5" />
                 Connect with Instagram
             </a>
-        </Button>
+        </ZoruButton>
     );
 }
 

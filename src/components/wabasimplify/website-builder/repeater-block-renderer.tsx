@@ -9,8 +9,8 @@ import Autoplay from 'embla-carousel-autoplay';
 import Image from 'next/image';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { ZoruCard, ZoruCardContent, ZoruCardFooter, ZoruCardHeader, ZoruCardTitle, ZoruButton } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
 import { ShoppingBag } from 'lucide-react';
 import { DotButton, useDotButton } from './embla-carousel-dot-button';
 import { PrevButton, NextButton, usePrevNextButtons } from './embla-carousel-arrow-buttons';
@@ -36,8 +36,8 @@ interface RepeaterBlockRendererProps {
 }
 
 const RepeaterItemCard = ({ item }: { item: RepeaterItem }) => (
-    <Card className="h-full flex flex-col">
-        <CardHeader className="p-0">
+    <ZoruCard className="h-full flex flex-col">
+        <ZoruCardHeader className="p-0">
             {item.imageUrl ? (
                 <div className="relative aspect-video">
                     <Image src={item.imageUrl} alt={item.title} layout="fill" objectFit="cover" className="rounded-t-lg" data-ai-hint="repeater item image" />
@@ -48,20 +48,20 @@ const RepeaterItemCard = ({ item }: { item: RepeaterItem }) => (
                 </div>
             )}
             <div className="p-4">
-                <CardTitle className="text-lg">{item.title}</CardTitle>
+                <ZoruCardTitle className="text-lg">{item.title}</ZoruCardTitle>
             </div>
-        </CardHeader>
-        <CardContent className="p-4 pt-0 flex-grow">
+        </ZoruCardHeader>
+        <ZoruCardContent className="p-4 pt-0 flex-grow">
             <p className="text-sm text-muted-foreground">{item.description}</p>
-        </CardContent>
+        </ZoruCardContent>
         {item.buttonText && item.buttonLink && (
-            <CardFooter className="p-4 pt-0">
-                <Button asChild className="w-full">
+            <ZoruCardFooter className="p-4 pt-0">
+                <ZoruButton asChild className="w-full">
                     <Link href={item.buttonLink}>{item.buttonText}</Link>
-                </Button>
-            </CardFooter>
+                </ZoruButton>
+            </ZoruCardFooter>
         )}
-    </Card>
+    </ZoruCard>
 );
 
 export const RepeaterBlockRenderer: React.FC<RepeaterBlockRendererProps> = ({ settings }) => {

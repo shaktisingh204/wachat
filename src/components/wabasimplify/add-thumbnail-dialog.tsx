@@ -4,15 +4,15 @@
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+} from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
 import { LoaderCircle, UploadCloud, Upload } from 'lucide-react';
 import { handleAddVideoThumbnail } from '@/app/actions/facebook.actions';
 import { useToast } from '@/hooks/use-toast';
@@ -24,10 +24,10 @@ function SubmitButton({ disabled }: { disabled?: boolean }) {
   const { pending } = useFormStatus();
 
   return (
-    <Button type="submit" disabled={pending || disabled}>
+    <ZoruButton type="submit" disabled={pending || disabled}>
       {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <UploadCloud className="mr-2 h-4 w-4" />}
       Upload Thumbnail
-    </Button>
+    </ZoruButton>
   );
 }
 
@@ -60,22 +60,22 @@ export function AddThumbnailDialog({ isOpen, onOpenChange, videoId, projectId, o
   }, [state, toast, onOpenChange, onSuccess]);
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+    <ZoruDialog open={isOpen} onOpenChange={onOpenChange}>
+      <ZoruDialogContent className="sm:max-w-md">
         <form action={formAction} ref={formRef}>
           <input type="hidden" name="projectId" value={projectId} />
           <input type="hidden" name="videoId" value={videoId} />
           <input type="hidden" name="sourceUrl" value={thumbnailUrl} />
-          <DialogHeader>
-            <DialogTitle>Add Video Thumbnail</DialogTitle>
-            <DialogDescription>
+          <ZoruDialogHeader>
+            <ZoruDialogTitle>Add Video Thumbnail</ZoruDialogTitle>
+            <ZoruDialogDescription>
               Pick a custom thumbnail image for your video from SabFiles.
-            </DialogDescription>
-          </DialogHeader>
+            </ZoruDialogDescription>
+          </ZoruDialogHeader>
 
           <div className="grid gap-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="thumbnailFile">Thumbnail Image</Label>
+              <ZoruLabel htmlFor="thumbnailFile">Thumbnail Image</ZoruLabel>
               <div className="flex items-center gap-2">
                 <SabFilePickerButton
                   accept="image"
@@ -94,12 +94,12 @@ export function AddThumbnailDialog({ isOpen, onOpenChange, videoId, projectId, o
               </div>
             </div>
           </div>
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <ZoruDialogFooter>
+            <ZoruButton type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</ZoruButton>
             <SubmitButton disabled={!thumbnailUrl} />
-          </DialogFooter>
+          </ZoruDialogFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+      </ZoruDialogContent>
+    </ZoruDialog>
   );
 }

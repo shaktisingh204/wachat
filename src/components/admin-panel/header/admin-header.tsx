@@ -2,9 +2,9 @@
 
 import * as React from 'react';
 import { useProject } from '@/context/project-context';
-import { Button } from '@/components/ui/button';
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
 import { SidebarTrigger } from '@/components/ui/sidebar';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { ZoruAvatar, ZoruAvatarFallback, ZoruAvatarImage } from '@/components/zoruui';
 import { NotificationPopover } from '@/components/notifications/notification-popover';
 import { PanelLeft } from 'lucide-react';
 
@@ -53,9 +53,9 @@ export function AdminHeader({ appRailPosition, activeApp }: AdminHeaderProps) {
             {/* ── Left ── */}
             <div className="flex items-center gap-2 min-w-0">
                 <SidebarTrigger>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0">
+                    <ZoruButton variant="ghost" size="icon" className="h-8 w-8 shrink-0">
                         <PanelLeft className="h-4 w-4 text-muted-foreground" />
-                    </Button>
+                    </ZoruButton>
                 </SidebarTrigger>
 
                 {/* App indicator pill */}
@@ -96,15 +96,15 @@ export function AdminHeader({ appRailPosition, activeApp }: AdminHeaderProps) {
                     className="flex items-center gap-2 rounded-full px-2 py-1 bg-card/80 hover:bg-card transition-colors cursor-pointer"
                     style={{ border: '1px solid var(--app-border)' }}
                 >
-                    <Avatar className="h-7 w-7 shrink-0">
-                        <AvatarImage src={avatarSrc} alt={displayName} />
-                        <AvatarFallback
+                    <ZoruAvatar className="h-7 w-7 shrink-0">
+                        <ZoruAvatarImage src={avatarSrc} alt={displayName} />
+                        <ZoruAvatarFallback
                             className="text-xs font-bold"
                             style={{ background: 'var(--app-light)', color: 'var(--app-text)' }}
                         >
                             {initials}
-                        </AvatarFallback>
-                    </Avatar>
+                        </ZoruAvatarFallback>
+                    </ZoruAvatar>
                     <span className="hidden sm:block text-sm font-medium max-w-[90px] truncate">
                         {displayName}
                     </span>

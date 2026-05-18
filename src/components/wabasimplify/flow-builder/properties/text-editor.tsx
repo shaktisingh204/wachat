@@ -1,7 +1,7 @@
 
 'use client';
 
-import { Textarea } from '@/components/ui/textarea';
+import { ZoruTextarea } from '@/components/zoruui';
 
 interface EditorProps {
   node: any;
@@ -10,7 +10,7 @@ interface EditorProps {
 
 export function TextEditor({ node, onUpdate }: EditorProps) {
   return (
-    <Textarea
+    <ZoruTextarea
       id="text-content"
       placeholder="Enter your message here..."
       value={node.data.text || ''}

@@ -4,7 +4,7 @@
 import { useTransition } from 'react';
 import { syncCatalogs } from '@/app/actions/catalog.actions';
 import { useToast } from '@/hooks/use-toast';
-import { Button } from '@/components/ui/button';
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
 import { RefreshCw, LoaderCircle } from 'lucide-react';
 
 interface SyncCatalogsButtonProps {
@@ -35,9 +35,9 @@ export function SyncCatalogsButton({ projectId, onSyncComplete }: SyncCatalogsBu
   };
 
   return (
-    <Button onClick={onSync} variant="outline" disabled={isPending || !projectId}>
+    <ZoruButton onClick={onSync} variant="outline" disabled={isPending || !projectId}>
       {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
       Sync with Meta
-    </Button>
+    </ZoruButton>
   );
 }

@@ -4,15 +4,15 @@
 import { useEffect, useRef, useState, useMemo } from 'react';
 import type { WithId } from 'mongodb';
 import type { Contact, AnyMessage, Project, Template } from '@/lib/definitions';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { ZoruAvatar, ZoruAvatarFallback, ZoruAvatarImage, ZoruButton } from '@/components/zoruui';
+import { ZoruScrollArea } from '@/components/zoruui';
 import { ChatMessage } from './chat-message';
 import { ChatMessageInput } from './chat-message-input';
-import { Button } from '../ui/button';
+import { ZoruButton } from '../ui/button';
 import { ArrowLeft, Info, LoaderCircle, Phone, Video, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useProject } from '@/context/project-context';
-import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
+import { ZoruAlert, ZoruAlertDescription, ZoruAlertTitle } from '../ui/alert';
 import { AlertCircle } from 'lucide-react';
 
 interface ChatWindowProps {
@@ -133,12 +133,12 @@ export function ChatWindow({
         <div className="flex flex-col h-full bg-transparent relative">
             <div className="flex items-center justify-between gap-3 p-3 border-b bg-background/80 backdrop-blur-md h-[73px] flex-shrink-0 z-10 sticky top-0">
                 <div className="flex items-center gap-3">
-                    <Button variant="ghost" size="icon" className="md:hidden" onClick={onBack}>
+                    <ZoruButton variant="ghost" size="icon" className="md:hidden" onClick={onBack}>
                         <ArrowLeft className="h-4 w-4" />
-                    </Button>
-                    <Avatar className="h-10 w-10 border-2 border-background shadow-sm">
-                        <AvatarFallback>{contact.name.charAt(0).toUpperCase()}</AvatarFallback>
-                    </Avatar>
+                    </ZoruButton>
+                    <ZoruAvatar className="h-10 w-10 border-2 border-background shadow-sm">
+                        <ZoruAvatarFallback>{contact.name.charAt(0).toUpperCase()}</ZoruAvatarFallback>
+                    </ZoruAvatar>
                     <div>
                         <p className="font-semibold leading-none">{contact.name}</p>
                         <p className="text-xs text-muted-foreground mt-1">online</p>
@@ -151,17 +151,17 @@ export function ChatWindow({
                         </div>
                     )}
                     <div className="flex items-center gap-1">
-                        <Button variant="ghost" size="icon" disabled><Phone className="h-5 w-5 text-muted-foreground" /></Button>
-                        <Button variant="ghost" size="icon" disabled><Video className="h-5 w-5 text-muted-foreground" /></Button>
-                        <Button variant="ghost" size="icon" onClick={onInfoToggle}>
+                        <ZoruButton variant="ghost" size="icon" disabled><Phone className="h-5 w-5 text-muted-foreground" /></ZoruButton>
+                        <ZoruButton variant="ghost" size="icon" disabled><Video className="h-5 w-5 text-muted-foreground" /></ZoruButton>
+                        <ZoruButton variant="ghost" size="icon" onClick={onInfoToggle}>
                             <Info className="h-5 w-5 text-muted-foreground" />
                             <span className="sr-only">Contact Info</span>
-                        </Button>
+                        </ZoruButton>
                     </div>
                 </div>
             </div>
 
-            <ScrollArea viewportRef={viewportRef} className="flex-1 bg-chat-texture" viewportClassName="scroll-container">
+            <ZoruScrollArea viewportRef={viewportRef} className="flex-1 bg-chat-texture" viewportClassName="scroll-container">
                 {isLoading ? (
                     <div className="flex items-center justify-center h-full">
                         <LoaderCircle className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -173,23 +173,23 @@ export function ChatWindow({
                         ))}
                     </div>
                 )}
-            </ScrollArea>
+            </ZoruScrollArea>
 
             <div className="p-3 bg-transparent flex-shrink-0 z-10 w-full max-w-4xl mx-auto">
                 {isWindowExpired && (
-                    <Alert variant="destructive" className="bg-destructive/10 border-destructive/30 mb-2">
+                    <ZoruAlert variant="destructive" className="bg-destructive/10 border-destructive/30 mb-2">
                         <AlertCircle className="h-4 w-4" />
-                        <AlertTitle>24-Hour Window Closed</AlertTitle>
-                        <AlertDescription>
+                        <ZoruAlertTitle>24-Hour Window Closed</ZoruAlertTitle>
+                        <ZoruAlertDescription>
                             You can no longer send free-form messages. Send a new template message to start a conversation.
-                        </AlertDescription>
-                    </Alert>
+                        </ZoruAlertDescription>
+                    </ZoruAlert>
                 )}
                 {replyToMessage && (
                     <div className="p-2 mb-2 bg-background/80 backdrop-blur-md rounded-xl text-sm relative border shadow-sm">
-                        <Button variant="ghost" size="icon" className="absolute top-1 right-1 h-6 w-6" onClick={() => setReplyToMessage(null)}>
+                        <ZoruButton variant="ghost" size="icon" className="absolute top-1 right-1 h-6 w-6" onClick={() => setReplyToMessage(null)}>
                             <X className="h-4 w-4" />
-                        </Button>
+                        </ZoruButton>
                         <p className="font-semibold text-primary">
                             Replying to {replyToMessage.direction === 'out' ? 'You' : replyToMessage.content.profile?.name || 'User'}
                         </p>

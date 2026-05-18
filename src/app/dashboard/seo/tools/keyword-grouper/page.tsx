@@ -1,13 +1,13 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
 void _zoruCn;
 
 import { useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { ZoruTextarea } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
 
 function groupKeywords(raw: string): Record<string, string[]> {
   const lines = raw.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
@@ -31,24 +31,24 @@ export default function KeywordGrouperPage() {
 
   return (
     <ToolShell title="Keyword Grouper" description="Group a list of keywords by their common root/stem.">
-      <Textarea
+      <ZoruTextarea
         value={input}
         onChange={(e) => setInput(e.target.value)}
         placeholder="Paste keywords, one per line…"
         className="min-h-[200px]"
       />
-      <Button onClick={run} className="w-fit">Group Keywords</Button>
+      <ZoruButton onClick={run} className="w-fit">Group Keywords</ZoruButton>
       {groups && (
         <div className="grid md:grid-cols-2 gap-3">
           {Object.entries(groups).map(([key, items]) => (
-            <Card key={key}>
-              <CardContent className="p-4">
+            <ZoruCard key={key}>
+              <ZoruCardContent className="p-4">
                 <div className="font-semibold capitalize mb-2">{key} <span className="text-xs text-muted-foreground">({items.length})</span></div>
                 <ul className="text-sm space-y-1">
                   {items.map((i) => <li key={i}>{i}</li>)}
                 </ul>
-              </CardContent>
-            </Card>
+              </ZoruCardContent>
+            </ZoruCard>
           ))}
         </div>
       )}

@@ -3,11 +3,11 @@
 import * as React from 'react';
 import { planFeatureMap, planFeaturesDefaults } from '@/lib/plans';
 import type { PlanFeaturePermissions } from '@/lib/definitions';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
+import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardHeader, ZoruCardTitle, ZoruButton } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruBadge } from '@/components/zoruui';
+import { ZoruSwitch } from '@/components/zoruui';
 import { ChevronDown, Search, Check, X, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -148,30 +148,30 @@ export function PlanFeaturesSelector({ defaultFeatures }: PlanFeaturesSelectorPr
     const enabledCount = Object.values(features).filter(Boolean).length;
 
     return (
-        <Card className="rounded-2xl border-white/10 bg-white/5 backdrop-blur-xl shadow-lg overflow-hidden">
-            <CardHeader className="border-b border-white/10 bg-gradient-to-r from-primary/10 via-transparent to-transparent">
+        <ZoruCard className="rounded-2xl border-white/10 bg-white/5 backdrop-blur-xl shadow-lg overflow-hidden">
+            <ZoruCardHeader className="border-b border-white/10 bg-gradient-to-r from-primary/10 via-transparent to-transparent">
                 <div className="flex items-center gap-3">
                     <div className="h-10 w-10 rounded-xl bg-primary/15 border border-primary/30 flex items-center justify-center">
                         <Sparkles className="h-5 w-5 text-primary" />
                     </div>
                     <div className="flex-1 min-w-0">
-                        <CardTitle className="text-lg">Plan Features</CardTitle>
-                        <CardDescription>
+                        <ZoruCardTitle className="text-lg">Plan Features</ZoruCardTitle>
+                        <ZoruCardDescription>
                             Toggle which features appear on the billing page and sidebar for users
                             on this plan. These are the headline capabilities shown in marketing
                             copy.
-                        </CardDescription>
+                        </ZoruCardDescription>
                     </div>
-                    <Badge
+                    <ZoruBadge
                         variant="outline"
                         className="rounded-full border-primary/40 bg-primary/15 text-primary font-medium"
                     >
                         {enabledCount}/{totalKeys}
-                    </Badge>
+                    </ZoruBadge>
                 </div>
-            </CardHeader>
+            </ZoruCardHeader>
 
-            <CardContent className="pt-6 space-y-4">
+            <ZoruCardContent className="pt-6 space-y-4">
                 {/* Hidden marker so savePlan knows this tab was submitted */}
                 <input type="hidden" name="__featuresSubmitted" value="1" />
                 {/* Emit a hidden input per key so FormData has the full snapshot */}
@@ -191,7 +191,7 @@ export function PlanFeaturesSelector({ defaultFeatures }: PlanFeaturesSelectorPr
                     <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
                         <div className="relative flex-1">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                            <Input
+                            <ZoruInput
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                                 placeholder="Search features…"
@@ -199,7 +199,7 @@ export function PlanFeaturesSelector({ defaultFeatures }: PlanFeaturesSelectorPr
                             />
                         </div>
                         <div className="flex items-center gap-2">
-                            <Button
+                            <ZoruButton
                                 type="button"
                                 size="sm"
                                 variant="outline"
@@ -207,8 +207,8 @@ export function PlanFeaturesSelector({ defaultFeatures }: PlanFeaturesSelectorPr
                                 onClick={() => setAll(true)}
                             >
                                 <Check className="h-3.5 w-3.5" /> All on
-                            </Button>
-                            <Button
+                            </ZoruButton>
+                            <ZoruButton
                                 type="button"
                                 size="sm"
                                 variant="outline"
@@ -216,7 +216,7 @@ export function PlanFeaturesSelector({ defaultFeatures }: PlanFeaturesSelectorPr
                                 onClick={() => setAll(false)}
                             >
                                 <X className="h-3.5 w-3.5" /> All off
-                            </Button>
+                            </ZoruButton>
                         </div>
                     </div>
                 </div>
@@ -250,7 +250,7 @@ export function PlanFeaturesSelector({ defaultFeatures }: PlanFeaturesSelectorPr
                                             )}
                                         />
                                         <span className="font-semibold text-sm">{cat.label}</span>
-                                        <Badge
+                                        <ZoruBadge
                                             variant="outline"
                                             className={cn(
                                                 'rounded-full text-[10px] font-normal border-white/10',
@@ -262,10 +262,10 @@ export function PlanFeaturesSelector({ defaultFeatures }: PlanFeaturesSelectorPr
                                             )}
                                         >
                                             {enabled}/{cat.keys.length}
-                                        </Badge>
+                                        </ZoruBadge>
                                     </button>
                                     <div className="flex items-center gap-1.5">
-                                        <Button
+                                        <ZoruButton
                                             type="button"
                                             size="sm"
                                             variant="ghost"
@@ -273,8 +273,8 @@ export function PlanFeaturesSelector({ defaultFeatures }: PlanFeaturesSelectorPr
                                             onClick={() => setCategory(cat.keys, true)}
                                         >
                                             Enable all
-                                        </Button>
-                                        <Button
+                                        </ZoruButton>
+                                        <ZoruButton
                                             type="button"
                                             size="sm"
                                             variant="ghost"
@@ -282,7 +282,7 @@ export function PlanFeaturesSelector({ defaultFeatures }: PlanFeaturesSelectorPr
                                             onClick={() => setCategory(cat.keys, false)}
                                         >
                                             Clear
-                                        </Button>
+                                        </ZoruButton>
                                     </div>
                                 </div>
 
@@ -320,7 +320,7 @@ export function PlanFeaturesSelector({ defaultFeatures }: PlanFeaturesSelectorPr
                                                             {key}
                                                         </div>
                                                     </div>
-                                                    <Switch
+                                                    <ZoruSwitch
                                                         checked={checked}
                                                         onCheckedChange={(v) => setOne(key, !!v)}
                                                     />
@@ -338,7 +338,7 @@ export function PlanFeaturesSelector({ defaultFeatures }: PlanFeaturesSelectorPr
                         </div>
                     )}
                 </div>
-            </CardContent>
-        </Card>
+            </ZoruCardContent>
+        </ZoruCard>
     );
 }

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
 import { AlertTriangle } from 'lucide-react';
 
 export default function NotFound() {
@@ -10,9 +10,9 @@ export default function NotFound() {
       <p className="mt-4 text-lg text-muted-foreground">
         Oops! The page you are looking for does not exist.
       </p>
-      <Button asChild className="mt-8">
+      <ZoruButton asChild className="mt-8">
         <Link href="/">Go back to the homepage</Link>
-      </Button>
+      </ZoruButton>
     </main>
   );
 }

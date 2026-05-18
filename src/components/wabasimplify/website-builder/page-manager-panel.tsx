@@ -3,30 +3,30 @@
 'use client';
 
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
 import { Home, Plus, Trash2, Check, Settings, MoreVertical } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { WithId, WebsitePage, EcommPage } from '@/lib/definitions';
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+    ZoruDropdownMenu,
+    ZoruDropdownMenuContent,
+    ZoruDropdownMenuItem,
+    ZoruDropdownMenuSeparator,
+    ZoruDropdownMenuTrigger,
+} from '@/components/zoruui';
 import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
+    ZoruAlertDialog,
+    ZoruAlertDialogAction,
+    ZoruAlertDialogCancel,
+    ZoruAlertDialogContent,
+    ZoruAlertDialogDescription,
+    ZoruAlertDialogFooter,
+    ZoruAlertDialogHeader,
+    ZoruAlertDialogTitle,
+    ZoruAlertDialogTrigger,
+} from '@/components/zoruui';
 import { deleteWebsitePage, setAsHomepage, saveWebsitePage } from '@/app/actions/portfolio.actions';
 import { useToast } from '@/hooks/use-toast';
 
@@ -92,52 +92,52 @@ export function PageManagerPanel({ pages, activePageId, shopId, onSelectPage, on
         <div className="space-y-4">
             <div className="flex justify-between items-center">
                 <h2 className="text-lg font-semibold">Pages</h2>
-                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setIsCreating(true)}>
+                <ZoruButton variant="ghost" size="icon" className="h-7 w-7" onClick={() => setIsCreating(true)}>
                     <Plus className="h-4 w-4" />
-                </Button>
+                </ZoruButton>
             </div>
             {isCreating && (
                 <div className="space-y-2 p-2 border rounded-md">
-                    <Input
+                    <ZoruInput
                         placeholder="New page name..."
                         value={newPageName}
                         onChange={(e) => setNewPageName(e.target.value)}
                         autoFocus
                     />
                     <div className="flex justify-end gap-2">
-                        <Button variant="ghost" size="sm" onClick={() => setIsCreating(false)}>Cancel</Button>
-                        <Button size="sm" onClick={handleCreatePage}>Create</Button>
+                        <ZoruButton variant="ghost" size="sm" onClick={() => setIsCreating(false)}>Cancel</ZoruButton>
+                        <ZoruButton size="sm" onClick={handleCreatePage}>Create</ZoruButton>
                     </div>
                 </div>
             )}
             <div className="space-y-1">
                 {pages.map(page => (
                     <div key={page._id.toString()} className={cn("flex items-center group rounded-md transaction-all duration-200", activePageId === page._id.toString() ? 'bg-primary/10 text-primary' : 'hover:bg-muted/50')}>
-                        <Button variant="ghost" className="flex-1 justify-start font-normal" onClick={() => onSelectPage(page._id.toString())}>
+                        <ZoruButton variant="ghost" className="flex-1 justify-start font-normal" onClick={() => onSelectPage(page._id.toString())}>
                             {page.isHomepage && <Home className="mr-2 h-4 w-4 text-primary" />}
                             <span className="truncate">{page.name}</span>
-                        </Button>
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100">
+                        </ZoruButton>
+                        <ZoruDropdownMenu>
+                            <ZoruDropdownMenuTrigger asChild>
+                                <ZoruButton variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100">
                                     <MoreVertical className="h-4 w-4" />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent>
-                                <DropdownMenuItem onSelect={() => handleSetHomepage(page._id.toString())}>Set as Homepage</DropdownMenuItem>
-                                <DropdownMenuItem disabled>Settings</DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <AlertDialog>
-                                    <AlertDialogTrigger asChild>
-                                        <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive focus:bg-destructive/10">Delete</DropdownMenuItem>
-                                    </AlertDialogTrigger>
-                                    <AlertDialogContent>
-                                        <AlertDialogHeader><AlertDialogTitle>Are you sure?</AlertDialogTitle><AlertDialogDescription>This will permanently delete the page "{page.name}". This action cannot be undone.</AlertDialogDescription></AlertDialogHeader>
-                                        <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={() => handleDeletePage(page._id.toString())}>Delete</AlertDialogAction></AlertDialogFooter>
-                                    </AlertDialogContent>
-                                </AlertDialog>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
+                                </ZoruButton>
+                            </ZoruDropdownMenuTrigger>
+                            <ZoruDropdownMenuContent>
+                                <ZoruDropdownMenuItem onSelect={() => handleSetHomepage(page._id.toString())}>Set as Homepage</ZoruDropdownMenuItem>
+                                <ZoruDropdownMenuItem disabled>Settings</ZoruDropdownMenuItem>
+                                <ZoruDropdownMenuSeparator />
+                                <ZoruAlertDialog>
+                                    <ZoruAlertDialogTrigger asChild>
+                                        <ZoruDropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive focus:bg-destructive/10">Delete</ZoruDropdownMenuItem>
+                                    </ZoruAlertDialogTrigger>
+                                    <ZoruAlertDialogContent>
+                                        <ZoruAlertDialogHeader><ZoruAlertDialogTitle>Are you sure?</ZoruAlertDialogTitle><ZoruAlertDialogDescription>This will permanently delete the page "{page.name}". This action cannot be undone.</ZoruAlertDialogDescription></ZoruAlertDialogHeader>
+                                        <ZoruAlertDialogFooter><ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel><ZoruAlertDialogAction onClick={() => handleDeletePage(page._id.toString())}>Delete</ZoruAlertDialogAction></ZoruAlertDialogFooter>
+                                    </ZoruAlertDialogContent>
+                                </ZoruAlertDialog>
+                            </ZoruDropdownMenuContent>
+                        </ZoruDropdownMenu>
                     </div>
                 ))}
             </div>

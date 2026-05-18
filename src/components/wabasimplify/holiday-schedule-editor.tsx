@@ -2,9 +2,9 @@
 'use client';
 
 import React from 'react';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+import { ZoruLabel, ZoruButton } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
 import { Plus, Trash2 } from 'lucide-react';
 import type { HolidaySchedule } from '@/lib/definitions';
 import { DatePicker } from '../ui/date-picker';
@@ -43,25 +43,25 @@ export const HolidayScheduleEditor: React.FC<HolidayScheduleEditorProps> = ({ sc
             <div className="space-y-3">
                 {schedule.map((entry, index) => (
                     <div key={index} className="p-3 border rounded-lg space-y-3 relative bg-muted/50">
-                         <Button variant="ghost" size="icon" className="absolute top-1 right-1 h-7 w-7" onClick={() => handleRemove(index)}><Trash2 className="h-4 w-4 text-destructive"/></Button>
+                         <ZoruButton variant="ghost" size="icon" className="absolute top-1 right-1 h-7 w-7" onClick={() => handleRemove(index)}><Trash2 className="h-4 w-4 text-destructive"/></ZoruButton>
                          <div className="grid md:grid-cols-3 gap-4 items-end">
                             <div className="space-y-2">
-                                <Label>Date</Label>
+                                <ZoruLabel>Date</ZoruLabel>
                                 <DatePicker date={new Date(entry.date)} setDate={(d: any) => handleChange(index, 'date', d)}/>
                             </div>
                             <div className="space-y-2">
-                                <Label>Start Time</Label>
-                                <Input type="time" value={entry.start_time.slice(0,2) + ':' + entry.start_time.slice(2)} onChange={e => handleChange(index, 'start_time', e.target.value)} />
+                                <ZoruLabel>Start Time</ZoruLabel>
+                                <ZoruInput type="time" value={entry.start_time.slice(0,2) + ':' + entry.start_time.slice(2)} onChange={e => handleChange(index, 'start_time', e.target.value)} />
                             </div>
                             <div className="space-y-2">
-                                <Label>End Time</Label>
-                                <Input type="time" value={entry.end_time.slice(0,2) + ':' + entry.end_time.slice(2)} onChange={e => handleChange(index, 'end_time', e.target.value)} />
+                                <ZoruLabel>End Time</ZoruLabel>
+                                <ZoruInput type="time" value={entry.end_time.slice(0,2) + ':' + entry.end_time.slice(2)} onChange={e => handleChange(index, 'end_time', e.target.value)} />
                             </div>
                         </div>
                     </div>
                 ))}
             </div>
-            <Button type="button" variant="outline" onClick={handleAdd}><Plus className="mr-2 h-4 w-4"/>Add Holiday</Button>
+            <ZoruButton type="button" variant="outline" onClick={handleAdd}><Plus className="mr-2 h-4 w-4"/>Add Holiday</ZoruButton>
         </div>
     );
 };

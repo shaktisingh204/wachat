@@ -3,12 +3,12 @@
 'use client';
 
 import Link from 'next/link';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruButton } from '@/components/zoruui';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import type { WithId, EcommProduct } from '@/lib/definitions';
 import { ProductCard } from './product-card';
-import { Button } from '@/components/ui/button';
+import { ZoruButton } from '@/components/zoruui';
 import React from 'react';
 
 export function FeaturedProductsBlockRenderer({ settings, products, shopSlug }: { settings: any, products: WithId<EcommProduct>[], shopSlug: string }) {
@@ -46,7 +46,7 @@ export function FeaturedProductsBlockRenderer({ settings, products, shopSlug }: 
             </div>
              {settings.showViewAllButton && (
                 <div className="mt-8 text-center">
-                    <Button variant="outline" size="lg">View All Products</Button>
+                    <ZoruButton variant="outline" size="lg">View All Products</ZoruButton>
                 </div>
             )}
         </div>

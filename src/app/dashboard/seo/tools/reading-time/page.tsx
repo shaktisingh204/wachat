@@ -4,10 +4,10 @@ import { cn as _zoruCn } from '@/components/zoruui';
 void _zoruCn;
 
 import { useMemo, useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
+import { ZoruTextarea } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { countWords } from '@/lib/seo-tools/text-utils';
 
@@ -20,16 +20,16 @@ export default function ReadingTimePage() {
 
   return (
     <ToolShell title="Reading Time Calculator" description="Estimate reading time based on words per minute.">
-      <Textarea value={text} onChange={(e) => setText(e.target.value)} placeholder="Paste content…" className="min-h-[220px]" />
+      <ZoruTextarea value={text} onChange={(e) => setText(e.target.value)} placeholder="Paste content…" className="min-h-[220px]" />
       <div className="flex items-end gap-4">
         <div className="space-y-1">
-          <Label>Words / minute</Label>
-          <Input type="number" value={wpm} onChange={(e) => setWpm(Number(e.target.value) || 0)} className="w-32" />
+          <ZoruLabel>Words / minute</ZoruLabel>
+          <ZoruInput type="number" value={wpm} onChange={(e) => setWpm(Number(e.target.value) || 0)} className="w-32" />
         </div>
       </div>
       <div className="grid grid-cols-2 gap-3">
-        <Card><CardContent className="p-4"><div className="text-2xl font-bold">{words}</div><div className="text-xs text-muted-foreground">Words</div></CardContent></Card>
-        <Card><CardContent className="p-4"><div className="text-2xl font-bold">{display}</div><div className="text-xs text-muted-foreground">Reading time</div></CardContent></Card>
+        <ZoruCard><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{words}</div><div className="text-xs text-muted-foreground">Words</div></ZoruCardContent></ZoruCard>
+        <ZoruCard><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{display}</div><div className="text-xs text-muted-foreground">Reading time</div></ZoruCardContent></ZoruCard>
       </div>
     </ToolShell>
   );

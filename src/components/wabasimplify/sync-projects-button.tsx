@@ -4,7 +4,7 @@
 import { useTransition } from 'react';
 import { handleSyncWabas } from '@/app/actions/index.ts';
 import { useToast } from '@/hooks/use-toast';
-import { Button } from '@/components/ui/button';
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
 import { RefreshCw, LoaderCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
@@ -34,7 +34,7 @@ export function SyncProjectsButton() {
   };
 
   return (
-    <Button onClick={onSync} variant="outline" disabled={isPending}>
+    <ZoruButton onClick={onSync} variant="outline" disabled={isPending}>
       {isPending ? (
         <>
           <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
@@ -46,6 +46,6 @@ export function SyncProjectsButton() {
           Sync Projects from Meta
         </>
       )}
-    </Button>
+    </ZoruButton>
   );
 }

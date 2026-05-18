@@ -5,20 +5,20 @@ import { useState, useTransition, useEffect, useMemo } from 'react';
 import type { WithId } from 'mongodb';
 import type { Project, Contact, Agent, Tag } from '@/lib/definitions';
 import { handleUpdateContactDetails, handleUpdateContactStatus, updateContactTags } from '@/app/actions/index';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
+import { ZoruScrollArea } from '@/components/zoruui';
 import { useToast } from '@/hooks/use-toast';
 import { LoaderCircle, Save, Phone, Mail, FileText, Link, ThumbsUp, Pencil, X } from 'lucide-react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { Separator } from '../ui/separator';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '../ui/select';
+import { ZoruSeparator } from '../ui/separator';
+import { ZoruPopover, ZoruPopoverContent, ZoruPopoverTrigger } from '@/components/zoruui';
+import { ZoruCommand, ZoruCommandEmpty, ZoruCommandGroup, ZoruCommandInput, ZoruCommandItem, ZoruCommandList } from '@/components/zoruui';
 import { ChevronsUpDown, Check, Settings } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+import { ZoruBadge } from '@/components/zoruui';
 import { cn } from '@/lib/utils';
-import { Avatar, AvatarFallback } from '../ui/avatar';
+import { ZoruAvatar, ZoruAvatarFallback } from '../ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ProjectTagsManagerDialog } from './project-tags-manager-dialog';
 import { useProject } from '@/context/project-context';
@@ -35,7 +35,7 @@ function MultiSelectCombobox({
     options,
     selected,
     onSelectionChange,
-    placeholder = "Select...",
+    placeholder = "ZoruSelect...",
     className
 }: {
     options: { value: string, label: string, color?: string }[],
@@ -54,9 +54,9 @@ function MultiSelectCombobox({
     };
 
     return (
-        <Popover open={open} onOpenChange={setOpen}>
-            <PopoverTrigger asChild>
-                <Button
+        <ZoruPopover open={open} onOpenChange={setOpen}>
+            <ZoruPopoverTrigger asChild>
+                <ZoruButton
                     variant="outline"
                     role="combobox"
                     aria-expanded={open}
@@ -68,14 +68,14 @@ function MultiSelectCombobox({
                                 const option = options.find(o => o.value === id);
                                 if (!option) return null;
                                 return (
-                                    <Badge
+                                    <ZoruBadge
                                         key={id}
                                         variant="secondary"
                                         className="rounded-sm px-1 font-normal"
                                         style={option.color ? { backgroundColor: option.color, color: '#fff' } : {}}
                                     >
                                         {option.label}
-                                    </Badge>
+                                    </ZoruBadge>
                                 );
                             })
                         ) : (
@@ -83,16 +83,16 @@ function MultiSelectCombobox({
                         )}
                     </div>
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
-                <Command>
-                    <CommandInput placeholder="Search tags..." />
-                    <CommandList>
-                        <CommandEmpty>No tags found.</CommandEmpty>
-                        <CommandGroup>
+                </ZoruButton>
+            </ZoruPopoverTrigger>
+            <ZoruPopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                <ZoruCommand>
+                    <ZoruCommandInput placeholder="Search tags..." />
+                    <ZoruCommandList>
+                        <ZoruCommandEmpty>No tags found.</ZoruCommandEmpty>
+                        <ZoruCommandGroup>
                             {options.map((option) => (
-                                <CommandItem
+                                <ZoruCommandItem
                                     key={option.value}
                                     value={option.label}
                                     onSelect={() => handleSelect(option.value)}
@@ -104,13 +104,13 @@ function MultiSelectCombobox({
                                         )}
                                     />
                                     {option.label}
-                                </CommandItem>
+                                </ZoruCommandItem>
                             ))}
-                        </CommandGroup>
-                    </CommandList>
-                </Command>
-            </PopoverContent>
-        </Popover>
+                        </ZoruCommandGroup>
+                    </ZoruCommandList>
+                </ZoruCommand>
+            </ZoruPopoverContent>
+        </ZoruPopover>
     );
 }
 
@@ -233,65 +233,65 @@ export function ContactInfoPanel({ project, contact, onContactUpdate, onClose }:
         <div className="flex flex-col h-full bg-background border-l">
             <div className="px-4 py-3 border-b flex items-center justify-between bg-muted/20 flex-shrink-0">
                 <h3 className="font-semibold text-lg">Contact Info</h3>
-                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onClose}>
+                <ZoruButton variant="ghost" size="icon" className="h-8 w-8" onClick={onClose}>
                     <X className="h-4 w-4" />
-                </Button>
+                </ZoruButton>
             </div>
 
-            <ScrollArea className="flex-1">
+            <ZoruScrollArea className="flex-1">
                 <div className="p-4 flex flex-col items-center border-b">
-                    <Avatar className="h-20 w-20 mb-3 shadow-sm border">
-                        <AvatarFallback className="text-xl">{contact.name.charAt(0).toUpperCase()}</AvatarFallback>
-                    </Avatar>
+                    <ZoruAvatar className="h-20 w-20 mb-3 shadow-sm border">
+                        <ZoruAvatarFallback className="text-xl">{contact.name.charAt(0).toUpperCase()}</ZoruAvatarFallback>
+                    </ZoruAvatar>
 
                     {isEditingName ? (
                         <div className="flex items-center gap-2 mb-1 w-full max-w-[240px] justify-center">
-                            <Input
+                            <ZoruInput
                                 value={editedName}
                                 onChange={(e) => setEditedName(e.target.value)}
                                 className="h-8 text-center font-medium"
                                 autoFocus
                             />
-                            <Button size="icon" variant="ghost" className="h-8 w-8 shrink-0 text-green-600 hover:text-green-700 hover:bg-green-50" onClick={handleSaveName} disabled={isPending}>
+                            <ZoruButton size="icon" variant="ghost" className="h-8 w-8 shrink-0 text-green-600 hover:text-green-700 hover:bg-green-50" onClick={handleSaveName} disabled={isPending}>
                                 <Check className="h-4 w-4" />
-                            </Button>
-                            <Button size="icon" variant="ghost" className="h-8 w-8 shrink-0 text-muted-foreground" onClick={() => { setIsEditingName(false); setEditedName(contact.name); }}>
+                            </ZoruButton>
+                            <ZoruButton size="icon" variant="ghost" className="h-8 w-8 shrink-0 text-muted-foreground" onClick={() => { setIsEditingName(false); setEditedName(contact.name); }}>
                                 <X className="h-4 w-4" />
-                            </Button>
+                            </ZoruButton>
                         </div>
                     ) : (
                         <div className="flex items-center gap-2 group mb-1 justify-center">
                             <h2 className="text-xl font-semibold">{contact.name}</h2>
-                            <Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => setIsEditingName(true)}>
+                            <ZoruButton variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => setIsEditingName(true)}>
                                 <Pencil className="h-3 w-3 text-muted-foreground" />
-                            </Button>
+                            </ZoruButton>
                         </div>
                     )}
                     <p className="text-sm text-muted-foreground mb-4">{contact.waId}</p>
 
                     <div className="grid grid-cols-2 gap-4 w-full">
                         <div className="space-y-1.5">
-                            <Label className="text-xs text-muted-foreground">Status</Label>
-                            <Select value={status} onValueChange={handleStatusChange} disabled={isPending}>
-                                <SelectTrigger id="status" className="h-9"><SelectValue /></SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="new">New</SelectItem>
-                                    <SelectItem value="open">Open</SelectItem>
-                                    <SelectItem value="resolved">Resolved</SelectItem>
-                                </SelectContent>
-                            </Select>
+                            <ZoruLabel className="text-xs text-muted-foreground">Status</ZoruLabel>
+                            <ZoruSelect value={status} onValueChange={handleStatusChange} disabled={isPending}>
+                                <ZoruSelectTrigger id="status" className="h-9"><ZoruSelectValue /></ZoruSelectTrigger>
+                                <ZoruSelectContent>
+                                    <ZoruSelectItem value="new">New</ZoruSelectItem>
+                                    <ZoruSelectItem value="open">Open</ZoruSelectItem>
+                                    <ZoruSelectItem value="resolved">Resolved</ZoruSelectItem>
+                                </ZoruSelectContent>
+                            </ZoruSelect>
                         </div>
                         <div className="space-y-1.5">
-                            <Label className="text-xs text-muted-foreground">Agent</Label>
-                            <Select value={assignedAgentId || 'unassigned'} onValueChange={handleAgentChange} disabled={isPending}>
-                                <SelectTrigger id="agent" className="h-9"><SelectValue /></SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="unassigned">Unassigned</SelectItem>
+                            <ZoruLabel className="text-xs text-muted-foreground">Agent</ZoruLabel>
+                            <ZoruSelect value={assignedAgentId || 'unassigned'} onValueChange={handleAgentChange} disabled={isPending}>
+                                <ZoruSelectTrigger id="agent" className="h-9"><ZoruSelectValue /></ZoruSelectTrigger>
+                                <ZoruSelectContent>
+                                    <ZoruSelectItem value="unassigned">Unassigned</ZoruSelectItem>
                                     {project.agents?.map((agent: Agent) => (
-                                        <SelectItem key={agent.userId.toString()} value={agent.userId.toString()}>{agent.name}</SelectItem>
+                                        <ZoruSelectItem key={agent.userId.toString()} value={agent.userId.toString()}>{agent.name}</ZoruSelectItem>
                                     ))}
-                                </SelectContent>
-                            </Select>
+                                </ZoruSelectContent>
+                            </ZoruSelect>
                         </div>
                     </div>
                 </div>
@@ -299,17 +299,17 @@ export function ContactInfoPanel({ project, contact, onContactUpdate, onClose }:
                 <div className="p-4 space-y-6">
                     <div className="space-y-2">
                         <div className="flex items-center justify-between">
-                            <Label>Tags</Label>
-                            <Button variant="ghost" size="sm" className="h-6 gap-1 text-[10px] text-muted-foreground" onClick={() => setIsTagsManagerOpen(true)}>
+                            <ZoruLabel>Tags</ZoruLabel>
+                            <ZoruButton variant="ghost" size="sm" className="h-6 gap-1 text-[10px] text-muted-foreground" onClick={() => setIsTagsManagerOpen(true)}>
                                 <Settings className="h-3 w-3" />
                                 Manage
-                            </Button>
+                            </ZoruButton>
                         </div>
                         <MultiSelectCombobox
                             options={tagOptions}
                             selected={tagIds}
                             onSelectionChange={handleTagsChange}
-                            placeholder="Select tags..."
+                            placeholder="ZoruSelect tags..."
                         />
                     </div>
 
@@ -322,7 +322,7 @@ export function ContactInfoPanel({ project, contact, onContactUpdate, onClose }:
                         }}
                     />
 
-                    <Separator />
+                    <ZoruSeparator />
 
                     <Tabs defaultValue="attributes" className="w-full">
                         <TabsList className="grid w-full grid-cols-2 h-9">
@@ -334,8 +334,8 @@ export function ContactInfoPanel({ project, contact, onContactUpdate, onClose }:
                                 <div className="space-y-3">
                                     {userAttributes.map(attr => (
                                         <div key={attr.id} className="space-y-1.5">
-                                            <Label htmlFor={`attr-${attr.id}`} className="text-xs">{attr.name}</Label>
-                                            <Input
+                                            <ZoruLabel htmlFor={`attr-${attr.id}`} className="text-xs">{attr.name}</ZoruLabel>
+                                            <ZoruInput
                                                 id={`attr-${attr.id}`}
                                                 value={variables[attr.name] || ''}
                                                 onChange={(e) => handleVariableChange(attr.name, e.target.value)}
@@ -344,10 +344,10 @@ export function ContactInfoPanel({ project, contact, onContactUpdate, onClose }:
                                             />
                                         </div>
                                     ))}
-                                    <Button onClick={handleSaveVariables} disabled={isPending} className="w-full mt-2" size="sm">
+                                    <ZoruButton onClick={handleSaveVariables} disabled={isPending} className="w-full mt-2" size="sm">
                                         {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
                                         Save Changes
-                                    </Button>
+                                    </ZoruButton>
                                 </div>
                             ) : (
                                 <div className="text-center text-sm text-muted-foreground py-8 bg-muted/30 rounded-lg border border-dashed">
@@ -362,7 +362,7 @@ export function ContactInfoPanel({ project, contact, onContactUpdate, onClose }:
                         </TabsContent>
                     </Tabs>
                 </div>
-            </ScrollArea>
+            </ZoruScrollArea>
         </div>
     );
 }

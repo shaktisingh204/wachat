@@ -14,24 +14,23 @@ import { handleImportContacts } from '@/app/actions/contact.actions';
 import { useToast } from '@/hooks/use-toast';
 import type { Project } from '@/lib/definitions';
 
-import { ClayButton } from '@/components/clay';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruDialogTrigger,
+} from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+} from '@/components/zoruui';
 import { cn } from '@/lib/utils';
 
 const initialState = {
@@ -42,7 +41,7 @@ const initialState = {
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <ClayButton
+    <ZoruButton
       type="submit"
       variant="rose"
       size="md"
@@ -54,7 +53,7 @@ function SubmitButton() {
       }
     >
       {pending ? 'Importing…' : 'Import contacts'}
-    </ClayButton>
+    </ZoruButton>
   );
 }
 
@@ -114,17 +113,17 @@ export function ImportContactsDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <ClayButton
+    <ZoruDialog open={open} onOpenChange={setOpen}>
+      <ZoruDialogTrigger asChild>
+        <ZoruButton
           variant="pill"
           size="md"
           leading={<LuFileUp className="h-3.5 w-3.5" strokeWidth={2} />}
         >
           Import
-        </ClayButton>
-      </DialogTrigger>
-      <DialogContent className="max-w-[520px] rounded-[18px] border border-border bg-card p-0 shadow-lg">
+        </ZoruButton>
+      </ZoruDialogTrigger>
+      <ZoruDialogContent className="max-w-[520px] rounded-[18px] border border-border bg-card p-0 shadow-lg">
         <form action={formAction} ref={formRef}>
           <input type="hidden" name="projectId" value={project._id.toString()} />
           <input
@@ -133,51 +132,51 @@ export function ImportContactsDialog({
             value={selectedPhoneNumberId}
           />
 
-          <DialogHeader className="flex flex-row items-start gap-3 border-b border-border px-6 py-5">
+          <ZoruDialogHeader className="flex flex-row items-start gap-3 border-b border-border px-6 py-5">
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-accent text-accent-foreground">
               <LuFileUp className="h-5 w-5" strokeWidth={2} />
             </span>
             <div className="min-w-0 flex-1">
-              <DialogTitle className="text-[16px] font-semibold text-foreground leading-tight">
+              <ZoruDialogTitle className="text-[16px] font-semibold text-foreground leading-tight">
                 Import contacts
-              </DialogTitle>
-              <DialogDescription className="mt-0.5 text-[12px] text-muted-foreground leading-snug">
+              </ZoruDialogTitle>
+              <ZoruDialogDescription className="mt-0.5 text-[12px] text-muted-foreground leading-snug">
                 Upload a CSV or XLSX file to add or update contacts. First
                 column must be the phone number (WhatsApp ID); second should
                 be the name.
-              </DialogDescription>
+              </ZoruDialogDescription>
             </div>
-          </DialogHeader>
+          </ZoruDialogHeader>
 
           <div className="flex flex-col gap-5 px-6 py-5">
             {/* WhatsApp number */}
             <div className="flex flex-col gap-1.5">
-              <Label className="text-[11.5px] font-semibold text-muted-foreground">
+              <ZoruLabel className="text-[11.5px] font-semibold text-muted-foreground">
                 Associate with number
-              </Label>
-              <Select
+              </ZoruLabel>
+              <ZoruSelect
                 value={selectedPhoneNumberId}
                 onValueChange={setSelectedPhoneNumberId}
               >
-                <SelectTrigger>
-                  <SelectValue placeholder="Choose a number…" />
-                </SelectTrigger>
-                <SelectContent>
+                <ZoruSelectTrigger>
+                  <ZoruSelectValue placeholder="Choose a number…" />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
                   {(project?.phoneNumbers || []).map((phone) => (
-                    <SelectItem key={phone.id} value={phone.id}>
+                    <ZoruSelectItem key={phone.id} value={phone.id}>
                       {phone.display_phone_number} ({phone.verified_name})
-                    </SelectItem>
+                    </ZoruSelectItem>
                   ))}
-                </SelectContent>
-              </Select>
+                </ZoruSelectContent>
+              </ZoruSelect>
             </div>
 
             {/* File drop */}
             <div className="flex flex-col gap-1.5">
               <div className="flex items-center justify-between">
-                <Label className="text-[11.5px] font-semibold text-muted-foreground">
+                <ZoruLabel className="text-[11.5px] font-semibold text-muted-foreground">
                   Contact file <span className="ml-1 text-destructive">*</span>
-                </Label>
+                </ZoruLabel>
                 <button
                   type="button"
                   onClick={handleDownloadSample}
@@ -226,19 +225,19 @@ export function ImportContactsDialog({
             </div>
           </div>
 
-          <DialogFooter className="border-t border-border px-6 py-4 sm:justify-end gap-2">
-            <ClayButton
+          <ZoruDialogFooter className="border-t border-border px-6 py-4 sm:justify-end gap-2">
+            <ZoruButton
               type="button"
               variant="pill"
               size="md"
               onClick={() => setOpen(false)}
             >
               Cancel
-            </ClayButton>
+            </ZoruButton>
             <SubmitButton />
-          </DialogFooter>
+          </ZoruDialogFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+      </ZoruDialogContent>
+    </ZoruDialog>
   );
 }

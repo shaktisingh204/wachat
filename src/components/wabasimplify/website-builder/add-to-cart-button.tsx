@@ -2,7 +2,7 @@
 
 'use client';
 
-import { Button } from '@/components/ui/button';
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
 import { useCart } from '@/context/cart-context';
 import type { EcommProduct, WithId } from '@/lib/definitions';
 import { ShoppingCart } from 'lucide-react';
@@ -25,14 +25,14 @@ export function AddToCartButton({ product }: { product: WithId<EcommProduct> }) 
     return (
         <div className="flex items-center gap-4">
             <div className="flex items-center border rounded-md">
-                <Button variant="ghost" size="icon" onClick={() => setQuantity(q => Math.max(1, q - 1))}>-</Button>
+                <ZoruButton variant="ghost" size="icon" onClick={() => setQuantity(q => Math.max(1, q - 1))}>-</ZoruButton>
                 <span className="w-12 text-center">{quantity}</span>
-                <Button variant="ghost" size="icon" onClick={() => setQuantity(q => q + 1)}>+</Button>
+                <ZoruButton variant="ghost" size="icon" onClick={() => setQuantity(q => q + 1)}>+</ZoruButton>
             </div>
-            <Button onClick={handleAddToCart} size="lg" className="flex-1">
+            <ZoruButton onClick={handleAddToCart} size="lg" className="flex-1">
                 <ShoppingCart className="mr-2 h-5 w-5" />
                 Add to Cart
-            </Button>
+            </ZoruButton>
         </div>
     );
 }

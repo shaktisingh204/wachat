@@ -2,9 +2,9 @@
 
 import * as React from 'react';
 import { LuTag } from 'react-icons/lu';
-import { Card } from '@/components/ui/card';
+import { ZoruCard, ZoruButton } from '@/components/zoruui';
 import { cn } from '@/lib/utils';
-import { ClayButton } from './clay-button';
+import { } from './clay-button';
 
 export interface ClayPromoCardProps {
   eyebrow?: string;
@@ -19,7 +19,7 @@ export interface ClayPromoCardProps {
 
 /**
  * ClayPromoCard — gradient-mesh "You're now in PRO mode!" sidebar block.
- * Uses the shadcn `Card` primitive for the surface, and styles the
+ * Uses the shadcn `ZoruCard` primitive for the surface, and styles the
  * mesh hero via `style={{ background: 'var(--prism-mesh)' }}` (with a
  * radial-gradient fallback for environments without the prism token).
  */
@@ -33,7 +33,7 @@ export function ClayPromoCard({
   className,
 }: ClayPromoCardProps) {
   return (
-    <Card
+    <ZoruCard
       variant="default"
       className={cn('rounded-2xl overflow-hidden p-0', className)}
     >
@@ -81,15 +81,15 @@ export function ClayPromoCard({
           </div>
         ) : null}
 
-        <ClayButton
+        <ZoruButton
           variant="obsidian"
           size="sm"
           onClick={onCtaClick}
           className="mt-3 w-full justify-center"
         >
           {ctaLabel}
-        </ClayButton>
+        </ZoruButton>
       </div>
-    </Card>
+    </ZoruCard>
   );
 }

@@ -4,7 +4,7 @@ import { cn as _zoruCn } from '@/components/zoruui';
 void _zoruCn;
 
 import { useMemo, useState } from 'react';
-import { Textarea } from '@/components/ui/textarea';
+import { ZoruTextarea } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
 function html2md(html: string): string {
@@ -36,8 +36,8 @@ export default function HtmlToMarkdownPage() {
   const md = useMemo(() => html2md(html), [html]);
   return (
     <ToolShell title="HTML to Markdown" description="Convert basic HTML to Markdown.">
-      <Textarea value={html} onChange={(e) => setHtml(e.target.value)} className="min-h-[220px] font-mono text-xs" placeholder="Paste HTML…" />
-      <Textarea readOnly value={md} className="min-h-[220px] font-mono text-xs" />
+      <ZoruTextarea value={html} onChange={(e) => setHtml(e.target.value)} className="min-h-[220px] font-mono text-xs" placeholder="Paste HTML…" />
+      <ZoruTextarea readOnly value={md} className="min-h-[220px] font-mono text-xs" />
     </ToolShell>
   );
 }

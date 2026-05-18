@@ -1,12 +1,12 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
+import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardFooter, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
+import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
+import { ZoruSwitch } from '@/components/zoruui';
 import { saveSmsConfig } from '@/app/actions/sms-config.actions';
 import { toast } from '@/hooks/use-toast';
 import { LoaderCircle, Save, CheckCircle2, AlertCircle } from 'lucide-react';
@@ -111,31 +111,31 @@ export function ProviderConfigForm({ initialConfig }: ProviderConfigFormProps) {
     };
 
     return (
-        <Card>
-            <CardHeader>
-                <CardTitle>SMS Provider Configuration</CardTitle>
-                <CardDescription>Select and configure your SMS gateway.</CardDescription>
-            </CardHeader>
+        <ZoruCard>
+            <ZoruCardHeader>
+                <ZoruCardTitle>SMS Provider Configuration</ZoruCardTitle>
+                <ZoruCardDescription>ZoruSelect and configure your SMS gateway.</ZoruCardDescription>
+            </ZoruCardHeader>
             <form action={handleSave}>
-                <CardContent className="space-y-6">
+                <ZoruCardContent className="space-y-6">
                     <div className="space-y-2">
-                        <Label>Select Provider</Label>
-                        <Select
+                        <ZoruLabel>ZoruSelect Provider</ZoruLabel>
+                        <ZoruSelect
                             name="provider"
                             value={selectedProvider}
                             onValueChange={setSelectedProvider}
                         >
-                            <SelectTrigger>
-                                <SelectValue placeholder="Select a provider" />
-                            </SelectTrigger>
-                            <SelectContent className="max-h-[300px]">
+                            <ZoruSelectTrigger>
+                                <ZoruSelectValue placeholder="ZoruSelect a provider" />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent className="max-h-[300px]">
                                 {PROVIDERS.map(p => (
-                                    <SelectItem key={p.value} value={p.value}>
+                                    <ZoruSelectItem key={p.value} value={p.value}>
                                         {p.label}
-                                    </SelectItem>
+                                    </ZoruSelectItem>
                                 ))}
-                            </SelectContent>
-                        </Select>
+                            </ZoruSelectContent>
+                        </ZoruSelect>
                     </div>
 
                     <div className="space-y-4 border rounded-md p-4 bg-muted/20">
@@ -146,8 +146,8 @@ export function ProviderConfigForm({ initialConfig }: ProviderConfigFormProps) {
                         <div className="grid gap-4">
                             {getFields(selectedProvider).map((field) => (
                                 <div key={field.key} className="space-y-2">
-                                    <Label htmlFor={field.key}>{field.label}</Label>
-                                    <Input
+                                    <ZoruLabel htmlFor={field.key}>{field.label}</ZoruLabel>
+                                    <ZoruInput
                                         name={field.key}
                                         id={field.key}
                                         type={field.type || 'text'}
@@ -161,15 +161,15 @@ export function ProviderConfigForm({ initialConfig }: ProviderConfigFormProps) {
 
                     <div className="space-y-4 pt-4 border-t">
                         <div className="flex items-center justify-between">
-                            <Label htmlFor="dlt-section" className="text-base">DLT Configuration (India)</Label>
+                            <ZoruLabel htmlFor="dlt-section" className="text-base">DLT Configuration (India)</ZoruLabel>
                         </div>
                         <p className="text-xs text-muted-foreground -mt-3">
                             Required for providers like MSG91, 2Factor, Fast2SMS, etc. when sending to +91.
                         </p>
                         <div className="grid gap-4">
                             <div className="space-y-2">
-                                <Label htmlFor="principalEntityId">Principal Entity ID</Label>
-                                <Input
+                                <ZoruLabel htmlFor="principalEntityId">Principal Entity ID</ZoruLabel>
+                                <ZoruInput
                                     name="principalEntityId"
                                     id="principalEntityId"
                                     placeholder="1001xxxxxxxxxxxxxxxx"
@@ -180,19 +180,19 @@ export function ProviderConfigForm({ initialConfig }: ProviderConfigFormProps) {
                     </div>
 
                     <div className="flex items-center space-x-2 pt-2">
-                        <Switch id="isActive" name="isActive" defaultChecked={initialConfig?.isActive !== false} />
-                        <Label htmlFor="isActive">Enable this provider</Label>
+                        <ZoruSwitch id="isActive" name="isActive" defaultChecked={initialConfig?.isActive !== false} />
+                        <ZoruLabel htmlFor="isActive">Enable this provider</ZoruLabel>
                     </div>
 
-                </CardContent>
-                <CardFooter>
-                    <Button type="submit" className="w-full" disabled={isPending}>
+                </ZoruCardContent>
+                <ZoruCardFooter>
+                    <ZoruButton type="submit" className="w-full" disabled={isPending}>
                         {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
                         Save Configuration
-                    </Button>
-                </CardFooter>
+                    </ZoruButton>
+                </ZoruCardFooter>
             </form>
-        </Card>
+        </ZoruCard>
     );
 }
 

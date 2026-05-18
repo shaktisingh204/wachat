@@ -5,7 +5,7 @@ import React from 'react';
 import type { FacebookMessage } from '@/lib/definitions';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { ZoruAvatar, ZoruAvatarImage, ZoruAvatarFallback } from '@/components/zoruui';
 
 interface FacebookChatMessageProps {
     message: FacebookMessage;
@@ -19,10 +19,10 @@ export const FacebookChatMessage = React.memo(function FacebookChatMessage({ mes
     return (
         <div className={cn("flex items-end gap-2 group/message", isOutgoing ? "justify-end" : "justify-start")}>
             {!isOutgoing && (
-                 <Avatar className="h-8 w-8 self-end">
-                    <AvatarImage src={`https://graph.facebook.com/${participant.id}/picture`} alt={participant.name}/>
-                    <AvatarFallback>{participant.name.charAt(0).toUpperCase()}</AvatarFallback>
-                </Avatar>
+                 <ZoruAvatar className="h-8 w-8 self-end">
+                    <ZoruAvatarImage src={`https://graph.facebook.com/${participant.id}/picture`} alt={participant.name}/>
+                    <ZoruAvatarFallback>{participant.name.charAt(0).toUpperCase()}</ZoruAvatarFallback>
+                </ZoruAvatar>
             )}
             <div
                 className={cn(
