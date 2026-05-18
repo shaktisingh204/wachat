@@ -1,0 +1,10 @@
+{
+  "id": "kibana-error-summary",
+  "name": "Kibana Hourly Error Summary",
+  "description": "Every hour, queries the Kibana search API for ERROR-level log lines from the last 60 minutes, asks GPT-4o to cluster them into a short, deduplicated digest, and posts the digest to the #engineering Slack channel. Replaces the noisy 'rolling error tail' channel with a single readable update.",
+  "category": "Ops",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["kibana", "elasticsearch", "openai", "slack", "ops", "cron"],
+  "version": "0.1.0"
+}
