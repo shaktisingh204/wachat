@@ -109,13 +109,14 @@ pub mod my_sql;
 pub mod supabase;
 pub mod noco_db;
 
-// ── Phase C.4.10: AI / vector-store nodes (6) ────────────────────────────────
-pub mod mistral_ai;
-pub mod cohere;
-pub mod perplexity;
-pub mod jina_ai;
-pub mod pinecone;
-pub mod qdrant;
+// ── Phase C.5.1: AWS-family nodes (HTTP + SigV4, no aws-sdk-* deps) ──────────
+pub mod aws_sigv4;
+pub mod aws_lambda;
+pub mod aws_ses;
+pub mod aws_sns;
+pub mod aws_sqs;
+pub mod aws_cloud_watch;
+pub mod aws_comprehend;
 
 use crate::{descriptor::NodeCategory, registry::NodeRegistry};
 
@@ -232,13 +233,13 @@ fn register_implemented(r: &mut NodeRegistry) {
     r.register(my_sql::MySqlNode);
     r.register(supabase::SupabaseNode);
     r.register(noco_db::NocoDbNode);
-    // Phase C.4.10 — AI / vector-store
-    r.register(mistral_ai::MistralAiNode);
-    r.register(cohere::CohereNode);
-    r.register(perplexity::PerplexityNode);
-    r.register(jina_ai::JinaAiNode);
-    r.register(pinecone::PineconeNode);
-    r.register(qdrant::QdrantNode);
+    // Phase C.5.1 — AWS-family nodes
+    r.register(aws_lambda::AwsLambdaNode);
+    r.register(aws_ses::AwsSesNode);
+    r.register(aws_sns::AwsSnsNode);
+    r.register(aws_sqs::AwsSqsNode);
+    r.register(aws_cloud_watch::AwsCloudWatchNode);
+    r.register(aws_comprehend::AwsComprehendNode);
 }
 
 /// Register stubs only when the name isn't already populated by an implemented node.
@@ -529,5 +530,85 @@ fn register_stubs(r: &mut NodeRegistry) {
         if r.get(name).is_none() {
             r.register(stub::stub(name, display, description, *category));
         }
+    }
+}
+
+#[cfg(test)]
+mod aws_family_smoke_tests {
+    //! C.5.1 smoke tests — verify the 6 AWS-family nodes are registered with
+    //! non-stub descriptors and expose sensible operation options. We do NOT
+    //! hit real AWS endpoints from tests (no credentials in CI).
+    use super::*;
+    use crate::registry::default_registry;
+
+    fn assert_real_aws_node(name: &str) {
+        let r = default_registry();
+        let node = r
+            .get(name)
+            .unwrap_or_else(|| panic!("AWS node `{name}` should be registered"));
+        let d = node.descriptor();
+        assert_eq!(d.name, name);
+        assert!(!d.stub, "{name} should not be a stub");
+        assert!(
+            d.credentials.iter().any(|c| c.name == "awsApi"),
+            "{name} should require awsApi credential",
+        );
+        let has_operation = d.properties.iter().any(|p| p.name == "operation");
+        assert!(has_operation, "{name} should expose an `operation` property");
+    }
+
+    #[test]
+    fn aws_lambda_registered() {
+        assert_real_aws_node("awsLambda");
+    }
+
+    #[test]
+    fn aws_ses_registered() {
+        assert_real_aws_node("awsSes");
+    }
+
+    #[test]
+    fn aws_sns_registered() {
+        assert_real_aws_node("awsSns");
+    }
+
+    #[test]
+    fn aws_sqs_registered() {
+        assert_real_aws_node("awsSqs");
+    }
+
+    #[test]
+    fn aws_cloudwatch_registered() {
+        assert_real_aws_node("awsCloudWatch");
+    }
+
+    #[test]
+    fn aws_comprehend_registered() {
+        assert_real_aws_node("awsComprehend");
+    }
+
+    /// Sanity: an unconfigured `awsApi` credential should produce
+    /// `MissingCredential` rather than panicking. Uses the Lambda node as the
+    /// representative case — all six share the same credential plumbing.
+    #[tokio::test]
+    async fn aws_lambda_missing_credential_is_an_error() {
+        use std::sync::Arc;
+        use crate::context::ExecutionContext;
+        use crate::nodes::aws_lambda::AwsLambdaNode;
+        use serde_json::json;
+
+        let http = Arc::new(reqwest::Client::new());
+        let mut ctx = ExecutionContext::new("test-exec".into(), http);
+        let params = json!({
+            "credentialId": "missing",
+            "operation": "invoke",
+            "functionName": "fn",
+            "invocationType": "DryRun",
+            "payload": {},
+        });
+        let res = AwsLambdaNode
+            .execute(&mut ctx, crate::context::NodeInput::empty(), &params)
+            .await;
+        assert!(matches!(res, Err(crate::error::NodeError::MissingCredential(_))));
     }
 }
