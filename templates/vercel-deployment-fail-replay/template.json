@@ -1,0 +1,10 @@
+{
+  "id": "vercel-deployment-fail-replay",
+  "name": "Vercel Deployment Fail Replay",
+  "description": "Listens for a `deployment.failed` notification, triggers a fresh deployment via the deployment platform's REST API with verbose log capture enabled, and posts a notice to the #releases Slack channel. Skips the manual re-run dance when a deploy fails for transient reasons.",
+  "category": "Developer",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["vercel", "deploy", "replay", "slack", "ci", "webhook"],
+  "version": "0.1.0"
+}
