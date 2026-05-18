@@ -1,0 +1,10 @@
+{
+  "id": "amplitude-funnel-drop-alert",
+  "name": "Amplitude Funnel Drop Alert",
+  "description": "Pulls the activation funnel conversion from Amplitude every hour and compares it to the trailing 7-day average. When conversion drops by more than the configured threshold, an alert is posted to #growth and a Linear ticket is opened so the team can investigate before the day ends.",
+  "category": "Marketing",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["amplitude", "analytics", "slack", "linear", "growth", "alerting"],
+  "version": "0.1.0"
+}

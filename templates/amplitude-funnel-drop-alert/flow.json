@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_hourly",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": { "schedule": "0 * * * *", "enabled": true }
+  },
+  "nodes": [
+    {
+      "id": "n_cron",
+      "name": "Hourly",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "rule": { "interval": [{ "field": "hours", "hoursInterval": 1 }] }
+      }
+    },
+    {
+      "id": "n_amplitude_funnel",
+      "name": "Amplitude Funnel Query",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "=https://amplitude.com/api/2/funnels?e={{ encodeURIComponent($vars.FUNNEL_EVENTS_JSON) }}&start={{ $vars.WINDOW_START }}&end={{ $vars.WINDOW_END }}"
+      },
+      "credentials": {
+        "httpBasicAuth": { "id": "amplitude-cred", "name": "Amplitude API Key" }
+      }
+    },
+    {
+      "id": "n_stats",
+      "name": "Compute Drop",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const data = $input.first().json.data; const today = data.series[data.series.length-1]; const baseline = data.series.slice(-8,-1); const avg = baseline.reduce((s,v)=>s+v,0)/baseline.length; const dropPct = ((avg-today)/avg)*100; return [{ json: { dropPct, today, avg, breached: dropPct > Number($vars.DROP_THRESHOLD_PCT || 10) } }];"
+      }
+    },
+    {
+      "id": "n_if_drop",
+      "name": "Drop > Threshold?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            { "value1": "={{ $json.breached }}", "value2": true }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_slack_growth",
+      "name": "Slack #growth",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [960, -100],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.GROWTH_CHANNEL }}",
+        "text": ":chart_with_downwards_trend: Funnel drop: {{ $json.dropPct }}% below 7d avg ({{ $json.today }} vs {{ $json.avg }})"
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    },
+    {
+      "id": "n_linear_ticket",
+      "name": "Linear Investigation Ticket",
+      "type": "n8n-nodes-base.linear",
+      "typeVersion": 1,
+      "position": [1200, -100],
+      "parameters": {
+        "resource": "issue",
+        "operation": "create",
+        "teamId": "={{ $vars.LINEAR_GROWTH_TEAM }}",
+        "title": "Investigate funnel drop ({{ $json.dropPct }}%)",
+        "description": "Today: {{ $json.today }}. 7d avg: {{ $json.avg }}."
+      },
+      "credentials": {
+        "linearApi": { "id": "linear-cred", "name": "Linear API" }
+      }
+    },
+    {
+      "id": "n_noop",
+      "name": "Within Threshold",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [960, 100],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "n_cron": {
+      "main": [[{ "node": "n_amplitude_funnel", "type": "main", "index": 0 }]]
+    },
+    "n_amplitude_funnel": {
+      "main": [[{ "node": "n_stats", "type": "main", "index": 0 }]]
+    },
+    "n_stats": {
+      "main": [[{ "node": "n_if_drop", "type": "main", "index": 0 }]]
+    },
+    "n_if_drop": {
+      "true": [[{ "node": "n_slack_growth", "type": "main", "index": 0 }]],
+      "false": [[{ "node": "n_noop", "type": "main", "index": 0 }]]
+    },
+    "n_slack_growth": {
+      "main": [[{ "node": "n_linear_ticket", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_cron",
+        "n_amplitude_funnel",
+        "n_stats",
+        "n_if_drop",
+        "n_slack_growth",
+        "n_linear_ticket",
+        "n_noop"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_funnel", "name": "FUNNEL_EVENTS_JSON", "defaultValue": "[]" },
+    { "id": "v_start", "name": "WINDOW_START", "defaultValue": "20260512" },
+    { "id": "v_end", "name": "WINDOW_END", "defaultValue": "20260519" },
+    { "id": "v_threshold", "name": "DROP_THRESHOLD_PCT", "defaultValue": "10" },
+    { "id": "v_growth", "name": "GROWTH_CHANNEL", "defaultValue": "#growth" },
+    { "id": "v_linear", "name": "LINEAR_GROWTH_TEAM", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
