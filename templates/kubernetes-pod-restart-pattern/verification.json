@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "kubernetes-pod-restart-pattern",
+  "cases": [
+    {
+      "id": "loopy-pod",
+      "description": "Hourly K8s restart pattern check.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
