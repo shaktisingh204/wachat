@@ -107,13 +107,13 @@ pub mod my_sql;
 pub mod supabase;
 pub mod noco_db;
 
-// ── Phase C.4.7: lifecycle / error / debug nodes ────────────────────────────
-pub mod error_trigger;
-pub mod execution_data;
-pub mod workflow_node;
-pub mod start_node;
-pub mod end_node;
-pub mod debug_helper;
+// ── Phase C.4.8: misc A-band stubs un-stubbed (6 nodes) ─────────────────────
+pub mod compare_datasets;
+pub mod rename_keys;
+pub mod function_node;
+pub mod function_item;
+pub mod spreadsheet_file;
+pub mod edit_image;
 
 use crate::{descriptor::NodeCategory, registry::NodeRegistry};
 
@@ -123,6 +123,22 @@ pub fn register_all(r: &mut NodeRegistry) {
     register_stubs(r);
 }
 
+/// Register every node that has a real Rust implementation.
+///
+/// ## Phase C.4.8 picks (miscellaneous A-band stubs, 6 nodes)
+///
+/// Selected from `register_stubs` candidates that are **not** claimed by
+/// C.4.1-C.4.7 (storage / SQL / NoSQL / data-shaping / comms / crypto /
+/// lifecycle) and that we can ship in one sub-task. The C.3.2 stub policy
+/// applies to image processing: descriptor is full, runtime declines until
+/// the imaging backend lands.
+///
+/// 1. `compareDatasets` — diff two upstream datasets by key (4 branches).
+/// 2. `renameKeys`      — rename top-level keys per `{from, to}` mapping.
+/// 3. `function`        — legacy code node, downgraded to the expression DSL.
+/// 4. `functionItem`    — legacy per-item code node, same DSL semantics.
+/// 5. `spreadsheetFile` — read/write CSV + TSV (XLSX/ODS deliberately declined).
+/// 6. `editImage`       — full descriptor surface; runtime declines (C.3.2 stub policy).
 fn register_implemented(r: &mut NodeRegistry) {
     // Core (12 — C.3.2 added edit_fields + function alongside set)
     r.register(http_request::HttpRequestNode);
@@ -214,13 +230,13 @@ fn register_implemented(r: &mut NodeRegistry) {
     r.register(my_sql::MySqlNode);
     r.register(supabase::SupabaseNode);
     r.register(noco_db::NocoDbNode);
-    // Phase C.4.7 — lifecycle / error / debug
-    r.register(error_trigger::ErrorTriggerNode);
-    r.register(execution_data::ExecutionDataNode);
-    r.register(workflow_node::WorkflowNode);
-    r.register(start_node::StartNode);
-    r.register(end_node::EndNode);
-    r.register(debug_helper::DebugHelperNode);
+    // Phase C.4.8 — misc A-band stubs un-stubbed (6 nodes)
+    r.register(compare_datasets::CompareDatasetsNode);
+    r.register(rename_keys::RenameKeysNode);
+    r.register(function_node::FunctionNode);
+    r.register(function_item::FunctionItemNode);
+    r.register(spreadsheet_file::SpreadsheetFileNode);
+    r.register(edit_image::EditImageNode);
 }
 
 /// Register stubs only when the name isn't already populated by an implemented node.
