@@ -109,13 +109,13 @@ pub mod my_sql;
 pub mod supabase;
 pub mod noco_db;
 
-// ── Phase C.5: misc-business integrations ───────────────────────────────────
-pub mod eventbrite;
-pub mod zendesk;
-pub mod freshdesk;
-pub mod help_scout;
-pub mod xero;
-pub mod quick_books;
+// ── Phase C.5.10: 6 media/image/cloud nodes ─────────────────────────────────
+pub mod bannerbear;
+pub mod api_template_io;
+pub mod cloudflare;
+pub mod yourls;
+pub mod url_scan_io;
+pub mod quick_chart;
 
 use crate::{descriptor::NodeCategory, registry::NodeRegistry};
 
@@ -232,13 +232,13 @@ fn register_implemented(r: &mut NodeRegistry) {
     r.register(my_sql::MySqlNode);
     r.register(supabase::SupabaseNode);
     r.register(noco_db::NocoDbNode);
-    // Phase C.5 — misc-business integrations
-    r.register(eventbrite::EventbriteNode);
-    r.register(zendesk::ZendeskNode);
-    r.register(freshdesk::FreshdeskNode);
-    r.register(help_scout::HelpScoutNode);
-    r.register(xero::XeroNode);
-    r.register(quick_books::QuickBooksNode);
+    // Phase C.5.10 — 6 media / image / cloud implementations
+    r.register(bannerbear::BannerbearNode);
+    r.register(api_template_io::ApiTemplateIoNode);
+    r.register(cloudflare::CloudflareNode);
+    r.register(yourls::YourlsNode);
+    r.register(url_scan_io::UrlScanIoNode);
+    r.register(quick_chart::QuickChartNode);
 }
 
 /// Register stubs only when the name isn't already populated by an implemented node.
@@ -254,12 +254,10 @@ fn register_stubs(r: &mut NodeRegistry) {
         ("aiTransform", "AI Transform", NodeCategory::Ai, "Transform data with AI"),
         ("airtop", "Airtop", NodeCategory::Ai, "Browser automation for AI agents"),
         ("amqp", "AMQP", NodeCategory::Developer, "AMQP message queue"),
-        ("apiTemplateIo", "APITemplate.io", NodeCategory::Developer, "Generate PDFs and images"),
         ("asana", "Asana", NodeCategory::Productivity, "Project and task management"),
         ("autopilot", "Autopilot", NodeCategory::Marketing, "Marketing automation"),
         ("aws", "AWS", NodeCategory::Storage, "Amazon Web Services"),
         ("bambooHr", "BambooHR", NodeCategory::Hr, "HR management"),
-        ("bannerbear", "Bannerbear", NodeCategory::Marketing, "Auto-generate marketing creatives"),
         ("baserow", "Baserow", NodeCategory::Database, "Open-source no-code database"),
         ("beeminder", "Beeminder", NodeCategory::Productivity, "Goal tracking"),
         ("bitbucket", "Bitbucket", NodeCategory::Developer, "Git hosting and code review"),
@@ -276,8 +274,6 @@ fn register_stubs(r: &mut NodeRegistry) {
         ("cisco", "Cisco", NodeCategory::Developer, "Cisco Webex meetings"),
         ("clickUp", "ClickUp", NodeCategory::Productivity, "Project management"),
         ("clockify", "Clockify", NodeCategory::Productivity, "Time tracking"),
-        ("closeIo", "Close", NodeCategory::Sales, "Close (close.io) sales CRM"),
-        ("cloudflare", "Cloudflare", NodeCategory::Developer, "DNS and CDN management"),
         ("cockpit", "Cockpit", NodeCategory::Developer, "Headless CMS"),
         ("coda", "Coda", NodeCategory::Productivity, "All-in-one doc"),
         ("cohere", "Cohere", NodeCategory::Ai, "Cohere chat, embeddings, and reranking"),
@@ -441,7 +437,6 @@ fn register_stubs(r: &mut NodeRegistry) {
         ("questDb", "QuestDB", NodeCategory::Database, "Time-series database"),
         ("quickBase", "QuickBase", NodeCategory::Database, "Low-code application database"),
         ("quickBooks", "QuickBooks", NodeCategory::Finance, "Accounting"),
-        ("quickChart", "QuickChart", NodeCategory::Analytics, "Chart image generation"),
         ("rabbitMq", "RabbitMQ", NodeCategory::Developer, "AMQP message broker"),
         ("raindrop", "Raindrop", NodeCategory::Productivity, "Bookmark manager"),
         ("readBinaryFiles", "Read Binary Files", NodeCategory::Files, "Read multiple files"),
@@ -500,7 +495,6 @@ fn register_stubs(r: &mut NodeRegistry) {
         ("unleashedSoftware", "Unleashed Software", NodeCategory::Finance, "Inventory management"),
         ("uplead", "UpLead", NodeCategory::Sales, "B2B contact data"),
         ("uptimeRobot", "UptimeRobot", NodeCategory::Developer, "Site monitoring"),
-        ("urlScanIo", "urlscan.io", NodeCategory::Developer, "Website scanner"),
         ("venafi", "Venafi", NodeCategory::Developer, "Machine identity"),
         ("vero", "Vero", NodeCategory::Marketing, "Customer messaging"),
         ("webflow", "Webflow", NodeCategory::Developer, "Website builder API"),
@@ -515,7 +509,6 @@ fn register_stubs(r: &mut NodeRegistry) {
         ("wufoo", "Wufoo", NodeCategory::Productivity, "Online forms"),
         ("xero", "Xero", NodeCategory::Finance, "Accounting"),
         ("xml", "XML", NodeCategory::Transform, "Parse and build XML"),
-        ("yourls", "YOURLS", NodeCategory::Marketing, "Self-hosted URL shortener"),
         ("zammad", "Zammad", NodeCategory::Communication, "Helpdesk"),
         ("zendesk", "Zendesk", NodeCategory::Communication, "Customer support"),
         ("zoho", "Zoho", NodeCategory::Crm, "Zoho CRM"),
