@@ -1,0 +1,10 @@
+{
+  "id": "tax-filing-reminder",
+  "name": "Tax Filing Reminder",
+  "description": "Monthly cron walks the team's Airtable tax-filings calendar and looks for any filing due within the next seven days. Upcoming filings are surfaced to the finance Slack channel and an email is sent to the registered accountant so nothing slips.",
+  "category": "Finance",
+  "complexity": "beginner",
+  "authorName": "SabNode",
+  "tags": ["tax", "compliance", "airtable", "slack", "sendgrid", "finance"],
+  "version": "0.1.0"
+}
