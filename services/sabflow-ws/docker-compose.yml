@@ -1,0 +1,31 @@
+# Local-only Redis for sabflow-ws development.
+#
+# Exposed on 127.0.0.1:6380 to avoid colliding with a host-native Redis
+# (which typically binds :6379). The sabflow-ws service should read
+# REDIS_URL=redis://127.0.0.1:6380 from .env when this compose stack is up.
+#
+# Usage (from this directory):
+#   docker compose up -d              # start
+#   docker compose down               # stop, keep volume
+#   docker compose down -v            # stop and wipe data volume
+
+services:
+  redis:
+    image: redis:7
+    container_name: sabflow-ws-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "127.0.0.1:6380:6379"
+    volumes:
+      - sabflow-ws-redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 2s
+
+volumes:
+  sabflow-ws-redis-data:
+    name: sabflow-ws-redis-data
