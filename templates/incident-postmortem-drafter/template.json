@@ -1,0 +1,10 @@
+{
+  "id": "incident-postmortem-drafter",
+  "name": "Incident Postmortem Drafter",
+  "description": "Listens for PagerDuty incident.resolved webhooks, pulls the incident timeline and any concurrent Datadog anomalies, and asks GPT-4o to draft a postmortem with timeline, contributing factors, and action items. Publishes the draft to Notion, posts a thread to Slack #incident-review, and logs metadata in Mongo for trend reporting.",
+  "category": "Ops",
+  "complexity": "advanced",
+  "authorName": "SabNode",
+  "tags": ["incident", "pagerduty", "datadog", "openai", "notion", "slack", "postmortem"],
+  "version": "0.1.0"
+}

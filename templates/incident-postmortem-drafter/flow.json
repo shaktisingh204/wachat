@@ -1,0 +1,173 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_pd",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "pagerduty.incident.resolved",
+    "options": {
+      "path": "/webhooks/incident-postmortem-drafter",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-PagerDuty-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_trigger",
+      "name": "PagerDuty Incident Resolved",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "incident-postmortem-drafter",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "incident-postmortem-drafter"
+    },
+    {
+      "id": "n_pd_timeline",
+      "name": "Fetch PD Timeline",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, -120],
+      "parameters": {
+        "method": "GET",
+        "url": "=https://api.pagerduty.com/incidents/{{ $json.incident.id }}/log_entries",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "pagerDutyApi"
+      },
+      "credentials": { "pagerDutyApi": { "id": "pd-cred", "name": "PagerDuty API" } }
+    },
+    {
+      "id": "n_datadog",
+      "name": "Pull Datadog Anomalies",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 120],
+      "parameters": {
+        "method": "GET",
+        "url": "https://api.datadoghq.com/api/v1/events",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "datadogApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "start", "value": "={{ Math.floor(new Date($json.incident.created_at).getTime()/1000) - 600 }}" },
+            { "name": "end", "value": "={{ Math.floor(new Date($json.incident.resolved_at).getTime()/1000) + 600 }}" }
+          ]
+        }
+      },
+      "credentials": { "datadogApi": { "id": "datadog-cred", "name": "Datadog API" } }
+    },
+    {
+      "id": "n_merge",
+      "name": "Merge Timeline + Anomalies",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": { "mode": "combine", "combinationMode": "multiplex" }
+    },
+    {
+      "id": "n_openai",
+      "name": "GPT-4o Draft Postmortem",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "resource": "chat",
+        "operation": "complete",
+        "model": "gpt-4o",
+        "messages": {
+          "values": [
+            { "role": "system", "content": "You are an SRE writing a blameless postmortem. Output Markdown with sections: Summary, Timeline, Impact, Contributing Factors, Action Items." },
+            { "role": "user", "content": "Timeline: {{ JSON.stringify($json) }}" }
+          ]
+        }
+      },
+      "credentials": { "openAiApi": { "id": "openai-cred", "name": "OpenAI API" } }
+    },
+    {
+      "id": "n_notion",
+      "name": "Publish to Notion",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2,
+      "position": [960, -120],
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "create",
+        "databaseId": "={{ $vars.NOTION_POSTMORTEM_DB }}",
+        "title": "=Postmortem: {{ $node['PagerDuty Incident Resolved'].json.incident.title }}",
+        "blockUi": {
+          "blockValues": [
+            { "type": "paragraph", "textContent": "={{ $node['GPT-4o Draft Postmortem'].json.message.content }}" }
+          ]
+        }
+      },
+      "credentials": { "notionApi": { "id": "notion-cred", "name": "Notion API" } }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack #incident-review",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [960, 120],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": "#incident-review",
+        "text": "*Draft postmortem ready:* {{ $node['PagerDuty Incident Resolved'].json.incident.title }}"
+      },
+      "credentials": { "slackApi": { "id": "slack-cred", "name": "Slack Bot" } }
+    },
+    {
+      "id": "n_mongo_log",
+      "name": "Mongo Audit",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [1200, 0],
+      "parameters": {
+        "operation": "insert",
+        "collection": "postmortems",
+        "fields": "incidentId,title,createdAt"
+      },
+      "credentials": { "mongoDb": { "id": "mongo-cred", "name": "Mongo Ops" } }
+    }
+  ],
+  "connections": {
+    "n_trigger": {
+      "main": [[
+        { "node": "n_pd_timeline", "type": "main", "index": 0 },
+        { "node": "n_datadog", "type": "main", "index": 0 }
+      ]]
+    },
+    "n_pd_timeline": { "main": [[{ "node": "n_merge", "type": "main", "index": 0 }]] },
+    "n_datadog": { "main": [[{ "node": "n_merge", "type": "main", "index": 1 }]] },
+    "n_merge": { "main": [[{ "node": "n_openai", "type": "main", "index": 0 }]] },
+    "n_openai": {
+      "main": [[
+        { "node": "n_notion", "type": "main", "index": 0 },
+        { "node": "n_slack", "type": "main", "index": 0 }
+      ]]
+    },
+    "n_notion": { "main": [[{ "node": "n_mongo_log", "type": "main", "index": 0 }]] },
+    "n_slack": { "main": [[{ "node": "n_mongo_log", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_trigger", "n_pd_timeline", "n_datadog", "n_merge", "n_openai", "n_notion", "n_slack", "n_mongo_log"]
+    }
+  ],
+  "variables": [
+    { "id": "v_db", "name": "NOTION_POSTMORTEM_DB", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
