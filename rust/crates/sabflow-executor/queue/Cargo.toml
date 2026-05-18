@@ -11,6 +11,8 @@ name = "sabflow_executor_queue"
 path = "src/lib.rs"
 
 [dependencies]
+tokio = { version = "1", features = ["macros", "rt", "rt-multi-thread", "signal", "sync", "time"] }
+tokio-util = { version = "0.7", features = ["rt"] }
 
 [lints]
 workspace = true
