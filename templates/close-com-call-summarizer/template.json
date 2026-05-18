@@ -1,0 +1,10 @@
+{
+  "id": "close-com-call-summarizer",
+  "name": "Close.com Call Summarizer",
+  "description": "Every time Close.com records a sales call, the workflow pulls the audio, transcribes it through Whisper, and asks GPT-4o for a structured summary with next steps. The summary is attached as a note on the Close.com lead and DM'd to the rep so coaching and follow-ups happen the same day.",
+  "category": "Sales",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["close", "whisper", "openai", "sales", "slack", "calls"],
+  "version": "0.1.0"
+}

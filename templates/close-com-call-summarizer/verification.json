@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "templateId": "close-com-call-summarizer",
+  "cases": [
+    {
+      "id": "call-recorded",
+      "description": "Close.com call is transcribed and summarized, then attached to the lead and DM'd to the rep.",
+      "triggerPayload": {
+        "call": {
+          "id": "call-1",
+          "lead_id": "lead-1",
+          "recording_url": "https://recordings.example.com/call-1.mp3",
+          "user": { "slackId": "U987" }
+        }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
