@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_shopify_order",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "shopify.orders/create",
+    "options": {
+      "path": "/webhooks/shopify-order-to-sheet",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Shopify-Hmac-Sha256",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_shopify_trigger",
+      "name": "Shopify Order Webhook",
+      "type": "n8n-nodes-base.shopifyTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "topic": "orders/create"
+      },
+      "credentials": {
+        "shopifyApi": { "id": "shopify-cred", "name": "Shopify API" }
+      }
+    },
+    {
+      "id": "n_map_row",
+      "name": "Map Order to Row",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "orderId", "value": "={{ $json.id }}" },
+            { "name": "orderName", "value": "={{ $json.name }}" },
+            { "name": "customerEmail", "value": "={{ $json.email }}" },
+            { "name": "customerName", "value": "={{ $json.billing_address.first_name }} {{ $json.billing_address.last_name }}" },
+            { "name": "totalPrice", "value": "={{ $json.total_price }}" },
+            { "name": "currency", "value": "={{ $json.currency }}" },
+            { "name": "createdAt", "value": "={{ $json.created_at }}" },
+            { "name": "financialStatus", "value": "={{ $json.financial_status }}" },
+            { "name": "itemCount", "value": "={{ $json.line_items.length }}" }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "n_sheets_append",
+      "name": "Append to Google Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "spreadsheet",
+        "operation": "appendOrUpdate",
+        "documentId": { "__rl": true, "value": "={{ $vars.SHEET_ID }}", "mode": "id" },
+        "sheetName": { "__rl": true, "value": "Orders", "mode": "name" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Order ID": "={{ $json.orderId }}",
+            "Order Name": "={{ $json.orderName }}",
+            "Customer Email": "={{ $json.customerEmail }}",
+            "Customer Name": "={{ $json.customerName }}",
+            "Total Price": "={{ $json.totalPrice }}",
+            "Currency": "={{ $json.currency }}",
+            "Created At": "={{ $json.createdAt }}",
+            "Status": "={{ $json.financialStatus }}",
+            "Item Count": "={{ $json.itemCount }}"
+          }
+        },
+        "options": {}
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": { "id": "gsheets-cred", "name": "Google Sheets OAuth2" }
+      }
+    }
+  ],
+  "connections": {
+    "n_shopify_trigger": {
+      "main": [[{ "node": "n_map_row", "type": "main", "index": 0 }]]
+    },
+    "n_map_row": {
+      "main": [[{ "node": "n_sheets_append", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_shopify_trigger", "n_map_row", "n_sheets_append"]
+    }
+  ],
+  "variables": [
+    { "id": "v_sheet_id", "name": "SHEET_ID", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

@@ -1,0 +1,121 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_typeform_start",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "typeform.form_response",
+    "options": {
+      "path": "/webhooks/lead-to-crm",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "Typeform-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_typeform_trigger",
+      "name": "Typeform Submission",
+      "type": "n8n-nodes-base.typeformTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "formId": "={{ $vars.TYPEFORM_FORM_ID }}",
+        "simplifyAnswers": true,
+        "onlyAnswers": true
+      },
+      "credentials": {
+        "typeformApi": { "id": "typeform-cred", "name": "Typeform API" }
+      }
+    },
+    {
+      "id": "n_extract_lead",
+      "name": "Extract Lead Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "email", "value": "={{ $json.answers['email'] }}" },
+            { "name": "firstName", "value": "={{ $json.answers['first_name'] }}" },
+            { "name": "lastName", "value": "={{ $json.answers['last_name'] }}" },
+            { "name": "company", "value": "={{ $json.answers['company'] }}" },
+            { "name": "phone", "value": "={{ $json.answers['phone'] }}" }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "n_hubspot_contact",
+      "name": "Create HubSpot Contact",
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "contact",
+        "operation": "upsert",
+        "email": "={{ $json.email }}",
+        "additionalFields": {
+          "firstName": "={{ $json.firstName }}",
+          "lastName": "={{ $json.lastName }}",
+          "company": "={{ $json.company }}",
+          "phone": "={{ $json.phone }}",
+          "lifecyclestage": "lead"
+        }
+      },
+      "credentials": {
+        "hubspotOAuth2Api": { "id": "hubspot-cred", "name": "HubSpot OAuth2" }
+      }
+    },
+    {
+      "id": "n_slack_alert",
+      "name": "Slack Sales Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SLACK_SALES_CHANNEL }}",
+        "text": ":tada: *New lead*: {{ $node['Extract Lead Fields'].json.firstName }} {{ $node['Extract Lead Fields'].json.lastName }} ({{ $node['Extract Lead Fields'].json.email }}) from *{{ $node['Extract Lead Fields'].json.company }}*. HubSpot contact ID: {{ $json.id }}",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    }
+  ],
+  "connections": {
+    "n_typeform_trigger": {
+      "main": [[{ "node": "n_extract_lead", "type": "main", "index": 0 }]]
+    },
+    "n_extract_lead": {
+      "main": [[{ "node": "n_hubspot_contact", "type": "main", "index": 0 }]]
+    },
+    "n_hubspot_contact": {
+      "main": [[{ "node": "n_slack_alert", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_typeform_trigger", "n_extract_lead", "n_hubspot_contact", "n_slack_alert"]
+    }
+  ],
+  "variables": [
+    { "id": "v_typeform_id", "name": "TYPEFORM_FORM_ID", "defaultValue": "" },
+    { "id": "v_slack_channel", "name": "SLACK_SALES_CHANNEL", "defaultValue": "#sales" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

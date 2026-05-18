@@ -1,0 +1,10 @@
+{
+  "id": "welcome-email-sequence",
+  "name": "Welcome Email Drip Sequence",
+  "description": "Triggered on user signup, sends a 3-step drip email sequence: an immediate welcome email, a product tips email on day 3, and an upgrade prompt on day 7. Uses built-in wait nodes to schedule each step without external cron.",
+  "category": "Marketing",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["email", "drip", "onboarding", "marketing", "welcome", "automation"],
+  "version": "0.1.0"
+}

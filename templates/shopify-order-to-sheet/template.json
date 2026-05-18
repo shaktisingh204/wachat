@@ -1,0 +1,10 @@
+{
+  "id": "shopify-order-to-sheet",
+  "name": "Shopify Order to Google Sheet",
+  "description": "Listens for Shopify order webhooks and appends a new row to a Google Sheet with order details. Keeps your finance and ops teams in sync without manual exports.",
+  "category": "E-commerce",
+  "complexity": "beginner",
+  "authorName": "SabNode",
+  "tags": ["shopify", "google-sheets", "e-commerce", "orders", "automation"],
+  "version": "0.1.0"
+}

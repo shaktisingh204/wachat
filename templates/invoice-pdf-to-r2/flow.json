@@ -1,0 +1,137 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_invoice_http",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "http.post",
+    "options": {
+      "path": "/webhooks/invoice-pdf-to-r2",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-API-Key",
+      "responseMode": "lastNode",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_http_trigger",
+      "name": "HTTP Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "invoice-pdf-to-r2",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "webhookId": "invoice-pdf-webhook"
+    },
+    {
+      "id": "n_build_html",
+      "name": "Build Invoice HTML",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const inv = items[0].json;\nconst html = `<!DOCTYPE html><html><body><h1>Invoice #${inv.invoiceNumber}</h1><p>Customer: ${inv.customerName}</p><p>Amount: $${inv.amount}</p><p>Due: ${inv.dueDate}</p></body></html>`;\nreturn [{ json: { html, invoiceNumber: inv.invoiceNumber, customerName: inv.customerName } }];"
+      }
+    },
+    {
+      "id": "n_html_to_pdf",
+      "name": "Generate PDF",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.PDF_SERVICE_URL }}/generate",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [{ "name": "Content-Type", "value": "application/json" }]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "html", "value": "={{ $json.html }}" },
+            { "name": "filename", "value": "=invoice-{{ $json.invoiceNumber }}.pdf" }
+          ]
+        },
+        "responseFormat": "file",
+        "options": {}
+      }
+    },
+    {
+      "id": "n_upload_r2",
+      "name": "Upload to SabFiles R2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.SABFILES_API_URL }}/api/sabfiles/upload",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $vars.SABFILES_API_KEY }}" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            { "name": "file", "value": "={{ $binary.data }}", "parameterType": "formBinaryData" },
+            { "name": "folder", "value": "invoices" },
+            { "name": "filename", "value": "=invoice-{{ $node['Build Invoice HTML'].json.invoiceNumber }}.pdf" }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "n_respond",
+      "name": "Respond with URL",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: true, url: $json.url, fileId: $json.id }) }}"
+      }
+    }
+  ],
+  "connections": {
+    "n_http_trigger": {
+      "main": [[{ "node": "n_build_html", "type": "main", "index": 0 }]]
+    },
+    "n_build_html": {
+      "main": [[{ "node": "n_html_to_pdf", "type": "main", "index": 0 }]]
+    },
+    "n_html_to_pdf": {
+      "main": [[{ "node": "n_upload_r2", "type": "main", "index": 0 }]]
+    },
+    "n_upload_r2": {
+      "main": [[{ "node": "n_respond", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_http_trigger", "n_build_html", "n_html_to_pdf", "n_upload_r2", "n_respond"]
+    }
+  ],
+  "variables": [
+    { "id": "v_pdf_url", "name": "PDF_SERVICE_URL", "defaultValue": "https://pdf.example.com" },
+    { "id": "v_sabfiles_url", "name": "SABFILES_API_URL", "defaultValue": "" },
+    { "id": "v_sabfiles_key", "name": "SABFILES_API_KEY", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

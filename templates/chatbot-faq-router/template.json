@@ -1,0 +1,10 @@
+{
+  "id": "chatbot-faq-router",
+  "name": "Chatbot FAQ Router",
+  "description": "Accepts a chat message, uses an AI model to classify the intent, then routes the question to the matching FAQ answer stored in a lookup table. Returns a structured response suitable for any chat interface.",
+  "category": "AI",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["ai", "chatbot", "faq", "nlp", "openai", "routing"],
+  "version": "0.1.0"
+}

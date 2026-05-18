@@ -1,0 +1,10 @@
+{
+  "id": "lead-to-crm",
+  "name": "Lead to CRM",
+  "description": "Captures a Typeform form submission, creates or updates a contact in HubSpot, and fires a Slack alert to your sales channel. Eliminates manual lead entry and ensures no lead goes unnoticed.",
+  "category": "Sales",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["typeform", "hubspot", "slack", "crm", "lead-generation"],
+  "version": "0.1.0"
+}

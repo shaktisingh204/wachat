@@ -1,0 +1,10 @@
+{
+  "id": "daily-report-email",
+  "name": "Daily Report Email",
+  "description": "Runs on a cron schedule, aggregates key metrics from MongoDB, formats a summary report, and emails it to a distribution list. Perfect for daily standups and management digests.",
+  "category": "Reporting",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["cron", "mongodb", "email", "report", "scheduled", "analytics"],
+  "version": "0.1.0"
+}

@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_cron_daily",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": {
+      "cronExpression": "0 8 * * MON-FRI",
+      "timezone": "UTC",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_cron_trigger",
+      "name": "Daily Cron (8 AM Weekdays)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 8 * * MON-FRI"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_mongo_query",
+      "name": "Aggregate MongoDB Metrics",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "operation": "aggregate",
+        "collection": "={{ $vars.MONGO_COLLECTION }}",
+        "query": "[{\"$match\":{\"createdAt\":{\"$gte\":{\"$dateSubtract\":{\"startDate\":\"$$NOW\",\"unit\":\"day\",\"amount\":1}}}}},{\"$group\":{\"_id\":null,\"totalCount\":{\"$sum\":1},\"totalRevenue\":{\"$sum\":\"$amount\"},\"avgAmount\":{\"$avg\":\"$amount\"}}}]"
+      },
+      "credentials": {
+        "mongoDb": { "id": "mongo-cred", "name": "MongoDB" }
+      }
+    },
+    {
+      "id": "n_build_report",
+      "name": "Build Report Body",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const today = new Date().toISOString().split('T')[0];\nconst stats = items[0].json;\nconst body = `Daily Report — ${today}\\n\\nTransactions: ${stats.totalCount ?? 0}\\nRevenue: $${(stats.totalRevenue ?? 0).toFixed(2)}\\nAvg Amount: $${(stats.avgAmount ?? 0).toFixed(2)}`;\nreturn [{ json: { subject: `Daily Report ${today}`, body, date: today } }];"
+      }
+    },
+    {
+      "id": "n_send_email",
+      "name": "Send Report Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "fromEmail": "={{ $vars.REPORT_FROM_EMAIL }}",
+        "toEmail": "={{ $vars.REPORT_TO_EMAIL }}",
+        "subject": "={{ $json.subject }}",
+        "text": "={{ $json.body }}",
+        "options": {}
+      },
+      "credentials": {
+        "smtp": { "id": "smtp-cred", "name": "SMTP" }
+      }
+    }
+  ],
+  "connections": {
+    "n_cron_trigger": {
+      "main": [[{ "node": "n_mongo_query", "type": "main", "index": 0 }]]
+    },
+    "n_mongo_query": {
+      "main": [[{ "node": "n_build_report", "type": "main", "index": 0 }]]
+    },
+    "n_build_report": {
+      "main": [[{ "node": "n_send_email", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cron_trigger", "n_mongo_query", "n_build_report", "n_send_email"]
+    }
+  ],
+  "variables": [
+    { "id": "v_mongo_coll", "name": "MONGO_COLLECTION", "defaultValue": "orders" },
+    { "id": "v_from_email", "name": "REPORT_FROM_EMAIL", "defaultValue": "reports@example.com" },
+    { "id": "v_to_email", "name": "REPORT_TO_EMAIL", "defaultValue": "team@example.com" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

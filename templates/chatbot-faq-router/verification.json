@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "templateId": "chatbot-faq-router",
+  "cases": [
+    {
+      "id": "billing-question",
+      "description": "Billing message → classified as billing → billing FAQ answer returned.",
+      "triggerPayload": { "message": "How do I update my credit card?" },
+      "fixtures": {
+        "openAi.chatComplete": {
+          "status": 200,
+          "body": { "choices": [{ "message": { "content": "billing" } }] }
+        }
+      },
+      "expect": {
+        "finalStatus": "success",
+        "executedBlocks": ["n_chat_webhook", "n_ai_classify", "n_switch_intent", "n_faq_billing", "n_respond"],
+        "variables": { "category": "billing" }
+      }
+    },
+    {
+      "id": "general-fallback",
+      "description": "Ambiguous message → falls through to general FAQ answer.",
+      "triggerPayload": { "message": "Hello there" },
+      "fixtures": {
+        "openAi.chatComplete": {
+          "status": 200,
+          "body": { "choices": [{ "message": { "content": "general" } }] }
+        }
+      },
+      "expect": {
+        "finalStatus": "success",
+        "executedBlocks": ["n_chat_webhook", "n_ai_classify", "n_switch_intent", "n_faq_general", "n_respond"],
+        "variables": { "category": "general" }
+      }
+    }
+  ]
+}

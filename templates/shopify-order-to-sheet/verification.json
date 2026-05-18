@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "templateId": "shopify-order-to-sheet",
+  "cases": [
+    {
+      "id": "happy-path",
+      "description": "Shopify order webhook → row appended to Google Sheet.",
+      "triggerPayload": {
+        "id": 5678901234,
+        "name": "#1001",
+        "email": "customer@example.com",
+        "billing_address": { "first_name": "Jane", "last_name": "Smith" },
+        "total_price": "129.99",
+        "currency": "USD",
+        "created_at": "2026-05-19T08:00:00Z",
+        "financial_status": "paid",
+        "line_items": [{ "id": 1 }, { "id": 2 }]
+      },
+      "fixtures": {
+        "googleSheets.appendOrUpdate": { "status": 200, "body": { "updatedRange": "Orders!A2:I2" } }
+      },
+      "expect": {
+        "finalStatus": "success",
+        "executedBlocks": ["n_shopify_trigger", "n_map_row", "n_sheets_append"],
+        "variables": {
+          "orderId": "5678901234",
+          "orderName": "#1001",
+          "itemCount": "2"
+        }
+      }
+    }
+  ]
+}
