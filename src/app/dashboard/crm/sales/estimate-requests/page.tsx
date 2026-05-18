@@ -24,13 +24,12 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
   ArrowLeft,
-  FileQuestion,
   LoaderCircle,
   Plus,
   Save,
   } from 'lucide-react';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   getEstimateRequests,
   saveEstimateRequest,
@@ -108,18 +107,16 @@ export default function EstimateRequestsPage() {
   };
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Estimate Requests"
-        subtitle="Incoming estimate requests from clients and leads."
-        icon={FileQuestion}
-        actions={
-          <ZoruButton onClick={() => setShowForm((v) => !v)}>
-            <Plus className="h-4 w-4" />
-            {showForm ? 'Close' : 'New Request'}
-          </ZoruButton>
-        }
-      />
+    <EntityListShell
+      title="Estimate Requests"
+      subtitle="Incoming estimate requests from clients and leads."
+      primaryAction={
+        <ZoruButton onClick={() => setShowForm((v) => !v)}>
+          <Plus className="h-4 w-4" />
+          {showForm ? 'Close' : 'New Request'}
+        </ZoruButton>
+      }
+    >
 
       {showForm ? (
         <ZoruCard className="p-6">
@@ -252,6 +249,6 @@ export default function EstimateRequestsPage() {
           </ZoruTable>
         </div>
       </ZoruCard>
-    </div>
+    </EntityListShell>
   );
 }

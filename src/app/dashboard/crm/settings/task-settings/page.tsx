@@ -8,11 +8,10 @@ import {
   useState,
   useTransition,
   } from 'react';
-import { ListChecks,
-  LoaderCircle } from 'lucide-react';
+import { LoaderCircle } from 'lucide-react';
 
 import { EnumFormField } from '@/components/crm/enum-form-field';
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   getTaskSettings,
   saveTaskSettings,
@@ -85,12 +84,10 @@ export default function TaskSettingsPage() {
   }, [saveState, toast, refresh]);
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Task Settings"
-        subtitle="Task-module behaviour: subtasks, dependencies, time logs, ratings, and defaults."
-        icon={ListChecks}
-      />
+    <EntityListShell
+      title="Task Settings"
+      subtitle="Task-module behaviour: subtasks, dependencies, time logs, ratings, and defaults."
+    >
 
       {isLoading && !settings ? (
         <ZoruCard className="p-6">
@@ -172,6 +169,6 @@ export default function TaskSettingsPage() {
           </form>
         </ZoruCard>
       )}
-    </div>
+    </EntityListShell>
   );
 }

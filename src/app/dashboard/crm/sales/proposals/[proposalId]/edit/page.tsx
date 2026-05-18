@@ -1,9 +1,6 @@
-import { ZoruButton } from '@/components/zoruui';
 import {
   notFound,
   redirect } from 'next/navigation';
-import { ArrowLeft,
-  FileText } from 'lucide-react';
 
 /**
  * Edit proposal page — server wrapper that loads the proposal by id and
@@ -13,9 +10,7 @@ import { ArrowLeft,
  * Async `params` per Next.js 15+ conventions.
  */
 
-import Link from 'next/link';
-
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getSession } from '@/app/actions/user.actions';
 import { getProposalById } from '@/app/actions/crm-proposals.actions';
 
@@ -44,24 +39,14 @@ export default async function EditProposalPage({
         'Proposal';
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title={`Edit · ${title}`}
-                subtitle="Update sections, attachments and lifecycle status."
-                icon={FileText}
-                actions={
-                    <ZoruButton variant="ghost" asChild>
-                        <Link href={`${BASE}/${proposalId}`}>
-                            <ArrowLeft className="mr-2 h-4 w-4" />
-                            Back to detail
-                        </Link>
-                    </ZoruButton>
-                }
-            />
-
+        <EntityDetailShell
+            eyebrow="PROPOSAL"
+            title={`Edit · ${title}`}
+            back={{ href: `${BASE}/${proposalId}`, label: 'Proposal' }}
+        >
             <ProposalForm
                 initialData={proposal as Record<string, unknown>}
             />
-        </div>
+        </EntityDetailShell>
     );
 }

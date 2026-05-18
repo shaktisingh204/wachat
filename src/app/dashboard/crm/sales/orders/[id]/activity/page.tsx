@@ -7,7 +7,6 @@
 
 import { notFound } from 'next/navigation';
 
-import { CrmPageHeader } from '../../../../_components/crm-page-header';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getSalesOrderById } from '@/app/actions/crm-sales-orders.actions';
@@ -24,21 +23,15 @@ export default async function SalesOrderActivityPage({ params }: PageProps) {
     const title = (order as any).orderNumber || (order as any).soNo || `Order ${id.slice(-6)}`;
 
     return (
-        <div className="space-y-6">
-            <CrmPageHeader
-                title={`${title} — Activity`}
-                subtitle="Audit trail of changes made to this sales order."
-            />
-            <EntityDetailShell
-                title={title}
-                eyebrow="SALES ORDER ACTIVITY"
-                back={{
-                    href: `/dashboard/crm/sales/orders/${id}`,
-                    label: 'Back to sales order',
-                }}
-            >
-                <EntityAuditTimeline entityKind="salesOrder" entityId={id} />
-            </EntityDetailShell>
-        </div>
+        <EntityDetailShell
+            title={title}
+            eyebrow="SALES ORDER ACTIVITY"
+            back={{
+                href: `/dashboard/crm/sales/orders/${id}`,
+                label: 'Back to sales order',
+            }}
+        >
+            <EntityAuditTimeline entityKind="salesOrder" entityId={id} />
+        </EntityDetailShell>
     );
 }

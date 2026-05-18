@@ -31,7 +31,6 @@ import {
   useZoruToast,
 } from '@/components/zoruui';
 import {
-  Boxes,
   Plus,
   Pencil,
   Trash2,
@@ -44,7 +43,7 @@ import { useActionState,
 
 import * as React from 'react';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   getModules,
   saveModule,
@@ -128,23 +127,21 @@ export default function ModulesPage() {
   };
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Modules"
-        subtitle="Enable or disable CRM modules and control whether they appear in the menu."
-        icon={Boxes}
-        actions={
-          <ZoruButton
-            onClick={() => {
-              setEditing(null);
-              setDialogOpen(true);
-            }}
-          >
-            <Plus className="h-4 w-4" />
-            Add Module
-          </ZoruButton>
-        }
-      />
+    <EntityListShell
+      title="Modules"
+      subtitle="Enable or disable CRM modules and control whether they appear in the menu."
+      primaryAction={
+        <ZoruButton
+          onClick={() => {
+            setEditing(null);
+            setDialogOpen(true);
+          }}
+        >
+          <Plus className="h-4 w-4" />
+          Add Module
+        </ZoruButton>
+      }
+    >
 
       <ZoruCard className="p-0">
         <div className="overflow-x-auto rounded-lg">
@@ -352,6 +349,6 @@ export default function ModulesPage() {
           </ZoruAlertDialogFooter>
         </ZoruAlertDialogContent>
       </ZoruAlertDialog>
-    </div>
+    </EntityListShell>
   );
 }

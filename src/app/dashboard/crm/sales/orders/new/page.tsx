@@ -10,9 +10,7 @@
  * no `getCustomFieldsFor` round-trip.
  */
 
-import { ShoppingCart } from 'lucide-react';
-
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { SalesOrdersForm } from '../_components/sales-orders-form';
 import { crmQuotationsApi } from '@/lib/rust-client/crm-quotations';
 import type { CrmSalesOrderLineItem } from '@/lib/rust-client/crm-sales-orders';
@@ -79,17 +77,12 @@ export default async function NewSalesOrderPage({
   }
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="New sales order"
-        subtitle={
-          seed?.quotationRef
-            ? 'Pre-filled from a quotation — confirm and save.'
-            : 'Confirm a customer order with line items and totals.'
-        }
-        icon={ShoppingCart}
-      />
+    <EntityDetailShell
+      eyebrow="SALES ORDER"
+      title="New sales order"
+      back={{ href: '/dashboard/crm/sales/orders', label: 'Sales Orders' }}
+    >
       <SalesOrdersForm seed={seed} />
-    </div>
+    </EntityDetailShell>
   );
 }

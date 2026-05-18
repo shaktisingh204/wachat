@@ -6,11 +6,9 @@ import {
   useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Shield,
-  LoaderCircle,
-  ArrowLeft } from 'lucide-react';
+import { LoaderCircle } from 'lucide-react';
 
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { saveRole } from '@/app/actions/worksuite/rbac.actions';
 
 /**
@@ -40,21 +38,11 @@ export default function NewRolePage() {
   }, [state, toast, router]);
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="New Role"
-        subtitle="Create a role that can be assigned to users, then configure its permissions."
-        icon={Shield}
-        actions={
-          <ZoruButton variant="outline" asChild>
-            <Link href="/dashboard/crm/settings/roles">
-              <ArrowLeft className="h-4 w-4" />
-              Back to roles
-            </Link>
-          </ZoruButton>
-        }
-      />
-
+    <EntityDetailShell
+      eyebrow="ROLE"
+      title="New Role"
+      back={{ href: '/dashboard/crm/settings/roles', label: 'Roles' }}
+    >
       <ZoruCard className="p-0">
         <form action={formAction} className="max-w-xl space-y-4 p-6">
           <div>
@@ -106,6 +94,6 @@ export default function NewRolePage() {
           </div>
         </form>
       </ZoruCard>
-    </div>
+    </EntityDetailShell>
   );
 }

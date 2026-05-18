@@ -13,10 +13,7 @@
  * Mirrors `accounts/new/page.tsx`.
  */
 
-import Link from 'next/link';
-import { ArrowLeft, FileText } from 'lucide-react';
-
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getCustomFieldsFor } from '@/app/actions/worksuite/meta.actions';
 import { QuotationForm } from '../_components/quotation-form';
 import type { WsCustomField } from '@/lib/worksuite/meta-types';
@@ -29,30 +26,12 @@ export default async function NewQuotationPage() {
   )) as WsCustomField[];
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <div>
-        <Link
-          href="/dashboard/crm/sales/quotations"
-          className="inline-flex items-center gap-1.5 text-[12.5px] text-zoru-ink-muted hover:text-zoru-ink"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" />
-          Back to Quotations
-        </Link>
-      </div>
-
-      <CrmPageHeader
-        title="New quotation"
-        subtitle="Draft a new sales quotation with itemised line items."
-        icon={FileText}
-        breadcrumbs={[
-          { label: 'CRM', href: '/dashboard/crm' },
-          { label: 'Sales', href: '/dashboard/crm/sales' },
-          { label: 'Quotations', href: '/dashboard/crm/sales/quotations' },
-          { label: 'New' },
-        ]}
-      />
-
+    <EntityDetailShell
+      eyebrow="QUOTATION"
+      title="New quotation"
+      back={{ href: '/dashboard/crm/sales/quotations', label: 'Quotations' }}
+    >
       <QuotationForm customFields={customFields} />
-    </div>
+    </EntityDetailShell>
   );
 }

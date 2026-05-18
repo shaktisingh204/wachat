@@ -11,9 +11,7 @@
  * — `'creditNote'` is not in `WsCustomFieldBelongsTo`.
  */
 
-import { FileMinus } from 'lucide-react';
-
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { CreditNoteForm } from '../_components/credit-note-form';
 import { getCrmEntityForPrefill } from '@/lib/crm/convert-with-prefill';
 import type { CrmInvoiceDoc } from '@/lib/rust-client/crm-invoices';
@@ -69,17 +67,12 @@ export default async function NewCreditNotePage({
             : undefined;
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="New credit note"
-                subtitle={
-                    initial
-                        ? 'Pre-filled from an invoice — confirm and save.'
-                        : 'Refund or credit a customer against a prior invoice.'
-                }
-                icon={FileMinus}
-            />
+        <EntityDetailShell
+            eyebrow="CREDIT NOTE"
+            title="New credit note"
+            back={{ href: '/dashboard/crm/sales/credit-notes', label: 'Credit Notes' }}
+        >
             <CreditNoteForm initial={initial} />
-        </div>
+        </EntityDetailShell>
     );
 }

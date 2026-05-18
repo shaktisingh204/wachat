@@ -29,8 +29,7 @@ import {
   Save,
   Trash2,
   Layers3,
-  EyeOff,
-  } from 'lucide-react';
+  EyeOff } from 'lucide-react';
 
 /**
  * Taskboard Preferences — per-project view presets.
@@ -49,7 +48,7 @@ import {
 
 import * as React from 'react';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
     getMyTaskboardSettings,
     saveTaskboardSettings,
@@ -170,12 +169,10 @@ export default function TaskboardPreferencesPage() {
     const hideDoneCount = rows.filter((r) => r.hide_done).length;
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="Taskboard Preferences"
-                subtitle="Per-project Kanban view preferences — hide done, group, sort, visible columns."
-                icon={KanbanSquare}
-            />
+        <EntityListShell
+            title="Taskboard Preferences"
+            subtitle="Per-project Kanban view preferences — hide done, group, sort, visible columns."
+        >
 
             <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
                 <ZoruStatCard
@@ -416,6 +413,6 @@ export default function TaskboardPreferencesPage() {
                     </ZoruAlertDialogFooter>
                 </ZoruAlertDialogContent>
             </ZoruAlertDialog>
-        </div>
+        </EntityListShell>
     );
 }

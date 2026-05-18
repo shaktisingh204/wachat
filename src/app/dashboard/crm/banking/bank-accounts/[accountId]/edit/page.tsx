@@ -1,18 +1,13 @@
-import { ZoruButton } from '@/components/zoruui';
 import {
   notFound,
   redirect } from 'next/navigation';
-import { ArrowLeft,
-  Landmark } from 'lucide-react';
 
 /**
  * Edit bank account — server wrapper that loads the account and passes
  * it to the shared <PaymentAccountFormClient> as `initial`.
  */
 
-import Link from 'next/link';
-
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getCrmPaymentAccountById } from '@/app/actions/crm-payment-accounts.actions';
 import { getSession } from '@/app/actions/user.actions';
 
@@ -39,26 +34,12 @@ export default async function EditBankAccountPage({
     }
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'Banking', href: '/dashboard/crm/banking' },
-                    { label: 'Bank Accounts', href: BASE },
-                    { label: account.accountName, href: `${BASE}/${accountId}` },
-                    { label: 'Edit' },
-                ]}
-                title={`Edit · ${account.accountName}`}
-                subtitle="Update bank details. Changes are revalidated immediately."
-                icon={Landmark}
-                actions={
-                    <ZoruButton variant="ghost" asChild>
-                        <Link href={`${BASE}/${accountId}`}>
-                            <ArrowLeft className="mr-2 h-4 w-4" /> Back to detail
-                        </Link>
-                    </ZoruButton>
-                }
-            />
+        <EntityDetailShell
+            eyebrow="BANK ACCOUNT"
+            title={`Edit · ${account.accountName}`}
+            back={{ href: `${BASE}/${accountId}`, label: 'Back to detail' }}
+        >
             <PaymentAccountFormClient initial={account} />
-        </div>
+        </EntityDetailShell>
     );
 }

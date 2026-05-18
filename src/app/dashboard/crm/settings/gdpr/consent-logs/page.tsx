@@ -227,6 +227,6 @@ export default function ConsentLogsPage() {
           </div>
         )}
       </ZoruCard>
-    </div>
+    </EntityListShell>
   );
 }

@@ -3,10 +3,9 @@
 import { ZoruButton, ZoruCard, ZoruLabel, ZoruTextarea, useZoruToast } from '@/components/zoruui';
 import {
   useRouter } from 'next/navigation';
-import { ArrowLeft,
+import {
   Loader2,
-  Save,
-  UserMinus } from 'lucide-react';
+  Save } from 'lucide-react';
 
 /**
  * File a new GDPR erase request.
@@ -19,7 +18,7 @@ import { ArrowLeft,
 import * as React from 'react';
 import Link from 'next/link';
 
-import { CrmPageHeader } from '../../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { EnumFormField } from '@/components/crm/enum-form-field';
 
@@ -106,20 +105,14 @@ export default function NewGdprEraseRequestPage() {
     };
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="New GDPR erase request"
-                subtitle="Right-to-be-forgotten (Art. 17). The request is held for approval before execution."
-                icon={UserMinus}
-                actions={
-                    <ZoruButton variant="outline" size="sm" asChild>
-                        <Link href="/dashboard/crm/settings/gdpr/removal-requests">
-                            <ArrowLeft className="mr-2 h-4 w-4" />
-                            Back
-                        </Link>
-                    </ZoruButton>
-                }
-            />
+        <EntityDetailShell
+            eyebrow="GDPR"
+            title="New GDPR erase request"
+            back={{
+                href: '/dashboard/crm/settings/gdpr/removal-requests',
+                label: 'Erase Requests',
+            }}
+        >
 
             <form onSubmit={onSubmit}>
                 <ZoruCard className="space-y-5 p-6">
@@ -208,6 +201,6 @@ export default function NewGdprEraseRequestPage() {
                     </div>
                 </ZoruCard>
             </form>
-        </div>
+        </EntityDetailShell>
     );
 }

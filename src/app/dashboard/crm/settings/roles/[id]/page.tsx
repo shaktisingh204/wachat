@@ -20,8 +20,6 @@ import {
   useParams,
   useRouter } from 'next/navigation';
 import {
-  Shield,
-  ArrowLeft,
   UserPlus,
   Trash2,
   LoaderCircle,
@@ -33,7 +31,7 @@ import { useEffect,
 import * as React from 'react';
 import Link from 'next/link';
 
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import {
   getRoleById,
   getRoleMembers,
@@ -211,34 +209,24 @@ export default function RoleDetailPage() {
 
   if (!role) {
     return (
-      <div className="flex w-full flex-col gap-6">
-        <CrmPageHeader
-          title="Role not found"
-          subtitle="This role may have been deleted."
-          icon={Shield}
-        />
+      <EntityDetailShell
+        eyebrow="ROLE"
+        title="Role not found"
+        back={{ href: '/dashboard/crm/settings/roles', label: 'Roles' }}
+      >
         <ZoruButton variant="outline" asChild>
           <Link href="/dashboard/crm/settings/roles">Back to roles</Link>
         </ZoruButton>
-      </div>
+      </EntityDetailShell>
     );
   }
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title={role.display_name || role.name}
-        subtitle={role.description || 'Manage members and permissions for this role.'}
-        icon={Shield}
-        actions={
-          <ZoruButton variant="outline" asChild>
-            <Link href="/dashboard/crm/settings/roles">
-              <ArrowLeft className="h-4 w-4" />
-              Back
-            </Link>
-          </ZoruButton>
-        }
-      />
+    <EntityDetailShell
+      eyebrow="ROLE"
+      title={role.display_name || role.name}
+      back={{ href: '/dashboard/crm/settings/roles', label: 'Roles' }}
+    >
 
       {/* Members */}
       <ZoruCard className="p-0">
@@ -435,6 +423,6 @@ export default function RoleDetailPage() {
 
       {/* Avoid unused-import noise when router is only used conditionally above. */}
       <span className="hidden">{String(!!router)}</span>
-    </div>
+    </EntityDetailShell>
   );
 }

@@ -11,8 +11,6 @@ import {
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
-  ShoppingBag,
-  ArrowLeft,
   Plus,
   Trash2,
   Save,
@@ -21,8 +19,7 @@ import {
   LoaderCircle,
   } from 'lucide-react';
 
-import { CrmPageHeader } from '../../../_components/crm-page-header';
-
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   getCart,
   saveCart,
@@ -186,21 +183,10 @@ export default function CartPage() {
   }
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Order Cart"
-        subtitle="Build a draft order before submitting."
-        icon={ShoppingBag}
-        actions={
-          <Link href="/dashboard/crm/sales/orders">
-            <ZoruButton variant="outline">
-              <ArrowLeft className="h-4 w-4" />
-              Back to orders
-            </ZoruButton>
-          </Link>
-        }
-      />
-
+    <EntityListShell
+      title="Order Cart"
+      subtitle="Build a draft order before submitting."
+    >
       <form action={saveAction}>
         <input type="hidden" name="client_name" value={clientName} />
         <input type="hidden" name="currency" value={currency} />
@@ -419,6 +405,6 @@ export default function CartPage() {
           </ZoruButton>
         </div>
       </form>
-    </div>
+    </EntityListShell>
   );
 }

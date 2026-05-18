@@ -2,15 +2,13 @@
 
 import { ZoruButton, ZoruInput, ZoruLabel, ZoruSwitch } from '@/components/zoruui';
 import { useState } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft,
-  LayoutTemplate,
+import {
   LoaderCircle,
   Save } from 'lucide-react';
 import { ClayCard } from '@/components/clay';
 
-import { CrmPageHeader } from '../../../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { useToast } from '@/hooks/use-toast';
 import { saveProposalTemplate } from '@/app/actions/worksuite/proposals.actions';
 import {
@@ -100,19 +98,10 @@ export function TemplateEditor({ initial }: { initial?: TemplateEditorInitial })
   };
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title={initial?._id ? 'Edit Template' : 'New Template'}
-        subtitle="Reusable proposal template. Skip the client picker — apply it later."
-        icon={LayoutTemplate}
-        actions={
-          <Link href="/dashboard/crm/sales/proposals/templates">
-            <ZoruButton variant="outline" leading={<ArrowLeft className="h-4 w-4" />}>
-              Templates
-            </ZoruButton>
-          </Link>
-        }
-      />
+    <EntityListShell
+      title={initial?._id ? 'Edit Template' : 'New Template'}
+      subtitle="Reusable proposal template. Skip the client picker — apply it later."
+    >
 
       <ClayCard>
         <div className="grid gap-4 md:grid-cols-3">
@@ -189,7 +178,7 @@ export function TemplateEditor({ initial }: { initial?: TemplateEditorInitial })
           Save Template
         </ZoruButton>
       </div>
-    </div>
+    </EntityListShell>
   );
 }
 

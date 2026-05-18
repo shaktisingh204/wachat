@@ -47,7 +47,7 @@ import {
 
 import * as React from 'react';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import {
     getMyLeadboardSettings,
@@ -173,12 +173,10 @@ export default function LeadboardPreferencesPage() {
     const withHidden = rows.filter((r) => (r.hide_stages?.length ?? 0) > 0).length;
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="Leadboard Preferences"
-                subtitle="Per-pipeline deal board preferences — hide stages, reorder columns, change sort."
-                icon={Filter}
-            />
+        <EntityListShell
+            title="Leadboard Preferences"
+            subtitle="Per-pipeline deal board preferences — hide stages, reorder columns, change sort."
+        >
 
             <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
                 <ZoruStatCard
@@ -388,6 +386,6 @@ export default function LeadboardPreferencesPage() {
                     </ZoruAlertDialogFooter>
                 </ZoruAlertDialogContent>
             </ZoruAlertDialog>
-        </div>
+        </EntityListShell>
     );
 }

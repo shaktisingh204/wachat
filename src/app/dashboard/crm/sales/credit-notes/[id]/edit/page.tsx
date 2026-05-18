@@ -7,9 +7,8 @@
  */
 
 import { notFound } from 'next/navigation';
-import { FileMinus } from 'lucide-react';
 
-import { CrmPageHeader } from '../../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { CreditNoteForm } from '../../_components/credit-note-form';
 import { getCreditNote } from '@/app/actions/crm/credit-notes.actions';
 
@@ -28,13 +27,12 @@ export default async function EditCreditNotePage({
   const title = creditNote.cnNo || String(creditNote._id);
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title={`Edit ${title}`}
-        subtitle="Update credit note details."
-        icon={FileMinus}
-      />
+    <EntityDetailShell
+      eyebrow="CREDIT NOTE"
+      title={`Edit ${title}`}
+      back={{ href: `/dashboard/crm/sales/credit-notes/${id}`, label: 'Credit Note' }}
+    >
       <CreditNoteForm initial={creditNote} />
-    </div>
+    </EntityDetailShell>
   );
 }

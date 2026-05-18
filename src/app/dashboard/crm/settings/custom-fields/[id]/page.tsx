@@ -2,8 +2,7 @@ import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
 import {
   notFound,
   redirect } from 'next/navigation';
-import { Pencil,
-  Settings2 } from 'lucide-react';
+import { Pencil } from 'lucide-react';
 
 /**
  * Custom field detail page.
@@ -18,7 +17,6 @@ import Link from 'next/link';
 
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { getSession } from '@/app/actions/user.actions';
 import { getCustomFieldById } from '@/app/actions/crm-custom-fields.actions';
 
@@ -66,20 +64,7 @@ export default async function CustomFieldDetailPage({
   if (!field) notFound();
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        breadcrumbs={[
-          { label: 'CRM', href: '/dashboard/crm' },
-          { label: 'Settings', href: '/dashboard/crm/settings' },
-          { label: 'Custom Fields', href: BASE },
-          { label: field.label },
-        ]}
-        title={field.label}
-        subtitle={`${entityLabel(field.entityKind)} · ${field.name}`}
-        icon={Settings2}
-      />
-
-      <EntityDetailShell
+    <EntityDetailShell
         title={field.label}
         eyebrow={`CUSTOM FIELD · ${entityLabel(field.entityKind).toUpperCase()}`}
         status={{
@@ -237,8 +222,7 @@ export default async function CustomFieldDetailPage({
             </div>
           </ZoruCard>
         ) : null}
-      </EntityDetailShell>
-    </div>
+  </EntityDetailShell>
   );
 }
 
