@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "tiktok-spend-vs-conversion",
+  "cases": [
+    {
+      "id": "daily",
+      "description": "Daily cron joins spend + orders and routes by ROAS.",
+      "triggerPayload": { "tick": "2026-05-19T09:00:00Z" },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

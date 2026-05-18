@@ -1,0 +1,10 @@
+{
+  "id": "tiktok-spend-vs-conversion",
+  "name": "TikTok Spend vs Conversion",
+  "description": "Daily ROAS check that joins TikTok Ads spend with attributed Shopify orders by UTM, computes ROAS, and either lights up Slack #growth with a Linear ticket when ROAS slips under 1 or quietly logs the day to Airtable when things are healthy. Marketing leaders learn about waste before the budget burns.",
+  "category": "Ads",
+  "complexity": "advanced",
+  "authorName": "SabNode",
+  "tags": ["tiktok", "shopify", "slack", "linear", "airtable", "ads"],
+  "version": "0.1.0"
+}
