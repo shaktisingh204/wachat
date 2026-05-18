@@ -1,0 +1,142 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_shop_order",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "shopify.order.created",
+    "options": {
+      "path": "/webhooks/shopify-pod-order",
+      "method": "POST",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_webhook",
+      "name": "Shopify Order Created",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "shopify-pod-order",
+        "responseMode": "onReceived"
+      },
+      "webhookId": "shopify-pod-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Order",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "orderId", "value": "={{ $json.id }}" },
+            { "name": "isPod", "value": "={{ String(($json.line_items || []).some(li => li.vendor === 'Printful')) }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_if_pod",
+      "name": "Is POD?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "conditions": {
+          "string": [
+            { "value1": "={{ $json.isPod }}", "operation": "equal", "value2": "true" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_printful_create",
+      "name": "Printful Order",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, -120],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.printful.com/orders",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "external_id", "value": "={{ $json.orderId }}" },
+            { "name": "shipping", "value": "STANDARD" }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "printful-cred", "name": "Printful Token" }
+      }
+    },
+    {
+      "id": "n_wait_fulfilled",
+      "name": "Wait for Fulfilment",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [960, -120],
+      "parameters": {
+        "resume": "webhook",
+        "options": { "webhookSuffix": "printful-fulfilled" }
+      }
+    },
+    {
+      "id": "n_shopify_update",
+      "name": "Patch Shopify Tracking",
+      "type": "n8n-nodes-base.shopify",
+      "typeVersion": 1,
+      "position": [1200, -120],
+      "parameters": {
+        "resource": "order",
+        "operation": "update",
+        "orderId": "={{ $node['Extract Order'].json.orderId }}",
+        "updateFields": {
+          "fulfillmentStatus": "fulfilled",
+          "trackingCompany": "={{ $json.carrier }}",
+          "trackingNumber": "={{ $json.tracking_number }}"
+        }
+      },
+      "credentials": {
+        "shopifyApi": { "id": "shopify-cred", "name": "Shopify API" }
+      }
+    },
+    {
+      "id": "n_noop",
+      "name": "Non-POD Order",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [720, 120],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "n_webhook": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": { "main": [[{ "node": "n_if_pod", "type": "main", "index": 0 }]] },
+    "n_if_pod": {
+      "true": [[{ "node": "n_printful_create", "type": "main", "index": 0 }]],
+      "false": [[{ "node": "n_noop", "type": "main", "index": 0 }]]
+    },
+    "n_printful_create": { "main": [[{ "node": "n_wait_fulfilled", "type": "main", "index": 0 }]] },
+    "n_wait_fulfilled": { "main": [[{ "node": "n_shopify_update", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_webhook", "n_extract", "n_if_pod",
+        "n_printful_create", "n_wait_fulfilled", "n_shopify_update", "n_noop"
+      ]
+    }
+  ],
+  "variables": [],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
