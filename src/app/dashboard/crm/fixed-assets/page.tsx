@@ -1,5 +1,5 @@
 import { ZoruButton } from '@/components/zoruui';
-import { Boxes, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
 /**
  * CRM Fixed Assets list — `/dashboard/crm/fixed-assets`.
@@ -15,7 +15,7 @@ import { Boxes, Plus } from 'lucide-react';
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { listFixedAssets } from '@/app/actions/crm/fixed-assets.actions';
 import { FixedAssetListClient } from './_components/fixed-asset-list-client';
 
@@ -44,20 +44,18 @@ export default async function FixedAssetsPage({
   });
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Fixed Assets"
-        subtitle="Track durable company property — laptops, vehicles, machinery — with depreciation and custody."
-        icon={Boxes}
-        actions={
-          <ZoruButton asChild>
-            <Link href="/dashboard/crm/fixed-assets/new">
-              <Plus className="h-4 w-4" />
-              New fixed asset
-            </Link>
-          </ZoruButton>
-        }
-      />
+    <EntityListShell
+      title="Fixed Assets"
+      subtitle="Track durable company property — laptops, vehicles, machinery — with depreciation and custody."
+      primaryAction={
+        <ZoruButton asChild>
+          <Link href="/dashboard/crm/fixed-assets/new">
+            <Plus className="h-4 w-4" />
+            New fixed asset
+          </Link>
+        </ZoruButton>
+      }
+    >
 
       <FixedAssetListClient
         assets={assets}
@@ -67,6 +65,6 @@ export default async function FixedAssetsPage({
         initialQuery={q}
         error={error}
       />
-    </div>
+    </EntityListShell>
   );
 }

@@ -14,14 +14,10 @@ import {
   useEffect,
   useState } from 'react';
 import { useFormStatus } from 'react-dom';
-import { ArrowLeft,
-  Save,
-  LoaderCircle,
-  Globe } from 'lucide-react';
-import Link from 'next/link';
+import { Save, LoaderCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { savePortalUser } from '@/app/actions/crm-portal.actions';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import type { EntityKey } from '@/lib/lookup-registry';
@@ -70,19 +66,11 @@ export default function NewPortalUserPage() {
   }, [state, toast, router]);
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="New Portal User"
-        subtitle="Invite a customer, vendor or employee to your self-service portal."
-        icon={Globe}
-        actions={
-          <ZoruButton variant="outline" size="sm" asChild>
-            <Link href="/dashboard/crm/portal">
-              <ArrowLeft className="h-4 w-4" /> Back
-            </Link>
-          </ZoruButton>
-        }
-      />
+    <EntityDetailShell
+      eyebrow="PORTAL"
+      title="New Portal User"
+      back={{ href: '/dashboard/crm/portal', label: 'Customer Portal' }}
+    >
 
       <ZoruCard className="p-6">
         <form action={formAction} className="flex flex-col gap-6">
@@ -168,6 +156,6 @@ export default function NewPortalUserPage() {
           </div>
         </form>
       </ZoruCard>
-    </div>
+    </EntityDetailShell>
   );
 }

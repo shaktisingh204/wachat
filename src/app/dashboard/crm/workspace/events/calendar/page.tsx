@@ -3,9 +3,9 @@
 import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
 import * as React from 'react';
 import Link from 'next/link';
-import { CalendarDays, ChevronLeft, ChevronRight, LoaderCircle } from 'lucide-react';
+import { ChevronLeft, ChevronRight, LoaderCircle } from 'lucide-react';
 
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { getEvents } from '@/app/actions/worksuite/knowledge.actions';
 import type { WsEvent } from '@/lib/worksuite/knowledge-types';
 
@@ -54,22 +54,20 @@ export default function EventsCalendarPage() {
   const next = () => setMonth(new Date(year, monthIdx + 1, 1));
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title={month.toLocaleDateString(undefined, { year: 'numeric', month: 'long' })}
-        subtitle="Monthly event calendar."
-        icon={CalendarDays}
-        actions={
-          <div className="flex items-center gap-2">
-            <ZoruButton variant="outline" size="icon" onClick={prev}>
-              <ChevronLeft className="h-4 w-4" strokeWidth={1.75} />
-            </ZoruButton>
-            <ZoruButton variant="outline" size="icon" onClick={next}>
-              <ChevronRight className="h-4 w-4" strokeWidth={1.75} />
-            </ZoruButton>
-          </div>
-        }
-      />
+    <EntityListShell
+      title={month.toLocaleDateString(undefined, { year: 'numeric', month: 'long' })}
+      subtitle="Monthly event calendar."
+      primaryAction={
+        <div className="flex items-center gap-2">
+          <ZoruButton variant="outline" size="icon" onClick={prev}>
+            <ChevronLeft className="h-4 w-4" strokeWidth={1.75} />
+          </ZoruButton>
+          <ZoruButton variant="outline" size="icon" onClick={next}>
+            <ChevronRight className="h-4 w-4" strokeWidth={1.75} />
+          </ZoruButton>
+        </div>
+      }
+    >
 
       {loading ? (
         <ZoruCard className="flex items-center justify-center py-10">
@@ -127,6 +125,6 @@ export default function EventsCalendarPage() {
           </div>
         </ZoruCard>
       )}
-    </div>
+    </EntityListShell>
   );
 }

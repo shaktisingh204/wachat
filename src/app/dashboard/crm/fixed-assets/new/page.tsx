@@ -6,22 +6,19 @@
  * fetch and hand a bare `<FixedAssetForm>` to the user.
  */
 
-import { Boxes } from 'lucide-react';
-
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { FixedAssetForm } from '../_components/fixed-asset-form';
 
 export const dynamic = 'force-dynamic';
 
 export default async function NewFixedAssetPage() {
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="New fixed asset"
-        subtitle="Register a new durable asset."
-        icon={Boxes}
-      />
+    <EntityDetailShell
+      eyebrow="FIXED ASSET"
+      title="New fixed asset"
+      back={{ href: '/dashboard/crm/fixed-assets', label: 'Fixed Assets' }}
+    >
       <FixedAssetForm />
-    </div>
+    </EntityDetailShell>
   );
 }

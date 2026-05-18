@@ -8,10 +8,9 @@ import {
   useState,
   useTransition,
 } from 'react';
-import Link from 'next/link';
-import { FileText, ArrowLeft, LoaderCircle } from 'lucide-react';
+import { LoaderCircle } from 'lucide-react';
 
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 
 import {
   getContractTemplateById,
@@ -50,22 +49,11 @@ export default function ContractTemplateEditorPage(props: {
   }, [saveState, toast]);
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title={tpl?.name || 'Contract Template'}
-        subtitle="Edit template body. Supports placeholders like {{client_name}}."
-        icon={FileText}
-        actions={
-          <Link href="/dashboard/crm/contracts/templates">
-            <ZoruButton
-              variant="outline"
-             
-            >
-              Back
-            </ZoruButton>
-          </Link>
-        }
-      />
+    <EntityDetailShell
+      eyebrow="CONTRACT TEMPLATE"
+      title={tpl?.name || 'Contract Template'}
+      back={{ href: '/dashboard/crm/contracts/templates', label: 'Templates' }}
+    >
 
       <ZoruCard>
         {isLoading && !tpl ? (
@@ -119,6 +107,6 @@ export default function ContractTemplateEditorPage(props: {
           </form>
         )}
       </ZoruCard>
-    </div>
+    </EntityDetailShell>
   );
 }

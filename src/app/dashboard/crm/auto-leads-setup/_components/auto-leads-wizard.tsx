@@ -39,7 +39,7 @@ import {
   deleteAutoLeadRule,
   saveAutoLeadRule,
   } from '@/app/actions/crm-auto-leads.actions';
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 /**
  * Auto-Leads Setup — §1D 5-step wizard.
@@ -196,12 +196,10 @@ export function AutoLeadsWizard({ initialRules }: AutoLeadsWizardProps): React.J
   );
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Auto-Leads Setup"
-        subtitle="Automatically create leads from incoming messages and form submissions."
-        icon={Sparkles}
-      />
+    <EntityListShell
+      title="Auto-Leads Setup"
+      subtitle="Automatically create leads from incoming messages and form submissions."
+    >
 
       {/* KPI strip */}
       <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
@@ -321,7 +319,7 @@ export function AutoLeadsWizard({ initialRules }: AutoLeadsWizardProps): React.J
           </ul>
         )}
       </ZoruCard>
-    </div>
+    </EntityListShell>
   );
 }
 

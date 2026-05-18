@@ -1,10 +1,9 @@
 import { ZoruButton, ZoruCard, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/zoruui';
 import {
   ObjectId } from 'mongodb';
-import { LayoutGrid,
-  Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 import Link from 'next/link';
 
@@ -64,20 +63,18 @@ export default async function CustomDashboardsPage() {
   }
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Custom Dashboards"
-        subtitle="Build your own dashboards with the metrics that matter to your team."
-        icon={LayoutGrid}
-        actions={
-          <Link href="/dashboard/crm/dashboards/new">
-            <ZoruButton variant="outline">
-              <Plus className="h-4 w-4" strokeWidth={1.75} />
-              New dashboard
-            </ZoruButton>
-          </Link>
-        }
-      />
+    <EntityListShell
+      title="Custom Dashboards"
+      subtitle="Build your own dashboards with the metrics that matter to your team."
+      primaryAction={
+        <Link href="/dashboard/crm/dashboards/new">
+          <ZoruButton variant="outline">
+            <Plus className="h-4 w-4" strokeWidth={1.75} />
+            New dashboard
+          </ZoruButton>
+        </Link>
+      }
+    >
 
       <ZoruCard className="p-6">
         <div className="mb-4">
@@ -158,6 +155,6 @@ export default async function CustomDashboardsPage() {
           </ZoruTable>
         </div>
       </ZoruCard>
-    </div>
+    </EntityListShell>
   );
 }

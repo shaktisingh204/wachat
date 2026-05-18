@@ -1,8 +1,7 @@
 import { ZoruCard } from '@/components/zoruui';
-import {
-  Search as SearchIcon } from 'lucide-react';
+import { Search as SearchIcon } from 'lucide-react';
 
-import { CrmPageHeader } from '../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 /**
  * CRM Global Search — server component per CRM_REBUILD_PLAN §5.2.
@@ -37,16 +36,10 @@ export default async function CrmGlobalSearchPage({ searchParams }: PageProps) {
   const totalHits = groups.reduce((sum, g) => sum + g.results.length, 0);
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Global Search"
-        subtitle="Search every CRM entity at once — clients, vendors, items, employees, invoices and more."
-        icon={SearchIcon}
-        breadcrumbs={[
-          { label: 'CRM', href: '/dashboard/crm' },
-          { label: 'Search' },
-        ]}
-      />
+    <EntityListShell
+      title="Global Search"
+      subtitle="Search every CRM entity at once — clients, vendors, items, employees, invoices and more."
+    >
 
       <ZoruCard className="p-6">
         <SearchClient initialQuery={q} totalHits={totalHits} groupCount={groups.length} />
@@ -77,6 +70,6 @@ export default async function CrmGlobalSearchPage({ searchParams }: PageProps) {
       ) : (
         <SearchResultsClient groups={groups} query={q} />
       )}
-    </div>
+    </EntityListShell>
   );
 }

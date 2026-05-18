@@ -282,25 +282,20 @@ export default function ContractsPage() {
   };
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Contracts"
-        subtitle="Prepare, send, and e-sign client contracts."
-        icon={FileSignature}
-        actions={
-          <ZoruButton
-           
-           
-            onClick={() => {
-              setEditing(null);
-              setDialogOpen(true);
-            }}
-          >
-            Add Contract
+    <EntityListShell
+      title="Contracts"
+      subtitle="Prepare, send, and e-sign client contracts."
+      primaryAction={
+        <ZoruButton
+          onClick={() => {
+            setEditing(null);
+            setDialogOpen(true);
+          }}
+        >
+          Add Contract
           </ZoruButton>
         }
-      />
-
+      >
       <ContractsKpiStrip counts={kpis} active={kpiKey} onPick={setKpiKey} />
 
       <div className="flex flex-wrap items-center gap-2">
@@ -563,6 +558,6 @@ export default function ContractsPage() {
           </ZoruAlertDialogFooter>
         </ZoruAlertDialogContent>
       </ZoruAlertDialog>
-    </div>
+    </EntityListShell>
   );
 }
