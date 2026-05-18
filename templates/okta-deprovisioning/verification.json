@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "templateId": "okta-deprovisioning",
+  "cases": [
+    {
+      "id": "termination",
+      "description": "A BambooHR termination revokes Okta access, archives Drive, transfers ownership, and notifies #it-offboarding.",
+      "triggerPayload": {
+        "employee": { "workEmail": "ex@example.com", "oktaId": "okta-1", "manager": { "workEmail": "mgr@example.com" } }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
