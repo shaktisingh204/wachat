@@ -1,9 +1,7 @@
 import { ZoruCard } from '@/components/zoruui';
 export const dynamic = 'force-dynamic';
 
-import { Target } from 'lucide-react';
-
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   StatCard,
   BarRow,
@@ -19,13 +17,7 @@ export default async function SalesDealsReportPage() {
   const maxCount = rows.reduce((m, r) => Math.max(m, r.count), 0);
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Sales Deals"
-        subtitle="Deal conversion funnel by stage."
-        icon={Target}
-      />
-
+    <EntityListShell title="Sales Deals" subtitle="Deal conversion funnel by stage.">
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <StatCard label="Deals" value={String(totalCount)} />
         <StatCard label="Pipeline value" value={fmtMoney(totalValue)} tone="green" />
@@ -53,6 +45,6 @@ export default async function SalesDealsReportPage() {
           ))
         )}
       </ZoruCard>
-    </div>
+    </EntityListShell>
   );
 }

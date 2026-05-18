@@ -1,9 +1,7 @@
 import { ZoruCard } from '@/components/zoruui';
 export const dynamic = 'force-dynamic';
 
-import { ListChecks } from 'lucide-react';
-
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { ReportToolbar, StatCard, BarRow } from '../_components/report-toolbar';
 import { getTaskReport } from '@/app/actions/worksuite/reports.actions';
 
@@ -24,14 +22,11 @@ export default async function TaskReportPage(props: {
   const maxP = report.byPriority.reduce((m, r) => Math.max(m, r.count), 0);
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Task Report"
-        subtitle="Tasks grouped by assignee, status and priority."
-        icon={ListChecks}
-        actions={<ReportToolbar from={sp.from} to={sp.to} />}
-      />
-
+    <EntityListShell
+      title="Task Report"
+      subtitle="Tasks grouped by assignee, status and priority."
+      primaryAction={<ReportToolbar from={sp.from} to={sp.to} />}
+    >
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <StatCard label="Total tasks" value={String(report.total)} />
         <StatCard label="Assignees" value={String(report.byAssignee.length)} />
@@ -99,6 +94,6 @@ export default async function TaskReportPage(props: {
           ))}
         </ZoruCard>
       </div>
-    </div>
+    </EntityListShell>
   );
 }

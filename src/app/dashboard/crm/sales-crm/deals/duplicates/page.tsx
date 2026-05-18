@@ -1,5 +1,4 @@
 import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
-import { ArrowLeft, Copy } from 'lucide-react';
 
 /**
  * Deal duplicates — `/dashboard/crm/sales-crm/deals/duplicates`.
@@ -11,7 +10,7 @@ import { ArrowLeft, Copy } from 'lucide-react';
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { findCrmDealDuplicates } from '@/app/actions/crm-deals.actions';
 
 export const dynamic = 'force-dynamic';
@@ -38,24 +37,10 @@ export default async function DealDuplicatesPage() {
   const groups = await findCrmDealDuplicates();
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <Link
-        href="/dashboard/crm/sales-crm/deals"
-        className="inline-flex items-center gap-1.5 text-[12.5px] text-zoru-ink-muted hover:text-zoru-ink"
-      >
-        <ArrowLeft className="h-3.5 w-3.5" /> Back to Deals
-      </Link>
-      <CrmPageHeader
-        title="Find duplicates"
-        subtitle="Possible duplicate deals — same client, similar amount, close-by expected-close dates."
-        icon={Copy}
-        breadcrumbs={[
-          { label: 'CRM', href: '/dashboard/crm' },
-          { label: 'Sales CRM', href: '/dashboard/crm/sales-crm' },
-          { label: 'Deals', href: '/dashboard/crm/sales-crm/deals' },
-          { label: 'Duplicates' },
-        ]}
-      />
+    <EntityListShell
+      title="Find duplicates"
+      subtitle="Possible duplicate deals — same client, similar amount, close-by expected-close dates."
+    >
 
       {groups.length === 0 ? (
         <ZoruCard className="p-6">
@@ -117,6 +102,6 @@ export default async function DealDuplicatesPage() {
           ))}
         </div>
       )}
-    </div>
+    </EntityListShell>
   );
 }

@@ -1,10 +1,8 @@
 import { ZoruCard, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/zoruui';
-import {
-  TrendingUp } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   ReportToolbar,
   StatCard,
@@ -28,14 +26,11 @@ export default async function ProfitLossPage(props: {
   );
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Profit & Loss"
-        subtitle="Income minus expenses by month."
-        icon={TrendingUp}
-        actions={<ReportToolbar from={sp.from} to={sp.to} />}
-      />
-
+    <EntityListShell
+      title="Profit & Loss"
+      subtitle="Income minus expenses by month."
+      primaryAction={<ReportToolbar from={sp.from} to={sp.to} />}
+    >
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <StatCard label="Income" value={fmtMoney(totals.income)} tone="green" />
         <StatCard label="Expense" value={fmtMoney(totals.expense)} tone="red" />
@@ -99,6 +94,6 @@ export default async function ProfitLossPage(props: {
           </ZoruTable>
         </div>
       </ZoruCard>
-    </div>
+    </EntityListShell>
   );
 }

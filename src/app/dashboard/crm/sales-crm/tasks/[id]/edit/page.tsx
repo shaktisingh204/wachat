@@ -7,10 +7,8 @@
  */
 
 import { notFound } from 'next/navigation';
-import Link from 'next/link';
-import { ArrowLeft, Edit } from 'lucide-react';
 
-import { CrmPageHeader } from '../../../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { TaskForm } from '../../_components/tasks-form';
 import { getCrmTaskById } from '@/app/actions/crm-tasks.actions';
 import { getSession } from '@/app/actions/user.actions';
@@ -28,28 +26,15 @@ export default async function EditTaskPage({ params }: PageProps) {
     if (!task) notFound();
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <div>
-                <Link
-                    href={`/dashboard/crm/sales-crm/tasks/${id}`}
-                    className="inline-flex items-center gap-1.5 text-[12.5px] text-zoru-ink-muted hover:text-zoru-ink"
-                >
-                    <ArrowLeft className="h-3.5 w-3.5" />
-                    Back to task
-                </Link>
-            </div>
-
-            <CrmPageHeader
-                title="Edit Task"
-                subtitle={`Update the details for "${task.title}".`}
-                icon={Edit}
-            />
-
+        <EntityListShell
+            title="Edit Task"
+            subtitle={`Update the details for "${task.title}".`}
+        >
             <TaskForm
                 mode="edit"
                 initial={task}
                 currentUserId={session?.user?._id ? String(session.user._id) : null}
             />
-        </div>
+        </EntityListShell>
     );
 }

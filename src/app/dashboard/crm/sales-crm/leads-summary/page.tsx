@@ -20,12 +20,12 @@ import {
 import { useState, useEffect, useTransition, useCallback } from 'react';
 
 import { getLeadsSummaryData } from '@/app/actions/crm-reports.actions';
-import { LoaderCircle, AlertCircle, Users } from 'lucide-react';
+import { LoaderCircle, AlertCircle } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 import { format } from 'date-fns';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 const StatCard = ({ title, value }: { title: string, value: number }) => (
     <ZoruCard>
@@ -128,12 +128,10 @@ export default function LeadsSummaryPage() {
     };
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="Leads Summary"
-                subtitle="A high-level overview of your sales pipeline performance."
-                icon={Users}
-            />
+        <EntityListShell
+            title="Leads Summary"
+            subtitle="A high-level overview of your sales pipeline performance."
+        >
 
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 <StatCard title="New Leads" value={summary.newLeads} />
@@ -210,6 +208,6 @@ export default function LeadsSummaryPage() {
                     ))}
                 </div>
             </ZoruCard>
-        </div>
+        </EntityListShell>
     );
 }

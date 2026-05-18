@@ -2,8 +2,7 @@ import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
 import {
   notFound } from 'next/navigation';
 import { ObjectId } from 'mongodb';
-import { ArrowLeft,
-  ClipboardList } from 'lucide-react';
+import { ClipboardList } from 'lucide-react';
 
 /**
  * Deal detail — `/dashboard/crm/sales-crm/deals/[id]`.
@@ -24,7 +23,7 @@ import { ArrowLeft,
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { LineageRail } from '@/components/crm/lineage-rail';
@@ -247,25 +246,11 @@ export default async function DealDetailPage({ params, searchParams }: PageProps
   }
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      {/* Header */}
-      <div className="flex flex-col gap-3">
-        <Link
-          href="/dashboard/crm/sales-crm/deals"
-          className="inline-flex items-center gap-1.5 text-[12.5px] text-zoru-ink-muted hover:text-zoru-ink"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" /> Back to Deals
-        </Link>
-        <CrmPageHeader
-          title={deal.name || 'Untitled deal'}
-          subtitle={`${fmtMoney(amount, dealCurrency)} · ${deal.stage ?? 'Untriaged'}`}
-          breadcrumbs={[
-            { label: 'CRM', href: '/dashboard/crm' },
-            { label: 'Sales CRM', href: '/dashboard/crm/sales-crm' },
-            { label: 'Deals', href: '/dashboard/crm/sales-crm/deals' },
-            { label: deal.name || 'Deal' },
-          ]}
-        />
+    <EntityDetailShell
+      title={deal.name || 'Untitled deal'}
+      eyebrow="DEAL"
+      back={{ href: '/dashboard/crm/sales-crm/deals', label: 'Back to Deals' }}
+      actions={
         <DealDetailActions
           dealId={dealIdStr}
           stage={deal.stage ?? ''}
@@ -273,8 +258,8 @@ export default async function DealDetailPage({ params, searchParams }: PageProps
           contactEmail={contactPrimary.email}
           contactPhone={contactPrimary.phone}
         />
-      </div>
-
+      }
+    >
       <div className="flex flex-col gap-6 md:flex-row md:items-start">
         {/* Main column */}
         <main className="min-w-0 flex-1 space-y-6">
@@ -478,7 +463,7 @@ export default async function DealDetailPage({ params, searchParams }: PageProps
 
       {/* Audit footer */}
       <EntityAuditTimeline entityKind="deal" entityId={dealIdStr} />
-    </div>
+    </EntityDetailShell>
   );
 }
 

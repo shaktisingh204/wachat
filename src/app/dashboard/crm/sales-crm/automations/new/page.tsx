@@ -11,14 +11,12 @@ import {
 import { EnumFormField } from '@/components/crm/enum-form-field';
 import {
   useState } from 'react';
-import { ArrowLeft,
+import {
   Save,
-  LoaderCircle,
-  Zap } from 'lucide-react';
-import Link from 'next/link';
+  LoaderCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { saveCrmAutomation } from '@/app/actions/crm-automations.actions';
 
 export const dynamic = 'force-dynamic';
@@ -65,20 +63,10 @@ export default function NewAutomationPage() {
   }
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="New Automation"
-        subtitle="Set up a trigger-based workflow to automate CRM actions."
-        icon={Zap}
-        actions={
-          <ZoruButton variant="ghost" asChild className="text-zoru-ink-muted hover:text-zoru-ink">
-            <Link href="/dashboard/crm/sales-crm/automations">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back
-            </Link>
-          </ZoruButton>
-        }
-      />
+    <EntityListShell
+      title="New Automation"
+      subtitle="Set up a trigger-based workflow to automate CRM actions."
+    >
 
       <ZoruCard className="p-6">
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
@@ -126,6 +114,6 @@ export default function NewAutomationPage() {
           </div>
         </form>
       </ZoruCard>
-    </div>
+    </EntityListShell>
   );
 }

@@ -1,9 +1,7 @@
 import { ZoruCard } from '@/components/zoruui';
 export const dynamic = 'force-dynamic';
 
-import { Ticket } from 'lucide-react';
-
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   ReportToolbar,
   StatCard,
@@ -23,14 +21,11 @@ export default async function TicketReportPage(props: {
   const maxAgent = m.byAgent.reduce((x, r) => Math.max(x, r.count), 0);
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Ticket Report"
-        subtitle="Tickets by status, channel, agent with SLA metrics."
-        icon={Ticket}
-        actions={<ReportToolbar from={sp.from} to={sp.to} />}
-      />
-
+    <EntityListShell
+      title="Ticket Report"
+      subtitle="Tickets by status, channel, agent with SLA metrics."
+      primaryAction={<ReportToolbar from={sp.from} to={sp.to} />}
+    >
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-4">
         <StatCard label="Total tickets" value={String(m.total)} />
         <StatCard label="Open" value={String(m.open)} tone="amber" />
@@ -107,6 +102,6 @@ export default async function TicketReportPage(props: {
           ))}
         </ZoruCard>
       </div>
-    </div>
+    </EntityListShell>
   );
 }

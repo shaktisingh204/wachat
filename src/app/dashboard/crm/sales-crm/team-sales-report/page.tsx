@@ -18,13 +18,13 @@ import {
   ZoruTableRow,
   useZoruToast,
 } from '@/components/zoruui';
-import { Download, TrendingUp } from "lucide-react";
+import { Download } from "lucide-react";
 import { useState, useEffect, useTransition, useCallback } from 'react';
 import { generateTeamSalesReportData } from '@/app/actions/crm-reports.actions';
 import { LoaderCircle } from 'lucide-react';
 import Papa from 'papaparse';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 export default function TeamSalesReportPage() {
     const [reportData, setReportData] = useState<any[]>([]);
@@ -93,12 +93,10 @@ export default function TeamSalesReportPage() {
     );
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="Team Sales Report"
-                subtitle="Performance metrics for each salesperson."
-                icon={TrendingUp}
-            />
+        <EntityListShell
+            title="Team Sales Report"
+            subtitle="Performance metrics for each salesperson."
+        >
 
             <ZoruCard>
                 <div className="mb-4">
@@ -172,6 +170,6 @@ export default function TeamSalesReportPage() {
                     </ZoruTable>
                 </div>
             </ZoruCard>
-        </div>
+        </EntityListShell>
     );
 }

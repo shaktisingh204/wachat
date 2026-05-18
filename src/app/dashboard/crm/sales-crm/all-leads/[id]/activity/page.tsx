@@ -7,7 +7,6 @@
 
 import { notFound } from 'next/navigation';
 
-import { CrmPageHeader } from '../../../../_components/crm-page-header';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getCrmLeadById } from '@/app/actions/crm-leads.actions';
@@ -22,21 +21,15 @@ export default async function LeadActivityPage({ params }: PageProps) {
     if (!lead) notFound();
 
     return (
-        <div className="space-y-6">
-            <CrmPageHeader
-                title={`${lead.title} — Activity`}
-                subtitle="Audit trail of changes made to this lead."
-            />
-            <EntityDetailShell
-                title={lead.title || lead.contactName || 'Lead'}
-                eyebrow="LEAD ACTIVITY"
-                back={{
-                    href: `/dashboard/crm/sales-crm/all-leads/${id}`,
-                    label: 'Back to lead',
-                }}
-            >
-                <EntityAuditTimeline entityKind="lead" entityId={id} />
-            </EntityDetailShell>
-        </div>
+        <EntityDetailShell
+            title={lead.title || lead.contactName || 'Lead'}
+            eyebrow="LEAD ACTIVITY"
+            back={{
+                href: `/dashboard/crm/sales-crm/all-leads/${id}`,
+                label: 'Back to lead',
+            }}
+        >
+            <EntityAuditTimeline entityKind="lead" entityId={id} />
+        </EntityDetailShell>
     );
 }

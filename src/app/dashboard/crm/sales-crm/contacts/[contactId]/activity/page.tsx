@@ -7,7 +7,6 @@
 
 import { notFound } from 'next/navigation';
 
-import { CrmPageHeader } from '../../../../_components/crm-page-header';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getCrmContactById } from '@/app/actions/crm.actions';
@@ -24,24 +23,18 @@ export default async function ContactActivityPage({ params }: PageProps) {
     if (!contact) notFound();
 
     return (
-        <div className="space-y-6">
-            <CrmPageHeader
-                title={`${contact.name} — Activity`}
-                subtitle="Audit trail of changes made to this contact."
+        <EntityDetailShell
+            title={contact.name || contact.email || 'Contact'}
+            eyebrow="CONTACT ACTIVITY"
+            back={{
+                href: `/dashboard/crm/sales-crm/contacts/${contactId}`,
+                label: 'Back to contact',
+            }}
+        >
+            <EntityAuditTimeline
+                entityKind="contact"
+                entityId={contactId}
             />
-            <EntityDetailShell
-                title={contact.name || contact.email || 'Contact'}
-                eyebrow="CONTACT ACTIVITY"
-                back={{
-                    href: `/dashboard/crm/sales-crm/contacts/${contactId}`,
-                    label: 'Back to contact',
-                }}
-            >
-                <EntityAuditTimeline
-                    entityKind="contact"
-                    entityId={contactId}
-                />
-            </EntityDetailShell>
-        </div>
+        </EntityDetailShell>
     );
 }

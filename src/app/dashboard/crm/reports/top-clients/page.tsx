@@ -1,9 +1,7 @@
 import { ZoruCard, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/zoruui';
 export const dynamic = 'force-dynamic';
 
-import { Crown } from 'lucide-react';
-
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 import { fmtMoney } from '../_components/report-toolbar';
 import { getTopClients } from '@/app/actions/worksuite/reports.actions';
@@ -11,13 +9,10 @@ import { getTopClients } from '@/app/actions/worksuite/reports.actions';
 export default async function TopClientsPage() {
   const rows = await getTopClients(20);
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Top Clients"
-        subtitle="Clients ranked by total revenue (paid invoices)."
-        icon={Crown}
-      />
-
+    <EntityListShell
+      title="Top Clients"
+      subtitle="Clients ranked by total revenue (paid invoices)."
+    >
       <ZoruCard>
         <div className="overflow-x-auto rounded-lg border border-border">
           <ZoruTable>
@@ -65,6 +60,6 @@ export default async function TopClientsPage() {
           </ZoruTable>
         </div>
       </ZoruCard>
-    </div>
+    </EntityListShell>
   );
 }

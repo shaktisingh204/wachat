@@ -3,7 +3,6 @@ import {
   redirect } from 'next/navigation';
 import {
     ArrowRight,
-  BarChart3,
   FileText,
   Handshake,
   TrendingUp,
@@ -26,7 +25,7 @@ import {
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 
 import { getSession } from '@/app/actions/user.actions';
@@ -132,16 +131,10 @@ export default async function ConversionsFunnelPage() {
     const overall = pct(invoiceCount, totalLeads);
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'Sales CRM', href: '/dashboard/crm/sales-crm' },
-                    { label: 'Conversions' },
-                ]}
-                title="Conversions"
-                subtitle="Leads → Deals → Invoices funnel for the current tenant."
-                icon={BarChart3}
-            />
+        <EntityListShell
+            title="Conversions"
+            subtitle="Leads → Deals → Invoices funnel for the current tenant."
+        >
 
             {/* Overall headline */}
             <ZoruCard className="p-6">
@@ -263,6 +256,6 @@ export default async function ConversionsFunnelPage() {
                     module.
                 </p>
             </ZoruCard>
-        </div>
+        </EntityListShell>
     );
 }

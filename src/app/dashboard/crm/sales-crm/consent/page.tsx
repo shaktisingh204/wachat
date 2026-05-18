@@ -18,9 +18,9 @@ import {
 } from '@/components/zoruui';
 import * as React from 'react';
 import { useEffect, useMemo, useState, useTransition } from 'react';
-import { ShieldCheck, LoaderCircle } from 'lucide-react';
+import { LoaderCircle } from 'lucide-react';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 import {
   getPurposeConsents,
@@ -182,12 +182,10 @@ export default function LeadConsentPage() {
   };
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Lead Consent"
-        subtitle="Record purpose consents and revocations per lead with IP/UA capture."
-        icon={ShieldCheck}
-      />
+    <EntityListShell
+      title="Lead Consent"
+      subtitle="Record purpose consents and revocations per lead with IP/UA capture."
+    >
 
       <ZoruCard>
         <div className="flex flex-wrap items-end gap-3">
@@ -380,6 +378,6 @@ export default function LeadConsentPage() {
           </ZoruCard>
         </>
       ) : null}
-    </div>
+    </EntityListShell>
   );
 }

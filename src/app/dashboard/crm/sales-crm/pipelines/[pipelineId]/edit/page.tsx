@@ -1,18 +1,13 @@
-import { ZoruButton } from '@/components/zoruui';
 import {
   notFound,
   redirect } from 'next/navigation';
-import { ArrowLeft,
-  Columns3 } from 'lucide-react';
 
 /**
  * Edit pipeline page — server wrapper that loads the pipeline by id and
  * passes it as `initialData` to `<PipelineForm />`.
  */
 
-import Link from 'next/link';
-
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { getSession } from '@/app/actions/user.actions';
 import { getPipelineById } from '@/app/actions/crm-pipelines.actions';
 
@@ -36,28 +31,11 @@ export default async function EditPipelinePage({
     if (!pipeline) notFound();
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'Sales CRM', href: '/dashboard/crm/sales-crm' },
-                    { label: 'Pipelines', href: BASE },
-                    { label: pipeline.name, href: `${BASE}/${pipelineId}` },
-                    { label: 'Edit' },
-                ]}
-                title={`Edit · ${pipeline.name}`}
-                subtitle="Update stages, probabilities and pipeline metadata."
-                icon={Columns3}
-                actions={
-                    <ZoruButton variant="ghost" asChild>
-                        <Link href={`${BASE}/${pipelineId}`}>
-                            <ArrowLeft className="mr-2 h-4 w-4" />
-                            Back to detail
-                        </Link>
-                    </ZoruButton>
-                }
-            />
-
+        <EntityListShell
+            title={`Edit · ${pipeline.name}`}
+            subtitle="Update stages, probabilities and pipeline metadata."
+        >
             <PipelineForm initialData={pipeline} />
-        </div>
+        </EntityListShell>
     );
 }

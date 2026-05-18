@@ -1,9 +1,7 @@
 import { ZoruCard } from '@/components/zoruui';
 export const dynamic = 'force-dynamic';
 
-import { CreditCard } from 'lucide-react';
-
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   ReportToolbar,
   StatCard,
@@ -23,14 +21,11 @@ export default async function PaymentReportPage(props: {
   const max = rows.reduce((m, r) => Math.max(m, r.total), 0);
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Payment Report"
-        subtitle="Payments received grouped by gateway / method."
-        icon={CreditCard}
-        actions={<ReportToolbar from={sp.from} to={sp.to} />}
-      />
-
+    <EntityListShell
+      title="Payment Report"
+      subtitle="Payments received grouped by gateway / method."
+      primaryAction={<ReportToolbar from={sp.from} to={sp.to} />}
+    >
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <StatCard label="Total collected" value={fmtMoney(total)} tone="green" />
         <StatCard label="Payments" value={String(count)} />
@@ -58,6 +53,6 @@ export default async function PaymentReportPage(props: {
           ))
         )}
       </ZoruCard>
-    </div>
+    </EntityListShell>
   );
 }

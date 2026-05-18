@@ -1,9 +1,7 @@
 import { ZoruCard } from '@/components/zoruui';
 export const dynamic = 'force-dynamic';
 
-import { Calculator } from 'lucide-react';
-
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   ReportToolbar,
   StatCard,
@@ -18,14 +16,11 @@ export default async function TaxReportPage(props: {
   const summary = await getTaxSummary(sp.from, sp.to);
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Tax Report"
-        subtitle="Tax collected on invoices minus tax paid on expenses."
-        icon={Calculator}
-        actions={<ReportToolbar from={sp.from} to={sp.to} />}
-      />
-
+    <EntityListShell
+      title="Tax Report"
+      subtitle="Tax collected on invoices minus tax paid on expenses."
+      primaryAction={<ReportToolbar from={sp.from} to={sp.to} />}
+    >
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <StatCard
           label="Tax collected"
@@ -65,6 +60,6 @@ export default async function TaxReportPage(props: {
           .
         </p>
       </ZoruCard>
-    </div>
+    </EntityListShell>
   );
 }

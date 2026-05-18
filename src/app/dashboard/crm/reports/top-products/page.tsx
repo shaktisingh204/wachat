@@ -1,9 +1,7 @@
 import { ZoruCard, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/zoruui';
 export const dynamic = 'force-dynamic';
 
-import { Package } from 'lucide-react';
-
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 import { fmtMoney, fmtNumber } from '../_components/report-toolbar';
 import { getTopProducts } from '@/app/actions/worksuite/reports.actions';
@@ -12,13 +10,10 @@ export default async function TopProductsPage() {
   const rows = await getTopProducts(20);
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Top Products"
-        subtitle="Products ranked by units sold and revenue (invoice line items)."
-        icon={Package}
-      />
-
+    <EntityListShell
+      title="Top Products"
+      subtitle="Products ranked by units sold and revenue (invoice line items)."
+    >
       <ZoruCard>
         <div className="overflow-x-auto rounded-lg border border-border">
           <ZoruTable>
@@ -69,6 +64,6 @@ export default async function TopProductsPage() {
           </ZoruTable>
         </div>
       </ZoruCard>
-    </div>
+    </EntityListShell>
   );
 }
