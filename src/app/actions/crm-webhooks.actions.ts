@@ -22,6 +22,7 @@ import {
     type CrmWebhookEvent,
     type CrmWebhookStatus,
 } from '@/lib/webhooks/dispatch';
+import { recordFlowAction } from '@/lib/sabflow/audit/middleware';
 
 /* ── Public DTO (UI-safe; no secret material leaked except on create) ──── */
 
@@ -169,6 +170,11 @@ export async function createWebhookSubscription(
             .collection('crm_webhook_subscriptions')
             .insertOne(doc);
         revalidatePath('/dashboard/crm/settings/webhooks');
+        void recordFlowAction('crm.webhook.created', {
+            userId: String(session.user._id),
+            target: String(result.insertedId),
+            metadata: { name, targetUrl, events },
+        });
         return {
             ok: true,
             secret,
@@ -259,6 +265,10 @@ export async function deleteWebhookSubscription(
             return { ok: false, error: 'Subscription not found.' };
         }
         revalidatePath('/dashboard/crm/settings/webhooks');
+        void recordFlowAction('crm.webhook.deleted', {
+            userId: String(session.user._id),
+            target: id,
+        });
         return { ok: true };
     } catch (e) {
         console.error('[crm-webhooks] delete failed:', e);

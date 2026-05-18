@@ -26,6 +26,7 @@ import {
   type CrmTicketUpdateInput,
 } from '@/lib/rust-client/crm-tickets';
 import { applyCustomFieldsToEntity } from '@/app/actions/worksuite/meta.actions';
+import { recordFlowAction } from '@/lib/sabflow/audit/middleware';
 
 const LIST_PATH = '/dashboard/crm/tickets';
 
@@ -196,6 +197,32 @@ export async function saveTicketAction(
 
     revalidatePath(LIST_PATH);
     revalidatePath(`${LIST_PATH}/${String(result._id)}`);
+    const statusV = pickString(formData, 'status');
+    if (!id) {
+      void recordFlowAction('crm.ticket.created', {
+        userId: String(session.user._id),
+        target: String(result._id),
+        metadata: { subject, channel, severity, status: statusV },
+      });
+    } else if (statusV === 'resolved' || statusV === 'closed') {
+      void recordFlowAction('crm.ticket.resolved', {
+        userId: String(session.user._id),
+        target: String(result._id),
+        metadata: { status: statusV },
+      });
+    } else if (statusV) {
+      void recordFlowAction('crm.ticket.statusChanged', {
+        userId: String(session.user._id),
+        target: String(result._id),
+        metadata: { status: statusV },
+      });
+    } else if (pickString(formData, 'assigneeId')) {
+      void recordFlowAction('crm.ticket.assigned', {
+        userId: String(session.user._id),
+        target: String(result._id),
+        metadata: { assigneeId: pickString(formData, 'assigneeId') },
+      });
+    }
     return {
       message: id ? 'Ticket updated.' : 'Ticket created.',
       id: String(result._id),
@@ -233,6 +260,10 @@ export async function deleteTicketAction(
       /* non-fatal */
     }
     revalidatePath(LIST_PATH);
+    void recordFlowAction('crm.ticket.deleted', {
+      userId: String(session.user._id),
+      target: id,
+    });
     return { success: true };
   } catch (e) {
     if (e instanceof RustApiError && e.status === 404) {

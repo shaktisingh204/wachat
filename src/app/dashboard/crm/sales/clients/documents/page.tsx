@@ -71,9 +71,12 @@ export default function ClientDocumentsPage() {
       fields={[
         {
           name: 'client_id',
-          label: 'Client ID',
+          label: 'Client',
           required: true,
-          placeholder: 'Mongo ObjectId of the account',
+          type: 'entity',
+          entity: 'client',
+          allowCreate: true,
+          placeholder: 'Select or create a client…',
           fullWidth: true,
         },
         { name: 'filename', label: 'Filename', required: true, fullWidth: true },

@@ -23,7 +23,6 @@ import { ZoruInput } from "../input";
 import { ZoruKbd } from "../kbd";
 import { ZoruButton } from "../button";
 import { ZoruNotificationPopover } from "../notification-popover";
-import { ZoruToaster } from "../toaster";
 import { ZoruUserDropdown } from "../user-dropdown";
 import {
   CommandPaletteProvider,
@@ -208,12 +207,14 @@ function ZoruHomeShellContent({
   return (
     <div className="zoruui flex h-screen w-full overflow-hidden bg-zoru-bg text-zoru-ink">
       <ZoruAppRail items={railItems} />
-      <ZoruAppSidebar
-        heading={resolvedHeading}
-        caption={resolvedCaption}
-        groups={sidebarGroups}
-        footer={planFooter}
-      />
+      {!fullBleed && (
+        <ZoruAppSidebar
+          heading={resolvedHeading}
+          caption={resolvedCaption}
+          groups={sidebarGroups}
+          footer={planFooter}
+        />
+      )}
 
       <div className="relative flex min-w-0 flex-1 flex-col">
         <ZoruHeader
@@ -279,10 +280,6 @@ function ZoruHomeShellContent({
           {children}
         </main>
       </div>
-
-      {/* Mount once at the shell level so any page rendered inside
-          ZoruHomeShell can call zoruToast() / useZoruToast(). */}
-      <ZoruToaster />
     </div>
   );
 }

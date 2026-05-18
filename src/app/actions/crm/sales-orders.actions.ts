@@ -17,6 +17,19 @@ import { ObjectId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
 import { RustApiError } from '@/lib/rust-client';
+import { recordFlowAction } from '@/lib/sabflow/audit/middleware';
+
+async function _crmSoActorId(): Promise<string | null> {
+  try {
+    const session = await getSession();
+    const u = (session as { user?: { _id?: unknown; id?: unknown } } | null)?.user;
+    const raw = u?._id ?? u?.id;
+    if (!raw) return null;
+    return typeof raw === 'string' ? raw : String(raw);
+  } catch {
+    return null;
+  }
+}
 import {
   crmSalesOrdersApi,
   type CrmSalesOrderCreateInput,
@@ -267,6 +280,27 @@ export async function saveSalesOrderAction(
 
     revalidatePath(LIST_PATH);
     revalidatePath(`${LIST_PATH}/${String(result._id)}`);
+    const actorId = await _crmSoActorId();
+    if (actorId) {
+      if (!id) {
+        void recordFlowAction('crm.salesOrder.created', {
+          userId: actorId,
+          target: String(result._id),
+          metadata: { soNo, clientId, currency },
+        });
+      } else if (status === 'fulfilled' || status === 'shipped' || status === 'delivered') {
+        void recordFlowAction('crm.salesOrder.fulfilled', {
+          userId: actorId,
+          target: String(result._id),
+          metadata: { status },
+        });
+      } else if (status === 'cancelled') {
+        void recordFlowAction('crm.salesOrder.cancelled', {
+          userId: actorId,
+          target: String(result._id),
+        });
+      }
+    }
     return {
       message: id ? 'Sales order updated.' : 'Sales order created.',
       id: String(result._id),
@@ -287,6 +321,14 @@ export async function deleteSalesOrderAction(
   try {
     await crmSalesOrdersApi.delete(id);
     revalidatePath(LIST_PATH);
+    const actorId = await _crmSoActorId();
+    if (actorId) {
+      void recordFlowAction('crm.salesOrder.cancelled', {
+        userId: actorId,
+        target: id,
+        metadata: { op: 'delete' },
+      });
+    }
     return { success: true };
   } catch (e) {
     if (e instanceof RustApiError && e.status === 404) {

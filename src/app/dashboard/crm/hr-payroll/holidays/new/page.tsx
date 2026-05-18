@@ -1,5 +1,11 @@
-import { redirect } from 'next/navigation';
+import { CrmPageHeader } from '../../../../crm/_components/crm-page-header';
+import { HolidayForm } from './holiday-form';
 
-export default function Page(): never {
-  redirect('/dashboard/hrm/payroll/holidays/new');
+export default function NewHolidayPage() {
+    return (
+        <div className="space-y-6">
+            <CrmPageHeader title="New holiday" />
+            <HolidayForm />
+        </div>
+    );
 }

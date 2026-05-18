@@ -10,7 +10,24 @@
  */
 
 import Link from 'next/link';
-import { Key, KeyRound, Boxes, Webhook, BarChart3, FileSearch, BookOpen } from 'lucide-react';
+import {
+  ArrowUpRight,
+  Key,
+  KeyRound,
+  Boxes,
+  Webhook,
+  BarChart3,
+  FileSearch,
+  BookOpen,
+} from 'lucide-react';
+
+import {
+  ZoruCard,
+  ZoruPageDescription,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+} from '@/components/zoruui';
 
 export const dynamic = 'force-dynamic';
 
@@ -68,29 +85,34 @@ const cards: NavCard[] = [
 
 export default function DeveloperApiHubPage(): JSX.Element {
   return (
-    <div className="max-w-5xl mx-auto px-6 py-8">
-      <header className="mb-8">
-        <h1 className="text-3xl font-bold">Developer platform</h1>
-        <p className="text-sm text-zinc-500 mt-1">
-          Everything you need to build on top of SabNode — keys, OAuth apps, webhooks, usage,
-          and live API docs.
-        </p>
-      </header>
+    <div className="flex min-h-full flex-col gap-6">
+      <ZoruPageHeader>
+        <ZoruPageHeading>
+          <ZoruPageTitle>Developer platform</ZoruPageTitle>
+          <ZoruPageDescription>
+            Everything you need to build on top of SabNode — keys, OAuth apps, webhooks, usage,
+            and live API docs.
+          </ZoruPageDescription>
+        </ZoruPageHeading>
+      </ZoruPageHeader>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {cards.map((card) => {
           const Icon = card.icon;
           return (
-            <Link
-              key={card.href}
-              href={card.href}
-              className="block p-5 rounded-lg border border-zinc-800 bg-zinc-900/30 hover:bg-zinc-900 hover:border-amber-500/40 transition"
-            >
-              <div className="flex items-center gap-2 mb-2">
-                <Icon className="h-5 w-5 text-amber-400" />
-                <div className="font-semibold text-zinc-100">{card.title}</div>
-              </div>
-              <p className="text-xs text-zinc-400">{card.description}</p>
+            <Link key={card.href} href={card.href} className="group">
+              <ZoruCard className="h-full p-5 transition-shadow group-hover:shadow-[var(--zoru-shadow-md)]">
+                <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2 text-zoru-ink">
+                  <Icon className="h-[18px] w-[18px]" />
+                </div>
+                <div className="flex items-start justify-between gap-2">
+                  <p className="text-[14px] font-medium text-zoru-ink">{card.title}</p>
+                  <ArrowUpRight className="h-4 w-4 text-zoru-ink-muted transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-zoru-ink" />
+                </div>
+                <p className="mt-1 text-[12.5px] leading-relaxed text-zoru-ink-muted">
+                  {card.description}
+                </p>
+              </ZoruCard>
             </Link>
           );
         })}

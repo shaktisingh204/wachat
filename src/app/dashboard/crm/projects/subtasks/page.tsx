@@ -480,13 +480,14 @@ function SubTaskDialog({ open, initial, onOpenChange, onSaved }: SubTaskDialogPr
           </div>
           <div>
             <ZoruLabel htmlFor="taskId">
-              Parent task id <span className="text-zoru-danger-ink">*</span>
+              Parent task <span className="text-zoru-danger-ink">*</span>
             </ZoruLabel>
-            <ZoruInput
-              id="taskId"
+            <EntityFormField
+              entity="task"
               name="taskId"
-              defaultValue={initial?.taskId ? String(initial.taskId) : ''}
-              placeholder="Mongo ObjectId"
+              initialId={initial?.taskId ? String(initial.taskId) : undefined}
+              placeholder="Select a parent task"
+              allowCreate
               required
             />
           </div>

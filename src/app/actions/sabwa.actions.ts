@@ -41,6 +41,7 @@ import type {
 } from '@/lib/sabwa/types';
 import { engineFetch, SabwaEngineError } from '@/lib/sabwa/engine-client';
 import { getSession } from '@/app/actions/user.actions';
+import { recordFlowAction } from '@/lib/sabflow/audit/middleware';
 import { getProjects } from '@/app/actions/project.actions';
 import { ObjectId as MongoObjectId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
@@ -268,6 +269,11 @@ export async function pairSession(
     );
     revalidatePath('/sabwa/connect');
     revalidatePath('/sabwa/devices');
+    void recordFlowAction('sabwa.session.connected', {
+      userId: auth.userId,
+      target: res.sessionId,
+      metadata: { projectId, pairMethod: input.pairMethod },
+    });
     return { ok: true, ...res };
   } catch (err) {
     return engineFailure('pairSession', err);
@@ -286,6 +292,10 @@ export async function logoutSession(
     await engineSend(`/v1/sessions/${encodeURIComponent(id)}`, 'DELETE');
     revalidatePath('/sabwa/devices');
     revalidatePath('/sabwa/connect');
+    void recordFlowAction('sabwa.session.disconnected', {
+      userId: auth.userId,
+      target: id,
+    });
     return { ok: true };
   } catch (err) {
     return engineFailure('logoutSession', err);
@@ -1175,6 +1185,11 @@ export async function sendBroadcast(
       { sessionId: sid, payload },
     );
     revalidatePath('/sabwa/broadcasts');
+    void recordFlowAction('sabwa.broadcast.sent', {
+      userId: auth.userId,
+      target: bid,
+      metadata: { sessionId: sid, jobId: res.jobId },
+    });
     return { ok: true, jobId: res.jobId };
   } catch (err) {
     return engineFailure('sendBroadcast', err);
@@ -1220,6 +1235,13 @@ async function bulkCampaignOp(
       'POST',
     );
     revalidatePath('/sabwa/bulk');
+    if (op === 'abort') {
+      void recordFlowAction('sabwa.broadcast.cancelled', {
+        userId: auth.userId,
+        target: id,
+        metadata: { op },
+      });
+    }
     return { ok: true };
   } catch (err) {
     return engineFailure(scope, err);
@@ -1475,6 +1497,11 @@ export async function blockContact(
       sessionId: sid,
     });
     revalidatePath('/sabwa/contacts');
+    void recordFlowAction('sabwa.contact.blocked', {
+      userId: auth.userId,
+      target: jid,
+      metadata: { sessionId: sid },
+    });
     return { ok: true };
   } catch (err) {
     return engineFailure('blockContact', err);
@@ -1497,6 +1524,11 @@ export async function unblockContact(
       sessionId: sid,
     });
     revalidatePath('/sabwa/contacts');
+    void recordFlowAction('sabwa.contact.unblocked', {
+      userId: auth.userId,
+      target: jid,
+      metadata: { sessionId: sid },
+    });
     return { ok: true };
   } catch (err) {
     return engineFailure('unblockContact', err);
@@ -1675,6 +1707,7 @@ export async function listAutoReplies(
 export async function upsertAutoReply(
   args: UpsertAutoReplyArgs,
 ): Promise<SabwaActionResult<{ autoReplyId: string }>> {
+  const auth = await requireAuth();
   try {
     const data = await engineFetch<{ autoReplyId: string }>(
       `/v1/auto-replies`,
@@ -1687,6 +1720,16 @@ export async function upsertAutoReply(
         },
       },
     );
+    if (auth.ok) {
+      void recordFlowAction(
+        args.id ? 'sabwa.automation.updated' : 'sabwa.automation.created',
+        {
+          userId: auth.userId,
+          target: data.autoReplyId,
+          metadata: { sessionId: String(args.sessionId) },
+        },
+      );
+    }
     return { ok: true, autoReplyId: data.autoReplyId };
   } catch (err) {
     if (err instanceof SabwaEngineError) return { ok: false, error: err.message };
@@ -1698,10 +1741,17 @@ export async function upsertAutoReply(
 export async function deleteAutoReply(
   id: IdLike,
 ): Promise<SabwaActionResult> {
+  const auth = await requireAuth();
   try {
     await engineFetch(`/v1/auto-replies/${encodeURIComponent(String(id))}`, {
       method: 'DELETE',
     });
+    if (auth.ok) {
+      void recordFlowAction('sabwa.automation.deleted', {
+        userId: auth.userId,
+        target: String(id),
+      });
+    }
     return { ok: true };
   } catch (err) {
     if (err instanceof SabwaEngineError) return { ok: false, error: err.message };
@@ -1714,11 +1764,19 @@ export async function setAutoReplyEnabled(
   id: IdLike,
   enabled: boolean,
 ): Promise<SabwaActionResult> {
+  const auth = await requireAuth();
   try {
     await engineFetch(
       `/v1/auto-replies/${encodeURIComponent(String(id))}/enabled`,
       { method: 'PATCH', json: { enabled } },
     );
+    if (auth.ok) {
+      void recordFlowAction('sabwa.automation.toggled', {
+        userId: auth.userId,
+        target: String(id),
+        metadata: { enabled },
+      });
+    }
     return { ok: true };
   } catch (err) {
     if (err instanceof SabwaEngineError) return { ok: false, error: err.message };
@@ -1806,6 +1864,13 @@ export async function upsertLabel(
         )
       : await engineSend<{ label: SabwaLabelRow }>('/v1/labels', 'POST', body);
     revalidatePath('/sabwa/labels');
+    if (!id) {
+      void recordFlowAction('sabwa.label.created', {
+        userId: auth.userId,
+        target: res.label?.id,
+        metadata: { name: input.name, color: input.color, sessionId: sid },
+      });
+    }
     return { ok: true, label: res.label };
   } catch (err) {
     return engineFailure('upsertLabel', err);
@@ -1822,6 +1887,10 @@ export async function deleteLabel(
   try {
     await engineSend(`/v1/labels/${encodeURIComponent(id)}`, 'DELETE');
     revalidatePath('/sabwa/labels');
+    void recordFlowAction('sabwa.label.removed', {
+      userId: auth.userId,
+      target: id,
+    });
     return { ok: true };
   } catch (err) {
     return engineFailure('deleteLabel', err);

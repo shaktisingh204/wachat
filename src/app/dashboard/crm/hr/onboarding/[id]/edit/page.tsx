@@ -1,10 +1,63 @@
-import { redirect } from 'next/navigation';
+'use client';
 
-interface PageProps {
+import { use, useEffect, useState } from 'react';
+import { UserCheck } from 'lucide-react';
+import { HrFormPage } from '../../../_components/hr-form-page';
+import { fields, sections } from '../../_config';
+import {
+  getOnboardingTemplates,
+  saveOnboardingTemplate,
+} from '@/app/actions/hr.actions';
+import { ZoruSkeleton } from '@/components/zoruui';
+
+export default function EditOnboardingTemplatePage({
+  params,
+}: {
   params: Promise<{ id: string }>;
-}
+}) {
+  const { id } = use(params);
+  const [initial, setInitial] = useState<Record<string, unknown> | null>(null);
+  const [loading, setLoading] = useState(true);
 
-export default async function Page({ params }: PageProps): Promise<never> {
-  const { id } = await params;
-  redirect(`/dashboard/hrm/hr/onboarding/${id}/edit`);
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const all = await getOnboardingTemplates();
+        if (!mounted) return;
+        const doc = (all as any[]).find(
+          (r) => String(r._id) === id,
+        );
+        setInitial(doc ? ({ ...doc, _id: String(doc._id) } as any) : null);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="flex w-full flex-col gap-4">
+        <ZoruSkeleton className="h-12 w-full" />
+        <ZoruSkeleton className="h-64 w-full" />
+      </div>
+    );
+  }
+
+  return (
+    <HrFormPage
+      title="Edit Onboarding Template"
+      subtitle="Update the onboarding checklist."
+      icon={UserCheck}
+      backHref="/dashboard/crm/hr/onboarding"
+      singular="Template"
+      fields={fields}
+      sections={sections}
+      saveAction={saveOnboardingTemplate}
+      initial={initial}
+    />
+  );
 }

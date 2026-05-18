@@ -14,6 +14,7 @@ import { writeAuditEntry } from '@/lib/audit-log';
 import { contactApi, type CrmContactDoc } from '@/lib/rust-client/crm-contacts';
 import { RustApiError } from '@/lib/rust-client/fetcher';
 import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+import { recordFlowAction } from '@/lib/sabflow/audit/middleware';
 
 function useRustCrm(): boolean {
     return process.env.USE_RUST_CRM === 'true';
@@ -122,6 +123,10 @@ export async function deleteCrmContact(contactId: string): Promise<{ success: bo
             // DELETE /v1/crm/contacts/:id is soft-delete (status → archived).
             await contactApi.delete(contactId);
             revalidatePath('/dashboard/crm/contacts');
+            void recordFlowAction('crm.contact.deleted', {
+                userId: String(session.user._id),
+                target: contactId,
+            });
             return { success: true };
         } catch (e) {
             const msg = e instanceof RustApiError ? e.message : getErrorMessage(e);
@@ -146,6 +151,10 @@ export async function deleteCrmContact(contactId: string): Promise<{ success: bo
         }
 
         revalidatePath('/dashboard/crm/contacts');
+        void recordFlowAction('crm.contact.deleted', {
+            userId: String(session.user._id),
+            target: contactId,
+        });
         return { success: true };
     } catch (e: any) {
         return { success: false, error: getErrorMessage(e) };
@@ -232,6 +241,10 @@ export async function addCrmContact(prevState: any, formData: FormData): Promise
                 accountId: accountId && ObjectId.isValid(accountId) ? accountId : undefined,
             });
             revalidatePath('/dashboard/crm/contacts');
+            void recordFlowAction('crm.contact.created', {
+                userId: String(session.user._id),
+                metadata: { name, email, company },
+            });
             return { message: 'Contact added successfully.' };
         } catch (e) {
             console.error('[addCrmContact] rust path failed; falling back:', e);
@@ -267,9 +280,14 @@ export async function addCrmContact(prevState: any, formData: FormData): Promise
         }
 
         const { db } = await connectToDatabase();
-        await db.collection('crm_contacts').insertOne(newContact as CrmContact);
+        const inserted = await db.collection('crm_contacts').insertOne(newContact as CrmContact);
 
         revalidatePath('/dashboard/crm/contacts');
+        void recordFlowAction('crm.contact.created', {
+            userId: String(session.user._id),
+            target: inserted.insertedId?.toString?.(),
+            metadata: { name, email, company },
+        });
         return { message: 'Contact added successfully.' };
     } catch (e: any) {
         return { error: getErrorMessage(e) };
@@ -336,6 +354,10 @@ export async function updateCrmContact(
             revalidatePath('/dashboard/crm/contacts');
             revalidatePath('/dashboard/crm/sales/contacts');
             revalidatePath(`/dashboard/crm/sales/contacts/${contactId}`);
+            void recordFlowAction('crm.contact.updated', {
+                userId: String(session.user._id),
+                target: contactId,
+            });
             return { message: 'Contact updated successfully.', contactId };
         } catch (e) {
             console.error('[updateCrmContact] rust path failed; falling back:', e);
@@ -391,6 +413,10 @@ export async function updateCrmContact(
         revalidatePath('/dashboard/crm/contacts');
         revalidatePath('/dashboard/crm/sales/contacts');
         revalidatePath(`/dashboard/crm/sales/contacts/${contactId}`);
+        void recordFlowAction('crm.contact.updated', {
+            userId: String(session.user._id),
+            target: contactId,
+        });
         return { message: 'Contact updated successfully.', contactId };
     } catch (e: any) {
         return { error: getErrorMessage(e) };
@@ -487,6 +513,10 @@ export async function addCrmClient(prevState: any, formData: FormData): Promise<
             entityKind: 'account',
             entityId: accountResult.insertedId.toString(),
         });
+        void recordFlowAction('crm.account.created', {
+            userId: String(session.user._id),
+            target: accountResult.insertedId.toString(),
+        });
 
         revalidatePath('/dashboard/crm/sales/clients');
         return { message: 'New client added successfully.', newClient: JSON.parse(JSON.stringify(createdClient)) };
@@ -569,6 +599,11 @@ export async function addCrmNote(prevState: any, formData: FormData): Promise<{ 
             subscription: `/dashboard/crm/sales/subscriptions/${recordId}`,
         };
         revalidatePath(revalPath[recordType] ?? `/dashboard/crm/${recordType}s/${recordId}`);
+        void recordFlowAction('crm.note.created', {
+            userId: String(session.user._id),
+            target: recordId,
+            metadata: { recordType },
+        });
         return {
             message: "Note added.",
             note: {

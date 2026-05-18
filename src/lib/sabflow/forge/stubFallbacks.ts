@@ -1759,11 +1759,6 @@ export const STUB_FALLBACKS: Record<string, StubFallback> = {
     label: 'Cloudflare KV (forge)',
     rationale: 'Closest Workers-side primitive available; for full Workers ops use HTTP Request to https://api.cloudflare.com/client/v4.',
   },
-  cloudflareR2: {
-    forgeType: 'webhook',
-    label: 'HTTP Request → Cloudflare R2',
-    rationale: 'R2 is S3-compatible — drive via HTTP Request with SigV4 or use the existing S3 forge block.',
-  },
   cloudflarePages: {
     forgeType: 'webhook',
     label: 'HTTP Request → Cloudflare Pages',
@@ -1848,11 +1843,6 @@ export const STUB_FALLBACKS: Record<string, StubFallback> = {
   },
 
   /* ── Survey tools ──────────────────────────────────────── */
-  surveyMonkey: {
-    forgeType: 'webhook',
-    label: 'HTTP Request → SurveyMonkey',
-    rationale: 'Drive https://api.surveymonkey.com/v3 via HTTP Request with bearer.',
-  },
   typeformExt: {
     forgeType: 'webhook',
     label: 'HTTP Request → Typeform API',
@@ -1887,16 +1877,6 @@ export const STUB_FALLBACKS: Record<string, StubFallback> = {
     forgeType: 'webhook',
     label: 'HTTP Request → Refiner',
     rationale: 'Drive https://api.refiner.io/v1 via HTTP Request with project token.',
-  },
-  hotjar: {
-    forgeType: 'webhook',
-    label: 'HTTP Request → Hotjar',
-    rationale: 'Drive Hotjar Insights REST API via HTTP Request.',
-  },
-  formstackForms: {
-    forgeType: 'webhook',
-    label: 'HTTP Request → Formstack Forms',
-    rationale: 'Drive https://www.formstack.com/api/v2 via HTTP Request with bearer.',
   },
 
   /* ── Donation / fundraising ───────────────────────────── */
@@ -2413,11 +2393,6 @@ export const STUB_FALLBACKS: Record<string, StubFallback> = {
     label: 'HTTP Request → Gusto',
     rationale: 'Drive https://api.gusto.com/v1 via HTTP Request with bearer.',
   },
-  rippling: {
-    forgeType: 'webhook',
-    label: 'HTTP Request → Rippling',
-    rationale: 'Drive https://api.rippling.com/platform/api via HTTP Request with bearer.',
-  },
   deelExt: {
     forgeType: 'webhook',
     label: 'HTTP Request → Deel',
@@ -2480,11 +2455,6 @@ export const STUB_FALLBACKS: Record<string, StubFallback> = {
     label: 'HTTP Request → LogRocket',
     rationale: 'Drive https://api.logrocket.com via HTTP Request with bearer.',
   },
-  june: {
-    forgeType: 'webhook',
-    label: 'HTTP Request → June',
-    rationale: 'Drive https://api.june.so/v1 via HTTP Request with bearer.',
-  },
   appcues: {
     forgeType: 'webhook',
     label: 'HTTP Request → Appcues',
@@ -2516,11 +2486,6 @@ export const STUB_FALLBACKS: Record<string, StubFallback> = {
     forgeType: 'webhook',
     label: 'HTTP Request → Mux Video',
     rationale: 'Drive https://api.mux.com/video/v1 via HTTP Request with basic auth.',
-  },
-  cloudflareStream: {
-    forgeType: 'webhook',
-    label: 'HTTP Request → Cloudflare Stream',
-    rationale: 'Drive Cloudflare Stream REST API via HTTP Request with bearer.',
   },
   vimeoOtt: {
     forgeType: 'webhook',
@@ -2807,11 +2772,6 @@ export const STUB_FALLBACKS: Record<string, StubFallback> = {
     label: 'HTTP Request → Customer.io',
     rationale: 'Drive https://track.customer.io/api/v1 via HTTP Request with basic auth.',
   },
-  rudderstack: {
-    forgeType: 'webhook',
-    label: 'HTTP Request → RudderStack',
-    rationale: 'Drive https://hosted.rudderlabs.com/v1 via HTTP Request with bearer.',
-  },
   freshpaint: {
     forgeType: 'webhook',
     label: 'HTTP Request → Freshpaint',
@@ -2921,11 +2881,6 @@ export const STUB_FALLBACKS: Record<string, StubFallback> = {
   },
 
   /* ── Ecommerce ────────────────────────────────────────── */
-  bigcommerce: {
-    forgeType: 'webhook',
-    label: 'HTTP Request → BigCommerce',
-    rationale: 'Drive https://api.bigcommerce.com/stores/{store_hash}/v3 via HTTP Request with X-Auth-Token.',
-  },
   magento: {
     forgeType: 'webhook',
     label: 'HTTP Request → Adobe Commerce (Magento)',
@@ -3221,25 +3176,10 @@ export const STUB_FALLBACKS: Record<string, StubFallback> = {
   },
 
   /* ── Finance / accounting ─────────────────────────────── */
-  quickbooks: {
-    forgeType: 'webhook',
-    label: 'HTTP Request → QuickBooks Online',
-    rationale: 'Drive https://quickbooks.api.intuit.com/v3 via HTTP Request with OAuth bearer.',
-  },
   xero: {
     forgeType: 'webhook',
     label: 'HTTP Request → Xero',
     rationale: 'Drive https://api.xero.com/api.xro/2.0 via HTTP Request with bearer.',
-  },
-  freshbooks: {
-    forgeType: 'webhook',
-    label: 'HTTP Request → FreshBooks',
-    rationale: 'Drive https://api.freshbooks.com via HTTP Request with bearer.',
-  },
-  waveAccounting: {
-    forgeType: 'webhook',
-    label: 'HTTP Request → Wave Accounting',
-    rationale: 'Drive https://gql.waveapps.com/graphql/public via HTTP Request with bearer.',
   },
   sageIntacct: {
     forgeType: 'webhook',
@@ -3332,11 +3272,6 @@ export const STUB_FALLBACKS: Record<string, StubFallback> = {
     forgeType: 'webhook',
     label: 'HTTP Request → Capsule CRM',
     rationale: 'Drive https://api.capsulecrm.com/api/v2 via HTTP Request with bearer.',
-  },
-  closeIo: {
-    forgeType: 'webhook',
-    label: 'HTTP Request → Close',
-    rationale: 'Drive https://api.close.com/api/v1 via HTTP Request with basic auth.',
   },
   freshsales: {
     forgeType: 'webhook',
@@ -3479,16 +3414,6 @@ export const STUB_FALLBACKS: Record<string, StubFallback> = {
   },
 
   /* ── Misc tooling ─────────────────────────────────────── */
-  apify: {
-    forgeType: 'webhook',
-    label: 'HTTP Request → Apify',
-    rationale: 'Drive https://api.apify.com/v2 via HTTP Request with bearer.',
-  },
-  scrapingbee: {
-    forgeType: 'webhook',
-    label: 'HTTP Request → ScrapingBee',
-    rationale: 'Drive https://app.scrapingbee.com/api/v1 via HTTP Request with api_key.',
-  },
   brightdata: {
     forgeType: 'webhook',
     label: 'HTTP Request → Bright Data',
@@ -3628,11 +3553,6 @@ export const STUB_FALLBACKS: Record<string, StubFallback> = {
     label: 'HTTP Request → Knock',
     rationale: 'Drive https://api.knock.app/v1 via HTTP Request with bearer.',
   },
-  courier: {
-    forgeType: 'webhook',
-    label: 'HTTP Request → Courier',
-    rationale: 'Drive https://api.courier.com via HTTP Request with bearer.',
-  },
   novu: {
     forgeType: 'webhook',
     label: 'HTTP Request → Novu',
@@ -3701,21 +3621,6 @@ export const STUB_FALLBACKS: Record<string, StubFallback> = {
     forgeType: 'webhook',
     label: 'HTTP Request → Files.com',
     rationale: 'Drive https://app.files.com/api/rest/v1 via HTTP Request with X-FilesAPI-Key.',
-  },
-  uploadcare: {
-    forgeType: 'webhook',
-    label: 'HTTP Request → Uploadcare',
-    rationale: 'Drive https://api.uploadcare.com via HTTP Request with Uploadcare.Simple auth.',
-  },
-  cloudinary: {
-    forgeType: 'webhook',
-    label: 'HTTP Request → Cloudinary',
-    rationale: 'Drive https://api.cloudinary.com/v1_1 via HTTP Request with basic auth.',
-  },
-  imgix: {
-    forgeType: 'webhook',
-    label: 'HTTP Request → Imgix',
-    rationale: 'Drive https://api.imgix.com via HTTP Request with bearer.',
   },
   filestack: {
     forgeType: 'webhook',

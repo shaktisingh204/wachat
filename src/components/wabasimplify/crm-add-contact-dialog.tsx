@@ -1,43 +1,41 @@
-
 'use client';
 
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { LoaderCircle, UserPlus } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+
+import {
+  ZoruButton,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruDialogTrigger,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruSeparator,
+  useZoruToast,
+} from '@/components/zoruui';
+import { EntityFormField } from '@/components/crm/entity-form-field';
 import { addCrmContact } from '@/app/actions/crm.actions';
 import type { CrmAccount, WithId } from '@/lib/definitions';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { Separator } from '../ui/separator';
-import { ClayButton } from '@/components/clay';
-import { EntityFormField } from '@/components/crm/entity-form-field';
 
 const initialState = { message: undefined, error: undefined };
 
 function SubmitButton() {
   const { pending } = useFormStatus();
-
   return (
-    <ClayButton
-      type="submit"
-      variant="obsidian"
-      disabled={pending}
-      leading={pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : undefined}
-    >
+    <ZoruButton type="submit" disabled={pending}>
+      {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <UserPlus className="h-4 w-4" />}
       Add Contact
-    </ClayButton>
+    </ZoruButton>
   );
 }
 
@@ -46,10 +44,10 @@ interface CrmAddContactDialogProps {
   accounts: WithId<CrmAccount>[];
 }
 
-export function CrmAddContactDialog({ onAdded, accounts }: CrmAddContactDialogProps) {
+export function CrmAddContactDialog({ onAdded }: CrmAddContactDialogProps) {
   const [open, setOpen] = useState(false);
   const [state, formAction] = useActionState(addCrmContact, initialState);
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
@@ -65,121 +63,168 @@ export function CrmAddContactDialog({ onAdded, accounts }: CrmAddContactDialogPr
   }, [state, toast, onAdded]);
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button>
-          <UserPlus className="mr-2 h-4 w-4" />
+    <ZoruDialog open={open} onOpenChange={setOpen}>
+      <ZoruDialogTrigger asChild>
+        <ZoruButton>
+          <UserPlus className="h-4 w-4" />
           Add Contact
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col overflow-hidden p-0">
+        </ZoruButton>
+      </ZoruDialogTrigger>
+      <ZoruDialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col overflow-hidden p-0 gap-0">
         <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
-          <DialogHeader className="px-6 pt-6 pb-2">
-            <DialogTitle className="text-foreground">Add New Contact</DialogTitle>
-            <DialogDescription className="text-muted-foreground">Manually add a new contact or lead to your CRM.</DialogDescription>
-          </DialogHeader>
-          <div className="flex-1 overflow-y-auto px-6 py-2">
+          <ZoruDialogHeader className="px-6 pt-6 pb-3 border-b border-zoru-line">
+            <ZoruDialogTitle>Add New Contact</ZoruDialogTitle>
+            <ZoruDialogDescription>
+              Manually add a new contact or lead to your CRM.
+            </ZoruDialogDescription>
+          </ZoruDialogHeader>
+
+          <div className="flex-1 overflow-y-auto px-6 py-5">
             <div className="grid gap-4">
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2"><Label htmlFor="name" className="text-foreground">Full Name</Label><Input id="name" name="name" required /></div>
-                <div className="space-y-2"><Label htmlFor="email" className="text-foreground">Email</Label><Input id="email" name="email" type="email" required /></div>
+                <div className="space-y-1.5">
+                  <ZoruLabel htmlFor="name">Full Name</ZoruLabel>
+                  <ZoruInput id="name" name="name" required />
+                </div>
+                <div className="space-y-1.5">
+                  <ZoruLabel htmlFor="email">Email</ZoruLabel>
+                  <ZoruInput id="email" name="email" type="email" required />
+                </div>
               </div>
+
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2"><Label htmlFor="phone" className="text-foreground">Phone</Label><Input id="phone" name="phone" type="tel" inputMode="tel" pattern="[0-9+()\\-\\s]*" onChange={(e) => { e.currentTarget.value = e.currentTarget.value.replace(/[^0-9+()\-\s]/g, ''); }} /></div>
-                <div className="space-y-2"><Label htmlFor="company" className="text-foreground">Company</Label><Input id="company" name="company" /></div>
+                <div className="space-y-1.5">
+                  <ZoruLabel htmlFor="phone">Phone</ZoruLabel>
+                  <ZoruInput
+                    id="phone"
+                    name="phone"
+                    type="tel"
+                    inputMode="tel"
+                    pattern="[0-9+()\\-\\s]*"
+                    onChange={(e) => {
+                      e.currentTarget.value = e.currentTarget.value.replace(/[^0-9+()\-\s]/g, '');
+                    }}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <ZoruLabel htmlFor="company">Company</ZoruLabel>
+                  <ZoruInput id="company" name="company" />
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="jobTitle" className="text-foreground">Job Title</Label>
+
+              <div className="space-y-1.5">
+                <ZoruLabel htmlFor="jobTitle">Job Title</ZoruLabel>
                 <EntityFormField entity="jobTitle" name="jobTitle" />
               </div>
-              <Separator className="border-border" />
+
+              <ZoruSeparator />
+
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="accountId" className="text-foreground">Account (Company)</Label>
-                  <EntityFormField entity="client" name="accountId" placeholder="Select an account…" allowCreate />
+                <div className="space-y-1.5">
+                  <ZoruLabel htmlFor="accountId">Account (Company)</ZoruLabel>
+                  <EntityFormField
+                    entity="client"
+                    name="accountId"
+                    placeholder="Select an account…"
+                    allowCreate
+                  />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="status" className="text-foreground">Status</Label>
-                  <Select name="status" defaultValue="new_lead">
-                    <SelectTrigger id="status">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="new_lead">New Lead</SelectItem>
-                      <SelectItem value="contacted">Contacted</SelectItem>
-                      <SelectItem value="qualified">Qualified</SelectItem>
-                      <SelectItem value="unqualified">Unqualified</SelectItem>
-                      <SelectItem value="customer">Customer</SelectItem>
-                      <SelectItem value="imported">Imported</SelectItem>
-                    </SelectContent>
-                  </Select>
+                <div className="space-y-1.5">
+                  <ZoruLabel htmlFor="status">Status</ZoruLabel>
+                  <ZoruSelect name="status" defaultValue="new_lead">
+                    <ZoruSelectTrigger id="status">
+                      <ZoruSelectValue />
+                    </ZoruSelectTrigger>
+                    <ZoruSelectContent>
+                      <ZoruSelectItem value="new_lead">New Lead</ZoruSelectItem>
+                      <ZoruSelectItem value="contacted">Contacted</ZoruSelectItem>
+                      <ZoruSelectItem value="qualified">Qualified</ZoruSelectItem>
+                      <ZoruSelectItem value="unqualified">Unqualified</ZoruSelectItem>
+                      <ZoruSelectItem value="customer">Customer</ZoruSelectItem>
+                      <ZoruSelectItem value="imported">Imported</ZoruSelectItem>
+                    </ZoruSelectContent>
+                  </ZoruSelect>
                 </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="leadScore" className="text-foreground">Lead Score</Label>
-                <Input id="leadScore" name="leadScore" type="number" placeholder="e.g. 75" className="h-10 rounded-lg border-border bg-card text-[13px]" />
+
+              <div className="space-y-1.5">
+                <ZoruLabel htmlFor="leadScore">Lead Score</ZoruLabel>
+                <ZoruInput id="leadScore" name="leadScore" type="number" placeholder="e.g. 75" />
               </div>
-              <Separator className="border-border" />
+
+              <ZoruSeparator />
+
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="lifecycleStage" className="text-foreground">Lifecycle Stage</Label>
-                  <Select name="lifecycleStage" defaultValue="lead">
-                    <SelectTrigger id="lifecycleStage" className="h-10 rounded-lg border-border bg-card text-[13px]">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="lead">Lead</SelectItem>
-                      <SelectItem value="mql">MQL</SelectItem>
-                      <SelectItem value="sql">SQL</SelectItem>
-                      <SelectItem value="customer">Customer</SelectItem>
-                      <SelectItem value="evangelist">Evangelist</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
-                    </SelectContent>
-                  </Select>
+                <div className="space-y-1.5">
+                  <ZoruLabel htmlFor="lifecycleStage">Lifecycle Stage</ZoruLabel>
+                  <ZoruSelect name="lifecycleStage" defaultValue="lead">
+                    <ZoruSelectTrigger id="lifecycleStage">
+                      <ZoruSelectValue />
+                    </ZoruSelectTrigger>
+                    <ZoruSelectContent>
+                      <ZoruSelectItem value="lead">Lead</ZoruSelectItem>
+                      <ZoruSelectItem value="mql">MQL</ZoruSelectItem>
+                      <ZoruSelectItem value="sql">SQL</ZoruSelectItem>
+                      <ZoruSelectItem value="customer">Customer</ZoruSelectItem>
+                      <ZoruSelectItem value="evangelist">Evangelist</ZoruSelectItem>
+                      <ZoruSelectItem value="other">Other</ZoruSelectItem>
+                    </ZoruSelectContent>
+                  </ZoruSelect>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="source" className="text-foreground">Source</Label>
+                <div className="space-y-1.5">
+                  <ZoruLabel htmlFor="source">Source</ZoruLabel>
                   <EntityFormField entity="leadSource" name="source" initialId="Other" />
                 </div>
               </div>
+
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="owner" className="text-foreground">Owner</Label>
+                <div className="space-y-1.5">
+                  <ZoruLabel htmlFor="owner">Owner</ZoruLabel>
                   <EntityFormField entity="user" name="owner" placeholder="Assigned to…" />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="tags" className="text-foreground">Tags</Label>
-                  <Input id="tags" name="tags" placeholder="vip, enterprise, priority" className="h-10 rounded-lg border-border bg-card text-[13px]" />
+                <div className="space-y-1.5">
+                  <ZoruLabel htmlFor="tags">Tags</ZoruLabel>
+                  <ZoruInput id="tags" name="tags" placeholder="vip, enterprise, priority" />
                 </div>
               </div>
+
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="linkedinUrl" className="text-foreground">LinkedIn URL</Label>
-                  <Input id="linkedinUrl" name="linkedinUrl" type="url" placeholder="https://linkedin.com/in/..." className="h-10 rounded-lg border-border bg-card text-[13px]" />
+                <div className="space-y-1.5">
+                  <ZoruLabel htmlFor="linkedinUrl">LinkedIn URL</ZoruLabel>
+                  <ZoruInput
+                    id="linkedinUrl"
+                    name="linkedinUrl"
+                    type="url"
+                    placeholder="https://linkedin.com/in/..."
+                  />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="twitterHandle" className="text-foreground">Twitter / X Handle</Label>
-                  <Input id="twitterHandle" name="twitterHandle" placeholder="@handle" className="h-10 rounded-lg border-border bg-card text-[13px]" />
+                <div className="space-y-1.5">
+                  <ZoruLabel htmlFor="twitterHandle">Twitter / X Handle</ZoruLabel>
+                  <ZoruInput id="twitterHandle" name="twitterHandle" placeholder="@handle" />
                 </div>
               </div>
+
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="dateOfBirth" className="text-foreground">Date of Birth</Label>
-                  <Input id="dateOfBirth" name="dateOfBirth" type="date" className="h-10 rounded-lg border-border bg-card text-[13px]" />
+                <div className="space-y-1.5">
+                  <ZoruLabel htmlFor="dateOfBirth">Date of Birth</ZoruLabel>
+                  <ZoruInput id="dateOfBirth" name="dateOfBirth" type="date" />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="timezone" className="text-foreground">Timezone</Label>
+                <div className="space-y-1.5">
+                  <ZoruLabel htmlFor="timezone">Timezone</ZoruLabel>
                   <EntityFormField entity="timezone" name="timezone" placeholder="Asia/Kolkata" />
                 </div>
               </div>
             </div>
           </div>
-          <DialogFooter className="shrink-0 border-t border-border bg-background px-6 pb-6 pt-4">
-            <ClayButton type="button" variant="pill" onClick={() => setOpen(false)}>Cancel</ClayButton>
+
+          <ZoruDialogFooter className="shrink-0 border-t border-zoru-line bg-zoru-bg px-6 pb-5 pt-4 gap-2">
+            <ZoruButton type="button" variant="outline" onClick={() => setOpen(false)}>
+              Cancel
+            </ZoruButton>
             <SubmitButton />
-          </DialogFooter>
+          </ZoruDialogFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+      </ZoruDialogContent>
+    </ZoruDialog>
   );
 }

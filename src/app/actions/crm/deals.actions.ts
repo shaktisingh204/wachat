@@ -19,6 +19,20 @@ import {
   type CrmDealUpdateInput,
 } from '@/lib/rust-client/crm-deals';
 import { applyCustomFieldsToEntity } from '@/app/actions/worksuite/meta.actions';
+import { recordFlowAction } from '@/lib/sabflow/audit/middleware';
+import { getSession } from '@/app/actions/user.actions';
+
+async function _crmDealActorId(): Promise<string | null> {
+  try {
+    const session = await getSession();
+    const u = (session as { user?: { _id?: unknown; id?: unknown } } | null)?.user;
+    const raw = u?._id ?? u?.id;
+    if (!raw) return null;
+    return typeof raw === 'string' ? raw : String(raw);
+  } catch {
+    return null;
+  }
+}
 
 const LIST_PATH = '/dashboard/crm/deals';
 
@@ -159,6 +173,21 @@ export async function saveDealAction(
 
       revalidatePath(LIST_PATH);
       revalidatePath(`${LIST_PATH}/${id}`);
+      const actorId = await _crmDealActorId();
+      if (actorId) {
+        const statusV = pickStr(fd, 'status');
+        let action: 'crm.deal.stageChanged' | 'crm.deal.closed.won' | 'crm.deal.closed.lost' | null = null;
+        if (statusV === 'won') action = 'crm.deal.closed.won';
+        else if (statusV === 'lost') action = 'crm.deal.closed.lost';
+        else if (stageId) action = 'crm.deal.stageChanged';
+        if (action) {
+          void recordFlowAction(action, {
+            userId: actorId,
+            target: id,
+            metadata: { stageId, status: statusV },
+          });
+        }
+      }
       return { message: 'Deal updated.', id };
     }
 
@@ -187,6 +216,14 @@ export async function saveDealAction(
     }
 
     revalidatePath(LIST_PATH);
+    const actorId = await _crmDealActorId();
+    if (actorId) {
+      void recordFlowAction('crm.deal.created', {
+        userId: actorId,
+        target: dealId,
+        metadata: { title: draft.title, amount: draft.amount, pipelineId: draft.pipelineId },
+      });
+    }
     return { message: 'Deal created.', id: dealId };
   } catch (e) {
     return { error: err(e) };
@@ -197,6 +234,13 @@ export async function deleteDealAction(id: string): Promise<{ success: boolean; 
   try {
     await crmDealsApi.delete(id);
     revalidatePath(LIST_PATH);
+    const actorId = await _crmDealActorId();
+    if (actorId) {
+      void recordFlowAction('crm.deal.deleted', {
+        userId: actorId,
+        target: id,
+      });
+    }
     return { success: true };
   } catch (e) {
     if (e instanceof RustApiError && e.status === 404) return { success: false, error: 'Deal not found.' };

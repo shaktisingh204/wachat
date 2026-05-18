@@ -1,5 +1,47 @@
-import { redirect } from 'next/navigation';
+/**
+ * New salary structure page — server wrapper around `<SalaryStructureForm />`.
+ */
 
-export default function Page(): never {
-  redirect('/dashboard/hrm/payroll/salary-structure/new');
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
+import { ArrowLeft, Wallet } from 'lucide-react';
+
+import { ZoruButton } from '@/components/zoruui';
+import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { getSession } from '@/app/actions/user.actions';
+
+import { SalaryStructureForm } from '../_components/salary-structure-form';
+
+export const dynamic = 'force-dynamic';
+
+const BASE = '/dashboard/crm/hr-payroll/salary-structure';
+
+export default async function NewSalaryStructurePage() {
+    const session = await getSession();
+    if (!session?.user) redirect('/login');
+
+    return (
+        <div className="flex w-full flex-col gap-6">
+            <CrmPageHeader
+                breadcrumbs={[
+                    { label: 'Payroll', href: '/dashboard/crm/hr-payroll' },
+                    { label: 'Salary structures', href: BASE },
+                    { label: 'New' },
+                ]}
+                title="New salary structure"
+                subtitle="Capture an employee's basic / HRA / DA, plus PF, ESI, professional tax."
+                icon={Wallet}
+                actions={
+                    <ZoruButton variant="ghost" asChild>
+                        <Link href={BASE}>
+                            <ArrowLeft className="mr-2 h-4 w-4" />
+                            Back to list
+                        </Link>
+                    </ZoruButton>
+                }
+            />
+
+            <SalaryStructureForm />
+        </div>
+    );
 }

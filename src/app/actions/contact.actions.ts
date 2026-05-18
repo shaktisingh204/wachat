@@ -9,6 +9,7 @@ import type { Contact } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import { rustClient, RustApiError } from '@/lib/rust-client';
 import * as Papa from 'papaparse';
+import { recordFlowAction } from '@/lib/sabflow/audit/middleware';
 
 const CONTACTS_PER_PAGE = 20;
 
@@ -95,6 +96,21 @@ export async function handleImportContacts(prevState: any, formData: FormData): 
         });
 
         revalidatePath('/wachat/contacts');
+
+        const u = (session.user as { _id?: unknown; id?: unknown });
+        const raw = u._id ?? u.id;
+        const actorId = raw ? (typeof raw === 'string' ? raw : String(raw)) : null;
+        if (actorId) {
+            void recordFlowAction('wachat.contact.imported', {
+                userId: actorId,
+                target: projectId,
+                metadata: {
+                    phoneNumberId,
+                    imported: result.imported,
+                    skipped: result.skipped,
+                },
+            });
+        }
 
         return {
             message:

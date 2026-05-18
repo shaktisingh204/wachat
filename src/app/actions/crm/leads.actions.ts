@@ -19,6 +19,20 @@ import {
   type CrmLeadUpdateInput,
 } from '@/lib/rust-client/crm-leads';
 import { applyCustomFieldsToEntity } from '@/app/actions/worksuite/meta.actions';
+import { recordFlowAction } from '@/lib/sabflow/audit/middleware';
+import { getSession } from '@/app/actions/user.actions';
+
+async function _crmLeadActorId(): Promise<string | null> {
+  try {
+    const session = await getSession();
+    const u = (session as { user?: { _id?: unknown; id?: unknown } } | null)?.user;
+    const raw = u?._id ?? u?.id;
+    if (!raw) return null;
+    return typeof raw === 'string' ? raw : String(raw);
+  } catch {
+    return null;
+  }
+}
 
 const LIST_PATH = '/dashboard/crm/leads';
 
@@ -154,6 +168,14 @@ export async function saveLeadAction(
 
     revalidatePath(LIST_PATH);
     revalidatePath(`${LIST_PATH}/${String(result._id)}`);
+    const actorId = await _crmLeadActorId();
+    if (actorId) {
+      void recordFlowAction(id ? 'crm.lead.updated' : 'crm.lead.created', {
+        userId: actorId,
+        target: String(result._id),
+        metadata: { firstName, lastName, status: draft.status, source: draft.source },
+      });
+    }
     return {
       message: id ? 'Lead updated.' : 'Lead created.',
       id: String(result._id),
@@ -174,6 +196,13 @@ export async function deleteLeadAction(
   try {
     await crmLeadsApi.delete(id);
     revalidatePath(LIST_PATH);
+    const actorId = await _crmLeadActorId();
+    if (actorId) {
+      void recordFlowAction('crm.lead.deleted', {
+        userId: actorId,
+        target: id,
+      });
+    }
     return { success: true };
   } catch (e) {
     if (e instanceof RustApiError && e.status === 404) {

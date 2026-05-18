@@ -22,6 +22,7 @@ import {
     isOAuthScope,
     type OAuthScope,
 } from '@/lib/api/oauth-scopes';
+import { recordFlowAction } from '@/lib/sabflow/audit/middleware';
 
 /* ── Public DTO ─────────────────────────────────────────────────────────── */
 
@@ -164,6 +165,11 @@ export async function generateApiToken(
         const { db } = await connectToDatabase();
         const result = await db.collection('crm_api_tokens').insertOne(doc);
         revalidatePath('/dashboard/crm/settings/api-tokens');
+        void recordFlowAction('crm.apiToken.created', {
+            userId: String(session.user._id),
+            target: String(result.insertedId),
+            metadata: { name, scopes, expiresAt },
+        });
         return {
             ok: true,
             token: plain,
@@ -204,6 +210,10 @@ export async function revokeApiToken(
             return { ok: false, error: 'Token not found.' };
         }
         revalidatePath('/dashboard/crm/settings/api-tokens');
+        void recordFlowAction('crm.apiToken.revoked', {
+            userId: String(session.user._id),
+            target: id,
+        });
         return { ok: true };
     } catch (e) {
         console.error('[crm-api-tokens] revoke failed:', e);

@@ -27,6 +27,19 @@ import { applyCustomFieldsToEntity } from '@/app/actions/worksuite/meta.actions'
 import { writeAuditEntry } from '@/lib/audit-log';
 import { getSession } from '@/app/actions/user.actions';
 import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+import { recordFlowAction } from '@/lib/sabflow/audit/middleware';
+
+async function _crmQuotationActorId(): Promise<string | null> {
+  try {
+    const session = await getSession();
+    const u = (session as { user?: { _id?: unknown; id?: unknown } } | null)?.user;
+    const raw = u?._id ?? u?.id;
+    if (!raw) return null;
+    return typeof raw === 'string' ? raw : String(raw);
+  } catch {
+    return null;
+  }
+}
 
 const LIST_PATH = '/dashboard/crm/sales/quotations';
 
@@ -258,6 +271,32 @@ export async function saveQuotationAction(
 
     revalidatePath(LIST_PATH);
     revalidatePath(`${LIST_PATH}/${String(result._id)}`);
+    const actorId = await _crmQuotationActorId();
+    if (actorId && !id) {
+      void recordFlowAction('crm.quotation.created', {
+        userId: actorId,
+        target: String(result._id),
+        metadata: { quotationNo, clientId },
+      });
+    } else if (actorId && id) {
+      const statusV = pickString(formData, 'status');
+      if (statusV === 'accepted') {
+        void recordFlowAction('crm.quotation.accepted', {
+          userId: actorId,
+          target: String(result._id),
+        });
+      } else if (statusV === 'rejected') {
+        void recordFlowAction('crm.quotation.rejected', {
+          userId: actorId,
+          target: String(result._id),
+        });
+      } else if (statusV === 'sent') {
+        void recordFlowAction('crm.quotation.sent', {
+          userId: actorId,
+          target: String(result._id),
+        });
+      }
+    }
     return {
       message: id ? 'Quotation updated.' : 'Quotation created.',
       id: String(result._id),
@@ -282,6 +321,14 @@ export async function deleteQuotationAction(
   try {
     await crmQuotationsApi.delete(id);
     revalidatePath(LIST_PATH);
+    const actorId = await _crmQuotationActorId();
+    if (actorId) {
+      void recordFlowAction('crm.quotation.rejected', {
+        userId: actorId,
+        target: id,
+        metadata: { op: 'delete' },
+      });
+    }
     return { success: true };
   } catch (e) {
     if (e instanceof RustApiError && e.status === 404) {

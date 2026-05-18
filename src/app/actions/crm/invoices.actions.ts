@@ -42,6 +42,7 @@ import { getSession } from '@/app/actions/user.actions';
 import { connectToDatabase } from '@/lib/mongodb';
 import { writeAuditEntry } from '@/lib/audit-log';
 import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+import { recordFlowAction } from '@/lib/sabflow/audit/middleware';
 
 const LIST_PATH = '/dashboard/crm/sales/invoices';
 
@@ -333,6 +334,20 @@ export async function saveInvoiceAction(
     }
 
     revalidateSurfaces(String(result._id));
+    const statusV = pickString(formData, 'status');
+    if (!id) {
+      void recordFlowAction('crm.invoice.created', {
+        userId: String(session.user._id),
+        target: String(result._id),
+        metadata: { invoiceNo, clientId, currency, grandTotal: totals.grandTotal },
+      });
+    } else if (statusV === 'paid' || statusV === 'voided' || statusV === 'cancelled') {
+      void recordFlowAction(statusV === 'paid' ? 'crm.invoice.paid' : 'crm.invoice.voided', {
+        userId: String(session.user._id),
+        target: String(result._id),
+        metadata: { invoiceNo, status: statusV },
+      });
+    }
     return {
       message: id ? 'Invoice updated.' : 'Invoice created.',
       id: String(result._id),
@@ -372,6 +387,11 @@ export async function deleteInvoiceAction(
       /* non-fatal */
     }
     revalidateSurfaces(id);
+    void recordFlowAction('crm.invoice.voided', {
+      userId: String(session.user._id),
+      target: id,
+      metadata: { op: 'delete' },
+    });
     return { success: true };
   } catch (e) {
     if (e instanceof RustApiError && e.status === 404) {
@@ -781,6 +801,18 @@ export async function updateInvoiceStatus(
       /* non-fatal */
     }
     revalidateSurfaces(id);
+    if (status === 'paid') {
+      void recordFlowAction('crm.invoice.paid', {
+        userId: String(session.user._id),
+        target: id,
+      });
+    } else if (status === 'voided' || status === 'cancelled') {
+      void recordFlowAction('crm.invoice.voided', {
+        userId: String(session.user._id),
+        target: id,
+        metadata: { status },
+      });
+    }
     return { success: true };
   } catch (e) {
     recordRustFallback({
@@ -863,6 +895,11 @@ export async function sendInvoiceEmail(args: {
       /* non-fatal */
     }
     revalidateSurfaces(invoiceId);
+    void recordFlowAction('crm.invoice.sent', {
+      userId: String(session.user._id),
+      target: invoiceId,
+      metadata: { to, subject },
+    });
     return { success: true };
   } catch (e) {
     recordRustFallback({
