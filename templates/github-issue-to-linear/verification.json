@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "templateId": "github-issue-to-linear",
+  "cases": [
+    {
+      "id": "issue-opened",
+      "description": "GitHub issue opened → Linear ticket created → comment added on GitHub.",
+      "triggerPayload": {
+        "action": "opened",
+        "issue": {
+          "number": 42,
+          "title": "Button not working on mobile Safari",
+          "body": "The submit button on the checkout form doesn't respond on iOS Safari 17.",
+          "html_url": "https://github.com/acme/app/issues/42",
+          "user": { "login": "reporter-user" }
+        },
+        "repository": { "full_name": "acme/app" }
+      },
+      "fixtures": {
+        "linear.createIssue": {
+          "status": 200,
+          "body": { "id": "LIN-123", "url": "https://linear.app/acme/issue/ENG-123" }
+        },
+        "github.createComment": { "status": 201, "body": { "id": 99999 } }
+      },
+      "expect": {
+        "finalStatus": "success",
+        "executedBlocks": ["n_github_issue_trigger", "n_filter_opened", "n_map_issue", "n_create_linear_issue", "n_comment_on_github"],
+        "variables": {
+          "title": "[GH #42] Button not working on mobile Safari",
+          "githubNumber": "42"
+        }
+      }
+    },
+    {
+      "id": "issue-closed-ignored",
+      "description": "GitHub issue closed event → filtered out, no Linear ticket created.",
+      "triggerPayload": {
+        "action": "closed",
+        "issue": {
+          "number": 40,
+          "title": "Old bug",
+          "body": "Fixed.",
+          "html_url": "https://github.com/acme/app/issues/40",
+          "user": { "login": "dev-user" }
+        }
+      },
+      "fixtures": {},
+      "expect": {
+        "finalStatus": "success",
+        "executedBlocks": ["n_github_issue_trigger", "n_filter_opened"],
+        "variables": {}
+      }
+    }
+  ]
+}

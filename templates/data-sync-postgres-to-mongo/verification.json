@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "templateId": "data-sync-postgres-to-mongo",
+  "cases": [
+    {
+      "id": "incremental-sync",
+      "description": "Cron fires → watermark read → 2 rows from Postgres → upserted into Mongo → watermark updated.",
+      "triggerPayload": {},
+      "fixtures": {
+        "mongoDb.findOne": {
+          "status": 200,
+          "body": { "syncId": "pg-to-mongo-default", "lastSyncAt": "2026-05-18T08:00:00Z" }
+        },
+        "postgres.executeQuery": {
+          "status": 200,
+          "body": [
+            { "id": 1, "name": "Alice", "updated_at": "2026-05-19T07:00:00Z" },
+            { "id": 2, "name": "Bob", "updated_at": "2026-05-19T07:30:00Z" }
+          ]
+        },
+        "mongoDb.update": { "status": 200, "body": { "modifiedCount": 1 } }
+      },
+      "expect": {
+        "finalStatus": "success",
+        "executedBlocks": ["n_cron_trigger", "n_read_watermark", "n_postgres_query", "n_if_has_rows", "n_upsert_mongo", "n_update_watermark"],
+        "variables": {}
+      }
+    },
+    {
+      "id": "no-new-rows",
+      "description": "No rows updated since last watermark → sync skipped gracefully.",
+      "triggerPayload": {},
+      "fixtures": {
+        "mongoDb.findOne": {
+          "status": 200,
+          "body": { "syncId": "pg-to-mongo-default", "lastSyncAt": "2026-05-19T08:00:00Z" }
+        },
+        "postgres.executeQuery": { "status": 200, "body": [] }
+      },
+      "expect": {
+        "finalStatus": "success",
+        "executedBlocks": ["n_cron_trigger", "n_read_watermark", "n_postgres_query", "n_if_has_rows"],
+        "variables": {}
+      }
+    }
+  ]
+}
