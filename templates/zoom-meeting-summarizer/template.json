@@ -1,0 +1,10 @@
+{
+  "id": "zoom-meeting-summarizer",
+  "name": "Zoom Meeting Summarizer",
+  "description": "When a Zoom meeting recording completes, downloads the audio, transcribes it with OpenAI Whisper, and asks GPT-4o for a structured summary with action items and timestamps. The recap is emailed to participants, filed as a Notion page, and DM'd to the meeting owner on Slack. Replaces a busy 'follow-up email' task after every call.",
+  "category": "AI",
+  "complexity": "advanced",
+  "authorName": "SabNode",
+  "tags": ["zoom", "openai", "whisper", "ai", "notion", "meetings", "slack"],
+  "version": "0.1.0"
+}
