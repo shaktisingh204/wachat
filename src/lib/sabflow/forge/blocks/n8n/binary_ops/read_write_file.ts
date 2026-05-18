@@ -17,14 +17,13 @@
  *                                  → `read_from_url` (arbitrary HTTPS URL)
  *     • Writes ................. `forge_write_binary_file`
  *                                  → `write_to_url`  (presigned PUT/POST)
- *                                  → `write_sabfile` (pending tenant plumbing)
+ *                                  → `write_sabfile` (ctx.userId → Rust BFF)
  *     • List ................... `forge_read_binary_files`
- *                                  → `list_sabfiles` (pending tenant plumbing)
+ *                                  → `list_sabfiles` (ctx.userId → Rust BFF)
  *
- *   The remaining work — making `write_sabfile` and `list_sabfiles` real —
- *   is documented in those files' headers. See also the broader contract in
- *   `../generic/webhook_trigger_shim.ts` for how tenant identity flows
- *   through the worker payload today.
+ *   Tenant identity now flows through `ForgeActionContext.userId`, populated
+ *   from `flow.userId` by `executeFlow` → `executeBlock` → `executeForgeBlock`.
+ *   See `../generic/webhook_trigger_shim.ts` for the trigger contract.
  */
 
 import { registerForgeBlock } from '../../../registry';

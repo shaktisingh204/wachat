@@ -22,15 +22,11 @@ import {
   ZoruCard,
   ZoruInput,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruSwitch,
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 
 import {
   saveReplyTemplate,
@@ -42,25 +38,6 @@ import type {
 } from '@/lib/rust-client/crm-reply-templates';
 
 const BASE = '/dashboard/crm/tickets/reply-templates';
-
-const CATEGORY_OPTIONS = [
-  { value: 'greeting', label: 'Greeting' },
-  { value: 'troubleshooting', label: 'Troubleshooting' },
-  { value: 'refund', label: 'Refund' },
-  { value: 'shipping', label: 'Shipping' },
-  { value: 'escalation', label: 'Escalation' },
-  { value: 'closing', label: 'Closing' },
-  { value: 'general', label: 'General' },
-];
-
-const LANGUAGE_OPTIONS = [
-  { value: 'en', label: 'English' },
-  { value: 'es', label: 'Spanish' },
-  { value: 'fr', label: 'French' },
-  { value: 'de', label: 'German' },
-  { value: 'pt', label: 'Portuguese' },
-  { value: 'hi', label: 'Hindi' },
-];
 
 const initialState: SaveReplyTemplateState = {};
 
@@ -178,34 +155,24 @@ export function ReplyTemplateForm({ initialData }: ReplyTemplateFormProps) {
         {/* Row 2: Category + Language */}
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="category-trigger">Category</ZoruLabel>
-            <ZoruSelect value={category} onValueChange={setCategory}>
-              <ZoruSelectTrigger id="category-trigger">
-                <ZoruSelectValue placeholder="Pick a category…" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                {CATEGORY_OPTIONS.map((o) => (
-                  <ZoruSelectItem key={o.value} value={o.value}>
-                    {o.label}
-                  </ZoruSelectItem>
-                ))}
-              </ZoruSelectContent>
-            </ZoruSelect>
+            <ZoruLabel>Category</ZoruLabel>
+            <EnumFormField
+              enumName="replyTemplateCategory"
+              name="categoryPicker"
+              initialId={category}
+              placeholder="Pick a category…"
+              onChange={(next) => setCategory(next ?? '')}
+            />
           </div>
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="language-trigger">Language</ZoruLabel>
-            <ZoruSelect value={language} onValueChange={setLanguage}>
-              <ZoruSelectTrigger id="language-trigger">
-                <ZoruSelectValue placeholder="Pick a language…" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                {LANGUAGE_OPTIONS.map((o) => (
-                  <ZoruSelectItem key={o.value} value={o.value}>
-                    {o.label}
-                  </ZoruSelectItem>
-                ))}
-              </ZoruSelectContent>
-            </ZoruSelect>
+            <ZoruLabel>Language</ZoruLabel>
+            <EnumFormField
+              enumName="languageShort"
+              name="languagePicker"
+              initialId={language}
+              placeholder="Pick a language…"
+              onChange={(next) => setLanguage(next ?? '')}
+            />
           </div>
         </div>
 
@@ -266,19 +233,16 @@ export function ReplyTemplateForm({ initialData }: ReplyTemplateFormProps) {
           </div>
           {isEditing ? (
             <div className="space-y-1.5">
-              <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
-              <ZoruSelect
-                value={status}
-                onValueChange={(v) => setStatus(v as CrmReplyTemplateStatus)}
-              >
-                <ZoruSelectTrigger id="status-trigger">
-                  <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="active">Active</ZoruSelectItem>
-                  <ZoruSelectItem value="archived">Archived</ZoruSelectItem>
-                </ZoruSelectContent>
-              </ZoruSelect>
+              <ZoruLabel>Status</ZoruLabel>
+              <EnumFormField
+                enumName="replyTemplateStatus"
+                name="statusPicker"
+                initialId={status}
+                allowInlineCreate={false}
+                onChange={(next) =>
+                  setStatus((next ?? 'active') as CrmReplyTemplateStatus)
+                }
+              />
             </div>
           ) : null}
         </div>

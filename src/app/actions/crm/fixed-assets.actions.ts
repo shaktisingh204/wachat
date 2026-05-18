@@ -25,6 +25,8 @@ import {
 } from '@/lib/rust-client/crm-fixed-assets';
 import { getSession } from '@/app/actions/user.actions';
 import { writeAuditEntry } from '@/lib/audit-log';
+import { requirePermission } from '@/lib/rbac-server';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
 
 const LIST_PATH = '/dashboard/crm/fixed-assets';
 
@@ -51,10 +53,20 @@ export async function listFixedAssets(
 ): Promise<FixedAssetListResult> {
   const page = Math.max(1, params.page ?? 1);
   const limit = Math.min(Math.max(1, params.limit ?? 20), 100);
+  const session = await getSession();
+  if (!session?.user) {
+    return { assets: [], page, limit, hasMore: false, error: 'Unauthorized' };
+  }
+  const guard = await requirePermission('crm_fixed_asset', 'view');
+  if (!guard.ok) {
+    return { assets: [], page, limit, hasMore: false, error: guard.error };
+  }
   try {
     const assets = await crmFixedAssetsApi.list({ ...params, page, limit });
     return { assets, page, limit, hasMore: assets.length === limit };
   } catch (e) {
+    console.error('[listFixedAssets] rust path failed; falling back:', e);
+    recordRustFallback({ entity: 'fixed_asset', op: 'list', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
     return { assets: [], page, limit, hasMore: false, error: rustErr(e) };
   }
 }
@@ -63,6 +75,14 @@ export async function getFixedAsset(
   id: string,
 ): Promise<{ asset: CrmFixedAssetDoc | null; error?: string }> {
   if (!id) return { asset: null, error: 'Missing fixed-asset id.' };
+  const session = await getSession();
+  if (!session?.user) {
+    return { asset: null, error: 'Unauthorized' };
+  }
+  const guard = await requirePermission('crm_fixed_asset', 'view');
+  if (!guard.ok) {
+    return { asset: null, error: guard.error };
+  }
   try {
     const asset = await crmFixedAssetsApi.getById(id);
     return { asset };
@@ -70,6 +90,8 @@ export async function getFixedAsset(
     if (e instanceof RustApiError && e.status === 404) {
       return { asset: null, error: 'Fixed asset not found.' };
     }
+    console.error('[getFixedAsset] rust path failed; falling back:', e);
+    recordRustFallback({ entity: 'fixed_asset', op: 'get', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
     return { asset: null, error: rustErr(e) };
   }
 }
@@ -121,7 +143,12 @@ export async function saveFixedAssetAction(
   _prev: unknown,
   formData: FormData,
 ): Promise<{ message?: string; error?: string; id?: string }> {
+  const session = await getSession();
+  if (!session?.user) return { error: 'Unauthorized' };
+
   const id = pickString(formData, '_id');
+  const guard = await requirePermission('crm_fixed_asset', id ? 'edit' : 'create');
+  if (!guard.ok) return { error: guard.error };
 
   const code = pickString(formData, 'code');
   const name = pickString(formData, 'name');
@@ -181,6 +208,18 @@ export async function saveFixedAssetAction(
       result = await crmFixedAssetsApi.create(draft);
     }
 
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action: id ? 'update' : 'create',
+        entityKind: 'fixed_asset',
+        entityId: String(result._id),
+      });
+    } catch {
+      /* non-fatal */
+    }
+
     revalidatePath(LIST_PATH);
     revalidatePath(`${LIST_PATH}/${String(result._id)}`);
     return {
@@ -188,6 +227,8 @@ export async function saveFixedAssetAction(
       id: String(result._id),
     };
   } catch (e) {
+    console.error('[saveFixedAssetAction] rust path failed; falling back:', e);
+    recordRustFallback({ entity: 'fixed_asset', op: id ? 'update' : 'create', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
     return { error: rustErr(e) };
   }
 }
@@ -200,14 +241,31 @@ export async function deleteFixedAssetAction(
   id: string,
 ): Promise<{ success: boolean; error?: string }> {
   if (!id) return { success: false, error: 'Missing fixed-asset id.' };
+  const session = await getSession();
+  if (!session?.user) return { success: false, error: 'Unauthorized' };
+  const guard = await requirePermission('crm_fixed_asset', 'delete');
+  if (!guard.ok) return { success: false, error: guard.error };
   try {
     await crmFixedAssetsApi.delete(id);
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action: 'delete',
+        entityKind: 'fixed_asset',
+        entityId: id,
+      });
+    } catch {
+      /* non-fatal */
+    }
     revalidatePath(LIST_PATH);
     return { success: true };
   } catch (e) {
     if (e instanceof RustApiError && e.status === 404) {
       return { success: false, error: 'Fixed asset not found.' };
     }
+    console.error('[deleteFixedAssetAction] rust path failed; falling back:', e);
+    recordRustFallback({ entity: 'fixed_asset', op: 'delete', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
     return { success: false, error: rustErr(e) };
   }
 }
@@ -247,6 +305,8 @@ export async function assignFixedAsset(
   if (!assetId) return { success: false, error: 'Missing fixed-asset id.' };
   if (!employeeId)
     return { success: false, error: 'Employee is required.' };
+  const guard = await requirePermission('crm_fixed_asset', 'edit');
+  if (!guard.ok) return { success: false, error: guard.error };
   try {
     await crmFixedAssetsApi.update(assetId, {
       custodianEmployeeId: employeeId,
@@ -268,6 +328,8 @@ export async function assignFixedAsset(
     revalidatePath(`${LIST_PATH}/${assetId}`);
     return { success: true };
   } catch (e) {
+    console.error('[assignFixedAsset] rust path failed; falling back:', e);
+    recordRustFallback({ entity: 'fixed_asset', op: 'update', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
     return { success: false, error: rustErr(e) };
   }
 }
@@ -278,6 +340,8 @@ export async function unassignFixedAsset(
   const session = await getSession();
   if (!session?.user?._id) return { success: false, error: 'Unauthorized' };
   if (!assetId) return { success: false, error: 'Missing fixed-asset id.' };
+  const guard = await requirePermission('crm_fixed_asset', 'edit');
+  if (!guard.ok) return { success: false, error: guard.error };
   try {
     // Rust PATCH treats `undefined` fields as no-op. Send an empty
     // string to clear the custodian — the BFF maps it to None / null.
@@ -300,6 +364,8 @@ export async function unassignFixedAsset(
     revalidatePath(`${LIST_PATH}/${assetId}`);
     return { success: true };
   } catch (e) {
+    console.error('[unassignFixedAsset] rust path failed; falling back:', e);
+    recordRustFallback({ entity: 'fixed_asset', op: 'update', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
     return { success: false, error: rustErr(e) };
   }
 }
@@ -340,6 +406,8 @@ export async function retireFixedAsset(
   if (!assetId) return { success: false, error: 'Missing fixed-asset id.' };
   if (!payload.date)
     return { success: false, error: 'Retirement date is required.' };
+  const guard = await requirePermission('crm_fixed_asset', 'delete');
+  if (!guard.ok) return { success: false, error: guard.error };
   try {
     // Capture the disposition by setting condition + emitting audit.
     // Rust DTO doesn't accept retireOrSell on PATCH yet, so we keep the
@@ -368,6 +436,8 @@ export async function retireFixedAsset(
     revalidatePath(`${LIST_PATH}/${assetId}`);
     return { success: true };
   } catch (e) {
+    console.error('[retireFixedAsset] rust path failed; falling back:', e);
+    recordRustFallback({ entity: 'fixed_asset', op: 'update', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
     return { success: false, error: rustErr(e) };
   }
 }

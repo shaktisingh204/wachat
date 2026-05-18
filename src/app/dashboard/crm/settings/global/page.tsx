@@ -18,14 +18,11 @@ import {
   ZoruPageHeader,
   ZoruPageHeading,
   ZoruPageTitle,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruSkeleton,
   useZoruToast,
 } from '@/components/zoruui';
+import { EnumFormField } from '@/components/crm/enum-form-field';
+import { EntityFormField } from '@/components/crm/entity-form-field';
 import {
   getGlobalSettings,
   saveGlobalSettings,
@@ -135,97 +132,92 @@ export default function GlobalSettingsPage() {
                 <ZoruLabel htmlFor="timezone" className="text-[13px]">
                   Timezone
                 </ZoruLabel>
-                <ZoruInput
-                  id="timezone"
-                  name="timezone"
-                  defaultValue={settings?.timezone ?? 'Asia/Kolkata'}
-                  className="mt-1.5"
-                />
+                <div className="mt-1.5">
+                  <EnumFormField
+                    name="timezone"
+                    enumName="timezonePreset"
+                    initialId={settings?.timezone ?? 'Asia/Kolkata'}
+                    placeholder="Pick a timezone (or type a custom IANA id)"
+                  />
+                </div>
               </div>
               <div>
                 <ZoruLabel htmlFor="currency_id" className="text-[13px]">
                   Default Currency
                 </ZoruLabel>
-                <ZoruSelect value={currencyId} onValueChange={setCurrencyId}>
-                  <ZoruSelectTrigger id="currency_id" className="mt-1.5">
-                    <ZoruSelectValue placeholder="Select currency" />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
-                    {currencies.map((c) => (
-                      <ZoruSelectItem key={String(c._id)} value={String(c._id)}>
-                        {c.code} — {c.name}
-                      </ZoruSelectItem>
-                    ))}
-                  </ZoruSelectContent>
-                </ZoruSelect>
-                <input type="hidden" name="currency_id" value={currencyId} />
+                <div className="mt-1.5">
+                  <EntityFormField
+                    entity="currency"
+                    name="currency_id"
+                    initialId={currencyId || undefined}
+                    onChange={(id) => setCurrencyId(id ?? '')}
+                    placeholder="Select currency"
+                    allowCreate
+                  />
+                </div>
               </div>
               <div>
                 <ZoruLabel htmlFor="datepicker_format" className="text-[13px]">
                   Date-picker Format
                 </ZoruLabel>
-                <ZoruInput
-                  id="datepicker_format"
-                  name="datepicker_format"
-                  defaultValue={settings?.datepicker_format ?? 'dd-mm-yyyy'}
-                  className="mt-1.5"
-                />
+                <div className="mt-1.5">
+                  <EnumFormField
+                    name="datepicker_format"
+                    enumName="datepickerFormat"
+                    initialId={settings?.datepicker_format ?? 'dd-mm-yyyy'}
+                  />
+                </div>
               </div>
               <div>
                 <ZoruLabel htmlFor="moment_format" className="text-[13px]">
                   Moment.js Format
                 </ZoruLabel>
-                <ZoruInput
-                  id="moment_format"
-                  name="moment_format"
-                  defaultValue={settings?.moment_format ?? 'DD-MM-YYYY'}
-                  className="mt-1.5"
-                />
+                <div className="mt-1.5">
+                  <EnumFormField
+                    name="moment_format"
+                    enumName="momentFormat"
+                    initialId={settings?.moment_format ?? 'DD-MM-YYYY'}
+                  />
+                </div>
               </div>
               <div>
                 <ZoruLabel htmlFor="rtl" className="text-[13px]">
                   Right-to-left Layout
                 </ZoruLabel>
-                <ZoruSelect value={rtl} onValueChange={setRtl}>
-                  <ZoruSelectTrigger id="rtl" className="mt-1.5">
-                    <ZoruSelectValue />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
-                    <ZoruSelectItem value="no">No</ZoruSelectItem>
-                    <ZoruSelectItem value="yes">Yes</ZoruSelectItem>
-                  </ZoruSelectContent>
-                </ZoruSelect>
-                <input type="hidden" name="rtl" value={rtl} />
+                <div className="mt-1.5">
+                  <EnumFormField
+                    name="rtl"
+                    enumName="yesNo"
+                    initialId={rtl}
+                    onChange={(id) => setRtl(id ?? 'no')}
+                  />
+                </div>
               </div>
               <div>
                 <ZoruLabel htmlFor="strict_timezone" className="text-[13px]">
                   Strict Timezone
                 </ZoruLabel>
-                <ZoruSelect value={strictTimezone} onValueChange={setStrictTimezone}>
-                  <ZoruSelectTrigger id="strict_timezone" className="mt-1.5">
-                    <ZoruSelectValue />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
-                    <ZoruSelectItem value="no">No</ZoruSelectItem>
-                    <ZoruSelectItem value="yes">Yes</ZoruSelectItem>
-                  </ZoruSelectContent>
-                </ZoruSelect>
-                <input type="hidden" name="strict_timezone" value={strictTimezone} />
+                <div className="mt-1.5">
+                  <EnumFormField
+                    name="strict_timezone"
+                    enumName="yesNo"
+                    initialId={strictTimezone}
+                    onChange={(id) => setStrictTimezone(id ?? 'no')}
+                  />
+                </div>
               </div>
               <div>
                 <ZoruLabel htmlFor="email_verified" className="text-[13px]">
                   Email Verified
                 </ZoruLabel>
-                <ZoruSelect value={emailVerified} onValueChange={setEmailVerified}>
-                  <ZoruSelectTrigger id="email_verified" className="mt-1.5">
-                    <ZoruSelectValue />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
-                    <ZoruSelectItem value="no">No</ZoruSelectItem>
-                    <ZoruSelectItem value="yes">Yes</ZoruSelectItem>
-                  </ZoruSelectContent>
-                </ZoruSelect>
-                <input type="hidden" name="email_verified" value={emailVerified} />
+                <div className="mt-1.5">
+                  <EnumFormField
+                    name="email_verified"
+                    enumName="yesNo"
+                    initialId={emailVerified}
+                    onChange={(id) => setEmailVerified(id ?? 'no')}
+                  />
+                </div>
               </div>
             </div>
 

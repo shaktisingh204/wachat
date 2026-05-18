@@ -1,5 +1,7 @@
 'use client';
 
+// TODO 1E.sweep: status -> <EnumFormField enumName="oneOnOneStatus">; manager/employee -> <EntityFormField entity="employee">. See plan §1E.
+
 /**
  * <OneOnOneForm /> — create + edit form for HR one-on-ones.
  *

@@ -25,14 +25,10 @@ import {
     ZoruInput,
     ZoruLabel,
     ZoruTextarea,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
     useZoruToast,
 } from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import { createCrmTask } from '@/app/actions/crm-tasks.actions';
 
 interface LeadsAddTaskDialogProps {
@@ -134,17 +130,12 @@ export function LeadsAddTaskDialog({
                             />
                         </div>
                         <div className="space-y-1">
-                            <ZoruLabel htmlFor="leadTaskPriority">Priority</ZoruLabel>
-                            <ZoruSelect name="priority" defaultValue="Medium">
-                                <ZoruSelectTrigger id="leadTaskPriority">
-                                    <ZoruSelectValue />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    <ZoruSelectItem value="Low">Low</ZoruSelectItem>
-                                    <ZoruSelectItem value="Medium">Medium</ZoruSelectItem>
-                                    <ZoruSelectItem value="High">High</ZoruSelectItem>
-                                </ZoruSelectContent>
-                            </ZoruSelect>
+                            <ZoruLabel>Priority</ZoruLabel>
+                            <EnumFormField
+                                enumName="priorityLegacy"
+                                name="priority"
+                                initialId="Medium"
+                            />
                         </div>
                     </div>
 

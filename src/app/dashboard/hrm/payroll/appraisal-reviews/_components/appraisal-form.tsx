@@ -1,5 +1,7 @@
 'use client';
 
+// TODO 1E.sweep: status -> <EnumFormField enumName="appraisalStatus">; period -> <EnumFormField enumName="okrPeriod">; reviewer/employee -> <EntityFormField entity="employee">. See plan §1E.
+
 /**
  * <AppraisalForm /> — create + edit form for appraisal reviews.
  *

@@ -309,6 +309,10 @@ export async function deleteBooking(id: string) {
 
 /* ─── Lifecycle (Mongo-direct, no Rust endpoint yet) ──────────── */
 
+// TODO 1.P3: rust route missing — Rust crm-bookings doesn't expose
+// /check-in /check-out /cancel /reschedule endpoints yet. These flow
+// through the Mongo path until those routes ship.
+
 /**
  * Persist a status transition directly to Mongo. The Rust client does
  * not expose dedicated /check-in /check-out /cancel /reschedule routes

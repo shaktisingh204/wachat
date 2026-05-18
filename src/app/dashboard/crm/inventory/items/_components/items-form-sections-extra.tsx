@@ -15,13 +15,9 @@ import {
   ZoruButton,
   ZoruInput,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
 } from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import { SabFilePickerButton } from '@/components/sabfiles';
 
 import { Field, SectionCard } from './items-form-primitives';
@@ -243,23 +239,10 @@ export function AccountingSection(props: AccountingSectionProps) {
           />
         </Field>
         <Field label="Tax preference">
-          <ZoruSelect
-            defaultValue={props.defaultTaxPreference ?? 'taxable'}
+          <EnumFormField
+            enumName="itemTaxPreference"
             name="taxPreference"
-          >
-            <ZoruSelectTrigger>
-              <ZoruSelectValue />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
-              <ZoruSelectItem value="taxable">Taxable</ZoruSelectItem>
-              <ZoruSelectItem value="non_taxable">Non-taxable</ZoruSelectItem>
-              <ZoruSelectItem value="out_of_scope">Out of scope</ZoruSelectItem>
-            </ZoruSelectContent>
-          </ZoruSelect>
-          <input
-            type="hidden"
-            name="taxPreference"
-            value={props.defaultTaxPreference ?? 'taxable'}
+            initialId={props.defaultTaxPreference ?? 'taxable'}
           />
         </Field>
       </div>

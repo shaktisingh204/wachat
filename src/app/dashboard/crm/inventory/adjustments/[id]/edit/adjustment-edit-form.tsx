@@ -15,18 +15,13 @@ import { useRouter } from 'next/navigation';
 import {
     ZoruInput,
     ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
     ZoruTextarea,
     useZoruToast,
 } from '@/components/zoruui';
 import { EntityFormShell } from '@/components/crm/entity-form-shell';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 
 import { updateCrmStockAdjustment } from '@/app/actions/crm-inventory.actions';
-import { REASON_OPTIONS } from '../../_components/adjustments-bits';
 
 export interface AdjustmentEditFormProps {
     initial: {
@@ -118,27 +113,13 @@ export function AdjustmentEditForm({ initial }: AdjustmentEditFormProps) {
                         <div className="grid gap-4 md:grid-cols-2">
                             <div className="space-y-1">
                                 <ZoruLabel htmlFor="reason">Reason *</ZoruLabel>
-                                <ZoruSelect
+                                <EnumFormField
+                                    enumName="stockAdjustmentReason"
                                     name="reason"
-                                    defaultValue={initial.reason}
+                                    initialId={initial.reason}
+                                    placeholder="Select reason"
                                     required
-                                >
-                                    <ZoruSelectTrigger>
-                                        <ZoruSelectValue placeholder="Select reason" />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        {REASON_OPTIONS.filter((r) => r.value).map(
-                                            (r) => (
-                                                <ZoruSelectItem
-                                                    key={r.value}
-                                                    value={r.value}
-                                                >
-                                                    {r.label}
-                                                </ZoruSelectItem>
-                                            ),
-                                        )}
-                                    </ZoruSelectContent>
-                                </ZoruSelect>
+                                />
                             </div>
                             <div className="space-y-1">
                                 <ZoruLabel htmlFor="referenceNumber">

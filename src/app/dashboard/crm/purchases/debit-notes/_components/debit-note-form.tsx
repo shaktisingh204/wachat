@@ -29,11 +29,6 @@ import {
   ZoruCard,
   ZoruInput,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruTable,
   ZoruTableBody,
   ZoruTableCell,
@@ -44,6 +39,7 @@ import {
   useZoruToast,
 } from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import { saveDebitNoteAction } from '@/app/actions/crm/debit-notes.actions';
 import type {
   CrmDebitNoteDoc,
@@ -341,18 +337,14 @@ export function DebitNoteForm({ initial }: DebitNoteFormProps) {
           </div>
           <div>
             <ZoruLabel>Reason</ZoruLabel>
-            <ZoruSelect value={reason} onValueChange={(v) => setReason(v as DebitNoteReason)}>
-              <ZoruSelectTrigger className="mt-1.5">
-                <ZoruSelectValue />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                {REASONS.map((r) => (
-                  <ZoruSelectItem key={r.value} value={r.value}>
-                    {r.label}
-                  </ZoruSelectItem>
-                ))}
-              </ZoruSelectContent>
-            </ZoruSelect>
+            <div className="mt-1.5">
+              <EnumFormField
+                enumName="debitNoteReason"
+                name="__reason_picker"
+                initialId={reason || null}
+                onChange={(id) => setReason((id ?? 'other') as DebitNoteReason)}
+              />
+            </div>
           </div>
           <div>
             <ZoruLabel>Currency</ZoruLabel>
@@ -568,21 +560,14 @@ export function DebitNoteForm({ initial }: DebitNoteFormProps) {
         <div className="grid gap-4 md:grid-cols-2">
           <div>
             <ZoruLabel>Refund mode</ZoruLabel>
-            <ZoruSelect
-              value={refundMode}
-              onValueChange={(v) => setRefundMode(v as DebitNoteRefundMode)}
-            >
-              <ZoruSelectTrigger className="mt-1.5">
-                <ZoruSelectValue />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                {REFUND_MODES.map((r) => (
-                  <ZoruSelectItem key={r.value} value={r.value}>
-                    {r.label}
-                  </ZoruSelectItem>
-                ))}
-              </ZoruSelectContent>
-            </ZoruSelect>
+            <div className="mt-1.5">
+              <EnumFormField
+                enumName="debitNoteRefundMode"
+                name="__refundMode_picker"
+                initialId={refundMode || null}
+                onChange={(id) => setRefundMode((id ?? 'cash') as DebitNoteRefundMode)}
+              />
+            </div>
           </div>
           <div>
             <ZoruLabel htmlFor="refundTxnId">Refund transaction ID</ZoruLabel>
@@ -596,18 +581,14 @@ export function DebitNoteForm({ initial }: DebitNoteFormProps) {
           </div>
           <div>
             <ZoruLabel>Status</ZoruLabel>
-            <ZoruSelect value={status} onValueChange={(v) => setStatus(v as DebitNoteStatus)}>
-              <ZoruSelectTrigger className="mt-1.5">
-                <ZoruSelectValue />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                {STATUSES.map((s) => (
-                  <ZoruSelectItem key={s.value} value={s.value}>
-                    {s.label}
-                  </ZoruSelectItem>
-                ))}
-              </ZoruSelectContent>
-            </ZoruSelect>
+            <div className="mt-1.5">
+              <EnumFormField
+                enumName="debitNoteStatusV2"
+                name="__status_picker"
+                initialId={status || null}
+                onChange={(id) => setStatus((id ?? 'draft') as DebitNoteStatus)}
+              />
+            </div>
           </div>
         </div>
 

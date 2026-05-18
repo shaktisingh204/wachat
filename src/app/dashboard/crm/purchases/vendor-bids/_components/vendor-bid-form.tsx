@@ -31,15 +31,11 @@ import {
   ZoruCard,
   ZoruInput,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import { EntityPicker } from '@/components/crm/entity-picker';
 import { saveVendorBidAction } from '@/app/actions/crm/vendor-bids.actions';
 import type {
@@ -455,18 +451,13 @@ export function VendorBidForm({ initial }: VendorBidFormProps) {
           <div>
             <ZoruLabel>Status</ZoruLabel>
             <div className="mt-1.5">
-              <ZoruSelect value={status} onValueChange={setStatus}>
-                <ZoruSelectTrigger className="h-9 text-[13px]">
-                  <ZoruSelectValue placeholder="Select status" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  {STATUS_OPTIONS.map((opt) => (
-                    <ZoruSelectItem key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </ZoruSelectItem>
-                  ))}
-                </ZoruSelectContent>
-              </ZoruSelect>
+              <EnumFormField
+                enumName="vendorBidStatus"
+                name="__status_picker"
+                initialId={status || null}
+                placeholder="Select status"
+                onChange={(id) => setStatus(id ?? '')}
+              />
             </div>
             <p className="mt-1 text-[11px] text-zoru-ink-muted">
               Flipping to <strong>Awarded</strong> cascades the parent RFQ

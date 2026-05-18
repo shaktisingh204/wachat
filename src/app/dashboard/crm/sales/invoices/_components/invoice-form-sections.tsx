@@ -12,40 +12,14 @@ import {
   ZoruCard,
   ZoruInput,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruTextarea,
 } from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import type {
   CrmInvoiceGstTreatment,
   CrmInvoiceRecurringFrequency,
 } from '@/lib/rust-client/crm-invoices';
-
-const GST_TREATMENTS: { value: CrmInvoiceGstTreatment; label: string }[] = [
-  { value: 'registered', label: 'Registered' },
-  { value: 'composition', label: 'Composition' },
-  { value: 'unregistered', label: 'Unregistered' },
-  { value: 'overseas', label: 'Overseas' },
-  { value: 'sez_with_payment', label: 'SEZ — with payment' },
-  { value: 'sez_without_payment', label: 'SEZ — without payment' },
-  { value: 'deemed_export', label: 'Deemed export' },
-  { value: 'consumer', label: 'Consumer' },
-];
-
-const RECURRING_FREQUENCIES: {
-  value: CrmInvoiceRecurringFrequency;
-  label: string;
-}[] = [
-  { value: 'daily', label: 'Daily' },
-  { value: 'weekly', label: 'Weekly' },
-  { value: 'monthly', label: 'Monthly' },
-  { value: 'quarterly', label: 'Quarterly' },
-  { value: 'yearly', label: 'Yearly' },
-];
 
 export interface HeaderSectionProps {
   defaultInvoiceNo: string;
@@ -125,21 +99,15 @@ export function HeaderSection({
         </div>
         <div>
           <ZoruLabel>GST treatment</ZoruLabel>
-          <ZoruSelect
-            value={gstTreatment || undefined}
-            onValueChange={(v) => onGstTreatment(v as CrmInvoiceGstTreatment)}
-          >
-            <ZoruSelectTrigger className="mt-1.5">
-              <ZoruSelectValue placeholder="Select treatment" />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
-              {GST_TREATMENTS.map((g) => (
-                <ZoruSelectItem key={g.value} value={g.value}>
-                  {g.label}
-                </ZoruSelectItem>
-              ))}
-            </ZoruSelectContent>
-          </ZoruSelect>
+          <div className="mt-1.5">
+            <EnumFormField
+              enumName="gstTreatment"
+              name="__gstTreatment_picker"
+              initialId={gstTreatment || null}
+              placeholder="Select treatment"
+              onChange={(id) => onGstTreatment((id ?? '') as CrmInvoiceGstTreatment | '')}
+            />
+          </div>
         </div>
         <label className="mt-2 inline-flex items-center gap-2 text-[13px]">
           <input
@@ -243,7 +211,7 @@ export function NotesSection({
   defaultPaymentTerms,
   statusValue,
   onStatusChange,
-  statusOptions,
+  statusOptions: _statusOptions, // EnumFormField now drives values from CRM_ENUMS.invoiceStatus
   defaultCustomerNotes,
   defaultTermsAndConditions,
 }: NotesSectionProps) {
@@ -265,18 +233,14 @@ export function NotesSection({
         </div>
         <div>
           <ZoruLabel htmlFor="status">Status</ZoruLabel>
-          <ZoruSelect value={statusValue} onValueChange={onStatusChange}>
-            <ZoruSelectTrigger id="status" className="mt-1.5">
-              <ZoruSelectValue />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
-              {statusOptions.map((s) => (
-                <ZoruSelectItem key={s.value} value={s.value}>
-                  {s.label}
-                </ZoruSelectItem>
-              ))}
-            </ZoruSelectContent>
-          </ZoruSelect>
+          <div className="mt-1.5">
+            <EnumFormField
+              enumName="invoiceStatus"
+              name="__status_picker"
+              initialId={statusValue || null}
+              onChange={(id) => onStatusChange(id ?? '')}
+            />
+          </div>
         </div>
         <div className="md:col-span-2">
           <ZoruLabel htmlFor="customerNotes">Customer notes</ZoruLabel>
@@ -482,23 +446,17 @@ export function RecurringSection({
           <div className="mt-3 grid gap-4 md:grid-cols-3">
             <div>
               <ZoruLabel>Frequency</ZoruLabel>
-              <ZoruSelect
-                value={frequency || undefined}
-                onValueChange={(v) =>
-                  onFrequency(v as CrmInvoiceRecurringFrequency)
-                }
-              >
-                <ZoruSelectTrigger className="mt-1.5">
-                  <ZoruSelectValue placeholder="Select" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  {RECURRING_FREQUENCIES.map((f) => (
-                    <ZoruSelectItem key={f.value} value={f.value}>
-                      {f.label}
-                    </ZoruSelectItem>
-                  ))}
-                </ZoruSelectContent>
-              </ZoruSelect>
+              <div className="mt-1.5">
+                <EnumFormField
+                  enumName="recurringFrequency"
+                  name="__recurringFrequency_picker"
+                  initialId={frequency || null}
+                  placeholder="Select"
+                  onChange={(id) =>
+                    onFrequency((id ?? '') as CrmInvoiceRecurringFrequency | '')
+                  }
+                />
+              </div>
             </div>
             <div>
               <ZoruLabel htmlFor="recurringEnd">End date</ZoruLabel>

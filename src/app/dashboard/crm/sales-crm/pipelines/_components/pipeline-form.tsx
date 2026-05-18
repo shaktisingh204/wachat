@@ -26,14 +26,10 @@ import {
     ZoruCheckbox,
     ZoruInput,
     ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
     ZoruTextarea,
     useZoruToast,
 } from '@/components/zoruui';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 
 import {
     savePipeline,
@@ -42,18 +38,6 @@ import {
 } from '@/app/actions/crm-pipelines.actions';
 
 const BASE = '/dashboard/crm/sales-crm/pipelines';
-
-const ENTITY_KIND_OPTIONS: Array<{ value: 'lead' | 'deal' | 'opportunity'; label: string }> = [
-    { value: 'lead', label: 'Lead' },
-    { value: 'deal', label: 'Deal' },
-    { value: 'opportunity', label: 'Opportunity' },
-];
-
-const STATUS_OPTIONS: Array<{ value: 'active' | 'archived' | 'draft'; label: string }> = [
-    { value: 'active', label: 'Active' },
-    { value: 'draft', label: 'Draft' },
-    { value: 'archived', label: 'Archived' },
-];
 
 const DEFAULT_STAGES: PipelineUiStage[] = [
     { name: 'New', order: 0, probability: 10 },
@@ -220,44 +204,33 @@ export function PipelineForm({ initialData }: PipelineFormProps) {
                 {/* Entity kind + Status */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="entityKind-trigger">Applies to</ZoruLabel>
-                        <ZoruSelect
-                            value={entityKind}
-                            onValueChange={(v) =>
-                                setEntityKind(v as 'lead' | 'deal' | 'opportunity')
+                        <ZoruLabel>Applies to</ZoruLabel>
+                        <EnumFormField
+                            enumName="pipelineEntityKind"
+                            name="entityKindPicker"
+                            initialId={entityKind}
+                            allowInlineCreate={false}
+                            placeholder="Entity kind"
+                            onChange={(v) =>
+                                setEntityKind(
+                                    (v ?? 'lead') as 'lead' | 'deal' | 'opportunity',
+                                )
                             }
-                        >
-                            <ZoruSelectTrigger id="entityKind-trigger">
-                                <ZoruSelectValue placeholder="Entity kind" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {ENTITY_KIND_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
-                        <ZoruSelect
-                            value={status}
-                            onValueChange={(v) =>
-                                setStatus(v as 'active' | 'archived' | 'draft')
+                        <ZoruLabel>Status</ZoruLabel>
+                        <EnumFormField
+                            enumName="activeDraftArchived"
+                            name="statusPicker"
+                            initialId={status}
+                            placeholder="Status"
+                            onChange={(v) =>
+                                setStatus(
+                                    (v ?? 'active') as 'active' | 'archived' | 'draft',
+                                )
                             }
-                        >
-                            <ZoruSelectTrigger id="status-trigger">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        />
                     </div>
                 </div>
 

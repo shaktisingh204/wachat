@@ -1,5 +1,7 @@
 'use client';
 
+// TODO 1E.sweep: status -> <EnumFormField enumName="goalStatus">; owner/employee -> <EntityFormField entity="employee">. See plan §1E.
+
 /**
  * <GoalForm /> — create + edit form for performance goals.
  *

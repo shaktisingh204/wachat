@@ -20,15 +20,11 @@ import {
     ZoruCard,
     ZoruInput,
     ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
     ZoruTextarea,
     useZoruToast,
 } from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 
 import {
     saveRecurringInvoice,
@@ -39,20 +35,8 @@ import {
 
 const BASE = '/dashboard/crm/sales/recurring-invoices';
 
-const FREQUENCY_OPTIONS: Array<{ value: CrmRecurringInvoiceFrequency; label: string }> = [
-    { value: 'daily', label: 'Daily' },
-    { value: 'weekly', label: 'Weekly' },
-    { value: 'monthly', label: 'Monthly' },
-    { value: 'quarterly', label: 'Quarterly' },
-    { value: 'yearly', label: 'Yearly' },
-];
-
-const STATUS_OPTIONS: Array<{ value: CrmRecurringInvoiceStatus; label: string }> = [
-    { value: 'active', label: 'Active' },
-    { value: 'paused', label: 'Paused' },
-    { value: 'stopped', label: 'Stopped' },
-    { value: 'completed', label: 'Completed' },
-];
+// Frequency + status options now sourced from CRM_ENUMS
+// (`recurringFrequency`, `recurringScheduleStatus`).
 
 interface RecurringInvoiceFormProps {
     initialData?: CrmRecurringInvoiceDoc | null;
@@ -166,43 +150,25 @@ export function RecurringInvoiceForm({ initialData }: RecurringInvoiceFormProps)
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
                         <ZoruLabel>Frequency *</ZoruLabel>
-                        <ZoruSelect
-                            value={frequency}
-                            onValueChange={(v) =>
-                                setFrequency(v as CrmRecurringInvoiceFrequency)
+                        <EnumFormField
+                            enumName="recurringFrequency"
+                            name="__frequency_picker"
+                            initialId={frequency || null}
+                            onChange={(id) =>
+                                setFrequency((id ?? 'monthly') as CrmRecurringInvoiceFrequency)
                             }
-                        >
-                            <ZoruSelectTrigger>
-                                <ZoruSelectValue />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {FREQUENCY_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        />
                     </div>
                     <div className="space-y-1.5">
                         <ZoruLabel>Status</ZoruLabel>
-                        <ZoruSelect
-                            value={status}
-                            onValueChange={(v) =>
-                                setStatus(v as CrmRecurringInvoiceStatus)
+                        <EnumFormField
+                            enumName="recurringScheduleStatus"
+                            name="__status_picker"
+                            initialId={status || null}
+                            onChange={(id) =>
+                                setStatus((id ?? 'active') as CrmRecurringInvoiceStatus)
                             }
-                        >
-                            <ZoruSelectTrigger>
-                                <ZoruSelectValue />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        />
                     </div>
                 </div>
 

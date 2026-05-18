@@ -29,6 +29,8 @@ import {
 } from '@/components/zoruui';
 
 import { EntityFormShell } from '@/components/crm/entity-form-shell';
+import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import { saveCrmChartOfAccount } from '@/app/actions/crm-accounting.actions';
 import type { CrmAccountGroup, CrmChartOfAccount } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
@@ -123,6 +125,9 @@ export function CoaForm({ initial, groups }: CoaFormProps): React.JSX.Element {
                             </div>
                             <div className="space-y-2 md:col-span-2">
                                 <ZoruLabel htmlFor="accountGroupId">Parent group *</ZoruLabel>
+                                {/* TODO(§1E): Account groups need their own EntityKey before this can move
+                                    to <EntityFormField>. Keeping the SSR-passed `groups` array bound to
+                                    the in-page state for now so the parent dropdown stays functional. */}
                                 <ZoruSelect value={groupId} onValueChange={setGroupId}>
                                     <ZoruSelectTrigger id="accountGroupId">
                                         <ZoruSelectValue placeholder="Select an account group" />
@@ -196,17 +201,12 @@ export function CoaForm({ initial, groups }: CoaFormProps): React.JSX.Element {
                             </div>
                             <div className="space-y-2">
                                 <ZoruLabel htmlFor="currency">Currency</ZoruLabel>
-                                <ZoruSelect name="currency" defaultValue={initial?.currency ?? 'INR'}>
-                                    <ZoruSelectTrigger id="currency">
-                                        <ZoruSelectValue />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="INR">Indian Rupee (INR)</ZoruSelectItem>
-                                        <ZoruSelectItem value="USD">US Dollar (USD)</ZoruSelectItem>
-                                        <ZoruSelectItem value="EUR">Euro (EUR)</ZoruSelectItem>
-                                        <ZoruSelectItem value="GBP">British Pound (GBP)</ZoruSelectItem>
-                                    </ZoruSelectContent>
-                                </ZoruSelect>
+                                <EntityFormField
+                                    entity="currency"
+                                    name="currency"
+                                    initialId={initial?.currency ?? 'INR'}
+                                    allowCreate
+                                />
                             </div>
                         </div>
                     ),
@@ -219,20 +219,11 @@ export function CoaForm({ initial, groups }: CoaFormProps): React.JSX.Element {
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div className="space-y-2">
                                 <ZoruLabel>Tax behavior</ZoruLabel>
-                                <ZoruSelect
+                                <EnumFormField
                                     name="taxBehavior"
-                                    defaultValue={(initial as { taxBehavior?: string } | null | undefined)?.taxBehavior ?? 'none'}
-                                >
-                                    <ZoruSelectTrigger>
-                                        <ZoruSelectValue />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="none">None</ZoruSelectItem>
-                                        <ZoruSelectItem value="output">Output (sales)</ZoruSelectItem>
-                                        <ZoruSelectItem value="input">Input (purchase)</ZoruSelectItem>
-                                        <ZoruSelectItem value="reverse_charge">Reverse charge</ZoruSelectItem>
-                                    </ZoruSelectContent>
-                                </ZoruSelect>
+                                    enumName="accountTaxBehavior"
+                                    initialId={(initial as { taxBehavior?: string } | null | undefined)?.taxBehavior ?? 'none'}
+                                />
                             </div>
                             <label className="flex items-center justify-between rounded-lg border border-border bg-secondary p-3">
                                 <div>

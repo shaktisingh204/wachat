@@ -43,6 +43,7 @@ import {
     useZoruToast,
 } from '@/components/zoruui';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import { saveNotice } from '@/app/actions/crm-notices.actions';
 import type { CrmNoticeDoc } from '@/lib/rust-client/crm-notices';
 
@@ -290,24 +291,15 @@ export function NoticeForm({ initialData }: NoticeFormProps) {
                             </ZoruSelect>
                         </div>
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="severity">Severity</ZoruLabel>
-                            <ZoruSelect
+                            <ZoruLabel>Severity</ZoruLabel>
+                            <EnumFormField
+                                enumName="announcementSeverity"
                                 name="severity"
-                                defaultValue={
+                                initialId={
                                     (initialData?.severity as string) ?? 'info'
                                 }
-                            >
-                                <ZoruSelectTrigger id="severity">
-                                    <ZoruSelectValue placeholder="Severity" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    {NOTICE_SEVERITIES.map((c) => (
-                                        <ZoruSelectItem key={c.value} value={c.value}>
-                                            {c.label}
-                                        </ZoruSelectItem>
-                                    ))}
-                                </ZoruSelectContent>
-                            </ZoruSelect>
+                                placeholder="Severity"
+                            />
                         </div>
                         <div className="space-y-1.5">
                             <ZoruLabel htmlFor="issuedTo">Issued To</ZoruLabel>

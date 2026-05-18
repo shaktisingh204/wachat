@@ -31,15 +31,13 @@ import {
     ZoruCheckbox,
     ZoruInput,
     ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
     ZoruTextarea,
     useZoruToast,
 } from '@/components/zoruui';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
+import { EnumFormField } from '@/components/crm/enum-form-field';
+import { EntityFormField } from '@/components/crm/entity-form-field';
+import type { EntityKey } from '@/lib/lookup-registry';
 
 import { saveTask } from '@/app/actions/crm-tasks-rust.actions';
 import type {
@@ -50,28 +48,20 @@ import type {
 
 const BASE = '/dashboard/crm/tasks';
 
-const STATUS_OPTIONS: Array<{ value: CrmTaskStatus; label: string }> = [
-    { value: 'To-Do', label: 'To-Do' },
-    { value: 'In Progress', label: 'In Progress' },
-    { value: 'Completed', label: 'Completed' },
-    { value: 'archived', label: 'Archived' },
-];
-
-const PRIORITY_OPTIONS = [
-    { value: 'Low', label: 'Low' },
-    { value: 'Medium', label: 'Medium' },
-    { value: 'High', label: 'High' },
-];
-
-const LINKED_KIND_OPTIONS = [
-    { value: 'none', label: 'No link' },
-    { value: 'lead', label: 'Lead' },
-    { value: 'deal', label: 'Deal' },
-    { value: 'contact', label: 'Contact' },
-    { value: 'client', label: 'Client' },
-    { value: 'ticket', label: 'Ticket' },
-    { value: 'invoice', label: 'Invoice' },
-];
+/**
+ * Map the user-picked discriminator → the lookup entity the linked-id
+ * picker should resolve against. `none` short-circuits the picker.
+ */
+const LINKED_ENTITY_BY_KIND: Record<string, EntityKey | null> = {
+    none: null,
+    lead: 'lead',
+    deal: 'deal',
+    contact: 'contact',
+    client: 'client',
+    ticket: 'ticketGroup', // tickets aren't a top-level lookup yet
+    invoice: 'invoice',
+    project: 'project',
+};
 
 function toDateInput(value: unknown): string {
     if (!value) return '';
@@ -222,37 +212,25 @@ export function TaskForm({ initialData }: TaskFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="priority-trigger">Priority</ZoruLabel>
-                        <ZoruSelect value={priority} onValueChange={setPriority}>
-                            <ZoruSelectTrigger id="priority-trigger">
-                                <ZoruSelectValue placeholder="Priority" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {PRIORITY_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <ZoruLabel>Priority</ZoruLabel>
+                        <EnumFormField
+                            enumName="priorityLegacy"
+                            name="priorityPicker"
+                            initialId={priority}
+                            placeholder="Priority"
+                            onChange={(next) => setPriority(next ?? 'Medium')}
+                        />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
-                        <ZoruSelect
-                            value={status}
-                            onValueChange={(v) => setStatus(v as CrmTaskStatus)}
-                        >
-                            <ZoruSelectTrigger id="status-trigger">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <ZoruLabel>Status</ZoruLabel>
+                        <EnumFormField
+                            enumName="taskStatusLegacy"
+                            name="statusPicker"
+                            initialId={status}
+                            placeholder="Status"
+                            allowInlineCreate={false}
+                            onChange={(next) => setStatus((next ?? 'To-Do') as CrmTaskStatus)}
+                        />
                     </div>
                 </div>
 
@@ -284,12 +262,12 @@ export function TaskForm({ initialData }: TaskFormProps) {
                         </p>
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="assignedTo">Assigned to (user id)</ZoruLabel>
-                        <ZoruInput
-                            id="assignedTo"
+                        <ZoruLabel>Assigned to</ZoruLabel>
+                        <EntityFormField
+                            entity="user"
                             name="assignedTo"
-                            placeholder="Optional"
-                            defaultValue={initialData?.assignedTo ?? ''}
+                            initialId={initialData?.assignedTo ?? null}
+                            placeholder="Pick a user"
                         />
                     </div>
                 </div>
@@ -297,28 +275,25 @@ export function TaskForm({ initialData }: TaskFormProps) {
                 {/* Linked entity */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="linkedKind-trigger">Linked entity</ZoruLabel>
-                        <ZoruSelect value={linkedKind} onValueChange={setLinkedKind}>
-                            <ZoruSelectTrigger id="linkedKind-trigger">
-                                <ZoruSelectValue placeholder="Kind" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {LINKED_KIND_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <ZoruLabel>Linked entity</ZoruLabel>
+                        <EnumFormField
+                            enumName="linkedEntityKind"
+                            name="linkedKindPicker"
+                            initialId={linkedKind}
+                            placeholder="Kind"
+                            allowInlineCreate={false}
+                            onChange={(next) => setLinkedKind(next ?? 'none')}
+                        />
                     </div>
-                    {linkedKind !== 'none' ? (
+                    {linkedKind !== 'none' && LINKED_ENTITY_BY_KIND[linkedKind] ? (
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="linkedId">Linked id</ZoruLabel>
-                            <ZoruInput
-                                id="linkedId"
+                            <ZoruLabel>Linked record</ZoruLabel>
+                            <EntityFormField
+                                key={linkedKind}
+                                entity={LINKED_ENTITY_BY_KIND[linkedKind]!}
                                 name="linkedId"
-                                placeholder="ObjectId"
-                                defaultValue={initialData?.linkedId ?? ''}
+                                initialId={initialData?.linkedId ?? null}
+                                placeholder={`Pick a ${linkedKind}`}
                             />
                         </div>
                     ) : null}

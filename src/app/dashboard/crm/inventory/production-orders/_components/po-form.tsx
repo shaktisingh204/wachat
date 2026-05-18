@@ -28,15 +28,11 @@ import {
     ZoruCardTitle,
     ZoruInput,
     ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
     ZoruTextarea,
     useZoruToast,
 } from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 
 import {
     getBomPrefillForProductionOrder,
@@ -274,19 +270,11 @@ export function PoForm({ initial }: PoFormProps) {
 
                     <div className="space-y-1">
                         <ZoruLabel htmlFor="status">Status</ZoruLabel>
-                        <ZoruSelect name="status" defaultValue={initial?.status ?? 'planned'}>
-                            <ZoruSelectTrigger id="status">
-                                <ZoruSelectValue />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="planned">Planned</ZoruSelectItem>
-                                <ZoruSelectItem value="released">Released</ZoruSelectItem>
-                                <ZoruSelectItem value="in_progress">In progress</ZoruSelectItem>
-                                <ZoruSelectItem value="completed">Completed</ZoruSelectItem>
-                                <ZoruSelectItem value="closed">Closed</ZoruSelectItem>
-                                <ZoruSelectItem value="cancelled">Cancelled</ZoruSelectItem>
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <EnumFormField
+                            enumName="productionOrderStatus"
+                            name="status"
+                            initialId={initial?.status ?? 'planned'}
+                        />
                     </div>
                 </ZoruCardContent>
             </ZoruCard>

@@ -41,6 +41,7 @@ import {
     ZoruTableRow,
     useZoruToast,
 } from '@/components/zoruui';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import { useFormStatus } from 'react-dom';
 import { useActionState } from 'react';
 import type { WithId } from 'mongodb';
@@ -192,23 +193,16 @@ function AccountGroupDialog({
                         </div>
                         <div className="space-y-2">
                             <ZoruLabel htmlFor="type">Nature *</ZoruLabel>
-                            <ZoruSelect
+                            <EnumFormField
                                 name="type"
+                                enumName="accountNature"
+                                initialId={initialData?.type ?? null}
+                                onChange={(id) =>
+                                    setSelectedType((id ?? '') as CrmAccountGroup['type'] | '')
+                                }
                                 required
-                                onValueChange={(v) => setSelectedType(v as CrmAccountGroup['type'])}
-                                defaultValue={initialData?.type}
-                            >
-                                <ZoruSelectTrigger id="type">
-                                    <ZoruSelectValue placeholder="Pick a nature…" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    {accountNatures.map((n) => (
-                                        <ZoruSelectItem key={n} value={n}>
-                                            {n}
-                                        </ZoruSelectItem>
-                                    ))}
-                                </ZoruSelectContent>
-                            </ZoruSelect>
+                                placeholder="Pick a nature…"
+                            />
                         </div>
                         {selectedType ? (
                             <div className="space-y-2">

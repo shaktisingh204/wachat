@@ -10,9 +10,6 @@
  * Per `docs/ecosystem/CRM_REBUILD_PLAN.md` §1D.
  */
 
-import { FileText } from 'lucide-react';
-
-import { CrmPageHeader } from '../../_components/crm-page-header';
 import { listQuotations } from '@/app/actions/crm/quotations.actions';
 import type { CrmQuotationDoc } from '@/lib/rust-client/crm-quotations';
 
@@ -98,28 +95,15 @@ export default async function QuotationsPage({ searchParams }: PageProps) {
   const kpi = computeKpi(rows);
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Quotations"
-        subtitle="Create and manage sales quotations — open, accepted, rejected, expired, converted."
-        icon={FileText}
-        breadcrumbs={[
-          { label: 'CRM', href: '/dashboard/crm' },
-          { label: 'Sales', href: '/dashboard/crm/sales' },
-          { label: 'Quotations' },
-        ]}
-      />
-
-      <QuotationListClient
-        quotations={rows}
-        page={page}
-        limit={limit}
-        hasMore={hasMore}
-        initialQuery={q}
-        kpi={kpi}
-        defaultCurrency="INR"
-        error={error}
-      />
-    </div>
+    <QuotationListClient
+      quotations={rows}
+      page={page}
+      limit={limit}
+      hasMore={hasMore}
+      initialQuery={q}
+      kpi={kpi}
+      defaultCurrency="INR"
+      error={error}
+    />
   );
 }

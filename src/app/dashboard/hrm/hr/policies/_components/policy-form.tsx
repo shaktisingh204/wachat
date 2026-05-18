@@ -28,6 +28,8 @@ import {
     ZoruTextarea,
     useZoruToast,
 } from '@/components/zoruui';
+import { EnumFormField } from '@/components/crm/enum-form-field';
+import { EntityFormField } from '@/components/crm/entity-form-field';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
 
 import { savePolicy } from '@/app/actions/crm-policies.actions';
@@ -192,7 +194,8 @@ export function PolicyForm({ initialData }: PolicyFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="category-trigger">Category</ZoruLabel>
+                        <ZoruLabel>Category</ZoruLabel>
+                        {/* TODO 1E.sweep: policy category here uses leave/travel/code_of_conduct/it_security etc which differ from catalogued `policyCategory` slugs — bridge or extend before swapping to <EnumFormField>. */}
                         <ZoruSelect value={category} onValueChange={setCategory}>
                             <ZoruSelectTrigger id="category-trigger">
                                 <ZoruSelectValue placeholder="Pick a category…" />
@@ -307,16 +310,18 @@ export function PolicyForm({ initialData }: PolicyFormProps) {
                 {/* Row 7: Owner + Status */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="ownerId">Owner (user id)</ZoruLabel>
-                        <ZoruInput
-                            id="ownerId"
+                        <ZoruLabel>Owner</ZoruLabel>
+                        <EntityFormField
+                            entity="employee"
                             name="ownerId"
-                            placeholder="Optional — owner user id"
-                            defaultValue={initialData?.ownerId ?? ''}
+                            initialId={initialData?.ownerId ?? null}
+                            allowCreate
+                            placeholder="Policy owner"
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
+                        <ZoruLabel>Status</ZoruLabel>
+                        {/* TODO 1E.sweep: catalogued policyStatus has draft/published/archived only — policy form adds 'under_review' and 'obsolete'. Bridge or extend before swapping. */}
                         <ZoruSelect
                             value={status}
                             onValueChange={(v) => setStatus(v as CrmPolicyStatus)}

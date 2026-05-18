@@ -1,18 +1,15 @@
 /**
- * Canonical Invoices list — `/dashboard/crm/sales/invoices`.
+ * Canonical Invoices list — `/dashboard/crm/sales/invoices` (§1D.1 rebuild).
  *
- * Server component. Reads page/limit/q from the URL, hands the data to
- * `<InvoiceListClient>` for the §1D experience (KPI strip, filters, view
- * switcher, bulk bar, calendar). Pulls a wider window for the KPI strip
- * so the aggregate isn't capped by `limit`.
+ * Phase 1.1B Wave 2 partial rebuild. Server component. Reads page/limit/q
+ * from the URL, hands the rows + a wider KPI window to
+ * `<InvoiceListClient>` — which composes <EntityListShell> internally
+ * (per the ACCOUNTS template at `src/app/dashboard/crm/accounts/page.tsx`).
  *
  * Per CRM_REBUILD_PLAN §1D.1.
  */
 
 import { ObjectId } from 'mongodb';
-
-import { CrmPageHeader } from '../../_components/crm-page-header';
-import { Receipt } from 'lucide-react';
 
 import { listInvoices } from '@/app/actions/crm/invoices.actions';
 import { computeInvoiceKpis } from '@/app/actions/crm/invoices.kpis';
@@ -69,7 +66,8 @@ export default async function InvoicesPage({ searchParams }: PageProps) {
     listInvoices({ page, limit, q: q || undefined }),
     // Wider window for the KPI aggregate so a single page doesn't skew
     // the strip. Capped at 200 — the Rust endpoint enforces its own
-    // upper bound.
+    // upper bound. TODO 1D.1: replace with a dedicated `getInvoiceKpis()`
+    // server action once tenants exceed the 200-row ceiling.
     crmInvoicesApi
       .list({ page: 1, limit: 200 })
       .catch(() => [] as CrmInvoiceDoc[]),
@@ -111,29 +109,16 @@ export default async function InvoicesPage({ searchParams }: PageProps) {
   const kpi = computeInvoiceKpis(kpiSource);
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Invoices"
-        subtitle="Bill customers and track payment state across your sales pipeline."
-        icon={Receipt}
-        breadcrumbs={[
-          { label: 'CRM', href: '/dashboard/crm' },
-          { label: 'Sales', href: '/dashboard/crm/sales' },
-          { label: 'Invoices' },
-        ]}
-      />
-
-      <InvoiceListClient
-        invoices={rows}
-        page={page}
-        limit={limit}
-        hasMore={hasMore}
-        initialQuery={q}
-        kpi={kpi}
-        defaultCurrency="INR"
-        currentUserId={session?.user?._id ? String(session.user._id) : null}
-        error={error}
-      />
-    </div>
+    <InvoiceListClient
+      invoices={rows}
+      page={page}
+      limit={limit}
+      hasMore={hasMore}
+      initialQuery={q}
+      kpi={kpi}
+      defaultCurrency="INR"
+      currentUserId={session?.user?._id ? String(session.user._id) : null}
+      error={error}
+    />
   );
 }

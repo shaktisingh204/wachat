@@ -22,15 +22,11 @@ import {
     ZoruCard,
     ZoruInput,
     ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
     ZoruTextarea,
     useZoruToast,
 } from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import {
     saveKbArticle,
     updateKbArticle,
@@ -194,36 +190,22 @@ export function KbArticleForm({ mode, initial, articleId }: KbArticleFormProps) 
                 </h2>
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="visibility">Visibility</ZoruLabel>
-                        <ZoruSelect
+                        <ZoruLabel>Visibility</ZoruLabel>
+                        <EnumFormField
+                            enumName="kbVisibility"
                             name="visibility"
-                            defaultValue={(init.visibility as string | undefined) ?? 'internal'}
-                        >
-                            <ZoruSelectTrigger id="visibility">
-                                <ZoruSelectValue placeholder="Select visibility" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="public">Public</ZoruSelectItem>
-                                <ZoruSelectItem value="portal">Customer Portal</ZoruSelectItem>
-                                <ZoruSelectItem value="internal">Internal Only</ZoruSelectItem>
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                            initialId={(init.visibility as string | undefined) ?? 'internal'}
+                            placeholder="Select visibility"
+                        />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="status">Status</ZoruLabel>
-                        <ZoruSelect
+                        <ZoruLabel>Status</ZoruLabel>
+                        <EnumFormField
+                            enumName="kbStatus"
                             name="status"
-                            defaultValue={(init.status as string | undefined) ?? 'draft'}
-                        >
-                            <ZoruSelectTrigger id="status">
-                                <ZoruSelectValue placeholder="Select status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="draft">Draft</ZoruSelectItem>
-                                <ZoruSelectItem value="published">Published</ZoruSelectItem>
-                                <ZoruSelectItem value="archived">Archived</ZoruSelectItem>
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                            initialId={(init.status as string | undefined) ?? 'draft'}
+                            placeholder="Select status"
+                        />
                     </div>
                 </div>
             </ZoruCard>

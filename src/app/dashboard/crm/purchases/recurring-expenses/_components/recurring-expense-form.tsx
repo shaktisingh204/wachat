@@ -28,15 +28,11 @@ import {
     ZoruCard,
     ZoruInput,
     ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
     ZoruTextarea,
     useZoruToast,
 } from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import { DirtyFormPrompt } from '@/components/crm/dirty-form-prompt';
 import { saveRecurringExpense } from '@/app/actions/worksuite/billing.actions';
 import type {
@@ -228,20 +224,12 @@ export function RecurringExpenseForm({ initialData }: RecurringExpenseFormProps)
                     </div>
                     <div className="space-y-1.5">
                         <ZoruLabel className="text-foreground">Frequency</ZoruLabel>
-                        <ZoruSelect
-                            value={frequency}
-                            onValueChange={(v) => setFrequency(v as WsFrequency)}
-                        >
-                            <ZoruSelectTrigger>
-                                <ZoruSelectValue />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="days">Days</ZoruSelectItem>
-                                <ZoruSelectItem value="weeks">Weeks</ZoruSelectItem>
-                                <ZoruSelectItem value="months">Months</ZoruSelectItem>
-                                <ZoruSelectItem value="years">Years</ZoruSelectItem>
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <EnumFormField
+                            enumName="wsFrequency"
+                            name="__frequency_picker"
+                            initialId={frequency || null}
+                            onChange={(id) => setFrequency((id ?? 'months') as WsFrequency)}
+                        />
                     </div>
                     <div className="space-y-1.5">
                         <ZoruLabel className="text-foreground">
@@ -276,21 +264,12 @@ export function RecurringExpenseForm({ initialData }: RecurringExpenseFormProps)
                     </div>
                     <div className="space-y-1.5">
                         <ZoruLabel className="text-foreground">Status</ZoruLabel>
-                        <ZoruSelect
-                            value={status}
-                            onValueChange={(v) =>
-                                setStatus(v as WsRecurringStatus)
-                            }
-                        >
-                            <ZoruSelectTrigger>
-                                <ZoruSelectValue />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="active">Active</ZoruSelectItem>
-                                <ZoruSelectItem value="paused">Paused</ZoruSelectItem>
-                                <ZoruSelectItem value="stopped">Stopped</ZoruSelectItem>
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <EnumFormField
+                            enumName="wsRecurringStatus"
+                            name="__status_picker"
+                            initialId={status || null}
+                            onChange={(id) => setStatus((id ?? 'active') as WsRecurringStatus)}
+                        />
                     </div>
                 </div>
             </ZoruCard>

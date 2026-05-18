@@ -27,11 +27,6 @@ import {
   ZoruCard,
   ZoruInput,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruTable,
   ZoruTableBody,
   ZoruTableCell,
@@ -42,6 +37,7 @@ import {
   useZoruToast,
 } from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import { EntityPicker } from '@/components/crm/entity-picker';
 import { saveCreditNoteAction } from '@/app/actions/crm/credit-notes.actions';
 import type {
@@ -70,26 +66,8 @@ interface EditableLineRow {
   taxRatePct: string;
 }
 
-const REASONS: Array<{ value: CreditNoteReason; label: string }> = [
-  { value: 'return', label: 'Return' },
-  { value: 'discount', label: 'Discount' },
-  { value: 'price_adjust', label: 'Price adjustment' },
-  { value: 'cancel', label: 'Cancellation' },
-  { value: 'other', label: 'Other' },
-];
-
-const REFUND_MODES: Array<{ value: RefundMode; label: string }> = [
-  { value: 'cash', label: 'Cash / bank' },
-  { value: 'credit', label: 'Customer credit' },
-  { value: 'replacement', label: 'Replacement' },
-];
-
-const STATUSES: Array<{ value: CreditNoteStatus; label: string }> = [
-  { value: 'draft', label: 'Draft' },
-  { value: 'issued', label: 'Issued' },
-  { value: 'refunded', label: 'Refunded' },
-  { value: 'cancelled', label: 'Cancelled' },
-];
+// Reason / refund-mode / status options now sourced from CRM_ENUMS
+// (`creditNoteReason`, `creditNoteRefundMode`, `creditNoteStatusV2`).
 
 const INITIAL_STATE = { message: undefined, error: undefined, id: undefined };
 
@@ -315,34 +293,49 @@ export function CreditNoteForm({ initial }: CreditNoteFormProps) {
             </div>
           </div>
           <div>
-            <ZoruLabel htmlFor="linkedInvoiceId">Original invoice #</ZoruLabel>
-            {/*
-              The `invoice` EntityKey isn't registered yet — keep this as
-              a plain text input. Wire to `<EntityFormField entity="invoice">`
-              once the EntityKey lands.
-            */}
-            <ZoruInput
-              id="linkedInvoiceId"
-              name="linkedInvoiceId"
-              defaultValue={initial?.linkedInvoiceId ?? ''}
-              className="mt-1.5"
-              placeholder="INV-00012"
-            />
+            <ZoruLabel>
+              Linked invoice
+              {refundMode === 'credit' ? (
+                <span className="ml-1 text-[10.5px] uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+                  apply target
+                </span>
+              ) : (
+                <span className="ml-1 text-[10.5px] uppercase tracking-wider text-zoru-ink-muted">
+                  optional reference
+                </span>
+              )}
+            </ZoruLabel>
+            <div className="mt-1.5">
+              <EntityFormField
+                entity="invoice"
+                name="linkedInvoiceId"
+                initialId={initial?.linkedInvoiceId ?? null}
+                placeholder={
+                  refundMode === 'credit'
+                    ? 'Pick the invoice this credit applies to…'
+                    : 'Pick the source invoice (optional)…'
+                }
+                required={refundMode === 'credit'}
+              />
+            </div>
+            <p className="mt-1 text-[11px] text-zoru-ink-muted">
+              {refundMode === 'credit'
+                ? 'Required for "Apply as customer credit" — the credit settles against this invoice.'
+                : refundMode === 'cash'
+                  ? 'Helpful for audit, but not required for a cash refund.'
+                  : 'Helpful for audit, but not required for a replacement.'}
+            </p>
           </div>
           <div>
             <ZoruLabel>Reason</ZoruLabel>
-            <ZoruSelect value={reason} onValueChange={(v) => setReason(v as CreditNoteReason)}>
-              <ZoruSelectTrigger className="mt-1.5">
-                <ZoruSelectValue />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                {REASONS.map((r) => (
-                  <ZoruSelectItem key={r.value} value={r.value}>
-                    {r.label}
-                  </ZoruSelectItem>
-                ))}
-              </ZoruSelectContent>
-            </ZoruSelect>
+            <div className="mt-1.5">
+              <EnumFormField
+                enumName="creditNoteReason"
+                name="__reason_picker"
+                initialId={reason || null}
+                onChange={(id) => setReason((id ?? 'other') as CreditNoteReason)}
+              />
+            </div>
           </div>
           <div>
             <ZoruLabel>Currency</ZoruLabel>
@@ -552,21 +545,14 @@ export function CreditNoteForm({ initial }: CreditNoteFormProps) {
         <div className="grid gap-4 md:grid-cols-2">
           <div>
             <ZoruLabel>Refund mode</ZoruLabel>
-            <ZoruSelect
-              value={refundMode}
-              onValueChange={(v) => setRefundMode(v as RefundMode)}
-            >
-              <ZoruSelectTrigger className="mt-1.5">
-                <ZoruSelectValue />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                {REFUND_MODES.map((r) => (
-                  <ZoruSelectItem key={r.value} value={r.value}>
-                    {r.label}
-                  </ZoruSelectItem>
-                ))}
-              </ZoruSelectContent>
-            </ZoruSelect>
+            <div className="mt-1.5">
+              <EnumFormField
+                enumName="creditNoteRefundMode"
+                name="__refundMode_picker"
+                initialId={refundMode || null}
+                onChange={(id) => setRefundMode((id ?? 'cash') as RefundMode)}
+              />
+            </div>
           </div>
           <div>
             <ZoruLabel htmlFor="refundTxnId">Refund transaction ID</ZoruLabel>
@@ -580,18 +566,14 @@ export function CreditNoteForm({ initial }: CreditNoteFormProps) {
           </div>
           <div>
             <ZoruLabel>Status</ZoruLabel>
-            <ZoruSelect value={status} onValueChange={(v) => setStatus(v as CreditNoteStatus)}>
-              <ZoruSelectTrigger className="mt-1.5">
-                <ZoruSelectValue />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                {STATUSES.map((s) => (
-                  <ZoruSelectItem key={s.value} value={s.value}>
-                    {s.label}
-                  </ZoruSelectItem>
-                ))}
-              </ZoruSelectContent>
-            </ZoruSelect>
+            <div className="mt-1.5">
+              <EnumFormField
+                enumName="creditNoteStatusV2"
+                name="__status_picker"
+                initialId={status || null}
+                onChange={(id) => setStatus((id ?? 'draft') as CreditNoteStatus)}
+              />
+            </div>
           </div>
           <div className="flex items-end gap-2">
             <label className="flex items-center gap-2 text-[13px] text-zoru-ink-muted">

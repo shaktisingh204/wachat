@@ -13,6 +13,9 @@ pub struct ListQuery {
     pub q: Option<String>,
     #[serde(default)]
     pub status: Option<String>,
+    /// Filter labels by their target entity kind (e.g. `"task"`).
+    #[serde(default)]
+    pub entity_kind: Option<String>,
 }
 
 #[derive(Debug, Clone, Default, Deserialize)]
@@ -25,6 +28,8 @@ pub struct CreateLabelInput {
     pub icon: Option<String>,
     #[serde(default)]
     pub description: Option<String>,
+    #[serde(default)]
+    pub entity_kind: Option<String>,
 }
 
 #[derive(Debug, Clone, Default, Deserialize)]
@@ -38,6 +43,8 @@ pub struct UpdateLabelInput {
     pub icon: Option<String>,
     #[serde(default)]
     pub description: Option<String>,
+    #[serde(default)]
+    pub entity_kind: Option<String>,
     #[serde(default)]
     pub status: Option<String>,
 }

@@ -14,14 +14,10 @@ import {
   ZoruCard,
   ZoruInput,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruSkeleton,
   useZoruToast,
 } from '@/components/zoruui';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
 import {
   getStorageSetting,
@@ -103,21 +99,13 @@ export default function StorageIntegrationPage() {
             <div className="md:col-span-2">
               <ZoruLabel htmlFor="storage_driver">Storage Driver</ZoruLabel>
               <div className="mt-1.5">
-                <ZoruSelect
-                  value={driver}
-                  onValueChange={(val) => setDriver(val as WsStorageDriver)}
+                <EnumFormField
                   name="storage_driver"
-                >
-                  <ZoruSelectTrigger id="storage_driver">
-                    <ZoruSelectValue placeholder="Select driver" />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
-                    <ZoruSelectItem value="local">Local</ZoruSelectItem>
-                    <ZoruSelectItem value="s3">Amazon S3</ZoruSelectItem>
-                    <ZoruSelectItem value="google-drive">Google Drive</ZoruSelectItem>
-                    <ZoruSelectItem value="azure">Azure Blob</ZoruSelectItem>
-                  </ZoruSelectContent>
-                </ZoruSelect>
+                  enumName="storageDriver"
+                  initialId={driver}
+                  onChange={(id) => setDriver((id ?? 'local') as WsStorageDriver)}
+                  placeholder="Select driver"
+                />
               </div>
             </div>
 

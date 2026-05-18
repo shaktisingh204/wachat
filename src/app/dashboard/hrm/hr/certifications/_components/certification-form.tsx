@@ -1,5 +1,7 @@
 'use client';
 
+// TODO 1E.sweep: convert ZoruSelect (status) -> <EnumFormField enumName="certificationStatus">. Employee/issuer dropdowns -> <EntityFormField entity="employee">. See plan §1E.
+
 /**
  * <CertificationForm /> — create + edit form for HR Certifications.
  *

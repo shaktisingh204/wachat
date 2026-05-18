@@ -36,15 +36,11 @@ import {
   ZoruCard,
   ZoruInput,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import { saveSalesOrderAction } from '@/app/actions/crm/sales-orders.actions';
 import type {
   CrmSalesOrderDoc,
@@ -74,21 +70,8 @@ export interface SalesOrdersFormProps {
   };
 }
 
-const STATUS_OPTIONS: { value: CrmSalesOrderStatus; label: string }[] = [
-  { value: 'open', label: 'Open' },
-  { value: 'partial', label: 'Partial' },
-  { value: 'fulfilled', label: 'Fulfilled' },
-  { value: 'closed', label: 'Closed' },
-  { value: 'cancelled', label: 'Cancelled' },
-];
-
-const DELIVERY_OPTIONS: { value: CrmSalesOrderDeliveryMethod; label: string }[] = [
-  { value: 'courier', label: 'Courier' },
-  { value: 'transporter', label: 'Transporter' },
-  { value: 'in_house', label: 'In-house delivery' },
-  { value: 'pickup', label: 'Customer pickup' },
-  { value: 'digital', label: 'Digital delivery' },
-];
+// Status + delivery-method options now sourced from CRM_ENUMS
+// (`salesOrderFulfillmentStatus`, `salesOrderDeliveryMethod`).
 
 const INITIAL_STATE: { message?: string; error?: string; id?: string } = {
   message: undefined,
@@ -391,26 +374,17 @@ export function SalesOrdersForm({ initial, seed }: SalesOrdersFormProps) {
           </div>
           <div>
             <ZoruLabel>Delivery method</ZoruLabel>
-            <ZoruSelect
-              value={deliveryMethod || '__none'}
-              onValueChange={(v) =>
-                setDeliveryMethod(
-                  v === '__none' ? '' : (v as CrmSalesOrderDeliveryMethod),
-                )
-              }
-            >
-              <ZoruSelectTrigger className="mt-1.5">
-                <ZoruSelectValue placeholder="Select delivery method" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="__none">—</ZoruSelectItem>
-                {DELIVERY_OPTIONS.map((d) => (
-                  <ZoruSelectItem key={d.value} value={d.value}>
-                    {d.label}
-                  </ZoruSelectItem>
-                ))}
-              </ZoruSelectContent>
-            </ZoruSelect>
+            <div className="mt-1.5">
+              <EnumFormField
+                enumName="salesOrderDeliveryMethod"
+                name="__deliveryMethod_picker"
+                initialId={deliveryMethod || null}
+                placeholder="Select delivery method"
+                onChange={(id) =>
+                  setDeliveryMethod((id ?? '') as CrmSalesOrderDeliveryMethod | '')
+                }
+              />
+            </div>
           </div>
           <div>
             <ZoruLabel htmlFor="paymentTerms">Payment terms</ZoruLabel>
@@ -484,18 +458,14 @@ export function SalesOrdersForm({ initial, seed }: SalesOrdersFormProps) {
         <div className="grid gap-4 md:grid-cols-2">
           <div>
             <ZoruLabel>Status</ZoruLabel>
-            <ZoruSelect value={status} onValueChange={(v) => setStatus(v as CrmSalesOrderStatus)}>
-              <ZoruSelectTrigger className="mt-1.5">
-                <ZoruSelectValue />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                {STATUS_OPTIONS.map((s) => (
-                  <ZoruSelectItem key={s.value} value={s.value}>
-                    {s.label}
-                  </ZoruSelectItem>
-                ))}
-              </ZoruSelectContent>
-            </ZoruSelect>
+            <div className="mt-1.5">
+              <EnumFormField
+                enumName="salesOrderFulfillmentStatus"
+                name="__status_picker"
+                initialId={status || null}
+                onChange={(id) => setStatus((id ?? 'open') as CrmSalesOrderStatus)}
+              />
+            </div>
           </div>
         </div>
         <div className="mt-4 grid gap-4 md:grid-cols-2">

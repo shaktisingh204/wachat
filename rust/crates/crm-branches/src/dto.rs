@@ -47,6 +47,10 @@ pub struct CreateBranchInput {
     pub kind: Option<String>,
     #[serde(default)]
     pub is_default: Option<bool>,
+    #[serde(default)]
+    pub is_head_office: Option<bool>,
+    #[serde(default)]
+    pub is_active: Option<bool>,
 }
 
 #[derive(Debug, Clone, Default, Deserialize)]
@@ -78,6 +82,10 @@ pub struct UpdateBranchInput {
     pub kind: Option<String>,
     #[serde(default)]
     pub is_default: Option<bool>,
+    #[serde(default)]
+    pub is_head_office: Option<bool>,
+    #[serde(default)]
+    pub is_active: Option<bool>,
     #[serde(default)]
     pub status: Option<String>,
 }

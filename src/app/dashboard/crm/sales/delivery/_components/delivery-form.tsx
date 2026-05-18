@@ -31,15 +31,11 @@ import {
   ZoruCard,
   ZoruInput,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import { saveDeliveryChallan } from '@/app/actions/crm-delivery-challans.actions';
 import { DcLineItemsTable, type DcLineRow } from './delivery-form-lines';
 
@@ -75,13 +71,7 @@ export interface DeliveryFormProps {
   editId?: string;
 }
 
-const TRANSPORT_MODES = [
-  { value: 'road', label: 'By road' },
-  { value: 'rail', label: 'By rail' },
-  { value: 'air', label: 'By air' },
-  { value: 'ship', label: 'By ship' },
-  { value: 'hand', label: 'Hand delivery' },
-];
+// Mode of transport now sourced from CRM_ENUMS.transportMode.
 
 const INITIAL_STATE: { message?: string; error?: string } = {
   message: undefined,
@@ -425,18 +415,14 @@ export function DeliveryForm({ seed, fromKind, fromId, editId }: DeliveryFormPro
           </div>
           <div className="md:col-span-2">
             <ZoruLabel>Mode of transport</ZoruLabel>
-            <ZoruSelect value={mode} onValueChange={setMode}>
-              <ZoruSelectTrigger className="mt-1.5">
-                <ZoruSelectValue />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                {TRANSPORT_MODES.map((m) => (
-                  <ZoruSelectItem key={m.value} value={m.value}>
-                    {m.label}
-                  </ZoruSelectItem>
-                ))}
-              </ZoruSelectContent>
-            </ZoruSelect>
+            <div className="mt-1.5">
+              <EnumFormField
+                enumName="transportMode"
+                name="__transportMode_picker"
+                initialId={mode || null}
+                onChange={(id) => setMode(id ?? 'road')}
+              />
+            </div>
           </div>
         </div>
       </ZoruCard>

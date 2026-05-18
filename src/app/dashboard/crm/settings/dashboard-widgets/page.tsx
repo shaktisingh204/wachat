@@ -31,14 +31,10 @@ import {
   ZoruDialogTitle,
   ZoruInput,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 import {
   getMyDashboardWidgets,
@@ -330,26 +326,17 @@ export default function DashboardWidgetsPage() {
             <div className="grid grid-cols-2 gap-3">
               <div className="grid gap-1.5">
                 <ZoruLabel>Type</ZoruLabel>
-                <ZoruSelect
-                  value={form.type}
-                  onValueChange={(v) =>
+                <EnumFormField
+                  name="__widgetType"
+                  enumName="dashboardWidgetType"
+                  initialId={form.type}
+                  onChange={(id) =>
                     setForm((f) => ({
                       ...f,
-                      type: v as WsDashboardWidgetType,
+                      type: (id ?? 'stats') as WsDashboardWidgetType,
                     }))
                   }
-                >
-                  <ZoruSelectTrigger>
-                    <ZoruSelectValue />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
-                    {TYPES.map((t) => (
-                      <ZoruSelectItem key={t} value={t}>
-                        {t}
-                      </ZoruSelectItem>
-                    ))}
-                  </ZoruSelectContent>
-                </ZoruSelect>
+                />
               </div>
               <div className="grid gap-1.5">
                 <ZoruLabel htmlFor="widget-width">Width (1–12)</ZoruLabel>

@@ -26,16 +26,12 @@ import {
     ZoruDatePicker,
     ZoruInput,
     ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
     ZoruTextarea,
     useZoruToast,
 } from '@/components/zoruui';
 
 import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import { DirtyFormPrompt } from '@/components/crm/dirty-form-prompt';
 import {
     createCrmTask,
@@ -234,58 +230,29 @@ export function TaskForm({ mode, initial, prefill, currentUserId }: TaskFormProp
                         />
                     </div>
                     <div className="space-y-2">
-                        <ZoruLabel htmlFor="type">Type</ZoruLabel>
-                        <ZoruSelect
+                        <ZoruLabel>Type</ZoruLabel>
+                        <EnumFormField
+                            enumName="taskType"
                             name="type"
-                            defaultValue={(initial?.type as string) ?? 'Follow-up'}
-                        >
-                            <ZoruSelectTrigger id="type">
-                                <ZoruSelectValue />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {TASK_TYPES.map((t) => (
-                                    <ZoruSelectItem key={t} value={t}>
-                                        {t}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                            initialId={(initial?.type as string) ?? 'Follow-up'}
+                        />
                     </div>
                     <div className="space-y-2">
-                        <ZoruLabel htmlFor="priority">Priority</ZoruLabel>
-                        <ZoruSelect
+                        <ZoruLabel>Priority</ZoruLabel>
+                        <EnumFormField
+                            enumName="priorityLegacy"
                             name="priority"
-                            defaultValue={(initial?.priority as string) ?? 'Medium'}
-                        >
-                            <ZoruSelectTrigger id="priority">
-                                <ZoruSelectValue />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {TASK_PRIORITIES.map((p) => (
-                                    <ZoruSelectItem key={p} value={p}>
-                                        {p}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                            initialId={(initial?.priority as string) ?? 'Medium'}
+                        />
                     </div>
                     <div className="space-y-2 md:col-span-2">
-                        <ZoruLabel htmlFor="status">Status</ZoruLabel>
-                        <ZoruSelect
+                        <ZoruLabel>Status</ZoruLabel>
+                        <EnumFormField
+                            enumName="taskStatusLegacy"
                             name="status"
-                            defaultValue={(initial?.status as string) ?? 'To-Do'}
-                        >
-                            <ZoruSelectTrigger id="status">
-                                <ZoruSelectValue />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {TASK_STATUSES.map((s) => (
-                                    <ZoruSelectItem key={s} value={s}>
-                                        {s}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                            initialId={(initial?.status as string) ?? 'To-Do'}
+                            allowInlineCreate={false}
+                        />
                     </div>
                 </ZoruCardContent>
             </ZoruCard>
@@ -334,25 +301,15 @@ export function TaskForm({ mode, initial, prefill, currentUserId }: TaskFormProp
                         </p>
                     </div>
                     <div className="space-y-2">
-                        <ZoruLabel htmlFor="recurringFrequency">Repeat</ZoruLabel>
-                        <ZoruSelect
+                        <ZoruLabel>Repeat</ZoruLabel>
+                        <EnumFormField
+                            enumName="recurringFrequencySimple"
                             name="recurringFrequency"
-                            defaultValue={
-                                ((initial as any)?.recurring?.frequency as string) ?? ''
+                            initialId={
+                                ((initial as any)?.recurring?.frequency as string) ?? null
                             }
-                        >
-                            <ZoruSelectTrigger id="recurringFrequency">
-                                <ZoruSelectValue placeholder="Does not repeat" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="">Does not repeat</ZoruSelectItem>
-                                {RECURRING_FREQUENCIES.map((f) => (
-                                    <ZoruSelectItem key={f} value={f}>
-                                        {f}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                            placeholder="Does not repeat"
+                        />
                     </div>
                     <div className="space-y-2">
                         <ZoruLabel>Recurrence ends on</ZoruLabel>
@@ -403,26 +360,18 @@ export function TaskForm({ mode, initial, prefill, currentUserId }: TaskFormProp
                 </ZoruCardHeader>
                 <ZoruCardContent className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-2">
-                        <ZoruLabel htmlFor="linkedKindSelect">Link to</ZoruLabel>
-                        <ZoruSelect
-                            value={linkedKind}
-                            onValueChange={(v) => {
-                                setLinkedKind(v as TaskLinkedKind);
+                        <ZoruLabel>Link to</ZoruLabel>
+                        <EnumFormField
+                            enumName="linkedEntityKind"
+                            name="linkedKindPicker"
+                            initialId={linkedKind}
+                            allowInlineCreate={false}
+                            onChange={(next) => {
+                                setLinkedKind((next ?? 'none') as TaskLinkedKind);
                                 setLinkedId('');
                                 setDirty(true);
                             }}
-                        >
-                            <ZoruSelectTrigger id="linkedKindSelect">
-                                <ZoruSelectValue />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {LINKED_KINDS.map((k) => (
-                                    <ZoruSelectItem key={k.value} value={k.value}>
-                                        {k.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        />
                     </div>
                     <div className="space-y-2">
                         <ZoruLabel>

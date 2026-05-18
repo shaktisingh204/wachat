@@ -1,5 +1,7 @@
 'use client';
 
+// TODO 1E.sweep: status/cadence dropdowns -> <EnumFormField>; owner/employee -> <EntityFormField entity="employee">. See plan §1E.
+
 /**
  * <KpiForm /> — create + edit form for KPIs.
  *

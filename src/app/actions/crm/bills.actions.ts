@@ -75,10 +75,20 @@ export interface BillListResult {
 export async function listBills(params: CrmBillListParams = {}): Promise<BillListResult> {
   const page = Math.max(1, params.page ?? 1);
   const limit = Math.min(Math.max(1, params.limit ?? 20), 100);
+  const session = await getSession();
+  if (!session?.user) {
+    return { bills: [], page, limit, hasMore: false, error: 'Unauthorized' };
+  }
+  const guard = await requirePermission('crm_bill', 'view');
+  if (!guard.ok) {
+    return { bills: [], page, limit, hasMore: false, error: guard.error };
+  }
   try {
     const bills = await crmBillsApi.list({ ...params, page, limit });
     return { bills, page, limit, hasMore: bills.length === limit };
   } catch (e) {
+    console.error('[listBills] rust path failed; falling back:', e);
+    recordRustFallback({ entity: 'bill', op: 'list', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
     return { bills: [], page, limit, hasMore: false, error: rustErr(e) };
   }
 }
@@ -87,6 +97,14 @@ export async function getBill(
   id: string,
 ): Promise<{ bill: CrmBillDoc | null; error?: string }> {
   if (!id) return { bill: null, error: 'Missing bill id.' };
+  const session = await getSession();
+  if (!session?.user) {
+    return { bill: null, error: 'Unauthorized' };
+  }
+  const guard = await requirePermission('crm_bill', 'view');
+  if (!guard.ok) {
+    return { bill: null, error: guard.error };
+  }
   try {
     const bill = await crmBillsApi.getById(id);
     return { bill };
@@ -94,6 +112,8 @@ export async function getBill(
     if (e instanceof RustApiError && e.status === 404) {
       return { bill: null, error: 'Bill not found.' };
     }
+    console.error('[getBill] rust path failed; falling back:', e);
+    recordRustFallback({ entity: 'bill', op: 'get', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
     return { bill: null, error: rustErr(e) };
   }
 }
@@ -351,6 +371,7 @@ export async function saveBillAction(
       id: String(result._id),
     };
   } catch (e) {
+    console.error('[saveBillAction] rust path failed; falling back:', e);
     recordRustFallback({
       entity: 'bill',
       op: id ? 'update' : 'create',
@@ -392,6 +413,7 @@ export async function deleteBillAction(
     if (e instanceof RustApiError && e.status === 404) {
       return { success: false, error: 'Bill not found.' };
     }
+    console.error('[deleteBillAction] rust path failed; falling back:', e);
     recordRustFallback({
       entity: 'bill',
       op: 'delete',
@@ -664,6 +686,7 @@ export async function updateBillStatus(
     revalidateSurfaces(id);
     return { success: true };
   } catch (e) {
+    console.error('[updateBillStatus] rust path failed; falling back:', e);
     recordRustFallback({
       entity: 'bill',
       op: 'update',
@@ -704,6 +727,7 @@ export async function patchBill(
     revalidateSurfaces(id);
     return { success: true };
   } catch (e) {
+    console.error('[patchBill] rust path failed; falling back:', e);
     recordRustFallback({
       entity: 'bill',
       op: 'update',

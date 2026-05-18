@@ -1,5 +1,7 @@
 'use client';
 
+// TODO 1E.sweep: status -> <EnumFormField enumName="okrStatus">; period -> okrPeriod; owner -> <EntityFormField entity="employee">. See plan §1E.
+
 /**
  * <OkrForm /> — create + edit form for OKRs.
  *

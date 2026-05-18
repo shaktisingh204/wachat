@@ -1,5 +1,7 @@
 'use client';
 
+// TODO 1E.sweep: month/financial-year dropdowns -> <EnumFormField>; employee -> <EntityFormField entity="employee">. See plan §1E.
+
 /**
  * <TdsForm /> — create + edit form for TDS records.
  * Binds to `saveTdsRecord` via `useActionState`.

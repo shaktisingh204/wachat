@@ -16,16 +16,10 @@ import { ClayCard } from '@/components/clay';
 import { ZoruInput } from '@/components/zoruui';
 import { ZoruLabel } from '@/components/zoruui';
 import { ZoruTextarea } from '@/components/zoruui';
-import {
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-} from '@/components/zoruui';
 import { useToast } from '@/hooks/use-toast';
 import { saveWsIssue } from '@/app/actions/worksuite/projects.actions';
 import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 
 export interface IssueFormInitial {
     _id?: string;
@@ -116,48 +110,25 @@ export function IssueForm({ mode, initial }: IssueFormProps) {
                         />
                     </div>
                     <div>
-                        <ZoruLabel htmlFor="status" className="text-foreground">
-                            Status
-                        </ZoruLabel>
-                        <ZoruSelect name="status" defaultValue={initial?.status ?? 'open'}>
-                            <ZoruSelectTrigger
-                                id="status"
-                                className="h-10 rounded-lg border-border bg-card text-[13px]"
-                            >
-                                <ZoruSelectValue />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="open">Open</ZoruSelectItem>
-                                <ZoruSelectItem value="in_progress">In progress</ZoruSelectItem>
-                                <ZoruSelectItem value="resolved">Resolved</ZoruSelectItem>
-                                <ZoruSelectItem value="closed">Closed</ZoruSelectItem>
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <ZoruLabel className="text-foreground">Status</ZoruLabel>
+                        <EnumFormField
+                            enumName="issueStatus"
+                            name="status"
+                            initialId={initial?.status ?? 'open'}
+                            placeholder="Status"
+                        />
                     </div>
                 </div>
 
                 <div className="grid gap-4 md:grid-cols-2">
                     <div>
-                        <ZoruLabel htmlFor="priority" className="text-foreground">
-                            Priority
-                        </ZoruLabel>
-                        <ZoruSelect
+                        <ZoruLabel className="text-foreground">Priority</ZoruLabel>
+                        <EnumFormField
+                            enumName="priorityMedium"
                             name="priority"
-                            defaultValue={initial?.priority ?? 'medium'}
-                        >
-                            <ZoruSelectTrigger
-                                id="priority"
-                                className="h-10 rounded-lg border-border bg-card text-[13px]"
-                            >
-                                <ZoruSelectValue />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="low">Low</ZoruSelectItem>
-                                <ZoruSelectItem value="medium">Medium</ZoruSelectItem>
-                                <ZoruSelectItem value="high">High</ZoruSelectItem>
-                                <ZoruSelectItem value="urgent">Urgent</ZoruSelectItem>
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                            initialId={initial?.priority ?? 'medium'}
+                            placeholder="Priority"
+                        />
                     </div>
                     <div>
                         <ZoruLabel htmlFor="assigneeId" className="text-foreground">

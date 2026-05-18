@@ -26,6 +26,7 @@ import {
   useZoruToast,
 } from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import {
   CustomFieldInput,
   type CustomFieldValue,
@@ -196,14 +197,15 @@ export function LeadForm({ initial, customFields }: LeadFormProps) {
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="status">Status</ZoruLabel>
-            <ZoruInput
-              id="status"
-              name="status"
-              defaultValue={initial?.status?.name ?? 'new'}
-              className="mt-1.5"
-              placeholder="new"
-            />
+            <ZoruLabel>Status</ZoruLabel>
+            <div className="mt-1.5">
+              <EnumFormField
+                enumName="leadStatus"
+                name="status"
+                initialId={initial?.status?.name ?? 'new'}
+                placeholder="new"
+              />
+            </div>
           </div>
           <div>
             <ZoruLabel htmlFor="leadScore">Lead score (0–100)</ZoruLabel>

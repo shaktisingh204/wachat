@@ -32,15 +32,11 @@ import {
     ZoruCard,
     ZoruInput,
     ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
     ZoruTextarea,
     useZoruToast,
 } from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import {
     CustomFieldInput,
     type CustomFieldValue,
@@ -64,43 +60,11 @@ const INITIAL_STATE = {
     id: undefined as string | undefined,
 };
 
-const CHANNEL_OPTIONS = [
-    { value: 'email', label: 'Email' },
-    { value: 'web', label: 'Web' },
-    { value: 'whatsapp', label: 'WhatsApp' },
-    { value: 'chat', label: 'Chat' },
-    { value: 'phone', label: 'Phone' },
-    { value: 'portal', label: 'Portal' },
-];
-
-const STATUS_OPTIONS = [
-    { value: 'open', label: 'Open' },
-    { value: 'pending', label: 'Pending' },
-    { value: 'on_hold', label: 'On hold' },
-    { value: 'resolved', label: 'Resolved' },
-    { value: 'closed', label: 'Closed' },
-    { value: 'reopened', label: 'Reopened' },
-];
-
-const PRIORITY_OPTIONS = [
-    { value: 'low', label: 'Low' },
-    { value: 'medium', label: 'Medium' },
-    { value: 'high', label: 'High' },
-    { value: 'critical', label: 'Critical' },
-];
-
-const SEVERITY_OPTIONS = [
-    { value: 'sev1', label: 'Sev 1 — critical' },
-    { value: 'sev2', label: 'Sev 2 — high' },
-    { value: 'sev3', label: 'Sev 3 — normal' },
-    { value: 'sev4', label: 'Sev 4 — low' },
-];
-
-const REQUESTER_OPTIONS: { value: RequesterKind; label: string; entity: EntityKey }[] = [
-    { value: 'client', label: 'Client', entity: 'client' },
-    { value: 'lead', label: 'Lead', entity: 'lead' },
-    { value: 'employee', label: 'Employee', entity: 'employee' },
-];
+const REQUESTER_ENTITY: Record<RequesterKind, EntityKey> = {
+    client: 'client',
+    lead: 'lead',
+    employee: 'employee',
+};
 
 function SubmitButton({ editing }: { editing: boolean }) {
     const { pending } = useFormStatus();
@@ -175,8 +139,7 @@ export function TicketForm({ initial, customFields }: TicketFormProps) {
         }
     }, [state, toast, router]);
 
-    const requesterEntity =
-        REQUESTER_OPTIONS.find((o) => o.value === requesterKind)?.entity ?? 'client';
+    const requesterEntity = REQUESTER_ENTITY[requesterKind] ?? 'client';
 
     // The customFields blob carries the polymorphic requesterKind + tags
     // so the list page chip lookup can resolve it. Augment whatever the
@@ -238,27 +201,24 @@ export function TicketForm({ initial, customFields }: TicketFormProps) {
                     </div>
 
                     <div>
-                        <ZoruLabel htmlFor="requesterKind">
+                        <ZoruLabel>
                             Requester type <span className="text-zoru-danger-ink">*</span>
                         </ZoruLabel>
-                        <ZoruSelect
-                            value={requesterKind}
-                            onValueChange={(v) => {
-                                setRequesterKind(v as RequesterKind);
-                                setRequesterId('');
-                            }}
-                        >
-                            <ZoruSelectTrigger id="requesterKind" className="mt-1.5">
-                                <ZoruSelectValue placeholder="Type…" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {REQUESTER_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <div className="mt-1.5">
+                            <EnumFormField
+                                enumName="requesterKind"
+                                name="requesterKindPicker"
+                                initialId={requesterKind}
+                                allowInlineCreate={false}
+                                placeholder="Type…"
+                                onChange={(next) => {
+                                    if (next === 'client' || next === 'lead' || next === 'employee') {
+                                        setRequesterKind(next);
+                                        setRequesterId('');
+                                    }
+                                }}
+                            />
+                        </div>
                     </div>
 
                     <div>
@@ -278,21 +238,18 @@ export function TicketForm({ initial, customFields }: TicketFormProps) {
                     </div>
 
                     <div>
-                        <ZoruLabel htmlFor="channel-select">
+                        <ZoruLabel>
                             Channel <span className="text-zoru-danger-ink">*</span>
                         </ZoruLabel>
-                        <ZoruSelect value={channel} onValueChange={setChannel}>
-                            <ZoruSelectTrigger id="channel-select" className="mt-1.5">
-                                <ZoruSelectValue placeholder="Select channel…" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {CHANNEL_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <div className="mt-1.5">
+                            <EnumFormField
+                                enumName="ticketChannel"
+                                name="channelPicker"
+                                initialId={channel}
+                                placeholder="Select channel…"
+                                onChange={(next) => setChannel(next ?? '')}
+                            />
+                        </div>
                     </div>
 
                     <div>
@@ -337,51 +294,42 @@ export function TicketForm({ initial, customFields }: TicketFormProps) {
                 </h3>
                 <div className="grid gap-4 md:grid-cols-2">
                     <div>
-                        <ZoruLabel htmlFor="priority-select">Priority</ZoruLabel>
-                        <ZoruSelect value={priority} onValueChange={setPriority}>
-                            <ZoruSelectTrigger id="priority-select" className="mt-1.5">
-                                <ZoruSelectValue placeholder="Select priority…" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {PRIORITY_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <ZoruLabel>Priority</ZoruLabel>
+                        <div className="mt-1.5">
+                            <EnumFormField
+                                enumName="ticketPriority"
+                                name="priorityPicker"
+                                initialId={priority}
+                                placeholder="Select priority…"
+                                onChange={(next) => setPriority(next ?? '')}
+                            />
+                        </div>
                     </div>
                     <div>
-                        <ZoruLabel htmlFor="severity-select">
+                        <ZoruLabel>
                             Severity <span className="text-zoru-danger-ink">*</span>
                         </ZoruLabel>
-                        <ZoruSelect value={severity} onValueChange={setSeverity}>
-                            <ZoruSelectTrigger id="severity-select" className="mt-1.5">
-                                <ZoruSelectValue placeholder="Select severity…" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {SEVERITY_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <div className="mt-1.5">
+                            <EnumFormField
+                                enumName="ticketSeverity"
+                                name="severityPicker"
+                                initialId={severity}
+                                placeholder="Select severity…"
+                                onChange={(next) => setSeverity(next ?? '')}
+                            />
+                        </div>
                     </div>
                     <div>
-                        <ZoruLabel htmlFor="status-select">Status</ZoruLabel>
-                        <ZoruSelect value={status} onValueChange={setStatus}>
-                            <ZoruSelectTrigger id="status-select" className="mt-1.5">
-                                <ZoruSelectValue placeholder="Select status…" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <ZoruLabel>Status</ZoruLabel>
+                        <div className="mt-1.5">
+                            <EnumFormField
+                                enumName="ticketStatus"
+                                name="statusPicker"
+                                initialId={status}
+                                placeholder="Select status…"
+                                onChange={(next) => setStatus(next ?? '')}
+                            />
+                        </div>
                     </div>
                     <div>
                         <ZoruLabel htmlFor="dueBy">Due by</ZoruLabel>

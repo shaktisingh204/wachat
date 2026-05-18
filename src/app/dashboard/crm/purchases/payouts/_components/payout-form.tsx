@@ -36,15 +36,11 @@ import {
     ZoruCard,
     ZoruInput,
     ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
     ZoruTextarea,
     useZoruToast,
 } from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import {
     savePayoutAction,
     getUnpaidBillsByVendor,
@@ -336,22 +332,15 @@ export function PayoutForm({ initial }: PayoutFormProps) {
                     </div>
                     <div>
                         <ZoruLabel>Mode</ZoruLabel>
-                        <ZoruSelect
-                            value={mode}
-                            onValueChange={(v) => setMode(v as CrmPayoutMode)}
-                            disabled={editing}
-                        >
-                            <ZoruSelectTrigger className="mt-1.5">
-                                <ZoruSelectValue />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {PAYMENT_MODES.map((m) => (
-                                    <ZoruSelectItem key={m.value} value={m.value}>
-                                        {m.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <div className="mt-1.5">
+                            <EnumFormField
+                                enumName="paymentMode"
+                                name="__mode_picker"
+                                initialId={mode || null}
+                                disabled={editing}
+                                onChange={(id) => setMode((id ?? 'cash') as CrmPayoutMode)}
+                            />
+                        </div>
                     </div>
                     <div>
                         <ZoruLabel>Bank account</ZoruLabel>
@@ -447,21 +436,14 @@ export function PayoutForm({ initial }: PayoutFormProps) {
                     </div>
                     <div>
                         <ZoruLabel>Status</ZoruLabel>
-                        <ZoruSelect
-                            value={status}
-                            onValueChange={(v) => setStatus(v as CrmPayoutStatus)}
-                        >
-                            <ZoruSelectTrigger className="mt-1.5">
-                                <ZoruSelectValue />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUSES.map((s) => (
-                                    <ZoruSelectItem key={s.value} value={s.value}>
-                                        {s.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <div className="mt-1.5">
+                            <EnumFormField
+                                enumName="payoutStatus"
+                                name="__status_picker"
+                                initialId={status || null}
+                                onChange={(id) => setStatus((id ?? 'sent') as CrmPayoutStatus)}
+                            />
+                        </div>
                     </div>
                 </div>
             </ZoruCard>

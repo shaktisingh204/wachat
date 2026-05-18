@@ -1,5 +1,7 @@
 'use client';
 
+// TODO 1E.sweep: status/type -> <EnumFormField>; assignee/department -> <EntityFormField>. See plan §1E.
+
 /**
  * <WelcomeKitForm /> — create + edit form for HR welcome kits.
  *

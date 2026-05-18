@@ -14,16 +14,12 @@ import {
   ZoruCard,
   ZoruInput,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruSkeleton,
   ZoruSwitch,
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 import {
   getInvoiceSettings,
@@ -180,18 +176,13 @@ export default function InvoiceSettingsPage() {
                   <ZoruLabel htmlFor="tax_calculation" className="text-[13px] text-zoru-ink">
                     Tax Calculation
                   </ZoruLabel>
-                  <ZoruSelect
-                    name="tax_calculation"
-                    defaultValue={settings?.tax_calculation ?? 'before-discount'}
-                  >
-                    <ZoruSelectTrigger id="tax_calculation" className="mt-1.5">
-                      <ZoruSelectValue />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                      <ZoruSelectItem value="before-discount">Before discount</ZoruSelectItem>
-                      <ZoruSelectItem value="after-discount">After discount</ZoruSelectItem>
-                    </ZoruSelectContent>
-                  </ZoruSelect>
+                  <div className="mt-1.5">
+                    <EnumFormField
+                      name="tax_calculation"
+                      enumName="taxCalculationBasis"
+                      initialId={settings?.tax_calculation ?? 'before-discount'}
+                    />
+                  </div>
                 </div>
                 <div>
                   <ZoruLabel htmlFor="hsn_sac_label" className="text-[13px] text-zoru-ink">

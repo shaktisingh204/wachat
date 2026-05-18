@@ -18,14 +18,10 @@ import {
   ZoruCard,
   ZoruInput,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import { CrmPageHeader } from '../../../../_components/crm-page-header';
 import { updateProductionOrderYield } from '@/app/actions/crm-production-orders.actions';
 
@@ -111,19 +107,12 @@ export default function UpdateYieldPage() {
 
           <div className="space-y-1.5">
             <ZoruLabel htmlFor="status">Status</ZoruLabel>
-            <ZoruSelect name="status" defaultValue="completed">
-              <ZoruSelectTrigger id="status">
-                <ZoruSelectValue placeholder="Select status" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="planned">Planned</ZoruSelectItem>
-                <ZoruSelectItem value="released">Released</ZoruSelectItem>
-                <ZoruSelectItem value="in_progress">In progress</ZoruSelectItem>
-                <ZoruSelectItem value="completed">Completed</ZoruSelectItem>
-                <ZoruSelectItem value="closed">Closed</ZoruSelectItem>
-                <ZoruSelectItem value="cancelled">Cancelled</ZoruSelectItem>
-              </ZoruSelectContent>
-            </ZoruSelect>
+            <EnumFormField
+              enumName="productionOrderStatus"
+              name="status"
+              initialId="completed"
+              placeholder="Select status"
+            />
           </div>
 
           <div className="space-y-1.5">

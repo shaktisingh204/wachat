@@ -31,13 +31,9 @@ import {
     ZoruPageHeader,
     ZoruPageHeading,
     ZoruPageTitle,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
     useZoruToast,
 } from '@/components/zoruui';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import {
     generateApiToken,
 } from '@/app/actions/crm-api-tokens.actions';
@@ -46,14 +42,6 @@ import {
     CRM_API_ENTITIES,
     type OAuthScope,
 } from '@/lib/api/oauth-scopes';
-
-const EXPIRY_OPTIONS: Array<{ label: string; days: number | null }> = [
-    { label: '30 days', days: 30 },
-    { label: '90 days', days: 90 },
-    { label: '180 days', days: 180 },
-    { label: '1 year', days: 365 },
-    { label: 'Never (not recommended)', days: null },
-];
 
 export default function NewCrmApiTokenPage() {
     const router = useRouter();
@@ -221,21 +209,12 @@ export default function NewCrmApiTokenPage() {
                     </div>
                     <div>
                         <ZoruLabel htmlFor="expiry">Expiry</ZoruLabel>
-                        <ZoruSelect value={expiry} onValueChange={setExpiry}>
-                            <ZoruSelectTrigger id="expiry">
-                                <ZoruSelectValue />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {EXPIRY_OPTIONS.map((opt) => (
-                                    <ZoruSelectItem
-                                        key={String(opt.days ?? 'never')}
-                                        value={String(opt.days ?? 'never')}
-                                    >
-                                        {opt.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <EnumFormField
+                            name="__expiry"
+                            enumName="tokenExpiry"
+                            initialId={expiry}
+                            onChange={(id) => setExpiry(id ?? '30')}
+                        />
                     </div>
                 </ZoruCard>
 

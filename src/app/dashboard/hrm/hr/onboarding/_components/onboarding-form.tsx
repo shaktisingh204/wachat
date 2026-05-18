@@ -25,14 +25,11 @@ import {
     ZoruCard,
     ZoruInput,
     ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
     ZoruTextarea,
     useZoruToast,
 } from '@/components/zoruui';
+import { EnumFormField } from '@/components/crm/enum-form-field';
+import { EntityFormField } from '@/components/crm/entity-form-field';
 
 import { saveOnboarding } from '@/app/actions/crm-onboarding.actions';
 import type {
@@ -43,24 +40,6 @@ import type {
 } from '@/lib/rust-client/crm-onboarding';
 
 const BASE = '/dashboard/hrm/hr/onboarding';
-
-const STATUS_OPTIONS: Array<{ value: CrmOnboardingStatus; label: string }> = [
-    { value: 'pending', label: 'Pending' },
-    { value: 'in_progress', label: 'In progress' },
-    { value: 'completed', label: 'Completed' },
-    { value: 'cancelled', label: 'Cancelled' },
-    { value: 'archived', label: 'Archived' },
-];
-
-const TASK_STATUS_OPTIONS: Array<{
-    value: CrmOnboardingTaskStatus;
-    label: string;
-}> = [
-    { value: 'todo', label: 'To do' },
-    { value: 'in_progress', label: 'In progress' },
-    { value: 'done', label: 'Done' },
-    { value: 'blocked', label: 'Blocked' },
-];
 
 function toDateInput(value: unknown): string {
     if (!value) return '';
@@ -165,7 +144,6 @@ export function OnboardingForm({ initialData }: OnboardingFormProps) {
                         value={initialData!._id}
                     />
                 ) : null}
-                <input type="hidden" name="status" value={status} />
                 <input
                     type="hidden"
                     name="checklist"
@@ -174,30 +152,20 @@ export function OnboardingForm({ initialData }: OnboardingFormProps) {
                     )}
                 />
 
-                {/* Row 1: Employee name + id */}
+                {/* Row 1: Employee picker (mirrors employeeName for legacy callers) */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="employeeName">Employee name</ZoruLabel>
-                        <ZoruInput
-                            id="employeeName"
-                            name="employeeName"
-                            placeholder="e.g. Priya Sharma"
-                            defaultValue={initialData?.employeeName ?? ''}
-                        />
-                    </div>
-                    <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="employeeId">Employee id</ZoruLabel>
-                        <ZoruInput
-                            id="employeeId"
+                        <ZoruLabel>Employee</ZoruLabel>
+                        <EntityFormField
+                            entity="employee"
                             name="employeeId"
-                            placeholder="Optional — links to directory entry"
-                            defaultValue={initialData?.employeeId ?? ''}
+                            dualWriteName="employeeName"
+                            initialId={initialData?.employeeId ?? null}
+                            initialLabel={initialData?.employeeName ?? ''}
+                            allowCreate
+                            placeholder="Select employee"
                         />
                     </div>
-                </div>
-
-                {/* Row 2: Candidate + Job ids */}
-                <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
                         <ZoruLabel htmlFor="candidateId">Candidate id</ZoruLabel>
                         <ZoruInput
@@ -207,6 +175,10 @@ export function OnboardingForm({ initialData }: OnboardingFormProps) {
                             defaultValue={initialData?.candidateId ?? ''}
                         />
                     </div>
+                </div>
+
+                {/* Row 2: Job + Department */}
+                <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
                         <ZoruLabel htmlFor="jobId">Job id</ZoruLabel>
                         <ZoruInput
@@ -216,19 +188,20 @@ export function OnboardingForm({ initialData }: OnboardingFormProps) {
                             defaultValue={initialData?.jobId ?? ''}
                         />
                     </div>
-                </div>
-
-                {/* Row 3: Department + joining date */}
-                <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="departmentId">Department id</ZoruLabel>
-                        <ZoruInput
-                            id="departmentId"
+                        <ZoruLabel>Department</ZoruLabel>
+                        <EntityFormField
+                            entity="department"
                             name="departmentId"
-                            placeholder="Optional"
-                            defaultValue={initialData?.departmentId ?? ''}
+                            initialId={initialData?.departmentId ?? null}
+                            allowCreate
+                            placeholder="Select department"
                         />
                     </div>
+                </div>
+
+                {/* Row 3: Joining date + Manager */}
+                <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
                         <ZoruLabel htmlFor="joiningDate">Joining date</ZoruLabel>
                         <ZoruInput
@@ -238,32 +211,30 @@ export function OnboardingForm({ initialData }: OnboardingFormProps) {
                             defaultValue={toDateInput(initialData?.joiningDate)}
                         />
                     </div>
-                </div>
-
-                {/* Row 4: Manager + Buddy */}
-                <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="managerId">Manager id</ZoruLabel>
-                        <ZoruInput
-                            id="managerId"
+                        <ZoruLabel>Manager</ZoruLabel>
+                        <EntityFormField
+                            entity="employee"
                             name="managerId"
-                            placeholder="Reporting manager user id"
-                            defaultValue={initialData?.managerId ?? ''}
-                        />
-                    </div>
-                    <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="buddyId">Buddy id</ZoruLabel>
-                        <ZoruInput
-                            id="buddyId"
-                            name="buddyId"
-                            placeholder="Onboarding buddy user id"
-                            defaultValue={initialData?.buddyId ?? ''}
+                            initialId={initialData?.managerId ?? null}
+                            allowCreate
+                            placeholder="Reporting manager"
                         />
                     </div>
                 </div>
 
-                {/* Row 5: Progress + status */}
+                {/* Row 4: Buddy + Progress */}
                 <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-1.5">
+                        <ZoruLabel>Buddy</ZoruLabel>
+                        <EntityFormField
+                            entity="employee"
+                            name="buddyId"
+                            initialId={initialData?.buddyId ?? null}
+                            allowCreate
+                            placeholder="Onboarding buddy"
+                        />
+                    </div>
                     <div className="space-y-1.5">
                         <ZoruLabel htmlFor="progress">Progress (%)</ZoruLabel>
                         <ZoruInput
@@ -280,25 +251,23 @@ export function OnboardingForm({ initialData }: OnboardingFormProps) {
                             }
                         />
                     </div>
+                </div>
+
+                {/* Row 5: Status */}
+                <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
-                        <ZoruSelect
-                            value={status}
-                            onValueChange={(v) =>
-                                setStatus(v as CrmOnboardingStatus)
+                        <ZoruLabel>Status</ZoruLabel>
+                        <EnumFormField
+                            enumName="onboardingStatus"
+                            name="status"
+                            initialId={status}
+                            onChange={(id) =>
+                                setStatus(
+                                    (id as CrmOnboardingStatus) ?? 'pending',
+                                )
                             }
-                        >
-                            <ZoruSelectTrigger id="status-trigger">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                            placeholder="Status"
+                        />
                     </div>
                 </div>
 
@@ -367,37 +336,22 @@ export function OnboardingForm({ initialData }: OnboardingFormProps) {
                                         />
                                     </div>
                                     <div className="space-y-1">
-                                        <ZoruLabel
-                                            htmlFor={`task-status-${task.id}`}
-                                            className="text-[11.5px]"
-                                        >
+                                        <ZoruLabel className="text-[11.5px]">
                                             Status
                                         </ZoruLabel>
-                                        <ZoruSelect
-                                            value={task.status}
-                                            onValueChange={(v) =>
+                                        <EnumFormField
+                                            enumName="onboardingTaskStatus"
+                                            name={`task-status-${task.id}`}
+                                            initialId={task.status}
+                                            onChange={(id) =>
                                                 updateTask(task.id, {
                                                     status:
-                                                        v as CrmOnboardingTaskStatus,
+                                                        (id as CrmOnboardingTaskStatus) ??
+                                                        'todo',
                                                 })
                                             }
-                                        >
-                                            <ZoruSelectTrigger
-                                                id={`task-status-${task.id}`}
-                                            >
-                                                <ZoruSelectValue placeholder="Status" />
-                                            </ZoruSelectTrigger>
-                                            <ZoruSelectContent>
-                                                {TASK_STATUS_OPTIONS.map((o) => (
-                                                    <ZoruSelectItem
-                                                        key={o.value}
-                                                        value={o.value}
-                                                    >
-                                                        {o.label}
-                                                    </ZoruSelectItem>
-                                                ))}
-                                            </ZoruSelectContent>
-                                        </ZoruSelect>
+                                            placeholder="Status"
+                                        />
                                     </div>
                                     <ZoruButton
                                         type="button"

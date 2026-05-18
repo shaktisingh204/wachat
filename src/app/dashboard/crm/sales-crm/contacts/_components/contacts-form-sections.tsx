@@ -22,35 +22,15 @@ import {
     ZoruDatePicker,
     ZoruInput,
     ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
     ZoruTextarea,
 } from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import type { CrmContact } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
 
-const CONTACT_STATUSES = [
-    { value: 'new_lead', label: 'New lead' },
-    { value: 'contacted', label: 'Contacted' },
-    { value: 'qualified', label: 'Qualified' },
-    { value: 'unqualified', label: 'Unqualified' },
-    { value: 'customer', label: 'Customer' },
-    { value: 'imported', label: 'Imported' },
-] as const;
-
-const LIFECYCLE_STAGES = [
-    { value: 'subscriber', label: 'Subscriber' },
-    { value: 'lead', label: 'Lead' },
-    { value: 'mql', label: 'Marketing Qualified Lead' },
-    { value: 'sql', label: 'Sales Qualified Lead' },
-    { value: 'opportunity', label: 'Opportunity' },
-    { value: 'customer', label: 'Customer' },
-    { value: 'evangelist', label: 'Evangelist' },
-] as const;
+// Status / lifecycle catalogues moved to `crm-enums.ts` (contactStatus,
+// lifecycleStage). The picker UX is unchanged.
 
 interface BaseSectionProps {
     initial?: WithId<CrmContact> | null;
@@ -317,49 +297,29 @@ export function LinkedSection({
                     />
                 </div>
                 <div className="space-y-2">
-                    <ZoruLabel htmlFor="status">Status</ZoruLabel>
-                    <ZoruSelect
+                    <ZoruLabel>Status</ZoruLabel>
+                    <EnumFormField
+                        enumName="contactStatus"
                         name="status"
-                        value={status}
-                        onValueChange={(v) => {
-                            setStatus(v);
+                        initialId={status}
+                        onChange={(v) => {
+                            setStatus(v ?? '');
                             onDirty();
                         }}
-                    >
-                        <ZoruSelectTrigger id="status">
-                            <ZoruSelectValue />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                            {CONTACT_STATUSES.map((s) => (
-                                <ZoruSelectItem key={s.value} value={s.value}>
-                                    {s.label}
-                                </ZoruSelectItem>
-                            ))}
-                        </ZoruSelectContent>
-                    </ZoruSelect>
+                    />
                 </div>
                 <div className="space-y-2">
-                    <ZoruLabel htmlFor="lifecycleStageField">
-                        Lifecycle stage
-                    </ZoruLabel>
-                    <ZoruSelect
-                        value={lifecycle}
-                        onValueChange={(v) => {
-                            setLifecycle(v);
+                    <ZoruLabel>Lifecycle stage</ZoruLabel>
+                    <EnumFormField
+                        enumName="lifecycleStage"
+                        name="lifecycleStage"
+                        initialId={lifecycle || null}
+                        placeholder="Select stage"
+                        onChange={(v) => {
+                            setLifecycle(v ?? '');
                             onDirty();
                         }}
-                    >
-                        <ZoruSelectTrigger id="lifecycleStageField">
-                            <ZoruSelectValue placeholder="Select stage" />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                            {LIFECYCLE_STAGES.map((s) => (
-                                <ZoruSelectItem key={s.value} value={s.value}>
-                                    {s.label}
-                                </ZoruSelectItem>
-                            ))}
-                        </ZoruSelectContent>
-                    </ZoruSelect>
+                    />
                 </div>
                 <div className="space-y-2">
                     <ZoruLabel htmlFor="leadSourceField">Lead source</ZoruLabel>

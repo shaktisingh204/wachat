@@ -19,15 +19,12 @@ import {
     ZoruCard,
     ZoruInput,
     ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
     ZoruTextarea,
     useZoruToast,
 } from '@/components/zoruui';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
+import { EnumFormField } from '@/components/crm/enum-form-field';
+import { EntityFormField } from '@/components/crm/entity-form-field';
 
 import { saveCandidate } from '@/app/actions/crm-candidates.actions';
 import type {
@@ -37,24 +34,6 @@ import type {
 } from '@/lib/rust-client/crm-candidates';
 
 const BASE = '/dashboard/hrm/hr/candidates';
-
-const STAGE_OPTIONS: Array<{ value: CrmCandidateStage; label: string }> = [
-    { value: 'applied', label: 'Applied' },
-    { value: 'screening', label: 'Screening' },
-    { value: 'interview', label: 'Interview' },
-    { value: 'offer', label: 'Offer' },
-    { value: 'hired', label: 'Hired' },
-    { value: 'rejected', label: 'Rejected' },
-    { value: 'archived', label: 'Archived' },
-];
-
-const SOURCE_OPTIONS: Array<{ value: CrmCandidateSource | ''; label: string }> = [
-    { value: '', label: '—' },
-    { value: 'linkedin', label: 'LinkedIn' },
-    { value: 'referral', label: 'Referral' },
-    { value: 'website', label: 'Website' },
-    { value: 'agency', label: 'Agency' },
-];
 
 interface CandidateFormProps {
     initialData?: CrmCandidateDoc | null;
@@ -148,8 +127,6 @@ export function CandidateForm({ initialData }: CandidateFormProps) {
                     />
                 ) : null}
                 <input type="hidden" name="resumeUrl" value={resumeUrl} />
-                <input type="hidden" name="stage" value={stage} />
-                <input type="hidden" name="source" value={source} />
 
                 {/* Row 1: First + last name */}
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -249,45 +226,30 @@ export function CandidateForm({ initialData }: CandidateFormProps) {
                 {/* Row 5: Stage + Source */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="stage-trigger">Stage</ZoruLabel>
-                        <ZoruSelect
-                            value={stage}
-                            onValueChange={(v) => setStage(v as CrmCandidateStage)}
-                        >
-                            <ZoruSelectTrigger id="stage-trigger">
-                                <ZoruSelectValue placeholder="Stage" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STAGE_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <ZoruLabel>Stage</ZoruLabel>
+                        <EnumFormField
+                            enumName="candidateStage"
+                            name="stage"
+                            initialId={stage}
+                            onChange={(id) =>
+                                setStage(
+                                    (id as CrmCandidateStage) ?? 'applied',
+                                )
+                            }
+                            placeholder="Stage"
+                        />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="source-trigger">Source</ZoruLabel>
-                        <ZoruSelect
-                            value={source}
-                            onValueChange={(v) =>
-                                setSource(v as CrmCandidateSource | '')
+                        <ZoruLabel>Source</ZoruLabel>
+                        <EnumFormField
+                            enumName="candidateSource"
+                            name="source"
+                            initialId={source || null}
+                            onChange={(id) =>
+                                setSource((id as CrmCandidateSource | '') ?? '')
                             }
-                        >
-                            <ZoruSelectTrigger id="source-trigger">
-                                <ZoruSelectValue placeholder="Source" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {SOURCE_OPTIONS.map((o) => (
-                                    <ZoruSelectItem
-                                        key={o.value || 'none'}
-                                        value={o.value}
-                                    >
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                            placeholder="Source"
+                        />
                     </div>
                 </div>
 
@@ -369,12 +331,13 @@ export function CandidateForm({ initialData }: CandidateFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="currency">Currency</ZoruLabel>
-                        <ZoruInput
-                            id="currency"
+                        <ZoruLabel>Currency</ZoruLabel>
+                        <EntityFormField
+                            entity="currency"
                             name="currency"
+                            initialId={initialData?.currency ?? 'INR'}
+                            allowCreate
                             placeholder="INR"
-                            defaultValue={initialData?.currency ?? 'INR'}
                         />
                     </div>
                 </div>

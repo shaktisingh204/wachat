@@ -22,15 +22,11 @@ import {
     ZoruCard,
     ZoruInput,
     ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
     ZoruTextarea,
     useZoruToast,
 } from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 
 import {
     saveCrmItemBatch,
@@ -212,21 +208,11 @@ export function BatchExpiryForm({ initialData }: BatchExpiryFormProps) {
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
                         <ZoruLabel htmlFor="status">Status</ZoruLabel>
-                        <ZoruSelect
+                        <EnumFormField
+                            enumName="itemBatchStatus"
                             name="status"
-                            defaultValue={initialData?.status ?? 'active'}
-                        >
-                            <ZoruSelectTrigger id="status">
-                                <ZoruSelectValue />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                            initialId={initialData?.status ?? 'active'}
+                        />
                     </div>
                     <div className="space-y-1.5">
                         <ZoruLabel htmlFor="notes">Notes</ZoruLabel>

@@ -50,6 +50,7 @@ import {
   ZoruTableRow,
   useZoruToast,
 } from '@/components/zoruui';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 import {
   getGatewayCredentials,
@@ -312,33 +313,20 @@ export default function PaymentGatewaysPage() {
 
             <div>
               <ZoruLabel htmlFor="gateway">Gateway</ZoruLabel>
-              <ZoruSelect
+              <EnumFormField
                 name="gateway"
-                defaultValue={editing?.gateway || 'razorpay'}
-              >
-                <ZoruSelectTrigger id="gateway">
-                  <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  {GATEWAY_PROVIDERS.map((g) => (
-                    <ZoruSelectItem key={g} value={g}>
-                      {g}
-                    </ZoruSelectItem>
-                  ))}
-                </ZoruSelectContent>
-              </ZoruSelect>
+                enumName="paymentGatewayType"
+                initialId={editing?.gateway || 'razorpay'}
+              />
             </div>
             <div>
               <ZoruLabel htmlFor="mode">Mode</ZoruLabel>
-              <ZoruSelect name="mode" defaultValue={editing?.mode || 'test'}>
-                <ZoruSelectTrigger id="mode">
-                  <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="test">test</ZoruSelectItem>
-                  <ZoruSelectItem value="live">live</ZoruSelectItem>
-                </ZoruSelectContent>
-              </ZoruSelect>
+              <EnumFormField
+                name="mode"
+                enumName="gatewayMode"
+                initialId={editing?.mode || 'test'}
+                placeholder="Mode"
+              />
             </div>
             <div>
               <ZoruLabel htmlFor="api_key">API Key</ZoruLabel>

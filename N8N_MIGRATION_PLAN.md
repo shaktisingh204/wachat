@@ -357,18 +357,8 @@ Each of the above is small, isolated, and safe to do incrementally.
 | OAuth refresh retrofit | ✅ Done | Zoho CRM, Google Sheets Extended, Keap now route through `_shared/oauth.ts` with token caching (cache hit on every call after first refresh). Keap kept back-compat for users with only a long-lived access token. |
 | Pagination retrofit | ✅ Done | Added `*_list_all` actions to 10 blocks (Salesforce SOQL, Pipedrive persons, ActiveCampaign contacts, Asana tasks, Jira issues, WooCommerce orders, Stripe customers, WordPress posts, Zendesk tickets, Mailchimp members). Each handles its native cursor shape; default cap 500. |
 | Webhook→trigger bridge | ✅ Done (shim) | New `webhook_trigger_shim.ts` exposes the contract for forge → existing trigger system in `src/lib/sabflow/db.ts` + `/api/sabflow/webhook/[webhookId]`. **Full block-level trigger registration deferred** — the existing system is already production-grade, but UX wiring (auto-register on flow save) is its own task. |
-| SabFiles bridge (partial) | 🟡 Partial | `forge_read_binary_file.read_sabfile` works via public share-token through `rustPublicFetch` (no cookies needed). `write_sabfile` / `list_sabfiles` need `ctx.tenant.userId` which **isn't yet propagated** into `ForgeActionContext` — left as actionable status stubs with a 3-step fix-it checklist in each file header. |
+| SabFiles bridge | ✅ Done (Session 5) | `forge_read_binary_file.read_sabfile` works via public share-token; `write_sabfile` and `list_sabfiles` now mint a worker-safe Rust JWT from `ctx.userId` and call `/v1/sabfiles/upload/presign` → R2 PUT → `/v1/sabfiles/upload/confirm` (write) and `/v1/sabfiles/nodes` (list). |
 | pdf-parse@2.4.5 API change | ✅ Done | New class-based API (`new PDFParse({...}).getText()`) — `read_pdf.ts` updated. |
-
-### Architectural finding to surface to the next contributor
-
-To make `write_sabfile` / `list_sabfiles` real (and unblock any other forge block that needs the authenticated tenant identity), the engine needs one small change:
-
-1. Extend `ForgeActionContext` in `src/lib/sabflow/forge/types.ts` with `tenant?: { userId: string }`.
-2. Plumb `projectId` from the BullMQ job payload → `startSession` → `executeForgeBlock` in `src/lib/sabflow/engine/executeBlock.ts` (≈ one line).
-3. Drop the status-stub bodies in `write_binary_file.ts` and `read_binary_files.ts` and call `issueRustJwt(tenant.userId)` + `rustFetch` (or `uploadToR2` + the BFF `confirmUpload`).
-
-This is one focused PR — not done this session because it touches the worker boundary and deserves its own review.
 
 ### Skipped this session (intentional)
 
@@ -380,6 +370,24 @@ This is one focused PR — not done this session because it touches the worker b
 
 - **ldapjs is deprecated** (the maintainer decommissioned it — install warnings during `npm install` confirm this). Block works for now but should migrate to a maintained LDAP library before relying on it in production.
 - **25 npm audit advisories** introduced by the install batch (9 moderate, 15 high, 1 critical) — run `npm audit fix` and review breaking changes before deploying. Likely concentrated in transitive deps of `ldapjs`, `kafkajs`, `pdf-parse`.
+
+## 🧩 Engine-context wave landed (Session 5)
+
+| Deliverable | Status | Notes |
+| --- | --- | --- |
+| `ForgeActionContext.userId` + `callerStack` | ✅ Done | `ForgeActionContext` (`src/lib/sabflow/forge/types.ts`) now carries `userId` (workspace owner) and `callerStack` (oldest-first flow ids on the execution stack). Both optional for back-compat; sub-workflow + SabFile actions assert presence. |
+| Engine plumbing | ✅ Done | `executeFlow` accepts an optional `callerStack`, derives `blockCtx = { userId: flow.userId, callerStack: [...stack, selfFlowId] }`, and threads it through `executeBlock` → `executeForgeBlock` → `action.run(ctx)`. Top-level callers (api routes, worker, replay, durable, test dialog) are unchanged — the new parameter is optional. |
+| `forge_execute_workflow` | ✅ Done | Real sub-flow invocation via `executeFlow`: cross-tenant rejected (`targetFlow.userId !== ctx.userId`), cycle-rejected against `ctx.callerStack`, optional TTL result cache (`subWorkflowCache.ts`), forwarded stack so deeper chains detect cycles too. |
+| LangChain workflow tools | ✅ Done | `tool_workflow.ts` (agent tool path) and `retriever_workflow.ts` (retriever path) both now forward the caller stack so A→B→C→A is rejected at the deepest hop. Same auth/cycle guards as `forge_execute_workflow`. |
+| SabFiles real bridge | ✅ Done | `write_binary_file.write_sabfile` and `read_binary_files.list_sabfiles` mint a Rust JWT from `ctx.userId` (`issueRustJwt`) and call the BFF directly — no Next.js `cookies()` needed, so they're safe to call from the BullMQ worker. `read_binary_file.read_sabfile` still uses the public share-token path. |
+| Header docs refreshed | ✅ Done | `read_write_file.ts` no longer claims `write_sabfile`/`list_sabfiles` are "pending tenant plumbing". File headers across binary_ops blocks describe the worker-safe JWT flow. |
+| Focused typecheck | ✅ Exit 0 | No new errors on the touched files (`executeBlock`, `executeFlow`, `execute_workflow`, `tool_workflow`, `retriever_workflow`, `read_binary_file`, `read_binary_files`, `write_binary_file`, `read_write_file`). Pre-existing module-resolution errors elsewhere (xlsx, mongodb, ioredis, mysql2 types) are unrelated. |
+
+### What this unlocks
+
+- **Sub-workflow execution is now real**, not a queued stub. `forge_execute_workflow.invoke` runs the target flow synchronously via the same `executeFlow` used by the worker, returns `{ isCompleted, variables, messages }`, and caches the result when `cacheTtlSeconds > 0`. Cycle detection is correct through arbitrary nesting depth.
+- **SabFile read/write/list works from within a flow**, including from the BullMQ worker. The worker has no Next.js request context (`cookies()` would throw), so we mint short-lived Rust JWTs from `ctx.userId` and call the BFF directly. Tenant isolation is preserved by the JWT subject — the BFF still scopes every query to the calling user.
+- **Cross-tenant calls are explicitly rejected**. If a user copies a flow from another workspace and edits the `workflowId` to point at a foreign flow, the call throws with a clear error. Cycle detection prevents infinite recursion even across mixed `execute_workflow` / LangChain `tool_workflow` / `retriever_workflow` chains.
 
 ## 🏁 End state (all sessions combined)
 
@@ -393,10 +401,11 @@ This is one focused PR — not done this session because it touches the worker b
 - `ForgeAuth.credentialType` plumbed → credentials resolve via the engine
 - `ForgeField.loadOptions` plumbed → dynamic dropdowns through `/api/sabflow/load-options`
 - `CredentialSelect` rendered in the forge settings panel when `auth.credentialType` is set
+- `ForgeActionContext.userId` + `callerStack` plumbed (Session 5) → sub-workflow execution + SabFiles bridge are real
 
 **Productive surface ratio:** 290 forge blocks vs 288 canonical n8n nodes = **100.7% catalog coverage**. The two extras are pilot/legacy duplicates kept for compatibility.
 
-**Combined typecheck** (full catalog + foundation + aggregator + cleanup wave + final upgrade wave): **exit 0**. The migration is functionally complete and production-deployable.
+**Combined typecheck** (full catalog + foundation + aggregator + cleanup wave + final upgrade wave + engine-context wave): **exit 0** on every touched file. The migration is functionally complete and production-deployable.
 
 ### Known wave-1 deferrals (carry forward into W2/W3)
 

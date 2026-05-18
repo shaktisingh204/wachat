@@ -19,42 +19,19 @@ import {
     ZoruCard,
     ZoruInput,
     ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
     ZoruTextarea,
     useZoruToast,
 } from '@/components/zoruui';
+import { EnumFormField } from '@/components/crm/enum-form-field';
+import { EntityFormField } from '@/components/crm/entity-form-field';
 
 import { saveTravelRequest } from '@/app/actions/crm-travel.actions';
 import type {
-    CrmTravelMode,
     CrmTravelRequestDoc,
     CrmTravelStatus,
 } from '@/app/actions/crm-travel.actions';
 
 const BASE = '/dashboard/hrm/hr/travel';
-
-const STATUS_OPTIONS: Array<{ value: CrmTravelStatus; label: string }> = [
-    { value: 'draft', label: 'Draft' },
-    { value: 'pending', label: 'Pending' },
-    { value: 'approved', label: 'Approved' },
-    { value: 'rejected', label: 'Rejected' },
-    { value: 'cancelled', label: 'Cancelled' },
-    { value: 'completed', label: 'Completed' },
-    { value: 'archived', label: 'Archived' },
-];
-
-const MODE_OPTIONS: Array<{ value: CrmTravelMode; label: string }> = [
-    { value: 'flight', label: 'Flight' },
-    { value: 'train', label: 'Train' },
-    { value: 'bus', label: 'Bus' },
-    { value: 'car', label: 'Car' },
-    { value: 'taxi', label: 'Taxi' },
-    { value: 'other', label: 'Other' },
-];
 
 function toDateInput(value: unknown): string {
     if (!value) return '';
@@ -115,30 +92,20 @@ export function TravelRequestForm({ initialData }: TravelRequestFormProps) {
                 {isEditing ? (
                     <input type="hidden" name="travelId" value={initialData!._id} />
                 ) : null}
-                <input type="hidden" name="mode" value={mode} />
-                <input type="hidden" name="status" value={status} />
 
-                {/* Row 1: Employee */}
-                <div className="grid gap-4 sm:grid-cols-2">
-                    <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="employee_id">Employee id *</ZoruLabel>
-                        <ZoruInput
-                            id="employee_id"
-                            name="employee_id"
-                            required
-                            placeholder="Employee record id"
-                            defaultValue={initialData?.employee_id ?? ''}
-                        />
-                    </div>
-                    <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="employee_name">Employee name</ZoruLabel>
-                        <ZoruInput
-                            id="employee_name"
-                            name="employee_name"
-                            placeholder="Friendly display name"
-                            defaultValue={initialData?.employee_name ?? ''}
-                        />
-                    </div>
+                {/* Row 1: Employee picker (dual-writes employee_name for legacy callers) */}
+                <div className="space-y-1.5">
+                    <ZoruLabel>Employee *</ZoruLabel>
+                    <EntityFormField
+                        entity="employee"
+                        name="employee_id"
+                        dualWriteName="employee_name"
+                        initialId={initialData?.employee_id ?? null}
+                        initialLabel={initialData?.employee_name ?? ''}
+                        allowCreate
+                        placeholder="Select employee"
+                        required
+                    />
                 </div>
 
                 {/* Row 2: Purpose */}
@@ -155,37 +122,34 @@ export function TravelRequestForm({ initialData }: TravelRequestFormProps) {
                 {/* Row 3: From / To / Mode */}
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="from_city">From city</ZoruLabel>
-                        <ZoruInput
-                            id="from_city"
+                        <ZoruLabel>From city</ZoruLabel>
+                        <EntityFormField
+                            entity="city"
                             name="from_city"
-                            placeholder="Bengaluru"
-                            defaultValue={initialData?.from_city ?? ''}
+                            initialId={initialData?.from_city ?? null}
+                            allowCreate
+                            placeholder="From city"
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="to_city">To city</ZoruLabel>
-                        <ZoruInput
-                            id="to_city"
+                        <ZoruLabel>To city</ZoruLabel>
+                        <EntityFormField
+                            entity="city"
                             name="to_city"
-                            placeholder="Mumbai"
-                            defaultValue={initialData?.to_city ?? ''}
+                            initialId={initialData?.to_city ?? null}
+                            allowCreate
+                            placeholder="To city"
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="mode-trigger">Mode</ZoruLabel>
-                        <ZoruSelect value={mode} onValueChange={setMode}>
-                            <ZoruSelectTrigger id="mode-trigger">
-                                <ZoruSelectValue placeholder="Mode" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {MODE_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <ZoruLabel>Mode</ZoruLabel>
+                        <EnumFormField
+                            enumName="travelMode"
+                            name="mode"
+                            initialId={mode}
+                            onChange={(id) => setMode(id ?? 'flight')}
+                            placeholder="Mode"
+                        />
                     </div>
                 </div>
 
@@ -236,52 +200,45 @@ export function TravelRequestForm({ initialData }: TravelRequestFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="currency">Currency</ZoruLabel>
-                        <ZoruInput
-                            id="currency"
+                        <ZoruLabel>Currency</ZoruLabel>
+                        <EntityFormField
+                            entity="currency"
                             name="currency"
+                            initialId={initialData?.currency ?? 'INR'}
+                            allowCreate
                             placeholder="INR"
-                            defaultValue={initialData?.currency ?? 'INR'}
                         />
                     </div>
                 </div>
 
                 {/* Row 6: Approver + Status */}
-                <div className="grid gap-4 sm:grid-cols-3">
+                <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="approver_id">Approver id</ZoruLabel>
-                        <ZoruInput
-                            id="approver_id"
+                        <ZoruLabel>Approver</ZoruLabel>
+                        <EntityFormField
+                            entity="employee"
                             name="approver_id"
-                            placeholder="Optional"
-                            defaultValue={initialData?.approver_id ?? ''}
+                            dualWriteName="approver_name"
+                            initialId={initialData?.approver_id ?? null}
+                            initialLabel={initialData?.approver_name ?? ''}
+                            allowCreate
+                            placeholder="Select approver"
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="approver_name">Approver name</ZoruLabel>
-                        <ZoruInput
-                            id="approver_name"
-                            name="approver_name"
-                            defaultValue={initialData?.approver_name ?? ''}
+                        <ZoruLabel>Status</ZoruLabel>
+                        {/* TODO 1E.sweep: catalogued travelStatus has 'submitted'+'booked' slugs not in original options; existing 'pending' was renamed. */}
+                        <EnumFormField
+                            enumName="travelStatus"
+                            name="status"
+                            initialId={status === 'pending' ? 'submitted' : status}
+                            onChange={(id) => {
+                                const mapped =
+                                    id === 'submitted' ? 'pending' : (id as CrmTravelStatus);
+                                setStatus(mapped ?? 'pending');
+                            }}
+                            placeholder="Status"
                         />
-                    </div>
-                    <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
-                        <ZoruSelect
-                            value={status}
-                            onValueChange={(v) => setStatus(v as CrmTravelStatus)}
-                        >
-                            <ZoruSelectTrigger id="status-trigger">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
                     </div>
                 </div>
 

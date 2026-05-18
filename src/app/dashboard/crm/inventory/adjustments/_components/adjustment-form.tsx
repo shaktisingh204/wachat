@@ -25,15 +25,11 @@ import {
     ZoruCard,
     ZoruInput,
     ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
     ZoruTextarea,
     useZoruToast,
 } from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 
 import { saveCrmStockAdjustment } from '@/app/actions/crm-inventory-writes.actions';
 
@@ -221,21 +217,12 @@ export function AdjustmentForm({ initialData }: AdjustmentFormProps) {
                     </div>
                     <div className="space-y-1.5">
                         <ZoruLabel htmlFor="reason">Reason *</ZoruLabel>
-                        <ZoruSelect
+                        <EnumFormField
+                            enumName="stockAdjustmentReason"
                             name="reason"
-                            defaultValue={initialData?.reason ?? 'correction'}
-                        >
-                            <ZoruSelectTrigger id="reason">
-                                <ZoruSelectValue />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {REASON_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                            initialId={initialData?.reason ?? 'correction'}
+                            required
+                        />
                     </div>
                 </div>
 

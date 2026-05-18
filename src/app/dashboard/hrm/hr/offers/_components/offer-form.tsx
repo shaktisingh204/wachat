@@ -19,15 +19,12 @@ import {
     ZoruCard,
     ZoruInput,
     ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
     ZoruTextarea,
     useZoruToast,
 } from '@/components/zoruui';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
+import { EnumFormField } from '@/components/crm/enum-form-field';
+import { EntityFormField } from '@/components/crm/entity-form-field';
 
 import { saveOffer } from '@/app/actions/crm-offers.actions';
 import type {
@@ -37,22 +34,6 @@ import type {
 } from '@/lib/rust-client/crm-offers';
 
 const BASE = '/dashboard/hrm/hr/offers';
-
-const PERIOD_OPTIONS: Array<{ value: CrmOfferSalaryPeriod; label: string }> = [
-    { value: 'annual', label: 'Annual' },
-    { value: 'monthly', label: 'Monthly' },
-    { value: 'hourly', label: 'Hourly' },
-];
-
-const STATUS_OPTIONS: Array<{ value: CrmOfferStatus; label: string }> = [
-    { value: 'draft', label: 'Draft' },
-    { value: 'sent', label: 'Sent' },
-    { value: 'accepted', label: 'Accepted' },
-    { value: 'rejected', label: 'Rejected' },
-    { value: 'expired', label: 'Expired' },
-    { value: 'withdrawn', label: 'Withdrawn' },
-    { value: 'archived', label: 'Archived' },
-];
 
 function toDateInput(value: unknown): string {
     if (!value) return '';
@@ -146,8 +127,6 @@ export function OfferForm({ initialData }: OfferFormProps) {
                     <input type="hidden" name="offerId" value={initialData!._id} />
                 ) : null}
                 <input type="hidden" name="offerLetterUrl" value={offerLetterUrl} />
-                <input type="hidden" name="salaryPeriod" value={salaryPeriod} />
-                <input type="hidden" name="status" value={status} />
 
                 {/* Row 1: Candidate id + name */}
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -214,33 +193,28 @@ export function OfferForm({ initialData }: OfferFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="salaryCurrency">Currency</ZoruLabel>
-                        <ZoruInput
-                            id="salaryCurrency"
+                        <ZoruLabel>Currency</ZoruLabel>
+                        <EntityFormField
+                            entity="currency"
                             name="salaryCurrency"
+                            initialId={initialData?.salaryCurrency ?? 'INR'}
+                            allowCreate
                             placeholder="INR"
-                            defaultValue={initialData?.salaryCurrency ?? 'INR'}
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="period-trigger">Period</ZoruLabel>
-                        <ZoruSelect
-                            value={salaryPeriod}
-                            onValueChange={(v) =>
-                                setSalaryPeriod(v as CrmOfferSalaryPeriod)
+                        <ZoruLabel>Period</ZoruLabel>
+                        <EnumFormField
+                            enumName="offerSalaryPeriod"
+                            name="salaryPeriod"
+                            initialId={salaryPeriod}
+                            onChange={(id) =>
+                                setSalaryPeriod(
+                                    (id as CrmOfferSalaryPeriod) ?? 'annual',
+                                )
                             }
-                        >
-                            <ZoruSelectTrigger id="period-trigger">
-                                <ZoruSelectValue placeholder="Period" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {PERIOD_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                            placeholder="Period"
+                        />
                     </div>
                 </div>
 
@@ -349,31 +323,26 @@ export function OfferForm({ initialData }: OfferFormProps) {
                 {/* Row 8: Approver + Status */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="approverId">Approver id</ZoruLabel>
-                        <ZoruInput
-                            id="approverId"
+                        <ZoruLabel>Approver</ZoruLabel>
+                        <EntityFormField
+                            entity="employee"
                             name="approverId"
-                            placeholder="Optional"
-                            defaultValue={initialData?.approverId ?? ''}
+                            initialId={initialData?.approverId ?? null}
+                            allowCreate
+                            placeholder="Approver"
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
-                        <ZoruSelect
-                            value={status}
-                            onValueChange={(v) => setStatus(v as CrmOfferStatus)}
-                        >
-                            <ZoruSelectTrigger id="status-trigger">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <ZoruLabel>Status</ZoruLabel>
+                        <EnumFormField
+                            enumName="offerStatus"
+                            name="status"
+                            initialId={status}
+                            onChange={(id) =>
+                                setStatus((id as CrmOfferStatus) ?? 'draft')
+                            }
+                            placeholder="Status"
+                        />
                     </div>
                 </div>
 

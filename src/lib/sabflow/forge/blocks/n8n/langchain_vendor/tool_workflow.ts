@@ -80,6 +80,8 @@ async function call(ctx: ForgeActionContext): Promise<ForgeActionResult> {
     seededVars[k] = v;
   }
 
+  // Forward the caller stack so deeper sub-workflow invocations can detect
+  // cycles all the way up.  `runFlowInner` pushes the sub-flow's id on top.
   const { result } = await executeFlow(
     targetFlow,
     {
@@ -89,6 +91,9 @@ async function call(ctx: ForgeActionContext): Promise<ForgeActionResult> {
       variables: seededVars,
       history: [],
     },
+    undefined,
+    undefined,
+    stack,
   );
 
   // For the agent-tool path, prefer a flat string output: concatenate the

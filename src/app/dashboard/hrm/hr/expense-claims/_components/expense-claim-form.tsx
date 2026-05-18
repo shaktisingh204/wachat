@@ -1,5 +1,7 @@
 'use client';
 
+// TODO 1E.sweep: status -> <EnumFormField enumName="expenseClaimStatus">; paymentMethod -> paymentMethod; currency -> <EntityFormField entity="currency">; employee/approver -> <EntityFormField entity="employee">. See plan §1E.
+
 /**
  * <ExpenseClaimForm /> — create + edit form for HR expense claims.
  *

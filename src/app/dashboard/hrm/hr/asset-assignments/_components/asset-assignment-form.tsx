@@ -19,39 +19,19 @@ import {
     ZoruCard,
     ZoruInput,
     ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
     ZoruTextarea,
     useZoruToast,
 } from '@/components/zoruui';
+import { EnumFormField } from '@/components/crm/enum-form-field';
+import { EntityFormField } from '@/components/crm/entity-form-field';
 
 import { saveAssetAssignment } from '@/app/actions/crm-asset-assignments.actions';
 import type {
     CrmAssetAssignmentDoc,
     CrmAssetAssignmentStatus,
-    CrmAssetCondition,
 } from '@/app/actions/crm-asset-assignments.actions';
 
 const BASE = '/dashboard/hrm/hr/asset-assignments';
-
-const STATUS_OPTIONS: Array<{ value: CrmAssetAssignmentStatus; label: string }> = [
-    { value: 'assigned', label: 'Assigned' },
-    { value: 'returned', label: 'Returned' },
-    { value: 'lost', label: 'Lost' },
-    { value: 'damaged', label: 'Damaged' },
-    { value: 'archived', label: 'Archived' },
-];
-
-const CONDITION_OPTIONS: Array<{ value: CrmAssetCondition; label: string }> = [
-    { value: 'new', label: 'New' },
-    { value: 'good', label: 'Good' },
-    { value: 'fair', label: 'Fair' },
-    { value: 'poor', label: 'Poor' },
-    { value: 'damaged', label: 'Damaged' },
-];
 
 function toDateInput(value: unknown): string {
     if (!value) return '';
@@ -120,54 +100,37 @@ export function AssetAssignmentForm({ initialData }: AssetAssignmentFormProps) {
                 {isEditing ? (
                     <input type="hidden" name="assignmentId" value={initialData!._id} />
                 ) : null}
-                <input type="hidden" name="condition_at_assign" value={conditionAssign} />
-                <input type="hidden" name="condition_at_return" value={conditionReturn} />
-                <input type="hidden" name="status" value={status} />
 
-                {/* Row 1: Asset id + name */}
-                <div className="grid gap-4 sm:grid-cols-2">
-                    <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="asset_id">Asset id *</ZoruLabel>
-                        <ZoruInput
-                            id="asset_id"
-                            name="asset_id"
-                            required
-                            placeholder="Asset record id"
-                            defaultValue={initialData?.asset_id ?? prefilledAssetId}
-                        />
-                    </div>
-                    <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="asset_name">Asset name</ZoruLabel>
-                        <ZoruInput
-                            id="asset_name"
-                            name="asset_name"
-                            placeholder="Friendly display name"
-                            defaultValue={initialData?.asset_name ?? prefilledAssetName}
-                        />
-                    </div>
+                {/* Row 1: Asset (entity picker dual-writes asset_name for legacy callers) */}
+                <div className="space-y-1.5">
+                    <ZoruLabel>Asset *</ZoruLabel>
+                    <EntityFormField
+                        entity="asset"
+                        name="asset_id"
+                        dualWriteName="asset_name"
+                        initialId={initialData?.asset_id ?? prefilledAssetId ?? null}
+                        initialLabel={
+                            initialData?.asset_name ?? prefilledAssetName ?? ''
+                        }
+                        allowCreate
+                        placeholder="Select asset"
+                        required
+                    />
                 </div>
 
-                {/* Row 2: Employee id + name */}
-                <div className="grid gap-4 sm:grid-cols-2">
-                    <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="employee_id">Employee id *</ZoruLabel>
-                        <ZoruInput
-                            id="employee_id"
-                            name="employee_id"
-                            required
-                            placeholder="Employee record id"
-                            defaultValue={initialData?.employee_id ?? ''}
-                        />
-                    </div>
-                    <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="employee_name">Employee name</ZoruLabel>
-                        <ZoruInput
-                            id="employee_name"
-                            name="employee_name"
-                            placeholder="Friendly display name"
-                            defaultValue={initialData?.employee_name ?? ''}
-                        />
-                    </div>
+                {/* Row 2: Employee (entity picker dual-writes employee_name) */}
+                <div className="space-y-1.5">
+                    <ZoruLabel>Employee *</ZoruLabel>
+                    <EntityFormField
+                        entity="employee"
+                        name="employee_id"
+                        dualWriteName="employee_name"
+                        initialId={initialData?.employee_id ?? null}
+                        initialLabel={initialData?.employee_name ?? ''}
+                        allowCreate
+                        placeholder="Select employee"
+                        required
+                    />
                 </div>
 
                 {/* Row 3: Dates */}
@@ -195,60 +158,45 @@ export function AssetAssignmentForm({ initialData }: AssetAssignmentFormProps) {
                 {/* Row 4: Conditions */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="condition-assign-trigger">Condition at assign</ZoruLabel>
-                        <ZoruSelect value={conditionAssign} onValueChange={setConditionAssign}>
-                            <ZoruSelectTrigger id="condition-assign-trigger">
-                                <ZoruSelectValue placeholder="Condition" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {CONDITION_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <ZoruLabel>Condition at assign</ZoruLabel>
+                        <EnumFormField
+                            enumName="assetCondition"
+                            name="condition_at_assign"
+                            initialId={conditionAssign}
+                            onChange={(id) => setConditionAssign(id ?? 'good')}
+                            placeholder="Condition"
+                        />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="condition-return-trigger">Condition at return</ZoruLabel>
-                        <ZoruSelect
-                            value={conditionReturn || 'unset'}
-                            onValueChange={(v) => setConditionReturn(v === 'unset' ? '' : v)}
-                        >
-                            <ZoruSelectTrigger id="condition-return-trigger">
-                                <ZoruSelectValue placeholder="—" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="unset">—</ZoruSelectItem>
-                                {CONDITION_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <ZoruLabel>Condition at return</ZoruLabel>
+                        <EnumFormField
+                            enumName="assetCondition"
+                            name="condition_at_return"
+                            initialId={conditionReturn || null}
+                            onChange={(id) => setConditionReturn(id ?? '')}
+                            placeholder="Condition at return"
+                        />
                     </div>
                 </div>
 
                 {/* Row 5: Status */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
-                        <ZoruSelect
-                            value={status}
-                            onValueChange={(v) => setStatus(v as CrmAssetAssignmentStatus)}
-                        >
-                            <ZoruSelectTrigger id="status-trigger">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <ZoruLabel>Status</ZoruLabel>
+                        {/* TODO 1E.sweep: catalogued assetAssignmentStatus has 'active'+'pending' but this form uses 'assigned' — bridge or extend before enabling inline-create. */}
+                        <EnumFormField
+                            enumName="assetAssignmentStatus"
+                            name="status"
+                            initialId={status === 'assigned' ? 'active' : status}
+                            onChange={(id) => {
+                                const mapped =
+                                    id === 'active'
+                                        ? 'assigned'
+                                        : (id as CrmAssetAssignmentStatus);
+                                setStatus(mapped ?? 'assigned');
+                            }}
+                            placeholder="Status"
+                        />
                     </div>
                 </div>
 

@@ -14,27 +14,15 @@ import {
   ZoruCard,
   ZoruInput,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruTextarea,
 } from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import type {
   CrmQuotationDoc,
-  CrmQuotationStatus,
 } from '@/lib/rust-client/crm-quotations';
 
-const STATUS_OPTIONS: CrmQuotationStatus[] = [
-  'draft',
-  'sent',
-  'accepted',
-  'rejected',
-  'expired',
-  'converted',
-];
+// Status options now sourced from CRM_ENUMS.quotationStatusV2.
 
 function toIsoDate(v?: string): string {
   if (!v) return '';
@@ -237,21 +225,11 @@ export function QuotationSubjectSection({
         {editing ? (
           <div className="space-y-1.5">
             <ZoruLabel htmlFor="status">Status</ZoruLabel>
-            <ZoruSelect
+            <EnumFormField
+              enumName="quotationStatusV2"
               name="status"
-              defaultValue={(initial?.status ?? 'draft') as string}
-            >
-              <ZoruSelectTrigger id="status">
-                <ZoruSelectValue />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                {STATUS_OPTIONS.map((s) => (
-                  <ZoruSelectItem key={s} value={s}>
-                    {s}
-                  </ZoruSelectItem>
-                ))}
-              </ZoruSelectContent>
-            </ZoruSelect>
+              initialId={(initial?.status ?? 'draft') as string}
+            />
           </div>
         ) : null}
       </div>

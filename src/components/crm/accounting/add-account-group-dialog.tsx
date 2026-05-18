@@ -14,6 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import { useToast } from "@/hooks/use-toast";
 import { saveCrmAccountGroup } from '@/app/actions/crm-accounting.actions';
 import { Loader2 } from 'lucide-react';
@@ -91,16 +92,13 @@ export function AddAccountGroupDialog({ open, onOpenChange, onGroupAdded, defaul
                     </div>
                     <div className="grid gap-2">
                         <Label htmlFor="type" className="text-foreground">Type</Label>
-                        <Select name="type" required value={selectedType} onValueChange={setSelectedType}>
-                            <SelectTrigger><SelectValue /></SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="Asset">Asset</SelectItem>
-                                <SelectItem value="Liability">Liability</SelectItem>
-                                <SelectItem value="Income">Income</SelectItem>
-                                <SelectItem value="Expense">Expense</SelectItem>
-                                <SelectItem value="Capital">Capital</SelectItem>
-                            </SelectContent>
-                        </Select>
+                        <EnumFormField
+                            name="type"
+                            enumName="accountNature"
+                            initialId={selectedType}
+                            onChange={(id) => setSelectedType(id ?? 'Asset')}
+                            required
+                        />
                     </div>
                     <div className="grid gap-2">
                         <Label htmlFor="category" className="text-foreground">Category</Label>

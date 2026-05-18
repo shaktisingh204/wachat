@@ -1,5 +1,7 @@
 'use client';
 
+// TODO 1E.sweep: visibility/access -> <EnumFormField enumName="documentVisibility">; category/type left ambiguous (extend catalogue first); employee owner -> <EntityFormField entity="employee">. See plan §1E.
+
 /**
  * <DocumentForm /> — create + edit form for HR Documents.
  *

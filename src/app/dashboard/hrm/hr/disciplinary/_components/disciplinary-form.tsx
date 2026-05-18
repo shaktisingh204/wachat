@@ -1,5 +1,7 @@
 'use client';
 
+// TODO 1E.sweep: convert remaining ZoruSelects (caseType, severity, status, hearing.outcome) to <EnumFormField>. Catalogued: disciplinaryStatus, disciplinaryType, severity. Local lists differ slightly — bridge slugs first.
+
 /**
  * <DisciplinaryForm /> — create + edit form for HR disciplinary cases.
  *

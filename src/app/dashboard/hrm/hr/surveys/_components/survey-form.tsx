@@ -1,5 +1,7 @@
 'use client';
 
+// TODO 1E.sweep: status -> <EnumFormField enumName="surveyStatus">; question.type -> <EnumFormField enumName="surveyQuestionType"> in survey-questions repeater. See plan §1E.
+
 /**
  * <SurveyForm /> — shared create/edit form for HR Surveys.
  *

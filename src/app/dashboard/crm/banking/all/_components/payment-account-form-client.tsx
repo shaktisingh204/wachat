@@ -17,16 +17,13 @@ import {
     ZoruDatePicker,
     ZoruInput,
     ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
     ZoruSwitch,
     useZoruToast,
 } from '@/components/zoruui';
 
 import { EntityFormShell } from '@/components/crm/entity-form-shell';
+import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import { saveCrmPaymentAccount } from '@/app/actions/crm-payment-accounts.actions';
 import type { CrmPaymentAccount, BankAccountDetails } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
@@ -110,23 +107,15 @@ export function PaymentAccountFormClient({
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div className="space-y-2">
                                 <ZoruLabel htmlFor="accountType">Type *</ZoruLabel>
-                                <ZoruSelect
+                                <EnumFormField
                                     name="accountType"
+                                    enumName="paymentAccountType"
+                                    initialId={accountType}
+                                    onChange={(id) =>
+                                        setAccountType((id ?? 'bank') as CrmPaymentAccount['accountType'])
+                                    }
                                     required
-                                    value={accountType}
-                                    onValueChange={(v) => setAccountType(v as CrmPaymentAccount['accountType'])}
-                                >
-                                    <ZoruSelectTrigger id="accountType">
-                                        <ZoruSelectValue />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="bank">Bank</ZoruSelectItem>
-                                        <ZoruSelectItem value="cash">Cash</ZoruSelectItem>
-                                        <ZoruSelectItem value="employee">Employee</ZoruSelectItem>
-                                        <ZoruSelectItem value="wallet">Wallet</ZoruSelectItem>
-                                        <ZoruSelectItem value="other">Other</ZoruSelectItem>
-                                    </ZoruSelectContent>
-                                </ZoruSelect>
+                                />
                             </div>
                             <div className="space-y-2">
                                 <ZoruLabel htmlFor="accountName">Account name *</ZoruLabel>
@@ -140,17 +129,13 @@ export function PaymentAccountFormClient({
                             </div>
                             <div className="space-y-2">
                                 <ZoruLabel htmlFor="currency">Currency *</ZoruLabel>
-                                <ZoruSelect name="currency" required defaultValue={initial?.currency ?? 'INR'}>
-                                    <ZoruSelectTrigger id="currency">
-                                        <ZoruSelectValue />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="INR">Indian Rupee (INR)</ZoruSelectItem>
-                                        <ZoruSelectItem value="USD">US Dollar (USD)</ZoruSelectItem>
-                                        <ZoruSelectItem value="EUR">Euro (EUR)</ZoruSelectItem>
-                                        <ZoruSelectItem value="GBP">British Pound (GBP)</ZoruSelectItem>
-                                    </ZoruSelectContent>
-                                </ZoruSelect>
+                                <EntityFormField
+                                    entity="currency"
+                                    name="currency"
+                                    initialId={initial?.currency ?? 'INR'}
+                                    required
+                                    allowCreate
+                                />
                             </div>
                         </div>
                     ),
@@ -214,23 +199,24 @@ export function PaymentAccountFormClient({
                                       </div>
                                       <div className="space-y-2">
                                           <ZoruLabel>Bank account type</ZoruLabel>
-                                          <ZoruSelect
-                                              value={bankDetails.accountType ?? ''}
-                                              onValueChange={(v) =>
+                                          {/* Value is part of the JSON-serialized `bankAccountDetails`
+                                              hidden input — we use a throw-away field name on the picker so
+                                              FormData stays untouched, and mirror the picked id into local state. */}
+                                          <EnumFormField
+                                              name="__bankAccountSubtype"
+                                              enumName="bankAccountSubtype"
+                                              initialId={bankDetails.accountType ?? null}
+                                              onChange={(id) =>
                                                   setBankDetails((prev) => ({
                                                       ...prev,
-                                                      accountType: v as 'current' | 'savings',
+                                                      accountType: (id ?? undefined) as
+                                                          | 'current'
+                                                          | 'savings'
+                                                          | undefined,
                                                   }))
                                               }
-                                          >
-                                              <ZoruSelectTrigger>
-                                                  <ZoruSelectValue placeholder="Pick…" />
-                                              </ZoruSelectTrigger>
-                                              <ZoruSelectContent>
-                                                  <ZoruSelectItem value="current">Current</ZoruSelectItem>
-                                                  <ZoruSelectItem value="savings">Savings</ZoruSelectItem>
-                                              </ZoruSelectContent>
-                                          </ZoruSelect>
+                                              placeholder="Pick…"
+                                          />
                                       </div>
                                       <div className="space-y-2">
                                           <ZoruLabel>SWIFT</ZoruLabel>

@@ -21,15 +21,11 @@ import {
   ZoruCard,
   ZoruInput,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruSwitch,
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 
 import {
   saveForm,
@@ -43,12 +39,6 @@ import type {
 import { FormFieldsRepeater } from './form-fields-repeater';
 
 const BASE = '/dashboard/crm/tickets/custom-forms';
-
-const STATUS_OPTIONS: Array<{ value: CrmFormStatus; label: string }> = [
-  { value: 'draft', label: 'Draft' },
-  { value: 'published', label: 'Published' },
-  { value: 'archived', label: 'Archived' },
-];
 
 const initialState: SaveFormState = {};
 
@@ -138,22 +128,14 @@ export function CustomFormForm({ initialData }: CustomFormFormProps) {
             />
           </div>
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
-            <ZoruSelect
-              value={status}
-              onValueChange={(v) => setStatus(v as CrmFormStatus)}
-            >
-              <ZoruSelectTrigger id="status-trigger">
-                <ZoruSelectValue placeholder="Status" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                {STATUS_OPTIONS.map((o) => (
-                  <ZoruSelectItem key={o.value} value={o.value}>
-                    {o.label}
-                  </ZoruSelectItem>
-                ))}
-              </ZoruSelectContent>
-            </ZoruSelect>
+            <ZoruLabel>Status</ZoruLabel>
+            <EnumFormField
+              enumName="kbStatus"
+              name="statusPicker"
+              initialId={status}
+              placeholder="Status"
+              onChange={(next) => setStatus((next ?? 'draft') as CrmFormStatus)}
+            />
           </div>
         </div>
       </ZoruCard>

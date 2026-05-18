@@ -33,6 +33,7 @@ import {
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 
 import { saveCustomField } from '@/app/actions/crm-custom-fields.actions';
 import type {
@@ -215,23 +216,14 @@ export function CustomFieldForm({
           </div>
           <div className="space-y-1.5">
             <ZoruLabel htmlFor="fieldType">Field type *</ZoruLabel>
-            <ZoruSelect
+            <EnumFormField
               name="fieldType"
-              value={fieldType}
-              onValueChange={(v) => setFieldType(v as CrmCustomFieldType)}
+              enumName="customFieldType"
+              initialId={fieldType}
+              onChange={(id) => setFieldType((id ?? 'text') as CrmCustomFieldType)}
               required
-            >
-              <ZoruSelectTrigger id="fieldType">
-                <ZoruSelectValue placeholder="Pick a type…" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                {FIELD_TYPES.map((t) => (
-                  <ZoruSelectItem key={t.value} value={t.value}>
-                    {t.label}
-                  </ZoruSelectItem>
-                ))}
-              </ZoruSelectContent>
-            </ZoruSelect>
+              placeholder="Pick a type…"
+            />
           </div>
         </div>
 

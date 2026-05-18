@@ -52,6 +52,13 @@ export async function executeFlow(
    * endpoint.  Callers that don't care about live streaming can omit it.
    */
   executionId?: string,
+  /**
+   * Flow ids currently on the execution stack (oldest first).  Threaded into
+   * `executeBlock` → `executeForgeBlock` → `action.run({ callerStack })` so
+   * sub-workflow blocks (`forge_execute_workflow`) can detect cycles.  Empty
+   * or undefined on top-level runs.
+   */
+  callerStack?: string[],
 ): Promise<ExecuteFlowReturn> {
   // Concurrency gate — opt-in via flow settings.  When disabled the gate is
   // a no-op and adds a single Map lookup of overhead per run.
@@ -94,7 +101,7 @@ export async function executeFlow(
   };
 
   try {
-    const result = await runFlowInner(flow, sessionWithEnv, userInput, executionId);
+    const result = await runFlowInner(flow, sessionWithEnv, userInput, executionId, callerStack);
     if (executionId) {
       publishTraceEvent({
         kind: 'end',
@@ -143,6 +150,7 @@ async function runFlowInner(
   session: SessionState,
   userInput?: string,
   executionId?: string,
+  callerStack?: string[],
 ): Promise<ExecuteFlowReturn> {
   const messages: OutgoingMessage[] = [];
   let variables = { ...session.variables };
@@ -163,6 +171,17 @@ async function runFlowInner(
    * gets recorded as a trace entry instead of aborting the whole run.
    */
   const traceHistory: typeof session.history = [...session.history];
+
+  // Forge action context — workspace identity + caller stack with the
+  // current flow id appended.  Sub-workflow blocks consume `callerStack`
+  // for cycle detection (`forge_execute_workflow`), and SabFile/binary
+  // blocks consume `userId` to mint Rust-BFF JWTs from the worker (which
+  // has no Next.js cookie context).
+  const selfFlowId = (flow._id?.toString?.() ?? flow.publicId ?? flow.name) as string;
+  const blockCtx = {
+    userId: flow.userId,
+    callerStack: [...(callerStack ?? []), selfFlowId],
+  };
 
   outer: while (hopCount < MAX_GROUP_HOPS) {
     const group = flow.groups.find((g) => g.id === currentGroupId);
@@ -187,6 +206,7 @@ async function runFlowInner(
           variables,
           flow.edges,
           inputForThisBlock,
+          blockCtx,
         );
       } catch (err) {
         const message = err instanceof Error ? err.message : String(err);

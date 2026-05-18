@@ -27,7 +27,7 @@ use crate::types::CrmLabel;
 const COLL: &str = "crm_labels";
 const ENTITY_KIND: &str = "label";
 
-fn list_filter(user_id: ObjectId, status: Option<&str>) -> Document {
+fn list_filter(user_id: ObjectId, status: Option<&str>, entity_kind: Option<&str>) -> Document {
     let mut filter = doc! { "userId": user_id };
     match status.unwrap_or("active") {
         "all" => {}
@@ -37,6 +37,9 @@ fn list_filter(user_id: ObjectId, status: Option<&str>) -> Document {
         _ => {
             filter.insert("status", doc! { "$ne": "archived" });
         }
+    }
+    if let Some(k) = entity_kind.map(str::trim).filter(|s| !s.is_empty()) {
+        filter.insert("entityKind", k);
     }
     filter
 }
@@ -53,6 +56,7 @@ fn label_from_create(input: CreateLabelInput, user_id: ObjectId) -> CrmLabel {
         color: input.color,
         icon: input.icon,
         description: input.description,
+        entity_kind: input.entity_kind,
         created_at: BsonDateTime::from_chrono(Utc::now()),
         updated_at: None,
         status: Some("active".to_owned()),
@@ -72,6 +76,9 @@ fn build_update_doc(patch: UpdateLabelInput) -> Document {
     }
     if let Some(v) = patch.description {
         set.insert("description", v);
+    }
+    if let Some(v) = patch.entity_kind {
+        set.insert("entityKind", v);
     }
     if let Some(v) = patch.status {
         set.insert("status", v);
@@ -99,7 +106,7 @@ pub async fn list_labels(
     Query(q): Query<ListQuery>,
 ) -> Result<Json<ListResponse>> {
     let user_id = user_oid(&user)?;
-    let mut filter = list_filter(user_id, q.status.as_deref());
+    let mut filter = list_filter(user_id, q.status.as_deref(), q.entity_kind.as_deref());
     if let Some(needle) = q.q.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
         let or = build_q_filter(needle, &["name", "description"]);
         if let Ok(arr) = or.get_array("$or") {
@@ -281,5 +288,19 @@ mod tests {
         };
         let l = label_from_create(input, user_id);
         assert_eq!(l.status.as_deref(), Some("active"));
+    }
+
+    #[test]
+    fn list_filter_scopes_by_entity_kind() {
+        let oid = ObjectId::new();
+        let f = list_filter(oid, None, Some("task"));
+        assert_eq!(f.get_str("entityKind").unwrap(), "task");
+    }
+
+    #[test]
+    fn list_filter_omits_entity_kind_when_blank() {
+        let oid = ObjectId::new();
+        let f = list_filter(oid, None, Some("  "));
+        assert!(!f.contains_key("entityKind"));
     }
 }

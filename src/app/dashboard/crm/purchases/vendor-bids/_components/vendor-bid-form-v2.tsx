@@ -19,14 +19,10 @@ import {
     ZoruCard,
     ZoruInput,
     ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
     ZoruTextarea,
     useZoruToast,
 } from '@/components/zoruui';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
 
 import { saveVendorBid } from '@/app/actions/crm-vendor-bids-v2.actions';
@@ -187,21 +183,13 @@ export function VendorBidForm({ initialData }: VendorBidFormProps) {
                     </div>
                     <div className="space-y-1.5">
                         <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
-                        <ZoruSelect
-                            value={status}
-                            onValueChange={(v) => setStatus(v as CrmVendorBidStatus)}
-                        >
-                            <ZoruSelectTrigger id="status-trigger">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <EnumFormField
+                            enumName="vendorBidStatus"
+                            name="__status_picker"
+                            initialId={status || null}
+                            placeholder="Status"
+                            onChange={(id) => setStatus((id ?? '') as CrmVendorBidStatus)}
+                        />
                     </div>
                 </div>
 

@@ -30,16 +30,12 @@ import {
     ZoruCardTitle,
     ZoruInput,
     ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
     ZoruTextarea,
     useZoruToast,
 } from '@/components/zoruui';
 import { EntityFormShell } from '@/components/crm/entity-form-shell';
 import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 
 import { saveCrmStockAdjustment } from '@/app/actions/crm-inventory.actions';
 import { REASON_OPTIONS } from '../_components/adjustments-bits';
@@ -201,23 +197,12 @@ export function AdjustmentForm() {
                             </div>
                             <div className="space-y-1">
                                 <ZoruLabel htmlFor="reason">Reason *</ZoruLabel>
-                                <ZoruSelect name="reason" required>
-                                    <ZoruSelectTrigger>
-                                        <ZoruSelectValue placeholder="Select reason" />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        {REASON_OPTIONS.filter((r) => r.value).map(
-                                            (r) => (
-                                                <ZoruSelectItem
-                                                    key={r.value}
-                                                    value={r.value}
-                                                >
-                                                    {r.label}
-                                                </ZoruSelectItem>
-                                            ),
-                                        )}
-                                    </ZoruSelectContent>
-                                </ZoruSelect>
+                                <EnumFormField
+                                    enumName="stockAdjustmentReason"
+                                    name="reason"
+                                    placeholder="Select reason"
+                                    required
+                                />
                             </div>
                             <div className="space-y-1">
                                 <ZoruLabel htmlFor="referenceNumber">

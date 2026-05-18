@@ -280,9 +280,12 @@ This is the concrete sequence — each step maps to a phase in
    only Yjs updates. Snapshot compaction worker folds oplog into a fresh
    snapshot; old updates GC via Vercel Cron. Existing `sabflow` collection
    is migrated to `sabflow_docs` with a one-time backfill.
-3. **Phase 3 — WS gateway.** Stand up the WebSocket service (location TBD by
-   bench), JWT-on-upgrade with workspace claim, one room per doc, heartbeat,
-   reconnect/backoff, plan-tier seat enforcement, OTEL traces.
+3. **Phase 3 — WS gateway.** Stand up the WebSocket service at
+   **`services/sabflow-ws/`** (a standalone Node process — location locked in
+   `docs/adr/sabflow-ws-gateway-node.md` §2.1, Option B; Rust-vs-Node verdict
+   gated on the Track A Phase 1 §4 bench). JWT-on-upgrade with workspace claim,
+   one room per doc, heartbeat, reconnect/backoff, plan-tier seat enforcement,
+   OTEL traces.
 4. **Phase 4 — Sync protocol.** Initial sync (snapshot + delta), update
    fan-out, awareness diff, state-vector exchange, ack/nack, fuzz tests.
 5. **Phase 5 — Client SDK.** Ship `useSabFlowDoc`, `usePresence`,

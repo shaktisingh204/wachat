@@ -1,5 +1,7 @@
 'use client';
 
+// TODO 1E.sweep: month -> <EnumFormField enumName="month">; state -> <EntityFormField entity="state">; employee -> <EntityFormField entity="employee">. See plan §1E.
+
 /**
  * <ProfessionalTaxForm /> — create + edit form for monthly PT records.
  *

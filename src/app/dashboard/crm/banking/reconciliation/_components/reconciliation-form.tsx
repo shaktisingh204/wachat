@@ -20,15 +20,12 @@ import {
     ZoruCard,
     ZoruInput,
     ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
     ZoruTextarea,
     useZoruToast,
 } from '@/components/zoruui';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
+import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 
 import { saveReconciliationRecord } from '@/app/actions/crm-reconciliation.actions';
 import type {
@@ -37,12 +34,6 @@ import type {
 } from '@/lib/rust-client/crm-reconciliation';
 
 const BASE = '/dashboard/crm/banking/reconciliation';
-
-const STATUS_OPTIONS: Array<{ value: CrmReconciliationStatus; label: string }> = [
-    { value: 'in_progress', label: 'In progress' },
-    { value: 'completed', label: 'Completed' },
-    { value: 'archived', label: 'Archived' },
-];
 
 function toDateInput(value: unknown): string {
     if (!value) return '';
@@ -142,19 +133,19 @@ export function ReconciliationForm({
                         value={initialData!._id}
                     />
                 ) : null}
-                <input type="hidden" name="status" value={status} />
                 <input type="hidden" name="statementUrl" value={statementUrl} />
 
                 {/* Account + Period */}
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="accountId">Account ID *</ZoruLabel>
-                        <ZoruInput
-                            id="accountId"
+                        <ZoruLabel htmlFor="accountId">Account *</ZoruLabel>
+                        <EntityFormField
+                            entity="bankAccount"
                             name="accountId"
+                            initialId={initialData?.accountId ?? null}
                             required
-                            placeholder="ObjectId of payment account"
-                            defaultValue={initialData?.accountId ?? ''}
+                            allowCreate
+                            placeholder="Pick a payment account"
                         />
                     </div>
                     <div className="space-y-1.5">
@@ -227,23 +218,15 @@ export function ReconciliationForm({
                     </div>
                     <div className="space-y-1.5">
                         <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
-                        <ZoruSelect
-                            value={status}
-                            onValueChange={(v) =>
-                                setStatus(v as CrmReconciliationStatus)
+                        <EnumFormField
+                            name="status"
+                            enumName="reconciliationStatus"
+                            initialId={status}
+                            onChange={(id) =>
+                                setStatus((id ?? 'in_progress') as CrmReconciliationStatus)
                             }
-                        >
-                            <ZoruSelectTrigger id="status-trigger">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                            placeholder="Status"
+                        />
                     </div>
                 </div>
 

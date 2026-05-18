@@ -30,10 +30,11 @@ import {
 import { CrmPageHeader } from '../../../_components/crm-page-header';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
-import { StatusPill, statusToTone } from '@/components/crm/status-pill';
+// `<StatusPill>` lives inside `<CreditNoteInlineStatus>` now.
 import { LineageRail } from '@/components/crm/lineage-rail';
 import { getCreditNote } from '@/app/actions/crm/credit-notes.actions';
 import { CreditNoteDetailActions } from '../_components/credit-note-detail-actions';
+import { CreditNoteInlineStatus } from '../_components/credit-note-inline-status';
 
 export const dynamic = 'force-dynamic';
 
@@ -161,7 +162,7 @@ export default async function CreditNoteDetailPage({
                             </Field>
                             <Field label="Reason">{creditNote.reason || '—'}</Field>
                             <Field label="Status">
-                                <StatusPill label={status} tone={statusToTone(status)} />
+                                <CreditNoteInlineStatus id={id} status={status} />
                             </Field>
                         </div>
                     </ZoruCard>

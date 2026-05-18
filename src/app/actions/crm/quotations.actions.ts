@@ -49,6 +49,80 @@ function rustErr(e: unknown): string {
   return 'Unexpected error.';
 }
 
+/* ─── KPIs ────────────────────────────────────────────────────── */
+
+export interface QuotationKpiSnapshot {
+  totalOpen: number;
+  accepted: number;
+  rejected: number;
+  expired: number;
+  draft: number;
+  conversionRatePct: number | null;
+}
+
+/**
+ * Dedicated KPI fetch for the §1D.1 list-page strip. Pulls a
+ * representative 200-row window and computes the strip locally — same
+ * trajectory as `getCrmAccountKpis` / `getInvoiceKpis`. Replace with a
+ * `/v1/crm/quotations/kpis` server-side aggregate once tenants pass the
+ * 200 ceiling.
+ *
+ * Returns an empty snapshot on failure (never throws).
+ */
+export async function getQuotationKpis(): Promise<QuotationKpiSnapshot> {
+  const empty: QuotationKpiSnapshot = {
+    totalOpen: 0,
+    accepted: 0,
+    rejected: 0,
+    expired: 0,
+    draft: 0,
+    conversionRatePct: null,
+  };
+  try {
+    const docs = await crmQuotationsApi.list({ page: 1, limit: 200 });
+    const now = Date.now();
+    let open = 0;
+    let accepted = 0;
+    let rejected = 0;
+    let expired = 0;
+    let draft = 0;
+    let converted = 0;
+    for (const d of docs) {
+      const s = (d.status ?? 'draft').toLowerCase();
+      const isExpired =
+        s === 'expired' ||
+        (typeof d.validUntil === 'string' &&
+          new Date(d.validUntil).getTime() < now);
+      if (s === 'draft') draft += 1;
+      if (s === 'draft' || s === 'sent') open += 1;
+      if (s === 'accepted') accepted += 1;
+      if (s === 'rejected') rejected += 1;
+      if (s === 'converted') converted += 1;
+      if (isExpired) expired += 1;
+    }
+    const conversionRatePct =
+      docs.length > 0
+        ? Math.round(((accepted + converted) / docs.length) * 1000) / 10
+        : null;
+    return {
+      totalOpen: open,
+      accepted,
+      rejected,
+      expired,
+      draft,
+      conversionRatePct,
+    };
+  } catch (e) {
+    recordRustFallback({
+      entity: 'quotation',
+      op: 'list',
+      errorCode: e instanceof RustApiError ? e.code : undefined,
+      status: e instanceof RustApiError ? e.status : undefined,
+    });
+    return empty;
+  }
+}
+
 /* ─── Read ────────────────────────────────────────────────────── */
 
 export interface QuotationListResult {

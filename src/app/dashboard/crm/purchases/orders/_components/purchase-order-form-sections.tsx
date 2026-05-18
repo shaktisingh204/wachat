@@ -19,6 +19,7 @@ import {
   ZoruTextarea,
 } from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 
 export interface HeaderSectionProps {
   defaultPoNo: string;
@@ -306,18 +307,14 @@ export function NotesSection({
         </div>
         <div>
           <ZoruLabel htmlFor="status">Status</ZoruLabel>
-          <select
-            id="status"
-            value={statusValue}
-            onChange={(e) => onStatusChange(e.target.value)}
-            className="mt-1.5 block w-full rounded-md border border-zoru-line bg-zoru-surface px-3 py-2 text-[13px] text-zoru-ink focus:outline-none focus:ring-2 focus:ring-zoru-primary"
-          >
-            {statusOptions.map((s) => (
-              <option key={s.value} value={s.value}>
-                {s.label}
-              </option>
-            ))}
-          </select>
+          <div className="mt-1.5">
+            <EnumFormField
+              enumName="purchaseOrderStatusV2"
+              name="__status_picker"
+              initialId={statusValue || null}
+              onChange={(id) => onStatusChange(id ?? '')}
+            />
+          </div>
         </div>
         <div>
           <ZoruLabel htmlFor="attachmentsFileId">Attachments</ZoruLabel>

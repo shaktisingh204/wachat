@@ -338,8 +338,16 @@ the recommended tier.
 ## 8. Open questions
 
 1. Should "viewer cap" be a hard cap or soft (warn-only)? §3.2 lists
-   numbers but the WS gateway design in §4 only enforces editor cap —
-   pending Phase 3 §6 backpressure decision.
+   numbers but the WS gateway design in §4 only enforces editor cap.
+   **Decision (2026-05-18):** the viewer cap is **soft** in Phase 3 — the
+   per-tier numbers in §3.2 are an *advisory* ceiling enforced by client UX
+   (banner + "upgrade" CTA), not by the gateway. Rationale: `sabflow-ws-
+   gateway-node.md` §5 already shears slow viewers via the 1 MiB send-queue
+   cap and `4500` close, and §6 only counts editor seats. Hardening to a
+   gateway-enforced viewer counter is deferred to Phase 8 §5 once the
+   `sabflow_collab_minutes` meter ships — at that point viewers above the
+   cap get demoted to polling rather than rejected, matching the editor
+   meter-cap UX (read-only demotion).
 2. When a workspace admin is over the per-doc editor cap, do they get
    a forced-bump-someone-else override? Punt to Phase 8 §10 (workspace
    admin override).

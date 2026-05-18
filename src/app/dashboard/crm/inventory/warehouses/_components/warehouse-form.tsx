@@ -24,15 +24,11 @@ import {
     ZoruCheckbox,
     ZoruInput,
     ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
     ZoruTextarea,
     useZoruToast,
 } from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 
 import { saveCrmWarehouse } from '@/app/actions/crm-warehouses.actions';
 import type { CrmWarehouse } from '@/lib/definitions';
@@ -139,39 +135,19 @@ export function WarehouseForm({ initialData }: WarehouseFormProps) {
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
                         <ZoruLabel htmlFor="type">Type</ZoruLabel>
-                        <ZoruSelect
+                        <EnumFormField
+                            enumName="warehouseType"
                             name="type"
-                            defaultValue={initialData?.type ?? 'main'}
-                        >
-                            <ZoruSelectTrigger id="type">
-                                <ZoruSelectValue />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {TYPE_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                            initialId={initialData?.type ?? 'main'}
+                        />
                     </div>
                     <div className="space-y-1.5">
                         <ZoruLabel htmlFor="status">Status</ZoruLabel>
-                        <ZoruSelect
+                        <EnumFormField
+                            enumName="warehouseStatus"
                             name="status"
-                            defaultValue={initialData?.status ?? 'active'}
-                        >
-                            <ZoruSelectTrigger id="status">
-                                <ZoruSelectValue />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                            initialId={initialData?.status ?? 'active'}
+                        />
                     </div>
                 </div>
 

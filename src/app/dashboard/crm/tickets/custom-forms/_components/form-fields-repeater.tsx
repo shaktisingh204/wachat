@@ -18,30 +18,12 @@ import {
   ZoruButton,
   ZoruInput,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruSwitch,
   ZoruTextarea,
 } from '@/components/zoruui';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 
 import type { CrmFormFieldDef } from '@/lib/rust-client/crm-forms';
-
-const FIELD_TYPE_OPTIONS = [
-  { value: 'text', label: 'Text' },
-  { value: 'textarea', label: 'Textarea' },
-  { value: 'email', label: 'Email' },
-  { value: 'phone', label: 'Phone' },
-  { value: 'url', label: 'URL' },
-  { value: 'number', label: 'Number' },
-  { value: 'date', label: 'Date' },
-  { value: 'select', label: 'Select' },
-  { value: 'radio', label: 'Radio' },
-  { value: 'checkbox', label: 'Checkbox' },
-  { value: 'file', label: 'File' },
-];
 
 const OPTIONS_TYPES = new Set(['select', 'radio', 'checkbox']);
 
@@ -197,27 +179,16 @@ export function FormFieldsRepeater({ initialFields }: FormFieldsRepeaterProps) {
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <ZoruLabel htmlFor={`${prefix}-type-trigger`}>Type</ZoruLabel>
-                    <ZoruSelect
-                      value={row.type ?? 'text'}
-                      onValueChange={(v) => updateRow(row.__key, { type: v })}
-                    >
-                      <ZoruSelectTrigger id={`${prefix}-type-trigger`}>
-                        <ZoruSelectValue placeholder="Type" />
-                      </ZoruSelectTrigger>
-                      <ZoruSelectContent>
-                        {FIELD_TYPE_OPTIONS.map((o) => (
-                          <ZoruSelectItem key={o.value} value={o.value}>
-                            {o.label}
-                          </ZoruSelectItem>
-                        ))}
-                      </ZoruSelectContent>
-                    </ZoruSelect>
-                    {/* Hidden mirror so the form action sees the type. */}
-                    <input
-                      type="hidden"
+                    <ZoruLabel>Type</ZoruLabel>
+                    <EnumFormField
+                      enumName="formFieldType"
                       name={`${prefix}[type]`}
-                      value={row.type ?? 'text'}
+                      initialId={row.type ?? 'text'}
+                      placeholder="Type"
+                      allowInlineCreate={false}
+                      onChange={(v) =>
+                        updateRow(row.__key, { type: v ?? 'text' })
+                      }
                     />
                   </div>
                   <div className="space-y-1.5">

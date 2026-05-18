@@ -49,6 +49,20 @@ const INPUT_TYPES = new Set([
 ]);
 
 /**
+ * Optional execution context. Plumbed from `executeFlow` so forge blocks can
+ * resolve cross-resource access (sub-workflow invocation, env vars, SabFile
+ * uploads) under the calling workspace's identity.
+ *
+ * `userId`       — workspace owner driving the current run.
+ * `callerStack`  — flow ids currently on the execution stack (oldest first).
+ *                  Used by `forge_execute_workflow` for cycle detection.
+ */
+export type ExecuteBlockContext = {
+  userId?: string;
+  callerStack?: string[];
+};
+
+/**
  * Executes a single block and returns messages, variable updates, and
  * navigation hints.  The `edges` array is required for blocks that perform
  * their own edge selection (condition, redirect, etc.).
@@ -58,11 +72,12 @@ export async function executeBlock(
   variables: Record<string, string>,
   edges: Edge[],
   userInput?: string,
+  ctx?: ExecuteBlockContext,
 ): Promise<BlockExecutionResult> {
   // Forge blocks are dispatched via the schema-driven registry. Caught before
   // the switch so we don't have to enumerate every forge type below.
   if (block.type.startsWith('forge_')) {
-    return executeForgeBlock(block, variables, edges);
+    return executeForgeBlock(block, variables, edges, ctx);
   }
 
   switch (block.type) {
@@ -373,6 +388,7 @@ async function executeForgeBlock(
   block: Block,
   variables: Record<string, string>,
   edges: Edge[],
+  ctx?: ExecuteBlockContext,
 ): Promise<BlockExecutionResult> {
   const forge = getForgeBlock(block.type);
   if (!forge) {
@@ -415,6 +431,8 @@ async function executeForgeBlock(
       options: resolvedOptions,
       variables,
       credential,
+      userId: ctx?.userId,
+      callerStack: ctx?.callerStack,
     });
   });
 

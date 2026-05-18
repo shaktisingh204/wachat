@@ -31,15 +31,11 @@ import {
     ZoruCard,
     ZoruInput,
     ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
     ZoruTextarea,
     useZoruToast,
 } from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import { SabFilePickerButton } from '@/components/sabfiles';
 
 import {
@@ -276,26 +272,16 @@ export function StockTransferForm({ initial }: StockTransferFormProps) {
                 {/* Status */}
                 <div className="space-y-1.5 sm:max-w-xs">
                     <ZoruLabel htmlFor="status">Status</ZoruLabel>
-                    <ZoruSelect
+                    <EnumFormField
+                        enumName="stockTransferStatus"
                         name="status"
-                        defaultValue={
+                        initialId={
                             (initial?.status &&
                             initial.status !== 'archived'
                                 ? initial.status
                                 : 'Draft') as CrmStockTransferStatus
                         }
-                    >
-                        <ZoruSelectTrigger id="status">
-                            <ZoruSelectValue />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                            {STATUS_OPTIONS.map((o) => (
-                                <ZoruSelectItem key={o.value} value={o.value}>
-                                    {o.label}
-                                </ZoruSelectItem>
-                            ))}
-                        </ZoruSelectContent>
-                    </ZoruSelect>
+                    />
                 </div>
 
                 {/* Line items */}

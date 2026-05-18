@@ -1,14 +1,18 @@
 /**
- * Edit quotation — `/dashboard/crm/sales/quotations/[id]/edit`.
+ * Edit quotation — `/dashboard/crm/sales/quotations/[id]/edit` (§1D.3
+ * rebuild — Phase 1.1B Wave 2 partial).
  *
  * Server component. Hydrates the existing quotation, fetches the
  * custom-field definitions, and hands both to the shared
  * `<QuotationForm>` (re-used from the Create flow). The form submits a
  * PATCH because `_id` is rendered as a hidden input.
+ *
+ * Mirrors `accounts/[accountId]/edit/page.tsx`.
  */
 
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { FileText } from 'lucide-react';
+import { ArrowLeft, FileText } from 'lucide-react';
 
 import { CrmPageHeader } from '../../../../_components/crm-page-header';
 import { QuotationForm } from '../../_components/quotation-form';
@@ -37,9 +41,19 @@ export default async function EditQuotationPage({ params }: PageProps) {
 
   return (
     <div className="flex w-full flex-col gap-6">
+      <div>
+        <Link
+          href={`/dashboard/crm/sales/quotations/${id}`}
+          className="inline-flex items-center gap-1.5 text-[12.5px] text-zoru-ink-muted hover:text-zoru-ink"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" />
+          Back to quotation
+        </Link>
+      </div>
+
       <CrmPageHeader
         title={title}
-        subtitle="Update quotation details."
+        subtitle="Update quotation details, line items, and terms."
         icon={FileText}
         breadcrumbs={[
           { label: 'CRM', href: '/dashboard/crm' },
@@ -52,6 +66,7 @@ export default async function EditQuotationPage({ params }: PageProps) {
           { label: 'Edit' },
         ]}
       />
+
       <QuotationForm initial={quotation} customFields={customFields} />
     </div>
   );

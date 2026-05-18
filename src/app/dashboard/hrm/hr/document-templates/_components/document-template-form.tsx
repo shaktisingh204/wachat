@@ -1,5 +1,7 @@
 'use client';
 
+// TODO 1E.sweep: type/category dropdowns -> <EnumFormField>. See plan §1E.
+
 /**
  * <DocumentTemplateForm /> — create + edit form for HR Document Templates.
  *

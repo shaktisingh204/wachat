@@ -13,15 +13,11 @@ import {
   ZoruButton,
   ZoruCard,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruSkeleton,
   ZoruSwitch,
   useZoruToast,
 } from '@/components/zoruui';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 import {
   getTaskSettings,
@@ -162,19 +158,13 @@ export default function TaskSettingsPage() {
                   <ZoruLabel htmlFor="default_priority" className="text-[13px] text-zoru-ink">
                     Default Priority
                   </ZoruLabel>
-                  <ZoruSelect
-                    name="default_priority"
-                    defaultValue={settings?.default_priority ?? 'medium'}
-                  >
-                    <ZoruSelectTrigger id="default_priority" className="mt-1.5">
-                      <ZoruSelectValue />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                      <ZoruSelectItem value="low">Low</ZoruSelectItem>
-                      <ZoruSelectItem value="medium">Medium</ZoruSelectItem>
-                      <ZoruSelectItem value="high">High</ZoruSelectItem>
-                    </ZoruSelectContent>
-                  </ZoruSelect>
+                  <div className="mt-1.5">
+                    <EnumFormField
+                      name="default_priority"
+                      enumName="priorityMedium"
+                      initialId={settings?.default_priority ?? 'medium'}
+                    />
+                  </div>
                 </div>
               </div>
             </section>
