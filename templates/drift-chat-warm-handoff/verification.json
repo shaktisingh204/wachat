@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "templateId": "drift-chat-warm-handoff",
+  "cases": [
+    {
+      "id": "handoff",
+      "description": "Drift routes a chat to humans, the workflow notifies Slack, HubSpot, and the visitor.",
+      "triggerPayload": {
+        "data": { "conversationId": "conv-1", "contact": { "email": "visitor@example.com" }, "transcript": "Hi I need help with..." }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

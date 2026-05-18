@@ -1,0 +1,10 @@
+{
+  "id": "drift-chat-warm-handoff",
+  "name": "Drift Live Chat Warm Handoff",
+  "description": "When Drift routes a conversation to a human, this workflow fetches full context, posts a transcript into #live-support, tags the HubSpot contact, and emails the visitor an ETA. Agents pick up with context already in hand and the customer feels the warm hand-off.",
+  "category": "Support",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["drift", "support", "hubspot", "slack", "sendgrid", "live-chat"],
+  "version": "0.1.0"
+}
