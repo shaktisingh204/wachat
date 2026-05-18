@@ -1,0 +1,126 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_woo_order",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "woocommerce.order.created",
+    "options": {
+      "path": "/webhooks/woocommerce-order-to-shipstation",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Woo-Token",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_woo_webhook",
+      "name": "Woo Order Created",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "httpMethod": "POST", "path": "woocommerce-order-to-shipstation", "responseMode": "onReceived" },
+      "webhookId": "woocommerce-order-to-shipstation-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Order",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "orderNumber", "value": "={{ $json.number }}" },
+            { "name": "customerEmail", "value": "={{ $json.billing.email }}" },
+            { "name": "customerName", "value": "={{ $json.billing.first_name }} {{ $json.billing.last_name }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_ss_create",
+      "name": "Create ShipStation Order",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.SS_API }}/orders/createorder",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "orderNumber", "value": "={{ $json.orderNumber }}" },
+            { "name": "billTo.email", "value": "={{ $json.customerEmail }}" }
+          ]
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpBasicAuth"
+      },
+      "credentials": { "httpBasicAuth": { "id": "ss-cred", "name": "ShipStation Basic" } }
+    },
+    {
+      "id": "n_extract_label",
+      "name": "Extract Label",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "trackingNumber", "value": "={{ $json.trackingNumber || 'pending' }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_email",
+      "name": "Email Buyer",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "={{ $vars.STORE_FROM_EMAIL }}",
+        "toEmail": "={{ $node['Extract Order'].json.customerEmail }}",
+        "subject": "Your order #{{ $node['Extract Order'].json.orderNumber }} is on its way",
+        "contentType": "text/html",
+        "content": "<p>Tracking will appear shortly: {{ $json.trackingNumber }}</p>"
+      },
+      "credentials": { "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid API" } }
+    },
+    {
+      "id": "n_mongo_log",
+      "name": "Log Order",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [1200, 0],
+      "parameters": { "operation": "insert", "collection": "woo_orders" },
+      "credentials": { "mongoDb": { "id": "mongo-cred", "name": "Mongo" } }
+    }
+  ],
+  "connections": {
+    "n_woo_webhook": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": { "main": [[{ "node": "n_ss_create", "type": "main", "index": 0 }]] },
+    "n_ss_create": { "main": [[{ "node": "n_extract_label", "type": "main", "index": 0 }]] },
+    "n_extract_label": { "main": [[{ "node": "n_email", "type": "main", "index": 0 }]] },
+    "n_email": { "main": [[{ "node": "n_mongo_log", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_woo_webhook", "n_extract", "n_ss_create", "n_extract_label", "n_email", "n_mongo_log"]
+    }
+  ],
+  "variables": [
+    { "id": "v_ss", "name": "SS_API", "defaultValue": "https://ssapi.shipstation.com" },
+    { "id": "v_f", "name": "STORE_FROM_EMAIL", "defaultValue": "store@example.com" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
