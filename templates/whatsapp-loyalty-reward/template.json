@@ -1,0 +1,10 @@
+{
+  "id": "whatsapp-loyalty-reward",
+  "name": "WhatsApp Loyalty Reward",
+  "description": "On every Shopify order, increments a Redis counter for the buyer and routes them through a tiered loyalty switch at 10, 25, and 50 lifetime orders. Each qualifying tier generates a Shopify discount code, delivers it to the customer over a WhatsApp Business template, tags the buyer's Klaviyo profile with the tier, and posts a celebration message to the #loyalty-program Slack channel.",
+  "category": "WhatsApp",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["whatsapp", "shopify", "loyalty", "redis", "klaviyo", "rewards"],
+  "version": "0.1.0"
+}

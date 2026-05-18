@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "templateId": "whatsapp-loyalty-reward",
+  "cases": [
+    {
+      "id": "bronze-tier-10",
+      "description": "Customer's 10th order — bronze tier rewards fan out to all four integrations.",
+      "triggerPayload": {
+        "order_number": "1010",
+        "customer": {
+          "id": "cust_001",
+          "first_name": "Mira",
+          "phone": "+14155550101",
+          "email": "mira@example.com"
+        },
+        "total_price": "84.00",
+        "currency": "USD"
+      },
+      "fixtures": {
+        "redis.incr": { "status": 200, "body": { "value": 10 } }
+      },
+      "expect": {
+        "finalStatus": "success",
+        "executedBlocks": [
+          "n_shopify_trigger",
+          "n_redis_incr",
+          "n_tier_switch",
+          "n_set_tier_ten",
+          "n_shopify_discount",
+          "n_whatsapp_send",
+          "n_klaviyo_tag",
+          "n_slack_post"
+        ]
+      }
+    },
+    {
+      "id": "no-reward",
+      "description": "Customer's 7th order — falls through to the noop branch, no integrations fire.",
+      "triggerPayload": {
+        "order_number": "1007",
+        "customer": {
+          "id": "cust_002",
+          "first_name": "Theo",
+          "phone": "+14155550202",
+          "email": "theo@example.com"
+        },
+        "total_price": "42.00",
+        "currency": "USD"
+      },
+      "fixtures": {
+        "redis.incr": { "status": 200, "body": { "value": 7 } }
+      },
+      "expect": {
+        "finalStatus": "success",
+        "executedBlocks": [
+          "n_shopify_trigger",
+          "n_redis_incr",
+          "n_tier_switch",
+          "n_noop"
+        ]
+      }
+    }
+  ]
+}
