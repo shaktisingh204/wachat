@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "adp-payroll-sync",
+  "cases": [
+    {
+      "id": "weekly-sync",
+      "description": "Monday cron syncs ADP earnings into Mongo + Airtable.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

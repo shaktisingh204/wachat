@@ -1,0 +1,10 @@
+{
+  "id": "adp-payroll-sync",
+  "name": "ADP Payroll Sync",
+  "description": "Every Monday morning, fetches the last week of ADP earnings via the ADP HTTP API and splits the result into one record per employee. Each record is fanned out to MongoDB for analytics and to Airtable so the People team has a friendly editable view, keeping HR systems in lockstep.",
+  "category": "HR",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["adp", "payroll", "mongodb", "airtable", "hr", "cron"],
+  "version": "0.1.0"
+}

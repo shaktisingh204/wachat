@@ -1,0 +1,116 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_cron_weekly",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": { "schedule": "0 6 * * MON", "enabled": true }
+  },
+  "nodes": [
+    {
+      "id": "n_cron_weekly",
+      "name": "Every Monday",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "rule": { "interval": [{ "field": "cronExpression", "expression": "0 6 * * MON" }] } }
+    },
+    {
+      "id": "n_adp_fetch",
+      "name": "Fetch ADP Earnings",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.ADP_API_BASE }}/payroll/v1/workers/earnings?from={{ $vars.WEEK_START }}&to={{ $vars.WEEK_END }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "oAuth2Api"
+      },
+      "credentials": {
+        "oAuth2Api": { "id": "adp-cred", "name": "ADP OAuth2" }
+      }
+    },
+    {
+      "id": "n_split",
+      "name": "One Per Employee",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": { "batchSize": 1 }
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "associateOID", "value": "={{ $json.associateOID }}" },
+            { "name": "grossPay", "value": "={{ $json.earnings.gross }}" },
+            { "name": "netPay", "value": "={{ $json.earnings.net }}" },
+            { "name": "weekEnding", "value": "={{ $json.payPeriod.endDate }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_mongo_upsert",
+      "name": "Upsert in Mongo",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [960, -100],
+      "parameters": {
+        "operation": "update",
+        "collection": "adp_earnings",
+        "updateKey": "associateOID",
+        "upsert": true
+      },
+      "credentials": { "mongoDb": { "id": "mongo-cred", "name": "Mongo" } }
+    },
+    {
+      "id": "n_airtable_upsert",
+      "name": "Upsert in Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 1,
+      "position": [960, 100],
+      "parameters": {
+        "operation": "upsert",
+        "application": "={{ $vars.AIRTABLE_BASE_ID }}",
+        "table": "Payroll",
+        "matchingColumns": "associateOID"
+      },
+      "credentials": { "airtableApi": { "id": "airtable-cred", "name": "Airtable" } }
+    }
+  ],
+  "connections": {
+    "n_cron_weekly": { "main": [[{ "node": "n_adp_fetch", "type": "main", "index": 0 }]] },
+    "n_adp_fetch": { "main": [[{ "node": "n_split", "type": "main", "index": 0 }]] },
+    "n_split": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": {
+      "main": [[
+        { "node": "n_mongo_upsert", "type": "main", "index": 0 },
+        { "node": "n_airtable_upsert", "type": "main", "index": 0 }
+      ]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cron_weekly", "n_adp_fetch", "n_split", "n_extract", "n_mongo_upsert", "n_airtable_upsert"]
+    }
+  ],
+  "variables": [
+    { "id": "v_adp", "name": "ADP_API_BASE", "defaultValue": "https://api.adp.com" },
+    { "id": "v_ws", "name": "WEEK_START", "defaultValue": "" },
+    { "id": "v_we", "name": "WEEK_END", "defaultValue": "" },
+    { "id": "v_air", "name": "AIRTABLE_BASE_ID", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
