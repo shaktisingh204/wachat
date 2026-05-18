@@ -1,0 +1,10 @@
+{
+  "id": "azure-devops-pipeline-monitor",
+  "name": "Azure DevOps Pipeline Monitor",
+  "description": "Listens for the Azure DevOps `pipeline.failed` webhook, fetches the failing run's log tail through the ADO REST API, and fans the result out to a #devops Slack channel and a new Linear ticket on the platform team. Cuts incident triage time when builds break overnight.",
+  "category": "Developer",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["azure-devops", "ci", "slack", "linear", "devops", "webhook"],
+  "version": "0.1.0"
+}

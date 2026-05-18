@@ -1,0 +1,122 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_hb_fault",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "honeybadger.fault",
+    "options": {
+      "path": "/webhooks/honeybadger-on-call-router",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-HB-Token",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_hb_webhook",
+      "name": "Honeybadger Fault",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "httpMethod": "POST", "path": "honeybadger-on-call-router", "responseMode": "onReceived" },
+      "webhookId": "honeybadger-on-call-router-webhook"
+    },
+    {
+      "id": "n_extract_fault",
+      "name": "Extract Fault",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "title", "value": "={{ $json.fault.class }}: {{ $json.fault.message }}" },
+            { "name": "url", "value": "={{ $json.fault.url }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_pd_oncall",
+      "name": "Lookup On-Call",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.PD_API }}/oncalls?schedule_ids[]={{ $vars.PD_SCHEDULE_ID }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth"
+      },
+      "credentials": { "httpHeaderAuth": { "id": "pagerduty-cred", "name": "PagerDuty Token" } }
+    },
+    {
+      "id": "n_extract_user",
+      "name": "Extract On-Call User",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "slackHandle", "value": "={{ $json.oncalls[0].user.summary }}" },
+            { "name": "userEmail", "value": "={{ $json.oncalls[0].user.email }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_slack_lookup",
+      "name": "Find Slack User",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "user",
+        "operation": "info",
+        "user": "={{ $json.userEmail }}"
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    },
+    {
+      "id": "n_slack_dm",
+      "name": "DM On-Call",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $json.user.id }}",
+        "text": ":rotating_light: Honeybadger fault: *{{ $node['Extract Fault'].json.title }}* — <{{ $node['Extract Fault'].json.url }}|open>"
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    }
+  ],
+  "connections": {
+    "n_hb_webhook": { "main": [[{ "node": "n_extract_fault", "type": "main", "index": 0 }]] },
+    "n_extract_fault": { "main": [[{ "node": "n_pd_oncall", "type": "main", "index": 0 }]] },
+    "n_pd_oncall": { "main": [[{ "node": "n_extract_user", "type": "main", "index": 0 }]] },
+    "n_extract_user": { "main": [[{ "node": "n_slack_lookup", "type": "main", "index": 0 }]] },
+    "n_slack_lookup": { "main": [[{ "node": "n_slack_dm", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_hb_webhook", "n_extract_fault", "n_pd_oncall", "n_extract_user", "n_slack_lookup", "n_slack_dm"]
+    }
+  ],
+  "variables": [
+    { "id": "v_pd", "name": "PD_API", "defaultValue": "https://api.pagerduty.com" },
+    { "id": "v_s", "name": "PD_SCHEDULE_ID", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

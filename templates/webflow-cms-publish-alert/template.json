@@ -1,0 +1,10 @@
+{
+  "id": "webflow-cms-publish-alert",
+  "name": "Webflow CMS Publish Alert",
+  "description": "When a Webflow CMS item is published, the flow fans out a Slack post into #marketing and a LinkedIn Page update so the new article gets distribution within minutes of going live. A Mongo log captures the publish event for content-cadence dashboards.",
+  "category": "Marketing",
+  "complexity": "beginner",
+  "authorName": "SabNode",
+  "tags": ["webflow", "linkedin", "slack", "marketing", "cms", "webhook"],
+  "version": "0.1.0"
+}

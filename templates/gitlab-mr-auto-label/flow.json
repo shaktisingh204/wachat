@@ -1,0 +1,129 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_gl_mr_open",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "gitlab.mr.opened",
+    "options": {
+      "path": "/webhooks/gitlab-mr-auto-label",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Gitlab-Token",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_gl_webhook",
+      "name": "MR Opened",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "httpMethod": "POST", "path": "gitlab-mr-auto-label", "responseMode": "onReceived" },
+      "webhookId": "gitlab-mr-auto-label-webhook"
+    },
+    {
+      "id": "n_extract_mr",
+      "name": "Extract MR Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "projectId", "value": "={{ $json.project.id }}" },
+            { "name": "iid", "value": "={{ $json.object_attributes.iid }}" },
+            { "name": "title", "value": "={{ $json.object_attributes.title }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_fetch_diff",
+      "name": "Fetch MR Diff",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.GITLAB_API_BASE }}/api/v4/projects/{{ $json.projectId }}/merge_requests/{{ $json.iid }}/changes",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth"
+      },
+      "credentials": { "httpHeaderAuth": { "id": "gitlab-cred", "name": "GitLab PAT" } }
+    },
+    {
+      "id": "n_gpt_labels",
+      "name": "Suggest Labels",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "authentication": "apiKey",
+        "resource": "chat",
+        "operation": "complete",
+        "model": "gpt-4o-mini",
+        "messages": {
+          "values": [
+            { "role": "system", "content": "Return JSON: { labels: string[] } using only labels from: bug, feature, refactor, docs, test, deps, security." },
+            { "role": "user", "content": "Title: {{ $node['Extract MR Fields'].json.title }}\n\nChanges: {{ JSON.stringify($json.changes) }}" }
+          ]
+        },
+        "options": { "responseFormat": "json_object", "temperature": 0 }
+      },
+      "credentials": { "openAiApi": { "id": "openai-cred", "name": "OpenAI API" } }
+    },
+    {
+      "id": "n_parse_labels",
+      "name": "Parse Labels",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "labels", "value": "={{ JSON.parse($json.message.content).labels.join(',') }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_gl_label",
+      "name": "Apply Labels",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1200, 0],
+      "parameters": {
+        "method": "PUT",
+        "url": "={{ $vars.GITLAB_API_BASE }}/api/v4/projects/{{ $node['Extract MR Fields'].json.projectId }}/merge_requests/{{ $node['Extract MR Fields'].json.iid }}",
+        "sendBody": true,
+        "bodyParameters": { "parameters": [{ "name": "add_labels", "value": "={{ $json.labels }}" }] },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth"
+      },
+      "credentials": { "httpHeaderAuth": { "id": "gitlab-cred", "name": "GitLab PAT" } }
+    }
+  ],
+  "connections": {
+    "n_gl_webhook": { "main": [[{ "node": "n_extract_mr", "type": "main", "index": 0 }]] },
+    "n_extract_mr": { "main": [[{ "node": "n_fetch_diff", "type": "main", "index": 0 }]] },
+    "n_fetch_diff": { "main": [[{ "node": "n_gpt_labels", "type": "main", "index": 0 }]] },
+    "n_gpt_labels": { "main": [[{ "node": "n_parse_labels", "type": "main", "index": 0 }]] },
+    "n_parse_labels": { "main": [[{ "node": "n_gl_label", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_gl_webhook", "n_extract_mr", "n_fetch_diff", "n_gpt_labels", "n_parse_labels", "n_gl_label"]
+    }
+  ],
+  "variables": [
+    { "id": "v_gl", "name": "GITLAB_API_BASE", "defaultValue": "https://gitlab.com" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

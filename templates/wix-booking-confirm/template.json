@@ -1,0 +1,10 @@
+{
+  "id": "wix-booking-confirm",
+  "name": "Wix Booking Confirmation",
+  "description": "When Wix Bookings emits `booking.created`, the flow fans the new appointment out to SendGrid for a branded customer email and to Google Calendar for the staff calendar, then logs the booking in Mongo for reporting. Confirms appointments without manual back-and-forth.",
+  "category": "Onboarding",
+  "complexity": "beginner",
+  "authorName": "SabNode",
+  "tags": ["wix", "google-calendar", "sendgrid", "bookings", "onboarding", "webhook"],
+  "version": "0.1.0"
+}

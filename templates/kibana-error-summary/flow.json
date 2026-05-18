@@ -1,0 +1,113 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_cron_hourly",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": { "schedule": "0 * * * *", "enabled": true }
+  },
+  "nodes": [
+    {
+      "id": "n_cron_hourly",
+      "name": "Hourly",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "rule": { "interval": [{ "field": "hours", "hoursInterval": 1 }] } }
+    },
+    {
+      "id": "n_kibana_search",
+      "name": "Search Errors (Kibana)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.KIBANA_API }}/api/console/proxy?path=logs-*/_search&method=POST",
+        "sendBody": true,
+        "bodyParameters": { "parameters": [{ "name": "query", "value": "level:ERROR AND @timestamp:[now-1h TO now]" }] },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth"
+      },
+      "credentials": { "httpHeaderAuth": { "id": "kibana-cred", "name": "Kibana API" } }
+    },
+    {
+      "id": "n_extract_hits",
+      "name": "Extract Hits",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "values": { "string": [{ "name": "raw", "value": "={{ JSON.stringify($json.hits.hits.map(h => h._source.message)) }}" }] }
+      }
+    },
+    {
+      "id": "n_gpt_cluster",
+      "name": "Cluster Summary",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "authentication": "apiKey",
+        "resource": "chat",
+        "operation": "complete",
+        "model": "gpt-4o-mini",
+        "messages": {
+          "values": [
+            { "role": "system", "content": "Cluster these log lines and produce a Slack-formatted bulleted summary with counts." },
+            { "role": "user", "content": "={{ $json.raw }}" }
+          ]
+        },
+        "options": { "temperature": 0.2 }
+      },
+      "credentials": { "openAiApi": { "id": "openai-cred", "name": "OpenAI API" } }
+    },
+    {
+      "id": "n_extract_summary",
+      "name": "Extract Summary",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "values": { "string": [{ "name": "digest", "value": "={{ $json.message.content }}" }] }
+      }
+    },
+    {
+      "id": "n_slack_post",
+      "name": "Post to #engineering",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.ENG_SLACK }}",
+        "text": ":memo: Hourly errors\n{{ $json.digest }}"
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    }
+  ],
+  "connections": {
+    "n_cron_hourly": { "main": [[{ "node": "n_kibana_search", "type": "main", "index": 0 }]] },
+    "n_kibana_search": { "main": [[{ "node": "n_extract_hits", "type": "main", "index": 0 }]] },
+    "n_extract_hits": { "main": [[{ "node": "n_gpt_cluster", "type": "main", "index": 0 }]] },
+    "n_gpt_cluster": { "main": [[{ "node": "n_extract_summary", "type": "main", "index": 0 }]] },
+    "n_extract_summary": { "main": [[{ "node": "n_slack_post", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cron_hourly", "n_kibana_search", "n_extract_hits", "n_gpt_cluster", "n_extract_summary", "n_slack_post"]
+    }
+  ],
+  "variables": [
+    { "id": "v_k", "name": "KIBANA_API", "defaultValue": "https://kibana.example.com" },
+    { "id": "v_s", "name": "ENG_SLACK", "defaultValue": "#engineering" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

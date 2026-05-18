@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "fly-machine-restart",
+  "cases": [
+    {
+      "id": "self-heal",
+      "description": "Health-down restart probe recovers or escalates.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "id": "terraform-cloud-plan-bot",
+  "name": "Terraform Cloud Plan Bot",
+  "description": "On a Terraform Cloud `workspace.plan` notification, fetches the plan JSON, asks GPT-4o to produce a human-readable diff summary highlighting risky resource changes, and posts it to Slack as a PR-style review thread. Cuts review fatigue on long Terraform plans.",
+  "category": "Developer",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["terraform", "openai", "slack", "iac", "review", "webhook"],
+  "version": "0.1.0"
+}

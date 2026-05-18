@@ -1,0 +1,10 @@
+{
+  "id": "gcp-pubsub-dlq-monitor",
+  "name": "GCP Pub/Sub DLQ Monitor",
+  "description": "Each hour, queries the configured GCP Pub/Sub dead-letter topic for undelivered messages. When the backlog exceeds the threshold, the flow opens a Linear ticket on the platform team and posts a #ops alert with sample payloads. Catches silent consumer failures fast.",
+  "category": "Ops",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["gcp", "pubsub", "dlq", "linear", "slack", "cron"],
+  "version": "0.1.0"
+}

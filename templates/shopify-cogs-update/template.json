@@ -1,0 +1,10 @@
+{
+  "id": "shopify-cogs-update",
+  "name": "Shopify COGS Update",
+  "description": "Once a week, fetches the supplier cost-of-goods sheet from Google Sheets, joins it onto your Shopify product list by SKU, and updates each product's cost per item via the Shopify Admin API. A summary lands in #ops Slack so finance knows margins were refreshed.",
+  "category": "E-commerce",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["shopify", "google-sheets", "cogs", "slack", "ecommerce", "cron"],
+  "version": "0.1.0"
+}

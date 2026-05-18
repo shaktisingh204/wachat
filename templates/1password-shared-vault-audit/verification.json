@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "1password-shared-vault-audit",
+  "cases": [
+    {
+      "id": "weekly-audit",
+      "description": "Stale 1Password members reported.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

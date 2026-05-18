@@ -1,0 +1,116 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_cw_alarm",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cloudwatch.alarm.rds_storage_low",
+    "options": {
+      "path": "/webhooks/aws-rds-low-storage",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-AWS-Token",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_cw_webhook",
+      "name": "CloudWatch Alarm",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "httpMethod": "POST", "path": "aws-rds-low-storage", "responseMode": "onReceived" },
+      "webhookId": "aws-rds-low-storage-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract DB",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "dbInstance", "value": "={{ $json.Trigger.Dimensions[0].value }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_describe",
+      "name": "Describe Instance",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.RDS_API }}/?Action=DescribeDBInstances&DBInstanceIdentifier={{ $json.dbInstance }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "aws"
+      },
+      "credentials": { "aws": { "id": "aws-cred", "name": "AWS" } }
+    },
+    {
+      "id": "n_compute",
+      "name": "Compute New Size",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "jsCode": "const cur = $input.first().json.AllocatedStorage || 100;\nreturn [{ json: { newSize: Math.ceil(cur * 1.2), oldSize: cur } }];"
+      }
+    },
+    {
+      "id": "n_modify",
+      "name": "Modify RDS",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [960, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.RDS_API }}/?Action=ModifyDBInstance&DBInstanceIdentifier={{ $node['Extract DB'].json.dbInstance }}&AllocatedStorage={{ $json.newSize }}&ApplyImmediately=true",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "aws"
+      },
+      "credentials": { "aws": { "id": "aws-cred", "name": "AWS" } }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack #db",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.DB_SLACK }}",
+        "text": ":floppy_disk: Scaled RDS *{{ $node['Extract DB'].json.dbInstance }}* {{ $json.oldSize }}→{{ $json.newSize }} GB."
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    }
+  ],
+  "connections": {
+    "n_cw_webhook": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": { "main": [[{ "node": "n_describe", "type": "main", "index": 0 }]] },
+    "n_describe": { "main": [[{ "node": "n_compute", "type": "main", "index": 0 }]] },
+    "n_compute": { "main": [[{ "node": "n_modify", "type": "main", "index": 0 }]] },
+    "n_modify": { "main": [[{ "node": "n_slack", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cw_webhook", "n_extract", "n_describe", "n_compute", "n_modify", "n_slack"]
+    }
+  ],
+  "variables": [
+    { "id": "v_r", "name": "RDS_API", "defaultValue": "https://rds.amazonaws.com" },
+    { "id": "v_s", "name": "DB_SLACK", "defaultValue": "#db" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

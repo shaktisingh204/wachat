@@ -1,0 +1,151 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_cron_quarter",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": {
+      "schedule": "0 6 1 1,4,7,10 *",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_cron_quarter",
+      "name": "Quarter Start",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 6 1 1,4,7,10 *" }] }
+      }
+    },
+    {
+      "id": "n_stripe_tx",
+      "name": "List Stripe Tax Transactions",
+      "type": "n8n-nodes-base.stripe",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "resource": "taxTransaction",
+        "operation": "list",
+        "filters": {
+          "created": { "gte": "={{ $vars.QUARTER_START_TS }}", "lt": "={{ $vars.QUARTER_END_TS }}" },
+          "limit": 100
+        }
+      },
+      "credentials": {
+        "stripeApi": { "id": "stripe-cred", "name": "Stripe API" }
+      }
+    },
+    {
+      "id": "n_normalize",
+      "name": "Normalize Rows",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "id", "value": "={{ $json.id }}" },
+            { "name": "amount", "value": "={{ $json.amount }}" },
+            { "name": "currency", "value": "={{ $json.currency }}" },
+            { "name": "jurisdiction", "value": "={{ $json.jurisdiction.country }}" },
+            { "name": "created", "value": "={{ $json.created }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_to_csv",
+      "name": "Build CSV",
+      "type": "n8n-nodes-base.spreadsheetFile",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "operation": "toFile",
+        "fileFormat": "csv",
+        "options": { "headerRow": true, "fileName": "stripe-tax-{{ $vars.QUARTER_LABEL }}.csv" }
+      }
+    },
+    {
+      "id": "n_s3_archive",
+      "name": "Archive to S3",
+      "type": "n8n-nodes-base.awsS3",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "operation": "upload",
+        "bucketName": "={{ $vars.TAX_ARCHIVE_BUCKET }}",
+        "fileName": "stripe-tax/{{ $vars.QUARTER_LABEL }}.csv",
+        "binaryData": true,
+        "binaryPropertyName": "data"
+      },
+      "credentials": {
+        "aws": { "id": "aws-cred", "name": "AWS S3" }
+      }
+    },
+    {
+      "id": "n_email_cpa",
+      "name": "Email CPA",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [1200, 0],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "={{ $vars.FINANCE_FROM_EMAIL }}",
+        "toEmail": "={{ $vars.CPA_EMAIL }}",
+        "subject": "Stripe Tax export — {{ $vars.QUARTER_LABEL }}",
+        "contentType": "text/html",
+        "content": "<p>Quarterly Stripe Tax transactions are archived at s3://{{ $vars.TAX_ARCHIVE_BUCKET }}/stripe-tax/{{ $vars.QUARTER_LABEL }}.csv.</p>"
+      },
+      "credentials": {
+        "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid API" }
+      }
+    }
+  ],
+  "connections": {
+    "n_cron_quarter": {
+      "main": [[{ "node": "n_stripe_tx", "type": "main", "index": 0 }]]
+    },
+    "n_stripe_tx": {
+      "main": [[{ "node": "n_normalize", "type": "main", "index": 0 }]]
+    },
+    "n_normalize": {
+      "main": [[{ "node": "n_to_csv", "type": "main", "index": 0 }]]
+    },
+    "n_to_csv": {
+      "main": [[{ "node": "n_s3_archive", "type": "main", "index": 0 }]]
+    },
+    "n_s3_archive": {
+      "main": [[{ "node": "n_email_cpa", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_cron_quarter",
+        "n_stripe_tx",
+        "n_normalize",
+        "n_to_csv",
+        "n_s3_archive",
+        "n_email_cpa"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_qs", "name": "QUARTER_START_TS", "defaultValue": "" },
+    { "id": "v_qe", "name": "QUARTER_END_TS", "defaultValue": "" },
+    { "id": "v_ql", "name": "QUARTER_LABEL", "defaultValue": "Q1-2026" },
+    { "id": "v_bucket", "name": "TAX_ARCHIVE_BUCKET", "defaultValue": "" },
+    { "id": "v_from", "name": "FINANCE_FROM_EMAIL", "defaultValue": "finance@example.com" },
+    { "id": "v_cpa", "name": "CPA_EMAIL", "defaultValue": "cpa@example.com" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_dd_alert",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "datadog.alert",
+    "options": {
+      "path": "/webhooks/datadog-monitor-snooze",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-DD-Token",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_dd_webhook",
+      "name": "Datadog Alert",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "httpMethod": "POST", "path": "datadog-monitor-snooze", "responseMode": "onReceived" },
+      "webhookId": "datadog-monitor-snooze-webhook"
+    },
+    {
+      "id": "n_mongo_lookup",
+      "name": "Lookup Maintenance",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "operation": "find",
+        "collection": "maintenance_windows",
+        "query": "={ \"host\": \"{{ $json.host }}\", \"active\": true }"
+      },
+      "credentials": { "mongoDb": { "id": "mongo-cred", "name": "Mongo" } }
+    },
+    {
+      "id": "n_route",
+      "name": "In Maintenance?",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            { "conditions": { "number": [{ "value1": "={{ $json.length }}", "operation": "larger", "value2": 0 }] }, "outputKey": "in_window" }
+          ]
+        },
+        "fallbackOutput": "page"
+      }
+    },
+    {
+      "id": "n_dd_snooze",
+      "name": "Snooze Monitor 1h",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, -100],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.DATADOG_API_BASE }}/api/v1/monitor/{{ $node['Datadog Alert'].json.body.monitor_id }}/downtimes",
+        "sendBody": true,
+        "bodyParameters": { "parameters": [{ "name": "duration", "value": "3600" }] },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth"
+      },
+      "credentials": { "httpHeaderAuth": { "id": "datadog-cred", "name": "Datadog API" } }
+    },
+    {
+      "id": "n_pagerduty",
+      "name": "Page On-Call",
+      "type": "n8n-nodes-base.pagerDuty",
+      "typeVersion": 1,
+      "position": [720, 100],
+      "parameters": {
+        "resource": "incident",
+        "operation": "create",
+        "title": "Datadog alert: {{ $node['Datadog Alert'].json.body.alert_title }}",
+        "serviceId": "={{ $vars.PAGERDUTY_SERVICE_ID }}",
+        "urgency": "high"
+      },
+      "credentials": { "pagerDutyApi": { "id": "pagerduty-cred", "name": "PagerDuty API" } }
+    }
+  ],
+  "connections": {
+    "n_dd_webhook": { "main": [[{ "node": "n_mongo_lookup", "type": "main", "index": 0 }]] },
+    "n_mongo_lookup": { "main": [[{ "node": "n_route", "type": "main", "index": 0 }]] },
+    "n_route": {
+      "in_window": [[{ "node": "n_dd_snooze", "type": "main", "index": 0 }]],
+      "page": [[{ "node": "n_pagerduty", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_dd_webhook", "n_mongo_lookup", "n_route", "n_dd_snooze", "n_pagerduty"]
+    }
+  ],
+  "variables": [
+    { "id": "v_dd", "name": "DATADOG_API_BASE", "defaultValue": "https://api.datadoghq.com" },
+    { "id": "v_pd", "name": "PAGERDUTY_SERVICE_ID", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

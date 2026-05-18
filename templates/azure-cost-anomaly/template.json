@@ -1,0 +1,10 @@
+{
+  "id": "azure-cost-anomaly",
+  "name": "Azure Cost Anomaly",
+  "description": "Daily, pulls yesterday's Azure cost via the Cost Management API and compares it with the trailing 7-day average. If the difference is more than two standard deviations the flow posts to #finance Slack and emails the finance lead; otherwise the data is appended to an Airtable cost log for trend tracking.",
+  "category": "Finance",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["azure", "cost", "anomaly", "slack", "airtable", "cron"],
+  "version": "0.1.0"
+}

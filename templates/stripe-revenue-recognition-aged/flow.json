@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_cron_month",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": { "schedule": "0 7 1 * *", "enabled": true }
+  },
+  "nodes": [
+    {
+      "id": "n_cron",
+      "name": "Month Start",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "rule": { "interval": [{ "field": "cronExpression", "expression": "0 7 1 * *" }] } }
+    },
+    {
+      "id": "n_stripe_subs",
+      "name": "List Subscriptions",
+      "type": "n8n-nodes-base.stripe",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": { "resource": "subscription", "operation": "list", "filters": { "status": "active", "limit": 100 } },
+      "credentials": { "stripeApi": { "id": "stripe-cred", "name": "Stripe API" } }
+    },
+    {
+      "id": "n_compute",
+      "name": "Compute Rollforward",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "jsCode": "const subs = $input.first().json || [];\nlet deferred = 0, recognized = 0;\nfor (const s of subs) { const amt = (s.items?.data?.[0]?.price?.unit_amount || 0) / 100; recognized += amt / 12; deferred += amt - amt/12; }\nreturn [{ json: { deferred, recognized } }];"
+      }
+    },
+    {
+      "id": "n_format",
+      "name": "Build Journal Entry",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "memo", "value": "Monthly RevRec rollforward" },
+            { "name": "debit", "value": "={{ $json.recognized }}" },
+            { "name": "credit", "value": "={{ $json.deferred }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_qbo",
+      "name": "Post to QuickBooks",
+      "type": "n8n-nodes-base.quickbooks",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "resource": "journalEntry",
+        "operation": "create",
+        "additionalFields": {
+          "memo": "={{ $json.memo }}",
+          "lines": "={{ JSON.stringify([{ amount: $json.debit, postingType: 'Debit' }, { amount: $json.credit, postingType: 'Credit' }]) }}"
+        }
+      },
+      "credentials": { "quickBooksOAuth2Api": { "id": "qbo-cred", "name": "QuickBooks" } }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack #finance",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.FIN_SLACK }}",
+        "text": ":receipt: Monthly RevRec posted — recognized ${{ $node['Compute Rollforward'].json.recognized }}, deferred ${{ $node['Compute Rollforward'].json.deferred }}"
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    }
+  ],
+  "connections": {
+    "n_cron": { "main": [[{ "node": "n_stripe_subs", "type": "main", "index": 0 }]] },
+    "n_stripe_subs": { "main": [[{ "node": "n_compute", "type": "main", "index": 0 }]] },
+    "n_compute": { "main": [[{ "node": "n_format", "type": "main", "index": 0 }]] },
+    "n_format": { "main": [[{ "node": "n_qbo", "type": "main", "index": 0 }]] },
+    "n_qbo": { "main": [[{ "node": "n_slack", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cron", "n_stripe_subs", "n_compute", "n_format", "n_qbo", "n_slack"]
+    }
+  ],
+  "variables": [
+    { "id": "v_s", "name": "FIN_SLACK", "defaultValue": "#finance" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

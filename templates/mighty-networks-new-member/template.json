@@ -1,0 +1,10 @@
+{
+  "id": "mighty-networks-new-member",
+  "name": "Mighty Networks New Member",
+  "description": "On a Mighty Networks `member.joined` webhook, fans the new member out to three side effects in parallel: a welcome DM via the Mighty messaging API, a hosted intro post in the community feed, and a #community Slack note. A Mongo log keeps a master roster for analytics.",
+  "category": "Onboarding",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["mighty-networks", "slack", "community", "onboarding", "mongo", "webhook"],
+  "version": "0.1.0"
+}

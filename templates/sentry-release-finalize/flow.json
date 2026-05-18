@@ -1,0 +1,116 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_deploy_hook",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "deploy.succeeded",
+    "options": {
+      "path": "/webhooks/sentry-release-finalize",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Deploy-Token",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_deploy_webhook",
+      "name": "Deploy Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "httpMethod": "POST", "path": "sentry-release-finalize", "responseMode": "onReceived" },
+      "webhookId": "sentry-release-finalize-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Release",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "version", "value": "={{ $json.version }}" },
+            { "name": "environment", "value": "={{ $json.environment }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_sentry_finalize",
+      "name": "Finalize Release",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, -100],
+      "parameters": {
+        "method": "PUT",
+        "url": "={{ $vars.SENTRY_API }}/api/0/organizations/{{ $vars.SENTRY_ORG }}/releases/{{ $json.version }}/",
+        "sendBody": true,
+        "bodyParameters": { "parameters": [{ "name": "dateReleased", "value": "={{ $now }}" }] },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth"
+      },
+      "credentials": { "httpHeaderAuth": { "id": "sentry-cred", "name": "Sentry API" } }
+    },
+    {
+      "id": "n_sentry_deploy",
+      "name": "Record Deploy",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 100],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.SENTRY_API }}/api/0/organizations/{{ $vars.SENTRY_ORG }}/releases/{{ $node['Extract Release'].json.version }}/deploys/",
+        "sendBody": true,
+        "bodyParameters": { "parameters": [{ "name": "environment", "value": "={{ $node['Extract Release'].json.environment }}" }] },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth"
+      },
+      "credentials": { "httpHeaderAuth": { "id": "sentry-cred", "name": "Sentry API" } }
+    },
+    {
+      "id": "n_slack_releases",
+      "name": "Post #releases",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.RELEASES_SLACK }}",
+        "text": ":rocket: Sentry release *{{ $node['Extract Release'].json.version }}* finalized in *{{ $node['Extract Release'].json.environment }}*."
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    }
+  ],
+  "connections": {
+    "n_deploy_webhook": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": {
+      "main": [[
+        { "node": "n_sentry_finalize", "type": "main", "index": 0 },
+        { "node": "n_sentry_deploy", "type": "main", "index": 0 }
+      ]]
+    },
+    "n_sentry_finalize": { "main": [[{ "node": "n_slack_releases", "type": "main", "index": 0 }]] },
+    "n_sentry_deploy": { "main": [[{ "node": "n_slack_releases", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_deploy_webhook", "n_extract", "n_sentry_finalize", "n_sentry_deploy", "n_slack_releases"]
+    }
+  ],
+  "variables": [
+    { "id": "v_s", "name": "SENTRY_API", "defaultValue": "https://sentry.io" },
+    { "id": "v_org", "name": "SENTRY_ORG", "defaultValue": "" },
+    { "id": "v_slk", "name": "RELEASES_SLACK", "defaultValue": "#releases" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

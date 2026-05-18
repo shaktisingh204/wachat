@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "grafana-alert-routing",
+  "cases": [
+    {
+      "id": "infra-alert",
+      "description": "Grafana alert is routed to the team-specific channel.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

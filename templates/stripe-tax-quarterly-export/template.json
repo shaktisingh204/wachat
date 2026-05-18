@@ -1,0 +1,10 @@
+{
+  "id": "stripe-tax-quarterly-export",
+  "name": "Stripe Tax Quarterly Export",
+  "description": "Runs on the first day of every quarter, pulls all Stripe Tax transactions for the prior period, normalizes them into a CSV spreadsheet, archives the file in an S3 bucket, and emails the link to the company CPA. Replaces the manual quarter-end tax export the finance team usually runs by hand.",
+  "category": "Finance",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["stripe", "tax", "s3", "sendgrid", "finance", "cron"],
+  "version": "0.1.0"
+}

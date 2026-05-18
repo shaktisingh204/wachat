@@ -1,0 +1,10 @@
+{
+  "id": "cloudwatch-budget-alarm",
+  "name": "CloudWatch Budget Alarm Router",
+  "description": "Receives AWS Budgets webhook events and routes them by severity — `INFO`, `WARN`, or `CRITICAL`. Each level lands in a different Slack channel and either notes, alerts, or opens a Linear cost-review ticket. Finance and engineering see exactly the signal they need.",
+  "category": "Finance",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["aws", "budgets", "cloudwatch", "slack", "finance", "webhook"],
+  "version": "0.1.0"
+}

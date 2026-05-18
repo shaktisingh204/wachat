@@ -1,0 +1,125 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_bc_cart",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "bigcommerce.cart.abandoned",
+    "options": {
+      "path": "/webhooks/bigcommerce-abandoned-cart",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-BC-Token",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_bc_webhook",
+      "name": "Cart Abandoned",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "httpMethod": "POST", "path": "bigcommerce-abandoned-cart", "responseMode": "onReceived" },
+      "webhookId": "bigcommerce-abandoned-cart-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Cart",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "cartId", "value": "={{ $json.data.id }}" },
+            { "name": "email", "value": "={{ $json.data.email }}" },
+            { "name": "total", "value": "={{ $json.data.cart_amount }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_wait",
+      "name": "Wait 1 Hour",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": { "unit": "hours", "amount": 1 }
+    },
+    {
+      "id": "n_check_open",
+      "name": "Still Abandoned?",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.BC_API }}/stores/{{ $vars.BC_STORE }}/v3/carts/{{ $json.cartId }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth"
+      },
+      "credentials": { "httpHeaderAuth": { "id": "bc-cred", "name": "BigCommerce" } }
+    },
+    {
+      "id": "n_klaviyo",
+      "name": "Trigger Klaviyo Flow",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [960, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.KLAVIYO_API }}/api/events/",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "event", "value": "abandoned_cart" },
+            { "name": "customer_properties.$email", "value": "={{ $node['Extract Cart'].json.email }}" }
+          ]
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth"
+      },
+      "credentials": { "httpHeaderAuth": { "id": "klaviyo-cred", "name": "Klaviyo API" } }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack #growth",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.GROWTH_SLACK }}",
+        "text": ":shopping_trolley: Abandoned cart recovery sent: ${{ $node['Extract Cart'].json.total }} ({{ $node['Extract Cart'].json.email }})"
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    }
+  ],
+  "connections": {
+    "n_bc_webhook": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": { "main": [[{ "node": "n_wait", "type": "main", "index": 0 }]] },
+    "n_wait": { "main": [[{ "node": "n_check_open", "type": "main", "index": 0 }]] },
+    "n_check_open": { "main": [[{ "node": "n_klaviyo", "type": "main", "index": 0 }]] },
+    "n_klaviyo": { "main": [[{ "node": "n_slack", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_bc_webhook", "n_extract", "n_wait", "n_check_open", "n_klaviyo", "n_slack"]
+    }
+  ],
+  "variables": [
+    { "id": "v_bc", "name": "BC_API", "defaultValue": "https://api.bigcommerce.com" },
+    { "id": "v_s", "name": "BC_STORE", "defaultValue": "" },
+    { "id": "v_k", "name": "KLAVIYO_API", "defaultValue": "https://a.klaviyo.com" },
+    { "id": "v_g", "name": "GROWTH_SLACK", "defaultValue": "#growth" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

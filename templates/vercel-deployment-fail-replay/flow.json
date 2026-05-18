@@ -1,0 +1,122 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_deploy_fail",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "deployment.failed",
+    "options": {
+      "path": "/webhooks/vercel-deployment-fail-replay",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Deploy-Token",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_deploy_webhook",
+      "name": "Deployment Failed",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "httpMethod": "POST", "path": "vercel-deployment-fail-replay", "responseMode": "onReceived" },
+      "webhookId": "vercel-deployment-fail-replay-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Deployment",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "deploymentId", "value": "={{ $json.payload.deployment.id }}" },
+            { "name": "project", "value": "={{ $json.payload.project.name }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_redeploy",
+      "name": "Trigger Redeploy",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.DEPLOY_API }}/v13/deployments?forceNew=1",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "name", "value": "={{ $json.project }}" },
+            { "name": "deploymentId", "value": "={{ $json.deploymentId }}" }
+          ]
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth"
+      },
+      "credentials": { "httpHeaderAuth": { "id": "deploy-cred", "name": "Deployment API Token" } }
+    },
+    {
+      "id": "n_wait",
+      "name": "Wait 30s",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": { "unit": "seconds", "amount": 30 }
+    },
+    {
+      "id": "n_check_status",
+      "name": "Check New Status",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [960, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.DEPLOY_API }}/v13/deployments/{{ $json.id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth"
+      },
+      "credentials": { "httpHeaderAuth": { "id": "deploy-cred", "name": "Deployment API Token" } }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack Notify",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.RELEASES_SLACK }}",
+        "text": ":repeat: Replayed deployment for *{{ $node['Extract Deployment'].json.project }}*."
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    }
+  ],
+  "connections": {
+    "n_deploy_webhook": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": { "main": [[{ "node": "n_redeploy", "type": "main", "index": 0 }]] },
+    "n_redeploy": { "main": [[{ "node": "n_wait", "type": "main", "index": 0 }]] },
+    "n_wait": { "main": [[{ "node": "n_check_status", "type": "main", "index": 0 }]] },
+    "n_check_status": { "main": [[{ "node": "n_slack", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_deploy_webhook", "n_extract", "n_redeploy", "n_wait", "n_check_status", "n_slack"]
+    }
+  ],
+  "variables": [
+    { "id": "v_d", "name": "DEPLOY_API", "defaultValue": "https://api.vercel.com" },
+    { "id": "v_s", "name": "RELEASES_SLACK", "defaultValue": "#releases" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

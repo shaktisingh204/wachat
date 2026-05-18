@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "rollbar-deduplicate-issues",
+  "cases": [
+    {
+      "id": "novel-issue",
+      "description": "New Rollbar item is embedded, classified, routed.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

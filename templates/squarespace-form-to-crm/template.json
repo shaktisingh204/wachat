@@ -1,0 +1,10 @@
+{
+  "id": "squarespace-form-to-crm",
+  "name": "Squarespace Form to CRM",
+  "description": "Any submission to your Squarespace form arrives via webhook, the flow extracts the inquiry, upserts a HubSpot contact + deal, and posts the new lead into the #leads Slack channel for SDR follow-up. Replaces forwarding lead emails into a CRM by hand.",
+  "category": "Sales",
+  "complexity": "beginner",
+  "authorName": "SabNode",
+  "tags": ["squarespace", "hubspot", "slack", "leads", "sales", "webhook"],
+  "version": "0.1.0"
+}
