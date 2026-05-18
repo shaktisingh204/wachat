@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "bigcommerce-abandoned-cart",
+  "cases": [
+    {
+      "id": "recover-cart",
+      "description": "Abandoned cart triggers Klaviyo + Slack note.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
