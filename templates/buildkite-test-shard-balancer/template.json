@@ -1,0 +1,10 @@
+{
+  "id": "buildkite-test-shard-balancer",
+  "name": "Buildkite Test Shard Balancer",
+  "description": "Once a day, pulls the last 24h of Buildkite test timing data, recomputes the optimal balance across N shards using a greedy bin-pack, and commits the updated shard config back to GitHub so CI is even tomorrow. Keeps overall wall-clock down even as the test suite drifts.",
+  "category": "Developer",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["buildkite", "github", "ci", "performance", "scheduling", "cron"],
+  "version": "0.1.0"
+}

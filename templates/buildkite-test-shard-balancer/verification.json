@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "buildkite-test-shard-balancer",
+  "cases": [
+    {
+      "id": "daily-rebalance",
+      "description": "Daily cron rebalances Buildkite shards.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
