@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "tax-filing-reminder",
+  "cases": [
+    {
+      "id": "monthly-tick",
+      "description": "Monthly cron checks Airtable and pings finance + accountant on upcoming filings.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

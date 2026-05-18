@@ -1,0 +1,123 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_monthly",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": { "schedule": "0 8 1 * *", "enabled": true }
+  },
+  "nodes": [
+    {
+      "id": "n_cron",
+      "name": "Monthly 1st",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 8 1 * *" }] }
+      }
+    },
+    {
+      "id": "n_airtable",
+      "name": "Tax Calendar",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [240, 0],
+      "parameters": {
+        "operation": "list",
+        "application": "={{ $vars.AIRTABLE_BASE }}",
+        "table": "Tax Filings",
+        "additionalOptions": {
+          "filterByFormula": "AND({Status} = 'Pending', IS_BEFORE({Due Date}, DATEADD(TODAY(),7,'days')))"
+        }
+      },
+      "credentials": {
+        "airtableApi": { "id": "airtable-cred", "name": "Airtable API" }
+      }
+    },
+    {
+      "id": "n_if_due",
+      "name": "Any Due?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "conditions": {
+          "number": [
+            { "value1": "={{ $items().length }}", "operation": "larger", "value2": 0 }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack Finance",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [720, -100],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.FINANCE_CHANNEL }}",
+        "text": ":calendar: {{ $items().length }} tax filings due within 7 days"
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    },
+    {
+      "id": "n_sendgrid",
+      "name": "Email Accountant",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [960, -100],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "={{ $vars.FROM_EMAIL }}",
+        "toEmail": "={{ $vars.ACCOUNTANT_EMAIL }}",
+        "subject": "Filings due within 7 days",
+        "contentType": "text/plain",
+        "content": "See attached Airtable list."
+      },
+      "credentials": {
+        "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid" }
+      }
+    },
+    {
+      "id": "n_noop",
+      "name": "Nothing Due",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [720, 100],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "n_cron": { "main": [[{ "node": "n_airtable", "type": "main", "index": 0 }]] },
+    "n_airtable": { "main": [[{ "node": "n_if_due", "type": "main", "index": 0 }]] },
+    "n_if_due": {
+      "true": [[{ "node": "n_slack", "type": "main", "index": 0 }]],
+      "false": [[{ "node": "n_noop", "type": "main", "index": 0 }]]
+    },
+    "n_slack": { "main": [[{ "node": "n_sendgrid", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cron", "n_airtable", "n_if_due", "n_slack", "n_sendgrid", "n_noop"]
+    }
+  ],
+  "variables": [
+    { "id": "v_at", "name": "AIRTABLE_BASE", "defaultValue": "" },
+    { "id": "v_fin", "name": "FINANCE_CHANNEL", "defaultValue": "#finance" },
+    { "id": "v_from", "name": "FROM_EMAIL", "defaultValue": "finance@example.com" },
+    { "id": "v_acct", "name": "ACCOUNTANT_EMAIL", "defaultValue": "cpa@example.com" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
