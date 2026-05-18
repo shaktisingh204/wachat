@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "templateId": "calendly-prep-sheet",
+  "cases": [
+    {
+      "id": "happy-path",
+      "description": "New Calendly booking fans out to Clearbit + HubSpot, merges, and emails the rep a GPT-generated prep sheet.",
+      "triggerPayload": {},
+      "expect": {
+        "finalStatus": "success"
+      }
+    }
+  ]
+}
