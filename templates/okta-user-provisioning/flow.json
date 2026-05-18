@@ -1,0 +1,201 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_new_hire",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "bamboohr.employee.added",
+    "options": {
+      "path": "/webhooks/bamboo-new-hire",
+      "method": "POST",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_webhook",
+      "name": "BambooHR New Hire",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "bamboo-new-hire",
+        "responseMode": "onReceived"
+      },
+      "webhookId": "bamboo-new-hire-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Employee",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "firstName", "value": "={{ $json.employee.firstName }}" },
+            { "name": "lastName", "value": "={{ $json.employee.lastName }}" },
+            { "name": "email", "value": "={{ $json.employee.workEmail }}" },
+            { "name": "department", "value": "={{ $json.employee.department }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_okta_create",
+      "name": "Create Okta User",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://{{ $vars.OKTA_DOMAIN }}/api/v1/users?activate=true",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "profile.firstName", "value": "={{ $json.firstName }}" },
+            { "name": "profile.lastName", "value": "={{ $json.lastName }}" },
+            { "name": "profile.email", "value": "={{ $json.email }}" },
+            { "name": "profile.login", "value": "={{ $json.email }}" }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "okta-cred", "name": "Okta SSWS" }
+      }
+    },
+    {
+      "id": "n_dept_switch",
+      "name": "Department Switch",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            { "conditions": { "string": [{ "value1": "={{ $node['Extract Employee'].json.department }}", "operation": "equal", "value2": "Engineering" }] }, "outputKey": "eng" },
+            { "conditions": { "string": [{ "value1": "={{ $node['Extract Employee'].json.department }}", "operation": "equal", "value2": "Sales" }] }, "outputKey": "sales" }
+          ]
+        },
+        "fallbackOutput": "other"
+      }
+    },
+    {
+      "id": "n_okta_eng_grp",
+      "name": "Add to Eng Group",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [960, -180],
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://{{ $vars.OKTA_DOMAIN }}/api/v1/groups/{{ $vars.OKTA_ENG_GROUP }}/users/{{ $json.id }}"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "okta-cred", "name": "Okta SSWS" }
+      }
+    },
+    {
+      "id": "n_okta_sales_grp",
+      "name": "Add to Sales Group",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [960, 0],
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://{{ $vars.OKTA_DOMAIN }}/api/v1/groups/{{ $vars.OKTA_SALES_GROUP }}/users/{{ $json.id }}"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "okta-cred", "name": "Okta SSWS" }
+      }
+    },
+    {
+      "id": "n_okta_default_grp",
+      "name": "Add to Default Group",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [960, 180],
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://{{ $vars.OKTA_DOMAIN }}/api/v1/groups/{{ $vars.OKTA_DEFAULT_GROUP }}/users/{{ $json.id }}"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "okta-cred", "name": "Okta SSWS" }
+      }
+    },
+    {
+      "id": "n_1pw",
+      "name": "1Password Vault Access",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1200, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://{{ $vars.OP_HOST }}/v1/vaults/{{ $vars.OP_VAULT }}/users",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "email", "value": "={{ $node['Extract Employee'].json.email }}" }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "1password-cred", "name": "1Password Connect" }
+      }
+    },
+    {
+      "id": "n_slack_it",
+      "name": "Slack #it-onboarding",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1440, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.IT_ONBOARDING_CHANNEL }}",
+        "text": ":wave: New hire provisioned — {{ $node['Extract Employee'].json.firstName }} {{ $node['Extract Employee'].json.lastName }} ({{ $node['Extract Employee'].json.department }})"
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    }
+  ],
+  "connections": {
+    "n_webhook": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": { "main": [[{ "node": "n_okta_create", "type": "main", "index": 0 }]] },
+    "n_okta_create": { "main": [[{ "node": "n_dept_switch", "type": "main", "index": 0 }]] },
+    "n_dept_switch": {
+      "eng": [[{ "node": "n_okta_eng_grp", "type": "main", "index": 0 }]],
+      "sales": [[{ "node": "n_okta_sales_grp", "type": "main", "index": 0 }]],
+      "other": [[{ "node": "n_okta_default_grp", "type": "main", "index": 0 }]]
+    },
+    "n_okta_eng_grp": { "main": [[{ "node": "n_1pw", "type": "main", "index": 0 }]] },
+    "n_okta_sales_grp": { "main": [[{ "node": "n_1pw", "type": "main", "index": 0 }]] },
+    "n_okta_default_grp": { "main": [[{ "node": "n_1pw", "type": "main", "index": 0 }]] },
+    "n_1pw": { "main": [[{ "node": "n_slack_it", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_webhook", "n_extract", "n_okta_create", "n_dept_switch",
+        "n_okta_eng_grp", "n_okta_sales_grp", "n_okta_default_grp", "n_1pw", "n_slack_it"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_okta_domain", "name": "OKTA_DOMAIN", "defaultValue": "example.okta.com" },
+    { "id": "v_eng_grp", "name": "OKTA_ENG_GROUP", "defaultValue": "" },
+    { "id": "v_sales_grp", "name": "OKTA_SALES_GROUP", "defaultValue": "" },
+    { "id": "v_default_grp", "name": "OKTA_DEFAULT_GROUP", "defaultValue": "" },
+    { "id": "v_op_host", "name": "OP_HOST", "defaultValue": "1password-connect.example.com" },
+    { "id": "v_op_vault", "name": "OP_VAULT", "defaultValue": "" },
+    { "id": "v_it_channel", "name": "IT_ONBOARDING_CHANNEL", "defaultValue": "#it-onboarding" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
