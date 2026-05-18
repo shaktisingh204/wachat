@@ -1,0 +1,10 @@
+{
+  "id": "stripe-trial-ending-warm-up",
+  "name": "Stripe Trial-Ending Warm-Up",
+  "description": "When Stripe fires customer.subscription.trial_will_end (3 days before trial ends), pulls Mixpanel usage to gauge product engagement and generates a personalised email with GPT-4o that highlights the features the trial actually used. SendGrid delivers the email and Slack pings the assigned AE so they can follow up before conversion.",
+  "category": "Sales",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["stripe", "trial", "mixpanel", "openai", "sendgrid", "slack", "sales"],
+  "version": "0.1.0"
+}
