@@ -884,6 +884,860 @@ const calendlyProvider: OAuthProvider = {
 };
 PROVIDERS.set(calendlyProvider.id, calendlyProvider);
 
+/* ── Mailchimp ──────────────────────────────────────────────────────────── */
+
+const mailchimpProvider: OAuthProvider = {
+  id: 'mailchimp',
+  label: 'Mailchimp',
+  defaultScopes: [],
+  buildAuthorizeUrl({ config, state }) {
+    const params = new URLSearchParams({
+      response_type: 'code',
+      client_id: config.clientId,
+      redirect_uri: config.redirectUri,
+      state,
+    });
+    return `https://login.mailchimp.com/oauth2/authorize?${params.toString()}`;
+  },
+  exchangeCode: ({ code, config }) =>
+    tokenRequest({
+      url: 'https://login.mailchimp.com/oauth2/token',
+      body: {
+        grant_type: 'authorization_code',
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+        redirect_uri: config.redirectUri,
+        code,
+      },
+    }),
+  async refreshAccessToken() {
+    throw new Error(
+      'Mailchimp OAuth tokens are long-lived — re-authorise to rotate.',
+    );
+  },
+};
+PROVIDERS.set(mailchimpProvider.id, mailchimpProvider);
+
+/* ── Reddit ─────────────────────────────────────────────────────────────── */
+
+const redditProvider: OAuthProvider = {
+  id: 'reddit',
+  label: 'Reddit',
+  defaultScopes: ['identity', 'read'],
+  buildAuthorizeUrl({ config, state, scopes }) {
+    const params = new URLSearchParams({
+      client_id: config.clientId,
+      response_type: 'code',
+      state,
+      redirect_uri: config.redirectUri,
+      duration: 'permanent',
+      scope: (scopes ?? redditProvider.defaultScopes).join(' '),
+    });
+    return `https://www.reddit.com/api/v1/authorize?${params.toString()}`;
+  },
+  exchangeCode: ({ code, config }) =>
+    tokenRequest({
+      url: 'https://www.reddit.com/api/v1/access_token',
+      body: {
+        grant_type: 'authorization_code',
+        code,
+        redirect_uri: config.redirectUri,
+      },
+      basicAuth: { clientId: config.clientId, clientSecret: config.clientSecret },
+    }),
+  refreshAccessToken: ({ refreshToken, config }) =>
+    tokenRequest({
+      url: 'https://www.reddit.com/api/v1/access_token',
+      body: {
+        grant_type: 'refresh_token',
+        refresh_token: refreshToken,
+      },
+      basicAuth: { clientId: config.clientId, clientSecret: config.clientSecret },
+    }),
+};
+PROVIDERS.set(redditProvider.id, redditProvider);
+
+/* ── LinkedIn ───────────────────────────────────────────────────────────── */
+
+const linkedinProvider: OAuthProvider = {
+  id: 'linkedin',
+  label: 'LinkedIn',
+  defaultScopes: ['r_liteprofile', 'r_emailaddress'],
+  buildAuthorizeUrl({ config, state, scopes }) {
+    const params = new URLSearchParams({
+      response_type: 'code',
+      client_id: config.clientId,
+      redirect_uri: config.redirectUri,
+      state,
+      scope: (scopes ?? linkedinProvider.defaultScopes).join(' '),
+    });
+    return `https://www.linkedin.com/oauth/v2/authorization?${params.toString()}`;
+  },
+  exchangeCode: ({ code, config }) =>
+    tokenRequest({
+      url: 'https://www.linkedin.com/oauth/v2/accessToken',
+      body: {
+        grant_type: 'authorization_code',
+        code,
+        redirect_uri: config.redirectUri,
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+      },
+    }),
+  refreshAccessToken: ({ refreshToken, config }) =>
+    tokenRequest({
+      url: 'https://www.linkedin.com/oauth/v2/accessToken',
+      body: {
+        grant_type: 'refresh_token',
+        refresh_token: refreshToken,
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+      },
+    }),
+};
+PROVIDERS.set(linkedinProvider.id, linkedinProvider);
+
+/* ── Stripe ─────────────────────────────────────────────────────────────── */
+
+const stripeProvider: OAuthProvider = {
+  id: 'stripe',
+  label: 'Stripe',
+  defaultScopes: [],
+  buildAuthorizeUrl({ config, state }) {
+    const params = new URLSearchParams({
+      response_type: 'code',
+      client_id: config.clientId,
+      redirect_uri: config.redirectUri,
+      state,
+    });
+    return `https://connect.stripe.com/oauth/authorize?${params.toString()}`;
+  },
+  exchangeCode: ({ code, config }) =>
+    tokenRequest({
+      url: 'https://connect.stripe.com/oauth/token',
+      body: {
+        grant_type: 'authorization_code',
+        code,
+        client_secret: config.clientSecret,
+      },
+    }),
+  refreshAccessToken: ({ refreshToken, config }) =>
+    tokenRequest({
+      url: 'https://connect.stripe.com/oauth/token',
+      body: {
+        grant_type: 'refresh_token',
+        refresh_token: refreshToken,
+        client_secret: config.clientSecret,
+      },
+    }),
+};
+PROVIDERS.set(stripeProvider.id, stripeProvider);
+
+/* ── Monday.com ─────────────────────────────────────────────────────────── */
+
+const mondayProvider: OAuthProvider = {
+  id: 'monday',
+  label: 'Monday.com',
+  defaultScopes: [],
+  buildAuthorizeUrl({ config, state }) {
+    const params = new URLSearchParams({
+      client_id: config.clientId,
+      redirect_uri: config.redirectUri,
+      response_type: 'code',
+      state,
+    });
+    return `https://auth.monday.com/oauth2/authorize?${params.toString()}`;
+  },
+  exchangeCode: ({ code, config }) =>
+    tokenRequest({
+      url: 'https://auth.monday.com/oauth2/token',
+      body: {
+        grant_type: 'authorization_code',
+        code,
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+        redirect_uri: config.redirectUri,
+      },
+    }),
+  refreshAccessToken: ({ refreshToken, config }) =>
+    tokenRequest({
+      url: 'https://auth.monday.com/oauth2/token',
+      body: {
+        grant_type: 'refresh_token',
+        refresh_token: refreshToken,
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+      },
+    }),
+};
+PROVIDERS.set(mondayProvider.id, mondayProvider);
+
+/* ── GitLab ─────────────────────────────────────────────────────────────── */
+
+const gitlabProvider: OAuthProvider = {
+  id: 'gitlab',
+  label: 'GitLab',
+  defaultScopes: ['api', 'read_user'],
+  buildAuthorizeUrl({ config, state, scopes }) {
+    const base = process.env.GITLAB_OAUTH_BASE_URL ?? 'https://gitlab.com';
+    const params = new URLSearchParams({
+      client_id: config.clientId,
+      redirect_uri: config.redirectUri,
+      response_type: 'code',
+      state,
+      scope: (scopes ?? gitlabProvider.defaultScopes).join(' '),
+    });
+    return `${base.replace(/\/$/, '')}/oauth/authorize?${params.toString()}`;
+  },
+  exchangeCode({ code, config }) {
+    const base = process.env.GITLAB_OAUTH_BASE_URL ?? 'https://gitlab.com';
+    return tokenRequest({
+      url: `${base.replace(/\/$/, '')}/oauth/token`,
+      body: {
+        grant_type: 'authorization_code',
+        code,
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+        redirect_uri: config.redirectUri,
+      },
+    });
+  },
+  refreshAccessToken({ refreshToken, config }) {
+    const base = process.env.GITLAB_OAUTH_BASE_URL ?? 'https://gitlab.com';
+    return tokenRequest({
+      url: `${base.replace(/\/$/, '')}/oauth/token`,
+      body: {
+        grant_type: 'refresh_token',
+        refresh_token: refreshToken,
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+      },
+    });
+  },
+};
+PROVIDERS.set(gitlabProvider.id, gitlabProvider);
+
+/* ── Bitbucket ──────────────────────────────────────────────────────────── */
+
+const bitbucketProvider: OAuthProvider = {
+  id: 'bitbucket',
+  label: 'Bitbucket',
+  defaultScopes: [],
+  buildAuthorizeUrl({ config, state }) {
+    const params = new URLSearchParams({
+      client_id: config.clientId,
+      response_type: 'code',
+      redirect_uri: config.redirectUri,
+      state,
+    });
+    return `https://bitbucket.org/site/oauth2/authorize?${params.toString()}`;
+  },
+  exchangeCode: ({ code, config }) =>
+    tokenRequest({
+      url: 'https://bitbucket.org/site/oauth2/access_token',
+      body: {
+        grant_type: 'authorization_code',
+        code,
+        redirect_uri: config.redirectUri,
+      },
+      basicAuth: { clientId: config.clientId, clientSecret: config.clientSecret },
+    }),
+  refreshAccessToken: ({ refreshToken, config }) =>
+    tokenRequest({
+      url: 'https://bitbucket.org/site/oauth2/access_token',
+      body: {
+        grant_type: 'refresh_token',
+        refresh_token: refreshToken,
+      },
+      basicAuth: { clientId: config.clientId, clientSecret: config.clientSecret },
+    }),
+};
+PROVIDERS.set(bitbucketProvider.id, bitbucketProvider);
+
+/* ── Figma ──────────────────────────────────────────────────────────────── */
+
+const figmaProvider: OAuthProvider = {
+  id: 'figma',
+  label: 'Figma',
+  defaultScopes: ['file_read'],
+  buildAuthorizeUrl({ config, state, scopes }) {
+    const params = new URLSearchParams({
+      client_id: config.clientId,
+      redirect_uri: config.redirectUri,
+      response_type: 'code',
+      state,
+      scope: (scopes ?? figmaProvider.defaultScopes).join(' '),
+    });
+    return `https://www.figma.com/oauth?${params.toString()}`;
+  },
+  exchangeCode: ({ code, config }) =>
+    tokenRequest({
+      url: 'https://www.figma.com/api/oauth/token',
+      body: {
+        grant_type: 'authorization_code',
+        code,
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+        redirect_uri: config.redirectUri,
+      },
+    }),
+  refreshAccessToken: ({ refreshToken, config }) =>
+    tokenRequest({
+      url: 'https://www.figma.com/api/oauth/refresh',
+      body: {
+        grant_type: 'refresh_token',
+        refresh_token: refreshToken,
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+      },
+    }),
+};
+PROVIDERS.set(figmaProvider.id, figmaProvider);
+
+/* ── PayPal ─────────────────────────────────────────────────────────────── */
+
+const paypalProvider: OAuthProvider = {
+  id: 'paypal',
+  label: 'PayPal',
+  defaultScopes: ['openid', 'profile'],
+  buildAuthorizeUrl({ config, state, scopes }) {
+    const params = new URLSearchParams({
+      client_id: config.clientId,
+      redirect_uri: config.redirectUri,
+      response_type: 'code',
+      state,
+      scope: (scopes ?? paypalProvider.defaultScopes).join(' '),
+    });
+    return `https://www.paypal.com/connect?${params.toString()}`;
+  },
+  exchangeCode: ({ code, config }) =>
+    tokenRequest({
+      url: 'https://api-m.paypal.com/v1/oauth2/token',
+      body: {
+        grant_type: 'authorization_code',
+        code,
+        redirect_uri: config.redirectUri,
+      },
+      basicAuth: { clientId: config.clientId, clientSecret: config.clientSecret },
+    }),
+  refreshAccessToken: ({ refreshToken, config }) =>
+    tokenRequest({
+      url: 'https://api-m.paypal.com/v1/oauth2/token',
+      body: {
+        grant_type: 'refresh_token',
+        refresh_token: refreshToken,
+      },
+      basicAuth: { clientId: config.clientId, clientSecret: config.clientSecret },
+    }),
+};
+PROVIDERS.set(paypalProvider.id, paypalProvider);
+
+/* ── Strava ─────────────────────────────────────────────────────────────── */
+
+const stravaProvider: OAuthProvider = {
+  id: 'strava',
+  label: 'Strava',
+  defaultScopes: ['read', 'activity:read'],
+  buildAuthorizeUrl({ config, state, scopes }) {
+    const params = new URLSearchParams({
+      client_id: config.clientId,
+      redirect_uri: config.redirectUri,
+      response_type: 'code',
+      approval_prompt: 'auto',
+      state,
+      scope: (scopes ?? stravaProvider.defaultScopes).join(','),
+    });
+    return `https://www.strava.com/oauth/authorize?${params.toString()}`;
+  },
+  exchangeCode: ({ code, config }) =>
+    tokenRequest({
+      url: 'https://www.strava.com/oauth/token',
+      body: {
+        grant_type: 'authorization_code',
+        code,
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+      },
+    }),
+  refreshAccessToken: ({ refreshToken, config }) =>
+    tokenRequest({
+      url: 'https://www.strava.com/oauth/token',
+      body: {
+        grant_type: 'refresh_token',
+        refresh_token: refreshToken,
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+      },
+    }),
+};
+PROVIDERS.set(stravaProvider.id, stravaProvider);
+
+/* ── Fitbit ─────────────────────────────────────────────────────────────── */
+
+const fitbitProvider: OAuthProvider = {
+  id: 'fitbit',
+  label: 'Fitbit',
+  defaultScopes: ['activity', 'profile'],
+  buildAuthorizeUrl({ config, state, scopes }) {
+    const params = new URLSearchParams({
+      response_type: 'code',
+      client_id: config.clientId,
+      redirect_uri: config.redirectUri,
+      state,
+      scope: (scopes ?? fitbitProvider.defaultScopes).join(' '),
+    });
+    return `https://www.fitbit.com/oauth2/authorize?${params.toString()}`;
+  },
+  exchangeCode: ({ code, config }) =>
+    tokenRequest({
+      url: 'https://api.fitbit.com/oauth2/token',
+      body: {
+        grant_type: 'authorization_code',
+        code,
+        client_id: config.clientId,
+        redirect_uri: config.redirectUri,
+      },
+      basicAuth: { clientId: config.clientId, clientSecret: config.clientSecret },
+    }),
+  refreshAccessToken: ({ refreshToken, config }) =>
+    tokenRequest({
+      url: 'https://api.fitbit.com/oauth2/token',
+      body: {
+        grant_type: 'refresh_token',
+        refresh_token: refreshToken,
+      },
+      basicAuth: { clientId: config.clientId, clientSecret: config.clientSecret },
+    }),
+};
+PROVIDERS.set(fitbitProvider.id, fitbitProvider);
+
+/* ── Vimeo ──────────────────────────────────────────────────────────────── */
+
+const vimeoProvider: OAuthProvider = {
+  id: 'vimeo',
+  label: 'Vimeo',
+  defaultScopes: ['public', 'private'],
+  buildAuthorizeUrl({ config, state, scopes }) {
+    const params = new URLSearchParams({
+      response_type: 'code',
+      client_id: config.clientId,
+      redirect_uri: config.redirectUri,
+      state,
+      scope: (scopes ?? vimeoProvider.defaultScopes).join(' '),
+    });
+    return `https://api.vimeo.com/oauth/authorize?${params.toString()}`;
+  },
+  exchangeCode: ({ code, config }) =>
+    tokenRequest({
+      url: 'https://api.vimeo.com/oauth/access_token',
+      body: {
+        grant_type: 'authorization_code',
+        code,
+        redirect_uri: config.redirectUri,
+      },
+      basicAuth: { clientId: config.clientId, clientSecret: config.clientSecret },
+    }),
+  async refreshAccessToken() {
+    throw new Error(
+      'Vimeo OAuth tokens are long-lived — re-authorise to rotate.',
+    );
+  },
+};
+PROVIDERS.set(vimeoProvider.id, vimeoProvider);
+
+/* ── Webex ──────────────────────────────────────────────────────────────── */
+
+const webexProvider: OAuthProvider = {
+  id: 'webex',
+  label: 'Webex',
+  defaultScopes: ['spark:all'],
+  buildAuthorizeUrl({ config, state, scopes }) {
+    const params = new URLSearchParams({
+      client_id: config.clientId,
+      response_type: 'code',
+      redirect_uri: config.redirectUri,
+      state,
+      scope: (scopes ?? webexProvider.defaultScopes).join(' '),
+    });
+    return `https://webexapis.com/v1/authorize?${params.toString()}`;
+  },
+  exchangeCode: ({ code, config }) =>
+    tokenRequest({
+      url: 'https://webexapis.com/v1/access_token',
+      body: {
+        grant_type: 'authorization_code',
+        code,
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+        redirect_uri: config.redirectUri,
+      },
+    }),
+  refreshAccessToken: ({ refreshToken, config }) =>
+    tokenRequest({
+      url: 'https://webexapis.com/v1/access_token',
+      body: {
+        grant_type: 'refresh_token',
+        refresh_token: refreshToken,
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+      },
+    }),
+};
+PROVIDERS.set(webexProvider.id, webexProvider);
+
+/* ── Zoho ───────────────────────────────────────────────────────────────── */
+
+const zohoProvider: OAuthProvider = {
+  id: 'zoho',
+  label: 'Zoho',
+  defaultScopes: ['ZohoCRM.modules.ALL'],
+  buildAuthorizeUrl({ config, state, scopes }) {
+    const base = process.env.ZOHO_OAUTH_BASE_URL ?? 'https://accounts.zoho.com';
+    const params = new URLSearchParams({
+      client_id: config.clientId,
+      response_type: 'code',
+      redirect_uri: config.redirectUri,
+      state,
+      access_type: 'offline',
+      scope: (scopes ?? zohoProvider.defaultScopes).join(','),
+    });
+    return `${base.replace(/\/$/, '')}/oauth/v2/auth?${params.toString()}`;
+  },
+  exchangeCode({ code, config }) {
+    const base = process.env.ZOHO_OAUTH_BASE_URL ?? 'https://accounts.zoho.com';
+    return tokenRequest({
+      url: `${base.replace(/\/$/, '')}/oauth/v2/token`,
+      body: {
+        grant_type: 'authorization_code',
+        code,
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+        redirect_uri: config.redirectUri,
+      },
+    });
+  },
+  refreshAccessToken({ refreshToken, config }) {
+    const base = process.env.ZOHO_OAUTH_BASE_URL ?? 'https://accounts.zoho.com';
+    return tokenRequest({
+      url: `${base.replace(/\/$/, '')}/oauth/v2/token`,
+      body: {
+        grant_type: 'refresh_token',
+        refresh_token: refreshToken,
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+      },
+    });
+  },
+};
+PROVIDERS.set(zohoProvider.id, zohoProvider);
+
+/* ── Eventbrite ─────────────────────────────────────────────────────────── */
+
+const eventbriteProvider: OAuthProvider = {
+  id: 'eventbrite',
+  label: 'Eventbrite',
+  defaultScopes: [],
+  buildAuthorizeUrl({ config, state }) {
+    const params = new URLSearchParams({
+      response_type: 'code',
+      client_id: config.clientId,
+      redirect_uri: config.redirectUri,
+      state,
+    });
+    return `https://www.eventbrite.com/oauth/authorize?${params.toString()}`;
+  },
+  exchangeCode: ({ code, config }) =>
+    tokenRequest({
+      url: 'https://www.eventbrite.com/oauth/token',
+      body: {
+        grant_type: 'authorization_code',
+        code,
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+        redirect_uri: config.redirectUri,
+      },
+    }),
+  async refreshAccessToken() {
+    throw new Error(
+      'Eventbrite OAuth tokens are long-lived — re-authorise to rotate.',
+    );
+  },
+};
+PROVIDERS.set(eventbriteProvider.id, eventbriteProvider);
+
+/* ── Webflow ────────────────────────────────────────────────────────────── */
+
+const webflowProvider: OAuthProvider = {
+  id: 'webflow',
+  label: 'Webflow',
+  defaultScopes: [],
+  buildAuthorizeUrl({ config, state }) {
+    const params = new URLSearchParams({
+      client_id: config.clientId,
+      response_type: 'code',
+      redirect_uri: config.redirectUri,
+      state,
+    });
+    return `https://webflow.com/oauth/authorize?${params.toString()}`;
+  },
+  exchangeCode: ({ code, config }) =>
+    tokenRequest({
+      url: 'https://api.webflow.com/oauth/access_token',
+      body: {
+        grant_type: 'authorization_code',
+        code,
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+        redirect_uri: config.redirectUri,
+      },
+    }),
+  refreshAccessToken: ({ refreshToken, config }) =>
+    tokenRequest({
+      url: 'https://api.webflow.com/oauth/access_token',
+      body: {
+        grant_type: 'refresh_token',
+        refresh_token: refreshToken,
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+      },
+    }),
+};
+PROVIDERS.set(webflowProvider.id, webflowProvider);
+
+/* ── QuickBooks ─────────────────────────────────────────────────────────── */
+
+const quickbooksProvider: OAuthProvider = {
+  id: 'quickbooks',
+  label: 'QuickBooks',
+  defaultScopes: ['com.intuit.quickbooks.accounting'],
+  buildAuthorizeUrl({ config, state, scopes }) {
+    const params = new URLSearchParams({
+      client_id: config.clientId,
+      response_type: 'code',
+      redirect_uri: config.redirectUri,
+      state,
+      scope: (scopes ?? quickbooksProvider.defaultScopes).join(' '),
+    });
+    return `https://appcenter.intuit.com/connect/oauth2?${params.toString()}`;
+  },
+  exchangeCode: ({ code, config }) =>
+    tokenRequest({
+      url: 'https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer',
+      body: {
+        grant_type: 'authorization_code',
+        code,
+        redirect_uri: config.redirectUri,
+      },
+      basicAuth: { clientId: config.clientId, clientSecret: config.clientSecret },
+    }),
+  refreshAccessToken: ({ refreshToken, config }) =>
+    tokenRequest({
+      url: 'https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer',
+      body: {
+        grant_type: 'refresh_token',
+        refresh_token: refreshToken,
+      },
+      basicAuth: { clientId: config.clientId, clientSecret: config.clientSecret },
+    }),
+};
+PROVIDERS.set(quickbooksProvider.id, quickbooksProvider);
+
+/* ── Xero ───────────────────────────────────────────────────────────────── */
+
+const xeroProvider: OAuthProvider = {
+  id: 'xero',
+  label: 'Xero',
+  defaultScopes: [
+    'offline_access',
+    'accounting.transactions',
+    'accounting.contacts',
+  ],
+  buildAuthorizeUrl({ config, state, scopes }) {
+    const params = new URLSearchParams({
+      response_type: 'code',
+      client_id: config.clientId,
+      redirect_uri: config.redirectUri,
+      state,
+      scope: (scopes ?? xeroProvider.defaultScopes).join(' '),
+    });
+    return `https://login.xero.com/identity/connect/authorize?${params.toString()}`;
+  },
+  exchangeCode: ({ code, config }) =>
+    tokenRequest({
+      url: 'https://identity.xero.com/connect/token',
+      body: {
+        grant_type: 'authorization_code',
+        code,
+        redirect_uri: config.redirectUri,
+      },
+      basicAuth: { clientId: config.clientId, clientSecret: config.clientSecret },
+    }),
+  refreshAccessToken: ({ refreshToken, config }) =>
+    tokenRequest({
+      url: 'https://identity.xero.com/connect/token',
+      body: {
+        grant_type: 'refresh_token',
+        refresh_token: refreshToken,
+      },
+      basicAuth: { clientId: config.clientId, clientSecret: config.clientSecret },
+    }),
+};
+PROVIDERS.set(xeroProvider.id, xeroProvider);
+
+/* ── Wrike ──────────────────────────────────────────────────────────────── */
+
+const wrikeProvider: OAuthProvider = {
+  id: 'wrike',
+  label: 'Wrike',
+  defaultScopes: [],
+  buildAuthorizeUrl({ config, state }) {
+    const params = new URLSearchParams({
+      client_id: config.clientId,
+      response_type: 'code',
+      redirect_uri: config.redirectUri,
+      state,
+    });
+    return `https://login.wrike.com/oauth2/authorize/v4?${params.toString()}`;
+  },
+  exchangeCode: ({ code, config }) =>
+    tokenRequest({
+      url: 'https://login.wrike.com/oauth2/token',
+      body: {
+        grant_type: 'authorization_code',
+        code,
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+        redirect_uri: config.redirectUri,
+      },
+    }),
+  refreshAccessToken: ({ refreshToken, config }) =>
+    tokenRequest({
+      url: 'https://login.wrike.com/oauth2/token',
+      body: {
+        grant_type: 'refresh_token',
+        refresh_token: refreshToken,
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+      },
+    }),
+};
+PROVIDERS.set(wrikeProvider.id, wrikeProvider);
+
+/* ── Help Scout ─────────────────────────────────────────────────────────── */
+
+const helpscoutProvider: OAuthProvider = {
+  id: 'helpscout',
+  label: 'Help Scout',
+  defaultScopes: [],
+  buildAuthorizeUrl({ config, state }) {
+    const params = new URLSearchParams({
+      client_id: config.clientId,
+      response_type: 'code',
+      redirect_uri: config.redirectUri,
+      state,
+    });
+    return `https://secure.helpscout.net/authentication/authorizeClientApplication?${params.toString()}`;
+  },
+  exchangeCode: ({ code, config }) =>
+    tokenRequest({
+      url: 'https://api.helpscout.net/v2/oauth2/token',
+      body: {
+        grant_type: 'authorization_code',
+        code,
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+      },
+    }),
+  refreshAccessToken: ({ refreshToken, config }) =>
+    tokenRequest({
+      url: 'https://api.helpscout.net/v2/oauth2/token',
+      body: {
+        grant_type: 'refresh_token',
+        refresh_token: refreshToken,
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+      },
+    }),
+};
+PROVIDERS.set(helpscoutProvider.id, helpscoutProvider);
+
+/* ── Front ──────────────────────────────────────────────────────────────── */
+
+const frontProvider: OAuthProvider = {
+  id: 'front',
+  label: 'Front',
+  defaultScopes: [],
+  buildAuthorizeUrl({ config, state }) {
+    const params = new URLSearchParams({
+      response_type: 'code',
+      client_id: config.clientId,
+      redirect_uri: config.redirectUri,
+      state,
+    });
+    return `https://app.frontapp.com/oauth/authorize?${params.toString()}`;
+  },
+  exchangeCode: ({ code, config }) =>
+    tokenRequest({
+      url: 'https://app.frontapp.com/oauth/token',
+      body: {
+        grant_type: 'authorization_code',
+        code,
+        redirect_uri: config.redirectUri,
+      },
+      basicAuth: { clientId: config.clientId, clientSecret: config.clientSecret },
+    }),
+  refreshAccessToken: ({ refreshToken, config }) =>
+    tokenRequest({
+      url: 'https://app.frontapp.com/oauth/token',
+      body: {
+        grant_type: 'refresh_token',
+        refresh_token: refreshToken,
+      },
+      basicAuth: { clientId: config.clientId, clientSecret: config.clientSecret },
+    }),
+};
+PROVIDERS.set(frontProvider.id, frontProvider);
+
+/* ── Twitch ─────────────────────────────────────────────────────────────── */
+
+const twitchProvider: OAuthProvider = {
+  id: 'twitch',
+  label: 'Twitch',
+  defaultScopes: ['user:read:email'],
+  buildAuthorizeUrl({ config, state, scopes }) {
+    const params = new URLSearchParams({
+      client_id: config.clientId,
+      redirect_uri: config.redirectUri,
+      response_type: 'code',
+      state,
+      scope: (scopes ?? twitchProvider.defaultScopes).join(' '),
+    });
+    return `https://id.twitch.tv/oauth2/authorize?${params.toString()}`;
+  },
+  exchangeCode: ({ code, config }) =>
+    tokenRequest({
+      url: 'https://id.twitch.tv/oauth2/token',
+      body: {
+        grant_type: 'authorization_code',
+        code,
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+        redirect_uri: config.redirectUri,
+      },
+    }),
+  refreshAccessToken: ({ refreshToken, config }) =>
+    tokenRequest({
+      url: 'https://id.twitch.tv/oauth2/token',
+      body: {
+        grant_type: 'refresh_token',
+        refresh_token: refreshToken,
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+      },
+    }),
+};
+PROVIDERS.set(twitchProvider.id, twitchProvider);
+
 /* ── Shared token-endpoint helper ───────────────────────────────────────── */
 
 async function tokenRequest(opts: {
