@@ -1,0 +1,100 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_weekly",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": { "schedule": "0 7 * * 1", "enabled": true }
+  },
+  "nodes": [
+    {
+      "id": "n_cron",
+      "name": "Monday 07:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "rule": { "interval": [{ "field": "cronExpression", "expression": "0 7 * * 1" }] } }
+    },
+    {
+      "id": "n_mixpanel",
+      "name": "Export Mixpanel Cohort",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "https://mixpanel.com/api/2.0/engage",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "mixpanelApi",
+        "sendBody": true,
+        "bodyParameters": { "parameters": [{ "name": "filter_by_cohort", "value": "={{ $vars.MIXPANEL_COHORT_ID }}" }] }
+      },
+      "credentials": { "mixpanelApi": { "id": "mixpanel-cred", "name": "Mixpanel" } }
+    },
+    {
+      "id": "n_transform",
+      "name": "Transform to Mailchimp Schema",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const users = $input.first().json.results || []; return users.map(u => ({ json: { email_address: u.$email, status: 'subscribed', merge_fields: { FNAME: u.$first_name || '' } } }));"
+      }
+    },
+    {
+      "id": "n_replace",
+      "name": "Replace Mailchimp Audience",
+      "type": "n8n-nodes-base.mailchimp",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": { "resource": "member", "operation": "upsert", "list": "={{ $vars.MAILCHIMP_LIST_ID }}" },
+      "credentials": { "mailchimpApi": { "id": "mailchimp-cred", "name": "Mailchimp" } }
+    },
+    {
+      "id": "n_log",
+      "name": "Log Cohort Size",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": { "operation": "insert", "collection": "cohort_runs", "fields": "weekOf,size" },
+      "credentials": { "mongoDb": { "id": "mongo-cred", "name": "Mongo" } }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack #marketing-ops",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, 0],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": "#marketing-ops",
+        "text": "Weekly retention cohort refreshed."
+      },
+      "credentials": { "slackApi": { "id": "slack-cred", "name": "Slack" } }
+    }
+  ],
+  "connections": {
+    "n_cron": { "main": [[{ "node": "n_mixpanel", "type": "main", "index": 0 }]] },
+    "n_mixpanel": { "main": [[{ "node": "n_transform", "type": "main", "index": 0 }]] },
+    "n_transform": { "main": [[{ "node": "n_replace", "type": "main", "index": 0 }]] },
+    "n_replace": { "main": [[{ "node": "n_log", "type": "main", "index": 0 }]] },
+    "n_log": { "main": [[{ "node": "n_slack", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cron", "n_mixpanel", "n_transform", "n_replace", "n_log", "n_slack"]
+    }
+  ],
+  "variables": [
+    { "id": "v_co", "name": "MIXPANEL_COHORT_ID", "defaultValue": "" },
+    { "id": "v_list", "name": "MAILCHIMP_LIST_ID", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
