@@ -23,10 +23,15 @@ pub mod node;
 pub mod nodes;
 pub mod registry;
 
-pub use context::{
-    Credential, ExecutionContext, NodeInput, NodeOutput, SubFlowInvoker, WaitMode,
-    WaitRegistration, WaitResumer,
+pub use binary::{
+    default_binary_store, set_default_binary_store, BinaryDataRef, BinaryFetchContext,
+    BinaryStore, InMemoryBinaryStore, UnconfiguredBinaryStore,
 };
+pub use context::{
+    Credential, ExecutionContext, NodeContext, NodeInput, NodeMetrics, NodeOutput, SubFlowInvoker,
+    WaitMode, WaitRegistration, WaitResumer,
+};
+pub use continue_on_fail::{error_sentinel, try_with_continue_on_fail, ItemResult};
 pub use descriptor::{
     CredentialBinding, NodeCategory, NodeDescriptor, NodeProperty, NodePropertyOption,
     NodePropertyType,
