@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "templateId": "github-stale-pr-reminder",
+  "cases": [
+    {
+      "id": "stale-pr-path",
+      "description": "A stale PR triggers a Slack DM and a MongoDB log entry; fresh PRs hit the NoOp branch.",
+      "triggerPayload": {},
+      "expect": {
+        "finalStatus": "success"
+      }
+    }
+  ]
+}
