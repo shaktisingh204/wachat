@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "clinic-no-show-followup",
+  "cases": [
+    {
+      "id": "noshow",
+      "description": "No-show triggers wait then SMS+email then flag.",
+      "triggerPayload": { "patient": { "phone": "+15555550100", "email": "p@example.com" } },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

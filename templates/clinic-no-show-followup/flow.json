@@ -1,0 +1,118 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_emr",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "emr.appointment.noshow",
+    "options": {
+      "path": "/webhooks/clinic-no-show-followup",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-EMR-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_trigger",
+      "name": "EMR No-Show",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "clinic-no-show-followup",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "clinic-no-show-followup"
+    },
+    {
+      "id": "n_set",
+      "name": "Patient Context",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "phone", "value": "={{ $json.patient.phone }}" },
+            { "name": "email", "value": "={{ $json.patient.email }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_wait",
+      "name": "Wait 2 Hours",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": { "amount": 2, "unit": "hours" }
+    },
+    {
+      "id": "n_sms",
+      "name": "Twilio SMS",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [720, -120],
+      "parameters": {
+        "resource": "sms",
+        "operation": "send",
+        "to": "={{ $json.phone }}",
+        "message": "Sorry we missed you. Reschedule here."
+      },
+      "credentials": { "twilioApi": { "id": "twilio-cred", "name": "Twilio" } }
+    },
+    {
+      "id": "n_email",
+      "name": "SendGrid Email",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [720, 120],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "clinic@example.com",
+        "toEmail": "={{ $json.email }}",
+        "subject": "We missed you — easy reschedule",
+        "content": "Click the link to pick a new time."
+      },
+      "credentials": { "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid" } }
+    },
+    {
+      "id": "n_flag",
+      "name": "Flag for Outreach",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [1000, 0],
+      "parameters": { "operation": "update", "collection": "patients", "updateKey": "_id" },
+      "credentials": { "mongoDb": { "id": "mongo-cred", "name": "Mongo" } }
+    }
+  ],
+  "connections": {
+    "n_trigger": { "main": [[{ "node": "n_set", "type": "main", "index": 0 }]] },
+    "n_set": { "main": [[{ "node": "n_wait", "type": "main", "index": 0 }]] },
+    "n_wait": {
+      "main": [[
+        { "node": "n_sms", "type": "main", "index": 0 },
+        { "node": "n_email", "type": "main", "index": 0 }
+      ]]
+    },
+    "n_sms": { "main": [[{ "node": "n_flag", "type": "main", "index": 0 }]] },
+    "n_email": { "main": [[{ "node": "n_flag", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_trigger", "n_set", "n_wait", "n_sms", "n_email", "n_flag"]
+    }
+  ],
+  "variables": [],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
