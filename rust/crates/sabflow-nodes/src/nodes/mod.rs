@@ -35,6 +35,10 @@ pub mod mqtt_trigger;
 
 // ── Fully-implemented integration nodes ─────────────────────────────────────
 pub mod slack;
+pub mod slack_signature;
+pub mod slack_trigger;
+pub mod slack_slash_command;
+pub mod slack_events_trigger;
 pub mod discord;
 pub mod github;
 pub mod gitlab;
@@ -160,6 +164,9 @@ fn register_implemented(r: &mut NodeRegistry) {
     r.register(compression::CompressionNode);
     // Integrations (20)
     r.register(slack::SlackNode);
+    r.register(slack_trigger::SlackTriggerNode);
+    r.register(slack_slash_command::SlackSlashCommandTriggerNode);
+    r.register(slack_events_trigger::SlackEventsApiTriggerNode);
     r.register(discord::DiscordNode);
     r.register(github::GithubNode);
     r.register(gitlab::GitlabNode);
