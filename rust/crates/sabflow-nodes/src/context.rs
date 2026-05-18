@@ -1,5 +1,6 @@
 //! Execution context — what each node receives at runtime.
 
+use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::HashMap;
@@ -9,6 +10,78 @@ use std::sync::{
 };
 
 use crate::error::{NodeError, NodeResult};
+
+/// Re-entrant sub-flow invoker — implemented by the engine (e.g.
+/// `sabflow-engine-runtime::FlowEngine`) and surfaced on the
+/// [`ExecutionContext`] so the `ExecuteWorkflow` node can call back into a
+/// child flow without depending on the engine crate directly (which would
+/// otherwise be a dependency cycle — the engine depends on `sabflow-nodes`,
+/// not the other way around).
+///
+/// The `caller_stack` passed in is the chain of workflow ids currently
+/// executing.  Implementations are responsible for appending the target id
+/// before kicking off the child run, so deeper sub-flows can detect cycles.
+#[async_trait]
+pub trait SubFlowInvoker: Send + Sync {
+    /// Run `workflow_id` with the given input items, returning the child
+    /// flow's final output items.
+    ///
+    /// Implementations must:
+    /// - Verify ownership / tenancy (the caller context already carries
+    ///   `execution_id`; the engine knows the user / tenant out-of-band).
+    /// - Refuse to start the child if `caller_stack` already contains
+    ///   `workflow_id` (cycle).  Nodes also pre-check, but the engine is the
+    ///   authoritative gate.
+    /// - Forward credentials / variables as appropriate.
+    async fn invoke_sub_flow(
+        &self,
+        workflow_id: &str,
+        inputs: Vec<Value>,
+        caller_stack: Vec<String>,
+    ) -> NodeResult<Vec<Value>>;
+}
+
+/// Re-entrant wait-resume registrar — implemented by the engine and used by
+/// the `Wait` node's `webhook` / `dateTime` resume modes.  The node returns
+/// the resume URL / ISO target back to upstream callers via its output item
+/// and the engine parks the execution; an external HTTP receiver (or a
+/// scheduled tick) reconciles `resume_token` later.
+#[async_trait]
+pub trait WaitResumer: Send + Sync {
+    /// Register an intent-to-resume.  Returns a publicly-callable resume URL
+    /// (for webhook mode) or echoes back the registered token (for dateTime
+    /// mode).  The engine persists the wait-state so the run survives worker
+    /// crashes.
+    async fn register_wait(
+        &self,
+        execution_id: &str,
+        mode: WaitMode,
+    ) -> NodeResult<WaitRegistration>;
+}
+
+/// How a Wait node parks an execution.
+#[derive(Debug, Clone)]
+pub enum WaitMode {
+    /// Block on an HTTP callback to a generated URL.
+    Webhook { http_method: String, path_hint: Option<String> },
+    /// Block until the given ISO-8601 instant.
+    DateTime { resume_at_iso: String },
+}
+
+/// What the engine returns once a wait is registered.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct WaitRegistration {
+    /// Token / opaque id the engine uses to reconcile the resume event.
+    pub resume_token: String,
+    /// Publicly-callable URL (webhook mode) or `None` for dateTime mode.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub resume_url: Option<String>,
+    /// ISO-8601 instant the engine plans to resume at (dateTime mode), or
+    /// `None` for webhook mode.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub resume_at_iso: Option<String>,
+}
 
 /// Items flowing in/out of a node — n8n's `INodeExecutionData[][]` shape.
 /// Each item is `{ json, binary? }`.  Outer slice is for items, inner for branches.
@@ -115,14 +188,16 @@ pub struct ExecutionContext {
     pub node_outputs: HashMap<String, NodeOutput>,
     /// Execution id — useful for logging and idempotency.
     pub execution_id: String,
-    /// Whether the *current* node has `continueOnFail` set by the runtime.
-    /// Set by the runtime (`sabflow-engine-runtime`) when it dispatches a
-    /// node whose block options include `continueOnFail: true`. Defaults
-    /// to `false`. n8n parity: `IExecuteFunctions.continueOnFail()`.
-    pub continue_on_fail: bool,
-    /// Shared metrics counters. Lifted to `Arc` so helpers can clone the
-    /// handle into per-item futures without re-borrowing `ctx`.
-    pub metrics: Arc<NodeMetrics>,
+    /// Chain of workflow ids currently executing — the workflow that
+    /// triggered the run is first, sub-flows pushed on top.  Used by the
+    /// `ExecuteWorkflow` node for cycle detection.
+    pub caller_stack: Vec<String>,
+    /// Optional bridge so `ExecuteWorkflow` can call back into the engine
+    /// without a direct dependency on `sabflow-engine-runtime`.
+    pub sub_flow_invoker: Option<Arc<dyn SubFlowInvoker>>,
+    /// Optional bridge so the `Wait` node can park execution on a webhook /
+    /// scheduled-resume — populated by the engine.
+    pub wait_resumer: Option<Arc<dyn WaitResumer>>,
 }
 
 /// Alias matching the public name used in the PLAN-sabflow-coverage.md C.2
@@ -140,8 +215,9 @@ impl ExecutionContext {
             trigger_data: None,
             node_outputs: HashMap::new(),
             execution_id,
-            continue_on_fail: false,
-            metrics: Arc::new(NodeMetrics::new()),
+            caller_stack: Vec::new(),
+            sub_flow_invoker: None,
+            wait_resumer: None,
         }
     }
     pub fn with_mongo(mut self, m: sabnode_db::mongo::MongoHandle) -> Self {
@@ -158,6 +234,18 @@ impl ExecutionContext {
     }
     pub fn with_credentials(mut self, c: HashMap<String, Credential>) -> Self {
         self.credentials = c;
+        self
+    }
+    pub fn with_caller_stack(mut self, stack: Vec<String>) -> Self {
+        self.caller_stack = stack;
+        self
+    }
+    pub fn with_sub_flow_invoker(mut self, inv: Arc<dyn SubFlowInvoker>) -> Self {
+        self.sub_flow_invoker = Some(inv);
+        self
+    }
+    pub fn with_wait_resumer(mut self, w: Arc<dyn WaitResumer>) -> Self {
+        self.wait_resumer = Some(w);
         self
     }
 

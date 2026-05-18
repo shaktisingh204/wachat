@@ -1,0 +1,48 @@
+{
+  "phase": "C.3.8",
+  "summary": "Rust impls for ExecuteWorkflow, Wait, StopAndError — un-stubbed in sabflow-nodes.",
+  "unmasked": [
+    {
+      "nodeType": "executeWorkflow",
+      "displayName": "Execute Sub-workflow",
+      "file": "rust/crates/sabflow-nodes/src/nodes/execute_workflow.rs",
+      "category": "logic",
+      "hasForgeFallback": true,
+      "forgeFallbackFile": "src/lib/sabflow/forge/blocks/n8n/internals/execute_workflow.ts",
+      "complexityHint": "M",
+      "notes": "Cycle-detection via ExecutionContext::caller_stack; sub-flow run delegated to ExecutionContext::sub_flow_invoker (SubFlowInvoker trait)."
+    },
+    {
+      "nodeType": "wait",
+      "displayName": "Wait",
+      "file": "rust/crates/sabflow-nodes/src/nodes/wait.rs",
+      "category": "logic",
+      "hasForgeFallback": false,
+      "complexityHint": "M",
+      "notes": "Modes: interval | timeInterval | dateTime | webhook. Long waits + webhook resume bridged through ExecutionContext::wait_resumer (WaitResumer trait)."
+    },
+    {
+      "nodeType": "stopAndError",
+      "displayName": "Stop and Error",
+      "file": "rust/crates/sabflow-nodes/src/nodes/stop_and_error.rs",
+      "category": "logic",
+      "hasForgeFallback": false,
+      "complexityHint": "S",
+      "notes": "Maps to NodeError::Halted, which the engine surfaces as terminal status: \"error\" with the user-supplied reason."
+    }
+  ],
+  "registryChanges": {
+    "stubsRemoved": ["executeWorkflow", "stopAndError"],
+    "modulesAdded": ["execute_workflow", "stop_and_error", "wait"],
+    "modulesRemoved": ["wait_node"]
+  },
+  "errorVariantsAdded": [
+    "NodeError::Halted(String)",
+    "NodeError::SubWorkflowCycle(String)"
+  ],
+  "contextExtensionsAdded": [
+    "ExecutionContext::caller_stack: Vec<String>",
+    "ExecutionContext::sub_flow_invoker: Option<Arc<dyn SubFlowInvoker>>",
+    "ExecutionContext::wait_resumer: Option<Arc<dyn WaitResumer>>"
+  ]
+}

@@ -18,17 +18,17 @@ pub mod function;
 pub mod if_node;
 pub mod switch_node;
 pub mod merge_node;
-pub mod wait_node;
-pub mod code;
+pub mod wait;
+pub mod code_node;
 pub mod schedule_trigger;
 pub mod manual_trigger;
 pub mod execute_workflow_trigger;
 pub mod webhook_trigger;
 pub mod noop_node;
 
-// ── Phase C.3.4: typed Logic / Transform nodes ──────────────────────────────
-pub mod filter;
-pub mod function_item;
+// ── Phase C.3.8 — sub-flow / wait / halt control-flow nodes ──────────────────
+pub mod execute_workflow;
+pub mod stop_and_error;
 
 // ── Fully-implemented integration nodes ─────────────────────────────────────
 pub mod slack;
@@ -126,16 +126,16 @@ fn register_implemented(r: &mut NodeRegistry) {
     r.register(if_node::IfNode);
     r.register(switch_node::SwitchNode);
     r.register(merge_node::MergeNode);
-    r.register(wait_node::WaitNode);
-    r.register(code::CodeNode);
+    r.register(wait::WaitNode);
+    r.register(code_node::CodeNode);
     r.register(schedule_trigger::ScheduleTriggerNode);
     r.register(manual_trigger::ManualTriggerNode);
     r.register(execute_workflow_trigger::ExecuteWorkflowTriggerNode);
     r.register(webhook_trigger::WebhookTriggerNode);
     r.register(noop_node::NoOpNode);
-    // C.3.4 — Filter (real impl) + FunctionItem (typed-error stub).
-    r.register(filter::FilterNode);
-    r.register(function_item::FunctionItemNode);
+    // C.3.8 — sub-flow + halt
+    r.register(execute_workflow::ExecuteWorkflowNode);
+    r.register(stop_and_error::StopAndErrorNode);
     // Integrations (20)
     r.register(slack::SlackNode);
     r.register(discord::DiscordNode);
@@ -290,7 +290,7 @@ fn register_stubs(r: &mut NodeRegistry) {
         ("evaluation", "Evaluation", NodeCategory::Ai, "Evaluate AI outputs"),
         ("eventbrite", "Eventbrite", NodeCategory::Productivity, "Event ticketing"),
         ("executeCommand", "Execute Command", NodeCategory::Developer, "Run a shell command"),
-        ("executeWorkflow", "Execute Sub-workflow", NodeCategory::Logic, "Run a sub-workflow"),
+        // `executeWorkflow` is fully implemented — see `execute_workflow::ExecuteWorkflowNode`.
         ("executionData", "Execution Data", NodeCategory::Developer, "Read execution metadata"),
         ("facebook", "Facebook", NodeCategory::Marketing, "Facebook Graph API"),
         ("facebookLeadAds", "Facebook Lead Ads", NodeCategory::Marketing, "Lead form submissions"),
@@ -447,7 +447,7 @@ fn register_stubs(r: &mut NodeRegistry) {
         ("ssh", "SSH", NodeCategory::Developer, "Execute SSH commands"),
         ("stackby", "Stackby", NodeCategory::Database, "Spreadsheet-style database"),
         ("stickyNote", "Sticky Note", NodeCategory::Misc, "Canvas annotation"),
-        ("stopAndError", "Stop and Error", NodeCategory::Logic, "Halt execution with error"),
+        // `stopAndError` is fully implemented — see `stop_and_error::StopAndErrorNode`.
         ("storyblok", "Storyblok", NodeCategory::Developer, "Headless CMS"),
         ("strapi", "Strapi", NodeCategory::Developer, "Headless CMS"),
         ("strava", "Strava", NodeCategory::Misc, "Athletic activity tracking"),

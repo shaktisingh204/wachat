@@ -32,6 +32,21 @@ pub enum NodeError {
     #[error("Serialization failed: {0}")]
     SerializationError(String),
 
+    /// A workflow-operation halt requested by a node (e.g. `StopAndError`).
+    ///
+    /// Mirrors n8n's `WorkflowOperationError`. The engine surfaces this as a
+    /// terminal `status: "error"` outcome — the workflow run stops here and
+    /// the supplied message becomes the run's failure reason.
+    #[error("Workflow halted: {0}")]
+    Halted(String),
+
+    /// A cycle was detected while attempting to invoke a sub-workflow.
+    ///
+    /// Raised by `ExecuteWorkflow` when the target id is already on the
+    /// caller stack — protects against accidental recursion.
+    #[error("Sub-workflow cycle detected: {0}")]
+    SubWorkflowCycle(String),
+
     #[error("{0}")]
     Other(String),
 }
