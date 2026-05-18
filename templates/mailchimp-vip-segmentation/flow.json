@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_daily",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": { "schedule": "0 4 * * *", "enabled": true }
+  },
+  "nodes": [
+    {
+      "id": "n_cron",
+      "name": "Daily 04:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "rule": { "interval": [{ "field": "cronExpression", "expression": "0 4 * * *" }] } }
+    },
+    {
+      "id": "n_list",
+      "name": "List Mailchimp Contacts",
+      "type": "n8n-nodes-base.mailchimp",
+      "typeVersion": 2,
+      "position": [240, 0],
+      "parameters": { "resource": "member", "operation": "getAll", "list": "={{ $vars.MAILCHIMP_LIST_ID }}" },
+      "credentials": { "mailchimpApi": { "id": "mailchimp-cred", "name": "Mailchimp" } }
+    },
+    {
+      "id": "n_split",
+      "name": "One Per Contact",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": { "batchSize": 1 }
+    },
+    {
+      "id": "n_stripe",
+      "name": "Stripe Customer Lookup",
+      "type": "n8n-nodes-base.stripe",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": { "resource": "customer", "operation": "get", "customerId": "={{ $json.email_address }}" },
+      "credentials": { "stripeApi": { "id": "stripe-cred", "name": "Stripe" } }
+    },
+    {
+      "id": "n_if",
+      "name": "LTV > VIP?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "conditions": {
+          "number": [{ "value1": "={{ $json.metadata.lifetime_value }}", "operation": "larger", "value2": "={{ $vars.VIP_THRESHOLD }}" }]
+        }
+      }
+    },
+    {
+      "id": "n_segment",
+      "name": "Add to VIP Segment",
+      "type": "n8n-nodes-base.mailchimp",
+      "typeVersion": 2,
+      "position": [1200, -120],
+      "parameters": { "resource": "memberSegment", "operation": "add", "list": "={{ $vars.MAILCHIMP_LIST_ID }}", "segment": "={{ $vars.VIP_SEGMENT_ID }}" },
+      "credentials": { "mailchimpApi": { "id": "mailchimp-cred", "name": "Mailchimp" } }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack #marketing",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, 120],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": "#marketing",
+        "text": "VIP segment refreshed."
+      },
+      "credentials": { "slackApi": { "id": "slack-cred", "name": "Slack" } }
+    }
+  ],
+  "connections": {
+    "n_cron": { "main": [[{ "node": "n_list", "type": "main", "index": 0 }]] },
+    "n_list": { "main": [[{ "node": "n_split", "type": "main", "index": 0 }]] },
+    "n_split": { "main": [[{ "node": "n_stripe", "type": "main", "index": 0 }]] },
+    "n_stripe": { "main": [[{ "node": "n_if", "type": "main", "index": 0 }]] },
+    "n_if": {
+      "true": [[{ "node": "n_segment", "type": "main", "index": 0 }]],
+      "false": [[{ "node": "n_slack", "type": "main", "index": 0 }]]
+    },
+    "n_segment": { "main": [[{ "node": "n_slack", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cron", "n_list", "n_split", "n_stripe", "n_if", "n_segment", "n_slack"]
+    }
+  ],
+  "variables": [
+    { "id": "v_list", "name": "MAILCHIMP_LIST_ID", "defaultValue": "" },
+    { "id": "v_seg", "name": "VIP_SEGMENT_ID", "defaultValue": "" },
+    { "id": "v_thresh", "name": "VIP_THRESHOLD", "defaultValue": "1000" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
