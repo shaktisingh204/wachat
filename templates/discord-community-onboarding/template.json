@@ -1,0 +1,10 @@
+{
+  "id": "discord-community-onboarding",
+  "name": "Discord Community Onboarding",
+  "description": "When a new member joins your Discord server, this flow sends a welcome DM with rules and links, assigns the default \"member\" role, and posts a hello message in #community. Also pings your community-ops Slack channel and logs the join to MongoDB so you can drop your idle moderator bot.",
+  "category": "Onboarding",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["discord", "onboarding", "community", "slack", "mongodb"],
+  "version": "0.1.0"
+}
