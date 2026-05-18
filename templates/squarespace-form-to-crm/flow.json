@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_sq_form",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "squarespace.form.submitted",
+    "options": {
+      "path": "/webhooks/squarespace-form-to-crm",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-SQ-Token",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_sq_webhook",
+      "name": "Squarespace Submission",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "httpMethod": "POST", "path": "squarespace-form-to-crm", "responseMode": "onReceived" },
+      "webhookId": "squarespace-form-to-crm-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Lead",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "email", "value": "={{ $json.data.email }}" },
+            { "name": "name", "value": "={{ $json.data.name }}" },
+            { "name": "message", "value": "={{ $json.data.message }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_hubspot_upsert",
+      "name": "Upsert HubSpot Contact",
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "resource": "contact",
+        "operation": "upsert",
+        "email": "={{ $json.email }}",
+        "additionalFields": { "firstname": "={{ $json.name }}" }
+      },
+      "credentials": { "hubspotApi": { "id": "hs-cred", "name": "HubSpot" } }
+    },
+    {
+      "id": "n_hubspot_deal",
+      "name": "Create Deal",
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "resource": "deal",
+        "operation": "create",
+        "dealName": "Inbound: {{ $node['Extract Lead'].json.name }}",
+        "additionalFields": { "dealstage": "appointmentscheduled" }
+      },
+      "credentials": { "hubspotApi": { "id": "hs-cred", "name": "HubSpot" } }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack #leads",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.LEADS_SLACK }}",
+        "text": ":wave: New Squarespace lead: *{{ $node['Extract Lead'].json.name }}* — {{ $node['Extract Lead'].json.email }}"
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    }
+  ],
+  "connections": {
+    "n_sq_webhook": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": { "main": [[{ "node": "n_hubspot_upsert", "type": "main", "index": 0 }]] },
+    "n_hubspot_upsert": { "main": [[{ "node": "n_hubspot_deal", "type": "main", "index": 0 }]] },
+    "n_hubspot_deal": { "main": [[{ "node": "n_slack", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_sq_webhook", "n_extract", "n_hubspot_upsert", "n_hubspot_deal", "n_slack"]
+    }
+  ],
+  "variables": [
+    { "id": "v_l", "name": "LEADS_SLACK", "defaultValue": "#leads" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "squarespace-form-to-crm",
+  "cases": [
+    {
+      "id": "form-to-hubspot",
+      "description": "Squarespace form upserts HubSpot and posts to Slack.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
