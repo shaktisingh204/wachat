@@ -121,10 +121,10 @@ pub mod my_sql;
 pub mod supabase;
 pub mod noco_db;
 
-// ── Phase C.6.3: git-webhook triggers ───────────────────────────────────────
-pub mod github_trigger;
-pub mod gitlab_trigger;
-pub mod bitbucket_trigger;
+// ── Phase C.6 — CRM webhook triggers ────────────────────────────────────────
+pub mod hubspot_trigger;
+pub mod salesforce_trigger;
+pub mod pipedrive_trigger;
 
 use crate::{descriptor::NodeCategory, registry::NodeRegistry};
 
@@ -250,10 +250,10 @@ fn register_implemented(r: &mut NodeRegistry) {
     r.register(my_sql::MySqlNode);
     r.register(supabase::SupabaseNode);
     r.register(noco_db::NocoDbNode);
-    // Phase C.6.3 — git-webhook triggers
-    r.register(github_trigger::GithubTriggerNode);
-    r.register(gitlab_trigger::GitlabTriggerNode);
-    r.register(bitbucket_trigger::BitbucketTriggerNode);
+    // Phase C.6.5 — CRM webhook triggers
+    r.register(hubspot_trigger::HubspotTriggerNode);
+    r.register(salesforce_trigger::SalesforceTriggerNode);
+    r.register(pipedrive_trigger::PipedriveTriggerNode);
 }
 
 /// Register stubs only when the name isn't already populated by an implemented node.
