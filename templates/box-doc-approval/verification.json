@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "box-doc-approval",
+  "cases": [
+    {
+      "id": "approve-path",
+      "description": "Box upload requests approval and on approve is moved to the approved folder.",
+      "triggerPayload": { "source": { "id": "f-1", "name": "Contract.pdf", "created_by": { "login": "uploader@example.com" } } },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

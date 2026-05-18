@@ -1,0 +1,10 @@
+{
+  "id": "box-doc-approval",
+  "name": "Box Document Approval",
+  "description": "Triggered when a Box upload is tagged 'approval-needed', the workflow pings a designated Slack approver with the document preview. Approving moves the file to the approved folder; rejecting notifies the uploader by email so they can revise and resubmit.",
+  "category": "Ops",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["box", "approval", "slack", "sendgrid", "documents", "ops"],
+  "version": "0.1.0"
+}
