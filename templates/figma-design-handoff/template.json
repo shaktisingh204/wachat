@@ -1,0 +1,10 @@
+{
+  "id": "figma-design-handoff",
+  "name": "Figma Design Handoff",
+  "description": "When a designer comments READY FOR DEV on a Figma frame, this flow fetches the frame thumbnail, posts a Slack message in #design-handoff with the thumbnail and link, opens a Linear task assigned to the engineering project, and writes a row to the design-handoff Airtable. Replaces a manual handoff checklist so design intent and engineering tickets stay in lockstep.",
+  "category": "Internal Tools",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["figma", "linear", "slack", "airtable", "design", "handoff"],
+  "version": "0.1.0"
+}

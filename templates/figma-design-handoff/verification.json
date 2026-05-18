@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "templateId": "figma-design-handoff",
+  "cases": [
+    {
+      "id": "happy-path",
+      "description": "Designer comments READY FOR DEV on a Figma frame; thumbnail is fetched and the handoff fans out to Slack, Linear, and Airtable before converging on Done.",
+      "triggerPayload": {
+        "file_key": "abc123",
+        "file_name": "Marketing Site v3",
+        "node_id": "42:108",
+        "node_name": "Pricing — Hero",
+        "user": { "handle": "maya.chen" },
+        "message": "READY FOR DEV — variant A approved by PM"
+      },
+      "fixtures": {
+        "https://api.figma.com/v1/images/abc123?ids=42:108&format=png&scale=2": {
+          "status": 200,
+          "body": {
+            "err": null,
+            "images": {
+              "42:108": "https://figma-cdn.example.com/thumb/abc123-42-108.png"
+            }
+          }
+        }
+      },
+      "expect": {
+        "finalStatus": "success",
+        "executedBlocks": [
+          "n_figma_comment_trigger",
+          "n_fetch_thumbnail",
+          "n_extract_handoff",
+          "n_slack_post",
+          "n_linear_create",
+          "n_airtable_log",
+          "n_done"
+        ]
+      }
+    }
+  ]
+}
