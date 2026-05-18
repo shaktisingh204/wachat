@@ -1,0 +1,177 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_mailchimp_unsub",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "mailchimp.contact.unsubscribed",
+    "options": {
+      "path": "/webhooks/mailchimp-unsub-suppression",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Mailchimp-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_mailchimp_trigger",
+      "name": "Mailchimp Unsubscribed",
+      "type": "n8n-nodes-base.mailchimpTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "events": ["unsubscribe"],
+        "list": "={{ $vars.MAILCHIMP_AUDIENCE_ID }}"
+      },
+      "credentials": {
+        "mailchimpApi": { "id": "mailchimp-cred", "name": "Mailchimp API" }
+      },
+      "webhookId": "mailchimp-unsub-webhook"
+    },
+    {
+      "id": "n_extract_email",
+      "name": "Extract Email",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "email", "value": "={{ ($json.data && $json.data.email || $json.email).toLowerCase().trim() }}" },
+            { "name": "listId", "value": "={{ $json.data && $json.data.list_id || $vars.MAILCHIMP_AUDIENCE_ID }}" },
+            { "name": "unsubscribedAt", "value": "={{ $now }}" },
+            { "name": "reason", "value": "={{ $json.data && $json.data.reason || 'mailchimp_unsubscribe' }}" }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "n_hubspot_update",
+      "name": "HubSpot Mark Unsubscribed",
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2,
+      "position": [520, -200],
+      "parameters": {
+        "resource": "contact",
+        "operation": "update",
+        "email": "={{ $node['Extract Email'].json.email }}",
+        "additionalFields": {
+          "propertiesUi": {
+            "propertyValues": [
+              { "property": "unsubscribed", "value": "true" },
+              { "property": "hs_email_optout", "value": "true" },
+              { "property": "unsubscribe_source", "value": "mailchimp" }
+            ]
+          }
+        }
+      },
+      "credentials": {
+        "hubspotApi": { "id": "hubspot-cred", "name": "HubSpot API" }
+      }
+    },
+    {
+      "id": "n_salesforce_update",
+      "name": "Salesforce Set HasOptedOutOfEmail",
+      "type": "n8n-nodes-base.salesforce",
+      "typeVersion": 1,
+      "position": [520, 0],
+      "parameters": {
+        "resource": "contact",
+        "operation": "upsert",
+        "externalId": "Email",
+        "externalIdValue": "={{ $node['Extract Email'].json.email }}",
+        "updateFields": {
+          "HasOptedOutOfEmail": true,
+          "EmailBouncedReason": "={{ $node['Extract Email'].json.reason }}"
+        }
+      },
+      "credentials": {
+        "salesforceOAuth2Api": { "id": "salesforce-cred", "name": "Salesforce OAuth2" }
+      }
+    },
+    {
+      "id": "n_mongo_upsert",
+      "name": "Mongo Upsert Suppression",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [520, 200],
+      "parameters": {
+        "operation": "update",
+        "collection": "email_suppressions",
+        "updateKey": "email",
+        "fields": "email,source,reason,unsubscribedAt",
+        "options": { "upsert": true },
+        "documents": "={{ [{ email: $node['Extract Email'].json.email, source: 'mailchimp', listId: $node['Extract Email'].json.listId, reason: $node['Extract Email'].json.reason, unsubscribedAt: $node['Extract Email'].json.unsubscribedAt }] }}"
+      },
+      "credentials": {
+        "mongoDb": { "id": "mongo-cred", "name": "Internal Mongo" }
+      }
+    },
+    {
+      "id": "n_slack_confirm",
+      "name": "Slack Confirm Marketing Ops",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [820, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.MARKETING_OPS_SLACK_CHANNEL }}",
+        "text": ":mailbox_with_no_mail: Unsubscribe mirrored: *{{ $node['Extract Email'].json.email }}* suppressed in HubSpot, Salesforce, and Mongo (source: mailchimp)."
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    }
+  ],
+  "connections": {
+    "n_mailchimp_trigger": {
+      "main": [[{ "node": "n_extract_email", "type": "main", "index": 0 }]]
+    },
+    "n_extract_email": {
+      "main": [
+        [
+          { "node": "n_hubspot_update", "type": "main", "index": 0 },
+          { "node": "n_salesforce_update", "type": "main", "index": 0 },
+          { "node": "n_mongo_upsert", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "n_hubspot_update": {
+      "main": [[{ "node": "n_slack_confirm", "type": "main", "index": 0 }]]
+    },
+    "n_salesforce_update": {
+      "main": [[{ "node": "n_slack_confirm", "type": "main", "index": 0 }]]
+    },
+    "n_mongo_upsert": {
+      "main": [[{ "node": "n_slack_confirm", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_mailchimp_trigger",
+        "n_extract_email",
+        "n_hubspot_update",
+        "n_salesforce_update",
+        "n_mongo_upsert",
+        "n_slack_confirm"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_audience", "name": "MAILCHIMP_AUDIENCE_ID", "defaultValue": "" },
+    { "id": "v_mkt_ops", "name": "MARKETING_OPS_SLACK_CHANNEL", "defaultValue": "#marketing-ops" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
