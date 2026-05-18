@@ -1,0 +1,111 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_cron_daily",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": { "schedule": "0 4 * * *", "enabled": true }
+  },
+  "nodes": [
+    {
+      "id": "n_cron_daily",
+      "name": "Daily 4am",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "rule": { "interval": [{ "field": "hours", "hoursInterval": 24 }] } }
+    },
+    {
+      "id": "n_bk_fetch",
+      "name": "Fetch Test Timings",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.BK_API }}/v2/organizations/{{ $vars.BK_ORG }}/pipelines/{{ $vars.BK_PIPELINE }}/builds?branch=main&per_page=5",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth"
+      },
+      "credentials": { "httpHeaderAuth": { "id": "buildkite-cred", "name": "Buildkite Token" } }
+    },
+    {
+      "id": "n_balance",
+      "name": "Compute Shard Plan",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "jsCode": "const SHARDS = 4;\nconst tests = ($input.first().json || []).flatMap(b => (b.jobs||[]).map(j=>({ name: j.name, t: j.run_time||1 })));\nconst bins = Array.from({length: SHARDS}, () => ({ names: [], t: 0 }));\nfor (const x of tests.sort((a,b)=>b.t-a.t)) { const b = bins.reduce((m,c)=>c.t<m.t?c:m, bins[0]); b.names.push(x.name); b.t += x.t; }\nreturn [{ json: { plan: bins.map((b,i)=>({ shard: i, names: b.names, t: b.t })) } }];"
+      }
+    },
+    {
+      "id": "n_format",
+      "name": "Format YAML",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "jsCode": "const plan = $input.first().json.plan;\nconst yaml = plan.map(p => `shard_${p.shard}:\\n  - ${p.names.join('\\n  - ')}`).join('\\n');\nreturn [{ json: { yaml, message: 'chore(ci): rebalance test shards' } }];"
+      }
+    },
+    {
+      "id": "n_gh_commit",
+      "name": "Commit Shard Plan",
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "resource": "file",
+        "operation": "edit",
+        "owner": "={{ $vars.GH_OWNER }}",
+        "repository": "={{ $vars.GH_REPO }}",
+        "filePath": ".buildkite/shards.yml",
+        "fileContent": "={{ $json.yaml }}",
+        "commitMessage": "={{ $json.message }}"
+      },
+      "credentials": { "githubApi": { "id": "github-cred", "name": "GitHub" } }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack #ci",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.CI_SLACK }}",
+        "text": ":balance_scale: Rebalanced Buildkite shards for {{ $vars.BK_PIPELINE }}."
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    }
+  ],
+  "connections": {
+    "n_cron_daily": { "main": [[{ "node": "n_bk_fetch", "type": "main", "index": 0 }]] },
+    "n_bk_fetch": { "main": [[{ "node": "n_balance", "type": "main", "index": 0 }]] },
+    "n_balance": { "main": [[{ "node": "n_format", "type": "main", "index": 0 }]] },
+    "n_format": { "main": [[{ "node": "n_gh_commit", "type": "main", "index": 0 }]] },
+    "n_gh_commit": { "main": [[{ "node": "n_slack", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cron_daily", "n_bk_fetch", "n_balance", "n_format", "n_gh_commit", "n_slack"]
+    }
+  ],
+  "variables": [
+    { "id": "v_b", "name": "BK_API", "defaultValue": "https://api.buildkite.com" },
+    { "id": "v_o", "name": "BK_ORG", "defaultValue": "" },
+    { "id": "v_p", "name": "BK_PIPELINE", "defaultValue": "" },
+    { "id": "v_gh_o", "name": "GH_OWNER", "defaultValue": "" },
+    { "id": "v_gh_r", "name": "GH_REPO", "defaultValue": "" },
+    { "id": "v_s", "name": "CI_SLACK", "defaultValue": "#ci" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
