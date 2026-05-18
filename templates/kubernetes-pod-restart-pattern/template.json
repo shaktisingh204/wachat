@@ -1,0 +1,10 @@
+{
+  "id": "kubernetes-pod-restart-pattern",
+  "name": "Kubernetes Pod Restart Pattern Detector",
+  "description": "Every hour, lists pods across all namespaces and flags any with more than three restarts in the last 24 hours. If a pattern emerges (the same container restarting in a loop), the flow pages the on-call rotation and opens a Linear ticket with kubectl context.",
+  "category": "Ops",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["kubernetes", "linear", "slack", "ops", "monitoring", "cron"],
+  "version": "0.1.0"
+}
