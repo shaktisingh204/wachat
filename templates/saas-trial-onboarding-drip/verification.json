@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "saas-trial-onboarding-drip",
+  "cases": [
+    {
+      "id": "trial-started",
+      "description": "Trial start triggers 3-touch drip and log.",
+      "triggerPayload": { "customer_email": "trial@example.com", "customer_name": "Sam" },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
