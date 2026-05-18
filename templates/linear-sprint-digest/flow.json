@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_fri",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": { "schedule": "0 16 * * 5", "enabled": true }
+  },
+  "nodes": [
+    {
+      "id": "n_cron",
+      "name": "Friday 16:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "rule": { "interval": [{ "field": "cronExpression", "expression": "0 16 * * 5" }] } }
+    },
+    {
+      "id": "n_linear",
+      "name": "Linear Completed Issues",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.linear.app/graphql",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "linearApi",
+        "sendBody": true,
+        "bodyParameters": { "parameters": [{ "name": "query", "value": "{ cycle(id: \"current\") { issues(filter: { state: { name: { eq: \"Done\" } } }) { nodes { id title } } } }" }] }
+      },
+      "credentials": { "linearApi": { "id": "linear-cred", "name": "Linear" } }
+    },
+    {
+      "id": "n_summary_list",
+      "name": "Summarize List",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const nodes = $input.first().json.data?.cycle?.issues?.nodes || []; return [{ json: { count: nodes.length, titles: nodes.map(n => n.title).join('\\n') } }];"
+      }
+    },
+    {
+      "id": "n_gpt",
+      "name": "GPT-4o Friendly Recap",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "resource": "chat",
+        "operation": "complete",
+        "model": "gpt-4o",
+        "messages": {
+          "values": [
+            { "role": "system", "content": "Write a friendly weekly engineering recap from these titles." },
+            { "role": "user", "content": "={{ $json.titles }}" }
+          ]
+        }
+      },
+      "credentials": { "openAiApi": { "id": "openai-cred", "name": "OpenAI" } }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack #engineering",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": "#engineering",
+        "text": "=*Sprint digest*\n{{ $json.message.content }}"
+      },
+      "credentials": { "slackApi": { "id": "slack-cred", "name": "Slack" } }
+    },
+    {
+      "id": "n_log",
+      "name": "Log Digest",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [1200, 0],
+      "parameters": { "operation": "insert", "collection": "sprint_digests", "fields": "week,content" },
+      "credentials": { "mongoDb": { "id": "mongo-cred", "name": "Mongo" } }
+    }
+  ],
+  "connections": {
+    "n_cron": { "main": [[{ "node": "n_linear", "type": "main", "index": 0 }]] },
+    "n_linear": { "main": [[{ "node": "n_summary_list", "type": "main", "index": 0 }]] },
+    "n_summary_list": { "main": [[{ "node": "n_gpt", "type": "main", "index": 0 }]] },
+    "n_gpt": { "main": [[{ "node": "n_slack", "type": "main", "index": 0 }]] },
+    "n_slack": { "main": [[{ "node": "n_log", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cron", "n_linear", "n_summary_list", "n_gpt", "n_slack", "n_log"]
+    }
+  ],
+  "variables": [],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
