@@ -1,0 +1,10 @@
+{
+  "id": "codefresh-image-sign",
+  "name": "Codefresh Image Sign",
+  "description": "When Codefresh emits `build.succeeded`, runs cosign to sign the newly-built container image with the team key, generates an SBOM, uploads both artifacts to a releases S3 bucket, and announces the signed digest in #releases. Hardens the supply chain without slowing CI.",
+  "category": "Developer",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["codefresh", "cosign", "sbom", "s3", "supply-chain", "webhook"],
+  "version": "0.1.0"
+}

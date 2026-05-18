@@ -1,0 +1,115 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_cf_built",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "codefresh.build.succeeded",
+    "options": {
+      "path": "/webhooks/codefresh-image-sign",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-CF-Token",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_cf_webhook",
+      "name": "Build Succeeded",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "httpMethod": "POST", "path": "codefresh-image-sign", "responseMode": "onReceived" },
+      "webhookId": "codefresh-image-sign-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Image",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "image", "value": "={{ $json.image }}" },
+            { "name": "digest", "value": "={{ $json.digest }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_cosign",
+      "name": "Run Cosign",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "command": "cosign sign --key {{ $vars.COSIGN_KEY_PATH }} {{ $json.image }}@{{ $json.digest }}"
+      }
+    },
+    {
+      "id": "n_sbom",
+      "name": "Generate SBOM",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "command": "syft {{ $node['Extract Image'].json.image }}@{{ $node['Extract Image'].json.digest }} -o spdx-json"
+      }
+    },
+    {
+      "id": "n_s3",
+      "name": "Upload SBOM",
+      "type": "n8n-nodes-base.awsS3",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "operation": "upload",
+        "bucketName": "={{ $vars.RELEASES_BUCKET }}",
+        "fileName": "sbom/{{ $node['Extract Image'].json.digest }}.spdx.json",
+        "binaryData": true,
+        "binaryPropertyName": "data"
+      },
+      "credentials": { "aws": { "id": "aws-cred", "name": "AWS S3" } }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack #releases",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.RELEASES_SLACK }}",
+        "text": ":lock: Signed image *{{ $node['Extract Image'].json.image }}@{{ $node['Extract Image'].json.digest }}* — SBOM uploaded."
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    }
+  ],
+  "connections": {
+    "n_cf_webhook": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": { "main": [[{ "node": "n_cosign", "type": "main", "index": 0 }]] },
+    "n_cosign": { "main": [[{ "node": "n_sbom", "type": "main", "index": 0 }]] },
+    "n_sbom": { "main": [[{ "node": "n_s3", "type": "main", "index": 0 }]] },
+    "n_s3": { "main": [[{ "node": "n_slack", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cf_webhook", "n_extract", "n_cosign", "n_sbom", "n_s3", "n_slack"]
+    }
+  ],
+  "variables": [
+    { "id": "v_k", "name": "COSIGN_KEY_PATH", "defaultValue": "/secrets/cosign.key" },
+    { "id": "v_b", "name": "RELEASES_BUCKET", "defaultValue": "" },
+    { "id": "v_s", "name": "RELEASES_SLACK", "defaultValue": "#releases" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
