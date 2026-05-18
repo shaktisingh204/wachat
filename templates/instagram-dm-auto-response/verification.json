@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "templateId": "instagram-dm-auto-response",
+  "cases": [
+    {
+      "id": "faq-dm",
+      "description": "An IG DM classified as FAQ gets the templated auto-reply.",
+      "triggerPayload": {
+        "entry": [{ "messaging": [{ "sender": { "id": "S1" }, "message": { "text": "What are your shipping times?" } }] }]
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

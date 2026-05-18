@@ -1,0 +1,172 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_ig_dm",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "instagram.message.received",
+    "options": {
+      "path": "/webhooks/instagram-dm",
+      "method": "POST",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_webhook",
+      "name": "IG DM Received",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "instagram-dm",
+        "responseMode": "onReceived"
+      },
+      "webhookId": "ig-dm-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract DM",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "senderId", "value": "={{ $json.entry[0].messaging[0].sender.id }}" },
+            { "name": "text", "value": "={{ $json.entry[0].messaging[0].message.text }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_classify",
+      "name": "GPT-4o Intent Classify",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "resource": "chat",
+        "operation": "complete",
+        "model": "gpt-4o-mini",
+        "messages": {
+          "values": [
+            { "role": "system", "content": "Return JSON { intent: 'faq'|'sales'|'spam' }." },
+            { "role": "user", "content": "{{ $json.text }}" }
+          ]
+        },
+        "options": { "responseFormat": "json_object", "temperature": 0 }
+      },
+      "credentials": {
+        "openAiApi": { "id": "openai-cred", "name": "OpenAI API" }
+      }
+    },
+    {
+      "id": "n_parse",
+      "name": "Parse Intent",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "intent", "value": "={{ JSON.parse($json.message.content).intent }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_route",
+      "name": "Route by Intent",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            { "conditions": { "string": [{ "value1": "={{ $json.intent }}", "operation": "equal", "value2": "faq" }] }, "outputKey": "faq" },
+            { "conditions": { "string": [{ "value1": "={{ $json.intent }}", "operation": "equal", "value2": "sales" }] }, "outputKey": "sales" }
+          ]
+        },
+        "fallbackOutput": "spam"
+      }
+    },
+    {
+      "id": "n_reply_faq",
+      "name": "FAQ Auto-Reply",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1200, -180],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/v18.0/{{ $vars.IG_BUSINESS_ID }}/messages",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "recipient.id", "value": "={{ $node['Extract DM'].json.senderId }}" },
+            { "name": "message.text", "value": "Thanks for the question — check our FAQ at {{ $vars.FAQ_URL }}." }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "ig-cred", "name": "Meta Page Token" }
+      }
+    },
+    {
+      "id": "n_reply_sales",
+      "name": "Sales Hand-off",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1200, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/v18.0/{{ $vars.IG_BUSINESS_ID }}/messages",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "recipient.id", "value": "={{ $node['Extract DM'].json.senderId }}" },
+            { "name": "message.text", "value": "A sales rep will get back to you shortly!" }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "ig-cred", "name": "Meta Page Token" }
+      }
+    },
+    {
+      "id": "n_spam_noop",
+      "name": "Drop Spam",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1200, 180],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "n_webhook": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": { "main": [[{ "node": "n_classify", "type": "main", "index": 0 }]] },
+    "n_classify": { "main": [[{ "node": "n_parse", "type": "main", "index": 0 }]] },
+    "n_parse": { "main": [[{ "node": "n_route", "type": "main", "index": 0 }]] },
+    "n_route": {
+      "faq": [[{ "node": "n_reply_faq", "type": "main", "index": 0 }]],
+      "sales": [[{ "node": "n_reply_sales", "type": "main", "index": 0 }]],
+      "spam": [[{ "node": "n_spam_noop", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_webhook", "n_extract", "n_classify", "n_parse", "n_route", "n_reply_faq", "n_reply_sales", "n_spam_noop"]
+    }
+  ],
+  "variables": [
+    { "id": "v_biz", "name": "IG_BUSINESS_ID", "defaultValue": "" },
+    { "id": "v_faq", "name": "FAQ_URL", "defaultValue": "https://example.com/faq" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
