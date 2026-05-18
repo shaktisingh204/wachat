@@ -36,6 +36,11 @@ pub mod local_file_trigger;
 pub mod email_trigger;
 pub mod mqtt_trigger;
 
+// ── Commerce-webhook triggers (Phase C.6.4) ─────────────────────────────────
+pub mod stripe_trigger;
+pub mod shopify_trigger;
+pub mod paypal_trigger;
+
 // ── Fully-implemented integration nodes ─────────────────────────────────────
 pub mod slack;
 pub mod slack_signature;
@@ -164,6 +169,10 @@ fn register_implemented(r: &mut NodeRegistry) {
     r.register(discord_interactions_trigger::DiscordInteractionsTriggerNode);
     r.register(telegram_trigger::TelegramTriggerNode);
     r.register(noop_node::NoOpNode);
+    // Commerce-webhook triggers (Phase C.6.4) — must register before stubs.
+    r.register(stripe_trigger::StripeTriggerNode);
+    r.register(shopify_trigger::ShopifyTriggerNode);
+    r.register(paypal_trigger::PaypalTriggerNode);
     // Integrations (20)
     r.register(slack::SlackNode);
     r.register(slack_trigger::SlackTriggerNode);
