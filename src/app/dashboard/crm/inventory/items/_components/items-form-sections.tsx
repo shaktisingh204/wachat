@@ -5,13 +5,9 @@ import {
   ZoruCheckbox,
   ZoruInput,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruTextarea,
 } from '@/components/zoruui';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import {
   Plus,
   Trash2 } from 'lucide-react';
@@ -32,12 +28,6 @@ import { EntityMultiFormField } from '@/components/crm/entity-multi-form-field';
 
 import { BoolToggle, Field, SectionCard } from './items-form-primitives';
 import type { OpeningStockRow, SpecRow } from './use-item-form';
-
-const ITEM_TYPES = [
-  { value: 'goods', label: 'Goods' },
-  { value: 'service', label: 'Service' },
-  { value: 'bundle', label: 'Bundle' },
-];
 
 /* ─── Section: Basic ─────────────────────────────────────────────────── */
 
@@ -71,18 +61,11 @@ export function BasicSection(props: BasicSectionProps) {
     <SectionCard title="Basic" description="Type, identifiers, taxonomy.">
       <div className="grid gap-4 md:grid-cols-2">
         <Field label="Type">
-          <ZoruSelect value={props.itemType} onValueChange={props.onItemType}>
-            <ZoruSelectTrigger>
-              <ZoruSelectValue />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
-              {ITEM_TYPES.map((t) => (
-                <ZoruSelectItem key={t.value} value={t.value}>
-                  {t.label}
-                </ZoruSelectItem>
-              ))}
-            </ZoruSelectContent>
-          </ZoruSelect>
+          <EnumFormField
+            enumName="itemType"
+            initialId={props.itemType}
+            onChange={(v) => props.onItemType(v ?? 'goods')}
+          />
           <input type="hidden" name="itemType" value={props.itemType} />
         </Field>
         <Field label="Name" required>

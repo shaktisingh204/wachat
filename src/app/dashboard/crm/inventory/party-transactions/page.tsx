@@ -5,11 +5,6 @@ import {
   ZoruCard,
   ZoruDatePicker,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruTable,
   ZoruTableBody,
   ZoruTableCell,
@@ -18,6 +13,7 @@ import {
   ZoruTableRow,
   useZoruToast,
 } from '@/components/zoruui';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import { Download, Users, LoaderCircle } from "lucide-react";
 import { useState, useEffect, useTransition } from 'react';
 import { generatePartyTransactionReport } from '@/app/actions/crm-reports.actions';
@@ -108,7 +104,7 @@ export default function PartyTransactionsReportPage() {
             <ZoruCard>
                 <h2 className="text-[16px] font-semibold text-foreground">Filters</h2>
                 <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="space-y-1"><ZoruLabel>Party Type</ZoruLabel><ZoruSelect value={partyType} onValueChange={(val) => setPartyType(val as any)}><ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="customer">Customer</ZoruSelectItem><ZoruSelectItem value="vendor">Vendor</ZoruSelectItem></ZoruSelectContent></ZoruSelect></div>
+                    <div className="space-y-1"><ZoruLabel>Party Type</ZoruLabel><EnumFormField enumName="partyTypeReport" name="partyType" initialId={partyType} onChange={(v) => setPartyType((v ?? 'customer') as 'customer' | 'vendor')} /></div>
                     <div className="space-y-1">
                         <ZoruLabel>Select Party</ZoruLabel>
                         {partyType === 'customer' ? (

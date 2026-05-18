@@ -66,20 +66,12 @@ export function PoFiltersRow(props: PoFiltersRowProps) {
                     <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                         Status
                     </ZoruLabel>
-                    <ZoruSelect
+                    <EnumFilterField
+                        enumName="productionOrderStatus"
                         value={props.status}
-                        onValueChange={(v) => props.onStatusChange(v as PoStatusFilter)}
-                    >
-                        <ZoruSelectTrigger>
-                            <ZoruSelectValue />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                            <ZoruSelectItem value="all">All</ZoruSelectItem>
-                            <ZoruSelectItem value="planned">Planned</ZoruSelectItem>
-                            <ZoruSelectItem value="in_progress">In progress</ZoruSelectItem>
-                            <ZoruSelectItem value="completed">Completed</ZoruSelectItem>
-                        </ZoruSelectContent>
-                    </ZoruSelect>
+                        onChange={(v) => props.onStatusChange(v as PoStatusFilter)}
+                        allLabel="All"
+                    />
                 </div>
 
                 <div className="space-y-1">

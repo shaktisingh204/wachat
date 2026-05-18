@@ -3,11 +3,6 @@
 import {
   ZoruButton,
   ZoruInput,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruTable,
   ZoruTableBody,
   ZoruTableCell,
@@ -15,6 +10,7 @@ import {
   ZoruTableHeader,
   ZoruTableRow,
 } from '@/components/zoruui';
+import { EnumFilterField } from '@/components/crm/enum-filter-field';
 import {
   Eye,
   LoaderCircle,
@@ -40,17 +36,6 @@ import type {
 } from '@/lib/rust-client/crm-payslips';
 
 const BASE = '/dashboard/crm/hr-payroll/payslips';
-
-const STATUS_OPTIONS: ReadonlyArray<{
-    value: CrmPayslipStatus | 'all';
-    label: string;
-}> = [
-    { value: 'all', label: 'All statuses' },
-    { value: 'draft', label: 'Draft' },
-    { value: 'issued', label: 'Issued' },
-    { value: 'paid', label: 'Paid' },
-    { value: 'archived', label: 'Archived' },
-];
 
 const STATUS_TONE: Record<CrmPayslipStatus, StatusTone> = {
     draft: 'amber',
@@ -134,23 +119,14 @@ export default function PayslipsListPage() {
                 }}
                 filters={
                     <>
-                        <ZoruSelect
+                        <EnumFilterField
+                            enumName="payslipStatus"
                             value={statusFilter}
-                            onValueChange={(v) =>
+                            onChange={(v) =>
                                 setStatusFilter(v as CrmPayslipStatus | 'all')
                             }
-                        >
-                            <ZoruSelectTrigger className="h-9 w-[180px]">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                            allLabel="All statuses"
+                        />
                         <ZoruInput
                             type="month"
                             className="h-9 w-[160px]"
