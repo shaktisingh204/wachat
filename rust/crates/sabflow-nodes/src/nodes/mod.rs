@@ -24,6 +24,9 @@ pub mod schedule_trigger;
 pub mod manual_trigger;
 pub mod execute_workflow_trigger;
 pub mod webhook_trigger;
+pub mod discord_trigger;
+pub mod discord_interactions_trigger;
+pub mod telegram_trigger;
 pub mod noop_node;
 // ── Phase C.4.9: trigger variants ───────────────────────────────────────────
 pub mod form_trigger;
@@ -160,8 +163,10 @@ fn register_implemented(r: &mut NodeRegistry) {
     r.register(manual_trigger::ManualTriggerNode);
     r.register(execute_workflow_trigger::ExecuteWorkflowTriggerNode);
     r.register(webhook_trigger::WebhookTriggerNode);
-    r.register(no_op::NoOpNode);
-    r.register(compression::CompressionNode);
+    r.register(discord_trigger::DiscordTriggerNode);
+    r.register(discord_interactions_trigger::DiscordInteractionsTriggerNode);
+    r.register(telegram_trigger::TelegramTriggerNode);
+    r.register(noop_node::NoOpNode);
     // Integrations (20)
     r.register(slack::SlackNode);
     r.register(slack_trigger::SlackTriggerNode);
