@@ -1,0 +1,166 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_cron_trigger",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": {
+      "schedule": "0 10 * * MON-FRI",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_cron_trigger",
+      "name": "Weekdays at 10:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "rule": {
+          "interval": [
+            { "field": "cronExpression", "expression": "0 10 * * MON-FRI" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_list_open_prs",
+      "name": "List Open PRs",
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "repository",
+        "operation": "getPullRequests",
+        "owner": "={{ $vars.GITHUB_OWNER }}",
+        "repository": "={{ $vars.GITHUB_REPO }}",
+        "filters": {
+          "state": "open",
+          "sort": "updated",
+          "direction": "asc"
+        }
+      },
+      "credentials": {
+        "githubOAuth2Api": { "id": "github-oauth-cred", "name": "GitHub OAuth2" }
+      }
+    },
+    {
+      "id": "n_split_prs",
+      "name": "Split Each PR",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "batchSize": 1
+      }
+    },
+    {
+      "id": "n_is_stale",
+      "name": "Idle More Than 7 Days?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "conditions": {
+          "dateTime": [
+            {
+              "value1": "={{ $json.updated_at }}",
+              "operation": "before",
+              "value2": "={{ $now.minus({ days: 7 }).toISO() }}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_slack_dm_author",
+      "name": "Slack DM Author",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [960, -120],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "=@{{ $json.user.login }}",
+        "text": ":wave: Your PR *#{{ $json.number }} — {{ $json.title }}* has been idle for over 7 days.\nGive it a Bump: {{ $vars.BUMP_URL_BASE }}?pr={{ $json.number }}\nOriginal: {{ $json.html_url }}"
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    },
+    {
+      "id": "n_log_reminder",
+      "name": "Log Reminder to MongoDB",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [1200, -120],
+      "parameters": {
+        "operation": "insert",
+        "collection": "={{ $vars.MONGO_LOG_COLLECTION }}",
+        "fields": "prNumber,prTitle,author,htmlUrl,remindedAt",
+        "options": {}
+      },
+      "credentials": {
+        "mongoDb": { "id": "mongo-cred", "name": "MongoDB" }
+      }
+    },
+    {
+      "id": "n_noop_fresh",
+      "name": "PR Still Fresh — Skip",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [960, 120],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "n_cron_trigger": {
+      "main": [[{ "node": "n_list_open_prs", "type": "main", "index": 0 }]]
+    },
+    "n_list_open_prs": {
+      "main": [[{ "node": "n_split_prs", "type": "main", "index": 0 }]]
+    },
+    "n_split_prs": {
+      "main": [[{ "node": "n_is_stale", "type": "main", "index": 0 }]]
+    },
+    "n_is_stale": {
+      "main": [
+        [{ "node": "n_slack_dm_author", "type": "main", "index": 0 }],
+        [{ "node": "n_noop_fresh", "type": "main", "index": 0 }]
+      ]
+    },
+    "n_slack_dm_author": {
+      "main": [[{ "node": "n_log_reminder", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_cron_trigger",
+        "n_list_open_prs",
+        "n_split_prs",
+        "n_is_stale",
+        "n_slack_dm_author",
+        "n_log_reminder",
+        "n_noop_fresh"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_gh_owner", "name": "GITHUB_OWNER", "defaultValue": "" },
+    { "id": "v_gh_repo", "name": "GITHUB_REPO", "defaultValue": "" },
+    { "id": "v_bump_url", "name": "BUMP_URL_BASE", "defaultValue": "https://example.com/bump" },
+    { "id": "v_mongo_coll", "name": "MONGO_LOG_COLLECTION", "defaultValue": "pr_reminders" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
