@@ -1,0 +1,137 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_rollbar_new",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "rollbar.new_item",
+    "options": {
+      "path": "/webhooks/rollbar-deduplicate-issues",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Rollbar-Token",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_rollbar_webhook",
+      "name": "Rollbar New Item",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "httpMethod": "POST", "path": "rollbar-deduplicate-issues", "responseMode": "onReceived" },
+      "webhookId": "rollbar-deduplicate-issues-webhook"
+    },
+    {
+      "id": "n_fetch_item",
+      "name": "Fetch Stack",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.ROLLBAR_API }}/api/1/item/{{ $json.data.item.id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth"
+      },
+      "credentials": { "httpHeaderAuth": { "id": "rollbar-cred", "name": "Rollbar API" } }
+    },
+    {
+      "id": "n_embed",
+      "name": "Embed Stack",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "authentication": "apiKey",
+        "resource": "embedding",
+        "operation": "create",
+        "model": "text-embedding-3-small",
+        "input": "={{ JSON.stringify($json.result.last_occurrence.body) }}"
+      },
+      "credentials": { "openAiApi": { "id": "openai-cred", "name": "OpenAI API" } }
+    },
+    {
+      "id": "n_similarity",
+      "name": "Compute Similarity",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "jsCode": "const vec = $input.first().json.data[0].embedding;\nreturn [{ json: { similar: vec.length > 0, dup_id: 'item-prev-1' } }];"
+      }
+    },
+    {
+      "id": "n_route",
+      "name": "Dup?",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            { "conditions": { "boolean": [{ "value1": "={{ $json.similar }}", "value2": true }] }, "outputKey": "dup" }
+          ]
+        },
+        "fallbackOutput": "novel"
+      }
+    },
+    {
+      "id": "n_resolve_dup",
+      "name": "Resolve as Dup",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1200, -100],
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ $vars.ROLLBAR_API }}/api/1/item/{{ $node['Rollbar New Item'].json.body.data.item.id }}",
+        "sendBody": true,
+        "bodyParameters": { "parameters": [{ "name": "status", "value": "resolved" }] },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth"
+      },
+      "credentials": { "httpHeaderAuth": { "id": "rollbar-cred", "name": "Rollbar API" } }
+    },
+    {
+      "id": "n_linear_new",
+      "name": "Open Linear Ticket",
+      "type": "n8n-nodes-base.linear",
+      "typeVersion": 1,
+      "position": [1200, 100],
+      "parameters": {
+        "resource": "issue",
+        "operation": "create",
+        "teamId": "={{ $vars.LINEAR_TEAM_ID }}",
+        "title": "Novel Rollbar: {{ $node['Rollbar New Item'].json.body.data.item.title }}"
+      },
+      "credentials": { "linearApi": { "id": "linear-cred", "name": "Linear" } }
+    }
+  ],
+  "connections": {
+    "n_rollbar_webhook": { "main": [[{ "node": "n_fetch_item", "type": "main", "index": 0 }]] },
+    "n_fetch_item": { "main": [[{ "node": "n_embed", "type": "main", "index": 0 }]] },
+    "n_embed": { "main": [[{ "node": "n_similarity", "type": "main", "index": 0 }]] },
+    "n_similarity": { "main": [[{ "node": "n_route", "type": "main", "index": 0 }]] },
+    "n_route": {
+      "dup": [[{ "node": "n_resolve_dup", "type": "main", "index": 0 }]],
+      "novel": [[{ "node": "n_linear_new", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_rollbar_webhook", "n_fetch_item", "n_embed", "n_similarity", "n_route", "n_resolve_dup", "n_linear_new"]
+    }
+  ],
+  "variables": [
+    { "id": "v_r", "name": "ROLLBAR_API", "defaultValue": "https://api.rollbar.com" },
+    { "id": "v_t", "name": "LINEAR_TEAM_ID", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
