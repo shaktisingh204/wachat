@@ -3,7 +3,7 @@ import { ArrowUpRight } from 'lucide-react';
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from './crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 export interface CrmModuleSection {
   href: string;
@@ -15,7 +15,7 @@ export interface CrmModuleSection {
 export interface CrmModuleOverviewProps {
   title: string;
   subtitle: string;
-  icon: React.ElementType;
+  icon?: React.ElementType;
   sections: CrmModuleSection[];
 }
 
@@ -28,12 +28,10 @@ export interface CrmModuleOverviewProps {
 export function CrmModuleOverview({
   title,
   subtitle,
-  icon,
   sections,
 }: CrmModuleOverviewProps) {
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader title={title} subtitle={subtitle} icon={icon} />
+    <EntityListShell title={title} subtitle={subtitle}>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {sections.map(({ href, label, description, icon: Icon }) => (
@@ -60,6 +58,6 @@ export function CrmModuleOverview({
           </Link>
         ))}
       </div>
-    </div>
+    </EntityListShell>
   );
 }
