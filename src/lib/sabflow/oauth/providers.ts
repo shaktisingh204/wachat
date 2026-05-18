@@ -6,6 +6,9 @@
  */
 
 import type { OAuthProvider, OAuthTokens } from './types';
+import { OAUTH_PROVIDER_FOR_CREDENTIAL_TYPE } from './credential-type-map';
+
+export { OAUTH_PROVIDER_FOR_CREDENTIAL_TYPE } from './credential-type-map';
 
 const PROVIDERS = new Map<string, OAuthProvider>();
 
@@ -15,6 +18,13 @@ export function getOAuthProvider(id: string): OAuthProvider | undefined {
 
 export function listOAuthProviders(): OAuthProvider[] {
   return Array.from(PROVIDERS.values());
+}
+
+export function getOAuthProviderForCredentialType(
+  credentialType: string,
+): OAuthProvider | undefined {
+  const id = OAUTH_PROVIDER_FOR_CREDENTIAL_TYPE[credentialType];
+  return id ? PROVIDERS.get(id) : undefined;
 }
 
 /* ── Google ─────────────────────────────────────────────────────────────── */
@@ -326,6 +336,253 @@ const linearProvider: OAuthProvider = {
 };
 PROVIDERS.set(linearProvider.id, linearProvider);
 
+/* ── Discord ────────────────────────────────────────────────────────────── */
+
+const discordProvider: OAuthProvider = {
+  id: 'discord',
+  label: 'Discord',
+  defaultScopes: ['identify', 'guilds', 'bot'],
+  buildAuthorizeUrl({ config, state, scopes }) {
+    const params = new URLSearchParams({
+      client_id: config.clientId,
+      redirect_uri: config.redirectUri,
+      response_type: 'code',
+      scope: (scopes ?? discordProvider.defaultScopes).join(' '),
+      state,
+      prompt: 'consent',
+    });
+    return `https://discord.com/oauth2/authorize?${params.toString()}`;
+  },
+  exchangeCode: ({ code, config }) =>
+    tokenRequest({
+      url: 'https://discord.com/api/oauth2/token',
+      body: {
+        code,
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+        redirect_uri: config.redirectUri,
+        grant_type: 'authorization_code',
+      },
+    }),
+  refreshAccessToken: ({ refreshToken, config }) =>
+    tokenRequest({
+      url: 'https://discord.com/api/oauth2/token',
+      body: {
+        refresh_token: refreshToken,
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+        grant_type: 'refresh_token',
+      },
+    }),
+};
+PROVIDERS.set(discordProvider.id, discordProvider);
+
+/* ── HubSpot ────────────────────────────────────────────────────────────── */
+
+const hubspotProvider: OAuthProvider = {
+  id: 'hubspot',
+  label: 'HubSpot',
+  defaultScopes: ['oauth', 'crm.objects.contacts.read', 'crm.objects.contacts.write'],
+  buildAuthorizeUrl({ config, state, scopes }) {
+    const params = new URLSearchParams({
+      client_id: config.clientId,
+      redirect_uri: config.redirectUri,
+      scope: (scopes ?? hubspotProvider.defaultScopes).join(' '),
+      state,
+    });
+    return `https://app.hubspot.com/oauth/authorize?${params.toString()}`;
+  },
+  exchangeCode: ({ code, config }) =>
+    tokenRequest({
+      url: 'https://api.hubapi.com/oauth/v1/token',
+      body: {
+        grant_type: 'authorization_code',
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+        redirect_uri: config.redirectUri,
+        code,
+      },
+    }),
+  refreshAccessToken: ({ refreshToken, config }) =>
+    tokenRequest({
+      url: 'https://api.hubapi.com/oauth/v1/token',
+      body: {
+        grant_type: 'refresh_token',
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+        refresh_token: refreshToken,
+      },
+    }),
+};
+PROVIDERS.set(hubspotProvider.id, hubspotProvider);
+
+/* ── Asana ──────────────────────────────────────────────────────────────── */
+
+const asanaProvider: OAuthProvider = {
+  id: 'asana',
+  label: 'Asana',
+  defaultScopes: ['default'],
+  buildAuthorizeUrl({ config, state, scopes }) {
+    const params = new URLSearchParams({
+      client_id: config.clientId,
+      redirect_uri: config.redirectUri,
+      response_type: 'code',
+      state,
+      scope: (scopes ?? asanaProvider.defaultScopes).join(' '),
+    });
+    return `https://app.asana.com/-/oauth_authorize?${params.toString()}`;
+  },
+  exchangeCode: ({ code, config }) =>
+    tokenRequest({
+      url: 'https://app.asana.com/-/oauth_token',
+      body: {
+        grant_type: 'authorization_code',
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+        redirect_uri: config.redirectUri,
+        code,
+      },
+    }),
+  refreshAccessToken: ({ refreshToken, config }) =>
+    tokenRequest({
+      url: 'https://app.asana.com/-/oauth_token',
+      body: {
+        grant_type: 'refresh_token',
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+        refresh_token: refreshToken,
+      },
+    }),
+};
+PROVIDERS.set(asanaProvider.id, asanaProvider);
+
+/* ── Atlassian (Jira / Confluence Cloud) ────────────────────────────────── */
+
+const atlassianProvider: OAuthProvider = {
+  id: 'atlassian',
+  label: 'Atlassian',
+  defaultScopes: [
+    'read:jira-user',
+    'read:jira-work',
+    'write:jira-work',
+    'offline_access',
+  ],
+  buildAuthorizeUrl({ config, state, scopes }) {
+    const params = new URLSearchParams({
+      audience: 'api.atlassian.com',
+      client_id: config.clientId,
+      scope: (scopes ?? atlassianProvider.defaultScopes).join(' '),
+      redirect_uri: config.redirectUri,
+      state,
+      response_type: 'code',
+      prompt: 'consent',
+    });
+    return `https://auth.atlassian.com/authorize?${params.toString()}`;
+  },
+  exchangeCode: ({ code, config }) =>
+    tokenRequest({
+      url: 'https://auth.atlassian.com/oauth/token',
+      body: {
+        grant_type: 'authorization_code',
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+        code,
+        redirect_uri: config.redirectUri,
+      },
+    }),
+  refreshAccessToken: ({ refreshToken, config }) =>
+    tokenRequest({
+      url: 'https://auth.atlassian.com/oauth/token',
+      body: {
+        grant_type: 'refresh_token',
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+        refresh_token: refreshToken,
+      },
+    }),
+};
+PROVIDERS.set(atlassianProvider.id, atlassianProvider);
+
+/* ── Zoom ───────────────────────────────────────────────────────────────── */
+
+const zoomProvider: OAuthProvider = {
+  id: 'zoom',
+  label: 'Zoom',
+  defaultScopes: ['meeting:write', 'user:read'],
+  buildAuthorizeUrl({ config, state }) {
+    const params = new URLSearchParams({
+      response_type: 'code',
+      client_id: config.clientId,
+      redirect_uri: config.redirectUri,
+      state,
+    });
+    return `https://zoom.us/oauth/authorize?${params.toString()}`;
+  },
+  exchangeCode: ({ code, config }) =>
+    tokenRequest({
+      url: 'https://zoom.us/oauth/token',
+      body: {
+        grant_type: 'authorization_code',
+        code,
+        redirect_uri: config.redirectUri,
+      },
+      basicAuth: { clientId: config.clientId, clientSecret: config.clientSecret },
+    }),
+  refreshAccessToken: ({ refreshToken, config }) =>
+    tokenRequest({
+      url: 'https://zoom.us/oauth/token',
+      body: {
+        grant_type: 'refresh_token',
+        refresh_token: refreshToken,
+      },
+      basicAuth: { clientId: config.clientId, clientSecret: config.clientSecret },
+    }),
+};
+PROVIDERS.set(zoomProvider.id, zoomProvider);
+
+/* ── Spotify ────────────────────────────────────────────────────────────── */
+
+const spotifyProvider: OAuthProvider = {
+  id: 'spotify',
+  label: 'Spotify',
+  defaultScopes: ['user-read-email', 'user-read-private', 'playlist-read-private'],
+  buildAuthorizeUrl({ config, state, scopes }) {
+    const params = new URLSearchParams({
+      response_type: 'code',
+      client_id: config.clientId,
+      redirect_uri: config.redirectUri,
+      state,
+      scope: (scopes ?? spotifyProvider.defaultScopes).join(' '),
+      show_dialog: 'true',
+    });
+    return `https://accounts.spotify.com/authorize?${params.toString()}`;
+  },
+  exchangeCode: ({ code, config }) =>
+    tokenRequest({
+      url: 'https://accounts.spotify.com/api/token',
+      body: {
+        grant_type: 'authorization_code',
+        code,
+        redirect_uri: config.redirectUri,
+      },
+      basicAuth: { clientId: config.clientId, clientSecret: config.clientSecret },
+    }),
+  async refreshAccessToken({ refreshToken, config }) {
+    const tokens = await tokenRequest({
+      url: 'https://accounts.spotify.com/api/token',
+      body: {
+        grant_type: 'refresh_token',
+        refresh_token: refreshToken,
+      },
+      basicAuth: { clientId: config.clientId, clientSecret: config.clientSecret },
+    });
+    // Spotify often omits refresh_token on refresh — preserve the original.
+    if (!tokens.refreshToken) tokens.refreshToken = refreshToken;
+    return tokens;
+  },
+};
+PROVIDERS.set(spotifyProvider.id, spotifyProvider);
+
 /* ── Shared token-endpoint helper ───────────────────────────────────────── */
 
 async function tokenRequest(opts: {
@@ -333,12 +590,20 @@ async function tokenRequest(opts: {
   body: Record<string, string>;
   /** Send `Accept: application/json` (GitHub returns form-encoded by default). */
   acceptJson?: boolean;
+  /** Send client credentials via HTTP Basic instead of form fields (Zoom/Spotify/Reddit/Twitch). */
+  basicAuth?: { clientId: string; clientSecret: string };
 }): Promise<OAuthTokens> {
   const body = new URLSearchParams(opts.body).toString();
   const headers: Record<string, string> = {
     'Content-Type': 'application/x-www-form-urlencoded',
   };
   if (opts.acceptJson) headers.Accept = 'application/json';
+  if (opts.basicAuth) {
+    const encoded = Buffer.from(
+      `${opts.basicAuth.clientId}:${opts.basicAuth.clientSecret}`,
+    ).toString('base64');
+    headers.Authorization = `Basic ${encoded}`;
+  }
   const res = await fetch(opts.url, {
     method: 'POST',
     headers,
