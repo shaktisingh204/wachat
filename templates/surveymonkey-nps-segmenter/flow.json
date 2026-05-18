@@ -1,0 +1,262 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_sm_webhook",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "surveymonkey.response.completed",
+    "options": {
+      "path": "/webhooks/surveymonkey-nps-segmenter",
+      "method": "POST",
+      "authentication": "headerAuth",
+      "responseMode": "onReceived",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_sm_webhook",
+      "name": "SurveyMonkey Response",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "surveymonkey-nps-segmenter",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "surveymonkey-nps-webhook"
+    },
+    {
+      "id": "n_parse_score",
+      "name": "Parse Score & Email",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [240, 0],
+      "parameters": {
+        "keepOnlySet": false,
+        "values": {
+          "number": [
+            { "name": "nps_score", "value": "={{ Number($json.body.pages[0].questions[0].answers[0].text) }}" }
+          ],
+          "string": [
+            { "name": "email", "value": "={{ $json.body.recipient.email_address }}" },
+            { "name": "response_id", "value": "={{ $json.body.id }}" },
+            { "name": "survey_id", "value": "={{ $json.body.survey_id }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_bucket_switch",
+      "name": "Bucket by NPS Score",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            { "conditions": { "number": [{ "value1": "={{ $json.nps_score }}", "operation": "largerEqual", "value2": 9 }] }, "outputKey": "promoter" },
+            { "conditions": { "number": [{ "value1": "={{ $json.nps_score }}", "operation": "largerEqual", "value2": 7 }] }, "outputKey": "passive" },
+            { "conditions": { "number": [{ "value1": "={{ $json.nps_score }}", "operation": "smaller", "value2": 7 }] }, "outputKey": "detractor" }
+          ]
+        },
+        "fallbackOutput": "none"
+      }
+    },
+    {
+      "id": "n_mc_tag_promoter",
+      "name": "Mailchimp: Tag Promoter",
+      "type": "n8n-nodes-base.mailchimp",
+      "typeVersion": 1,
+      "position": [720, -240],
+      "parameters": {
+        "resource": "memberTag",
+        "operation": "update",
+        "list": "={{ $env.MAILCHIMP_LIST_ID }}",
+        "email": "={{ $json.email }}",
+        "tags": { "tag": [{ "name": "nps-promoter", "status": "active" }] }
+      },
+      "credentials": {
+        "mailchimpApi": { "id": "mailchimp-cred", "name": "Mailchimp API" }
+      }
+    },
+    {
+      "id": "n_hs_update_promoter",
+      "name": "HubSpot: Write Promoter Score",
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2,
+      "position": [960, -240],
+      "parameters": {
+        "resource": "contact",
+        "operation": "update",
+        "email": "={{ $json.email }}",
+        "additionalFields": {
+          "nps_score": "={{ $json.nps_score }}",
+          "nps_bucket": "promoter",
+          "nps_last_response_id": "={{ $json.response_id }}"
+        }
+      },
+      "credentials": {
+        "hubspotApi": { "id": "hubspot-cred", "name": "HubSpot API" }
+      }
+    },
+    {
+      "id": "n_mc_tag_passive",
+      "name": "Mailchimp: Tag Passive",
+      "type": "n8n-nodes-base.mailchimp",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "resource": "memberTag",
+        "operation": "update",
+        "list": "={{ $env.MAILCHIMP_LIST_ID }}",
+        "email": "={{ $json.email }}",
+        "tags": { "tag": [{ "name": "nps-passive", "status": "active" }] }
+      },
+      "credentials": {
+        "mailchimpApi": { "id": "mailchimp-cred", "name": "Mailchimp API" }
+      }
+    },
+    {
+      "id": "n_hs_update_passive",
+      "name": "HubSpot: Write Passive Score",
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "resource": "contact",
+        "operation": "update",
+        "email": "={{ $json.email }}",
+        "additionalFields": {
+          "nps_score": "={{ $json.nps_score }}",
+          "nps_bucket": "passive",
+          "nps_last_response_id": "={{ $json.response_id }}"
+        }
+      },
+      "credentials": {
+        "hubspotApi": { "id": "hubspot-cred", "name": "HubSpot API" }
+      }
+    },
+    {
+      "id": "n_mc_tag_detractor",
+      "name": "Mailchimp: Tag Detractor",
+      "type": "n8n-nodes-base.mailchimp",
+      "typeVersion": 1,
+      "position": [720, 240],
+      "parameters": {
+        "resource": "memberTag",
+        "operation": "update",
+        "list": "={{ $env.MAILCHIMP_LIST_ID }}",
+        "email": "={{ $json.email }}",
+        "tags": { "tag": [{ "name": "nps-detractor", "status": "active" }] }
+      },
+      "credentials": {
+        "mailchimpApi": { "id": "mailchimp-cred", "name": "Mailchimp API" }
+      }
+    },
+    {
+      "id": "n_hs_update_detractor",
+      "name": "HubSpot: Write Detractor Score",
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2,
+      "position": [960, 240],
+      "parameters": {
+        "resource": "contact",
+        "operation": "update",
+        "email": "={{ $json.email }}",
+        "additionalFields": {
+          "nps_score": "={{ $json.nps_score }}",
+          "nps_bucket": "detractor",
+          "nps_last_response_id": "={{ $json.response_id }}"
+        }
+      },
+      "credentials": {
+        "hubspotApi": { "id": "hubspot-cred", "name": "HubSpot API" }
+      }
+    },
+    {
+      "id": "n_intercom_open_thread",
+      "name": "Intercom: Open Follow-up Thread",
+      "type": "n8n-nodes-base.intercom",
+      "typeVersion": 1,
+      "position": [1200, 240],
+      "parameters": {
+        "resource": "conversation",
+        "operation": "create",
+        "userEmail": "={{ $json.email }}",
+        "body": "Hi — we saw your recent NPS response of {{ $json.nps_score }}/10 and wanted to follow up personally. What can we do better?",
+        "additionalFields": {
+          "messageType": "inapp",
+          "subject": "Following up on your NPS feedback"
+        }
+      },
+      "credentials": {
+        "intercomApi": { "id": "intercom-cred", "name": "Intercom API" }
+      }
+    }
+  ],
+  "connections": {
+    "n_sm_webhook": {
+      "main": [[{ "node": "n_parse_score", "type": "main", "index": 0 }]]
+    },
+    "n_parse_score": {
+      "main": [[{ "node": "n_bucket_switch", "type": "main", "index": 0 }]]
+    },
+    "n_bucket_switch": {
+      "promoter": [[{ "node": "n_mc_tag_promoter", "type": "main", "index": 0 }]],
+      "passive": [[{ "node": "n_mc_tag_passive", "type": "main", "index": 0 }]],
+      "detractor": [[{ "node": "n_mc_tag_detractor", "type": "main", "index": 0 }]]
+    },
+    "n_mc_tag_promoter": {
+      "main": [[{ "node": "n_hs_update_promoter", "type": "main", "index": 0 }]]
+    },
+    "n_mc_tag_passive": {
+      "main": [[{ "node": "n_hs_update_passive", "type": "main", "index": 0 }]]
+    },
+    "n_mc_tag_detractor": {
+      "main": [[{ "node": "n_hs_update_detractor", "type": "main", "index": 0 }]]
+    },
+    "n_hs_update_detractor": {
+      "main": [[{ "node": "n_intercom_open_thread", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_ingest",
+      "title": "Ingest & Parse",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_sm_webhook", "n_parse_score", "n_bucket_switch"]
+    },
+    {
+      "id": "g_promoter",
+      "title": "Promoter Branch",
+      "graphCoordinates": { "x": 720, "y": -240 },
+      "blockIds": ["n_mc_tag_promoter", "n_hs_update_promoter"]
+    },
+    {
+      "id": "g_passive",
+      "title": "Passive Branch",
+      "graphCoordinates": { "x": 720, "y": 0 },
+      "blockIds": ["n_mc_tag_passive", "n_hs_update_passive"]
+    },
+    {
+      "id": "g_detractor",
+      "title": "Detractor Branch",
+      "graphCoordinates": { "x": 720, "y": 240 },
+      "blockIds": ["n_mc_tag_detractor", "n_hs_update_detractor", "n_intercom_open_thread"]
+    }
+  ],
+  "variables": [
+    { "name": "nps_score", "defaultValue": "" },
+    { "name": "email", "defaultValue": "" },
+    { "name": "response_id", "defaultValue": "" },
+    { "name": "survey_id", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

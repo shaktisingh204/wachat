@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 1,
+  "templateId": "surveymonkey-nps-segmenter",
+  "cases": [
+    {
+      "id": "promoter-path",
+      "description": "Score of 10 routes to the promoter branch: Mailchimp tag + HubSpot score update, no Intercom thread.",
+      "triggerPayload": {
+        "body": {
+          "id": "resp_promoter_1",
+          "survey_id": "svy_123",
+          "recipient": { "email_address": "happy@example.com" },
+          "pages": [{ "questions": [{ "answers": [{ "text": "10" }] }] }]
+        }
+      },
+      "expect": {
+        "finalStatus": "success",
+        "executedBlocks": [
+          "n_sm_webhook",
+          "n_parse_score",
+          "n_bucket_switch",
+          "n_mc_tag_promoter",
+          "n_hs_update_promoter"
+        ],
+        "variables": { "nps_bucket": "promoter" }
+      }
+    },
+    {
+      "id": "passive-path",
+      "description": "Score of 8 routes to the passive branch: Mailchimp tag + HubSpot score update.",
+      "triggerPayload": {
+        "body": {
+          "id": "resp_passive_1",
+          "survey_id": "svy_123",
+          "recipient": { "email_address": "meh@example.com" },
+          "pages": [{ "questions": [{ "answers": [{ "text": "8" }] }] }]
+        }
+      },
+      "expect": {
+        "finalStatus": "success",
+        "executedBlocks": [
+          "n_sm_webhook",
+          "n_parse_score",
+          "n_bucket_switch",
+          "n_mc_tag_passive",
+          "n_hs_update_passive"
+        ],
+        "variables": { "nps_bucket": "passive" }
+      }
+    },
+    {
+      "id": "detractor-path",
+      "description": "Score of 3 routes to the detractor branch and additionally opens an Intercom follow-up thread.",
+      "triggerPayload": {
+        "body": {
+          "id": "resp_detractor_1",
+          "survey_id": "svy_123",
+          "recipient": { "email_address": "unhappy@example.com" },
+          "pages": [{ "questions": [{ "answers": [{ "text": "3" }] }] }]
+        }
+      },
+      "expect": {
+        "finalStatus": "success",
+        "executedBlocks": [
+          "n_sm_webhook",
+          "n_parse_score",
+          "n_bucket_switch",
+          "n_mc_tag_detractor",
+          "n_hs_update_detractor",
+          "n_intercom_open_thread"
+        ],
+        "variables": { "nps_bucket": "detractor" }
+      }
+    }
+  ]
+}
