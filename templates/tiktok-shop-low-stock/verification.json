@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "tiktok-shop-low-stock",
+  "cases": [
+    {
+      "id": "daily-pull",
+      "description": "Daily cron pulls TikTok Shop inventory and opens Linear tickets for low-stock SKUs.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

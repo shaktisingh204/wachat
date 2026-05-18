@@ -1,0 +1,117 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_daily_stock",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": { "schedule": "0 6 * * *", "enabled": true }
+  },
+  "nodes": [
+    {
+      "id": "n_cron",
+      "name": "Daily 06:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 6 * * *" }] }
+      }
+    },
+    {
+      "id": "n_tt_inventory",
+      "name": "TikTok Shop Inventory",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "=https://open-api.tiktokglobalshop.com/seller/202309/products?shop_id={{ $vars.TT_SHOP_ID }}"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "tiktok-cred", "name": "TikTok Shop Token" }
+      }
+    },
+    {
+      "id": "n_filter_low",
+      "name": "Filter Low Stock",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const items = $input.first().json.data.products || []; const lows = items.filter(p => p.available_qty < Number($vars.LOW_STOCK_THRESHOLD || 10)); return lows.map(p => ({ json: p }));"
+      }
+    },
+    {
+      "id": "n_split",
+      "name": "Per SKU",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": { "batchSize": 1 }
+    },
+    {
+      "id": "n_linear",
+      "name": "Linear Reorder Ticket",
+      "type": "n8n-nodes-base.linear",
+      "typeVersion": 1,
+      "position": [960, -100],
+      "parameters": {
+        "resource": "issue",
+        "operation": "create",
+        "teamId": "={{ $vars.LINEAR_MERCH_TEAM }}",
+        "title": "Reorder SKU {{ $json.sku }} ({{ $json.title }}) — {{ $json.available_qty }} left"
+      },
+      "credentials": {
+        "linearApi": { "id": "linear-cred", "name": "Linear API" }
+      }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack #merch",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [960, 100],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.MERCH_CHANNEL }}",
+        "text": ":package: Low stock: {{ $json.title }} (SKU {{ $json.sku }}) — {{ $json.available_qty }} remaining"
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    }
+  ],
+  "connections": {
+    "n_cron": { "main": [[{ "node": "n_tt_inventory", "type": "main", "index": 0 }]] },
+    "n_tt_inventory": { "main": [[{ "node": "n_filter_low", "type": "main", "index": 0 }]] },
+    "n_filter_low": { "main": [[{ "node": "n_split", "type": "main", "index": 0 }]] },
+    "n_split": {
+      "main": [
+        [
+          { "node": "n_linear", "type": "main", "index": 0 },
+          { "node": "n_slack", "type": "main", "index": 0 }
+        ]
+      ]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cron", "n_tt_inventory", "n_filter_low", "n_split", "n_linear", "n_slack"]
+    }
+  ],
+  "variables": [
+    { "id": "v_shop", "name": "TT_SHOP_ID", "defaultValue": "" },
+    { "id": "v_thr", "name": "LOW_STOCK_THRESHOLD", "defaultValue": "10" },
+    { "id": "v_team", "name": "LINEAR_MERCH_TEAM", "defaultValue": "" },
+    { "id": "v_chan", "name": "MERCH_CHANNEL", "defaultValue": "#merch" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
