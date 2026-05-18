@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "gusto-tax-document-distributor",
+  "cases": [
+    {
+      "id": "annual-run",
+      "description": "Yearly cron archives every Gusto tax form and emails employees.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
