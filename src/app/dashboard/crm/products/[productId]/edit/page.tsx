@@ -13,7 +13,7 @@ import { Package } from 'lucide-react';
 
 import { getCrmProductById } from '@/app/actions/crm-products.actions';
 
-import { CrmPageHeader } from '../../../../_components/crm-page-header';
+import { CrmPageHeader } from '../../../_components/crm-page-header';
 import { ItemForm } from '../../_components/item-form';
 
 export const dynamic = 'force-dynamic';
