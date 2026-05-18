@@ -17,9 +17,7 @@ import {
   ZoruTableRow,
   useZoruToast,
 } from '@/components/zoruui';
-import {
-  FileText,
-  LoaderCircle } from 'lucide-react';
+import { LoaderCircle } from 'lucide-react';
 
 /**
  * GSTR-3B page — `CRM_REBUILD_PLAN.md` §6.10.
@@ -31,7 +29,7 @@ import {
 
 import * as React from 'react';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
     generateGstr3bReport,
     type Period,
@@ -76,12 +74,10 @@ export default function Gstr3bPage() {
     }, [period, toast]);
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="GSTR-3B"
-                subtitle="Monthly summary return — outward, ITC, RCM, tax payable."
-                icon={FileText}
-            />
+        <EntityListShell
+            title="GSTR-3B"
+            subtitle="Monthly summary return — outward, ITC, RCM, tax payable."
+        >
 
             <ZoruCard>
                 <div className="flex flex-wrap items-end gap-3">
@@ -192,7 +188,7 @@ export default function Gstr3bPage() {
                     </p>
                 </ZoruCard>
             )}
-        </div>
+        </EntityListShell>
     );
 }
 

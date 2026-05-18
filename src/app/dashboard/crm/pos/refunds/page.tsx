@@ -1,8 +1,6 @@
 import { ZoruCard, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/zoruui';
-import {
-  ScrollText } from 'lucide-react';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 /**
  * POS refunds list — `/dashboard/crm/pos/refunds`.
@@ -53,17 +51,10 @@ export default async function PosRefundsPage() {
     const refunds = await getPosRefunds({ limit: 200 });
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="POS refunds"
-                subtitle="Refunds processed against POS transactions."
-                icon={ScrollText}
-                breadcrumbs={[
-                    { label: 'CRM', href: '/dashboard/crm' },
-                    { label: 'POS', href: '/dashboard/crm/pos' },
-                    { label: 'Refunds' },
-                ]}
-            />
+        <EntityListShell
+            title="POS refunds"
+            subtitle="Refunds processed against POS transactions."
+        >
             <ZoruCard className="p-0">
                 <div className="overflow-x-auto">
                     <ZoruTable>
@@ -128,6 +119,6 @@ export default async function PosRefundsPage() {
                     </ZoruTable>
                 </div>
             </ZoruCard>
-        </div>
+        </EntityListShell>
     );
 }

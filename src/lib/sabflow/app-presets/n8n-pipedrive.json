@@ -8,7 +8,12 @@
   "lastVerified": "2026-05-17",
   "status": "draft",
   "auth": {
-    "type": "none"
+    "type": "oauth2",
+    "provider": "pipedrive",
+    "credentialType": "pipedrive",
+    "fallback": {
+      "type": "none"
+    }
   },
   "baseUrl": "",
   "endpoints": []

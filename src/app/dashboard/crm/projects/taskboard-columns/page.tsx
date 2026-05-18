@@ -29,7 +29,6 @@ import {
   useZoruToast,
 } from '@/components/zoruui';
 import {
-  LayoutGrid,
   Plus,
   Pencil,
   Trash2,
@@ -44,7 +43,7 @@ import { useActionState,
 
 import * as React from 'react';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   getWsTaskboardColumns,
   saveWsTaskboardColumn,
@@ -160,18 +159,16 @@ export default function TaskboardColumnsPage() {
   };
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Taskboard Columns"
-        subtitle="Customise the kanban board — reorder, recolour, and add columns."
-        icon={LayoutGrid}
-        actions={
-          <ZoruButton onClick={openCreate}>
-            <Plus className="h-4 w-4" strokeWidth={1.75} />
-            Add Column
-          </ZoruButton>
-        }
-      />
+    <EntityListShell
+      title="Taskboard Columns"
+      subtitle="Customise the kanban board — reorder, recolour, and add columns."
+      primaryAction={
+        <ZoruButton onClick={openCreate}>
+          <Plus className="h-4 w-4" strokeWidth={1.75} />
+          Add Column
+        </ZoruButton>
+      }
+    >
 
       <ZoruCard>
         <div className="overflow-x-auto rounded-lg border border-zoru-line">
@@ -395,6 +392,6 @@ export default function TaskboardColumnsPage() {
           </ZoruAlertDialogFooter>
         </ZoruAlertDialogContent>
       </ZoruAlertDialog>
-    </div>
+    </EntityListShell>
   );
 }

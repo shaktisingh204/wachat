@@ -1,5 +1,5 @@
 import { ZoruButton } from '@/components/zoruui';
-import { CalendarDays, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
 /**
  * Workplace Events — list page.
@@ -13,7 +13,7 @@ import { CalendarDays, Plus } from 'lucide-react';
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '../../../crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { getEvents } from '@/app/actions/crm-events.actions';
 import type {
     CrmEventStatus,
@@ -50,24 +50,17 @@ export default async function WorkplaceEventsPage({ searchParams }: PageProps) {
     });
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'HR', href: '/dashboard/hrm/hr' },
-                    { label: 'Workplace Events' },
-                ]}
-                title="Workplace Events"
-                subtitle="Meetings, workshops, celebrations and everything your team shows up for."
-                icon={CalendarDays}
-                actions={
-                    <ZoruButton asChild>
-                        <Link href="/dashboard/hrm/hr/events/new">
-                            <Plus className="mr-1.5 h-3.5 w-3.5" /> New Event
-                        </Link>
-                    </ZoruButton>
-                }
-            />
-
+        <EntityListShell
+            title="Workplace Events"
+            subtitle="Meetings, workshops, celebrations and everything your team shows up for."
+            primaryAction={
+                <ZoruButton asChild>
+                    <Link href="/dashboard/hrm/hr/events/new">
+                        <Plus className="mr-1.5 h-3.5 w-3.5" /> New Event
+                    </Link>
+                </ZoruButton>
+            }
+        >
             <EventsListClient
                 initialEvents={data.items}
                 initialFilters={{
@@ -76,6 +69,6 @@ export default async function WorkplaceEventsPage({ searchParams }: PageProps) {
                     status: status ?? 'all',
                 }}
             />
-        </div>
+        </EntityListShell>
     );
 }

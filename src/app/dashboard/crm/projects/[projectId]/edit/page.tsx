@@ -1,6 +1,4 @@
-import { ZoruButton } from '@/components/zoruui';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, Briefcase } from 'lucide-react';
 
 /**
  * Edit project — §1B W7.
@@ -10,9 +8,7 @@ import { ArrowLeft, Briefcase } from 'lucide-react';
  * action (`saveWsProject`) flips to PATCH when a hidden `_id` is present.
  */
 
-import Link from 'next/link';
-
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 
 import { getWsProjectById } from '@/app/actions/worksuite/projects.actions';
 import { ProjectForm } from '../../_components/project-form';
@@ -37,27 +33,11 @@ export default async function EditProjectPage({
     const p = project as Record<string, unknown> & { _id: string };
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'Projects', href: '/dashboard/crm/projects' },
-                    {
-                        label: (p.name as string) ?? 'Project',
-                        href: `/dashboard/crm/projects/${projectId}`,
-                    },
-                    { label: 'Edit' },
-                ]}
-                title="Edit project"
-                subtitle="Update name, timeline, budget, or ownership."
-                icon={Briefcase}
-                actions={
-                    <ZoruButton variant="outline" size="sm" asChild>
-                        <Link href={`/dashboard/crm/projects/${projectId}`}>
-                            <ArrowLeft className="h-4 w-4" /> Back
-                        </Link>
-                    </ZoruButton>
-                }
-            />
+        <EntityDetailShell
+            eyebrow="PROJECT"
+            title="Edit project"
+            back={{ href: `/dashboard/crm/projects/${projectId}`, label: 'Back to project' }}
+        >
             <ProjectForm
                 initial={{
                     _id: String(p._id),
@@ -82,6 +62,6 @@ export default async function EditProjectPage({
                     public: p.public as number | undefined,
                 }}
             />
-        </div>
+        </EntityDetailShell>
     );
 }

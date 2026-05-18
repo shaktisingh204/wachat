@@ -2,7 +2,6 @@ import { ZoruButton, ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } 
 import {
   notFound } from 'next/navigation';
 import {
-    ArrowLeft,
   CalendarDays,
   Clock,
   Edit,
@@ -23,9 +22,9 @@ import {
 
 import Link from 'next/link';
 
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 
-import { CrmPageHeader } from '../../../../crm/_components/crm-page-header';
 import { getEventById } from '@/app/actions/crm-events.actions';
 import type { CrmEventStatus } from '@/lib/rust-client/crm-events';
 
@@ -111,46 +110,23 @@ export default async function WorkplaceEventDetailPage({ params }: PageProps) {
         typeof event.rsvpCount === 'number' ? event.rsvpCount : 0;
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'HR', href: '/dashboard/hrm/hr' },
-                    {
-                        label: 'Workplace Events',
-                        href: '/dashboard/hrm/hr/events',
-                    },
-                    { label: event.name },
-                ]}
-                title={event.name}
-                subtitle={
-                    event.description
-                        ? event.description.slice(0, 140) +
-                          (event.description.length > 140 ? '…' : '')
-                        : 'Workplace event'
-                }
-                icon={CalendarDays}
-                actions={
-                    <>
-                        <ZoruButton
-                            variant="ghost"
-                            asChild
-                            className="text-zoru-ink-muted hover:text-zoru-ink"
-                        >
-                            <Link href="/dashboard/hrm/hr/events">
-                                <ArrowLeft className="mr-2 h-4 w-4" />
-                                Back
-                            </Link>
-                        </ZoruButton>
-                        <ZoruButton asChild>
-                            <Link href={`/dashboard/hrm/hr/events/${eventId}/edit`}>
-                                <Edit className="mr-2 h-4 w-4" />
-                                Edit
-                            </Link>
-                        </ZoruButton>
-                    </>
-                }
-            />
-
+        <EntityListShell
+            title={event.name}
+            subtitle={
+                event.description
+                    ? event.description.slice(0, 140) +
+                      (event.description.length > 140 ? '…' : '')
+                    : 'Workplace event'
+            }
+            primaryAction={
+                <ZoruButton asChild>
+                    <Link href={`/dashboard/hrm/hr/events/${eventId}/edit`}>
+                        <Edit className="mr-2 h-4 w-4" />
+                        Edit
+                    </Link>
+                </ZoruButton>
+            }
+        >
             {event.bannerUrl ? (
                 <div className="overflow-hidden rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-surface">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -244,6 +220,6 @@ export default async function WorkplaceEventDetailPage({ params }: PageProps) {
                     </ZoruCardContent>
                 </ZoruCard>
             ) : null}
-        </div>
+        </EntityListShell>
     );
 }

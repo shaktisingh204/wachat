@@ -1,16 +1,11 @@
-import { ZoruButton } from '@/components/zoruui';
 import {
   notFound } from 'next/navigation';
-import { AlertOctagon,
-  ArrowLeft } from 'lucide-react';
 
 /**
  * Edit issue — §1B W7. Reuses the shared <IssueForm/>.
  */
 
-import Link from 'next/link';
-
-import { CrmPageHeader } from '../../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getIssueById } from '@/app/actions/worksuite/meta.actions';
 
 import { IssueForm } from '../../_components/issue-form';
@@ -28,19 +23,11 @@ export default async function EditIssuePage({
     const i = issue as Record<string, unknown> & { _id: string };
 
     return (
-        <div className="flex w-full max-w-2xl flex-col gap-6">
-            <CrmPageHeader
-                title="Edit Issue"
-                subtitle="Update the issue's metadata, status, or assignment."
-                icon={AlertOctagon}
-                actions={
-                    <Link href={`/dashboard/crm/projects/issues/${id}`}>
-                        <ZoruButton variant="outline" size="sm">
-                            <ArrowLeft className="h-4 w-4" /> Back
-                        </ZoruButton>
-                    </Link>
-                }
-            />
+        <EntityDetailShell
+            eyebrow="ISSUE"
+            title="Edit Issue"
+            back={{ href: `/dashboard/crm/projects/issues/${id}`, label: 'Back to issue' }}
+        >
             <IssueForm
                 mode="edit"
                 initial={{
@@ -56,6 +43,6 @@ export default async function EditIssuePage({
                     reporterName: i.reporterName as string | undefined,
                 }}
             />
-        </div>
+        </EntityDetailShell>
     );
 }

@@ -2,8 +2,6 @@ import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
 import {
   redirect } from 'next/navigation';
 import {
-    ArrowLeft,
-  Bell,
   Calendar,
   CheckCircle2,
   Edit,
@@ -26,7 +24,7 @@ import {
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 import { getNoticeById } from '@/app/actions/crm-notices.actions';
 import { getSession } from '@/app/actions/user.actions';
@@ -104,41 +102,20 @@ export default async function NoticeDetailPage({
     const ackCount = notice.acknowledgementCount ?? 0;
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'HRM', href: '/dashboard/hrm' },
-                    { label: 'HR', href: '/dashboard/hrm/hr' },
-                    {
-                        label: 'Notices',
-                        href: '/dashboard/hrm/hr/notices',
-                    },
-                    {
-                        label: notice.noticeNumber || notice._id.slice(-8),
-                    },
-                ]}
-                title={notice.title}
-                subtitle={`Notice ${notice.noticeNumber || notice._id.slice(-8)}`}
-                icon={Bell}
-                actions={
-                    <div className="flex items-center gap-2">
-                        <ZoruButton variant="outline" asChild>
-                            <Link href="/dashboard/hrm/hr/notices">
-                                <ArrowLeft className="mr-1.5 h-4 w-4" />
-                                Back
-                            </Link>
-                        </ZoruButton>
-                        <ZoruButton asChild>
-                            <Link
-                                href={`/dashboard/hrm/hr/notices/${notice._id}/edit`}
-                            >
-                                <Edit className="mr-1.5 h-4 w-4" />
-                                Edit
-                            </Link>
-                        </ZoruButton>
-                    </div>
-                }
-            />
+        <EntityListShell
+            title={notice.title}
+            subtitle={`Notice ${notice.noticeNumber || notice._id.slice(-8)}`}
+            primaryAction={
+                <ZoruButton asChild>
+                    <Link
+                        href={`/dashboard/hrm/hr/notices/${notice._id}/edit`}
+                    >
+                        <Edit className="mr-1.5 h-4 w-4" />
+                        Edit
+                    </Link>
+                </ZoruButton>
+            }
+        >
 
             {/* Header card: number / title / severity / status */}
             <ZoruCard className="p-6">
@@ -321,6 +298,6 @@ export default async function NoticeDetailPage({
                     </div>
                 </ZoruCard>
             ) : null}
-        </div>
+        </EntityListShell>
     );
 }

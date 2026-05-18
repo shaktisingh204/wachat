@@ -1,18 +1,13 @@
-import { ZoruButton } from '@/components/zoruui';
 import {
   notFound,
   redirect } from 'next/navigation';
-import { ArrowLeft,
-  Target } from 'lucide-react';
 
 /**
  * Edit OKR page — server wrapper that loads the OKR by id and passes it
  * as `initialData` to `<OkrForm />`.
  */
 
-import Link from 'next/link';
-
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { getSession } from '@/app/actions/user.actions';
 import { getOkrById } from '@/app/actions/crm-okrs.actions';
 
@@ -36,28 +31,11 @@ export default async function EditOkrPage({
     if (!okr) notFound();
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'HR', href: '/dashboard/hrm/hr' },
-                    { label: 'OKRs', href: BASE },
-                    { label: okr.objective, href: `${BASE}/${okrId}` },
-                    { label: 'Edit' },
-                ]}
-                title={`Edit · ${okr.objective}`}
-                subtitle="Update objective and key results. Changes are revalidated immediately."
-                icon={Target}
-                actions={
-                    <ZoruButton variant="ghost" asChild>
-                        <Link href={`${BASE}/${okrId}`}>
-                            <ArrowLeft className="mr-2 h-4 w-4" />
-                            Back to detail
-                        </Link>
-                    </ZoruButton>
-                }
-            />
-
+        <EntityListShell
+            title={`Edit · ${okr.objective}`}
+            subtitle="Update objective and key results. Changes are revalidated immediately."
+        >
             <OkrForm initialData={okr} />
-        </div>
+        </EntityListShell>
     );
 }

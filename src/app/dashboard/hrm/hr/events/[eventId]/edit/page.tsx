@@ -1,6 +1,4 @@
-import { ZoruButton } from '@/components/zoruui';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, CalendarCog } from 'lucide-react';
 
 /**
  * Workplace Events — edit page.
@@ -9,9 +7,7 @@ import { ArrowLeft, CalendarCog } from 'lucide-react';
  * that powers `/new` with `initialData` set.
  */
 
-import Link from 'next/link';
-
-import { CrmPageHeader } from '../../../../../crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { getEventById } from '@/app/actions/crm-events.actions';
 import { EventForm } from '../../_components/event-form';
 
@@ -25,38 +21,11 @@ export default async function EditWorkplaceEventPage({ params }: PageProps) {
     if (!event) notFound();
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'HR', href: '/dashboard/hrm/hr' },
-                    {
-                        label: 'Workplace Events',
-                        href: '/dashboard/hrm/hr/events',
-                    },
-                    {
-                        label: event.name,
-                        href: `/dashboard/hrm/hr/events/${eventId}`,
-                    },
-                    { label: 'Edit' },
-                ]}
-                title={`Edit: ${event.name}`}
-                subtitle="Update timing, location, organizer or attendance settings."
-                icon={CalendarCog}
-                actions={
-                    <ZoruButton
-                        variant="ghost"
-                        asChild
-                        className="text-zoru-ink-muted hover:text-zoru-ink"
-                    >
-                        <Link href={`/dashboard/hrm/hr/events/${eventId}`}>
-                            <ArrowLeft className="mr-2 h-4 w-4" />
-                            Back to event
-                        </Link>
-                    </ZoruButton>
-                }
-            />
-
+        <EntityListShell
+            title={`Edit: ${event.name}`}
+            subtitle="Update timing, location, organizer or attendance settings."
+        >
             <EventForm initialData={event} />
-        </div>
+        </EntityListShell>
     );
 }

@@ -583,6 +583,307 @@ const spotifyProvider: OAuthProvider = {
 };
 PROVIDERS.set(spotifyProvider.id, spotifyProvider);
 
+/* ── Trello ─────────────────────────────────────────────────────────────── */
+
+// Trello uses OAuth 1.0a in its REST API, but the "Power-Up" OAuth-style
+// fragment authorize is the supported integration flow.  This implementation
+// targets the modern OAuth-2-shaped Trello app authorize URL; for token
+// exchange Trello hands back the token directly in the fragment, so the
+// callback should treat ?token= as the access token.  Refresh isn't supported.
+const trelloProvider: OAuthProvider = {
+  id: 'trello',
+  label: 'Trello',
+  defaultScopes: ['read', 'write'],
+  buildAuthorizeUrl({ config, state, scopes }) {
+    const params = new URLSearchParams({
+      expiration: 'never',
+      name: 'SabFlow',
+      scope: (scopes ?? trelloProvider.defaultScopes).join(','),
+      response_type: 'token',
+      key: config.clientId,
+      callback_method: 'fragment',
+      return_url: config.redirectUri,
+      state,
+    });
+    return `https://trello.com/1/authorize?${params.toString()}`;
+  },
+  async exchangeCode({ code }) {
+    // Trello returns the access token directly via the URL fragment — the
+    // callback already extracts it into `code`.
+    return { accessToken: code };
+  },
+  async refreshAccessToken() {
+    throw new Error('Trello tokens do not expire — re-authorise to rotate.');
+  },
+};
+PROVIDERS.set(trelloProvider.id, trelloProvider);
+
+/* ── Box ────────────────────────────────────────────────────────────────── */
+
+const boxProvider: OAuthProvider = {
+  id: 'box',
+  label: 'Box',
+  defaultScopes: ['root_readwrite'],
+  buildAuthorizeUrl({ config, state }) {
+    const params = new URLSearchParams({
+      response_type: 'code',
+      client_id: config.clientId,
+      redirect_uri: config.redirectUri,
+      state,
+    });
+    return `https://account.box.com/api/oauth2/authorize?${params.toString()}`;
+  },
+  exchangeCode: ({ code, config }) =>
+    tokenRequest({
+      url: 'https://api.box.com/oauth2/token',
+      body: {
+        grant_type: 'authorization_code',
+        code,
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+      },
+    }),
+  refreshAccessToken: ({ refreshToken, config }) =>
+    tokenRequest({
+      url: 'https://api.box.com/oauth2/token',
+      body: {
+        grant_type: 'refresh_token',
+        refresh_token: refreshToken,
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+      },
+    }),
+};
+PROVIDERS.set(boxProvider.id, boxProvider);
+
+/* ── Dropbox ────────────────────────────────────────────────────────────── */
+
+const dropboxProvider: OAuthProvider = {
+  id: 'dropbox',
+  label: 'Dropbox',
+  defaultScopes: [
+    'files.metadata.read',
+    'files.content.read',
+    'files.content.write',
+  ],
+  buildAuthorizeUrl({ config, state, scopes }) {
+    const params = new URLSearchParams({
+      client_id: config.clientId,
+      redirect_uri: config.redirectUri,
+      response_type: 'code',
+      token_access_type: 'offline',
+      scope: (scopes ?? dropboxProvider.defaultScopes).join(' '),
+      state,
+    });
+    return `https://www.dropbox.com/oauth2/authorize?${params.toString()}`;
+  },
+  exchangeCode: ({ code, config }) =>
+    tokenRequest({
+      url: 'https://api.dropboxapi.com/oauth2/token',
+      body: {
+        code,
+        grant_type: 'authorization_code',
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+        redirect_uri: config.redirectUri,
+      },
+    }),
+  refreshAccessToken: ({ refreshToken, config }) =>
+    tokenRequest({
+      url: 'https://api.dropboxapi.com/oauth2/token',
+      body: {
+        grant_type: 'refresh_token',
+        refresh_token: refreshToken,
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+      },
+    }),
+};
+PROVIDERS.set(dropboxProvider.id, dropboxProvider);
+
+/* ── Salesforce ─────────────────────────────────────────────────────────── */
+
+const salesforceProvider: OAuthProvider = {
+  id: 'salesforce',
+  label: 'Salesforce',
+  defaultScopes: ['api', 'refresh_token', 'offline_access'],
+  buildAuthorizeUrl({ config, state, scopes }) {
+    const base =
+      process.env.SALESFORCE_OAUTH_BASE_URL ?? 'https://login.salesforce.com';
+    const params = new URLSearchParams({
+      response_type: 'code',
+      client_id: config.clientId,
+      redirect_uri: config.redirectUri,
+      scope: (scopes ?? salesforceProvider.defaultScopes).join(' '),
+      state,
+      prompt: 'consent',
+    });
+    return `${base.replace(/\/$/, '')}/services/oauth2/authorize?${params.toString()}`;
+  },
+  exchangeCode({ code, config }) {
+    const base =
+      process.env.SALESFORCE_OAUTH_BASE_URL ?? 'https://login.salesforce.com';
+    return tokenRequest({
+      url: `${base.replace(/\/$/, '')}/services/oauth2/token`,
+      body: {
+        grant_type: 'authorization_code',
+        code,
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+        redirect_uri: config.redirectUri,
+      },
+    });
+  },
+  refreshAccessToken({ refreshToken, config }) {
+    const base =
+      process.env.SALESFORCE_OAUTH_BASE_URL ?? 'https://login.salesforce.com';
+    return tokenRequest({
+      url: `${base.replace(/\/$/, '')}/services/oauth2/token`,
+      body: {
+        grant_type: 'refresh_token',
+        refresh_token: refreshToken,
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+      },
+    });
+  },
+};
+PROVIDERS.set(salesforceProvider.id, salesforceProvider);
+
+/* ── Pipedrive ──────────────────────────────────────────────────────────── */
+
+const pipedriveProvider: OAuthProvider = {
+  id: 'pipedrive',
+  label: 'Pipedrive',
+  defaultScopes: ['deals:full', 'contacts:full', 'users:read'],
+  buildAuthorizeUrl({ config, state }) {
+    const params = new URLSearchParams({
+      client_id: config.clientId,
+      redirect_uri: config.redirectUri,
+      state,
+    });
+    return `https://oauth.pipedrive.com/oauth/authorize?${params.toString()}`;
+  },
+  exchangeCode: ({ code, config }) =>
+    tokenRequest({
+      url: 'https://oauth.pipedrive.com/oauth/token',
+      body: {
+        grant_type: 'authorization_code',
+        code,
+        redirect_uri: config.redirectUri,
+      },
+      basicAuth: { clientId: config.clientId, clientSecret: config.clientSecret },
+    }),
+  refreshAccessToken: ({ refreshToken, config }) =>
+    tokenRequest({
+      url: 'https://oauth.pipedrive.com/oauth/token',
+      body: {
+        grant_type: 'refresh_token',
+        refresh_token: refreshToken,
+      },
+      basicAuth: { clientId: config.clientId, clientSecret: config.clientSecret },
+    }),
+};
+PROVIDERS.set(pipedriveProvider.id, pipedriveProvider);
+
+/* ── Intercom ───────────────────────────────────────────────────────────── */
+
+const intercomProvider: OAuthProvider = {
+  id: 'intercom',
+  label: 'Intercom',
+  defaultScopes: [],
+  buildAuthorizeUrl({ config, state }) {
+    const params = new URLSearchParams({
+      client_id: config.clientId,
+      redirect_uri: config.redirectUri,
+      response_type: 'code',
+      state,
+    });
+    return `https://app.intercom.com/oauth?${params.toString()}`;
+  },
+  exchangeCode: ({ code, config }) =>
+    tokenRequest({
+      url: 'https://api.intercom.io/auth/eagle/token',
+      body: {
+        code,
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+      },
+    }),
+  async refreshAccessToken() {
+    throw new Error('Intercom OAuth tokens are long-lived — re-authorise to rotate.');
+  },
+};
+PROVIDERS.set(intercomProvider.id, intercomProvider);
+
+/* ── ClickUp ────────────────────────────────────────────────────────────── */
+
+const clickupProvider: OAuthProvider = {
+  id: 'clickup',
+  label: 'ClickUp',
+  defaultScopes: [],
+  buildAuthorizeUrl({ config, state }) {
+    const params = new URLSearchParams({
+      client_id: config.clientId,
+      redirect_uri: config.redirectUri,
+      state,
+    });
+    return `https://app.clickup.com/api?${params.toString()}`;
+  },
+  exchangeCode: ({ code, config }) =>
+    tokenRequest({
+      url: 'https://api.clickup.com/api/v2/oauth/token',
+      body: {
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+        code,
+      },
+    }),
+  async refreshAccessToken() {
+    throw new Error('ClickUp tokens do not expire — re-authorise to rotate.');
+  },
+};
+PROVIDERS.set(clickupProvider.id, clickupProvider);
+
+/* ── Calendly ───────────────────────────────────────────────────────────── */
+
+const calendlyProvider: OAuthProvider = {
+  id: 'calendly',
+  label: 'Calendly',
+  defaultScopes: [],
+  buildAuthorizeUrl({ config, state }) {
+    const params = new URLSearchParams({
+      client_id: config.clientId,
+      response_type: 'code',
+      redirect_uri: config.redirectUri,
+      state,
+    });
+    return `https://auth.calendly.com/oauth/authorize?${params.toString()}`;
+  },
+  exchangeCode: ({ code, config }) =>
+    tokenRequest({
+      url: 'https://auth.calendly.com/oauth/token',
+      body: {
+        grant_type: 'authorization_code',
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+        code,
+        redirect_uri: config.redirectUri,
+      },
+    }),
+  refreshAccessToken: ({ refreshToken, config }) =>
+    tokenRequest({
+      url: 'https://auth.calendly.com/oauth/token',
+      body: {
+        grant_type: 'refresh_token',
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+        refresh_token: refreshToken,
+      },
+    }),
+};
+PROVIDERS.set(calendlyProvider.id, calendlyProvider);
+
 /* ── Shared token-endpoint helper ───────────────────────────────────────── */
 
 async function tokenRequest(opts: {

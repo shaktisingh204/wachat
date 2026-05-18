@@ -3,8 +3,6 @@ import {
   notFound,
   redirect } from 'next/navigation';
 import {
-    ArrowLeft,
-  FileText,
   Paperclip,
   Pencil,
   ShieldAlert,
@@ -19,7 +17,7 @@ import {
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 import { getSession } from '@/app/actions/user.actions';
 import { getDocumentById } from '@/app/actions/crm-documents.actions';
@@ -66,33 +64,18 @@ export default async function DocumentDetailPage({
     const tags = Array.isArray(doc.tags) ? doc.tags : [];
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'HR', href: '/dashboard/hrm/hr' },
-                    { label: 'Documents', href: BASE },
-                    { label: doc.name },
-                ]}
-                title={doc.name}
-                subtitle={doc.description || 'Document detail'}
-                icon={FileText}
-                actions={
-                    <div className="flex items-center gap-2">
-                        <ZoruButton variant="outline" asChild>
-                            <Link href={BASE}>
-                                <ArrowLeft className="mr-2 h-4 w-4" />
-                                Back
-                            </Link>
-                        </ZoruButton>
-                        <ZoruButton asChild>
-                            <Link href={`${BASE}/${documentId}/edit`}>
-                                <Pencil className="mr-2 h-4 w-4" />
-                                Edit
-                            </Link>
-                        </ZoruButton>
-                    </div>
-                }
-            />
+        <EntityListShell
+            title={doc.name}
+            subtitle={doc.description || 'Document detail'}
+            primaryAction={
+                <ZoruButton asChild>
+                    <Link href={`${BASE}/${documentId}/edit`}>
+                        <Pencil className="mr-2 h-4 w-4" />
+                        Edit
+                    </Link>
+                </ZoruButton>
+            }
+        >
 
             <ZoruCard className="p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
@@ -180,6 +163,6 @@ export default async function DocumentDetailPage({
                     </a>
                 </ZoruCard>
             ) : null}
-        </div>
+        </EntityListShell>
     );
 }

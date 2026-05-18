@@ -1,9 +1,7 @@
 import { ZoruButton } from '@/components/zoruui';
-import {
-  Store,
-  Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 /**
  * POS sessions list — `/dashboard/crm/pos/sessions`.
@@ -47,29 +45,22 @@ export default async function PosSessionsPage({ searchParams }: PageProps) {
     const sessions = await getPosSessions({ terminalId, status });
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="POS sessions"
-                subtitle="Cashier shifts across every terminal."
-                icon={Store}
-                breadcrumbs={[
-                    { label: 'CRM', href: '/dashboard/crm' },
-                    { label: 'POS', href: '/dashboard/crm/pos' },
-                    { label: 'Sessions' },
-                ]}
-                actions={
-                    <ZoruButton size="sm" asChild>
-                        <Link href="/dashboard/crm/pos/sessions/new">
-                            <Plus className="h-4 w-4" /> Open session
-                        </Link>
-                    </ZoruButton>
-                }
-            />
+        <EntityListShell
+            title="POS sessions"
+            subtitle="Cashier shifts across every terminal."
+            primaryAction={
+                <ZoruButton size="sm" asChild>
+                    <Link href="/dashboard/crm/pos/sessions/new">
+                        <Plus className="h-4 w-4" /> Open session
+                    </Link>
+                </ZoruButton>
+            }
+        >
             <PosSessionsListClient
                 sessions={sessions}
                 initialTerminalId={terminalId ?? ''}
                 initialStatus={status}
             />
-        </div>
+        </EntityListShell>
     );
 }

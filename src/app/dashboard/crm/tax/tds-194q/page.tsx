@@ -1,9 +1,9 @@
 import { ZoruCard, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/zoruui';
 export const dynamic = 'force-dynamic';
 
-import { Banknote, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { CheckCircle2, AlertTriangle } from 'lucide-react';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { fmtMoney } from '../../reports/_components/report-toolbar';
 import {
     getTds194qStatus,
@@ -103,13 +103,11 @@ export default async function Tds194qPage(props: {
     const applicable = status?.applicable === true;
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="TDS u/s 194Q tracker"
-                subtitle="0.1% TDS on purchases above ₹50 lakh per seller (when buyer's prior-FY turnover > ₹10 cr)."
-                icon={Banknote}
-                actions={<FyForm fy={fy} />}
-            />
+        <EntityListShell
+            title="TDS u/s 194Q tracker"
+            subtitle="0.1% TDS on purchases above ₹50 lakh per seller (when buyer's prior-FY turnover > ₹10 cr)."
+            primaryAction={<FyForm fy={fy} />}
+        >
 
             <ZoruCard>
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -237,6 +235,6 @@ export default async function Tds194qPage(props: {
                     </p>
                 )}
             </ZoruCard>
-        </div>
+        </EntityListShell>
     );
 }

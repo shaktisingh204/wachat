@@ -12,7 +12,6 @@ import {
   useZoruToast,
 } from '@/components/zoruui';
 import {
-  FileText,
   Download,
   ChevronDown,
   ChevronRight,
@@ -31,7 +30,7 @@ import {
 
 import * as React from 'react';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
     downloadGstr1Json,
     generateGstr1Report,
@@ -171,12 +170,10 @@ export default function Gstr1Page() {
     };
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="GSTR-1"
-                subtitle="Outward supplies — generate the monthly return JSON for the GST portal."
-                icon={FileText}
-            />
+        <EntityListShell
+            title="GSTR-1"
+            subtitle="Outward supplies — generate the monthly return JSON for the GST portal."
+        >
 
             <ZoruCard>
                 <div className="flex flex-wrap items-end gap-3">
@@ -350,7 +347,7 @@ export default function Gstr1Page() {
                     </SectionCard>
                 </>
             )}
-        </div>
+        </EntityListShell>
     );
 }
 

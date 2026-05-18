@@ -1,7 +1,4 @@
-import { ZoruButton, ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
-import {
-  ArrowLeft,
-  Truck } from 'lucide-react';
+import { ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
 
 /**
  * Generate-new e-way bill — `/dashboard/crm/tax/eway-bills/new`.
@@ -11,29 +8,20 @@ import {
  * wired up in a follow-up using the existing entity-picker.
  */
 
-import Link from 'next/link';
-
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { NewEWayBillForm } from './_components/new-form';
 
 export const dynamic = 'force-dynamic';
 
+const BASE = '/dashboard/crm/tax/eway-bills';
+
 export default function NewEWayBillPage() {
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="Generate e-way bill"
-                subtitle="Required for inter/intra-state goods movement above ₹50,000."
-                icon={Truck}
-                actions={
-                    <ZoruButton asChild variant="outline">
-                        <Link href="/dashboard/crm/tax/eway-bills">
-                            <ArrowLeft className="h-4 w-4" />
-                            Back to list
-                        </Link>
-                    </ZoruButton>
-                }
-            />
+        <EntityDetailShell
+            eyebrow="E-WAY BILL"
+            title="Generate e-way bill"
+            back={{ href: BASE, label: 'E-way bills' }}
+        >
             <ZoruCard>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Consignment details</ZoruCardTitle>
@@ -42,6 +30,6 @@ export default function NewEWayBillPage() {
                     <NewEWayBillForm />
                 </ZoruCardContent>
             </ZoruCard>
-        </div>
+        </EntityDetailShell>
     );
 }

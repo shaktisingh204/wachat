@@ -1,9 +1,7 @@
 import { ZoruCard } from '@/components/zoruui';
-import {
-  AlertTriangle,
-  ShieldAlert } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 /**
  * MSME 45-day delayed-payment alerts dashboard — §6.10 of
@@ -70,18 +68,16 @@ export default async function MsmeAlertsPage() {
 
     if (!result.ok) {
         return (
-            <div className="flex w-full flex-col gap-6">
-                <CrmPageHeader
-                    title="MSME 45-day alerts"
-                    subtitle="Indian MSMED Act 2006 & IT §43B(h) compliance."
-                    icon={ShieldAlert}
-                />
+            <EntityListShell
+                title="MSME 45-day alerts"
+                subtitle="Indian MSMED Act 2006 & IT §43B(h) compliance."
+            >
                 <ZoruCard className="p-6">
                     <div className="rounded-md border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-[13px] text-amber-700">
                         Could not load MSME alerts: {result.error}
                     </div>
                 </ZoruCard>
-            </div>
+            </EntityListShell>
         );
     }
 
@@ -90,12 +86,10 @@ export default async function MsmeAlertsPage() {
     const atRisk = bills.filter((b) => b.bucket === 'at_risk');
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="MSME 45-day alerts"
-                subtitle="Bills owed to MSME-registered vendors. Payment beyond 45 days triggers IT §43B(h) disallowance + MSMED Act interest."
-                icon={ShieldAlert}
-            />
+        <EntityListShell
+            title="MSME 45-day alerts"
+            subtitle="Bills owed to MSME-registered vendors. Payment beyond 45 days triggers IT §43B(h) disallowance + MSMED Act interest."
+        >
 
             <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
                 <KpiCard
@@ -153,6 +147,6 @@ export default async function MsmeAlertsPage() {
                 </div>
                 <MsmeAlertsTable rows={atRisk} bucket="at_risk" />
             </ZoruCard>
-        </div>
+        </EntityListShell>
     );
 }

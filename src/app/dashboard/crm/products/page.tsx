@@ -21,7 +21,7 @@ import { CrmProductCard } from '@/components/wabasimplify/crm-product-card';
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 function PageSkeleton() {
   return (
@@ -79,20 +79,18 @@ export default function CrmProductsPage() {
   const currency = user.plan?.currency || 'USD';
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title={t('crm.products.list.title')}
-        subtitle={t('crm.products.list.subtitle')}
-        icon={ShoppingBag}
-        actions={
-          <Link href="/dashboard/crm/products/new">
-            <ZoruButton>
-              <PlusCircle className="h-4 w-4" strokeWidth={1.75} />
-              {t('crm.products.list.action.add')}
-            </ZoruButton>
-          </Link>
-        }
-      />
+    <EntityListShell
+      title={t('crm.products.list.title')}
+      subtitle={t('crm.products.list.subtitle')}
+      primaryAction={
+        <Link href="/dashboard/crm/products/new">
+          <ZoruButton>
+            <PlusCircle className="h-4 w-4" strokeWidth={1.75} />
+            {t('crm.products.list.action.add')}
+          </ZoruButton>
+        </Link>
+      }
+    >
 
       {products.length > 0 ? (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -121,6 +119,6 @@ export default function CrmProductsPage() {
           </div>
         </ZoruCard>
       )}
-    </div>
+    </EntityListShell>
   );
 }
