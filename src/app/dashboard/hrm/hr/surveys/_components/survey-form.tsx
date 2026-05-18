@@ -23,7 +23,8 @@ import { ArrowLeft,
   LoaderCircle,
   Save } from 'lucide-react';
 
-// TODO 1E.sweep: status -> <EnumFormField enumName="surveyStatus">; question.type -> <EnumFormField enumName="surveyQuestionType"> in survey-questions repeater. See plan §1E.
+// §1E.sweep: status ZoruSelect kept — wire value 'active' differs from surveyStatus enum 'open'; resolve Rust DTO then swap.
+// §1E.sweep: type/audience ZoruSelects kept — no matching catalogue enums (surveyType/surveyAudience not in CRM_ENUMS).
 
 /**
  * <SurveyForm /> — shared create/edit form for HR Surveys.

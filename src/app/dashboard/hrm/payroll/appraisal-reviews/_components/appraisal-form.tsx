@@ -5,11 +5,6 @@ import {
   ZoruCard,
   ZoruInput,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruTable,
   ZoruTableBody,
   ZoruTableCell,
@@ -48,6 +43,8 @@ import { ArrowLeft,
  *   overallRating (1..5), comments, status, finalizedAt.
  */
 
+import { EnumFormField } from '@/components/crm/enum-form-field';
+
 import { saveAppraisalReview } from '@/app/actions/crm-appraisals.actions';
 import type {
     CrmAppraisalKpi,
@@ -57,15 +54,6 @@ import type {
 
 const BASE = '/dashboard/hrm/payroll/appraisal-reviews';
 
-const STATUS_OPTIONS: ReadonlyArray<{
-    value: CrmAppraisalStatus;
-    label: string;
-}> = [
-    { value: 'draft', label: 'Draft' },
-    { value: 'submitted', label: 'Submitted' },
-    { value: 'finalized', label: 'Finalized' },
-    { value: 'archived', label: 'Archived' },
-];
 
 type KpiRow = {
     name: string;
@@ -185,7 +173,6 @@ export function AppraisalForm({ initialData }: AppraisalFormProps) {
                 {isEditing ? (
                     <input type="hidden" name="reviewId" value={initialData!._id} />
                 ) : null}
-                <input type="hidden" name="status" value={status} />
                 <input type="hidden" name="kpis" value={kpisJson} />
 
                 {/* Row 1: Employee name + Employee id */}
@@ -351,24 +338,15 @@ export function AppraisalForm({ initialData }: AppraisalFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
-                        <ZoruSelect
-                            value={status}
-                            onValueChange={(v) =>
-                                setStatus(v as CrmAppraisalStatus)
-                            }
-                        >
-                            <ZoruSelectTrigger id="status-trigger">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <ZoruLabel>Status</ZoruLabel>
+                        <EnumFormField
+                            name="status"
+                            enumName="appraisalFormStatus"
+                            initialId={status}
+                            onChange={(id) => setStatus((id as CrmAppraisalStatus) ?? 'draft')}
+                            allowInlineCreate={false}
+                            placeholder="Status"
+                        />
                     </div>
                     <div className="space-y-1.5">
                         <ZoruLabel htmlFor="finalizedAt">Finalized at</ZoruLabel>

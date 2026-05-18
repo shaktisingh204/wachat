@@ -5,11 +5,6 @@ import {
   ZoruCard,
   ZoruInput,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
@@ -29,6 +24,7 @@ import { useRouter } from 'next/navigation';
  */
 
 import { updateLoyaltyProgram } from '@/app/actions/crm-loyalty.actions';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 
 const initialState: { message?: string; error?: string; id?: string } = {};
 
@@ -159,22 +155,12 @@ export function EditLoyaltyForm({
                     </div>
 
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="status" className="text-zoru-ink">
-                            Status
-                        </ZoruLabel>
-                        <ZoruSelect
+                        <ZoruLabel className="text-zoru-ink">Status</ZoruLabel>
+                        <EnumFormField
+                            enumName="loyaltyStatus"
                             name="status"
-                            defaultValue={(initial.status as string) || 'active'}
-                        >
-                            <ZoruSelectTrigger id="status">
-                                <ZoruSelectValue placeholder="Select status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="active">Active</ZoruSelectItem>
-                                <ZoruSelectItem value="paused">Paused</ZoruSelectItem>
-                                <ZoruSelectItem value="archived">Archived</ZoruSelectItem>
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                            initialId={(initial.status as string) || 'active'}
+                        />
                     </div>
 
                     <div className="space-y-1.5">

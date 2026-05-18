@@ -149,6 +149,7 @@ export function DcFiltersBar({
           className="h-9 pl-9 text-[13px]"
         />
       </div>
+      {/* TODO 1E.filter: convert to EnumFilterField once that wrapper exists */}
       <ZoruSelect
         value={filters.status || '__all'}
         onValueChange={(v) =>

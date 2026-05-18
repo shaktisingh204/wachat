@@ -10,11 +10,6 @@ import {
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
   ZoruButton,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruTable,
   ZoruTableBody,
   ZoruTableCell,
@@ -47,6 +42,8 @@ import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 
+import { EnumFilterField } from '@/components/crm/enum-filter-field';
+
 import {
     deleteCrmTimesheet,
     getCrmTimesheets,
@@ -55,15 +52,6 @@ import {
 } from '@/app/actions/crm-timesheets.actions';
 
 const BASE = '/dashboard/hrm/hr/timesheets';
-
-const STATUS_OPTIONS: Array<{ value: CrmTimesheetStatus | 'all'; label: string }> = [
-    { value: 'all', label: 'All statuses' },
-    { value: 'draft', label: 'Draft' },
-    { value: 'submitted', label: 'Submitted' },
-    { value: 'approved', label: 'Approved' },
-    { value: 'rejected', label: 'Rejected' },
-    { value: 'archived', label: 'Archived' },
-];
 
 const STATUS_TONE: Record<CrmTimesheetStatus, StatusTone> = {
     draft: 'neutral',
@@ -162,23 +150,12 @@ export default function TimesheetsListPage(): React.JSX.Element {
                         placeholder: 'Search by employee, notes…',
                     }}
                     filters={
-                        <ZoruSelect
+                        <EnumFilterField
+                            enumName="timesheetStatus"
                             value={statusFilter}
-                            onValueChange={(v) =>
-                                setStatusFilter(v as CrmTimesheetStatus | 'all')
-                            }
-                        >
-                            <ZoruSelectTrigger className="h-9 w-[180px]">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                            onChange={(v) => setStatusFilter(v as CrmTimesheetStatus | 'all')}
+                            allLabel="All statuses"
+                        />
                     }
                     loading={isLoading && timesheets.length === 0}
                 >

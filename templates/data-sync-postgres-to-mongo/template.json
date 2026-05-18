@@ -2,7 +2,7 @@
   "id": "data-sync-postgres-to-mongo",
   "name": "Data Sync: Postgres to MongoDB",
   "description": "Runs on a cron schedule, reads rows updated since the last sync from a Postgres table, and upserts them into a MongoDB collection. Maintains a watermark timestamp to ensure efficient incremental syncing.",
-  "category": "Data Engineering",
+  "category": "Developer",
   "complexity": "advanced",
   "authorName": "SabNode",
   "tags": ["postgres", "mongodb", "data-sync", "etl", "cron", "incremental"],

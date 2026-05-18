@@ -49,6 +49,8 @@ import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 
+import { EnumFilterField } from '@/components/crm/enum-filter-field';
+
 import {
     deleteNotice,
     getNotices,
@@ -85,12 +87,8 @@ const CATEGORY_OPTIONS: { value: CategoryFilter; label: string }[] = [
     { value: 'emergency', label: 'Emergency' },
 ];
 
-const SEVERITY_OPTIONS: { value: SeverityFilter; label: string }[] = [
-    { value: 'all', label: 'All severities' },
-    { value: 'info', label: 'Info' },
-    { value: 'warning', label: 'Warning' },
-    { value: 'critical', label: 'Critical' },
-];
+// §1E.sweep: SEVERITY_OPTIONS removed — now driven by <EnumFilterField enumName="announcementSeverity">.
+// §1E.sweep: STATUS_OPTIONS + CATEGORY_OPTIONS kept — notice status/category slugs differ from CRM_ENUMS.
 
 /* ─── Tone maps ──────────────────────────────────────────────────────── */
 
@@ -263,26 +261,12 @@ export default function NoticesListPage() {
                                     ))}
                                 </ZoruSelectContent>
                             </ZoruSelect>
-                            <ZoruSelect
+                            <EnumFilterField
+                                enumName="announcementSeverity"
                                 value={severityFilter}
-                                onValueChange={(v) =>
-                                    setSeverityFilter(v as SeverityFilter)
-                                }
-                            >
-                                <ZoruSelectTrigger className="h-9 w-[170px]">
-                                    <ZoruSelectValue placeholder="Severity" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    {SEVERITY_OPTIONS.map((o) => (
-                                        <ZoruSelectItem
-                                            key={o.value}
-                                            value={o.value}
-                                        >
-                                            {o.label}
-                                        </ZoruSelectItem>
-                                    ))}
-                                </ZoruSelectContent>
-                            </ZoruSelect>
+                                onChange={(v) => setSeverityFilter(v as SeverityFilter)}
+                                allLabel="All severities"
+                            />
                         </>
                     }
                     loading={isLoading && items.length === 0}

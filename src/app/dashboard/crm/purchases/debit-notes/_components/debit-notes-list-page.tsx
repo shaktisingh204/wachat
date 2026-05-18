@@ -10,11 +10,6 @@ import {
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
   ZoruButton,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruTable,
   ZoruTableBody,
   ZoruTableCell,
@@ -40,6 +35,7 @@ import Link from 'next/link';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
+import { EnumFilterField } from '@/components/crm/enum-filter-field';
 
 import {
     deleteDebitNote,
@@ -52,13 +48,6 @@ import type {
 
 const BASE = '/dashboard/crm/purchases/debit-notes';
 
-const STATUS_OPTIONS: Array<{ value: DebitNoteStatus | 'all'; label: string }> = [
-    { value: 'all', label: 'All statuses' },
-    { value: 'draft', label: 'Draft' },
-    { value: 'issued', label: 'Issued' },
-    { value: 'refunded', label: 'Refunded' },
-    { value: 'cancelled', label: 'Cancelled' },
-];
 
 const STATUS_TONE: Record<DebitNoteStatus, StatusTone> = {
     draft: 'amber',
@@ -160,23 +149,12 @@ export function DebitNotesListPage() {
                         placeholder: 'Search debit notes…',
                     }}
                     filters={
-                        <ZoruSelect
+                        <EnumFilterField
+                            enumName="debitNoteStatusV2"
                             value={statusFilter}
-                            onValueChange={(v) =>
-                                setStatusFilter(v as DebitNoteStatus | 'all')
-                            }
-                        >
-                            <ZoruSelectTrigger className="h-9 w-[180px]">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                            onChange={(v) => setStatusFilter(v as DebitNoteStatus | 'all')}
+                            allLabel="All statuses"
+                        />
                     }
                     loading={isLoading && notes.length === 0}
                 >

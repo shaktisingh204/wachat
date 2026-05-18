@@ -10,11 +10,6 @@ import {
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
   ZoruButton,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruTable,
   ZoruTableBody,
   ZoruTableCell,
@@ -44,6 +39,8 @@ import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 
+import { EnumFilterField } from '@/components/crm/enum-filter-field';
+
 import { deleteAsset, getAssets } from '@/app/actions/crm-assets.actions';
 import type {
     CrmAssetCategory,
@@ -52,26 +49,6 @@ import type {
 } from '@/lib/rust-client/crm-assets';
 
 const BASE = '/dashboard/hrm/hr/assets';
-
-const STATUS_OPTIONS: Array<{ value: CrmAssetStatus | 'all'; label: string }> = [
-    { value: 'all', label: 'All statuses' },
-    { value: 'available', label: 'Available' },
-    { value: 'assigned', label: 'Assigned' },
-    { value: 'in_repair', label: 'In repair' },
-    { value: 'retired', label: 'Retired' },
-    { value: 'archived', label: 'Archived' },
-];
-
-const CATEGORY_OPTIONS: Array<{ value: CrmAssetCategory | 'all'; label: string }> = [
-    { value: 'all', label: 'All categories' },
-    { value: 'laptop', label: 'Laptop' },
-    { value: 'phone', label: 'Phone' },
-    { value: 'monitor', label: 'Monitor' },
-    { value: 'badge', label: 'Badge' },
-    { value: 'keys', label: 'Keys' },
-    { value: 'vehicle', label: 'Vehicle' },
-    { value: 'other', label: 'Other' },
-];
 
 const STATUS_TONE: Record<CrmAssetStatus, StatusTone> = {
     available: 'green',
@@ -167,40 +144,18 @@ export default function AssetsListPage() {
                     }}
                     filters={
                         <>
-                            <ZoruSelect
+                            <EnumFilterField
+                                enumName="assetStatus"
                                 value={statusFilter}
-                                onValueChange={(v) =>
-                                    setStatusFilter(v as CrmAssetStatus | 'all')
-                                }
-                            >
-                                <ZoruSelectTrigger className="h-9 w-[180px]">
-                                    <ZoruSelectValue placeholder="Status" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    {STATUS_OPTIONS.map((o) => (
-                                        <ZoruSelectItem key={o.value} value={o.value}>
-                                            {o.label}
-                                        </ZoruSelectItem>
-                                    ))}
-                                </ZoruSelectContent>
-                            </ZoruSelect>
-                            <ZoruSelect
+                                onChange={(v) => setStatusFilter(v as CrmAssetStatus | 'all')}
+                                allLabel="All statuses"
+                            />
+                            <EnumFilterField
+                                enumName="assetCategory"
                                 value={categoryFilter}
-                                onValueChange={(v) =>
-                                    setCategoryFilter(v as CrmAssetCategory | 'all')
-                                }
-                            >
-                                <ZoruSelectTrigger className="h-9 w-[180px]">
-                                    <ZoruSelectValue placeholder="Category" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    {CATEGORY_OPTIONS.map((o) => (
-                                        <ZoruSelectItem key={o.value} value={o.value}>
-                                            {o.label}
-                                        </ZoruSelectItem>
-                                    ))}
-                                </ZoruSelectContent>
-                            </ZoruSelect>
+                                onChange={(v) => setCategoryFilter(v as CrmAssetCategory | 'all')}
+                                allLabel="All categories"
+                            />
                         </>
                     }
                     loading={isLoading && assets.length === 0}

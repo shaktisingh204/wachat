@@ -4,11 +4,6 @@ import {
   ZoruCheckbox,
   ZoruInput,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   useZoruToast,
 } from '@/components/zoruui';
 import {
@@ -212,21 +207,12 @@ export function SubscriptionForm({ initial }: SubscriptionFormProps) {
           Billing cycle <span className="text-zoru-danger-ink">*</span>
         </ZoruLabel>
         <div className="mt-1.5">
-          <ZoruSelect
-            value={frequency}
-            onValueChange={(v) => setFrequency(v as CrmSubBillingFrequency)}
-          >
-            <ZoruSelectTrigger>
-              <ZoruSelectValue />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
-              {FREQUENCY_OPTIONS.map((opt) => (
-                <ZoruSelectItem key={opt.value} value={opt.value}>
-                  {opt.label}
-                </ZoruSelectItem>
-              ))}
-            </ZoruSelectContent>
-          </ZoruSelect>
+          <EnumFormField
+            enumName="subBillingFrequency"
+            name="__frequency_picker"
+            initialId={frequency}
+            onChange={(v) => setFrequency((v ?? 'monthly') as CrmSubBillingFrequency)}
+          />
         </div>
       </div>
       <div>
@@ -278,21 +264,12 @@ export function SubscriptionForm({ initial }: SubscriptionFormProps) {
           Renewal mode <span className="text-zoru-danger-ink">*</span>
         </ZoruLabel>
         <div className="mt-1.5">
-          <ZoruSelect
-            value={renewalMode}
-            onValueChange={(v) => setRenewalMode(v as CrmSubRenewalMode)}
-          >
-            <ZoruSelectTrigger>
-              <ZoruSelectValue />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
-              {RENEWAL_OPTIONS.map((opt) => (
-                <ZoruSelectItem key={opt.value} value={opt.value}>
-                  {opt.label}
-                </ZoruSelectItem>
-              ))}
-            </ZoruSelectContent>
-          </ZoruSelect>
+          <EnumFormField
+            enumName="subRenewalMode"
+            name="__renewalMode_picker"
+            initialId={renewalMode}
+            onChange={(v) => setRenewalMode((v ?? 'auto') as CrmSubRenewalMode)}
+          />
         </div>
       </div>
       <div>

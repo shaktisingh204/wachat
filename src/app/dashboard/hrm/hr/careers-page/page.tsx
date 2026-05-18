@@ -9,11 +9,6 @@ import {
   ZoruCardTitle,
   ZoruInput,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruSkeleton,
   ZoruTextarea,
   useZoruToast,
@@ -42,6 +37,8 @@ import { Globe,
  */
 
 import * as React from 'react';
+
+import { EnumFormField } from '@/components/crm/enum-form-field';
 
 import { SabFileUrlInput } from '@/components/sabfiles';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
@@ -222,21 +219,14 @@ export default function CareersPageConfigPage() {
                 />
               </div>
               <div>
-                <ZoruLabel htmlFor="isPublished">Published</ZoruLabel>
-                <ZoruSelect
+                <ZoruLabel>Published</ZoruLabel>
+                <EnumFormField
                   name="isPublished"
-                  defaultValue={
-                    config && (config as any).isPublished ? 'yes' : 'no'
-                  }
-                >
-                  <ZoruSelectTrigger id="isPublished">
-                    <ZoruSelectValue placeholder="Select" />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
-                    <ZoruSelectItem value="yes">Yes</ZoruSelectItem>
-                    <ZoruSelectItem value="no">No</ZoruSelectItem>
-                  </ZoruSelectContent>
-                </ZoruSelect>
+                  enumName="yesNo"
+                  initialId={config && (config as any).isPublished ? 'yes' : 'no'}
+                  allowInlineCreate={false}
+                  placeholder="Published?"
+                />
               </div>
             </ZoruCardContent>
           </ZoruCard>

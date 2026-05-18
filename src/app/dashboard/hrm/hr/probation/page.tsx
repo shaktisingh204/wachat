@@ -10,11 +10,6 @@ import {
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
   ZoruButton,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruTable,
   ZoruTableBody,
   ZoruTableCell,
@@ -44,6 +39,8 @@ import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 
+import { EnumFilterField } from '@/components/crm/enum-filter-field';
+
 import {
     deleteCrmProbation,
     getCrmProbations,
@@ -52,15 +49,6 @@ import {
 } from '@/app/actions/crm-probation.actions';
 
 const BASE = '/dashboard/hrm/hr/probation';
-
-const STATUS_OPTIONS: Array<{ value: ProbationStatus | 'all'; label: string }> = [
-    { value: 'all', label: 'All statuses' },
-    { value: 'in_progress', label: 'In progress' },
-    { value: 'confirmed', label: 'Confirmed' },
-    { value: 'extended', label: 'Extended' },
-    { value: 'terminated', label: 'Terminated' },
-    { value: 'archived', label: 'Archived' },
-];
 
 const STATUS_TONE: Record<ProbationStatus, StatusTone> = {
     in_progress: 'blue',
@@ -172,23 +160,12 @@ export default function ProbationListPage() {
                         placeholder: 'Search by employee or evaluator…',
                     }}
                     filters={
-                        <ZoruSelect
+                        <EnumFilterField
+                            enumName="probationStatus"
                             value={statusFilter}
-                            onValueChange={(v) =>
-                                setStatusFilter(v as ProbationStatus | 'all')
-                            }
-                        >
-                            <ZoruSelectTrigger className="h-9 w-[180px]">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                            onChange={(v) => setStatusFilter(v as ProbationStatus | 'all')}
+                            allLabel="All statuses"
+                        />
                     }
                     loading={isLoading && probations.length === 0}
                 >

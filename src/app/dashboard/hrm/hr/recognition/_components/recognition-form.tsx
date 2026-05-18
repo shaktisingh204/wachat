@@ -27,7 +27,8 @@ import {
   X,
   } from 'lucide-react';
 
-// TODO 1E.sweep: type -> <EnumFormField enumName="recognitionType">; recipient/nominator -> <EntityFormField entity="employee">. See plan §1E.
+// §1E.sweep: category ZoruSelect kept — CATEGORY_OPTIONS slugs (achievement/teamwork/etc.) differ from recognitionType enum (kudos/award/etc.); resolve Rust DTO first.
+// §1E.sweep: status ZoruSelect kept — no recognitionStatus enum in catalogue yet; add it once Rust wire format is confirmed.
 
 /**
  * <RecognitionForm /> — shared create/edit form for HR Recognition.

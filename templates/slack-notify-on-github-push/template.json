@@ -2,7 +2,7 @@
   "id": "slack-notify-on-github-push",
   "name": "Slack Notify on GitHub Push",
   "description": "Receives a GitHub push webhook and posts a formatted message to a Slack channel. Ideal for keeping your team informed about code activity without leaving Slack.",
-  "category": "DevOps",
+  "category": "Developer",
   "complexity": "beginner",
   "authorName": "SabNode",
   "tags": ["github", "slack", "devops", "webhook", "notification"],

@@ -55,6 +55,7 @@ import type {
 
 const BASE = '/dashboard/hrm/hr/jobs';
 
+// §1E.sweep: jobStatus ZoruSelect kept — 'filled' slug not in enum; jobEmploymentType ZoruSelect kept — 'intern' slug differs from enum 'internship'. Resolve Rust DTO first.
 const STATUS_OPTIONS: Array<{ value: CrmJobStatus | 'all'; label: string }> = [
     { value: 'all', label: 'All statuses' },
     { value: 'draft', label: 'Draft' },

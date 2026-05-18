@@ -10,11 +10,6 @@ import {
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
   ZoruButton,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruTable,
   ZoruTableBody,
   ZoruTableCell,
@@ -40,6 +35,7 @@ import Link from 'next/link';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
+import { EnumFilterField } from '@/components/crm/enum-filter-field';
 
 import {
     deleteVendorBid,
@@ -52,14 +48,6 @@ import type {
 
 const BASE = '/dashboard/crm/purchases/vendor-bids';
 
-const STATUS_OPTIONS: Array<{ value: CrmVendorBidStatus | 'all'; label: string }> = [
-    { value: 'all', label: 'All statuses' },
-    { value: 'submitted', label: 'Submitted' },
-    { value: 'shortlisted', label: 'Shortlisted' },
-    { value: 'awarded', label: 'Awarded' },
-    { value: 'rejected', label: 'Rejected' },
-    { value: 'withdrawn', label: 'Withdrawn' },
-];
 
 const STATUS_TONE: Record<CrmVendorBidStatus, StatusTone> = {
     submitted: 'blue',
@@ -158,23 +146,12 @@ export function VendorBidsListPage() {
                         placeholder: 'Search vendor bids…',
                     }}
                     filters={
-                        <ZoruSelect
+                        <EnumFilterField
+                            enumName="vendorBidStatus"
                             value={statusFilter}
-                            onValueChange={(v) =>
-                                setStatusFilter(v as CrmVendorBidStatus | 'all')
-                            }
-                        >
-                            <ZoruSelectTrigger className="h-9 w-[180px]">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                            onChange={(v) => setStatusFilter(v as CrmVendorBidStatus | 'all')}
+                            allLabel="All statuses"
+                        />
                     }
                     loading={isLoading && bids.length === 0}
                 >

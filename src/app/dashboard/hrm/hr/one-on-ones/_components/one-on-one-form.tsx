@@ -27,7 +27,8 @@ import { ArrowLeft,
   Save,
   Trash2 } from 'lucide-react';
 
-// TODO 1E.sweep: status -> <EnumFormField enumName="oneOnOneStatus">; manager/employee -> <EntityFormField entity="employee">. See plan §1E.
+// §1E.sweep: status ZoruSelect kept — form uses in_progress/no_show/archived but oneOnOneStatus enum only has scheduled/completed/cancelled/rescheduled; resolve Rust DTO first.
+// §1E.sweep: mood ZoruSelect kept — no moodStatus enum in catalogue.
 
 /**
  * <OneOnOneForm /> — create + edit form for HR one-on-ones.

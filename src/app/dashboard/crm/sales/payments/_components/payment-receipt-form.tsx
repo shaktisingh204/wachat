@@ -5,11 +5,6 @@ import {
   ZoruCard,
   ZoruInput,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
@@ -40,6 +35,7 @@ import { LoaderCircle } from 'lucide-react';
 import * as React from 'react';
 
 import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import { savePaymentReceiptAction } from '@/app/actions/crm/payment-receipts.actions';
 import type {
   CrmPaymentMode,
@@ -184,25 +180,18 @@ export function PaymentReceiptForm({ initial }: PaymentReceiptFormProps) {
             ) : null}
           </div>
           <div>
-            <ZoruLabel htmlFor="payment-method">
+            <ZoruLabel>
               Payment method <span className="text-zoru-danger-ink">*</span>
             </ZoruLabel>
-            <ZoruSelect
-              value={mode}
-              onValueChange={(v) => setMode(v as CrmPaymentMode)}
-              disabled={editing}
-            >
-              <ZoruSelectTrigger id="payment-method" className="mt-1.5">
-                <ZoruSelectValue placeholder="Pick a method" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                {PAYMENT_MODES.map((m) => (
-                  <ZoruSelectItem key={m.value} value={m.value}>
-                    {m.label}
-                  </ZoruSelectItem>
-                ))}
-              </ZoruSelectContent>
-            </ZoruSelect>
+            <div className="mt-1.5">
+              <EnumFormField
+                enumName="paymentMode"
+                name="__mode_picker"
+                initialId={mode}
+                disabled={editing}
+                onChange={(v) => setMode((v ?? 'upi') as CrmPaymentMode)}
+              />
+            </div>
             {editing ? (
               <p className="mt-1 text-[11px] text-zoru-ink-muted">
                 Payment method cannot be changed after creation.
@@ -224,22 +213,15 @@ export function PaymentReceiptForm({ initial }: PaymentReceiptFormProps) {
           </div>
           {editing ? (
             <div>
-              <ZoruLabel htmlFor="receipt-status">Status</ZoruLabel>
-              <ZoruSelect
-                value={status}
-                onValueChange={(v) => setStatus(v as CrmReceiptStatus)}
-              >
-                <ZoruSelectTrigger id="receipt-status" className="mt-1.5">
-                  <ZoruSelectValue placeholder="Status" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  {RECEIPT_STATUSES.map((s) => (
-                    <ZoruSelectItem key={s.value} value={s.value}>
-                      {s.label}
-                    </ZoruSelectItem>
-                  ))}
-                </ZoruSelectContent>
-              </ZoruSelect>
+              <ZoruLabel>Status</ZoruLabel>
+              <div className="mt-1.5">
+                <EnumFormField
+                  enumName="paymentReceiptStatus"
+                  name="__status_picker"
+                  initialId={status}
+                  onChange={(v) => setStatus((v ?? 'received') as CrmReceiptStatus)}
+                />
+              </div>
             </div>
           ) : null}
         </div>

@@ -5,11 +5,6 @@ import {
   ZoruCard,
   ZoruInput,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   useZoruToast,
 } from '@/components/zoruui';
 import {
@@ -35,21 +30,15 @@ import { ArrowLeft,
  * delegated to the backend (which mirrors the same arithmetic).
  */
 
+import { EnumFormField } from '@/components/crm/enum-form-field';
+
 import { saveSalaryStructureDoc } from '@/app/actions/crm-salary-structures.actions';
 import type {
     CrmSalaryStructureDoc,
-    CrmSalaryStructureStatus,
 } from '@/lib/rust-client/crm-salary-structures';
 
 const BASE = '/dashboard/hrm/payroll/salary-structure';
 
-const STATUS_OPTIONS: ReadonlyArray<{
-    value: CrmSalaryStructureStatus;
-    label: string;
-}> = [
-    { value: 'active', label: 'Active' },
-    { value: 'archived', label: 'Archived' },
-];
 
 function toDateInput(value: unknown): string {
     if (!value) return '';
@@ -183,22 +172,14 @@ export function SalaryStructureForm({ initialData }: SalaryStructureFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="status">Status</ZoruLabel>
-                        <ZoruSelect
+                        <ZoruLabel>Status</ZoruLabel>
+                        <EnumFormField
                             name="status"
-                            defaultValue={initialData?.status ?? 'active'}
-                        >
-                            <ZoruSelectTrigger id="status">
-                                <ZoruSelectValue />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                            enumName="activeArchived"
+                            initialId={initialData?.status ?? 'active'}
+                            allowInlineCreate={false}
+                            placeholder="Status"
+                        />
                     </div>
                 </div>
 

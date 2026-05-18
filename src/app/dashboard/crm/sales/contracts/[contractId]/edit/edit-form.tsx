@@ -7,11 +7,6 @@ import {
   ZoruLabel,
   ZoruTextarea,
   useZoruToast,
-  ZoruSelect,
-  ZoruSelectValue,
-  ZoruSelectTrigger,
-  ZoruSelectContent,
-  ZoruSelectItem,
 } from '@/components/zoruui';
 import {
   useActionState,
@@ -204,24 +199,12 @@ export function EditContractForm({
 
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="status">Status</ZoruLabel>
-                        <ZoruSelect
+                        <ZoruLabel>Status</ZoruLabel>
+                        <EnumFormField
+                            enumName="contractStatus"
                             name="status"
-                            defaultValue={(initial.status as string) || 'draft'}
-                        >
-                            <ZoruSelectTrigger id="status">
-                                <ZoruSelectValue placeholder="Select status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="draft">Draft</ZoruSelectItem>
-                                <ZoruSelectItem value="sent">Sent</ZoruSelectItem>
-                                <ZoruSelectItem value="pending">Pending</ZoruSelectItem>
-                                <ZoruSelectItem value="active">Active</ZoruSelectItem>
-                                <ZoruSelectItem value="completed">Completed</ZoruSelectItem>
-                                <ZoruSelectItem value="expired">Expired</ZoruSelectItem>
-                                <ZoruSelectItem value="voided">Voided</ZoruSelectItem>
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                            initialId={(initial.status as string) || 'draft'}
+                        />
                     </div>
                 </div>
 

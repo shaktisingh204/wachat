@@ -6,11 +6,6 @@ import {
   ZoruCheckbox,
   ZoruInput,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
@@ -21,6 +16,8 @@ import {
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useFormStatus } from 'react-dom';
+
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import { ArrowLeft,
   LoaderCircle,
   Save } from 'lucide-react';
@@ -152,27 +149,14 @@ export function ContractTemplateForm({
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="type-trigger">Type</ZoruLabel>
-                        <ZoruSelect
-                            value={type}
-                            onValueChange={(v) =>
-                                setType(v as CrmContractTemplateType)
-                            }
-                        >
-                            <ZoruSelectTrigger id="type-trigger">
-                                <ZoruSelectValue placeholder="Pick a type…" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {TYPE_OPTIONS.map((o) => (
-                                    <ZoruSelectItem
-                                        key={o.value}
-                                        value={o.value}
-                                    >
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <ZoruLabel>Type</ZoruLabel>
+                        <EnumFormField
+                            enumName="contractTemplateType"
+                            name="__type_picker"
+                            initialId={type}
+                            placeholder="Pick a type…"
+                            onChange={(v) => setType((v ?? 'service') as CrmContractTemplateType)}
+                        />
                     </div>
                 </div>
 
@@ -240,27 +224,13 @@ export function ContractTemplateForm({
                 {/* Row 5: Status + Active */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
-                        <ZoruSelect
-                            value={status}
-                            onValueChange={(v) =>
-                                setStatus(v as CrmContractTemplateStatus)
-                            }
-                        >
-                            <ZoruSelectTrigger id="status-trigger">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem
-                                        key={o.value}
-                                        value={o.value}
-                                    >
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <ZoruLabel>Status</ZoruLabel>
+                        <EnumFormField
+                            enumName="contractTemplateStatus"
+                            name="__status_picker"
+                            initialId={status}
+                            onChange={(v) => setStatus((v ?? 'draft') as CrmContractTemplateStatus)}
+                        />
                     </div>
                     <div className="flex items-center gap-2 self-end pb-1.5">
                         <ZoruCheckbox

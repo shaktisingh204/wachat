@@ -5,11 +5,6 @@ import {
   ZoruCard,
   ZoruInput,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
@@ -34,10 +29,12 @@ import { ArrowLeft,
  * FormData with hidden inputs for the controlled `<ZoruSelect>` values.
  */
 
+import { EnumFormField } from '@/components/crm/enum-form-field';
+
 import { saveGoal } from '@/app/actions/crm-goals.actions';
 import type { CrmGoalDoc, CrmGoalStatus } from '@/lib/rust-client/crm-goals';
 
-import { STATUS_OPTIONS } from '../_config';
+
 
 const BASE = '/dashboard/hrm/payroll/goal-setting';
 
@@ -94,7 +91,7 @@ export function GoalForm({ initialData }: GoalFormProps) {
                 {isEditing ? (
                     <input type="hidden" name="goalId" value={initialData!._id} />
                 ) : null}
-                <input type="hidden" name="status" value={status} />
+
 
                 {/* Row 1: Title */}
                 <div className="space-y-1.5">
@@ -223,22 +220,15 @@ export function GoalForm({ initialData }: GoalFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="status-trigger">Status</ZoruLabel>
-                        <ZoruSelect
-                            value={status}
-                            onValueChange={(v) => setStatus(v as CrmGoalStatus)}
-                        >
-                            <ZoruSelectTrigger id="status-trigger">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                        <ZoruLabel>Status</ZoruLabel>
+                        <EnumFormField
+                            name="status"
+                            enumName="goalFormStatus"
+                            initialId={status}
+                            onChange={(id) => setStatus((id as CrmGoalStatus) ?? 'draft')}
+                            allowInlineCreate={false}
+                            placeholder="Status"
+                        />
                     </div>
                 </div>
 

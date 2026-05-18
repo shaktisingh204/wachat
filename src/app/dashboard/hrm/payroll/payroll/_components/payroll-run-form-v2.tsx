@@ -33,6 +33,8 @@ import { ArrowLeft,
  * processing pass.
  */
 
+import { EnumFormField } from '@/components/crm/enum-form-field';
+
 import { savePayrollRun } from '@/app/actions/crm-payroll-runs.actions';
 import type {
     CrmPayrollRunDoc,
@@ -41,16 +43,6 @@ import type {
 
 const BASE = '/dashboard/hrm/payroll/payroll';
 
-const STATUS_OPTIONS: ReadonlyArray<{
-    value: CrmPayrollRunStatus;
-    label: string;
-}> = [
-    { value: 'draft', label: 'Draft' },
-    { value: 'in_progress', label: 'In progress' },
-    { value: 'processed', label: 'Processed' },
-    { value: 'paid', label: 'Paid' },
-    { value: 'archived', label: 'Archived' },
-];
 
 const MONTHS: ReadonlyArray<{ value: number; label: string }> = [
     { value: 1, label: 'January' },
@@ -184,22 +176,14 @@ export function PayrollRunForm({ initialData }: PayrollRunFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="status">Status</ZoruLabel>
-                        <ZoruSelect
+                        <ZoruLabel>Status</ZoruLabel>
+                        <EnumFormField
                             name="status"
-                            defaultValue={initialData?.status ?? 'draft'}
-                        >
-                            <ZoruSelectTrigger id="status">
-                                <ZoruSelectValue />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                            enumName="payrollRunStatus"
+                            initialId={initialData?.status ?? 'draft'}
+                            allowInlineCreate={false}
+                            placeholder="Status"
+                        />
                     </div>
                 </div>
 

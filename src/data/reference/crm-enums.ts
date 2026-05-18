@@ -429,6 +429,113 @@ export const DEBIT_NOTE_STATUS: EnumValue[] = [
 ];
 
 /**
+ * Rust-aligned debit-note workflow status (P1.1B W3 purchases rebuild).
+ * Mirrors `DebitNoteStatus` = `draft | issued | refunded | cancelled`.
+ * New list pages use this; legacy surfaces keep `debitNoteStatus`.
+ */
+export const DEBIT_NOTE_STATUS_V2: EnumValue[] = [
+  v('draft', 'Draft', { tone: 'neutral' }),
+  v('issued', 'Issued', { tone: 'info' }),
+  v('refunded', 'Refunded', { tone: 'success' }),
+  v('cancelled', 'Cancelled', { tone: 'destructive' }),
+];
+
+/**
+ * Debit-note reason — buy-side mirror of `creditNoteReason`. P1.1B W3.
+ */
+export const DEBIT_NOTE_REASON: EnumValue[] = [
+  v('return', 'Return'),
+  v('discount', 'Discount'),
+  v('price_adjust', 'Price adjustment'),
+  v('cancel', 'Cancellation'),
+  v('other', 'Other'),
+];
+
+/**
+ * Debit-note refund mode — how the buyer recovers the credit.
+ * Buy-side mirror of `creditNoteRefundMode`. P1.1B W3.
+ */
+export const DEBIT_NOTE_REFUND_MODE: EnumValue[] = [
+  v('cash', 'Cash / bank', { tone: 'info' }),
+  v('credit', 'Vendor credit', { tone: 'success' }),
+  v('replacement', 'Replacement', { tone: 'neutral' }),
+];
+
+/**
+ * Recurring-expense schedule lifecycle — P1.1B W3. Used by both the
+ * worksuite-billing path and the Rust v2 action path.
+ */
+export const RECURRING_EXPENSE_STATUS: EnumValue[] = [
+  v('active', 'Active', { tone: 'success' }),
+  v('paused', 'Paused', { tone: 'warning' }),
+  v('stopped', 'Stopped', { tone: 'neutral' }),
+  v('completed', 'Completed', { tone: 'neutral' }),
+  v('cancelled', 'Cancelled', { tone: 'destructive' }),
+];
+
+/**
+ * Hire / vendor-services procurement stage — P1.1B W3. Distinct from
+ * `hireStatus` (approval lifecycle); this tracks the sourcing funnel
+ * stage shown on the hire-list table.
+ */
+export const HIRE_STAGE: EnumValue[] = [
+  v('sourcing', 'Sourcing', { tone: 'neutral' }),
+  v('shortlisted', 'Shortlisted', { tone: 'info' }),
+  v('negotiation', 'Negotiation', { tone: 'warning' }),
+  v('awarded', 'Awarded', { tone: 'success' }),
+  v('closed', 'Closed', { tone: 'neutral' }),
+  v('closed_lost', 'Closed (lost)', { tone: 'destructive' }),
+  v('quotes_received', 'Quotes received', { tone: 'info' }),
+];
+
+/**
+ * Vendor / client industry classification — shared across new-vendor and
+ * new-client forms. P1.1B W3 sweep.
+ */
+export const VENDOR_INDUSTRY: EnumValue[] = [
+  v('tech', 'Technology'),
+  v('retail', 'Retail'),
+  v('manufacturing', 'Manufacturing'),
+  v('healthcare', 'Healthcare'),
+  v('logistics', 'Logistics / Transport'),
+  v('finance', 'Finance / Banking'),
+  v('construction', 'Construction'),
+  v('food', 'Food & Beverage'),
+  v('education', 'Education'),
+  v('hospitality', 'Hospitality'),
+  v('agriculture', 'Agriculture'),
+  v('energy', 'Energy / Utilities'),
+  v('media', 'Media / Advertising'),
+  v('government', 'Government / PSU'),
+  v('other', 'Other'),
+];
+
+/**
+ * GST / tax-treatment classification for vendor and client forms.
+ * Simpler than `gstTreatment` — used on the vendor form's Tax Treatment
+ * field. P1.1B W3 sweep.
+ */
+export const TAX_TREATMENT: EnumValue[] = [
+  v('registered', 'Registered'),
+  v('unregistered', 'Unregistered'),
+  v('composition', 'Composition'),
+  v('consumer', 'Consumer'),
+  v('overseas', 'Overseas / Export'),
+  v('sez', 'SEZ'),
+];
+
+/**
+ * MSME category per MSMED Act 2006 — Micro / Small / Medium.
+ * Used on the vendor form's MSME compliance section. P1.1B W3 sweep.
+ */
+export const MSME_CATEGORY: EnumValue[] = [
+  v('Micro', 'Micro'),
+  v('Small', 'Small'),
+  v('Medium', 'Medium'),
+];
+
+
+/**
  * Payout (vendor payment) workflow status — P1.1B W3 (Purchases rebuild).
  * Mirrors the Rust `CrmPayoutStatus` lifecycle: a payout is `pending` when
  * created, `processing` once handed to the bank rail, `cleared` after the
@@ -898,6 +1005,95 @@ export const APPRAISAL_STATUS: EnumValue[] = [
   v('cancelled', 'Cancelled', { tone: 'destructive' }),
 ];
 
+// ── §1E HRM payroll ZoruSelect migration ─────────────────────────────────────
+
+/** Holiday type (national/regional/religious/optional/restricted). */
+export const HOLIDAY_TYPE: EnumValue[] = [
+  v('national', 'National', { tone: 'info' }),
+  v('regional', 'Regional', { tone: 'info' }),
+  v('religious', 'Religious', { tone: 'warning' }),
+  v('optional', 'Optional', { tone: 'neutral' }),
+  v('restricted', 'Restricted', { tone: 'neutral' }),
+];
+
+/** Days-off rule inside a shift definition (week-off vs consecutive). */
+export const DAYS_OFF_TYPE: EnumValue[] = [
+  v('week-off', 'Week Off', { tone: 'neutral' }),
+  v('consecutive', 'Consecutive', { tone: 'neutral' }),
+];
+
+/** Payslip workflow status (Rust-backed payslips entity). */
+export const PAYSLIP_STATUS: EnumValue[] = [
+  v('draft', 'Draft', { tone: 'neutral' }),
+  v('issued', 'Issued', { tone: 'info' }),
+  v('paid', 'Paid', { tone: 'success' }),
+  v('archived', 'Archived', { tone: 'neutral' }),
+];
+
+/** Payroll-run workflow status (legacy-Mongo payroll-runs entity). */
+export const PAYROLL_RUN_STATUS: EnumValue[] = [
+  v('draft', 'Draft', { tone: 'neutral' }),
+  v('in_progress', 'In progress', { tone: 'info' }),
+  v('processed', 'Processed', { tone: 'success' }),
+  v('paid', 'Paid', { tone: 'success' }),
+  v('archived', 'Archived', { tone: 'neutral' }),
+];
+
+/** Payroll-run filter status (Rust crm-payroll-runs filter variant). */
+export const PAYROLL_RUN_FILTER_STATUS: EnumValue[] = [
+  v('draft', 'Draft', { tone: 'neutral' }),
+  v('processing', 'Processing', { tone: 'info' }),
+  v('approved', 'Approved', { tone: 'success' }),
+  v('disbursed', 'Disbursed', { tone: 'success' }),
+  v('closed', 'Closed', { tone: 'neutral' }),
+];
+
+/** Appraisal-review form status (Rust-backed crm-appraisals). */
+export const APPRAISAL_FORM_STATUS: EnumValue[] = [
+  v('draft', 'Draft', { tone: 'neutral' }),
+  v('submitted', 'Submitted', { tone: 'info' }),
+  v('finalized', 'Finalized', { tone: 'success' }),
+  v('archived', 'Archived', { tone: 'neutral' }),
+];
+
+/** Goal form status (Rust-backed crm-goals — CrmGoalStatus). */
+export const GOAL_FORM_STATUS: EnumValue[] = [
+  v('draft', 'Draft', { tone: 'neutral' }),
+  v('active', 'Active', { tone: 'info' }),
+  v('achieved', 'Achieved', { tone: 'success' }),
+  v('missed', 'Missed', { tone: 'destructive' }),
+  v('archived', 'Archived', { tone: 'neutral' }),
+];
+
+/** Active / Archived two-state status (shifts, salary structures, rotations). */
+export const ACTIVE_ARCHIVED: EnumValue[] = [
+  v('active', 'Active', { tone: 'success' }),
+  v('archived', 'Archived', { tone: 'neutral' }),
+];
+
+/** PF/ESI monthly record status. */
+export const PF_ESI_STATUS: EnumValue[] = [
+  v('pending', 'Pending', { tone: 'warning' }),
+  v('deposited', 'Deposited', { tone: 'info' }),
+  v('filed', 'Filed', { tone: 'success' }),
+  v('archived', 'Archived', { tone: 'neutral' }),
+];
+
+/** KPI measurement frequency (CrmKpiFrequency). */
+export const KPI_FREQUENCY: EnumValue[] = [
+  v('monthly', 'Monthly', { tone: 'neutral' }),
+  v('quarterly', 'Quarterly', { tone: 'neutral' }),
+  v('annual', 'Annual', { tone: 'neutral' }),
+];
+
+/** KPI document status (CrmKpiStatus). */
+export const KPI_FORM_STATUS: EnumValue[] = [
+  v('active', 'Active', { tone: 'success' }),
+  v('archived', 'Archived', { tone: 'neutral' }),
+];
+
+// ── end §1E HRM payroll additions ─────────────────────────────────────────────
+
 export const EXPENSE_CLAIM_STATUS: EnumValue[] = [
   v('draft', 'Draft', { tone: 'neutral' }),
   v('submitted', 'Submitted', { tone: 'info' }),
@@ -997,6 +1193,14 @@ export const DOCUMENT_TEMPLATE_CATEGORY: EnumValue[] = [
 export const DOCUMENT_TEMPLATE_STATUS: EnumValue[] = [
   v('draft', 'Draft', { tone: 'neutral' }),
   v('active', 'Active', { tone: 'success' }),
+  v('archived', 'Archived', { tone: 'neutral' }),
+];
+
+/** Lifecycle status for an HR welcome kit (new-hire equipment parcel). */
+export const WELCOME_KIT_STATUS: EnumValue[] = [
+  v('pending', 'Pending', { tone: 'warning' }),
+  v('shipped', 'Shipped', { tone: 'info' }),
+  v('delivered', 'Delivered', { tone: 'success' }),
   v('archived', 'Archived', { tone: 'neutral' }),
 ];
 
@@ -2004,6 +2208,34 @@ export const PAYSLIP_TEMPLATE: EnumValue[] = [
 ];
 
 /* ------------------------------------------------------------------ */
+/* Sales-CRM / time-tracking finite enums (§1E sweep)                 */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Automation trigger events — used by the new-automation form’s Trigger
+ * Event picker. Covers all built-in CRM trigger types.
+ */
+export const AUTOMATION_TRIGGER: EnumValue[] = [
+  v('lead_created', 'Lead Created'),
+  v('deal_stage_changed', 'Deal Stage Changed'),
+  v('contact_created', 'Contact Created'),
+  v('task_overdue', 'Task Overdue'),
+  v('invoice_overdue', 'Invoice Overdue'),
+  v('form_submitted', 'Form Submitted'),
+  v('manual', 'Manual Trigger'),
+];
+
+/**
+ * Billable filter for time-log list. The 'all' sentinel is handled by
+ * `<EnumFilterField>`. The `non-billable` slug matches the filter predicate
+ * already in use in the time-logs page.
+ */
+export const TIME_BILLABLE_FILTER: EnumValue[] = [
+  v('billable', 'Billable', { tone: 'success' }),
+  v('non-billable', 'Non-billable', { tone: 'neutral' }),
+];
+
+/* ------------------------------------------------------------------ */
 /* Inventory finite enums (P1.1B Wave 4)                              */
 /* ------------------------------------------------------------------ */
 
@@ -2119,6 +2351,191 @@ export const ITEM_TAX_PREFERENCE: EnumValue[] = [
 ];
 
 /* ------------------------------------------------------------------ */
+/* §1E Sales-module enums (gift-card, coupon, promotion, loyalty,     */
+/* estimate, proposal, contract-template, delivery-challan,           */
+/* recurring-invoice, subscription frequency/renewal)                 */
+/* ------------------------------------------------------------------ */
+
+/** Gift-card lifecycle status. */
+export const GIFT_CARD_STATUS: EnumValue[] = [
+  v('active', 'Active', { tone: 'success' }),
+  v('paused', 'Paused', { tone: 'warning' }),
+  v('redeemed', 'Redeemed', { tone: 'neutral' }),
+  v('expired', 'Expired', { tone: 'destructive' }),
+  v('cancelled', 'Cancelled', { tone: 'destructive' }),
+];
+
+/** Coupon type discriminator. */
+export const COUPON_TYPE: EnumValue[] = [
+  v('percent', 'Percentage discount'),
+  v('flat', 'Flat amount off'),
+  v('bogo', 'Buy one get one (BOGO)'),
+  v('free_shipping', 'Free shipping'),
+];
+
+/** Promotion type discriminator. */
+export const PROMOTION_TYPE: EnumValue[] = [
+  v('flat', 'Flat amount off'),
+  v('percent', 'Percentage discount'),
+  v('buy_x_get_y', 'Buy X · Get Y'),
+  v('free_shipping', 'Free shipping'),
+];
+
+/** Promotion lifecycle status. */
+export const PROMOTION_STATUS: EnumValue[] = [
+  v('draft', 'Draft', { tone: 'neutral' }),
+  v('scheduled', 'Scheduled', { tone: 'info' }),
+  v('active', 'Active', { tone: 'success' }),
+  v('paused', 'Paused', { tone: 'warning' }),
+  v('expired', 'Expired', { tone: 'destructive' }),
+  v('archived', 'Archived', { tone: 'neutral' }),
+];
+
+/** Loyalty program lifecycle status. */
+export const LOYALTY_STATUS: EnumValue[] = [
+  v('active', 'Active', { tone: 'success' }),
+  v('paused', 'Paused', { tone: 'warning' }),
+  v('archived', 'Archived', { tone: 'neutral' }),
+];
+
+/** Estimate-template status. */
+export const ESTIMATE_TEMPLATE_STATUS: EnumValue[] = [
+  v('draft', 'Draft', { tone: 'neutral' }),
+  v('published', 'Published', { tone: 'success' }),
+  v('archived', 'Archived', { tone: 'neutral' }),
+];
+
+/** Estimate-template category. */
+export const ESTIMATE_TEMPLATE_CATEGORY: EnumValue[] = [
+  v('general', 'General'),
+  v('services', 'Services'),
+  v('products', 'Products'),
+  v('consulting', 'Consulting'),
+  v('maintenance', 'Maintenance'),
+  v('other', 'Other'),
+];
+
+/** Estimate-request source channel. */
+export const ESTIMATE_REQUEST_SOURCE: EnumValue[] = [
+  v('web', 'Website'),
+  v('email', 'Email'),
+  v('phone', 'Phone'),
+  v('referral', 'Referral'),
+  v('other', 'Other'),
+];
+
+/** Estimate-request lifecycle status. */
+export const ESTIMATE_REQUEST_STATUS: EnumValue[] = [
+  v('pending', 'Pending', { tone: 'warning' }),
+  v('in_review', 'In review', { tone: 'info' }),
+  v('quoted', 'Quoted', { tone: 'success' }),
+  v('declined', 'Declined', { tone: 'destructive' }),
+  v('archived', 'Archived', { tone: 'neutral' }),
+];
+
+/** Proposal lifecycle status. */
+export const PROPOSAL_STATUS: EnumValue[] = [
+  v('draft', 'Draft', { tone: 'neutral' }),
+  v('sent', 'Sent', { tone: 'info' }),
+  v('accepted', 'Accepted', { tone: 'success' }),
+  v('rejected', 'Rejected', { tone: 'destructive' }),
+  v('expired', 'Expired', { tone: 'destructive' }),
+  v('archived', 'Archived', { tone: 'neutral' }),
+];
+
+/** Contract-template type discriminator. */
+export const CONTRACT_TEMPLATE_TYPE: EnumValue[] = [
+  v('service', 'Service'),
+  v('sales', 'Sales'),
+  v('nda', 'NDA'),
+  v('msa', 'MSA'),
+  v('sow', 'SOW'),
+  v('employment', 'Employment'),
+  v('other', 'Other'),
+];
+
+/** Contract-template lifecycle status. */
+export const CONTRACT_TEMPLATE_STATUS: EnumValue[] = [
+  v('draft', 'Draft', { tone: 'neutral' }),
+  v('active', 'Active', { tone: 'success' }),
+  v('archived', 'Archived', { tone: 'neutral' }),
+];
+
+/** Contract-type (settings) lifecycle status. */
+export const CONTRACT_TYPE_STATUS: EnumValue[] = [
+  v('active', 'Active', { tone: 'success' }),
+  v('archived', 'Archived', { tone: 'neutral' }),
+];
+
+/**
+ * Extended contract type (used in the new-contract + edit-contract forms).
+ * Includes the short-code values stored in the Mongo `type` field.
+ */
+export const CONTRACT_TYPE_EXTENDED: EnumValue[] = [
+  v('nda', 'NDA'),
+  v('msa', 'MSA'),
+  v('sow', 'SOW'),
+  v('amc', 'AMC'),
+  v('employment', 'Employment'),
+  v('vendor', 'Vendor'),
+  v('service', 'Service'),
+  v('lease', 'Lease'),
+  v('other', 'Other'),
+];
+
+/** E-sign provider picker (extended — includes None). */
+export const ESIGN_PROVIDER_EXTENDED: EnumValue[] = [
+  v('none', 'None'),
+  v('internal', 'Internal'),
+  v('digio', 'Digio'),
+  v('docusign', 'DocuSign'),
+  v('aadhaar', 'Aadhaar e-Sign'),
+];
+
+/** Delivery-challan lifecycle status (Title-cased — stored as-is in Mongo). */
+export const DELIVERY_CHALLAN_STATUS: EnumValue[] = [
+  v('Draft', 'Draft', { tone: 'neutral' }),
+  v('In Transit', 'In transit', { tone: 'info' }),
+  v('Delivered', 'Delivered', { tone: 'success' }),
+  v('Returned', 'Returned', { tone: 'destructive' }),
+];
+
+/**
+ * Recurring-invoice frequency — full billing-cadence picker
+ * (days / weeks / months / years).
+ */
+export const RECURRING_INVOICE_FREQUENCY: EnumValue[] = [
+  v('days', 'Days'),
+  v('weeks', 'Weeks'),
+  v('months', 'Months'),
+  v('years', 'Years'),
+];
+
+/** Recurring-invoice lifecycle status. */
+export const RECURRING_INVOICE_STATUS: EnumValue[] = [
+  v('active', 'Active', { tone: 'success' }),
+  v('paused', 'Paused', { tone: 'warning' }),
+  v('stopped', 'Stopped', { tone: 'destructive' }),
+];
+
+/** Subscription billing cycle (mirrors `CrmSubBillingFrequency`). */
+export const SUB_BILLING_FREQUENCY: EnumValue[] = [
+  v('daily', 'Daily'),
+  v('weekly', 'Weekly'),
+  v('monthly', 'Monthly'),
+  v('quarterly', 'Quarterly'),
+  v('yearly', 'Yearly'),
+  v('custom', 'Custom'),
+];
+
+/** Subscription renewal mode (mirrors `CrmSubRenewalMode`). */
+export const SUB_RENEWAL_MODE: EnumValue[] = [
+  v('auto', 'Auto-renew'),
+  v('manual', 'Manual renewal'),
+];
+
+
+/* ------------------------------------------------------------------ */
 /* Catalogue                                                           */
 /* ------------------------------------------------------------------ */
 
@@ -2176,12 +2593,22 @@ export const CRM_ENUMS = {
   /** Credit-note refund mode picker. P1.1B Wave 2. */
   creditNoteRefundMode: CREDIT_NOTE_REFUND_MODE,
   debitNoteStatus: DEBIT_NOTE_STATUS,
+  /** Rust-aligned debit-note workflow status. P1.1B W3. */
+  debitNoteStatusV2: DEBIT_NOTE_STATUS_V2,
+  /** Debit-note reason picker. P1.1B W3. */
+  debitNoteReason: DEBIT_NOTE_REASON,
+  /** Debit-note refund mode picker. P1.1B W3. */
+  debitNoteRefundMode: DEBIT_NOTE_REFUND_MODE,
   /** Payout (vendor payment) workflow status. P1.1B W3. */
   payoutStatus: PAYOUT_STATUS,
   /** Vendor bid workflow status. P1.1B W3. */
   vendorBidStatus: VENDOR_BID_STATUS,
   /** Hire / procurement-of-services lifecycle. P1.1B W3. */
   hireStatus: HIRE_STATUS,
+  /** Hire sourcing-funnel stage (vendor-hire list filter). P1.1B W3. */
+  hireStage: HIRE_STAGE,
+  /** Recurring-expense schedule lifecycle. P1.1B W3. */
+  recurringExpenseStatus: RECURRING_EXPENSE_STATUS,
   subscriptionStatus: SUBSCRIPTION_STATUS,
   contractStatus: CONTRACT_STATUS,
   rfqStatus: RFQ_STATUS,
@@ -2259,6 +2686,7 @@ export const CRM_ENUMS = {
   policyDocStatus: POLICY_DOC_STATUS,
   documentTemplateCategory: DOCUMENT_TEMPLATE_CATEGORY,
   documentTemplateStatus: DOCUMENT_TEMPLATE_STATUS,
+  welcomeKitStatus: WELCOME_KIT_STATUS,
   timesheetStatus: TIMESHEET_STATUS,
   tdsQuarter: TDS_QUARTER,
   tdsStatus: TDS_STATUS,
@@ -2379,6 +2807,11 @@ export const CRM_ENUMS = {
   taxRegime: TAX_REGIME,
   payslipTemplate: PAYSLIP_TEMPLATE,
 
+  // Purchases — vendor classification (P1.1B W3 sweep)
+  vendorIndustry: VENDOR_INDUSTRY,
+  taxTreatment: TAX_TREATMENT,
+  msmeCategory: MSME_CATEGORY,
+
   // Inventory (P1.1B Wave 4)
   stockAdjustmentReason: STOCK_ADJUSTMENT_REASON,
   productionOrderStatus: PRODUCTION_ORDER_STATUS,
@@ -2390,6 +2823,45 @@ export const CRM_ENUMS = {
   stockTransferStatus: STOCK_TRANSFER_STATUS,
   itemBatchStatus: ITEM_BATCH_STATUS,
   itemTaxPreference: ITEM_TAX_PREFERENCE,
+
+  // Sales-CRM / time-tracking (§1E sweep)
+  automationTrigger: AUTOMATION_TRIGGER,
+  timeBillableFilter: TIME_BILLABLE_FILTER,
+
+  // §1E Sales-module enums
+  giftCardStatus: GIFT_CARD_STATUS,
+  couponType: COUPON_TYPE,
+  promotionType: PROMOTION_TYPE,
+  promotionStatus: PROMOTION_STATUS,
+  loyaltyStatus: LOYALTY_STATUS,
+  estimateTemplateStatus: ESTIMATE_TEMPLATE_STATUS,
+  estimateTemplateCategory: ESTIMATE_TEMPLATE_CATEGORY,
+  estimateRequestSource: ESTIMATE_REQUEST_SOURCE,
+  estimateRequestStatus: ESTIMATE_REQUEST_STATUS,
+  proposalStatus: PROPOSAL_STATUS,
+  contractTemplateType: CONTRACT_TEMPLATE_TYPE,
+  contractTemplateStatus: CONTRACT_TEMPLATE_STATUS,
+  contractTypeStatus: CONTRACT_TYPE_STATUS,
+  contractTypeExtended: CONTRACT_TYPE_EXTENDED,
+  esignProviderExtended: ESIGN_PROVIDER_EXTENDED,
+  deliveryChallanStatus: DELIVERY_CHALLAN_STATUS,
+  recurringInvoiceFrequency: RECURRING_INVOICE_FREQUENCY,
+  recurringInvoiceStatus: RECURRING_INVOICE_STATUS,
+  subBillingFrequency: SUB_BILLING_FREQUENCY,
+  subRenewalMode: SUB_RENEWAL_MODE,
+
+  // §1E HRM payroll ZoruSelect migration
+  holidayType: HOLIDAY_TYPE,
+  daysOffType: DAYS_OFF_TYPE,
+  payslipStatus: PAYSLIP_STATUS,
+  payrollRunStatus: PAYROLL_RUN_STATUS,
+  payrollRunFilterStatus: PAYROLL_RUN_FILTER_STATUS,
+  appraisalFormStatus: APPRAISAL_FORM_STATUS,
+  goalFormStatus: GOAL_FORM_STATUS,
+  activeArchived: ACTIVE_ARCHIVED,
+  pfEsiStatus: PF_ESI_STATUS,
+  kpiFrequency: KPI_FREQUENCY,
+  kpiFormStatus: KPI_FORM_STATUS,
 } as const satisfies Record<string, EnumValue[]>;
 
 export type CrmEnumName = keyof typeof CRM_ENUMS;

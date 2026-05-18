@@ -10,11 +10,6 @@ import {
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
   ZoruButton,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruTable,
   ZoruTableBody,
   ZoruTableCell,
@@ -44,6 +39,8 @@ import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 
+import { EnumFilterField } from '@/components/crm/enum-filter-field';
+
 import { deleteExit, getExits } from '@/app/actions/crm-exits.actions';
 import type {
     CrmExitDoc,
@@ -52,23 +49,6 @@ import type {
 } from '@/lib/rust-client/crm-exits';
 
 const BASE = '/dashboard/hrm/hr/exits';
-
-const STATUS_OPTIONS: Array<{ value: CrmExitStatus | 'all'; label: string }> = [
-    { value: 'all', label: 'All statuses' },
-    { value: 'open', label: 'Open' },
-    { value: 'complete', label: 'Complete' },
-    { value: 'cancelled', label: 'Cancelled' },
-    { value: 'archived', label: 'Archived' },
-];
-
-const TYPE_OPTIONS: Array<{ value: CrmExitType | 'all'; label: string }> = [
-    { value: 'all', label: 'All types' },
-    { value: 'resignation', label: 'Resignation' },
-    { value: 'termination', label: 'Termination' },
-    { value: 'end_of_contract', label: 'End of contract' },
-    { value: 'retirement', label: 'Retirement' },
-    { value: 'other', label: 'Other' },
-];
 
 const STATUS_TONE: Record<CrmExitStatus, StatusTone> = {
     open: 'amber',
@@ -171,40 +151,18 @@ export default function ExitsListPage() {
                     }}
                     filters={
                         <>
-                            <ZoruSelect
+                            <EnumFilterField
+                                enumName="exitStatus"
                                 value={statusFilter}
-                                onValueChange={(v) =>
-                                    setStatusFilter(v as CrmExitStatus | 'all')
-                                }
-                            >
-                                <ZoruSelectTrigger className="h-9 w-[160px]">
-                                    <ZoruSelectValue placeholder="Status" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    {STATUS_OPTIONS.map((o) => (
-                                        <ZoruSelectItem key={o.value} value={o.value}>
-                                            {o.label}
-                                        </ZoruSelectItem>
-                                    ))}
-                                </ZoruSelectContent>
-                            </ZoruSelect>
-                            <ZoruSelect
+                                onChange={(v) => setStatusFilter(v as CrmExitStatus | 'all')}
+                                allLabel="All statuses"
+                            />
+                            <EnumFilterField
+                                enumName="exitType"
                                 value={typeFilter}
-                                onValueChange={(v) =>
-                                    setTypeFilter(v as CrmExitType | 'all')
-                                }
-                            >
-                                <ZoruSelectTrigger className="h-9 w-[180px]">
-                                    <ZoruSelectValue placeholder="Type" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    {TYPE_OPTIONS.map((o) => (
-                                        <ZoruSelectItem key={o.value} value={o.value}>
-                                            {o.label}
-                                        </ZoruSelectItem>
-                                    ))}
-                                </ZoruSelectContent>
-                            </ZoruSelect>
+                                onChange={(v) => setTypeFilter(v as CrmExitType | 'all')}
+                                allLabel="All types"
+                            />
                         </>
                     }
                     loading={isLoading && exits.length === 0}

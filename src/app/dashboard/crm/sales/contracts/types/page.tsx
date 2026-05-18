@@ -54,6 +54,8 @@ import { useFormStatus } from 'react-dom';
 
 import * as React from 'react';
 
+import { EnumFormField } from '@/components/crm/enum-form-field';
+
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
@@ -224,27 +226,15 @@ function ContractTypeDialog({
                         </div>
                         <div className="grid gap-3 sm:grid-cols-2">
                             <div className="space-y-1.5">
-                                <ZoruLabel htmlFor="status-trigger">
-                                    Status
-                                </ZoruLabel>
-                                <ZoruSelect
-                                    value={status}
-                                    onValueChange={(v) =>
-                                        setStatus(v as CrmContractTypeStatus)
+                                <ZoruLabel>Status</ZoruLabel>
+                                <EnumFormField
+                                    enumName="contractTypeStatus"
+                                    name="__status_picker"
+                                    initialId={status}
+                                    onChange={(v) =>
+                                        setStatus((v ?? 'active') as CrmContractTypeStatus)
                                     }
-                                >
-                                    <ZoruSelectTrigger id="status-trigger">
-                                        <ZoruSelectValue placeholder="Status" />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="active">
-                                            Active
-                                        </ZoruSelectItem>
-                                        <ZoruSelectItem value="archived">
-                                            Archived
-                                        </ZoruSelectItem>
-                                    </ZoruSelectContent>
-                                </ZoruSelect>
+                                />
                             </div>
                             <div className="flex items-center gap-2 self-end pb-1.5">
                                 <ZoruCheckbox
@@ -380,6 +370,7 @@ export default function ContractTypesPage() {
                         placeholder: 'Search contract types…',
                     }}
                     filters={
+                        {/* TODO 1E.filter: convert to EnumFilterField once that wrapper exists */}
                         <ZoruSelect
                             value={statusFilter}
                             onValueChange={(v) =>

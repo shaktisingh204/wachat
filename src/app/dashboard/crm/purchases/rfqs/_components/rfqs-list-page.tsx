@@ -10,11 +10,6 @@ import {
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
   ZoruButton,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruTable,
   ZoruTableBody,
   ZoruTableCell,
@@ -43,6 +38,7 @@ import Link from 'next/link';
 
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { EnumFilterField } from '@/components/crm/enum-filter-field';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 
 import { deleteRfq, getRfqs } from '@/app/actions/crm-rfqs-v2.actions';
@@ -50,14 +46,6 @@ import type { CrmRfqDoc, CrmRfqStatus } from '@/lib/rust-client/crm-rfqs';
 
 const BASE = '/dashboard/crm/purchases/rfqs';
 
-const STATUS_OPTIONS: Array<{ value: CrmRfqStatus | 'all'; label: string }> = [
-    { value: 'all', label: 'All statuses' },
-    { value: 'draft', label: 'Draft' },
-    { value: 'open', label: 'Open' },
-    { value: 'closed', label: 'Closed' },
-    { value: 'awarded', label: 'Awarded' },
-    { value: 'cancelled', label: 'Cancelled' },
-];
 
 const STATUS_TONE: Record<CrmRfqStatus, StatusTone> = {
     draft: 'amber',
@@ -153,23 +141,12 @@ export function RfqsListPage() {
                         placeholder: 'Search RFQs…',
                     }}
                     filters={
-                        <ZoruSelect
+                        <EnumFilterField
+                            enumName="rfqStatus"
                             value={statusFilter}
-                            onValueChange={(v) =>
-                                setStatusFilter(v as CrmRfqStatus | 'all')
-                            }
-                        >
-                            <ZoruSelectTrigger className="h-9 w-[180px]">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                            onChange={(v) => setStatusFilter(v as CrmRfqStatus | 'all')}
+                            allLabel="All statuses"
+                        />
                     }
                     loading={isLoading && rfqs.length === 0}
                 >

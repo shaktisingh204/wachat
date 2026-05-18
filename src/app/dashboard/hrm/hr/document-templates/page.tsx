@@ -10,11 +10,6 @@ import {
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
   ZoruButton,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruTable,
   ZoruTableBody,
   ZoruTableCell,
@@ -41,6 +36,8 @@ import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 
+import { EnumFilterField } from '@/components/crm/enum-filter-field';
+
 import {
     deleteDocumentTemplate,
     getDocumentTemplates,
@@ -49,13 +46,6 @@ import {
 } from '@/app/actions/crm-document-templates.actions';
 
 const BASE = '/dashboard/hrm/hr/document-templates';
-
-const STATUS_OPTIONS: Array<{ value: CrmDocumentTemplateStatus | 'all'; label: string }> = [
-    { value: 'all', label: 'All statuses' },
-    { value: 'draft', label: 'Draft' },
-    { value: 'active', label: 'Active' },
-    { value: 'archived', label: 'Archived' },
-];
 
 const STATUS_TONE: Record<CrmDocumentTemplateStatus, StatusTone> = {
     draft: 'amber',
@@ -155,23 +145,12 @@ export default function DocumentTemplatesListPage() {
                         placeholder: 'Search templates…',
                     }}
                     filters={
-                        <ZoruSelect
+                        <EnumFilterField
+                            enumName="documentTemplateStatus"
                             value={statusFilter}
-                            onValueChange={(v) =>
-                                setStatusFilter(v as CrmDocumentTemplateStatus | 'all')
-                            }
-                        >
-                            <ZoruSelectTrigger className="h-9 w-[180px]">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                            onChange={(v) => setStatusFilter(v as CrmDocumentTemplateStatus | 'all')}
+                            allLabel="All statuses"
+                        />
                     }
                     loading={isLoading && templates.length === 0}
                 >
