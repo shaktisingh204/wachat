@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "templateId": "gusto-payroll-recap",
+  "cases": [
+    {
+      "id": "happy-path",
+      "description": "Gusto webhook fires, payroll detail is fetched, recap fans out to Slack thread and SendGrid CSV, and both branches converge into a Mongo audit row.",
+      "triggerPayload": {
+        "body": {
+          "event_type": "payroll.processed",
+          "company_uuid": "company-uuid-test",
+          "payroll_uuid": "payroll-uuid-test"
+        }
+      },
+      "expect": {
+        "finalStatus": "success"
+      }
+    }
+  ]
+}
