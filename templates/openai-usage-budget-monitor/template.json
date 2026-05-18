@@ -1,0 +1,10 @@
+{
+  "id": "openai-usage-budget-monitor",
+  "name": "OpenAI Usage Budget Monitor",
+  "description": "Runs nightly to pull OpenAI usage by project from the usage API, normalize spend per-project, and upsert a daily row into Airtable. If the rolling 30-day total crosses a configured budget, the flow fans out an alert to Slack #ai-spend and emails the finance team.",
+  "category": "Ops",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["openai", "budget", "airtable", "slack", "sendgrid", "finops"],
+  "version": "0.1.0"
+}

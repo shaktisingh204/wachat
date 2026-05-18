@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "openai-usage-budget-monitor",
+  "cases": [
+    {
+      "id": "nightly-run",
+      "description": "Nightly cron pulls usage, aggregates, and routes by budget.",
+      "triggerPayload": { "tick": "2026-05-19T02:00:00Z" },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
