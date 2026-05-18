@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "codefresh-image-sign",
+  "cases": [
+    {
+      "id": "sign-image",
+      "description": "Codefresh build signs image and uploads SBOM.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
