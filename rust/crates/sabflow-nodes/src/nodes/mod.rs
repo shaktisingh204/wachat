@@ -41,6 +41,11 @@ pub mod stripe_trigger;
 pub mod shopify_trigger;
 pub mod paypal_trigger;
 
+// ── Phase C.6 — Webhook-style triggers ──────────────────────────────────────
+pub mod typeform_trigger;
+pub mod calendly_trigger;
+pub mod zoom_trigger;
+
 // ── Fully-implemented integration nodes ─────────────────────────────────────
 pub mod slack;
 pub mod slack_signature;
@@ -250,10 +255,10 @@ fn register_implemented(r: &mut NodeRegistry) {
     r.register(my_sql::MySqlNode);
     r.register(supabase::SupabaseNode);
     r.register(noco_db::NocoDbNode);
-    // Phase C.6.6 — productivity-webhook triggers
-    r.register(notion_trigger::NotionTriggerNode);
-    r.register(airtable_trigger::AirtableTriggerNode);
-    r.register(jira_trigger::JiraTriggerNode);
+    // Phase C.6.7 — form / calendar webhook triggers
+    r.register(typeform_trigger::TypeformTriggerNode);
+    r.register(calendly_trigger::CalendlyTriggerNode);
+    r.register(zoom_trigger::ZoomTriggerNode);
 }
 
 /// Register stubs only when the name isn't already populated by an implemented node.
