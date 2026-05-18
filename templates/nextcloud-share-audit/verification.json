@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "nextcloud-share-audit",
+  "cases": [
+    {
+      "id": "weekly-audit",
+      "description": "Weekly cron lists stale Nextcloud public shares and posts a summary.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
