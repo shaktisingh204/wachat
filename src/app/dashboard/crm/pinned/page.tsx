@@ -2,7 +2,6 @@
 
 import { ZoruBadge, ZoruButton, ZoruCard, useZoruToast } from '@/components/zoruui';
 import {
-  Pin,
   PinOff,
   FolderKanban,
   CheckSquare,
@@ -11,12 +10,12 @@ import {
   LifeBuoy,
   BookOpen,
   StickyNote,
-  } from 'lucide-react';
+} from 'lucide-react';
 
 import * as React from 'react';
 import Link from 'next/link';
 
-import { CrmPageHeader } from '../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   getMyPinnedItems,
   unpinItem,
@@ -113,12 +112,10 @@ export default function PinnedItemsPage() {
   }, [items]);
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Pinned"
-        subtitle="Everything you've pinned across CRM modules, in one place."
-        icon={Pin}
-      />
+    <EntityListShell
+      title="Pinned"
+      subtitle="Everything you've pinned across CRM modules, in one place."
+    >
 
       {isLoading ? (
         <ZoruCard className="p-6">
@@ -220,6 +217,6 @@ export default function PinnedItemsPage() {
           </Link>
         </div>
       </ZoruCard>
-    </div>
+    </EntityListShell>
   );
 }

@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getDashboardById, type DashboardWidget } from '@/app/actions/crm-dashboards.actions';
 import { DashboardEditForm } from './edit-form';
 import { DashboardEditor } from '../../_components/dashboard-editor';
@@ -45,13 +45,16 @@ export default async function DashboardEditPage({ params }: PageProps) {
     const widgets = normalizeWidgets(d.widgets);
 
     return (
-        <div className="space-y-6">
-            <CrmPageHeader title={`Edit ${d.name || 'dashboard'}`} />
+        <EntityDetailShell
+            eyebrow="DASHBOARD"
+            title={`Edit · ${d.name || 'dashboard'}`}
+            back={{ href: '/dashboard/crm/dashboards', label: 'Dashboards' }}
+        >
             <DashboardEditForm dashboard={{ ...d, _id: String(d._id ?? id) }} />
             <section className="space-y-2">
                 <h2 className="text-[14px] font-medium text-zoru-ink">Widgets</h2>
                 <DashboardEditor dashboardId={String(d._id ?? id)} initialWidgets={widgets} />
             </section>
-        </div>
+        </EntityDetailShell>
     );
 }

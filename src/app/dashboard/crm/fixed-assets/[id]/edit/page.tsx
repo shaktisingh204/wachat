@@ -7,9 +7,8 @@
  */
 
 import { notFound } from 'next/navigation';
-import { Boxes } from 'lucide-react';
 
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { FixedAssetForm } from '../../_components/fixed-asset-form';
 import { getFixedAsset } from '@/app/actions/crm/fixed-assets.actions';
 
@@ -28,13 +27,12 @@ export default async function EditFixedAssetPage({
   const displayName = asset.name || asset.code || 'Fixed asset';
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title={`Edit ${displayName}`}
-        subtitle="Update fixed asset details."
-        icon={Boxes}
-      />
+    <EntityDetailShell
+      eyebrow="FIXED ASSET"
+      title={`Edit · ${displayName}`}
+      back={{ href: '/dashboard/crm/fixed-assets', label: 'Fixed Assets' }}
+    >
       <FixedAssetForm initial={asset} />
-    </div>
+    </EntityDetailShell>
   );
 }

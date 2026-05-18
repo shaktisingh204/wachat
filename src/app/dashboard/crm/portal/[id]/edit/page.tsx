@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getPortalUserById } from '@/app/actions/crm-portal.actions';
 import { PortalEditForm } from './edit-form';
 
@@ -14,9 +14,12 @@ export default async function PortalEditPage({ params }: PageProps) {
     if (!user) notFound();
 
     return (
-        <div className="space-y-6">
-            <CrmPageHeader title={`Edit ${user.name || user.email || 'portal user'}`} />
+        <EntityDetailShell
+            eyebrow="PORTAL"
+            title={`Edit · ${user.name || user.email || 'portal user'}`}
+            back={{ href: '/dashboard/crm/portal', label: 'Customer Portal' }}
+        >
             <PortalEditForm user={{ ...user, _id: String(user._id ?? id) }} />
-        </div>
+        </EntityDetailShell>
     );
 }

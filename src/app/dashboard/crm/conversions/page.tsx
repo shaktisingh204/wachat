@@ -1,5 +1,5 @@
 import { ZoruBadge, ZoruCard } from '@/components/zoruui';
-import { ArrowRight, GitBranch, ShoppingCart, Truck } from 'lucide-react';
+import { ArrowRight, ShoppingCart, Truck } from 'lucide-react';
 
 /**
  * CRM Conversions — `/dashboard/crm/conversions`.
@@ -24,7 +24,7 @@ import { ArrowRight, GitBranch, ShoppingCart, Truck } from 'lucide-react';
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { listSupportedConversions } from '@/app/actions/crm/conversions.actions';
 import type { CrmConversionEdge } from '@/lib/rust-client/crm-conversions';
 
@@ -121,12 +121,10 @@ export default async function ConversionsPage() {
   );
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Conversions"
-        subtitle="Catalog of supported parent → child transformations across the CRM. Conversion runs inline when you create a child entity from one of these parents."
-        icon={GitBranch}
-      />
+    <EntityListShell
+      title="Conversions"
+      subtitle="Catalog of supported parent → child transformations across the CRM. Conversion runs inline when you create a child entity from one of these parents."
+    >
 
       <ZoruCard variant="soft" className="space-y-2">
         <h2 className="text-[14px] font-medium text-zoru-ink">How conversion works here</h2>
@@ -168,6 +166,6 @@ export default async function ConversionsPage() {
 
       <ConversionSection meta={SECTION_META.sales} edges={salesEdges} />
       <ConversionSection meta={SECTION_META.purchases} edges={purchasesEdges} />
-    </div>
+    </EntityListShell>
   );
 }

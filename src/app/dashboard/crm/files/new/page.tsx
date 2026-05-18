@@ -18,15 +18,12 @@ import {
   useEffect,
   useState,
   useTransition } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useFormStatus } from 'react-dom';
-import { ArrowLeft,
-  FileText,
-  LoaderCircle } from 'lucide-react';
+import { LoaderCircle } from 'lucide-react';
 
 import { SabFileUrlInput } from '@/components/sabfiles';
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 
 import {
   saveFile,
@@ -75,20 +72,11 @@ export default function NewFileRecordPage() {
   }, [state, router, toast]);
 
   return (
-    <div className="flex w-full max-w-3xl flex-col gap-6">
-      <Link
-        href="/dashboard/crm/files"
-        className="inline-flex items-center gap-2 text-[12.5px] text-zoru-ink-muted hover:text-zoru-ink"
-      >
-        <ArrowLeft className="h-3.5 w-3.5" />
-        Back to files
-      </Link>
-
-      <CrmPageHeader
-        title="Attach a file"
-        subtitle="SabNode stores file metadata only — upload the binary to your own storage, then paste the URL below."
-        icon={FileText}
-      />
+    <EntityDetailShell
+      eyebrow="FILES"
+      title="Attach a file"
+      back={{ href: '/dashboard/crm/files', label: 'Files' }}
+    >
 
       <ZoruCard className="p-6">
         <form action={formAction} className="space-y-5">
@@ -203,6 +191,6 @@ export default function NewFileRecordPage() {
           </div>
         </form>
       </ZoruCard>
-    </div>
+    </EntityDetailShell>
   );
 }

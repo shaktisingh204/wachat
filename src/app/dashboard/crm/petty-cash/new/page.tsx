@@ -5,13 +5,9 @@ import {
   useActionState,
   useEffect } from 'react';
 import { useFormStatus } from 'react-dom';
-import { ArrowLeft,
-  Save,
-  LoaderCircle,
-  Wallet } from 'lucide-react';
-import Link from 'next/link';
+import { Save, LoaderCircle } from 'lucide-react';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { savePettyCashFloat } from '@/app/actions/crm-petty-cash.actions';
 import { useRouter } from 'next/navigation';
 import { EntityFormField } from '@/components/crm/entity-form-field';
@@ -51,19 +47,11 @@ export default function NewPettyCashFloatPage() {
   }, [state, toast, router]);
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="New Petty Cash Float"
-        subtitle="Open a branch or employee float."
-        icon={Wallet}
-        actions={
-          <ZoruButton variant="outline" size="sm" asChild>
-            <Link href="/dashboard/crm/petty-cash">
-              <ArrowLeft className="h-4 w-4" /> Back
-            </Link>
-          </ZoruButton>
-        }
-      />
+    <EntityDetailShell
+      eyebrow="PETTY CASH"
+      title="New Petty Cash Float"
+      back={{ href: '/dashboard/crm/petty-cash', label: 'Petty Cash' }}
+    >
 
       <ZoruCard className="p-6">
         <form action={formAction} className="grid gap-5 md:grid-cols-2">
@@ -129,6 +117,6 @@ export default function NewPettyCashFloatPage() {
           </div>
         </form>
       </ZoruCard>
-    </div>
+    </EntityDetailShell>
   );
 }

@@ -32,7 +32,6 @@ import {
 import { useEffect, useState, useTransition, useActionState } from 'react';
 import Link from 'next/link';
 import {
-  FileText,
   Plus,
   Pencil,
   Trash2,
@@ -40,7 +39,7 @@ import {
   ExternalLink,
 } from 'lucide-react';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 import {
   getContractTemplates,
@@ -105,24 +104,20 @@ export default function ContractTemplatesPage() {
   };
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Contract Templates"
-        subtitle="Reusable contract templates with placeholders."
-        icon={FileText}
-        actions={
-          <ZoruButton
-           
-           
-            onClick={() => {
-              setEditing(null);
-              setDialogOpen(true);
-            }}
-          >
-            Add Template
-          </ZoruButton>
-        }
-      />
+    <EntityListShell
+      title="Contract Templates"
+      subtitle="Reusable contract templates with placeholders."
+      primaryAction={
+        <ZoruButton
+          onClick={() => {
+            setEditing(null);
+            setDialogOpen(true);
+          }}
+        >
+          Add Template
+        </ZoruButton>
+      }
+    >
 
       <ZoruCard>
         <div className="overflow-x-auto rounded-lg border border-border">
@@ -269,6 +264,6 @@ export default function ContractTemplatesPage() {
           </ZoruAlertDialogFooter>
         </ZoruAlertDialogContent>
       </ZoruAlertDialog>
-    </div>
+    </EntityListShell>
   );
 }

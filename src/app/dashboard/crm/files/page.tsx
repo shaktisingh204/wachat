@@ -23,14 +23,13 @@ import Link from 'next/link';
 import {
   Folder,
   FolderOpen,
-  FileText,
   Download,
   Trash2,
   Plus,
   FolderTree,
-  } from 'lucide-react';
+} from 'lucide-react';
 
-import { CrmPageHeader } from '../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 import {
   getFolderTree,
@@ -154,28 +153,26 @@ export default function CrmFilesPage() {
   };
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Files"
-        subtitle="Centralized file storage — attach documents to contacts, deals, projects and more."
-        icon={FileText}
-        actions={
-          <>
-            <Link href="/dashboard/crm/files/folders">
-              <ZoruButton variant="ghost">
-                <FolderTree className="h-4 w-4" />
-                Manage folders
-              </ZoruButton>
-            </Link>
-            <Link href="/dashboard/crm/files/new">
-              <ZoruButton>
-                <Plus className="h-4 w-4" />
-                Attach file
-              </ZoruButton>
-            </Link>
-          </>
-        }
-      />
+    <EntityListShell
+      title="Files"
+      subtitle="Centralized file storage — attach documents to contacts, deals, projects and more."
+      primaryAction={
+        <>
+          <Link href="/dashboard/crm/files/folders">
+            <ZoruButton variant="ghost">
+              <FolderTree className="h-4 w-4" />
+              Manage folders
+            </ZoruButton>
+          </Link>
+          <Link href="/dashboard/crm/files/new">
+            <ZoruButton>
+              <Plus className="h-4 w-4" />
+              Attach file
+            </ZoruButton>
+          </Link>
+        </>
+      }
+    >
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[260px_minmax(0,1fr)]">
         <ZoruCard className="p-6">
@@ -323,6 +320,6 @@ export default function CrmFilesPage() {
           </div>
         </ZoruCard>
       </div>
-    </div>
+    </EntityListShell>
   );
 }

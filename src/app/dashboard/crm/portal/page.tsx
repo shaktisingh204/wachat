@@ -1,10 +1,8 @@
 import { ZoruButton } from '@/components/zoruui';
-import {
-  ObjectId } from 'mongodb';
-import { Globe,
-  Plus } from 'lucide-react';
+import { ObjectId } from 'mongodb';
+import { Plus } from 'lucide-react';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 import Link from 'next/link';
 
@@ -92,20 +90,18 @@ export default async function CustomerPortalPage() {
   }
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Customer Portal"
-        subtitle="Self-service portal where customers see invoices, tickets and documents."
-        icon={Globe}
-        actions={
-          <Link href="/dashboard/crm/portal/new">
-            <ZoruButton variant="outline">
-              <Plus className="h-4 w-4" strokeWidth={1.75} />
-              New portal user
-            </ZoruButton>
-          </Link>
-        }
-      />
+    <EntityListShell
+      title="Customer Portal"
+      subtitle="Self-service portal where customers see invoices, tickets and documents."
+      primaryAction={
+        <Link href="/dashboard/crm/portal/new">
+          <ZoruButton variant="outline">
+            <Plus className="h-4 w-4" strokeWidth={1.75} />
+            New portal user
+          </ZoruButton>
+        </Link>
+      }
+    >
 
       {loadError ? (
         <div className="rounded-md border border-amber-500/40 bg-amber-500/10 px-4 py-2.5 text-[13px] text-amber-600">
@@ -114,6 +110,6 @@ export default async function CustomerPortalPage() {
       ) : null}
 
       <PortalListClient users={users} />
-    </div>
+    </EntityListShell>
   );
 }

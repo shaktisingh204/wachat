@@ -35,11 +35,7 @@ import {
 import {
   useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
-import { Briefcase,
-  Edit,
-  LoaderCircle,
-  Plus,
-  Trash2 } from 'lucide-react';
+import { Briefcase, Edit, LoaderCircle, Plus, Trash2 } from 'lucide-react';
 
 /**
  * Service Catalog — settings-style page.
@@ -57,7 +53,6 @@ import { Briefcase,
 
 import * as React from 'react';
 
-import { CrmPageHeader } from '../_components/crm-page-header';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 import { SabFileUrlInput } from '@/components/sabfiles';
@@ -456,20 +451,14 @@ export default function ServicesPage() {
                 initialData={editing}
             />
 
-            <div className="flex w-full flex-col gap-6">
-                <CrmPageHeader
+            <EntityListShell
                     title="Service Catalog"
                     subtitle="Reusable, non-tangible offerings — billed by hour, fixed price, or per project."
-                    icon={Briefcase}
-                    actions={
+                    primaryAction={
                         <ZoruButton onClick={() => handleOpenDialog(null)}>
                             <Plus className="mr-1.5 h-3.5 w-3.5" /> New service
                         </ZoruButton>
                     }
-                />
-
-                <EntityListShell
-                    title=""
                     search={{
                         value: search,
                         onChange: setSearch,
@@ -636,8 +625,7 @@ export default function ServicesPage() {
                             </ZoruTableBody>
                         </ZoruTable>
                     </div>
-                </EntityListShell>
-            </div>
+            </EntityListShell>
 
             <ZoruAlertDialog
                 open={!!pendingDelete}

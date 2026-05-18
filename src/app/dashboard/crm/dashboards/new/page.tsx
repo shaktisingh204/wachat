@@ -18,17 +18,14 @@ import {
   useEffect } from 'react';
 import { useFormStatus } from 'react-dom';
 import {
-  ArrowLeft,
   Save,
   LoaderCircle,
-  LayoutDashboard,
-  } from 'lucide-react';
-import Link from 'next/link';
+} from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { saveDashboard } from '@/app/actions/crm-dashboards.actions';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 
@@ -64,20 +61,11 @@ export default function NewDashboardPage() {
   }, [state, router, toast]);
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="New Dashboard"
-        subtitle="Create a custom dashboard and add widgets after saving."
-        icon={LayoutDashboard}
-        actions={
-          <Link href="/dashboard/crm/dashboards">
-            <ZoruButton variant="outline" size="sm">
-              <ArrowLeft className="h-4 w-4" />
-              Back to Dashboards
-            </ZoruButton>
-          </Link>
-        }
-      />
+    <EntityDetailShell
+      eyebrow="DASHBOARD"
+      title="New Dashboard"
+      back={{ href: '/dashboard/crm/dashboards', label: 'Dashboards' }}
+    >
 
       <ZoruCard className="p-6">
         <form action={formAction} className="space-y-6">
@@ -193,6 +181,6 @@ export default function NewDashboardPage() {
           </div>
         </form>
       </ZoruCard>
-    </div>
+    </EntityDetailShell>
   );
 }

@@ -1,11 +1,9 @@
 import { ZoruButton } from '@/components/zoruui';
-import {
-  Wallet,
-  Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { ObjectId } from 'mongodb';
 import Link from 'next/link';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 import { getSession } from '@/app/actions/user.actions';
 import { connectToDatabase } from '@/lib/mongodb';
@@ -105,19 +103,17 @@ export default async function PettyCashPage() {
   }
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Petty Cash"
-        subtitle="Branch and employee cash floats with top-ups, spends and reconciliation."
-        icon={Wallet}
-        actions={
-          <ZoruButton variant="outline" size="sm" asChild>
-            <Link href="/dashboard/crm/petty-cash/new">
-              <Plus className="h-4 w-4" /> New float
-            </Link>
-          </ZoruButton>
-        }
-      />
+    <EntityListShell
+      title="Petty Cash"
+      subtitle="Branch and employee cash floats with top-ups, spends and reconciliation."
+      primaryAction={
+        <ZoruButton variant="outline" size="sm" asChild>
+          <Link href="/dashboard/crm/petty-cash/new">
+            <Plus className="h-4 w-4" /> New float
+          </Link>
+        </ZoruButton>
+      }
+    >
 
       {loadError ? (
         <div className="rounded-md border border-amber-500/40 bg-amber-500/10 px-4 py-2.5 text-[13px] text-amber-600">
@@ -126,6 +122,6 @@ export default async function PettyCashPage() {
       ) : null}
 
       <PettyCashListClient floats={floats} />
-    </div>
+    </EntityListShell>
   );
 }
