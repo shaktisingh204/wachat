@@ -1,0 +1,219 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_shopify_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "shopify.order.created",
+    "options": {
+      "path": "/webhooks/shopify-vip-loyalty-trigger",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Shopify-Hmac-Sha256",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_shopify_trigger",
+      "name": "Shopify Order Created",
+      "type": "n8n-nodes-base.shopifyTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "topic": "orders/create"
+      },
+      "credentials": {
+        "shopifyApi": { "id": "shopify-cred", "name": "Shopify API" }
+      }
+    },
+    {
+      "id": "n_shopify_customer_get",
+      "name": "Shopify Customer Lookup (LTV)",
+      "type": "n8n-nodes-base.shopify",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "resource": "customer",
+        "operation": "get",
+        "customerId": "={{ $json.customer.id }}"
+      },
+      "credentials": {
+        "shopifyApi": { "id": "shopify-cred", "name": "Shopify API" }
+      }
+    },
+    {
+      "id": "n_if_vip",
+      "name": "Is VIP? (LTV > threshold)",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ Number($json.total_spent) }}",
+              "operation": "larger",
+              "value2": "={{ Number($vars.VIP_THRESHOLD) }}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_klaviyo_segment_add",
+      "name": "Klaviyo: Add to VIP Segment",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, -120],
+      "parameters": {
+        "method": "POST",
+        "url": "https://a.klaviyo.com/api/v2/list/{{ $vars.KLAVIYO_VIP_LIST_ID }}/subscribe",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "email", "value": "={{ $json.email }}" },
+            { "name": "api_key", "value": "={{ $vars.KLAVIYO_API_KEY }}" }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "klaviyo-cred", "name": "Klaviyo API Key" }
+      }
+    },
+    {
+      "id": "n_shopify_discount_create",
+      "name": "Shopify: Create Discount Code",
+      "type": "n8n-nodes-base.shopify",
+      "typeVersion": 1,
+      "position": [720, 120],
+      "parameters": {
+        "resource": "discountCode",
+        "operation": "create",
+        "title": "VIP-{{ $json.id }}",
+        "code": "VIP-{{ $json.id }}-{{ $json.orders_count }}",
+        "valueType": "percentage",
+        "value": "={{ $vars.VIP_DISCOUNT_PERCENT }}",
+        "usageLimit": 1
+      },
+      "credentials": {
+        "shopifyApi": { "id": "shopify-cred", "name": "Shopify API" }
+      }
+    },
+    {
+      "id": "n_merge_vip",
+      "name": "Merge VIP Branches",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "mode": "combine",
+        "combinationMode": "multiplex"
+      }
+    },
+    {
+      "id": "n_sendgrid_thankyou",
+      "name": "SendGrid: VIP Thank-You Email",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [1200, 0],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "={{ $vars.FROM_EMAIL }}",
+        "toEmail": "={{ $node['Shopify Customer Lookup (LTV)'].json.email }}",
+        "subject": "Thanks for being a VIP — here's a gift",
+        "contentValue": "<p>Hi {{ $node['Shopify Customer Lookup (LTV)'].json.first_name }},</p><p>Use code <strong>{{ $node['Shopify: Create Discount Code'].json.code }}</strong> on your next order for {{ $vars.VIP_DISCOUNT_PERCENT }}% off.</p>"
+      },
+      "credentials": {
+        "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid API" }
+      }
+    },
+    {
+      "id": "n_slack_vip_orders",
+      "name": "Slack: Post to #vip-orders",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1440, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "vip-orders",
+        "text": "New VIP order from {{ $node['Shopify Customer Lookup (LTV)'].json.first_name }} {{ $node['Shopify Customer Lookup (LTV)'].json.last_name }} — LTV ${{ $node['Shopify Customer Lookup (LTV)'].json.total_spent }}. Code {{ $node['Shopify: Create Discount Code'].json.code }} issued."
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    },
+    {
+      "id": "n_noop_non_vip",
+      "name": "No-Op (Non-VIP)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [720, 240],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "n_shopify_trigger": {
+      "main": [[{ "node": "n_shopify_customer_get", "type": "main", "index": 0 }]]
+    },
+    "n_shopify_customer_get": {
+      "main": [[{ "node": "n_if_vip", "type": "main", "index": 0 }]]
+    },
+    "n_if_vip": {
+      "main": [
+        [
+          { "node": "n_klaviyo_segment_add", "type": "main", "index": 0 },
+          { "node": "n_shopify_discount_create", "type": "main", "index": 0 }
+        ],
+        [
+          { "node": "n_noop_non_vip", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "n_klaviyo_segment_add": {
+      "main": [[{ "node": "n_merge_vip", "type": "main", "index": 0 }]]
+    },
+    "n_shopify_discount_create": {
+      "main": [[{ "node": "n_merge_vip", "type": "main", "index": 1 }]]
+    },
+    "n_merge_vip": {
+      "main": [[{ "node": "n_sendgrid_thankyou", "type": "main", "index": 0 }]]
+    },
+    "n_sendgrid_thankyou": {
+      "main": [[{ "node": "n_slack_vip_orders", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_shopify_trigger",
+        "n_shopify_customer_get",
+        "n_if_vip",
+        "n_klaviyo_segment_add",
+        "n_shopify_discount_create",
+        "n_merge_vip",
+        "n_sendgrid_thankyou",
+        "n_slack_vip_orders",
+        "n_noop_non_vip"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_vip_threshold", "name": "VIP_THRESHOLD", "defaultValue": "1000" },
+    { "id": "v_vip_discount", "name": "VIP_DISCOUNT_PERCENT", "defaultValue": "15" },
+    { "id": "v_klaviyo_list", "name": "KLAVIYO_VIP_LIST_ID", "defaultValue": "" },
+    { "id": "v_klaviyo_key", "name": "KLAVIYO_API_KEY", "defaultValue": "" },
+    { "id": "v_from_email", "name": "FROM_EMAIL", "defaultValue": "vip@example.com" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
