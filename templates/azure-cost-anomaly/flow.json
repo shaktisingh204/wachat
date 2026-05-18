@@ -1,0 +1,135 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_cron_daily",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": { "schedule": "0 6 * * *", "enabled": true }
+  },
+  "nodes": [
+    {
+      "id": "n_cron",
+      "name": "Daily 6am",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "rule": { "interval": [{ "field": "hours", "hoursInterval": 24 }] } }
+    },
+    {
+      "id": "n_fetch",
+      "name": "Fetch Azure Cost",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.AZURE_API }}/subscriptions/{{ $vars.AZURE_SUB }}/providers/Microsoft.CostManagement/query?api-version=2023-11-01",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "oAuth2Api"
+      },
+      "credentials": { "oAuth2Api": { "id": "azure-cred", "name": "Azure OAuth2" } }
+    },
+    {
+      "id": "n_compute",
+      "name": "Compute z-score",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "jsCode": "const rows = $input.first().json.properties?.rows || [[100],[101],[100],[100],[110],[108],[300]];\nconst values = rows.map(r=>Number(r[0]));\nconst y = values[values.length-1];\nconst hist = values.slice(0,-1);\nconst mean = hist.reduce((a,b)=>a+b,0)/hist.length;\nconst sd = Math.sqrt(hist.reduce((a,b)=>a+(b-mean)**2,0)/hist.length) || 1;\nconst z = (y-mean)/sd;\nreturn [{ json: { yesterday: y, mean, z, anomaly: Math.abs(z) > 2 } }];"
+      }
+    },
+    {
+      "id": "n_route",
+      "name": "Anomaly?",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            { "conditions": { "boolean": [{ "value1": "={{ $json.anomaly }}", "value2": true }] }, "outputKey": "anom" }
+          ]
+        },
+        "fallbackOutput": "ok"
+      }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack #finance",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [960, -150],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.FIN_SLACK }}",
+        "text": ":chart_with_upwards_trend: Azure cost anomaly: ${{ $json.yesterday }} vs mean ${{ $json.mean }} (z={{ $json.z }})"
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    },
+    {
+      "id": "n_email",
+      "name": "Email Finance Lead",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [960, 50],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "={{ $vars.FINANCE_FROM }}",
+        "toEmail": "={{ $vars.FINANCE_LEAD }}",
+        "subject": "Azure cost anomaly",
+        "contentType": "text/plain",
+        "content": "Yesterday's Azure spend was an outlier (z={{ $json.z }})."
+      },
+      "credentials": { "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid API" } }
+    },
+    {
+      "id": "n_airtable",
+      "name": "Append Airtable Log",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 1,
+      "position": [960, 200],
+      "parameters": {
+        "operation": "append",
+        "application": "={{ $vars.AIRTABLE_BASE_ID }}",
+        "table": "AzureCosts"
+      },
+      "credentials": { "airtableApi": { "id": "airtable-cred", "name": "Airtable" } }
+    }
+  ],
+  "connections": {
+    "n_cron": { "main": [[{ "node": "n_fetch", "type": "main", "index": 0 }]] },
+    "n_fetch": { "main": [[{ "node": "n_compute", "type": "main", "index": 0 }]] },
+    "n_compute": { "main": [[{ "node": "n_route", "type": "main", "index": 0 }]] },
+    "n_route": {
+      "anom": [[
+        { "node": "n_slack", "type": "main", "index": 0 },
+        { "node": "n_email", "type": "main", "index": 0 }
+      ]],
+      "ok": [[{ "node": "n_airtable", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cron", "n_fetch", "n_compute", "n_route", "n_slack", "n_email", "n_airtable"]
+    }
+  ],
+  "variables": [
+    { "id": "v_a", "name": "AZURE_API", "defaultValue": "https://management.azure.com" },
+    { "id": "v_s", "name": "AZURE_SUB", "defaultValue": "" },
+    { "id": "v_f", "name": "FIN_SLACK", "defaultValue": "#finance" },
+    { "id": "v_fm", "name": "FINANCE_FROM", "defaultValue": "finance@example.com" },
+    { "id": "v_fl", "name": "FINANCE_LEAD", "defaultValue": "lead@example.com" },
+    { "id": "v_ab", "name": "AIRTABLE_BASE_ID", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
