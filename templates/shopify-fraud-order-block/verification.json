@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "shopify-fraud-order-block",
+  "cases": [
+    {
+      "id": "new-order",
+      "description": "Shopify orders/create webhook triggers fraud screening and conditional block.",
+      "triggerPayload": { "id": 101, "email": "buyer@example.com", "transactions": [{ "authorization": "ch_test_1" }] },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

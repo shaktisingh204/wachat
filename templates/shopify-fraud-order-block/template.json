@@ -1,0 +1,10 @@
+{
+  "id": "shopify-fraud-order-block",
+  "name": "Shopify Fraud Order Block",
+  "description": "Listens for new Shopify orders, pulls the matching Stripe charge to read its risk score, and when the risk is high cancels the order, refunds the charge, alerts #fraud-ops on Slack, and tags the customer in HubSpot. Low-risk orders are silently ignored so the team only sees real signals.",
+  "category": "E-commerce",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["shopify", "stripe", "fraud", "slack", "hubspot", "risk"],
+  "version": "0.1.0"
+}
