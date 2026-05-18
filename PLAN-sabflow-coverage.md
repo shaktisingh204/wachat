@@ -10,6 +10,33 @@ The five gaps:
 4. **Recording-style execution playback** — n8n's frame-by-frame run inspector. Needs server-side trace streaming, not just snapshot replay.
 5. **Marketplace as a content library** — UI ships and the registry has ~10 templates; n8n has hundreds curated over years.
 
+> **Reality-check (2026-05-18, post-C.1):** Phase C.1's inventory landed harder
+> numbers and the five gaps re-shape as follows. **The phase structure C.1–C.10
+> still holds**, but the per-phase scope below is updated:
+>
+> 1. **Rust stubs:** 230 actual stubs in `rust/crates/sabflow-nodes/` (not
+>    ~150), but **225 are already forge-masked** — the visible `stub:true`
+>    banner surface is ~5. C.3/C.4/C.5 still pursue *real Rust executors* to
+>    promote forge fallbacks to native (faster, parity-tested), but the
+>    visible-surface emergency is small.
+> 2. **n8n integrations:** **zero base-manifest services missing** —
+>    SabFlow ships a forge block or Rust executor for all 288 n8n base
+>    services. The real gap is **trigger variants + versioned (V1/V2/V3)
+>    node variants** that live alongside the base node. C.6/C.7 re-scope
+>    from "ship new integrations" to "backfill trigger variants + versioned
+>    variants for the top integrations by priority band."
+> 3. **Collab GA:** 5 of 10 Track A phases closed; **A.6 editor hook-swap
+>    is the load-bearing gap** that blocks every downstream gate. C.8.1
+>    becomes the critical-path sub-task.
+> 4. **Playback:** trace bus is dormant (no `executionId` threaded from
+>    API entry points); the inspector skeleton already exists at
+>    `execution-replay-client.tsx`. C.9 *extends*, doesn't *rebuild* —
+>    re-scoped accordingly.
+> 5. **Marketplace:** **124 templates already ship** across two registries
+>    (19 chatbot + 105 recipes), not 10. C.10 re-scopes from "create 65
+>    templates" to **"unify 124 existing into a single registry +
+>    metadata + verification pipeline + review queue."**
+
 ## Execution model (inherits from PLAN-sabflow-crdt-collab.md)
 
 - **10 phases total**, named `C.1` through `C.10`.
