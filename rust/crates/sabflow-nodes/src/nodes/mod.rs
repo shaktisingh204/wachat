@@ -116,13 +116,10 @@ pub mod my_sql;
 pub mod supabase;
 pub mod noco_db;
 
-// ── Phase C.5.10: 6 media/image/cloud nodes ─────────────────────────────────
-pub mod bannerbear;
-pub mod api_template_io;
-pub mod cloudflare;
-pub mod yourls;
-pub mod url_scan_io;
-pub mod quick_chart;
+// ── Phase C.6.3: git-webhook triggers ───────────────────────────────────────
+pub mod github_trigger;
+pub mod gitlab_trigger;
+pub mod bitbucket_trigger;
 
 use crate::{descriptor::NodeCategory, registry::NodeRegistry};
 
@@ -244,13 +241,10 @@ fn register_implemented(r: &mut NodeRegistry) {
     r.register(my_sql::MySqlNode);
     r.register(supabase::SupabaseNode);
     r.register(noco_db::NocoDbNode);
-    // Phase C.5.10 — 6 media / image / cloud implementations
-    r.register(bannerbear::BannerbearNode);
-    r.register(api_template_io::ApiTemplateIoNode);
-    r.register(cloudflare::CloudflareNode);
-    r.register(yourls::YourlsNode);
-    r.register(url_scan_io::UrlScanIoNode);
-    r.register(quick_chart::QuickChartNode);
+    // Phase C.6.3 — git-webhook triggers
+    r.register(github_trigger::GithubTriggerNode);
+    r.register(gitlab_trigger::GitlabTriggerNode);
+    r.register(bitbucket_trigger::BitbucketTriggerNode);
 }
 
 /// Register stubs only when the name isn't already populated by an implemented node.
