@@ -1,0 +1,244 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_zoom_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "zoom.recording.completed",
+    "options": {
+      "path": "/webhooks/zoom-meeting-summarizer",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "Authorization",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_zoom_trigger",
+      "name": "Zoom Recording Completed",
+      "type": "n8n-nodes-base.zoomTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "events": ["recording.completed"]
+      },
+      "credentials": {
+        "zoomOAuth2Api": { "id": "zoom-cred", "name": "Zoom OAuth2" }
+      }
+    },
+    {
+      "id": "n_extract_meeting",
+      "name": "Extract Meeting Info",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "meetingId", "value": "={{ $json.payload.object.id }}" },
+            { "name": "topic", "value": "={{ $json.payload.object.topic }}" },
+            { "name": "startTime", "value": "={{ $json.payload.object.start_time }}" },
+            { "name": "duration", "value": "={{ $json.payload.object.duration }}" },
+            { "name": "hostEmail", "value": "={{ $json.payload.object.host_email }}" },
+            { "name": "hostSlackId", "value": "={{ $json.payload.object.host_slack_id }}" },
+            { "name": "participants", "value": "={{ $json.payload.object.participants.map(p => p.email).join(',') }}" },
+            { "name": "audioUrl", "value": "={{ $json.payload.object.recording_files.find(f => f.file_type === 'M4A').download_url }}" },
+            { "name": "downloadToken", "value": "={{ $json.download_token }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_download_audio",
+      "name": "Download Meeting Audio",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $node['Extract Meeting Info'].json.audioUrl }}?access_token={{ $node['Extract Meeting Info'].json.downloadToken }}",
+        "options": { "response": { "response": { "responseFormat": "file" } } }
+      }
+    },
+    {
+      "id": "n_whisper_transcribe",
+      "name": "Whisper Transcribe",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "authentication": "apiKey",
+        "resource": "audio",
+        "operation": "transcribe",
+        "model": "whisper-1",
+        "binaryPropertyName": "data",
+        "options": {
+          "response_format": "verbose_json",
+          "timestamp_granularities": ["segment"]
+        }
+      },
+      "credentials": {
+        "openAiApi": { "id": "openai-cred", "name": "OpenAI API" }
+      }
+    },
+    {
+      "id": "n_gpt_summarise",
+      "name": "GPT-4o Structured Summary",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "authentication": "apiKey",
+        "resource": "chat",
+        "operation": "complete",
+        "model": "gpt-4o",
+        "messages": {
+          "values": [
+            { "role": "system", "content": "You are an executive assistant. Given a Whisper transcript with segment timestamps, output JSON with: tldr (3 bullets), decisions (list of strings), action_items (list of {who, what, due}), timestamped_highlights (list of {ts, note}), and follow_ups (list)." },
+            { "role": "user", "content": "={{ JSON.stringify($json) }}" }
+          ]
+        },
+        "options": { "responseFormat": "json_object", "temperature": 0.2 }
+      },
+      "credentials": {
+        "openAiApi": { "id": "openai-cred", "name": "OpenAI API" }
+      }
+    },
+    {
+      "id": "n_email_recap",
+      "name": "Email Participants",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [1200, -160],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "={{ $vars.RECAP_FROM_EMAIL }}",
+        "toEmail": "={{ $node['Extract Meeting Info'].json.participants }}",
+        "subject": "Recap — {{ $node['Extract Meeting Info'].json.topic }}",
+        "contentType": "text/html",
+        "content": "={{ $json.message.content }}"
+      },
+      "credentials": {
+        "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid API" }
+      }
+    },
+    {
+      "id": "n_notion_file",
+      "name": "File to Notion",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2,
+      "position": [1200, 0],
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "create",
+        "databaseId": "={{ $vars.NOTION_MEETINGS_DB }}",
+        "propertiesUi": {
+          "propertyValues": [
+            { "key": "Name|title", "title": "={{ $node['Extract Meeting Info'].json.topic }}" },
+            { "key": "Date|date", "date": "={{ $node['Extract Meeting Info'].json.startTime }}" },
+            { "key": "Host|rich_text", "richText": "={{ $node['Extract Meeting Info'].json.hostEmail }}" },
+            { "key": "Participants|rich_text", "richText": "={{ $node['Extract Meeting Info'].json.participants }}" },
+            { "key": "Summary|rich_text", "richText": "={{ $json.message.content }}" }
+          ]
+        }
+      },
+      "credentials": {
+        "notionApi": { "id": "notion-cred", "name": "Notion API" }
+      }
+    },
+    {
+      "id": "n_slack_dm_owner",
+      "name": "Slack DM Host",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, 160],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $node['Extract Meeting Info'].json.hostSlackId }}",
+        "text": "Your Zoom recap for *{{ $node['Extract Meeting Info'].json.topic }}* is ready. Filed in Notion and emailed to {{ $node['Extract Meeting Info'].json.participants }}."
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    },
+    {
+      "id": "n_mongo_log",
+      "name": "Log Run to Mongo",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [1440, 0],
+      "parameters": {
+        "operation": "insert",
+        "collection": "={{ $vars.MONGO_LOG_COLLECTION }}",
+        "fields": "meetingId,topic,hostEmail,participants,startTime,duration"
+      },
+      "credentials": {
+        "mongoDb": { "id": "mongo-cred", "name": "Workspace Mongo" }
+      }
+    }
+  ],
+  "connections": {
+    "n_zoom_trigger": {
+      "main": [[{ "node": "n_extract_meeting", "type": "main", "index": 0 }]]
+    },
+    "n_extract_meeting": {
+      "main": [[{ "node": "n_download_audio", "type": "main", "index": 0 }]]
+    },
+    "n_download_audio": {
+      "main": [[{ "node": "n_whisper_transcribe", "type": "main", "index": 0 }]]
+    },
+    "n_whisper_transcribe": {
+      "main": [[{ "node": "n_gpt_summarise", "type": "main", "index": 0 }]]
+    },
+    "n_gpt_summarise": {
+      "main": [
+        [
+          { "node": "n_email_recap", "type": "main", "index": 0 },
+          { "node": "n_notion_file", "type": "main", "index": 0 },
+          { "node": "n_slack_dm_owner", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "n_email_recap": {
+      "main": [[{ "node": "n_mongo_log", "type": "main", "index": 0 }]]
+    },
+    "n_notion_file": {
+      "main": [[{ "node": "n_mongo_log", "type": "main", "index": 0 }]]
+    },
+    "n_slack_dm_owner": {
+      "main": [[{ "node": "n_mongo_log", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_zoom_trigger",
+        "n_extract_meeting",
+        "n_download_audio",
+        "n_whisper_transcribe",
+        "n_gpt_summarise",
+        "n_email_recap",
+        "n_notion_file",
+        "n_slack_dm_owner",
+        "n_mongo_log"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_recap_from", "name": "RECAP_FROM_EMAIL", "defaultValue": "recap@example.com" },
+    { "id": "v_notion_db", "name": "NOTION_MEETINGS_DB", "defaultValue": "" },
+    { "id": "v_mongo_log", "name": "MONGO_LOG_COLLECTION", "defaultValue": "zoom_meeting_summaries" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

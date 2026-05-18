@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "templateId": "zoom-meeting-summarizer",
+  "cases": [
+    {
+      "id": "happy-path",
+      "description": "Zoom recording completes → audio downloaded → Whisper transcribes → GPT-4o summarizes → email/Notion/Slack fan-out → Mongo log.",
+      "triggerPayload": {
+        "event": "recording.completed",
+        "download_token": "tok_abc",
+        "payload": {
+          "object": {
+            "id": "9876543210",
+            "topic": "Q3 Roadmap Sync",
+            "start_time": "2026-05-19T14:00:00Z",
+            "duration": 32,
+            "host_email": "alex@example.com",
+            "host_slack_id": "U01ABC123",
+            "participants": [
+              { "email": "alex@example.com" },
+              { "email": "sam@example.com" }
+            ],
+            "recording_files": [
+              {
+                "file_type": "M4A",
+                "download_url": "https://zoom.us/rec/download/abc.m4a"
+              }
+            ]
+          }
+        }
+      },
+      "expect": {
+        "finalStatus": "success"
+      }
+    }
+  ]
+}
